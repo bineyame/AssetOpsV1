@@ -1,6 +1,6 @@
 # T001 - Stack Shell Skeleton
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T001-stack-shell-skeleton`
