@@ -3,11 +3,19 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
+import { featureFlagsWith } from "../../config/featureFlags";
+
+/**
+ * The operator shell frame is served in both gate states. Flags are passed
+ * explicitly so the shipped value in `config/app-config.json` cannot change
+ * what these assertions mean.
+ */
+const simulatorLabDisabled = featureFlagsWith(false);
 
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App />
+      <App flags={simulatorLabDisabled} />
     </MemoryRouter>,
   );
 }

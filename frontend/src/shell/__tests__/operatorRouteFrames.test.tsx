@@ -3,13 +3,22 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
+import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 
 const operatorRoutes = ["/", "/sites", "/site-details", "/site-configuration"];
 
-function renderAt(path: string) {
+/**
+ * Operator frames are served in both gate states, so these tests pass flags
+ * explicitly rather than inheriting whatever `config/app-config.json` currently
+ * says. Flipping the shipped flag must not change any assertion here.
+ */
+const simulatorLabDisabled = featureFlagsWith(false);
+const simulatorLabEnabled = featureFlagsWith(true);
+
+function renderAt(path: string, flags: FeatureFlags = simulatorLabDisabled) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App />
+      <App flags={flags} />
     </MemoryRouter>,
   );
 }
@@ -137,9 +146,9 @@ describe("operator route navigation", () => {
   });
 
   it.each(operatorRoutes)(
-    "exposes no Simulator Lab entry point at %s",
+    "exposes no Simulator Lab entry point at %s when the gate is closed",
     (path) => {
-      const { container } = renderAt(path);
+      const { container } = renderAt(path, simulatorLabDisabled);
 
       expect(container.textContent).not.toMatch(/simulator/i);
       for (const link of Array.from(container.querySelectorAll("a"))) {
@@ -149,8 +158,11 @@ describe("operator route navigation", () => {
   );
 
   it("keeps Simulator Lab outside the operator navigation layout", () => {
-    renderAt("/simulator-lab");
+    renderAt("/simulator-lab", simulatorLabEnabled);
 
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 });
