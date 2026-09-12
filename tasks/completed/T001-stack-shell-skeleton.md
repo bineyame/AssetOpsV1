@@ -1,6 +1,6 @@
 # T001 - Stack Shell Skeleton
 
-Status: in_review
+Status: completed
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T001-stack-shell-skeleton`
@@ -71,3 +71,23 @@ User review is not required for this slice because it creates the technical
 skeleton and non-final empty frames. The review checkpoint is held for the
 completed Stack, Shell, And Gate feature when the shell hierarchy and simulator
 gate surface are both visible.
+
+## Review Outcome
+
+Reviewer verdict: accept with follow-ups. No blocking findings. All six
+acceptance criteria assessed as met, including criterion 5 as written
+("CI guard placeholders", not a wired pipeline).
+
+Follow-ups raised:
+
+1. Run commands were not reliably invocable under a restrictive PowerShell
+   execution policy (`npm.ps1` and unsigned `tools\*.ps1` are blocked).
+   Addressed by `README.md`, which documents policy-proof invocations.
+2. The "zero buttons and zero links" assertion in
+   `SimulatorLabUnavailableFrame.test.tsx` is acceptable for T001 but is not a
+   simulator boundary test. T003 must test route/API unreachability and
+   specific forbidden run actions rather than relying on this pattern.
+
+Reviewer note on the task spec: "CI guard placeholders" did not say whether CI
+requires a pipeline hook or an executable guard script. Resolved in favour of
+the script for T001; wiring a runner remains open.
