@@ -56,8 +56,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-architecture.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-agent-workflow.ps1
 ```
 
-`check-architecture.ps1` enforces the stack and module-direction seam: it fails
-on UI-to-simulator and simulator-to-product imports. `check-agent-workflow.ps1`
+`check-architecture.ps1` enforces the stack and module-direction and
+simulator/product seams: it fails on UI-to-simulator, simulator-to-product, and
+product-to-simulator imports. `check-agent-workflow.ps1`
 validates the repository's agent-workflow governance files and task metadata.
 
 Neither guard is wired to a CI runner yet; both must be invoked manually.
