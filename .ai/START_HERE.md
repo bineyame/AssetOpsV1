@@ -16,17 +16,22 @@ Planning status:
 Architect feature map, causal sequencing, protected seams, and first-pass
 feature-to-task guidance exist at `.ai/FEATURE_MAP.md`.
 
-First planned task batch exists for the review-bounded Stack, Shell, And Gate
-feature:
+The review-bounded Stack, Shell, And Gate feature is implemented and reviewed:
 
-- `tasks/T001-stack-shell-skeleton.md`
-- `tasks/T002-operator-shell-route-frames.md`
-- `tasks/T003-simulator-lab-feature-gate.md`
+- `tasks/completed/T001-stack-shell-skeleton.md`
+- `tasks/completed/T002-operator-shell-route-frames.md`
+- `tasks/completed/T003-simulator-lab-feature-gate.md`
 
-Planning stops at T003 because it is the first user-review checkpoint named by
-the Architect. Do not plan Site Foundation or later slices until the user
-reviews the shell information hierarchy and enabled/disabled Simulator Lab
-surface.
+The T003 user-review checkpoint is closed. The gate was accepted; the enabled
+Simulator Lab entry point was redirected, because Simulator Lab is a separate
+developer workspace rather than an operator navigation item.
+
+Active task:
+
+- `tasks/T004-simulator-lab-developer-entry-point.md`
+
+Planning stops at T004 because it carries the redirection from that checkpoint.
+Do not plan Site Foundation or later slices until T004 is accepted.
 
 ## Default Reading Path
 
