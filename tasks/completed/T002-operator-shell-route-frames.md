@@ -1,6 +1,6 @@
 # T002 - Operator Shell Route Frames
 
-Status: planned
+Status: completed
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T002-operator-shell-route-frames`
@@ -71,3 +71,31 @@ Site/Foundation content.
 User review is not required at this intermediate slice. It contributes to the
 shell information hierarchy, but the checkpoint is placed after T003 so the
 user can review the shell and enabled/disabled Simulator Lab surface together.
+
+## Review Outcome
+
+Reviewer verdict: accept with follow-ups. No blocking findings. All five
+acceptance criteria assessed as met, plus the focused-test line requiring an
+import/architecture check that operator code does not import simulator modules.
+
+Reviewer notes on the task spec: parameterless `/site-details` and
+`/site-configuration` were judged correct, because `/sites/:siteId` before a
+Site identity contract would have implied a product decision T002 explicitly
+avoids. It does not foreclose Site Foundation later adding identified routes or
+redirects. Deferring the user-review checkpoint to T003 was judged reasonable.
+
+Follow-ups raised:
+
+1. `tools/check-architecture.ps1` was brittle around excluded directories. It
+   recursed before filtering, so an unreadable `.pytest_cache` aborted the whole
+   scan under `$ErrorActionPreference = "Stop"`. ADDRESSED in this slice: all
+   three scans now use a shared `Get-SourceFiles` helper that prunes ignored
+   directories before descending and reports unreadable directories without
+   failing the run. Verified by injecting one violation per banned direction
+   plus a decoy inside `.pytest_cache`: all three real violations were reported,
+   the decoy was correctly ignored, and the guard returned clean after removal.
+2. The "no digits inside `<main>`" assertion in `operatorRouteFrames.test.tsx`
+   is acceptable for this empty-frame slice but intentionally brittle. It must
+   be REPLACED with evidence-specific "no fabricated operational values"
+   assertions once legitimate identifiers, dates or counts become truthful UI
+   content — not loosened.
