@@ -18,6 +18,18 @@ $ErrorActionPreference = "Stop"
 #   - simulator URLs are declared only in the gated modules, so an entry point
 #     or API path cannot be added outside the gate
 #
+# and the configuration persistence, shipped-versus-user-authored configuration
+# and shared-Site-substrate seams:
+#
+#   - adapters are imported only by the composition module or each other
+#   - no storage technology above the adapter layer
+#   - shipped configuration roots hold no write-capable call, and the shipped
+#     Site store ships empty
+#   - configuration is written only by the user-store adapter
+#   - the writable user store root has one owner and is gitignored
+#   - Site presentation is defined only in `frontend/src/sites/`
+#   - that substrate is a leaf with no shell, mode, or variant discriminant
+#
 # Do not weaken the checks below to make a task pass.
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -287,6 +299,8 @@ try {
     $sitesAdaptersRoot = "$sitesRoot/adapters"
     $compositionModule = "$sitesRoot/composition.py"
     $shippedCatalogRoot = "config/site-templates"
+    $shippedSiteRoot = "config/sites"
+    $userSiteStoreModule = "$sitesAdaptersRoot/yaml_user_site_store.py"
 
     function Get-BackendModules {
         $modules = @()
@@ -311,7 +325,11 @@ try {
     }
 
     # 1. Adapter isolation. An import that resolves into the sites adapters
-    #    package is permitted from the single composition module only.
+    #    package is permitted from the single composition module only, plus
+    #    from inside the adapter layer itself: one adapter reusing a sibling
+    #    adapter's reader does not leak storage technology above the layer,
+    #    which is what this check exists to prevent. Everything above the
+    #    layer still receives the port by injection.
     $adapterImport = '(?:^|\s)(?:from|import)\s+[A-Za-z_.]*adapters(?:[.\s]|$)'
     $adapterImportSeen = $false
 
@@ -325,6 +343,8 @@ try {
                 $adapterImportSeen = $true
                 continue
             }
+
+            if ($module.Path.StartsWith("$sitesAdaptersRoot/")) { continue }
 
             Add-Failure ("Banned adapter import in $($module.Path):${lineNumber}: " +
                 "$($line.Trim()). Only $compositionModule may import " +
@@ -382,9 +402,12 @@ try {
             "storage code. Update the check, do not delete it.")
     }
 
-    # 3. The shipped catalog is not writable. Shipped canonical configuration
-    #    is read-only at runtime, so no module that resolves a path inside the
-    #    shipped root may also hold a write-capable call.
+    # 3. The shipped configuration roots are not writable. Shipped canonical
+    #    configuration is read-only at runtime, so no module that resolves a
+    #    path inside a shipped root may also hold a write-capable call. T006
+    #    adds the shipped Site store to the roots this covers; the writable
+    #    user store is a separate root, owned by a separate adapter, and is
+    #    checked below.
     if (-not (Test-Path -LiteralPath $shippedCatalogRoot -PathType Container)) {
         Add-Failure "Missing shipped template configuration root: $shippedCatalogRoot"
     }
@@ -392,7 +415,18 @@ try {
         Add-Failure "$shippedCatalogRoot ships no template document"
     }
 
-    $shippedRootReference = 'site-templates|SHIPPED_SITE_TEMPLATE_ROOT'
+    # The shipped Site store exists and ships empty. M1 ships zero canonical
+    # Sites, so a document appearing here would put a Site nobody configured
+    # into the operator index and make the first-run empty state a lie.
+    if (-not (Test-Path -LiteralPath $shippedSiteRoot -PathType Container)) {
+        Add-Failure "Missing shipped site configuration root: $shippedSiteRoot"
+    }
+    elseif (Get-ChildItem -LiteralPath $shippedSiteRoot -Filter "*.yaml" -File) {
+        Add-Failure ("$shippedSiteRoot ships a site document. M1 ships zero " +
+            "canonical sites: every site in the product is one a user created.")
+    }
+
+    $shippedRootReference = 'site-templates|SHIPPED_SITE_TEMPLATE_ROOT|SHIPPED_SITE_ROOT'
     $writeCapable = @(
         '\.write_text\(',
         '\.write_bytes\(',
@@ -433,6 +467,281 @@ try {
     if ($shippedRootModules -eq 0) {
         Add-Failure ("No backend module resolves $shippedCatalogRoot, so the " +
             "shipped-catalog write check is vacuous. Update the check, do not " +
+            "delete it.")
+    }
+
+    # 4. Writes go through the user-store adapter and nowhere else.
+    #
+    #    T006 makes the product able to write configuration for the first
+    #    time. That is one capability in one module, and this check is what
+    #    keeps it that way: a write-capable call anywhere else in the backend
+    #    is a second write path that no port, no composition root, and no
+    #    atomicity guarantee covers.
+    #
+    #    Reading is not restricted here - the pattern list deliberately omits
+    #    a bare `open(`, which the storage-technology check above already
+    #    confines to the adapter layer.
+    $writeCall = @(
+        '\.write_text\(',
+        '\.write_bytes\(',
+        '\.mkdir\(',
+        '\.touch\(',
+        '\.unlink\(',
+        '\.rmdir\(',
+        '(?:^|\s)os\.(?:remove|unlink|replace|rename|makedirs|mkdir|open|write|truncate)\(',
+        '(?:^|\s)shutil\.',
+        '(?:^|\s)tempfile\.'
+    )
+    $writeCallsInUserStore = 0
+
+    foreach ($module in $backendModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $writeCall) {
+                if ($line -notmatch $pattern) { continue }
+
+                if ($module.Path -eq $userSiteStoreModule) {
+                    $writeCallsInUserStore++
+                    break
+                }
+
+                Add-Failure ("Write-capable call outside the user site store " +
+                    "adapter in $($module.Path):${lineNumber}: $($line.Trim()). " +
+                    "Configuration is written only by $userSiteStoreModule, " +
+                    "through the SiteRepository port.")
+                break
+            }
+        }
+    }
+
+    if ($writeCallsInUserStore -eq 0) {
+        Add-Failure ("The write-path check found no write-capable call in " +
+            "$userSiteStoreModule, so it is no longer proving anything. " +
+            "Update the check, do not delete it.")
+    }
+
+    # 5. The writable user store root has exactly one owner.
+    #
+    #    "Outside the shipped configuration roots" is only checkable if the
+    #    root is declared in one place. Two declarations mean two answers to
+    #    where user data lives, and the .gitignore check below would then be
+    #    covering whichever one it happened to find.
+    $userStoreDeclaration = 'USER_SITE_STORE_ROOT\s*='
+    $userStoreOwners = @()
+    $userStoreRootSegment = $null
+
+    foreach ($module in $backendModules) {
+        foreach ($line in $module.Lines) {
+            if ($line -notmatch $userStoreDeclaration) { continue }
+            $userStoreOwners += $module.Path
+            if ($line -match 'USER_SITE_STORE_ROOT\s*=\s*REPO_ROOT\s*/\s*"([^"]+)"') {
+                $userStoreRootSegment = $Matches[1]
+            }
+            break
+        }
+    }
+
+    if ($userStoreOwners.Count -eq 0) {
+        Add-Failure ("No backend module declares USER_SITE_STORE_ROOT, so the " +
+            "writable store has no owned configuration point and the " +
+            "gitignore check below is vacuous.")
+    }
+    elseif ($userStoreOwners.Count -gt 1) {
+        Add-Failure ("USER_SITE_STORE_ROOT is declared in " +
+            "$($userStoreOwners -join ', '). The writable store root must have " +
+            "exactly one owner.")
+    }
+    elseif ($userStoreOwners[0] -ne $userSiteStoreModule) {
+        Add-Failure ("USER_SITE_STORE_ROOT is declared in $($userStoreOwners[0]). " +
+            "It belongs to $userSiteStoreModule, the adapter that writes it.")
+    }
+
+    # 6. The writable user store is outside the shipped roots and gitignored.
+    #
+    #    User-authored configuration is user data, not shipped configuration.
+    #    If it were tracked, a developer's demo site would ship to everyone
+    #    and the shipped/user store split would exist only in the code.
+    if ($null -eq $userStoreRootSegment) {
+        Add-Failure ("USER_SITE_STORE_ROOT is not declared as a path under the " +
+            "repository root, so the gitignore check cannot resolve it.")
+    }
+    else {
+        if ($userStoreRootSegment -eq "config") {
+            Add-Failure ("The writable user site store resolves inside config/, " +
+                "which holds shipped read-only configuration. It must live " +
+                "outside every shipped configuration root.")
+        }
+
+        $gitignorePath = ".gitignore"
+        if (-not (Test-Path -LiteralPath $gitignorePath -PathType Leaf)) {
+            Add-Failure "Missing $gitignorePath"
+        }
+        else {
+            $ignored = @(Get-Content -LiteralPath $gitignorePath |
+                ForEach-Object { $_.Trim() } |
+                Where-Object { $_ -and -not $_.StartsWith("#") })
+
+            if ($ignored.Count -eq 0) {
+                Add-Failure "$gitignorePath declares no entries; the coverage check is vacuous"
+            }
+
+            $covered = $ignored -contains $userStoreRootSegment -or
+                $ignored -contains "$userStoreRootSegment/"
+            if (-not $covered) {
+                Add-Failure ("$gitignorePath does not cover the writable user " +
+                    "site store root '$userStoreRootSegment/'. User-authored " +
+                    "configuration must not be tracked.")
+            }
+
+            $trackedUserStore = git ls-files -- $userStoreRootSegment
+            if ($trackedUserStore) {
+                Add-Failure ("$userStoreRootSegment/ holds tracked files. The " +
+                    "writable user site store must not be in version control.")
+            }
+        }
+    }
+
+    # --- Shared Site presentation substrate ------------------------------------
+
+    # Two structural checks for the "Shared Site presentation substrate" seam.
+    # They are backstops, not the primary guard: render equivalence is, and it
+    # needs a second consumer of the substrate to compare against, so it ships
+    # with the Lab's Site view. These two are what can be enforced today.
+    #
+    # Test directories are exempt for the same reason they are exempt above: a
+    # test must be able to reach across a boundary in order to prove where it
+    # is.
+
+    $substrateRoot = "frontend/src/sites"
+
+    if (-not (Test-Path -LiteralPath $substrateRoot -PathType Container)) {
+        Add-Failure "Missing shared Site presentation substrate root: $substrateRoot"
+    }
+
+    # 7. Single definition. Site presentation components, Site view-model
+    #    derivation, and Site read-model types resolve in the substrate only.
+    #    Two shells that each declare one drift into two Site models, and by
+    #    the time that is visible both have users.
+    #
+    #    Template types are excluded by name: a template is not a Site and its
+    #    read model belongs to the Lab's template surfaces.
+    $substrateDefinitions = @(
+        @{
+            Name    = "Site read-model type"
+            Pattern = '(?:interface|type)\s+Site(?!Template)[A-Za-z]*(?:ReadModel|Summary|Row|View|Record)\b'
+        },
+        @{
+            Name    = "Site presentation component"
+            Pattern = 'function\s+Sites?(?:Index|Table|Row|Card|List|Badge|Panel)\b'
+        },
+        @{
+            Name    = "Site view-model derivation"
+            Pattern = 'function\s+(?:derive|to|build)Site[A-Za-z]*View\b'
+        }
+    )
+
+    $frontendModules = @()
+    foreach ($source in (Get-SourceFiles -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
+        $relative = (Resolve-Path -LiteralPath $source.FullName -Relative) `
+            -replace '^\.[\\/]', '' -replace '\\', '/'
+
+        if ($relative -match '(^|/)(tests|__tests__)/') { continue }
+
+        $frontendModules += [pscustomobject]@{
+            Path      = $relative
+            InSites   = $relative.StartsWith("$substrateRoot/")
+            Lines     = @(Get-Content -LiteralPath $source.FullName)
+        }
+    }
+
+    if ($frontendModules.Count -eq 0) {
+        Add-Failure "No frontend modules were scanned; the substrate checks would be vacuous"
+    }
+
+    foreach ($definition in $substrateDefinitions) {
+        $seenInSubstrate = $false
+
+        foreach ($module in $frontendModules) {
+            $lineNumber = 0
+            foreach ($line in $module.Lines) {
+                $lineNumber++
+                if ($line -cnotmatch $definition.Pattern) { continue }
+
+                if ($module.InSites) {
+                    $seenInSubstrate = $true
+                    continue
+                }
+
+                Add-Failure ("$($definition.Name) declared outside the shared " +
+                    "substrate in $($module.Path):${lineNumber}: $($line.Trim()). " +
+                    "It belongs in $substrateRoot, which both shells compose.")
+            }
+        }
+
+        if (-not $seenInSubstrate) {
+            Add-Failure ("The single-definition check found no " +
+                "$($definition.Name) in $substrateRoot, so it is no longer " +
+                "proving anything. Update the check, do not delete it.")
+        }
+    }
+
+    # 8. Leaf direction. The substrate imports no shell code, no simulator
+    #    code, and no feature flag, and carries no shell, mode, or variant
+    #    discriminant. A branch inside the shared core is a fork with extra
+    #    steps, and its branches drift independently.
+    $substrateBannedImports = @(
+        'from\s+["''][^"'']*shell[/"'']',
+        'from\s+["''][^"'']*featureFlags',
+        'from\s+["''][^"'']*[Ss]imulator'
+    )
+    $substrateBannedDiscriminants = @(
+        '\b(?:variant|isLab|isSimulator|shellVariant|labVariant)\s*\??\s*:',
+        '\bshell\s*\??\s*:\s*["'']',
+        '["''](?:lab|operator)["'']\s*\|\s*["''](?:lab|operator)["'']'
+    )
+    $substrateModules = 0
+    $substrateImports = 0
+
+    foreach ($module in $frontendModules) {
+        if (-not $module.InSites) { continue }
+        $substrateModules++
+
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+
+            if ($line -match 'from\s+["'']') { $substrateImports++ }
+
+            foreach ($pattern in $substrateBannedImports) {
+                if ($line -match $pattern) {
+                    Add-Failure ("The shared Site substrate is a leaf, but " +
+                        "$($module.Path):${lineNumber} imports out of it: " +
+                        "$($line.Trim()). $substrateRoot must not import shell " +
+                        "code, simulator code, or the feature flag.")
+                    break
+                }
+            }
+
+            foreach ($pattern in $substrateBannedDiscriminants) {
+                if ($line -match $pattern) {
+                    Add-Failure ("Shell, mode, or variant discriminant in the " +
+                        "shared Site substrate at $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()). Every shell difference must be an " +
+                        "addition around the core, never a branch inside it.")
+                    break
+                }
+            }
+        }
+    }
+
+    if ($substrateModules -eq 0) {
+        Add-Failure ("No module was scanned under $substrateRoot, so the " +
+            "leaf-direction check is vacuous. Update the check, do not delete it.")
+    }
+    elseif ($substrateImports -eq 0) {
+        Add-Failure ("No import was seen under $substrateRoot, so the " +
+            "leaf-direction import check is vacuous. Update the check, do not " +
             "delete it.")
     }
 
