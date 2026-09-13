@@ -267,15 +267,12 @@ What the user is being asked to settle:
 - Refusal copy for a duplicate `site_id`, a case-variant duplicate, and a
   malformed `site_id`.
 
-Open question carried from the Architect, which needs the user rather than the
-Architect: should M1 offer any user-facing way to remove a user-created Site?
-Without it, users accumulate junk Sites and can only clear them by deleting
-files. With it, removal collides later with committed simulated history keyed to
-`site_id`, and the product would have to decide whether removal is archive,
-tombstone, or hard delete, which is a Foundation-lifecycle question of the same
-family as editing. The current direction defers it and treats removal as a
-developer action. If the user wants removal in M1, it should be scoped as its
-own slice with its own semantics, not folded into this one.
+Settled before implementation, not open at this checkpoint: the Architect asked
+whether M1 should offer a user-facing way to remove a user-created Site, and the
+user deferred it on 2026-09-13. Removal stays a developer action on the store
+for M1, and no delete affordance, route, or port method is in scope here. If the
+user revisits it later it becomes its own slice with explicit archive,
+tombstone, or hard-delete semantics, never folded into this task.
 
 Planning stops at this checkpoint. Causal Sequencing step 4, topology, devices,
 and the configured single-line diagram, is not planned until this is accepted or

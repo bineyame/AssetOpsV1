@@ -307,7 +307,12 @@ become templates and the precedence, identity, and provenance rules would have
 to be retrofitted after user data exists. Overlay resolution was rejected
 because a `site_id` that resolves to different content depending on store state
 breaks the identity seam that every later run, envelope, evidence record, and
-analytic is keyed on. Copy-on-instantiate was chosen over live reference because
+analytic is keyed on. Encoding origin into identity, such as prefixing
+user-created `site_id` values, was rejected for the same reason the project
+refuses to let a scenario label become a Site name: origin is provenance about a
+configuration document and must not be readable out of the identity that
+downstream history is keyed on. Copy-on-instantiate was chosen over live
+reference because
 a shipped template change would otherwise retroactively alter Foundations that
 committed simulated history already depends on.
 
@@ -357,3 +362,47 @@ Affected scope: Site Configuration UI language and affordances, Site creation
 flow, identity validation, untrusted-input handling, write-path atomicity,
 Foundation versioning, deferred editing and history semantics, protected seams,
 task sequencing, user-review checkpoints.
+
+## 2026-09-13
+
+Decision: M1 offers no user-facing way to remove a user-created Site. The
+`SiteRepository` port exposes no `delete`, no archive, and no tombstone, and no
+UI affordance or route removes a Site. Removing a user-created Site is a
+developer action on the store for the whole of M1. If removal is wanted later it
+becomes its own slice with explicit archive, tombstone, or hard-delete
+semantics, and it is never folded into Site creation.
+
+Reason: The Architect raised removal as the one product call it could not make.
+Later slices key committed simulated history, envelopes, and evidence records to
+`site_id`, so delete-then-recreate under the same identity would resurrect
+orphaned history under a different Foundation. The cost of deferring is that
+demo Sites accumulate and can only be cleared from disk, which is acceptable
+while the store is file-backed and the audience is developers. The cost of
+shipping removal early is an identity and history question of the same family as
+in-place editing, which M1 has deliberately deferred.
+
+Affected scope: `SiteRepository` port surface, Site creation slice scope, Sites
+List affordances, user store lifecycle, future archive/tombstone semantics,
+feature map open questions, task sequencing.
+
+## 2026-09-13
+
+Decision: The Architect's extended working notes for a feature are local-only
+process material. Durable architectural context belongs in `.ai/DECISIONS.md`,
+`.ai/ARCHITECTURE.md`, and `.ai/FEATURE_MAP.md`, and the tracked task files must
+be sufficient on their own to implement a slice. Tracked documents must not
+direct a reader to a `.agent/` file as required reading.
+
+Reason: `.agent/` is gitignored and absent on a fresh clone, so a tracked
+pointer into it is a broken dependency and contradicts the existing instruction
+to normally ignore local-only files. The balance being struck is between context
+bloat and provenance: promoting every line of an Architect handoff into tracked
+governance would bloat the documents every session loads, while leaving the
+reasoning only in a local file loses the provenance behind decisions that
+supersede earlier ones. Recording the decision, its reason, what it supersedes,
+and the alternatives rejected is enough provenance; the long-form derivation is
+not.
+
+Affected scope: Architect handoff artifacts, `.ai/START_HERE.md` references,
+`.ai/ARTIFACT_INDEX.md` artifact states, what the Implementer is required to
+read, future Architect and Planner output conventions.

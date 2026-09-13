@@ -37,8 +37,15 @@ swappable persistence adapter. Three 2026-09-13 entries in `.ai/DECISIONS.md`
 record this and explicitly supersede parts of the 2026-09-11 read-only
 configuration decision. Causal Sequencing step 3 in `.ai/FEATURE_MAP.md` now
 splits into 3a port and canonical read path, 3b shipped templates, 3c create a
-Site from a template. Full architectural direction for the Planner and
-Implementer is in `.agent/M1-site-persistence-architecture.md`.
+Site from a template.
+
+The durable architectural direction for the Implementer is tracked: the
+2026-09-13 entries in `.ai/DECISIONS.md`, the Configuration Persistence section
+of `.ai/ARCHITECTURE.md`, the persistence and configuration seam rows in
+`.ai/FEATURE_MAP.md`, and the T005-T008 task files are together sufficient to
+implement this feature. The Architect also left longer working notes in
+`.agent/M1-site-persistence-architecture.md`, which is local-only, is not
+required reading, and will be absent on a fresh clone.
 
 The Site Foundation And Configuration-Only Site feature is planned as four
 slices, not yet implemented:

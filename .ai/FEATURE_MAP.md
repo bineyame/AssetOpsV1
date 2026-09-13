@@ -1080,9 +1080,10 @@ UI/UX expectations.
 
 ### Early Feature: Site Foundation And Configuration-Only Site
 
-Full architectural direction for this feature, including the port shape, module
-tree, guard design, and Implementer guidance, is in
-`.agent/M1-site-persistence-architecture.md`.
+Architectural direction for this feature is tracked across the 2026-09-13
+entries in `.ai/DECISIONS.md`, the Configuration Persistence section of
+`.ai/ARCHITECTURE.md`, the persistence and configuration seam rows below, and
+the T005-T008 task files. Those are sufficient to implement it.
 
 Divide into slices, in this order:
 - `SiteRepository` port, domain records, port error vocabulary, read-only
@@ -1242,11 +1243,9 @@ and operator consequence.
 
 ## Open Questions Before Task Breakdown
 
-- Whether M1 needs any user-facing way to remove a user-created Site. This is a
-  product call, not an architecture one. Delete is deliberately absent from the
-  port because a later delete-then-recreate under the same `site_id` would
-  resurrect orphaned committed simulated history under a different Foundation.
-  Until the user decides, removing a user-created Site is a developer action on
-  the store.
+- None. Whether M1 needs a user-facing way to remove a user-created Site was
+  the last open question; the user deferred it on 2026-09-13. See the
+  2026-09-13 decision in `.ai/DECISIONS.md`. Removing a user-created Site stays
+  a developer action on the store for M1.
 - Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.
