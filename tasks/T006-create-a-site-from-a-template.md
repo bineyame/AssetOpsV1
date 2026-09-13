@@ -1,6 +1,6 @@
 # T006 - Create A Site From A Template, And The Sites Index
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T006-create-a-site-from-a-template`

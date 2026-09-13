@@ -11,18 +11,24 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: none.
+Active task: `tasks/T006-create-a-site-from-a-template.md`.
+
+- Status: `in_review`. Implemented on branch
+  `task/T006-create-a-site-from-a-template`, not merged.
+- Lane: Planned lane, then independent review.
+- User review: required, and still outstanding. This is the first user-review
+  checkpoint of the feature; the questions the user must settle are in the
+  task file's User Review section.
+- Next: independent review, then user review, then merge and move the task file
+  to `tasks/completed/`.
 
 T005 is complete. Reviewer verdict was accept with no findings; the task file
 moved to `tasks/completed/T005-shipped-site-template-catalog.md` with its Review
 Outcome, and the branch merged to `main`.
 
-Next task to activate:
+Next task to activate after T006 closes:
 
-- `tasks/T006-create-a-site-from-a-template.md`
-- Intended branch: `task/T006-create-a-site-from-a-template`
-- Lane: Planned lane, then independent review.
-- User review: required. First user-review checkpoint of the feature.
+- `tasks/T007-site-details-by-site-id.md`
 
 ## Current Site Foundation Sequence
 
@@ -30,6 +36,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint.
+  Implemented, in review.
 - T007: Site Details by `site_id`.
 - T008: read-only Site Configuration; second user-review checkpoint.
 - T009-T013: staged visual fidelity after real content exists.
@@ -41,8 +48,10 @@ selector.
 
 ## Read For T006
 
-Carried forward from T005 as a starting point. Confirm and extend this list when
-T006 is activated; T006 is the first write boundary and may need more.
+Confirmed during implementation. This list was sufficient; nothing further was
+needed beyond `.ai/ARCHITECTURE.md`, which T006 does touch, because the slice
+changes dependency direction on both the backend write path and the new
+frontend substrate.
 
 - `tasks/T006-create-a-site-from-a-template.md`
 - `tasks/completed/T005-shipped-site-template-catalog.md` for the template
@@ -79,6 +88,31 @@ T006 is activated; T006 is the first write boundary and may need more.
   `frontend/src/sites/`.
 - Source mode, Site lifecycle, configuration origin, evidence readiness, and
   source health are separate concepts.
+
+## What T006 Settled In Code
+
+For later slices, so the shape is not rediscovered:
+
+- The Site record is `site_id`, `display_name`, `site_type`, `location`
+  (`country`, `locality`), `timezone`, `lifecycle_status`, `origin`,
+  `source.mode`, `template` provenance or null, and `foundation` (`version`,
+  `valid_from`, `summary`, `components`). `site_type` sits on the Site rather
+  than inside `foundation`, because the M1 Site schema names it a Site field
+  and two copies would be two sources of truth.
+- Two Site stores: `config/sites/` ships empty and read-only, `var/` holds the
+  writable user store and is gitignored. One composite adapter merges them and
+  refuses a `site_id` present in both.
+- `site_id` is charset- and shape-constrained in `sites/identity.py`, above the
+  adapter layer, and compared case-insensitively.
+- `timezone` is validated by IANA-name shape, not by membership of the tz
+  database: `tzdata` is an optional platform package on Windows, and Site
+  identity must not depend on which host validated a document. Tightening this
+  means taking a dependency, which T006 did not.
+- The create API is `POST /api/simulator-lab/sites`; the operator index is
+  `GET /api/sites` and is never gated.
+- Frontend substrate at `frontend/src/sites/`: `siteReadModel.ts`,
+  `siteViewModel.ts`, `siteDirectoryClient.ts`, `SitesIndex.tsx`. Render
+  equivalence still ships at causal step 6 with the Lab's Site view.
 
 ## Carried-Forward Risk
 

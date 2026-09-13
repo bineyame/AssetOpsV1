@@ -11,6 +11,8 @@ Start with `AGENTS.md` and `.ai/START_HERE.md`.
 | --- | --- |
 | `config/` | Runtime configuration shared by backend and frontend |
 | `config/site-templates/` | Shipped, read-only site configuration templates |
+| `config/sites/` | Shipped, read-only site store. Ships empty: M1 ships zero sites |
+| `var/` | Writable store for user-authored configuration. Gitignored, created at runtime |
 | `backend/` | FastAPI backend (`assetops_backend`) |
 | `frontend/` | React + TypeScript UI (Vite) |
 | `simulator/` | Deterministic Python simulator (`assetops_simulator`) |
@@ -43,10 +45,18 @@ Replay, are unaffected by it in both states.
   label, or hint. Direct URLs and API calls are not served.
 - `true`: the Simulator Lab shell is reachable, an `Open Simulator Lab` entry
   point appears in the workspace utility chrome,
-  `GET /api/simulator-lab/status` reports that the surface is served, and the
+  `GET /api/simulator-lab/status` reports that the surface is served, the
   Lab's Site Templates catalog is served at
-  `GET /api/simulator-lab/site-templates`. There is still no run execution and
-  no way to create a site.
+  `GET /api/simulator-lab/site-templates`, and the create-a-site flow is served
+  at `/simulator-lab/create-site` with `POST /api/simulator-lab/sites` behind
+  it. The Sites index offers a link into that flow. There is still no run
+  execution.
+
+The Sites index and `GET /api/sites` are operator capabilities and are never
+gated. They are served identically in both states, and a site created while the
+Lab was enabled stays fully visible when it is disabled, because the gate covers
+surfaces and execution and never objects or stores. A gate-off build with an
+empty Sites index and no way to add a site is the correct state, not a defect.
 
 Simulator Lab is a separate developer workspace, not an operator screen, so its
 entry point lives in workspace-level chrome above the operator shell and never
@@ -72,6 +82,40 @@ Templates are reached only through the `SiteTemplateCatalog` port in
 composition module. Documents are strictly validated on load: unknown keys,
 unsupported values, duplicate identities, oversized documents and
 over-cardinality collections are refused rather than normalized.
+
+## Sites
+
+`config/sites/` is the shipped, read-only site store. It ships empty on purpose:
+M1 ships zero canonical sites, so first run has a genuinely empty Sites index
+and every site in the product is one a user created.
+
+`var/sites/` is the writable store for user-authored site documents. It is
+created at runtime, is gitignored, and lives outside every shipped
+configuration root. Removing a user-created site is a developer action on this
+directory for the whole milestone: the product offers no delete, archive, or
+tombstone.
+
+The two stores share one globally unique `site_id` space with no overlay and no
+precedence. The same `site_id` in both fails loudly at load rather than
+resolving to either document, and creation refuses an identity already present
+in either store, compared without regard to case.
+
+A site is created by copying a shipped template: the template's foundation
+content is deep-copied into the new site, which records `template_id` and
+`template_version` as provenance. A later template change never alters a site
+already created from it. `site_id` is immutable, and configuration is fixed at
+creation in M1 - there is no edit, save, publish, rename, duplicate, delete, or
+version history anywhere in the product.
+
+Configuration origin (`SHIPPED` / `USER`), source mode (`LIVE` / `SIMULATED`),
+and lifecycle status are three independent facts. In M1 every user-created site
+also has `SIMULATED` source mode, because the Simulator Lab is the only creation
+path; they coincide by circumstance and neither is derived from the other.
+
+Site presentation lives in `frontend/src/sites/`: one read model, one view
+model, one set of components, composed by the operator shell and later by the
+Lab's site view. Nothing there imports shell code, simulator code, or the
+feature flag, and nothing there takes a shell, mode, or variant prop.
 
 ## Running things
 
@@ -105,6 +149,10 @@ npm.cmd run build
 npm.cmd run dev
 ```
 
+`npm.cmd run dev` proxies `/api` to `http://127.0.0.1:8000`, so run the backend
+alongside it. The proxy is dev-server configuration only: the built app and the
+backend are served from one origin and request the same paths either way.
+
 ### Guards
 
 ```
@@ -121,10 +169,21 @@ and `frontend/src/shell/simulatorLabRoutes.tsx`). Everything else must import
 the exported path constant, so an entry point cannot be added outside the gate.
 It also enforces the configuration persistence and shipped-configuration
 seams: imports resolving into `backend/assetops_backend/sites/adapters/` are
-permitted only from `backend/assetops_backend/sites/composition.py`, the yaml,
-pathlib and sqlite3 modules and direct file opening are banned inside the sites
-package above the adapter layer, and no module that resolves the shipped
-catalog root may hold a write-capable call.
+permitted only from `backend/assetops_backend/sites/composition.py` or from
+inside that package, the yaml, pathlib and sqlite3 modules and direct file
+opening are banned inside the sites package above the adapter layer, no module
+that resolves a shipped configuration root may hold a write-capable call, the
+shipped site store ships empty, configuration is written only by
+`backend/assetops_backend/sites/adapters/yaml_user_site_store.py`, and the
+writable user store root has exactly one owning declaration and is covered by
+`.gitignore`.
+
+Two further checks protect the shared site presentation substrate: site
+presentation components, site view-model derivation, and site read-model types
+resolve in `frontend/src/sites/` only, and that directory imports no shell code,
+no simulator code, and no feature flag, and declares no shell, mode, or variant
+discriminant. Every check carries a non-vacuity assertion that fails if it stops
+matching real code.
 
 `check-agent-workflow.ps1` validates the repository's agent-workflow governance
 files and task metadata.
