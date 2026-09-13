@@ -11,32 +11,31 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T006-create-a-site-from-a-template.md`.
+Active task: none.
 
-- Status: `in_review`. Implemented on branch
-  `task/T006-create-a-site-from-a-template`, not merged.
-- Lane: Planned lane, then independent review.
-- User review: required, and still outstanding. This is the first user-review
-  checkpoint of the feature; the questions the user must settle are in the
-  task file's User Review section.
-- Next: independent review, then user review, then merge and move the task file
-  to `tasks/completed/`.
+T006 is complete. Reviewer verdict was accept with no findings; user review on
+2026-09-14 accepted the slice as built. The task file moved to
+`tasks/completed/T006-create-a-site-from-a-template.md` with its Review Outcome
+and User Review Outcome, and the branch merged to `main`.
 
 T005 is complete. Reviewer verdict was accept with no findings; the task file
 moved to `tasks/completed/T005-shipped-site-template-catalog.md` with its Review
 Outcome, and the branch merged to `main`.
 
-Next task to activate after T006 closes:
+Next task to activate:
 
 - `tasks/T007-site-details-by-site-id.md`
+- Intended branch: `task/T007-site-details-by-site-id`
+- Lane: Planned lane, then independent review.
+- User review: not the feature's checkpoint. The second and final user-review
+  checkpoint of the feature is T008.
 
 ## Current Site Foundation Sequence
 
 Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
-- T006: create a Site from a template; first user-review checkpoint.
-  Implemented, in review.
+- T006: create a Site from a template; first user-review checkpoint. Complete.
 - T007: Site Details by `site_id`.
 - T008: read-only Site Configuration; second user-review checkpoint.
 - T009-T013: staged visual fidelity after real content exists.
@@ -46,16 +45,19 @@ topology, devices, and the configured single-line diagram, is not planned. No
 step 3 slice may render the diagram, an empty frame for it, or its signal
 selector.
 
-## Read For T006
+## Read For T007
 
-Confirmed during implementation. This list was sufficient; nothing further was
-needed beyond `.ai/ARCHITECTURE.md`, which T006 does touch, because the slice
-changes dependency direction on both the backend write path and the new
-frontend substrate.
+Carried forward from T006 as a starting point. Confirm and extend this list when
+T007 is activated. T007 adds a per-Site route and removes the parameterless
+`Site details` frame, so it consumes `get_site` and the substrate that T006
+built rather than establishing new boundaries.
 
-- `tasks/T006-create-a-site-from-a-template.md`
-- `tasks/completed/T005-shipped-site-template-catalog.md` for the template
-  contract, port shape, and the Foundation content T006 copies.
+- `tasks/T007-site-details-by-site-id.md`
+- `tasks/completed/T006-create-a-site-from-a-template.md` for the Site record
+  shape, the port, the substrate, and the provenance vocabulary T007 presents.
+  Its "What T006 Settled In Code" summary is below.
+- `tasks/completed/T005-shipped-site-template-catalog.md` only for the template
+  contract, if template provenance rendering needs it.
 - `.ai/FEATURE_MAP.md` sections:
   - Feature Map Index
   - Product Spine
@@ -123,12 +125,31 @@ backdoor, or operator import path into Lab internals is served when
 `simulator_lab.enabled=false`; it does not try to prove Lab modules are absent
 from the built frontend bundle.
 
-From T005, for T006 to settle rather than inherit silently: the template
-Foundation carries only `site_type`, `summary`, and components with declared
-ratings. T006 copies that as the Foundation seed, while the created Site record
-adds user-supplied identity fields and service-defaulted origin, source mode,
-lifecycle, and template provenance. Full carried-forward list is in the T005
-Review Outcome.
+From T005, settled by T006: the template Foundation carries only `site_type`,
+`summary`, and components with declared ratings. T006 copies that as the
+Foundation seed, while the created Site record adds user-supplied identity
+fields and service-defaulted origin, source mode, lifecycle, and template
+provenance. Full carried-forward list is in the T005 Review Outcome.
+
+From T006, open and not actionable inside it:
+
+1. `timezone` accepts a syntactically valid but non-existent zone, because
+   validation is shape-only. Accepted by the user at the T006 checkpoint. Tighten
+   before scenario timing or window analytics consume the value, not after.
+2. No automated integration test binds the real frontend fetch clients to the
+   backend. Same gap T005 recorded, now spanning two slices; covered by manual
+   dev-proxy smoke only. If a third slice inherits it, it stops being a gap and
+   becomes a decision.
+3. Write exclusivity on the user store is process-scoped, not an OS-level
+   exclusive rename. Atomicity and durability hold; a cross-process race does
+   not. Single-host file store, so not yet reachable.
+4. `get_site` resolves `site_id` case-insensitively, matching the conflict rule,
+   so a Site cannot exist for conflict and be absent for lookup. T007 is the
+   first consumer and should confirm this is the routing behavior it wants.
+5. The substrate single-definition guard keys on naming patterns. Render
+   equivalence at causal step 6 is the real guard.
+6. Product copy uses "capitalisation" in the duplicate-`site_id` refusal. Noted
+   at the T006 user review as a consistency question for a later copy pass.
 
 ## Standard Checks
 
