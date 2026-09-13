@@ -58,6 +58,7 @@ T006 is activated; T006 is the first write boundary and may need more.
   - `D-2026-09-13-template-and-create-surfaces-gated`
   - `D-2026-09-13-shared-site-substrate`
   - `D-2026-09-13-provenance-status-vocabulary`
+  - `D-2026-09-13-t006-preimplementation`
 - `.ai/ARCHITECTURE.md` only if dependency direction, contracts, simulator
   boundaries, or protected seams are in play.
 
@@ -81,17 +82,19 @@ T006 is activated; T006 is the first write boundary and may need more.
 
 ## Carried-Forward Risk
 
-Open Architect action from T003 review follow-up 1, not absorbed by T004 or
-T005: the disabled bundle still contains `SimulatorLabFrame.tsx`, and now the
-two template frames as well, because the gate removes route reachability rather
-than code. This must become an explicit seam with a concrete check in
-`.ai/FEATURE_MAP.md` before simulator truth overlays land.
+Settled before T006: the disabled-bundle concern is now explicit in
+`.ai/FEATURE_MAP.md` as a runtime reachability seam, not a bundle-content seam.
+The gate must prove that no Lab route, action, API, create flow, simulator URL
+backdoor, or operator import path into Lab internals is served when
+`simulator_lab.enabled=false`; it does not try to prove Lab modules are absent
+from the built frontend bundle.
 
 From T005, for T006 to settle rather than inherit silently: the template
 Foundation carries only `site_type`, `summary`, and components with declared
-ratings. T006 copies exactly that into the first Site. Confirm that shape is
-wanted before building on it. Full carried-forward list is in the T005 Review
-Outcome.
+ratings. T006 copies that as the Foundation seed, while the created Site record
+adds user-supplied identity fields and service-defaulted origin, source mode,
+lifecycle, and template provenance. Full carried-forward list is in the T005
+Review Outcome.
 
 ## Standard Checks
 

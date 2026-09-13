@@ -17,6 +17,7 @@ rationale in the dated entries below.
 | `D-2026-09-13-canonical-fidelity` | 2026-09-13 | Canonical mockup fidelity is staged after each surface has truthful content. |
 | `D-2026-09-13-shared-site-substrate` | 2026-09-13 | Operator and Lab Site pages share one substrate at `frontend/src/sites/`. |
 | `D-2026-09-13-provenance-status-vocabulary` | 2026-09-13 | Source mode, lifecycle, configuration origin, evidence readiness, and source health remain separate. |
+| `D-2026-09-13-t006-preimplementation` | 2026-09-13 | T006 pre-implementation decisions for runtime gate proof, created Site shape, and non-loosening guard updates. |
 
 ## 2026-09-11
 
@@ -788,3 +789,35 @@ Affected scope: Site model fields, Sites index columns, Site Details and Site
 Configuration provenance presentation, badge vocabulary, strict parser and
 validation, the vocabulary-separation seam, and every later slice that reads
 provenance.
+
+## 2026-09-13
+
+Decision: Before T006 implementation, the disabled-bundle concern is settled as
+a runtime gate seam, not a bundle-content seam. A gate-off build must serve no
+Lab route, action, API, create flow, simulator URL backdoor, or operator import
+path into Lab internals; it does not need to prove that Lab modules are absent
+from the frontend bundle.
+
+Decision: The T006 created Site document is not the template document. The
+template contributes only a deep-copied Foundation seed. The create flow
+collects `site_id`, display name, location identity fields, and timezone. The
+create service defaults origin, source mode, lifecycle status, template
+provenance, and any initial Foundation version/validity fields required by the
+strict parser. Topology, devices, mappings, control assumptions, evidence,
+source health, operational status, SLD runtime fields, and simulator/run fields
+do not exist in this slice.
+
+Decision: T006 must update architecture guards deliberately rather than making
+the T005 checks pass by accident. Adapter isolation and the storage-technology
+ban remain, shipped configuration roots remain read-only, writes are allowed
+only through the user-store adapter, the user store root has one owner and is
+gitignored, and updated checks keep non-vacuity assertions.
+
+Reason: T006 is the first untrusted-input write boundary. The task is still a
+coherent vertical slice, but it needs these decisions recorded before
+implementation so the write path is strict, the feature gate stays meaningful,
+and the guard changes replace prior strength instead of weakening it.
+
+Affected scope: T006 task planning, `.ai/FEATURE_MAP.md`, Simulator Lab gate
+tests, Site record shape, user store adapter, architecture guard updates, and
+future Site Details/Site Configuration slices.
