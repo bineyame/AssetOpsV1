@@ -271,6 +271,171 @@ try {
         }
     }
 
+    # --- Configuration persistence port ----------------------------------------
+
+    # Three checks protect the "Configuration persistence port" and
+    # "Shipped versus user-authored configuration" seams. They exist so that
+    # replacing the store stays one new adapter module plus one composition
+    # change, and so that shipped canonical configuration cannot acquire a
+    # write path by accident.
+    #
+    # Test files are exempt for the same reason they are exempt from the gate
+    # scan: a test must be able to reach an adapter directly in order to prove
+    # what the adapter does.
+
+    $sitesRoot = "backend/assetops_backend/sites"
+    $sitesAdaptersRoot = "$sitesRoot/adapters"
+    $compositionModule = "$sitesRoot/composition.py"
+    $shippedCatalogRoot = "config/site-templates"
+
+    function Get-BackendModules {
+        $modules = @()
+        foreach ($source in (Get-SourceFiles -Root "backend" -Extensions @(".py"))) {
+            $relative = (Resolve-Path -LiteralPath $source.FullName -Relative) `
+                -replace '^\.[\\/]', '' -replace '\\', '/'
+
+            if ($relative -match '(^|/)(tests|__tests__)/') { continue }
+
+            $modules += [pscustomobject]@{
+                Path  = $relative
+                Lines = @(Get-Content -LiteralPath $source.FullName)
+            }
+        }
+        return $modules
+    }
+
+    $backendModules = Get-BackendModules
+
+    if ($backendModules.Count -eq 0) {
+        Add-Failure "No backend modules were scanned; the persistence checks would be vacuous"
+    }
+
+    # 1. Adapter isolation. An import that resolves into the sites adapters
+    #    package is permitted from the single composition module only.
+    $adapterImport = '(?:^|\s)(?:from|import)\s+[A-Za-z_.]*adapters(?:[.\s]|$)'
+    $adapterImportSeen = $false
+
+    foreach ($module in $backendModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -notmatch $adapterImport) { continue }
+
+            if ($module.Path -eq $compositionModule) {
+                $adapterImportSeen = $true
+                continue
+            }
+
+            Add-Failure ("Banned adapter import in $($module.Path):${lineNumber}: " +
+                "$($line.Trim()). Only $compositionModule may import " +
+                "$sitesAdaptersRoot; every other caller receives the port by injection.")
+        }
+    }
+
+    if (-not $adapterImportSeen) {
+        Add-Failure ("The adapter-isolation check found no adapter import in " +
+            "$compositionModule, so it is no longer proving anything. Update the " +
+            "check, do not delete it.")
+    }
+
+    # 2. No storage technology above the adapter layer. Inside the sites
+    #    package but outside adapters/, storage modules and direct file
+    #    opening are banned: a port that speaks paths and YAML is not a seam.
+    $storageTechnology = @(
+        '(?:^|\s)import\s+yaml(?:[.\s]|$)',
+        '(?:^|\s)from\s+yaml(?:[.\s]|$)',
+        '(?:^|\s)import\s+pathlib(?:[.\s]|$)',
+        '(?:^|\s)from\s+pathlib(?:[.\s]|$)',
+        '(?:^|\s)import\s+sqlite3(?:[.\s]|$)',
+        '(?:^|\s)from\s+sqlite3(?:[.\s]|$)',
+        'open\('
+    )
+    $storageTechnologySeenInAdapters = $false
+
+    foreach ($module in $backendModules) {
+        $insideSites = $module.Path.StartsWith("$sitesRoot/")
+        $insideAdapters = $module.Path.StartsWith("$sitesAdaptersRoot/")
+        if (-not $insideSites) { continue }
+
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $storageTechnology) {
+                if ($line -notmatch $pattern) { continue }
+
+                if ($insideAdapters) {
+                    $storageTechnologySeenInAdapters = $true
+                    break
+                }
+
+                Add-Failure ("Storage technology above the adapter layer in " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()). Move it into " +
+                    "$sitesAdaptersRoot and speak domain records across the port.")
+                break
+            }
+        }
+    }
+
+    if (-not $storageTechnologySeenInAdapters) {
+        Add-Failure ("The storage-technology check matched nothing inside " +
+            "$sitesAdaptersRoot, so its patterns may no longer match real " +
+            "storage code. Update the check, do not delete it.")
+    }
+
+    # 3. The shipped catalog is not writable. Shipped canonical configuration
+    #    is read-only at runtime, so no module that resolves a path inside the
+    #    shipped root may also hold a write-capable call.
+    if (-not (Test-Path -LiteralPath $shippedCatalogRoot -PathType Container)) {
+        Add-Failure "Missing shipped template configuration root: $shippedCatalogRoot"
+    }
+    elseif (-not (Get-ChildItem -LiteralPath $shippedCatalogRoot -Filter "*.yaml" -File)) {
+        Add-Failure "$shippedCatalogRoot ships no template document"
+    }
+
+    $shippedRootReference = 'site-templates|SHIPPED_SITE_TEMPLATE_ROOT'
+    $writeCapable = @(
+        '\.write_text\(',
+        '\.write_bytes\(',
+        '\.mkdir\(',
+        '\.touch\(',
+        '\.unlink\(',
+        '\.rmdir\(',
+        '(?:^|\s)os\.(?:remove|unlink|replace|rename|makedirs|mkdir)\(',
+        '(?:^|\s)shutil\.',
+        '(?:^|\s)tempfile\.',
+        'open\('
+    )
+    $shippedRootModules = 0
+
+    foreach ($module in $backendModules) {
+        $namesShippedRoot = $false
+        foreach ($line in $module.Lines) {
+            if ($line -match $shippedRootReference) { $namesShippedRoot = $true; break }
+        }
+        if (-not $namesShippedRoot) { continue }
+
+        $shippedRootModules++
+
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $writeCapable) {
+                if ($line -match $pattern) {
+                    Add-Failure ("Write-capable call in a module that resolves the " +
+                        "shipped catalog root, $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()). Shipped configuration is read-only at runtime.")
+                    break
+                }
+            }
+        }
+    }
+
+    if ($shippedRootModules -eq 0) {
+        Add-Failure ("No backend module resolves $shippedCatalogRoot, so the " +
+            "shipped-catalog write check is vacuous. Update the check, do not " +
+            "delete it.")
+    }
+
     if ($failures.Count -gt 0) {
         Write-Host "Architecture check failed:"
         foreach ($failure in $failures) {

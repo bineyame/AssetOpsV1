@@ -1,6 +1,6 @@
 # T005 - Shipped Site Configuration Template Catalog
 
-Status: planned
+Status: completed
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T005-shipped-site-template-catalog`
@@ -260,3 +260,77 @@ semantics at the T006 checkpoint, because the two settle one question: what a
 user-authored Site is, and what a template is not. Splitting that question
 across two reviews would settle half of it against a surface that cannot yet
 produce a Site.
+
+## Review Outcome
+
+Reviewer verdict: accept. No findings, no rework requested, no blocking open
+questions.
+
+The Reviewer confirmed that T005 matches the spec and preserves the boundaries
+the slice existed to establish:
+
+- Templates are Lab-only and feature-gated.
+- The API stays under `/api/simulator-lab/*`.
+- No Site creation, `SiteRepository`, writable store, operator navigation item,
+  SLD, run, evidence, Replay, analytics, or Findings shipped.
+- Parser, port, and adapter shape match the storage boundary: YAML confined to
+  the adapter, a domain port above it, a strict parser, the adapter imported
+  only by composition, and fake-catalog tests.
+
+Reviewer checks: backend 91 passed, frontend 149 passed, typecheck passed,
+production build passed, `tools/check-architecture.ps1` passed,
+`tools/check-agent-workflow.ps1` passed, `git diff --check` clean.
+
+Verification independently re-run in the implementing session before merge, on
+the final tree: `tools/check-architecture.ps1` passed,
+`tools/check-agent-workflow.ps1` passed, backend 91 passed, frontend 149 passed,
+`npm run build` (tsc + vite) passed. Recorded as re-run, not as a second review.
+
+Not independently verified here, and reported by the Implementer rather than
+observed: that the three new architecture checks were each proven non-vacuous by
+a deliberate violation before it was reverted, and the manual end-to-end smoke
+against the shipped catalog with the gate open.
+
+Carried forward, not actionable inside T005:
+
+1. T003 follow-up 1 remains open and remains an ARCHITECT ACTION against
+   `.ai/FEATURE_MAP.md`: the disabled bundle still contains
+   `SimulatorLabFrame.tsx`, and now the two template frames as well, because the
+   gate removes route reachability rather than code. T005 does not absorb it.
+2. Three inherited assertions were changed, none loosened. Two T003/T004
+   "exactly one link in the Lab shell" assertions became exact `href` plus text
+   allowlists, because the Lab now has one destination; a third or different
+   link still fails. One heading changed from `Simulator Lab is empty` to
+   `No simulator run exists`, since an empty shell stopped being true once
+   templates render. Reachability, navigation-placement, and flag-symmetry
+   assertions are untouched, and the disabled-state lists were widened to cover
+   the template URLs. The Reviewer raised nothing against these.
+3. The template Foundation deliberately carries only `site_type`, `summary`, and
+   components with declared ratings. Topology connections, devices, signal
+   mappings, and control assumptions are Causal Sequencing step 4 and are absent
+   rather than stubbed. T006 copies exactly this content into the first Site, so
+   T006 and T008 should confirm this is the shape they want before building on
+   it.
+4. The frontend catalog client's happy path is exercised through injected fakes.
+   The real `fetch` wiring is covered by shape-validation logic and the manual
+   backend smoke test, not by an automated integration test. This is the one
+   seam in the slice without automated proof.
+5. The shipped-catalog write check keys on modules that name the catalog root. A
+   module reaching that root by indirect construction would not be caught. The
+   port and adapter-isolation checks make that path hard to build; it remains
+   the check's known edge.
+6. The carried-forward "no digits inside `<main>`" assertion at
+   `/simulator-lab` still holds unchanged, because no template value renders
+   there. The surfaces that do render values carry a stronger guarantee instead:
+   every digit run inside `<main>` must appear in the template document under
+   test. The standing instruction still applies to both. Never loosen.
+7. `pyyaml` was already present transitively and is now declared directly in
+   `backend/pyproject.toml`.
+
+No `.ai/DECISIONS.md` entry was added. T005 implements decisions already
+recorded; it does not settle a new one.
+
+User review was deliberately not required for this slice. The
+template-versus-Site wording on the two surfaces, and the narrow Foundation
+shape in item 3, reach the user at the T006 checkpoint together with creation
+semantics, as this task's User Review section specifies.

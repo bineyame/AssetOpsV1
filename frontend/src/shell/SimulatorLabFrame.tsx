@@ -8,27 +8,51 @@ import { Link } from "react-router-dom";
  * never from operator navigation, and it renders outside the operator route
  * layout so it carries no operator chrome.
  *
- * Scope: this is an empty shell. It exposes no run start, run inspection,
- * rerun, truth overlay, comparison, staging, ingestion, analytics, Replay, or
- * Findings surface, because none of those exist yet. The only control is a link
- * back to the operator shell.
+ * Scope: the Lab's only surface is the shipped Site Templates catalog. It
+ * exposes no run start, run inspection, rerun, truth overlay, comparison,
+ * staging, ingestion, analytics, Replay, or Findings surface, because none of
+ * those exist yet, and no create or instantiate action, because nothing in
+ * this build can produce a Site.
+ *
+ * The Site Templates link is the Lab's one destination and it resolves to a
+ * surface with real content. It is a link in the workspace body rather than a
+ * navigation rail: the Lab's eventual rail is chrome, and chrome follows
+ * content rather than announcing destinations that do not exist yet.
  *
  * The documented simulator-to-product bridge is `Open in AssetOps` on an
  * eligible committed run. That bridge needs a run and a Site identity, so it is
  * owned by a later slice; until then the way back is a plain link to the
  * operator shell and claims nothing about runs or evidence.
  */
-export function SimulatorLabFrame() {
+export interface SimulatorLabFrameProps {
+  siteTemplatesPath: string;
+}
+
+export function SimulatorLabFrame({
+  siteTemplatesPath,
+}: SimulatorLabFrameProps) {
   return (
     <main aria-labelledby="simulator-lab-heading">
       <h1 id="simulator-lab-heading">Simulator Lab</h1>
       <p>Developer workspace</p>
 
-      <section aria-labelledby="simulator-lab-empty-heading">
-        <h2 id="simulator-lab-empty-heading">Simulator Lab is empty</h2>
+      <section aria-labelledby="simulator-lab-templates-heading">
+        <h2 id="simulator-lab-templates-heading">Site Templates</h2>
         <p>
-          The Simulator Lab surface is enabled, but it is an empty shell. No
-          simulated world, site, device, or simulator run exists, and run
+          Browse the shipped, read-only site configuration templates. A
+          template is not a site: it has no site identity, no lifecycle status,
+          no location, and no timezone bound to a real place, and no site can
+          be created from it in this build.
+        </p>
+        <p>
+          <Link to={siteTemplatesPath}>Site Templates</Link>
+        </p>
+      </section>
+
+      <section aria-labelledby="simulator-lab-empty-heading">
+        <h2 id="simulator-lab-empty-heading">No simulator run exists</h2>
+        <p>
+          No simulated world, site, device, or simulator run exists, and run
           execution is not implemented yet. Nothing can be started, inspected,
           rerun, or compared against simulator truth here.
         </p>

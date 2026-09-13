@@ -10,6 +10,7 @@ Start with `AGENTS.md` and `.ai/START_HERE.md`.
 | Path | Contents |
 | --- | --- |
 | `config/` | Runtime configuration shared by backend and frontend |
+| `config/site-templates/` | Shipped, read-only site configuration templates |
 | `backend/` | FastAPI backend (`assetops_backend`) |
 | `frontend/` | React + TypeScript UI (Vite) |
 | `simulator/` | Deterministic Python simulator (`assetops_simulator`) |
@@ -40,10 +41,12 @@ Replay, are unaffected by it in both states.
   the UI, the `/api/simulator-lab/*` router is not mounted, and neither the
   workspace chrome nor operator navigation shows any Simulator Lab entry point,
   label, or hint. Direct URLs and API calls are not served.
-- `true`: the empty Simulator Lab shell is reachable, an `Open Simulator Lab`
-  entry point appears in the workspace utility chrome, and
-  `GET /api/simulator-lab/status` reports that the surface is served. There is
-  still no run execution.
+- `true`: the Simulator Lab shell is reachable, an `Open Simulator Lab` entry
+  point appears in the workspace utility chrome,
+  `GET /api/simulator-lab/status` reports that the surface is served, and the
+  Lab's Site Templates catalog is served at
+  `GET /api/simulator-lab/site-templates`. There is still no run execution and
+  no way to create a site.
 
 Simulator Lab is a separate developer workspace, not an operator screen, so its
 entry point lives in workspace-level chrome above the operator shell and never
@@ -54,6 +57,21 @@ route layout with no operator chrome.
 Parsing is strict: unknown keys and non-boolean flag values are rejected rather
 than coerced. Restart the backend and the Vite dev server after editing the
 file.
+
+## Shipped site templates
+
+`config/site-templates/` holds the shipped site configuration templates. They
+are read-only at runtime and separate from any site store: a template declares
+`template_id`, `template_version` and foundation content, and never a
+`site_id`, lifecycle status, location, or place-bound timezone. A template is
+not a site, and this milestone ships zero sites - every site in the product is
+one a user created.
+
+Templates are reached only through the `SiteTemplateCatalog` port in
+`backend/assetops_backend/sites/`, whose YAML adapter is imported by the single
+composition module. Documents are strictly validated on load: unknown keys,
+unsupported values, duplicate identities, oversized documents and
+over-cardinality collections are refused rather than normalized.
 
 ## Running things
 
@@ -101,6 +119,13 @@ missing or non-boolean `simulator_lab.enabled`, and on a simulator URL declared
 outside the gated route modules (`backend/assetops_backend/simulator_lab_api.py`
 and `frontend/src/shell/simulatorLabRoutes.tsx`). Everything else must import
 the exported path constant, so an entry point cannot be added outside the gate.
+It also enforces the configuration persistence and shipped-configuration
+seams: imports resolving into `backend/assetops_backend/sites/adapters/` are
+permitted only from `backend/assetops_backend/sites/composition.py`, the yaml,
+pathlib and sqlite3 modules and direct file opening are banned inside the sites
+package above the adapter layer, and no module that resolves the shipped
+catalog root may hold a write-capable call.
+
 `check-agent-workflow.ps1` validates the repository's agent-workflow governance
 files and task metadata.
 

@@ -16,6 +16,17 @@ DISABLED = FeatureFlags(simulator_lab_enabled=False)
 ENABLED = FeatureFlags(simulator_lab_enabled=True)
 
 SIMULATOR_LAB_STATUS_PATH = "/api/simulator-lab/status"
+SITE_TEMPLATES_PATH = "/api/simulator-lab/site-templates"
+SITE_TEMPLATE_DETAIL_PATH = "/api/simulator-lab/site-templates/{template_id}"
+
+# Every Lab-only path the gate must serve when open and hide when closed. T005
+# added the two template paths; the inventory assertions below are extended to
+# name them rather than relaxed to tolerate them.
+SIMULATOR_LAB_SERVED_PATHS = {
+    SIMULATOR_LAB_STATUS_PATH,
+    SITE_TEMPLATES_PATH,
+    SITE_TEMPLATE_DETAIL_PATH,
+}
 
 # Paths an operator, a script, or a stale bookmark could plausibly aim at the
 # simulator. None of them may be served while the gate is closed.
@@ -23,6 +34,8 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     "/api/simulator-lab",
     "/api/simulator-lab/",
     SIMULATOR_LAB_STATUS_PATH,
+    SITE_TEMPLATES_PATH,
+    "/api/simulator-lab/site-templates/hybrid-mini-grid-100kw",
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",
@@ -52,8 +65,10 @@ class TestRouteInventoryIsNotVacuous:
     """Guard the guard: the structural assertions below must be able to fail."""
 
     def test_inventory_sees_both_the_health_and_simulator_lab_routes(self) -> None:
-        assert "/api/health" in paths_for(ENABLED)
-        assert SIMULATOR_LAB_STATUS_PATH in paths_for(ENABLED)
+        served = paths_for(ENABLED)
+
+        assert "/api/health" in served
+        assert SIMULATOR_LAB_SERVED_PATHS <= served
 
 
 class TestGateDisabled:
@@ -68,7 +83,12 @@ class TestGateDisabled:
         """A closed gate must not leave a write verb reachable on a simulator path."""
         client = TestClient(create_app(DISABLED))
 
-        for path in (SIMULATOR_LAB_STATUS_PATH, "/api/simulator-lab/execute"):
+        for path in (
+            SIMULATOR_LAB_STATUS_PATH,
+            SITE_TEMPLATES_PATH,
+            "/api/simulator-lab/site-templates/hybrid-mini-grid-100kw",
+            "/api/simulator-lab/execute",
+        ):
             for request in (client.post, client.put, client.patch, client.delete):
                 response = request(path)
                 assert response.status_code == 404, f"{path} accepted a write verb"
@@ -113,7 +133,7 @@ class TestGateEnabled:
     def test_enabling_the_gate_adds_only_the_simulator_lab_surface(self) -> None:
         added = paths_for(ENABLED) - paths_for(DISABLED)
 
-        assert added == {SIMULATOR_LAB_STATUS_PATH}
+        assert added == SIMULATOR_LAB_SERVED_PATHS
 
     def test_no_execution_surface_exists_yet(self) -> None:
         """T003 scope limit: the enabled shell has no run behavior."""
