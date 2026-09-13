@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
+import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import {
   SIMULATOR_LAB_ENTRY_POINT_LABEL,
   SIMULATOR_LAB_PATH,
@@ -33,10 +34,15 @@ const OPERATOR_NAVIGATION_LABELS = [
   "Site configuration",
 ];
 
+/** Injected and empty: placement assertions must not depend on a store. */
+const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
+  listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
+};
+
 function renderAt(path: string, flags: FeatureFlags) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} />
+      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} />
     </MemoryRouter>,
   );
 }
@@ -103,8 +109,9 @@ describe("workspace entry point: disabled", () => {
 
   it.each(OPERATOR_ROUTES)(
     "renders no workspace chrome, entry point, or hint at %s",
-    (route) => {
+    async (route) => {
       const { container } = renderAt(route, DISABLED);
+      await screen.findByRole("main");
 
       expect(
         screen.queryByRole("navigation", { name: "Workspace utilities" }),
