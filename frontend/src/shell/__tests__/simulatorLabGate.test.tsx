@@ -46,6 +46,19 @@ const SIMULATOR_URLS = [
  */
 const SIMULATOR_LAB_SHELL_URLS = ["/simulator-lab", "/simulator-lab/"];
 
+/**
+ * Lab surfaces T005 added. They are served when the gate is open, so they are
+ * listed separately from the execution URLs rather than folded into
+ * SIMULATOR_URLS, and the disabled assertions below are extended to cover them.
+ */
+const SITE_TEMPLATE_URLS = [
+  "/simulator-lab/site-templates",
+  "/simulator-lab/site-templates/hybrid-mini-grid-100kw",
+];
+
+/** Everything that must be unserved while the gate is closed. */
+const UNSERVED_WHEN_DISABLED = [...SIMULATOR_URLS, ...SITE_TEMPLATE_URLS];
+
 /** Execution URLs that no slice has implemented, in either flag state. */
 const EXECUTION_URLS = SIMULATOR_URLS.filter(
   (url) => !SIMULATOR_LAB_SHELL_URLS.includes(url),
@@ -113,7 +126,13 @@ describe("simulator lab gate: disabled", () => {
     expect(simulatorLabRoutes(DISABLED)).toEqual([]);
   });
 
-  it.each(SIMULATOR_URLS)(
+  it("registers no Site Templates route either", () => {
+    expect(
+      simulatorLabRoutes(DISABLED).map((route) => route.path),
+    ).not.toContain("/simulator-lab/site-templates");
+  });
+
+  it.each(UNSERVED_WHEN_DISABLED)(
     "does not serve a simulator surface at %s",
     (url) => {
       renderAt(url, DISABLED);
@@ -125,7 +144,7 @@ describe("simulator lab gate: disabled", () => {
     },
   );
 
-  it.each(SIMULATOR_URLS)(
+  it.each(UNSERVED_WHEN_DISABLED)(
     "renders no simulator content, reference, or hint at %s",
     (url) => {
       const { container } = renderAt(url, DISABLED);
@@ -134,7 +153,7 @@ describe("simulator lab gate: disabled", () => {
     },
   );
 
-  it.each(SIMULATOR_URLS)(
+  it.each(UNSERVED_WHEN_DISABLED)(
     "offers no interactive control of any kind at %s",
     (url) => {
       const { container } = renderAt(url, DISABLED);
@@ -183,9 +202,11 @@ describe("simulator lab gate: disabled", () => {
 });
 
 describe("simulator lab gate: enabled", () => {
-  it("registers the Simulator Lab route", () => {
+  it("registers the Simulator Lab routes, including Site Templates", () => {
     expect(simulatorLabRoutes(ENABLED).map((route) => route.path)).toEqual([
       "/simulator-lab",
+      "/simulator-lab/site-templates",
+      "/simulator-lab/site-templates/:templateId",
     ]);
   });
 
@@ -196,7 +217,7 @@ describe("simulator lab gate: enabled", () => {
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Simulator Lab is empty" }),
+      screen.getByRole("heading", { level: 2, name: "No simulator run exists" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/run execution is not implemented yet/i),
@@ -252,7 +273,7 @@ describe("simulator lab gate: enabled", () => {
 });
 
 describe("simulator lab gate: runs are unavailable in both states", () => {
-  it.each([...SIMULATOR_URLS, ...OPERATOR_ROUTES])(
+  it.each([...UNSERVED_WHEN_DISABLED, ...OPERATOR_ROUTES])(
     "exposes no run start, inspect, rerun, or truth comparison control at %s when disabled",
     (url) => {
       const { container } = renderAt(url, DISABLED);
@@ -274,7 +295,13 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
     },
   );
 
-  it("gives the enabled Simulator Lab shell no control except a way back", () => {
+  /**
+   * T005 gives the Lab its first destination, so the shell has two links
+   * rather than one. The assertion is an exact allowlist of href and text
+   * rather than a count: a third link, or a different destination, still
+   * fails, and no control of any other kind is permitted at all.
+   */
+  it("gives the enabled Simulator Lab shell no control except its one destination and a way back", () => {
     const { container } = renderAt("/simulator-lab", ENABLED);
 
     expect(
@@ -283,10 +310,15 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       ),
     ).toHaveLength(0);
 
-    const links = Array.from(container.querySelectorAll("a"));
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAttribute("href", "/");
-    expect(links[0].textContent).toBe("Back to the operator shell");
+    const links = Array.from(container.querySelectorAll("a")).map((link) => [
+      link.getAttribute("href"),
+      link.textContent,
+    ]);
+
+    expect(links).toEqual([
+      ["/simulator-lab/site-templates", "Site Templates"],
+      ["/", "Back to the operator shell"],
+    ]);
   });
 
   it("renders no simulator truth, findings, health, or analytics output when enabled", () => {

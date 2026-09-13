@@ -165,7 +165,7 @@ describe("workspace entry point: enabled", () => {
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Simulator Lab is empty" }),
+      screen.getByRole("heading", { level: 2, name: "No simulator run exists" }),
     ).toBeInTheDocument();
 
     // The operator shell, its navigation, and the workspace chrome are gone:
@@ -189,10 +189,16 @@ describe("workspace entry point: enabled", () => {
       ),
     ).toHaveLength(0);
 
-    const links = Array.from(container.querySelectorAll("a"));
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAttribute("href", "/");
-    expect(links[0].textContent).toBe("Back to the operator shell");
+    // T005 gives the Lab its first destination. The allowlist is exact, so a
+    // further destination or a different one still fails here.
+    const links = Array.from(container.querySelectorAll("a")).map((link) => [
+      link.getAttribute("href"),
+      link.textContent,
+    ]);
+    expect(links).toEqual([
+      ["/simulator-lab/site-templates", "Site Templates"],
+      ["/", "Back to the operator shell"],
+    ]);
   });
 
   it("presents the Simulator Lab shell as a developer workspace, not an operator page", () => {

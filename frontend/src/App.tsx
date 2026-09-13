@@ -9,6 +9,7 @@ import { SiteDetailsFrame } from "./shell/SiteDetailsFrame";
 import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
+import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
 
 /**
  * Route table.
@@ -34,12 +35,18 @@ import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
  *
  * Site Details and Site Configuration are parameterless, because no Site schema
  * or Site identity exists yet.
+ *
+ * `siteTemplateCatalog` is an injection point for tests. The default client
+ * reads the gated template API; a test can supply a fake so a UI assertion is
+ * about what the screen renders from a template document rather than about
+ * network timing.
  */
 export interface AppProps {
   flags?: FeatureFlags;
+  siteTemplateCatalog?: SiteTemplateCatalogClient;
 }
 
-export function App({ flags = featureFlags }: AppProps) {
+export function App({ flags = featureFlags, siteTemplateCatalog }: AppProps) {
   return (
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
@@ -53,7 +60,7 @@ export function App({ flags = featureFlags }: AppProps) {
           />
         </Route>
       </Route>
-      {simulatorLabRoutes(flags).map((route) => (
+      {simulatorLabRoutes(flags, siteTemplateCatalog).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}
       <Route path="*" element={<RouteNotAvailableFrame />} />
