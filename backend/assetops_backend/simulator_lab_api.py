@@ -15,27 +15,62 @@ This module owns no simulated world, no private simulator truth, and no run
 execution. Its Site Templates endpoints read shipped, read-only configuration
 through the `SiteTemplateCatalog` port: they return template archetypes, never
 Sites, and never operational values. No template endpoint writes anything, and
-no create, instantiate, upload, import, edit, or delete route exists, because
-nothing in this slice can produce a Site.
+no route here edits, renames, duplicates, or deletes anything.
+
+One route writes: creating a Site from a template. Authoring a simulated Site
+is a Simulator Lab capability, so the create route lives behind the gate and
+under the Lab prefix, and it is absent from the served route inventory when
+the flag is false. What it creates is not a Lab object: it is a normal product
+Site in the product store, carrying simulated source mode as provenance, and
+it stays fully visible when the Lab is switched off. There is no publish step
+and no promote step, because it was a product object from the instant it
+existed.
+
+The create path runs handler to service to port to adapter, with no shortcut
+to storage. This module names no file, no path, and no serialization format.
 """
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from typing import Any
+
+from fastapi import APIRouter, Body, HTTPException
 
 from assetops_backend.sites.models import SiteTemplate
 from assetops_backend.sites.ports import (
+    SiteConfigurationInvalid,
+    SiteIdentityConflict,
+    SiteRepository,
+    SiteStoreUnavailable,
     SiteTemplateCatalog,
     SiteTemplateConfigurationInvalid,
     SiteTemplateNotFound,
     SiteTemplateStoreUnavailable,
 )
-from assetops_backend.sites.service import SiteTemplateCatalogService
+from assetops_backend.sites.service import (
+    SiteCreationService,
+    SiteTemplateCatalogService,
+)
+from assetops_backend.sites.site_parsing import parse_create_site_request
+from assetops_backend.sites_api import site_summary
 
 SIMULATOR_LAB_API_PREFIX = "/api/simulator-lab"
 
 SITE_TEMPLATES_ROUTE = "/site-templates"
 SITE_TEMPLATE_DETAIL_ROUTE = "/site-templates/{template_id}"
+CREATE_SITE_ROUTE = "/sites"
+
+# Refusal codes. The message is the product copy a user reads; the code is what
+# a client switches on, so neither has to be parsed out of the other.
+REFUSAL_INVALID_REQUEST = "SITE_REQUEST_INVALID"
+REFUSAL_SITE_ID_IN_USE = "SITE_ID_IN_USE"
+REFUSAL_TEMPLATE_NOT_FOUND = "TEMPLATE_NOT_FOUND"
+REFUSAL_STORE_UNAVAILABLE = "SITE_STORE_UNAVAILABLE"
+
+
+def _refusal(code: str, message: str) -> dict[str, object]:
+    """A refusal a screen can render, rather than a stack trace."""
+    return {"code": code, "message": message}
 
 
 def _summarize(template: SiteTemplate) -> dict[str, object]:
@@ -76,13 +111,16 @@ def _detail(template: SiteTemplate) -> dict[str, object]:
     }
 
 
-def build_simulator_lab_router(catalog: SiteTemplateCatalog) -> APIRouter:
-    """Build the gated router around an injected template catalog.
+def build_simulator_lab_router(
+    catalog: SiteTemplateCatalog, repository: SiteRepository
+) -> APIRouter:
+    """Build the gated router around the injected ports.
 
-    The catalog arrives as a port. This module never learns whether templates
+    Both arrive as ports. This module never learns whether templates or Sites
     are files, rows, or objects, and it never imports an adapter.
     """
     service = SiteTemplateCatalogService(catalog)
+    creation = SiteCreationService(repository, catalog)
     router = APIRouter(prefix=SIMULATOR_LAB_API_PREFIX, tags=["simulator-lab"])
 
     @router.get("/status")
@@ -126,5 +164,62 @@ def build_simulator_lab_router(catalog: SiteTemplateCatalog) -> APIRouter:
             raise HTTPException(status_code=503, detail=str(error)) from error
 
         return _detail(template)
+
+    @router.post(CREATE_SITE_ROUTE, status_code=201)
+    def create_site(request: Any = Body(default=None)) -> dict[str, object]:
+        """Create one Site from a shipped template.
+
+        The request body is parsed by the domain's own strict parser rather
+        than by a framework model, so that a refusal is product copy naming
+        what is wrong and what would be acceptable, instead of a validation
+        dump. Nothing is written unless the fully materialized document
+        passes the same parser that reads stored documents.
+        """
+        try:
+            parsed = parse_create_site_request(request)
+        except SiteConfigurationInvalid as error:
+            raise HTTPException(
+                status_code=422,
+                detail=_refusal(REFUSAL_INVALID_REQUEST, str(error)),
+            ) from error
+
+        try:
+            record = creation.create_site_from_template(parsed)
+        except SiteTemplateNotFound as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_TEMPLATE_NOT_FOUND,
+                    f"No shipped site template with template ID "
+                    f"{parsed.template_id!r} exists, so no site was created. "
+                    "Choose a template from the shipped catalog.",
+                ),
+            ) from error
+        except SiteIdentityConflict as error:
+            raise HTTPException(
+                status_code=409,
+                detail=_refusal(
+                    REFUSAL_SITE_ID_IN_USE,
+                    f"{error} Site IDs are unique across every site store "
+                    "and are compared without regard to case, so the same ID "
+                    "in a different capitalisation is the same site. Nothing "
+                    "was written. Choose a different site ID.",
+                ),
+            ) from error
+        except SiteConfigurationInvalid as error:
+            raise HTTPException(
+                status_code=422,
+                detail=_refusal(REFUSAL_INVALID_REQUEST, str(error)),
+            ) from error
+        except (SiteStoreUnavailable, SiteTemplateStoreUnavailable) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(
+                    REFUSAL_STORE_UNAVAILABLE,
+                    f"{error} Nothing was written.",
+                ),
+            ) from error
+
+        return site_summary(record)
 
     return router

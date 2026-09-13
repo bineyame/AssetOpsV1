@@ -65,15 +65,29 @@ class TestPortShape:
 
         assert methods == {"list_templates", "get_template"}
 
-    def test_no_site_repository_or_write_adapter_ships_in_this_slice(self) -> None:
-        """Creating a Site is a later slice; nothing here anticipates it.
+    def test_the_template_side_of_the_package_declares_no_write_path(self) -> None:
+        """T005's rule, narrowed by T006 rather than dropped.
+
+        T005 could assert that nothing anywhere in the package was named
+        `create` or `write`, because nothing could be created. T006 ships one
+        write, so the surviving rule is the narrower and still load-bearing
+        one: the template modules declare no mutator of any kind, so browsing
+        the catalog never acquires a write path and a template can never be
+        authored, uploaded, edited, or deleted in-product. The package-wide
+        "no update and no delete" rule moved to `test_site_repository.py`,
+        where the write path it constrains actually lives.
 
         Definitions are read from the syntax tree rather than the file text, so
-        the rule is about what the package declares, not about which words its
+        the rule is about what the modules declare, not about which words their
         docstrings use to say a thing does not exist.
         """
+        template_modules = [
+            SITES_PACKAGE_ROOT / "parsing.py",
+            SITES_PACKAGE_ROOT / "adapters" / "yaml_site_template_catalog.py",
+        ]
+
         declared: set[str] = set()
-        for path in SITES_PACKAGE_ROOT.rglob("*.py"):
+        for path in template_modules:
             tree = ast.parse(path.read_text(encoding="utf-8"))
             for node in ast.walk(tree):
                 if isinstance(
@@ -81,18 +95,27 @@ class TestPortShape:
                 ):
                     declared.add(node.name)
 
-        assert declared, "the definition scan must not be vacuous"
+        assert "parse_site_template" in declared, "the scan must not be vacuous"
         for banned in (
-            "SiteRepository",
-            "Site",
-            "create_site",
             "create",
+            "create_template",
             "save",
             "write",
             "delete",
             "update",
+            "upload",
+            "import_template",
         ):
-            assert banned not in declared, f"{banned} must not exist in this slice"
+            assert banned not in declared, f"{banned} must not exist on a template"
+
+    def test_the_catalog_service_exposes_no_write_use_case(self) -> None:
+        methods = {
+            name
+            for name in vars(SiteTemplateCatalogService)
+            if not name.startswith("_")
+        }
+
+        assert methods == {"list_templates", "get_template"}
 
     def test_the_template_record_is_not_a_kind_of_site(self) -> None:
         template = parse(valid_document())

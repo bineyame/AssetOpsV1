@@ -22,8 +22,9 @@ loudly rather than be normalized into a half-understood Site.
 from __future__ import annotations
 
 import re
-from typing import Any, Mapping
+from typing import Any, Mapping, NoReturn
 
+from assetops_backend.sites.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.sites.models import (
     COMPONENT_TYPES,
     RATING_UNITS,
@@ -323,38 +324,21 @@ def _reject_oversized(document: Any, *, source: str) -> None:
     """Bound node count, total text length, and nesting before validating.
 
     Walking first means a pathological document is refused before any
-    field-level work is done on it.
+    field-level work is done on it. The walk itself is shared with the Site
+    parser, so both document families are bounded by one implementation.
     """
-    nodes = 0
-    text_length = 0
-    pending: list[tuple[Any, int]] = [(document, 0)]
 
-    while pending:
-        value, depth = pending.pop()
+    def invalid(message: str) -> NoReturn:
+        raise SiteTemplateConfigurationInvalid(message)
 
-        nodes += 1
-        if nodes > MAX_DOCUMENT_NODES:
-            raise SiteTemplateConfigurationInvalid(
-                f"Template document in {source} has more than "
-                f"{MAX_DOCUMENT_NODES} nodes"
-            )
-        if depth > MAX_NESTING_DEPTH:
-            raise SiteTemplateConfigurationInvalid(
-                f"Template document in {source} is nested deeper than "
-                f"{MAX_NESTING_DEPTH} levels"
-            )
-
-        if isinstance(value, str):
-            text_length += len(value)
-            if text_length > MAX_DOCUMENT_TEXT_LENGTH:
-                raise SiteTemplateConfigurationInvalid(
-                    f"Template document in {source} holds more than "
-                    f"{MAX_DOCUMENT_TEXT_LENGTH} characters of text"
-                )
-        elif isinstance(value, Mapping):
-            for key, child in value.items():
-                pending.append((key, depth + 1))
-                pending.append((child, depth + 1))
-        elif isinstance(value, (list, tuple)):
-            for child in value:
-                pending.append((child, depth + 1))
+    reject_oversized(
+        document,
+        source=source,
+        limits=DocumentLimits(
+            max_nodes=MAX_DOCUMENT_NODES,
+            max_text_length=MAX_DOCUMENT_TEXT_LENGTH,
+            max_nesting_depth=MAX_NESTING_DEPTH,
+        ),
+        invalid=invalid,
+        document_kind="Template document",
+    )

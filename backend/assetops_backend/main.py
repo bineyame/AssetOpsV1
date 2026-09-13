@@ -5,9 +5,13 @@ The app is built by `create_app`, which reads the file-backed feature flags in
 at the serving boundary: when `simulator_lab.enabled` is false the Simulator Lab
 router is never included, so its paths do not exist on the app at all.
 
-No Site schema, simulator execution, ingestion, analytics, configuration
-editing, or Findings are served, and no endpoint here implies that operational
-evidence exists.
+The operator Sites API is mounted in both gate states, because the gate covers
+simulator surfaces and execution, never objects or stores. Creating a Site is a
+Simulator Lab capability and its route lives on the gated router.
+
+No simulator execution, ingestion, analytics, configuration editing, or
+Findings are served, and no endpoint here implies that operational evidence
+exists.
 """
 
 from __future__ import annotations
@@ -16,8 +20,12 @@ from fastapi import APIRouter, FastAPI
 
 from assetops_backend.config import FeatureFlags, load_feature_flags
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
-from assetops_backend.sites.composition import build_site_template_catalog
-from assetops_backend.sites.ports import SiteTemplateCatalog
+from assetops_backend.sites.composition import (
+    build_site_repository,
+    build_site_template_catalog,
+)
+from assetops_backend.sites.ports import SiteRepository, SiteTemplateCatalog
+from assetops_backend.sites_api import build_sites_router
 
 health_router = APIRouter()
 
@@ -36,6 +44,7 @@ def create_app(
     flags: FeatureFlags | None = None,
     *,
     site_template_catalog: SiteTemplateCatalog | None = None,
+    site_repository: SiteRepository | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -43,16 +52,23 @@ def create_app(
     controls simulator surfaces and execution only, never Site semantics,
     evidence, provenance, or operator routes.
 
-    The template catalog is composed here and injected as a port, so no route
-    module imports a storage adapter and a test can supply a fake catalog
-    without touching the shipped configuration root. The catalog is built only
-    when the gate is open: a closed gate serves no template surface and must
-    not touch the store to find that out.
+    The ports are composed here and injected, so no route module imports a
+    storage adapter and a test can supply fakes without touching a
+    configuration root or writing to disk.
+
+    The template catalog is built only when the gate is open: a closed gate
+    serves no template surface and no create route, and must not touch the
+    catalog to find that out. The Site repository is built in both states,
+    because the Sites index is an operator capability that the gate does not
+    reach.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.include_router(health_router)
+
+    repository = build_site_repository() if site_repository is None else site_repository
+    app.include_router(build_sites_router(repository))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (
@@ -60,7 +76,7 @@ def create_app(
             if site_template_catalog is None
             else site_template_catalog
         )
-        app.include_router(build_simulator_lab_router(catalog))
+        app.include_router(build_simulator_lab_router(catalog, repository))
 
     return app
 

@@ -18,14 +18,17 @@ ENABLED = FeatureFlags(simulator_lab_enabled=True)
 SIMULATOR_LAB_STATUS_PATH = "/api/simulator-lab/status"
 SITE_TEMPLATES_PATH = "/api/simulator-lab/site-templates"
 SITE_TEMPLATE_DETAIL_PATH = "/api/simulator-lab/site-templates/{template_id}"
+CREATE_SITE_PATH = "/api/simulator-lab/sites"
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
-# added the two template paths; the inventory assertions below are extended to
-# name them rather than relaxed to tolerate them.
+# added the two template paths and T006 added the create path; the inventory
+# assertions below are extended to name them rather than relaxed to tolerate
+# them.
 SIMULATOR_LAB_SERVED_PATHS = {
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
     SITE_TEMPLATE_DETAIL_PATH,
+    CREATE_SITE_PATH,
 }
 
 # Paths an operator, a script, or a stale bookmark could plausibly aim at the
@@ -36,6 +39,7 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
     "/api/simulator-lab/site-templates/hybrid-mini-grid-100kw",
+    CREATE_SITE_PATH,
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",
@@ -87,6 +91,7 @@ class TestGateDisabled:
             SIMULATOR_LAB_STATUS_PATH,
             SITE_TEMPLATES_PATH,
             "/api/simulator-lab/site-templates/hybrid-mini-grid-100kw",
+            CREATE_SITE_PATH,
             "/api/simulator-lab/execute",
         ):
             for request in (client.post, client.put, client.patch, client.delete):
@@ -111,6 +116,12 @@ class TestGateDisabled:
 
         assert response.status_code == 200
         assert response.json() == {"status": "ok", "service": "assetops-backend"}
+
+    def test_the_operator_sites_api_is_served_with_the_gate_closed(self) -> None:
+        """Sites are product objects. The gate covers surfaces, not stores."""
+        client = TestClient(create_app(DISABLED))
+
+        assert client.get("/api/sites").status_code == 200
 
 
 class TestGateEnabled:
