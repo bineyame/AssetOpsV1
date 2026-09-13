@@ -231,30 +231,22 @@ and then kept in agreement forever.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not make any Quick Action functional. Every one of them is either absent or
   disabled in this slice.
 - Do not build the Lab's Site view, a Lab Sites index, or any step 6 surface.
   The slot is declared and filled by the operator shell only.
-- Do not write the render-equivalence test. It needs the second consumer and
-  ships at causal step 6.
+- Leave the render-equivalence test for causal step 6, when the second consumer
+  exists.
 - Do not turn a labelled-in-place tab into a route, a link, or a disabled
   button, and do not add content to one.
 - Do not render `Edit`, `Edit Configuration`, `Version History`,
   `Duplicate Site`, `Delete Site`, or the image `Change` control in any state.
 - Do not add a site image, an image upload, or a map.
-- Do not add in-place editing, Save, Publish, rename, duplicate, delete,
-  approvals, configuration diff, history, or rollback.
-- Do not add a second entry-point chokepoint, extend the `$gatedModules`
-  allowlist, or route a gated control through the substrate.
+- Do not route a gated control through the substrate.
 - Do not give a substrate component a `variant`, `mode`, `shell`, or `isLab`
   prop, and do not let the substrate import shell code, simulator code, or the
   feature flag.
-- Do not render a Single Line Diagram, an empty diagram frame, or a signal
-  selector.
-- Do not add scenarios, run setup, simulator execution, ingestion, evidence,
-  source health, charts, analytics, Replay, or Findings.
-- Do not weaken any T003 to T011 assertion. Where markup changes force a query
-  change, preserve or strengthen the assertion; never relax it.
 
 ## User Review
 

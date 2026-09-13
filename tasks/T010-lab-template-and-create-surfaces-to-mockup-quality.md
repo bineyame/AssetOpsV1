@@ -163,6 +163,7 @@ change half of one user journey.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add template authoring, upload, editing, deletion, cloning, or import
   of an arbitrary YAML document.
 - Do not add bulk creation, creation without a template, cloning an existing
@@ -172,20 +173,11 @@ change half of one user journey.
   placeholders for them.
 - Do not change refusal wording, empty-state wording, or any other copy that the
   T006 checkpoint settled.
-- Do not add a Lab navigation destination, an operator navigation item, or a
-  second entry-point chokepoint, and do not extend the `$gatedModules`
-  allowlist.
 - Do not un-gate either surface or its API.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   give a substrate component a shell, mode, or variant discriminant.
-- Do not render a Single Line Diagram, an empty diagram frame, or a signal
-  selector.
-- Do not add scenarios, run setup, simulator execution, gateway staging,
-  ingestion, evidence, source health, charts, analytics, Replay, or Findings.
 - Do not dress the operator Sites index, Site Details, or Site Configuration
   here. Those are T011, T012, and T013.
-- Do not weaken any T003 to T009 assertion. Where markup changes force a query
-  change, preserve or strengthen the assertion; never relax it.
 
 ## User Review
 

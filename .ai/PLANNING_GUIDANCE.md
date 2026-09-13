@@ -113,5 +113,20 @@ features into tasks. Each task should:
 - Mark user-review checkpoints where product direction, UI/UX, domain
   semantics, or evidence interpretation changes.
 
+Task specs should be concise implementation guardrails. A normal UI/content
+slice should usually fit in 100-180 lines, a boundary-changing slice in 180-260
+lines, and a dangerous first such as a write path, evidence contract, ingestion
+boundary, simulator truth boundary, or analytics/finding semantics in 250-400
+lines. If more detail is needed, split the task or move durable reasoning into
+the feature map, decisions, or architecture documents.
+
+Task specs should not prescribe component factoring, helper names, styling
+mechanics, test structure, or local code organization below established
+boundaries unless the choice protects a named seam.
+
+During planning review, scan new task specs for defensive repetition. Repeated
+negative scope lists, exact-mechanics requirements, and copy-preservation rules
+should either be tied to a named seam, moved into shared guidance, or removed.
+
 Do not treat later capabilities as out of scope for the product. Treat them as
 sequenced features whose prerequisites must be made real in the right order.

@@ -158,6 +158,7 @@ becoming the product's data model.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add a column, filter, or badge whose value the product cannot source,
   including `Last Data`, assessment, top issue, evidence state, or source
   health.
@@ -167,20 +168,12 @@ becoming the product's data model.
   restyled.
 - Do not change the empty-state copy or any other copy the T006 checkpoint
   settled.
-- Do not add sorting, pagination, saved views, bulk selection, or bulk actions,
-  and do not add a query DSL, pagination, or filtering to the port to support
-  them.
+- Do not add sorting, saved views, bulk selection, or bulk actions.
 - Do not gate the Sites index or its API, and do not add an operator navigation
   item or a second entry-point chokepoint.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   add a shell, mode, or variant discriminant prop.
 - Do not dress Site Details or Site Configuration here. Those are T012 and T013.
-- Do not render a Single Line Diagram, an empty diagram frame, or a signal
-  selector.
-- Do not add scenarios, run setup, simulator execution, ingestion, evidence,
-  source health, charts, analytics, Replay, or Findings.
-- Do not weaken any T003 to T010 assertion. Where markup changes force a query
-  change, preserve or strengthen the assertion; never relax it.
 
 ## User Review
 

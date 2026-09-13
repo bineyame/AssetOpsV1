@@ -199,28 +199,12 @@ any point in step 3.
 
 ## Scope Limits
 
-- Do not add in-place Foundation editing, Save or Publish over an existing
-  Foundation, rename, `site_id` change, delete, duplicate, Foundation version
-  bump in place, configuration diff, history, rollback, or approvals, and do not
-  add disabled placeholders for any of them.
-- Do not add a user-facing way to remove a Site.
-- Do not render the Single Line Diagram, an empty frame for it, a placeholder
-  labelled for it, or its signal selector. Do not add topology auto-layout, a
-  Devices & Sensors screen, or an SLD view model.
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add a Site tab bar, a Key Parameters panel, or any other canonical
   screen 3 chrome. That is T013, after the shared visual vocabulary.
-- Do not add `update_site`, `delete_site`, a query DSL, pagination,
-  transactions, or caching to the port.
 - Do not build extension-slot machinery. Nothing fills a slot in this slice.
-- Do not add scenarios, run setup, simulator execution, gateway staging,
-  ingestion, source envelopes, evidence records, source health, charts,
-  analytics, Replay, or Findings.
 - Do not gate Site Configuration, its route, or its API on
   `simulator_lab.enabled`.
-- Do not add any item to operator navigation.
-- Do not weaken the T003/T004 route, API, and navigation boundary tests or the
-  T005 to T007 guards, and do not loosen the carried-forward fabricated-value
-  assertions. Replace them where truthful values now render; never relax them.
 
 ## User Review
 

@@ -84,3 +84,34 @@ concrete check in `.ai/FEATURE_MAP.md` before simulator truth overlays land.
 - `tools/check-architecture.ps1`
 - `tools/check-agent-workflow.ps1`
 - Existing backend and frontend tests relevant to the active slice.
+
+## Task Spec Hygiene
+
+For new or revised task specs, follow `.ai/WORKFLOW.md` Task Spec Size guidance.
+Large early M1 specs are acceptable only when they protect dangerous firsts; do
+not let that become the default task shape.
+
+Before handing off a new task, scan for repeated negative lists, exact wording
+requirements, and implementation mechanics. Keep only what protects a named
+seam or slice-specific risk.
+
+## Inherited M1 Step 3 Exclusions
+
+Tasks T005-T013 inherit these exclusions unless a later reviewed task explicitly
+changes them:
+
+- No in-place Site/Foundation editing, Save/Publish over an existing Site,
+  rename, duplicate, delete, configuration history, rollback, approval flow, or
+  disabled placeholder for those capabilities.
+- No user-facing removal flow.
+- No Single Line Diagram, empty diagram frame, signal selector, SLD view model,
+  topology auto-layout, Devices & Sensors screen, or device-management surface.
+- No scenarios, run setup, simulator execution, gateway staging, ingestion,
+  source envelopes, evidence records, source health, charts, analytics, Replay,
+  or Findings.
+- No speculative database, ORM, migration tool, cache, query DSL, pagination,
+  or port methods beyond the active slice.
+- No operator navigation item, second simulator chokepoint, or weakening of
+  previous route, API, navigation, architecture, or fabricated-value guards.
+- No mockup value, timestamp, status, label, control, or destination unless the
+  active slice supplies truthful backing content.

@@ -139,6 +139,7 @@ reinventing badges and tables three more times.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not create a new surface, route, destination, or navigation item.
 - Do not dress a surface that has no real content, and do not add an empty frame
   or placeholder panel to complete a layout.
@@ -147,14 +148,6 @@ reinventing badges and tables three more times.
 - Do not add the Quick Actions panel, the Site tab bar, or `+ New Site` styling
   work; those belong to the screen that owns them.
 - Do not change any product copy that a user-review checkpoint settled.
-- Do not add scenarios, run setup, simulator execution, ingestion, evidence,
-  source health, charts, analytics, Replay, or Findings.
-- Do not render a Single Line Diagram, an empty diagram frame, or a signal
-  selector.
-- Do not weaken or delete any T003 to T008 assertion. Where markup changes force
-  a query change, preserve or strengthen the assertion; never relax it.
-- Do not extend the `$gatedModules` allowlist or introduce a second simulator
-  entry-point chokepoint.
 
 ## User Review
 

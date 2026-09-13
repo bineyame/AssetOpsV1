@@ -72,8 +72,8 @@ second consumer exists and expensive after two shells each grow a Site page.
 - The port error vocabulary gains site not found and site identity conflict,
   alongside the configuration-invalid and store-unavailable errors T005
   defined. Port signatures and errors still speak domain records only.
-- A writable user store root exists outside the shipped configuration roots, its
-  location is declared in exactly one module, and `.gitignore` covers it.
+- A writable user store root exists outside the shipped configuration roots and
+  is configured from one owned location; `.gitignore` covers it.
 - The shipped Site store ships empty. A test asserts that on a clean checkout it
   contains no Site and the Sites index therefore renders its first-run empty
   state. No fixture Site is added to the product.
@@ -98,9 +98,8 @@ second consumer exists and expensive after two shells each grow a Site page.
 - A create that fails validation, identity checks, or the conflict check leaves
   the store byte-identical. A test asserts this by comparing store contents
   before and after a failed create.
-- The write is atomic and exclusive: exclusive create plus write-temp-then-
-  atomic-replace within the same directory, with flush and fsync before replace.
-  A half-written document can never be left behind.
+- The write is atomic, exclusive, and durable enough that a failed create cannot
+  leave a half-written document behind.
 - Instantiation deep-copies the template Foundation content into the new Site
   document and records configuration origin `USER`, `template_id`, and
   `template_version`. The created Site does not live-reference the template. A
@@ -125,8 +124,8 @@ second consumer exists and expensive after two shells each grow a Site page.
   package and is imported only by the single composition module. The T005
   adapter-isolation and storage-technology guards pass unchanged with the write
   adapter present.
-- `tools/check-architecture.ps1` gains two checks: the user store root is
-  declared in exactly one module, and `.gitignore` covers it.
+- `tools/check-architecture.ps1` gains checks that the user store root has one
+  owned configuration point and that `.gitignore` covers it.
 - A fake in-memory `SiteRepository`, including `create_site`, satisfies the
   service layer with no import from `adapters/`.
 - The simulator receives no repository handle and imports nothing from the sites
@@ -347,17 +346,10 @@ second consumer exists and expensive after two shells each grow a Site page.
 
 ## Scope Limits
 
-- Do not add in-place Foundation editing, Save or Publish over an existing
-  Foundation, rename, `site_id` change, delete, duplicate-into-existing-id,
-  Foundation version bump in place, configuration diff, history, rollback, or
-  approvals, and do not add disabled placeholders for them.
-- Do not add a user-facing way to remove a user-created Site, in the UI, the
-  API, or the port.
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add free-form authoring of a Site from scratch, authoring or uploading
   a template in-product, editing a template, importing an arbitrary YAML
   document, bulk creation, or cloning an existing Site.
-- Do not add `update_site`, `delete_site`, a query DSL, pagination,
-  transactions, or caching to the port.
 - Do not overlay stores, add precedence between them, or prefix user `site_id`
   values with an origin marker.
 - Do not add a `created_in_lab`, `is_simulator_site`, or equivalent field, and
@@ -368,21 +360,10 @@ second consumer exists and expensive after two shells each grow a Site page.
   in this slice.
 - Do not let the create path reach storage directly, even for one case. API
   handler to service to port to adapter, always.
-- Do not introduce a database, ORM, migration tool, or cache.
-- Do not render a Single Line Diagram, an empty diagram frame, a signal
-  selector, auto-layout, a Devices & Sensors screen, or a topology view model.
-- Do not add scenarios, run setup, simulator execution, gateway staging,
-  ingestion, source envelopes, evidence records, source health, charts,
-  analytics, Replay, or Findings.
 - Do not give the simulator a repository handle, and do not gate the Sites index
   or the Sites API on `simulator_lab.enabled`.
-- Do not add any item to operator navigation, extend the `$gatedModules`
-  allowlist, or introduce a second simulator entry-point chokepoint.
 - Do not apply canonical mockup layout to the Sites index or the create flow
   yet. Content before chrome: those are T010 and T011.
-- Do not weaken the T003/T004 route, API, and navigation boundary tests or the
-  T005 guards, and do not loosen the carried-forward fabricated-value
-  assertions. Replace them where truthful values now render; never relax them.
 
 ## User Review
 

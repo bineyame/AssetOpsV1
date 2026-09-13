@@ -177,15 +177,11 @@ separately tested acceptance criterion rather than a scope-limit line.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not render the Single Line Diagram, an empty frame for it, a placeholder or
   skeleton labelled for it, a reserved region sized for it, or its signal
   selector. Do not add an SLD archetype, an SLD view model, topology validation,
   or auto-layout. That is causal step 4.
-- Do not add a Devices & Sensors screen or a device management surface. That is
-  causal step 4.
-- Do not add in-place editing, Save, Publish, rename, duplicate, delete,
-  approvals, configuration diff, history, or rollback, and do not add disabled
-  placeholders for any of them.
 - Do not render `Edit` or `Version History` in any state.
 - Do not change the fixed-at-creation statement or any other copy the T008
   checkpoint settled.
@@ -197,10 +193,6 @@ separately tested acceptance criterion rather than a scope-limit line.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   add a shell, mode, or variant discriminant prop.
 - Do not gate Site Configuration, its route, or its API.
-- Do not add scenarios, run setup, simulator execution, ingestion, evidence,
-  source health, charts, analytics, Replay, or Findings.
-- Do not weaken any T003 to T012 assertion. Where markup changes force a query
-  change, preserve or strengthen the assertion; never relax it.
 
 ## User Review
 

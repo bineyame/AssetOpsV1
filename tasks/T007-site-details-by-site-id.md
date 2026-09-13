@@ -190,29 +190,15 @@ false, so it is the slice that removes it.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add Site Configuration, its route, or its content. That is T008.
 - Do not add a Site tab bar, a Quick Actions panel, a site image panel, or any
   canonical screen 2 chrome. That is T012, after the shared visual vocabulary.
 - Do not render `Open in Simulator Lab`, `Start Simulation`, or `View Live Data`
   in any state, and do not add an operator-to-Lab crossing in this slice.
-- Do not add in-place editing, Save, Publish, rename, duplicate, delete,
-  approvals, configuration diff, history, or rollback, and do not add disabled
-  placeholders for them.
-- Do not add a user-facing way to remove a Site.
-- Do not add `update_site`, `delete_site`, a query DSL, pagination,
-  transactions, or caching to the port.
 - Do not build extension-slot machinery. Nothing fills a slot in this slice.
-- Do not render a Single Line Diagram, an empty diagram frame, a signal
-  selector, auto-layout, a Devices & Sensors screen, or a topology view model.
-- Do not add scenarios, run setup, simulator execution, gateway staging,
-  ingestion, source envelopes, evidence records, source health, charts,
-  analytics, Replay, or Findings.
 - Do not gate Site Details, its route, or its API on `simulator_lab.enabled`.
-- Do not add any item to operator navigation.
 - Do not apply canonical mockup layout yet. Content before chrome.
-- Do not weaken the T003/T004 route, API, and navigation boundary tests or the
-  T005 and T006 guards, and do not loosen the carried-forward fabricated-value
-  assertions. Replace them where truthful values now render; never relax them.
 
 ## User Review
 

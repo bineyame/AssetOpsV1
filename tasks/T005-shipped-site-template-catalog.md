@@ -113,9 +113,8 @@ hidden-but-reachable failure the gate exists to prevent.
 - The template adapter lives under the sites `adapters/` package and is imported
   only by the single composition module. Everything else receives the port by
   injection.
-- `tools/check-architecture.ps1` gains three checks, in the same line-regex
-  shape as the existing gate chokepoint check and with the same
-  `(^|/)(tests|__tests__)/` exemption:
+- `tools/check-architecture.ps1` gains three checks with the same test
+  exemptions and failure posture as the existing architecture guards:
   - Adapter isolation: imports resolving into the sites `adapters/` package are
     permitted only from the one allowlisted composition module.
   - No storage technology above the adapter layer: inside the sites package but
@@ -242,32 +241,16 @@ hidden-but-reachable failure the gate exists to prevent.
 
 ## Scope Limits
 
+- Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add instantiation, a Create action, `SiteRepository`, `create_site`,
   any port mutator, the writable user store, user Sites, or a `.gitignore`
   change. Those are T006.
-- Do not add template authoring, template upload, template editing, template
-  deletion, or import of an arbitrary YAML document. Those are outside M1.
+- Do not add template authoring, upload, editing, deletion, or arbitrary YAML
+  import. Those are outside M1.
 - Do not ship a canonical Site in the shipped Site store. M1 ships zero Sites.
-- Do not add in-place Site editing, Save, Publish, rename, duplicate, delete,
-  approvals, configuration diff, history, or rollback, and do not add disabled
-  placeholders for them.
-- Do not add a user-facing way to remove anything.
-- Do not render a Single Line Diagram, an empty diagram frame, a signal
-  selector, auto-layout, a Devices & Sensors screen, or a topology view model.
-- Do not add scenarios, run setup, simulator execution, gateway staging,
-  ingestion, source envelopes, evidence records, source health, charts,
-  analytics, Replay, or Findings.
-- Do not introduce a database, ORM, migration tool, or cache.
-- Do not add port methods speculatively.
-- Do not add any item to operator navigation.
-- Do not extend the `$gatedModules` allowlist in `tools/check-architecture.ps1`
-  or introduce a second simulator URL chokepoint.
 - Do not apply canonical mockup layout to these surfaces yet. Content before
   chrome: fidelity for the template surfaces is T010, after the shared visual
   vocabulary lands in T009.
-- Do not weaken the T003/T004 route, API, and navigation boundary tests, and do
-  not loosen the carried-forward fabricated-value assertions. Replace them where
-  truthful values now render; never relax them.
 
 ## User Review
 

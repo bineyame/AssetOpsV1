@@ -48,6 +48,61 @@ Prefer sequences such as:
 
 Avoid building whole layers before there is useful product behavior.
 
+## Task Spec Size
+
+Task specs are guardrails for fast implementation, not miniature design
+documents. Keep durable reasoning in `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`,
+or `.ai/ARCHITECTURE.md`; keep task files slice-specific and executable.
+
+Recommended size bands:
+
+- Normal UI/content slice: 100-180 lines.
+- Boundary-changing slice: 180-260 lines.
+- First write path, evidence contract, ingestion, simulator truth boundary, or
+  analytics/finding semantics: 250-400 lines.
+
+If a task grows beyond its band, either split the slice or move durable
+reasoning into the canonical planning and architecture files. Early M1 tasks may
+temporarily sit near the upper band only when they settle dangerous firsts such
+as Site identity, YAML authority, storage posture, simulator/operator
+separation, provenance, or no-fabricated-UI rules.
+
+Every task spec should include:
+
+- User-visible outcome.
+- Why this slice is next.
+- Acceptance criteria tied to behavior or contracts.
+- Only the product/domain semantics needed for this slice.
+- Protected seams and exact checks.
+- Scope limits.
+- Whether user review is required.
+
+Leave to implementation:
+
+- Component factoring.
+- Helper names.
+- Styling mechanics.
+- Test structure.
+- Local code organization below established boundaries.
+
+## Avoiding Spec Chaff
+
+When writing or revising task specs, prefer behavior and contract guardrails over
+defensive repetition.
+
+- Put inherited exclusions in one shared place and reference them from tasks.
+- Repeat a prohibition inside a task only when the slice has a special local
+  risk or exception.
+- Specify the required property and proof, not the exact implementation
+  mechanics, unless the mechanism is itself the protected seam.
+- Avoid exact wording requirements unless the user has reviewed that copy as
+  product language; otherwise require clear, accessible meaning.
+- Avoid telling implementers where to put helpers, how to factor components, or
+  how to shape tests below established boundaries.
+- Treat a high count of `do not`, `must not`, `never`, or `exactly` as a smell
+  during planning review. It may be justified, but it should trigger a trim or a
+  move into shared guidance.
+
 ## Planning Before Tasks
 
 Do not predefine implementation tasks before the Architect has analyzed the
