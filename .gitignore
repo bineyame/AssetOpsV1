@@ -1,5 +1,10 @@
 .agent/
 
+# Writable user-authored configuration store. Site documents a user creates
+# live here at runtime; they are user data, not shipped configuration, and the
+# shipped stores under config/ stay read-only.
+var/
+
 
 # Python
 __pycache__/

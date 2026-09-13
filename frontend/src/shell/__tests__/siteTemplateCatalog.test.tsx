@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
+import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import type {
   SiteTemplateCatalogClient,
   SiteTemplateDetail,
@@ -86,6 +87,11 @@ const LOADED_CATALOG = catalogWith(
   { status: "loaded", template: TEMPLATE },
 );
 
+/** No site exists in these tests: a template must never become one. */
+const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
+  listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
+};
+
 function renderAt(
   path: string,
   flags: FeatureFlags = ENABLED,
@@ -93,7 +99,11 @@ function renderAt(
 ) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} siteTemplateCatalog={catalog} />
+      <App
+        flags={flags}
+        siteTemplateCatalog={catalog}
+        siteDirectory={EMPTY_SITE_DIRECTORY}
+      />
     </MemoryRouter>,
   );
 }
@@ -349,8 +359,9 @@ describe("template surfaces offer no capability the product lacks", () => {
 describe("templates never appear as sites", () => {
   it.each(["/sites", "/site-details", "/site-configuration"])(
     "keeps every template out of the operator route %s when the gate is open",
-    (route) => {
+    async (route) => {
       const { container } = renderAt(route);
+      await screen.findByRole("main");
 
       expect(container.textContent).not.toMatch(/template/i);
       expect(container.textContent).not.toMatch(TEMPLATE.display_name);
@@ -358,11 +369,14 @@ describe("templates never appear as sites", () => {
     },
   );
 
-  it("still renders the first-run empty Sites index when the gate is open", () => {
+  it("still renders the first-run empty Sites index when the gate is open", async () => {
     renderAt("/sites");
 
     expect(
-      screen.getByRole("heading", { level: 2, name: "No sites configured" }),
+      await screen.findByRole("heading", {
+        level: 2,
+        name: "No sites configured",
+      }),
     ).toBeInTheDocument();
   });
 

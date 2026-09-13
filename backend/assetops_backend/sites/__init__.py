@@ -6,8 +6,24 @@ that, by banning the yaml, pathlib and sqlite3 modules and direct file
 opening anywhere in this package outside `adapters/`, and by allowing imports
 of `adapters/` from the single composition module only.
 
-T005 scope: the shipped read-only Site Template catalog. No Site, no
-`SiteRepository`, no writable store, and no write path exists here.
+Two identity spaces live here and never merge: templates (`template_id`,
+`template_version`) and Sites (`site_id`). Two ports serve them and stay
+separate, with parallel error vocabularies rather than one shared family.
+
+Sites live in one globally unique identity space spread over two stores: a
+shipped read-only store that ships empty, and a writable user store. There is
+no overlay and no precedence between them. The only write in the package is
+create-if-absent on the user store; there is no update and no delete, because
+M1 has decided configuration is fixed at creation and removal is a developer
+action on the store.
 """
 
-__all__ = ["models", "ports", "parsing", "service"]
+__all__ = [
+    "document_bounds",
+    "identity",
+    "models",
+    "ports",
+    "parsing",
+    "service",
+    "site_parsing",
+]

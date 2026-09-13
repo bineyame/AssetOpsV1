@@ -54,10 +54,29 @@ class UnavailableCatalog:
         raise SiteTemplateStoreUnavailable("catalog is unreachable")
 
 
+class EmptySiteRepository:
+    """No Site exists in these tests, and none may be written by them."""
+
+    def list_sites(self) -> Sequence[object]:
+        return ()
+
+    def get_site(self, site_id: str) -> object:
+        raise AssertionError("a template test resolved a Site")
+
+    def create_site(self, record: object) -> object:
+        raise AssertionError("a template test wrote a Site")
+
+
 @pytest.fixture
 def client() -> TestClient:
     template = parse(valid_document())
-    return TestClient(create_app(ENABLED, site_template_catalog=FakeCatalog([template])))
+    return TestClient(
+        create_app(
+            ENABLED,
+            site_template_catalog=FakeCatalog([template]),
+            site_repository=EmptySiteRepository(),
+        )
+    )
 
 
 class TestTemplateListing:
@@ -139,7 +158,11 @@ class TestTemplateDetail:
 class TestStoreFailuresAreStatedNotFaked:
     def test_an_unreachable_catalog_is_reported_as_unavailable(self) -> None:
         client = TestClient(
-            create_app(ENABLED, site_template_catalog=UnavailableCatalog())
+            create_app(
+                ENABLED,
+                site_template_catalog=UnavailableCatalog(),
+                site_repository=EmptySiteRepository(),
+            )
         )
 
         assert client.get(TEMPLATES_PATH).status_code == 503
@@ -154,20 +177,34 @@ class TestNoWriteRouteExists:
         for request in (client.post, client.put, client.patch, client.delete):
             assert request(path).status_code == 405, f"{path} accepted a write verb"
 
-    def test_no_create_instantiate_or_import_route_exists(
+    def test_no_create_instantiate_or_import_route_hangs_off_a_template_path(
         self, client: TestClient
     ) -> None:
+        """Nothing is created by addressing a template.
+
+        T006 adds a create route, so this no longer asserts that no create
+        route exists anywhere. It asserts the thing that stayed true: a
+        template is never the subject of a write. Creation is addressed as a
+        Site under the Lab prefix, is covered by `test_sites_api.py`, and
+        never writes to the template catalog.
+        """
         for path in (
             f"{TEMPLATES_PATH}/test-archetype/instantiate",
             f"{TEMPLATES_PATH}/test-archetype/create-site",
             f"{TEMPLATES_PATH}/import",
-            "/api/simulator-lab/sites",
-            "/api/sites",
+            f"{TEMPLATES_PATH}/test-archetype/sites",
         ):
             # 404 where no route matches, 405 where the path spells a
             # template_id that no template has. Either way nothing is created.
             assert client.post(path).status_code in (404, 405), f"{path} exists"
             assert client.get(path).status_code == 404, f"{path} exists"
+
+    def test_the_operator_sites_api_accepts_no_write_verb(
+        self, client: TestClient
+    ) -> None:
+        """The Sites index is a read surface; creation is gated and elsewhere."""
+        for request in (client.post, client.put, client.patch, client.delete):
+            assert request("/api/sites").status_code in (404, 405)
 
     def test_the_openapi_description_advertises_read_operations_only(
         self, client: TestClient
@@ -193,7 +230,11 @@ class TestTemplateSurfaceIsGated:
         self, path: str
     ) -> None:
         client = TestClient(
-            create_app(DISABLED, site_template_catalog=FakeCatalog([]))
+            create_app(
+                DISABLED,
+                site_template_catalog=FakeCatalog([]),
+                site_repository=EmptySiteRepository(),
+            )
         )
 
         assert client.get(path).status_code == 404
@@ -209,7 +250,11 @@ class TestTemplateSurfaceIsGated:
                 raise AssertionError("the catalog was read behind a closed gate")
 
         client = TestClient(
-            create_app(DISABLED, site_template_catalog=ExplodingCatalog())
+            create_app(
+                DISABLED,
+                site_template_catalog=ExplodingCatalog(),
+                site_repository=EmptySiteRepository(),
+            )
         )
 
         assert client.get(TEMPLATES_PATH).status_code == 404

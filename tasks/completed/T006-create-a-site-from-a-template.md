@@ -1,6 +1,6 @@
 # T006 - Create A Site From A Template, And The Sites Index
 
-Status: planned
+Status: completed
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T006-create-a-site-from-a-template`
@@ -410,3 +410,68 @@ What the user is being asked to settle:
 Settled before implementation and not open at this checkpoint: removal of a
 user-created Site, which the user deferred on 2026-09-13; the shell placement of
 the create flow; and the decision that M1 ships zero canonical Sites.
+
+## Review Outcome
+
+Reviewer verdict: accept. No findings, no rework requested, no blocking open
+questions.
+
+The Reviewer confirmed that T006 matches the spec and preserves the boundaries
+the slice existed to establish:
+
+- Simulator/product separation.
+- The first write-path rules.
+- Feature gating.
+- The shared Site presentation substrate.
+
+Reviewer checks: architecture guard passed, agent workflow guard passed, backend
+269 passed, frontend 211 passed, typecheck passed, production build passed,
+`git diff --check main...HEAD` clean.
+
+Verification independently re-run in the implementing session on the same tree:
+`tools/check-architecture.ps1` passed, `tools/check-agent-workflow.ps1` passed,
+backend 269 passed, frontend 211 passed. Recorded as re-run, not as a second
+review.
+
+Not independently verified here, and reported by the Implementer rather than
+observed: that the four new architecture checks were each proven non-vacuous by
+twelve deliberate violations before they were reverted, and the manual
+end-to-end smoke through the dev server and proxy.
+
+User review remains outstanding. It is the gate before merge, and the product
+choices it must settle are listed in the User Review section above, plus four
+Implementer choices: the create action staying visible once a Site exists,
+shape-only timezone validation, the dev-server `/api` proxy, and country plus
+locality as the location identity fields.
+
+The full review packet is at `.agent/T006-review-packet.md` with the branch diff
+at `.agent/T006-review.diff`. Both are local-only.
+
+## User Review Outcome
+
+User review completed 2026-09-14. Verdict: accept as built. No rework requested.
+
+Product choices settled, all as implemented:
+
+- The create action stays visible on the Sites index whenever the gate is open,
+  not only on the empty state. Creating a second Site is a real need in M1 and
+  the gate still governs the capability.
+- `timezone` stays validated by IANA-name shape, not by membership of the tz
+  database. No new dependency in this slice; the gap is carried forward to be
+  tightened before scenario timing consumes the value.
+- The dev-server `/api` proxy in `frontend/vite.config.ts` stays. Dev-server
+  only; built output and requested paths unchanged.
+- Location identity stays country plus locality. Coordinates and an
+  intermediate administrative level are not added, because nothing in M1 reads
+  them and an unused field would be fabricated content.
+
+Copy settled as written, and verified against the source rather than the review
+packet: the eight Sites index columns with mode, lifecycle, configuration
+origin, and template provenance as four separate columns; the first-run empty
+state in both gate states; the four refusal messages; the creation-semantics
+statements on the create screen; the copy-not-reference sentence; and the
+"a Lab-created Site is a normal Site" statement.
+
+Raised at review and deliberately not changed: the duplicate-`site_id` refusal
+uses "capitalisation". Noted as a product-copy consistency question for a later
+copy pass, not a T006 defect.

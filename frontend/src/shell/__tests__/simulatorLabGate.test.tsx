@@ -9,7 +9,17 @@ import {
   featureFlagsWith,
   type FeatureFlags,
 } from "../../config/featureFlags";
+import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
+
+/**
+ * The Sites index reads the Site store. It is injected here and empty, so a
+ * gate assertion is about what the build serves rather than about what a store
+ * happens to hold or how fast it answers.
+ */
+const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
+  listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
+};
 
 /**
  * Serving-boundary tests for `simulator_lab.enabled`.
@@ -56,8 +66,20 @@ const SITE_TEMPLATE_URLS = [
   "/simulator-lab/site-templates/hybrid-mini-grid-100kw",
 ];
 
+/**
+ * The Lab surface T006 added. Creating a site is a Lab capability, so its
+ * route is gated and listed here; the site it produces is a product object in
+ * the product store and is not gated at all, which the Sites index assertions
+ * below cover separately.
+ */
+const CREATE_SITE_URLS = ["/simulator-lab/create-site"];
+
 /** Everything that must be unserved while the gate is closed. */
-const UNSERVED_WHEN_DISABLED = [...SIMULATOR_URLS, ...SITE_TEMPLATE_URLS];
+const UNSERVED_WHEN_DISABLED = [
+  ...SIMULATOR_URLS,
+  ...SITE_TEMPLATE_URLS,
+  ...CREATE_SITE_URLS,
+];
 
 /** Execution URLs that no slice has implemented, in either flag state. */
 const EXECUTION_URLS = SIMULATOR_URLS.filter(
@@ -92,7 +114,7 @@ const RUN_ACTION_PATTERN =
 function renderAt(path: string, flags: FeatureFlags) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} />
+      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} />
     </MemoryRouter>,
   );
 }
@@ -130,6 +152,33 @@ describe("simulator lab gate: disabled", () => {
     expect(
       simulatorLabRoutes(DISABLED).map((route) => route.path),
     ).not.toContain("/simulator-lab/site-templates");
+  });
+
+  it("registers no create-a-site route either", () => {
+    expect(
+      simulatorLabRoutes(DISABLED).map((route) => route.path),
+    ).not.toContain("/simulator-lab/create-site");
+  });
+
+  it.each(OPERATOR_ROUTES)(
+    "offers no way to create a site from the operator route %s",
+    async (route) => {
+      const { container } = renderAt(route, DISABLED);
+      await screen.findByRole("main");
+
+      expect(container.querySelectorAll("form, button, input, select")).toHaveLength(
+        0,
+      );
+      expect(container.textContent).not.toMatch(/create/i);
+    },
+  );
+
+  it("still serves the Sites index when the gate is closed", async () => {
+    renderAt("/sites", DISABLED);
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "No sites configured" }),
+    ).toBeInTheDocument();
   });
 
   it.each(UNSERVED_WHEN_DISABLED)(
@@ -202,12 +251,21 @@ describe("simulator lab gate: disabled", () => {
 });
 
 describe("simulator lab gate: enabled", () => {
-  it("registers the Simulator Lab routes, including Site Templates", () => {
+  it("registers the Simulator Lab routes, including Site Templates and create", () => {
     expect(simulatorLabRoutes(ENABLED).map((route) => route.path)).toEqual([
       "/simulator-lab",
       "/simulator-lab/site-templates",
       "/simulator-lab/site-templates/:templateId",
+      "/simulator-lab/create-site",
     ]);
+  });
+
+  it("serves the same Sites index it serves with the gate closed", async () => {
+    renderAt("/sites", ENABLED);
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "No sites configured" }),
+    ).toBeInTheDocument();
   });
 
   it.each(SIMULATOR_LAB_SHELL_URLS)("serves an empty Simulator Lab shell at %s", (url) => {

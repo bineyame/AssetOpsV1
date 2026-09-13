@@ -9,7 +9,24 @@ import { SiteDetailsFrame } from "./shell/SiteDetailsFrame";
 import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
+import type { SiteCreationClient } from "./shell/siteCreationClient";
 import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
+import {
+  createSiteDirectoryClient,
+  type SiteDirectoryClient,
+} from "./sites/siteDirectoryClient";
+
+/** The operator Sites path. Not a simulator path, and never gated. */
+export const SITES_PATH = "/sites";
+
+/**
+ * One client for the whole app, built once at module scope.
+ *
+ * The routes are rebuilt on every render, and a fresh client each time would
+ * change the identity of the prop the Sites index keys its load effect on, so
+ * the store would be re-read in a loop.
+ */
+const defaultSiteDirectory = createSiteDirectoryClient();
 
 /**
  * Route table.
@@ -33,26 +50,39 @@ import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClien
  * page. The catch-all sits outside them too: an address this build does not
  * serve should not be dressed as a workspace.
  *
- * Site Details and Site Configuration are parameterless, because no Site schema
- * or Site identity exists yet.
+ * The Sites route composes the shared Site substrate in `frontend/src/sites/`
+ * and is served in both gate states. Site Details and Site Configuration are
+ * still the parameterless T002 frames: sites are addressed by `site_id` in the
+ * next slice, and a destination must not appear before the route behind it
+ * renders a truthful surface.
  *
- * `siteTemplateCatalog` is an injection point for tests. The default client
- * reads the gated template API; a test can supply a fake so a UI assertion is
- * about what the screen renders from a template document rather than about
- * network timing.
+ * `siteTemplateCatalog`, `siteDirectory`, and `siteCreation` are injection
+ * points for tests. The default clients read the real APIs; a test supplies
+ * fakes so a UI assertion is about what the screen renders from a record
+ * rather than about network timing.
  */
 export interface AppProps {
   flags?: FeatureFlags;
   siteTemplateCatalog?: SiteTemplateCatalogClient;
+  siteDirectory?: SiteDirectoryClient;
+  siteCreation?: SiteCreationClient;
 }
 
-export function App({ flags = featureFlags, siteTemplateCatalog }: AppProps) {
+export function App({
+  flags = featureFlags,
+  siteTemplateCatalog,
+  siteDirectory = defaultSiteDirectory,
+  siteCreation,
+}: AppProps) {
   return (
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>
           <Route path="/" element={<OperatorShellFrame />} />
-          <Route path="/sites" element={<SitesFrame />} />
+          <Route
+            path={SITES_PATH}
+            element={<SitesFrame flags={flags} directory={siteDirectory} />}
+          />
           <Route path="/site-details" element={<SiteDetailsFrame />} />
           <Route
             path="/site-configuration"
@@ -60,7 +90,12 @@ export function App({ flags = featureFlags, siteTemplateCatalog }: AppProps) {
           />
         </Route>
       </Route>
-      {simulatorLabRoutes(flags, siteTemplateCatalog).map((route) => (
+      {simulatorLabRoutes(
+        flags,
+        siteTemplateCatalog,
+        siteCreation,
+        SITES_PATH,
+      ).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}
       <Route path="*" element={<RouteNotAvailableFrame />} />
