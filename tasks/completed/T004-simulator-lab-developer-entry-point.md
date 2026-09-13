@@ -1,6 +1,6 @@
 # T004 - Simulator Lab Developer Entry Point
 
-Status: in_review
+Status: completed
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T004-simulator-lab-developer-entry-point`
@@ -114,3 +114,78 @@ User review is required because this task resolves the T003 checkpoint
 redirection: whether the shell hierarchy and enabled/disabled Simulator Lab
 surface match the v6.9 workspace model. After this task is accepted, planning
 may proceed to Site Foundation slices unless the user redirects again.
+
+## Review Outcome
+
+Reviewer verdict: accept. No blocking findings, no rework requested.
+
+Unlike T001 and T003, no detailed reviewer findings were relayed into the
+implementing session, so this section records the verdict and the verification
+that was actually performed rather than reviewer commentary. Anything the
+Reviewer raised outside that channel is not captured here.
+
+Implementer verification carried out against the review packet
+(`.agent/T004-review-packet.md`, local-only) before merge:
+
+- `.agent/T004-review.diff` byte-identical to `git diff main` over `README.md`
+  and `frontend/`, so the packet described the merged code exactly.
+- All eight acceptance-criteria line citations resolved to the tests claimed.
+- Checks re-run green: backend 28 passed, frontend 116 passed, typecheck clean,
+  production build 44 modules, `tools/check-architecture.ps1` and
+  `tools/check-agent-workflow.ps1` both passed.
+- Criterion 7 proven non-vacuous by mutation. Restoring the T003 placement
+  (flags back into `OperatorShellLayout`, Simulator Lab item back in the
+  operator nav list) failed exactly 14 tests: four placement, four
+  identical-navigation, four exclusion, one shell-opens, and the rewritten T003
+  gate test. The tree was restored and re-verified byte-identical and green.
+
+The one rewritten T003 test, `simulatorLabGate.test.tsx`
+"reaches the Simulator Lab through a gated entry point outside operator
+navigation", keeps the reachability half unchanged and adds absence assertions,
+so it is stricter than the version it replaces. No other T003 boundary
+assertion was touched, loosened, or deleted.
+
+Carried forward, not actionable inside T004:
+
+1. T003 follow-up 1 remains open and remains an ARCHITECT ACTION against
+   `.ai/FEATURE_MAP.md`: the disabled bundle still contains
+   `SimulatorLabFrame.tsx`, because the gate removes route reachability rather
+   than code. This must become an explicit seam before simulator truth overlays
+   land. T004 does not absorb it.
+2. T003 follow-up 3 remains open: the URL guard cannot catch dynamically
+   constructed simulator paths. Route and API inventory tests remain the
+   stronger boundary proof.
+3. Operator routes now expose two navigation landmarks. Future unnamed
+   `getByRole("navigation")` queries become ambiguous, and the placement tests
+   are anchored on the name "Workspace utilities"; renaming it requires
+   updating them together.
+4. Workspace chrome wraps only operator routes, not the Simulator Lab route or
+   the not-available frame. If a later slice wants persistent workspace chrome
+   inside the Lab, it collides with T003's "exactly one link in the Lab shell"
+   assertion, and that needs a deliberate documented update rather than a quiet
+   loosening.
+5. The carried-forward "no digits inside `<main>`" assertions in
+   `operatorRouteFrames.test.tsx` and `simulatorLabGate.test.tsx` are untouched.
+   The standing instruction still applies to both: replace with
+   evidence-specific assertions when truthful values render. Never loosen.
+6. No `.ai/DECISIONS.md` entry was added. The workspace-versus-operator boundary
+   is recorded in T003's User Review Outcome and in this file. Flagged in case
+   the Architect wants it recorded durably.
+
+## User Review Outcome
+
+User review completed 2026-09-13. Verdict: accept, merge to `main`.
+
+The user confirmed reviewer approval and instructed the merge. The shell
+hierarchy question that this task existed to settle is therefore closed:
+Simulator Lab is reached from workspace-level chrome outside operator
+navigation, operator navigation is structurally identical in both flag states,
+and the Lab renders outside the operator route layout.
+
+This closes the T003 checkpoint redirection and completes the Stack, Shell, And
+Gate feature. Planning may now proceed to Site Foundation slices.
+
+The user did not raise the four open questions the packet posed for user review
+(the utility-bar boundary, the `Open Simulator Lab` and `Workspace utilities`
+labels, the developer-workspace framing text, and the plain back link). They
+are settled as implemented, and remain changeable in a later slice.
