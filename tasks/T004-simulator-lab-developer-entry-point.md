@@ -1,6 +1,6 @@
 # T004 - Simulator Lab Developer Entry Point
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T004-simulator-lab-developer-entry-point`

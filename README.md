@@ -37,12 +37,19 @@ routes, and later Site history, provenance, accepted evidence, analytics and
 Replay, are unaffected by it in both states.
 
 - `false` (the shipped default): the Simulator Lab route is not registered in
-  the UI, the `/api/simulator-lab/*` router is not mounted, and the operator
-  shell shows no Simulator Lab entry point. Direct URLs and API calls are not
-  served.
-- `true`: the empty Simulator Lab shell is reachable, a Simulator Lab entry
-  point appears in operator navigation, and `GET /api/simulator-lab/status`
-  reports that the surface is served. There is still no run execution.
+  the UI, the `/api/simulator-lab/*` router is not mounted, and neither the
+  workspace chrome nor operator navigation shows any Simulator Lab entry point,
+  label, or hint. Direct URLs and API calls are not served.
+- `true`: the empty Simulator Lab shell is reachable, an `Open Simulator Lab`
+  entry point appears in the workspace utility chrome, and
+  `GET /api/simulator-lab/status` reports that the surface is served. There is
+  still no run execution.
+
+Simulator Lab is a separate developer workspace, not an operator screen, so its
+entry point lives in workspace-level chrome above the operator shell and never
+in operator navigation. Operator navigation lists the same four operator routes
+in both flag states, and the Simulator Lab shell renders outside the operator
+route layout with no operator chrome.
 
 Parsing is strict: unknown keys and non-boolean flag values are rejected rather
 than coerced. Restart the backend and the Vite dev server after editing the
