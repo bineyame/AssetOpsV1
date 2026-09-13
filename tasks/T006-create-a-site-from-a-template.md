@@ -69,9 +69,11 @@ second consumer exists and expensive after two shells each grow a Site page.
   `update_site`, no `delete_site`, no query or filter DSL, no pagination, no
   transaction, and no caching method. `SiteRepository` and
   `SiteTemplateCatalog` remain separate protocols.
-- The port error vocabulary gains site not found and site identity conflict,
-  alongside the configuration-invalid and store-unavailable errors T005
-  defined. Port signatures and errors still speak domain records only.
+- The Site port error vocabulary is a parallel family, not a reuse of the
+  template errors: `SiteRepositoryError`, `SiteNotFound`,
+  `SiteIdentityConflict`, `SiteConfigurationInvalid`, and
+  `SiteStoreUnavailable`. Port signatures and errors still speak domain records
+  only.
 - A writable user store root exists outside the shipped configuration roots and
   is configured from one owned location; `.gitignore` covers it.
 - The shipped Site store ships empty. A test asserts that on a clean checkout it
@@ -105,6 +107,13 @@ second consumer exists and expensive after two shells each grow a Site page.
   `template_version`. The created Site does not live-reference the template. A
   test mutates the template document after creation and asserts the created Site
   is unchanged.
+- The Site record shape follows the feature map: copied template Foundation seed
+  only; user-supplied `site_id`, display name, location identity fields, and
+  timezone; service-defaulted `origin = USER`, `source.mode = SIMULATED`,
+  lifecycle status, template provenance, and any initial Foundation
+  version/validity fields the parser requires. Topology, devices, mappings,
+  control assumptions, source health, evidence availability, operational status,
+  SLD runtime fields, and simulator/run fields do not exist yet.
 - `template_id` is provenance only. It never becomes `site_id`, never appears as
   Site identity, and is never used for lookup, routing, or a filename.
 - Document size and collection cardinality are bounded, so an oversized or
@@ -121,11 +130,14 @@ second consumer exists and expensive after two shells each grow a Site page.
   present in the Sites index afterwards.
 - The create path goes API handler to service to port to adapter, with no
   shortcut to storage. The write adapter lives under the sites `adapters/`
-  package and is imported only by the single composition module. The T005
-  adapter-isolation and storage-technology guards pass unchanged with the write
-  adapter present.
+  package and is imported only by the single composition module. The T005 guard
+  strength is preserved, but the checks are deliberately updated for the new
+  write adapter: storage technology remains banned outside `adapters/`, shipped
+  configuration roots remain read-only, and writes are allowed only through the
+  user-store adapter.
 - `tools/check-architecture.ps1` gains checks that the user store root has one
-  owned configuration point and that `.gitignore` covers it.
+  owned configuration point, that `.gitignore` covers it, and that the shipped
+  and user store checks have non-vacuity assertions.
 - A fake in-memory `SiteRepository`, including `create_site`, satisfies the
   service layer with no import from `adapters/`.
 - The simulator receives no repository handle and imports nothing from the sites
@@ -138,6 +150,10 @@ second consumer exists and expensive after two shells each grow a Site page.
   Lab path prefix so the existing URL chokepoint covers them, and are absent
   from the served route inventory when the flag is false. The `$gatedModules`
   allowlist is not extended.
+- The disabled-gate proof is runtime reachability and action/API absence, not
+  proving that Lab code is absent from the frontend bundle. Tests assert no
+  gate-off create route, create action, create API, simulator URL backdoor, or
+  operator import path into Lab internals.
 - The Sites index and the Sites list API are operator capabilities and are never
   gated. They are served identically in both flag states, and a Site created
   while the Lab was enabled is fully visible when it is disabled.

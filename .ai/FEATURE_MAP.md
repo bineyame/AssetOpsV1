@@ -325,6 +325,11 @@ Resolved Simulator Lab feature-gating decision:
 - When disabled, simulator routes, navigation, entry points, execution actions,
   and truth overlays are not rendered or served. This is route/API gating, not
   merely hidden navigation.
+- The gate invariant is runtime reachability and API/action absence, not absence
+  from the frontend bundle. Lab modules may still be present in a built bundle;
+  the protected seam is that a gate-off build serves no Lab route, Lab action,
+  Lab API, simulator URL backdoor, create flow, or operator import path into Lab
+  internals.
 - Existing simulated Sites, SIMULATED provenance, accepted evidence, operator
   routes, analytics, and Replay remain available because they are product Site
   history, not simulator execution.
@@ -366,6 +371,22 @@ Causal prerequisites:
   for both stores, whole-document validation before write, constrained
   `site_id`, and atomic writes.
 
+T006 created Site shape:
+- Copied from the selected template: only the template Foundation seed
+  (`foundation.site_type`, `foundation.summary`, `foundation.components`, and
+  component ratings), by deep copy. The created Site never live-references the
+  template.
+- User-supplied at create time: `site_id`, `display_name`, location identity
+  fields, and `timezone`. These live on the Site record because they identify
+  the product Site and make later scenario/evidence timing meaningful.
+- Defaulted by the create service: `origin = USER`, `source.mode = SIMULATED`,
+  lifecycle status (`PLANNED` unless a task explicitly chooses another M1
+  default), selected `template_id`, selected `template_version`, and initial
+  Foundation version/validity fields if the strict Site parser requires them.
+- Not present yet: topology connections, devices, signal mappings, control
+  assumptions, source health, evidence availability, operational status, SLD
+  runtime fields, or simulator/run fields.
+
 Candidate tasks, after review, in causal order:
 - Add a shipped `SiteTemplate` catalog with the `SiteTemplateCatalog` port,
   domain records, port error vocabulary, a read-only shipped-YAML adapter behind
@@ -376,8 +397,8 @@ Candidate tasks, after review, in causal order:
   cross-store collision refusal, atomic write, and origin/template provenance on
   the created Site.
 - Show a Sites index with a genuine first-run empty state and, after creation,
-  the created Site with stable identity, plus Site Details addressed by
-  `site_id` with explicit no-evidence/unavailable states.
+  the created Site with stable identity. Site Details addressed by `site_id`
+  follows in the next slice.
 - Add read-only Site Configuration presentation with Foundation version,
   validity, device/signal relationships, control assumptions, and no edit
   affordance of any kind.
@@ -853,7 +874,8 @@ reviewed:
    is still genuinely empty.
 1b. A user creates a Site from a template through the `SiteRepository` port; it
    persists across restart, appears in the Sites index with an explicit
-   configuration origin and template provenance, and opens as Site Details.
+   configuration origin and template provenance. Rows do not open as Site
+   Details until the identified Site Details slice.
 1c. That Site's Foundation is presented as read-only Site Configuration, with no
    edit affordance and no operational values.
 1d. Those three surfaces are brought to canonical mockup fidelity, per surface,
@@ -986,10 +1008,10 @@ when their named input does not exist.
      pressure. It is also the first moment the Sites index has a truthful
      reason to contain a row.
    - UI-verifiable outcome: the Sites index goes from a genuine first-run empty
-     state to a row the user just created, which opens as a normal
-     configuration-only Site Details addressed by `site_id`. A duplicate,
-     case-variant, or malformed `site_id` is refused with a specific readable
-     reason and the store stays byte-identical.
+     state to a row the user just created. Rows are not links yet; Site Details
+     addressed by `site_id` is the next slice. A duplicate, case-variant, or
+     malformed `site_id` is refused with a specific readable reason and the
+     store stays byte-identical.
    - Deliberately unavailable: in-place Foundation editing, Save/Publish over an
      existing Foundation, rename, `site_id` change, delete, duplicate-into-
      existing-id, Foundation version bump in place, configuration diff, history,
@@ -1451,11 +1473,11 @@ Divide into slices, in this order:
    create only; write adapter over the user store; identity and whole-document
    validation; cross-store collision refusal; atomic write; origin and template
    provenance; specific refusal copy. The operator Sites index goes from a
-   genuine first-run empty state to the created Site, and Site Details is
-   addressed by `site_id`. Create flow in the Lab shell behind the gate; Sites
-   index and Site Details in the operator shell, ungated. The created Site is a
-   product object in the product store from the instant it exists: there is no
-   Lab-owned Site store and no publish or promote step.
+   genuine first-run empty state to the created Site; rows are not links yet and
+   Site Details addressed by `site_id` follows in the next slice. Create flow in
+   the Lab shell behind the gate; Sites index in the operator shell, ungated. The
+   created Site is a product object in the product store from the instant it
+   exists: there is no Lab-owned Site store and no publish or promote step.
 3. Read-only Site Configuration presentation: Foundation version, validity,
    source mode as provenance, lifecycle, integration readiness, configuration
    origin, components, devices, signal mappings, ratings, control assumptions,
