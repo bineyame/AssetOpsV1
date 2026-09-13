@@ -6,7 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 
-const operatorRoutes = ["/", "/sites", "/site-details", "/site-configuration"];
+const operatorRoutes = ["/", "/sites", "/site-configuration"];
 
 /**
  * The Sites index now reads a store, so it is injected and empty here. These
@@ -39,14 +39,6 @@ describe("operator route frames", () => {
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Sites" }),
-    ).toBeInTheDocument();
-  });
-
-  it("renders the Site Details route frame", () => {
-    renderAt("/site-details");
-
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Site details" }),
     ).toBeInTheDocument();
   });
 
@@ -99,19 +91,6 @@ describe("operator route frame empty states", () => {
     );
   });
 
-  it("states that the Site Details frame describes no site", () => {
-    renderAt("/site-details");
-
-    expect(
-      screen.getByRole("heading", { level: 2, name: "No site to show" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /No site has been configured, so this frame describes no site/i,
-      ),
-    ).toBeInTheDocument();
-  });
-
   it("states that site configuration is unavailable", () => {
     renderAt("/site-configuration");
 
@@ -136,9 +115,10 @@ describe("operator route frame empty states", () => {
       expect(screen.queryAllByRole("figure")).toHaveLength(0);
 
       // The digit rule stands where nothing truthful renders a number: these
-      // four frames describe an empty build. Where the Sites index does render
-      // values, the stronger rule replaces this one and every digit on screen
-      // must trace to the record under test - see `sitesIndex.test.tsx`.
+      // three frames describe an empty build. Where a site renders values, the
+      // stronger rule replaces this one and every digit on screen must trace
+      // to the record under test - see `sitesIndex.test.tsx` for the index and
+      // `siteDetail.test.tsx` for a site page.
       expect(
         within(screen.getByRole("main")).queryAllByText(/\d/),
       ).toHaveLength(0);
@@ -152,7 +132,7 @@ describe("operator route frame empty states", () => {
     expect(container.querySelectorAll("table")).toHaveLength(0);
   });
 
-  it.each(["/site-details", "/site-configuration"])(
+  it.each(["/site-configuration"])(
     "does not hard-code a site identifier at %s",
     (path) => {
       const { container } = renderAt(path);
@@ -174,13 +154,6 @@ describe("operator route navigation", () => {
     fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Sites" }));
     expect(
       screen.getByRole("heading", { level: 1, name: "Sites" }),
-    ).toBeInTheDocument();
-
-    fireEvent.click(
-      within(operatorNavigation).getByRole("link", { name: "Site details" }),
-    );
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Site details" }),
     ).toBeInTheDocument();
 
     fireEvent.click(

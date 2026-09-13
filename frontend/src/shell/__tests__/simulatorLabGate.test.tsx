@@ -33,7 +33,13 @@ const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
 const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
-const OPERATOR_ROUTES = ["/", "/sites", "/site-details", "/site-configuration"];
+/**
+ * Operator routes with no site in them. The identified site route is covered
+ * separately at the bottom of this file, over a record, because a real site
+ * legitimately renders the word `Simulated` as source-mode provenance and the
+ * blanket text assertions here would read that as a simulator reference.
+ */
+const OPERATOR_ROUTES = ["/", "/sites", "/site-configuration"];
 
 /**
  * URLs a bookmark, a script, or a curious operator could aim at the simulator.

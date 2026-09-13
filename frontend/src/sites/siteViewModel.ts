@@ -23,7 +23,7 @@
  * know would be a claim about a site rather than a statement about the record.
  */
 
-import type { SiteSummary } from "./siteReadModel";
+import type { SiteDetailReadModel, SiteSummary } from "./siteReadModel";
 
 /** What the Sites index renders for one site. */
 export interface SiteView {
@@ -80,5 +80,81 @@ export function deriveSiteView(site: SiteSummary): SiteView {
       site.template === null
         ? NO_TEMPLATE_PROVENANCE
         : `${site.template.template_id} v${site.template.template_version}`,
+  };
+}
+
+/**
+ * A fact the product cannot state for a configuration-only site, and the
+ * reason it cannot.
+ *
+ * The reason is not decoration. "No evidence" without a reason reads as a
+ * measurement of zero; with one it reads as what it is, a statement about what
+ * has been recorded. Every one of these is written here rather than in a
+ * component, so the two shells cannot explain the same absence differently.
+ */
+export interface SiteUnavailableFact {
+  value: string;
+  reason: string;
+}
+
+/**
+ * What a site page renders for one site.
+ *
+ * The six provenance-and-status concepts appear here as six fields, never as
+ * one. Three come straight off the record - configuration origin, source mode,
+ * lifecycle status. Three have no truthful source for a site with no accepted
+ * evidence - integration readiness, evidence availability, source health - and
+ * each is stated as unavailable with its reason rather than defaulted, zeroed,
+ * or derived from one of the other three.
+ *
+ * Source health in particular is not rendered as a health value. A source that
+ * is configured but has never been expected to report has no health state at
+ * all, so no source-health vocabulary appears here.
+ */
+export interface SiteDetailView extends SiteView {
+  timezone: string;
+  foundationVersion: string;
+  foundationValidFrom: string;
+  integrationReadiness: SiteUnavailableFact;
+  evidenceAvailability: SiteUnavailableFact;
+  sourceHealth: SiteUnavailableFact;
+}
+
+/** Integration readiness: a separate concept, with no field behind it yet. */
+export const INTEGRATION_READINESS_UNAVAILABLE: SiteUnavailableFact = {
+  value: "Not recorded",
+  reason:
+    "No integration is configured for this site, and this build records no " +
+    "integration readiness. Readiness is its own fact: it is not lifecycle " +
+    "status, not source mode, and not derived from either.",
+};
+
+/** Evidence availability: a statement about evidence, not a measurement. */
+export const EVIDENCE_AVAILABILITY_UNAVAILABLE: SiteUnavailableFact = {
+  value: "No evidence",
+  reason:
+    "No evidence has been accepted for this site, so there is nothing to " +
+    "show and nothing to analyse. This is a statement about evidence, not a " +
+    "reading of zero and not a statement about the site's lifecycle status.",
+};
+
+/** Source health: not applicable, because no source is expected to report. */
+export const SOURCE_HEALTH_UNAVAILABLE: SiteUnavailableFact = {
+  value: "Not applicable",
+  reason:
+    "No source is expected to report for this site yet, so there is no " +
+    "source health to state. A source that is configured but has never been " +
+    "expected to report has no health state at all.",
+};
+
+export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView {
+  return {
+    ...deriveSiteView(site),
+    timezone: site.timezone,
+    foundationVersion: `${site.foundation.version}`,
+    foundationValidFrom: site.foundation.valid_from,
+    integrationReadiness: INTEGRATION_READINESS_UNAVAILABLE,
+    evidenceAvailability: EVIDENCE_AVAILABILITY_UNAVAILABLE,
+    sourceHealth: SOURCE_HEALTH_UNAVAILABLE,
   };
 }

@@ -24,13 +24,19 @@ import {
 const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
-const OPERATOR_ROUTES = ["/", "/sites", "/site-details", "/site-configuration"];
+const OPERATOR_ROUTES = ["/", "/sites", "/site-configuration"];
 
-/** The operator route list, which the gate must never change. */
+/**
+ * The operator route list, which the gate must never change.
+ *
+ * T007 removes `Site details`: it was a parameterless placeholder from before
+ * site identity existed, and a site page is now reached from a Sites row. The
+ * gate assertion is unchanged in strength - the list is still pinned exactly,
+ * and it is still the same list in both flag states.
+ */
 const OPERATOR_NAVIGATION_LABELS = [
   "Operator home",
   "Sites",
-  "Site details",
   "Site configuration",
 ];
 

@@ -357,7 +357,7 @@ describe("template surfaces offer no capability the product lacks", () => {
 });
 
 describe("templates never appear as sites", () => {
-  it.each(["/sites", "/site-details", "/site-configuration"])(
+  it.each(["/sites", "/site-configuration"])(
     "keeps every template out of the operator route %s when the gate is open",
     async (route) => {
       const { container } = renderAt(route);

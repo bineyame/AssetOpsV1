@@ -5,19 +5,23 @@ import { OperatorShellFrame } from "./shell/OperatorShellFrame";
 import { OperatorShellLayout } from "./shell/OperatorShellLayout";
 import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
 import { SiteConfigurationFrame } from "./shell/SiteConfigurationFrame";
-import { SiteDetailsFrame } from "./shell/SiteDetailsFrame";
+import { SiteDetailFrame } from "./shell/SiteDetailFrame";
 import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
+import {
+  SITES_PATH,
+  SITE_DETAIL_ROUTE_PATH,
+} from "./shell/operatorSiteRoutes";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
 import type { SiteCreationClient } from "./shell/siteCreationClient";
 import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
 import {
   createSiteDirectoryClient,
+  type SiteDetailClient,
   type SiteDirectoryClient,
 } from "./sites/siteDirectoryClient";
 
-/** The operator Sites path. Not a simulator path, and never gated. */
-export const SITES_PATH = "/sites";
+export { SITES_PATH };
 
 /**
  * One client for the whole app, built once at module scope.
@@ -50,13 +54,16 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * page. The catch-all sits outside them too: an address this build does not
  * serve should not be dressed as a workspace.
  *
- * The Sites route composes the shared Site substrate in `frontend/src/sites/`
- * and is served in both gate states. Site Details and Site Configuration are
- * still the parameterless T002 frames: sites are addressed by `site_id` in the
- * next slice, and a destination must not appear before the route behind it
- * renders a truthful surface.
+ * The Sites routes compose the shared Site substrate in `frontend/src/sites/`
+ * and are served in both gate states. A site is addressed by `site_id`, so
+ * Site Details hangs off the Sites path with the identity in it and is reached
+ * from a Sites row. The parameterless `/site-details` frame from T002 is gone:
+ * a Site Details link that names no site is not a destination, and no slice
+ * leaves a placeholder standing once its identified route exists. Site
+ * Configuration is still the parameterless T002 frame and is removed the same
+ * way by the slice that gives it an identified replacement.
  *
- * `siteTemplateCatalog`, `siteDirectory`, and `siteCreation` are injection
+ * `siteTemplateCatalog`, `siteDirectory`, `siteDetail`, and `siteCreation` are injection
  * points for tests. The default clients read the real APIs; a test supplies
  * fakes so a UI assertion is about what the screen renders from a record
  * rather than about network timing.
@@ -65,6 +72,7 @@ export interface AppProps {
   flags?: FeatureFlags;
   siteTemplateCatalog?: SiteTemplateCatalogClient;
   siteDirectory?: SiteDirectoryClient;
+  siteDetail?: SiteDetailClient;
   siteCreation?: SiteCreationClient;
 }
 
@@ -72,6 +80,7 @@ export function App({
   flags = featureFlags,
   siteTemplateCatalog,
   siteDirectory = defaultSiteDirectory,
+  siteDetail = defaultSiteDirectory,
   siteCreation,
 }: AppProps) {
   return (
@@ -83,7 +92,12 @@ export function App({
             path={SITES_PATH}
             element={<SitesFrame flags={flags} directory={siteDirectory} />}
           />
-          <Route path="/site-details" element={<SiteDetailsFrame />} />
+          <Route
+            path={SITE_DETAIL_ROUTE_PATH}
+            element={
+              <SiteDetailFrame detail={siteDetail} sitesPath={SITES_PATH} />
+            }
+          />
           <Route
             path="/site-configuration"
             element={<SiteConfigurationFrame />}

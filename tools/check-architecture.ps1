@@ -638,6 +638,20 @@ try {
         @{
             Name    = "Site view-model derivation"
             Pattern = 'function\s+(?:derive|to|build)Site[A-Za-z]*View\b'
+        },
+        @{
+            # The site-page components. Named separately from the listing
+            # components above because they do not share their noun suffixes,
+            # and a definition the pattern list does not reach is a definition
+            # the single-definition check does not protect.
+            #
+            # `*Frame` is excluded because that is this tree's name for a shell
+            # route frame: a frame supplies the landmark and composes the
+            # substrate, and composing is exactly what a shell is allowed to
+            # do. What must not exist outside the substrate is a component that
+            # decides what a site looks like.
+            Name    = "Site detail presentation component"
+            Pattern = 'function\s+SiteDetail(?!Frame\b)[A-Za-z]*\s*\('
         }
     )
 
@@ -733,6 +747,45 @@ try {
                 }
             }
         }
+    }
+
+    # 9. Navigation truthfulness for the site page. A site is addressed by
+    #    `site_id`, so the parameterless `/site-details` placeholder is gone
+    #    and the identified route replaced it. This is a pair of assertions on
+    #    purpose: a lone "the placeholder is absent" check would also pass on a
+    #    tree where nothing addresses a site at all, so the identified route
+    #    has to be found for the absence to mean anything - the route
+    #    parameter is what is looked for, because the path itself is built from
+    #    the Sites path constant rather than spelled out.
+    #
+    #    `/site-configuration` is deliberately NOT checked here. It is still a
+    #    parameterless placeholder and is removed by the slice that gives it an
+    #    identified replacement; adding it now would fail the build for a route
+    #    this slice does not replace.
+    $identifiedSiteRoutePath = 0
+
+    foreach ($module in $frontendModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+
+            if ($line -match '["'']/site-details') {
+                Add-Failure ("Parameterless site destination at " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()). A site is " +
+                    "addressed by site_id; a Site Details link that names no " +
+                    "site is not a destination.")
+            }
+
+            if ($line -match '/:siteId') {
+                $identifiedSiteRoutePath++
+            }
+        }
+    }
+
+    if ($identifiedSiteRoutePath -eq 0) {
+        Add-Failure ("No identified site route was found in frontend/src, so " +
+            "the navigation-truthfulness check is vacuous. Update the check, " +
+            "do not delete it.")
     }
 
     if ($substrateModules -eq 0) {

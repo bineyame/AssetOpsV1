@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { SitesIndex } from "../SitesIndex";
@@ -81,8 +82,21 @@ function directoryWith(result: SiteListResult): SiteDirectoryClient {
   return { listSites: () => Promise.resolve(result) };
 }
 
+/**
+ * The address of one site's page, supplied the way a shell supplies it.
+ *
+ * The substrate takes the address as data rather than importing one. It is not
+ * a mode and nothing branches on it: it is where the composing shell puts a
+ * site page.
+ */
+const siteHref = (siteId: string) => `/sites/${encodeURIComponent(siteId)}`;
+
 function renderIndex(result: SiteListResult) {
-  return render(<SitesIndex directory={directoryWith(result)} />);
+  return render(
+    <MemoryRouter>
+      <SitesIndex directory={directoryWith(result)} siteHref={siteHref} />
+    </MemoryRouter>,
+  );
 }
 
 /** Every digit run in a string, so screen values can be traced to a record. */
@@ -153,15 +167,42 @@ describe("sites index rows", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders no row as a link and registers no per-site destination", async () => {
+  it("opens the site from its row, and adds no other destination", async () => {
+    /**
+     * T006 asserted that no row was a link, because the route behind one did
+     * not exist. It exists now, so the assertion is replaced rather than
+     * dropped: the row link is pinned to the site's own address, and it is
+     * still the only destination the listing offers.
+     */
+    const { container } = renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
+    });
+    await screen.findByRole("table");
+
+    const links = Array.from(container.querySelectorAll("a")).map((link) => [
+      link.getAttribute("href"),
+      link.textContent,
+    ]);
+
+    expect(links).toEqual([
+      ["/sites/MG-002", "MG-002"],
+      ["/sites/CC-001", "CC-001"],
+    ]);
+  });
+
+  it("addresses a row by site ID and never by name or template", async () => {
     const { container } = renderIndex({
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
     await screen.findByRole("table");
 
-    expect(container.querySelectorAll("a")).toHaveLength(0);
-    expect(screen.queryAllByRole("link")).toHaveLength(0);
+    const href = container.querySelector("a")?.getAttribute("href") ?? "";
+
+    expect(href).toBe("/sites/MG-002");
+    expect(href).not.toMatch(/Kalangala/i);
+    expect(href).not.toMatch(/hybrid-mini-grid/i);
   });
 });
 
@@ -242,8 +283,16 @@ describe("the index shows no capability the product lacks", () => {
     await screen.findByRole("table");
 
     // Not merely "no enabled control": deferred-by-decision capabilities are
-    // absent from the DOM rather than rendered disabled.
-    expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
+    // absent from the DOM rather than rendered disabled. Rows are links now,
+    // so the assertion is pinned to exactly that one kind of control rather
+    // than relaxed: every interactive element is a link to a site page, and
+    // nothing else of any kind is interactive.
+    const interactive = Array.from(
+      container.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR),
+    );
+
+    expect(interactive.map((control) => control.tagName)).toEqual(["A"]);
+    expect(interactive[0].getAttribute("href")).toBe("/sites/MG-002");
     expect(container.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });
 
@@ -286,26 +335,18 @@ describe("the index shows no capability the product lacks", () => {
 
 describe("the substrate is a leaf with no shell discriminant", () => {
   it("renders identically whichever shell composes it", async () => {
-    const first = render(
-      <SitesIndex
-        directory={directoryWith({
-          status: "loaded",
-          sites: [USER_SIMULATED_SITE],
-        })}
-      />,
-    );
+    const first = renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE],
+    });
     await within(first.container).findByRole("table");
     const firstMarkup = first.container.innerHTML;
     first.unmount();
 
-    const second = render(
-      <SitesIndex
-        directory={directoryWith({
-          status: "loaded",
-          sites: [USER_SIMULATED_SITE],
-        })}
-      />,
-    );
+    const second = renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE],
+    });
     await within(second.container).findByRole("table");
 
     // There is no shell, mode, or variant prop to vary, which is why this can

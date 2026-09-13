@@ -13,13 +13,35 @@
  * rest is missing from the configuration.
  */
 
-import type { SiteListResult, SiteSummary } from "./siteReadModel";
+import type {
+  SiteDetailReadModel,
+  SiteDetailResult,
+  SiteListResult,
+  SiteSummary,
+} from "./siteReadModel";
 
 /** The operator Sites API. Not a simulator path, and never gated. */
 export const SITES_API_PATH = "/api/sites";
 
 export interface SiteDirectoryClient {
   listSites(): Promise<SiteListResult>;
+}
+
+/**
+ * Reading one site by its identity.
+ *
+ * A second interface rather than a second method on the one above, so that a
+ * screen declares which capability it needs and a caller that only lists
+ * sites cannot reach a lookup it never uses. Both are satisfied by the one
+ * client built below, and both are read-only: there is still no create, edit,
+ * save, publish, rename, duplicate, or delete method anywhere in this module.
+ *
+ * A site is addressed by `site_id` and by nothing else. The display name and
+ * the template a site was created from are not identity and never appear in a
+ * request path.
+ */
+export interface SiteDetailClient {
+  getSite(siteId: string): Promise<SiteDetailResult>;
 }
 
 function isTemplateProvenance(value: unknown): boolean {
@@ -60,9 +82,25 @@ export function isSiteSummary(value: unknown): value is SiteSummary {
   );
 }
 
+export function isSiteDetail(value: unknown): value is SiteDetailReadModel {
+  if (!isSiteSummary(value)) {
+    return false;
+  }
+  const foundation = (value as unknown as Record<string, unknown>).foundation as
+    | Record<string, unknown>
+    | undefined;
+
+  return (
+    foundation !== undefined &&
+    foundation !== null &&
+    typeof foundation.version === "number" &&
+    typeof foundation.valid_from === "string"
+  );
+}
+
 export function createSiteDirectoryClient(
   basePath: string = SITES_API_PATH,
-): SiteDirectoryClient {
+): SiteDirectoryClient & SiteDetailClient {
   return {
     async listSites(): Promise<SiteListResult> {
       try {
@@ -76,6 +114,27 @@ export function createSiteDirectoryClient(
           return { status: "unavailable" };
         }
         return { status: "loaded", sites };
+      } catch {
+        return { status: "unavailable" };
+      }
+    },
+
+    async getSite(siteId: string): Promise<SiteDetailResult> {
+      try {
+        const response = await fetch(
+          `${basePath}/${encodeURIComponent(siteId)}`,
+        );
+        if (response.status === 404) {
+          return { status: "not_found" };
+        }
+        if (!response.ok) {
+          return { status: "unavailable" };
+        }
+        const body: unknown = await response.json();
+        if (!isSiteDetail(body)) {
+          return { status: "unavailable" };
+        }
+        return { status: "loaded", site: body };
       } catch {
         return { status: "unavailable" };
       }
