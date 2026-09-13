@@ -52,17 +52,18 @@ Replay, are unaffected by it in both states.
   it. The Sites index offers a link into that flow. There is still no run
   execution.
 
-The Sites index and `GET /api/sites` are operator capabilities and are never
-gated. They are served identically in both states, and a site created while the
+The Sites index, one site's page, and the `GET /api/sites` and
+`GET /api/sites/{site_id}` routes behind them are operator capabilities and are
+never gated. They are served identically in both states, and a site created while the
 Lab was enabled stays fully visible when it is disabled, because the gate covers
 surfaces and execution and never objects or stores. A gate-off build with an
 empty Sites index and no way to add a site is the correct state, not a defect.
 
 Simulator Lab is a separate developer workspace, not an operator screen, so its
 entry point lives in workspace-level chrome above the operator shell and never
-in operator navigation. Operator navigation lists the same four operator routes
-in both flag states, and the Simulator Lab shell renders outside the operator
-route layout with no operator chrome.
+in operator navigation. Operator navigation lists the same three operator
+routes in both flag states, and the Simulator Lab shell renders outside the
+operator route layout with no operator chrome.
 
 Parsing is strict: unknown keys and non-boolean flag values are rejected rather
 than coerced. Restart the backend and the Vite dev server after editing the
@@ -111,6 +112,27 @@ Configuration origin (`SHIPPED` / `USER`), source mode (`LIVE` / `SIMULATED`),
 and lifecycle status are three independent facts. In M1 every user-created site
 also has `SIMULATED` source mode, because the Simulator Lab is the only creation
 path; they coincide by circumstance and neither is derived from the other.
+
+A site is addressed by `site_id` and by nothing else. `GET /api/sites/{site_id}`
+serves one site and the operator route `/sites/:siteId` renders it; a row in the
+Sites index is the way in. Lookup compares identity without regard to case, and
+both the response and the screen show the stored canonical spelling, so one site
+can never present as two. An unknown site is an explicit not-found surface, not
+an empty site.
+
+A site's page shows what the product knows: identity, name, type, location,
+timezone, lifecycle status, source mode, configuration origin, template
+provenance, and the foundation's version and validity start. Integration
+readiness, evidence availability and source health are separate concepts with no
+truthful source yet, so each is stated as unavailable with its reason rather
+than zeroed or given a health value. There is no telemetry, chart, tab bar,
+diagram, image panel, or action control of any kind.
+
+Operator navigation does not grow for a site surface and loses the items that
+stopped being true. The parameterless `Site details` route and item are gone,
+because a Site Details link that names no site is not a destination;
+`Site configuration` is still parameterless and is removed by the slice that
+gives it an identified replacement.
 
 Site presentation lives in `frontend/src/sites/`: one read model, one view
 model, one set of components, composed by the operator shell and later by the
@@ -179,11 +201,18 @@ writable user store root has exactly one owning declaration and is covered by
 `.gitignore`.
 
 Two further checks protect the shared site presentation substrate: site
-presentation components, site view-model derivation, and site read-model types
-resolve in `frontend/src/sites/` only, and that directory imports no shell code,
-no simulator code, and no feature flag, and declares no shell, mode, or variant
-discriminant. Every check carries a non-vacuity assertion that fails if it stops
-matching real code.
+presentation components, site view-model derivation, site detail components, and
+site read-model types resolve in `frontend/src/sites/` only, and that directory
+imports no shell code, no simulator code, and no feature flag, and declares no
+shell, mode, or variant discriminant. A shell route frame, named `*Frame`, may
+compose the substrate; it may not define what a site looks like.
+
+One check protects navigation truthfulness: the parameterless `/site-details`
+path appears nowhere in `frontend/src`, and the identified site route must be
+present for that absence to mean anything.
+
+Every check carries a non-vacuity assertion that fails if it stops matching real
+code.
 
 `check-agent-workflow.ps1` validates the repository's agent-workflow governance
 files and task metadata.

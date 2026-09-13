@@ -11,24 +11,27 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: none.
+Active task: `tasks/T007-site-details-by-site-id.md` (Status: `in_review`).
+
+T007 is built on `task/T007-site-details-by-site-id` and awaits independent
+review. `USER_REVIEW_REQUIRED: false`: the next reviewer is the independent
+Reviewer, not the user. The review packet is `.agent/T007-review-packet.md`.
+The task file stays in `tasks/` until review closes.
 
 T006 is complete. Reviewer verdict was accept with no findings; user review on
 2026-09-14 accepted the slice as built. The task file moved to
 `tasks/completed/T006-create-a-site-from-a-template.md` with its Review Outcome
 and User Review Outcome, and the branch merged to `main`.
 
-T005 is complete. Reviewer verdict was accept with no findings; the task file
-moved to `tasks/completed/T005-shipped-site-template-catalog.md` with its Review
-Outcome, and the branch merged to `main`.
+T005 is complete. Its task file is in `tasks/completed/` with its Review
+Outcome, and its branch merged to `main`.
 
-Next task to activate:
+Next task after T007 closes:
 
-- `tasks/T007-site-details-by-site-id.md`
-- Intended branch: `task/T007-site-details-by-site-id`
-- Lane: Planned lane, then independent review.
-- User review: not the feature's checkpoint. The second and final user-review
-  checkpoint of the feature is T008.
+- `tasks/T008-read-only-site-configuration-presentation.md`
+- Lane: Planned lane, then independent review, then user review.
+- User review: T008 is the second and final user-review checkpoint of the
+  feature.
 
 ## Current Site Foundation Sequence
 
@@ -36,7 +39,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
-- T007: Site Details by `site_id`.
+- T007: Site Details by `site_id`. Built, awaiting independent review.
 - T008: read-only Site Configuration; second user-review checkpoint.
 - T009-T013: staged visual fidelity after real content exists.
 
@@ -45,19 +48,16 @@ topology, devices, and the configured single-line diagram, is not planned. No
 step 3 slice may render the diagram, an empty frame for it, or its signal
 selector.
 
-## Read For T007
+## Read For T008
 
-Carried forward from T006 as a starting point. Confirm and extend this list when
-T007 is activated. T007 adds a per-Site route and removes the parameterless
-`Site details` frame, so it consumes `get_site` and the substrate that T006
-built rather than establishing new boundaries.
+Carried forward from T007. T008 adds the read-only Site Configuration surface
+and removes the parameterless `Site configuration` frame and navigation item,
+so it consumes the substrate and the per-Site read path T007 built.
 
-- `tasks/T007-site-details-by-site-id.md`
+- `tasks/T008-read-only-site-configuration-presentation.md`
 - `tasks/completed/T006-create-a-site-from-a-template.md` for the Site record
-  shape, the port, the substrate, and the provenance vocabulary T007 presents.
-  Its "What T006 Settled In Code" summary is below.
-- `tasks/completed/T005-shipped-site-template-catalog.md` only for the template
-  contract, if template provenance rendering needs it.
+  shape, the port, and the substrate. Its "What T006 Settled In Code" summary
+  is below, extended by "What T007 Settled In Code".
 - `.ai/FEATURE_MAP.md` sections:
   - Feature Map Index
   - Product Spine
@@ -66,10 +66,9 @@ built rather than establishing new boundaries.
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-13-site-foundation-persistence`
   - `D-2026-09-13-site-foundation-resequence`
-  - `D-2026-09-13-template-and-create-surfaces-gated`
   - `D-2026-09-13-shared-site-substrate`
   - `D-2026-09-13-provenance-status-vocabulary`
-  - `D-2026-09-13-t006-preimplementation`
+  - `D-2026-09-13-canonical-fidelity`
 - `.ai/ARCHITECTURE.md` only if dependency direction, contracts, simulator
   boundaries, or protected seams are in play.
 
@@ -116,6 +115,36 @@ For later slices, so the shape is not rediscovered:
   `siteViewModel.ts`, `siteDirectoryClient.ts`, `SitesIndex.tsx`. Render
   equivalence still ships at causal step 6 with the Lab's Site view.
 
+## What T007 Settled In Code
+
+- `GET /api/sites/{site_id}` is the ungated operator read path. Lookup
+  validates the requested identity in the handler before the port, so a
+  malformed id and an unreadable store cannot arrive as the same exception; a
+  malformed or unknown id is 404 with a `SITE_NOT_FOUND` refusal, an unreadable
+  store is 503 with `SITE_STORE_UNAVAILABLE`. Case-insensitive lookup is
+  confirmed as the wanted routing behaviour and the response carries the stored
+  canonical `site_id`.
+- The detail wire shape is the index shape plus `foundation.version` and
+  `foundation.valid_from`. Foundation content, the summary and the components,
+  is deliberately not on the wire yet: it is T008's shape and no field for it is
+  declared before a screen renders it.
+- The Site record still carries no `created_at` or `updated_at`.
+  `foundation.valid_from` is the only record-backed timestamp and is rendered
+  verbatim as `Valid from`.
+- Frontend: `frontend/src/shell/operatorSiteRoutes.ts` owns `SITES_PATH`,
+  `SITE_DETAIL_ROUTE_PATH` (`/sites/:siteId`) and `siteDetailHref`. The
+  substrate gained `SiteDetailReadModel`, `SiteDetailResult`,
+  `SiteDetailClient`, `deriveSiteDetailView` and `SiteDetails.tsx`;
+  `SitesIndex` takes a `siteHref` builder so the row link is an address, not a
+  mode.
+- The three unavailable facts, integration readiness, evidence availability and
+  source health, are constants in the view model with a value and a reason, so
+  both shells state the same absence the same way.
+- `tools/check-architecture.ps1` gained a Site-detail-component clause on the
+  single-definition check (with `*Frame` exempt as the shell route-frame name)
+  and a navigation-truthfulness check that `/site-details` appears nowhere in
+  `frontend/src` while an identified site route does.
+
 ## Carried-Forward Risk
 
 Settled before T006: the disabled-bundle concern is now explicit in
@@ -143,13 +172,32 @@ From T006, open and not actionable inside it:
 3. Write exclusivity on the user store is process-scoped, not an OS-level
    exclusive rename. Atomicity and durability hold; a cross-process race does
    not. Single-host file store, so not yet reachable.
-4. `get_site` resolves `site_id` case-insensitively, matching the conflict rule,
-   so a Site cannot exist for conflict and be absent for lookup. T007 is the
-   first consumer and should confirm this is the routing behavior it wants.
+4. Settled by T007: `get_site` resolves `site_id` case-insensitively, matching
+   the conflict rule. T007 confirmed this is the routing behaviour it wants and
+   pinned it with API and UI tests; the canonical stored spelling is what is
+   returned and rendered.
 5. The substrate single-definition guard keys on naming patterns. Render
    equivalence at causal step 6 is the real guard.
 6. Product copy uses "capitalisation" in the duplicate-`site_id` refusal. Noted
    at the T006 user review as a consistency question for a later copy pass.
+
+From T007, open and not actionable inside it:
+
+1. The M1 Site record has no `created_at` or `updated_at`. The T007 narrative
+   listed created and updated timestamps; only `foundation.valid_from` exists,
+   so that is what the site page renders, labelled as what it is. Adding the two
+   fields is a schema plus write-path change and belongs to a slice that decides
+   it deliberately.
+2. Integration readiness has no field on the record. The site page states it as
+   `Not recorded` with a reason. It stays a stated absence until a slice gives
+   it a truthful source.
+3. Still no automated integration test binding the real frontend fetch clients
+   to the backend. Third slice in a row; covered by a manual dev-proxy smoke
+   only. This has now stopped being a gap and should be decided.
+4. The site page was verified by tests, the production build, and a real
+   backend plus dev-proxy smoke of the API. It was not clicked through in a
+   browser.
+
 
 ## Standard Checks
 

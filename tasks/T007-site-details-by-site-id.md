@@ -1,6 +1,6 @@
 # T007 - Site Details Addressed By Site Id
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T007-site-details-by-site-id`
