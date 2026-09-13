@@ -7,21 +7,30 @@ import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
 import { SiteConfigurationFrame } from "./shell/SiteConfigurationFrame";
 import { SiteDetailsFrame } from "./shell/SiteDetailsFrame";
 import { SitesFrame } from "./shell/SitesFrame";
+import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
 
 /**
  * Route table.
  *
- * Operator route frames (shell home, Sites, Site Details, Site Configuration)
- * render inside `OperatorShellLayout` and are served in both gate states: the
- * Simulator Lab gate controls simulator surfaces and execution only.
+ * Three levels, in shell order:
  *
- * Simulator Lab routes come from `simulatorLabRoutes(flags)`, which returns an
- * empty list when `simulator_lab.enabled` is false. The route is then never
- * registered, so a direct Simulator Lab URL matches the catch-all and the UI
- * serves a not-available frame rather than a hidden-but-reachable simulator
- * surface. The Simulator Lab route stays outside the operator layout, so the
- * simulator surface never renders operator navigation chrome.
+ * 1. `WorkspaceShellLayout` is workspace-level chrome. It owns the gated
+ *    developer workspace entry point and nothing else.
+ * 2. `OperatorShellLayout` is the operator workspace: operator navigation and
+ *    the operator route frames (shell home, Sites, Site Details, Site
+ *    Configuration). It is flag-free and served in both gate states, because
+ *    the Simulator Lab gate controls simulator surfaces and execution only.
+ * 3. Simulator Lab is a separate developer workspace. Its routes come from
+ *    `simulatorLabRoutes(flags)`, which returns an empty list when
+ *    `simulator_lab.enabled` is false. The route is then never registered, so a
+ *    direct Simulator Lab URL matches the catch-all and the UI serves a
+ *    not-available frame rather than a hidden-but-reachable simulator surface.
+ *
+ * The Simulator Lab route sits outside both layouts, so the simulator surface
+ * never renders operator navigation chrome and never appears to be an operator
+ * page. The catch-all sits outside them too: an address this build does not
+ * serve should not be dressed as a workspace.
  *
  * Site Details and Site Configuration are parameterless, because no Site schema
  * or Site identity exists yet.
@@ -33,14 +42,16 @@ export interface AppProps {
 export function App({ flags = featureFlags }: AppProps) {
   return (
     <Routes>
-      <Route element={<OperatorShellLayout flags={flags} />}>
-        <Route path="/" element={<OperatorShellFrame />} />
-        <Route path="/sites" element={<SitesFrame />} />
-        <Route path="/site-details" element={<SiteDetailsFrame />} />
-        <Route
-          path="/site-configuration"
-          element={<SiteConfigurationFrame />}
-        />
+      <Route element={<WorkspaceShellLayout flags={flags} />}>
+        <Route element={<OperatorShellLayout />}>
+          <Route path="/" element={<OperatorShellFrame />} />
+          <Route path="/sites" element={<SitesFrame />} />
+          <Route path="/site-details" element={<SiteDetailsFrame />} />
+          <Route
+            path="/site-configuration"
+            element={<SiteConfigurationFrame />}
+          />
+        </Route>
       </Route>
       {simulatorLabRoutes(flags).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />

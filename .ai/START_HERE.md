@@ -16,22 +16,31 @@ Planning status:
 Architect feature map, causal sequencing, protected seams, and first-pass
 feature-to-task guidance exist at `.ai/FEATURE_MAP.md`.
 
-The review-bounded Stack, Shell, And Gate feature is implemented and reviewed:
+The Stack, Shell, And Gate feature is complete, reviewed, and accepted:
 
 - `tasks/completed/T001-stack-shell-skeleton.md`
 - `tasks/completed/T002-operator-shell-route-frames.md`
 - `tasks/completed/T003-simulator-lab-feature-gate.md`
+- `tasks/completed/T004-simulator-lab-developer-entry-point.md`
 
-The T003 user-review checkpoint is closed. The gate was accepted; the enabled
-Simulator Lab entry point was redirected, because Simulator Lab is a separate
-developer workspace rather than an operator navigation item.
+Both user-review checkpoints are closed. T003 accepted the gate but redirected
+its entry point; T004 applied that redirection and was accepted on 2026-09-13.
+Simulator Lab is reached from workspace-level chrome outside operator
+navigation, operator navigation is structurally identical in both flag states,
+and the Lab renders outside the operator route layout.
 
 Active task:
 
-- `tasks/T004-simulator-lab-developer-entry-point.md`
+- None. T004 was the last planned slice.
 
-Planning stops at T004 because it carries the redirection from that checkpoint.
-Do not plan Site Foundation or later slices until T004 is accepted.
+Planning may now proceed to Site Foundation slices. The Architect or Planner
+owns the next task definition; see `.ai/FEATURE_MAP.md`.
+
+Open Architect action carried from T003 review follow-up 1, not absorbed by
+T004: the disabled bundle still contains `SimulatorLabFrame.tsx`, because the
+gate removes route reachability rather than code. This must become an explicit
+seam with a concrete check in `.ai/FEATURE_MAP.md` before simulator truth
+overlays land.
 
 ## Default Reading Path
 

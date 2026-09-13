@@ -203,16 +203,27 @@ describe("simulator lab gate: enabled", () => {
     ).toBeInTheDocument();
   });
 
-  it("reaches the Simulator Lab through the gated operator entry point", () => {
+  /**
+   * T004 moved the enabled entry point out of operator navigation: Simulator
+   * Lab is a separate developer workspace, not an operator route. The
+   * reachability half of this T003 test is unchanged; the assertion that the
+   * entry point is absent from operator navigation is new, so this is stricter
+   * than the version it replaces, not looser.
+   */
+  it("reaches the Simulator Lab through a gated entry point outside operator navigation", () => {
     renderAt("/", ENABLED);
 
     const navigation = screen.getByRole("navigation", {
       name: "Operator routes",
     });
-    const entryPoint = within(navigation).getByRole("link", {
-      name: "Simulator Lab",
-    });
 
+    expect(
+      within(navigation).queryByRole("link", { name: /simulator/i }),
+    ).toBeNull();
+
+    const entryPoint = screen.getByRole("link", { name: /simulator lab/i });
+
+    expect(navigation.contains(entryPoint)).toBe(false);
     expect(entryPoint).toHaveAttribute("href", "/simulator-lab");
 
     fireEvent.click(entryPoint);

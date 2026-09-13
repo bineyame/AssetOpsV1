@@ -1,22 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom";
 
-import type { FeatureFlags } from "../config/featureFlags";
-import {
-  SIMULATOR_LAB_NAV_LABEL,
-  SIMULATOR_LAB_PATH,
-} from "./simulatorLabRoutes";
-
 /**
  * Operator navigation layout.
  *
- * Operator entries are always present: the Simulator Lab gate controls
- * simulator surfaces only, so operator routes and their navigation work
- * identically in both gate states.
- *
- * The Simulator Lab entry point appears only when `simulator_lab.enabled` is
- * true. It is an entry point, not the gate: the route itself is absent from the
- * route table when the flag is false, so removing this link is never what makes
- * the feature unreachable.
+ * This list is deliberately flag-free. The Simulator Lab gate controls
+ * simulator surfaces only, so operator routes and their navigation are
+ * identical in both gate states, and Simulator Lab is not an operator route:
+ * it is a separate developer workspace reached from the workspace chrome in
+ * `WorkspaceShellLayout`. Nothing in this module may depend on
+ * `simulator_lab.enabled`, and no simulator entry belongs in this list.
  *
  * The Site Details and Site Configuration paths carry no site identifier,
  * because no Site schema or Site identity exists yet. Identified site routes
@@ -29,11 +21,7 @@ const operatorRoutes = [
   { to: "/site-configuration", label: "Site configuration", end: false },
 ];
 
-export interface OperatorShellLayoutProps {
-  flags: FeatureFlags;
-}
-
-export function OperatorShellLayout({ flags }: OperatorShellLayoutProps) {
+export function OperatorShellLayout() {
   return (
     <>
       <nav aria-label="Operator routes">
@@ -45,13 +33,6 @@ export function OperatorShellLayout({ flags }: OperatorShellLayoutProps) {
               </NavLink>
             </li>
           ))}
-          {flags.simulatorLab.enabled ? (
-            <li>
-              <NavLink to={SIMULATOR_LAB_PATH}>
-                {SIMULATOR_LAB_NAV_LABEL}
-              </NavLink>
-            </li>
-          ) : null}
         </ul>
       </nav>
 
