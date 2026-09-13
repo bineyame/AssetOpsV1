@@ -11,25 +11,24 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T005-shipped-site-template-catalog.md`
+Active task: none.
 
-- Branch: `task/T005-shipped-site-template-catalog`
-- State: implemented, `Status: in_review`, awaiting independent review.
-- Lane: Planned lane, then independent review.
-- User review: not required for T005. The template-versus-Site language it
-  introduces is reviewed with creation semantics at the T006 checkpoint.
+T005 is complete. Reviewer verdict was accept with no findings; the task file
+moved to `tasks/completed/T005-shipped-site-template-catalog.md` with its Review
+Outcome, and the branch merged to `main`.
 
-Next task to activate, after T005 review closes:
+Next task to activate:
 
 - `tasks/T006-create-a-site-from-a-template.md`
 - Intended branch: `task/T006-create-a-site-from-a-template`
+- Lane: Planned lane, then independent review.
 - User review: required. First user-review checkpoint of the feature.
 
 ## Current Site Foundation Sequence
 
 Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 
-- T005: shipped Site Template catalog in Simulator Lab, gated.
+- T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint.
 - T007: Site Details by `site_id`.
 - T008: read-only Site Configuration; second user-review checkpoint.
@@ -40,11 +39,14 @@ topology, devices, and the configured single-line diagram, is not planned. No
 step 3 slice may render the diagram, an empty frame for it, or its signal
 selector.
 
-## Read For T005
+## Read For T006
 
-Minimum required context:
+Carried forward from T005 as a starting point. Confirm and extend this list when
+T006 is activated; T006 is the first write boundary and may need more.
 
-- `tasks/T005-shipped-site-template-catalog.md`
+- `tasks/T006-create-a-site-from-a-template.md`
+- `tasks/completed/T005-shipped-site-template-catalog.md` for the template
+  contract, port shape, and the Foundation content T006 copies.
 - `.ai/FEATURE_MAP.md` sections:
   - Feature Map Index
   - Product Spine
@@ -79,10 +81,17 @@ Minimum required context:
 
 ## Carried-Forward Risk
 
-Open Architect action from T003 review follow-up 1, not absorbed by T004: the
-disabled bundle still contains `SimulatorLabFrame.tsx`, because the gate removes
-route reachability rather than code. This must become an explicit seam with a
-concrete check in `.ai/FEATURE_MAP.md` before simulator truth overlays land.
+Open Architect action from T003 review follow-up 1, not absorbed by T004 or
+T005: the disabled bundle still contains `SimulatorLabFrame.tsx`, and now the
+two template frames as well, because the gate removes route reachability rather
+than code. This must become an explicit seam with a concrete check in
+`.ai/FEATURE_MAP.md` before simulator truth overlays land.
+
+From T005, for T006 to settle rather than inherit silently: the template
+Foundation carries only `site_type`, `summary`, and components with declared
+ratings. T006 copies exactly that into the first Site. Confirm that shape is
+wanted before building on it. Full carried-forward list is in the T005 Review
+Outcome.
 
 ## Standard Checks
 
