@@ -8,13 +8,36 @@ This is a feature map, not an implementation task list. Features are sequenced
 by causal dependency: if a screen displays a fact, state, diagram, or claim, the
 product must first have a truthful source for that display.
 
+## Feature Map Index
+
+Do not read this file end to end by default. Use `.ai/ACTIVE_CONTEXT.md` and the
+active task file to choose only the needed sections.
+
+| Need | Read |
+| --- | --- |
+| M1 ordering and cross-feature causality | Product Spine |
+| Current Site Foundation tasks T005-T013 | Early Feature: Site Foundation And Configuration-Only Site |
+| Architecture and CI seams to preserve | Enforceable Protected Seams |
+| Topology, devices, or single-line diagram planning | Early Feature: Topology, Devices, And SLD |
+| Scenario and run setup planning | Early Feature: Scenario Catalog And Run Setup |
+| SimulationRun runtime planning | Early Feature: Draft SimulationRun And Recorded Runtime |
+| Gateway, Commit, or ingestion planning | Early Feature: Gateway Publication, Commit, And Ingestion |
+| Evidence, Replay, or provenance views | Early Feature: AssetOps Evidence Views And Replay |
+| Product conclusion chain or Findings | Early Feature: First Product Conclusion Chain |
+| Unresolved product questions | Open Questions Before Task Breakdown |
+
 ## Product Spine
 
 M1 should become real in this order:
 
-1. Define one canonical Site with stable identity, time-valid foundation data,
-   configured topology, devices, mappings, ratings, and control assumptions.
-2. Render that Site in AssetOps as a normal Site, including simulated
+1. Ship a Site configuration template archetype, then let a user configure one
+   Site from it with stable identity, time-valid foundation data, configured
+   topology, devices, mappings, ratings, and control assumptions. The template
+   comes first and the Site is created, not shipped: a Sites index is a view
+   over Sites somebody configured, so the configuration capability precedes the
+   index rather than following it. This matches v6.9 §3.5 setup path A, which
+   runs template, then Foundation, then save, then run.
+2. Render that created Site in AssetOps as a normal Site, including simulated
    provenance when applicable.
 3. Author a scenario against the declared `site_id`; the scenario describes
    world events, interventions, evidence quality, interval, seed, and private
@@ -281,6 +304,24 @@ Resolved Simulator Lab feature-gating decision:
   later without changing product semantics.
 - When enabled, Simulator Lab, Scenarios, Site Templates, Runs, simulator entry
   points, execution actions, and truth overlays may be served to allowed users.
+- The Site Templates catalog and creating a simulated Site are on that list, and
+  the line is drawn where v6.9 draws it. v6.9 §3.1 makes `+ Add site` an entry
+  point whose `Create simulated site` and `Clone site into scenario` options
+  "open the Simulator Lab workspace", and §3.9 lists Site Templates in the
+  Simulator Lab shell's own navigation, not the operator's. Authoring a
+  simulated Site is therefore a Simulator Lab capability and is gated with the
+  rest of the Lab.
+- The Sites index, Site Details, and Site Foundation/Configuration presentation
+  are operator capabilities and are never gated. A Site created while the Lab
+  was enabled stays fully visible with the Lab disabled, because it is product
+  Site history and not simulator execution. A gate-off build with an empty Sites
+  index and no way to add one is the correct state, not a defect: v6.9 defers
+  backend Site registration, which is the only non-simulator creation path it
+  describes.
+- Gating direction is deliberate. Moving a surface out from behind the gate
+  later is cheap; retrofitting a gate around a surface that already shipped
+  ungated is the hidden-but-reachable failure this gate exists to prevent. When
+  a Site-authoring surface is ambiguous, it ships gated.
 - When disabled, simulator routes, navigation, entry points, execution actions,
   and truth overlays are not rendered or served. This is route/API gating, not
   merely hidden navigation.
@@ -309,31 +350,106 @@ Causal prerequisites:
 - Component truth remains distinct from device-reported evidence: Component
   truth -> Device/sensor behavior -> Reported signal -> Gateway -> Canonical
   source envelope -> AssetOps.
+- A `SiteRepository` port owned by the product domain, with storage supplied by
+  an adapter chosen in one composition root, so the persistence mechanism can be
+  replaced without changing callers.
+- A shipped canonical configuration catalog that is read-only at runtime and a
+  separate writable store for user-authored configuration, sharing one globally
+  unique `site_id` space with no overlay.
+- A `SiteTemplate` catalog with its own `template_id`/`template_version`
+  identity. A template is not a Site: it has no `site_id`, cannot be listed as a
+  Site, simulated, targeted by a scenario, or receive evidence.
+- Configuration origin (`SHIPPED` or `USER`) plus template provenance on
+  user-created Sites, kept distinct from `source.mode`, lifecycle status,
+  integration readiness, and source health.
+- Untrusted-input handling for user-authored configuration: one strict parser
+  for both stores, whole-document validation before write, constrained
+  `site_id`, and atomic writes.
 
-Candidate tasks, after review:
-- Add file-backed canonical M1 Site definitions and Site list/detail read model.
-- Add strict YAML validation for Site identity, Foundation version, components,
-  topology, devices, mappings, ratings, control assumptions, and unsupported
-  values.
-- Show Sites List and Site Details for configured, simulated, planned, and
-  configuration-only Sites.
-- Add read-only Site Configuration summary with Foundation version, effective
-  dates, configured SLD, device/signal relationships, and disabled/unavailable
-  edit affordances.
-- Add explicit no-evidence/unavailable states for configuration-only Sites.
+Candidate tasks, after review, in causal order:
+- Add a shipped `SiteTemplate` catalog with the `SiteTemplateCatalog` port,
+  domain records, port error vocabulary, a read-only shipped-YAML adapter behind
+  a single composition root, and strict validation. Template inspection is
+  read-only and clearly not a Site.
+- Add a create-Site-from-template flow with the `SiteRepository` port, a write
+  adapter over the user store, identity and whole-document validation,
+  cross-store collision refusal, atomic write, and origin/template provenance on
+  the created Site.
+- Show a Sites index with a genuine first-run empty state and, after creation,
+  the created Site with stable identity, plus Site Details addressed by
+  `site_id` with explicit no-evidence/unavailable states.
+- Add read-only Site Configuration presentation with Foundation version,
+  validity, device/signal relationships, control assumptions, and no edit
+  affordance of any kind.
+- Apply canonical screen fidelity per surface, in the staging set out under
+  Canonical Screen Fidelity below.
+
+M1 ships no canonical Site. The shipped read-only catalog that ships content is
+the template catalog; the Site that appears in the product is one the user
+created. The shipped-Site store remains an architectural concept, exercised by
+the cross-store disjointness tests with a fixture, so that the two-store
+identity seam stays real without a Site nobody configured standing in the index.
 
 UI-verifiable outcomes:
-- User sees MG-001 as a Site row and detail page with stable identity.
-- User can inspect a read-only Site Configuration UI backed by canonical YAML,
-  with no implied edit persistence.
+- User browses shipped configuration templates and sees what a template would
+  produce, without a template appearing anywhere as a Site.
+- On first run the Sites index is genuinely empty and says so, and the only
+  action it offers is the one the product actually supports.
+- User creates a Site from a template, sees it persist across a restart, and
+  sees it in the Sites index with an explicit configuration origin and template
+  provenance.
+- A duplicate, case-variant, or malformed `site_id` is refused with a specific
+  reason and the store is left unchanged.
+- User can inspect a read-only Site Configuration backed by the document they
+  created, with no implied edit persistence.
 - User can inspect a configuration-only Site without seeing fabricated
   operational evidence, zero-value charts, source-health state, or analytics.
-- Simulated status appears as provenance and does not replace normal Site
-  status, evidence state, integration readiness, or source health.
+- Simulated appears as provenance in its own Mode column and does not replace
+  lifecycle status, evidence state, integration readiness, or source health.
 
 Semantics to decide:
-- No remaining M1 Site Foundation authoring semantics are open; in-product edit,
-  Save, Publish, approval, and configuration-history management are deferred.
+- None remain open for M1 Site Foundation. Create-from-template is in scope;
+  in-place Foundation editing, Save/Publish over an existing Foundation, rename,
+  duplicate, delete, approval, and configuration-history management are
+  deferred, and `site_id` is immutable after creation.
+- Naming reconciliation, recorded so it is not rediscovered: what this project
+  calls Site Configuration is v6.9's `Foundation` tab on a Site, whose subtabs
+  are Definition, Topology, Controls, Changes, Readiness. v6.9 has no screen
+  named Site Configuration or Site Details, and its `Configuration` tab belongs
+  to an Asset and to a Simulator Lab run. The project's names may stand for M1,
+  but the operator Site tab set is v6.9's, not the mockup's, when step 9 dresses
+  it.
+
+#### Provenance And Status Concepts: the single reference
+
+Cite this block rather than restating it. Six concepts, all independent. None is
+derived from, defaulted from, or rendered as a proxy for another.
+
+| Concept | Field | Values | Answers |
+| --- | --- | --- | --- |
+| Configuration origin | `origin` | `SHIPPED`, `USER` | Where did this configuration *document* come from: did we ship it read-only, or did a user author it into the writable store? |
+| Source mode | `source.mode` | `LIVE`, `SIMULATED` | Where does this Site's *evidence* come from? This is the "simulator tag": the `Simulated` badge is the rendering of `SIMULATED`, and it is provenance, never status or health. |
+| Lifecycle status | `lifecycle_status` | Fixed by the M1 Site schema above | Where is this Site in its own life as a site? This project's extension; v6.9 has no site lifecycle enum. |
+| Integration readiness | see M1 schema | see M1 schema | Is the plumbing for evidence in place? |
+| Evidence availability | derived | No evidence, Limited, Available | Is there accepted evidence for the selected window? |
+| Source health | derived | `Online`, `Stale`, `Offline` plus quality | Is the source reporting as expected? Never uses assessment vocabulary. |
+
+There are two provenance concepts, not three. The "simulator tag" the product
+shows on a Lab-produced Site *is* `source.mode = SIMULATED`; it is not a third
+field, and no `created_in_lab`, `is_simulator_site`, or equivalent flag exists.
+Adding one would fork the identity seam by recording which shell created a Site,
+which nothing downstream consumes.
+
+The trap the Planner must not fall into: in M1 the only creation path is the
+Lab's, so every `USER`-origin Site also has `source.mode = SIMULATED`. They
+coincide by circumstance, not by definition, and must never be collapsed, mapped
+onto each other, or defaulted from each other. A shipped demo Site could be
+`SHIPPED` + `SIMULATED`; a Site registered for a real integration would be
+`USER` + `LIVE`. Both are meaningful and neither is reachable in M1.
+
+Nothing about "a normal Site with a simulator tag" changes the two-store model.
+Configuration origin describes the document and its store; source mode describes
+the evidence. They are orthogonal, and the shipped/user store split is untouched.
 
 ### 2. Topology, Components, Devices, And Single Line Diagram
 
@@ -674,12 +790,47 @@ Semantics to decide:
   resets belong only in explicit administrative tooling.
 - Product screens must show missing, invalid, stale, or limited evidence
   explicitly instead of fabricating values.
+- A screen adopts canonical mockup layout only for content the product can
+  source. Design references are authoritative about information architecture,
+  never about capability inventory, status vocabulary, or navigation.
+- A gated or decided-against capability is not rendered; a canonical tab with no
+  content contract yet is labelled in place; a built but ineligible capability
+  is disabled with its reason stated. These three treatments must not blur.
+- A navigation destination appears only when the route behind it renders a
+  truthful surface. Operator navigation does not grow on the strength of a
+  mockup rail that belongs to the Simulator Lab shell.
+- Authoring a simulated Site is a Simulator Lab capability behind the gate;
+  the Sites index, Site Details, and Site Configuration are operator
+  capabilities and are never gated. The gate covers surfaces and execution,
+  never objects or stores: a Site the Lab produces is a normal Site in the
+  product store, never published or promoted into the product.
+- Where both shells present a Site they present it from one substrate: one read
+  model, one view model, one set of components. Shells compose and add; neither
+  forks, and no shell/mode/variant discriminant lives inside the shared core.
 - Configuration-only Sites are valid Sites, but they must show No evidence or
   Unavailable operational states instead of fabricated telemetry, source health,
   charts, analytics, Findings, or Replay.
-- YAML is the authoritative M1 configuration source; read-only UI must not imply
-  in-product edit, Save, Publish, approval, or persistence semantics that do not
-  exist.
+- YAML is the authoritative M1 configuration representation in both the shipped
+  catalog and the user-authored store. The Site Configuration UI stays read-only
+  for every Site and must not imply in-place edit, Save, Publish, approval,
+  rename, delete, or configuration history, none of which exist.
+- Configuration reaches the product only through the `SiteRepository` and
+  `SiteTemplateCatalog` ports. Storage technology lives in adapters selected in
+  one composition root; ports speak domain records and never expose paths, file
+  handles, YAML text, or store-specific exceptions.
+- Shipped canonical configuration is read-only at runtime and lives outside the
+  writable store. A template is not a Site and holds no `site_id`;
+  `template_id`/`template_version` are origin provenance only.
+- `site_id` is globally unique across the shipped and user-authored stores. There
+  is no overlay and no precedence: the same `site_id` in both stores is a load
+  failure, and creation refuses an id already present in either store.
+- Templates are instantiated by copy with recorded provenance. A later template
+  change never alters an already-created Site.
+- Configuration origin is a fourth separate concept alongside source mode, Site
+  lifecycle, integration readiness, evidence availability, and source health.
+- User-authored configuration is untrusted input. It crosses the same strict
+  parser as shipped configuration with no lenient path, the whole materialized
+  document is validated before any write, and writes are atomic.
 - YAML configuration must be strictly validated on load and fail explicitly for
   invalid references, topology, mappings, duplicate identities, invalid ratings,
   or unsupported values.
@@ -697,8 +848,16 @@ Semantics to decide:
 These are UI-verifiable outcomes that could become tasks after this map is
 reviewed:
 
-1. One demo Site appears in Sites List, Site Details, and Site Configuration
-   from a canonical Site Foundation file.
+1. Shipped configuration templates are browsable and visibly distinct from
+   Sites, resolved through the `SiteTemplateCatalog` port, while the Sites index
+   is still genuinely empty.
+1b. A user creates a Site from a template through the `SiteRepository` port; it
+   persists across restart, appears in the Sites index with an explicit
+   configuration origin and template provenance, and opens as Site Details.
+1c. That Site's Foundation is presented as read-only Site Configuration, with no
+   edit affordance and no operational values.
+1d. Those three surfaces are brought to canonical mockup fidelity, per surface,
+   after each one's content is real.
 2. The configured topology renders as a single line diagram and Devices &
    Sensors table from the same source.
 3. Fuel Loss Event appears in Scenarios and can be selected in run setup.
@@ -752,20 +911,112 @@ when their named input does not exist.
      inspected, rerun, or compared to truth; the UI has no simulator entry
      points and direct routes return a served-unavailable/not-found state.
 
-3. Canonical Site Foundation and configuration-only Site.
-   - Becomes true: one file-backed YAML Site with stable `site_id`, mandatory
-     timezone, lifecycle, source mode, Foundation version, components,
-     topology, devices, mappings, ratings, and control assumptions validates and
-     appears in Sites/Site Details/Site Configuration.
-   - Depends on: step 1; may proceed before or after step 2, but after is
-     recommended so simulator entry points never appear before the gate exists.
-   - Real dependency: every later run, envelope, evidence record, SLD, and
-     analytic needs stable Site/Foundation identity.
-   - UI-verifiable outcome: user can inspect the Site and read-only
-     configuration without operational values.
-   - Deliberately unavailable: editing, Save/Publish, source health, charts,
-     analytics, Replay, Simulator Lab run actions, and Findings; the UI says
-     No evidence, Unavailable, or read-only/unavailable controls.
+3. Configure a Site: templates, creation, and the configuration-only Site.
+
+   Step 3 splits into three sub-steps. The ordering was revised on 2026-09-13
+   and now runs template catalog, then creation, then configuration
+   presentation. The previous ordering, canonical read path first and creation
+   last, is superseded.
+
+   The correction is causal, not cosmetic. A Sites index is a view over Sites
+   that somebody configured. Shipping the index first over a shipped canonical
+   fixture Site makes the view real before the capability that fills it, and it
+   pushes the milestone's own first clause, "a user can configure one mini-grid
+   site", to the end of the feature. It also produces a first screen whose
+   single row arrived by no product action the user can point at, which is a
+   weak review surface: the user cannot tell a working configuration path from
+   a hardcoded row.
+
+   The constraint that made the previous ordering partly right still holds and
+   now does the ordering work on its own: the template concept must be
+   structural before any write path exists. The template catalog is a complete,
+   truthful, reviewable read surface with no Site in it, so it can carry the
+   port layer, the strict parser, the composition root, and the persistence CI
+   guards without a Site fixture standing in for a capability.
+
+   M1 therefore ships zero canonical Sites. What ships read-only is the
+   template catalog. `MG-001` becomes the Site the user creates from the Hybrid
+   Mini-Grid template, which is also what `SimulatorLab1.png` already shows in
+   its run header as `Template: Hybrid Mini-Grid (100 kW)`. First run has an
+   empty Sites index, and that is the honest state, not a gap to fill.
+
+   3a. Shipped Site configuration template catalog.
+   - Becomes true: a read-only `SiteTemplate` catalog with its own
+     `template_id`/`template_version` identity is inspectable through a
+     `SiteTemplateCatalog` port and a read-only shipped-YAML adapter behind one
+     composition root, with strict validation of the template document. A
+     template is visibly not a Site.
+   - Shell placement: the Simulator Lab shell, behind `simulator_lab.enabled`.
+     v6.9 lists Site Templates in the Lab's own navigation and nowhere in the
+     operator's. Operator navigation does not change.
+   - Depends on: step 2, because this surface is behind the gate and the gate
+     must exist first.
+   - Real dependency: the template/instance distinction has to be structural
+     before anything can be created. If create lands first, its only source is
+     an empty form or a copy of a shipped Site, and precedence, identity, and
+     provenance rules become retrofits over data users already created. This
+     sub-step also proves the port shape and the storage-isolation guards
+     against a real screen, which is why the port is not deferred and is not
+     shipped consumerless.
+   - UI-verifiable outcome: user browses shipped configuration templates and
+     opens one to see the Foundation content it would produce, while the Sites
+     index is still empty and still contains only Sites.
+   - Deliberately unavailable: instantiation, a Create action, any Site, any
+     write path, the writable store, template authoring, template upload,
+     template editing, and every operational surface. The port has no mutator.
+
+   3b. Create a Site from a template.
+   - Becomes true: a user picks a template, supplies `site_id` and the required
+     identity-level fields, and a fully materialized, validated Site document is
+     persisted through a write adapter into the user store. The Site survives
+     restart and appears in the Sites index with explicit configuration origin
+     and template provenance. `SiteRepository` ships here, complete for M1:
+     list, get, create, and no mutator beyond create.
+   - Shell placement: the create flow is a Simulator Lab surface behind the gate,
+     following v6.9 §3.1, where `Create simulated site` "opens the Simulator Lab
+     workspace". The created Site then appears in the ungated operator Sites
+     index as a normal Site with SIMULATED provenance, and stays there when the
+     Lab is disabled, because it is product Site history and not simulator
+     execution. Only one Sites index is needed in this sub-step: the operator
+     one. Operator navigation still does not change.
+   - Depends on: 3a.
+   - Real dependency: this is the first untrusted-input write boundary in the
+     product, and it inherits an already-validated parser and an already
+     separate template namespace instead of inventing both under write
+     pressure. It is also the first moment the Sites index has a truthful
+     reason to contain a row.
+   - UI-verifiable outcome: the Sites index goes from a genuine first-run empty
+     state to a row the user just created, which opens as a normal
+     configuration-only Site Details addressed by `site_id`. A duplicate,
+     case-variant, or malformed `site_id` is refused with a specific readable
+     reason and the store stays byte-identical.
+   - Deliberately unavailable: in-place Foundation editing, Save/Publish over an
+     existing Foundation, rename, `site_id` change, delete, duplicate-into-
+     existing-id, Foundation version bump in place, configuration diff, history,
+     rollback, approvals, template authoring, and import of an arbitrary YAML
+     document.
+
+   3c. Read-only Site Configuration presentation.
+   - Becomes true: Site Configuration is addressed by `site_id` and presents the
+     Foundation of a Site the user configured: Foundation version, validity,
+     timezone, lifecycle, source mode as provenance, integration readiness,
+     configuration origin and template provenance, components, devices, signal
+     mappings, ratings, and control assumptions. The screen states that
+     configuration is fixed at creation in M1.
+   - Depends on: 3b, because there is no Site to present before it.
+   - Real dependency: configuration presentation carries the product language
+     that fixes what a Site, a Foundation, and a configuration-only Site mean.
+     It deserves its own review surface rather than riding along with a write
+     path.
+   - UI-verifiable outcome: the user reads back, in the product, the
+     configuration they supplied at creation, with no operational values and no
+     edit affordance of any kind.
+   - Deliberately unavailable: the configured Single Line Diagram and its signal
+     selector, which are step 4; every editing and history affordance; source
+     health, charts, analytics, Replay, and Findings.
+
+   Site Configuration stays read-only for every Site regardless of origin, for
+   the whole of M1, and no Site can be removed through the product.
 
 4. Topology, devices, and configured SLD.
    - Becomes true: Site Configuration and Simulator Lab can use the same SLD
@@ -779,6 +1030,15 @@ when their named input does not exist.
    - Deliberately unavailable: runtime values, evidence overlays, topology
      editing, arbitrary auto-layout, and CAD behavior; value slots are empty or
      marked Awaiting evidence/runtime.
+   - Canonical screen boundary: the `Single Line Diagram (Configured)` panel on
+     canonical screen 3 and its signal selector belong to this step, not to
+     step 3. Everything else on that screen is configuration fact and is
+     reachable in step 3c: the Summary, Components, Control Logic, and Settings
+     tabs, and the Key Parameters panel, which reads ratings and control mode
+     straight off the Foundation. The signal selector is later still: it
+     chooses which runtime signal to overlay on the diagram, so it is inert
+     until step 6 produces runtime values and step 9 produces evidence. A step 3
+     slice must not render the SLD panel, an empty SLD frame, or the selector.
 
 5. Scenario catalog and run setup.
    - Becomes true: Fuel Loss Event can be inspected and selected against a
@@ -915,6 +1175,200 @@ when their named input does not exist.
       materiality/confidence rule needs user review; do not merge with
       generator runtime.
 
+## Canonical Screen Fidelity
+
+From 2026-09-13 the canonical mockups are in scope as a fidelity target, not
+only as a source of feature requirements. `ScreenMockups.png` numbers nine
+screens; `SimulatorLab1.png` is the tenth. The rules below say how a screen
+becomes visually canonical without becoming a false claim.
+
+### Which shell the mockups are drawing
+
+`ScreenMockups.png` renders the Simulator Lab developer shell, not the operator
+product. This is the single most consequential thing to get right before
+building to it, and it is well evidenced:
+
+- Its left rail is v6.9 §3.9's Simulator Lab shell navigation, which reads
+  "Home | Sites | Simulator Lab | Scenarios | Site Templates | Library |
+  Documentation | Settings". `SimulatorLab1.png` reproduces that list exactly.
+  `ScreenMockups.png` reproduces it with Devices, Ingestion, and Events
+  inserted, which v6.9 defines as Simulator Lab *run tabs*, not destinations.
+- It is not the operator rail. v6.9 §2 fixes operator navigation at ten object
+  classes in five groups: Portfolio, Sites, Assets; Findings; Actions,
+  Incidents, Maintenance; Evidence; Financials, Reports. Not one of the
+  mockup's Simulator Lab, Scenarios, Site Templates, Devices, Ingestion, Events,
+  Library, or Documentation items is in it.
+- Its screens are not the operator screens. The mockup's Site tabs are Overview,
+  Configuration, Devices, Gateway, Ingestion, Events, Logs; v6.9's canonical
+  Site tabs are Overview, Foundation, Health, Performance, Findings, Work,
+  Financials, Evidence, with Foundation subtabs Definition, Topology, Controls,
+  Changes, Readiness. The mockup's Sites columns are Name, Type, Location,
+  Status, Last Data, Actions; v6.9's Sites index columns are Site, Type, Mode,
+  Assessment, Top issue, Evidence, Last analysed.
+- Site Templates, Devices & Sensors, Gateway & Ingestion, Scenarios, and Runs
+  are all named by v6.9 as Simulator Lab surfaces. Screens 4 through 9 are
+  Simulator Lab screens on their face.
+
+So Simulator Lab appearing in that rail is not the mockup contradicting the
+product; it is the Lab's own shell listing itself. Read correctly, the mockup
+agrees with the settled position that Simulator Lab is not an operator
+navigation item.
+
+What the mockups are authoritative about is information architecture: which
+facts belong on a screen, how they group, what a row or panel is for, and what
+the user should be able to do from each surface. They are not authoritative
+about capability inventory, status vocabulary, or navigation. Where a mockup and
+v6.9 disagree, v6.9 settles it; where a user review has already redirected a
+surface, that decision settles it; where v6.9 is silent, the mockup governs
+layout and this map governs truthfulness.
+
+### Fidelity to the mockup is not fidelity to its errors
+
+Two concrete corrections that a fidelity slice must make rather than copy:
+
+- Canonical screen 1 puts `Simulated` and `Planned` in one `Status` column.
+  That collapses provenance into status, which v6.9 forbids three separate times
+  ("Mode is provenance, not status"; "SIMULATED is neutral provenance, not an
+  assessment") and which the vocabulary-separation seam below already forbids.
+  Mode and lifecycle are separate columns, never one.
+- The mockup's `Last Data` values are evidence the product does not have. v6.9's
+  equivalent column is `Last analysed`, rendered `--` when there is no data in
+  the window. That rendering, not the mockup's timestamps, is the target.
+
+Where v6.9 is silent the mockup may introduce a concept, but the map must then
+say what makes it true. v6.9 has no `Planned` site status and no site lifecycle
+enum at all, so `lifecycle_status` is this project's extension and its permitted
+values are fixed by the M1 Site schema in this map, not by the mockup.
+
+### Content before chrome
+
+A surface adopts canonical layout only after that surface's content is real.
+Building the shell of a screen first and filling it later is the failure this
+project's evidence posture exists to prevent, moved from data into layout: it
+produces a screen that looks finished and is not, and it is exactly how mockup
+placeholder values such as `2 min ago`, `1.2 M`, or `20 kW` leak into a build
+that cannot source them. No numeric value, timestamp, status, or label may
+appear on a screen because the mockup shows it there.
+
+This is v6.9's own position, stated in its closing paragraph: "The screen
+mockups intentionally do not add unsupported measurements or conclusions merely
+to make a layout look complete. Where the source contracts mark evidence as
+preferred, optional, missing or insufficient for a stronger claim, the UI
+retains that limitation."
+
+### Not rendered, labelled, or disabled: three states, not two
+
+v6.9 uses three distinct treatments and this project adopts them as written.
+Collapsing them is the mistake to avoid.
+
+- **Not rendered at all.** Gated or non-existent capability. v6.9 on the closed
+  simulator gate: routes and entry points are "not rendered or served (not
+  merely hidden)". This is also the treatment for a control whose capability M1
+  has *decided* not to have.
+- **Labelled in place.** A canonical *tab* that is part of the entity's tab set
+  but has no content contract yet. v6.9's worked example is the asset tab
+  rendered as "Warranty (P1)" with the note "deferred - no content contract
+  yet". Tabs describe the aspects of an entity, so a tab that names a real
+  aspect is honest chrome even before its content exists.
+- **Disabled with an explicit reason.** A real capability that is built but not
+  currently eligible. v6.9's worked example is Commit on a Draft run, "disabled
+  with the note 'draft envelopes are not released to ingestion until Commit'".
+
+Applied to the mockup's Site Details and Site Configuration affordances:
+
+| Mockup affordance | Treatment | Why |
+| --- | --- | --- |
+| `Open in Simulator Lab` when the Lab is gated off | Not rendered | Gating removes surfaces and entry points, "not merely hidden". This is the gate rule, not the sequencing rule, and it reuses the existing single gated entry-point module |
+| `Open in Simulator Lab` when the Lab is enabled but step 6 has not landed | Disabled with named prerequisite | The capability is sequenced and the map can name the step |
+| `Start Simulation`, `View Live Data` | Disabled with named prerequisite | Real, sequenced capabilities; the map can name the step that makes each true |
+| Site tabs `Configuration`, `Devices`, `Gateway`, `Ingestion`, `Events`, `Logs` | Labelled in place until their step lands | They name real aspects of a Site; a tab set is chrome, not a promise of an action |
+| `Edit`, `Edit Configuration` | Not rendered | M1 decided configuration is fixed at creation. A disabled Edit reads as "soon" and promises a capability the product has declined to have |
+| `Version History` | Not rendered | No configuration-change model exists. v6.9's eventual form is `Foundation > Changes`, an auditable intervention record with `Retain / Retune / Revert`, which is a different thing from version history; shipping the mockup's label would name a future capability wrongly |
+| `Duplicate Site` | Not rendered | Duplicate is create-with-an-implied-source and would collapse the template/instance distinction the design rests on |
+| `Delete Site` | Not rendered | Deferred for all of M1 by user decision |
+| Site image `Change` | Not rendered | An edit affordance; and the Foundation carries no image |
+
+The test for an action control: can this map name the causal step that makes it
+true? If yes, disabled with that prerequisite named. If the answer is a decision
+to defer, not rendered.
+
+### Navigation truthfulness
+
+A navigation destination appears only when the route behind it renders a
+truthful surface. No placeholder destinations, no disabled nav items, no
+"coming soon" routes. Navigation is stronger than a button because it is the
+user's model of what the product is; a rail of ten items where six are dead
+teaches a product that does not exist.
+
+Consequences for M1:
+
+- **Operator navigation does not grow at all in step 3.** Every step 3 surface
+  that is new chrome — the template catalog and the create flow — is a Simulator
+  Lab surface behind the gate, in the Lab's own shell, whose navigation already
+  lists Sites and Site Templates. v6.9's "no new operator navigation items" rule
+  and the T004 boundary tests are preserved without exception.
+- The Lab's own navigation exists to serve the Lab's purpose, which is to
+  unblock product development before a real site exists. It is a developer
+  workspace menu, not a second product information architecture, and nothing in
+  it is evidence that the operator product should have a matching destination.
+  The no-dead-destinations rule still applies to it.
+- The current parameterless `Site details` and `Site configuration` operator
+  nav items are step-1 route placeholders from before Site identity existed.
+  Once Sites are addressed by `site_id` they must be removed: a Site Details
+  link that names no Site is not a destination. Those surfaces are reached from
+  a Sites row.
+- Simulator Lab stays out of operator navigation, reached only from workspace
+  chrome. Settled by T003/T004 and confirmed rather than contradicted by the
+  mockups once the shell is read correctly.
+- The operator rail's real long-run target is v6.9 §2's ten object classes, not
+  the mockup rail. Nothing in the mockup rail should be added to operator
+  navigation on the strength of the mockup alone.
+- Home, Library, Documentation, and Settings stay absent until each has
+  something truthful behind it. v6.9 gives no content contract for any of them.
+- Devices, Ingestion, and Events are site-scoped tabs and Simulator Lab run
+  tabs, not destinations. The mockup's own breadcrumbs say so
+  (`Sites > MG-001 > Devices`). Whether they ever become global destinations is
+  a step 9 question, not a Site Foundation question.
+
+### Fidelity staging
+
+Fidelity is applied per surface, after that surface's content is real, in this
+order. Each stage is a truthful, reviewable screen on its own, not a step toward
+one.
+
+1. **Shared visual vocabulary.** Brand header, left rail as a real component,
+   breadcrumbs, page header pattern, badge and pill vocabulary, table and panel
+   patterns, type and colour tokens. Applied only to surfaces that already have
+   real content. Introduces no content, no control, and no destination. This is
+   the one stage that is chrome-only, and it is safe precisely because it adds
+   nothing a user could mistake for a capability.
+2. **Template catalog to mockup quality.** The first surface with real content,
+   and therefore the first that can carry the vocabulary honestly. Lab shell.
+3. **Create flow.** `+ Add site` as the real entry point, template selection,
+   identity fields, and refusal copy. Lab shell, gated.
+4. **Sites index to canonical screen 1.** Search, type and mode filters, and the
+   column set the product can source, with Mode and lifecycle as separate
+   columns and `Last analysed` rendered `--`. Operator shell, ungated.
+5. **Site Details to canonical screen 2.** Identity header with provenance
+   badge, Site Information panel, tab bar labelled in place, and the Quick
+   Actions panel under the three-state rule. A panel whose content the
+   Foundation cannot supply, such as a site photograph, is omitted rather than
+   framed empty.
+6. **Site Configuration / Foundation to canonical screen 3 minus the diagram.**
+   Summary, Components, Control Logic, and Settings tabs, and Key Parameters.
+7. **The configured Single Line Diagram**, at causal step 4.
+8. **Canonical screens 4 through 9** as their causal steps land.
+
+Stages 1 through 6 are the "few tasks from T006" the user accepted. Stages 2 and
+3 are fidelity applied to step 3a and 3b surfaces; stages 4 through 6 follow
+step 3b and 3c. Fidelity never runs ahead of the content it dresses.
+
+Stages 5 and 6 dress the shared Site substrate, not an operator-only page, so
+the Lab's Site view inherits that fidelity when it arrives at step 6 rather than
+being brought to fidelity a second time. This is one of the concrete payoffs of
+the substrate rule and a reason not to defer it: fidelity applied to a forked
+page has to be applied twice and then kept in agreement forever.
+
 ## Enforceable Protected Seams
 
 Prioritise the first seven seams for immediate guards because they are cheap to
@@ -932,8 +1386,13 @@ depend on them.
 | Commit semantics | Commit releases immutable staged envelopes by manifest and never writes Site history, health, analytics, findings, or derived objects directly. | Integration test inspects storage/state after Commit before ingestion acceptance; only release state/manifest changes. | Commit path becomes an unreviewable product backdoor. | Contract test |
 | Committed overlap | Overlapping Drafts are allowed; overlapping committed simulated history for same `site_id` and half-open interval is blocked until branch/context selection exists. | Interval test covers overlap, containment, equality, and adjacent `[start,end)` cases; UI test shows blocked Commit reason. | Site history silently combines ambiguous alternative histories. | Unit/contract test |
 | Evidence immutability and rerun/replay | Committed source evidence is immutable; Rerun creates a new Draft `run_id`, Replay reads persisted evidence without rerunning. | Test Rerun creates a new Draft and Replay performs no simulator execution or envelope regeneration. | Audit, reproducibility, and deterministic comparisons collapse. | Contract test |
-| YAML configuration authority | M1 Site/Foundation YAML is authoritative and strictly validated on load. | Schema/semantic validation tests reject invalid references, topology, duplicate IDs, mappings, ratings, units, timezone, and unsupported values. | UI and simulator normalize different invalid assumptions. | Unit/contract test |
-| Read-only configuration UI | M1 Site Configuration UI never implies edit, Save, Publish, approval, or persistence semantics. | UI test checks edit controls are absent/disabled and labelled unavailable/read-only. | Users infer configuration workflows and version history that do not exist. | Review-time check |
+| YAML configuration authority | M1 Site/Foundation YAML is the authoritative representation and is strictly validated on load, in both the shipped catalog and the user-authored store, through one parser with no lenient path. | Schema/semantic validation tests reject invalid references, topology, duplicate IDs, mappings, ratings, units, timezone, and unsupported values, and run the same parser over a user-authored document fixture. | UI and simulator normalize different invalid assumptions, or user-authored documents are trusted more than shipped ones. | Unit/contract test |
+| Read-only configuration UI | M1 Site Configuration UI renders every Site read-only regardless of origin and never implies in-place edit, Save, Publish, approval, rename, duplicate, delete, or configuration history. Authoring exists only as create-from-template in a separate flow; `site_id` is immutable after creation. Deferred-by-decision controls are absent from the rendered output, not disabled: disabled means not yet eligible, and none of these is coming. | UI test opens Site Configuration and Site Details for a user-created Site and asserts that `Edit`, `Edit Configuration`, `Version History`, `Duplicate Site`, `Delete Site`, `Save`, `Publish`, and `Rename` are absent from the DOM entirely, not merely disabled or `aria-disabled`, and that copy states configuration is fixed at creation in M1; API test asserts no update or delete route exists for a Site. | Users infer an editing and version-history workflow the product does not have, or an edit path lands before Foundation re-versioning semantics exist. A greyed-out `Edit` is read as "soon", which is a promise M1 has declined to make. | Review-time + contract test |
+| Configuration persistence port | Site and template configuration is reached only through domain-defined ports; storage technology lives in adapters selected in one composition root. Port signatures and errors use domain records, never paths, file handles, YAML text, or store-specific exceptions. | CI architecture check bans imports of `sites/adapters/**` from anywhere except the single allowlisted composition module, and bans `yaml`, `pathlib`, `sqlite3`, and `open(` inside `sites/` outside `adapters/`; a fake in-memory adapter satisfies the port in service tests without importing an adapter. | Storage assumptions leak into read models, API, and UI, and replacing the store becomes a rewrite of every caller instead of one adapter. | CI guard |
+| Shipped versus user-authored configuration | Shipped canonical configuration is read-only at runtime and lives outside the writable store. Templates are not Sites and hold no `site_id`. `site_id` is globally unique across both stores with no overlay and no precedence; `template_id` is origin provenance and never Site identity. M1 ships zero Sites in the shipped Site store: the shipped content that ships is the template catalog, and every Site in the product is one a user created. | Test asserts the same `site_id` in both stores fails loudly at load, create refuses an id present in either store case-insensitively, no write path resolves inside the shipped catalog, and changing a template does not alter an already-created Site. A further test asserts the shipped Site store is empty on a clean checkout and the Sites index therefore renders its first-run empty state; the disjointness tests use a fixture store, not a product-visible Site. | Shipped and user configuration merge into one ambiguous namespace, a template release silently rewrites Foundations that committed history depends on, or a fixture Site nobody configured makes the Sites index look real before the capability that fills it exists. | CI guard |
+| User-authored configuration input | User-supplied configuration is untrusted input at a strict boundary: the fully materialized document is validated before any write, unknown keys and oversized documents are rejected, `site_id` is charset-constrained and cannot traverse or collide case-insensitively, free text is never identity or a path, and writes are atomic. | Parser/adapter tests cover unknown keys, oversized input, `..` and separator and absolute-looking ids, case-variant collision, and a failed write leaving the store byte-identical. | A user document takes down the Sites index, escapes the store directory, or forks Site identity. | Unit/contract test |
+| Shared Site presentation substrate | Where both shells present a Site they present it from one substrate: one read model, one view model, one set of presentation components, in `frontend/src/sites/`. Neither shell forks any of the three, and neither defines Site presentation of its own. Each shell may only compose and add through named slots the substrate declares: the Lab adds run and execution context, the operator adds a gated way into the Lab. The substrate carries no shell/mode/variant discriminant, is a leaf that imports no shell code, no simulator code, and no feature flag, and never imports what fills a slot. | Three checks, because a call-the-same-function check does not catch drift. (1) **Render equivalence**, the primary guard: render the substrate over one fixture `SiteRecord` in the operator composition and in the Lab composition and assert the shared region's DOM subtrees are identical, so every difference is provably additive; ships with the Lab's Site view at step 6, when a second consumer first exists. (2) **Single definition**, a CI architecture check: Site presentation components, view-model derivation, and Site read-model types resolve in `frontend/src/sites/**` only, and no module under `shell/**` or the Lab feature root declares one; ships with the first Site presentation slice. (3) **Leaf direction**, a CI import check: `frontend/src/sites/**` imports nothing from `shell/**`, the Lab feature root, or `config/featureFlags`, and contains no `simulator`, `lab`, `variant`, or `mode`-discriminant prop; ships with the same slice. | Two shells drift into two Site models. The operator Site page and the Lab Site page begin disagreeing about what a Site is: different labels for the same field, different unavailable states, a field derived one way here and another way there, and eventually two read models with a translation layer between them. By the time anyone notices, both have users and neither can be changed alone. The cheaper variant of the same failure is a `variant="lab"` branch inside the shared core, which looks shared and drifts anyway. | CI guard + contract test |
+| Mockup fidelity versus product honesty | A screen adopts canonical mockup layout only for content the product can source truthfully. Mockup values are never copied as content. Three treatments, never blurred: a gated or decided-against capability is not rendered; a canonical tab with no content contract yet is labelled in place; a built capability that is not currently eligible is disabled with its reason stated. A navigation destination appears only when its route renders a truthful surface, and operator navigation does not grow on the strength of a mockup rail that is in fact the Simulator Lab shell's own navigation. | Per-screen UI test asserts: no mockup literal (`2 min ago`, `1.2 M`, `20 kW`, `Kampala`, `Jan 1, 2026` and the rest of the fixture strings) appears in the DOM unless the record under test supplies it; no enabled control lacks a backing capability; deferred-by-decision controls are absent from the DOM rather than disabled; every disabled control exposes an accessible reason; every rendered nav item resolves to a route that renders real content, and none is disabled; `Mode` and lifecycle never share a column. | The product ships a convincing shell of the mockup whose columns, controls, and navigation teach capabilities that do not exist. The honesty posture is lost exactly where it is most visible and most trusted, and the mockup's own vocabulary errors, such as `Simulated` in a `Status` column, become the product's data model. | CI guard |
 | SLD archetype boundary | SLD archetype owns presentation only and must not create, remove, rename, or reinterpret canonical components or connections. | View-model test compares rendered component/connection IDs against canonical topology and checks incompatible topology state. | Diagram becomes a second topology model and diverges from simulation/evidence. | Unit/contract test |
 | Configuration-only Site states | A valid Site with no accepted evidence shows No evidence/Unavailable rather than fabricated telemetry, charts, source health, analytics, findings, or Replay. | UI test renders a configuration-only Site and asserts no zero-value operational defaults or OFFLINE health. | Demo placeholders become false product claims. | CI guard |
 | Source/gateway health derivation | Gateway/source health is derived by AssetOps from accepted evidence and expected cadence, never accepted as an authoritative raw health conclusion. | Parser rejects raw `GatewayHealth` conclusion records; analytics test derives Online/Stale/Offline from evidence conditions. | Operators trust self-reported or simulator-assigned health. | Contract test |
@@ -971,20 +1430,96 @@ UI/UX expectations.
 
 ### Early Feature: Site Foundation And Configuration-Only Site
 
-Divide into slices:
-- Canonical YAML Site/Foundation fixture and strict validation.
-- Sites List and Site Details identity/configuration-only presentation.
-- Read-only Site Configuration UI with Foundation version, validity, source
-  mode, lifecycle, and explicit unavailable operational states.
+Architectural direction for this feature is tracked across the 2026-09-13
+entries in `.ai/DECISIONS.md`, the Configuration Persistence section of
+`.ai/ARCHITECTURE.md`, the Canonical Screen Fidelity section and the
+persistence, configuration, and fidelity seam rows above. Those are sufficient
+to implement it.
 
-Seams inside the feature: Site identity, YAML authority, configuration-only
-states, source mode versus lifecycle/source health.
+The slice order below replaces the order given earlier on 2026-09-13, which ran
+read path first and creation last. Configuration comes first because a Sites
+index is a view over Sites somebody configured.
 
-Must not bundle: configuration editing, Save/Publish, simulator run setup,
-source health, charts, analytics, Replay, or Findings.
+Divide into slices, in this order:
 
-User-review checkpoint: required for Site/Foundation semantics and
-configuration-only UI language because they fix domain semantics.
+1. Shipped `SiteTemplate` catalog: `SiteTemplateCatalog` port, domain records,
+   port error vocabulary, read-only shipped-YAML adapter, single composition
+   root, strict validation, both persistence CI guards, and template inspection
+   that is read-only, in its own identity space, and visibly not a Site.
+   Simulator Lab shell, behind the gate. No Site exists yet.
+2. Create a Site from a template: `SiteRepository` port with list, get, and
+   create only; write adapter over the user store; identity and whole-document
+   validation; cross-store collision refusal; atomic write; origin and template
+   provenance; specific refusal copy. The operator Sites index goes from a
+   genuine first-run empty state to the created Site, and Site Details is
+   addressed by `site_id`. Create flow in the Lab shell behind the gate; Sites
+   index and Site Details in the operator shell, ungated. The created Site is a
+   product object in the product store from the instant it exists: there is no
+   Lab-owned Site store and no publish or promote step.
+3. Read-only Site Configuration presentation: Foundation version, validity,
+   source mode as provenance, lifecycle, integration readiness, configuration
+   origin, components, devices, signal mappings, ratings, control assumptions,
+   and explicit unavailable operational states. No SLD.
+
+Site presentation built in slices 2 and 3 goes in the shared substrate at
+`frontend/src/sites/`, not in the operator shell, and the operator shell
+composes it. This is a change of location, not of scope: the same screens ship
+in the same order, and no extension-slot machinery is built yet, because nothing
+fills a slot until the Lab's Site view arrives at step 6. What ships now is the
+single definition and the leaf dependency direction, which are cheap now and
+expensive after two shells each grow a Site page. The render-equivalence test
+cannot be written before a second consumer exists and ships at step 6; the two
+structural guards ship with slice 2.
+
+This is deliberately not the same call as rejecting a port with no consumer. A
+port's shape is unknown until a caller proves it, so shipping one early is
+guesswork. The Site substrate's shape is already known, because it is the Site
+read model that slice 2 must build anyway, and the user has stated that a second
+consumer is coming. The only question is which directory the files go in.
+4. Shared visual vocabulary applied to the surfaces built in 1 to 3.
+5. Sites index to canonical screen 1, then Site Details to canonical screen 2,
+   then Site Configuration to canonical screen 3 minus the diagram. These may be
+   three slices or fewer; each must be a truthful screen on its own.
+
+Slices 1 and 2 may each split further if a review packet is too large, under two
+hard constraints: the port must not be deferred past the first slice that reads
+configuration, and the template concept must not be deferred past the first
+slice that writes a Site.
+
+Seams inside the feature: Site identity, YAML authority, configuration
+persistence port, shipped versus user-authored configuration, user-authored
+configuration input, configuration-only states, read-only configuration UI,
+mockup fidelity versus product honesty, simulator feature gate, source mode
+versus lifecycle versus configuration origin versus source health.
+
+Must not bundle: in-place configuration editing, Save/Publish over an existing
+Foundation, rename, duplicate, delete, configuration history or rollback,
+approvals, template authoring or upload, arbitrary YAML import, the configured
+SLD, simulator run setup, source health, charts, analytics, Replay, or Findings.
+
+Must not do: give the simulator a repository handle; add any item to operator
+navigation; weaken or extend any T003/T004 gate or boundary test; ship a
+canonical Site in the shipped Site store; render a deferred-by-decision control
+as disabled instead of absent; copy a mockup value as content; add
+`update`/`delete`/query-DSL/pagination to the port before a slice needs them; or
+let the create path reach storage without going through the port.
+
+Must not do, substrate edition: define Site presentation inside `shell/` or the
+Lab feature root; give a substrate component a `variant`, `mode`, `shell`, or
+`isLab` prop; import shell code, simulator code, or `featureFlags` from
+`frontend/src/sites/**`; create a Lab-specific Site read model, Site endpoint, or
+Site store; add a `created_in_lab` or `is_simulator_site` field; or derive
+configuration origin from source mode or the reverse.
+
+User-review checkpoint: required twice, and both move. The first now sits on the
+create slice, because creation is where Site, template, instance, identity,
+origin, and refusal language are all fixed at once, and because it is the first
+slice that produces a Site at all. The second sits on the Site Configuration
+presentation slice, because configuration-only language and the "configuration
+is fixed at creation in M1" statement fix what the product promises about a Site
+it will not let you edit. The fidelity slices need no separate checkpoint of
+their own: they add no capability and no language, and the three-state rule is
+already checked by the fidelity seam.
 
 ### Early Feature: Topology, Devices, And SLD
 
@@ -1103,5 +1638,19 @@ and operator consequence.
 
 ## Open Questions Before Task Breakdown
 
-- None. The M1 feature map decisions are resolved and ready for task
+- One, and it is a product question the Architect should not answer alone.
+  **Which shell is `ScreenMockups.png` the target for?** The evidence set out
+  under Canonical Screen Fidelity says it renders the Simulator Lab developer
+  shell: its rail is v6.9 §3.9's Lab navigation, and its Site tabs and Sites
+  columns are not v6.9's operator ones. Everything in this map is sequenced on
+  that reading, which keeps operator navigation unchanged and T003/T004 intact.
+  If instead the user intends those nine screens as the single shell for M1,
+  merging operator and Lab into one workspace for this milestone, that is a
+  product call the user is entitled to make and it would supersede the T003/T004
+  navigation position. It is not being made here, and nothing should be built on
+  the assumption that it will be.
+- Removal of a user-created Site was the previous open question; the user
+  deferred it on 2026-09-13. Removing a user-created Site stays a developer
+  action on the store for M1.
+- Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.

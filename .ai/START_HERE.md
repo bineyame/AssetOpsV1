@@ -4,6 +4,10 @@ AssetOps helps operators use a simulator lab and site operations screens to
 inspect mini-grid evidence, understand current operating state, and investigate
 evidence-backed operational findings.
 
+This file is a routing document. Keep volatile task state in
+`.ai/ACTIVE_CONTEXT.md`; keep durable product and architecture reasoning in the
+canonical files it points to.
+
 ## Current Focus
 
 Current milestone:
@@ -13,66 +17,52 @@ resulting operational evidence in the UI.
 
 Planning status:
 
-Architect feature map, causal sequencing, protected seams, and first-pass
-feature-to-task guidance exist at `.ai/FEATURE_MAP.md`.
+The Stack, Shell, And Gate feature is complete. Site Foundation planning is
+reworked as T005-T013, and `.ai/ACTIVE_CONTEXT.md` names the next task, relevant
+decision IDs, and feature-map sections to read.
 
-The Stack, Shell, And Gate feature is complete, reviewed, and accepted:
-
-- `tasks/completed/T001-stack-shell-skeleton.md`
-- `tasks/completed/T002-operator-shell-route-frames.md`
-- `tasks/completed/T003-simulator-lab-feature-gate.md`
-- `tasks/completed/T004-simulator-lab-developer-entry-point.md`
-
-Both user-review checkpoints are closed. T003 accepted the gate but redirected
-its entry point; T004 applied that redirection and was accepted on 2026-09-13.
-Simulator Lab is reached from workspace-level chrome outside operator
-navigation, operator navigation is structurally identical in both flag states,
-and the Lab renders outside the operator route layout.
-
-Active task:
-
-- None. T004 was the last planned slice.
-
-Planning may now proceed to Site Foundation slices. The Architect or Planner
-owns the next task definition; see `.ai/FEATURE_MAP.md`.
-
-Open Architect action carried from T003 review follow-up 1, not absorbed by
-T004: the disabled bundle still contains `SimulatorLabFrame.tsx`, because the
-gate removes route reachability rather than code. This must become an explicit
-seam with a concrete check in `.ai/FEATURE_MAP.md` before simulator truth
-overlays land.
-
-## Default Reading Path
+## Current Route
 
 Read by default:
 
 1. `AGENTS.md`
 2. `.ai/START_HERE.md`
-3. `.ai/PLANNING_GUIDANCE.md` until the Architect creates the first task
+3. `.ai/ACTIVE_CONTEXT.md`
+4. The active task file named in `.ai/ACTIVE_CONTEXT.md`, when one exists.
 
 Read only when relevant:
 
+- `.ai/PROJECT_RULES.md` for authority order, seams, ambiguity, and git rules.
 - `.ai/ROLE_CONFIG.md` when invoking Planner, Architect, Implementer, or
   Reviewer roles.
 - `.ai/PRODUCT.md` when product semantics, user-visible claims, or acceptance
   meaning matter.
 - `.ai/ARCHITECTURE.md` when dependency direction, contracts, simulator
   boundaries, or protected seams matter.
-- `.ai/DECISIONS.md` when a current choice depends on previous decisions.
+- `.ai/DECISIONS.md` only for the decision IDs named by the active context or
+  active task.
+- `.ai/FEATURE_MAP.md` only for the feature-map sections named by the active
+  context or active task.
+- Completed task files only when reviewing regression risk or historical
+  acceptance.
 
 Do not load every project document by default.
 
 ## Working Model
 
-Planned lane: Architect or Planner -> Implementer -> Reviewer -> User review.
+Planned lane:
 
-Use it for new product behavior, domain semantics, meaningful UI/UX, data/API
+Architect or Planner -> Implementer -> Reviewer -> User review
+
+Use for new product behavior, domain semantics, meaningful UI/UX, data/API
 contracts, architecture boundaries, simulator or ingestion semantics, external
 integrations, and user-visible analytics.
 
-Fast lane: Implementer -> Reviewer.
+Fast lane:
 
-Use it only for low-risk work inside existing product and technical contracts:
+Implementer -> Reviewer
+
+Use only for low-risk work inside existing product and technical contracts:
 documentation cleanup, test clarification, small bug fixes with established
 behavior, internal refactors, tooling cleanup, implementation cleanup, or minor
 styling corrections.
@@ -95,5 +85,5 @@ Current product truth lives in `.ai/PRODUCT.md`. Durable architecture rules live
 in `.ai/ARCHITECTURE.md`. Lightweight durable governance lives in
 `.ai/PROJECT_RULES.md`.
 
-Normally ignore local-only `.agent/` files, completed task history, and unrelated
-future-slice questions.
+Normally ignore local-only `.agent/` files, completed task history, and
+unrelated future-slice questions.

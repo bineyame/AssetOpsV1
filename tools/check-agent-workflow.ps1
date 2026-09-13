@@ -15,6 +15,7 @@ function Require-File($path) {
 $requiredFiles = @(
     "AGENTS.md",
     ".ai/START_HERE.md",
+    ".ai/ACTIVE_CONTEXT.md",
     ".ai/PROJECT_RULES.md",
     ".ai/WORKFLOW.md",
     ".ai/PRODUCT.md",
