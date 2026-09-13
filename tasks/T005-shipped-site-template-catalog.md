@@ -1,6 +1,6 @@
 # T005 - Shipped Site Configuration Template Catalog
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T005-shipped-site-template-catalog`

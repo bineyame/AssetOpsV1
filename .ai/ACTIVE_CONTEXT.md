@@ -11,14 +11,19 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: none.
+Active task: `tasks/T005-shipped-site-template-catalog.md`
 
-Next task to activate:
-
-- `tasks/T005-shipped-site-template-catalog.md`
-- Intended branch: `task/T005-shipped-site-template-catalog`
+- Branch: `task/T005-shipped-site-template-catalog`
+- State: implemented, `Status: in_review`, awaiting independent review.
 - Lane: Planned lane, then independent review.
-- User review: not required for T005.
+- User review: not required for T005. The template-versus-Site language it
+  introduces is reviewed with creation semantics at the T006 checkpoint.
+
+Next task to activate, after T005 review closes:
+
+- `tasks/T006-create-a-site-from-a-template.md`
+- Intended branch: `task/T006-create-a-site-from-a-template`
+- User review: required. First user-review checkpoint of the feature.
 
 ## Current Site Foundation Sequence
 
