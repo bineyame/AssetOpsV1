@@ -8,6 +8,24 @@ This is a feature map, not an implementation task list. Features are sequenced
 by causal dependency: if a screen displays a fact, state, diagram, or claim, the
 product must first have a truthful source for that display.
 
+## Feature Map Index
+
+Do not read this file end to end by default. Use `.ai/ACTIVE_CONTEXT.md` and the
+active task file to choose only the needed sections.
+
+| Need | Read |
+| --- | --- |
+| M1 ordering and cross-feature causality | Product Spine |
+| Current Site Foundation tasks T005-T013 | Early Feature: Site Foundation And Configuration-Only Site |
+| Architecture and CI seams to preserve | Enforceable Protected Seams |
+| Topology, devices, or single-line diagram planning | Early Feature: Topology, Devices, And SLD |
+| Scenario and run setup planning | Early Feature: Scenario Catalog And Run Setup |
+| SimulationRun runtime planning | Early Feature: Draft SimulationRun And Recorded Runtime |
+| Gateway, Commit, or ingestion planning | Early Feature: Gateway Publication, Commit, And Ingestion |
+| Evidence, Replay, or provenance views | Early Feature: AssetOps Evidence Views And Replay |
+| Product conclusion chain or Findings | Early Feature: First Product Conclusion Chain |
+| Unresolved product questions | Open Questions Before Task Breakdown |
+
 ## Product Spine
 
 M1 should become real in this order:

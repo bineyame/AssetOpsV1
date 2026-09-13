@@ -23,10 +23,8 @@
 
 - `.ai/DECISIONS.md`
 - `.ai/START_HERE.md`
+- `.ai/ACTIVE_CONTEXT.md`
 - `.ai/FEATURE_MAP.md`
-- `tasks/T001-stack-shell-skeleton.md`
-- `tasks/T002-operator-shell-route-frames.md`
-- `tasks/T003-simulator-lab-feature-gate.md`
 - Active task file, after the user activates one planned task
 
 ## Historical

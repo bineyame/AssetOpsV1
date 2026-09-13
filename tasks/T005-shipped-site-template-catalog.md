@@ -5,6 +5,40 @@ USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T005-shipped-site-template-catalog`
 
+## Agent Brief
+
+Build the first Site Template catalog slice in the Simulator Lab only. With
+`simulator_lab.enabled` true, the Lab lists shipped templates and opens a
+read-only template inspection view. With the flag false, the template route and
+API are absent.
+
+Primary implementation work:
+
+- Add a shipped, read-only template configuration root with one Hybrid Mini-Grid
+  archetype.
+- Add domain records, strict parser, `SiteTemplateCatalog` port, read-only YAML
+  adapter, service/composition boundary, gated API, and Lab UI.
+- Extend route/API inventory tests and architecture checks for adapter
+  isolation, no storage technology above adapters, and no writable path inside
+  the shipped catalog root.
+
+Hard limits:
+
+- Do not create a Site, Site repository, writable user store, create action,
+  operator navigation item, SLD, signal selector, simulator execution, evidence,
+  analytics, Replay, or Findings.
+- Do not let a template be a kind of Site; reject `site_id`,
+  `lifecycle_status`, unknown keys, oversized documents, and over-cardinality
+  documents.
+- Do not weaken the T003/T004 gate, route, API, or navigation boundary tests.
+
+Read with this brief:
+
+- `.ai/ACTIVE_CONTEXT.md`
+- `.ai/FEATURE_MAP.md` Feature Map Index, Product Spine, Enforceable Protected
+  Seams, and Early Feature: Site Foundation And Configuration-Only Site.
+- `.ai/DECISIONS.md` only for the decision IDs named by `.ai/ACTIVE_CONTEXT.md`.
+
 ## Feature
 
 Site Foundation And Configuration-Only Site.
