@@ -57,6 +57,30 @@ served. Existing simulated Sites, SIMULATED provenance, accepted evidence,
 operator routes, analytics, and Replay remain available because they are product
 history, not simulator execution.
 
+## Configuration Persistence
+
+Persisted configuration is reached through a port defined by the product domain.
+Storage technology lives in an adapter, and exactly one composition root chooses
+which adapter is used. Port signatures and port errors speak domain records; a
+path, file handle, serialization format, or store-specific exception in a port
+signature means the store is not actually replaceable.
+
+Shipped canonical configuration and user-authored configuration are separate
+stores. Shipped configuration is read-only at runtime and lives outside the
+writable store. Identity is globally unique across both stores; there is no
+overlay and no precedence, because an identity that resolves differently
+depending on store state cannot anchor downstream history.
+
+Configuration templates are instantiated by copy, with the template identity and
+version recorded as provenance on the instance. A template identity never
+becomes an instance identity, and a later template change never alters an
+already-created instance.
+
+User-authored configuration is untrusted input. It crosses the same strict
+parser as shipped configuration with no lenient path, the fully materialized
+document is validated before anything is written, and writes are atomic so a
+failed write leaves the store unchanged.
+
 ## Change Rule
 
 Add durable architecture rules only when a current slice requires them or when

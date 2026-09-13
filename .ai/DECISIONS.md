@@ -240,3 +240,120 @@ Affected scope: SimulationRun lifecycle, Commit eligibility, half-open interval
 validation, run management UI, rerun/replay semantics, deterministic identity,
 committed evidence immutability, future branch/context selection, admin reset
 boundaries, task sequencing.
+
+## 2026-09-13
+
+Decision: Site and Site Foundation configuration is reached only through a
+`SiteRepository` port defined in the product domain, with storage technology
+supplied by an adapter selected in a single composition root. The port speaks
+domain records and port-level errors; it never exposes files, paths, YAML text,
+serialization formats, or store-specific exceptions. M1 ships two read adapters
+over shipped canonical configuration and user-authored configuration, plus one
+write adapter for user-authored configuration. Replacing file storage with any
+other mechanism must require a new adapter module and one composition-root
+change, and no change to callers.
+
+This supersedes part of the 2026-09-11 decision "M1 keeps canonical
+Site/Foundation configuration file-backed in YAML and provides a read-only Site
+Configuration UI", specifically its deferral of persistence. Persistence is no
+longer deferred for user-authored configuration. Everything else in that
+decision still stands: YAML remains the serialization format and the
+authoritative representation of Site identity and Foundation content, strict
+validation on load is unchanged, and approvals and configuration history
+management remain deferred. The read-only-UI clause is addressed separately
+below.
+
+Reason: The user requires the persistence mechanism to be replaceable later
+without rewriting callers. A naming convention does not deliver that; a port
+with a testable dependency direction does. Introducing it before any Site read
+model exists is cheap, and retrofitting it after Sites, templates, SLD view
+models, and evidence resolution all reach storage directly is expensive and
+error-prone. Keeping the port free of file and format vocabulary is what makes
+the swap real rather than nominal.
+
+Affected scope: Site read models, Site Configuration UI data path, Site
+templates, user-authored Site creation, backend module tree, composition root,
+strict boundary parsers, CI architecture guard, future configuration API or
+database migration, task sequencing.
+
+## 2026-09-13
+
+Decision: M1 distinguishes shipped canonical configuration templates from
+user-created Site instances as separate concepts in separate identity spaces and
+separate stores. A template has `template_id` and `template_version`, ships
+read-only in the repository, and is not a Site: it has no `site_id`, no
+lifecycle status, no location or timezone binding, and it cannot appear in the
+Sites index, be targeted by a scenario, be simulated, or receive evidence.
+Instantiating a template copies its Foundation content into a new Site document
+and records `template_id` and `template_version` as origin provenance; the
+created Site does not live-reference the template, and later template changes
+never alter existing Sites. Shipped Sites and user-created Sites occupy one
+globally unique `site_id` space with no overlay and no precedence: the same
+`site_id` present in both stores is a startup-level conflict, and creation
+refuses any `site_id` already present in either store. Configuration origin
+(`SHIPPED` or `USER`) is provenance about the configuration document and is a
+separate concept from `source.mode`, lifecycle status, integration readiness,
+and source health.
+
+This refines rather than supersedes the 2026-09-11 "YAML configuration
+authority" position. YAML remains authoritative and strictly validated on load
+in both stores. What changes is only who may write it: shipped configuration
+stays read-only at runtime, and a second writable store holds user-authored
+documents.
+
+Reason: The distinction the user asked for only survives if it is structural. If
+a user Site were created by copying a shipped Site, shipped Sites would silently
+become templates and the precedence, identity, and provenance rules would have
+to be retrofitted after user data exists. Overlay resolution was rejected
+because a `site_id` that resolves to different content depending on store state
+breaks the identity seam that every later run, envelope, evidence record, and
+analytic is keyed on. Copy-on-instantiate was chosen over live reference because
+a shipped template change would otherwise retroactively alter Foundations that
+committed simulated history already depends on.
+
+Affected scope: Site identity, template catalog, Site creation, configuration
+origin provenance, Sites index, Site Details, Site Configuration UI, store
+layout, identity validation, strict parsers, CI architecture guard, scenario
+targeting, future template versioning and drift inspection, task sequencing.
+
+## 2026-09-13
+
+Decision: M1 makes Site creation a real product capability while keeping the
+Site Configuration UI read-only. A user may create a Site by choosing a shipped
+template and supplying identity and required identity-level fields; the
+resulting Site is validated as a complete document and persisted through the
+write adapter. In-place editing of an existing Site Foundation remains
+unavailable, as do Save, Publish, approval, rename, delete, `site_id` change,
+Foundation version bump in place, configuration diff, history, and rollback.
+`site_id` is immutable after creation. The Site Configuration UI renders every
+Site read-only regardless of origin and must state that configuration is fixed
+at creation in M1, rather than implying an editing workflow that does not exist.
+User-authored configuration is untrusted input: it crosses the same strict
+parser as shipped configuration, with no lenient path, and the fully
+materialized document is validated before anything is written.
+
+This supersedes part of the 2026-09-11 decision "M1 keeps canonical
+Site/Foundation configuration file-backed in YAML and provides a read-only Site
+Configuration UI", and correspondingly narrows the "Read-only configuration UI"
+enforceable seam. Superseded: the blanket deferral of in-product authoring and
+of save semantics, which now exist for creation. Still standing in full:
+in-place Foundation editing, Save and Publish over an existing Foundation,
+approvals, configuration history and rollback are deferred; the Site
+Configuration UI itself remains read-only and offers no edit affordance; strict
+validation on load is unchanged; YAML remains the authoritative representation.
+
+Reason: Creating a Site and editing a Site are different capabilities with
+different risk. Creation writes a new `site_id` that no run, envelope, evidence
+record, mapping version, or committed history depends on yet, so its blast
+radius is bounded by validation of one new document. In-place editing mutates a
+Foundation that later slices bind evidence and committed simulated history to,
+and raises Foundation re-versioning, effective dating, revalidation against
+existing evidence, and the question of what happens to committed history when a
+mapping changes. M1 needs the first capability and has no answer for the second,
+so shipping creation now and deferring editing keeps the milestone honest
+instead of implying a configuration lifecycle the product does not have.
+
+Affected scope: Site Configuration UI language and affordances, Site creation
+flow, identity validation, untrusted-input handling, write-path atomicity,
+Foundation versioning, deferred editing and history semantics, protected seams,
+task sequencing, user-review checkpoints.

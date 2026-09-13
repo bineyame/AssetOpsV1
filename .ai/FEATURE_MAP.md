@@ -309,9 +309,27 @@ Causal prerequisites:
 - Component truth remains distinct from device-reported evidence: Component
   truth -> Device/sensor behavior -> Reported signal -> Gateway -> Canonical
   source envelope -> AssetOps.
+- A `SiteRepository` port owned by the product domain, with storage supplied by
+  an adapter chosen in one composition root, so the persistence mechanism can be
+  replaced without changing callers.
+- A shipped canonical configuration catalog that is read-only at runtime and a
+  separate writable store for user-authored configuration, sharing one globally
+  unique `site_id` space with no overlay.
+- A `SiteTemplate` catalog with its own `template_id`/`template_version`
+  identity. A template is not a Site: it has no `site_id`, cannot be listed as a
+  Site, simulated, targeted by a scenario, or receive evidence.
+- Configuration origin (`SHIPPED` or `USER`) plus template provenance on
+  user-created Sites, kept distinct from `source.mode`, lifecycle status,
+  integration readiness, and source health.
+- Untrusted-input handling for user-authored configuration: one strict parser
+  for both stores, whole-document validation before write, constrained
+  `site_id`, and atomic writes.
 
 Candidate tasks, after review:
-- Add file-backed canonical M1 Site definitions and Site list/detail read model.
+- Add the `SiteRepository` port, domain records, port error vocabulary, and a
+  read-only shipped-YAML adapter behind a single composition root.
+- Add file-backed canonical M1 Site definitions and Site list/detail read model
+  resolved through the port.
 - Add strict YAML validation for Site identity, Foundation version, components,
   topology, devices, mappings, ratings, control assumptions, and unsupported
   values.
@@ -321,6 +339,11 @@ Candidate tasks, after review:
   dates, configured SLD, device/signal relationships, and disabled/unavailable
   edit affordances.
 - Add explicit no-evidence/unavailable states for configuration-only Sites.
+- Add a shipped `SiteTemplate` catalog and template inspection view, read-only
+  and clearly not a Site.
+- Add a create-Site-from-template flow with a write adapter, identity
+  validation, cross-store collision refusal, and origin/template provenance on
+  the created Site.
 
 UI-verifiable outcomes:
 - User sees MG-001 as a Site row and detail page with stable identity.
@@ -330,10 +353,22 @@ UI-verifiable outcomes:
   operational evidence, zero-value charts, source-health state, or analytics.
 - Simulated status appears as provenance and does not replace normal Site
   status, evidence state, integration readiness, or source health.
+- User can browse shipped configuration templates and see what a template would
+  produce, without a template appearing anywhere as a Site.
+- User can create a Site from a template, see it persist across a restart, and
+  see it listed alongside shipped Sites with an explicit configuration origin.
+- A duplicate or malformed `site_id` is refused with a specific reason and the
+  store is left unchanged.
 
 Semantics to decide:
-- No remaining M1 Site Foundation authoring semantics are open; in-product edit,
-  Save, Publish, approval, and configuration-history management are deferred.
+- No remaining M1 Site Foundation authoring semantics are open. Create-from-
+  template is in scope; in-place Foundation editing, Save/Publish over an
+  existing Foundation, rename, delete, approval, and configuration-history
+  management remain deferred, and `site_id` is immutable after creation.
+- Open product question, not an architecture question: whether M1 needs any
+  user-facing way to remove a user-created Site, given that delete would later
+  collide with committed simulated history keyed to `site_id`. Until the user
+  decides, removal is a developer action on the store, not a product capability.
 
 ### 2. Topology, Components, Devices, And Single Line Diagram
 
@@ -677,9 +712,27 @@ Semantics to decide:
 - Configuration-only Sites are valid Sites, but they must show No evidence or
   Unavailable operational states instead of fabricated telemetry, source health,
   charts, analytics, Findings, or Replay.
-- YAML is the authoritative M1 configuration source; read-only UI must not imply
-  in-product edit, Save, Publish, approval, or persistence semantics that do not
-  exist.
+- YAML is the authoritative M1 configuration representation in both the shipped
+  catalog and the user-authored store. The Site Configuration UI stays read-only
+  for every Site and must not imply in-place edit, Save, Publish, approval,
+  rename, delete, or configuration history, none of which exist.
+- Configuration reaches the product only through the `SiteRepository` and
+  `SiteTemplateCatalog` ports. Storage technology lives in adapters selected in
+  one composition root; ports speak domain records and never expose paths, file
+  handles, YAML text, or store-specific exceptions.
+- Shipped canonical configuration is read-only at runtime and lives outside the
+  writable store. A template is not a Site and holds no `site_id`;
+  `template_id`/`template_version` are origin provenance only.
+- `site_id` is globally unique across the shipped and user-authored stores. There
+  is no overlay and no precedence: the same `site_id` in both stores is a load
+  failure, and creation refuses an id already present in either store.
+- Templates are instantiated by copy with recorded provenance. A later template
+  change never alters an already-created Site.
+- Configuration origin is a fourth separate concept alongside source mode, Site
+  lifecycle, integration readiness, evidence availability, and source health.
+- User-authored configuration is untrusted input. It crosses the same strict
+  parser as shipped configuration with no lenient path, the whole materialized
+  document is validated before any write, and writes are atomic.
 - YAML configuration must be strictly validated on load and fail explicitly for
   invalid references, topology, mappings, duplicate identities, invalid ratings,
   or unsupported values.
@@ -698,7 +751,12 @@ These are UI-verifiable outcomes that could become tasks after this map is
 reviewed:
 
 1. One demo Site appears in Sites List, Site Details, and Site Configuration
-   from a canonical Site Foundation file.
+   from a canonical Site Foundation file, resolved through the `SiteRepository`
+   port.
+1b. Shipped configuration templates are browsable and visibly distinct from
+   Sites.
+1c. A user creates a Site from a template; it persists, appears beside shipped
+   Sites with an explicit configuration origin, and stays read-only.
 2. The configured topology renders as a single line diagram and Devices &
    Sensors table from the same source.
 3. Fuel Loss Event appears in Scenarios and can be selected in run setup.
@@ -753,19 +811,67 @@ when their named input does not exist.
      points and direct routes return a served-unavailable/not-found state.
 
 3. Canonical Site Foundation and configuration-only Site.
+
+   Step 3 splits into three sub-steps. They are ordered by a real dependency,
+   not by convenience: the port must have a real read consumer before it can be
+   trusted, and templates must exist as a distinct concept before any write
+   path, or the first create will copy a shipped Site and silently collapse the
+   template/instance distinction.
+
+   3a. Site repository port and canonical read path.
    - Becomes true: one file-backed YAML Site with stable `site_id`, mandatory
      timezone, lifecycle, source mode, Foundation version, components,
      topology, devices, mappings, ratings, and control assumptions validates and
-     appears in Sites/Site Details/Site Configuration.
+     appears in Sites/Site Details/Site Configuration, resolved through a
+     `SiteRepository` port with a read-only shipped-YAML adapter behind one
+     composition root.
    - Depends on: step 1; may proceed before or after step 2, but after is
      recommended so simulator entry points never appear before the gate exists.
    - Real dependency: every later run, envelope, evidence record, SLD, and
-     analytic needs stable Site/Foundation identity.
+     analytic needs stable Site/Foundation identity. The port ships with this
+     slice rather than later because retrofitting it after Sites, SLD view
+     models, and evidence resolution all reach storage directly is a rewrite of
+     every caller; it ships no earlier because a port with no consumer is
+     speculative architecture.
    - UI-verifiable outcome: user can inspect the Site and read-only
      configuration without operational values.
-   - Deliberately unavailable: editing, Save/Publish, source health, charts,
-     analytics, Replay, Simulator Lab run actions, and Findings; the UI says
-     No evidence, Unavailable, or read-only/unavailable controls.
+   - Deliberately unavailable: any write path at all, templates, create, edit,
+     Save/Publish, source health, charts, analytics, Replay, Simulator Lab run
+     actions, and Findings. The port has no mutator in this sub-step; the UI
+     says No evidence, Unavailable, or read-only/unavailable controls.
+
+   3b. Shipped configuration templates as a distinct concept.
+   - Becomes true: a read-only `SiteTemplate` catalog with its own
+     `template_id`/`template_version` identity is inspectable, and a template is
+     visibly not a Site.
+   - Depends on: 3a, for the port shape and the configuration parser.
+   - Real dependency: the template/instance distinction has to be structural
+     before anything can be created. If create lands first, its only source is
+     an empty form or a copy of a shipped Site, and the precedence, identity,
+     and provenance rules become retrofits over existing user data.
+   - UI-verifiable outcome: user browses shipped templates and sees what a
+     template would produce, while Sites List still contains only Sites.
+   - Deliberately unavailable: instantiation, a Create action, user Sites, the
+     writable store, template authoring, template upload, and template editing.
+
+   3c. User-created Site from a template.
+   - Becomes true: a user picks a template, supplies identity, and a validated
+     Site document is persisted through the write adapter into the user store;
+     the Site survives restart and appears in Sites List beside shipped Sites
+     with an explicit configuration origin and template provenance.
+   - Depends on: 3b.
+   - Real dependency: this is the first untrusted-input write boundary in the
+     product, and it inherits an already-validated read model and an already
+     separate template namespace instead of inventing both under write pressure.
+   - UI-verifiable outcome: the created Site is a normal configuration-only
+     Site everywhere, and a duplicate or malformed `site_id` is refused with a
+     specific reason while the store stays unchanged.
+   - Deliberately unavailable: in-place Foundation editing, Save/Publish over an
+     existing Foundation, rename, `site_id` change, delete, duplicate-into-
+     existing-id, Foundation version bump in place, configuration diff, history,
+     rollback, approvals, template authoring, and import of an arbitrary YAML
+     document. Site Configuration stays read-only for every Site regardless of
+     origin.
 
 4. Topology, devices, and configured SLD.
    - Becomes true: Site Configuration and Simulator Lab can use the same SLD
@@ -932,8 +1038,11 @@ depend on them.
 | Commit semantics | Commit releases immutable staged envelopes by manifest and never writes Site history, health, analytics, findings, or derived objects directly. | Integration test inspects storage/state after Commit before ingestion acceptance; only release state/manifest changes. | Commit path becomes an unreviewable product backdoor. | Contract test |
 | Committed overlap | Overlapping Drafts are allowed; overlapping committed simulated history for same `site_id` and half-open interval is blocked until branch/context selection exists. | Interval test covers overlap, containment, equality, and adjacent `[start,end)` cases; UI test shows blocked Commit reason. | Site history silently combines ambiguous alternative histories. | Unit/contract test |
 | Evidence immutability and rerun/replay | Committed source evidence is immutable; Rerun creates a new Draft `run_id`, Replay reads persisted evidence without rerunning. | Test Rerun creates a new Draft and Replay performs no simulator execution or envelope regeneration. | Audit, reproducibility, and deterministic comparisons collapse. | Contract test |
-| YAML configuration authority | M1 Site/Foundation YAML is authoritative and strictly validated on load. | Schema/semantic validation tests reject invalid references, topology, duplicate IDs, mappings, ratings, units, timezone, and unsupported values. | UI and simulator normalize different invalid assumptions. | Unit/contract test |
-| Read-only configuration UI | M1 Site Configuration UI never implies edit, Save, Publish, approval, or persistence semantics. | UI test checks edit controls are absent/disabled and labelled unavailable/read-only. | Users infer configuration workflows and version history that do not exist. | Review-time check |
+| YAML configuration authority | M1 Site/Foundation YAML is the authoritative representation and is strictly validated on load, in both the shipped catalog and the user-authored store, through one parser with no lenient path. | Schema/semantic validation tests reject invalid references, topology, duplicate IDs, mappings, ratings, units, timezone, and unsupported values, and run the same parser over a user-authored document fixture. | UI and simulator normalize different invalid assumptions, or user-authored documents are trusted more than shipped ones. | Unit/contract test |
+| Read-only configuration UI | M1 Site Configuration UI renders every Site read-only regardless of origin and never implies in-place edit, Save, Publish, approval, rename, delete, or configuration history. Authoring exists only as create-from-template in a separate flow; `site_id` is immutable after creation. | UI test opens Site Configuration for a shipped Site and a user-created Site and asserts no edit/Save/Publish/rename/delete affordance and copy stating configuration is fixed at creation in M1; API test asserts no update or delete route exists for a Site. | Users infer an editing and version-history workflow the product does not have, or an edit path lands before Foundation re-versioning semantics exist. | Review-time + contract test |
+| Configuration persistence port | Site and template configuration is reached only through domain-defined ports; storage technology lives in adapters selected in one composition root. Port signatures and errors use domain records, never paths, file handles, YAML text, or store-specific exceptions. | CI architecture check bans imports of `sites/adapters/**` from anywhere except the single allowlisted composition module, and bans `yaml`, `pathlib`, `sqlite3`, and `open(` inside `sites/` outside `adapters/`; a fake in-memory adapter satisfies the port in service tests without importing an adapter. | Storage assumptions leak into read models, API, and UI, and replacing the store becomes a rewrite of every caller instead of one adapter. | CI guard |
+| Shipped versus user-authored configuration | Shipped canonical configuration is read-only at runtime and lives outside the writable store. Templates are not Sites and hold no `site_id`. `site_id` is globally unique across both stores with no overlay and no precedence; `template_id` is origin provenance and never Site identity. | Test asserts the same `site_id` in both stores fails loudly at load, create refuses an id present in either store case-insensitively, no write path resolves inside the shipped catalog, and changing a template does not alter an already-created Site. | Shipped and user configuration merge into one ambiguous namespace, or a template release silently rewrites Foundations that committed history depends on. | CI guard |
+| User-authored configuration input | User-supplied configuration is untrusted input at a strict boundary: the fully materialized document is validated before any write, unknown keys and oversized documents are rejected, `site_id` is charset-constrained and cannot traverse or collide case-insensitively, free text is never identity or a path, and writes are atomic. | Parser/adapter tests cover unknown keys, oversized input, `..` and separator and absolute-looking ids, case-variant collision, and a failed write leaving the store byte-identical. | A user document takes down the Sites index, escapes the store directory, or forks Site identity. | Unit/contract test |
 | SLD archetype boundary | SLD archetype owns presentation only and must not create, remove, rename, or reinterpret canonical components or connections. | View-model test compares rendered component/connection IDs against canonical topology and checks incompatible topology state. | Diagram becomes a second topology model and diverges from simulation/evidence. | Unit/contract test |
 | Configuration-only Site states | A valid Site with no accepted evidence shows No evidence/Unavailable rather than fabricated telemetry, charts, source health, analytics, findings, or Replay. | UI test renders a configuration-only Site and asserts no zero-value operational defaults or OFFLINE health. | Demo placeholders become false product claims. | CI guard |
 | Source/gateway health derivation | Gateway/source health is derived by AssetOps from accepted evidence and expected cadence, never accepted as an authoritative raw health conclusion. | Parser rejects raw `GatewayHealth` conclusion records; analytics test derives Online/Stale/Offline from evidence conditions. | Operators trust self-reported or simulator-assigned health. | Contract test |
@@ -971,20 +1080,50 @@ UI/UX expectations.
 
 ### Early Feature: Site Foundation And Configuration-Only Site
 
-Divide into slices:
-- Canonical YAML Site/Foundation fixture and strict validation.
-- Sites List and Site Details identity/configuration-only presentation.
+Full architectural direction for this feature, including the port shape, module
+tree, guard design, and Implementer guidance, is in
+`.agent/M1-site-persistence-architecture.md`.
+
+Divide into slices, in this order:
+- `SiteRepository` port, domain records, port error vocabulary, read-only
+  shipped-YAML adapter, single composition root, plus the canonical YAML
+  Site/Foundation fixture and strict validation.
+- Sites List and Site Details identity/configuration-only presentation resolved
+  through the port.
 - Read-only Site Configuration UI with Foundation version, validity, source
-  mode, lifecycle, and explicit unavailable operational states.
+  mode, lifecycle, configuration origin, and explicit unavailable operational
+  states.
+- Shipped `SiteTemplate` catalog and template inspection, read-only, in its own
+  identity space and visibly not a Site.
+- Create Site from template: write adapter over the user store, identity and
+  whole-document validation, cross-store collision refusal, atomic write, and
+  origin/template provenance on the created Site.
 
-Seams inside the feature: Site identity, YAML authority, configuration-only
-states, source mode versus lifecycle/source health.
+The first slice may be split further if the port plus fixture plus validation is
+too large to review at once, but the port must not be deferred past the first
+slice that reads a Site, and the template slice must not be deferred past the
+first slice that writes one.
 
-Must not bundle: configuration editing, Save/Publish, simulator run setup,
-source health, charts, analytics, Replay, or Findings.
+Seams inside the feature: Site identity, YAML authority, configuration
+persistence port, shipped versus user-authored configuration, user-authored
+configuration input, configuration-only states, read-only configuration UI,
+source mode versus lifecycle versus configuration origin versus source health.
 
-User-review checkpoint: required for Site/Foundation semantics and
-configuration-only UI language because they fix domain semantics.
+Must not bundle: in-place configuration editing, Save/Publish over an existing
+Foundation, rename, delete, configuration history or rollback, approvals,
+template authoring or upload, arbitrary YAML import, simulator run setup, source
+health, charts, analytics, Replay, or Findings.
+
+Must not do: give the simulator a repository handle, gate any Site or template
+route on `simulator_lab.enabled`, add `update`/`delete`/query-DSL/pagination to
+the port before a slice needs them, or let the create path reach storage without
+going through the port.
+
+User-review checkpoint: required twice. First for Site/Foundation semantics and
+configuration-only UI language, because they fix domain semantics. Second for
+template-versus-instance semantics and the create flow's identity, origin, and
+refusal language, because they fix what a user-authored Site means and what the
+product does not promise about editing it.
 
 ### Early Feature: Topology, Devices, And SLD
 
@@ -1103,5 +1242,11 @@ and operator consequence.
 
 ## Open Questions Before Task Breakdown
 
-- None. The M1 feature map decisions are resolved and ready for task
+- Whether M1 needs any user-facing way to remove a user-created Site. This is a
+  product call, not an architecture one. Delete is deliberately absent from the
+  port because a later delete-then-recreate under the same `site_id` would
+  resurrect orphaned committed simulated history under a different Foundation.
+  Until the user decides, removing a user-created Site is a developer action on
+  the store.
+- Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.
