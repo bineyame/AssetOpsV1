@@ -24,6 +24,7 @@
 - `.ai/DECISIONS.md`
 - `.ai/START_HERE.md`
 - `.ai/ACTIVE_CONTEXT.md`
+- `.ai/CODE_STATE.md`
 - `.ai/FEATURE_MAP.md`
 - Active task file, after the user activates one planned task
 

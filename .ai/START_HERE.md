@@ -39,6 +39,8 @@ Read only when relevant:
   meaning matter.
 - `.ai/ARCHITECTURE.md` when dependency direction, contracts, simulator
   boundaries, or protected seams matter.
+- `.ai/CODE_STATE.md` only for the slice entries named by the active context:
+  what earlier slices settled in code, and what they left open.
 - `.ai/DECISIONS.md` only for the decision IDs named by the active context or
   active task.
 - `.ai/FEATURE_MAP.md` only for the feature-map sections named by the active

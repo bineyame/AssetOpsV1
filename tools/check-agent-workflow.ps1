@@ -16,6 +16,7 @@ $requiredFiles = @(
     "AGENTS.md",
     ".ai/START_HERE.md",
     ".ai/ACTIVE_CONTEXT.md",
+    ".ai/CODE_STATE.md",
     ".ai/PROJECT_RULES.md",
     ".ai/WORKFLOW.md",
     ".ai/PRODUCT.md",
@@ -51,6 +52,24 @@ if (Test-Path -LiteralPath ".ai/START_HERE.md") {
     $start = Get-Content -LiteralPath ".ai/START_HERE.md" -Raw
     if ($start -notmatch "Current milestone:" -or $start -notmatch "Planning status:") {
         Add-Failure ".ai/START_HERE.md must identify an active milestone and planning status"
+    }
+}
+
+# Every agent reads .ai/ACTIVE_CONTEXT.md in full, so its growth is paid on
+# every task. It was trimmed once and grew back to nearly four times the
+# trimmed size in six slices, because per-slice records accumulated in it.
+# Those belong in .ai/CODE_STATE.md, which is read one entry at a time.
+#
+# The cap is the file's own stated rule. Raising it is a decision to make
+# deliberately, not a way to land a task.
+$activeContextLineCap = 200
+
+if (Test-Path -LiteralPath ".ai/ACTIVE_CONTEXT.md") {
+    $activeContextLines = @(Get-Content -LiteralPath ".ai/ACTIVE_CONTEXT.md").Count
+    if ($activeContextLines -gt $activeContextLineCap) {
+        Add-Failure (".ai/ACTIVE_CONTEXT.md is $activeContextLines lines, over " +
+            "its $activeContextLineCap-line cap. It is a routing document: move " +
+            "per-slice records into .ai/CODE_STATE.md rather than raising the cap.")
     }
 }
 
