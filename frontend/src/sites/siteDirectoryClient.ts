@@ -82,6 +82,52 @@ export function isSiteSummary(value: unknown): value is SiteSummary {
   );
 }
 
+/**
+ * A declared design rating, or the absence of one.
+ *
+ * `null` is the document saying a component declares no rating, and it is the
+ * only absence this accepts. A missing key is not that statement: it is a
+ * response that does not carry the field, and letting it through here would
+ * put `undefined` where a view model reads `rating.value`.
+ */
+function isSiteRating(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value !== "object") {
+    return false;
+  }
+  const rating = value as Record<string, unknown>;
+  return typeof rating.value === "number" && typeof rating.unit === "string";
+}
+
+function isSiteComponent(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const component = value as Record<string, unknown>;
+  return (
+    typeof component.component_id === "string" &&
+    typeof component.component_type === "string" &&
+    typeof component.display_name === "string" &&
+    isSiteRating(component.rating)
+  );
+}
+
+/**
+ * The detail shape, checked field by field down to a component's rating.
+ *
+ * Every field a site surface reads is checked here, because this guard is the
+ * only thing between a response and a render. A check that stopped at the
+ * foundation's metadata would accept a body with no `components` array and no
+ * `summary`, and the screen that maps over the components would then fail
+ * while rendering rather than state that the store could not be read. A
+ * response that does not match the expected shape is `unavailable`; it is
+ * never half a site.
+ *
+ * The guard grows with the read model. A field added to the foundation that is
+ * not checked here is a field a malformed response can smuggle past.
+ */
 export function isSiteDetail(value: unknown): value is SiteDetailReadModel {
   if (!isSiteSummary(value)) {
     return false;
@@ -94,7 +140,10 @@ export function isSiteDetail(value: unknown): value is SiteDetailReadModel {
     foundation !== undefined &&
     foundation !== null &&
     typeof foundation.version === "number" &&
-    typeof foundation.valid_from === "string"
+    typeof foundation.valid_from === "string" &&
+    typeof foundation.summary === "string" &&
+    Array.isArray(foundation.components) &&
+    foundation.components.every(isSiteComponent)
   );
 }
 

@@ -117,6 +117,23 @@ Two rules keep this file useful:
 - The architecture guard gained a configuration-component clause on the
   single-definition check and a parameterless-`/site-configuration` ban plus an
   identified-route vacuity clause on navigation truthfulness.
+- Review fix: integration readiness and source health state what this build
+  records, not what the Site has. "No integration is configured for this site"
+  and "no source is expected to report" were claims no field backs, and a Site
+  with a real integration arrives with exactly the same fields. Source health
+  reads `Not recorded` rather than `Not applicable` for the same reason.
+  Evidence availability is unchanged: that no evidence has been accepted is a
+  fact about this build's own store. Both Site surfaces assert it.
+- Review fix: `isSiteDetail` validates the Foundation's content and not only
+  its metadata - `summary`, `components` as an array, each component's four
+  fields, and a rating that is `null` or `{value, unit}`. A missing `rating`
+  key is refused; only an explicit `null` is the document declaring no rating.
+  A guard that stops at what one surface reads is a guard the next surface
+  renders past, which is what happened here between T007 and T008.
+- `frontend/src/sites/__tests__/siteDirectoryClient.test.ts` is the first test
+  in the tree to exercise a client against responses rather than a fake: the
+  three read outcomes, the request path, and eleven malformed bodies split by
+  what each would do if it got through.
 
 ### Tooling and test substrate
 

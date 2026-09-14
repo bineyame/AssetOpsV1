@@ -106,14 +106,17 @@ export interface SiteUnavailableFact {
  *
  * The six provenance-and-status concepts appear here as six fields, never as
  * one. Three come straight off the record - configuration origin, source mode,
- * lifecycle status. Three have no truthful source for a site with no accepted
- * evidence - integration readiness, evidence availability, source health - and
- * each is stated as unavailable with its reason rather than defaulted, zeroed,
- * or derived from one of the other three.
+ * lifecycle status. Three have no field behind them in this build -
+ * integration readiness, evidence availability, source health - and each is
+ * stated as unavailable with its reason rather than defaulted, zeroed, or
+ * derived from one of the other three.
  *
- * Source health in particular is not rendered as a health value. A source that
- * is configured but has never been expected to report has no health state at
- * all, so no source-health vocabulary appears here.
+ * Each of those three says what this build records, not what the site has.
+ * The record carries no integration field and no source-health field, so a
+ * sentence here about how a site is integrated, or about whether its source
+ * reports, would be a claim this substrate cannot back for the site in front
+ * of it. Source health in particular is not rendered as a health value, and no
+ * source-health vocabulary appears here.
  */
 export interface SiteDetailView extends SiteView {
   timezone: string;
@@ -124,13 +127,21 @@ export interface SiteDetailView extends SiteView {
   sourceHealth: SiteUnavailableFact;
 }
 
-/** Integration readiness: a separate concept, with no field behind it yet. */
+/**
+ * Integration readiness: a separate concept, with no field behind it.
+ *
+ * What this states is what the build records, because that is all the record
+ * proves. "No integration is configured for this site" would be a claim about
+ * the site, and nothing in the record says whether one is: a site registered
+ * against a real integration would arrive here with the same fields and be
+ * described wrongly by it.
+ */
 export const INTEGRATION_READINESS_UNAVAILABLE: SiteUnavailableFact = {
   value: "Not recorded",
   reason:
-    "No integration is configured for this site, and this build records no " +
-    "integration readiness. Readiness is its own fact: it is not lifecycle " +
-    "status, not source mode, and not derived from either.",
+    "This build records no integration readiness for a site, so nothing here " +
+    "states whether an integration is configured. Readiness is its own fact: " +
+    "it is not lifecycle status, not source mode, and not derived from either.",
 };
 
 /** Evidence availability: a statement about evidence, not a measurement. */
@@ -142,13 +153,20 @@ export const EVIDENCE_AVAILABILITY_UNAVAILABLE: SiteUnavailableFact = {
     "reading of zero and not a statement about the site's lifecycle status.",
 };
 
-/** Source health: not applicable, because no source is expected to report. */
+/**
+ * Source health: not recorded, because the record carries no health field.
+ *
+ * Not "not applicable", which would state that this site's source could have
+ * no health, and not "no source is expected to report", which would state
+ * something about the site's source that the record does not carry. What is
+ * true is about the build: it records no source health for any site.
+ */
 export const SOURCE_HEALTH_UNAVAILABLE: SiteUnavailableFact = {
-  value: "Not applicable",
+  value: "Not recorded",
   reason:
-    "No source is expected to report for this site yet, so there is no " +
-    "source health to state. A source that is configured but has never been " +
-    "expected to report has no health state at all.",
+    "This build records no source health for a site, and the record carries " +
+    "no field that could carry one. Nothing here states whether this site's " +
+    "source is reporting, so nothing here is a health value.",
 };
 
 export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView {

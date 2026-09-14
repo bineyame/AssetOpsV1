@@ -402,7 +402,7 @@ describe("the six provenance and status concepts stay six here too", () => {
     expect(factValue(container, "Evidence availability")).toMatch(
       /^No evidence\./,
     );
-    expect(factValue(container, "Source health")).toMatch(/^Not applicable\./);
+    expect(factValue(container, "Source health")).toMatch(/^Not recorded\./);
   });
 
   it("keeps mode out of lifecycle status and lifecycle status out of mode", async () => {
@@ -460,6 +460,23 @@ describe("what the M1 foundation does not declare is stated, not implied", () =>
 });
 
 describe("a configuration-only site fabricates nothing", () => {
+  it("states what this build records, never what the site has", async () => {
+    const { container } = renderConfiguration(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // The record carries no integration field and no source-health field, so
+    // neither fact may describe this site's integration or its source. A site
+    // registered against a real integration arrives with exactly these fields,
+    // and copy saying no integration is configured would describe it wrongly.
+    const readiness = factValue(container, "Integration readiness");
+    const health = factValue(container, "Source health");
+
+    expect(readiness).toMatch(/this build records no integration readiness/i);
+    expect(health).toMatch(/this build records no source health/i);
+    expect(readiness).not.toMatch(/no integration is configured/i);
+    expect(health).not.toMatch(/expected to report|has no health state/i);
+  });
+
   it("renders no chart, image, figure, or diagram surface", async () => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
