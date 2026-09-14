@@ -603,13 +603,23 @@ class TestSiteDetail:
         ):
             assert field not in body
 
-    def test_the_detail_shape_carries_no_foundation_content(
+    def test_the_detail_shape_carries_the_foundation_and_nothing_more(
         self, created: TestClient
     ) -> None:
-        """Foundation content is the Site Configuration surface's shape."""
+        """The read-only Site Configuration surface reads this shape.
+
+        Pinned exactly rather than checked only for the fields T008 added, so
+        that a later slice cannot quietly put topology, devices, or a mapping
+        version on the wire before a screen renders it and a review has seen it.
+        """
         foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
 
-        assert set(foundation) == {"version", "valid_from"}
+        assert set(foundation) == {
+            "version",
+            "valid_from",
+            "summary",
+            "components",
+        }
 
     @pytest.mark.parametrize("flags", [DISABLED, ENABLED], ids=["gate-off", "gate-on"])
     def test_the_detail_route_is_never_gated(
@@ -656,6 +666,179 @@ class TestSiteDetail:
         self, created: TestClient
     ) -> None:
         assert created.get(f"{SITES_PATH}/Kalangala").status_code == 404
+
+
+class TestSiteConfigurationReadPath:
+    """The Foundation content the read-only Site Configuration surface reads.
+
+    One Site is one read path. Site Details and Site Configuration are two
+    presentations of the same configured Site, not two resources, so this is
+    the same `GET /api/sites/{site_id}` and there is no second endpoint under a
+    Site to keep in agreement with the first.
+    """
+
+    @pytest.fixture
+    def created(self, client: TestClient) -> TestClient:
+        assert client.post(CREATE_SITE_PATH, json=request_body()).status_code == 201
+        return client
+
+    def test_the_foundation_carries_the_components_copied_at_creation(
+        self, created: TestClient
+    ) -> None:
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+
+        assert foundation["summary"] == TEMPLATE.foundation.summary
+        assert foundation["components"] == [
+            {
+                "component_id": "pv-array",
+                "component_type": "PV_ARRAY",
+                "display_name": "PV array",
+                "rating": {"value": 100, "unit": "kW"},
+            },
+            {
+                "component_id": "site-meter",
+                "component_type": "METER",
+                "display_name": "Site meter",
+                "rating": None,
+            },
+        ]
+
+    def test_a_component_with_no_declared_rating_carries_null_not_zero(
+        self, created: TestClient
+    ) -> None:
+        """No rating and a rating of zero are different facts.
+
+        A zero on the wire would be a nameplate claim the document does not
+        make, and a screen rendering it could not tell the two apart.
+        """
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+        meter = next(
+            component
+            for component in foundation["components"]
+            if component["component_id"] == "site-meter"
+        )
+
+        assert meter["rating"] is None
+
+    def test_the_foundation_declares_no_device_mapping_or_control_field(
+        self, created: TestClient
+    ) -> None:
+        """Not even an empty one.
+
+        An empty list would let a screen say this Site has no devices. What is
+        true is narrower and is about the document: the M1 Foundation schema
+        has nowhere to put one. Those arrive with causal step 4.
+        """
+        response = created.get(f"{SITES_PATH}/MG-002")
+        foundation = response.json()["foundation"]
+
+        for field in (
+            "devices",
+            "topology",
+            "connections",
+            "signal_mappings",
+            "mapping_version",
+            "control_assumptions",
+            "control_mode",
+        ):
+            assert field not in foundation
+            assert field not in response.text
+
+    def test_the_validity_interval_is_open_ended(self, created: TestClient) -> None:
+        """`valid_from` and no `valid_to`.
+
+        A Foundation stays valid until a later version supersedes it, and M1
+        has no mechanism that produces a later version. An end instant on the
+        wire would state when this configuration stops being true.
+        """
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+
+        assert isinstance(foundation["valid_from"], str)
+        assert "valid_to" not in foundation
+        assert "valid_until" not in foundation
+
+    def test_the_foundation_carries_no_evidence_derived_field(
+        self, created: TestClient
+    ) -> None:
+        rendered = str(created.get(f"{SITES_PATH}/MG-002").json()["foundation"])
+
+        for field in (
+            "health",
+            "status",
+            "last_data",
+            "last_seen",
+            "telemetry",
+            "measurement",
+            "observed",
+        ):
+            assert field not in rendered
+
+    def test_an_unknown_site_id_has_no_configuration_to_read(
+        self, created: TestClient
+    ) -> None:
+        response = created.get(f"{SITES_PATH}/MG-404")
+
+        assert response.status_code == 404
+        assert response.json()["detail"]["code"] == "SITE_NOT_FOUND"
+        assert "foundation" not in response.json()["detail"]
+
+    @pytest.mark.parametrize("flags", [DISABLED, ENABLED], ids=["gate-off", "gate-on"])
+    def test_the_foundation_is_identical_in_both_gate_states(
+        self, repository: CompositeSiteRepository, flags: FeatureFlags
+    ) -> None:
+        """Site Configuration is an operator capability and is never gated."""
+        open_client = TestClient(
+            create_app(
+                ENABLED,
+                site_template_catalog=FakeCatalog(),
+                site_repository=repository,
+            )
+        )
+        assert (
+            open_client.post(CREATE_SITE_PATH, json=request_body()).status_code == 201
+        )
+
+        client = TestClient(
+            create_app(
+                flags,
+                site_template_catalog=FakeCatalog(),
+                site_repository=repository,
+            )
+        )
+        response = client.get(f"{SITES_PATH}/MG-002")
+
+        assert response.status_code == 200
+        assert (
+            response.json()["foundation"]
+            == open_client.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+        )
+
+    @pytest.mark.parametrize("flags", [DISABLED, ENABLED], ids=["gate-off", "gate-on"])
+    def test_no_write_route_reaches_a_site_or_its_foundation(
+        self, repository: CompositeSiteRepository, flags: FeatureFlags
+    ) -> None:
+        """`site_id` is immutable and a Foundation is fixed at creation.
+
+        The Site-level assertion lives in `TestNoUpdateOrDeleteRouteExists`.
+        This is the same rule at the addresses the configuration surface reads
+        and at the sub-resource names a later slice would reach for, in both
+        gate states, so no write path can arrive under a Site unnoticed.
+        """
+        client = TestClient(
+            create_app(
+                flags,
+                site_template_catalog=FakeCatalog(),
+                site_repository=repository,
+            )
+        )
+
+        for path in (
+            f"{SITES_PATH}/MG-002",
+            f"{SITES_PATH}/MG-002/configuration",
+            f"{SITES_PATH}/MG-002/foundation",
+        ):
+            for request in (client.put, client.patch, client.delete, client.post):
+                assert request(path).status_code in (404, 405)
 
 
 class TestTheApiUsesThePort:

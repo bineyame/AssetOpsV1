@@ -29,6 +29,11 @@ field would record which shell created a Site, which nothing consumes.
 No evidence-derived field appears at all. No last-data timestamp, no source
 health, no evidence availability, no analytics: an evidence-derived field
 arrives with the evidence that fills it.
+
+One Site is one read path. Site Details and Site Configuration are two
+presentations of the same configured Site, not two resources, so there is no
+second endpoint under the Site and no second read model to keep in agreement
+with the first.
 """
 
 from __future__ import annotations
@@ -36,7 +41,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 
 from assetops_backend.sites.identity import SITE_ID_RULE, validate_site_id
-from assetops_backend.sites.models import SiteRecord
+from assetops_backend.sites.models import SiteComponent, SiteRecord
 from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
     SiteIdentityConflict,
@@ -81,8 +86,30 @@ def site_summary(record: SiteRecord) -> dict[str, object]:
     }
 
 
+def site_component(component: SiteComponent) -> dict[str, object]:
+    """One component this Site's Foundation declares.
+
+    Component truth from the configuration document. The rating is the
+    archetype's declared design rating, copied at creation, and it is nameplate
+    intent rather than a measurement: that a Foundation declares a 100 kW array
+    is not a claim that any array exists, is commissioned, or has ever
+    reported. A component with no declared rating carries `null` rather than a
+    zero, because no rating and a rating of zero are different facts.
+    """
+    return {
+        "component_id": component.component_id,
+        "component_type": component.component_type,
+        "display_name": component.display_name,
+        "rating": (
+            None
+            if component.rating is None
+            else {"value": component.rating.value, "unit": component.rating.unit}
+        ),
+    }
+
+
 def site_detail(record: SiteRecord) -> dict[str, object]:
-    """The Site Details shape: the index shape plus Foundation metadata.
+    """The Site shape: the index shape plus the Foundation.
 
     What is deliberately absent is the substance of the slice. There is no
     evidence-derived field, no source health, no evidence availability, no
@@ -91,18 +118,31 @@ def site_detail(record: SiteRecord) -> dict[str, object]:
     series, or a plausible-looking default would be a claim the product cannot
     back.
 
-    The Foundation appears here only as its version and the start of its
-    validity interval, which are metadata about the configuration document.
-    Foundation *content* - the summary, the components, and later topology,
-    devices, mappings, and control assumptions - is the read-only Site
-    Configuration surface's shape and arrives with it, so no field for it is
-    declared before a screen renders it.
+    T008 adds the Foundation *content* - the summary and the declared
+    components - because the read-only Site Configuration surface renders it.
+    That is the whole of what an M1 Foundation declares. Topology connections,
+    devices, signal mappings, and control assumptions have no field here
+    because the M1 Foundation schema has none: they arrive with causal step 4,
+    and declaring an empty list for each now would let a screen state that this
+    Site has no devices, when what is true is that this milestone's
+    configuration document cannot carry one.
+
+    The validity interval is open-ended. `valid_from` is the start and there is
+    no `valid_to`, because a Foundation stays valid until a later version
+    supersedes it and M1 has no mechanism that produces a later version. A
+    field carrying an invented end instant would be a claim about when this
+    configuration stops being true.
     """
     return {
         **site_summary(record),
         "foundation": {
             "version": record.foundation.version,
             "valid_from": record.foundation.valid_from,
+            "summary": record.foundation.summary,
+            "components": [
+                site_component(component)
+                for component in record.foundation.components
+            ],
         },
     }
 
