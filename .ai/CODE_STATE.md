@@ -65,6 +65,12 @@ Two rules keep this file useful:
   `SiteDetailClient`, `deriveSiteDetailView` and `SiteDetails.tsx`;
   `SitesIndex` takes a `siteHref` builder so the row link is an address, not a
   mode.
+- `SiteDetails` holds the store's answer together with the identity it was
+  asked about, and discards it in the render that first sees a new `siteId`,
+  before any effect runs. Resetting inside the effect instead commits one frame
+  with the previous site under the new address. A per-site surface added later,
+  T008's configuration among them, needs the same shape or it will present the
+  previous site as the one the address names.
 - The three unavailable facts, integration readiness, evidence availability and
   source health, are constants in the view model with a value and a reason, so
   both shells state the same absence the same way.

@@ -18,27 +18,24 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T007-site-details-by-site-id.md` (Status: `in_review`).
+Active task: `tasks/T008-read-only-site-configuration-presentation.md`.
+Not started.
 
-T007 is built on `task/T007-site-details-by-site-id` and awaits independent
-review. `USER_REVIEW_REQUIRED: false`: the next reviewer is the independent
-Reviewer, not the user. The review packet is `.agent/T007-review-packet.md`.
-The task file stays in `tasks/` until review closes.
-
-T006 is complete. Reviewer verdict was accept with no findings; user review on
-2026-09-14 accepted the slice as built. The task file moved to
-`tasks/completed/T006-create-a-site-from-a-template.md` with its Review Outcome
-and User Review Outcome, and the branch merged to `main`.
-
-T005 is complete. Its task file is in `tasks/completed/` with its Review
-Outcome, and its branch merged to `main`.
-
-Next task after T007 closes:
-
-- `tasks/T008-read-only-site-configuration-presentation.md`
 - Lane: Planned lane, then independent review, then user review.
 - User review: T008 is the second and final user-review checkpoint of the
-  feature.
+  feature. It is where the configuration-only language and "configuration is
+  fixed at creation in M1" go to the user.
+
+T007 is complete, closed out 2026-09-14. Reviewer verdict was accept after one
+medium finding was fixed on the branch: `SiteDetails` kept the loaded Site
+across a change of address, so navigating between two Site URLs could present
+the previous Site as the one the new address names. No user review was
+required. The task file moved to
+`tasks/completed/T007-site-details-by-site-id.md` with its Review Outcome, and
+the branch merged to `main`.
+
+T005 and T006 are complete. Their task files are in `tasks/completed/` with
+their Review Outcomes, and their branches merged to `main`.
 
 ## Current Site Foundation Sequence
 
@@ -46,7 +43,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
-- T007: Site Details by `site_id`. Built, awaiting independent review.
+- T007: Site Details by `site_id`. Complete.
 - T008: read-only Site Configuration; second user-review checkpoint.
 - T009-T013: staged visual fidelity after real content exists.
 
