@@ -1,6 +1,6 @@
 # T008 - Read-Only Site Configuration Presentation
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T008-read-only-site-configuration-presentation`

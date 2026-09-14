@@ -18,13 +18,22 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T008-read-only-site-configuration-presentation.md`.
-Not started.
+Active task: `tasks/T008-read-only-site-configuration-presentation.md`
+(Status: `in_review`).
 
-- Lane: Planned lane, then independent review, then user review.
-- User review: T008 is the second and final user-review checkpoint of the
-  feature. It is where the configuration-only language and "configuration is
-  fixed at creation in M1" go to the user.
+T008 is built on `task/T008-read-only-site-configuration-presentation` and
+awaits independent review. `USER_REVIEW_REQUIRED: true`: user review follows
+the independent review and is the gate before merge. The review packet is
+`.agent/T008-review-packet.md`. The task file stays in `tasks/` until review
+closes.
+
+Two things the reviewer and the user should look at first. The slice could not
+render devices, signal mappings or control assumptions as content, because the
+M1 Foundation declares none; it states each as undeclared with a reason
+instead, and that is a departure from the task text with new product language
+in it. And this is the second and final user-review checkpoint of the feature,
+so the "configuration is fixed at creation in M1" statement and the absence
+wording are what it exists to settle.
 
 T007 is complete, closed out 2026-09-14. Reviewer verdict was accept after one
 medium finding was fixed on the branch: `SiteDetails` kept the loaded Site
@@ -44,7 +53,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
 - T007: Site Details by `site_id`. Complete.
-- T008: read-only Site Configuration; second user-review checkpoint.
+- T008: read-only Site Configuration. Built, awaiting independent review.
 - T009-T013: staged visual fidelity after real content exists.
 
 Capability planning stops at the second checkpoint. Causal Sequencing step 4,
@@ -52,17 +61,18 @@ topology, devices, and the configured single-line diagram, is not planned. No
 step 3 slice may render the diagram, an empty frame for it, or its signal
 selector.
 
-## Read For T008
+## Read For T009
 
-Carried forward from T007. T008 adds the read-only Site Configuration surface
-and removes the parameterless `Site configuration` frame and navigation item,
-so it consumes the substrate and the per-Site read path T007 built.
+T009 is the shared visual vocabulary, applied to the surfaces T005-T008 made
+real. It introduces no content, no control and no destination, which is what
+makes it safe to run before the next capability step.
 
-- `tasks/T008-read-only-site-configuration-presentation.md`
-- `.ai/CODE_STATE.md`, the T006 and T007 entries, for the Site record shape,
-  the port, the read path, and the substrate. Read the completed task files
-  only if an entry there is not enough; the entries exist so that two large
-  task files do not have to be read for their code shape.
+- `tasks/T009-shared-visual-vocabulary.md`
+- `.ai/CODE_STATE.md`, the T006, T007 and T008 entries, for the Site record
+  shape, the read path, the substrate, and what each surface renders today.
+  Read the completed task files only if an entry there is not enough; the
+  entries exist so that large task files do not have to be read for their code
+  shape.
 - `.ai/FEATURE_MAP.md` sections:
   - Feature Map Index
   - Product Spine
