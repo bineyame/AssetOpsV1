@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SiteDetails } from "../SiteDetails";
@@ -8,6 +8,7 @@ import type {
   SiteDetailResult,
 } from "../siteReadModel";
 import { deriveSiteDetailView } from "../siteViewModel";
+import { settledScreen } from "../../test/settled";
 
 /**
  * Tests for one site, presented from the shared substrate.
@@ -138,7 +139,7 @@ function factValue(container: HTMLElement, term: string): string {
 describe("a site is rendered from its record", () => {
   it("shows the identity, configuration, and provenance the record carries", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
@@ -163,7 +164,7 @@ describe("a site is rendered from its record", () => {
     // without regard to case. One site must never present as two, so what is
     // rendered is what the store holds.
     const { container } = renderSite(USER_SIMULATED_SITE, "mg-002");
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(factValue(container, "Site ID")).toBe("MG-002");
     expect(container.textContent).not.toMatch(/mg-002/);
@@ -171,7 +172,7 @@ describe("a site is rendered from its record", () => {
 
   it("says plainly when a site came from no template", async () => {
     const { container } = renderSite(SHIPPED_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(factValue(container, "Created from template")).toBe(
       "Not created from a template",
@@ -180,7 +181,7 @@ describe("a site is rendered from its record", () => {
 
   it("renders no digit the record does not supply", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     // This replaces the "no digits inside `<main>`" rule that the empty T002
     // frame carried. It is stricter, not looser: digits may appear, and every
@@ -196,7 +197,7 @@ describe("a site is rendered from its record", () => {
 
   it("renders the site's own timestamp verbatim and invents no other", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     const timestamps =
       (container.textContent ?? "").match(
@@ -264,7 +265,7 @@ describe("the site is addressed by site ID and nothing else", () => {
 describe("the six provenance and status concepts are six facts", () => {
   it("renders each of the six separately", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(factValue(container, "Configuration origin")).toBe("User");
     expect(factValue(container, "Mode")).toBe("Simulated");
@@ -280,7 +281,7 @@ describe("the six provenance and status concepts are six facts", () => {
 
   it("puts the Simulated badge next to lifecycle status, never inside it", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     // The canonical mockup puts `Simulated` and `Planned` in one `Status`
     // field, which collapses provenance into status. That is a mockup error to
@@ -298,7 +299,7 @@ describe("the six provenance and status concepts are six facts", () => {
 
   it("renders both facts correctly for the combinations M1 cannot reach", async () => {
     const userLive = renderSite(USER_LIVE_SITE);
-    await within(userLive.container).findByRole("heading", { level: 1 });
+    await settledScreen(userLive.container);
 
     // Origin USER with mode LIVE: neither is derived from the other.
     expect(factValue(userLive.container, "Configuration origin")).toBe("User");
@@ -307,9 +308,7 @@ describe("the six provenance and status concepts are six facts", () => {
     userLive.unmount();
 
     const shippedSimulated = renderSite(SHIPPED_SIMULATED_SITE);
-    await within(shippedSimulated.container).findByRole("heading", {
-      level: 1,
-    });
+    await settledScreen(shippedSimulated.container);
 
     // Origin SHIPPED with mode SIMULATED: the mirror case.
     expect(factValue(shippedSimulated.container, "Configuration origin")).toBe(
@@ -350,7 +349,7 @@ describe("the six provenance and status concepts are six facts", () => {
 describe("a configuration-only site fabricates nothing", () => {
   it("states why each unavailable fact is unavailable", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(factValue(container, "Evidence availability")).toMatch(
       /No evidence has been accepted for this site/i,
@@ -365,7 +364,7 @@ describe("a configuration-only site fabricates nothing", () => {
 
   it("renders no chart, image, figure, or diagram surface", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(
       container.querySelectorAll("svg, canvas, img, picture, figure, iframe"),
@@ -380,14 +379,14 @@ describe("a configuration-only site fabricates nothing", () => {
 
   it("renders no site image or map panel", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(container.textContent ?? "").not.toMatch(/\b(image|photo|map)\b/i);
   });
 
   it("renders no tab bar", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(screen.queryAllByRole("tab")).toHaveLength(0);
     expect(screen.queryAllByRole("tablist")).toHaveLength(0);
@@ -398,14 +397,14 @@ describe("a configuration-only site fabricates nothing", () => {
 
   it("uses no source health vocabulary where no source health exists", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(container.textContent ?? "").not.toMatch(SOURCE_HEALTH_VOCABULARY);
   });
 
   it("renders no evidence-derived value, count, or column", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     const terms = Array.from(container.querySelectorAll("dt")).map(
       (term) => term.textContent ?? "",
@@ -431,7 +430,7 @@ describe("no action control renders, in any state", () => {
     const { container } = render(
       <SiteDetails siteId="MG-002" detail={clientFor(result as SiteDetailResult)} />,
     );
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     // Absence, not disablement: nothing here is rendered and then greyed out,
     // so there is no control to check `disabled` or `aria-disabled` on.
@@ -442,7 +441,7 @@ describe("no action control renders, in any state", () => {
 
   it.each(ABSENT_CONTROL_LABELS)("does not render %s anywhere", async (label) => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     expect(screen.queryByRole("button", { name: label })).toBeNull();
     expect(screen.queryByRole("link", { name: label })).toBeNull();
@@ -454,7 +453,7 @@ describe("no action control renders, in any state", () => {
     "does not render %s, enabled or disabled",
     async (label) => {
       const { container } = renderSite(USER_SIMULATED_SITE);
-      await screen.findByRole("heading", { level: 1 });
+      await settledScreen();
 
       // These belong to the Quick Actions panel, which is canonical screen 2
       // chrome. Nothing here invents a container in order to hold a disabled
@@ -466,7 +465,7 @@ describe("no action control renders, in any state", () => {
 
   it("offers no crossing into the Simulator Lab", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
-    await screen.findByRole("heading", { level: 1 });
+    await settledScreen();
 
     for (const anchor of Array.from(container.querySelectorAll("a"))) {
       expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
@@ -477,12 +476,12 @@ describe("no action control renders, in any state", () => {
 describe("the substrate is a leaf with no shell discriminant", () => {
   it("renders identically whichever shell composes it", async () => {
     const first = renderSite(USER_SIMULATED_SITE);
-    await within(first.container).findByRole("heading", { level: 1 });
+    await settledScreen(first.container);
     const firstMarkup = first.container.innerHTML;
     first.unmount();
 
     const second = renderSite(USER_SIMULATED_SITE);
-    await within(second.container).findByRole("heading", { level: 1 });
+    await settledScreen(second.container);
 
     // There is no shell, mode, or variant prop to vary, which is why this can
     // only be a same-input assertion today. The real render-equivalence guard

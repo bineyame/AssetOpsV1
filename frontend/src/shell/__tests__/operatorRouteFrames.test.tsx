@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
+import { settledScreen } from "../../test/settled";
 
 const operatorRoutes = ["/", "/sites", "/site-configuration"];
 
@@ -34,8 +35,9 @@ function renderAt(path: string, flags: FeatureFlags = simulatorLabDisabled) {
 }
 
 describe("operator route frames", () => {
-  it("renders the Sites route frame", () => {
+  it("renders the Sites route frame", async () => {
     renderAt("/sites");
+    await settledScreen();
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Sites" }),

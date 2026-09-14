@@ -13,6 +13,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { CREATE_SITE_ENTRY_POINT_LABEL } from "../simulatorLabRoutes";
+import { settledScreen } from "../../test/settled";
 
 /**
  * Route-level tests for the operator Sites index.
@@ -151,6 +152,10 @@ describe("the gated way into the create flow", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Create a site" }),
     ).toBeInTheDocument();
+
+    // The create flow reads the template catalog on mount. Settling it here
+    // keeps that read inside the test rather than resolving after it.
+    await settledScreen();
   });
 
   it("offers no way to add a site, and names no Simulator Lab, when the gate is closed", async () => {

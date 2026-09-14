@@ -10,6 +10,7 @@ import {
   SIMULATOR_LAB_PATH,
   simulatorLabWorkspaceEntryPoints,
 } from "../simulatorLabRoutes";
+import { settledScreen } from "../../test/settled";
 
 /**
  * Shell-hierarchy tests for the Simulator Lab entry point.
@@ -90,8 +91,9 @@ describe("operator navigation does not change with the gate", () => {
 
   it.each(OPERATOR_ROUTES)(
     "keeps Simulator Lab out of operator navigation when enabled at %s",
-    (route) => {
+    async (route) => {
       renderAt(route, ENABLED);
+      await settledScreen();
 
       const navigation = screen.getByRole("navigation", {
         name: "Operator routes",
@@ -141,8 +143,9 @@ describe("workspace entry point: enabled", () => {
 
   it.each(OPERATOR_ROUTES)(
     "places the entry point outside the operator navigation landmark at %s",
-    (route) => {
+    async (route) => {
       renderAt(route, ENABLED);
+      await settledScreen();
 
       const operatorNavigation = screen.getByRole("navigation", {
         name: "Operator routes",
