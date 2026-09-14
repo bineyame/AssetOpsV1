@@ -6,13 +6,18 @@
  * where a site lives. These are operator paths, not simulator paths: they are
  * served in both gate states and nothing here reads the feature flag.
  *
- * A site is addressed by `site_id` and by nothing else. There is deliberately
- * no parameterless site destination here. The T002 `/site-details` frame was a
- * route placeholder from before site identity existed, and a Site Details link
- * that names no site is not a destination; it is removed by the slice that
- * makes the identified route real, and Site Details is reached from a Sites
- * row. `/site-configuration` is still a parameterless placeholder and is
- * removed the same way, by the slice that gives it an identified replacement.
+ * A site is addressed by `site_id` and by nothing else. There is no
+ * parameterless site destination here at all. The T002 `/site-details` and
+ * `/site-configuration` frames were route placeholders from before site
+ * identity existed, and a link that names no site is not a destination. Each
+ * was removed by the slice that made its identified route real: Site Details
+ * by T007, Site Configuration by T008. Both are reached from a site, and
+ * neither is an operator navigation item, because a navigation item cannot say
+ * which site it would open.
+ *
+ * A site's configuration hangs off that site's address rather than sitting
+ * beside it. One site is one subject, and its configuration is an aspect of
+ * it, so the address says so.
  */
 
 /** The operator Sites index. Not a simulator path, and never gated. */
@@ -31,4 +36,17 @@ export const SITE_DETAIL_ROUTE_PATH = `${SITES_PATH}/:siteId`;
  */
 export function siteDetailHref(siteId: string): string {
   return `${SITES_PATH}/${encodeURIComponent(siteId)}`;
+}
+
+/** The route pattern for one site's configuration. */
+export const SITE_CONFIGURATION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/configuration`;
+
+/**
+ * The address of one site's configuration.
+ *
+ * Built from the site's own address, for the same reason it is encoded there:
+ * the two can then never disagree about how a site is spelled into a URL.
+ */
+export function siteConfigurationHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/configuration`;
 }

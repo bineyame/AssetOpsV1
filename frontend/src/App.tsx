@@ -10,6 +10,7 @@ import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import {
   SITES_PATH,
+  SITE_CONFIGURATION_ROUTE_PATH,
   SITE_DETAIL_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
@@ -40,9 +41,10 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * 1. `WorkspaceShellLayout` is workspace-level chrome. It owns the gated
  *    developer workspace entry point and nothing else.
  * 2. `OperatorShellLayout` is the operator workspace: operator navigation and
- *    the operator route frames (shell home, Sites, Site Details, Site
- *    Configuration). It is flag-free and served in both gate states, because
- *    the Simulator Lab gate controls simulator surfaces and execution only.
+ *    the operator route frames (shell home, Sites, and, under one site, that
+ *    site's page and its configuration). It is flag-free and served in both
+ *    gate states, because the Simulator Lab gate controls simulator surfaces
+ *    and execution only.
  * 3. Simulator Lab is a separate developer workspace. Its routes come from
  *    `simulatorLabRoutes(flags)`, which returns an empty list when
  *    `simulator_lab.enabled` is false. The route is then never registered, so a
@@ -57,11 +59,12 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * The Sites routes compose the shared Site substrate in `frontend/src/sites/`
  * and are served in both gate states. A site is addressed by `site_id`, so
  * Site Details hangs off the Sites path with the identity in it and is reached
- * from a Sites row. The parameterless `/site-details` frame from T002 is gone:
- * a Site Details link that names no site is not a destination, and no slice
- * leaves a placeholder standing once its identified route exists. Site
- * Configuration is still the parameterless T002 frame and is removed the same
- * way by the slice that gives it an identified replacement.
+ * from a Sites row, and Site Configuration hangs off that site in turn and is
+ * reached from it. Both parameterless T002 frames, `/site-details` and
+ * `/site-configuration`, are gone: a link that names no site is not a
+ * destination, and no slice leaves a placeholder standing once its identified
+ * route exists. Neither identified route is a navigation item, because a
+ * navigation item cannot say which site it would open.
  *
  * `siteTemplateCatalog`, `siteDirectory`, `siteDetail`, and `siteCreation` are injection
  * points for tests. The default clients read the real APIs; a test supplies
@@ -99,8 +102,8 @@ export function App({
             }
           />
           <Route
-            path="/site-configuration"
-            element={<SiteConfigurationFrame />}
+            path={SITE_CONFIGURATION_ROUTE_PATH}
+            element={<SiteConfigurationFrame detail={siteDetail} />}
           />
         </Route>
       </Route>

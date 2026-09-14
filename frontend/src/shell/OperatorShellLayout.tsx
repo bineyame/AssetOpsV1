@@ -16,21 +16,21 @@ import { NavLink, Outlet } from "react-router-dom";
  * place. So an item appears only when the route behind it renders a truthful
  * surface, and a parameterless site destination is not one.
  *
- * `Site details` was a T002 route placeholder from before site identity
- * existed. A site is now addressed by `site_id` and its page is reached from a
- * Sites row, so the item and its parameterless route are gone rather than left
- * standing beside their identified replacement. Nothing was added in its
- * place: the identified route is not a navigation destination, because a
+ * `Site details` and `Site configuration` were T002 route placeholders from
+ * before site identity existed. A site is now addressed by `site_id`, its page
+ * is reached from a Sites row, and its configuration is reached from the site,
+ * so both items and both parameterless routes are gone rather than left
+ * standing beside their identified replacements. Nothing was added in their
+ * place: neither identified route is a navigation destination, because a
  * navigation item cannot name which site it would open.
  *
- * `Site configuration` is still parameterless and still here. It is removed by
- * the slice that makes its identified replacement real, the same way and for
- * the same reason.
+ * What is left is what a navigation item can truthfully say: the operator home
+ * and the Sites index. This list has not gained an item since T004 and does
+ * not gain one here.
  */
 const operatorRoutes = [
   { to: "/", label: "Operator home", end: true },
   { to: "/sites", label: "Sites", end: false },
-  { to: "/site-configuration", label: "Site configuration", end: false },
 ];
 
 export function OperatorShellLayout() {

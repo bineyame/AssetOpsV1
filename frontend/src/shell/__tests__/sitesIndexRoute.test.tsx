@@ -41,15 +41,37 @@ const SITE: SiteSummary = {
   template: { template_id: "hybrid-mini-grid-100kw", template_version: 1 },
 };
 
-const OPERATOR_NAVIGATION_LABELS = [
-  "Operator home",
-  "Sites",
-  "Site configuration",
-];
+/**
+ * Operator navigation after T008. Both parameterless site destinations are
+ * gone, each removed by the slice that gave it an identified replacement, and
+ * neither replacement is a navigation item: a navigation item cannot name
+ * which site it would open.
+ */
+const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
 
 const SITE_DETAIL: SiteDetailReadModel = {
   ...SITE,
-  foundation: { version: 1, valid_from: "2026-09-14T09:12:00Z" },
+  foundation: {
+    version: 1,
+    valid_from: "2026-09-14T09:12:00Z",
+    summary:
+      "Solar-plus-storage mini-grid with a diesel generator for backup and a " +
+      "metered distribution load.",
+    components: [
+      {
+        component_id: "pv-array",
+        component_type: "PV_ARRAY",
+        display_name: "PV array",
+        rating: { value: 100, unit: "kW" },
+      },
+      {
+        component_id: "site-meter",
+        component_type: "METER",
+        display_name: "Site meter",
+        rating: null,
+      },
+    ],
+  },
 };
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
@@ -261,9 +283,13 @@ describe("a Sites row is the way into a site", () => {
     ).toEqual(OPERATOR_NAVIGATION_LABELS);
   });
 
-  it.each(["/sites/MG-002/configuration", "/sites/MG-002/devices"])(
+  it.each(["/sites/MG-002/devices", "/sites/MG-002/gateway"])(
     "still serves nothing under a site at %s",
     (path) => {
+      // T007 listed `/sites/MG-002/configuration` here too. T008 makes that
+      // one real, so it moves out of this list rather than the list being
+      // dropped: what is pinned is that a site grows addressable aspects one
+      // reviewed slice at a time, and devices is causal step 4's to make true.
       render(
         <MemoryRouter initialEntries={[path]}>
           <App
@@ -281,8 +307,8 @@ describe("a Sites row is the way into a site", () => {
   );
 
   it("no longer serves the parameterless Site Details frame", () => {
-    // T007 removes the placeholder the identified route replaces. T008 removes
-    // `/site-configuration` the same way; it is deliberately still here.
+    // T007 removed the placeholder its identified route replaced, and T008
+    // removed `/site-configuration` the same way. Neither is served now.
     render(
       <MemoryRouter initialEntries={["/site-details"]}>
         <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
@@ -295,7 +321,7 @@ describe("a Sites row is the way into a site", () => {
     expect(screen.queryByRole("heading", { name: "Site details" })).toBeNull();
   });
 
-  it("still serves the parameterless Site Configuration frame", () => {
+  it("no longer serves the parameterless Site Configuration frame", () => {
     render(
       <MemoryRouter initialEntries={["/site-configuration"]}>
         <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
@@ -303,7 +329,35 @@ describe("a Sites row is the way into a site", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
+      screen.getByRole("heading", { level: 1, name: "Page not available" }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Site configuration" }),
+    ).toBeNull();
+  });
+
+  it("reaches a site's configuration from that site, not from the index", async () => {
+    render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App
+          flags={ENABLED}
+          siteDirectory={directoryWith([SITE])}
+          siteDetail={detailClientFor(SITE_DETAIL)}
+        />
+      </MemoryRouter>,
+    );
+    await screen.findByRole("table");
+
+    // The index offers one destination per site, and that destination is the
+    // site. A configuration link on a row would be a second way in, addressed
+    // by the same identity, which is how two ways into one thing start to
+    // disagree about what it is.
+    const main = screen.getByRole("main");
+
+    expect(
+      within(main)
+        .getAllByRole("link")
+        .map((link) => link.getAttribute("href")),
+    ).not.toContain("/sites/MG-002/configuration");
   });
 });

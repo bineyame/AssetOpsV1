@@ -36,7 +36,27 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
   origin: "USER",
   source: { mode: "SIMULATED" },
   template: { template_id: "hybrid-mini-grid-100kw", template_version: 1 },
-  foundation: { version: 1, valid_from: "2026-09-14T09:12:00Z" },
+  foundation: {
+    version: 1,
+    valid_from: "2026-09-14T09:12:00Z",
+    summary:
+      "Solar-plus-storage mini-grid with a diesel generator for backup and a " +
+      "metered distribution load.",
+    components: [
+      {
+        component_id: "pv-array",
+        component_type: "PV_ARRAY",
+        display_name: "PV array",
+        rating: { value: 100, unit: "kW" },
+      },
+      {
+        component_id: "site-meter",
+        component_type: "METER",
+        display_name: "Site meter",
+        rating: null,
+      },
+    ],
+  },
 };
 
 /** `USER` with `LIVE`: a site registered against a real integration. */
@@ -59,7 +79,19 @@ const SHIPPED_SIMULATED_SITE: SiteDetailReadModel = {
   origin: "SHIPPED",
   source: { mode: "SIMULATED" },
   template: null,
-  foundation: { version: 2, valid_from: "2026-08-01T00:00:00Z" },
+  foundation: {
+    version: 2,
+    valid_from: "2026-08-01T00:00:00Z",
+    summary: "Single cold room with a metered supply.",
+    components: [
+      {
+        component_id: "cold-room",
+        component_type: "COLD_ROOM",
+        display_name: "Cold room",
+        rating: { value: 30, unit: "kWh" },
+      },
+    ],
+  },
 };
 
 const INTERACTIVE_SELECTOR = [

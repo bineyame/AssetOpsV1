@@ -41,7 +41,27 @@ const SITE: SiteSummary = {
 
 const SITE_DETAIL: SiteDetailReadModel = {
   ...SITE,
-  foundation: { version: 1, valid_from: "2026-09-14T09:12:00Z" },
+  foundation: {
+    version: 1,
+    valid_from: "2026-09-14T09:12:00Z",
+    summary:
+      "Solar-plus-storage mini-grid with a diesel generator for backup and a " +
+      "metered distribution load.",
+    components: [
+      {
+        component_id: "pv-array",
+        component_type: "PV_ARRAY",
+        display_name: "PV array",
+        rating: { value: 100, unit: "kW" },
+      },
+      {
+        component_id: "site-meter",
+        component_type: "METER",
+        display_name: "Site meter",
+        rating: null,
+      },
+    ],
+  },
 };
 
 /**
@@ -58,16 +78,13 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
 };
 
 /**
- * The operator navigation list after T007. `Site details` is gone: it was a
- * parameterless placeholder from before site identity existed. Nothing took
- * its place, because a navigation item cannot name which site it would open.
- * `Site configuration` is still parameterless and is T008's to remove.
+ * The operator navigation list after T008. `Site details` and `Site
+ * configuration` are both gone: each was a parameterless placeholder from
+ * before site identity existed, and each was removed by the slice that gave it
+ * an identified replacement. Nothing took either place, because a navigation
+ * item cannot name which site it would open.
  */
-const OPERATOR_NAVIGATION_LABELS = [
-  "Operator home",
-  "Sites",
-  "Site configuration",
-];
+const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -145,20 +162,28 @@ describe("a site is opened from a Sites row", () => {
     expect(screen.queryByRole("heading", { name: "Page not available" })).toBeNull();
   });
 
-  it("offers a way back to the Sites index and no other destination", async () => {
+  it("offers this site's configuration and the Sites index, and nothing else", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
     await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
 
     const main = within(container).getByRole("main");
 
+    // T008 adds the second destination and it is pinned exactly, not loosened
+    // into "contains Back to Sites": the point of this assertion is that the
+    // site page grows destinations one reviewed slice at a time. Both are
+    // navigation, both name this site's own address, and neither is an action
+    // on the site.
     expect(
       within(main)
         .getAllByRole("link")
         .map((link) => [link.getAttribute("href"), link.textContent]),
-    ).toEqual([["/sites", "Back to Sites"]]);
+    ).toEqual([
+      ["/sites/MG-002/configuration", "Site configuration"],
+      ["/sites", "Back to Sites"],
+    ]);
   });
 
-  it("offers no control on the site page beyond that one link", async () => {
+  it("offers no control on the site page beyond those links", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
     await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
 
@@ -234,7 +259,7 @@ describe("operator navigation lost an item and gained none", () => {
   it.each([
     ["gate off", DISABLED],
     ["gate on", ENABLED],
-  ])("lists the same three operator items with the %s", (_name, flags) => {
+  ])("lists the same two operator items with the %s", (_name, flags) => {
     const { container, unmount } = renderAt("/", flags as FeatureFlags);
 
     const navigation = within(container).getByRole("navigation", {
@@ -251,15 +276,13 @@ describe("operator navigation lost an item and gained none", () => {
   it("has no navigation item that would open a site without naming one", () => {
     /**
      * The rule: a navigation destination appears only when the route behind it
-     * renders a truthful surface, and a Site Details link that names no site
-     * is not a destination.
+     * renders a truthful surface, and a link that names no site is not a
+     * destination.
      *
-     * `Site configuration` is still in the list and is still parameterless.
-     * That is deliberate and is T008's to remove, by the slice that makes its
-     * identified replacement real; asserting it away here would either delete
-     * a route this slice does not replace or weaken this assertion into
-     * nothing. So what is pinned here is the site-page destination: no
-     * navigation item leads to a site page, because none could say which site.
+     * Both parameterless placeholders are gone now, so both are asserted away
+     * here. What is still pinned alongside them is the site-page destination:
+     * no navigation item leads to a site page either, because none could say
+     * which site it would open.
      */
     const { container } = renderAt("/", ENABLED);
 
@@ -271,8 +294,10 @@ describe("operator navigation lost an item and gained none", () => {
       .map((link) => link.getAttribute("href") ?? "");
 
     expect(destinations).not.toContain("/site-details");
+    expect(destinations).not.toContain("/site-configuration");
     expect(destinations.filter((href) => /^\/sites\/./.test(href))).toEqual([]);
     expect(navigation.textContent).not.toMatch(/site details/i);
+    expect(navigation.textContent).not.toMatch(/site configuration/i);
   });
 
   it("serves nothing at the parameterless Site Details address", () => {
