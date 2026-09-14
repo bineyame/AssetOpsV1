@@ -6,19 +6,17 @@ Use the AssetOps Implementer role.
 
 Prefer the `assetops-implementer` subagent/skill when available.
 
-Read:
+The standing brief for the role - reading order, work standard, checks, and how
+to finish - is `.claude/agents/assetops-implementer.md`. Read it first, then the
+active task file named in `.ai/ACTIVE_CONTEXT.md`.
 
-- `.ai/START_HERE.md`
-- `.ai/ROLE_CONFIG.md`
-- `.ai/PROJECT_RULES.md`
-- The active task file
-- `.ai/PRODUCT.md` or `.ai/ARCHITECTURE.md` only when relevant
+Read `.ai/ROLE_CONFIG.md` before acting. If it still binds Implementer to
+Claude, implement the active task directly. If the binding has changed, prepare
+a handoff prompt for the configured Implementer agent: point it at the standing
+brief rather than restating the brief in the prompt, and add only what is
+specific to this task.
 
-If `.ai/ROLE_CONFIG.md` still binds Implementer to Claude, implement the active
-task directly. If the binding has changed, prepare a handoff prompt for the
-configured Implementer agent.
-
-Build only the active task. Run relevant checks, including
+Build only the active task. Run the checks the standing brief names, including
 `tools/check-agent-workflow.ps1` when governance files or task files changed.
 Finish with the standard review packet.
 
