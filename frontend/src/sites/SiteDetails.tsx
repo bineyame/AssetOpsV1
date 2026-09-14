@@ -47,20 +47,40 @@ export interface SiteDetailsProps {
   detail: SiteDetailClient;
 }
 
+/** What the store answered, held with the identity it was asked about. */
+interface SiteDetailAnswer {
+  siteId: string | undefined;
+  result: SiteDetailResult | null;
+}
+
 export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
-  const [result, setResult] = useState<SiteDetailResult | null>(null);
+  const [answer, setAnswer] = useState<SiteDetailAnswer>({
+    siteId,
+    result: null,
+  });
+
+  // An answer belongs to the identity it was asked about. When the address
+  // changes, the site already on screen stops being an answer to the question
+  // now being asked, so it is dropped in the same render that first sees the
+  // new identity rather than left standing until the next read resolves. A
+  // site that outlives its own address is the wrong site presented as the
+  // right one, which is what being addressed by `site_id` and nothing else
+  // rules out.
+  if (answer.siteId !== siteId) {
+    setAnswer({ siteId, result: null });
+  }
 
   useEffect(() => {
     let active = true;
 
     if (siteId === undefined || siteId === "") {
-      setResult({ status: "not_found" });
+      setAnswer({ siteId, result: { status: "not_found" } });
       return undefined;
     }
 
     void detail.getSite(siteId).then((loaded) => {
       if (active) {
-        setResult(loaded);
+        setAnswer({ siteId, result: loaded });
       }
     });
 
@@ -68,6 +88,8 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
       active = false;
     };
   }, [detail, siteId]);
+
+  const result = answer.siteId === siteId ? answer.result : null;
 
   if (result === null) {
     return (

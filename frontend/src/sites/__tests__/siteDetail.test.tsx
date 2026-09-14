@@ -247,6 +247,46 @@ describe("the site is addressed by site ID and nothing else", () => {
     ).toBeInTheDocument();
   });
 
+  it("drops the site on screen the moment the address names another", async () => {
+    // Navigation from one site URL to another. The second read is still in
+    // flight when the assertions run, which is the whole point: the site from
+    // the previous address must not still be standing under the new one, or
+    // /sites/MG-404 briefly presents MG-002 as the site it addresses.
+    let answerSecond: (result: SiteDetailResult) => void = () => {};
+    const detail: SiteDetailClient = {
+      getSite: (siteId) =>
+        siteId === USER_SIMULATED_SITE.site_id
+          ? Promise.resolve<SiteDetailResult>({
+              status: "loaded",
+              site: USER_SIMULATED_SITE,
+            })
+          : new Promise<SiteDetailResult>((resolve) => {
+              answerSecond = resolve;
+            }),
+    };
+
+    const { container, rerender } = render(
+      <SiteDetails siteId="MG-002" detail={detail} />,
+    );
+    await settledScreen();
+    expect(factValue(container, "Site ID")).toBe("MG-002");
+
+    rerender(<SiteDetails siteId="MG-404" detail={detail} />);
+
+    expect(container.textContent ?? "").not.toMatch(/MG-002|Kalangala/);
+    expect(container.querySelectorAll("dl")).toHaveLength(0);
+    expect(
+      screen.getByText(/Loading the configured site\./),
+    ).toBeInTheDocument();
+
+    answerSecond({ status: "not_found" });
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "No such site" }),
+    ).toBeInTheDocument();
+    expect(container.textContent ?? "").not.toMatch(/MG-002|Kalangala/);
+  });
+
   it("states an unreadable store rather than an absent site", async () => {
     render(
       <SiteDetails
