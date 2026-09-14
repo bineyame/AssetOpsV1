@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import type { SiteDirectoryClient } from "./siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "./siteReadModel";
@@ -35,15 +36,19 @@ import { deriveSiteView } from "./siteViewModel";
  * configuration is fixed at creation, so a greyed-out control would make a
  * promise the product has declined to make.
  *
- * Rows are not links. A site is addressed by `site_id` at a route that does
- * not exist yet, and a destination must not appear before the route behind it
- * renders a truthful surface.
+ * Each row opens that site. The row is the destination: a site is addressed by
+ * `site_id`, so the site ID cell is the link and nothing else on the row is.
+ * The address is supplied by whichever shell composes this, because where a
+ * site page lives is a shell's fact about its own routes, not a fact about a
+ * site. It is an address, not a mode: nothing here branches on it.
  */
 export interface SitesIndexProps {
   directory: SiteDirectoryClient;
+  /** The address of one site's page, built from its identity. */
+  siteHref: (siteId: string) => string;
 }
 
-export function SitesIndex({ directory }: SitesIndexProps) {
+export function SitesIndex({ directory, siteHref }: SitesIndexProps) {
   const [result, setResult] = useState<SiteListResult | null>(null);
 
   useEffect(() => {
@@ -93,7 +98,7 @@ export function SitesIndex({ directory }: SitesIndexProps) {
   return (
     <section aria-labelledby="sites-list-heading">
       <h2 id="sites-list-heading">Configured sites</h2>
-      <SiteTable sites={result.sites} />
+      <SiteTable sites={result.sites} siteHref={siteHref} />
     </section>
   );
 }
@@ -106,9 +111,10 @@ export function SitesIndex({ directory }: SitesIndexProps) {
  */
 export interface SiteTableProps {
   sites: SiteSummary[];
+  siteHref: (siteId: string) => string;
 }
 
-export function SiteTable({ sites }: SiteTableProps) {
+export function SiteTable({ sites, siteHref }: SiteTableProps) {
   return (
     <table aria-labelledby="sites-list-heading">
       <thead>
@@ -125,7 +131,7 @@ export function SiteTable({ sites }: SiteTableProps) {
       </thead>
       <tbody>
         {sites.map((site) => (
-          <SiteRow key={site.site_id} site={site} />
+          <SiteRow key={site.site_id} site={site} siteHref={siteHref} />
         ))}
       </tbody>
     </table>
@@ -134,14 +140,17 @@ export function SiteTable({ sites }: SiteTableProps) {
 
 export interface SiteRowProps {
   site: SiteSummary;
+  siteHref: (siteId: string) => string;
 }
 
-export function SiteRow({ site }: SiteRowProps) {
+export function SiteRow({ site, siteHref }: SiteRowProps) {
   const view = deriveSiteView(site);
 
   return (
     <tr>
-      <td>{view.siteId}</td>
+      <td>
+        <Link to={siteHref(view.siteId)}>{view.siteId}</Link>
+      </td>
       <td>{view.displayName}</td>
       <td>{view.siteType}</td>
       <td>{view.location}</td>

@@ -10,6 +10,7 @@ import {
   SIMULATOR_LAB_PATH,
   simulatorLabWorkspaceEntryPoints,
 } from "../simulatorLabRoutes";
+import { settledScreen } from "../../test/settled";
 
 /**
  * Shell-hierarchy tests for the Simulator Lab entry point.
@@ -24,13 +25,19 @@ import {
 const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
-const OPERATOR_ROUTES = ["/", "/sites", "/site-details", "/site-configuration"];
+const OPERATOR_ROUTES = ["/", "/sites", "/site-configuration"];
 
-/** The operator route list, which the gate must never change. */
+/**
+ * The operator route list, which the gate must never change.
+ *
+ * T007 removes `Site details`: it was a parameterless placeholder from before
+ * site identity existed, and a site page is now reached from a Sites row. The
+ * gate assertion is unchanged in strength - the list is still pinned exactly,
+ * and it is still the same list in both flag states.
+ */
 const OPERATOR_NAVIGATION_LABELS = [
   "Operator home",
   "Sites",
-  "Site details",
   "Site configuration",
 ];
 
@@ -84,8 +91,9 @@ describe("operator navigation does not change with the gate", () => {
 
   it.each(OPERATOR_ROUTES)(
     "keeps Simulator Lab out of operator navigation when enabled at %s",
-    (route) => {
+    async (route) => {
       renderAt(route, ENABLED);
+      await settledScreen();
 
       const navigation = screen.getByRole("navigation", {
         name: "Operator routes",
@@ -135,8 +143,9 @@ describe("workspace entry point: enabled", () => {
 
   it.each(OPERATOR_ROUTES)(
     "places the entry point outside the operator navigation landmark at %s",
-    (route) => {
+    async (route) => {
       renderAt(route, ENABLED);
+      await settledScreen();
 
       const operatorNavigation = screen.getByRole("navigation", {
         name: "Operator routes",

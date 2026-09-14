@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import type { FeatureFlags } from "../config/featureFlags";
 import { SitesIndex } from "../sites/SitesIndex";
 import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
+import { siteDetailHref } from "./operatorSiteRoutes";
 import { simulatorLabCreateSiteEntryPoints } from "./simulatorLabRoutes";
 
 /**
@@ -26,6 +27,12 @@ import { simulatorLabCreateSiteEntryPoints } from "./simulatorLabRoutes";
  * exists. An empty Sites index with no way to add a site is the correct state
  * for a gate-off build, not a defect.
  *
+ * Each row opens that site. Where a site's page lives is a shell fact about
+ * the shell's own routes, so this frame supplies the address and the substrate
+ * renders the link. That is the one operator destination this slice adds, and
+ * it is not a navigation item: a navigation item cannot name which site it
+ * would open.
+ *
  * The Sites index itself is never gated. It is served identically in both flag
  * states, and a site created while the Lab was enabled is fully listed when it
  * is disabled, because the gate covers surfaces and execution and never
@@ -43,7 +50,7 @@ export function SitesFrame({ flags, directory }: SitesFrameProps) {
     <main aria-labelledby="sites-heading">
       <h1 id="sites-heading">Sites</h1>
 
-      <SitesIndex directory={directory} />
+      <SitesIndex directory={directory} siteHref={siteDetailHref} />
 
       {createEntryPoints.length > 0 ? (
         <p>

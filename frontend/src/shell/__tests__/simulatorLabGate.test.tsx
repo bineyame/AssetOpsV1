@@ -11,6 +11,7 @@ import {
 } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
+import { settledScreen } from "../../test/settled";
 
 /**
  * The Sites index reads the Site store. It is injected here and empty, so a
@@ -33,7 +34,13 @@ const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
 const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
-const OPERATOR_ROUTES = ["/", "/sites", "/site-details", "/site-configuration"];
+/**
+ * Operator routes with no site in them. The identified site route is covered
+ * separately at the bottom of this file, over a record, because a real site
+ * legitimately renders the word `Simulated` as source-mode provenance and the
+ * blanket text assertions here would read that as a simulator reference.
+ */
+const OPERATOR_ROUTES = ["/", "/sites", "/site-configuration"];
 
 /**
  * URLs a bookmark, a script, or a curious operator could aim at the simulator.
@@ -213,8 +220,9 @@ describe("simulator lab gate: disabled", () => {
 
   it.each(OPERATOR_ROUTES)(
     "serves no URL that reaches a simulator surface from %s",
-    (route) => {
+    async (route) => {
       const { container } = renderAt(route, DISABLED);
+      await settledScreen();
 
       const hrefs = Array.from(container.querySelectorAll("a")).map((anchor) =>
         anchor.getAttribute("href"),
@@ -240,8 +248,9 @@ describe("simulator lab gate: disabled", () => {
     ).toBeNull();
   });
 
-  it.each(OPERATOR_ROUTES)("still renders the operator route %s", (route) => {
+  it.each(OPERATOR_ROUTES)("still renders the operator route %s", async (route) => {
     renderAt(route, DISABLED);
+    await settledScreen();
 
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
@@ -323,8 +332,9 @@ describe("simulator lab gate: enabled", () => {
     },
   );
 
-  it.each(OPERATOR_ROUTES)("still renders the operator route %s", (route) => {
+  it.each(OPERATOR_ROUTES)("still renders the operator route %s", async (route) => {
     renderAt(route, ENABLED);
+    await settledScreen();
 
     expect(screen.getByRole("main")).toBeInTheDocument();
   });
@@ -333,8 +343,9 @@ describe("simulator lab gate: enabled", () => {
 describe("simulator lab gate: runs are unavailable in both states", () => {
   it.each([...UNSERVED_WHEN_DISABLED, ...OPERATOR_ROUTES])(
     "exposes no run start, inspect, rerun, or truth comparison control at %s when disabled",
-    (url) => {
+    async (url) => {
       const { container } = renderAt(url, DISABLED);
+      await settledScreen();
 
       for (const control of interactiveControls(container)) {
         expect(controlDescription(control)).not.toMatch(RUN_ACTION_PATTERN);
@@ -344,8 +355,9 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
 
   it.each([...SIMULATOR_URLS, ...OPERATOR_ROUTES])(
     "exposes no run start, inspect, rerun, or truth comparison control at %s when enabled",
-    (url) => {
+    async (url) => {
       const { container } = renderAt(url, ENABLED);
+      await settledScreen();
 
       for (const control of interactiveControls(container)) {
         expect(controlDescription(control)).not.toMatch(RUN_ACTION_PATTERN);

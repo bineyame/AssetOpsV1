@@ -4,9 +4,16 @@ import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
-import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
-import type { SiteSummary } from "../../sites/siteReadModel";
+import type {
+  SiteDetailClient,
+  SiteDirectoryClient,
+} from "../../sites/siteDirectoryClient";
+import type {
+  SiteDetailReadModel,
+  SiteSummary,
+} from "../../sites/siteReadModel";
 import { CREATE_SITE_ENTRY_POINT_LABEL } from "../simulatorLabRoutes";
+import { settledScreen } from "../../test/settled";
 
 /**
  * Route-level tests for the operator Sites index.
@@ -37,12 +44,28 @@ const SITE: SiteSummary = {
 const OPERATOR_NAVIGATION_LABELS = [
   "Operator home",
   "Sites",
-  "Site details",
   "Site configuration",
 ];
 
+const SITE_DETAIL: SiteDetailReadModel = {
+  ...SITE,
+  foundation: { version: 1, valid_from: "2026-09-14T09:12:00Z" },
+};
+
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
+}
+
+/** Resolves the one site it holds, without regard to case, as the API does. */
+function detailClientFor(site: SiteDetailReadModel): SiteDetailClient {
+  return {
+    getSite: (siteId: string) =>
+      Promise.resolve(
+        siteId.toLowerCase() === site.site_id.toLowerCase()
+          ? { status: "loaded" as const, site }
+          : { status: "not_found" as const },
+      ),
+  };
 }
 
 function renderSites(flags: FeatureFlags, sites: SiteSummary[] = []) {
@@ -129,6 +152,10 @@ describe("the gated way into the create flow", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Create a site" }),
     ).toBeInTheDocument();
+
+    // The create flow reads the template catalog on mount. Settling it here
+    // keeps that read inside the test rather than resolving after it.
+    await settledScreen();
   });
 
   it("offers no way to add a site, and names no Simulator Lab, when the gate is closed", async () => {
@@ -175,13 +202,75 @@ describe("the gated way into the create flow", () => {
   });
 });
 
-describe("no per-site destination exists yet", () => {
-  it.each(["/sites/MG-002", "/sites/MG-002/configuration", "/sites/mg-002"])(
-    "serves nothing at %s",
+describe("a Sites row is the way into a site", () => {
+  it("opens the site the row names", async () => {
+    render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App
+          flags={ENABLED}
+          siteDirectory={directoryWith([SITE])}
+          siteDetail={detailClientFor(SITE_DETAIL)}
+        />
+      </MemoryRouter>,
+    );
+    await screen.findByRole("table");
+
+    fireEvent.click(screen.getByRole("link", { name: "MG-002" }));
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Kalangala Mini-Grid",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("adds exactly one destination and no navigation item", async () => {
+    /**
+     * T006 asserted that no per-site destination existed. It exists now, so
+     * the assertion is replaced rather than dropped, and the replacement is
+     * the stronger half: the index offers the site row link and the gated
+     * create action and nothing else, and operator navigation still gained
+     * nothing.
+     */
+    const view = render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App
+          flags={ENABLED}
+          siteDirectory={directoryWith([SITE])}
+          siteDetail={detailClientFor(SITE_DETAIL)}
+        />
+      </MemoryRouter>,
+    );
+    await screen.findByRole("table");
+
+    const main = within(view.container).getByRole("main");
+
+    expect(
+      within(main)
+        .getAllByRole("link")
+        .map((link) => link.getAttribute("href")),
+    ).toEqual(["/sites/MG-002", "/simulator-lab/create-site"]);
+
+    const navigation = within(view.container).getByRole("navigation", {
+      name: "Operator routes",
+    });
+
+    expect(
+      within(navigation).getAllByRole("link").map((link) => link.textContent),
+    ).toEqual(OPERATOR_NAVIGATION_LABELS);
+  });
+
+  it.each(["/sites/MG-002/configuration", "/sites/MG-002/devices"])(
+    "still serves nothing under a site at %s",
     (path) => {
       render(
         <MemoryRouter initialEntries={[path]}>
-          <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+          <App
+            flags={ENABLED}
+            siteDirectory={directoryWith([SITE])}
+            siteDetail={detailClientFor(SITE_DETAIL)}
+          />
         </MemoryRouter>,
       );
 
@@ -191,10 +280,9 @@ describe("no per-site destination exists yet", () => {
     },
   );
 
-  it("leaves the parameterless Site Details and Site Configuration frames in place", () => {
-    // T007 and T008 each remove the placeholder their own route replaces. No
-    // slice leaves a parameterless site destination standing once its
-    // identified route exists, and neither identified route exists yet.
+  it("no longer serves the parameterless Site Details frame", () => {
+    // T007 removes the placeholder the identified route replaces. T008 removes
+    // `/site-configuration` the same way; it is deliberately still here.
     render(
       <MemoryRouter initialEntries={["/site-details"]}>
         <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
@@ -202,8 +290,20 @@ describe("no per-site destination exists yet", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site details" }),
+      screen.getByRole("heading", { level: 1, name: "Page not available" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("main").textContent).not.toMatch(/MG-?\s*\d/i);
+    expect(screen.queryByRole("heading", { name: "Site details" })).toBeNull();
+  });
+
+  it("still serves the parameterless Site Configuration frame", () => {
+    render(
+      <MemoryRouter initialEntries={["/site-configuration"]}>
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
+    ).toBeInTheDocument();
   });
 });

@@ -11,6 +11,7 @@ import type {
   SiteTemplateDetailResult,
   SiteTemplateListResult,
 } from "../siteTemplateCatalogClient";
+import { settledScreen } from "../../test/settled";
 
 /**
  * UI tests for the gated Site Templates surfaces.
@@ -284,7 +285,10 @@ describe("template surfaces offer no capability the product lacks", () => {
     "offers no create, instantiate, upload, import, edit, save, publish, delete, or rename control at %s",
     async (path) => {
       const { container } = renderAt(path);
-      await screen.findByRole("main");
+      // The landmark renders while the read is still in flight, so it is not a
+      // settle point. These are absence assertions: made against a loading
+      // screen they would pass because nothing has rendered yet.
+      await settledScreen();
 
       // Not merely "no enabled control": deferred-by-decision capabilities are
       // absent from the DOM rather than rendered disabled.
@@ -303,7 +307,7 @@ describe("template surfaces offer no capability the product lacks", () => {
     "shows no operational value, source mode, health, analytics, Replay, or Findings at %s",
     async (path) => {
       const { container } = renderAt(path);
-      await screen.findByRole("main");
+      await settledScreen();
 
       expect(container.querySelectorAll("svg, canvas, img")).toHaveLength(0);
       expect(screen.queryAllByRole("figure")).toHaveLength(0);
@@ -329,7 +333,7 @@ describe("template surfaces offer no capability the product lacks", () => {
     "renders no single line diagram, diagram frame, or signal selector at %s",
     async (path) => {
       const { container } = renderAt(path);
-      await screen.findByRole("main");
+      await settledScreen();
 
       expect(container.querySelectorAll("svg, canvas")).toHaveLength(0);
       expect(container.querySelectorAll("select")).toHaveLength(0);
@@ -344,7 +348,7 @@ describe("template surfaces offer no capability the product lacks", () => {
     "renders outside the operator shell at %s",
     async (path) => {
       renderAt(path);
-      await screen.findByRole("main");
+      await settledScreen();
 
       expect(
         screen.queryByRole("navigation", { name: "Operator routes" }),
@@ -357,11 +361,11 @@ describe("template surfaces offer no capability the product lacks", () => {
 });
 
 describe("templates never appear as sites", () => {
-  it.each(["/sites", "/site-details", "/site-configuration"])(
+  it.each(["/sites", "/site-configuration"])(
     "keeps every template out of the operator route %s when the gate is open",
     async (route) => {
       const { container } = renderAt(route);
-      await screen.findByRole("main");
+      await settledScreen();
 
       expect(container.textContent).not.toMatch(/template/i);
       expect(container.textContent).not.toMatch(TEMPLATE.display_name);

@@ -1,6 +1,6 @@
 # T007 - Site Details Addressed By Site Id
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T007-site-details-by-site-id`
@@ -207,3 +207,46 @@ language the T006 checkpoint did not already fix and no capability beyond
 opening a Site that already exists. The configuration-only language that this
 surface leans on is put to the user at the T008 checkpoint, together with the
 statement that configuration is fixed at creation in M1.
+
+## Review Outcome
+
+Reviewer verdict: accept after one medium finding was fixed. No other findings,
+no blocking open questions.
+
+Finding: `frontend/src/sites/SiteDetails.tsx` did not clear the loaded Site when
+`siteId` changed, so SPA navigation from one Site URL to another left the
+previous Site rendered while the new read was in flight. `/sites/MG-404` could
+briefly present the previously loaded canonical Site as the site that address
+names, against this slice's own rule that a Site is addressed by `site_id` and
+by nothing else. Every test in the slice mounted at one identity and never
+changed it, which is why nothing caught it.
+
+Fixed on the branch in `b119c32`. The store's answer is now held with the
+identity it was asked about and discarded in the render that first sees a new
+identity, before any effect runs; resetting inside the effect would still commit
+one frame with the previous site under the new address. The in-flight read's
+`active` guard is unchanged and still discards a late answer from a previous
+identity. The regression test, `drops the site on screen the moment the address
+names another`, loads `MG-002`, rerenders at `MG-404` against a lookup left
+deliberately pending, and asserts nothing of the previous Site survives the
+address change. Reverting the component alone fails it, so it is load-bearing.
+The shape is recorded in `.ai/CODE_STATE.md` under T007, because T008's
+per-Site configuration surface needs the same treatment.
+
+Reviewer checks: architecture guard passed, agent workflow guard passed, focused
+backend 51 passed, focused frontend 52 passed, `git diff --check main...HEAD`
+clean.
+
+Checks re-run in the implementing session after the fix: architecture guard
+passed, agent workflow guard passed, full frontend suite 251 passed across 10
+files, frontend typecheck passed, `git diff --check` clean. The backend is
+untouched by the fix and was not re-run. Recorded as a re-run of the fix, not as
+a second review.
+
+User review is not required for this slice, as the User Review section above
+states. The configuration-only language this surface leans on goes to the user
+at the T008 checkpoint.
+
+The full review packet is at `.agent/T007-review-packet.md`, with the finding
+and its fix recorded there under Review Findings Addressed, and the branch diff
+at `.agent/T007-review.diff`. Both are local-only.
