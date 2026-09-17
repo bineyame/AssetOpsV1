@@ -22,6 +22,7 @@ rationale in the dated entries below.
 | `D-2026-09-17-source-health-backing` | 2026-09-17 | Gateway/source health is backed by source observations, not Site lifecycle or simulator provenance. |
 | `D-2026-09-17-site-foundation-fetch-seam` | 2026-09-17 | The Site Foundation frontend/backend fetch seam needs a focused integration test before expansion. |
 | `D-2026-09-17-client-demo-readiness` | 2026-09-17 | Client demo readiness begins at the Simulated Evidence Loop; business-outcome demo readiness begins at Evidence-Backed Operational Findings. |
+| `D-2026-09-17-foundation-screen-architecture` | 2026-09-17 | The operator Site surface formerly called Site Configuration becomes Foundation, with line-cited Site tabs, filtered Foundation subtabs, route compatibility, and inventory guards. |
 
 ## 2026-09-11
 
@@ -916,3 +917,80 @@ Affected scope: Roadmap planning, task sequencing, demo language, Simulator
 Lab, Source Envelope, release/ingestion, evidence views, Replay, source health,
 operational findings, mini-grid demo readiness, and cold-chain follow-on
 planning.
+
+## 2026-09-17
+
+Decision: The operator Site surface previously called `Site Configuration` is
+the v6.9 `Foundation` tab named at lines 464, 615 and 2117. User-visible route text, breadcrumb, page heading,
+tab label, and Site Details link text become `Foundation`. The canonical route
+becomes `/sites/:siteId/foundation`; `/sites/:siteId/configuration` remains only
+as a compatibility redirect that preserves `siteId` and is not surfaced,
+tabbed, or counted as a navigation destination. Test names, guard messages and
+guard-script comments use Foundation unless deliberately asserting the legacy
+redirect or the parameterless `/site-configuration` ban. Internal component and
+symbol names under `frontend/src/sites/**` may lag for the rename slice if
+renaming them would be mechanical churn across the shared substrate; no
+user-visible string or route constant may lag.
+
+The operator Site tab set is v6.9's `Overview | Foundation | Health |
+Performance | Findings | Work | Financials | Evidence` from lines 464 and 615.
+`Overview` and `Foundation` are destination tabs because their identified
+routes render truthful current surfaces. The remaining tabs are labelled in
+place with no link, button, route, or disabled placeholder until their content
+contracts exist. The `ScreenMockups.png` screen 2 tabs `Configuration`, `Devices`, `Gateway`,
+`Ingestion`, `Events`, and `Logs` are not the operator Site tab vocabulary for
+M1.
+
+The Foundation subtab row uses v6.9 line 2117 as the source:
+`Definition | Topology | Controls | Changes | Readiness`. `Definition`,
+`Topology`, and `Controls` render with current M1 limits; `Readiness` is
+labelled in place until evidence readiness has a source contract. `Changes` is
+not rendered until a reviewed configuration-change capability exists, because
+v6.9 lines 2149 and 2225-2228 make it a real intervention/change-effect
+capability rather than a placeholder or `ScreenMockups.png` screen 3's `Version History`.
+
+This supersedes the forward-looking parts of the 2026-09-13 canonical-fidelity
+decision that named the operator Site tabs as `Configuration`, `Devices`,
+`Gateway`, `Ingestion`, `Events`, and `Logs`, and the forward-looking parts of
+the 2026-09-13 navigation decision that used `Site Configuration` as the
+settled surface name. It does not rewrite those dated records. Their
+historical facts still stand: canonical fidelity is staged only after content
+exists, absent/labelled/disabled treatments remain distinct, parameterless
+routes are not destinations, and navigation growth remains governed by
+truthful routes.
+
+Sequencing: insert a dedicated Foundation naming and operator Site tab
+inventory slice after T011 and before the current T012. T009 remains
+chrome-only; T010 and T011 continue in order with wording changes. The inserted
+slice carries the user-visible rename, `/foundation` route, `/configuration`
+redirect, operator Site tab inventory guard, route-compatibility tests, and
+guard-script updates. T012 then dresses Site Details against the settled tab
+row, T013 dresses Foundation against the settled name and filtered subtab row,
+and T014-T016 remain coherent only after their wording and structure are
+updated to render into Foundation.
+
+Guard replacement is replace-never-loosen. The frozen operator-navigation count
+may remain during Site Foundation because the operator rail still does not
+grow. When a rail or tab set changes, the replacement guard is a single
+inventory definition consumed by rendering and tests: every rendered item must
+be in the inventory, every destination item must have a real route, labelled
+items must not be links/buttons/routes, gated Lab rail items must be absent
+when the gate is off, and no unexpected item may render. This is stronger than
+a count freeze because it checks identity, route truthfulness, and absence of
+extra items rather than only a number.
+
+Reason: v6.9 lines 464, 615 and 2117 are the operator Site vocabulary authority
+where they disagree with `ScreenMockups.png` screens 2 and 3, and the accepted T008 checkpoint already settled that this surface
+is the read-only Foundation/configuration presentation rather than an editable
+configuration workflow. Carrying the old screen name into the canonical tab row
+would leave users with two names for one surface, make the `ScreenMockups.png`
+screen 2 run-tab vocabulary look like operator navigation, and weaken the audit trail around
+why `Changes` and `Version History` are absent. A compatibility redirect keeps
+existing addresses from breaking while preserving navigation truthfulness: the
+product has one Foundation destination, not two configuration surfaces.
+
+Affected scope: Foundation route and redirect, Site Details link, breadcrumb,
+heading and tab labels, operator Site tab row, Foundation subtab row, planned
+T009-T016 task wording and sequencing, navigation truthfulness guard,
+architecture guard messages, frontend tests, shared Site substrate naming
+cleanup, and future Planner rewrites of uncompleted task files.

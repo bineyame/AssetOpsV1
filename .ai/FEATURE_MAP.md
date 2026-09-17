@@ -1,7 +1,7 @@
 # AssetOps Feature Map
 
 Scope: backend and frontend capabilities needed to support the canonical
-Simulator Lab, Sites, Site Details, Site Configuration, Scenarios, Devices,
+Simulator Lab, Sites, Site Details, Foundation, Scenarios, Devices,
 Gateway and Ingestion screens shown in `Docs/UI Design/Motivation`.
 
 This is a feature map, not an implementation task list. Features are sequenced
@@ -172,8 +172,8 @@ Resolved M1 Single-Line Diagram decision:
 - The template must never create, remove, rename, or reinterpret Site components
   or connections. Unsupported topology must produce an unavailable/incompatible
   state instead of silently hiding assets.
-- Site Configuration and Simulator Lab use the same configured topology and SLD
-  view model. Site Configuration overlays static names and ratings; Simulator
+- Foundation and Simulator Lab use the same configured topology and SLD
+  view model. Foundation overlays static names and ratings; Simulator
   Lab overlays simulator runtime values; later AssetOps operational views
   overlay only accepted product evidence.
 - M1 does not attempt arbitrary topology auto-layout, drag-and-drop schematic
@@ -211,7 +211,7 @@ Resolved M1 provenance visibility decision:
 Resolved planned/non-simulated Site behavior decision:
 - M1 allows canonical Sites to exist before they have live integrations or
   SimulationRun evidence. Such Sites are valid configuration-only Sites and may
-  appear in Sites List, Site Details, and Site Configuration.
+  appear in Sites List, Site Details, and Foundation.
 - Configuration-only Sites may expose identity, lifecycle, location, timezone,
   Site type, Foundation version, components, topology, SLD, devices, mappings,
   ratings, control assumptions, and intended source/integration configuration.
@@ -244,13 +244,12 @@ Resolved M1 configuration-authoring decision:
   the authoritative source of truth for Site identity, Foundation version,
   components, topology, devices, mappings, ratings, control assumptions, and
   related configuration.
-- AssetOps provides a read-only Site Configuration UI that renders and explains
+- AssetOps provides a read-only Foundation UI that renders and explains
   canonical configuration, including configured SLD and device/signal
   relationships, but does not implement in-product editing or persistence.
 - Edit, Save, Publish, approval, configuration-history management, and similar
-  controls are deferred. Future-oriented edit affordances must be disabled or
-  clearly marked unavailable and must never imply persistence that does not
-  exist.
+  controls are deferred. Future-oriented edit affordances are absent, not
+  disabled, because they would imply persistence that does not exist in M1.
 - Configuration version and validity semantics remain in the canonical model, so
   the UI may truthfully show Foundation version and effective dates.
 - YAML configuration must be strictly validated on load. Invalid Site
@@ -368,7 +367,7 @@ leakage.
 
 ### 1. Site Foundation And Site Index
 
-Visible in: Sites List, Site Details, Site Configuration, Simulator run setup.
+Visible in: Sites List, Site Details, Foundation, Simulator run setup.
 
 Causal prerequisites:
 - Canonical Site identity (`site_id`) independent of run identity.
@@ -428,7 +427,7 @@ Candidate tasks, after review, in causal order:
 - Show a Sites index with a genuine first-run empty state and, after creation,
   the created Site with stable identity. Site Details addressed by `site_id`
   follows in the next slice.
-- Add read-only Site Configuration presentation with Foundation version,
+- Add read-only Foundation presentation with Foundation version,
   validity, device/signal relationships, control assumptions, and no edit
   affordance of any kind.
 - Apply canonical screen fidelity per surface, in the staging set out under
@@ -450,7 +449,7 @@ UI-verifiable outcomes:
   provenance.
 - A duplicate, case-variant, or malformed `site_id` is refused with a specific
   reason and the store is left unchanged.
-- User can inspect a read-only Site Configuration backed by the document they
+- User can inspect a read-only Foundation backed by the document they
   created, with no implied edit persistence.
 - User can inspect a configuration-only Site without seeing fabricated
   operational evidence, zero-value charts, source-health state, or analytics.
@@ -463,12 +462,14 @@ Semantics to decide:
   duplicate, delete, approval, and configuration-history management are
   deferred, and `site_id` is immutable after creation.
 - Naming reconciliation, recorded so it is not rediscovered: what this project
-  calls Site Configuration is v6.9's `Foundation` tab on a Site, whose subtabs
-  are Definition, Topology, Controls, Changes, Readiness. v6.9 has no screen
-  named Site Configuration or Site Details, and its `Configuration` tab belongs
-  to an Asset and to a Simulator Lab run. The project's names may stand for M1,
-  but the operator Site tab set is v6.9's, not the mockup's, when step 9 dresses
-  it.
+  formerly called Site Configuration is v6.9's `Foundation` tab on a Site, whose
+  subtabs are Definition, Topology, Controls, Changes, Readiness at line 2117.
+  v6.9 has no operator Site screen named Site Configuration or Site Details; its
+  operator Site tabs are `Overview | Foundation | Health | Performance |
+  Findings | Work | Financials | Evidence` at lines 464 and 615. Its
+  `Configuration` tab belongs to an Asset and to a Simulator Lab run, not to the
+  operator Site tab set. Future user-visible screen, breadcrumb, tab, heading,
+  and link text therefore use `Foundation`.
 
 #### Provenance And Status Concepts: the single reference
 
@@ -503,7 +504,7 @@ the evidence. They are orthogonal, and the shipped/user store split is untouched
 
 ### 2. Topology, Components, Devices, And Single Line Diagram
 
-Visible in: Site Configuration, Simulator Lab Site View, Devices & Sensors.
+Visible in: Foundation, Simulator Lab Site View, Devices & Sensors.
 
 Causal prerequisites:
 - Component model for PV, inverter/PCS, BESS, generator, AC bus, loads, cold
@@ -528,7 +529,7 @@ Candidate tasks, after review:
 - Add SLD runtime value slots that can later bind to simulator/evidence values.
 
 UI-verifiable outcomes:
-- Site Configuration SLD and Simulator Lab SLD show the same configured assets
+- Foundation SLD and Simulator Lab SLD show the same configured assets
   through the same SLD view model.
 - Device rows and SLD labels agree on names, ratings, and signal availability.
 - A compatible Site can reuse the hybrid mini-grid archetype without code
@@ -850,7 +851,7 @@ Semantics to decide:
   truthful surface. Operator navigation does not grow on the strength of a
   mockup rail that belongs to the Simulator Lab shell.
 - Authoring a simulated Site is a Simulator Lab capability behind the gate;
-  the Sites index, Site Details, and Site Configuration are operator
+  the Sites index, Site Details, and Foundation are operator
   capabilities and are never gated. The gate covers surfaces and execution,
   never objects or stores: a Site the Lab produces is a normal Site in the
   product store, never published or promoted into the product.
@@ -861,7 +862,7 @@ Semantics to decide:
   Unavailable operational states instead of fabricated telemetry, source health,
   charts, analytics, Findings, or Replay.
 - YAML is the authoritative M1 configuration representation in both the shipped
-  catalog and the user-authored store. The Site Configuration UI stays read-only
+  catalog and the user-authored store. The Foundation UI stays read-only
   for every Site and must not imply in-place edit, Save, Publish, approval,
   rename, delete, or configuration history, none of which exist.
 - Configuration reaches the product only through the `SiteRepository` and
@@ -905,7 +906,7 @@ reviewed:
    persists across restart, appears in the Sites index with an explicit
    configuration origin and template provenance. Rows do not open as Site
    Details until the identified Site Details slice.
-1c. That Site's Foundation is presented as read-only Site Configuration, with no
+1c. That Site's Foundation is presented as read-only Foundation, with no
    edit affordance and no operational values.
 1d. Those three surfaces are brought to canonical mockup fidelity, per surface,
    after each one's content is real.
@@ -1047,8 +1048,8 @@ when their named input does not exist.
      rollback, approvals, template authoring, and import of an arbitrary YAML
      document.
 
-   3c. Read-only Site Configuration presentation.
-   - Becomes true: Site Configuration is addressed by `site_id` and presents the
+   3c. Read-only Foundation presentation.
+   - Becomes true: Foundation is addressed by `site_id` and presents the
      Foundation of a Site the user configured: Foundation version, validity,
      timezone, lifecycle, source mode as provenance, integration readiness,
      configuration origin and template provenance, components, devices, signal
@@ -1066,11 +1067,11 @@ when their named input does not exist.
      selector, which are step 4; every editing and history affordance; source
      health, charts, analytics, Replay, and Findings.
 
-   Site Configuration stays read-only for every Site regardless of origin, for
+   Foundation stays read-only for every Site regardless of origin, for
    the whole of M1, and no Site can be removed through the product.
 
 4. Topology, devices, and configured SLD.
-   - Becomes true: Site Configuration and Simulator Lab can use the same SLD
+   - Becomes true: Foundation and Simulator Lab can use the same SLD
      view model and device/signal relationships from canonical topology.
    - Depends on: step 3.
    - Real dependency: the SLD and device table cannot be truthful until
@@ -1325,16 +1326,16 @@ Collapsing them is the mistake to avoid.
   currently eligible. v6.9's worked example is Commit on a Draft run, "disabled
   with the note 'draft envelopes are not released to ingestion until Commit'".
 
-Applied to the mockup's Site Details and Site Configuration affordances:
+Applied to the mockup's Site Details and Foundation affordances:
 
 | Mockup affordance | Treatment | Why |
 | --- | --- | --- |
 | `Open in Simulator Lab` when the Lab is gated off | Not rendered | Gating removes surfaces and entry points, "not merely hidden". This is the gate rule, not the sequencing rule, and it reuses the existing single gated entry-point module |
 | `Open in Simulator Lab` when the Lab is enabled but step 6 has not landed | Disabled with named prerequisite | The capability is sequenced and the map can name the step |
 | `Start Simulation`, `View Live Data` | Disabled with named prerequisite | Real, sequenced capabilities; the map can name the step that makes each true |
-| Site tabs `Configuration`, `Devices`, `Gateway`, `Ingestion`, `Events`, `Logs` | Labelled in place until their step lands | They name real aspects of a Site; a tab set is chrome, not a promise of an action |
+| Mockup Site tabs `Configuration`, `Devices`, `Gateway`, `Ingestion`, `Events`, `Logs` from `ScreenMockups.png` screen 2 | Replaced for the operator Site shell | v6.9 fixes the operator Site tab set as `Overview | Foundation | Health | Performance | Findings | Work | Financials | Evidence` at lines 464 and 615; the mockup tabs are not operator Site vocabulary |
 | `Edit`, `Edit Configuration` | Not rendered | M1 decided configuration is fixed at creation. A disabled Edit reads as "soon" and promises a capability the product has declined to have |
-| `Version History` | Not rendered | No configuration-change model exists. v6.9's eventual form is `Foundation > Changes`, an auditable intervention record with `Retain / Retune / Revert`, which is a different thing from version history; shipping the mockup's label would name a future capability wrongly |
+| `Version History` from `ScreenMockups.png` screen 3 | Not rendered | No configuration-change model exists. v6.9 lines 2149 and 2225-2228 define the eventual `Foundation > Changes` form as an auditable intervention/change-effect capability, which is different from version history; shipping the mockup's label would name a future capability wrongly |
 | `Duplicate Site` | Not rendered | Duplicate is create-with-an-implied-source and would collapse the template/instance distinction the design rests on |
 | `Delete Site` | Not rendered | Deferred for all of M1 by user decision |
 | Site image `Change` | Not rendered | An edit affordance; and the Foundation carries no image |
@@ -1371,9 +1372,10 @@ Consequences for M1:
 - Simulator Lab stays out of operator navigation, reached only from workspace
   chrome. Settled by T003/T004 and confirmed rather than contradicted by the
   mockups once the shell is read correctly.
-- The operator rail's real long-run target is v6.9 §2's ten object classes, not
-  the mockup rail. Nothing in the mockup rail should be added to operator
-  navigation on the strength of the mockup alone.
+- The operator rail's real long-run target is v6.9 line 442's ten object
+  classes, not the `ScreenMockups.png` screens 1-9 rail. Nothing in the mockup
+  rail should be added to operator navigation on the strength of the mockup
+  alone.
 - Home, Library, Documentation, and Settings stay absent until each has
   something truthful behind it. v6.9 gives no content contract for any of them.
 - Devices, Ingestion, and Events are site-scoped tabs and Simulator Lab run
@@ -1405,8 +1407,10 @@ one.
    Actions panel under the three-state rule. A panel whose content the
    Foundation cannot supply, such as a site photograph, is omitted rather than
    framed empty.
-6. **Site Configuration / Foundation to canonical screen 3 minus the diagram.**
-   Summary, Components, Control Logic, and Settings tabs, and Key Parameters.
+6. **Foundation to canonical screen 3 minus the diagram.**
+   Definition, Topology, Controls, and Readiness subtabs from v6.9 line 2117,
+   with `Changes` excluded until a configuration-change model exists. Key
+   Parameters may render only backed Foundation facts.
 7. **The configured Single Line Diagram**, at causal step 4.
 8. **Canonical screens 4 through 9** as their causal steps land.
 
@@ -1419,6 +1423,320 @@ the Lab's Site view inherits that fidelity when it arrives at step 6 rather than
 being brought to fidelity a second time. This is one of the concrete payoffs of
 the substrate rule and a reason not to defer it: fidelity applied to a forked
 page has to be applied twice and then kept in agreement forever.
+
+### Foundational screen architecture for the two shells
+
+This section settles the screen architecture above T011-T013. It is
+specification, not capability: it defines shell vocabulary, navigation, tabs,
+states and guards, and adds no destination, content, data, or route by itself.
+
+Settled source rule: where cited v6.9 lines and a mockup disagree, the cited
+v6.9 lines settle it; where a user review has already redirected a surface, that
+decision settles it; where v6.9 is silent, the mockup governs layout and this
+map governs truthfulness.
+This section applies that rule to the operator Site shell, the Simulator Lab
+developer shell, and the shared Site substrate.
+
+#### State vocabulary used by the tables
+
+Rail items use `present` or `absent`, because a rail item is a navigation
+destination and navigation truthfulness forbids dead destinations, disabled
+nav, and coming-soon routes.
+
+Tabs and subtabs use the three states above: `not rendered`, `labelled in
+place`, or `disabled with explicit reason`. A tab row is chrome for an entity,
+so a canonical tab may be labelled in place before its content exists. A tab is
+a navigation destination only when it is rendered as a link to a route. Until a
+route renders truthful content, the tab label may appear but must not be a link,
+route, disabled button, or inert fake destination.
+
+Index columns use `rendered` or `not rendered`. A rendered column must be backed
+by a record field or a deliberately unavailable value such as `--` for an
+evidence-derived fact with no accepted evidence.
+
+#### Lab rail
+
+The Lab rail is v6.9's Simulator Lab developer shell, reproduced by
+`SimulatorLab1.png` and visible in `ScreenMockups.png` screens 1-9. v6.9 names
+it `Home | Sites | Simulator Lab | Scenarios | Site Templates | Library |
+Documentation | Settings` at lines 657, 845 and 2379. The Lab rail is gated
+with Simulator Lab surfaces and execution; it is not operator navigation.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Home | v6.9 lines 657, 845, 2379; `SimulatorLab1.png` | absent | A Lab home route with truthful workspace content, not a placeholder | When a Lab home surface is specified and implemented |
+| Sites | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screen 4 | present when the Lab gate is enabled | The Lab create flow and Lab site-selection surfaces render real Site records and Site templates through the gated Lab shell | Present from the create-flow/template slice while the gate is enabled; absent when `simulator_lab.enabled=false` |
+| Simulator Lab | v6.9 lines 657, 845, 2379; `SimulatorLab1.png` | absent until the Lab run workspace exists | A gated run workspace route renders a real run or a truthful run selection/setup surface | When run setup/execution lands; absent while the route would be a placeholder |
+| Scenarios | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screens 5-6 | absent | Scenario records and a scenario catalog/detail route exist | When the scenario catalog slice lands |
+| Site Templates | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screen 4 uses templates for run setup | present when the Lab gate is enabled | The Lab Site Templates catalog and template inspection view render shipped template records | Present from the template catalog slice while the gate is enabled; absent when `simulator_lab.enabled=false` |
+| Library | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Library content contract and route are specified |
+| Documentation | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Documentation content contract and route are specified |
+| Settings | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Settings content contract and route are specified |
+
+Changes to planned tasks: T010 may keep only the Lab rail destinations whose
+routes render truthful content. T011-T013 must not copy `Devices`, `Ingestion`
+or `Events` from `ScreenMockups.png` into either rail; v6.9 line 659 defines
+those as run tabs, and the mockup breadcrumbs show them as site-scoped surfaces.
+
+#### Operator rail
+
+The operator rail target is v6.9 line 442's ten object classes in five groups:
+`Portfolio | Sites | Assets`, `Findings`, `Actions | Incidents | Maintenance`,
+`Evidence`, and `Financials | Reports (P1)` at line 442. The operator shell
+navigation invariant is at line 448. The current M1 operator rail remains small
+because a navigation item appears only when its route renders a truthful
+surface.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Operator home | Project shell from T004; v6.9 target equivalent is Portfolio at line 442 | present | Existing operator home route renders truthful current product content | Replaced by Portfolio when a truthful Portfolio route exists |
+| Sites | v6.9 lines 442, 454, 462, 613 | present | Sites index route renders real Site records and first-run empty state | Already present |
+| Portfolio | v6.9 lines 442, 605-609 | absent | Portfolio command-center lenses and drilldowns exist over real portfolio data | When Portfolio content exists; it replaces Operator home rather than adding a dead destination |
+| Assets | v6.9 line 442 | absent | Asset records and an Assets index/detail route exist | When asset identity/content exists |
+| Findings | v6.9 lines 442, 556-564 | absent | Evidence-backed Finding records and a global Findings index exist | When findings are derived from accepted evidence |
+| Actions | v6.9 lines 442, 673 | absent | Managed Action records and a global Actions route exist | When action records exist |
+| Incidents | v6.9 lines 442, 673 | absent | Incident records and a global Incidents route exist | When incident records exist |
+| Maintenance | v6.9 lines 442, 673 | absent | Maintenance work-request records and a global Maintenance route exist | When maintenance records exist |
+| Evidence | v6.9 lines 442, 586-594 | absent | Accepted evidence and a global evidence/readiness route exist | When accepted evidence exists and the route renders it truthfully |
+| Financials | v6.9 lines 442, 645-647 | absent | Financial consequence lines/rollups exist | When financial consequence content exists |
+| Reports | v6.9 lines 442, 91 | absent | Reports are marked P1/deferred in v6.9 and have no M1 route/content contract | After a Reports content contract is specified |
+
+Changes to planned tasks: T011's "operator navigation has not grown since T004"
+remains correct for Site Foundation. Future tasks that add an operator rail item
+must replace the frozen-count assertion with an inventory assertion generated
+from a single rail definition: every expected item has a real route and every
+rendered item is in the definition for that milestone.
+
+#### Operator Site tabs
+
+The operator Site tab set is v6.9's Site tab set at lines 464 and 615, not the
+mockup's:
+`Overview | Foundation | Health | Performance | Findings | Work | Financials |
+Evidence` at lines 464 and 615. This resolves the T008/T012 contradiction in
+favor of the accepted T008 checkpoint and v6.9. The mockup's Site tabs in
+`ScreenMockups.png` screen 2 are layout evidence for a tab row, not vocabulary
+authority for the operator product.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Overview | v6.9 lines 464, 615; `ScreenMockups.png` screen 2 layout | rendered as a destination | Site Details overview route renders record-sourced Site identity and Foundation summary facts | Already true after Site Details exists; dressed in T012 |
+| Foundation | v6.9 lines 464, 615; Foundation content at line 2117 | rendered as a destination | Foundation route renders the Site's read-only Foundation record | Inserted rename/tab-inventory slice changes route, link and header vocabulary; T013 dresses it |
+| Health | v6.9 lines 464, 615 | labelled in place | Health is a canonical aspect of a Site, but M1 has no accepted evidence or source-health derivation | Becomes a destination when health derivation from accepted evidence exists |
+| Performance | v6.9 lines 464, 615 | labelled in place | Performance is a canonical Site aspect, but M1 has no performance read model | Becomes a destination when performance content exists |
+| Findings | v6.9 lines 464, 615 and site-scoping rule lines 547-564 | labelled in place | Site-scoped findings are canonical, but M1 has no evidence-backed Finding records | Becomes a destination when site-scoped findings exist |
+| Work | v6.9 lines 464, 615 and line 673 | labelled in place | Site-scoped Work is canonical, but M1 has no Actions, Incidents or Maintenance records | Becomes a destination when at least one Work subarea has real records/content |
+| Financials | v6.9 lines 464, 615 and 645-647 | labelled in place | Site financial context is canonical, but M1 has no financial consequence content | Becomes a destination when site financial content exists |
+| Evidence | v6.9 lines 464, 615 and 586-594 | labelled in place | Site Evidence is canonical, but M1 has no accepted evidence | Becomes a destination when accepted evidence/readiness content exists |
+
+Changes to planned tasks: T012 must replace `Configuration`, `Devices`,
+`Gateway`, `Ingestion`, `Events` and `Logs` with v6.9's operator Site tabs at
+lines 464 and 615.
+`Devices`, `Gateway`, `Ingestion`, `Events` and `Logs` are Lab run tabs or
+site-scoped future content, not operator Site tab vocabulary for M1.
+
+#### Foundation name and subtabs
+
+The user-accepted T008 decision says this project's Site Configuration surface
+is v6.9's `Foundation` tab. The operator product name is therefore
+`Foundation`, because v6.9 lines 464 and 615 settle the operator Site tab
+vocabulary and v6.9 line 2117 names the Foundation content row. The served
+route, breadcrumb, tab/link text and page heading use `Foundation` when the
+canonical Site tab row is introduced. T008's accepted body copy that says
+configuration is fixed at creation remains, because "configuration" is the
+domain concept; references that name the screen as `Site Configuration` become
+`Foundation`.
+
+Rename surface area:
+
+- Route path changes from `/sites/:siteId/configuration` to
+  `/sites/:siteId/foundation` in the same slice that introduces the canonical
+  operator Site tab inventory. The existing `/sites/:siteId/configuration`
+  address remains only as a compatibility redirect that preserves the `siteId`;
+  it is not linked, tabbed, counted as a destination, or allowed to render a
+  second surface.
+- Heading, breadcrumb, Site Details link text, and operator Site tab label use
+  `Foundation`.
+- Test names, user-facing guard messages, and guard-script comments that name
+  the surface use `Foundation`, except where a test deliberately asserts the
+  legacy redirect or the ban on parameterless `/site-configuration`.
+- Internal module, component and symbol names under `frontend/src/sites/**` may
+  deliberately lag for the rename slice when changing them would be mechanical
+  churn across the shared substrate. User-visible strings and route constants do
+  not lag. A later cleanup may rename internal symbols only if it stays
+  behavior-neutral and preserves the single-definition and leaf-direction
+  guards.
+- Planned task file names may be renamed by the Planner when a task is
+  structurally rewritten. Completed task file names and dated decision bodies are
+  record and are not renamed.
+
+The Foundation subtab row derives from v6.9's one allowed row at line 2117:
+`Definition | Topology | Controls | Changes | Readiness`. It is then filtered
+by the accepted T008 user decision: `Changes` is not rendered in any state until
+a configuration-change model exists, because v6.9 lines 2149 and 2225-2228 show
+that `Foundation > Changes` is a real intervention/change-effect capability,
+not the mockup's `Version History` and not a placeholder. Rendering `Changes`
+early would be a false claim in the same territory T008 explicitly removed.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Definition | v6.9 line 2117 | rendered | Site Foundation identity, purpose/summary, validity and provenance fields | Dressed in T013 as the Foundation summary/definition content |
+| Topology | v6.9 line 2117 | rendered with current M1 limits | T008 accepted that current Foundation can state topology/devices/signals not declared where the schema does not yet carry them | Becomes richer when T014 adds topology/devices/signal mappings |
+| Controls | v6.9 line 2117 | rendered with current M1 limits | Current Foundation read model can state declared or not-declared control assumptions without inventing a control model | Becomes richer when T014 adds control/device fields |
+| Changes | v6.9 lines 2117, 2149, 2225-2228; T008 user review | not rendered | No configuration-change model exists, and the accepted T008 checkpoint forbids rendering this territory as disabled/history chrome | Only after a reviewed configuration-change capability exists |
+| Readiness | v6.9 line 2117 | labelled in place | Evidence readiness is canonical, but M1 has no accepted evidence/readiness model | Becomes rendered when evidence readiness has a source contract |
+
+Changes to planned tasks: T013 must replace `Summary`, `Components`, `Control
+Logic` and `Settings` with the v6.9-derived Foundation subtabs above, excluding
+`Changes`. The inserted rename/tab-inventory slice has already changed the
+user-visible surface from Site Configuration to Foundation; T013 preserves the
+accepted fixed-at-creation copy while dressing the Foundation content.
+
+#### Sites index columns
+
+v6.9's Sites index behavior is at lines 1336-1339: one row per canonical
+`site_id`, mode as provenance, and archetype, mode, canonical assessment, top
+issue, evidence readiness and last analysis time. `ScreenMockups.png` screen 1
+supplies layout pressure for name/type/location/status/last-data/actions, but
+not false values.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Name with `site_id` | v6.9 lines 1336-1340; `ScreenMockups.png` screen 1 | rendered | Site record identity and display name | Already true |
+| Type / archetype | v6.9 line 1339; `ScreenMockups.png` screen 1 | rendered | Site record `site_kind` / archetype field | Already true |
+| Location | `ScreenMockups.png` screen 1; v6.9 silent for M1 column | rendered only if record-sourced | M1 Site record carries location as configured identity/context, not evidence | Removed if the Site schema no longer carries location |
+| Mode | v6.9 lines 1336 and 1339 | rendered | `source.mode` provenance field | Already true |
+| Lifecycle | Project M1 schema extension; v6.9 has no Site lifecycle enum | rendered | `lifecycle_status` field, separate from mode and origin | Already true while the M1 schema carries it |
+| Canonical assessment | v6.9 line 1339 | not rendered | No accepted evidence or assessment derivation exists in M1 | When assessment is derived from accepted evidence |
+| Top issue | v6.9 line 1339 | not rendered | No evidence-backed finding/issue exists in M1 | When findings/top issue derivation exists |
+| Evidence readiness | v6.9 line 1339 | not rendered | No readiness model/source contract exists in M1 | When evidence readiness exists |
+| Last analysed | v6.9 line 1339; no-data example lines 1332-1334 | rendered as `--` | Evidence-derived analysis timestamp is unavailable because no evidence has been analysed | Shows a timestamp only after accepted evidence has been analysed in the selected window |
+| Actions | `ScreenMockups.png` screen 1; v6.9 line 1340 primary interaction | rendered with `View` only | Row click or View opens Site Details for the row's `site_id` | Adds actions only when each action has a real capability and route/API behind it |
+
+Changes to planned tasks: T011 may keep Name, Type/archetype, Location, Mode,
+Lifecycle, Last analysed and Actions, but must explain Location and Lifecycle as
+project-backed M1 fields rather than v6.9 columns. It must continue to omit
+assessment, top issue and evidence readiness until their sources exist.
+
+#### Guards that follow from this architecture
+
+`tools/checks/navigation-truthfulness.ps1` and the operator-navigation tests
+should not be weakened. During Site Foundation they may keep asserting that the
+operator rail has not grown since T004. The replacement when operator
+navigation does grow is stronger than a count freeze:
+
+| Guard | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Operator rail inventory | v6.9 lines 442 and 448; navigation truthfulness | enforce a single operator rail definition for the current milestone | Every rendered operator rail item appears in the definition, has a real route, and is not disabled; no unexpected item renders | Replaces the T004 no-growth assertion in the same slice that first adds a new operator rail item |
+| Lab rail inventory | v6.9 lines 657, 845, 2379 | enforce a single gated Lab rail definition | Every rendered Lab item appears in the definition, is absent when the Lab gate is off, and has a real route when present | Ships with the Lab shell rail work |
+| Operator Site tab inventory | v6.9 lines 464, 615 | enforce one tab definition for the operator Site shell | The tab row renders exactly the v6.9 Site tab labels; destination tabs have routes, labelled-in-place tabs are not links/buttons/routes | Ships with the inserted rename/tab-inventory slice |
+| Foundation subtab inventory | v6.9 line 2117 plus T008 user review | enforce one filtered subtab definition | The row renders Definition, Topology, Controls and Readiness as specified; Changes is absent until the change model exists | Ships with T013 rewrite |
+| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1 | enforce one column definition | Rendered columns match the milestone definition; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite |
+
+The inventories should be single definitions consumed by rendering and tests,
+mirroring the substrate single-definition guard. The guard strength becomes
+"only the milestone inventory renders, and every rendered item is truthful",
+not "the number is unchanged forever".
+
+#### Shared substrate consequence
+
+The shared Site substrate owns read model, view model, field derivation,
+unavailable states and presentation components for Site facts. It must not own a
+shell's tab row. The operator Site tab row belongs to the operator shell because
+it uses v6.9 operator Site vocabulary at lines 464 and 615. The Lab's Site/run
+tab rows belong to the Lab shell because v6.9 line 659 and `SimulatorLab1.png` define Lab run tabs such
+as `Site View`, `Configuration`, `Events`, `Devices & Sensors`, `Gateway &
+Ingestion` and `Logs`.
+
+The Lab's Site view inherits the dressed shared Site fact presentation from
+stages 5 and 6: identity, provenance, Foundation facts, unavailable states,
+read-only Foundation rendering, and the fixed-at-creation language. It may
+legitimately override surrounding shell chrome, rail, breadcrumbs, run header,
+execution controls, truth-only Lab panels, and Lab run tabs. It may add those
+through shell composition and substrate-declared extension slots only.
+
+The substrate stays a leaf by owning no `tabs` import from either shell, no
+feature flag import, no simulator import, and no `shell`, `variant`, `mode` or
+`isLab` discriminant. Shells import the substrate and pass additions into named
+slots; the substrate never imports what fills a slot.
+
+#### Other settled architecture
+
+Screen numbers 4-9 in `ScreenMockups.png` are not defined here. This section
+defines the Lab rail they hang from and the rule that those rail items remain
+absent until their own causal steps land.
+
+`Open in Simulator Lab` and `Open in AssetOps` are bridge actions, not rail
+items. v6.9 lines 182, 755 and 2381 define those bridges. They obey gate and
+eligibility rules as actions; they do not justify adding Simulator Lab to the
+operator rail.
+
+Settled architecture: the two rails; the operator Site tab set; tab-as-chrome
+versus tab-as-destination; Foundation naming; the filtered Foundation subtab
+row; Sites index column source rules; guard replacement strategy; and the
+substrate ownership rule. Needs user choice only if the user wants to override
+v6.9 lines 464, 615 and 2117 and the accepted T008 checkpoint on naming or
+operator Site vocabulary.
+
+#### Planner settlement for T009-T016
+
+The T009-T016 order no longer holds exactly. T009 remains chrome-only. T010 and
+T011 can stay in order with wording changes. A dedicated slice named
+`Foundation naming and operator Site tab inventory` should be inserted after
+T011 and before the current T012. It carries the user-visible rename, the route
+redirect, the operator Site tab inventory guard, and the tests that prove
+destination tabs have routes while labelled-in-place tabs are not links,
+buttons, or routes. T012 then dresses Site Details against that settled tab row,
+and T013 dresses Foundation against the settled name and subtab row.
+
+T012 should not carry the rename/tab-set work itself. That work touches shared
+Site substrate usage, operator shell chrome, both current Site surfaces, two
+guard scripts, existing tests, and route compatibility. Keeping it separate
+prevents the Site Details canonical-screen task from becoming a cross-surface
+navigation migration.
+
+Guard migration:
+
+- Operator rail inventory: definition module should be the operator rail's
+  single source of rendered items. The guard asserts that every rendered rail
+  item is in the milestone inventory, every inventory item that renders has a
+  real route and is not disabled, no unexpected item renders, and the old
+  frozen-count assertion is removed only in the same slice that first adds a new
+  operator rail item.
+- Lab rail inventory: definition module should be the Lab rail's single gated
+  source. The guard asserts that every rendered Lab item is in the definition,
+  Lab items are absent when `simulator_lab.enabled=false`, and every present
+  Lab item has a real route. This ships with the Lab shell rail work.
+- Operator Site tab inventory: definition module belongs to the operator shell,
+  not the shared Site substrate. The guard asserts the exact v6.9 labels from
+  lines 464 and 615; `Overview` and `Foundation` are destination tabs with real
+  identified routes; `Health`, `Performance`, `Findings`, `Work`, `Financials`
+  and `Evidence` are labelled in place with no link, button or route until their
+  content contracts exist. This ships in the inserted rename/tab-inventory
+  slice.
+- Foundation subtab inventory: definition module belongs with the Foundation
+  surface composition. The guard asserts `Definition`, `Topology`, `Controls`
+  and `Readiness` from v6.9 line 2117 render as specified; `Changes` is absent
+  until a reviewed configuration-change capability exists, because v6.9 lines
+  2149 and 2225-2228 make it a real intervention/change-effect capability.
+  This ships with the T013 rewrite.
+- Sites index column inventory: definition module belongs with the Sites index
+  view model/composition. The guard asserts rendered columns match the milestone
+  definition sourced from v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1,
+  and omitted v6.9 columns stay absent until their sources exist. This ships
+  with T011.
+
+Per-task verdicts for the Planner:
+
+| Task | Verdict | Criteria at issue |
+| --- | --- | --- |
+| T009 | Needs wording changes | Keep chrome-only: shared visual vocabulary only, no new content/control/destination. Replace user-visible `Site Configuration` references with Foundation where they describe future product vocabulary. |
+| T010 | Needs wording changes | Lab rail wording must use the v6.9 Lab rail sources at lines 657, 845 and 2379 and avoid implying operator navigation growth. |
+| T011 | Needs wording changes | Sites index columns must follow the inventory above: v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1, with Location/Lifecycle called project-backed M1 fields and assessment/top issue/evidence readiness omitted. |
+| T012 | Structural rewrite | Replace the `ScreenMockups.png` screen 2 tab row with v6.9 operator Site tabs from lines 464 and 615. Do not treat `Configuration`, `Devices`, `Gateway`, `Ingestion`, `Events`, or `Logs` as operator Site tabs. Move rename/tab-inventory/route compatibility into the inserted preceding slice. |
+| T013 | Structural rewrite | Rename the surface to Foundation and replace `Summary`, `Components`, `Control Logic`, and `Settings` with the filtered v6.9 Foundation subtabs from line 2117: render Definition, Topology and Controls with current M1 limits, label Readiness in place, and omit Changes until a change model exists. |
+| T014 | Needs wording changes | Still coherent if it extends the Foundation schema as the source that later enriches the already-rendered Topology and Controls subtabs. It must not add a configuration-change/history model or operational evidence. |
+| T015 | Needs wording changes | SLD view-model work remains coherent, but all references to the destination surface should say Foundation, and compatibility must preserve the shared configured-topology source for Simulator Lab overlays later. |
+| T016 | Structural rewrite | It renders into the renamed Foundation surface and must use the Foundation subtab architecture. Devices & Sensors content may be presented from the same canonical topology/device source, but not as an operator Site tab copied from `ScreenMockups.png` screen 2. |
 
 ## Enforceable Protected Seams
 
@@ -1438,7 +1756,7 @@ depend on them.
 | Committed overlap | Overlapping Drafts are allowed; overlapping committed simulated history for same `site_id` and half-open interval is blocked until branch/context selection exists. | Interval test covers overlap, containment, equality, and adjacent `[start,end)` cases; UI test shows blocked Commit reason. | Site history silently combines ambiguous alternative histories. | Unit/contract test |
 | Evidence immutability and rerun/replay | Committed source evidence is immutable; Rerun creates a new Draft `run_id`, Replay reads persisted evidence without rerunning. | Test Rerun creates a new Draft and Replay performs no simulator execution or envelope regeneration. | Audit, reproducibility, and deterministic comparisons collapse. | Contract test |
 | YAML configuration authority | M1 Site/Foundation YAML is the authoritative representation and is strictly validated on load, in both the shipped catalog and the user-authored store, through one parser with no lenient path. | Schema/semantic validation tests reject invalid references, topology, duplicate IDs, mappings, ratings, units, timezone, and unsupported values, and run the same parser over a user-authored document fixture. | UI and simulator normalize different invalid assumptions, or user-authored documents are trusted more than shipped ones. | Unit/contract test |
-| Read-only configuration UI | M1 Site Configuration UI renders every Site read-only regardless of origin and never implies in-place edit, Save, Publish, approval, rename, duplicate, delete, or configuration history. Authoring exists only as create-from-template in a separate flow; `site_id` is immutable after creation. Deferred-by-decision controls are absent from the rendered output, not disabled: disabled means not yet eligible, and none of these is coming. | UI test opens Site Configuration and Site Details for a user-created Site and asserts that `Edit`, `Edit Configuration`, `Version History`, `Duplicate Site`, `Delete Site`, `Save`, `Publish`, and `Rename` are absent from the DOM entirely, not merely disabled or `aria-disabled`, and that copy states configuration is fixed at creation in M1; API test asserts no update or delete route exists for a Site. | Users infer an editing and version-history workflow the product does not have, or an edit path lands before Foundation re-versioning semantics exist. A greyed-out `Edit` is read as "soon", which is a promise M1 has declined to make. | Review-time + contract test |
+| Read-only Foundation UI | M1 Foundation UI renders every Site read-only regardless of origin and never implies in-place edit, Save, Publish, approval, rename, duplicate, delete, or configuration history. Authoring exists only as create-from-template in a separate flow; `site_id` is immutable after creation. Deferred-by-decision controls are absent from the rendered output, not disabled: disabled means not yet eligible, and none of these is coming. | UI test opens Foundation and Site Details for a user-created Site and asserts that `Edit`, `Edit Configuration`, `Version History`, `Duplicate Site`, `Delete Site`, `Save`, `Publish`, and `Rename` are absent from the DOM entirely, not merely disabled or `aria-disabled`, and that copy states configuration is fixed at creation in M1; API test asserts no update or delete route exists for a Site. | Users infer an editing and version-history workflow the product does not have, or an edit path lands before Foundation re-versioning semantics exist. A greyed-out `Edit` is read as "soon", which is a promise M1 has declined to make. | Review-time + contract test |
 | Configuration persistence port | Site and template configuration is reached only through domain-defined ports; storage technology lives in adapters selected in one composition root. Port signatures and errors use domain records, never paths, file handles, YAML text, or store-specific exceptions. | CI architecture check bans imports of `sites/adapters/**` from anywhere except the single allowlisted composition module, and bans `yaml`, `pathlib`, `sqlite3`, and `open(` inside `sites/` outside `adapters/`; a fake in-memory adapter satisfies the port in service tests without importing an adapter. | Storage assumptions leak into read models, API, and UI, and replacing the store becomes a rewrite of every caller instead of one adapter. | CI guard |
 | Shipped versus user-authored configuration | Shipped canonical configuration is read-only at runtime and lives outside the writable store. Templates are not Sites and hold no `site_id`. `site_id` is globally unique across both stores with no overlay and no precedence; `template_id` is origin provenance and never Site identity. M1 ships zero Sites in the shipped Site store: the shipped content that ships is the template catalog, and every Site in the product is one a user created. | Test asserts the same `site_id` in both stores fails loudly at load, create refuses an id present in either store case-insensitively, no write path resolves inside the shipped catalog, and changing a template does not alter an already-created Site. A further test asserts the shipped Site store is empty on a clean checkout and the Sites index therefore renders its first-run empty state; the disjointness tests use a fixture store, not a product-visible Site. | Shipped and user configuration merge into one ambiguous namespace, a template release silently rewrites Foundations that committed history depends on, or a fixture Site nobody configured makes the Sites index look real before the capability that fills it exists. | CI guard |
 | User-authored configuration input | User-supplied configuration is untrusted input at a strict boundary: the fully materialized document is validated before any write, unknown keys and oversized documents are rejected, `site_id` is charset-constrained and cannot traverse or collide case-insensitively, free text is never identity or a path, and writes are atomic. | Parser/adapter tests cover unknown keys, oversized input, `..` and separator and absolute-looking ids, case-variant collision, and a failed write leaving the store byte-identical. | A user document takes down the Sites index, escapes the store directory, or forks Site identity. | Unit/contract test |
@@ -1464,7 +1782,7 @@ placement in task files.
 Divide into slices:
 - Minimal FastAPI/React/TypeScript/Python simulator skeleton with file-backed
   repository pattern and CI guard placeholders.
-- Operator shell with Sites/Site Details/Site Configuration route frames and
+- Operator shell with Sites/Site Details/Foundation route frames and
   empty states.
 - `simulator_lab.enabled` route/API/navigation gate, tested both enabled and
   disabled.
@@ -1507,7 +1825,7 @@ Divide into slices, in this order:
    the Lab shell behind the gate; Sites index in the operator shell, ungated. The
    created Site is a product object in the product store from the instant it
    exists: there is no Lab-owned Site store and no publish or promote step.
-3. Read-only Site Configuration presentation: Foundation version, validity,
+3. Read-only Foundation presentation: Foundation version, validity,
    source mode as provenance, lifecycle, integration readiness, configuration
    origin, components, devices, signal mappings, ratings, control assumptions,
    and explicit unavailable operational states. No SLD.
@@ -1529,7 +1847,7 @@ read model that slice 2 must build anyway, and the user has stated that a second
 consumer is coming. The only question is which directory the files go in.
 4. Shared visual vocabulary applied to the surfaces built in 1 to 3.
 5. Sites index to canonical screen 1, then Site Details to canonical screen 2,
-   then Site Configuration to canonical screen 3 minus the diagram. These may be
+   then Foundation to canonical screen 3 minus the diagram. These may be
    three slices or fewer; each must be a truthful screen on its own.
 
 Slices 1 and 2 may each split further if a review packet is too large, under two
@@ -1565,7 +1883,7 @@ configuration origin from source mode or the reverse.
 User-review checkpoint: required twice, and both move. The first now sits on the
 create slice, because creation is where Site, template, instance, identity,
 origin, and refusal language are all fixed at once, and because it is the first
-slice that produces a Site at all. The second sits on the Site Configuration
+slice that produces a Site at all. The second sits on the Foundation
 presentation slice, because configuration-only language and the "configuration
 is fixed at creation in M1" statement fix what the product promises about a Site
 it will not let you edit. The fidelity slices need no separate checkpoint of
@@ -1579,7 +1897,7 @@ Demo roadmap task range: T014-T016.
 Divide into slices:
 - Topology/component/device/mapping validation from the Site Foundation.
 - SLD view model using the hybrid mini-grid archetype.
-- Site Configuration SLD and Devices & Sensors table from the same source.
+- Foundation SLD and Devices & Sensors table from the same source.
 - Runtime/evidence value slots without binding live values yet.
 
 Seams inside the feature: SLD presentation boundary, canonical topology

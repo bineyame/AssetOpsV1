@@ -13,7 +13,8 @@ and 3.
 ## UI-Verifiable Screen Behavior
 
 With `simulator_lab.enabled` true, the Simulator Lab's two Site-authoring
-surfaces look like the canonical mockups.
+surfaces look like the canonical mockups and sit under the Simulator Lab rail
+defined by v6.9 lines 657, 845, and 2379.
 
 The Site Templates catalog renders as a canonical page: page title and
 subtitle, a search field, a type filter, and a table whose columns come from the
@@ -87,7 +88,10 @@ change half of one user journey.
   supplied.
 - No Single Line Diagram, empty diagram frame, or signal selector renders on
   either surface, including in the create review step.
-- Operator navigation is unchanged, and the Lab rail gains no destination.
+- Operator navigation is unchanged. The Lab rail may render only gated Lab
+  destinations that already have truthful routes, using the v6.9 Lab rail
+  vocabulary at lines 657, 845, and 2379; this slice does not imply any
+  operator navigation growth.
 - Every acceptance criterion of T005, T006, and T009 still holds unchanged in
   meaning. Where a test query must change because markup changed, the assertion
   is preserved or strengthened, never loosened.
@@ -189,8 +193,8 @@ change half of one user journey.
 - Do not un-gate either surface or its API.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   give a substrate component a shell, mode, or variant discriminant.
-- Do not dress the operator Sites index, Site Details, or Site Configuration
-  here. Those are T011, T012, and T013.
+- Do not dress the operator Sites index, Site Details, Foundation, or the
+  operator Site tab row here. Those are T011, T011A, T012, and T013.
 
 ## User Review
 
