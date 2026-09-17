@@ -1,3 +1,5 @@
+import { PageHeader, Panel } from "../ui";
+
 /**
  * Frame for an address this build does not serve.
  *
@@ -10,17 +12,20 @@
 export function RouteNotAvailableFrame() {
   return (
     <main aria-labelledby="route-not-available-heading">
-      <h1 id="route-not-available-heading">Page not available</h1>
+      <PageHeader
+        title="Page not available"
+        headingId="route-not-available-heading"
+      />
 
-      <section aria-labelledby="route-not-available-detail-heading">
-        <h2 id="route-not-available-detail-heading">
-          This address is not served
-        </h2>
+      <Panel
+        heading="This address is not served"
+        headingId="route-not-available-detail-heading"
+      >
         <p>
           No page is served at this address. The address may come from a build
           with different features enabled, or it may not exist at all.
         </p>
-      </section>
+      </Panel>
     </main>
   );
 }

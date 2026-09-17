@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import type { FeatureFlags } from "../config/featureFlags";
+import { PageHeader } from "../ui";
 import { SitesIndex } from "../sites/SitesIndex";
 import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
 import { siteDetailHref } from "./operatorSiteRoutes";
@@ -48,10 +49,18 @@ export function SitesFrame({ flags, directory }: SitesFrameProps) {
 
   return (
     <main aria-labelledby="sites-heading">
-      <h1 id="sites-heading">Sites</h1>
+      <PageHeader title="Sites" headingId="sites-heading" />
 
       <SitesIndex directory={directory} siteHref={siteDetailHref} />
 
+      {/*
+       * The gated create entry point stays exactly where T006 put it, in the
+       * same two flag states, with the same label from the same module.
+       * Moving it into the page header and styling it as the canonical
+       * `+ New Site` action is T011's work, which this slice's scope limits
+       * name explicitly: fidelity stage 1 is the vocabulary, not any screen's
+       * information architecture.
+       */}
       {createEntryPoints.length > 0 ? (
         <p>
           {createEntryPoints.map((entryPoint) => (

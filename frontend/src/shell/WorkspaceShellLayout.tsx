@@ -37,14 +37,21 @@ export function WorkspaceShellLayout({ flags }: WorkspaceShellLayoutProps) {
   const workspaceEntryPoints = simulatorLabWorkspaceEntryPoints(flags);
 
   return (
-    <>
+    <div className="app-shell">
       {workspaceEntryPoints.length > 0 ? (
-        <nav aria-labelledby="workspace-utilities-label">
-          <p id="workspace-utilities-label">Workspace utilities</p>
-          <ul>
+        <nav
+          className="workspace-bar"
+          aria-labelledby="workspace-utilities-label"
+        >
+          <p className="workspace-bar__label" id="workspace-utilities-label">
+            Workspace utilities
+          </p>
+          <ul className="workspace-bar__list">
             {workspaceEntryPoints.map((entryPoint) => (
               <li key={entryPoint.to}>
-                <Link to={entryPoint.to}>{entryPoint.label}</Link>
+                <Link className="workspace-bar__link" to={entryPoint.to}>
+                  {entryPoint.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -52,6 +59,6 @@ export function WorkspaceShellLayout({ flags }: WorkspaceShellLayoutProps) {
       ) : null}
 
       <Outlet />
-    </>
+    </div>
   );
 }

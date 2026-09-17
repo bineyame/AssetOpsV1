@@ -18,24 +18,27 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T008 closed out 2026-09-17 and merged to `main`.
+No active task. T009 closed out 2026-09-17.
 
-Independent review of T008 returned two medium findings, both fixed on the
-branch: hardcoded claims about a Site's integration and source that no field
-backs, and a detail guard that did not validate the Foundation fields the slice
-reads. User review completed 2026-09-17, verdict accept as built, with Known
-Deviation (a) accepted: devices, signal mappings and control assumptions are
-stated as `Not declared` with a reason, because the M1 Foundation carries
-nothing below `components`. Both Review Outcomes are in
-`tasks/completed/T008-read-only-site-configuration-presentation.md`.
+Independent review returned one medium finding, fixed on the branch: the Site
+substrate's loading, not-found and unavailable states kept a raw `<h1>` while
+their loaded states had moved to the shared `PageHeader`, leaving one surface
+half on the vocabulary and half bespoke. The reviewer found no fault with the
+Lab rail, the changed inherited assertions, the rendered values, or the badge
+rule. The Review Outcome is in
+`tasks/completed/T009-shared-visual-vocabulary.md`.
 
-That was the second and final user-review checkpoint of the Site Foundation
-feature, so Causal Sequencing step 4 is now unblocked for planning.
+Two things it leaves for whoever picks up T010. Nobody has rendered any of this
+in a browser and it is a visual slice, so the first fidelity slice to run the
+app is checking T009's work as well as its own. And frontend flakiness under
+CPU contention is broader than the single case T007 and T008 recorded: any file
+can time out under load, so a single red run on a loaded machine should be
+re-run before it is believed.
 
-T005, T006 and T007 are complete. Their task files are in `tasks/completed/`
-with their Review Outcomes, and their branches merged to `main`.
+T005 to T008 are complete. Their task files are in `tasks/completed/` with
+their Review Outcomes.
 
-Next: T009, the shared visual vocabulary.
+Next: T010, the Lab template and create surfaces to mockup quality.
 
 ## Current Site Foundation Sequence
 
@@ -45,7 +48,9 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
 - T007: Site Details by `site_id`. Complete.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
-- T009-T013: staged visual fidelity after real content exists.
+- T009: shared visual vocabulary. Complete.
+- T010-T013, with T011A inserted: staged visual fidelity after real
+  content exists.
 
 The second checkpoint is closed. Causal Sequencing step 4, topology, devices,
 and the configured single-line diagram, is unblocked for planning and is not

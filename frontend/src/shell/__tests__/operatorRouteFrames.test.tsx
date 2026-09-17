@@ -207,6 +207,17 @@ describe("operator route navigation", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("navigation")).toBeNull();
+
+    // This asserted that no navigation existed at all, which held only because
+    // the Lab had no rail of its own until T009 gave it one. The claim it was
+    // making is that operator chrome does not follow a developer into the
+    // developer workspace, so it now names what is there instead of counting:
+    // exactly one rail, and it is the Lab's own.
+    const navigation = screen.getAllByRole("navigation");
+    expect(navigation).toHaveLength(1);
+    expect(navigation[0]).toHaveAccessibleName("Simulator Lab routes");
+    expect(
+      screen.queryByRole("navigation", { name: "Operator routes" }),
+    ).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 
+import { PageHeader, Panel } from "../ui";
 import type {
   SiteTemplateCatalogClient,
   SiteTemplateListResult,
@@ -136,13 +137,16 @@ export function CreateSiteFrame({
 
   return (
     <main aria-labelledby="create-site-heading">
-      <h1 id="create-site-heading">Create a site</h1>
-      <p>Developer workspace</p>
+      <PageHeader
+        title="Create a site"
+        headingId="create-site-heading"
+        subtitle="Developer workspace"
+      />
 
-      <section aria-labelledby="create-site-explanation-heading">
-        <h2 id="create-site-explanation-heading">
-          A site is created by copying a template
-        </h2>
+      <Panel
+        heading="A site is created by copying a template"
+        headingId="create-site-explanation-heading"
+      >
         <p>
           Choose a shipped template and supply the identity of the site you are
           configuring. The template&apos;s foundation content is copied into the
@@ -161,10 +165,9 @@ export function CreateSiteFrame({
           milestone: a site cannot be edited, renamed, duplicated, or removed
           afterwards.
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="create-site-form-heading">
-        <h2 id="create-site-form-heading">Site identity</h2>
+      <Panel heading="Site identity" headingId="create-site-form-heading">
 
         {templates === null ? <p>Loading shipped site templates.</p> : null}
 
@@ -287,7 +290,7 @@ export function CreateSiteFrame({
             reached. Nothing was written.
           </p>
         ) : null}
-      </section>
+      </Panel>
 
       {backLinks}
     </main>

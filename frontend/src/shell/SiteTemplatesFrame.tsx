@@ -1,3 +1,5 @@
+import { Fact, FactList, PageHeader, Panel } from "../ui";
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -57,11 +59,16 @@ export function SiteTemplatesFrame({
 
   return (
     <main aria-labelledby="site-templates-heading">
-      <h1 id="site-templates-heading">Site Templates</h1>
-      <p>Developer workspace</p>
+      <PageHeader
+        title="Site Templates"
+        headingId="site-templates-heading"
+        subtitle="Developer workspace"
+      />
 
-      <section aria-labelledby="site-templates-not-a-site-heading">
-        <h2 id="site-templates-not-a-site-heading">A template is not a site</h2>
+      <Panel
+        heading="A template is not a site"
+        headingId="site-templates-not-a-site-heading"
+      >
         <p>
           A site template is shipped, read-only configuration describing a kind
           of site. It is not a site: it has no site identity, no lifecycle
@@ -73,11 +80,12 @@ export function SiteTemplatesFrame({
           Nothing on this screen creates, changes, or removes anything. A
           template is browsed here and nowhere else in the product.
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="site-templates-catalog-heading">
-        <h2 id="site-templates-catalog-heading">Shipped templates</h2>
-
+      <Panel
+        heading="Shipped templates"
+        headingId="site-templates-catalog-heading"
+      >
         {result === null ? <p>Loading shipped site templates.</p> : null}
 
         {result?.status === "unavailable" ? (
@@ -93,25 +101,24 @@ export function SiteTemplatesFrame({
         ) : null}
 
         {result?.status === "loaded" && result.templates.length > 0 ? (
-          <ul>
+          <ul className="card-list">
             {result.templates.map((template) => (
-              <li key={template.template_id}>
+              <li className="card-list__item" key={template.template_id}>
                 <Link to={templateHref(template.template_id)}>
                   {template.display_name}
                 </Link>
-                <dl>
-                  <dt>Template ID</dt>
-                  <dd>{template.template_id}</dd>
-                  <dt>Template version</dt>
-                  <dd>{template.template_version}</dd>
-                  <dt>Site type</dt>
-                  <dd>{template.site_type}</dd>
-                </dl>
+                <FactList>
+                  <Fact term="Template ID">{template.template_id}</Fact>
+                  <Fact term="Template version">
+                    {template.template_version}
+                  </Fact>
+                  <Fact term="Site type">{template.site_type}</Fact>
+                </FactList>
               </li>
             ))}
           </ul>
         ) : null}
-      </section>
+      </Panel>
 
       <p>
         <Link to={simulatorLabPath}>Back to the Simulator Lab</Link>

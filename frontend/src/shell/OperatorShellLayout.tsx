@@ -1,4 +1,6 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+
+import { AppHeader, NavRail } from "../ui";
 
 /**
  * Operator navigation layout.
@@ -33,22 +35,28 @@ const operatorRoutes = [
   { to: "/sites", label: "Sites", end: false },
 ];
 
+/**
+ * The rail is a real component now, but it owns no items: this list is still
+ * declared here and passed in. `NavRail` renders what a shell gives it and has
+ * no default, so the operator rail and the Lab rail cannot converge through
+ * the component they share.
+ *
+ * The landmark keeps its accessible name, `Operator routes`, because that name
+ * is what the T003 and T004 boundary tests identify it by.
+ */
 export function OperatorShellLayout() {
   return (
-    <>
-      <nav aria-label="Operator routes">
-        <ul>
-          {operatorRoutes.map((route) => (
-            <li key={route.to}>
-              <NavLink to={route.to} end={route.end}>
-                {route.label}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+    <div className="app-frame">
+      <div className="app-frame__side">
+        <AppHeader name="AssetOps" />
+        <NavRail label="Operator routes" items={operatorRoutes} />
+      </div>
 
-      <Outlet />
-    </>
+      <div className="app-frame__body">
+        <div className="app-frame__content">
+          <Outlet />
+        </div>
+      </div>
+    </div>
   );
 }

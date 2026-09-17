@@ -1,3 +1,5 @@
+import { PageHeader, Panel } from "../ui";
+
 /**
  * Minimal operator shell route frame.
  *
@@ -10,17 +12,19 @@
 export function OperatorShellFrame() {
   return (
     <main aria-labelledby="operator-shell-heading">
-      <h1 id="operator-shell-heading">AssetOps</h1>
-      <p>Operator shell</p>
+      <PageHeader
+        title="AssetOps"
+        headingId="operator-shell-heading"
+        subtitle="Operator shell"
+      />
 
-      <section aria-labelledby="operator-shell-empty-heading">
-        <h2 id="operator-shell-empty-heading">No site data</h2>
+      <Panel heading="No site data" headingId="operator-shell-empty-heading">
         <p>
           No sites are configured and no operational evidence has been recorded.
           Site configuration, evidence, analytics, and findings are not
           implemented yet.
         </p>
-      </section>
+      </Panel>
     </main>
   );
 }

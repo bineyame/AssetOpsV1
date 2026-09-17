@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import type {
   SiteTemplateCatalogClient,
   SiteTemplateDetailResult,
@@ -67,7 +68,7 @@ export function SiteTemplateFrame({
   if (result === null) {
     return (
       <main aria-labelledby="site-template-heading">
-        <h1 id="site-template-heading">Site template</h1>
+        <PageHeader title="Site template" headingId="site-template-heading" />
         <p>Loading the shipped site template.</p>
         {backLinks}
       </main>
@@ -77,17 +78,17 @@ export function SiteTemplateFrame({
   if (result.status === "not_found") {
     return (
       <main aria-labelledby="site-template-heading">
-        <h1 id="site-template-heading">Site template</h1>
-        <section aria-labelledby="site-template-missing-heading">
-          <h2 id="site-template-missing-heading">
-            No such shipped site template
-          </h2>
+        <PageHeader title="Site template" headingId="site-template-heading" />
+        <Panel
+          heading="No such shipped site template"
+          headingId="site-template-missing-heading"
+        >
           <p>
             This build ships no site template with that template identity.
             Template identities are not site identities, and no site can be
             addressed here.
           </p>
-        </section>
+        </Panel>
         {backLinks}
       </main>
     );
@@ -96,16 +97,16 @@ export function SiteTemplateFrame({
   if (result.status === "unavailable") {
     return (
       <main aria-labelledby="site-template-heading">
-        <h1 id="site-template-heading">Site template</h1>
-        <section aria-labelledby="site-template-unavailable-heading">
-          <h2 id="site-template-unavailable-heading">
-            Site template unavailable
-          </h2>
+        <PageHeader title="Site template" headingId="site-template-heading" />
+        <Panel
+          heading="Site template unavailable"
+          headingId="site-template-unavailable-heading"
+        >
           <p>
             The shipped template catalog could not be read, so this template
             cannot be shown. Nothing is known about its content.
           </p>
-        </section>
+        </Panel>
         {backLinks}
       </main>
     );
@@ -115,11 +116,16 @@ export function SiteTemplateFrame({
 
   return (
     <main aria-labelledby="site-template-heading">
-      <h1 id="site-template-heading">{template.display_name}</h1>
-      <p>Developer workspace</p>
+      <PageHeader
+        title={template.display_name}
+        headingId="site-template-heading"
+        subtitle="Developer workspace"
+      />
 
-      <section aria-labelledby="site-template-not-a-site-heading">
-        <h2 id="site-template-not-a-site-heading">A template is not a site</h2>
+      <Panel
+        heading="A template is not a site"
+        headingId="site-template-not-a-site-heading"
+      >
         <p>
           This is shipped, read-only configuration for a kind of site. It is
           not a site: it has no site identity, no lifecycle status, no
@@ -131,29 +137,29 @@ export function SiteTemplateFrame({
           Template identity is its own identity space. A template identity
           never becomes a site identity.
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="site-template-identity-heading">
-        <h2 id="site-template-identity-heading">Template identity</h2>
-        <dl>
-          <dt>Template ID</dt>
-          <dd>{template.template_id}</dd>
-          <dt>Template version</dt>
-          <dd>{template.template_version}</dd>
-        </dl>
-      </section>
+      <Panel
+        heading="Template identity"
+        headingId="site-template-identity-heading"
+      >
+        <FactList>
+          <Fact term="Template ID">{template.template_id}</Fact>
+          <Fact term="Template version">{template.template_version}</Fact>
+        </FactList>
+      </Panel>
 
-      <section aria-labelledby="site-template-foundation-heading">
-        <h2 id="site-template-foundation-heading">Foundation content</h2>
-        <dl>
-          <dt>Site type</dt>
-          <dd>{template.site_type}</dd>
-          <dt>Summary</dt>
-          <dd>{template.summary}</dd>
-        </dl>
+      <Panel
+        heading="Foundation content"
+        headingId="site-template-foundation-heading"
+      >
+        <FactList>
+          <Fact term="Site type">{template.site_type}</Fact>
+          <Fact term="Summary">{template.summary}</Fact>
+        </FactList>
 
         <h3 id="site-template-components-heading">Declared components</h3>
-        <table aria-labelledby="site-template-components-heading">
+        <DataTable labelledBy="site-template-components-heading">
           <thead>
             <tr>
               <th scope="col">Component ID</th>
@@ -176,7 +182,7 @@ export function SiteTemplateFrame({
               </tr>
             ))}
           </tbody>
-        </table>
+        </DataTable>
 
         <p>
           These are the components the template declares, with their declared
@@ -185,7 +191,7 @@ export function SiteTemplateFrame({
           state, source health, analytics, Replay, or findings exist for a
           template.
         </p>
-      </section>
+      </Panel>
 
       {backLinks}
     </main>

@@ -195,7 +195,16 @@ describe("workspace entry point: enabled", () => {
     expect(
       screen.queryByRole("navigation", { name: "Workspace utilities" }),
     ).toBeNull();
-    expect(screen.queryAllByRole("navigation")).toHaveLength(0);
+
+    // This counted zero navigation landmarks, which held only because the Lab
+    // had no rail of its own until T009 gave it one. The claim is that neither
+    // operator navigation nor workspace chrome follows a developer in here, so
+    // it now names the one rail that may be present rather than counting to
+    // zero: a stray operator or workspace landmark still fails, and so does a
+    // second rail.
+    const navigation = screen.getAllByRole("navigation");
+    expect(navigation).toHaveLength(1);
+    expect(navigation[0]).toHaveAccessibleName("Simulator Lab routes");
     expect(
       screen.queryByRole("link", { name: SIMULATOR_LAB_ENTRY_POINT_LABEL }),
     ).toBeNull();
@@ -209,12 +218,17 @@ describe("workspace entry point: enabled", () => {
     ).toHaveLength(0);
 
     // T005 gives the Lab its first destination. The allowlist is exact, so a
-    // further destination or a different one still fails here.
+    // further destination or a different one still fails here. The first two
+    // entries are the Lab's own rail from T009; both name surfaces that
+    // already rendered truthful content before the rail existed, so the rail
+    // surfaces destinations rather than adding any.
     const links = Array.from(container.querySelectorAll("a")).map((link) => [
       link.getAttribute("href"),
       link.textContent,
     ]);
     expect(links).toEqual([
+      ["/simulator-lab", "Simulator Lab"],
+      ["/simulator-lab/site-templates", "Site Templates"],
       ["/simulator-lab/site-templates", "Site Templates"],
       ["/", "Back to the operator shell"],
     ]);

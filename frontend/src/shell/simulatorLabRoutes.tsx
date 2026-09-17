@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import type { FeatureFlags } from "../config/featureFlags";
 import { CreateSiteFrame } from "./CreateSiteFrame";
 import { SimulatorLabFrame } from "./SimulatorLabFrame";
+import { SimulatorLabShell } from "./SimulatorLabShell";
 import { SiteTemplateFrame } from "./SiteTemplateFrame";
 import { SiteTemplatesFrame } from "./SiteTemplatesFrame";
 import {
@@ -95,6 +96,23 @@ export function siteTemplateHref(templateId: string): string {
   return `${SITE_TEMPLATES_PATH}/${encodeURIComponent(templateId)}`;
 }
 
+/**
+ * The Simulator Lab rail's items.
+ *
+ * Declared here because this module is the only place a simulator URL may be
+ * spelled, and listed here because a rail item is a destination claim: each of
+ * these two resolves to a surface that renders real content today. The mockup
+ * rail's other items have no truthful route behind them in this build and are
+ * therefore absent rather than dead.
+ *
+ * The create flow is not here. It is an action reached from a site index, not
+ * a place, and it already has its entry points.
+ */
+const SIMULATOR_LAB_RAIL_ITEMS = [
+  { to: SIMULATOR_LAB_PATH, label: "Simulator Lab", end: true },
+  { to: SITE_TEMPLATES_PATH, label: "Site Templates", end: false },
+];
+
 export interface GatedRoute {
   path: string;
   element: ReactElement;
@@ -115,40 +133,53 @@ export function simulatorLabRoutes(
     return [];
   }
 
+  // Every Lab surface renders inside the Lab's own shell, so the workspace
+  // carries one rail rather than each frame carrying its own chrome. The shell
+  // is composed here rather than nested as a layout route because the Lab sits
+  // outside both operator layouts on purpose: operator chrome must not follow
+  // a developer into the developer workspace.
+  const inLabShell = (surface: ReactElement): ReactElement => (
+    <SimulatorLabShell railItems={SIMULATOR_LAB_RAIL_ITEMS}>
+      {surface}
+    </SimulatorLabShell>
+  );
+
   return [
     {
       path: SIMULATOR_LAB_PATH,
-      element: <SimulatorLabFrame siteTemplatesPath={SITE_TEMPLATES_PATH} />,
+      element: inLabShell(
+        <SimulatorLabFrame siteTemplatesPath={SITE_TEMPLATES_PATH} />,
+      ),
     },
     {
       path: SITE_TEMPLATES_PATH,
-      element: (
+      element: inLabShell(
         <SiteTemplatesFrame
           catalog={catalog}
           templateHref={siteTemplateHref}
           simulatorLabPath={SIMULATOR_LAB_PATH}
-        />
+        />,
       ),
     },
     {
       path: SITE_TEMPLATE_DETAIL_PATH,
-      element: (
+      element: inLabShell(
         <SiteTemplateFrame
           catalog={catalog}
           siteTemplatesPath={SITE_TEMPLATES_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
-        />
+        />,
       ),
     },
     {
       path: CREATE_SITE_PATH,
-      element: (
+      element: inLabShell(
         <CreateSiteFrame
           catalog={catalog}
           creation={creation}
           sitesPath={sitesPath}
           simulatorLabPath={SIMULATOR_LAB_PATH}
-        />
+        />,
       ),
     },
   ];
