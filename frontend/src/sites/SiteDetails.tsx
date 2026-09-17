@@ -53,7 +53,7 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
   if (result === null) {
     return (
       <>
-        <h1 id={SITE_DETAIL_HEADING_ID}>Site</h1>
+        <PageHeader title="Site" headingId={SITE_DETAIL_HEADING_ID} />
         <p>Loading the configured site.</p>
       </>
     );
@@ -62,7 +62,7 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
   if (result.status === "not_found") {
     return (
       <>
-        <h1 id={SITE_DETAIL_HEADING_ID}>Site not found</h1>
+        <PageHeader title="Site not found" headingId={SITE_DETAIL_HEADING_ID} />
         <Panel heading="No such site" headingId="site-detail-not-found-heading">
           <p>
             No site with that site ID is configured. A site is addressed by its
@@ -81,7 +81,7 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
   if (result.status === "unavailable") {
     return (
       <>
-        <h1 id={SITE_DETAIL_HEADING_ID}>Site</h1>
+        <PageHeader title="Site" headingId={SITE_DETAIL_HEADING_ID} />
         <Panel
           heading="Site unavailable"
           headingId="site-detail-unavailable-heading"

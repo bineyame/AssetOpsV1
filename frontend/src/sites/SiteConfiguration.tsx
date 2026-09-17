@@ -60,7 +60,10 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
   if (result === null) {
     return (
       <>
-        <h1 id={SITE_CONFIGURATION_HEADING_ID}>Site configuration</h1>
+        <PageHeader
+          title="Site configuration"
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         <p>Loading the configured site.</p>
       </>
     );
@@ -69,7 +72,10 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
   if (result.status === "not_found") {
     return (
       <>
-        <h1 id={SITE_CONFIGURATION_HEADING_ID}>Site not found</h1>
+        <PageHeader
+          title="Site not found"
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         <Panel
           heading="No such site"
           headingId="site-configuration-not-found-heading"
@@ -92,7 +98,10 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
   if (result.status === "unavailable") {
     return (
       <>
-        <h1 id={SITE_CONFIGURATION_HEADING_ID}>Site configuration</h1>
+        <PageHeader
+          title="Site configuration"
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         <Panel
           heading="Site unavailable"
           headingId="site-configuration-unavailable-heading"
