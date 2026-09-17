@@ -16,6 +16,7 @@ active task file to choose only the needed sections.
 | Need | Read |
 | --- | --- |
 | M1 ordering and cross-feature causality | Product Spine |
+| Client-demo milestones and post-T013 task slices | Client-Demo Roadmap |
 | Current Site Foundation tasks T005-T013 | Early Feature: Site Foundation And Configuration-Only Site |
 | Architecture and CI seams to preserve | Enforceable Protected Seams |
 | Topology, devices, or single-line diagram planning | Early Feature: Topology, Devices, And SLD |
@@ -335,6 +336,34 @@ Resolved Simulator Lab feature-gating decision:
   history, not simulator execution.
 - The flag gates simulator surfaces and execution only; it never alters
   evidence, findings, provenance, claim ceilings, or operator object schemas.
+
+## Client-Demo Roadmap
+
+This roadmap starts after the current Site Foundation fidelity sequence. It
+does not change the current T009-T013 order.
+
+T014+ task files should be created only when their block becomes active. Until
+then, this section is planning guidance, not an active task queue.
+
+Detailed slice guidance lives in the relevant Early Feature sections below; this
+section only names milestone order, demo readiness, and review checkpoints.
+
+| Milestone | Task range | Demo status | Review checkpoint |
+| --- | --- | --- | --- |
+| M0: Site Foundation Fidelity | T009-T013 | Prototype walkthrough foundation. Not client-demo-ready. | T006 and T008 checkpoints already cover the product-language decisions; fidelity slices do not add one. |
+| M1A: Topology, Devices, Signals, And SLD | T014-T016 | Configured physical model and SLD become real. Still no operational evidence. | User review for SLD archetype, incompatible-topology treatment, and device/signal wording. |
+| M1B: Scenario Catalog And Run Setup | T017-T019 | Simulation authoring and run setup become real against configured Site anchors. | User review for event taxonomy, public/private scenario parameters, and run setup language. |
+| M1C: Prototype Walkthrough: Recorded Runtime | T020-T022 | Simulator Lab resembles `SimulatorLab1.png`, but runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. |
+| Demo Ready v1: Simulated Evidence Loop | T023-T029 | Earliest honest client-ready mini-grid demo. | User review after T029. |
+| Demo Ready v1.5: Cold-Chain Evidence Loop | T030-T033 | Cold-chain demo after a truthful cold-chain model exists. | User review for cold-chain wording and domain claims. |
+| Demo Ready v2: Evidence-Backed Operational Findings | T034-T038 | First business-outcome demo. | User review after T038. |
+
+Minimum Demo Ready v1 path: one mini-grid Site, one deterministic scenario, one
+Draft run, staged gateway output, Commit/release, ingestion accepting some
+records and rejecting at least one explainably, operator evidence with
+provenance, and Replay over the same accepted history without simulator truth
+leakage.
+
 ## Feature Areas
 
 ### 1. Site Foundation And Site Index
@@ -1545,6 +1574,8 @@ already checked by the fidelity seam.
 
 ### Early Feature: Topology, Devices, And SLD
 
+Demo roadmap task range: T014-T016.
+
 Divide into slices:
 - Topology/component/device/mapping validation from the Site Foundation.
 - SLD view model using the hybrid mini-grid archetype.
@@ -1562,6 +1593,8 @@ and cold-room/electrical symbol treatment because they fix UI/UX and domain
 representation.
 
 ### Early Feature: Scenario Catalog And Run Setup
+
+Demo roadmap task range: T017-T019.
 
 Divide into slices:
 - Scenario identity/version/detail view for Fuel Loss Event.
@@ -1582,6 +1615,8 @@ narrative.
 
 ### Early Feature: Draft SimulationRun And Recorded Runtime
 
+Demo roadmap task range: T020-T022.
+
 Divide into slices:
 - Draft SimulationRun model/read model with lifecycle and execution status.
 - Simulator Lab run header, controls, tabs, and disabled Draft product bridge.
@@ -1601,6 +1636,8 @@ semantics.
 
 ### Early Feature: Gateway Publication, Commit, And Ingestion
 
+Demo roadmap task range: T023-T026.
+
 Divide into slices:
 - Strict Source Envelope and first typed-record parsers/contracts.
 - Staged gateway output UI for Draft runs.
@@ -1619,6 +1656,8 @@ and accepted/rejected evidence interpretation because they fix architecture
 and evidence semantics.
 
 ### Early Feature: AssetOps Evidence Views And Replay
+
+Demo roadmap task range: T027-T029.
 
 Divide into slices:
 - Site Details/Gateway/Events/Logs read models from accepted evidence only.
@@ -1640,6 +1679,8 @@ operator UI semantics.
 
 ### Early Feature: First Product Conclusion Chain
 
+Demo roadmap task range: T034-T038.
+
 Divide into slices:
 - Gateway/source health from accepted evidence and expected cadence.
 - Generator Runtime Assessment with evidence sufficiency and basis labels.
@@ -1660,19 +1701,21 @@ and operator consequence.
 
 ## Open Questions Before Task Breakdown
 
-- One, and it is a product question the Architect should not answer alone.
-  **Which shell is `ScreenMockups.png` the target for?** The evidence set out
-  under Canonical Screen Fidelity says it renders the Simulator Lab developer
-  shell: its rail is v6.9 §3.9's Lab navigation, and its Site tabs and Sites
-  columns are not v6.9's operator ones. Everything in this map is sequenced on
-  that reading, which keeps operator navigation unchanged and T003/T004 intact.
-  If instead the user intends those nine screens as the single shell for M1,
-  merging operator and Lab into one workspace for this milestone, that is a
-  product call the user is entitled to make and it would supersede the T003/T004
-  navigation position. It is not being made here, and nothing should be built on
-  the assumption that it will be.
+- The previous shell question is closed. `ScreenMockups.png` is read as
+  Simulator Lab shell and product-map direction, not as a single merged M1
+  shell. Operator Site surfaces still move toward the first three canonical
+  screens where backed content allows, while preserving T003/T004 navigation and
+  the operator/Lab split. Mockscreen fidelity is an explicit delivery goal:
+  planned fidelity slices should move each real screen as close to the canonical
+  mockscreen's visual and information architecture as current backed content
+  honestly allows. Differences from the mockscreen must be deliberate
+  corrections for product truth, missing evidence, deferred capabilities, or
+  protected seams, not timid styling omissions.
 - Removal of a user-created Site was the previous open question; the user
   deferred it on 2026-09-13. Removing a user-created Site stays a developer
   action on the store for M1.
+- The Lab step-6 question of whether the Lab needs its own Sites index or only a
+  Site detail/run context view over the shared substrate is deferred to causal
+  step 6. It does not block Site Foundation fidelity tasks T009-T013.
 - Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.

@@ -94,6 +94,12 @@ change half of one user journey.
 
 ## Required Product And Domain Semantics
 
+- Mockscreen fidelity is an explicit delivery goal for these slices. The task
+  should move the real screen as close to the canonical mockscreen's visual and
+  information architecture as current backed content honestly allows.
+  Differences from the mockscreen must be deliberate corrections for product
+  truth, missing evidence, deferred capabilities, or protected seams, not timid
+  styling omissions.
 - A template is not a Site, and dressing the catalog must not make one look like
   the other. Identity, badges, and column headers keep `template_id` and
   `template_version` visibly in their own space.
@@ -142,6 +148,13 @@ change half of one user journey.
   not a Site and still offers no action.
 - UI tests for the create flow: template selection, identity input, review, and
   successful creation, all in the enabled state.
+- Focused frontend-client/backend-response integration test covering the real
+  Site Foundation frontend API clients against representative backend responses
+  for Site list, Site detail, create success, validation failure, empty state,
+  and not-found/error envelopes. This test binds the shared fetch seam before
+  more fidelity work accumulates on it. If it proves too large for this slice,
+  split it into `T010A - Site Foundation Fetch Seam Integration Test` before
+  T010 and do not defer it past T011.
 - UI tests for the refusal cases from T006, asserting each message is unchanged
   in meaning and now renders against the field it concerns.
 - UI test asserting the flow's step count equals the number of real input

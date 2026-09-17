@@ -142,6 +142,12 @@ and then kept in agreement forever.
 
 ## Required Product And Domain Semantics
 
+- Mockscreen fidelity is an explicit delivery goal for these slices. The task
+  should move the real screen as close to the canonical mockscreen's visual and
+  information architecture as current backed content honestly allows.
+  Differences from the mockscreen must be deliberate corrections for product
+  truth, missing evidence, deferred capabilities, or protected seams, not timid
+  styling omissions.
 - Three treatments, never blurred. A gated or decided-against capability is not
   rendered; a canonical tab that names a real aspect of an entity but has no
   content contract is labelled in place; a capability the map can sequence but

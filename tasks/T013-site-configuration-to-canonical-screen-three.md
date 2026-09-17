@@ -99,6 +99,12 @@ separately tested acceptance criterion rather than a scope-limit line.
 
 ## Required Product And Domain Semantics
 
+- Mockscreen fidelity is an explicit delivery goal for these slices. The task
+  should move the real screen as close to the canonical mockscreen's visual and
+  information architecture as current backed content honestly allows.
+  Differences from the mockscreen must be deliberate corrections for product
+  truth, missing evidence, deferred capabilities, or protected seams, not timid
+  styling omissions.
 - Canonical Site Foundation is the source of truth for components, topology,
   connectivity, ratings, devices, and signal availability. This screen renders
   that truth and creates none of it.

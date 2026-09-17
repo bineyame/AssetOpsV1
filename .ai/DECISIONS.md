@@ -18,6 +18,10 @@ rationale in the dated entries below.
 | `D-2026-09-13-shared-site-substrate` | 2026-09-13 | Operator and Lab Site pages share one substrate at `frontend/src/sites/`. |
 | `D-2026-09-13-provenance-status-vocabulary` | 2026-09-13 | Source mode, lifecycle, configuration origin, evidence readiness, and source health remain separate. |
 | `D-2026-09-13-t006-preimplementation` | 2026-09-13 | T006 pre-implementation decisions for runtime gate proof, created Site shape, and non-loosening guard updates. |
+| `D-2026-09-17-timezone-validation-timing` | 2026-09-17 | Real IANA timezone membership validation is required before timezone becomes executable behavior. |
+| `D-2026-09-17-source-health-backing` | 2026-09-17 | Gateway/source health is backed by source observations, not Site lifecycle or simulator provenance. |
+| `D-2026-09-17-site-foundation-fetch-seam` | 2026-09-17 | The Site Foundation frontend/backend fetch seam needs a focused integration test before expansion. |
+| `D-2026-09-17-client-demo-readiness` | 2026-09-17 | Client demo readiness begins at the Simulated Evidence Loop; business-outcome demo readiness begins at Evidence-Backed Operational Findings. |
 
 ## 2026-09-11
 
@@ -821,3 +825,94 @@ and the guard changes replace prior strength instead of weakening it.
 Affected scope: T006 task planning, `.ai/FEATURE_MAP.md`, Simulator Lab gate
 tests, Site record shape, user store adapter, architecture guard updates, and
 future Site Details/Site Configuration slices.
+
+## 2026-09-17
+
+Decision: T006's shape-only IANA timezone validation stands for current Site
+Foundation storage and display. Real IANA timezone membership validation becomes
+mandatory before any scenario, SimulationRun window, replay window, evidence
+window, scheduling behavior, or analytics bucketing consumes Site timezone as
+executable behavior.
+
+Reason: Timezone is currently identity/configuration metadata. Shape validation
+keeps Site records coherent without making correctness depend on host-specific
+timezone database availability, especially on Windows. Once timezone affects
+execution semantics, a structurally plausible but nonexistent zone can distort
+run timing, local-day boundaries, evidence windows, replay, and analytics. At
+that point invalid zones must be rejected early and deterministically through an
+explicit dependency or bundled timezone database.
+
+Affected scope: Site validation, Scenario and SimulationRun planning, replay
+and evidence-window semantics, analytics bucketing, future dependency choices,
+and task gating before timezone becomes operational.
+
+## 2026-09-17
+
+Decision: Gateway/source health is a separate operational evidence signal
+derived from source/gateway observations, heartbeat or arrival evidence, and
+expected cadence. It is not derived from Site lifecycle status, from whether a
+Site exists, from whether a Site is simulated, or from simulator/run provenance.
+Until backed observations exist, Site Foundation and configuration-only screens
+must render source health as unknown, not backed, or not recorded rather than as
+healthy, online, offline, or stale.
+
+Reason: Site lifecycle answers whether the configured Site is managed or active.
+Gateway/source health answers whether AssetOps has recently heard from the
+source that claims to represent the Site. Simulation provenance answers where
+the evidence came from. Those truths can diverge: an active Site may have a
+stale gateway, a simulated run may emit fresh staged observations without
+proving any real source is healthy, and historical observations can exist for a
+Site whose lifecycle later changes. Keeping the signal separate preserves an
+audit path from health badges to observation metadata.
+
+Affected scope: Configuration-only Site UI, future source/gateway health
+derivation, ingestion and heartbeat evidence, vocabulary separation, Simulator
+Lab provenance, Site lifecycle presentation, and operator monitoring screens.
+
+## 2026-09-17
+
+Decision: The Site Foundation frontend/backend fetch seam now requires a
+focused integration test binding the real frontend API clients to
+representative backend responses before the shared contract is materially
+expanded. The test should cover the Site Foundation clients across the Site
+list/detail read path, create success, validation refusal, empty state, and
+not-found or store/error envelopes where practical. It does not need to be a
+broad browser end-to-end test.
+
+Reason: T006 through T008 created multiple user-visible surfaces over the same
+transport contract. Backend tests and isolated frontend rendering tests do not
+prove that the real client code understands the backend payload shape, status
+codes, and error envelopes. Because the seam is shared, a small mismatch can
+silently affect several screens. A focused integration test gives more
+confidence than adding page-local tests after visual fidelity accumulates on
+top of the same unverified assumption.
+
+Affected scope: T010/T011 planning, frontend API clients, backend response
+contracts, Site Foundation regression tests, review packets, and any future
+slice that changes the shared Site Foundation frontend/backend contract.
+
+## 2026-09-17
+
+Decision: Client demo readiness begins at `Demo Ready v1: Simulated Evidence
+Loop`, after a simulated Site can produce staged gateway/source envelopes,
+release them through ingestion, show accepted/rejected records, populate
+operator evidence views from accepted evidence only, and replay committed
+accepted history with provenance. Business-outcome demo readiness begins at
+`Demo Ready v2: Evidence-Backed Operational Findings`, after source/gateway
+health and at least one bounded operational finding are derived from accepted
+evidence.
+
+Earlier milestones are valid product walkthroughs but not client-ready AssetOps
+demos: M0 Site Foundation Fidelity, M1A Topology/Devices/Signals/SLD, M1B
+Scenario Catalog/Run Setup, and M1C Prototype Walkthrough Recorded Runtime.
+
+Reason: Before the simulated evidence loop exists, the product can show
+configuration, visual fidelity, scenario setup, and simulator behavior, but not
+the core AssetOps promise: evidence-backed operational inspection.
+Business-outcome claims require an additional conclusion chain over accepted
+evidence, with confidence, claim boundaries, and provenance.
+
+Affected scope: Roadmap planning, task sequencing, demo language, Simulator
+Lab, Source Envelope, release/ingestion, evidence views, Replay, source health,
+operational findings, mini-grid demo readiness, and cold-chain follow-on
+planning.

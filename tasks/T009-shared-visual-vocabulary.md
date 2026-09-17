@@ -12,11 +12,13 @@ Site Foundation And Configuration-Only Site, canonical screen fidelity stage 1.
 ## UI-Verifiable Screen Behavior
 
 Every surface that already has real content looks like it belongs to one
-product: the operator shell home, the Sites index, Site Details, Site
-Configuration, the Simulator Lab shell, the Site Templates catalog, and the
-template inspection view. They share a brand header, a left rail rendered as a
-real component, breadcrumbs, one page-header pattern, one badge and pill
-vocabulary, one table and panel pattern, and one set of type and colour tokens.
+product and to the canonical mockscreen family: the operator shell home, the
+Sites index, Site Details, Site Configuration, the Simulator Lab shell, the Site
+Templates catalog, and the template inspection view. They share a brand header,
+a left rail rendered as a real component, breadcrumbs, one page-header pattern,
+one badge and pill vocabulary, one table and panel pattern, and one set of type
+and colour tokens strong enough for T010-T013 to realise the mockscreen visual
+and information architecture without inventing content.
 
 Nothing else changes. No screen gains a value, a control, a column, a tab, or a
 destination. No screen that lacks content is dressed. Every fact on every screen
@@ -86,6 +88,12 @@ reinventing badges and tables three more times.
 
 ## Required Product And Domain Semantics
 
+- Mockscreen fidelity is an explicit delivery goal for these slices. The task
+  should move the real screen as close to the canonical mockscreen's visual and
+  information architecture as current backed content honestly allows.
+  Differences from the mockscreen must be deliberate corrections for product
+  truth, missing evidence, deferred capabilities, or protected seams, not timid
+  styling omissions.
 - Design references are authoritative about information architecture and never
   about capability inventory, status vocabulary, or navigation. A visual
   vocabulary borrowed from a mockup carries no claim about what the product can
