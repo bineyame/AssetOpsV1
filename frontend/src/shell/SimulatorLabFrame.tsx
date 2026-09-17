@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { PageHeader, Panel } from "../ui";
+
 /**
  * Simulator Lab shell frame, served only when `simulator_lab.enabled` is true.
  *
@@ -33,11 +35,16 @@ export function SimulatorLabFrame({
 }: SimulatorLabFrameProps) {
   return (
     <main aria-labelledby="simulator-lab-heading">
-      <h1 id="simulator-lab-heading">Simulator Lab</h1>
-      <p>Developer workspace</p>
+      <PageHeader
+        title="Simulator Lab"
+        headingId="simulator-lab-heading"
+        subtitle="Developer workspace"
+      />
 
-      <section aria-labelledby="simulator-lab-templates-heading">
-        <h2 id="simulator-lab-templates-heading">Site Templates</h2>
+      <Panel
+        heading="Site Templates"
+        headingId="simulator-lab-templates-heading"
+      >
         <p>
           Browse the shipped, read-only site configuration templates. A
           template is not a site: it has no site identity, no lifecycle status,
@@ -47,10 +54,12 @@ export function SimulatorLabFrame({
         <p>
           <Link to={siteTemplatesPath}>Site Templates</Link>
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="simulator-lab-empty-heading">
-        <h2 id="simulator-lab-empty-heading">No simulator run exists</h2>
+      <Panel
+        heading="No simulator run exists"
+        headingId="simulator-lab-empty-heading"
+      >
         <p>
           No simulated world, site, device, or simulator run exists, and run
           execution is not implemented yet. Nothing can be started, inspected,
@@ -66,7 +75,7 @@ export function SimulatorLabFrame({
           Simulator truth is never product evidence. Nothing on this screen is a
           claim about a real site.
         </p>
-      </section>
+      </Panel>
 
       <p>
         <Link to="/">Back to the operator shell</Link>

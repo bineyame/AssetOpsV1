@@ -392,7 +392,15 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       link.textContent,
     ]);
 
+    // Still an exact allowlist, and still closed: a third destination, or a
+    // different one, fails. The first two entries are the Lab's own rail,
+    // which T009 made a real component. Both name surfaces that already
+    // rendered truthful content before the rail existed, so the rail surfaces
+    // destinations rather than adding any: nothing here is a run, an
+    // inspection, a rerun, a comparison, or a crossing into the product.
     expect(links).toEqual([
+      ["/simulator-lab", "Simulator Lab"],
+      ["/simulator-lab/site-templates", "Site Templates"],
       ["/simulator-lab/site-templates", "Site Templates"],
       ["/", "Back to the operator shell"],
     ]);

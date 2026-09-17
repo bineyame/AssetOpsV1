@@ -1,4 +1,5 @@
-﻿import type { SiteDetailClient } from "./siteDirectoryClient";
+﻿import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
+import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
 import {
@@ -69,8 +70,10 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
     return (
       <>
         <h1 id={SITE_CONFIGURATION_HEADING_ID}>Site not found</h1>
-        <section aria-labelledby="site-configuration-not-found-heading">
-          <h2 id="site-configuration-not-found-heading">No such site</h2>
+        <Panel
+          heading="No such site"
+          headingId="site-configuration-not-found-heading"
+        >
           <p>
             No site with that site ID is configured, so there is no
             configuration to read. A site is addressed by its site ID and by
@@ -81,7 +84,7 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
             This is a statement that the site does not exist, not a site with
             nothing configured in it.
           </p>
-        </section>
+        </Panel>
       </>
     );
   }
@@ -90,14 +93,16 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
     return (
       <>
         <h1 id={SITE_CONFIGURATION_HEADING_ID}>Site configuration</h1>
-        <section aria-labelledby="site-configuration-unavailable-heading">
-          <h2 id="site-configuration-unavailable-heading">Site unavailable</h2>
+        <Panel
+          heading="Site unavailable"
+          headingId="site-configuration-unavailable-heading"
+        >
           <p>
             The site store could not be read, so this site&apos;s configuration
             cannot be shown. This is a statement about the store: nothing is
             known about whether the site is configured.
           </p>
-        </section>
+        </Panel>
       </>
     );
   }
@@ -120,45 +125,49 @@ export function SiteConfigurationFacts({ site }: SiteConfigurationFactsProps) {
 
   return (
     <>
-      <h1 id={SITE_CONFIGURATION_HEADING_ID}>Site configuration</h1>
+      <PageHeader
+        title="Site configuration"
+        headingId={SITE_CONFIGURATION_HEADING_ID}
+      />
 
-      <section aria-labelledby="site-configuration-identity-heading">
-        <h2 id="site-configuration-identity-heading">Site</h2>
-        <dl>
-          <dt>Site ID</dt>
-          <dd>{view.siteId}</dd>
-          <dt>Name</dt>
-          <dd>{view.displayName}</dd>
-          <dt>Type</dt>
-          <dd>{view.siteType}</dd>
-          <dt>Location</dt>
-          <dd>{view.location}</dd>
-          <dt>Timezone</dt>
-          <dd>{view.timezone}</dd>
-        </dl>
-      </section>
+      <Panel heading="Site" headingId="site-configuration-identity-heading">
+        <FactList>
+          <Fact term="Site ID">{view.siteId}</Fact>
+          <Fact term="Name">{view.displayName}</Fact>
+          <Fact term="Type">{view.siteType}</Fact>
+          <Fact term="Location">{view.location}</Fact>
+          <Fact term="Timezone">{view.timezone}</Fact>
+        </FactList>
+      </Panel>
 
-      <section aria-labelledby="site-configuration-fixed-heading">
-        <h2 id="site-configuration-fixed-heading">
-          Configuration is fixed at creation
-        </h2>
+      <Panel
+        heading="Configuration is fixed at creation"
+        headingId="site-configuration-fixed-heading"
+      >
         <p>{view.configurationFixedAtCreation}</p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="site-configuration-provenance-heading">
-        <h2 id="site-configuration-provenance-heading">
-          Provenance and status
-        </h2>
-        <dl>
-          <dt>Lifecycle status</dt>
-          <dd>{view.lifecycleStatus}</dd>
-          <dt>Mode</dt>
-          <dd>{view.sourceMode}</dd>
-          <dt>Configuration origin</dt>
-          <dd>{view.configurationOrigin}</dd>
-          <dt>Created from template</dt>
-          <dd>{view.templateProvenance}</dd>
-        </dl>
+      <Panel
+        heading="Provenance and status"
+        headingId="site-configuration-provenance-heading"
+      >
+        <FactList>
+          {/*
+           * Three vocabularies, three tones, never one status pill. Template
+           * provenance stays plain text: a site created from no template
+           * renders an absence there, and an absence is not a badge value.
+           */}
+          <Fact term="Lifecycle status">
+            <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+          </Fact>
+          <Fact term="Mode">
+            <Badge tone="provenance">{view.sourceMode}</Badge>
+          </Fact>
+          <Fact term="Configuration origin">
+            <Badge tone="origin">{view.configurationOrigin}</Badge>
+          </Fact>
+          <Fact term="Created from template">{view.templateProvenance}</Fact>
+        </FactList>
         <p>
           These are separate facts about a site and none is derived from
           another. Configuration origin is where this site&apos;s configuration
@@ -166,28 +175,27 @@ export function SiteConfigurationFacts({ site }: SiteConfigurationFactsProps) {
           from, and it is provenance rather than status, health, or an
           assessment. Lifecycle status is where the site is in its own life.
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="site-configuration-foundation-heading">
-        <h2 id="site-configuration-foundation-heading">Foundation</h2>
-        <dl>
-          <dt>Foundation version</dt>
-          <dd>{view.foundationVersion}</dd>
-          <dt>Valid from</dt>
-          <dd>{view.foundationValidFrom}</dd>
-          <dt>Summary</dt>
-          <dd>{view.foundationSummary}</dd>
-        </dl>
+      <Panel
+        heading="Foundation"
+        headingId="site-configuration-foundation-heading"
+      >
+        <FactList>
+          <Fact term="Foundation version">{view.foundationVersion}</Fact>
+          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
+          <Fact term="Summary">{view.foundationSummary}</Fact>
+        </FactList>
         <p>{view.foundationValiditySemantics}</p>
-      </section>
+      </Panel>
 
       <SiteConfigurationComponents components={view.components} />
 
-      <section aria-labelledby="site-configuration-undeclared-heading">
-        <h2 id="site-configuration-undeclared-heading">
-          Not declared in this foundation
-        </h2>
-        <dl>
+      <Panel
+        heading="Not declared in this foundation"
+        headingId="site-configuration-undeclared-heading"
+      >
+        <FactList>
           <SiteConfigurationStatedAbsence name="Devices" fact={view.devices} />
           <SiteConfigurationStatedAbsence
             name="Signal mappings"
@@ -197,14 +205,14 @@ export function SiteConfigurationFacts({ site }: SiteConfigurationFactsProps) {
             name="Control assumptions"
             fact={view.controlAssumptions}
           />
-        </dl>
-      </section>
+        </FactList>
+      </Panel>
 
-      <section aria-labelledby="site-configuration-no-evidence-heading">
-        <h2 id="site-configuration-no-evidence-heading">
-          Not available for this site
-        </h2>
-        <dl>
+      <Panel
+        heading="Not available for this site"
+        headingId="site-configuration-no-evidence-heading"
+      >
+        <FactList>
           <SiteConfigurationStatedAbsence
             name="Integration readiness"
             fact={view.integrationReadiness}
@@ -217,14 +225,14 @@ export function SiteConfigurationFacts({ site }: SiteConfigurationFactsProps) {
             name="Source health"
             fact={view.sourceHealth}
           />
-        </dl>
+        </FactList>
         <p>
           Nothing below the configuration exists for this site yet. There is no
           accepted evidence, so there is nothing to chart, nothing to analyse,
           nothing to replay, and no finding to draw. Each of those arrives with
           the evidence that fills it rather than as an empty version of itself.
         </p>
-      </section>
+      </Panel>
     </>
   );
 }
@@ -245,9 +253,12 @@ export function SiteConfigurationComponents({
   components,
 }: SiteConfigurationComponentsProps) {
   return (
-    <section aria-labelledby="site-configuration-components-heading">
-      <h2 id="site-configuration-components-heading">Components</h2>
-      <table>
+    <Panel
+      heading="Components"
+      headingId="site-configuration-components-heading"
+      flush
+    >
+      <DataTable labelledBy="site-configuration-components-heading">
         <caption>
           The components this site&apos;s foundation declares, with the design
           ratings declared for them. These are configuration, not measurements:
@@ -272,8 +283,8 @@ export function SiteConfigurationComponents({
             </tr>
           ))}
         </tbody>
-      </table>
-    </section>
+      </DataTable>
+    </Panel>
   );
 }
 
@@ -294,11 +305,8 @@ export function SiteConfigurationStatedAbsence({
   fact,
 }: SiteConfigurationStatedAbsenceProps) {
   return (
-    <>
-      <dt>{name}</dt>
-      <dd>
-        {fact.value}. {fact.reason}
-      </dd>
-    </>
+    <Fact term={name}>
+      {fact.value}. {fact.reason}
+    </Fact>
   );
 }

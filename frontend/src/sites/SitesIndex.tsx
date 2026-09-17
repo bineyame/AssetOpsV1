@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { Badge, DataTable, Panel } from "../ui";
 import type { SiteDirectoryClient } from "./siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
@@ -71,35 +72,32 @@ export function SitesIndex({ directory, siteHref }: SitesIndexProps) {
 
   if (result.status === "unavailable") {
     return (
-      <section aria-labelledby="sites-unavailable-heading">
-        <h2 id="sites-unavailable-heading">Sites unavailable</h2>
+      <Panel heading="Sites unavailable" headingId="sites-unavailable-heading">
         <p>
           The site store could not be read, so no site can be listed. This is a
           statement about the store, not a statement that no site is
           configured.
         </p>
-      </section>
+      </Panel>
     );
   }
 
   if (result.sites.length === 0) {
     return (
-      <section aria-labelledby="sites-empty-heading">
-        <h2 id="sites-empty-heading">No sites configured</h2>
+      <Panel heading="No sites configured" headingId="sites-empty-heading">
         <p>
           No site has been configured, so there is nothing to list. This is the
           real state of this build rather than a placeholder: no row, no count,
           and no example site stands in for one.
         </p>
-      </section>
+      </Panel>
     );
   }
 
   return (
-    <section aria-labelledby="sites-list-heading">
-      <h2 id="sites-list-heading">Configured sites</h2>
+    <Panel heading="Configured sites" headingId="sites-list-heading" flush>
       <SiteTable sites={result.sites} siteHref={siteHref} />
-    </section>
+    </Panel>
   );
 }
 
@@ -116,7 +114,7 @@ export interface SiteTableProps {
 
 export function SiteTable({ sites, siteHref }: SiteTableProps) {
   return (
-    <table aria-labelledby="sites-list-heading">
+    <DataTable labelledBy="sites-list-heading">
       <thead>
         <tr>
           <th scope="col">Site ID</th>
@@ -134,7 +132,7 @@ export function SiteTable({ sites, siteHref }: SiteTableProps) {
           <SiteRow key={site.site_id} site={site} siteHref={siteHref} />
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }
 
@@ -154,9 +152,25 @@ export function SiteRow({ site, siteHref }: SiteRowProps) {
       <td>{view.displayName}</td>
       <td>{view.siteType}</td>
       <td>{view.location}</td>
-      <td>{view.lifecycleStatus}</td>
-      <td>{view.sourceMode}</td>
-      <td>{view.configurationOrigin}</td>
+      {/*
+       * Three vocabularies, three tones, never one status pill. Each of these
+       * is derived from a field the record always carries, which is why each
+       * can be a badge at all.
+       *
+       * Template provenance below is deliberately not one: a site that came
+       * from no template renders `Not created from a template`, and that is an
+       * absence rather than a value. A badge around it would dress the absence
+       * as a state the site is in.
+       */}
+      <td>
+        <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+      </td>
+      <td>
+        <Badge tone="provenance">{view.sourceMode}</Badge>
+      </td>
+      <td>
+        <Badge tone="origin">{view.configurationOrigin}</Badge>
+      </td>
       <td>{view.templateProvenance}</td>
     </tr>
   );

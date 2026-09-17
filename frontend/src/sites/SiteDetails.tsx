@@ -1,3 +1,4 @@
+import { Badge, Fact, FactList, PageHeader, Panel } from "../ui";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
@@ -62,8 +63,7 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
     return (
       <>
         <h1 id={SITE_DETAIL_HEADING_ID}>Site not found</h1>
-        <section aria-labelledby="site-detail-not-found-heading">
-          <h2 id="site-detail-not-found-heading">No such site</h2>
+        <Panel heading="No such site" headingId="site-detail-not-found-heading">
           <p>
             No site with that site ID is configured. A site is addressed by its
             site ID and by nothing else, so it cannot be reached by its name or
@@ -73,7 +73,7 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
             This is a statement that the site does not exist, not a site with
             nothing in it.
           </p>
-        </section>
+        </Panel>
       </>
     );
   }
@@ -82,14 +82,16 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
     return (
       <>
         <h1 id={SITE_DETAIL_HEADING_ID}>Site</h1>
-        <section aria-labelledby="site-detail-unavailable-heading">
-          <h2 id="site-detail-unavailable-heading">Site unavailable</h2>
+        <Panel
+          heading="Site unavailable"
+          headingId="site-detail-unavailable-heading"
+        >
           <p>
             The site store could not be read, so this site cannot be shown.
             This is a statement about the store: nothing is known about whether
             the site is configured.
           </p>
-        </section>
+        </Panel>
       </>
     );
   }
@@ -120,36 +122,43 @@ export function SiteDetailFacts({ site }: SiteDetailFactsProps) {
 
   return (
     <>
-      <h1 id={SITE_DETAIL_HEADING_ID}>{view.displayName}</h1>
+      <PageHeader title={view.displayName} headingId={SITE_DETAIL_HEADING_ID} />
 
-      <section aria-labelledby="site-detail-identity-heading">
-        <h2 id="site-detail-identity-heading">Identity</h2>
-        <dl>
-          <dt>Site ID</dt>
-          <dd>{view.siteId}</dd>
-          <dt>Name</dt>
-          <dd>{view.displayName}</dd>
-          <dt>Type</dt>
-          <dd>{view.siteType}</dd>
-          <dt>Location</dt>
-          <dd>{view.location}</dd>
-          <dt>Timezone</dt>
-          <dd>{view.timezone}</dd>
-        </dl>
-      </section>
+      <Panel heading="Identity" headingId="site-detail-identity-heading">
+        <FactList>
+          <Fact term="Site ID">{view.siteId}</Fact>
+          <Fact term="Name">{view.displayName}</Fact>
+          <Fact term="Type">{view.siteType}</Fact>
+          <Fact term="Location">{view.location}</Fact>
+          <Fact term="Timezone">{view.timezone}</Fact>
+        </FactList>
+      </Panel>
 
-      <section aria-labelledby="site-detail-provenance-heading">
-        <h2 id="site-detail-provenance-heading">Provenance and status</h2>
-        <dl>
-          <dt>Lifecycle status</dt>
-          <dd>{view.lifecycleStatus}</dd>
-          <dt>Mode</dt>
-          <dd>{view.sourceMode}</dd>
-          <dt>Configuration origin</dt>
-          <dd>{view.configurationOrigin}</dd>
-          <dt>Created from template</dt>
-          <dd>{view.templateProvenance}</dd>
-        </dl>
+      <Panel
+        heading="Provenance and status"
+        headingId="site-detail-provenance-heading"
+      >
+        <FactList>
+          {/*
+           * Three vocabularies, three tones, and never one status pill. The
+           * badge is reinforcement: each value is still the word the record
+           * supplies, and the term beside it still names which vocabulary it
+           * belongs to.
+           *
+           * Template provenance stays plain text, because a site created from
+           * no template renders an absence there rather than a value.
+           */}
+          <Fact term="Lifecycle status">
+            <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+          </Fact>
+          <Fact term="Mode">
+            <Badge tone="provenance">{view.sourceMode}</Badge>
+          </Fact>
+          <Fact term="Configuration origin">
+            <Badge tone="origin">{view.configurationOrigin}</Badge>
+          </Fact>
+          <Fact term="Created from template">{view.templateProvenance}</Fact>
+        </FactList>
         <p>
           These are separate facts about a site and none is derived from
           another. Lifecycle status is where the site is in its own life. Mode
@@ -157,27 +166,26 @@ export function SiteDetailFacts({ site }: SiteDetailFactsProps) {
           than status, health, or an assessment. Configuration origin is where
           the site's configuration document came from.
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="site-detail-foundation-heading">
-        <h2 id="site-detail-foundation-heading">Foundation</h2>
-        <dl>
-          <dt>Foundation version</dt>
-          <dd>{view.foundationVersion}</dd>
-          <dt>Valid from</dt>
-          <dd>{view.foundationValidFrom}</dd>
-        </dl>
+      <Panel heading="Foundation" headingId="site-detail-foundation-heading">
+        <FactList>
+          <Fact term="Foundation version">{view.foundationVersion}</Fact>
+          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
+        </FactList>
         <p>
           The foundation is the site's configured content, copied from the
           template when the site was created. It is component truth declared by
           a document: nothing here states that a device exists, is
           commissioned, or has ever reported a measurement.
         </p>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="site-detail-no-evidence-heading">
-        <h2 id="site-detail-no-evidence-heading">Not available for this site</h2>
-        <dl>
+      <Panel
+        heading="Not available for this site"
+        headingId="site-detail-no-evidence-heading"
+      >
+        <FactList>
           <SiteDetailUnavailableFact
             name="Integration readiness"
             fact={view.integrationReadiness}
@@ -190,14 +198,14 @@ export function SiteDetailFacts({ site }: SiteDetailFactsProps) {
             name="Source health"
             fact={view.sourceHealth}
           />
-        </dl>
+        </FactList>
         <p>
           Nothing below the configuration exists for this site yet. There is no
           accepted evidence, so there is nothing to chart, nothing to analyse,
           nothing to replay, and no finding to draw. Each of those arrives with
           the evidence that fills it rather than as an empty version of itself.
         </p>
-      </section>
+      </Panel>
     </>
   );
 }
@@ -219,11 +227,8 @@ export function SiteDetailUnavailableFact({
   fact,
 }: SiteDetailUnavailableFactProps) {
   return (
-    <>
-      <dt>{name}</dt>
-      <dd>
-        {fact.value}. {fact.reason}
-      </dd>
-    </>
+    <Fact term={name}>
+      {fact.value}. {fact.reason}
+    </Fact>
   );
 }
