@@ -45,6 +45,38 @@ Expected direction:
 simulated world -> devices/gateway observations -> ingestion -> AssetOps ->
 evidence/analytics -> user-visible product
 
+## Evidence Loop Boundaries
+
+The client-demo evidence loop follows this direction:
+
+simulated runtime -> staged Source Envelopes -> release/commit manifest ->
+ingestion -> accepted/rejected evidence -> operator evidence views -> Replay
+and conclusions
+
+A Source Envelope carries source identity, timing, sequencing, provenance,
+transport structure, and typed record payloads. It is the boundary object
+released from Simulator Lab toward AssetOps ingestion; it is not itself an
+accepted product fact.
+
+Commit or release is a Simulator Lab state transition. It seals staged Source
+Envelopes and releases them to ingestion. It never writes Site history, source
+health, analytics, findings, or other derived product objects directly.
+
+Ingestion owns acceptance and rejection. `received_at` belongs to ingestion, not
+to the simulator. Product evidence begins only after ingestion accepts records
+into the evidence store/read model.
+
+Operator Site views, Replay, evidence drawers, source health, and conclusions
+must derive from accepted evidence, not from simulator runtime objects, private
+scenario truth, or staged-but-unreleased output.
+
+Replay inspects committed accepted history for a Site and time window. It is
+not a rerun, not a simulator-truth view, and not a way to bypass ingestion.
+
+Private scenario expectations and simulator truth are test-oracle or Lab-only
+context. They must not cross into Source Envelopes, accepted evidence, operator
+views, analytics, exports, or findings.
+
 ## Contract Posture
 
 Data crossing product boundaries should be explicit, validated, and testable.

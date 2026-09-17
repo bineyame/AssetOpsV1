@@ -168,9 +168,10 @@ provenance. Full carried-forward list is in the T005 Review Outcome.
 ### From T006
 
 1. `timezone` accepts a syntactically valid but non-existent zone, because
-   validation is shape-only. Accepted by the user at the T006 checkpoint.
-   Tighten before scenario timing or window analytics consume the value, not
-   after.
+   validation is shape-only. Accepted by the user at the T006 checkpoint, and
+   settled again on 2026-09-17: this is acceptable for storage/display, but real
+   IANA membership validation must land before scenario timing, run windows,
+   replay/evidence windows, scheduling, or analytics consume the value.
 2. No automated integration test binds the real frontend fetch clients to the
    backend. Superseded by T007 open item 3, which is the same gap on its third
    slice.
@@ -198,7 +199,8 @@ provenance. Full carried-forward list is in the T005 Review Outcome.
    it a truthful source.
 3. Still no automated integration test binding the real frontend fetch clients
    to the backend. Third slice in a row; covered by a manual dev-proxy smoke
-   only. This has stopped being a gap and should be decided.
+   only. Settled on 2026-09-17: add a focused integration test before the
+   shared Site Foundation frontend/backend contract is materially expanded.
 4. The site page was verified by tests, the production build, and a real
    backend plus dev-proxy smoke of the API. It was not clicked through in a
    browser.
@@ -222,11 +224,16 @@ provenance. Full carried-forward list is in the T005 Review Outcome.
    reviewed by the user. If the checkpoint changes it, it changes in one place:
    the three constants in `siteViewModel.ts`.
 3. Integration readiness still has no field. Unchanged from T007, and now
-   stated on two surfaces from one constant.
+   stated on two surfaces from one constant. Source health was settled again on
+   2026-09-17: it must come from backed source/gateway observation,
+   heartbeat/arrival evidence, and expected cadence, not from lifecycle or
+   simulator provenance. Until then it stays not recorded/not backed.
 4. Still no automated integration test binding the real frontend fetch clients
    to the backend. Fourth slice in a row. The configuration surface is the
    second consumer of the same client, so the untested seam now has two callers
-   rather than one.
+   rather than one. Settled on 2026-09-17: add the focused integration test in
+   or before the next slice that expands this seam, and do not defer it past
+   T011.
 5. `createSiteFlow.test.tsx`, the case-variant refusal case, failed once under
    heavy CPU contention on `main` during the T007 closeout and could not be
    reproduced in two further runs, one of them deliberately contended. No

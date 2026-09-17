@@ -12,7 +12,10 @@ Site Foundation And Configuration-Only Site, canonical screen fidelity stage 4.
 ## UI-Verifiable Screen Behavior
 
 The operator Sites index looks like canonical screen 1, corrected where the
-mockup is wrong.
+mockup conflicts with backed Site truth. It should realise the screen's visual
+and information architecture assertively; corrections such as split
+Mode/Lifecycle, `Last analysed` as `--`, and no fabricated operational content
+are product-honesty decisions, not reasons to retreat from mockscreen fidelity.
 
 It has a page title and subtitle, a site search, a type filter, and separate
 filters for mode and lifecycle. Its table columns are Name with `site_id`, Type,
@@ -92,6 +95,12 @@ becoming the product's data model.
 
 ## Required Product And Domain Semantics
 
+- Mockscreen fidelity is an explicit delivery goal for these slices. The task
+  should move the real screen as close to the canonical mockscreen's visual and
+  information architecture as current backed content honestly allows.
+  Differences from the mockscreen must be deliberate corrections for product
+  truth, missing evidence, deferred capabilities, or protected seams, not timid
+  styling omissions.
 - Mode is provenance, not status. `SIMULATED` is neutral provenance and never an
   assessment. Collapsing mode and lifecycle into one status column is a mockup
   error the product corrects rather than copies.
@@ -148,6 +157,8 @@ becoming the product's data model.
 - UI test asserting the empty state copy and behaviour are unchanged in meaning
   in both flag states.
 - UI test asserting the screen is otherwise identical in both flag states.
+- The focused frontend-client/backend-response integration test from T010 or
+  T010A exists before this slice expands the same shared fetch seam.
 - Vocabulary scan asserting no source-health or assessment term appears.
 - Accessibility checks on the table, filters, and badges.
 - Run `tools/check-architecture.ps1`, including the T005 persistence checks and

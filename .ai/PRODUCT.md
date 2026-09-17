@@ -11,17 +11,55 @@ investigate evidence-backed operational findings.
 Initial users are operators, asset managers, and technical reviewers responsible
 for understanding mini-grid site performance and reliability.
 
-## Current Demo Wedge
+## Current Product Walkthrough Wedge
 
-The first demo wedge should be planned from the canonical screens in
-`Docs/UI Design/Motivation`, especially `SimulatorLab1.png` and
+The first product walkthrough wedge should be planned from the canonical
+screens in `Docs/UI Design/Motivation`, especially `SimulatorLab1.png` and
 `ScreenMockups.png`. The sequence should follow causal product dependencies:
 site information, components, devices, configured single-line diagrams, and
 related setup must exist before Simulator Lab can truthfully show those details.
 
+Client-demo readiness is defined separately under Demo Readiness Milestones.
+
 Initial implementation slices should make these screens incrementally real, with
 backend work tied to behavior the user can verify in the UI. The Architect must
 create the feature map and task sequence before Implementer work begins.
+
+## Demo Readiness Milestones
+
+AssetOps distinguishes product walkthroughs from client-ready demos.
+
+`M0: Site Foundation Fidelity` covers faithful Site Foundation screens and
+configuration-only Site views. It may be shown as a prototype walkthrough
+foundation, but it must not claim operational evidence, health, analytics,
+Replay, or findings.
+
+`M1A: Topology, Devices, Signals, And SLD` makes the configured physical model
+real: topology, devices, signals, ratings, control assumptions, and the
+configured Single Line Diagram.
+
+`M1B: Scenario Catalog And Run Setup` makes simulation selection and setup real
+against configured Site anchors.
+
+`M1C: Prototype Walkthrough: Recorded Runtime` makes Simulator Lab resemble the
+canonical runtime mockscreen with run state, controls, runtime panels, timeline,
+and overlays. It is still simulator behavior, not AssetOps product evidence.
+
+`Demo Ready v1: Simulated Evidence Loop` is the earliest honest client-ready
+mini-grid demo. The product can show a simulated Site producing staged
+gateway/source envelopes, releasing them through ingestion, accepted/rejected
+ingestion logs, operator evidence views populated from accepted evidence only,
+provenance inspection, and Replay over committed accepted history.
+
+`Demo Ready v1.5: Cold-Chain Evidence Loop` applies the same evidence loop to a
+real cold-chain domain model. Cold-chain is not a label swap over mini-grid; it
+needs cold room assets, temperature sensors, compressor/refrigeration state,
+door events, power dependency, temperature excursions, and careful exposure/risk
+language.
+
+`Demo Ready v2: Evidence-Backed Operational Findings` adds source/gateway
+health, evidence readiness, bounded assessments, and at least one operational
+Finding with confidence, claim boundary, and evidence basis.
 
 ## Product Principles
 
@@ -32,6 +70,19 @@ create the feature map and task sequence before Implementer work begins.
   meaningful step.
 - The system should explain what is known, what is inferred, and what is
   unavailable.
+
+## Prohibited Demo Claims
+
+Before accepted evidence exists, do not claim source health, operational status,
+charts, `Last analysed` timestamps, Replay history, analytics, findings, asset
+condition, recommendations, fuel variance, spoilage risk, or business impact.
+
+Before the conclusion chain exists, do not claim generator runtime assessment,
+fuel reconciliation, theft, compressor failure, spoilage, asset degradation, or
+operational recommendations.
+
+Private simulator truth may appear inside Simulator Lab for development and
+testing context, but it must not be presented as AssetOps product evidence.
 
 ## Evidence Philosophy
 
