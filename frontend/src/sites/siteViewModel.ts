@@ -23,7 +23,11 @@
  * know would be a claim about a site rather than a statement about the record.
  */
 
-import type { SiteDetailReadModel, SiteSummary } from "./siteReadModel";
+import type {
+  SiteComponentReadModel,
+  SiteDetailReadModel,
+  SiteSummary,
+} from "./siteReadModel";
 
 /** What the Sites index renders for one site. */
 export interface SiteView {
@@ -102,14 +106,17 @@ export interface SiteUnavailableFact {
  *
  * The six provenance-and-status concepts appear here as six fields, never as
  * one. Three come straight off the record - configuration origin, source mode,
- * lifecycle status. Three have no truthful source for a site with no accepted
- * evidence - integration readiness, evidence availability, source health - and
- * each is stated as unavailable with its reason rather than defaulted, zeroed,
- * or derived from one of the other three.
+ * lifecycle status. Three have no field behind them in this build -
+ * integration readiness, evidence availability, source health - and each is
+ * stated as unavailable with its reason rather than defaulted, zeroed, or
+ * derived from one of the other three.
  *
- * Source health in particular is not rendered as a health value. A source that
- * is configured but has never been expected to report has no health state at
- * all, so no source-health vocabulary appears here.
+ * Each of those three says what this build records, not what the site has.
+ * The record carries no integration field and no source-health field, so a
+ * sentence here about how a site is integrated, or about whether its source
+ * reports, would be a claim this substrate cannot back for the site in front
+ * of it. Source health in particular is not rendered as a health value, and no
+ * source-health vocabulary appears here.
  */
 export interface SiteDetailView extends SiteView {
   timezone: string;
@@ -120,13 +127,21 @@ export interface SiteDetailView extends SiteView {
   sourceHealth: SiteUnavailableFact;
 }
 
-/** Integration readiness: a separate concept, with no field behind it yet. */
+/**
+ * Integration readiness: a separate concept, with no field behind it.
+ *
+ * What this states is what the build records, because that is all the record
+ * proves. "No integration is configured for this site" would be a claim about
+ * the site, and nothing in the record says whether one is: a site registered
+ * against a real integration would arrive here with the same fields and be
+ * described wrongly by it.
+ */
 export const INTEGRATION_READINESS_UNAVAILABLE: SiteUnavailableFact = {
   value: "Not recorded",
   reason:
-    "No integration is configured for this site, and this build records no " +
-    "integration readiness. Readiness is its own fact: it is not lifecycle " +
-    "status, not source mode, and not derived from either.",
+    "This build records no integration readiness for a site, so nothing here " +
+    "states whether an integration is configured. Readiness is its own fact: " +
+    "it is not lifecycle status, not source mode, and not derived from either.",
 };
 
 /** Evidence availability: a statement about evidence, not a measurement. */
@@ -138,13 +153,20 @@ export const EVIDENCE_AVAILABILITY_UNAVAILABLE: SiteUnavailableFact = {
     "reading of zero and not a statement about the site's lifecycle status.",
 };
 
-/** Source health: not applicable, because no source is expected to report. */
+/**
+ * Source health: not recorded, because the record carries no health field.
+ *
+ * Not "not applicable", which would state that this site's source could have
+ * no health, and not "no source is expected to report", which would state
+ * something about the site's source that the record does not carry. What is
+ * true is about the build: it records no source health for any site.
+ */
 export const SOURCE_HEALTH_UNAVAILABLE: SiteUnavailableFact = {
-  value: "Not applicable",
+  value: "Not recorded",
   reason:
-    "No source is expected to report for this site yet, so there is no " +
-    "source health to state. A source that is configured but has never been " +
-    "expected to report has no health state at all.",
+    "This build records no source health for a site, and the record carries " +
+    "no field that could carry one. Nothing here states whether this site's " +
+    "source is reporting, so nothing here is a health value.",
 };
 
 export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView {
@@ -156,5 +178,163 @@ export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView 
     integrationReadiness: INTEGRATION_READINESS_UNAVAILABLE,
     evidenceAvailability: EVIDENCE_AVAILABILITY_UNAVAILABLE,
     sourceHealth: SOURCE_HEALTH_UNAVAILABLE,
+  };
+}
+
+/**
+ * One component a site's foundation declares, as display.
+ *
+ * The rating is the archetype's declared design rating, copied from the
+ * template when the site was created. It is nameplate intent from a document
+ * and never a measurement, so it is never rendered beside, or in the
+ * vocabulary of, anything a device has reported.
+ */
+export interface SiteComponentView {
+  componentId: string;
+  displayName: string;
+  componentType: string;
+  rating: string;
+}
+
+/**
+ * What a component with no declared rating shows.
+ *
+ * Not `0`, and not an empty cell. A component that declares no rating and a
+ * component rated at zero are different facts, and the document states only
+ * the first.
+ */
+export const NO_RATING_DECLARED = "No rating declared";
+
+const COMPONENT_TYPE_LABELS: Record<string, string> = {
+  PV_ARRAY: "PV array",
+  INVERTER: "Inverter",
+  BATTERY: "Battery",
+  POWER_CONVERSION_SYSTEM: "Power conversion system",
+  GENERATOR: "Generator",
+  FUEL_TANK: "Fuel tank",
+  AC_BUS: "AC bus",
+  LOAD: "Load",
+  COLD_ROOM: "Cold room",
+  METER: "Meter",
+};
+
+/**
+ * The statement that configuration does not change after a site is created.
+ *
+ * Written once, here, because it is the load-bearing sentence of this surface:
+ * it is what makes the absence of every editing control a stated product
+ * position rather than something a user has to infer from an empty toolbar.
+ *
+ * It says what M1 does and does not do. It does not say "not yet", does not
+ * name an editing workflow, and does not describe the present arrangement as
+ * temporary, because none of those is a promise this product has made.
+ */
+export const CONFIGURATION_FIXED_AT_CREATION =
+  "Configuration is fixed at creation in M1. A site's foundation is copied " +
+  "from its template when the site is created, and AssetOps does not edit a " +
+  "site's foundation in this milestone.";
+
+/**
+ * What the foundation's validity interval means, stated rather than implied.
+ *
+ * The interval is half-open and open-ended: it includes the instant it starts
+ * and has no recorded end. Rendering a start date alone would leave a reader
+ * to guess whether the configuration has since stopped applying.
+ */
+export const FOUNDATION_VALIDITY_SEMANTICS =
+  "The interval is half-open: it includes the instant it starts and has no " +
+  "recorded end, because a foundation stays valid until a later version " +
+  "supersedes it. This is the validity of one configuration document. It is " +
+  "not a configuration history, and this build records no change to a " +
+  "foundation.";
+
+/**
+ * A part of a site's configuration the M1 foundation cannot carry.
+ *
+ * These are stated rather than omitted, and the reason does the work. Silence
+ * about devices on a screen that presents itself as a site's configuration
+ * would read as "this site has no devices". What is true is narrower and is
+ * about the document: the M1 foundation schema declares components and nothing
+ * below them, so this build has nowhere to put a device, a mapping, or a
+ * control assumption, and therefore states none.
+ *
+ * None of these is a placeholder for a future panel. There is no empty frame,
+ * no heading reserved for content that has not landed, and nothing here names
+ * a screen the product does not have.
+ */
+export const DEVICES_NOT_DECLARED: SiteUnavailableFact = {
+  value: "Not declared",
+  reason:
+    "The M1 site foundation declares components and nothing below them, so " +
+    "no device is declared for any site in this build. This is a statement " +
+    "about what the configuration document can carry, not a statement that " +
+    "this site has no devices.",
+};
+
+export const SIGNAL_MAPPINGS_NOT_DECLARED: SiteUnavailableFact = {
+  value: "Not declared",
+  reason:
+    "A signal mapping binds a device signal to a canonical signal, so no " +
+    "mapping can be declared while no device is. The M1 site foundation " +
+    "carries none, and no mapping version is stated for this site.",
+};
+
+export const CONTROL_ASSUMPTIONS_NOT_DECLARED: SiteUnavailableFact = {
+  value: "Not declared",
+  reason:
+    "The M1 site foundation declares no control assumptions, so nothing " +
+    "here states how this site is expected to be controlled. This is a " +
+    "statement about the configuration document, not a statement that this " +
+    "site is uncontrolled.",
+};
+
+/**
+ * What the read-only Site Configuration surface renders for one site.
+ *
+ * Everything a site page states about identity and provenance, plus the
+ * content of the foundation document: its version, what its validity interval
+ * means, its summary, and the components it declares.
+ *
+ * The six provenance-and-status concepts stay six here exactly as they are on
+ * the site page, and for the same reason: this screen is a second place they
+ * could be collapsed into one another, and one derivation in one view model
+ * would be enough to make the two screens disagree about what a site is.
+ */
+export interface SiteConfigurationView extends SiteDetailView {
+  foundationSummary: string;
+  foundationValiditySemantics: string;
+  configurationFixedAtCreation: string;
+  components: SiteComponentView[];
+  devices: SiteUnavailableFact;
+  signalMappings: SiteUnavailableFact;
+  controlAssumptions: SiteUnavailableFact;
+}
+
+export function deriveSiteComponentView(
+  component: SiteComponentReadModel,
+): SiteComponentView {
+  return {
+    componentId: component.component_id,
+    displayName: component.display_name,
+    componentType: label(component.component_type, COMPONENT_TYPE_LABELS),
+    rating:
+      component.rating === null
+        ? NO_RATING_DECLARED
+        : `${component.rating.value} ${component.rating.unit}`,
+  };
+}
+
+export function deriveSiteConfigurationView(
+  site: SiteDetailReadModel,
+): SiteConfigurationView {
+  return {
+    ...deriveSiteDetailView(site),
+    foundationSummary: site.foundation.summary,
+    foundationValiditySemantics: FOUNDATION_VALIDITY_SEMANTICS,
+    configurationFixedAtCreation: CONFIGURATION_FIXED_AT_CREATION,
+    components: site.foundation.components.map(deriveSiteComponentView),
+    devices: DEVICES_NOT_DECLARED,
+    signalMappings: SIGNAL_MAPPINGS_NOT_DECLARED,
+    controlAssumptions: CONTROL_ASSUMPTIONS_NOT_DECLARED,
   };
 }

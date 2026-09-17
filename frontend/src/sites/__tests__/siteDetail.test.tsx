@@ -36,7 +36,27 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
   origin: "USER",
   source: { mode: "SIMULATED" },
   template: { template_id: "hybrid-mini-grid-100kw", template_version: 1 },
-  foundation: { version: 1, valid_from: "2026-09-14T09:12:00Z" },
+  foundation: {
+    version: 1,
+    valid_from: "2026-09-14T09:12:00Z",
+    summary:
+      "Solar-plus-storage mini-grid with a diesel generator for backup and a " +
+      "metered distribution load.",
+    components: [
+      {
+        component_id: "pv-array",
+        component_type: "PV_ARRAY",
+        display_name: "PV array",
+        rating: { value: 100, unit: "kW" },
+      },
+      {
+        component_id: "site-meter",
+        component_type: "METER",
+        display_name: "Site meter",
+        rating: null,
+      },
+    ],
+  },
 };
 
 /** `USER` with `LIVE`: a site registered against a real integration. */
@@ -59,7 +79,19 @@ const SHIPPED_SIMULATED_SITE: SiteDetailReadModel = {
   origin: "SHIPPED",
   source: { mode: "SIMULATED" },
   template: null,
-  foundation: { version: 2, valid_from: "2026-08-01T00:00:00Z" },
+  foundation: {
+    version: 2,
+    valid_from: "2026-08-01T00:00:00Z",
+    summary: "Single cold room with a metered supply.",
+    components: [
+      {
+        component_id: "cold-room",
+        component_type: "COLD_ROOM",
+        display_name: "Cold room",
+        rating: { value: 30, unit: "kWh" },
+      },
+    ],
+  },
 };
 
 const INTERACTIVE_SELECTOR = [
@@ -316,7 +348,7 @@ describe("the six provenance and status concepts are six facts", () => {
     expect(factValue(container, "Evidence availability")).toMatch(
       /^No evidence\./,
     );
-    expect(factValue(container, "Source health")).toMatch(/^Not applicable\./);
+    expect(factValue(container, "Source health")).toMatch(/^Not recorded\./);
   });
 
   it("puts the Simulated badge next to lifecycle status, never inside it", async () => {
@@ -395,11 +427,28 @@ describe("a configuration-only site fabricates nothing", () => {
       /No evidence has been accepted for this site/i,
     );
     expect(factValue(container, "Source health")).toMatch(
-      /No source is expected to report for this site yet/i,
+      /This build records no source health for a site/i,
     );
     expect(factValue(container, "Integration readiness")).toMatch(
-      /No integration is configured for this site/i,
+      /This build records no integration readiness for a site/i,
     );
+  });
+
+  it("states what this build records, never what the site has", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // The record carries no integration field and no source-health field, so
+    // neither fact may describe this site's integration or its source. A site
+    // registered against a real integration arrives with exactly these fields,
+    // and copy saying no integration is configured would describe it wrongly.
+    const readiness = factValue(container, "Integration readiness");
+    const health = factValue(container, "Source health");
+
+    expect(readiness).toMatch(/this build records no integration readiness/i);
+    expect(health).toMatch(/this build records no source health/i);
+    expect(readiness).not.toMatch(/no integration is configured/i);
+    expect(health).not.toMatch(/expected to report|has no health state/i);
   });
 
   it("renders no chart, image, figure, or diagram surface", async () => {

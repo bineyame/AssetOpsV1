@@ -55,6 +55,18 @@ function Invoke-SiteSubstrateCheck {
             # decides what a site looks like.
             Name    = "Site detail presentation component"
             Pattern = 'function\s+SiteDetail(?!Frame\b)[A-Za-z]*\s*\('
+        },
+        @{
+            # The site-configuration components, named separately for the same
+            # reason: a definition no pattern reaches is a definition the
+            # single-definition check does not protect, and a second shell
+            # growing its own opinion of what a foundation looks like is the
+            # drift this seam exists to stop.
+            #
+            # `*Frame` is excluded here too, and for the same reason: a frame
+            # supplies the landmark and composes the substrate.
+            Name    = "Site configuration presentation component"
+            Pattern = 'function\s+SiteConfiguration(?!Frame\b)[A-Za-z]*\s*\('
         }
     )
 

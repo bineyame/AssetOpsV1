@@ -25,21 +25,24 @@ import { settledScreen } from "../../test/settled";
 const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
-const OPERATOR_ROUTES = ["/", "/sites", "/site-configuration"];
+/**
+ * Operator routes with no site in them. `/site-configuration` left this list
+ * when T008 removed the parameterless placeholder; its identified replacement
+ * is addressed under a site and is covered in `siteConfigurationRoute.test.tsx`
+ * in both gate states.
+ */
+const OPERATOR_ROUTES = ["/", "/sites"];
 
 /**
  * The operator route list, which the gate must never change.
  *
- * T007 removes `Site details`: it was a parameterless placeholder from before
- * site identity existed, and a site page is now reached from a Sites row. The
- * gate assertion is unchanged in strength - the list is still pinned exactly,
- * and it is still the same list in both flag states.
+ * T007 removed `Site details` and T008 removed `Site configuration`: both were
+ * parameterless placeholders from before site identity existed, and a site
+ * page and its configuration are now reached from a Sites row and from the
+ * site. The gate assertion is unchanged in strength - the list is still pinned
+ * exactly, and it is still the same list in both flag states.
  */
-const OPERATOR_NAVIGATION_LABELS = [
-  "Operator home",
-  "Sites",
-  "Site configuration",
-];
+const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
 
 /** Injected and empty: placement assertions must not depend on a store. */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {

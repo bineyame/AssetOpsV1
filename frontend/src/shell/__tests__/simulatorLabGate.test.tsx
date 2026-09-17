@@ -35,12 +35,19 @@ const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
 /**
- * Operator routes with no site in them. The identified site route is covered
- * separately at the bottom of this file, over a record, because a real site
- * legitimately renders the word `Simulated` as source-mode provenance and the
- * blanket text assertions here would read that as a simulator reference.
+ * Operator routes with no site in them.
+ *
+ * The identified site routes are covered in `siteDetailRoute.test.tsx` and
+ * `siteConfigurationRoute.test.tsx`, each over a record and in both gate
+ * states, because a real site legitimately renders the word `Simulated` as
+ * source-mode provenance and the blanket text assertions here would read that
+ * as a simulator reference.
+ *
+ * `/site-configuration` left this list when T008 removed it. It was a
+ * parameterless placeholder, and what replaced it is addressed under a site,
+ * so it belongs with the other identified routes rather than here.
  */
-const OPERATOR_ROUTES = ["/", "/sites", "/site-configuration"];
+const OPERATOR_ROUTES = ["/", "/sites"];
 
 /**
  * URLs a bookmark, a script, or a curious operator could aim at the simulator.

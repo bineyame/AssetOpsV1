@@ -18,24 +18,24 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T008-read-only-site-configuration-presentation.md`.
-Not started.
+No active task. T008 closed out 2026-09-17 and merged to `main`.
 
-- Lane: Planned lane, then independent review, then user review.
-- User review: T008 is the second and final user-review checkpoint of the
-  feature. It is where the configuration-only language and "configuration is
-  fixed at creation in M1" go to the user.
+Independent review of T008 returned two medium findings, both fixed on the
+branch: hardcoded claims about a Site's integration and source that no field
+backs, and a detail guard that did not validate the Foundation fields the slice
+reads. User review completed 2026-09-17, verdict accept as built, with Known
+Deviation (a) accepted: devices, signal mappings and control assumptions are
+stated as `Not declared` with a reason, because the M1 Foundation carries
+nothing below `components`. Both Review Outcomes are in
+`tasks/completed/T008-read-only-site-configuration-presentation.md`.
 
-T007 is complete, closed out 2026-09-14. Reviewer verdict was accept after one
-medium finding was fixed on the branch: `SiteDetails` kept the loaded Site
-across a change of address, so navigating between two Site URLs could present
-the previous Site as the one the new address names. No user review was
-required. The task file moved to
-`tasks/completed/T007-site-details-by-site-id.md` with its Review Outcome, and
-the branch merged to `main`.
+That was the second and final user-review checkpoint of the Site Foundation
+feature, so Causal Sequencing step 4 is now unblocked for planning.
 
-T005 and T006 are complete. Their task files are in `tasks/completed/` with
-their Review Outcomes, and their branches merged to `main`.
+T005, T006 and T007 are complete. Their task files are in `tasks/completed/`
+with their Review Outcomes, and their branches merged to `main`.
+
+Next: T009, the shared visual vocabulary.
 
 ## Current Site Foundation Sequence
 
@@ -44,25 +44,26 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
 - T007: Site Details by `site_id`. Complete.
-- T008: read-only Site Configuration; second user-review checkpoint.
+- T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009-T013: staged visual fidelity after real content exists.
 
-Capability planning stops at the second checkpoint. Causal Sequencing step 4,
-topology, devices, and the configured single-line diagram, is not planned. No
-step 3 slice may render the diagram, an empty frame for it, or its signal
-selector.
+The second checkpoint is closed. Causal Sequencing step 4, topology, devices,
+and the configured single-line diagram, is unblocked for planning and is not
+yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
+or its signal selector.
 
-## Read For T008
+## Read For T009
 
-Carried forward from T007. T008 adds the read-only Site Configuration surface
-and removes the parameterless `Site configuration` frame and navigation item,
-so it consumes the substrate and the per-Site read path T007 built.
+T009 is the shared visual vocabulary, applied to the surfaces T005-T008 made
+real. It introduces no content, no control and no destination, which is what
+makes it safe to run before the next capability step.
 
-- `tasks/T008-read-only-site-configuration-presentation.md`
-- `.ai/CODE_STATE.md`, the T006 and T007 entries, for the Site record shape,
-  the port, the read path, and the substrate. Read the completed task files
-  only if an entry there is not enough; the entries exist so that two large
-  task files do not have to be read for their code shape.
+- `tasks/T009-shared-visual-vocabulary.md`
+- `.ai/CODE_STATE.md`, the T006, T007 and T008 entries, for the Site record
+  shape, the read path, the substrate, and what each surface renders today.
+  Read the completed task files only if an entry there is not enough; the
+  entries exist so that large task files do not have to be read for their code
+  shape.
 - `.ai/FEATURE_MAP.md` sections:
   - Feature Map Index
   - Product Spine

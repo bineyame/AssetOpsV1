@@ -64,18 +64,49 @@ export type SiteListResult =
   | { status: "unavailable" };
 
 /**
- * Foundation metadata on a site record.
+ * A declared design rating on a configured component.
  *
- * The version and the start of the validity interval only. This is metadata
- * about the configuration document, not the configuration itself: the
- * foundation summary, the components, and later topology, devices, signal
- * mappings and control assumptions belong to the read-only Site Configuration
- * surface and arrive with it. Declaring a field here before a screen renders
- * it would fix a shape nothing has proved.
+ * Nameplate intent from the configuration document, never a measurement. A
+ * component that declares no rating carries `null` rather than a zero: no
+ * rating and a rating of zero are different facts, and only one of them is
+ * something the document says.
+ */
+export interface SiteRatingReadModel {
+  value: number;
+  unit: string;
+}
+
+/** One component a site's foundation declares. */
+export interface SiteComponentReadModel {
+  component_id: string;
+  component_type: string;
+  display_name: string;
+  rating: SiteRatingReadModel | null;
+}
+
+/**
+ * The foundation on a site record.
+ *
+ * The version and the start of the validity interval are metadata about the
+ * configuration document; the summary and the components are the document's
+ * content, and they arrive here with the surface that renders them.
+ *
+ * There is no `valid_to`. The validity interval is open-ended because a
+ * foundation stays valid until a later version supersedes it, and M1 has no
+ * mechanism that produces a later version. A field carrying an invented end
+ * would state when this configuration stops being true.
+ *
+ * There is no topology, device, signal-mapping, or control-assumption field
+ * either, and no empty list standing in for one. The M1 foundation schema
+ * declares none of them: they arrive with causal step 4. An empty list here
+ * would let a screen say this site has no devices, when what is true is that
+ * this milestone's configuration document cannot carry one.
  */
 export interface SiteFoundationReadModel {
   version: number;
   valid_from: string;
+  summary: string;
+  components: SiteComponentReadModel[];
 }
 
 /**

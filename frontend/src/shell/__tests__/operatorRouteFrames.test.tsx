@@ -7,7 +7,15 @@ import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
 
-const operatorRoutes = ["/", "/sites", "/site-configuration"];
+/**
+ * The operator route frames that name no site.
+ *
+ * `/site-configuration` left this list when T008 removed the parameterless
+ * placeholder. Its identified replacement is addressed under a site and is
+ * covered in `siteConfigurationRoute.test.tsx`, where the assertions can be
+ * made against a record rather than against an empty build.
+ */
+const operatorRoutes = ["/", "/sites"];
 
 /**
  * The Sites index now reads a store, so it is injected and empty here. These
@@ -44,12 +52,18 @@ describe("operator route frames", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the Site Configuration route frame", () => {
+  it("serves nothing at the parameterless Site Configuration address", () => {
+    // The frame this replaced described no site, because no site identity
+    // existed when it was written. A site has one now, so the placeholder is
+    // gone rather than left standing beside its identified replacement.
     renderAt("/site-configuration");
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
+      screen.getByRole("heading", { level: 1, name: "Page not available" }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { level: 1, name: "Site configuration" }),
+    ).toBeNull();
   });
 });
 
@@ -93,18 +107,18 @@ describe("operator route frame empty states", () => {
     );
   });
 
-  it("states that site configuration is unavailable", () => {
+  it("no longer says that no site configuration exists in this build", () => {
+    // That was true of the empty T002 frame and is false now: a configured
+    // site has a foundation and the product renders it. The copy goes with
+    // the frame rather than being left somewhere it would contradict a screen.
     renderAt("/site-configuration");
 
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "Site configuration unavailable",
-      }),
-    ).toBeInTheDocument();
+      screen.queryByText(/No site configuration exists in this build/i),
+    ).toBeNull();
     expect(
-      screen.getByText(/No site configuration exists in this build/i),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: /Site configuration unavailable/i }),
+    ).toBeNull();
   });
 
   it.each(operatorRoutes)(
@@ -117,10 +131,11 @@ describe("operator route frame empty states", () => {
       expect(screen.queryAllByRole("figure")).toHaveLength(0);
 
       // The digit rule stands where nothing truthful renders a number: these
-      // three frames describe an empty build. Where a site renders values, the
+      // frames describe an empty build. Where a site renders values, the
       // stronger rule replaces this one and every digit on screen must trace
-      // to the record under test - see `sitesIndex.test.tsx` for the index and
-      // `siteDetail.test.tsx` for a site page.
+      // to the record under test - see `sitesIndex.test.tsx` for the index,
+      // `siteDetail.test.tsx` for a site page, and
+      // `siteConfiguration.test.tsx` for a foundation.
       expect(
         within(screen.getByRole("main")).queryAllByText(/\d/),
       ).toHaveLength(0);
@@ -134,10 +149,14 @@ describe("operator route frame empty states", () => {
     expect(container.querySelectorAll("table")).toHaveLength(0);
   });
 
-  it.each(["/site-configuration"])(
+  it.each(operatorRoutes)(
     "does not hard-code a site identifier at %s",
-    (path) => {
+    async (path) => {
+      // These frames name no site, so neither may name one. Where a frame does
+      // name a site the identity comes from the address and the record, which
+      // `siteDetailRoute.test.tsx` and `siteConfigurationRoute.test.tsx` pin.
       const { container } = renderAt(path);
+      await settledScreen();
 
       expect(container.textContent).not.toMatch(/MG-?\s*\d/i);
       expect(container.textContent).not.toMatch(/\bsite[-_\s]?id\b/i);
@@ -158,14 +177,15 @@ describe("operator route navigation", () => {
       screen.getByRole("heading", { level: 1, name: "Sites" }),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      within(operatorNavigation).getByRole("link", {
-        name: "Site configuration",
-      }),
-    );
+    // There is no third item to navigate to. Both parameterless site
+    // destinations have been removed by the slices that gave them identified
+    // replacements, and neither replacement is a navigation item, because a
+    // navigation item cannot name which site it would open.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
-    ).toBeInTheDocument();
+      within(operatorNavigation)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Operator home", "Sites"]);
   });
 
   it.each(operatorRoutes)(

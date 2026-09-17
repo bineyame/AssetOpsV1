@@ -79,6 +79,62 @@ Two rules keep this file useful:
   and a navigation-truthfulness check that `/site-details` appears nowhere in
   `frontend/src` while an identified site route does.
 
+### T008 - read-only Site Configuration
+
+- The Foundation reaches the wire on the existing `GET /api/sites/{site_id}`.
+  Site Details and Site Configuration are two presentations of one configured
+  Site rather than two resources, so there is no endpoint under a Site and no
+  second read model. `foundation` is now exactly `version`, `valid_from`,
+  `summary`, `components`, and the API test pins that set exactly so a later
+  slice cannot put topology on the wire before a screen renders it.
+- A component on the wire is `component_id`, `component_type`, `display_name`,
+  `rating`. A component with no declared rating carries `null`, never `0`: no
+  rating and a rating of zero are different facts.
+- There is still no `valid_to`, and no topology, device, signal-mapping or
+  control-assumption field, not even an empty list. An empty list would let a
+  screen state that a Site has no devices; what is true is that the M1
+  Foundation schema has nowhere to put one. Causal step 4 adds them, and both
+  the API test and the substrate state the absence in those terms.
+- Frontend: `frontend/src/sites/SiteConfiguration.tsx` and
+  `deriveSiteConfigurationView` are the configuration surface, and
+  `frontend/src/sites/useSiteRecord.ts` is the one-Site read both site
+  surfaces share. The hook carries T007's identity pinning, so the second
+  surface could not reproduce that defect.
+- `SITE_CONFIGURATION_ROUTE_PATH` is built on `SITE_DETAIL_ROUTE_PATH`, so a
+  configuration is addressed under its Site. The guard looks for that shape
+  rather than for any configuration route: a path built on the Site's address
+  has nowhere to put the identity it would have to drop to become a
+  parameterless destination again.
+- Operator navigation is `Operator home` and `Sites`. Both parameterless T002
+  site frames are gone. The navigation-growth assertion is now stated against
+  the T004 list as a baseline, so it catches an item added and removed within
+  one slice as well as one added outright.
+- The three undeclared facts - devices, signal mappings, control assumptions -
+  are constants in the view model beside T007's three unavailable facts, with
+  the same value-and-reason shape. The reason in each says the absence is a
+  statement about the configuration document and not about the Site. This is
+  the wording the second user-review checkpoint is being asked to settle.
+- The architecture guard gained a configuration-component clause on the
+  single-definition check and a parameterless-`/site-configuration` ban plus an
+  identified-route vacuity clause on navigation truthfulness.
+- Review fix: integration readiness and source health state what this build
+  records, not what the Site has. "No integration is configured for this site"
+  and "no source is expected to report" were claims no field backs, and a Site
+  with a real integration arrives with exactly the same fields. Source health
+  reads `Not recorded` rather than `Not applicable` for the same reason.
+  Evidence availability is unchanged: that no evidence has been accepted is a
+  fact about this build's own store. Both Site surfaces assert it.
+- Review fix: `isSiteDetail` validates the Foundation's content and not only
+  its metadata - `summary`, `components` as an array, each component's four
+  fields, and a rating that is `null` or `{value, unit}`. A missing `rating`
+  key is refused; only an explicit `null` is the document declaring no rating.
+  A guard that stops at what one surface reads is a guard the next surface
+  renders past, which is what happened here between T007 and T008.
+- `frontend/src/sites/__tests__/siteDirectoryClient.test.ts` is the first test
+  in the tree to exercise a client against responses rather than a fake: the
+  three read outcomes, the request path, and eleven malformed bodies split by
+  what each would do if it got through.
+
 ### Tooling and test substrate
 
 Not owned by a product slice, but load-bearing for every one of them.
@@ -154,3 +210,26 @@ provenance. Full carried-forward list is in the T005 Review Outcome.
    single failure; the diagnosis there, a `findBy*` timeout, was wrong. Most of
    the twelve assert absence, which a loading screen satisfies trivially. Fixed
    with `settledScreen`; the pattern is the thing to watch for, not the twelve.
+
+### From T008
+
+1. The M1 Foundation carries components and nothing below them, so devices,
+   signal mappings and control assumptions are rendered as stated absences. The
+   task text asked for them as content. They do not exist to render, and the
+   deviation and its reasoning are in `.agent/T008-review-packet.md`; the
+   wording of the three absences is on the user-review list.
+2. `Not declared` is new product language, written in this slice and not yet
+   reviewed by the user. If the checkpoint changes it, it changes in one place:
+   the three constants in `siteViewModel.ts`.
+3. Integration readiness still has no field. Unchanged from T007, and now
+   stated on two surfaces from one constant.
+4. Still no automated integration test binding the real frontend fetch clients
+   to the backend. Fourth slice in a row. The configuration surface is the
+   second consumer of the same client, so the untested seam now has two callers
+   rather than one.
+5. `createSiteFlow.test.tsx`, the case-variant refusal case, failed once under
+   heavy CPU contention on `main` during the T007 closeout and could not be
+   reproduced in two further runs, one of them deliberately contended. No
+   assertion text was captured. It predates this slice and is untouched by it.
+   Worth knowing before trusting a single green run: it is the same shape as
+   the defect `settledScreen` was written for, and that test does not use it.
