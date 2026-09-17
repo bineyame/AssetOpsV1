@@ -85,8 +85,10 @@ makes it safe to run before the next capability step.
   or a place-bound timezone.
 - Template browsing and Site creation are Simulator Lab surfaces behind
   `simulator_lab.enabled`.
-- Sites index, Site Details, and Site Configuration are operator surfaces and
-  are never gated.
+- Sites index, Site Details, and the Foundation surface are operator surfaces
+  and are never gated. T008 built the surface under the old Site Configuration
+  name; the next Planner pass must use the Foundation naming guidance in
+  `.ai/FEATURE_MAP.md`.
 - A Site created from the Lab is a normal product Site with
   `source.mode = SIMULATED`; there is no Lab-owned Site store and no publish or
   promote step.

@@ -20,6 +20,13 @@ Two rules keep this file useful:
 
 ## What The Code Settles
 
+Naming note for future slices: T008 built the current route and code symbols
+under the user-visible name `Site Configuration`. The settled screen
+architecture now names that operator surface `Foundation`; this file preserves
+the slice record below, while future code state entries should use `Foundation`
+for the user-visible surface and mention old code symbols only when they still
+exist in code.
+
 ### T006 - create a Site from a template
 
 - The Site record is `site_id`, `display_name`, `site_type`, `location`

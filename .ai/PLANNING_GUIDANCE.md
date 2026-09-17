@@ -75,7 +75,7 @@ Feature examples:
 
 Task examples:
 
-- Add basic site identity and parameters to the Site Configuration screen.
+- Add basic site identity and parameters to the Foundation screen.
 - Show configured site components in the single-line diagram area.
 - Let Simulator Lab select a configured site for a run.
 - Publish one simulator observation into Site Details.
