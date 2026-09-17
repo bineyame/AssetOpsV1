@@ -1420,6 +1420,233 @@ being brought to fidelity a second time. This is one of the concrete payoffs of
 the substrate rule and a reason not to defer it: fidelity applied to a forked
 page has to be applied twice and then kept in agreement forever.
 
+### Foundational screen architecture for the two shells
+
+This section settles the screen architecture above T011-T013. It is
+specification, not capability: it defines shell vocabulary, navigation, tabs,
+states and guards, and adds no destination, content, data, or route by itself.
+
+Settled source rule: where v6.9 and a mockup disagree, v6.9 settles it; where a
+user review has already redirected a surface, that decision settles it; where
+v6.9 is silent, the mockup governs layout and this map governs truthfulness.
+This section applies that rule to the operator Site shell, the Simulator Lab
+developer shell, and the shared Site substrate.
+
+#### State vocabulary used by the tables
+
+Rail items use `present` or `absent`, because a rail item is a navigation
+destination and navigation truthfulness forbids dead destinations, disabled
+nav, and coming-soon routes.
+
+Tabs and subtabs use the three states above: `not rendered`, `labelled in
+place`, or `disabled with explicit reason`. A tab row is chrome for an entity,
+so a canonical tab may be labelled in place before its content exists. A tab is
+a navigation destination only when it is rendered as a link to a route. Until a
+route renders truthful content, the tab label may appear but must not be a link,
+route, disabled button, or inert fake destination.
+
+Index columns use `rendered` or `not rendered`. A rendered column must be backed
+by a record field or a deliberately unavailable value such as `--` for an
+evidence-derived fact with no accepted evidence.
+
+#### Lab rail
+
+The Lab rail is v6.9's Simulator Lab developer shell, reproduced by
+`SimulatorLab1.png` and visible in `ScreenMockups.png` screens 1-9. v6.9 names
+it `Home | Sites | Simulator Lab | Scenarios | Site Templates | Library |
+Documentation | Settings` at lines 657, 845 and 2379. The Lab rail is gated
+with Simulator Lab surfaces and execution; it is not operator navigation.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Home | v6.9 lines 657, 845, 2379; `SimulatorLab1.png` | absent | A Lab home route with truthful workspace content, not a placeholder | When a Lab home surface is specified and implemented |
+| Sites | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screen 4 | present when the Lab gate is enabled | The Lab create flow and Lab site-selection surfaces render real Site records and Site templates through the gated Lab shell | Present from the create-flow/template slice while the gate is enabled; absent when `simulator_lab.enabled=false` |
+| Simulator Lab | v6.9 lines 657, 845, 2379; `SimulatorLab1.png` | absent until the Lab run workspace exists | A gated run workspace route renders a real run or a truthful run selection/setup surface | When run setup/execution lands; absent while the route would be a placeholder |
+| Scenarios | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screens 5-6 | absent | Scenario records and a scenario catalog/detail route exist | When the scenario catalog slice lands |
+| Site Templates | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screen 4 uses templates for run setup | present when the Lab gate is enabled | The Lab Site Templates catalog and template inspection view render shipped template records | Present from the template catalog slice while the gate is enabled; absent when `simulator_lab.enabled=false` |
+| Library | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Library content contract and route are specified |
+| Documentation | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Documentation content contract and route are specified |
+| Settings | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Settings content contract and route are specified |
+
+Changes to planned tasks: T010 may keep only the Lab rail destinations whose
+routes render truthful content. T011-T013 must not copy `Devices`, `Ingestion`
+or `Events` from `ScreenMockups.png` into either rail; v6.9 line 659 defines
+those as run tabs, and the mockup breadcrumbs show them as site-scoped surfaces.
+
+#### Operator rail
+
+The operator rail target is v6.9 section 2's ten object classes in five groups:
+`Portfolio | Sites | Assets`, `Findings`, `Actions | Incidents | Maintenance`,
+`Evidence`, and `Financials | Reports (P1)` at line 442. The operator shell
+navigation invariant is at line 448. The current M1 operator rail remains small
+because a navigation item appears only when its route renders a truthful
+surface.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Operator home | Project shell from T004; v6.9 target equivalent is Portfolio at line 442 | present | Existing operator home route renders truthful current product content | Replaced by Portfolio when a truthful Portfolio route exists |
+| Sites | v6.9 lines 442, 454, 462, 613 | present | Sites index route renders real Site records and first-run empty state | Already present |
+| Portfolio | v6.9 lines 442, 605-609 | absent | Portfolio command-center lenses and drilldowns exist over real portfolio data | When Portfolio content exists; it replaces Operator home rather than adding a dead destination |
+| Assets | v6.9 line 442 | absent | Asset records and an Assets index/detail route exist | When asset identity/content exists |
+| Findings | v6.9 lines 442, 556-564 | absent | Evidence-backed Finding records and a global Findings index exist | When findings are derived from accepted evidence |
+| Actions | v6.9 lines 442, 673 | absent | Managed Action records and a global Actions route exist | When action records exist |
+| Incidents | v6.9 lines 442, 673 | absent | Incident records and a global Incidents route exist | When incident records exist |
+| Maintenance | v6.9 lines 442, 673 | absent | Maintenance work-request records and a global Maintenance route exist | When maintenance records exist |
+| Evidence | v6.9 lines 442, 586-594 | absent | Accepted evidence and a global evidence/readiness route exist | When accepted evidence exists and the route renders it truthfully |
+| Financials | v6.9 lines 442, 645-647 | absent | Financial consequence lines/rollups exist | When financial consequence content exists |
+| Reports | v6.9 lines 442, 91 | absent | Reports are marked P1/deferred in v6.9 and have no M1 route/content contract | After a Reports content contract is specified |
+
+Changes to planned tasks: T011's "operator navigation has not grown since T004"
+remains correct for Site Foundation. Future tasks that add an operator rail item
+must replace the frozen-count assertion with an inventory assertion generated
+from a single rail definition: every expected item has a real route and every
+rendered item is in the definition for that milestone.
+
+#### Operator Site tabs
+
+The operator Site tab set is v6.9's Site tab set, not the mockup's:
+`Overview | Foundation | Health | Performance | Findings | Work | Financials |
+Evidence` at lines 464 and 615. This resolves the T008/T012 contradiction in
+favor of the accepted T008 checkpoint and v6.9. The mockup's Site tabs in
+`ScreenMockups.png` screen 2 are layout evidence for a tab row, not vocabulary
+authority for the operator product.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Overview | v6.9 lines 464, 615; `ScreenMockups.png` screen 2 layout | rendered as a destination | Site Details overview route renders record-sourced Site identity and Foundation summary facts | Already true after Site Details exists; dressed in T012 |
+| Foundation | v6.9 lines 464, 615; Foundation content at line 2117 | rendered as a destination | Foundation route renders the Site's read-only Foundation record | T013 dresses it; route/link/header vocabulary change from Site Configuration to Foundation |
+| Health | v6.9 lines 464, 615 | labelled in place | Health is a canonical aspect of a Site, but M1 has no accepted evidence or source-health derivation | Becomes a destination when health derivation from accepted evidence exists |
+| Performance | v6.9 lines 464, 615 | labelled in place | Performance is a canonical Site aspect, but M1 has no performance read model | Becomes a destination when performance content exists |
+| Findings | v6.9 lines 464, 615 and site-scoping rule lines 547-564 | labelled in place | Site-scoped findings are canonical, but M1 has no evidence-backed Finding records | Becomes a destination when site-scoped findings exist |
+| Work | v6.9 lines 464, 615 and line 673 | labelled in place | Site-scoped Work is canonical, but M1 has no Actions, Incidents or Maintenance records | Becomes a destination when at least one Work subarea has real records/content |
+| Financials | v6.9 lines 464, 615 and 645-647 | labelled in place | Site financial context is canonical, but M1 has no financial consequence content | Becomes a destination when site financial content exists |
+| Evidence | v6.9 lines 464, 615 and 586-594 | labelled in place | Site Evidence is canonical, but M1 has no accepted evidence | Becomes a destination when accepted evidence/readiness content exists |
+
+Changes to planned tasks: T012 must replace `Configuration`, `Devices`,
+`Gateway`, `Ingestion`, `Events` and `Logs` with v6.9's operator Site tabs.
+`Devices`, `Gateway`, `Ingestion`, `Events` and `Logs` are Lab run tabs or
+site-scoped future content, not operator Site tab vocabulary for M1.
+
+#### Foundation name and subtabs
+
+The user-accepted T008 decision says this project's Site Configuration surface
+is v6.9's `Foundation` tab. The operator product name is therefore
+`Foundation`, because v6.9 settles the operator shell vocabulary and the user
+review already redirected this surface. The served route, breadcrumb, tab/link
+text and page heading should use `Foundation` when the canonical Site tab row is
+dressed. Internal component or module names may change later, but user-visible
+chrome should not keep `Site Configuration` once the canonical tab set is
+introduced. T008's accepted body copy that says configuration is fixed at
+creation remains, because "configuration" is the domain concept; references
+that name the screen as `Site Configuration` become `Foundation`.
+
+The Foundation subtab row derives from v6.9's one allowed row at line 2117:
+`Definition | Topology | Controls | Changes | Readiness`. It is then filtered
+by the accepted T008 user decision: `Changes` is not rendered in any state until
+a configuration-change model exists, because v6.9 lines 2149 and 2225-2228 show
+that `Foundation > Changes` is a real intervention/change-effect capability,
+not the mockup's `Version History` and not a placeholder. Rendering `Changes`
+early would be a false claim in the same territory T008 explicitly removed.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Definition | v6.9 line 2117 | rendered | Site Foundation identity, purpose/summary, validity and provenance fields | Dressed in T013 as the Foundation summary/definition content |
+| Topology | v6.9 line 2117 | rendered with current M1 limits | T008 accepted that current Foundation can state topology/devices/signals not declared where the schema does not yet carry them | Becomes richer when T014 adds topology/devices/signal mappings |
+| Controls | v6.9 line 2117 | rendered with current M1 limits | Current Foundation read model can state declared or not-declared control assumptions without inventing a control model | Becomes richer when T014 adds control/device fields |
+| Changes | v6.9 lines 2117, 2149, 2225-2228; T008 user review | not rendered | No configuration-change model exists, and the accepted T008 checkpoint forbids rendering this territory as disabled/history chrome | Only after a reviewed configuration-change capability exists |
+| Readiness | v6.9 line 2117 | labelled in place | Evidence readiness is canonical, but M1 has no accepted evidence/readiness model | Becomes rendered when evidence readiness has a source contract |
+
+Changes to planned tasks: T013 must replace `Summary`, `Components`, `Control
+Logic` and `Settings` with the v6.9-derived Foundation subtabs above, excluding
+`Changes`. T013 must also rename the user-visible surface from Site
+Configuration to Foundation while preserving the accepted fixed-at-creation
+copy.
+
+#### Sites index columns
+
+v6.9's Sites index behavior is at lines 1336-1339: one row per canonical
+`site_id`, mode as provenance, and archetype, mode, canonical assessment, top
+issue, evidence readiness and last analysis time. `ScreenMockups.png` screen 1
+supplies layout pressure for name/type/location/status/last-data/actions, but
+not false values.
+
+| Item | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Name with `site_id` | v6.9 lines 1336-1340; `ScreenMockups.png` screen 1 | rendered | Site record identity and display name | Already true |
+| Type / archetype | v6.9 line 1339; `ScreenMockups.png` screen 1 | rendered | Site record `site_kind` / archetype field | Already true |
+| Location | `ScreenMockups.png` screen 1; v6.9 silent for M1 column | rendered only if record-sourced | M1 Site record carries location as configured identity/context, not evidence | Removed if the Site schema no longer carries location |
+| Mode | v6.9 lines 1336 and 1339 | rendered | `source.mode` provenance field | Already true |
+| Lifecycle | Project M1 schema extension; v6.9 has no Site lifecycle enum | rendered | `lifecycle_status` field, separate from mode and origin | Already true while the M1 schema carries it |
+| Canonical assessment | v6.9 line 1339 | not rendered | No accepted evidence or assessment derivation exists in M1 | When assessment is derived from accepted evidence |
+| Top issue | v6.9 line 1339 | not rendered | No evidence-backed finding/issue exists in M1 | When findings/top issue derivation exists |
+| Evidence readiness | v6.9 line 1339 | not rendered | No readiness model/source contract exists in M1 | When evidence readiness exists |
+| Last analysed | v6.9 line 1339; no-data example lines 1332-1334 | rendered as `--` | Evidence-derived analysis timestamp is unavailable because no evidence has been analysed | Shows a timestamp only after accepted evidence has been analysed in the selected window |
+| Actions | `ScreenMockups.png` screen 1; v6.9 line 1340 primary interaction | rendered with `View` only | Row click or View opens Site Details for the row's `site_id` | Adds actions only when each action has a real capability and route/API behind it |
+
+Changes to planned tasks: T011 may keep Name, Type/archetype, Location, Mode,
+Lifecycle, Last analysed and Actions, but must explain Location and Lifecycle as
+project-backed M1 fields rather than v6.9 columns. It must continue to omit
+assessment, top issue and evidence readiness until their sources exist.
+
+#### Guards that follow from this architecture
+
+`tools/checks/navigation-truthfulness.ps1` and the operator-navigation tests
+should not be weakened. During Site Foundation they may keep asserting that the
+operator rail has not grown since T004. The replacement when operator
+navigation does grow is stronger than a count freeze:
+
+| Guard | Source | M1 state | What makes it true | When the state changes |
+| --- | --- | --- | --- | --- |
+| Operator rail inventory | v6.9 lines 442 and 448; navigation truthfulness | enforce a single operator rail definition for the current milestone | Every rendered operator rail item appears in the definition, has a real route, and is not disabled; no unexpected item renders | Replaces the T004 no-growth assertion in the same slice that first adds a new operator rail item |
+| Lab rail inventory | v6.9 lines 657, 845, 2379 | enforce a single gated Lab rail definition | Every rendered Lab item appears in the definition, is absent when the Lab gate is off, and has a real route when present | Ships with the Lab shell rail work |
+| Operator Site tab inventory | v6.9 lines 464, 615 | enforce one tab definition for the operator Site shell | The tab row renders exactly the v6.9 Site tab labels; destination tabs have routes, labelled-in-place tabs are not links/buttons/routes | Ships with T012 rewrite |
+| Foundation subtab inventory | v6.9 line 2117 plus T008 user review | enforce one filtered subtab definition | The row renders Definition, Topology, Controls and Readiness as specified; Changes is absent until the change model exists | Ships with T013 rewrite |
+| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1 | enforce one column definition | Rendered columns match the milestone definition; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite |
+
+The inventories should be single definitions consumed by rendering and tests,
+mirroring the substrate single-definition guard. The guard strength becomes
+"only the milestone inventory renders, and every rendered item is truthful",
+not "the number is unchanged forever".
+
+#### Shared substrate consequence
+
+The shared Site substrate owns read model, view model, field derivation,
+unavailable states and presentation components for Site facts. It must not own a
+shell's tab row. The operator Site tab row belongs to the operator shell because
+it uses v6.9 operator Site vocabulary. The Lab's Site/run tab rows belong to the
+Lab shell because v6.9 line 659 and `SimulatorLab1.png` define Lab run tabs such
+as `Site View`, `Configuration`, `Events`, `Devices & Sensors`, `Gateway &
+Ingestion` and `Logs`.
+
+The Lab's Site view inherits the dressed shared Site fact presentation from
+stages 5 and 6: identity, provenance, Foundation facts, unavailable states,
+read-only Foundation rendering, and the fixed-at-creation language. It may
+legitimately override surrounding shell chrome, rail, breadcrumbs, run header,
+execution controls, truth-only Lab panels, and Lab run tabs. It may add those
+through shell composition and substrate-declared extension slots only.
+
+The substrate stays a leaf by owning no `tabs` import from either shell, no
+feature flag import, no simulator import, and no `shell`, `variant`, `mode` or
+`isLab` discriminant. Shells import the substrate and pass additions into named
+slots; the substrate never imports what fills a slot.
+
+#### Other settled architecture
+
+Screen numbers 4-9 in `ScreenMockups.png` are not defined here. This section
+defines the Lab rail they hang from and the rule that those rail items remain
+absent until their own causal steps land.
+
+`Open in Simulator Lab` and `Open in AssetOps` are bridge actions, not rail
+items. v6.9 lines 182, 755 and 2381 define those bridges. They obey gate and
+eligibility rules as actions; they do not justify adding Simulator Lab to the
+operator rail.
+
+Settled architecture: the two rails; the operator Site tab set; tab-as-chrome
+versus tab-as-destination; Foundation naming; the filtered Foundation subtab
+row; Sites index column source rules; guard replacement strategy; and the
+substrate ownership rule. Needs user choice only if the user wants to override
+v6.9 and the accepted T008 checkpoint on naming or operator Site vocabulary.
+
 ## Enforceable Protected Seams
 
 Prioritise the first seven seams for immediate guards because they are cheap to
