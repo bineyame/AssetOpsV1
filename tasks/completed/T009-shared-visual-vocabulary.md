@@ -1,6 +1,6 @@
 # T009 - Shared Visual Vocabulary
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T009-shared-visual-vocabulary`
@@ -167,3 +167,74 @@ in this feature carries a checkpoint of its own. Fidelity adds no capability and
 no product language, and the three-state affordance rule that governs it is
 already enforced by the mockup-fidelity seam. The product language on these
 screens was settled at the T006 and T008 checkpoints and is not reopened here.
+
+## Review Outcome
+
+Reviewer verdict: accept after one medium finding was fixed on the branch. No
+other findings, no blocking open questions. The review was independent: Codex
+reviewed work Claude authored, per the role separation in
+`.ai/PROJECT_RULES.md`.
+
+Finding: the Site substrate's edge states kept bespoke page headers. The loaded
+states of Site Details and Site Configuration rendered through `PageHeader`,
+but their loading, not-found and unavailable states still rendered a raw `<h1>`
+- six across the two files. Two of those states had already adopted `Panel`, so
+the same surface was half on the shared vocabulary and half bespoke, in exactly
+the module this slice exists to keep from drifting. That is an acceptance gap
+against the criterion that says two visual systems do not coexist, not a
+preference.
+
+Fixed on the branch in `6edbbf1`. All six render through `PageHeader` with the
+same heading text and the same `headingId`, so every `aria-labelledby` on the
+surrounding landmark still resolves, and no raw `<h1>` remains in
+`frontend/src/sites/` or `frontend/src/shell/`. The reviewer offered the option
+of exempting the loading states as "not real content" and recording that as a
+deviation; they were not exempted, because a loading state is a user-visible
+state of a dressed surface that renders the same page heading, and exempting it
+would have left standing the exception the finding is about.
+
+Judgement calls the reviewer examined and did not find fault with: the Lab rail
+adds no route, surface, destination or capability and renders none of the eight
+mockup-only items; the changed inherited assertions are the expected set and
+preserve or strengthen their prior meaning, with no fifth assertion quietly
+changed; no rendered field, order, label, absence reason, column or tab
+changed; no badge renders around an absence; and `d5919cb` is the right review
+base, because `main...HEAD` would include unrelated planning lineage and
+misstate the slice.
+
+The reviewer also judged the new guard's shared-vocabulary clause intentionally
+coarse - a consumer can import one primitive while hand-rolling another pattern
+- and recorded that as a named limitation rather than a finding, which matches
+the packet's own Residual Risk 3.
+
+Reviewer checks: architecture guard passed, agent workflow guard passed,
+backend 296 passed, frontend typecheck passed, `git diff --check d5919cb...HEAD`
+clean. The reviewer could **not** run the frontend suite or the production
+build: Vite failed while loading its config in that environment with
+`Cannot read directory "../../..": Access is denied`. The 352 frontend tests
+and the clean build are therefore the Implementer's numbers and were not
+independently confirmed. Recorded rather than glossed.
+
+Checks re-run in the implementing session after the fix: architecture guard
+passed, agent workflow guard passed, backend `pytest -q` 296 passed, frontend
+`vitest run` 352 passed across 14 files, `tsc --noEmit` clean,
+`npm run build` clean.
+
+Frontend flakiness under CPU contention was characterised during closeout and
+is broader than the single case T007 and T008 recorded. Runs made while a heavy
+background process and two dev servers competed for the machine produced two or
+three failures per run, in different files each time, every one of them
+`Test timed out in 5000ms` rather than an assertion failure, and each passing
+when its file was run alone. With the machine quiet the suite passed five
+consecutive times, three before the fix and two after. A single red run on a
+loaded machine should be re-run before it is believed.
+
+Not verified, and not claimed: nobody has rendered this in a browser, and it is
+a visual slice. Browser tooling was unavailable in the implementing session.
+
+User review is not required for this slice, as the User Review section above
+states, and no fidelity slice in this feature carries a checkpoint of its own.
+
+The full review packet is at `.agent/T009-review-packet.md`, the reviewer's
+findings at `.agent/T009-review-findings.md`, and the branch diff at
+`.agent/T009-review.diff`, taken against `d5919cb`. All three are local-only.

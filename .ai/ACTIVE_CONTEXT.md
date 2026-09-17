@@ -18,26 +18,27 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T009-shared-visual-vocabulary.md` (Status: `in_review`).
+No active task. T009 closed out 2026-09-17.
 
-T009 is built on `task/T009-shared-visual-vocabulary` and awaits independent
-review. `USER_REVIEW_REQUIRED: false`: no fidelity slice in this feature
-carries a checkpoint, because fidelity adds no capability and no product
-language. The review packet is `.agent/T009-review-packet.md`.
+Independent review returned one medium finding, fixed on the branch: the Site
+substrate's loading, not-found and unavailable states kept a raw `<h1>` while
+their loaded states had moved to the shared `PageHeader`, leaving one surface
+half on the vocabulary and half bespoke. The reviewer found no fault with the
+Lab rail, the changed inherited assertions, the rendered values, or the badge
+rule. The Review Outcome is in
+`tasks/completed/T009-shared-visual-vocabulary.md`.
 
-Two things the reviewer should look at first. The branch is based on
-`arch/foundational-screen-architecture`, not `main`, because T009's task text
-and the screen architecture it conforms to are five commits that have not
-merged yet; the review diff is against `d5919cb` rather than `main`. And the
-Simulator Lab gained a rail listing two destinations that already existed,
-which is the slice's one judgement call against the rule that no navigation
-item is added.
+Two things it leaves for whoever picks up T010. Nobody has rendered any of this
+in a browser and it is a visual slice, so the first fidelity slice to run the
+app is checking T009's work as well as its own. And frontend flakiness under
+CPU contention is broader than the single case T007 and T008 recorded: any file
+can time out under load, so a single red run on a loaded machine should be
+re-run before it is believed.
 
 T005 to T008 are complete. Their task files are in `tasks/completed/` with
-their Review Outcomes, and their branches merged to `main`.
+their Review Outcomes.
 
-Next after review: T010, the Lab template and create surfaces to mockup
-quality.
+Next: T010, the Lab template and create surfaces to mockup quality.
 
 ## Current Site Foundation Sequence
 
@@ -47,7 +48,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
 - T007: Site Details by `site_id`. Complete.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
-- T009: shared visual vocabulary. Built, awaiting independent review.
+- T009: shared visual vocabulary. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 
