@@ -247,3 +247,71 @@ provenance. Full carried-forward list is in the T005 Review Outcome.
    assertion text was captured. It predates this slice and is untouched by it.
    Worth knowing before trusting a single green run: it is the same shape as
    the defect `settledScreen` was written for, and that test does not use it.
+
+## T009 - Shared visual vocabulary
+
+What this slice settled in code.
+
+`frontend/src/ui/` is the one visual vocabulary and a leaf. It holds
+`tokens.css` (type scale, neutrals, rail, accent, four badge tones, spacing,
+radius), `primitives.css` (the classes), and seven components: `AppHeader`,
+`NavRail`, `Breadcrumbs`, `PageHeader`, `Badge`, `Panel`, and `DataTable` with
+`FactList`/`Fact`. Before this slice the app had no stylesheet at all.
+
+The values were read from `Docs/UI Design/Motivation/ScreenMockups.png`, not
+invented: dark navy rail with a bright blue active item, white cards on a pale
+blue-grey page, pill badges, one blue accent. Visual vocabulary only; no mockup
+literal, control, column or rail item came with it.
+
+Names in the primitives are deliberately generic - `DataTable`, `Panel`,
+`Badge`, never `SiteTable`, `SitePanel`, `SiteBadge`. The T006 single-definition
+guard flags a Site presentation component anywhere outside
+`frontend/src/sites/`, so a Site-named primitive would fail it, correctly.
+
+`tools/checks/ui-primitives.ps1` is a new seam with two clauses. Leaf
+direction: the primitives import no shell code, no simulator code, no feature
+flag and no Site substrate. Shared vocabulary: both the shell root and the
+substrate must import the module, because a vocabulary nobody imports has been
+forked. Five violations were proven to fail it.
+
+`NavRail` owns no items. Both rails pass their own, so the operator rail and
+the Lab rail cannot converge through the component they share. The Lab's items
+are declared in `simulatorLabRoutes.tsx`, which is already the only module
+allowed to spell a simulator path; `SimulatorLabShell` takes them as props and
+names no path, so the gate chokepoint is unchanged.
+
+The Simulator Lab has a rail for the first time, listing `Simulator Lab` and
+`Site Templates` - the two destinations that already rendered truthful content.
+The mockup's other eight rail items have no route behind them and are absent.
+
+Badge tones are one per vocabulary and never shared: provenance, lifecycle,
+origin, neutral. They differ in fill, border weight and corner radius as well
+as hue, so the distinction survives greyscale, and every badge renders the word
+it means so colour never carries meaning alone. A badge renders only where a
+record supplies its value: template provenance stays plain text because a site
+created from no template renders an absence there, and every stated absence on
+Site Configuration stays plain text for the same reason.
+
+`PageHeader` has no action or badge slot. `+ New Site` restyling is T011's, the
+Site identity badge is T012's, and `Edit`/`Version History` are never rendered
+at all, so the slots would have been machinery nothing fills.
+
+The brand mark is drawn in CSS rather than as an inline `<svg>`, because
+several screens assert no `svg`, `canvas`, `img` or `figure` exists in their
+container and that guard is worth more than the glyph. Keep it that way.
+
+What this slice leaves open.
+
+1. Breadcrumbs are provided but adopted by no screen. Adopting them means
+   changing settled back-link copy or adding a destination, both of which stage
+   1 forbids. They belong to T011-T013 with the screens they describe.
+2. Not rendered in a browser. Verified by the suites, the typecheck, the build,
+   and by confirming the built stylesheet ships with the expected classes.
+   Browser tooling was unavailable in the session.
+3. Contrast is reasoned against WCAG AA and documented in `tokens.css`, but no
+   contrast checker was run and no automated accessibility assertion exists.
+4. Nothing proves a surface renders *with* the vocabulary rather than merely
+   importing it. The guard proves the import; the rest is review-time.
+5. `SiteConfiguration.tsx` carries a UTF-8 BOM, pre-existing from T008. It is
+   invisible to the compiler and the tests and silently defeats line-anchored
+   shell commands.

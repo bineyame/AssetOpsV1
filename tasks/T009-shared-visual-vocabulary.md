@@ -1,6 +1,6 @@
 # T009 - Shared Visual Vocabulary
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T009-shared-visual-vocabulary`
