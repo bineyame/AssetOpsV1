@@ -11,11 +11,11 @@ Topology, Devices, And SLD.
 
 ## UI-Verifiable Screen Behavior
 
-Site Configuration stops describing topology, devices, signal mappings, and
-control assumptions as `Not declared` because the Foundation can now carry
-them. The screen renders the configured topology and device/signal relationships
-as read-only configuration facts, using the same Site read path as Site Details
-and Site Configuration.
+Foundation stops describing topology, devices, signal mappings, and control
+assumptions as `Not declared` because the Foundation can now carry them. The
+screen renders the configured topology and device/signal relationships as
+read-only configuration facts, using the same Site read path as Site Details and
+Foundation.
 
 No Single Line Diagram renders in this slice. No diagram frame, signal selector,
 runtime value, evidence value, source health, product health, telemetry, chart,
@@ -31,8 +31,9 @@ silently ignored.
 ## Why This Is Next
 
 This is Causal Sequencing step 4's first dependency. The configured SLD and
-Devices & Sensors table cannot be truthful until component, connection, rating,
-device, and signal-mapping truth exists in the canonical Foundation.
+the configured SLD and device/signal presentation cannot be truthful until
+component, connection, rating, device, and signal-mapping truth exists in the
+canonical Foundation.
 
 T008 deliberately left devices, signal mappings, and control assumptions as
 stated absences because the M1 `SiteFoundation` carried only `version`,
@@ -69,10 +70,11 @@ integration test before more UI is built on top of the expanded shape.
 - Device-to-signal mappings are canonical configuration facts. They are not
   inferred from display names, topology positions, protocol labels, simulator
   fixture names, or mockup text.
-- Site Configuration renders configured topology and device/signal relationship
-  facts from the persisted document. The previous `Not declared` absences for
-  devices, signal mappings, and control assumptions disappear only when the
-  record actually supplies valid values.
+- Foundation renders configured topology and device/signal relationship facts
+  from the persisted document, enriching the already-rendered Topology and
+  Controls subtabs from T013. The previous `Not declared` absences for devices,
+  signal mappings, and control assumptions disappear only when the record
+  actually supplies valid values.
 - No Single Line Diagram panel, diagram placeholder, empty frame, diagram
   heading, or signal selector renders. A UI test asserts DOM absence, not merely
   disabled state.
@@ -80,8 +82,8 @@ integration test before more UI is built on top of the expanded shape.
   health, gateway status, product health, chart, Replay, Finding, `OFFLINE`,
   zero defaults, or stale/fresh badges. Devices are configured assets awaiting
   runtime or evidence, not operationally healthy or unhealthy.
-- Site Configuration remains an operator capability and renders identically
-  with `simulator_lab.enabled` true and false.
+- Foundation remains an operator capability and renders identically with
+  `simulator_lab.enabled` true and false.
 - The expanded Site presentation stays in `frontend/src/sites/**`. The shared
   substrate remains a leaf with no shell, simulator, feature-flag import, or
   shell/mode/variant discriminant.
@@ -104,6 +106,8 @@ integration test before more UI is built on top of the expanded shape.
 - Configured devices may appear before they report, labelled as configured or
   awaiting runtime/evidence, never as healthy, online, offline, stale, or
   degraded.
+- No configuration-change, Changes, history, diff, approval, or rollback model
+  is introduced here.
 - Breaker/control state vocabulary and whether breakers are devices, component
   state, or both is not decided here. The task must surface that ambiguity for
   the T016 user-review checkpoint and avoid baking a final product vocabulary
@@ -150,7 +154,7 @@ integration test before more UI is built on top of the expanded shape.
   template.
 - Focused frontend/backend integration test for the shared Site Foundation
   clients over representative backend responses.
-- UI test asserting Site Configuration renders topology and device/signal
+- UI test asserting Foundation renders topology and device/signal
   relationship facts from the record and no longer shows `Not declared` for
   values the expanded Foundation supplies.
 - UI test asserting no SLD panel, diagram heading, empty frame, signal selector,
@@ -171,11 +175,11 @@ integration test before more UI is built on top of the expanded shape.
   behavior, topology editing, runtime simulation, evidence overlays, product
   health, source health, analytics, Replay, or Findings.
 - Do not add in-place Foundation editing, Save, Publish, approval, rename,
-  duplicate, delete, configuration history, rollback, arbitrary YAML import, or
-  template authoring.
-- Do not create a second endpoint for Site Configuration unless the existing
-  Site read path cannot truthfully carry the expanded Foundation; if that
-  happens, stop and return to planning rather than inventing a new resource.
+  duplicate, delete, configuration history, Changes, diff, rollback, arbitrary
+  YAML import, or template authoring.
+- Do not create a second endpoint for Foundation unless the existing Site read
+  path cannot truthfully carry the expanded Foundation; if that happens, stop
+  and return to planning rather than inventing a new resource.
 - Do not decide the breaker/control vocabulary or cold-room symbol treatment
   silently.
 

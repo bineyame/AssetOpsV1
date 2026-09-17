@@ -1,9 +1,9 @@
-# T013 - Site Configuration To Canonical Screen Three, Minus The Diagram
+# T013 - Foundation To Canonical Screen Three, Minus The Diagram
 
 Status: planned
 USER_REVIEW_REQUIRED: false
 
-Intended branch: `task/T013-site-configuration-to-canonical-screen-three`
+Intended branch: `task/T013-foundation-to-canonical-screen-three`
 
 ## Feature
 
@@ -11,13 +11,15 @@ Site Foundation And Configuration-Only Site, canonical screen fidelity stage 6.
 
 ## UI-Verifiable Screen Behavior
 
-Site Configuration looks like canonical screen 3, minus the diagram.
+Foundation looks like canonical screen 3, minus the diagram, and uses the
+Foundation name and route settled in T011A.
 
-It has breadcrumbs from the Sites index to the Site to Configuration, a page
-header naming the Site, and the configuration tabs Summary, Components, Control
-Logic, and Settings, each rendering Foundation content the product actually has.
-A Key Parameters panel shows the ratings and control mode the Foundation
-declares, with canonical units.
+It has breadcrumbs from the Sites index to the Site to Foundation, a page header
+naming the Site and the Foundation context, and the filtered v6.9 Foundation
+subtab row from line 2117. Definition, Topology, and Controls render with
+current M1 limits. Readiness is labelled in place because there is no accepted
+evidence/readiness model. Changes is absent in every state until a reviewed
+configuration-change capability exists.
 
 The mockup's `Edit` and `Version History` header actions are not rendered. The
 statement that configuration is fixed at creation in M1 is still on the screen.
@@ -32,48 +34,55 @@ every Site regardless of configuration origin.
 
 ## Why This Is Next
 
-Its content became real in T008 and the shared vocabulary landed in T009, so the
-tabbed arrangement and the Key Parameters panel can be filled from the Foundation
-rather than framed and filled later.
+T011A renamed the surface and introduced the canonical operator Site tab row.
+T012 dressed Site Details against that row. This slice dresses the Foundation
+destination itself, using the settled Foundation subtab architecture rather than
+the old mockup tab names.
 
 It is the last fidelity stage that step 3 can honestly carry. The next stage is
 the configured Single Line Diagram, which is causal step 4 and needs topology,
 components, ratings, and signal-mapping truth to be validated against an
 archetype before anything can be drawn.
 
-This slice is also the easiest place in the whole feature for step 4 to be
-smuggled into step 3, which is why the diagram boundary is an explicit,
-separately tested acceptance criterion rather than a scope-limit line.
+This slice is also the easiest place for step 4 or change-history semantics to
+be smuggled into step 3, so the diagram boundary and the absence of Changes are
+separately tested acceptance criteria.
 
 ## Acceptance Criteria
 
 - The page adopts the canonical layout using the T009 vocabulary: breadcrumbs,
-  a page header naming the Site and the Configuration context, a tab strip, and
-  the panel and table patterns.
-- The configuration tabs are Summary, Components, Control Logic, and Settings.
-  Each renders Foundation content that T008 already ships. No tab is empty, and
-  a tab whose content the Foundation cannot supply is not rendered at all rather
-  than labelled or framed empty.
+  a page header naming the Site and Foundation context, the Foundation subtab
+  row, and the panel and table patterns.
+- The Foundation subtab row renders Definition, Topology, Controls, and
+  Readiness in that order. Changes is absent in every state.
+- Definition renders record-sourced Site Foundation identity, purpose/summary,
+  validity, and provenance fields available in the current read model.
+- Topology renders with current M1 limits: it may state that topology, devices,
+  and signal mappings are not declared where the schema does not yet carry
+  them, using the accepted T008 absence semantics.
+- Controls renders with current M1 limits: it may state declared or
+  not-declared control assumptions without inventing a control model.
+- Readiness is labelled in place only until evidence readiness has a source
+  contract. It is not a link, button, disabled control, route, empty panel, or
+  placeholder content area.
+- The old Summary, Components, Control Logic, and Settings subtab set does not
+  render.
 - The Key Parameters panel renders only parameters the Foundation declares, with
   canonical units, and each is traceable to a Foundation field. A parameter the
   Foundation does not carry is not rendered and is not shown as a placeholder or
   a dash.
-- **No `Single Line Diagram (Configured)` panel, no empty frame or placeholder
-  for one, no diagram heading, and no signal selector renders.** A test asserts
-  the absence of a diagram container, of any diagram heading text, and of any
-  signal-selector control, and the layout is verified to close over that space
-  rather than reserve it. The configured diagram is causal step 4; the signal
-  selector chooses a runtime signal to overlay and is inert until causal step 6.
+- No `Single Line Diagram (Configured)` panel, no empty frame or placeholder for
+  one, no diagram heading, and no signal selector renders. A test asserts the
+  absence of a diagram container, of any diagram heading text, and of any
+  signal-selector control, and the layout is verified to close over that space.
 - The mockup's `Edit` and `Version History` header actions are absent from the
   DOM entirely, not disabled and not `aria-disabled`, along with
   `Edit Configuration`, `Duplicate Site`, `Delete Site`, `Save`, `Publish`,
   `Rename`, approve, diff, history, rollback, and the site image `Change`
-  control. A test asserts DOM absence using a query that would fail if any of
-  them rendered disabled.
+  control.
 - The statement that configuration is fixed at creation in M1 remains on the
   screen, unchanged in meaning from what the user accepted at the T008
-  checkpoint, and remains visible in the canonical layout rather than being
-  demoted to a footnote.
+  checkpoint, and remains visible in the canonical layout.
 - The screen is read-only for every Site regardless of configuration origin. A
   `SHIPPED`-origin fixture Site and a `USER`-origin Site render the same
   read-only surface and differ only in origin and template provenance.
@@ -82,65 +91,61 @@ separately tested acceptance criterion rather than a scope-limit line.
   proxy for the other.
 - No operational values render: no telemetry, charts, source health, gateway
   status, evidence, analytics, Replay, or Findings. Devices are labelled
-  configured or awaiting evidence, never healthy, online, or offline, and no
-  source-health or assessment vocabulary appears anywhere on the screen.
+  configured or awaiting evidence only when declared by configuration, never
+  healthy, online, or offline.
 - No mockup literal renders as content. Every value traces to the record under
   test.
-- Site Configuration presentation stays in `frontend/src/sites/**`. The
-  substrate single-definition and leaf-direction guards pass, no `variant`,
-  `mode`, `shell`, or `isLab` prop is introduced, and no extension slot is
-  needed here because nothing on this screen is shell-specific.
+- Foundation presentation stays in `frontend/src/sites/**`. The substrate
+  single-definition and leaf-direction guards pass, no `variant`, `mode`,
+  `shell`, or `isLab` prop is introduced, and no extension slot is needed here
+  because nothing on this screen is shell-specific.
 - No update or delete route for a Site exists in the served route inventory, in
   either flag state, and the screen renders identically with
   `simulator_lab.enabled` true and false.
-- Every acceptance criterion of T008 and T009 still holds unchanged in meaning.
-  Where a test query must change because markup changed, the assertion is
-  preserved or strengthened, never loosened.
+- Every acceptance criterion of T008, T009, and T011A still holds unchanged in
+  meaning. Where a test query must change because markup changed, the assertion
+  is preserved or strengthened, never loosened.
 
 ## Required Product And Domain Semantics
 
 - Mockscreen fidelity is an explicit delivery goal for these slices. The task
   should move the real screen as close to the canonical mockscreen's visual and
   information architecture as current backed content honestly allows.
-  Differences from the mockscreen must be deliberate corrections for product
-  truth, missing evidence, deferred capabilities, or protected seams, not timid
-  styling omissions.
 - Canonical Site Foundation is the source of truth for components, topology,
   connectivity, ratings, devices, and signal availability. This screen renders
   that truth and creates none of it.
+- The Foundation subtab row derives from v6.9 line 2117 and is filtered by the
+  accepted T008 decision: Changes is absent until a reviewed change capability
+  exists.
 - A diagram is a presentation strategy over canonical topology, and it does not
   exist yet. An empty frame labelled for a future diagram is the layout form of
-  a fabricated value: it makes the screen look finished and teaches the user
-  that a capability is nearly there.
-- The Site Configuration UI stays read-only for every Site for the whole of M1
-  and must not imply in-place edit, Save, Publish, approval, rename, duplicate,
-  delete, or configuration history.
-- `Version History` is not rendered even disabled, because no configuration
-  change model exists and the eventual capability in that territory has a
-  different name and a different meaning.
-- What this project calls Site Configuration is v6.9's `Foundation` tab on a
-  Site. The tab names used here are the mockup's configuration tabs, not v6.9's
-  operator Site tab set, and adopting them does not commit the operator Site tab
-  set to the mockup's.
+  a fabricated value.
+- The Foundation UI stays read-only for every Site for the whole of M1 and must
+  not imply in-place edit, Save, Publish, approval, rename, duplicate, delete,
+  or configuration history.
+- `Version History` and Changes are not rendered even disabled, because no
+  configuration-change model exists and the eventual capability in that
+  territory has a different meaning from mockup history chrome.
 
 ## Protected Seams
 
 - Mockup fidelity versus product honesty: CI guard.
   Canonical layout only for content the product can source; no mockup literal as
-  content; deferred-by-decision controls absent from the DOM rather than
-  disabled; the diagram panel and signal selector absent rather than framed
-  empty.
-- Read-only configuration UI: review-time + contract test.
+  content; deferred-by-decision controls absent from the DOM; the diagram panel,
+  signal selector, and Changes subtab absent rather than framed empty.
+- Read-only Foundation UI: review-time + contract test.
   Every Site renders read-only regardless of origin; the fixed-at-creation
   statement stays; no update or delete route exists for a Site.
 - Configuration-only Site states: CI guard.
   Declared configuration renders; operational evidence does not, and its absence
   is explicit rather than zeroed.
+- Foundation subtab inventory: CI guard.
+  Definition, Topology, Controls, and Readiness render as specified; Changes is
+  absent until a reviewed change model exists.
 - SLD archetype boundary: unit/contract test.
-  No diagram, no archetype, and no layout strategy is introduced here, so
-  canonical topology cannot acquire a second model in a fidelity slice.
+  No diagram, no archetype, and no layout strategy is introduced here.
 - Shared Site presentation substrate: CI guard.
-  Configuration presentation resolves in `frontend/src/sites/**` only; the
+  Foundation presentation resolves in `frontend/src/sites/**` only; the
   substrate stays a leaf with no discriminant.
 - YAML configuration authority: unit/contract test.
   The screen renders the strictly validated document and introduces no second
@@ -148,12 +153,18 @@ separately tested acceptance criterion rather than a scope-limit line.
 - Vocabulary separation: CI/review check.
   No source-health or assessment vocabulary appears.
 - Simulator feature gate: CI guard.
-  Site Configuration is never gated and renders identically in both flag states.
+  Foundation is never gated and renders identically in both flag states.
 
 ## Focused Tests And Checks
 
-- UI test asserting the tab set, and that each tab renders record-sourced
-  Foundation content with no empty tab.
+- UI test asserting the Foundation subtab set is Definition, Topology, Controls,
+  and Readiness, and that Changes is absent in every state.
+- UI test asserting Definition, Topology, and Controls render only
+  record-sourced Foundation content or the accepted current M1 absence states.
+- UI test asserting Readiness is labelled in place and is not a link, button,
+  disabled control, route, or empty placeholder panel.
+- UI test asserting Summary, Components, Control Logic, and Settings do not
+  render as the Foundation subtab row.
 - UI test asserting the Key Parameters panel renders only Foundation-declared
   parameters with canonical units, and renders no placeholder for an undeclared
   one.
@@ -174,9 +185,9 @@ separately tested acceptance criterion rather than a scope-limit line.
   state.
 - UI test asserting the screen renders identically with `simulator_lab.enabled`
   true and false.
-- Accessibility checks on the tab strip, panels, and tables.
-- Run `tools/check-architecture.ps1`, including the T005 persistence checks and
-  the T006 substrate checks.
+- Accessibility checks on the subtab row, panels, and tables.
+- Run `tools/check-architecture.ps1`, including persistence, substrate, route,
+  and Foundation subtab inventory checks.
 - Run `tools/check-agent-workflow.ps1`.
 - Existing backend and frontend suites, typecheck, and production build stay
   green.
@@ -188,27 +199,25 @@ separately tested acceptance criterion rather than a scope-limit line.
   skeleton labelled for it, a reserved region sized for it, or its signal
   selector. Do not add an SLD archetype, an SLD view model, topology validation,
   or auto-layout. That is causal step 4.
-- Do not render `Edit` or `Version History` in any state.
+- Do not render `Edit`, `Version History`, or Changes in any state.
 - Do not change the fixed-at-creation statement or any other copy the T008
   checkpoint settled.
-- Do not add a tab that the Foundation cannot fill, and do not label a tab in
-  place on this screen: the labelled-in-place treatment belongs to the Site tab
-  set on Site Details, not to configuration subtabs that either have Foundation
-  content or should not exist.
+- Do not add a subtab that the Foundation cannot truthfully fill or label in
+  place under the settled subtab architecture, except Readiness as specified.
 - Do not add a runtime or evidence value slot, even an empty one.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   add a shell, mode, or variant discriminant prop.
-- Do not gate Site Configuration, its route, or its API.
+- Do not gate Foundation, its route, or its API.
 
 ## User Review
 
 User review is deliberately not required for this slice. It adds no capability
-and no product language: the configuration-only language, the fixed-at-creation
-statement, and the absent-rather-than-disabled treatment of `Edit` and
-`Version History` were all settled at the T008 checkpoint, and this slice only
-arranges content the product already renders.
+and does not reopen the Foundation naming and tab-inventory checkpoint from
+T011A. The configuration-only language, fixed-at-creation statement, and
+absent-rather-than-disabled treatment of edit/history/change affordances were
+settled at the T008 checkpoint, and this slice arranges content the product
+already renders.
 
 This is the last planned slice of Causal Sequencing step 3. Step 4, topology,
-devices, and the configured Single Line Diagram, is not planned and should not
-be started until the T008 checkpoint is accepted and the Architect has sequenced
-it.
+devices, and the configured Single Line Diagram, is not planned or started
+until the T008 and T011A checkpoints are accepted or redirected.

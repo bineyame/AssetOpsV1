@@ -11,7 +11,7 @@ Topology, Devices, And SLD.
 
 ## UI-Verifiable Screen Behavior
 
-Site Configuration can resolve whether the configured Site is compatible with
+Foundation can resolve whether the configured Site is compatible with
 the hybrid mini-grid SLD archetype and can expose that result to tests and to
 the next UI slice. For a compatible Site, the view model contains the diagram
 nodes, connections, labels, ratings, device/signal availability, and empty
@@ -19,10 +19,11 @@ runtime/evidence value slots needed to render the configured SLD later. For an
 incompatible Site, the view model returns an explicit unavailable state with a
 reason.
 
-No diagram renders yet. The visible Site Configuration screen still shows the
-record-sourced topology and device/signal facts from T014, with no SLD panel,
-empty frame, signal selector, runtime values, evidence values, source health,
-product health, telemetry, charts, Replay, or Findings.
+No diagram renders yet. The visible Foundation screen still shows the
+record-sourced topology and device/signal facts from T014 in the Foundation
+subtab architecture, with no SLD panel, empty frame, signal selector, runtime
+values, evidence values, source health, product health, telemetry, charts,
+Replay, or Findings.
 
 ## Why This Is Next
 
@@ -54,7 +55,7 @@ state honestly.
   components, topology connections, devices, signals, mappings, or ratings.
 - Compatible view-model output preserves canonical component IDs, connection
   IDs, device IDs, signal IDs, mapping IDs, display names, ratings, and units so
-  T016 can assert agreement between SLD labels and Devices & Sensors rows.
+  T016 can assert agreement between SLD labels and device/signal rows.
 - Incompatible topology produces a structured unavailable result with a stable
   reason that the UI can render. It does not silently hide unmatched
   components, drop unsupported connections, draw a partial diagram as if it
@@ -71,7 +72,7 @@ state honestly.
   is introduced by the archetype.
 - Unit tests cover at least one compatible hybrid mini-grid Site and at least
   one incompatible topology, including the explicit unavailable reason.
-- Site Configuration visible UI remains unchanged from T014 except for any
+- Foundation visible UI remains unchanged from T014 except for any
   invisible data plumbing needed by tests. A UI test continues to assert no SLD
   panel, diagram container, diagram heading, empty frame, signal selector,
   runtime value, evidence value, source-health term, or product-health term is
@@ -141,7 +142,7 @@ state honestly.
   evidence metadata.
 - Import/architecture check asserting the SLD view-model modules import no
   simulator runtime, no evidence store, no shell code, and no feature flag.
-- UI regression test asserting Site Configuration still renders no diagram
+- UI regression test asserting Foundation still renders no diagram
   panel, diagram heading, empty frame, signal selector, runtime/evidence value,
   source-health term, product-health term, telemetry, chart, Replay, or Finding.
 - Run `tools/check-architecture.ps1`.
@@ -151,8 +152,8 @@ state honestly.
 
 ## Scope Limits
 
-- Do not render the SLD. T016 owns the visible configured SLD and Devices &
-  Sensors table.
+- Do not render the SLD. T016 owns the visible configured SLD and device/signal
+  presentation inside Foundation.
 - Do not implement arbitrary graph auto-layout, drag/drop schematic editing,
   generic electrical CAD behavior, topology editing, or automatic routing
   beyond the fixed hybrid mini-grid archetype.

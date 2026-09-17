@@ -13,12 +13,13 @@ Site Foundation And Configuration-Only Site, canonical screen fidelity stage 1.
 
 Every surface that already has real content looks like it belongs to one
 product and to the canonical mockscreen family: the operator shell home, the
-Sites index, Site Details, Site Configuration, the Simulator Lab shell, the Site
+Sites index, Site Details, Foundation, the Simulator Lab shell, the Site
 Templates catalog, and the template inspection view. They share a brand header,
 a left rail rendered as a real component, breadcrumbs, one page-header pattern,
 one badge and pill vocabulary, one table and panel pattern, and one set of type
-and colour tokens strong enough for T010-T013 to realise the mockscreen visual
-and information architecture without inventing content.
+and colour tokens strong enough for T010 through T013, including T011A, to
+realise the mockscreen visual and information architecture without inventing
+content.
 
 Nothing else changes. No screen gains a value, a control, a column, a tab, or a
 destination. No screen that lacks content is dressed. Every fact on every screen
@@ -70,7 +71,8 @@ reinventing badges and tables three more times.
   left it with, and that the Simulator Lab rail lists only routes that render
   truthful surfaces. `Home`, `Library`, `Documentation`, `Settings`,
   `Scenarios`, `Devices`, `Ingestion`, and `Events` from the mockup rail are not
-  added to either shell.
+  added to either shell. The Lab rail vocabulary follows v6.9 lines 657, 845,
+  and 2379; those mockup items are not evidence for operator navigation.
 - The left rail becomes a real component, but the operator rail and the Lab rail
   stay separate item sets supplied by their own shells. Neither shell imports
   the other's rail contents, and no simulator URL literal appears outside the
@@ -152,9 +154,10 @@ reinventing badges and tables three more times.
 - Do not dress a surface that has no real content, and do not add an empty frame
   or placeholder panel to complete a layout.
 - Do not add a column, tab, filter, badge value, or control. The per-screen
-  information architecture is T010 to T013.
-- Do not add the Quick Actions panel, the Site tab bar, or `+ New Site` styling
-  work; those belong to the screen that owns them.
+  information architecture is T010 through T013, including T011A.
+- Do not add the Quick Actions panel, the Foundation naming change, the operator
+  Site tab bar, or `+ New Site` styling work; those belong to the slices that
+  own them.
 - Do not change any product copy that a user-review checkpoint settled.
 
 ## User Review

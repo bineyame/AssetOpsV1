@@ -38,9 +38,9 @@ Aside from that one gated button, the screen is identical in both flag states.
 Its content became real in T006 and the shared vocabulary landed in T009, so
 this is the first operator screen that can be made canonical honestly.
 
-It comes before Site Details and Site Configuration because it is the entry
-point to both: it is where an operator forms their model of what a Site is and
-what facts the product tracks about one. Getting the mode-versus-lifecycle
+It comes before Site Details and Foundation because it is the entry point to
+both: it is where an operator forms their model of what a Site is and what facts
+the product tracks about one. Getting the mode-versus-lifecycle
 separation right here is what stops the mockup's collapsed `Status` column from
 becoming the product's data model.
 
@@ -48,10 +48,14 @@ becoming the product's data model.
 
 - The page adopts the canonical layout using the T009 vocabulary: page header
   with title and subtitle, search, filters, and table.
-- Columns are Name with `site_id`, Type, Location, Mode, Lifecycle,
-  Last analysed, and Actions. A test asserts that no single column header
-  renders both a mode value and a lifecycle value, and that `Simulated` never
-  appears under a header named `Status`.
+- Columns follow the settled Sites index inventory: Name with `site_id`, Type /
+  archetype, Location, Mode, Lifecycle, Last analysed, and Actions. Name,
+  archetype/mode, last analysis, and the View action are grounded in v6.9 lines
+  1336-1340; Location comes from the project M1 Site record and
+  `ScreenMockups.png` screen 1 layout pressure; Lifecycle is a project-backed
+  M1 field. A test asserts that no single column header renders both a mode
+  value and a lifecycle value, and that `Simulated` never appears under a
+  header named `Status`.
 - Mode renders `source.mode` as provenance. Lifecycle renders
   `lifecycle_status`, whose permitted values come from the M1 Site schema in
   `.ai/FEATURE_MAP.md` and not from the mockup. Neither is derived from,
@@ -63,6 +67,9 @@ becoming the product's data model.
 - `Last analysed` renders `--` for every Site in the store, and a test asserts
   that no timestamp renders in that column for any Site. The mockup's
   `Last Data` column and its timestamps are not reproduced.
+- Canonical assessment, top issue, and evidence readiness are not rendered
+  because M1 has no accepted evidence, assessment derivation, finding, or
+  readiness model behind them.
 - Search, type filter, mode filter, and lifecycle filter operate over the
   records present. No filter offers a value no Site can have, and no filter
   promises a dimension the Site model does not carry.
@@ -84,8 +91,9 @@ becoming the product's data model.
   name, location, timestamp, or badge value appears unless the record under test
   supplies it. Values such as `Planned` may appear when a record carries that
   lifecycle value; the test is record-sourced rather than string-banned.
-- No operational content appears: no source health, evidence state, charts,
-  assessment, top issue, analytics, Replay, or Findings columns.
+- No operational content appears: no source health, evidence readiness,
+  canonical assessment, top issue, charts, analytics, Replay, or Findings
+  columns.
 - The index presentation stays in `frontend/src/sites/**`. The substrate
   single-definition and leaf-direction guards pass, and no `variant`, `mode`,
   `shell`, or `isLab` discriminant prop is introduced.
@@ -107,6 +115,8 @@ becoming the product's data model.
 - `lifecycle_status` is this project's extension. v6.9 has no site lifecycle
   enum, so the permitted values come from the M1 Site schema, not from whatever
   the mockup drew.
+- Location is a project-backed M1 identity/context field, not an evidence
+  column from v6.9. It renders only while the Site schema carries location.
 - `Last analysed` is an evidence-derived fact. Until evidence exists it is `--`,
   which is a truthful rendering of nothing rather than a placeholder for
   something.
@@ -144,6 +154,9 @@ becoming the product's data model.
 - UI test asserting the column set, and specifically that no header renders both
   a mode value and a lifecycle value and that `Simulated` never appears under a
   header named `Status`.
+- UI test or inventory assertion proving rendered columns match the settled
+  milestone column inventory and that assessment, top issue, and evidence
+  readiness are absent until backed sources exist.
 - Independence test with fixture Sites whose configuration origin and source
   mode do not coincide, proving neither column is derived from the other.
 - UI test asserting `Last analysed` renders `--` for every Site and that no
@@ -171,8 +184,8 @@ becoming the product's data model.
 
 - Inherit the M1 Step 3 exclusions from `.ai/ACTIVE_CONTEXT.md`.
 - Do not add a column, filter, or badge whose value the product cannot source,
-  including `Last Data`, assessment, top issue, evidence state, or source
-  health.
+  including `Last Data`, canonical assessment, top issue, evidence readiness,
+  or source health.
 - Do not add an Actions overflow menu, `Edit`, `Duplicate Site`, `Delete Site`,
   or any other deferred-by-decision control, disabled or otherwise.
 - Do not add a new capability. `+ New Site` is the existing T006 entry point
@@ -184,7 +197,8 @@ becoming the product's data model.
   item or a second entry-point chokepoint.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   add a shell, mode, or variant discriminant prop.
-- Do not dress Site Details or Site Configuration here. Those are T012 and T013.
+- Do not dress Site Details, Foundation, or the operator Site tab row here.
+  Those are T011A, T012, and T013.
 
 ## User Review
 
