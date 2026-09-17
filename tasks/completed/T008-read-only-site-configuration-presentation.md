@@ -1,6 +1,6 @@
 # T008 - Read-Only Site Configuration Presentation
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T008-read-only-site-configuration-presentation`
@@ -236,3 +236,91 @@ is not to be started until this checkpoint is accepted or redirected. T009 to
 T013 are already planned, but they add no capability and no product language:
 they apply canonical screen fidelity to surfaces T005 to T008 have already made
 real.
+
+## Review Outcome
+
+Independent review of this branch returned two medium findings. Both were fixed
+on the branch in `04805d0` rather than deferred, and both are recorded in the
+review packet under Review Findings Addressed. No separate re-review verdict was
+recorded; the record here is the findings, their fixes, and the re-run checks.
+
+Finding 1: `siteViewModel.ts` stated "No integration is configured for this
+site" and "No source is expected to report for this site yet" for every Site.
+Neither claim is backed by a field. A Site registered against a real integration
+arrives with exactly these fields and would be described wrongly by both. Both
+now state what this build records rather than what the Site has, and source
+health reads `Not recorded` rather than `Not applicable`, which had asserted
+that this Site's source could have no health at all. Evidence availability was
+deliberately left unchanged: that no evidence has been accepted is a fact about
+this build's own store, which the build does know.
+
+Finding 2: `isSiteDetail` validated the Foundation's `version` and `valid_from`
+and stopped, which is what T007 read. This slice reads `summary` and
+`components`, so a malformed response could pass the guard and then fail inside
+`components.map(...)` mid-render, or print `undefined` beside a component as
+though the document declared it. The guard now checks the Foundation's content
+down to a rating and refuses a missing `rating` key, because only an explicit
+`null` is the document declaring no rating.
+`frontend/src/sites/__tests__/siteDirectoryClient.test.ts` is new for this fix:
+34 tests, the first here to exercise a client against responses rather than a
+fake, covering eleven malformed bodies split by what each would do if it got
+through.
+
+Checks re-run on the committed branch tip at closeout, 2026-09-17:
+`tools/check-architecture.ps1` passed, `tools/check-agent-workflow.ps1` passed,
+backend `pytest -q` 296 passed, frontend `vitest run` 338 passed across 13
+files, frontend `tsc --noEmit` clean, `npm run build` clean, `git diff --check`
+clean. Recorded as a re-run at closeout, not as a second review.
+
+Not verified here and not claimed: no browser click-through. Verification is the
+suites, the typecheck, and the production build.
+
+The full review packet is at `.agent/T008-review-packet.md` with the branch diff
+at `.agent/T008-review.diff`, regenerated at closeout to cover the branch tip
+including `04805d0`. Both are local-only.
+
+## User Review Outcome
+
+User review completed 2026-09-17. Verdict: accept as built. No rework requested.
+
+This was the second and final user-review checkpoint of the Site Foundation And
+Configuration-Only Site feature. All six items the task's User Review section
+listed are settled as implemented:
+
+- The statement that configuration is fixed at creation in M1, in its own
+  section near the top, accepted as written and as placed. It does not read as
+  a promise of editing later.
+- Deferred-by-decision controls stay absent from the DOM rather than greyed
+  out, and `Version History` is not rendered at all, because no
+  configuration-change model exists and the eventual capability in v6.9 is
+  `Foundation > Changes` with a different name and a different meaning.
+- Foundation version and validity language accepted, and it is not presented as
+  configuration history.
+- Device labelling: accepted as the departure described below, not as the task
+  anticipated it.
+- Configuration origin, template provenance, source mode, lifecycle status,
+  integration readiness, and evidence availability render as six separate
+  facts.
+- The screen is read-only for every Site regardless of configuration origin.
+
+Known Deviation (a) accepted as built. Acceptance criteria 3, 4 and 10 asked for
+devices, signal mappings, control assumptions and control mode as content. The
+M1 `SiteFoundation` carries `version`, `valid_from`, `summary` and `components`
+and nothing below them, so those values do not exist to render, and extending
+the schema is a causal step 4 capability and an Architect decision rather than
+an Implementer one. Each is stated as `Not declared` with a reason that makes
+the absence a fact about what the configuration document can carry rather than a
+claim about the Site. The alternative, silence, was rejected because a screen
+presenting itself as a Site's configuration read back would let a reader
+conclude the Site has no devices. The `Not declared` wording and its reasons are
+accepted as the product language for this milestone.
+
+Implementer choices (b) through (i) in the review packet are accepted as built,
+including the single read path rather than a second endpoint, the link to the
+configuration living in the shell frame rather than the substrate, the
+`Site configuration` heading in every state, and the absent-control test
+querying controls rather than banning an action vocabulary.
+
+Causal Sequencing step 3 is closed. Step 4, topology, devices, and the
+configured Single Line Diagram, is now unblocked for planning. T009 to T013
+remain as planned; they add no capability and no product language.

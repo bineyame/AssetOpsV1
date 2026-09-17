@@ -18,33 +18,24 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T008-read-only-site-configuration-presentation.md`
-(Status: `in_review`).
+No active task. T008 closed out 2026-09-17 and merged to `main`.
 
-T008 is built on `task/T008-read-only-site-configuration-presentation` and
-awaits independent review. `USER_REVIEW_REQUIRED: true`: user review follows
-the independent review and is the gate before merge. The review packet is
-`.agent/T008-review-packet.md`. The task file stays in `tasks/` until review
-closes.
+Independent review of T008 returned two medium findings, both fixed on the
+branch: hardcoded claims about a Site's integration and source that no field
+backs, and a detail guard that did not validate the Foundation fields the slice
+reads. User review completed 2026-09-17, verdict accept as built, with Known
+Deviation (a) accepted: devices, signal mappings and control assumptions are
+stated as `Not declared` with a reason, because the M1 Foundation carries
+nothing below `components`. Both Review Outcomes are in
+`tasks/completed/T008-read-only-site-configuration-presentation.md`.
 
-Two things the reviewer and the user should look at first. The slice could not
-render devices, signal mappings or control assumptions as content, because the
-M1 Foundation declares none; it states each as undeclared with a reason
-instead, and that is a departure from the task text with new product language
-in it. And this is the second and final user-review checkpoint of the feature,
-so the "configuration is fixed at creation in M1" statement and the absence
-wording are what it exists to settle.
+That was the second and final user-review checkpoint of the Site Foundation
+feature, so Causal Sequencing step 4 is now unblocked for planning.
 
-T007 is complete, closed out 2026-09-14. Reviewer verdict was accept after one
-medium finding was fixed on the branch: `SiteDetails` kept the loaded Site
-across a change of address, so navigating between two Site URLs could present
-the previous Site as the one the new address names. No user review was
-required. The task file moved to
-`tasks/completed/T007-site-details-by-site-id.md` with its Review Outcome, and
-the branch merged to `main`.
+T005, T006 and T007 are complete. Their task files are in `tasks/completed/`
+with their Review Outcomes, and their branches merged to `main`.
 
-T005 and T006 are complete. Their task files are in `tasks/completed/` with
-their Review Outcomes, and their branches merged to `main`.
+Next: T009, the shared visual vocabulary.
 
 ## Current Site Foundation Sequence
 
@@ -53,13 +44,13 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
 - T007: Site Details by `site_id`. Complete.
-- T008: read-only Site Configuration. Built, awaiting independent review.
+- T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009-T013: staged visual fidelity after real content exists.
 
-Capability planning stops at the second checkpoint. Causal Sequencing step 4,
-topology, devices, and the configured single-line diagram, is not planned. No
-step 3 slice may render the diagram, an empty frame for it, or its signal
-selector.
+The second checkpoint is closed. Causal Sequencing step 4, topology, devices,
+and the configured single-line diagram, is unblocked for planning and is not
+yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
+or its signal selector.
 
 ## Read For T009
 
