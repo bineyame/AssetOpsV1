@@ -43,6 +43,13 @@ rather than loosen them.
   packet's Known Deviations rather than deciding for the project.
 - A guard you add must be proven non-vacuous: introduce the violation, watch it
   fail, revert it. A check that cannot fail is not protection.
+- Commit the work before you prove anything. A proof deliberately mutates a
+  file you just wrote, and the only reliable undo is `git checkout -- <file>`,
+  which restores the last commit. On uncommitted work that is not an undo: it
+  silently discards the slice, and the tests you run next are testing the old
+  code. Committing first makes the revert safe by construction rather than
+  something to remember, and it makes `git status` an honest list of what the
+  proof left behind if a run dies halfway.
 - Frontend tests must settle store reads with `settledScreen` from
   `frontend/src/test/settled.ts`. A level-1 heading and the `<main>` landmark
   both render while a read is in flight, so awaiting either asserts against a
