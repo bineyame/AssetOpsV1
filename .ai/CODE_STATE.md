@@ -657,9 +657,16 @@ disabled. Nothing was disabled; the treatment said otherwise, which is a
 reminder that the three-state rule is only as true as its rendering.
 
 Two signals now, not one. A divider marks where the destinations end, and a
-sentence under the row names the aspects with no content in this build yet, so
-the distinction holds in greyscale and for a reader who does not know that grey
-means unbuilt here.
+sentence under the row says how many aspects have no content in this build yet,
+so the distinction holds in greyscale and for a reader who does not know that
+grey means unbuilt here.
+
+The sentence counts rather than names. The first version listed all six under a
+row that had just shown all six, and the user's browser pass called it heavier
+than the row it was explaining. It reads "Six aspects of a Site have no content
+in this build yet." - `of a Site`, not `of this Site`, because no aspect is
+missing content because of anything about the site on screen, and the shorter
+phrasing must not become a claim about that particular site.
 
 `labelledAspectsSentence` derives that sentence from the tab inventory and is
 exported with the inventory as a parameter, so tests can hand it arrangements
@@ -686,8 +693,6 @@ What this slice leaves open.
    yet is the user's judgement and nothing here can stand in for it.
 2. The correction may overshoot: two accent destinations could make the row
    read as all links.
-3. The sentence is six names long and will wrap at narrow widths, which is more
-   chrome than the row above it.
 4. The divider is a border rather than an element, so the grouping is visual
    only and the sentence is the whole non-visual channel.
 5. The sentence sits inside the nav, so a reader skipping navigation skips the
