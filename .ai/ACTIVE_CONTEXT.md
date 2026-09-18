@@ -18,30 +18,34 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T010A-site-foundation-fetch-seam-integration-test.md`
-(Status: `in_review`).
+No active task. T010A closed out 2026-09-18.
 
-T010A is built on `task/T010A-site-foundation-fetch-seam-integration-test` and
-awaits independent review. `USER_REVIEW_REQUIRED: false`: no capability, no
-product language, no UI. The review packet is `.agent/T010A-review-packet.md`.
+Independent review returned one medium finding, fixed on the branch: the
+frontend tests verified the response half of the fetch seam and not the request
+half, so a create test would have passed while the client sent the wrong
+method, an empty body, or no content type. Fourteen cases now assert their
+request against the same captured contract the response comes from.
 
-It exists because T010 bundled a UI fidelity slice with a new cross-language
-test mechanism. T010's own text pre-authorised the split, the user chose it,
-and T010's Focused Tests bullet now names T010A as a completed prerequisite.
-The 2026-09-17 fetch-seam decision is closed by it after five slices open.
+The 2026-09-17 fetch-seam decision is closed after five slices open. The seam
+is now a checked-in contract: the backend generates
+`contract-fixtures/site-foundation-fetch-seam.json` from real responses and
+fails when it goes stale, and the frontend reads it back through the three real
+clients. Neither side imports the other.
 
-Two things the reviewer should look at first. This slice changed shared test
-configuration - Vitest's per-test timeout and Testing Library's `waitFor`
-timeout - which every future slice inherits, and that is more than a test-only
-slice would normally touch. And the first generator draft produced a fixture
-that was fully populated, well-formed and wrong, which is the exact failure
-this seam exists to prevent.
+Two things worth carrying forward. The frontend flakiness T007, T008 and T009
+each recorded is diagnosed and fixed, and it had a second cause nobody had
+found: Testing Library's own `waitFor` timeout is separate from Vitest's and
+throws "Unable to find an element", which reads as an assertion failure rather
+than a slow machine. And two consecutive reviews have been unable to run the
+frontend suite at all, because Vite fails loading its config in the reviewer's
+environment, so the frontend numbers for T009 and T010A rest on the
+Implementer's runs alone.
 
 T005 to T009 are complete. Their task files are in `tasks/completed/` with
 their Review Outcomes.
 
-Next after review: T010, the Lab template and create surfaces to mockup
-quality.
+Next: T010, the Lab template and create surfaces to mockup quality. Its fetch
+seam prerequisite is now met.
 
 ## Current Site Foundation Sequence
 
@@ -52,7 +56,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T007: Site Details by `site_id`. Complete.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009: shared visual vocabulary. Complete.
-- T010A: the fetch seam, split out of T010. Built, awaiting review.
+- T010A: the fetch seam, split out of T010. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 
