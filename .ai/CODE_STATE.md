@@ -578,3 +578,66 @@ one was caught by a human reading the file rather than by anything automatic.
 Whether that class deserves its own seam - per-pattern fixtures, no control
 characters in patterns, failure messages that name which pattern fired - is an
 open Architect question the Planner declined to turn into a task.
+
+## T011B - Shell and dense content overflow containment
+
+What this slice settled in code.
+
+Every table renders through `DataTable`, which wraps it in
+`.data-table__scroll`, a region that owns the table's horizontal overflow. The
+wrapping happens in the primitive rather than at each call site so a screen
+cannot render a bare table by forgetting to, and a guard clause holds the other
+half: a `<table>` element anywhere outside `frontend/src/ui/DataTable.tsx`
+fails the architecture check.
+
+The region is a named focus stop - `tabIndex={0}` plus `role="region"` labelled
+by the heading the table already answers to - because a region only a mouse can
+scroll hides its far side from a keyboard. Both are conditional on the caller
+supplying `labelledBy`: an unnamed `role="region"` is not exposed as a landmark
+and an unnamed focus stop announces nothing.
+
+Only `overflow-x` is declared. CSS resolves the other axis to `auto` once one
+axis scrolls, but the box has no height constraint, so it grows to its rows and
+never produces a vertical scrollbar. Giving that region a height is what would
+put rows behind an inner scrollbar.
+
+`.app-shell > .app-frame` sets `min-height: 0`. `.app-frame` keeps its own
+`min-height: 100vh` because `SimulatorLabShell` renders that frame standalone,
+outside the shell. Two uses of one frame, and the nested one is the exception:
+deleting the base rule would take the Lab's full height with it, which is why
+the guard asserts both halves separately.
+
+New seam, `tools/checks/shell-overflow.ps1`, registered as the eighth. Five
+clauses: the region contains the inline axis; the standalone frame is full
+height; the nested frame is not; no shell selector hides page overflow; every
+table goes through the primitive. The fourth is the one that matters most -
+`overflow-x: hidden` on the document is the tempting wrong fix, because the
+scrollbar disappears and the content beyond it becomes unreachable rather than
+contained. Hiding is not containing.
+
+Each clause was proved to fail on its own, worded so no sibling clause could
+fire instead. That is the T011A lesson applied.
+
+Nothing was dropped to make anything fit, and that is now asserted here rather
+than only in the slices that introduced each inventory: nine Sites index
+columns, eight Site tabs with no menu, toggle or hidden element, both rail
+labels.
+
+What this slice leaves open.
+
+1. Nobody has seen the fix work. jsdom has no layout, so no test here can
+   observe a scrollbar; everything asserted is structure and CSS text. This
+   needs a browser before it is believed.
+2. At exactly 1280px the Sites index table will probably still scroll inside
+   its region. The table's floor is roughly 950-1100px and the rail and padding
+   take about 250px more. That is the intended behaviour; closing it would mean
+   changing density or dropping a column, which the policy forbids.
+3. No affordance says more columns exist to the right of the region. That is a
+   design addition, not a correction.
+4. The tab row wraps rather than scrolling, so it has no overflow owner. A
+   wrapping row cannot overflow, and a wrapped tab is visible where a scrolled
+   one is not.
+5. The unsupported-viewport state the policy permits is not built. It is new
+   chrome that makes a claim and should have its own slice.
+6. No breakpoint tokens were introduced, so the conditional breakpoint-token
+   seam in the guard table remains unshipped.

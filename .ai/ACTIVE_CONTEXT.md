@@ -18,27 +18,29 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T011A closed out 2026-09-18.
+T011B, shell and dense content overflow containment. Built and in review on
+`task/T011B-shell-and-dense-content-overflow-containment`, one commit,
+`6e448d8`. Packet at `.agent/T011B-review-packet.md`.
 
-Independent review returned accept with one medium finding, fixed on the branch:
-two patterns in the new tab-row guard clause held a literal control character
-where `` was meant and could never match. The lesson is in `.ai/CODE_STATE.md`
-under T011A - a clause built from a list of patterns is proved once per pattern,
-not once per clause.
+`USER_REVIEW_REQUIRED: false`, but **browser verification is required and has
+not happened**. Those are different things: no product decision is being
+settled, and jsdom has no layout, so nothing in the suite can see whether a
+page scrolls sideways. The defect this slice exists to fix has not been
+observed as fixed.
 
-T011A is merged with its `USER_REVIEW_REQUIRED: true` still outstanding, by the
-user's direction and on the Planner's sequencing recommendation. The browser
-pass on T011's Sites index found the shell taking both scrollbars with the rail
-moving sideways, so T011B fixes that first and the user then reviews T011A's tab
-row in the viewport behaviour the product commits to, rather than reviewing it
-twice.
+455 frontend tests pass across 17 files, 304 backend, both guards, typecheck and
+build clean. A new seam, shell overflow containment, is the eighth in the
+runner; each of its five clauses was proved to fail on its own.
 
-Next: T011B, shell and dense content overflow containment. It is the first slice
-under the new viewport commitment, it needs no user review, and it must land
-before T012 dresses Site Details on the same shell.
+T011A's user review is still outstanding and was deferred to this point on
+purpose, so one browser pass now covers both: the overflow fix, and whether the
+six labelled Site tabs read as aspects that are not built yet.
 
 T005 to T011, T010A and T011A are complete, in `tasks/completed/` with their
 Review Outcomes.
+
+Next after review: T012, which dresses Site Details against the tab row T011A
+settled and under the viewport commitment.
 
 ## Current Site Foundation Sequence
 
@@ -54,7 +56,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T011: Sites index to canonical screen one. Complete.
 - T011A: Foundation naming and the operator Site tab row. Complete; user
   review deferred to the pass after T011B.
-- T011B: shell and dense content overflow containment. Planned, next.
+- T011B: shell and dense content overflow containment. In review.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 
@@ -63,23 +65,22 @@ and the configured single-line diagram, is unblocked for planning and is not
 yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
 or its signal selector.
 
-## Read For T011B
+## Read For T012
 
-T011B is the first slice under the M1 viewport commitment. It fixes two
-diagnosed layout defects and adds no capability, no route and no vocabulary,
-which is what makes it safe to run between two fidelity slices.
+T012 dresses Site Details to canonical screen two. The tab row, the Foundation
+name and the overflow rule are all settled before it starts, so what is left is
+page composition against content that already exists.
 
-- `tasks/T011B-shell-and-dense-content-overflow-containment.md`, which carries
-  its own Read For list.
+- `tasks/T012-site-details-to-canonical-screen-two.md`
+- `.ai/CODE_STATE.md`, the T009, T011, T011A and T011B entries.
 - `.ai/FEATURE_MAP.md`, `## Canonical Screen Fidelity`, and within it
-  `### Viewport and overflow commitment`. That section is not reachable from
-  the Feature Map Index, so it has to be named.
-- `.ai/FEATURE_MAP.md`, `#### Guards that follow from this architecture` and
-  the `Guard migration:` list under it, for shell overflow containment and the
-  conditional breakpoint-token seam.
-- `.ai/CODE_STATE.md`, the T009, T011 and T011A entries.
+  `### Viewport and overflow commitment` and `#### Operator Site tabs`. The
+  viewport section is not reachable from the Feature Map Index, so it has to be
+  named.
+- `.ai/FEATURE_MAP.md`, `#### Guards that follow from this architecture`.
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-13-shared-site-substrate`
+  - `D-2026-09-13-provenance-status-vocabulary`
   - `D-2026-09-13-canonical-fidelity`
 
 ## Settled Direction
