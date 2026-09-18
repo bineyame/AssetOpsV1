@@ -185,10 +185,20 @@ describe("sites index rows", () => {
       link.textContent,
     ]);
 
+    // T011 puts the name and the identity in one cell and adds a `View`
+    // action, so a row now offers two links. Both resolve to the same place,
+    // so the claim this test makes - that the listing offers exactly one
+    // destination per site and no other - is unchanged, and is now asserted on
+    // the set of destinations rather than on the number of anchors.
     expect(links).toEqual([
-      ["/sites/MG-002", "MG-002"],
-      ["/sites/CC-001", "CC-001"],
+      ["/sites/MG-002", "Kalangala Mini-Grid"],
+      ["/sites/MG-002", "View"],
+      ["/sites/CC-001", "Mbale Cold Room"],
+      ["/sites/CC-001", "View"],
     ]);
+    expect(new Set(links.map(([href]) => href))).toEqual(
+      new Set(["/sites/MG-002", "/sites/CC-001"]),
+    );
   });
 
   it("addresses a row by site ID and never by name or template", async () => {
@@ -237,16 +247,31 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
       .getAllByRole("columnheader")
       .map((header) => header.textContent);
 
+    // The canonical column set. Nine, not the settled inventory's seven: that
+    // inventory omits configuration origin and template provenance, while the
+    // T006 user-review checkpoint accepted them as two of four separate
+    // provenance columns, and a checkpoint settles a surface.
+    //
+    // Mode and Lifecycle are adjacent and distinct, which is the assertion
+    // that matters here. The mockup's single `Status` column is the error this
+    // screen exists to correct.
     expect(headers).toEqual([
-      "Site ID",
       "Name",
       "Type",
       "Location",
-      "Lifecycle status",
       "Mode",
+      "Lifecycle",
       "Configuration origin",
       "Created from template",
+      "Last analysed",
+      "Actions",
     ]);
+
+    // No header carries both vocabularies, and none is called `Status`.
+    for (const header of headers) {
+      expect(header).not.toMatch(/^status$/i);
+      expect(header).not.toMatch(/mode.*lifecycle|lifecycle.*mode/i);
+    }
 
     // The canonical mockup collapses provenance into a `Status` column. That
     // is a mockup error to correct rather than copy.
@@ -291,8 +316,24 @@ describe("the index shows no capability the product lacks", () => {
       container.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR),
     );
 
-    expect(interactive.map((control) => control.tagName)).toEqual(["A"]);
-    expect(interactive[0].getAttribute("href")).toBe("/sites/MG-002");
+    // T011 gives the index a search field and three filters, all of which only
+    // narrow what is already listed. So the controls are named rather than
+    // counted: anything that is not one of these four, or a link to a site
+    // page, still fails - stronger than a count, because it also fails for a
+    // different control that happens to keep the total the same.
+    expect(
+      interactive.map((control) => [
+        control.tagName,
+        control.getAttribute("id") ?? control.getAttribute("href"),
+      ]),
+    ).toEqual([
+      ["INPUT", "sites-search"],
+      ["SELECT", "sites-type"],
+      ["SELECT", "sites-mode"],
+      ["SELECT", "sites-lifecycle"],
+      ["A", "/sites/MG-002"],
+      ["A", "/sites/MG-002"],
+    ]);
     expect(container.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });
 
@@ -312,8 +353,13 @@ describe("the index shows no capability the product lacks", () => {
 
     expect(headers.length).toBeGreaterThan(0);
     for (const header of headers) {
+      // `last analysed` left this list in T011, which requires the column.
+      // What the list was protecting is unchanged and is asserted directly in
+      // the test below instead: the column may exist, but it may never carry
+      // a value. The mockup's `Last Data` stays banned, because its content is
+      // timestamps the product does not have.
       expect(header).not.toMatch(
-        /\b(last data|last analysed|health|evidence|telemetry|analytics|replay|findings?|quality|readiness)\b/i,
+        /\b(last data|health|evidence|telemetry|analytics|replay|findings?|quality|readiness)\b/i,
       );
     }
   });
@@ -325,11 +371,53 @@ describe("the index shows no capability the product lacks", () => {
     });
     await screen.findByRole("table");
 
-    expect(container.querySelectorAll("svg, canvas, select")).toHaveLength(0);
-    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(container.querySelectorAll("svg, canvas")).toHaveLength(0);
+
+    // This banned every `select` and every combobox as a proxy for the signal
+    // selector that sits above a single line diagram. The proxy held while the
+    // index had no controls; it stops being about diagrams the moment the
+    // screen has legitimate filters, and T011 gives it three. So the
+    // comboboxes are identified instead of forbidden: a signal selector would
+    // be a fourth, or one of these renamed, and either fails.
+    expect(
+      screen.queryAllByRole("combobox").map((el) => el.getAttribute("id")),
+    ).toEqual(["sites-type", "sites-mode", "sites-lifecycle"]);
+
+    // The vocabulary rule is untouched and is what actually names the
+    // deferred capability.
     expect(container.textContent ?? "").not.toMatch(
       /single line diagram|diagram|signal/i,
     );
+  });
+
+  it("renders Last analysed as a dash for every site, never a timestamp", async () => {
+    renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
+    });
+    await screen.findByRole("table");
+
+    const table = screen.getByRole("table");
+    const headers = within(table)
+      .getAllByRole("columnheader")
+      .map((header) => (header.textContent ?? "").trim());
+    const column = headers.indexOf("Last analysed");
+    expect(column).toBeGreaterThan(-1);
+
+    const cells = within(table)
+      .getAllByRole("row")
+      .slice(1)
+      .map((row) => (within(row).getAllByRole("cell")[column].textContent ?? "").trim());
+
+    // Every site, not just the first. `--` is v6.9's rendering for a site with
+    // no data in the window; the mockup's timestamps are evidence this build
+    // does not have, and reproducing one would be the clearest case of a
+    // mockup literal becoming content.
+    expect(cells).toEqual(["--", "--"]);
+    for (const cell of cells) {
+      expect(cell).not.toMatch(/\d/);
+      expect(cell).not.toMatch(/ago|min|hour|day|:/i);
+    }
   });
 });
 

@@ -159,9 +159,12 @@ describe("a badge renders only where a record supplies its value", () => {
       badge.className,
       badge.textContent,
     ]);
+    // Order follows the canonical column set T011 settled: Mode before
+    // Lifecycle, each in its own column. Three vocabularies, three tones, and
+    // never one status pill, which is what this assertion is really about.
     expect(tones).toEqual([
-      ["badge badge--lifecycle", "Planned"],
       ["badge badge--provenance", "Simulated"],
+      ["badge badge--lifecycle", "Planned"],
       ["badge badge--origin", "User"],
     ]);
   });

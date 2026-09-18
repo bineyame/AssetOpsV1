@@ -237,7 +237,12 @@ describe("a Sites row is the way into a site", () => {
     );
     await screen.findByRole("table");
 
-    fireEvent.click(screen.getByRole("link", { name: "MG-002" }));
+    // T011 puts the name and the identity in one cell, so the row link is
+    // named for the site rather than for its ID. The address is unchanged and
+    // is still built from `site_id`, which the substrate test pins.
+    fireEvent.click(
+      screen.getByRole("link", { name: SITE.display_name }),
+    );
 
     expect(
       await screen.findByRole("heading", {
@@ -268,11 +273,22 @@ describe("a Sites row is the way into a site", () => {
 
     const main = within(view.container).getByRole("main");
 
-    expect(
-      within(main)
-        .getAllByRole("link")
-        .map((link) => link.getAttribute("href")),
-    ).toEqual(["/sites/MG-002", "/simulator-lab/create-site"]);
+    // The row now offers the name and a `View` action, both resolving to the
+    // same site. The claim is unchanged - the index adds one destination per
+    // site and the gated create action, and nothing else - so it is asserted
+    // on the set of destinations rather than on the number of anchors.
+    const hrefs = within(main)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"));
+
+    expect(hrefs).toEqual([
+      "/simulator-lab/create-site",
+      "/sites/MG-002",
+      "/sites/MG-002",
+    ]);
+    expect(new Set(hrefs)).toEqual(
+      new Set(["/sites/MG-002", "/simulator-lab/create-site"]),
+    );
 
     const navigation = within(view.container).getByRole("navigation", {
       name: "Operator routes",

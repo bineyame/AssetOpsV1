@@ -269,6 +269,13 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Panel ------------------------------------------------------------------- */
 
 .panel {
@@ -372,6 +379,14 @@ button:focus-visible {
 
 .data-table tbody tr:hover {
   background: var(--surface-hover);
+}
+
+/* A second line inside a table cell: an identity under a name, and similar. */
+.cell-secondary {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 /* Badge and pill ---------------------------------------------------------- */
