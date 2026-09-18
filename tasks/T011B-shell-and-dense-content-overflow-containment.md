@@ -143,3 +143,57 @@ rather than reproducing the overflow.
 User review is not required. This fixes diagnosed layout defects under the
 already-reviewed viewport policy and adds no product capability, domain
 semantics, route, or user-visible vocabulary.
+
+## Review Outcome
+
+Independent review by Codex: **reject until browser verification is completed**.
+One High finding, and explicitly not a code finding - "I did not find a separate
+structural code finding in the diff". The Reviewer had no browser either and
+declined to approve a layout fix on structural evidence alone, which was the
+right call: the defect is a browser layout defect and this task makes visual
+evidence the review-time proof.
+
+### The finding is discharged, with measurements
+
+The evidence was gathered by driving the Chrome installed on this machine over
+the DevTools Protocol, from `tools/layout-evidence.mjs`, against the running dev
+server. It measures rather than judges: whether the document scrolls sideways,
+whether the rail moves when the table is scrolled, whether an empty page is
+taller than the viewport, whether the standalone Lab frame still fills it.
+
+At 1280x800, the committed minimum:
+
+- Sites index: the page does not scroll horizontally, `scrollWidth 1280` against
+  `clientWidth 1280`. The rail stays at `left 0` while the table is scrolled.
+  Nine columns rendered.
+- Site page: no horizontal page scroll, `985`/`985` at the narrower size and
+  `1265`/`1265` here. All eight tabs rendered. Every action disabled.
+- Operator home with the gate open: `scrollHeight 800` against
+  `clientHeight 800`. The `100vh` double-count is gone - this is the number the
+  defect was.
+- Simulator Lab: the standalone frame measures 800px against an 800px viewport,
+  so the fix did not take the Lab's full height with it.
+
+At 1000x700, below the commitment and the case that matters most:
+
+- **The table scrolls 272px inside its own region and the rail stays at
+  `left 0`.** That is the whole slice in one measurement: the dense content
+  overflows, it owns that overflow, and the chrome does not move. It is also
+  the proof the containment is not vacuous - at 1280 the table does not
+  overflow at all, so only the narrow case exercises it.
+- Nine columns still rendered. Nothing was dropped to fit.
+
+Every claim held on the first run. No code changed to make them hold.
+
+### What this does not close
+
+Nobody has looked at the screen and judged whether it reads well. These are
+measurements of the claims the task makes, not an opinion about the result.
+The user's own pass produced a real finding on the tab row that no measurement
+would have caught, which is the difference between the two and the reason this
+does not replace one.
+
+`tools/layout-evidence.mjs` is deliberately not wired into
+`tools/check-architecture.ps1`. Whether layout evidence becomes a standing check
+is an Architect decision about what review means in this project, not something
+this slice should settle by adding a module to the runner.
