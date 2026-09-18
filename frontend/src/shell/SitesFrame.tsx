@@ -49,27 +49,40 @@ export function SitesFrame({ flags, directory }: SitesFrameProps) {
 
   return (
     <main aria-labelledby="sites-heading">
-      <PageHeader title="Sites" headingId="sites-heading" />
+      {/*
+       * The canonical screen puts the create action in the page header, and
+       * T011 is the slice that moves it there. What moved is where it sits:
+       * it is the same entry point, from the same gated module T004
+       * established, in the same two flag states, carrying the same label the
+       * T006 checkpoint settled. No second chokepoint, and no new capability.
+       *
+       * Its label is `Create a site in the Simulator Lab` rather than the
+       * mockup's `+ New Site`, because from the operator shell this action
+       * leaves the operator shell, and a button that does not say so would be
+       * the operator product appearing to author its own sites.
+       *
+       * The subtitle is not the mockup's either. That reads "All sites (real
+       * or simulated)", and the word simulated is the problem: with the gate
+       * closed this build must not name the simulator anywhere, which three
+       * settled assertions check. The mockup is authoritative about layout,
+       * not about what a gate-off build may say.
+       */}
+      <PageHeader
+        title="Sites"
+        headingId="sites-heading"
+        subtitle="Every site configured in this build."
+        actions={createEntryPoints.map((entryPoint) => (
+          <Link
+            className="action action--primary"
+            key={entryPoint.to}
+            to={entryPoint.to}
+          >
+            {entryPoint.label}
+          </Link>
+        ))}
+      />
 
       <SitesIndex directory={directory} siteHref={siteDetailHref} />
-
-      {/*
-       * The gated create entry point stays exactly where T006 put it, in the
-       * same two flag states, with the same label from the same module.
-       * Moving it into the page header and styling it as the canonical
-       * `+ New Site` action is T011's work, which this slice's scope limits
-       * name explicitly: fidelity stage 1 is the vocabulary, not any screen's
-       * information architecture.
-       */}
-      {createEntryPoints.length > 0 ? (
-        <p>
-          {createEntryPoints.map((entryPoint) => (
-            <Link key={entryPoint.to} to={entryPoint.to}>
-              {entryPoint.label}
-            </Link>
-          ))}
-        </p>
-      ) : null}
     </main>
   );
 }

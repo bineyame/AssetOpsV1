@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -185,10 +185,20 @@ describe("sites index rows", () => {
       link.textContent,
     ]);
 
+    // T011 puts the name and the identity in one cell and adds a `View`
+    // action, so a row now offers two links. Both resolve to the same place,
+    // so the claim this test makes - that the listing offers exactly one
+    // destination per site and no other - is unchanged, and is now asserted on
+    // the set of destinations rather than on the number of anchors.
     expect(links).toEqual([
-      ["/sites/MG-002", "MG-002"],
-      ["/sites/CC-001", "CC-001"],
+      ["/sites/MG-002", "Kalangala Mini-Grid"],
+      ["/sites/MG-002", "View"],
+      ["/sites/CC-001", "Mbale Cold Room"],
+      ["/sites/CC-001", "View"],
     ]);
+    expect(new Set(links.map(([href]) => href))).toEqual(
+      new Set(["/sites/MG-002", "/sites/CC-001"]),
+    );
   });
 
   it("addresses a row by site ID and never by name or template", async () => {
@@ -204,6 +214,148 @@ describe("sites index rows", () => {
     expect(href).not.toMatch(/Kalangala/i);
     expect(href).not.toMatch(/hybrid-mini-grid/i);
   });
+});
+
+describe("the index filters over the sites it actually has", () => {
+  const THREE = [USER_SIMULATED_SITE, USER_LIVE_SITE, SHIPPED_SIMULATED_SITE];
+
+  function rowNames(): string[] {
+    return within(screen.getByRole("table"))
+      .getAllByRole("row")
+      .slice(1)
+      .map((row) => within(row).getAllByRole("cell")[0].textContent ?? "");
+  }
+
+  function optionsOf(id: string): string[] {
+    return within(document.getElementById(id) as HTMLElement)
+      .getAllByRole("option")
+      .map((option) => option.textContent ?? "");
+  }
+
+  it("offers only the values the configured sites carry", async () => {
+    renderIndex({ status: "loaded", sites: THREE });
+    await screen.findByRole("table");
+
+    // No DECOMMISSIONED, no ARCHIVED, no site type nothing is. The M1 schema
+    // permits more than these; a filter offering one teaches a fleet this
+    // build does not have, and an empty result for it would be
+    // indistinguishable from a state the product never reaches.
+    expect(optionsOf("sites-type")).toEqual([
+      "All types",
+      "Cold chain",
+      "Mini-grid",
+    ]);
+    expect(optionsOf("sites-mode")).toEqual(["All modes", "Live", "Simulated"]);
+    expect(optionsOf("sites-lifecycle")).toEqual([
+      "All lifecycle states",
+      "Active",
+      "Commissioned",
+      "Planned",
+    ]);
+  });
+
+  it("narrows by mode and by lifecycle independently", async () => {
+    renderIndex({ status: "loaded", sites: THREE });
+    await screen.findByRole("table");
+
+    fireEvent.change(screen.getByLabelText("Mode"), {
+      target: { value: "Live" },
+    });
+    expect(rowNames()).toEqual([USER_LIVE_SITE.display_name + "MG-003"]);
+
+    fireEvent.change(screen.getByLabelText("Mode"), {
+      target: { value: "__any__" },
+    });
+    fireEvent.change(screen.getByLabelText("Lifecycle"), {
+      target: { value: "Commissioned" },
+    });
+
+    // A different site, which is the point: the two filters select on
+    // different facts and neither is a proxy for the other.
+    expect(rowNames()).toEqual([
+      SHIPPED_SIMULATED_SITE.display_name + "CC-001",
+    ]);
+  });
+
+  it("searches over the name and the identity", async () => {
+    renderIndex({ status: "loaded", sites: THREE });
+    await screen.findByRole("table");
+
+    const search = screen.getByLabelText("Search sites");
+
+    fireEvent.change(search, { target: { value: "buvuma" } });
+    expect(rowNames()).toEqual([USER_LIVE_SITE.display_name + "MG-003"]);
+
+    fireEvent.change(search, { target: { value: "cc-001" } });
+    expect(rowNames()).toEqual([
+      SHIPPED_SIMULATED_SITE.display_name + "CC-001",
+    ]);
+  });
+
+  it("says an empty result is about the filters, never about the store", async () => {
+    renderIndex({ status: "loaded", sites: THREE });
+    await screen.findByRole("table");
+
+    fireEvent.change(screen.getByLabelText("Search sites"), {
+      target: { value: "no-such-site" },
+    });
+
+    expect(screen.queryByRole("table")).toBeNull();
+
+    // The distinction T006 settled: an empty store and a filter that matched
+    // nothing are different facts, and the first-run copy must not be reused
+    // for the second.
+    const text = document.body.textContent ?? "";
+    expect(text).toMatch(/statement about the filters/i);
+    expect(text).toMatch(/3 sites are configured/);
+    expect(text).not.toMatch(/No site has been configured/i);
+  });
+});
+
+describe("the Actions column offers only what exists", () => {
+  it("contains View and nothing else, with no overflow menu", async () => {
+    renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
+    await screen.findByRole("table");
+
+    const table = screen.getByRole("table");
+    const headers = within(table)
+      .getAllByRole("columnheader")
+      .map((header) => (header.textContent ?? "").trim());
+    const column = headers.indexOf("Actions");
+    const cell = within(within(table).getAllByRole("row")[1]).getAllByRole(
+      "cell",
+    )[column];
+
+    expect((cell.textContent ?? "").trim()).toBe("View");
+    expect(within(cell).getAllByRole("link")).toHaveLength(1);
+
+    // The mockup draws an overflow beside View. It would open onto nothing:
+    // every action it could hold is one M1 has decided not to have, and a
+    // disabled one would read as "soon".
+    expect(cell.querySelectorAll("button, [role='menu'], details")).toHaveLength(
+      0,
+    );
+    expect((cell.textContent ?? "")).not.toMatch(/\.\.\.|…/);
+  });
+
+  it.each(["Edit", "Duplicate Site", "Delete Site", "Archive"])(
+    "does not render %s anywhere, disabled or otherwise",
+    async (label) => {
+      const { container } = renderIndex({
+        status: "loaded",
+        sites: [USER_SIMULATED_SITE],
+      });
+      await screen.findByRole("table");
+
+      // Absence from the DOM, not disabled state: disabled reads as soon, and
+      // none of these is coming.
+      expect(screen.queryByRole("button", { name: label })).toBeNull();
+      expect(screen.queryByRole("link", { name: label })).toBeNull();
+      expect(screen.queryByText(label)).toBeNull();
+      expect(container.querySelectorAll("[disabled], [aria-disabled='true']"))
+        .toHaveLength(0);
+    },
+  );
 });
 
 describe("configuration origin, source mode, and lifecycle stay separate", () => {
@@ -237,16 +389,31 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
       .getAllByRole("columnheader")
       .map((header) => header.textContent);
 
+    // The canonical column set. Nine, not the settled inventory's seven: that
+    // inventory omits configuration origin and template provenance, while the
+    // T006 user-review checkpoint accepted them as two of four separate
+    // provenance columns, and a checkpoint settles a surface.
+    //
+    // Mode and Lifecycle are adjacent and distinct, which is the assertion
+    // that matters here. The mockup's single `Status` column is the error this
+    // screen exists to correct.
     expect(headers).toEqual([
-      "Site ID",
       "Name",
       "Type",
       "Location",
-      "Lifecycle status",
       "Mode",
+      "Lifecycle",
       "Configuration origin",
       "Created from template",
+      "Last analysed",
+      "Actions",
     ]);
+
+    // No header carries both vocabularies, and none is called `Status`.
+    for (const header of headers) {
+      expect(header).not.toMatch(/^status$/i);
+      expect(header).not.toMatch(/mode.*lifecycle|lifecycle.*mode/i);
+    }
 
     // The canonical mockup collapses provenance into a `Status` column. That
     // is a mockup error to correct rather than copy.
@@ -291,8 +458,24 @@ describe("the index shows no capability the product lacks", () => {
       container.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR),
     );
 
-    expect(interactive.map((control) => control.tagName)).toEqual(["A"]);
-    expect(interactive[0].getAttribute("href")).toBe("/sites/MG-002");
+    // T011 gives the index a search field and three filters, all of which only
+    // narrow what is already listed. So the controls are named rather than
+    // counted: anything that is not one of these four, or a link to a site
+    // page, still fails - stronger than a count, because it also fails for a
+    // different control that happens to keep the total the same.
+    expect(
+      interactive.map((control) => [
+        control.tagName,
+        control.getAttribute("id") ?? control.getAttribute("href"),
+      ]),
+    ).toEqual([
+      ["INPUT", "sites-search"],
+      ["SELECT", "sites-type"],
+      ["SELECT", "sites-mode"],
+      ["SELECT", "sites-lifecycle"],
+      ["A", "/sites/MG-002"],
+      ["A", "/sites/MG-002"],
+    ]);
     expect(container.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });
 
@@ -312,8 +495,13 @@ describe("the index shows no capability the product lacks", () => {
 
     expect(headers.length).toBeGreaterThan(0);
     for (const header of headers) {
+      // `last analysed` left this list in T011, which requires the column.
+      // What the list was protecting is unchanged and is asserted directly in
+      // the test below instead: the column may exist, but it may never carry
+      // a value. The mockup's `Last Data` stays banned, because its content is
+      // timestamps the product does not have.
       expect(header).not.toMatch(
-        /\b(last data|last analysed|health|evidence|telemetry|analytics|replay|findings?|quality|readiness)\b/i,
+        /\b(last data|health|evidence|telemetry|analytics|replay|findings?|quality|readiness)\b/i,
       );
     }
   });
@@ -325,11 +513,53 @@ describe("the index shows no capability the product lacks", () => {
     });
     await screen.findByRole("table");
 
-    expect(container.querySelectorAll("svg, canvas, select")).toHaveLength(0);
-    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(container.querySelectorAll("svg, canvas")).toHaveLength(0);
+
+    // This banned every `select` and every combobox as a proxy for the signal
+    // selector that sits above a single line diagram. The proxy held while the
+    // index had no controls; it stops being about diagrams the moment the
+    // screen has legitimate filters, and T011 gives it three. So the
+    // comboboxes are identified instead of forbidden: a signal selector would
+    // be a fourth, or one of these renamed, and either fails.
+    expect(
+      screen.queryAllByRole("combobox").map((el) => el.getAttribute("id")),
+    ).toEqual(["sites-type", "sites-mode", "sites-lifecycle"]);
+
+    // The vocabulary rule is untouched and is what actually names the
+    // deferred capability.
     expect(container.textContent ?? "").not.toMatch(
       /single line diagram|diagram|signal/i,
     );
+  });
+
+  it("renders Last analysed as a dash for every site, never a timestamp", async () => {
+    renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
+    });
+    await screen.findByRole("table");
+
+    const table = screen.getByRole("table");
+    const headers = within(table)
+      .getAllByRole("columnheader")
+      .map((header) => (header.textContent ?? "").trim());
+    const column = headers.indexOf("Last analysed");
+    expect(column).toBeGreaterThan(-1);
+
+    const cells = within(table)
+      .getAllByRole("row")
+      .slice(1)
+      .map((row) => (within(row).getAllByRole("cell")[column].textContent ?? "").trim());
+
+    // Every site, not just the first. `--` is v6.9's rendering for a site with
+    // no data in the window; the mockup's timestamps are evidence this build
+    // does not have, and reproducing one would be the clearest case of a
+    // mockup literal becoming content.
+    expect(cells).toEqual(["--", "--"]);
+    for (const cell of cells) {
+      expect(cell).not.toMatch(/\d/);
+      expect(cell).not.toMatch(/ago|min|hour|day|:/i);
+    }
   });
 });
 

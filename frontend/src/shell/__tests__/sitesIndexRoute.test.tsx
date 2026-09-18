@@ -204,6 +204,68 @@ describe("the gated way into the create flow", () => {
     ).toHaveAttribute("href", "/simulator-lab/create-site");
   });
 
+  it("puts the create action in the page header, not in the listing", async () => {
+    render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+
+    const action = screen.getByRole("link", {
+      name: CREATE_SITE_ENTRY_POINT_LABEL,
+    });
+
+    // Canonical screen 1 puts it beside the title. It is still the same gated
+    // entry point from the same module, in the same two flag states, with the
+    // label the T006 checkpoint settled: T011 moved where it sits and nothing
+    // about when it exists or what it says.
+    const header = screen.getByRole("heading", { level: 1, name: "Sites" })
+      .closest("header");
+    expect(header).not.toBeNull();
+    expect(header?.contains(action)).toBe(true);
+
+    // And not inside the listing, where it would read as a row action.
+    expect(screen.getByRole("table").contains(action)).toBe(false);
+  });
+
+  it("is identical in both gate states apart from that one action", async () => {
+    function markupWithout(html: string): string {
+      // Everything except the header's action area, which is the one thing the
+      // gate is allowed to change on this screen.
+      return html.replace(
+        /<div class="page-header__actions">[\s\S]*?<\/div>/,
+        "",
+      );
+    }
+
+    const enabled = render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const enabledMarkup = markupWithout(
+      within(enabled.container).getByRole("main").innerHTML,
+    );
+    enabled.unmount();
+
+    const disabled = render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={DISABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const disabledMarkup = markupWithout(
+      within(disabled.container).getByRole("main").innerHTML,
+    );
+
+    // The Sites index is an operator capability. The gate covers Lab surfaces
+    // and execution, never a Site, so every column, badge, filter and value on
+    // this screen must be byte-identical with the gate shut.
+    expect(disabledMarkup).toBe(enabledMarkup);
+  });
+
   it("keeps the action out of operator navigation in both gate states", async () => {
     for (const flags of [DISABLED, ENABLED]) {
       const view = renderSites(flags, [SITE]);
@@ -237,7 +299,12 @@ describe("a Sites row is the way into a site", () => {
     );
     await screen.findByRole("table");
 
-    fireEvent.click(screen.getByRole("link", { name: "MG-002" }));
+    // T011 puts the name and the identity in one cell, so the row link is
+    // named for the site rather than for its ID. The address is unchanged and
+    // is still built from `site_id`, which the substrate test pins.
+    fireEvent.click(
+      screen.getByRole("link", { name: SITE.display_name }),
+    );
 
     expect(
       await screen.findByRole("heading", {
@@ -268,11 +335,22 @@ describe("a Sites row is the way into a site", () => {
 
     const main = within(view.container).getByRole("main");
 
-    expect(
-      within(main)
-        .getAllByRole("link")
-        .map((link) => link.getAttribute("href")),
-    ).toEqual(["/sites/MG-002", "/simulator-lab/create-site"]);
+    // The row now offers the name and a `View` action, both resolving to the
+    // same site. The claim is unchanged - the index adds one destination per
+    // site and the gated create action, and nothing else - so it is asserted
+    // on the set of destinations rather than on the number of anchors.
+    const hrefs = within(main)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"));
+
+    expect(hrefs).toEqual([
+      "/simulator-lab/create-site",
+      "/sites/MG-002",
+      "/sites/MG-002",
+    ]);
+    expect(new Set(hrefs)).toEqual(
+      new Set(["/sites/MG-002", "/simulator-lab/create-site"]),
+    );
 
     const navigation = within(view.container).getByRole("navigation", {
       name: "Operator routes",

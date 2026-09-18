@@ -18,32 +18,37 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T010 closed out 2026-09-18.
+No active task. T011 closed out 2026-09-18.
 
-Independent review returned one medium finding, fixed on the branch: the
-Simulator Lab home said no site could be created from a template, directly
-above the `+ Add site` button the slice had just added. True when T005 wrote
-it, false the moment the entry point appeared, and invisible to every test
-because each was checking its own half.
+Independent review returned accept with no findings, the first clean review in
+this sequence. It confirmed the mode-versus-lifecycle separation as airtight,
+the seven replaced assertions as preserved or strengthened, filter honesty in
+every state it could construct, and that the both-flag-states comparison strips
+only the header action area before comparing.
 
-Verified in a browser by the user, the first time any of this has been looked
-at rather than asserted. T009's visual vocabulary and T010's two Lab surfaces
-both render. The operator screens T011 to T013 will dress are still unlooked-at.
+It also made the point the packet had understated: the nine-versus-seven column
+conflict was a documentation risk rather than an implementation one, because
+T011A and T012 both read the settled inventory. That is fixed: the Sites index
+inventory now names all nine columns, attributes the two project-specific ones
+to the T006 checkpoint and the M1 Site record rather than to v6.9 or the
+mockup, and records why an inventory derived only from external sources keeps
+losing fields this project added.
 
-Two things to carry forward. The standing brief now makes committing a
-precondition of proving a guard, after `git checkout --` was twice used as an
-undo on uncommitted work and twice discarded real work. And three consecutive
-reviews have been unable to run the frontend suite, because Vite fails loading
-its config in the reviewer's environment, so the frontend numbers for T009,
-T010A and T010 rest on the Implementer's runs alone. That is worth fixing
-before T011 goes to review.
+A Reviewer confirmed the backend suite for the first time in this project. The
+frontend suite and build still cannot run under that sandbox, so `407 passed`
+and the bundle sizes remain the Implementer's numbers.
 
-T005 to T009, T010A and T010 are complete, in `tasks/completed/` with their
-Review Outcomes.
+Nobody has rendered the Sites index. Nine columns plus a four-control toolbar is
+the densest layout in the product, and whether it is readable is a product
+judgement no test made.
 
-Next: T011, the Sites index to canonical screen one. It inherits the toolbar,
-control and action patterns T010 added to the shared vocabulary, and its
-`+ New Site` restyling is the work T009 deliberately left alone.
+T005 to T011 and T010A are complete, in `tasks/completed/` with their Review
+Outcomes.
+
+Next: T011A, the Foundation naming and operator Site tab inventory. It carries
+the user-visible rename from Site Configuration to Foundation, the route
+redirect, and the operator Site tab row from v6.9, and it is the last slice
+before T012 dresses Site Details.
 
 ## Current Site Foundation Sequence
 
@@ -56,6 +61,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T009: shared visual vocabulary. Complete.
 - T010A: the fetch seam, split out of T010. Complete.
 - T010: Lab template and create surfaces to mockup quality. Complete.
+- T011: Sites index to canonical screen one. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 

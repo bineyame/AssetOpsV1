@@ -127,7 +127,7 @@ describe("a site is opened from a Sites row", () => {
     renderAt("/sites", ENABLED);
     await screen.findByRole("table");
 
-    fireEvent.click(screen.getByRole("link", { name: "MG-002" }));
+    fireEvent.click(screen.getByRole("link", { name: SITE.display_name }));
 
     expect(
       await screen.findByRole("heading", {

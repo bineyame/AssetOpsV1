@@ -1,6 +1,6 @@
 # T011 - Sites Index To Canonical Screen One
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T011-sites-index-to-canonical-screen-one`
@@ -208,3 +208,75 @@ the empty-state copy were settled at the T006 checkpoint. The two corrections
 this slice makes to the mockup, separating Mode from lifecycle and rendering
 `Last analysed` as `--`, are already required by the vocabulary-separation and
 mockup-fidelity seams rather than being new product decisions.
+
+## Review Outcome
+
+Reviewer verdict: accept. No findings, no rework requested, no blocking open
+questions. The review was independent: Codex reviewed work Claude authored, per
+the role separation in `.ai/PROJECT_RULES.md`.
+
+This is the first clean review in this sequence, and the Reviewer was told
+explicitly that a manufactured finding is worse than a clean report, so the
+absence of findings is a result rather than a silence.
+
+What the Reviewer examined and confirmed rather than accepted:
+
+- The nine-column decision. It reached the same conclusion independently: the
+  T006 user-review checkpoint settled configuration origin and template
+  provenance as two of four separate provenance columns, this task's criterion 4
+  requires both, and the feature map's authority rule makes a user review
+  binding on a surface. It then made the point the packet had understated: the
+  remaining risk is documentation rather than implementation, because T011A and
+  T012 both read the settled inventory and would each rediscover the conflict.
+  That is fixed separately on `arch/sites-index-inventory-correction`, which
+  adds the two rows, corrects both guard references, and records why an
+  inventory derived only from v6.9 and the mockup keeps losing fields this
+  project added.
+- Mode and lifecycle separation, described as airtight: separate headers,
+  cells, badge tones, view-model derivation and filters, with fixtures where
+  mode, lifecycle and configuration origin do not coincide. No path renders
+  `Simulated` as status or derives lifecycle from mode.
+- The seven replaced inherited assertions, each preserved or strengthened,
+  including the two that changed shape most: the blanket `select` ban becoming
+  an identity check on three named comboboxes, and `Last analysed` leaving the
+  banned-header list with what it protected asserted directly for every row.
+- Filter honesty in every state it could construct: nothing configured, one
+  site, one type, a search matching nothing, and combinations matching nothing.
+  No filter offers a value no record carries.
+- The both-flag-states comparison, specifically whether its regex strips too
+  much before comparing `<main>`. It confirmed the regex removes only the header
+  action area and leaves the listing, filters, table, values and subtitle in the
+  comparison.
+- Scope: no sorting, saved views, bulk selection, overflow actions, edit,
+  duplicate, delete, fabricated evidence, operator navigation item, second
+  simulator chokepoint, or substrate discriminant prop.
+
+Reviewer checks: architecture guard passed, agent workflow guard passed,
+**backend `pytest -q` 304 passed**, frontend `tsc --noEmit` clean,
+`git diff --check main...HEAD` clean.
+
+The backend number is the first one a Reviewer of this project has been able to
+confirm. Three previous reviews could not run that suite at all. The frontend
+suite and the production build still cannot run under the sandbox, for the
+esbuild path-casing reason recorded in the Reviewer brief, so `407 passed` and
+the bundle sizes remain the Implementer's numbers.
+
+Checks re-run in the implementing session: architecture guard passed, agent
+workflow guard passed, backend 304 passed, frontend `vitest run` 407 passed
+across 15 files, `tsc --noEmit` clean, `npm.cmd run build` clean.
+
+Not verified, and named by both the packet and the Reviewer: nobody has
+rendered this screen. Nine columns plus a four-control toolbar is the densest
+layout in the product, and column overflow, wrapping and the filter row at
+narrow widths are what neither tests nor a code review can see. Whether nine
+columns is readable is a product judgement this slice did not make.
+
+User review is not required for this slice, as the User Review section above
+states. The two corrections it makes to the canonical mockup, separating mode
+from lifecycle and rendering `Last analysed` as `--`, are required by the
+vocabulary-separation and mockup-fidelity seams rather than being new product
+decisions.
+
+The full review packet is at `.agent/T011-review-packet.md`, the reviewer's
+findings at `.agent/T011-review-findings.md`, and the branch diff at
+`.agent/T011-review.diff`. All are local-only.
