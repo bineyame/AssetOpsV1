@@ -162,23 +162,26 @@ describe("a site is opened from a Sites row", () => {
     expect(screen.queryByRole("heading", { name: "Page not available" })).toBeNull();
   });
 
-  it("offers this site's configuration and the Sites index, and nothing else", async () => {
+  it("offers the Site tab destinations and the Sites index, and nothing else", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
     await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
 
     const main = within(container).getByRole("main");
 
-    // T008 adds the second destination and it is pinned exactly, not loosened
-    // into "contains Back to Sites": the point of this assertion is that the
-    // site page grows destinations one reviewed slice at a time. Both are
-    // navigation, both name this site's own address, and neither is an action
-    // on the site.
+    // T008 pinned this exactly rather than loosening it into "contains Back to
+    // Sites", and it stays pinned: the point of the assertion is that the site
+    // page grows destinations one reviewed slice at a time. T011A replaces
+    // T008's plain `Site configuration` link with the canonical Site tab row,
+    // so the destinations are now Overview and Foundation. All of it is
+    // navigation, none of it is an action on the site, and the six
+    // labelled-in-place tabs add nothing here because they are not links.
     expect(
       within(main)
         .getAllByRole("link")
         .map((link) => [link.getAttribute("href"), link.textContent]),
     ).toEqual([
-      ["/sites/MG-002/configuration", "Site configuration"],
+      ["/sites/MG-002", "Overview"],
+      ["/sites/MG-002/foundation", "Foundation"],
       ["/sites", "Back to Sites"],
     ]);
   });

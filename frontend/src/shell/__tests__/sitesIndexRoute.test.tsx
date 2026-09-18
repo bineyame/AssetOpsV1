@@ -364,10 +364,11 @@ describe("a Sites row is the way into a site", () => {
   it.each(["/sites/MG-002/devices", "/sites/MG-002/gateway"])(
     "still serves nothing under a site at %s",
     (path) => {
-      // T007 listed `/sites/MG-002/configuration` here too. T008 makes that
-      // one real, so it moves out of this list rather than the list being
-      // dropped: what is pinned is that a site grows addressable aspects one
-      // reviewed slice at a time, and devices is causal step 4's to make true.
+      // T007 listed `/sites/MG-002/configuration` here too. T008 made that one
+      // real and T011A renamed it to `/foundation`, so it moves out of this
+      // list rather than the list being dropped: what is pinned is that a site
+      // grows addressable aspects one reviewed slice at a time, and devices is
+      // causal step 4's to make true.
       render(
         <MemoryRouter initialEntries={[path]}>
           <App
@@ -414,7 +415,7 @@ describe("a Sites row is the way into a site", () => {
     ).toBeNull();
   });
 
-  it("reaches a site's configuration from that site, not from the index", async () => {
+  it("reaches a site's Foundation from that site, not from the index", async () => {
     render(
       <MemoryRouter initialEntries={["/sites"]}>
         <App
@@ -427,15 +428,15 @@ describe("a Sites row is the way into a site", () => {
     await screen.findByRole("table");
 
     // The index offers one destination per site, and that destination is the
-    // site. A configuration link on a row would be a second way in, addressed
-    // by the same identity, which is how two ways into one thing start to
+    // site. A Foundation link on a row would be a second way in, addressed by
+    // the same identity, which is how two ways into one thing start to
     // disagree about what it is.
     const main = screen.getByRole("main");
+    const hrefs = within(main)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"));
 
-    expect(
-      within(main)
-        .getAllByRole("link")
-        .map((link) => link.getAttribute("href")),
-    ).not.toContain("/sites/MG-002/configuration");
+    expect(hrefs).not.toContain("/sites/MG-002/foundation");
+    expect(hrefs).not.toContain("/sites/MG-002/configuration");
   });
 });

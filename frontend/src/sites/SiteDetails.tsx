@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Badge, Fact, FactList, PageHeader, Panel } from "../ui";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
@@ -9,10 +11,10 @@ import { deriveSiteDetailView, type SiteUnavailableFact } from "./siteViewModel"
  *
  * This component is the shared region. A shell composes it, supplies the
  * landmark around it, and adds beside it; it adds nothing to what is rendered
- * here, and this component knows nothing about which shell is rendering it.
- * There is no `variant`, `mode`, `shell`, or `isLab` prop, no import of shell
- * code, simulator code, or the feature flag, and no extension slot, because
- * nothing fills one in this slice.
+ * here beyond placing the chrome the shell hands it, and it knows nothing about
+ * which shell is rendering it. There is no `variant`, `mode`, `shell`, or
+ * `isLab` prop and no import of shell code, simulator code, or the feature
+ * flag. The one extension slot, `tabs`, is named, optional, and opaque.
  *
  * A site is addressed by `site_id` and by nothing else. The identity that
  * arrives from the address is used to ask for the site; the identity that is
@@ -35,9 +37,18 @@ import { deriveSiteDetailView, type SiteUnavailableFact } from "./siteViewModel"
  *   than rendered disabled. M1 has decided configuration is fixed at creation
  *   and that nothing removes a site, so a greyed-out control would make a
  *   promise the product has declined to make.
- * - No tab bar, no diagram, no empty frame reserved for a diagram, no signal
- *   selector, no site image or map panel, and no quick-actions container.
- *   Chrome with nothing behind it claims a step that has not landed.
+ * - No diagram, no empty frame reserved for a diagram, no signal selector, no
+ *   site image or map panel, and no quick-actions container. Chrome with
+ *   nothing behind it claims a step that has not landed.
+ *
+ * It renders no tab row of its own either. T011A adds one, and it is the
+ * operator shell's: which aspects a workspace divides a site into is a shell's
+ * opinion, and the Lab's site view will hold a different one. What this
+ * component owns is where such a row goes - under the page header, above the
+ * facts - so the shell hands it in through `tabs` and this decides the
+ * position. The slot renders only for a site that was actually loaded, so a
+ * site that is not found offers no tabs to the aspects of a site that does not
+ * exist.
  */
 export const SITE_DETAIL_HEADING_ID = "site-detail-heading";
 
@@ -45,9 +56,14 @@ export interface SiteDetailsProps {
   /** The identity taken from the address. `undefined` names no site. */
   siteId: string | undefined;
   detail: SiteDetailClient;
+  /**
+   * Chrome the composing shell places under the page header. Nothing renders
+   * when it is absent, and nothing here reads what is in it.
+   */
+  tabs?: ReactNode;
 }
 
-export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
+export function SiteDetails({ siteId, detail, tabs }: SiteDetailsProps) {
   const result = useSiteRecord(siteId, detail);
 
   if (result === null) {
@@ -96,7 +112,7 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
     );
   }
 
-  return <SiteDetailFacts site={result.site} />;
+  return <SiteDetailFacts site={result.site} tabs={tabs} />;
 }
 
 /**
@@ -115,14 +131,18 @@ export function SiteDetails({ siteId, detail }: SiteDetailsProps) {
  */
 export interface SiteDetailFactsProps {
   site: SiteDetailReadModel;
+  /** See `SiteDetailsProps.tabs`. */
+  tabs?: ReactNode;
 }
 
-export function SiteDetailFacts({ site }: SiteDetailFactsProps) {
+export function SiteDetailFacts({ site, tabs }: SiteDetailFactsProps) {
   const view = deriveSiteDetailView(site);
 
   return (
     <>
       <PageHeader title={view.displayName} headingId={SITE_DETAIL_HEADING_ID} />
+
+      {tabs}
 
       <Panel heading="Identity" headingId="site-detail-identity-heading">
         <FactList>
