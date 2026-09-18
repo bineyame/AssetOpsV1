@@ -1606,16 +1606,26 @@ not false values.
 | Location | `ScreenMockups.png` screen 1; v6.9 silent for M1 column | rendered only if record-sourced | M1 Site record carries location as configured identity/context, not evidence | Removed if the Site schema no longer carries location |
 | Mode | v6.9 lines 1336 and 1339 | rendered | `source.mode` provenance field | Already true |
 | Lifecycle | Project M1 schema extension; v6.9 has no Site lifecycle enum | rendered | `lifecycle_status` field, separate from mode and origin | Already true while the M1 schema carries it |
+| Configuration origin | T006 user-review checkpoint; M1 Site record | rendered | `origin` field, separate from source mode and lifecycle | Already true while the M1 Site record carries origin |
+| Template provenance | T006 user-review checkpoint; M1 Site record | rendered | `template_id` and `template_version` provenance fields, never Site identity | Already true while Sites are created from templates |
 | Canonical assessment | v6.9 line 1339 | not rendered | No accepted evidence or assessment derivation exists in M1 | When assessment is derived from accepted evidence |
 | Top issue | v6.9 line 1339 | not rendered | No evidence-backed finding/issue exists in M1 | When findings/top issue derivation exists |
 | Evidence readiness | v6.9 line 1339 | not rendered | No readiness model/source contract exists in M1 | When evidence readiness exists |
 | Last analysed | v6.9 line 1339; no-data example lines 1332-1334 | rendered as `--` | Evidence-derived analysis timestamp is unavailable because no evidence has been analysed | Shows a timestamp only after accepted evidence has been analysed in the selected window |
 | Actions | `ScreenMockups.png` screen 1; v6.9 line 1340 primary interaction | rendered with `View` only | Row click or View opens Site Details for the row's `site_id` | Adds actions only when each action has a real capability and route/API behind it |
 
-Changes to planned tasks: T011 may keep Name, Type/archetype, Location, Mode,
-Lifecycle, Last analysed and Actions, but must explain Location and Lifecycle as
-project-backed M1 fields rather than v6.9 columns. It must continue to omit
-assessment, top issue and evidence readiness until their sources exist.
+The earlier seven-column inventory was derived from v6.9 plus the mockup, and
+neither external source carries configuration origin or template provenance.
+Those columns exist because this project's M1 Site record carries them and a
+user review settled that they render separately. An inventory built only from
+external sources will keep losing project-specific facts.
+
+Changes to planned tasks: T011 shipped Name, Type/archetype, Location, Mode,
+Lifecycle, Configuration origin, Template provenance, Last analysed and
+Actions, explaining Location, Lifecycle, Configuration origin and Template
+provenance as project-backed M1 fields rather than v6.9 columns. It must
+continue to omit assessment, top issue and evidence readiness until their
+sources exist.
 
 #### Guards that follow from this architecture
 
@@ -1630,7 +1640,7 @@ navigation does grow is stronger than a count freeze:
 | Lab rail inventory | v6.9 lines 657, 845, 2379 | enforce a single gated Lab rail definition | Every rendered Lab item appears in the definition, is absent when the Lab gate is off, and has a real route when present | Ships with the Lab shell rail work |
 | Operator Site tab inventory | v6.9 lines 464, 615 | enforce one tab definition for the operator Site shell | The tab row renders exactly the v6.9 Site tab labels; destination tabs have routes, labelled-in-place tabs are not links/buttons/routes | Ships with the inserted rename/tab-inventory slice |
 | Foundation subtab inventory | v6.9 line 2117 plus T008 user review | enforce one filtered subtab definition | The row renders Definition, Topology, Controls and Readiness as specified; Changes is absent until the change model exists | Ships with T013 rewrite |
-| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1 | enforce one column definition | Rendered columns match the milestone definition; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite |
+| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1, T006 user review and the M1 Site record | enforce one column definition | Rendered columns match the nine-column milestone definition; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite |
 
 The inventories should be single definitions consumed by rendering and tests,
 mirroring the substrate single-definition guard. The guard strength becomes
@@ -1721,9 +1731,10 @@ Guard migration:
   This ships with the T013 rewrite.
 - Sites index column inventory: definition module belongs with the Sites index
   view model/composition. The guard asserts rendered columns match the milestone
-  definition sourced from v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1,
-  and omitted v6.9 columns stay absent until their sources exist. This ships
-  with T011.
+  nine-column definition sourced from v6.9 lines 1336-1339 plus
+  `ScreenMockups.png` screen 1, T006 user review and the M1 Site record, and
+  omitted v6.9 columns stay absent until their sources exist. This ships with
+  T011.
 
 Per-task verdicts for the Planner:
 
