@@ -1,6 +1,6 @@
 # T010 - Simulator Lab Template And Create Surfaces To Mockup Quality
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T010-lab-template-and-create-surfaces-to-mockup-quality`

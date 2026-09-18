@@ -374,3 +374,61 @@ What this slice leaves open.
    fixture records. The frontend test spells `/api/simulator-lab/...` itself,
    because the gate's chokepoint rule forbids importing those constants outside
    the gated module.
+
+## T010 - Lab template and create surfaces to mockup quality
+
+What this slice settled in code.
+
+The Site Templates catalog is a canonical page: a search field, a site-type
+filter, and a table whose five columns are the template document's own fields.
+The filter's options are derived from the types the shipped catalog actually
+contains, never from the site-type enum, and the whole toolbar is absent when
+nothing ships. Offering a value nothing matches teaches a catalog the build
+does not have, and a test fails if one appears.
+
+The create flow is stepped: `Choose a template`, `Site identity`,
+`Review and create`. Three steps because there are three stages of real input.
+The review shows what the user supplied and which template it copies and stops
+there, because source mode, configuration origin and lifecycle status are
+assigned by the backend at creation; rendering them would predict a record that
+does not exist, which a test forbids.
+
+Refusals are placed against the field they concern by the backend's own refusal
+code, in `REFUSAL_STEPS`. `TEMPLATE_NOT_FOUND` and `SITE_ID_IN_USE` each send
+the flow back to the step that owns the field and mark the input with
+`aria-invalid` and a described-by message; every other refusal renders where
+the user is. Placement is never decided by reading the message text, which
+would be a second copy of the identity rules in the UI. `CreateSiteResult`'s
+refused branch carries `code` for this, and the code is never rendered.
+
+`+ Add site` is the Lab's entry into the create flow, built by
+`simulatorLabRoutes.tsx` beside the operator index's entry point. Two entry
+points, one flow, one chokepoint, and no frame spells a simulator path.
+
+The shared vocabulary gained toolbar, form control, step indicator and action
+patterns. They live in `frontend/src/ui/` rather than in a Lab frame because
+T011's Sites index needs the same search and filter row.
+
+The step number is drawn by a CSS counter, not rendered as text, so the rule
+that every digit inside `main` traces to a document or to user input stays
+intact. Same trade as T009's brand mark. Keep it that way.
+
+The template inspection view needed no change: T009 had already dressed it, and
+its "a template is not a site" statement and absence of actions still pass
+untouched.
+
+What this slice leaves open.
+
+1. Still not rendered in a browser. Third slice running, and this one is mostly
+   visual: the toolbar, the table layout and the step indicator have not been
+   looked at.
+2. No client-side validation, deliberately. A user can reach the review step
+   with empty fields and be refused by the backend at the end.
+3. A refusal that names no field lands on the review step, where the offending
+   input is not visible. Placing it better would mean guessing the field from
+   the message.
+4. Search covers name and template ID, not summary.
+5. Filter state does not survive navigation away and back.
+6. `SiteTemplatesFrame.tsx` and `CreateSiteFrame.tsx` were destroyed by a
+   `git checkout --` used as an undo on uncommitted work during this slice, and
+   rebuilt. Behaviour is asserted by the suite, but they are a reconstruction.

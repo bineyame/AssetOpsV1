@@ -18,34 +18,26 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T010A closed out 2026-09-18.
+Active task: `tasks/T010-lab-template-and-create-surfaces-to-mockup-quality.md`
+(Status: `in_review`).
 
-Independent review returned one medium finding, fixed on the branch: the
-frontend tests verified the response half of the fetch seam and not the request
-half, so a create test would have passed while the client sent the wrong
-method, an empty body, or no content type. Fourteen cases now assert their
-request against the same captured contract the response comes from.
+T010 is built on `task/T010-lab-template-and-create-surfaces-to-mockup-quality`
+and awaits independent review. `USER_REVIEW_REQUIRED: false`: no capability and
+no product language, all of it settled at the T006 checkpoint. The review
+packet is `.agent/T010-review-packet.md`.
 
-The 2026-09-17 fetch-seam decision is closed after five slices open. The seam
-is now a checked-in contract: the backend generates
-`contract-fixtures/site-foundation-fetch-seam.json` from real responses and
-fails when it goes stale, and the frontend reads it back through the three real
-clients. Neither side imports the other.
+Two things the reviewer should look at first. Two files in this slice were
+destroyed mid-slice by a `git checkout --` used as an undo on uncommitted work,
+and rebuilt; they are a reconstruction and deserve reading as new code. And the
+create client's refused result now carries the backend's refusal code, which is
+what lets a refusal be placed against the field it concerns without reading the
+message text.
 
-Two things worth carrying forward. The frontend flakiness T007, T008 and T009
-each recorded is diagnosed and fixed, and it had a second cause nobody had
-found: Testing Library's own `waitFor` timeout is separate from Vitest's and
-throws "Unable to find an element", which reads as an assertion failure rather
-than a slow machine. And two consecutive reviews have been unable to run the
-frontend suite at all, because Vite fails loading its config in the reviewer's
-environment, so the frontend numbers for T009 and T010A rest on the
-Implementer's runs alone.
+T005 to T009 and T010A are complete, in `tasks/completed/` with their Review
+Outcomes.
 
-T005 to T009 are complete. Their task files are in `tasks/completed/` with
-their Review Outcomes.
-
-Next: T010, the Lab template and create surfaces to mockup quality. Its fetch
-seam prerequisite is now met.
+Next after review: T011, the Sites index to canonical screen one, which
+inherits the toolbar and filter patterns this slice added to the vocabulary.
 
 ## Current Site Foundation Sequence
 
