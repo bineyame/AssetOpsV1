@@ -1,17 +1,19 @@
 import { Route, Routes } from "react-router-dom";
 
 import { featureFlags, type FeatureFlags } from "./config/featureFlags";
+import { LegacySiteConfigurationRedirect } from "./shell/LegacySiteConfigurationRedirect";
 import { OperatorShellFrame } from "./shell/OperatorShellFrame";
 import { OperatorShellLayout } from "./shell/OperatorShellLayout";
 import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
-import { SiteConfigurationFrame } from "./shell/SiteConfigurationFrame";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
+import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
 import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import {
+  LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
   SITES_PATH,
-  SITE_CONFIGURATION_ROUTE_PATH,
   SITE_DETAIL_ROUTE_PATH,
+  SITE_FOUNDATION_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
 import type { SiteCreationClient } from "./shell/siteCreationClient";
@@ -42,7 +44,7 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  *    developer workspace entry point and nothing else.
  * 2. `OperatorShellLayout` is the operator workspace: operator navigation and
  *    the operator route frames (shell home, Sites, and, under one site, that
- *    site's page and its configuration). It is flag-free and served in both
+ *    site's page and its Foundation). It is flag-free and served in both
  *    gate states, because the Simulator Lab gate controls simulator surfaces
  *    and execution only.
  * 3. Simulator Lab is a separate developer workspace. Its routes come from
@@ -59,12 +61,18 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * The Sites routes compose the shared Site substrate in `frontend/src/sites/`
  * and are served in both gate states. A site is addressed by `site_id`, so
  * Site Details hangs off the Sites path with the identity in it and is reached
- * from a Sites row, and Site Configuration hangs off that site in turn and is
- * reached from it. Both parameterless T002 frames, `/site-details` and
+ * from a Sites row, and Foundation hangs off that site in turn and is reached
+ * from its tab row. Both parameterless T002 frames, `/site-details` and
  * `/site-configuration`, are gone: a link that names no site is not a
  * destination, and no slice leaves a placeholder standing once its identified
  * route exists. Neither identified route is a navigation item, because a
  * navigation item cannot say which site it would open.
+ *
+ * The address T008 served Foundation at, `/sites/:siteId/configuration`, is
+ * registered once more and only to redirect. It is the single place in the
+ * product allowed to name that address, it renders no surface, and the site is
+ * carried across, so an old bookmark lands on the same site under the name the
+ * product now uses.
  *
  * `siteTemplateCatalog`, `siteDirectory`, `siteDetail`, and `siteCreation` are injection
  * points for tests. The default clients read the real APIs; a test supplies
@@ -102,8 +110,12 @@ export function App({
             }
           />
           <Route
-            path={SITE_CONFIGURATION_ROUTE_PATH}
-            element={<SiteConfigurationFrame detail={siteDetail} />}
+            path={SITE_FOUNDATION_ROUTE_PATH}
+            element={<SiteFoundationFrame detail={siteDetail} />}
+          />
+          <Route
+            path={LEGACY_SITE_CONFIGURATION_ROUTE_PATH}
+            element={<LegacySiteConfigurationRedirect />}
           />
         </Route>
       </Route>

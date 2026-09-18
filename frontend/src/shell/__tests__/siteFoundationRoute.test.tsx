@@ -15,14 +15,15 @@ import type {
 import { settledScreen } from "../../test/settled";
 
 /**
- * The operator route for one site's configuration.
+ * The operator route for one site's Foundation.
  *
  * What this file is about is the shell's side of the slice: that the
- * configuration is addressed under a site, that it is reached from that site,
- * that it is never gated, and that the parameterless placeholder it replaces
- * is gone from the route table and from operator navigation. What the screen
- * renders from a record is the substrate's, and is covered in
- * `sites/__tests__/siteConfiguration.test.tsx` against records.
+ * Foundation is addressed under a site, that it is reached from that site's
+ * tab row, that it is never gated, that the address T008 served it at still
+ * resolves without becoming a second surface, and that the parameterless
+ * placeholder it replaces is gone from the route table and from operator
+ * navigation. What the screen renders from a record is the substrate's, and is
+ * covered in `sites/__tests__/siteConfiguration.test.tsx` against records.
  */
 
 const DISABLED = featureFlagsWith(false);
@@ -72,6 +73,10 @@ const SITE_DETAIL: SiteDetailReadModel = {
  * against: the current list must be a subset of it, so no slice between T004
  * and now can have added an item and no slice can add one by removing two and
  * putting three back.
+ *
+ * The labels are T004's own, which is why one of them is spelled `Site
+ * configuration`. This is a record of what was there, not a name the product
+ * still uses.
  */
 const T004_OPERATOR_NAVIGATION_LABELS = [
   "Operator home",
@@ -80,7 +85,7 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
   "Site configuration",
 ];
 
-/** Operator navigation after T008, in order. */
+/** Operator navigation after T008, in order. T011A does not change it. */
 const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
@@ -116,20 +121,20 @@ function renderAt(path: string, flags: FeatureFlags = DISABLED) {
   );
 }
 
-describe("a site's configuration is addressed under that site", () => {
-  it("renders the configuration of the site the address names", async () => {
-    renderAt("/sites/MG-002/configuration");
+describe("a site's Foundation is addressed under that site", () => {
+  it("renders the Foundation of the site the address names", async () => {
+    renderAt("/sites/MG-002/foundation");
     await settledScreen();
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
+      screen.getByRole("heading", { level: 1, name: "Foundation" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
     expect(screen.getByRole("main").textContent).toMatch(/PV array/);
   });
 
   it("resolves a case-variant address to the one canonical site", async () => {
-    const { container } = renderAt("/sites/mg-002/configuration");
+    const { container } = renderAt("/sites/mg-002/foundation");
     await settledScreen();
 
     expect(container.textContent).toMatch(/MG-002/);
@@ -137,73 +142,94 @@ describe("a site's configuration is addressed under that site", () => {
   });
 
   it("states not found at the address of a site that is not configured", async () => {
-    renderAt("/sites/MG-404/configuration");
+    renderAt("/sites/MG-404/foundation");
 
     expect(
       await screen.findByRole("heading", { level: 2, name: "No such site" }),
     ).toBeInTheDocument();
   });
 
-  it("is reached from the site by a plain link", async () => {
+  it("is reached from the site by the Foundation tab", async () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 
-    const link = screen.getByRole("link", { name: "Site configuration" });
+    const link = screen.getByRole("link", { name: "Foundation" });
 
-    expect(link.getAttribute("href")).toBe("/sites/MG-002/configuration");
+    expect(link.getAttribute("href")).toBe("/sites/MG-002/foundation");
 
     fireEvent.click(link);
     await settledScreen();
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
+      screen.getByRole("heading", { level: 1, name: "Foundation" }),
     ).toBeInTheDocument();
   });
 
   it("offers a way back to the site it belongs to", async () => {
-    renderAt("/sites/MG-002/configuration");
+    renderAt("/sites/MG-002/foundation");
     await settledScreen();
 
-    const link = screen.getByRole("link", { name: "Back to this site" });
+    // T008 had a `Back to this site` link here. The Overview tab is that way
+    // back now, under the name the product gives that surface, so there is one
+    // link to the site rather than two a reader has to tell apart.
+    const link = screen.getByRole("link", { name: "Overview" });
 
     expect(link.getAttribute("href")).toBe("/sites/MG-002");
+    expect(screen.queryByRole("link", { name: "Back to this site" })).toBeNull();
   });
 
-  it("renders the configuration inside the operator landmark", async () => {
-    renderAt("/sites/MG-002/configuration");
+  it("renders the Foundation inside the operator landmark", async () => {
+    renderAt("/sites/MG-002/foundation");
     await settledScreen();
 
     const main = screen.getByRole("main");
 
     expect(
-      within(main).getByRole("heading", { level: 1, name: "Site configuration" }),
+      within(main).getByRole("heading", { level: 1, name: "Foundation" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("navigation", { name: "Operator routes" }),
     ).toBeInTheDocument();
   });
+
+  it("names the surface Foundation and never Site configuration", async () => {
+    renderAt("/sites/MG-002/foundation");
+    await settledScreen();
+
+    const main = screen.getByRole("main");
+
+    // The domain word survives the rename: a site still has a configuration
+    // origin and its configuration is still fixed at creation. What must not
+    // survive is the screen being called Site configuration.
+    expect(main.textContent).toMatch(/Configuration is fixed at creation/);
+    expect(main.textContent).toMatch(/Configuration origin/);
+    expect(main.textContent).not.toMatch(/Site configuration/i);
+    expect(
+      screen.queryByRole("heading", { name: /Site configuration/i }),
+    ).toBeNull();
+  });
 });
 
-describe("site configuration is an operator capability and is never gated", () => {
+describe("the Foundation surface is an operator capability and is never gated", () => {
   it.each([
     ["closed", DISABLED],
     ["open", ENABLED],
-  ])("serves the configuration with the gate %s", async (_name, flags) => {
-    renderAt("/sites/MG-002/configuration", flags);
+  ])("serves the Foundation with the gate %s", async (_name, flags) => {
+    renderAt("/sites/MG-002/foundation", flags);
     await settledScreen();
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Site configuration" }),
+      screen.getByRole("heading", { level: 1, name: "Foundation" }),
     ).toBeInTheDocument();
   });
 
   it("renders identically in both gate states", async () => {
-    const closed = renderAt("/sites/MG-002/configuration", DISABLED);
+    const closed = renderAt("/sites/MG-002/foundation", DISABLED);
     await settledScreen(closed.container);
     const closedMarkup = closed.container.querySelector("main")?.innerHTML;
     closed.unmount();
 
-    const open = renderAt("/sites/MG-002/configuration", ENABLED);
+    const open = renderAt("/sites/MG-002/foundation", ENABLED);
     await settledScreen(open.container);
 
     expect(open.container.querySelector("main")?.innerHTML).toBe(closedMarkup);
@@ -212,13 +238,78 @@ describe("site configuration is an operator capability and is never gated", () =
   it.each([
     ["closed", DISABLED],
     ["open", ENABLED],
-  ])("offers no crossing into the Simulator Lab with the gate %s", async (_name, flags) => {
-    const { container } = renderAt("/sites/MG-002/configuration", flags);
+  ])(
+    "offers no crossing into the Simulator Lab with the gate %s",
+    async (_name, flags) => {
+      const { container } = renderAt("/sites/MG-002/foundation", flags);
+      await settledScreen();
+
+      expect(screen.getByRole("main").textContent).not.toMatch(/simulator/i);
+      for (const anchor of Array.from(container.querySelectorAll("main a"))) {
+        expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
+      }
+    },
+  );
+});
+
+describe("the address T008 served this surface at still resolves", () => {
+  it("redirects to the Foundation of the same site", async () => {
+    renderAt("/sites/MG-002/configuration");
     await settledScreen();
 
-    expect(screen.getByRole("main").textContent).not.toMatch(/simulator/i);
-    for (const anchor of Array.from(container.querySelectorAll("main a"))) {
-      expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
+    expect(
+      screen.getByRole("link", { name: "Foundation" }).getAttribute("href"),
+    ).toBe("/sites/MG-002/foundation");
+  });
+
+  it("carries the identity across rather than dropping it", async () => {
+    renderAt("/sites/MG-404/configuration");
+
+    // A redirect that lost the site would land on a Foundation with no
+    // subject, or on whichever site happened to be first. This one arrives at
+    // MG-404's own Foundation, which then says no such site is configured.
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "No such site" }),
+    ).toBeInTheDocument();
+  });
+
+  it("carries a case-variant identity across untouched", async () => {
+    const { container } = renderAt("/sites/mg-002/configuration");
+    await settledScreen();
+
+    expect(container.textContent).toMatch(/MG-002/);
+    expect(container.textContent).not.toMatch(/mg-002/);
+  });
+
+  it("renders no surface of its own", async () => {
+    renderAt("/sites/MG-002/configuration");
+    await settledScreen();
+
+    // One landmark, one page heading, and it is the Foundation. A redirect
+    // that rendered anything of its own would be a second product surface for
+    // one thing, which is what a compatibility address must not become.
+    expect(screen.getAllByRole("main")).toHaveLength(1);
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+  });
+
+  it("is offered as a destination by nothing on either surface", async () => {
+    for (const path of ["/sites/MG-002", "/sites/MG-002/foundation"]) {
+      const view = renderAt(path, ENABLED);
+      await settledScreen(view.container);
+
+      const hrefs = Array.from(view.container.querySelectorAll("a")).map(
+        (anchor) => anchor.getAttribute("href") ?? "",
+      );
+
+      expect(hrefs.length).toBeGreaterThan(0);
+      for (const href of hrefs) {
+        expect(href).not.toMatch(/\/configuration$/);
+      }
+      view.unmount();
     }
   });
 });
@@ -227,16 +318,22 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
   it.each([
     ["closed", DISABLED],
     ["open", ENABLED],
-  ])("serves nothing at /site-configuration with the gate %s", (_name, flags) => {
-    renderAt("/site-configuration", flags);
+  ])(
+    "serves nothing at /site-configuration with the gate %s",
+    (_name, flags) => {
+      renderAt("/site-configuration", flags);
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Page not available" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { level: 2, name: "Site configuration unavailable" }),
-    ).toBeNull();
-  });
+      expect(
+        screen.getByRole("heading", { level: 1, name: "Page not available" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", {
+          level: 2,
+          name: "Site configuration unavailable",
+        }),
+      ).toBeNull();
+    },
+  );
 
   it("has no operator navigation item that names no site", () => {
     const { container } = renderAt("/", ENABLED);
@@ -249,12 +346,18 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
       .map((link) => link.getAttribute("href") ?? "");
 
     expect(
-      within(navigation).getAllByRole("link").map((link) => link.textContent),
+      within(navigation)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
     ).toEqual(OPERATOR_NAVIGATION_LABELS);
     expect(destinations).not.toContain("/site-configuration");
     expect(destinations).not.toContain("/site-details");
     expect(navigation.textContent).not.toMatch(/site configuration/i);
     expect(navigation.textContent).not.toMatch(/site details/i);
+
+    // The rename does not put the surface into the rail under its new name
+    // either: a rail item still could not say which site it would open.
+    expect(navigation.textContent).not.toMatch(/foundation/i);
 
     // Nor one that names a site: no navigation item could say which.
     expect(destinations.filter((href) => /^\/sites\/./.test(href))).toEqual([]);

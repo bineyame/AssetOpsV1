@@ -18,37 +18,27 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T011 closed out 2026-09-18.
+No active task. T011A closed out 2026-09-18.
 
-Independent review returned accept with no findings, the first clean review in
-this sequence. It confirmed the mode-versus-lifecycle separation as airtight,
-the seven replaced assertions as preserved or strengthened, filter honesty in
-every state it could construct, and that the both-flag-states comparison strips
-only the header action area before comparing.
+Independent review returned accept with one medium finding, fixed on the branch:
+two patterns in the new tab-row guard clause held a literal control character
+where `` was meant and could never match. The lesson is in `.ai/CODE_STATE.md`
+under T011A - a clause built from a list of patterns is proved once per pattern,
+not once per clause.
 
-It also made the point the packet had understated: the nine-versus-seven column
-conflict was a documentation risk rather than an implementation one, because
-T011A and T012 both read the settled inventory. That is fixed: the Sites index
-inventory now names all nine columns, attributes the two project-specific ones
-to the T006 checkpoint and the M1 Site record rather than to v6.9 or the
-mockup, and records why an inventory derived only from external sources keeps
-losing fields this project added.
+T011A is merged with its `USER_REVIEW_REQUIRED: true` still outstanding, by the
+user's direction and on the Planner's sequencing recommendation. The browser
+pass on T011's Sites index found the shell taking both scrollbars with the rail
+moving sideways, so T011B fixes that first and the user then reviews T011A's tab
+row in the viewport behaviour the product commits to, rather than reviewing it
+twice.
 
-A Reviewer confirmed the backend suite for the first time in this project. The
-frontend suite and build still cannot run under that sandbox, so `407 passed`
-and the bundle sizes remain the Implementer's numbers.
+Next: T011B, shell and dense content overflow containment. It is the first slice
+under the new viewport commitment, it needs no user review, and it must land
+before T012 dresses Site Details on the same shell.
 
-Nobody has rendered the Sites index. Nine columns plus a four-control toolbar is
-the densest layout in the product, and whether it is readable is a product
-judgement no test made.
-
-T005 to T011 and T010A are complete, in `tasks/completed/` with their Review
-Outcomes.
-
-Next: T011A, the Foundation naming and operator Site tab inventory. It carries
-the user-visible rename from Site Configuration to Foundation, the route
-redirect, and the operator Site tab row from v6.9, and it is the last slice
-before T012 dresses Site Details.
+T005 to T011, T010A and T011A are complete, in `tasks/completed/` with their
+Review Outcomes.
 
 ## Current Site Foundation Sequence
 
@@ -62,39 +52,35 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T010A: the fetch seam, split out of T010. Complete.
 - T010: Lab template and create surfaces to mockup quality. Complete.
 - T011: Sites index to canonical screen one. Complete.
-- T010-T013, with T011A inserted: staged visual fidelity after real
-  content exists.
+- T011A: Foundation naming and the operator Site tab row. Complete; user
+  review deferred to the pass after T011B.
+- T011B: shell and dense content overflow containment. Planned, next.
+- T012-T013: staged visual fidelity, against the tab row and the name T011A
+  settled, and under the viewport commitment.
 
 The second checkpoint is closed. Causal Sequencing step 4, topology, devices,
 and the configured single-line diagram, is unblocked for planning and is not
 yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
 or its signal selector.
 
-## Read For T009
+## Read For T011B
 
-T009 is the shared visual vocabulary, applied to the surfaces T005-T008 made
-real. It introduces no content, no control and no destination, which is what
-makes it safe to run before the next capability step.
+T011B is the first slice under the M1 viewport commitment. It fixes two
+diagnosed layout defects and adds no capability, no route and no vocabulary,
+which is what makes it safe to run between two fidelity slices.
 
-- `tasks/T009-shared-visual-vocabulary.md`
-- `.ai/CODE_STATE.md`, the T006, T007 and T008 entries, for the Site record
-  shape, the read path, the substrate, and what each surface renders today.
-  Read the completed task files only if an entry there is not enough; the
-  entries exist so that large task files do not have to be read for their code
-  shape.
-- `.ai/FEATURE_MAP.md` sections:
-  - Feature Map Index
-  - Product Spine
-  - Enforceable Protected Seams
-  - Early Feature: Site Foundation And Configuration-Only Site
+- `tasks/T011B-shell-and-dense-content-overflow-containment.md`, which carries
+  its own Read For list.
+- `.ai/FEATURE_MAP.md`, `## Canonical Screen Fidelity`, and within it
+  `### Viewport and overflow commitment`. That section is not reachable from
+  the Feature Map Index, so it has to be named.
+- `.ai/FEATURE_MAP.md`, `#### Guards that follow from this architecture` and
+  the `Guard migration:` list under it, for shell overflow containment and the
+  conditional breakpoint-token seam.
+- `.ai/CODE_STATE.md`, the T009, T011 and T011A entries.
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-13-site-foundation-persistence`
-  - `D-2026-09-13-site-foundation-resequence`
   - `D-2026-09-13-shared-site-substrate`
-  - `D-2026-09-13-provenance-status-vocabulary`
   - `D-2026-09-13-canonical-fidelity`
-- `.ai/ARCHITECTURE.md` only if dependency direction, contracts, simulator
-  boundaries, or protected seams are in play.
 
 ## Settled Direction
 
@@ -104,9 +90,18 @@ makes it safe to run before the next capability step.
 - Template browsing and Site creation are Simulator Lab surfaces behind
   `simulator_lab.enabled`.
 - Sites index, Site Details, and the Foundation surface are operator surfaces
-  and are never gated. T008 built the surface under the old Site Configuration
-  name; the next Planner pass must use the Foundation naming guidance in
-  `.ai/FEATURE_MAP.md`.
+  and are never gated. T008 built the surface under the working name Site
+  Configuration; T011A renames it to Foundation and keeps the old address as a
+  redirect. `configuration` stays as the domain word.
+- A tab is a destination only when a route behind it renders a truthful surface
+  for the identified site. A canonical aspect with no content yet is labelled in
+  place, never disabled: disabled says the capability exists and is switched
+  off.
+- M1 commits to desktop-class width, at least 1280px, and claims no mobile,
+  phone or portrait-tablet form. Page-level overflow is not an allowed answer to
+  density: shell chrome stays anchored and dense content owns its own scroll.
+  Nothing may be dropped to fit - not a Sites index column, not a rail label,
+  not one of the eight Site tabs.
 - A Site created from the Lab is a normal product Site with
   `source.mode = SIMULATED`; there is no Lab-owned Site store and no publish or
   promote step.

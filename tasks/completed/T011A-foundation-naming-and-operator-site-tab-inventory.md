@@ -1,6 +1,6 @@
 # T011A - Foundation Naming And Operator Site Tab Inventory
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T011A-foundation-naming-and-operator-site-tab-inventory`
@@ -166,3 +166,85 @@ What the user is being asked to settle:
 - The decision to let internal `frontend/src/sites/**` module and symbol names
   lag when renaming them would be mechanical churn rather than user-visible
   behavior.
+
+## Review Outcome
+
+Reviewer verdict: accept with findings fixed on the branch. One medium finding,
+fixed in `ada4149`. The review was independent: Codex reviewed work Claude
+authored, per the role separation in `.ai/PROJECT_RULES.md`.
+
+### The finding
+
+Two of the five patterns in the operator Site tab disabled-affordance clause in
+`tools/checks/navigation-truthfulness.ps1` could never match. Lines 144 and 148
+held a literal `0x08` backspace where `\b` was intended: a Python non-raw string
+turned the escape into the control character it names when the guard was
+written. A future labelled-in-place tab could have taken a `title` attribute or
+a bare `disabled` attribute and the architecture check would have passed it.
+
+Nothing rendered was wrong. The six labelled tabs, the DOM and the frontend
+assertions were correct and remain so. What was wrong was one of the mechanisms
+meant to keep them that way.
+
+The Implementer's own non-vacuity proof did not catch it, and why is the part
+worth keeping. The proof introduced `aria-disabled="true" title="Coming soon"`
+and watched the clause fail. It did fail, on `aria-disabled\s*=`, a third
+pattern in the same list that was intact. One violation tripped one sibling,
+the failure message named the clause rather than the pattern, and two dead
+patterns sat behind a green proof. **A clause built from a list of patterns
+needs one proof per pattern, not one proof per clause.**
+
+The fix replaced both control characters and then introduced each of the five
+patterns alone, with wording chosen so no sibling could fire instead:
+`disabled={true}`, `title="No content for this aspect"`, `aria-disabled="true"`,
+`cursor: "not-allowed"`, and `aria-label="Coming soon"`. Each fails on its own.
+A scan of every module under `tools/checks/` and both runners found these two
+control characters and none elsewhere.
+
+### What the Reviewer examined and confirmed rather than accepted
+
+- The substrate slot, which the dispatch named as the thing to reject first. It
+  decided independently that `tabs?: ReactNode` is the extension-slot mechanism
+  `.ai/FEATURE_MAP.md` sanctions under `#### Shared substrate consequence`,
+  that the tab definition stays outside the substrate, and that the substrate
+  imports no shell, simulator, feature-flag or discriminant state. It did not
+  adopt the packet's argument; it was asked to decide and did.
+- The route and ownership shape: `/sites/:siteId/foundation` canonical, the
+  legacy address registered as compatibility-only, the inventory in the
+  operator shell.
+
+### Checks
+
+Reviewer: architecture guard passed, agent workflow guard passed, backend
+`pytest -q` **304 passed**, `npx.cmd tsc --noEmit` clean. The frontend suite and
+the production build could not run under its sandbox, for the esbuild
+path-casing reason recorded in the Reviewer brief, so those numbers remain the
+Implementer's.
+
+Implementing session, after the fix: architecture guard passed, agent workflow
+guard passed, backend 304 passed, frontend 440 passed across 16 files,
+`tsc --noEmit` clean, `npm.cmd run build` clean at 209.38 kB.
+
+### User review, deliberately deferred rather than waived
+
+This slice carries `USER_REVIEW_REQUIRED: true` and it is merged with that
+review still outstanding. That is a sequencing decision, not a skipped gate.
+
+The browser pass on T011's Sites index found the operator shell taking both
+scrollbars, with horizontal overflow moving the rail along with the rows. The
+Architect then settled the M1 viewport commitment, and the Planner recommended
+implementing `T011B` before the user reviews this slice, so that the tab row is
+judged in the viewport behaviour the product commits to rather than judged
+twice. The user directed the merge on that basis.
+
+What remains for the user to settle, unchanged by the review and named by the
+Reviewer as live: whether the six labelled tabs read as aspects that are not
+built yet rather than as disabled or broken tabs, and how the eight-item row
+feels at a narrow viewport. Also open: the product name Foundation, the
+`/configuration` redirect, and letting internal names under
+`frontend/src/sites/` lag behind the rename.
+
+The packet is at `.agent/T011A-review-packet.md`, the Reviewer's findings at
+`.agent/T011A-review-findings.md`, the dispatch at
+`.agent/T011A-review-dispatch.md`, and the branch diff at
+`.agent/T011A-review.diff`. All are local-only.

@@ -1,6 +1,6 @@
 /*
  * The shared visual vocabulary: brand header, rail, breadcrumbs, page header,
- * badge and pill, table, and panel.
+ * section tab row, badge and pill, table, and panel.
  *
  * One definition per pattern. A surface that wants a table uses this table; a
  * surface that keeps a bespoke one is a second visual system, which is the
@@ -274,6 +274,69 @@ button:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* Section tabs ------------------------------------------------------------ */
+
+/*
+ * A row of sections under a page header. The shell that owns the row supplies
+ * the items; this supplies the one way such a row looks.
+ *
+ * Two treatments, because there are two honest states. A destination is a link
+ * and looks like one, and the current destination carries the accent underline
+ * that the `aria-current` attribute already states. A label is a section this
+ * product names but cannot yet open: it is quieter than a link so it does not
+ * invite a click, and it carries no disabled styling - no reduced opacity, no
+ * strikethrough, no not-allowed cursor - because it is not switched off, it is
+ * not built.
+ */
+
+.site-tabs {
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.site-tabs__list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-base);
+}
+
+.site-tabs__item {
+  display: flex;
+}
+
+.site-tabs__link,
+.site-tabs__label {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  line-height: var(--leading-normal);
+  white-space: nowrap;
+}
+
+.site-tabs__link {
+  color: var(--text-secondary);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+
+.site-tabs__link:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.site-tabs__link[aria-current="page"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.site-tabs__label {
+  color: var(--text-muted);
 }
 
 /* Panel ------------------------------------------------------------------- */

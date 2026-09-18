@@ -1,4 +1,6 @@
-﻿import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
+﻿import type { ReactNode } from "react";
+
+import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
@@ -9,13 +11,25 @@ import {
 } from "./siteViewModel";
 
 /**
- * One site's configuration, presented from the shared substrate.
+ * One site's Foundation, presented from the shared substrate.
+ *
+ * Foundation is the product name of this surface, from v6.9's operator Site
+ * tab row. Configuration is the domain word underneath it: the document a site
+ * was created from, its configuration origin, and the rule that configuration
+ * is fixed at creation. So the heading says Foundation and the content still
+ * says configuration where configuration is what it means.
+ *
+ * The module, the component and the heading id deliberately still say
+ * `SiteConfiguration`. T011A renamed what a reader sees and what an address
+ * says; renaming these would touch every test in this directory and both
+ * single-definition guard patterns without changing one rendered character.
  *
  * This is the same shared-region rule the site page follows. A shell composes
- * it, supplies the landmark around it, and adds beside it; there is no
- * `variant`, `mode`, `shell`, or `isLab` prop, no import of shell code,
- * simulator code, or the feature flag, and no extension slot, because nothing
- * fills one in this slice.
+ * it, supplies the landmark around it, and hands it chrome to place; there is
+ * no `variant`, `mode`, `shell`, or `isLab` prop and no import of shell code,
+ * simulator code, or the feature flag. The one extension slot, `tabs`, is
+ * named, optional, and opaque: this component decides where it renders and
+ * never what is in it.
  *
  * A site is addressed by `site_id` and by nothing else. Neither the foundation
  * version nor the template a site was created from addresses it, and nothing
@@ -28,6 +42,9 @@ import {
  *
  * What it deliberately does not show:
  *
+ * - No tab row of its own. The operator shell hands one in through `tabs`,
+ *   and this component decides only where such a row goes: under the page
+ *   header, above the facts, and only for a site it actually loaded.
  * - No action control of any kind, in any state, absent from the DOM rather
  *   than rendered disabled. M1 has decided configuration is fixed at creation,
  *   so a greyed-out control would promise a capability the product has
@@ -52,16 +69,25 @@ export interface SiteConfigurationProps {
   /** The identity taken from the address. `undefined` names no site. */
   siteId: string | undefined;
   detail: SiteDetailClient;
+  /**
+   * Chrome the composing shell places under the page header. Nothing renders
+   * when it is absent, and nothing here reads what is in it.
+   */
+  tabs?: ReactNode;
 }
 
-export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
+export function SiteConfiguration({
+  siteId,
+  detail,
+  tabs,
+}: SiteConfigurationProps) {
   const result = useSiteRecord(siteId, detail);
 
   if (result === null) {
     return (
       <>
         <PageHeader
-          title="Site configuration"
+          title="Foundation"
           headingId={SITE_CONFIGURATION_HEADING_ID}
         />
         <p>Loading the configured site.</p>
@@ -99,7 +125,7 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
     return (
       <>
         <PageHeader
-          title="Site configuration"
+          title="Foundation"
           headingId={SITE_CONFIGURATION_HEADING_ID}
         />
         <Panel
@@ -116,7 +142,7 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
     );
   }
 
-  return <SiteConfigurationFacts site={result.site} />;
+  return <SiteConfigurationFacts site={result.site} tabs={tabs} />;
 }
 
 /**
@@ -127,17 +153,24 @@ export function SiteConfiguration({ siteId, detail }: SiteConfigurationProps) {
  */
 export interface SiteConfigurationFactsProps {
   site: SiteDetailReadModel;
+  /** See `SiteConfigurationProps.tabs`. */
+  tabs?: ReactNode;
 }
 
-export function SiteConfigurationFacts({ site }: SiteConfigurationFactsProps) {
+export function SiteConfigurationFacts({
+  site,
+  tabs,
+}: SiteConfigurationFactsProps) {
   const view = deriveSiteConfigurationView(site);
 
   return (
     <>
       <PageHeader
-        title="Site configuration"
+        title="Foundation"
         headingId={SITE_CONFIGURATION_HEADING_ID}
       />
+
+      {tabs}
 
       <Panel heading="Site" headingId="site-configuration-identity-heading">
         <FactList>

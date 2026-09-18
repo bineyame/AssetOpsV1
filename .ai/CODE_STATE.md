@@ -488,3 +488,93 @@ What this slice leaves open.
 4. Search covers name and site ID, not location or template provenance.
 5. No sorting. Canonical screen 1 implies sortable headers; sorting is a real
    capability and the scope limits forbid it, so rows appear in store order.
+
+## T011A - Foundation naming and operator Site tab inventory
+
+What this slice settled in code.
+
+The read-only surface T008 built is called Foundation wherever a user meets it:
+page heading, route, and the link into it. `configuration` stays as the domain
+word, so `Configuration origin` and `Configuration is fixed at creation` are
+unchanged, in wording as well as meaning. The rule is that the screen has a
+product name and the document underneath it has a domain name, and they are
+different words on purpose.
+
+`SITE_FOUNDATION_ROUTE_PATH` and `siteFoundationHref` in
+`frontend/src/shell/operatorSiteRoutes.ts` replace the configuration pair.
+`LEGACY_SITE_CONFIGURATION_ROUTE_PATH` is declared beside them with no href
+builder, deliberately: no caller should construct that address. It is
+registered once, against `LegacySiteConfigurationRedirect`, which renders
+`<Navigate replace>` and nothing else. The guard confines the string
+`/configuration` to those two modules, so a link, tab or builder that reached
+for the old address fails the architecture check rather than a review.
+
+The operator Site tab row is `OPERATOR_SITE_TABS` in
+`frontend/src/shell/operatorSiteTabs.tsx`: v6.9's eight, in order, each either
+`kind: "destination"` with an href builder or `kind: "labelled_in_place"` with
+nothing. Overview and Foundation are the two destinations. The six labels are
+plain spans - no link, no button, no `aria-disabled`, no title, and no route
+registered, which is asserted by requesting each lowercased path under a site
+and getting `Page not available`.
+
+Disabled is the state this row refuses. It says a capability exists and is
+switched off; these are not built. That distinction is now enforced in the
+guard, not just in review.
+
+The inventory lives in the operator shell. The guard holds three things about
+it: declared once, not under `frontend/src/sites/`, and carrying none of the
+mockup's Lab run vocabulary (`Configuration`, `Devices`, `Gateway`,
+`Ingestion`, `Events`, `Logs`).
+
+The shared substrate gained its first extension slot. `SiteDetails` and
+`SiteConfiguration` take `tabs?: ReactNode`, render it under the page header
+and above the facts, and render it only in the loaded branch. The substrate
+imports nothing from the shell and reads nothing from the slot. This is the
+mechanism the feature map names under *Shared substrate consequence*; it exists
+because the row's correct position is inside the shared region, and the only
+alternative was rendering it above the page heading from the frame.
+
+`.site-tabs` is in the shared vocabulary, with two treatments and no disabled
+styling. A destination is a link and the current one carries the accent
+underline that `aria-current` already states; a label is quieter so it does not
+invite a click.
+
+Internal names under `frontend/src/sites/` still say `SiteConfiguration`,
+including the module, the component, `SITE_CONFIGURATION_HEADING_ID` and its
+DOM id. Renaming them changes no rendered character and touches every test in
+that directory plus both single-definition guard patterns. Every rendered
+string and every route constant says Foundation.
+
+T008's `Back to this site` link is gone; the Overview tab is the way back.
+
+What this slice leaves open.
+
+1. Not rendered in a browser. Eight tabs, two styled as links and six as
+   quieter labels, is new chrome and whether the two treatments read correctly
+   is a product judgement no test makes.
+2. The six labels may read as disabled even though they are not. The fix if so
+   is a treatment change, never a state change.
+3. The row wraps at narrow widths rather than scrolling or collapsing.
+4. There is still no breadcrumb anywhere in the product. A truthful Site crumb
+   needs the loaded record, not the address, so it belongs where the record is,
+   which is T012's dressing of Site Details.
+5. The Foundation page has a panel also headed `Foundation`. v6.9 calls that
+   content `Definition`, but the Foundation subtab row is T013's.
+6. The `tabs` slot is one prop wide. T012 and T013 will want more positions.
+
+What review corrected, and the lesson worth carrying.
+
+Two of the five patterns in the tab row's disabled-affordance guard clause held
+a literal `0x08` backspace where `` was meant, so they could never match.
+Fixed in `ada4149`. The clause's own non-vacuity proof had passed, because the
+single violation introduced tripped a third pattern in the same list and the
+failure message names the clause rather than the pattern.
+
+So: a guard clause built from a list of patterns is proved once per pattern,
+not once per clause, and the violation used for each must be worded so no
+sibling pattern can fire instead. A guard that silently stops matching is
+invisible in exactly the way this project relies on guards not being, and this
+one was caught by a human reading the file rather than by anything automatic.
+Whether that class deserves its own seam - per-pattern fixtures, no control
+characters in patterns, failure messages that name which pattern fired - is an
+open Architect question the Planner declined to turn into a task.
