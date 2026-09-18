@@ -402,6 +402,11 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       ["/simulator-lab", "Simulator Lab"],
       ["/simulator-lab/site-templates", "Site Templates"],
       ["/simulator-lab/site-templates", "Site Templates"],
+      // T010 gives the Lab its own way into the create flow. The same path and
+      // the same gate as the operator index's entry point, differing only in
+      // its label, so this is still one flow behind one chokepoint and still
+      // not a run, an inspection, a rerun, or a comparison.
+      ["/simulator-lab/create-site", "+ Add site"],
       ["/", "Back to the operator shell"],
     ]);
   });

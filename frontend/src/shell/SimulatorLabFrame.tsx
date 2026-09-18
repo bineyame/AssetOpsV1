@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { PageHeader, Panel } from "../ui";
+import type { WorkspaceEntryPoint } from "./simulatorLabRoutes";
 
 /**
  * Simulator Lab shell frame, served only when `simulator_lab.enabled` is true.
@@ -28,10 +29,18 @@ import { PageHeader, Panel } from "../ui";
  */
 export interface SimulatorLabFrameProps {
   siteTemplatesPath: string;
+  /**
+   * The Lab's way into the create flow, supplied by the gated route module.
+   * Empty when the gate is closed, though a closed gate never serves this
+   * frame at all, so the empty case is belt and braces rather than a state a
+   * user reaches.
+   */
+  addSiteEntryPoints: WorkspaceEntryPoint[];
 }
 
 export function SimulatorLabFrame({
   siteTemplatesPath,
+  addSiteEntryPoints,
 }: SimulatorLabFrameProps) {
   return (
     <main aria-labelledby="simulator-lab-heading">
@@ -54,6 +63,19 @@ export function SimulatorLabFrame({
         <p>
           <Link to={siteTemplatesPath}>Site Templates</Link>
         </p>
+
+        {/*
+         * The Lab's entry into the create flow. The same path and the same
+         * gate as the operator index's, differing only in its label: two entry
+         * points, one flow, one chokepoint.
+         */}
+        {addSiteEntryPoints.map((entryPoint) => (
+          <p key={entryPoint.to}>
+            <Link className="action action--primary" to={entryPoint.to}>
+              {entryPoint.label}
+            </Link>
+          </p>
+        ))}
       </Panel>
 
       <Panel

@@ -15,6 +15,11 @@ import type {
   SiteTemplateCatalogClient,
   SiteTemplateDetail,
 } from "../siteTemplateCatalogClient";
+import {
+  CREATE_SITE_PATH as GATED_CREATE_SITE_PATH,
+  simulatorLabAddSiteEntryPoints,
+  simulatorLabCreateSiteEntryPoints,
+} from "../simulatorLabRoutes";
 
 /**
  * UI tests for the gated create-a-site flow.
@@ -102,6 +107,15 @@ function renderCreateFlow(
   );
 }
 
+/**
+ * Walk the flow from the template step to the review step, supplying identity
+ * on the way.
+ *
+ * T010 made the flow stepped, so identity no longer sits on the same screen as
+ * the template or the create button. The call sites are unchanged: what a test
+ * cares about is that a create was attempted with these values, not which step
+ * each field lives on.
+ */
 async function fillIdentity(overrides: Record<string, string> = {}) {
   const values: Record<string, string> = {
     "Site ID": "MG-002",
@@ -112,9 +126,15 @@ async function fillIdentity(overrides: Record<string, string> = {}) {
     ...overrides,
   };
 
+  // Step 1, the template, to step 2.
+  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
   for (const [label, value] of Object.entries(values)) {
     fireEvent.change(screen.getByLabelText(label), { target: { value } });
   }
+
+  // Step 2 to step 3, the review, which is where the create button lives.
+  fireEvent.click(screen.getByRole("button", { name: "Next" }));
 }
 
 describe("the create flow is a Simulator Lab surface", () => {
@@ -278,35 +298,101 @@ describe("creating a site", () => {
 });
 
 describe("refusals", () => {
+  /**
+   * Each refusal carries the backend's own code as well as its message,
+   * because the code is what places the message against a field. The two
+   * duplicate-identity cases name the site ID; the other two name no field,
+   * and a screen that guessed one from the message text would be keeping a
+   * second copy of the identity rules.
+   */
   const refusals = [
     [
       "a site ID already in use",
       "Site ID 'MG-002' is already in use by 'MG-002'. Site IDs are unique across every site store and are compared without regard to case, so the same ID in a different capitalisation is the same site. Nothing was written. Choose a different site ID.",
+      "SITE_ID_IN_USE",
     ],
     [
       "a case-variant duplicate",
       "Site ID 'mg-002' is already in use by 'MG-002'. Site IDs are unique across every site store and are compared without regard to case, so the same ID in a different capitalisation is the same site. Nothing was written. Choose a different site ID.",
+      "SITE_ID_IN_USE",
     ],
     [
       "a malformed site ID",
       "Site ID 'MG 002' is not a valid site ID. A site ID is 2 to 64 characters using letters, digits, hyphens, and underscores, starting and ending with a letter or a digit, for example MG-002.",
+      "SITE_REQUEST_INVALID",
     ],
     [
       "a missing identity field",
       "Display name is required in the create request. Use plain text without control characters; it is stored and shown as text and is never an identifier, a file name, or part of an address.",
+      "SITE_REQUEST_INVALID",
     ],
   ] as const;
 
-  it.each(refusals)("shows the reason for %s exactly as given", async (_name, message) => {
-    renderCreateFlow(ENABLED, creationReturning({ status: "refused", message }));
+  it.each(refusals)(
+    "shows the reason for %s exactly as given",
+    async (_name, message, code) => {
+      renderCreateFlow(
+        ENABLED,
+        creationReturning({ status: "refused", message, code }),
+      );
+      await screen.findByLabelText("Template");
+
+      await fillIdentity();
+      fireEvent.click(screen.getByRole("button", { name: "Create site" }));
+
+      // Verbatim, wherever the code places it. The backend owns this copy and
+      // the T006 checkpoint settled it.
+      const alert = await screen.findByRole("alert");
+      expect(alert).toHaveTextContent(message);
+      expect(screen.queryByRole("status")).toBeNull();
+    },
+  );
+
+  it.each(refusals.filter(([, , code]) => code === "SITE_ID_IN_USE"))(
+    "puts %s against the site ID field it concerns",
+    async (_name, message, code) => {
+      renderCreateFlow(
+        ENABLED,
+        creationReturning({ status: "refused", message, code }),
+      );
+      await screen.findByLabelText("Template");
+
+      await fillIdentity();
+      fireEvent.click(screen.getByRole("button", { name: "Create site" }));
+
+      // The flow returns to the step that owns the field, and the message is
+      // associated with the input rather than floating above the form.
+      const siteId = await screen.findByLabelText("Site ID");
+      expect(siteId).toHaveAttribute("aria-invalid", "true");
+
+      const described = (siteId.getAttribute("aria-describedby") ?? "")
+        .split(" ")
+        .map((id) => document.getElementById(id)?.textContent ?? "")
+        .join(" ");
+      expect(described).toContain(message);
+    },
+  );
+
+  it("leaves a refusal that names no field where the user is", async () => {
+    renderCreateFlow(
+      ENABLED,
+      creationReturning({
+        status: "refused",
+        message: "Display name is required in the create request.",
+        code: "SITE_REQUEST_INVALID",
+      }),
+    );
     await screen.findByLabelText("Template");
 
     await fillIdentity();
     fireEvent.click(screen.getByRole("button", { name: "Create site" }));
 
-    const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(message);
-    expect(screen.queryByRole("status")).toBeNull();
+    // No field is marked, because the backend named none. A screen that
+    // guessed one from the message text would be a second copy of the rules.
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /Display name is required/i,
+    );
+    expect(screen.queryByLabelText("Site ID")).toBeNull();
   });
 
   it("reports an unreachable store without claiming anything was written", async () => {
@@ -324,7 +410,11 @@ describe("refusals", () => {
   it("keeps what the user typed when a create is refused", async () => {
     renderCreateFlow(
       ENABLED,
-      creationReturning({ status: "refused", message: "Site ID is in use." }),
+      creationReturning({
+        status: "refused",
+        message: "Site ID is in use.",
+        code: "SITE_ID_IN_USE",
+      }),
     );
     await screen.findByLabelText("Template");
 
@@ -432,5 +522,125 @@ describe("the create flow leads back to the operator index", () => {
 
     expect(listSites).not.toHaveBeenCalled();
     expect(screen.queryByRole("table")).toBeNull();
+  });
+});
+
+describe("the flow has a step for each stage of real input", () => {
+  it("has three steps, and each one takes or shows something real", async () => {
+    renderCreateFlow();
+    await screen.findByLabelText("Template");
+
+    const steps = within(screen.getByRole("list", { name: "Create a site" }))
+      .getAllByRole("listitem")
+      .map((step) => step.textContent);
+
+    // Three stages, three steps. No step exists to match a mockup's step
+    // count, and none reviews nothing: the template is chosen, identity is
+    // supplied, and the review shows what will be created.
+    expect(steps).toEqual([
+      "Choose a template",
+      "Site identity",
+      "Review and create",
+    ]);
+  });
+
+  it("marks where the user is, and moves back as well as forward", async () => {
+    renderCreateFlow();
+    await screen.findByLabelText("Template");
+
+    function currentStep(): string {
+      return (
+        within(screen.getByRole("list", { name: "Create a site" }))
+          .getAllByRole("listitem")
+          .find((step) => step.getAttribute("aria-current") === "step")
+          ?.textContent ?? ""
+      );
+    }
+
+    expect(currentStep()).toBe("Choose a template");
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(currentStep()).toBe("Site identity");
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(currentStep()).toBe("Choose a template");
+
+    // Nothing is submitted until the last step, so no step is ever marked
+    // complete and going back costs nothing.
+    expect(screen.queryByRole("button", { name: "Create site" })).toBeNull();
+  });
+
+  it("offers the create button only on the review step", async () => {
+    renderCreateFlow();
+    await screen.findByLabelText("Template");
+
+    expect(screen.queryByRole("button", { name: "Create site" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.queryByRole("button", { name: "Create site" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(
+      screen.getByRole("button", { name: "Create site" }),
+    ).toBeInTheDocument();
+  });
+
+  it("reviews the values supplied, and predicts nothing the backend assigns", async () => {
+    renderCreateFlow();
+    await screen.findByLabelText("Template");
+
+    await fillIdentity();
+
+    // Scoped to the review itself. The explanation panel above it legitimately
+    // says the created site "carries simulated source mode as provenance" -
+    // that is T006 copy about what creation does, not a claim about a record.
+    const review = screen.getByRole("main").querySelector(".fact-list");
+    expect(review).not.toBeNull();
+    const reviewed = review?.textContent ?? "";
+
+    expect(reviewed).toContain("MG-002");
+    expect(reviewed).toContain("Kalangala Mini-Grid");
+    expect(reviewed).toContain("Africa/Kampala");
+    expect(reviewed).toContain(TEMPLATE.template_id);
+
+    // Source mode, configuration origin and lifecycle status are assigned by
+    // the backend at creation. Reviewing them here would predict a record that
+    // does not exist yet.
+    expect(reviewed).not.toMatch(/simulated/i);
+    expect(reviewed).not.toMatch(/planned/i);
+    expect(reviewed).not.toMatch(/\borigin\b/i);
+  });
+});
+
+describe("two entry points, one flow, one chokepoint", () => {
+  it("declares the Lab entry point on the same gated path as the operator one", () => {
+    // Both are built by the module that owns the simulator paths. A second
+    // path, or a path spelled in a frame, would be the second chokepoint the
+    // gate check exists to prevent.
+    expect(simulatorLabAddSiteEntryPoints(ENABLED)).toEqual([
+      { to: GATED_CREATE_SITE_PATH, label: "+ Add site" },
+    ]);
+    expect(simulatorLabCreateSiteEntryPoints(ENABLED)[0].to).toBe(
+      GATED_CREATE_SITE_PATH,
+    );
+    expect(simulatorLabAddSiteEntryPoints(DISABLED)).toEqual([]);
+  });
+
+  it("reaches the same create flow from the Lab as from the operator index", async () => {
+    render(
+      <MemoryRouter initialEntries={["/simulator-lab"]}>
+        <App
+          flags={ENABLED}
+          siteTemplateCatalog={CATALOG}
+          siteDirectory={EMPTY_DIRECTORY}
+        />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("link", { name: "+ Add site" }));
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Create a site" }),
+    ).toBeInTheDocument();
   });
 });

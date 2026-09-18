@@ -32,21 +32,36 @@ export interface CreateSiteInput {
 
 export type CreateSiteResult =
   | { status: "created"; site: SiteSummary }
-  | { status: "refused"; message: string }
+  | { status: "refused"; message: string; code: string | null }
   | { status: "unavailable" };
 
 export interface SiteCreationClient {
   createSite(input: CreateSiteInput): Promise<CreateSiteResult>;
 }
 
-/** The shape the API uses for a refusal a screen can render. */
-function refusalMessage(body: unknown): string | null {
+/**
+ * The shape the API uses for a refusal a screen can render.
+ *
+ * The code is carried through as well as the message. It is the backend's own
+ * name for what was refused, and it is the only honest way a screen can place
+ * a refusal against the field it concerns: the alternative is reading the
+ * message text, which would be a second copy of the identity rules living in
+ * the UI and able to drift from the first.
+ *
+ * A screen that cannot place a code renders the refusal where it stands. The
+ * code never replaces the message and is never shown.
+ */
+function refusal(body: unknown): { message: string; code: string | null } | null {
   const detail = (body as Record<string, unknown>)?.detail;
   if (detail === null || typeof detail !== "object") {
     return null;
   }
   const message = (detail as Record<string, unknown>).message;
-  return typeof message === "string" && message.length > 0 ? message : null;
+  if (typeof message !== "string" || message.length === 0) {
+    return null;
+  }
+  const code = (detail as Record<string, unknown>).code;
+  return { message, code: typeof code === "string" ? code : null };
 }
 
 export function createSiteCreationClient(basePath: string): SiteCreationClient {
@@ -76,10 +91,10 @@ export function createSiteCreationClient(basePath: string): SiteCreationClient {
           : { status: "unavailable" };
       }
 
-      const message = refusalMessage(body);
-      return message === null
+      const refused = refusal(body);
+      return refused === null
         ? { status: "unavailable" }
-        : { status: "refused", message };
+        : { status: "refused", message: refused.message, code: refused.code };
     },
   };
 }
