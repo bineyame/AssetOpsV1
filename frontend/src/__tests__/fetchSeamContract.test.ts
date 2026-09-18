@@ -6,7 +6,10 @@ import {
   SITES_API_PATH,
   createSiteDirectoryClient,
 } from "../sites/siteDirectoryClient";
-import { createSiteCreationClient } from "../shell/siteCreationClient";
+import {
+  type CreateSiteInput,
+  createSiteCreationClient,
+} from "../shell/siteCreationClient";
 import { createSiteTemplateCatalogClient } from "../shell/siteTemplateCatalogClient";
 
 /**
@@ -58,23 +61,41 @@ function fixtureCase(name: string): FixtureCase {
   return found;
 }
 
+interface RecordedCall {
+  url: string;
+  init?: {
+    method?: string;
+    headers?: Record<string, string>;
+    body?: string;
+  };
+}
+
 /**
- * Put one captured response in front of the next `fetch`, and record the URL
- * the client asked for.
+ * Put one captured response in front of the next `fetch`, and record the whole
+ * request the client made.
  *
- * Only `ok`, `status` and `json()` are modelled, because that is all the three
- * clients read. A body of `null` throws from `json()`, which is what a real
- * empty or non-JSON response does and is how a malformed body reaches a
- * client.
+ * Both arguments are recorded, not just the URL. An earlier version took only
+ * `input`, which meant the create tests could pass while the client stopped
+ * sending `POST`, dropped its JSON body, or sent the wrong identity: the fake
+ * would answer 201 regardless, and the real backend would not. Half a seam is
+ * not a seam.
+ *
+ * Only `ok`, `status` and `json()` are modelled on the response, because that
+ * is all the three clients read. A body of `null` throws from `json()`, which
+ * is what a real empty or non-JSON response does and is how a malformed body
+ * reaches a client.
  */
-function serve(name: string): { requested: string[] } {
+function serve(name: string): { calls: RecordedCall[] } {
   const { response } = fixtureCase(name);
-  const requested: string[] = [];
+  const calls: RecordedCall[] = [];
 
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (input: unknown) => {
-      requested.push(String(input));
+    vi.fn(async (input: unknown, init?: unknown) => {
+      calls.push({
+        url: String(input),
+        init: init as RecordedCall["init"],
+      });
       return {
         ok: response.status >= 200 && response.status < 300,
         status: response.status,
@@ -88,7 +109,45 @@ function serve(name: string): { requested: string[] } {
     }),
   );
 
-  return { requested };
+  return { calls };
+}
+
+/**
+ * Assert the client asked for exactly what the backend was asked for.
+ *
+ * The fixture records the method, path and body of every captured request, so
+ * the request half of the contract is checked against the same source as the
+ * response half rather than against literals written here.
+ */
+function expectRequestMatchedCapture(name: string, calls: RecordedCall[]): void {
+  const { request } = fixtureCase(name);
+
+  expect(calls).toHaveLength(1);
+  const [call] = calls;
+
+  expect(call.url).toBe(request.path);
+  expect((call.init?.method ?? "GET").toUpperCase()).toBe(request.method);
+
+  if (request.body === undefined) {
+    expect(call.init?.body).toBeUndefined();
+    return;
+  }
+
+  expect(JSON.parse(String(call.init?.body))).toEqual(request.body);
+  expect(call.init?.headers?.["Content-Type"]).toBe("application/json");
+}
+
+/**
+ * The create input, taken from the body the backend actually received for that
+ * case. Binding the two means a create test cannot drift into asserting a
+ * response the backend would never have sent for the request being made.
+ */
+function capturedCreateInput(name: string): CreateSiteInput {
+  const { request } = fixtureCase(name);
+  if (request.body === undefined) {
+    throw new Error(`Case ${name} captured no request body.`);
+  }
+  return request.body as CreateSiteInput;
 }
 
 /** The base paths the app wires its clients with, spelled once. */
@@ -145,11 +204,12 @@ describe("the fixture is the contract, not a convenience", () => {
 
 describe("the Sites index client against real responses", () => {
   it("loads the configured Sites the backend sent", async () => {
-    const { requested } = serve("sites_list_loaded");
+    const { calls } = serve("sites_list_loaded");
 
     const result = await createSiteDirectoryClient().listSites();
 
-    expect(requested).toEqual([SITES_API_PATH]);
+    expectRequestMatchedCapture("sites_list_loaded", calls);
+    expect(calls[0].url).toBe(SITES_API_PATH);
     expect(result.status).toBe("loaded");
     if (result.status !== "loaded") return;
 
@@ -161,7 +221,7 @@ describe("the Sites index client against real responses", () => {
   });
 
   it("reads a first-run empty index as loaded and empty, never unavailable", async () => {
-    serve("sites_list_empty");
+    const { calls } = serve("sites_list_empty");
 
     // The distinction this whole seam exists for. An empty store and an
     // unreadable one are different facts, and the index must not claim the
@@ -170,24 +230,26 @@ describe("the Sites index client against real responses", () => {
       status: "loaded",
       sites: [],
     });
+    expectRequestMatchedCapture("sites_list_empty", calls);
   });
 
   it("reads an unreadable store as unavailable, never as an empty index", async () => {
-    serve("sites_list_store_unavailable");
+    const { calls } = serve("sites_list_store_unavailable");
 
     expect(await createSiteDirectoryClient().listSites()).toEqual({
       status: "unavailable",
     });
+    expectRequestMatchedCapture("sites_list_store_unavailable", calls);
   });
 });
 
 describe("the Site detail client against real responses", () => {
   it("loads a Site with its Foundation, including a component with no rating", async () => {
-    const { requested } = serve("site_detail_loaded");
+    const { calls } = serve("site_detail_loaded");
 
     const result = await createSiteDirectoryClient().getSite("MG-002");
 
-    expect(requested).toEqual([`${SITES_API_PATH}/MG-002`]);
+    expectRequestMatchedCapture("site_detail_loaded", calls);
     expect(result.status).toBe("loaded");
     if (result.status !== "loaded") return;
 
@@ -203,30 +265,33 @@ describe("the Site detail client against real responses", () => {
   });
 
   it("reads an unknown Site as not found", async () => {
-    serve("site_detail_not_found");
+    const { calls } = serve("site_detail_not_found");
 
     expect(await createSiteDirectoryClient().getSite("MG-404")).toEqual({
       status: "not_found",
     });
+    expectRequestMatchedCapture("site_detail_not_found", calls);
   });
 
   it("keeps an unreadable store distinct from a Site that is not configured", async () => {
-    serve("site_detail_store_unavailable");
+    const { calls } = serve("site_detail_store_unavailable");
 
     expect(await createSiteDirectoryClient().getSite("MG-002")).toEqual({
       status: "unavailable",
     });
+    expectRequestMatchedCapture("site_detail_store_unavailable", calls);
   });
 });
 
 describe("the template catalog client against real responses", () => {
   it("loads the shipped catalog", async () => {
-    const { requested } = serve("template_list_loaded");
+    const { calls } = serve("template_list_loaded");
 
     const result =
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).listTemplates();
 
-    expect(requested).toEqual([TEMPLATES_BASE]);
+    expectRequestMatchedCapture("template_list_loaded", calls);
+    expect(calls[0].url).toBe(TEMPLATES_BASE);
     expect(result.status).toBe("loaded");
     if (result.status !== "loaded") return;
 
@@ -237,29 +302,32 @@ describe("the template catalog client against real responses", () => {
   });
 
   it("reads a build that ships no templates as loaded and empty", async () => {
-    serve("template_list_empty");
+    const { calls } = serve("template_list_empty");
 
     expect(
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).listTemplates(),
     ).toEqual({ status: "loaded", templates: [] });
+    expectRequestMatchedCapture("template_list_empty", calls);
   });
 
   it("reads an unreadable catalog as unavailable, never as an empty catalog", async () => {
-    serve("template_list_catalog_unavailable");
+    const { calls } = serve("template_list_catalog_unavailable");
 
     expect(
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).listTemplates(),
     ).toEqual({ status: "unavailable" });
+    expectRequestMatchedCapture("template_list_catalog_unavailable", calls);
   });
 
   it("loads one template's Foundation content", async () => {
-    serve("template_detail_loaded");
+    const { calls } = serve("template_detail_loaded");
 
     const result =
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).getTemplate(
         "test-archetype",
       );
 
+    expectRequestMatchedCapture("template_detail_loaded", calls);
     expect(result.status).toBe("loaded");
     if (result.status !== "loaded") return;
 
@@ -276,42 +344,41 @@ describe("the template catalog client against real responses", () => {
   });
 
   it("reads an unknown template identity as not found", async () => {
-    serve("template_detail_not_found");
+    const { calls } = serve("template_detail_not_found");
 
     expect(
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).getTemplate(
         "no-such-template",
       ),
     ).toEqual({ status: "not_found" });
+    expectRequestMatchedCapture("template_detail_not_found", calls);
   });
 
   it("keeps an unreadable catalog distinct from a template that does not exist", async () => {
-    serve("template_detail_catalog_unavailable");
+    const { calls } = serve("template_detail_catalog_unavailable");
 
     expect(
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).getTemplate(
         "test-archetype",
       ),
     ).toEqual({ status: "unavailable" });
+    expectRequestMatchedCapture("template_detail_catalog_unavailable", calls);
   });
 });
 
 describe("the create client against real responses", () => {
-  const input = {
-    template_id: "test-archetype",
-    site_id: "MG-002",
-    display_name: "Kalangala Mini-Grid",
-    location: { country: "Uganda", locality: "Kalangala" },
-    timezone: "Africa/Kampala",
-  };
-
   it("reads a created Site as the same summary shape the index accepts", async () => {
-    const { requested } = serve("create_site_created");
+    const { calls } = serve("create_site_created");
 
-    const result =
-      await createSiteCreationClient(CREATE_SITE_BASE).createSite(input);
+    const result = await createSiteCreationClient(CREATE_SITE_BASE).createSite(
+      capturedCreateInput("create_site_created"),
+    );
 
-    expect(requested).toEqual([CREATE_SITE_BASE]);
+    // The request half matters as much as the response half here: a 201 is
+    // only meaningful if the client actually sent the POST and the body the
+    // backend was answering.
+    expectRequestMatchedCapture("create_site_created", calls);
+    expect(calls[0].url).toBe(CREATE_SITE_BASE);
     expect(result.status).toBe("created");
     if (result.status !== "created") return;
 
@@ -326,10 +393,15 @@ describe("the create client against real responses", () => {
   ])(
     "renders the backend's own refusal copy for %s",
     async (name) => {
-      serve(name);
+      const { calls } = serve(name);
 
-      const result =
-        await createSiteCreationClient(CREATE_SITE_BASE).createSite(input);
+      const result = await createSiteCreationClient(
+        CREATE_SITE_BASE,
+      ).createSite(capturedCreateInput(name));
+
+      // Each refusal is the backend's answer to this exact request, so the
+      // request is asserted too rather than assumed.
+      expectRequestMatchedCapture(name, calls);
 
       expect(result.status).toBe("refused");
       if (result.status !== "refused") return;
@@ -357,9 +429,10 @@ describe("the closed gate, as the backend actually answers it", () => {
       fixtureCase("site_detail_loaded").response,
     );
 
-    serve("gate_closed_sites_list");
+    const { calls } = serve("gate_closed_sites_list");
     const result = await createSiteDirectoryClient().listSites();
     expect(result.status).toBe("loaded");
+    expectRequestMatchedCapture("gate_closed_sites_list", calls);
   });
 
   it("serves no Lab route at all", () => {
@@ -374,15 +447,16 @@ describe("the closed gate, as the backend actually answers it", () => {
   });
 
   it("gives the template list client an unavailable catalog", async () => {
-    serve("gate_closed_template_list");
+    const { calls } = serve("gate_closed_template_list");
 
     expect(
       await createSiteTemplateCatalogClient(TEMPLATES_BASE).listTemplates(),
     ).toEqual({ status: "unavailable" });
+    expectRequestMatchedCapture("gate_closed_template_list", calls);
   });
 
   it("gives the template detail client a not-found template", async () => {
-    serve("gate_closed_template_detail");
+    const { calls } = serve("gate_closed_template_detail");
 
     // An unserved route and an unknown template are indistinguishable to this
     // client, because both are 404. That is acceptable only because a closed
@@ -392,23 +466,21 @@ describe("the closed gate, as the backend actually answers it", () => {
         "test-archetype",
       ),
     ).toEqual({ status: "not_found" });
+    expectRequestMatchedCapture("gate_closed_template_detail", calls);
   });
 
   it("gives the create client an unavailable store, not a refusal", async () => {
-    serve("gate_closed_create_site");
+    const { calls } = serve("gate_closed_create_site");
 
     // FastAPI's own 404 body carries a string `detail`, not the product's
     // refusal envelope, so no renderable message can be read from it. Falling
     // back to `unavailable` rather than inventing one is the correct read.
     expect(
-      await createSiteCreationClient(CREATE_SITE_BASE).createSite({
-        template_id: "test-archetype",
-        site_id: "MG-003",
-        display_name: "Anything",
-        location: { country: "Uganda", locality: "Kalangala" },
-        timezone: "Africa/Kampala",
-      }),
+      await createSiteCreationClient(CREATE_SITE_BASE).createSite(
+        capturedCreateInput("gate_closed_create_site"),
+      ),
     ).toEqual({ status: "unavailable" });
+    expectRequestMatchedCapture("gate_closed_create_site", calls);
   });
 });
 
