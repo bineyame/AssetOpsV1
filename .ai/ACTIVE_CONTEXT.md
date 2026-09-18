@@ -18,30 +18,37 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T011-sites-index-to-canonical-screen-one.md`
-(Status: `in_review`).
+No active task. T011 closed out 2026-09-18.
 
-T011 is built on `task/T011-sites-index-to-canonical-screen-one` and awaits
-independent review. `USER_REVIEW_REQUIRED: false`: no capability and no product
-language, all settled at the T006 checkpoint. The review packet is
-`.agent/T011-review-packet.md`.
+Independent review returned accept with no findings, the first clean review in
+this sequence. It confirmed the mode-versus-lifecycle separation as airtight,
+the seven replaced assertions as preserved or strengthened, filter honesty in
+every state it could construct, and that the both-flag-states comparison strips
+only the header action area before comparing.
 
-One thing the reviewer should look at first. The screen renders nine columns
-where the settled Sites index inventory lists seven: that inventory omits
-configuration origin and template provenance, while the T006 user-review
-checkpoint accepted them as two of four separate provenance columns. The
-checkpoint wins under the feature map's own authority rule, so the inventory is
-what should be corrected.
+It also made the point the packet had understated: the nine-versus-seven column
+conflict was a documentation risk rather than an implementation one, because
+T011A and T012 both read the settled inventory. That is fixed: the Sites index
+inventory now names all nine columns, attributes the two project-specific ones
+to the T006 checkpoint and the M1 Site record rather than to v6.9 or the
+mockup, and records why an inventory derived only from external sources keeps
+losing fields this project added.
 
-The Reviewer environment now runs the backend suite, which three previous
-reviews could not. The frontend suite still cannot run there, for a reason
-recorded in the Reviewer brief, so those numbers remain the Implementer's.
+A Reviewer confirmed the backend suite for the first time in this project. The
+frontend suite and build still cannot run under that sandbox, so `407 passed`
+and the bundle sizes remain the Implementer's numbers.
 
-T005 to T010 and T010A are complete, in `tasks/completed/` with their Review
+Nobody has rendered the Sites index. Nine columns plus a four-control toolbar is
+the densest layout in the product, and whether it is readable is a product
+judgement no test made.
+
+T005 to T011 and T010A are complete, in `tasks/completed/` with their Review
 Outcomes.
 
-Next after review: T011A, the Foundation naming and operator Site tab
-inventory, which the Architect placed after this slice and before T012.
+Next: T011A, the Foundation naming and operator Site tab inventory. It carries
+the user-visible rename from Site Configuration to Foundation, the route
+redirect, and the operator Site tab row from v6.9, and it is the last slice
+before T012 dresses Site Details.
 
 ## Current Site Foundation Sequence
 
@@ -54,7 +61,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T009: shared visual vocabulary. Complete.
 - T010A: the fetch seam, split out of T010. Complete.
 - T010: Lab template and create surfaces to mockup quality. Complete.
-- T011: Sites index to canonical screen one. Built, awaiting review.
+- T011: Sites index to canonical screen one. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 
