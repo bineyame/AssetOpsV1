@@ -1,6 +1,6 @@
 # T010A - Site Foundation Fetch Seam Integration Test
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T010A-site-foundation-fetch-seam-integration-test`

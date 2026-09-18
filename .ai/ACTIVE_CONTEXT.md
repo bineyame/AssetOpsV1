@@ -18,27 +18,30 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T009 closed out 2026-09-17.
+Active task: `tasks/T010A-site-foundation-fetch-seam-integration-test.md`
+(Status: `in_review`).
 
-Independent review returned one medium finding, fixed on the branch: the Site
-substrate's loading, not-found and unavailable states kept a raw `<h1>` while
-their loaded states had moved to the shared `PageHeader`, leaving one surface
-half on the vocabulary and half bespoke. The reviewer found no fault with the
-Lab rail, the changed inherited assertions, the rendered values, or the badge
-rule. The Review Outcome is in
-`tasks/completed/T009-shared-visual-vocabulary.md`.
+T010A is built on `task/T010A-site-foundation-fetch-seam-integration-test` and
+awaits independent review. `USER_REVIEW_REQUIRED: false`: no capability, no
+product language, no UI. The review packet is `.agent/T010A-review-packet.md`.
 
-Two things it leaves for whoever picks up T010. Nobody has rendered any of this
-in a browser and it is a visual slice, so the first fidelity slice to run the
-app is checking T009's work as well as its own. And frontend flakiness under
-CPU contention is broader than the single case T007 and T008 recorded: any file
-can time out under load, so a single red run on a loaded machine should be
-re-run before it is believed.
+It exists because T010 bundled a UI fidelity slice with a new cross-language
+test mechanism. T010's own text pre-authorised the split, the user chose it,
+and T010's Focused Tests bullet now names T010A as a completed prerequisite.
+The 2026-09-17 fetch-seam decision is closed by it after five slices open.
 
-T005 to T008 are complete. Their task files are in `tasks/completed/` with
+Two things the reviewer should look at first. This slice changed shared test
+configuration - Vitest's per-test timeout and Testing Library's `waitFor`
+timeout - which every future slice inherits, and that is more than a test-only
+slice would normally touch. And the first generator draft produced a fixture
+that was fully populated, well-formed and wrong, which is the exact failure
+this seam exists to prevent.
+
+T005 to T009 are complete. Their task files are in `tasks/completed/` with
 their Review Outcomes.
 
-Next: T010, the Lab template and create surfaces to mockup quality.
+Next after review: T010, the Lab template and create surfaces to mockup
+quality.
 
 ## Current Site Foundation Sequence
 
@@ -49,6 +52,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T007: Site Details by `site_id`. Complete.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009: shared visual vocabulary. Complete.
+- T010A: the fetch seam, split out of T010. Built, awaiting review.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 

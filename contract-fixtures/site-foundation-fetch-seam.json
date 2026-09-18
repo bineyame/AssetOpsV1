@@ -1,0 +1,560 @@
+{
+  "cases": {
+    "create_site_created": {
+      "description": "A created Site, returned as the same Site summary shape the operator index accepts.",
+      "request": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "site_id": "MG-002",
+          "template_id": "test-archetype",
+          "timezone": "Africa/Kampala"
+        },
+        "method": "POST",
+        "path": "/api/simulator-lab/sites"
+      },
+      "response": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "lifecycle_status": "PLANNED",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "origin": "USER",
+          "site_id": "MG-002",
+          "site_type": "MINIGRID",
+          "source": {
+            "mode": "SIMULATED"
+          },
+          "template": {
+            "template_id": "test-archetype",
+            "template_version": 2
+          },
+          "timezone": "Africa/Kampala"
+        },
+        "status": 201
+      }
+    },
+    "create_site_duplicate_identity": {
+      "description": "A Site ID already in use. T006 settled this copy as renderable product copy.",
+      "request": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "site_id": "MG-002",
+          "template_id": "test-archetype",
+          "timezone": "Africa/Kampala"
+        },
+        "method": "POST",
+        "path": "/api/simulator-lab/sites"
+      },
+      "response": {
+        "body": {
+          "detail": {
+            "code": "SITE_ID_IN_USE",
+            "message": "Site ID 'MG-002' is already in use. Site IDs are unique across every site store and are compared without regard to case, so the same ID in a different capitalisation is the same site. Nothing was written. Choose a different site ID."
+          }
+        },
+        "status": 409
+      }
+    },
+    "create_site_invalid_request": {
+      "description": "A malformed identity. The refusal is product copy the screen renders verbatim, not a validation dump.",
+      "request": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "site_id": "not a valid id",
+          "template_id": "test-archetype",
+          "timezone": "Africa/Kampala"
+        },
+        "method": "POST",
+        "path": "/api/simulator-lab/sites"
+      },
+      "response": {
+        "body": {
+          "detail": {
+            "code": "SITE_REQUEST_INVALID",
+            "message": "Site ID 'not a valid id' is not a valid site ID. A site ID is 2 to 64 characters using letters, digits, hyphens, and underscores, starting and ending with a letter or a digit, for example MG-002."
+          }
+        },
+        "status": 422
+      }
+    },
+    "create_site_store_unavailable": {
+      "description": "Nothing was written, and the refusal says so.",
+      "request": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "site_id": "MG-002",
+          "template_id": "test-archetype",
+          "timezone": "Africa/Kampala"
+        },
+        "method": "POST",
+        "path": "/api/simulator-lab/sites"
+      },
+      "response": {
+        "body": {
+          "detail": {
+            "code": "SITE_STORE_UNAVAILABLE",
+            "message": "the site store is unreachable Nothing was written."
+          }
+        },
+        "status": 503
+      }
+    },
+    "create_site_template_not_found": {
+      "description": "A template identity the shipped catalog does not hold.",
+      "request": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "site_id": "MG-002",
+          "template_id": "no-such-template",
+          "timezone": "Africa/Kampala"
+        },
+        "method": "POST",
+        "path": "/api/simulator-lab/sites"
+      },
+      "response": {
+        "body": {
+          "detail": {
+            "code": "TEMPLATE_NOT_FOUND",
+            "message": "No shipped site template with template ID 'no-such-template' exists, so no site was created. Choose a template from the shipped catalog."
+          }
+        },
+        "status": 404
+      }
+    },
+    "gate_closed_create_site": {
+      "description": "Unserved. Nothing can be created through a closed gate.",
+      "request": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "site_id": "MG-002",
+          "template_id": "test-archetype",
+          "timezone": "Africa/Kampala"
+        },
+        "method": "POST",
+        "path": "/api/simulator-lab/sites"
+      },
+      "response": {
+        "body": {
+          "detail": "Not Found"
+        },
+        "status": 404
+      }
+    },
+    "gate_closed_site_detail": {
+      "description": "Ungated, and identical to the open-gate response.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites/MG-002"
+      },
+      "response": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "foundation": {
+            "components": [
+              {
+                "component_id": "pv-array",
+                "component_type": "PV_ARRAY",
+                "display_name": "PV array",
+                "rating": {
+                  "unit": "kW",
+                  "value": 100.0
+                }
+              },
+              {
+                "component_id": "site-meter",
+                "component_type": "METER",
+                "display_name": "Site meter",
+                "rating": null
+              }
+            ],
+            "summary": "A site used by tests only.",
+            "valid_from": "2026-01-01T00:00:00Z",
+            "version": 1
+          },
+          "lifecycle_status": "PLANNED",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "origin": "USER",
+          "site_id": "MG-002",
+          "site_type": "MINIGRID",
+          "source": {
+            "mode": "SIMULATED"
+          },
+          "template": {
+            "template_id": "hybrid-mini-grid-100kw",
+            "template_version": 1
+          },
+          "timezone": "Africa/Kampala"
+        },
+        "status": 200
+      }
+    },
+    "gate_closed_sites_list": {
+      "description": "Ungated. The gate covers Lab surfaces and execution, never Site objects or stores.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites"
+      },
+      "response": {
+        "body": {
+          "sites": [
+            {
+              "display_name": "Kalangala Mini-Grid",
+              "lifecycle_status": "PLANNED",
+              "location": {
+                "country": "Uganda",
+                "locality": "Kalangala"
+              },
+              "origin": "USER",
+              "site_id": "MG-002",
+              "site_type": "MINIGRID",
+              "source": {
+                "mode": "SIMULATED"
+              },
+              "template": {
+                "template_id": "hybrid-mini-grid-100kw",
+                "template_version": 1
+              },
+              "timezone": "Africa/Kampala"
+            }
+          ]
+        },
+        "status": 200
+      }
+    },
+    "gate_closed_status": {
+      "description": "Unserved, not a disabled-looking body.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/status"
+      },
+      "response": {
+        "body": {
+          "detail": "Not Found"
+        },
+        "status": 404
+      }
+    },
+    "gate_closed_template_detail": {
+      "description": "Unserved.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates/test-archetype"
+      },
+      "response": {
+        "body": {
+          "detail": "Not Found"
+        },
+        "status": 404
+      }
+    },
+    "gate_closed_template_list": {
+      "description": "Unserved. The route is not registered at all.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates"
+      },
+      "response": {
+        "body": {
+          "detail": "Not Found"
+        },
+        "status": 404
+      }
+    },
+    "simulator_lab_status_enabled": {
+      "description": "The gate sentinel. No Site Foundation client calls it; it is captured so the closed-gate 404 below means something.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/status"
+      },
+      "response": {
+        "body": {
+          "run_execution": "not_implemented",
+          "simulator_lab_enabled": true,
+          "truth_overlays": "not_implemented"
+        },
+        "status": 200
+      }
+    },
+    "site_detail_loaded": {
+      "description": "One Site with its Foundation, carrying both a component with a declared rating and one whose rating is null.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites/MG-002"
+      },
+      "response": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "foundation": {
+            "components": [
+              {
+                "component_id": "pv-array",
+                "component_type": "PV_ARRAY",
+                "display_name": "PV array",
+                "rating": {
+                  "unit": "kW",
+                  "value": 100.0
+                }
+              },
+              {
+                "component_id": "site-meter",
+                "component_type": "METER",
+                "display_name": "Site meter",
+                "rating": null
+              }
+            ],
+            "summary": "A site used by tests only.",
+            "valid_from": "2026-01-01T00:00:00Z",
+            "version": 1
+          },
+          "lifecycle_status": "PLANNED",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "origin": "USER",
+          "site_id": "MG-002",
+          "site_type": "MINIGRID",
+          "source": {
+            "mode": "SIMULATED"
+          },
+          "template": {
+            "template_id": "hybrid-mini-grid-100kw",
+            "template_version": 1
+          },
+          "timezone": "Africa/Kampala"
+        },
+        "status": 200
+      }
+    },
+    "site_detail_not_found": {
+      "description": "An unknown Site is not-found, never an empty Site. Distinct from an unreadable store.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites/MG-404"
+      },
+      "response": {
+        "body": {
+          "detail": {
+            "code": "SITE_NOT_FOUND",
+            "message": "No site with site ID 'MG-404' is configured. Site IDs are compared without regard to case, so a different capitalisation of a configured site would have been found."
+          }
+        },
+        "status": 404
+      }
+    },
+    "site_detail_store_unavailable": {
+      "description": "The store could not be read. A different fact from a Site that is not configured.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites/MG-002"
+      },
+      "response": {
+        "body": {
+          "detail": {
+            "code": "SITE_STORE_UNAVAILABLE",
+            "message": "the site store is unreachable"
+          }
+        },
+        "status": 503
+      }
+    },
+    "sites_list_empty": {
+      "description": "First run. An empty list is a real answer and must never be read as an unreadable store.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites"
+      },
+      "response": {
+        "body": {
+          "sites": []
+        },
+        "status": 200
+      }
+    },
+    "sites_list_loaded": {
+      "description": "One configured Site. The operator index is ungated.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites"
+      },
+      "response": {
+        "body": {
+          "sites": [
+            {
+              "display_name": "Kalangala Mini-Grid",
+              "lifecycle_status": "PLANNED",
+              "location": {
+                "country": "Uganda",
+                "locality": "Kalangala"
+              },
+              "origin": "USER",
+              "site_id": "MG-002",
+              "site_type": "MINIGRID",
+              "source": {
+                "mode": "SIMULATED"
+              },
+              "template": {
+                "template_id": "hybrid-mini-grid-100kw",
+                "template_version": 1
+              },
+              "timezone": "Africa/Kampala"
+            }
+          ]
+        },
+        "status": 200
+      }
+    },
+    "sites_list_store_unavailable": {
+      "description": "The store could not be read. A different fact from an empty index, and the index must not claim the second.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites"
+      },
+      "response": {
+        "body": {
+          "detail": "the site store is unreachable"
+        },
+        "status": 503
+      }
+    },
+    "template_detail_catalog_unavailable": {
+      "description": "The catalog could not be read.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates/test-archetype"
+      },
+      "response": {
+        "body": {
+          "detail": "the shipped template catalog is unreadable"
+        },
+        "status": 503
+      }
+    },
+    "template_detail_loaded": {
+      "description": "The Foundation content one shipped template would produce.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates/test-archetype"
+      },
+      "response": {
+        "body": {
+          "components": [
+            {
+              "component_id": "pv-array",
+              "component_type": "PV_ARRAY",
+              "display_name": "PV array",
+              "rating": {
+                "unit": "kW",
+                "value": 100.0
+              }
+            },
+            {
+              "component_id": "site-meter",
+              "component_type": "METER",
+              "display_name": "Site meter",
+              "rating": null
+            }
+          ],
+          "display_name": "Test Archetype",
+          "site_type": "MINIGRID",
+          "summary": "A template used by tests only.",
+          "template_id": "test-archetype",
+          "template_version": 2
+        },
+        "status": 200
+      }
+    },
+    "template_detail_not_found": {
+      "description": "An unknown template identity.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates/no-such-template"
+      },
+      "response": {
+        "body": {
+          "detail": "No shipped site template with template ID 'no-such-template' exists."
+        },
+        "status": 404
+      }
+    },
+    "template_list_catalog_unavailable": {
+      "description": "The catalog could not be read. Must not degrade into an empty catalog.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates"
+      },
+      "response": {
+        "body": {
+          "detail": "the shipped template catalog is unreadable"
+        },
+        "status": 503
+      }
+    },
+    "template_list_empty": {
+      "description": "This build ships no templates. A real answer, not an unreadable catalog.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates"
+      },
+      "response": {
+        "body": {
+          "templates": []
+        },
+        "status": 200
+      }
+    },
+    "template_list_loaded": {
+      "description": "The shipped template catalog.",
+      "request": {
+        "method": "GET",
+        "path": "/api/simulator-lab/site-templates"
+      },
+      "response": {
+        "body": {
+          "templates": [
+            {
+              "display_name": "Test Archetype",
+              "site_type": "MINIGRID",
+              "summary": "A template used by tests only.",
+              "template_id": "test-archetype",
+              "template_version": 2
+            }
+          ]
+        },
+        "status": 200
+      }
+    }
+  },
+  "generated_by": "backend/tests/test_fetch_seam_contract.py",
+  "purpose": "The Site Foundation frontend/backend fetch seam. The backend generates these from real responses; the frontend's client tests read them back. Neither side imports the other.",
+  "regenerate_with": "ASSETOPS_UPDATE_CONTRACT_FIXTURE=1 python -m pytest backend/tests/test_fetch_seam_contract.py"
+}
