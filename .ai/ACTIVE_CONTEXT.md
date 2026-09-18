@@ -18,27 +18,27 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-T011A, Foundation naming and operator Site tab inventory. Built and in review
-on `task/T011A-foundation-naming-and-operator-site-tab-inventory`, one commit,
-`960a013`. Packet at `.agent/T011A-review-packet.md`.
+No active task. T011A closed out 2026-09-18.
 
-`USER_REVIEW_REQUIRED: true`, and this one genuinely needs a browser. The slice
-renames a surface and adds eight tabs, six of which are labels rather than
-destinations, and whether those six read as "not built yet" or as "broken" is a
-judgement no test makes.
+Independent review returned accept with one medium finding, fixed on the branch:
+two patterns in the new tab-row guard clause held a literal control character
+where `` was meant and could never match. The lesson is in `.ai/CODE_STATE.md`
+under T011A - a clause built from a list of patterns is proved once per pattern,
+not once per clause.
 
-440 frontend tests pass across 16 files, 304 backend, both guards, typecheck and
-build clean. The guard gained four clauses and each was proved to fail before
-being kept.
+T011A is merged with its `USER_REVIEW_REQUIRED: true` still outstanding, by the
+user's direction and on the Planner's sequencing recommendation. The browser
+pass on T011's Sites index found the shell taking both scrollbars with the rail
+moving sideways, so T011B fixes that first and the user then reviews T011A's tab
+row in the viewport behaviour the product commits to, rather than reviewing it
+twice.
 
-What T011 left open is still open: nobody has rendered the nine-column Sites
-index either.
+Next: T011B, shell and dense content overflow containment. It is the first slice
+under the new viewport commitment, it needs no user review, and it must land
+before T012 dresses Site Details on the same shell.
 
-T005 to T011 and T010A are complete, in `tasks/completed/` with their Review
-Outcomes.
-
-Next after review: T012, which dresses Site Details against the tab row this
-slice settled.
+T005 to T011, T010A and T011A are complete, in `tasks/completed/` with their
+Review Outcomes.
 
 ## Current Site Foundation Sequence
 
@@ -52,42 +52,35 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T010A: the fetch seam, split out of T010. Complete.
 - T010: Lab template and create surfaces to mockup quality. Complete.
 - T011: Sites index to canonical screen one. Complete.
-- T011A: Foundation naming and the operator Site tab row. In review.
+- T011A: Foundation naming and the operator Site tab row. Complete; user
+  review deferred to the pass after T011B.
+- T011B: shell and dense content overflow containment. Planned, next.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
-  settles.
+  settled, and under the viewport commitment.
 
 The second checkpoint is closed. Causal Sequencing step 4, topology, devices,
 and the configured single-line diagram, is unblocked for planning and is not
 yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
 or its signal selector.
 
-## Read For T011A
+## Read For T011B
 
-T011A carries the user-visible rename from Site Configuration to Foundation,
-the route redirect, and the operator Site tab row from v6.9. It adds no content
-and no capability, which is what makes it safe to run before T012 dresses Site
-Details.
+T011B is the first slice under the M1 viewport commitment. It fixes two
+diagnosed layout defects and adds no capability, no route and no vocabulary,
+which is what makes it safe to run between two fidelity slices.
 
-- `tasks/T011A-foundation-naming-and-operator-site-tab-inventory.md`
-- `.ai/CODE_STATE.md`, the T007, T008, T011 and T011A entries, for the Site
-  record shape, the read path, the substrate, and what each surface renders
-  today. Read the completed task files only if an entry there is not enough.
-- `.ai/FEATURE_MAP.md` sections:
-  - Feature Map Index
-  - Product Spine
-  - Enforceable Protected Seams
-  - Canonical Screen Fidelity, and within `### Foundational screen architecture
-    for the two shells`: `#### Operator Site tabs`, `#### Foundation name and
-    subtabs`, `#### Guards that follow from this architecture`, `#### Shared
-    substrate consequence`
-  - Early Feature: Site Foundation And Configuration-Only Site
+- `tasks/T011B-shell-and-dense-content-overflow-containment.md`, which carries
+  its own Read For list.
+- `.ai/FEATURE_MAP.md`, `## Canonical Screen Fidelity`, and within it
+  `### Viewport and overflow commitment`. That section is not reachable from
+  the Feature Map Index, so it has to be named.
+- `.ai/FEATURE_MAP.md`, `#### Guards that follow from this architecture` and
+  the `Guard migration:` list under it, for shell overflow containment and the
+  conditional breakpoint-token seam.
+- `.ai/CODE_STATE.md`, the T009, T011 and T011A entries.
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-13-site-foundation-persistence`
   - `D-2026-09-13-shared-site-substrate`
-  - `D-2026-09-13-provenance-status-vocabulary`
   - `D-2026-09-13-canonical-fidelity`
-- `.ai/ARCHITECTURE.md` only if dependency direction, contracts, simulator
-  boundaries, or protected seams are in play.
 
 ## Settled Direction
 
@@ -104,6 +97,11 @@ Details.
   for the identified site. A canonical aspect with no content yet is labelled in
   place, never disabled: disabled says the capability exists and is switched
   off.
+- M1 commits to desktop-class width, at least 1280px, and claims no mobile,
+  phone or portrait-tablet form. Page-level overflow is not an allowed answer to
+  density: shell chrome stays anchored and dense content owns its own scroll.
+  Nothing may be dropped to fit - not a Sites index column, not a rail label,
+  not one of the eight Site tabs.
 - A Site created from the Lab is a normal product Site with
   `source.mode = SIMULATED`; there is no Lab-owned Site store and no publish or
   promote step.

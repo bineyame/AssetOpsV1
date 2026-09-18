@@ -561,3 +561,20 @@ What this slice leaves open.
 5. The Foundation page has a panel also headed `Foundation`. v6.9 calls that
    content `Definition`, but the Foundation subtab row is T013's.
 6. The `tabs` slot is one prop wide. T012 and T013 will want more positions.
+
+What review corrected, and the lesson worth carrying.
+
+Two of the five patterns in the tab row's disabled-affordance guard clause held
+a literal `0x08` backspace where `` was meant, so they could never match.
+Fixed in `ada4149`. The clause's own non-vacuity proof had passed, because the
+single violation introduced tripped a third pattern in the same list and the
+failure message names the clause rather than the pattern.
+
+So: a guard clause built from a list of patterns is proved once per pattern,
+not once per clause, and the violation used for each must be worded so no
+sibling pattern can fire instead. A guard that silently stops matching is
+invisible in exactly the way this project relies on guards not being, and this
+one was caught by a human reading the file rather than by anything automatic.
+Whether that class deserves its own seam - per-pattern fixtures, no control
+characters in patterns, failure messages that name which pattern fired - is an
+open Architect question the Planner declined to turn into a task.
