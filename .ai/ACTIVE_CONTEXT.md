@@ -35,11 +35,24 @@ never a state change. Packet at `.agent/T011C-review-packet.md`.
 463 frontend tests across 17 files, 304 backend, both guards, typecheck and
 build clean on both.
 
-What is outstanding is one browser pass over both, plus the rest of T011A's,
-which the user began and which produced T011C. What it has to answer: chrome
-stays anchored while only the table scrolls; an empty operator page with the
-gate open is no longer taller than the window; the Lab frame is still full
-height; and the six aspects now read as not built yet rather than as broken.
+### Browser verification: partly done, rest deferred by the user
+
+Done and settled. The user rendered the Site tab row, reported the six read as
+disabled, chose the treatment, and confirmed the revision. That produced T011C
+and is recorded in T011A's User Review Outcome.
+
+**Not done, and deferred by the user's decision to move on:** T011B's own
+evidence. Nobody has confirmed that the rail and workspace bar stay anchored
+while the table scrolls, that an empty operator page with the gate open is no
+longer taller than the window, or that the standalone Lab frame is still full
+height.
+
+This matters because **T011B's independent review rejected it pending exactly
+that evidence**, with no structural finding. So T011B is not mergeable on the
+record as it stands. Three ways forward, none of them chosen yet: the user does
+the pass; someone else does; or the project decides a layout fix may merge on
+structural evidence and records that as a decision, which would be a change to
+what review means here rather than a shortcut around one review.
 
 T005 to T011, T010A and T011A are complete. T011A carries its User Review
 Outcome, which records the finding above and what the user settled.
