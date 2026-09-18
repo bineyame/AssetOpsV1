@@ -18,29 +18,46 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-T011B, shell and dense content overflow containment. Built and in review on
-`task/T011B-shell-and-dense-content-overflow-containment`, one commit,
-`6e448d8`. Packet at `.agent/T011B-review-packet.md`.
+Two slices in review, stacked, awaiting one browser pass.
 
-`USER_REVIEW_REQUIRED: false`, but **browser verification is required and has
-not happened**. Those are different things: no product decision is being
-settled, and jsdom has no layout, so nothing in the suite can see whether a
-page scrolls sideways. The defect this slice exists to fix has not been
-observed as fixed.
+T011B, shell and dense content overflow containment, at `3bea36c`. Independent
+review: **reject until browser verification is completed**, one High finding and
+it is not a code finding - "I did not find a separate structural code finding in
+the diff". The Reviewer has no browser either and refused to approve a layout
+fix on structure alone. Packet at `.agent/T011B-review-packet.md`.
 
-455 frontend tests pass across 17 files, 304 backend, both guards, typecheck and
-build clean. A new seam, shell overflow containment, is the eighth in the
-runner; each of its five clauses was proved to fail on its own.
+T011C, Site tab row treatment, accepted by the user and by independent review.
+Its one finding, stale durable records, is fixed. It is not merged, because it
+is stacked on T011B and merging it would carry T011B with it. A user-review
+finding on T011A, raised at the browser: the six labelled tabs read as disabled.
+They were not disabled - a destination was `#55617a` and a label `#6b7690`, five
+percent apart, so the row said one active and seven greyed out. Treatment fix,
+never a state change. Packet at `.agent/T011C-review-packet.md`.
 
-T011A's user review is still outstanding and was deferred to this point on
-purpose, so one browser pass now covers both: the overflow fix, and whether the
-six labelled Site tabs read as aspects that are not built yet.
+463 frontend tests across 17 files, 304 backend, both guards, typecheck and
+build clean on both.
 
-T005 to T011, T010A and T011A are complete, in `tasks/completed/` with their
-Review Outcomes.
+### Browser verification: partly done, rest deferred by the user
 
-Next after review: T012, which dresses Site Details against the tab row T011A
-settled and under the viewport commitment.
+Done and settled. The user rendered the Site tab row, reported the six read as
+disabled, chose the treatment, and confirmed the revision. That produced T011C
+and is recorded in T011A's User Review Outcome.
+
+**Not done, and deferred by the user's decision to move on:** T011B's own
+evidence. Nobody has confirmed that the rail and workspace bar stay anchored
+while the table scrolls, that an empty operator page with the gate open is no
+longer taller than the window, or that the standalone Lab frame is still full
+height.
+
+This matters because **T011B's independent review rejected it pending exactly
+that evidence**, with no structural finding. So T011B is not mergeable on the
+record as it stands. Three ways forward, none of them chosen yet: the user does
+the pass; someone else does; or the project decides a layout fix may merge on
+structural evidence and records that as a decision, which would be a change to
+what review means here rather than a shortcut around one review.
+
+T005 to T011, T010A and T011A are complete. T011A carries its User Review
+Outcome, which records the finding above and what the user settled.
 
 ## Current Site Foundation Sequence
 
@@ -56,7 +73,9 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T011: Sites index to canonical screen one. Complete.
 - T011A: Foundation naming and the operator Site tab row. Complete; user
   review deferred to the pass after T011B.
-- T011B: shell and dense content overflow containment. In review.
+- T011B: shell and dense content overflow containment. In review, rejected
+  pending browser evidence.
+- T011C: Site tab row treatment, from T011A's user review. In review.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 

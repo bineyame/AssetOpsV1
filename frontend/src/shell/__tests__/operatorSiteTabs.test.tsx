@@ -16,6 +16,8 @@ import { settledScreen } from "../../test/settled";
 import {
   OPERATOR_SITE_TABS,
   OPERATOR_SITE_TABS_LABEL,
+  labelledAspectsSentence,
+  type OperatorSiteTab,
 } from "../operatorSiteTabs";
 
 /**
@@ -323,5 +325,141 @@ describe("the tab row is an operator capability and is never gated", () => {
     expect(
       Array.from(tabRow().querySelectorAll("li")).map((item) => item.textContent),
     ).toEqual(V69_OPERATOR_SITE_TABS);
+  });
+});
+
+describe("the row says which aspects it cannot open, and says it in words", () => {
+  /**
+   * T011A relied on colour alone, and the two colours were about five percent
+   * apart: `--text-secondary` for a destination against `--text-muted` for a
+   * label. The user read the six as disabled controls, which is the one thing
+   * the row exists not to say. T011C adds a second signal that does not depend
+   * on seeing a difference between two greys.
+   */
+  it("counts exactly the tabs it cannot open", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+
+    const sentence = within(tabRow()).getByText(/no content in this build yet/);
+
+    // It counts rather than names, because the names are one line above it.
+    // What has to stay true is that the count is the number of labelled tabs
+    // and not a number somebody typed.
+    expect(sentence.textContent).toBe(
+      "Six aspects of a Site have no content in this build yet.",
+    );
+    expect(LABELLED_IN_PLACE_TABS).toHaveLength(6);
+
+    // And the row above still names them, so nothing was lost by shortening
+    // the sentence.
+    for (const label of LABELLED_IN_PLACE_TABS) {
+      expect(within(tabRow()).getByText(label, { exact: true })).toBeInTheDocument();
+    }
+  });
+
+  it("says nothing about the site it is rendered for", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+
+    // `of a Site`, not `of this Site`. No aspect is missing content because of
+    // anything about MG-002; the product has no content model for any of them.
+    // A sentence that read as a fact about this site would be the wrong claim.
+    const sentence = within(tabRow()).getByText(/no content in this build yet/);
+
+    expect(sentence.textContent).not.toMatch(/this site/i);
+    expect(sentence.textContent).not.toMatch(/MG-002|Kalangala/);
+  });
+
+  it("separates the two groups with something other than colour", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+
+    // The divider hangs off the first labelled tab, so it moves when an aspect
+    // becomes a destination rather than being pinned to a count.
+    const items = Array.from(tabRow().querySelectorAll("li"));
+    const marked = items.filter((item) =>
+      item.className.includes("site-tabs__item--group-start"),
+    );
+
+    expect(marked).toHaveLength(1);
+    expect(marked[0].textContent).toBe(LABELLED_IN_PLACE_TABS[0]);
+  });
+
+  it("promises nothing about when the content arrives", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+
+    // The sentence describes this build. A sentence about a later one would be
+    // a promise nobody has made, and `coming soon` is banned in the guard for
+    // the same reason.
+    expect(tabRow().textContent).not.toMatch(
+      /\b(coming soon|soon|shortly|in a future|will be|planned for|roadmap)\b/i,
+    );
+  });
+
+  it("keeps the labelled tabs out of the tab stops", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+
+    // Making them legible must not make them reachable: a focus stop that goes
+    // nowhere is the disabled control this row refuses, wearing a keyboard.
+    const row = tabRow();
+
+    expect(row.querySelectorAll("[tabindex]")).toHaveLength(0);
+    expect(within(row).getAllByRole("link")).toHaveLength(
+      DESTINATION_TABS.length,
+    );
+  });
+});
+
+describe("the sentence is derived from the inventory, not written out", () => {
+  /**
+   * The reason this matters: a written-out list goes stale the first time an
+   * aspect gets content, and then the screen says something has no content
+   * while the tab beside it opens that content. These pass inventories this
+   * product does not have yet.
+   */
+  const destination: OperatorSiteTab = {
+    label: "Overview",
+    kind: "destination",
+    href: (siteId: string) => `/sites/${siteId}`,
+  };
+
+  it("drops an aspect from the sentence when it becomes a destination", () => {
+    const before = labelledAspectsSentence([
+      destination,
+      { label: "Health", kind: "labelled_in_place" },
+      { label: "Work", kind: "labelled_in_place" },
+    ]);
+    const after = labelledAspectsSentence([
+      destination,
+      { label: "Health", kind: "destination", href: () => "/health" },
+      { label: "Work", kind: "labelled_in_place" },
+    ]);
+
+    expect(before).toBe(
+      "Two aspects of a Site have no content in this build yet.",
+    );
+    expect(after).toBe("One aspect of a Site has no content in this build yet.");
+  });
+
+  it("reads grammatically with one aspect left", () => {
+    expect(
+      labelledAspectsSentence([
+        destination,
+        { label: "Evidence", kind: "labelled_in_place" },
+      ]),
+    ).toBe("One aspect of a Site has no content in this build yet.");
+  });
+
+  it("says nothing at all when every aspect has content", () => {
+    expect(labelledAspectsSentence([destination])).toBeNull();
+    expect(labelledAspectsSentence([])).toBeNull();
+  });
+
+  it("matches what the real inventory renders", () => {
+    expect(labelledAspectsSentence()).toBe(
+      "Six aspects of a Site have no content in this build yet.",
+    );
   });
 });

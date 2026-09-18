@@ -27,7 +27,10 @@ import { siteDetailHref, siteFoundationHref } from "./operatorSiteRoutes";
  * two the product has.
  *
  * The other six are **labelled in place**: the label renders, and nothing
- * else. Health, Performance, Findings, Work, Financials and Evidence are real
+ * else. They are set apart from the destinations by a divider and named in a
+ * sentence under the row, because T011A proved colour alone does not carry
+ * this. Its destinations were grey and its labels were a slightly lighter
+ * grey, and a reader saw one live tab and seven dead ones. Health, Performance, Findings, Work, Financials and Evidence are real
  * aspects of a Site in this product's own model, so naming them is true. What
  * is not true yet is that the product can show any of them, because M1 has no
  * accepted evidence, no performance read model, no findings, no work records
@@ -88,6 +91,94 @@ export const OPERATOR_SITE_TABS: OperatorSiteTab[] = [
 /** The accessible name of the tab row landmark. */
 export const OPERATOR_SITE_TABS_LABEL = "Site sections";
 
+/**
+ * The aspects this build cannot open, as a sentence.
+ *
+ * Derived from the inventory rather than written out, which is the whole point
+ * of it. T011A's row said what it could open and what it could not using
+ * colour, and the colours were five percent apart, so a reader saw seven grey
+ * words and concluded the product was broken. This says it in words as well.
+ *
+ * It counts rather than names. The first version listed all six directly under
+ * a row that had just shown all six, and the repetition was heavier than the
+ * row it was explaining. The names are one line above; what a reader does not
+ * already have is what that group of words means.
+ *
+ * `of a Site`, not `of this Site`. No aspect is missing content because of
+ * anything about the site on screen - the product has no content model for any
+ * of them - and a sentence that read as a fact about this particular site
+ * would be the wrong claim, in the way this project is careful about
+ * everywhere else.
+ *
+ * Because it is derived, a tab that becomes a destination leaves this sentence
+ * in the same change that moves it. A written-out list would have gone stale
+ * the first time an aspect got content, and would then have been a screen
+ * claiming something has no content while the tab beside it opened that
+ * content.
+ *
+ * It returns null rather than an empty sentence when every aspect has content,
+ * because on that day there is nothing to explain.
+ *
+ * `tabs` is a parameter so a test can hand it an inventory this product does
+ * not have yet - one aspect left, or none - and prove the sentence follows the
+ * inventory rather than reciting a list someone typed.
+ */
+export function labelledAspectsSentence(
+  tabs: OperatorSiteTab[] = OPERATOR_SITE_TABS,
+): string | null {
+  const labels = tabs
+    .filter((tab) => tab.kind === "labelled_in_place")
+    .map((tab) => tab.label);
+
+  if (labels.length === 0) {
+    return null;
+  }
+
+  const counted = COUNT_WORDS[labels.length] ?? String(labels.length);
+  const noun = labels.length === 1 ? "aspect" : "aspects";
+  const verb = labels.length === 1 ? "has" : "have";
+
+  // What this build contains, not what a later one will. The promise
+  // vocabulary the guard bans belongs to the same family, and the ban is the
+  // point rather than the wording: a sentence about the future is a promise
+  // nobody has made. The guard scans this module, so the phrases it refuses
+  // cannot be written here either - which is why this comment describes them
+  // instead of quoting one.
+  return `${counted} ${noun} of a Site ${verb} no content in this build yet.`;
+}
+
+/**
+ * Counts, spelled, for the one sentence that needs them.
+ *
+ * Indexed by the count, so `COUNT_WORDS[0]` is the word for none. It stops at
+ * the size of the inventory; a longer row falls back to a digit rather than
+ * running off the end and rendering `undefined`.
+ */
+const COUNT_WORDS = [
+  "No",
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+];
+
+/**
+ * The index the labelled group starts at, or -1 when there is none.
+ *
+ * The divider hangs off this rather than off a count, so a row that is all
+ * destinations draws no divider and a row that is all labels draws one at the
+ * start, which is where it would belong.
+ */
+function firstLabelledIndex(): number {
+  return OPERATOR_SITE_TABS.findIndex(
+    (tab) => tab.kind === "labelled_in_place",
+  );
+}
+
 export interface OperatorSiteTabsProps {
   /**
    * The identity taken from the address. The row renders nothing when no site
@@ -104,11 +195,21 @@ export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
     return null;
   }
 
+  const groupStart = firstLabelledIndex();
+  const aspects = labelledAspectsSentence();
+
   return (
     <nav className="site-tabs" aria-label={OPERATOR_SITE_TABS_LABEL}>
       <ol className="site-tabs__list">
-        {OPERATOR_SITE_TABS.map((tab) => (
-          <li className="site-tabs__item" key={tab.label}>
+        {OPERATOR_SITE_TABS.map((tab, index) => (
+          <li
+            className={
+              index === groupStart
+                ? "site-tabs__item site-tabs__item--group-start"
+                : "site-tabs__item"
+            }
+            key={tab.label}
+          >
             {tab.kind === "destination" ? (
               <Link
                 className="site-tabs__link"
@@ -123,6 +224,10 @@ export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
           </li>
         ))}
       </ol>
+
+      {aspects === null ? null : (
+        <p className="site-tabs__aspects">{aspects}</p>
+      )}
     </nav>
   );
 }

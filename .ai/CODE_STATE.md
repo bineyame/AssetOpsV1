@@ -641,3 +641,69 @@ What this slice leaves open.
    chrome that makes a claim and should have its own slice.
 6. No breakpoint tokens were introduced, so the conditional breakpoint-token
    seam in the guard table remains unshipped.
+
+## T011C - Site tab row treatment
+
+What this slice settled in code.
+
+A destination looks like a link because it is one. `.site-tabs__link` no longer
+overrides the colour, so it inherits the accent every other link in the product
+uses, and the current tab is told apart by weight and underline rather than by
+being the only thing that is not grey.
+
+That override was the defect. T011A styled a destination `--text-secondary` and
+a label `--text-muted`, five percent apart, and the user read the whole row as
+disabled. Nothing was disabled; the treatment said otherwise, which is a
+reminder that the three-state rule is only as true as its rendering.
+
+Two signals now, not one. A divider marks where the destinations end, and a
+sentence under the row says how many aspects have no content in this build yet,
+so the distinction holds in greyscale and for a reader who does not know that
+grey means unbuilt here.
+
+The sentence counts rather than names. The first version listed all six under a
+row that had just shown all six, and the user's browser pass called it heavier
+than the row it was explaining. It reads "Six aspects of a Site have no content
+in this build yet." - `of a Site`, not `of this Site`, because no aspect is
+missing content because of anything about the site on screen, and the shorter
+phrasing must not become a claim about that particular site.
+
+`labelledAspectsSentence` derives that sentence from the tab inventory and is
+exported with the inventory as a parameter, so tests can hand it arrangements
+this product does not have yet. An aspect promoted to a destination leaves the
+sentence in the same change that moves it. A written-out list would have gone
+stale the first time an aspect got content, and the screen would then have said
+something has no content while the tab beside it opened that content. It
+returns null when nothing is labelled, so the day every aspect has content the
+sentence disappears rather than becoming an empty claim.
+
+The sentence states what this build contains and never what a later one will.
+`coming soon` and its family stay banned, and the guard enforces it inside this
+module - it caught a code comment that explained the ban by quoting the banned
+phrase, which is incidental evidence that the `ada4149` repair holds.
+
+The baseline rule moved from `.site-tabs` to `.site-tabs__list`. The sentence
+lives inside the same landmark, and a border on the nav would have drawn itself
+under the sentence, leaving the active tab's negative-margin underline against
+nothing.
+
+What the user confirmed, and what is still unseen.
+
+This row was seen. The user rendered it, reported the six read as disabled,
+chose the treatment, rendered the result, and confirmed the row reads correctly
+with only the sentence to shorten. That is the whole reason this slice exists,
+and it is settled. What remains unseen belongs to T011B, not here: whether
+chrome stays anchored while a table scrolls, and whether an empty operator page
+with the gate open still runs past the viewport.
+
+What this slice leaves open.
+
+1. The correction may overshoot: two accent destinations could make the row
+   read as all links. Not raised by the user, and not something a test sees.
+2. The divider is a border rather than an element, so the grouping is visual
+   only and the sentence is the whole non-visual channel.
+3. The sentence sits inside the nav, so a reader skipping navigation skips the
+   explanation with it.
+4. Colour and divider have no guard clause. Consistent with the viewport
+   policy, which leaves exact visual fit to review, but it means a future slice
+   could regrey the row without anything failing except a human looking.
