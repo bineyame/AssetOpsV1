@@ -236,6 +236,61 @@ export function simulatorLabAddSiteEntryPoints(
   return [{ to: CREATE_SITE_PATH, label: ADD_SITE_ENTRY_POINT_LABEL }];
 }
 
+/**
+ * A Site action this build cannot perform yet, with what would make it
+ * possible.
+ *
+ * Not a `WorkspaceEntryPoint`: an entry point has a `to`, and these have
+ * nowhere to go. That is the point of them. They are the third affordance
+ * state - rendered, disabled, and carrying the reason - as opposed to a tab
+ * labelled in place, which names an aspect and is not a control at all.
+ */
+export interface GatedSiteAction {
+  label: string;
+  /** What would have to exist. Rendered beside the control, not hidden in a
+   *  tooltip, because a reason nobody can see is not a reason. */
+  unavailableBecause: string;
+}
+
+/**
+ * The Site actions that belong to the Simulator Lab, and are therefore gated.
+ *
+ * Two rules apply to these controls and they are different rules, which is
+ * why both are tested separately. The gate rule: with `simulator_lab.enabled`
+ * false this returns an empty list, so a gate-off build renders no control, no
+ * label and no hint that a developer workspace exists. The sequencing rule:
+ * with the flag true the controls render, disabled, naming the causal step
+ * that would make them work.
+ *
+ * They live here because this is the one gated module. A Site surface that
+ * spelled `Open in Simulator Lab` itself would be a second place the gate has
+ * to be remembered, which is exactly what the gate check exists to prevent.
+ * The Site page receives these and renders them; it never decides them.
+ */
+export function simulatorLabSiteActions(
+  flags: FeatureFlags,
+): GatedSiteAction[] {
+  if (!flags.simulatorLab.enabled) {
+    return [];
+  }
+
+  return [
+    {
+      label: "Open in Simulator Lab",
+      unavailableBecause:
+        "The Simulator Lab has no Site view yet. It arrives with the Lab's " +
+        "own Site and run surfaces, which are a later step than configuring " +
+        "a site.",
+    },
+    {
+      label: "Start Simulation",
+      unavailableBecause:
+        "Nothing can be simulated yet. A run needs a scenario and a runtime, " +
+        "and neither exists in this build.",
+    },
+  ];
+}
+
 export function simulatorLabWorkspaceEntryPoints(
   flags: FeatureFlags,
 ): WorkspaceEntryPoint[] {

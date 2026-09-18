@@ -106,7 +106,11 @@ export function App({
           <Route
             path={SITE_DETAIL_ROUTE_PATH}
             element={
-              <SiteDetailFrame detail={siteDetail} sitesPath={SITES_PATH} />
+              <SiteDetailFrame
+                detail={siteDetail}
+                sitesPath={SITES_PATH}
+                flags={flags}
+              />
             }
           />
           <Route

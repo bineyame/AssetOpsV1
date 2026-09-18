@@ -306,12 +306,14 @@ describe("a Sites row is the way into a site", () => {
       screen.getByRole("link", { name: SITE.display_name }),
     );
 
+    // The row is named for the site; the page it opens is titled by the
+    // identity that addresses it. T012 moved the Site page heading from the
+    // display name to `site_id`, and this assertion follows it rather than
+    // being relaxed: what is pinned is that the row leads to the right site.
     expect(
-      await screen.findByRole("heading", {
-        level: 1,
-        name: "Kalangala Mini-Grid",
-      }),
+      await screen.findByRole("heading", { level: 1, name: SITE.site_id }),
     ).toBeInTheDocument();
+    expect(screen.getByText(SITE.display_name, { selector: "p" })).toBeInTheDocument();
   });
 
   it("adds exactly one destination and no navigation item", async () => {

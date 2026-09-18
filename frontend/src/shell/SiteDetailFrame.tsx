@@ -1,11 +1,14 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
+import type { FeatureFlags } from "../config/featureFlags";
 import {
   SITE_DETAIL_HEADING_ID,
   SiteDetails,
+  SiteQuickAction,
 } from "../sites/SiteDetails";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { simulatorLabSiteActions } from "./simulatorLabRoutes";
 
 /**
  * The operator route for one site, addressed by `site_id`.
@@ -15,9 +18,25 @@ import { OperatorSiteTabs } from "./operatorSiteTabs";
  * `frontend/src/sites/`, so the Lab's site view will present a site the same
  * way rather than growing a second opinion about what a site is.
  *
- * What the shell adds is the one thing that is genuinely a shell concern: the
- * landmark, the operator Site tab row, and a way back to the shell's own Sites
- * index. All of it is navigation rather than action on the site.
+ * What the shell adds is what is genuinely a shell concern: the landmark, the
+ * operator Site tab row, the breadcrumb's parent, and the Site actions that
+ * belong to the Simulator Lab.
+ *
+ * T008's `Back to Sites` link is gone. The breadcrumb leads to the same place
+ * under the same name, and a page with two links to one address makes a reader
+ * wonder which is which - the same reason T011A dropped `Back to this site`
+ * when the Overview tab arrived.
+ *
+ * The gated actions come from `simulatorLabSiteActions`, the one gated module,
+ * which returns nothing at all when the flag is off. So a gate-off build
+ * renders no simulator control and no hint that one exists, and this frame
+ * makes no decision about it - it renders what the list contains. The
+ * substrate could not own them: deciding them means reading the flag and
+ * naming the Lab, and the substrate may do neither.
+ *
+ * `View Live Data` is deliberately not here. It is an operator capability
+ * unavailable for an operator reason, identical in both gate states, so the
+ * substrate owns it and both shells will show it the same way.
  *
  * The tab row replaces T008's plain `Site configuration` link. That link was
  * what this slice could say truthfully at the time - one aspect of a site,
@@ -38,9 +57,14 @@ import { OperatorSiteTabs } from "./operatorSiteTabs";
 export interface SiteDetailFrameProps {
   detail: SiteDetailClient;
   sitesPath: string;
+  flags: FeatureFlags;
 }
 
-export function SiteDetailFrame({ detail, sitesPath }: SiteDetailFrameProps) {
+export function SiteDetailFrame({
+  detail,
+  sitesPath,
+  flags,
+}: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
 
   return (
@@ -49,11 +73,15 @@ export function SiteDetailFrame({ detail, sitesPath }: SiteDetailFrameProps) {
         siteId={siteId}
         detail={detail}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
+        parentCrumb={{ label: "Sites", to: sitesPath }}
+        quickActions={simulatorLabSiteActions(flags).map((action) => (
+          <SiteQuickAction
+            key={action.label}
+            label={action.label}
+            unavailableBecause={action.unavailableBecause}
+          />
+        ))}
       />
-
-      <p>
-        <Link to={sitesPath}>Back to Sites</Link>
-      </p>
     </main>
   );
 }

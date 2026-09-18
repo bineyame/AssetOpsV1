@@ -1,6 +1,14 @@
 import type { ReactNode } from "react";
 
-import { Badge, Fact, FactList, PageHeader, Panel } from "../ui";
+import {
+  Badge,
+  Breadcrumbs,
+  Fact,
+  FactList,
+  PageHeader,
+  Panel,
+  type Crumb,
+} from "../ui";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
@@ -61,9 +69,28 @@ export interface SiteDetailsProps {
    * when it is absent, and nothing here reads what is in it.
    */
   tabs?: ReactNode;
+  /**
+   * Where this Site sits in the composing shell's own route hierarchy. The
+   * shell knows its routes; this knows the Site. So the shell names the parent
+   * and this appends the Site, spelled the way the record spells it rather
+   * than the way the address did.
+   */
+  parentCrumb?: Crumb;
+  /**
+   * Site actions the composing shell owns, placed inside the Quick actions
+   * panel. The gated ones cannot live here: they depend on the feature flag
+   * and on the Lab entry point, and this module may import neither.
+   */
+  quickActions?: ReactNode;
 }
 
-export function SiteDetails({ siteId, detail, tabs }: SiteDetailsProps) {
+export function SiteDetails({
+  siteId,
+  detail,
+  tabs,
+  parentCrumb,
+  quickActions,
+}: SiteDetailsProps) {
   const result = useSiteRecord(siteId, detail);
 
   if (result === null) {
@@ -112,7 +139,14 @@ export function SiteDetails({ siteId, detail, tabs }: SiteDetailsProps) {
     );
   }
 
-  return <SiteDetailFacts site={result.site} tabs={tabs} />;
+  return (
+    <SiteDetailFacts
+      site={result.site}
+      tabs={tabs}
+      parentCrumb={parentCrumb}
+      quickActions={quickActions}
+    />
+  );
 }
 
 /**
@@ -133,24 +167,58 @@ export interface SiteDetailFactsProps {
   site: SiteDetailReadModel;
   /** See `SiteDetailsProps.tabs`. */
   tabs?: ReactNode;
+  /** See `SiteDetailsProps.parentCrumb`. */
+  parentCrumb?: Crumb;
+  /** See `SiteDetailsProps.quickActions`. */
+  quickActions?: ReactNode;
 }
 
-export function SiteDetailFacts({ site, tabs }: SiteDetailFactsProps) {
+export function SiteDetailFacts({
+  site,
+  tabs,
+  parentCrumb,
+  quickActions,
+}: SiteDetailFactsProps) {
   const view = deriveSiteDetailView(site);
 
   return (
     <>
-      <PageHeader title={view.displayName} headingId={SITE_DETAIL_HEADING_ID} />
+      {parentCrumb === undefined ? null : (
+        <Breadcrumbs trail={[parentCrumb, { label: view.siteId }]} />
+      )}
+
+      {/*
+        * The identity header. The title is the `site_id`, because that is what
+        * addresses a site and what a reader needs to quote; the display name
+        * is beneath it, because a name is a label on the thing rather than the
+        * thing. The badge is `source.mode`, which belongs here for the same
+        * reason: where this site's evidence comes from is a fact about the
+        * subject, not decoration beside it.
+        *
+        * The `site_id` rendered is the record's, never the address's. An
+        * address in the wrong case resolves to one canonical site and this
+        * header spells it the one way.
+        */}
+      <PageHeader
+        title={view.siteId}
+        headingId={SITE_DETAIL_HEADING_ID}
+        subtitle={view.displayName}
+        badge={<Badge tone="provenance">{view.sourceMode}</Badge>}
+      />
 
       {tabs}
 
-      <Panel heading="Identity" headingId="site-detail-identity-heading">
+      <Panel
+        heading="Site information"
+        headingId="site-detail-identity-heading"
+      >
         <FactList>
           <Fact term="Site ID">{view.siteId}</Fact>
           <Fact term="Name">{view.displayName}</Fact>
           <Fact term="Type">{view.siteType}</Fact>
           <Fact term="Location">{view.location}</Fact>
           <Fact term="Timezone">{view.timezone}</Fact>
+          <Fact term="Summary">{view.foundationSummary}</Fact>
         </FactList>
       </Panel>
 
@@ -201,6 +269,8 @@ export function SiteDetailFacts({ site, tabs }: SiteDetailFactsProps) {
         </p>
       </Panel>
 
+      <SiteQuickActions>{quickActions}</SiteQuickActions>
+
       <Panel
         heading="Not available for this site"
         headingId="site-detail-no-evidence-heading"
@@ -250,5 +320,98 @@ export function SiteDetailUnavailableFact({
     <Fact term={name}>
       {fact.value}. {fact.reason}
     </Fact>
+  );
+}
+
+/**
+ * The Quick actions panel.
+ *
+ * Every action on this screen is disabled, and each one says what would make
+ * it work. That is the third affordance state, and this is the screen where it
+ * earns its keep: a labelled-in-place tab names an aspect of a Site, while a
+ * disabled control names an action the product can sequence but cannot yet
+ * perform. Blurring those two is how a UI starts promising things.
+ *
+ * `View Live Data` is owned here because it is not a simulator surface: live
+ * data is an operator capability, it is unavailable for the same reason
+ * everywhere, and the reason is about evidence rather than about the Lab. The
+ * gated actions cannot be owned here, because deciding them means reading the
+ * feature flag and naming the Lab's address, and this module may do neither.
+ * They arrive through the slot.
+ *
+ * With the slot empty - which is what a gate-off build produces, and what a
+ * substrate test renders - the panel is still correct: one action, disabled,
+ * with its reason. It does not become an empty frame, and it does not
+ * disappear, because `View Live Data` is unavailable whether or not a
+ * developer workspace exists.
+ *
+ * What is not here, in any state, is every control the mockup draws that this
+ * product has decided against: `Edit`, `Edit Configuration`, `Version
+ * History`, `Duplicate Site`, `Delete Site`, and the site image `Change`. They
+ * are absent from the DOM rather than disabled, because disabled would say the
+ * capability exists and is unavailable to you, and what is true is that M1
+ * decided configuration is fixed at creation and that nothing removes a site.
+ */
+export interface SiteQuickActionsProps {
+  /** See `SiteDetailsProps.quickActions`. */
+  children?: ReactNode;
+}
+
+export function SiteQuickActions({ children }: SiteQuickActionsProps) {
+  return (
+    <Panel heading="Quick actions" headingId="site-detail-actions-heading">
+      <ul className="action-list">
+        {children}
+        <SiteQuickAction
+          label="View Live Data"
+          unavailableBecause={
+            "No evidence has been accepted for this site. Live data arrives " +
+            "with the ingestion and evidence steps, which are later than " +
+            "configuring a site."
+          }
+        />
+      </ul>
+    </Panel>
+  );
+}
+
+/**
+ * One action the product can name but cannot yet perform.
+ *
+ * The reason is rendered beside the control, visibly, and tied to it with
+ * `aria-describedby`. A reason that lives only in a tooltip is a reason most
+ * people never read, and a `disabled` button is not focusable, so a tooltip on
+ * one is a reason a keyboard cannot reach at all.
+ *
+ * `disabled` is the real attribute rather than `aria-disabled`, because the
+ * claim is the true one: this control does nothing. It cannot navigate, it
+ * cannot submit, and it has no handler to call, so there is no path from a
+ * click to a request.
+ */
+export interface SiteQuickActionProps {
+  label: string;
+  unavailableBecause: string;
+}
+
+export function SiteQuickAction({
+  label,
+  unavailableBecause,
+}: SiteQuickActionProps) {
+  const reasonId = `site-action-${label.replace(/\s+/g, "-").toLowerCase()}-reason`;
+
+  return (
+    <li className="action-list__item">
+      <button
+        type="button"
+        className="action"
+        disabled
+        aria-describedby={reasonId}
+      >
+        {label}
+      </button>
+      <p className="action-list__reason" id={reasonId}>
+        {unavailableBecause}
+      </p>
+    </li>
   );
 }
