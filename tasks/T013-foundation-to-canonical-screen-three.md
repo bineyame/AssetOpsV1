@@ -17,9 +17,11 @@ Foundation name and route settled in T011A.
 It has breadcrumbs from the Sites index to the Site to Foundation, a page header
 naming the Site and the Foundation context, and the filtered v6.9 Foundation
 subtab row from line 2117. Definition, Topology, and Controls render with
-current M1 limits. Readiness is labelled in place because there is no accepted
-evidence/readiness model. Changes is absent in every state until a reviewed
-configuration-change capability exists.
+current M1 limits. The content panel currently headed `Foundation` is renamed
+or reworked as Definition so the page does not carry a redundant
+Foundation-under-Foundation heading. Readiness is labelled in place because
+there is no accepted evidence/readiness model. Changes is absent in every state
+until a reviewed configuration-change capability exists.
 
 The mockup's `Edit` and `Version History` header actions are not rendered. The
 statement that configuration is fixed at creation in M1 is still on the screen.
@@ -57,6 +59,9 @@ separately tested acceptance criteria.
   Readiness in that order. Changes is absent in every state.
 - Definition renders record-sourced Site Foundation identity, purpose/summary,
   validity, and provenance fields available in the current read model.
+- The existing panel headed `Foundation` is renamed or reworked into the
+  Definition content area. The final page must not show a `Foundation` panel
+  heading directly under the `Foundation` page title.
 - Topology renders with current M1 limits: it may state that topology, devices,
   and signal mappings are not declared where the schema does not yet carry
   them, using the accepted T008 absence semantics.
@@ -99,6 +104,9 @@ separately tested acceptance criteria.
   single-definition and leaf-direction guards pass, no `variant`, `mode`,
   `shell`, or `isLab` prop is introduced, and no extension slot is needed here
   because nothing on this screen is shell-specific.
+- Any Foundation table or subtab row introduced or restyled here owns its own
+  overflow if dense. Shell chrome must not move because Foundation content is
+  wider than the viewport.
 - No update or delete route for a Site exists in the served route inventory, in
   either flag state, and the screen renders identically with
   `simulator_lab.enabled` true and false.
@@ -117,6 +125,9 @@ separately tested acceptance criteria.
 - The Foundation subtab row derives from v6.9 line 2117 and is filtered by the
   accepted T008 decision: Changes is absent until a reviewed change capability
   exists.
+- T011A deliberately left the redundant Foundation panel heading for this
+  slice. v6.9 names this content Definition, and T013 owns that visible
+  correction together with the subtab row.
 - A diagram is a presentation strategy over canonical topology, and it does not
   exist yet. An empty frame labelled for a future diagram is the layout form of
   a fabricated value.
@@ -161,6 +172,8 @@ separately tested acceptance criteria.
   and Readiness, and that Changes is absent in every state.
 - UI test asserting Definition, Topology, and Controls render only
   record-sourced Foundation content or the accepted current M1 absence states.
+- UI test asserting the redundant Foundation-under-Foundation panel heading no
+  longer renders and that Definition names the content area instead.
 - UI test asserting Readiness is labelled in place and is not a link, button,
   disabled control, route, or empty placeholder panel.
 - UI test asserting Summary, Components, Control Logic, and Settings do not
@@ -204,6 +217,8 @@ separately tested acceptance criteria.
   checkpoint settled.
 - Do not add a subtab that the Foundation cannot truthfully fill or label in
   place under the settled subtab architecture, except Readiness as specified.
+- Do not leave the T011A wart where the page title and an immediate content
+  panel are both headed `Foundation`.
 - Do not add a runtime or evidence value slot, even an empty one.
 - Do not define Site presentation outside `frontend/src/sites/**`, and do not
   add a shell, mode, or variant discriminant prop.

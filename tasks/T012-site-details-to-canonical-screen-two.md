@@ -23,6 +23,8 @@ It uses the operator Site tab row introduced by T011A. Overview and Foundation
 are real destination tabs. Health, Performance, Findings, Work, Financials, and
 Evidence are labelled in place only, with no link, button, route, or disabled
 fake destination.
+The row keeps all eight labels under the viewport policy and may scroll inside
+its own region rather than collapsing or hiding labels.
 
 It has a Quick Actions panel. `Open in Simulator Lab` is absent when
 `simulator_lab.enabled` is false and disabled with its named prerequisite when
@@ -76,6 +78,9 @@ inherits the dressed Site fact presentation instead of building a second one.
 
 - The tab row is the T011A operator Site tab inventory: Overview, Foundation,
   Health, Performance, Findings, Work, Financials, and Evidence.
+- The tab row preserves all eight labels at every width where the screen
+  renders. It may scroll within its own region, but it does not collapse, hide
+  the labelled-in-place tabs, or move them into an overflow menu.
 - Overview and Foundation are real destination tabs whose routes render truthful
   identified Site surfaces.
 - Health, Performance, Findings, Work, Financials, and Evidence are labelled in
@@ -149,6 +154,9 @@ inherits the dressed Site fact presentation instead of building a second one.
   Performance, Findings, Work, Financials, and Evidence from lines 464 and 615.
   The mockup's Configuration, Devices, Gateway, Ingestion, Events, and Logs are
   not operator Site tab vocabulary for M1.
+- The M1 viewport policy keeps operator Site tab vocabulary stable at all
+  widths where the screen renders. Narrow widths may change available space, not
+  which Site aspects the product names.
 - The distinction between an action control and a tab is what makes the middle
   treatment safe. A tab set describes aspects of an entity; a greyed button
   describes an action.
@@ -195,6 +203,9 @@ inherits the dressed Site fact presentation instead of building a second one.
 - UI test asserting the T011A tab inventory renders, Overview and Foundation are
   real identified-route destinations, and the remaining tabs are labelled in
   place only.
+- UI test asserting the tab row renders all eight labels without an overflow
+  menu, hidden subset, collapsed menu, disabled fake destination, or route for a
+  labelled-in-place tab.
 - UI test asserting `Configuration`, `Devices`, `Gateway`, `Ingestion`,
   `Events`, and `Logs` do not render as operator Site tabs.
 - UI tests for Quick Actions in both flag states: `Open in Simulator Lab` and
@@ -230,6 +241,8 @@ inherits the dressed Site fact presentation instead of building a second one.
   exists.
 - Do not turn a labelled-in-place tab into a route, a link, a button, or a
   disabled control, and do not add content to one.
+- Do not collapse the tab row, hide any of the eight labels by viewport, or move
+  labelled-in-place tabs into an overflow menu.
 - Do not render `Edit`, `Edit Configuration`, `Version History`,
   `Duplicate Site`, `Delete Site`, or the image `Change` control in any state.
 - Do not add a site image, an image upload, a map, the Foundation subtab row, an

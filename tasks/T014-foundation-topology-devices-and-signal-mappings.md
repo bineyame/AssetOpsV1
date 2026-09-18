@@ -16,6 +16,8 @@ assumptions as `Not declared` because the Foundation can now carry them. The
 screen renders the configured topology and device/signal relationships as
 read-only configuration facts, using the same Site read path as Site Details and
 Foundation.
+Any dense relationship table keeps its configured columns and owns its own
+horizontal overflow instead of pushing shell chrome.
 
 No Single Line Diagram renders in this slice. No diagram frame, signal selector,
 runtime value, evidence value, source health, product health, telemetry, chart,
@@ -75,6 +77,9 @@ integration test before more UI is built on top of the expanded shape.
   Controls subtabs from T013. The previous `Not declared` absences for devices,
   signal mappings, and control assumptions disappear only when the record
   actually supplies valid values.
+- Dense topology, device, signal, or mapping tables preserve their configured
+  columns at all widths where they render. If they cannot fit, they scroll
+  inside their own region and do not create document-level horizontal overflow.
 - No Single Line Diagram panel, diagram placeholder, empty frame, diagram
   heading, or signal selector renders. A UI test asserts DOM absence, not merely
   disabled state.
@@ -138,6 +143,9 @@ integration test before more UI is built on top of the expanded shape.
   or conclusions.
 - Mockup fidelity versus product honesty: CI guard.
   No mockup value, diagram placeholder, or disabled deferred control appears.
+- Shell overflow containment: review-time plus focused tests/checks.
+  Dense Foundation configuration tables own horizontal overflow and shell
+  chrome stays anchored.
 
 ## Focused Tests And Checks
 
@@ -157,6 +165,9 @@ integration test before more UI is built on top of the expanded shape.
 - UI test asserting Foundation renders topology and device/signal
   relationship facts from the record and no longer shows `Not declared` for
   values the expanded Foundation supplies.
+- UI test asserting any rendered topology/device/signal/mapping table keeps its
+  configured columns and has an owning overflow region rather than relying on
+  document-level horizontal scrolling.
 - UI test asserting no SLD panel, diagram heading, empty frame, signal selector,
   runtime value, evidence value, source-health term, product-health term, zero
   default, or `OFFLINE` state renders.
@@ -182,6 +193,8 @@ integration test before more UI is built on top of the expanded shape.
   and return to planning rather than inventing a new resource.
 - Do not decide the breaker/control vocabulary or cold-room symbol treatment
   silently.
+- Do not hide topology, device, signal, or mapping columns by viewport or
+  replace their tables with a separate narrow-width card presentation.
 
 ## User Review
 
