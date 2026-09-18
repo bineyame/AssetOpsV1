@@ -28,7 +28,8 @@ try {
         @{ Seam = "Configuration persistence";       File = "configuration-persistence.ps1"; Function = "Invoke-ConfigurationPersistenceCheck" },
         @{ Seam = "Shared Site substrate";           File = "site-substrate.ps1";            Function = "Invoke-SiteSubstrateCheck" },
         @{ Seam = "Shared visual vocabulary";        File = "ui-primitives.ps1";             Function = "Invoke-UiPrimitivesCheck" },
-        @{ Seam = "Navigation truthfulness";         File = "navigation-truthfulness.ps1";   Function = "Invoke-NavigationTruthfulnessCheck" }
+        @{ Seam = "Navigation truthfulness";         File = "navigation-truthfulness.ps1";   Function = "Invoke-NavigationTruthfulnessCheck" },
+        @{ Seam = "Shell overflow containment";      File = "shell-overflow.ps1";            Function = "Invoke-ShellOverflowCheck" }
     )
 
     if (-not (Test-Path -LiteralPath $checksRoot -PathType Container)) {
