@@ -1,6 +1,6 @@
 # T011A - Foundation Naming And Operator Site Tab Inventory
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T011A-foundation-naming-and-operator-site-tab-inventory`
