@@ -779,3 +779,29 @@ What this slice leaves open.
    `site-detail-identity-heading` while its heading text changed.
 6. `site_id` as the page title is a visible change to a screen the user has
    already seen titled by the display name.
+
+What review corrected in T012.
+
+The `Site information` panel did not carry the facts the task assigns to it:
+Lifecycle sat with provenance, and the foundation's version and validity had a
+panel of their own. They moved. Mode, configuration origin and template
+provenance stayed, because those describe where evidence and documents come
+from rather than the site itself.
+
+The reason it went unnoticed is the part worth keeping. Every fact was asserted
+with a helper that searched the whole container, so a fact could be anywhere on
+the page and still satisfy a criterion that names a panel. Panel membership was
+never tested, only presence. The assertions now scope by heading id and throw
+when there is no panel to scope to.
+
+Proving that took two attempts and the first was wrong. Deleting a fact fails
+plenty of assertions and proves nothing about membership; the scenario the
+finding describes is a fact still on the page in the wrong place. Moving
+lifecycle back to provenance leaves every global assertion green and fails only
+the two scoped ones, which is the proof that was needed.
+
+Rearranging panels put a settled seam at risk: the mockup collapses lifecycle
+and mode into one `Status`, and T007 placed them adjacent so a reader could see
+they were not. Adjacency was never what carried it - separate terms, values and
+tones are - so the separation survived the move, and the doc comment claiming
+they are adjacent rows was corrected rather than left to go stale.
