@@ -427,6 +427,185 @@ button:focus-visible {
   border-radius: var(--radius-sm);
 }
 
+/* Toolbar and form controls ----------------------------------------------- */
+
+/*
+ * The filter row above a listing, and the controls a form is built from.
+ *
+ * Classes rather than components, unlike the table and panel. A search field
+ * and a filter select differ per screen in what they are named, what they
+ * filter and what they offer, and the part worth sharing is how they look, not
+ * how they behave. Each screen composes native elements with its own labels so
+ * the accessible name says what that screen filters.
+ */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.toolbar__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.toolbar__field--grow {
+  flex: 1 1 14rem;
+}
+
+.field-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.field-hint {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.control {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-base);
+  min-width: 0;
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+/* A control whose value the backend refused. Never the only signal: the
+ * refusal text sits beside it and says what is wrong. */
+.control[aria-invalid="true"] {
+  border-color: var(--badge-lifecycle-text);
+}
+
+.field-error {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--badge-lifecycle-text);
+}
+
+/* Stepped flow ------------------------------------------------------------ */
+
+/*
+ * A flow's step indicator, and the buttons that move between steps.
+ *
+ * The indicator states where the user is and nothing more: it is not a control,
+ * so the steps are list items rather than buttons, and `aria-current="step"`
+ * carries the position. A step is never marked complete, because nothing in
+ * this flow is saved until the last step submits.
+ */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  counter-reset: step;
+}
+
+.steps__step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  counter-increment: step;
+}
+
+.steps__step[aria-current="step"] {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * The number is generated content, not text in the document.
+ *
+ * Several screens assert that every digit inside `main` traces to a record or
+ * to what the user just typed. A step number is neither, and narrowing that
+ * assertion to let a decorative digit through would cost more than drawing it
+ * here does. Generated content is also correctly ignored by the accessibility
+ * tree, where the position is already carried by `aria-current="step"`.
+ */
+.steps__step::before {
+  content: counter(step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.steps__step[aria-current="step"]::before {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.step-nav {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+}
+
+/* Action ------------------------------------------------------------------ */
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--surface-hover);
+  text-decoration: none;
+}
+
+.action--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.action--primary:hover {
+  background: var(--accent-hover);
+  color: var(--accent-contrast);
+}
+
+.action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Card list --------------------------------------------------------------- */
 
 /* A list of records shown as cards rather than rows, for a short catalog. */

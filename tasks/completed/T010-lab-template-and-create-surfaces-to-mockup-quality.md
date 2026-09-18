@@ -1,6 +1,6 @@
 # T010 - Simulator Lab Template And Create Surfaces To Mockup Quality
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T010-lab-template-and-create-surfaces-to-mockup-quality`
@@ -201,3 +201,75 @@ semantics, and the refusal copy were all settled at the T006 checkpoint, and
 this slice only changes where and how they are presented. The three-state
 affordance rule that governs the presentation is already enforced by the
 mockup-fidelity seam.
+
+## Review Outcome
+
+Reviewer verdict: accept after one medium finding was fixed on the branch. No
+other findings, no blocking open questions. The review was independent: Codex
+reviewed work Claude authored, per the role separation in
+`.ai/PROJECT_RULES.md`.
+
+Finding: the Simulator Lab home denied the capability it was offering. The Site
+Templates panel said a template has no site identity, no lifecycle status, no
+location, no place-bound timezone, "and no site can be created from it in this
+build" - directly above the `+ Add site` button this slice added. True when
+T005 wrote it, false the moment the entry point appeared. Every existing test
+passed because each checked its own half: the create-flow tests asserted the
+entry point worked, the Lab tests asserted the copy was present, and nothing
+compared the two.
+
+Fixed on the branch in `ae0c637`. The false sentence is gone; what it was
+protecting, that a template is not a site, stays and now says what a template
+is instead. The component comment carried the same stale assumption and was
+corrected with it. A test now asserts the screen cannot deny a capability it
+offers, and restoring the old sentence fails it.
+
+Judgement calls the reviewer examined and actively agreed with, rather than
+merely not objecting: carrying the backend's refusal `code` through the create
+client is a reasonable contract change, because it avoids parsing product copy
+to place a refusal and never renders backend vocabulary to the user; acceptance
+criterion 7 is not triggered, because the review step reviews user-supplied
+inputs and the copied template rather than previewing a Site record, and
+avoiding backend-assigned source mode, origin and lifecycle is consistent with
+the no-fabricated-values rule; and the three replaced inherited assertions are
+sound, including the `select` ban narrowed from a proxy to an identity check.
+
+Reviewer checks: architecture guard passed, agent workflow guard passed,
+frontend `tsc --noEmit` clean. The reviewer could **not** run the frontend
+suite or the production build, because Vite failed loading its config in that
+environment, and the full backend suite failed there on pytest temp-directory
+permissions (215 passed, 89 errors). That is the third consecutive review
+unable to run the frontend suite for the same reason, so the frontend numbers
+for T009, T010A and T010 all rest on the Implementer's runs alone. The reviewer
+environment should be fixed before a fourth slice goes through it.
+
+Checks re-run in the implementing session after the fix: architecture guard
+passed, agent workflow guard passed, backend `pytest -q` 304 passed, frontend
+`vitest run` 395 passed across 15 files, `tsc --noEmit` clean,
+`npm run build` clean.
+
+Verified in a browser by the user on 2026-09-18, which is the first time any of
+this has been looked at rather than asserted. T009 shipped the visual
+vocabulary and T010 the two Lab surfaces, and the packets for both carried
+"not rendered in a browser" as the leading residual risk. The user confirmed
+the surfaces render. That risk is closed for what was looked at; it does not
+retroactively cover every state the packets list, and the operator screens
+T011 to T013 will dress are still unlooked-at.
+
+Two mistakes in the implementing session are recorded because they cost real
+work and one of them repeated. Twice, `git checkout --` was used as an undo for
+a deliberate test violation on **uncommitted** files, which is not an undo: it
+restores the last commit, so it discarded the slice instead. The first
+destroyed the catalog rebuild and the stepped flow; the second destroyed the
+copy fix above. Both were caught by the control run and rebuilt, and two
+contaminated proof results were redone on committed files. The standing brief
+now makes committing a precondition of proving a guard, on the branch
+`chore/implementer-proof-precondition`, because writing the lesson down
+mid-session demonstrably did not prevent the repeat.
+
+User review is not required for this slice, as the User Review section above
+states.
+
+The full review packet is at `.agent/T010-review-packet.md`, the reviewer's
+findings at `.agent/T010-review-findings.md`, and the branch diff at
+`.agent/T010-review.diff`. All are local-only.

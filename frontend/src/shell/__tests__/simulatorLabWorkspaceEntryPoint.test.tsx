@@ -230,6 +230,9 @@ describe("workspace entry point: enabled", () => {
       ["/simulator-lab", "Simulator Lab"],
       ["/simulator-lab/site-templates", "Site Templates"],
       ["/simulator-lab/site-templates", "Site Templates"],
+      // T010 gives the Lab its own entry into the create flow, on the same
+      // path and behind the same gate as the operator index's.
+      ["/simulator-lab/create-site", "+ Add site"],
       ["/", "Back to the operator shell"],
     ]);
   });

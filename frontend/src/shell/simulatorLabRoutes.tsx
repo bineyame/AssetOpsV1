@@ -79,6 +79,16 @@ export const SIMULATOR_LAB_ENTRY_POINT_LABEL = "Open Simulator Lab";
 export const CREATE_SITE_ENTRY_POINT_LABEL = "Create a site in the Simulator Lab";
 
 /**
+ * The label the Lab itself uses to reach the same create flow.
+ *
+ * Two entry points, one flow, one chokepoint. The operator index says where it
+ * is sending you, because it is sending you out of the operator shell. Inside
+ * the Lab there is nowhere to announce, so the label is the action. Both are
+ * built here, from the same path, gated by the same flag.
+ */
+export const ADD_SITE_ENTRY_POINT_LABEL = "+ Add site";
+
+/**
  * One client for the whole app.
  *
  * Built once at module scope rather than per call: the routes factory runs on
@@ -148,7 +158,10 @@ export function simulatorLabRoutes(
     {
       path: SIMULATOR_LAB_PATH,
       element: inLabShell(
-        <SimulatorLabFrame siteTemplatesPath={SITE_TEMPLATES_PATH} />,
+        <SimulatorLabFrame
+          siteTemplatesPath={SITE_TEMPLATES_PATH}
+          addSiteEntryPoints={simulatorLabAddSiteEntryPoints(flags)}
+        />,
       ),
     },
     {
@@ -203,6 +216,24 @@ export function simulatorLabCreateSiteEntryPoints(
   }
 
   return [{ to: CREATE_SITE_PATH, label: CREATE_SITE_ENTRY_POINT_LABEL }];
+}
+
+/**
+ * The Lab's own way into the create flow.
+ *
+ * Deliberately the same path and the same gate as
+ * `simulatorLabCreateSiteEntryPoints`, differing only in what it is called.
+ * Adding a second path, or letting the Lab frame spell one, would be the
+ * second chokepoint the gate check exists to prevent.
+ */
+export function simulatorLabAddSiteEntryPoints(
+  flags: FeatureFlags,
+): WorkspaceEntryPoint[] {
+  if (!flags.simulatorLab.enabled) {
+    return [];
+  }
+
+  return [{ to: CREATE_SITE_PATH, label: ADD_SITE_ENTRY_POINT_LABEL }];
 }
 
 export function simulatorLabWorkspaceEntryPoints(

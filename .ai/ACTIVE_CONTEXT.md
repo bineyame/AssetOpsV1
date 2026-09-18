@@ -18,34 +18,32 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T010A closed out 2026-09-18.
+No active task. T010 closed out 2026-09-18.
 
 Independent review returned one medium finding, fixed on the branch: the
-frontend tests verified the response half of the fetch seam and not the request
-half, so a create test would have passed while the client sent the wrong
-method, an empty body, or no content type. Fourteen cases now assert their
-request against the same captured contract the response comes from.
+Simulator Lab home said no site could be created from a template, directly
+above the `+ Add site` button the slice had just added. True when T005 wrote
+it, false the moment the entry point appeared, and invisible to every test
+because each was checking its own half.
 
-The 2026-09-17 fetch-seam decision is closed after five slices open. The seam
-is now a checked-in contract: the backend generates
-`contract-fixtures/site-foundation-fetch-seam.json` from real responses and
-fails when it goes stale, and the frontend reads it back through the three real
-clients. Neither side imports the other.
+Verified in a browser by the user, the first time any of this has been looked
+at rather than asserted. T009's visual vocabulary and T010's two Lab surfaces
+both render. The operator screens T011 to T013 will dress are still unlooked-at.
 
-Two things worth carrying forward. The frontend flakiness T007, T008 and T009
-each recorded is diagnosed and fixed, and it had a second cause nobody had
-found: Testing Library's own `waitFor` timeout is separate from Vitest's and
-throws "Unable to find an element", which reads as an assertion failure rather
-than a slow machine. And two consecutive reviews have been unable to run the
-frontend suite at all, because Vite fails loading its config in the reviewer's
-environment, so the frontend numbers for T009 and T010A rest on the
-Implementer's runs alone.
+Two things to carry forward. The standing brief now makes committing a
+precondition of proving a guard, after `git checkout --` was twice used as an
+undo on uncommitted work and twice discarded real work. And three consecutive
+reviews have been unable to run the frontend suite, because Vite fails loading
+its config in the reviewer's environment, so the frontend numbers for T009,
+T010A and T010 rest on the Implementer's runs alone. That is worth fixing
+before T011 goes to review.
 
-T005 to T009 are complete. Their task files are in `tasks/completed/` with
-their Review Outcomes.
+T005 to T009, T010A and T010 are complete, in `tasks/completed/` with their
+Review Outcomes.
 
-Next: T010, the Lab template and create surfaces to mockup quality. Its fetch
-seam prerequisite is now met.
+Next: T011, the Sites index to canonical screen one. It inherits the toolbar,
+control and action patterns T010 added to the shared vocabulary, and its
+`+ New Site` restyling is the work T009 deliberately left alone.
 
 ## Current Site Foundation Sequence
 
@@ -57,6 +55,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009: shared visual vocabulary. Complete.
 - T010A: the fetch seam, split out of T010. Complete.
+- T010: Lab template and create surfaces to mockup quality. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 
