@@ -9,7 +9,9 @@ Reviewer agent whose write access stops at the workspace gets
 `PermissionError: [WinError 5] Access is denied` during fixture setup, on every
 test that asks for a temp path. Three consecutive reviews of this repository
 could not run the backend suite for that reason, so their verification of the
-Implementer's numbers was missing.
+Implementer's numbers was missing. This file fixes the backend half only; the
+frontend suite cannot run in that sandbox at all, for an unrelated reason
+recorded in the Reviewer brief.
 
 The default is left alone whenever it works, which matters more than it looks.
 An earlier version of this file always redirected the base into the
@@ -54,6 +56,20 @@ def _is_writable(directory: Path) -> bool:
     return True
 
 
+def _default_basetemp() -> Path:
+    """The directory pytest will actually use, not the temp root above it.
+
+    pytest does not write into the temp root; it writes into a `pytest-of-<user>`
+    directory inside it. That distinction is the whole problem: the temp root is
+    writable by everyone, while `pytest-of-<user>` belongs to whichever process
+    created it first and denies the other. Probing the root reports success and
+    then pytest fails one level down, which is exactly how an earlier version of
+    this file let the sandboxed suite regress from 304 passing to 89 errors.
+    """
+    user = os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"
+    return Path(tempfile.gettempdir()) / f"pytest-of-{user}"
+
+
 def pytest_configure(config: pytest.Config) -> None:
     if config.option.basetemp is not None:
         return
@@ -61,12 +77,10 @@ def pytest_configure(config: pytest.Config) -> None:
     # The default works almost everywhere. Leaving it alone is what keeps the
     # developer machine from creating a directory the sandbox cannot own.
     try:
-        default_root = Path(tempfile.gettempdir())
+        if _is_writable(_default_basetemp()):
+            return
     except OSError:
-        default_root = None
-
-    if default_root is not None and _is_writable(default_root):
-        return
+        pass
 
     if _is_writable(WORKSPACE_BASE_TEMP):
         config.option.basetemp = str(WORKSPACE_BASE_TEMP)

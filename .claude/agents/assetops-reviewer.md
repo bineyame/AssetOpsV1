@@ -52,13 +52,36 @@ npx.cmd tsc --noEmit
 This is not a preference. PowerShell's execution policy on this machine refuses
 to load `npm.ps1`, so a bare `npm` fails with `UnauthorizedAccess` before it
 runs anything, and it looks like a broken suite rather than a shell setting.
-Three consecutive reviews lost their frontend verification to it, and the
-frontend numbers for T009, T010A and T010 therefore rest on the Implementer's
-runs alone. `npm.cmd` and `cmd /c npm` both work.
+`npm.cmd` and `cmd /c npm` both work.
 
-If a check still cannot run, say so plainly and name what you could not verify.
-An honest gap is worth more than an inferred pass, and it is how the above was
-found.
+## A frontend check you are currently expected to fail
+
+`npm.cmd test` and `npm.cmd run build` **cannot run under the sandbox on this
+machine**, and that is known rather than something to debug:
+
+```
+X [ERROR] Cannot read directory "../../..": Access is denied.
+X [ERROR] Could not resolve ".../frontend/vite.config.ts"
+```
+
+esbuild validates the case of every path segment when it bundles
+`vite.config.ts`, which means enumerating each ancestor directory up to the
+drive. The sandbox denies reading above the workspace, so config loading fails
+before a single test runs. It is not a missing dependency, not a broken config,
+and not something a root `package.json` fixes - that was tried and reverted.
+`--add-dir` on the parent does not help either, because the denial is on
+reading rather than writing.
+
+So: run it, report the failure, and say plainly that the frontend suite, the
+production build and their numbers are unverified. Do not infer a pass from the
+Implementer's numbers, and do not spend the review debugging it.
+
+`tsc --noEmit` does run, because it does not go through esbuild, so type
+correctness is still independently checkable.
+
+If any other check cannot run, say so plainly and name what you could not
+verify. An honest gap is worth more than an inferred pass, and it is how all of
+the above was found.
 
 ## Output
 
