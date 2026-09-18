@@ -1,0 +1,5 @@
+{
+  "name": "assetops",
+  "private": true,
+  "description": "Repository root marker. Not a package, never installed, and deliberately not an npm workspace: it exists so that tooling which searches upward for a package.json stops at the repository root instead of walking into the user's home directory."
+}
