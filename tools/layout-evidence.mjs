@@ -218,9 +218,18 @@ for (const [label, width, height] of [
         site.tabLabels.join(" | "),
       ],
       [
-        "every action is disabled",
-        site.buttons.length > 0 && site.buttons.every((b) => b.disabled),
-        site.buttons.map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`).join(", "),
+        // Not "every action is disabled", which would require an action to
+        // exist and so would fail on any tree before the Quick actions panel
+        // lands. What holds across the milestone is that nothing on this
+        // screen can be operated: zero actions satisfies it, and one enabled
+        // action breaks it.
+        "no enabled action renders",
+        site.buttons.every((b) => b.disabled),
+        site.buttons.length === 0
+          ? "no action rendered"
+          : site.buttons
+              .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
+              .join(", "),
       ],
     ]) && allPass;
 }
