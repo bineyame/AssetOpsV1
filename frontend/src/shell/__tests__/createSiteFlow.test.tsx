@@ -626,6 +626,31 @@ describe("two entry points, one flow, one chokepoint", () => {
     expect(simulatorLabAddSiteEntryPoints(DISABLED)).toEqual([]);
   });
 
+  it("does not deny the capability it is offering", async () => {
+    render(
+      <MemoryRouter initialEntries={["/simulator-lab"]}>
+        <App
+          flags={ENABLED}
+          siteTemplateCatalog={CATALOG}
+          siteDirectory={EMPTY_DIRECTORY}
+        />
+      </MemoryRouter>,
+    );
+
+    const main = screen.getByRole("main");
+
+    // The screen offers `+ Add site`, so it must not also say a site cannot be
+    // created. It did say exactly that until T010: true when T005 wrote it,
+    // false the moment this frame grew an entry point, and invisible to every
+    // other test because each was checking its own half.
+    expect(screen.getByRole("link", { name: "+ Add site" })).toBeInTheDocument();
+    expect(main.textContent).not.toMatch(/no site can be created/i);
+    expect(main.textContent).not.toMatch(/nothing.{0,40}can produce a site/i);
+
+    // The distinction the copy exists for is still made.
+    expect(main.textContent).toMatch(/a template is not a site/i);
+  });
+
   it("reaches the same create flow from the Lab as from the operator index", async () => {
     render(
       <MemoryRouter initialEntries={["/simulator-lab"]}>
