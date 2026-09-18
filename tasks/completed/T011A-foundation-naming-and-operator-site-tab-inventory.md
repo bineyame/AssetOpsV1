@@ -248,3 +248,59 @@ The packet is at `.agent/T011A-review-packet.md`, the Reviewer's findings at
 `.agent/T011A-review-findings.md`, the dispatch at
 `.agent/T011A-review-dispatch.md`, and the branch diff at
 `.agent/T011A-review.diff`. All are local-only.
+
+## User Review Outcome
+
+User review completed 2026-09-18, at the browser, after the slice had merged.
+Verdict: the rename, the route and the redirect stand. **One rework requested**,
+on the tab row's treatment, fixed in T011C.
+
+### What the user found
+
+"I see the tab names but they are disabled."
+
+They were not disabled. The six labelled-in-place tabs carry no `disabled`, no
+`aria-disabled`, no `title`, no route and no control role, which a guard clause
+and eleven assertions hold and the independent Reviewer confirmed. The defect
+was entirely in the treatment, and it was worse than the labels being too
+quiet:
+
+| Element | Colour |
+| --- | --- |
+| Current tab | `--accent` `#1d4ed8`, accent underline |
+| Destination tab, e.g. Foundation | `--text-secondary` `#55617a` |
+| Labelled-in-place tab | `--text-muted` `#6b7690` |
+
+A working destination differed from a dead label by about five percent
+lightness. The row did not say "two open, six not built"; it said "one active,
+seven greyed out". Every other link in the product uses `--accent`, and
+`.site-tabs__link` overrode that to grey, which is what erased the distinction.
+
+This was Residual Risk 2 in the packet, in nearly these words, and the fix it
+named is the one taken: a treatment change, never a state change.
+
+### What the user settled
+
+Two independent signals rather than one, so the distinction survives greyscale
+and a colour-vision difference:
+
+- Destination tabs take the product's link colour. The current destination is
+  told apart by weight and underline rather than by being the only thing that
+  is not grey.
+- A divider separates the destinations from the labels.
+- A line under the row names the aspects that have no content in this build
+  yet, derived from the inventory so it cannot contradict the row.
+
+Considered and not taken: leaving colour to do the work alone, which fails in
+greyscale; and moving the six out of the tab row into prose beneath it, which
+is arguably the most honest reading of what a tab row implies but contradicts
+`#### Operator Site tabs` and the viewport policy, both of which say the row
+renders all eight. That option remains open to an Architect pass if the two
+signals turn out not to be enough.
+
+### Still settled as built
+
+The product name Foundation. The `/foundation` route with `/configuration` kept
+as a compatibility redirect. Letting internal names under `frontend/src/sites/`
+lag behind the rename. The six aspects being named at all rather than hidden
+until they have content.

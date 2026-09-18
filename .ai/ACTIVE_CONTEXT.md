@@ -18,29 +18,31 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-T011B, shell and dense content overflow containment. Built and in review on
-`task/T011B-shell-and-dense-content-overflow-containment`, one commit,
-`6e448d8`. Packet at `.agent/T011B-review-packet.md`.
+Two slices in review, stacked, awaiting one browser pass.
 
-`USER_REVIEW_REQUIRED: false`, but **browser verification is required and has
-not happened**. Those are different things: no product decision is being
-settled, and jsdom has no layout, so nothing in the suite can see whether a
-page scrolls sideways. The defect this slice exists to fix has not been
-observed as fixed.
+T011B, shell and dense content overflow containment, at `3bea36c`. Independent
+review: **reject until browser verification is completed**, one High finding and
+it is not a code finding - "I did not find a separate structural code finding in
+the diff". The Reviewer has no browser either and refused to approve a layout
+fix on structure alone. Packet at `.agent/T011B-review-packet.md`.
 
-455 frontend tests pass across 17 files, 304 backend, both guards, typecheck and
-build clean. A new seam, shell overflow containment, is the eighth in the
-runner; each of its five clauses was proved to fail on its own.
+T011C, Site tab row treatment, at `a804a15`, on top of T011B. A user-review
+finding on T011A, raised at the browser: the six labelled tabs read as disabled.
+They were not disabled - a destination was `#55617a` and a label `#6b7690`, five
+percent apart, so the row said one active and seven greyed out. Treatment fix,
+never a state change. Packet at `.agent/T011C-review-packet.md`.
 
-T011A's user review is still outstanding and was deferred to this point on
-purpose, so one browser pass now covers both: the overflow fix, and whether the
-six labelled Site tabs read as aspects that are not built yet.
+463 frontend tests across 17 files, 304 backend, both guards, typecheck and
+build clean on both.
 
-T005 to T011, T010A and T011A are complete, in `tasks/completed/` with their
-Review Outcomes.
+What is outstanding is one browser pass over both, plus the rest of T011A's,
+which the user began and which produced T011C. What it has to answer: chrome
+stays anchored while only the table scrolls; an empty operator page with the
+gate open is no longer taller than the window; the Lab frame is still full
+height; and the six aspects now read as not built yet rather than as broken.
 
-Next after review: T012, which dresses Site Details against the tab row T011A
-settled and under the viewport commitment.
+T005 to T011, T010A and T011A are complete. T011A carries its User Review
+Outcome, which records the finding above and what the user settled.
 
 ## Current Site Foundation Sequence
 
@@ -56,7 +58,9 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T011: Sites index to canonical screen one. Complete.
 - T011A: Foundation naming and the operator Site tab row. Complete; user
   review deferred to the pass after T011B.
-- T011B: shell and dense content overflow containment. In review.
+- T011B: shell and dense content overflow containment. In review, rejected
+  pending browser evidence.
+- T011C: Site tab row treatment, from T011A's user review. In review.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 
