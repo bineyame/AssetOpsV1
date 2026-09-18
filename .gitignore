@@ -12,6 +12,17 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+
+# Pytest temporary directories.
+#
+# `.pytest-basetemp/` is where `backend/tests/conftest.py` puts them, so that a
+# sandboxed agent with write access limited to the workspace can run the suite.
+#
+# `.pytest-tmp/` is a leftover with broken ACLs that cannot be read or repaired
+# without elevation. It is ignored so that it stops interrupting every git
+# command with a permission warning; it can be removed from an elevated shell.
+.pytest-basetemp*/
+.pytest-tmp/
 *.egg-info/
 
 # Node / frontend
