@@ -204,6 +204,68 @@ describe("the gated way into the create flow", () => {
     ).toHaveAttribute("href", "/simulator-lab/create-site");
   });
 
+  it("puts the create action in the page header, not in the listing", async () => {
+    render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+
+    const action = screen.getByRole("link", {
+      name: CREATE_SITE_ENTRY_POINT_LABEL,
+    });
+
+    // Canonical screen 1 puts it beside the title. It is still the same gated
+    // entry point from the same module, in the same two flag states, with the
+    // label the T006 checkpoint settled: T011 moved where it sits and nothing
+    // about when it exists or what it says.
+    const header = screen.getByRole("heading", { level: 1, name: "Sites" })
+      .closest("header");
+    expect(header).not.toBeNull();
+    expect(header?.contains(action)).toBe(true);
+
+    // And not inside the listing, where it would read as a row action.
+    expect(screen.getByRole("table").contains(action)).toBe(false);
+  });
+
+  it("is identical in both gate states apart from that one action", async () => {
+    function markupWithout(html: string): string {
+      // Everything except the header's action area, which is the one thing the
+      // gate is allowed to change on this screen.
+      return html.replace(
+        /<div class="page-header__actions">[\s\S]*?<\/div>/,
+        "",
+      );
+    }
+
+    const enabled = render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const enabledMarkup = markupWithout(
+      within(enabled.container).getByRole("main").innerHTML,
+    );
+    enabled.unmount();
+
+    const disabled = render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={DISABLED} siteDirectory={directoryWith([SITE])} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const disabledMarkup = markupWithout(
+      within(disabled.container).getByRole("main").innerHTML,
+    );
+
+    // The Sites index is an operator capability. The gate covers Lab surfaces
+    // and execution, never a Site, so every column, badge, filter and value on
+    // this screen must be byte-identical with the gate shut.
+    expect(disabledMarkup).toBe(enabledMarkup);
+  });
+
   it("keeps the action out of operator navigation in both gate states", async () => {
     for (const flags of [DISABLED, ENABLED]) {
       const view = renderSites(flags, [SITE]);

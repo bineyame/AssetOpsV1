@@ -1,6 +1,6 @@
 # T011 - Sites Index To Canonical Screen One
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T011-sites-index-to-canonical-screen-one`

@@ -432,3 +432,59 @@ What this slice leaves open.
 6. `SiteTemplatesFrame.tsx` and `CreateSiteFrame.tsx` were destroyed by a
    `git checkout --` used as an undo on uncommitted work during this slice, and
    rebuilt. Behaviour is asserted by the suite, but they are a reconstruction.
+
+## T011 - Sites index to canonical screen one
+
+What this slice settled in code.
+
+The operator Sites index renders nine columns: name with identity, type,
+location, mode, lifecycle, configuration origin, template provenance, last
+analysed, actions. The set is a named constant in `SitesIndex.tsx` so a test
+can assert it whole.
+
+Nine rather than the seven the settled Sites index inventory in
+`.ai/FEATURE_MAP.md` lists. That inventory omits configuration origin and
+template provenance entirely, while T006's User Review Outcome records the user
+accepting them as two of four separate provenance columns, and T011's own
+criterion requires both to stay visible. The feature map's authority rule
+settles it: where a user review has already redirected a surface, that decision
+settles it. The inventory is the thing that should be corrected, not the screen.
+
+Mode and lifecycle are adjacent and separate, each with its own tone. The
+canonical mockup's single `Status` column is the error this screen exists to
+correct, and a header matching `^status$` or naming both vocabularies now fails
+a test.
+
+`Last analysed` renders `NO_ANALYSIS_IN_WINDOW`, which is `--`. That is v6.9's
+rendering for a site with no data in the window rather than a placeholder, and
+it is a constant so that the day evidence exists there is one place that stops
+being true. The column left the banned-evidence-header list; what that ban
+protected is asserted directly instead, for every row and against digits and
+time vocabulary.
+
+Every filter's options are derived from the records present, never from the M1
+schema's permitted values. `ANY` is the no-filter sentinel and cannot collide
+with a value a record carries.
+
+The Actions column holds `View` and no overflow menu. The mockup draws one; it
+would open onto nothing, because every action it could hold is one M1 has
+decided not to have.
+
+`PageHeader` regained the `actions` slot T009 left for this slice, and renders
+nothing when it is empty. The create action moved into it: same gated module,
+same two flag states, same label the T006 checkpoint settled.
+
+The subtitle is not the mockup's. "All sites (real or simulated)" contains a
+word a gate-off build may not say, which three settled assertions check.
+
+What this slice leaves open.
+
+1. Not rendered in a browser since T010, and this is now the densest layout in
+   the product. Column overflow, wrapping and the filter row at narrow widths
+   are what tests cannot see.
+2. Whether nine columns is readable is a product question this slice did not
+   answer. The reasoning behind them is truthfulness, not density.
+3. Filter state does not survive navigation away and back.
+4. Search covers name and site ID, not location or template provenance.
+5. No sorting. Canonical screen 1 implies sortable headers; sorting is a real
+   capability and the scope limits forbid it, so rows appear in store order.

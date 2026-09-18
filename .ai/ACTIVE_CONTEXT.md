@@ -18,32 +18,30 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T010 closed out 2026-09-18.
+Active task: `tasks/T011-sites-index-to-canonical-screen-one.md`
+(Status: `in_review`).
 
-Independent review returned one medium finding, fixed on the branch: the
-Simulator Lab home said no site could be created from a template, directly
-above the `+ Add site` button the slice had just added. True when T005 wrote
-it, false the moment the entry point appeared, and invisible to every test
-because each was checking its own half.
+T011 is built on `task/T011-sites-index-to-canonical-screen-one` and awaits
+independent review. `USER_REVIEW_REQUIRED: false`: no capability and no product
+language, all settled at the T006 checkpoint. The review packet is
+`.agent/T011-review-packet.md`.
 
-Verified in a browser by the user, the first time any of this has been looked
-at rather than asserted. T009's visual vocabulary and T010's two Lab surfaces
-both render. The operator screens T011 to T013 will dress are still unlooked-at.
+One thing the reviewer should look at first. The screen renders nine columns
+where the settled Sites index inventory lists seven: that inventory omits
+configuration origin and template provenance, while the T006 user-review
+checkpoint accepted them as two of four separate provenance columns. The
+checkpoint wins under the feature map's own authority rule, so the inventory is
+what should be corrected.
 
-Two things to carry forward. The standing brief now makes committing a
-precondition of proving a guard, after `git checkout --` was twice used as an
-undo on uncommitted work and twice discarded real work. And three consecutive
-reviews have been unable to run the frontend suite, because Vite fails loading
-its config in the reviewer's environment, so the frontend numbers for T009,
-T010A and T010 rest on the Implementer's runs alone. That is worth fixing
-before T011 goes to review.
+The Reviewer environment now runs the backend suite, which three previous
+reviews could not. The frontend suite still cannot run there, for a reason
+recorded in the Reviewer brief, so those numbers remain the Implementer's.
 
-T005 to T009, T010A and T010 are complete, in `tasks/completed/` with their
-Review Outcomes.
+T005 to T010 and T010A are complete, in `tasks/completed/` with their Review
+Outcomes.
 
-Next: T011, the Sites index to canonical screen one. It inherits the toolbar,
-control and action patterns T010 added to the shared vocabulary, and its
-`+ New Site` restyling is the work T009 deliberately left alone.
+Next after review: T011A, the Foundation naming and operator Site tab
+inventory, which the Architect placed after this slice and before T012.
 
 ## Current Site Foundation Sequence
 
@@ -56,6 +54,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T009: shared visual vocabulary. Complete.
 - T010A: the fetch seam, split out of T010. Complete.
 - T010: Lab template and create surfaces to mockup quality. Complete.
+- T011: Sites index to canonical screen one. Built, awaiting review.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 
