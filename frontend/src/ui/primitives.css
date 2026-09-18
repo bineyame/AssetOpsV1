@@ -307,10 +307,16 @@ button:focus-visible {
 
 .site-tabs {
   margin-bottom: var(--space-5);
-  border-bottom: 1px solid var(--border-subtle);
 }
 
+/*
+ * The rule the current tab's underline sits on belongs to the list, not to the
+ * nav. T011C puts a sentence under the row, inside the same landmark, and a
+ * border on the nav would have drawn itself below that sentence instead -
+ * leaving the active tab's underline floating against nothing.
+ */
 .site-tabs__list {
+  border-bottom: 1px solid var(--border-subtle);
   list-style: none;
   display: flex;
   flex-wrap: wrap;
@@ -333,23 +339,59 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+/*
+ * A destination looks like a link, because it is one.
+ *
+ * T011A styled these `--text-secondary` and the labels beside them
+ * `--text-muted`: two greys about five percent apart. A reader saw the one
+ * tab with an accent underline and took the other seven for disabled
+ * controls, which is the opposite of what the row is for. The colour is not
+ * overridden any more - these inherit the link colour every other link in the
+ * product uses - and the current tab is told apart by its underline and its
+ * weight rather than by being the only thing that is not grey.
+ */
 .site-tabs__link {
-  color: var(--text-secondary);
   font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
 .site-tabs__link:hover {
-  color: var(--text-primary);
   background: var(--surface-hover);
 }
 
 .site-tabs__link[aria-current="page"] {
-  color: var(--accent);
+  font-weight: var(--weight-semibold);
   border-bottom-color: var(--accent);
 }
 
+/*
+ * A label is not a quieter link. It is a different kind of thing, so it is set
+ * in the body colour scale rather than the link one, and it never moves under
+ * the pointer.
+ */
 .site-tabs__label {
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+
+/* Where the destinations end and the labels begin. */
+.site-tabs__item--group-start {
+  margin-left: var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--border-strong);
+}
+
+/*
+ * The second signal, and the one that survives greyscale, a colour-vision
+ * difference, and a reader who does not know that grey means unbuilt here.
+ *
+ * It is derived from the tab inventory, so it cannot contradict the row above
+ * it, and it describes this build rather than a later one.
+ */
+.site-tabs__aspects {
+  margin: var(--space-2) 0 0;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
