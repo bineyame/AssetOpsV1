@@ -288,8 +288,15 @@ and a colour-vision difference:
   told apart by weight and underline rather than by being the only thing that
   is not grey.
 - A divider separates the destinations from the labels.
-- A line under the row names the aspects that have no content in this build
-  yet, derived from the inventory so it cannot contradict the row.
+- A line under the row says how many aspects have no content in this build yet,
+  derived from the inventory so it cannot contradict the row.
+
+  The first version named all six. The user rendered it and asked for it to be
+  shortened: the row one line above had just shown the six names, so repeating
+  them weighed more than the row being explained. The settled wording counts
+  instead - "Six aspects of a Site have no content in this build yet." - and it
+  says `of a Site` rather than `of this Site`, because no aspect is missing
+  content because of anything about the site on screen.
 
 Considered and not taken: leaving colour to do the work alone, which fails in
 greyscale; and moving the six out of the tab row into prose beneath it, which

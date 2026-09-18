@@ -687,16 +687,23 @@ lives inside the same landmark, and a border on the nav would have drawn itself
 under the sentence, leaving the active tab's negative-margin underline against
 nothing.
 
+What the user confirmed, and what is still unseen.
+
+This row was seen. The user rendered it, reported the six read as disabled,
+chose the treatment, rendered the result, and confirmed the row reads correctly
+with only the sentence to shorten. That is the whole reason this slice exists,
+and it is settled. What remains unseen belongs to T011B, not here: whether
+chrome stays anchored while a table scrolls, and whether an empty operator page
+with the gate open still runs past the viewport.
+
 What this slice leaves open.
 
-1. Not seen. jsdom renders no colour, so whether the six now read as not built
-   yet is the user's judgement and nothing here can stand in for it.
-2. The correction may overshoot: two accent destinations could make the row
-   read as all links.
-4. The divider is a border rather than an element, so the grouping is visual
+1. The correction may overshoot: two accent destinations could make the row
+   read as all links. Not raised by the user, and not something a test sees.
+2. The divider is a border rather than an element, so the grouping is visual
    only and the sentence is the whole non-visual channel.
-5. The sentence sits inside the nav, so a reader skipping navigation skips the
+3. The sentence sits inside the nav, so a reader skipping navigation skips the
    explanation with it.
-6. Colour and divider have no guard clause. Consistent with the viewport
+4. Colour and divider have no guard clause. Consistent with the viewport
    policy, which leaves exact visual fit to review, but it means a future slice
    could regrey the row without anything failing except a human looking.
