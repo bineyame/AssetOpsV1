@@ -21,7 +21,7 @@ venv/
 # `.pytest-tmp/` is a leftover with broken ACLs that cannot be read or repaired
 # without elevation. It is ignored so that it stops interrupting every git
 # command with a permission warning; it can be removed from an elevated shell.
-.pytest-basetemp/
+.pytest-basetemp*/
 .pytest-tmp/
 *.egg-info/
 
