@@ -34,22 +34,28 @@ detail and is not.
 494 frontend tests across 18 files, 304 backend, both guards, typecheck and
 build clean.
 
-### Browser verification: partly done, rest deferred by the user
+### Browser verification: measured, and the one thing measurement cannot do
 
-Done and settled. The user rendered the Site tab row, reported the six read as
-disabled, chose the treatment, and confirmed the revision. That produced T011C.
+`tools/layout-evidence.mjs` drives the installed Chrome over the DevTools
+Protocol and reports numbers. No dependency, nothing to install: Node has a
+built-in WebSocket client and Chrome is already on the machine. Run it with the
+backend and the dev server up.
 
-**Not done, and deferred by the user's decision to move on:** T011B's own
-evidence, and now T012's. Nobody has seen the rail stay anchored while a table
-scrolls, nor the Quick actions panel, which is three disabled buttons each with
-a paragraph of reason.
+Every T011B and T012 claim holds. The one that matters is at 1000x700, where
+the table scrolls 272px inside its own region while the rail stays at `left 0`.
+At 1280 the table does not overflow at all, so only the narrow case exercises
+the containment - worth knowing before anyone trusts a single-width check.
+Operator home with the gate open measures `scrollHeight 800` against
+`clientHeight 800`, which is the number the vertical defect was.
 
-**T011B's independent review rejected it pending exactly that evidence**, with
-no structural finding, so the stack is not mergeable on the record as it
-stands. Three ways forward, none chosen: the user does the pass; someone else
-does; or the project decides a layout fix may merge on structural evidence and
-records that as a decision, which changes what review means here rather than
-working around one review.
+It is deliberately not in `tools/check-architecture.ps1`. That runner must run
+anywhere; this needs a browser and two servers. Whether layout evidence becomes
+a standing check is an Architect decision about what review means here.
+
+**What it does not replace.** Nobody has judged whether these screens read
+well. The user's own pass produced the tab-row finding, which no measurement
+would have caught, and T012's Quick actions panel - three disabled buttons each
+with a paragraph of reason - has still not been looked at by anyone.
 
 T005 to T011, T010A and T011A are complete.
 
