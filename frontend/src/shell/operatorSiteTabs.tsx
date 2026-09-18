@@ -99,6 +99,17 @@ export const OPERATOR_SITE_TABS_LABEL = "Site sections";
  * colour, and the colours were five percent apart, so a reader saw seven grey
  * words and concluded the product was broken. This says it in words as well.
  *
+ * It counts rather than names. The first version listed all six directly under
+ * a row that had just shown all six, and the repetition was heavier than the
+ * row it was explaining. The names are one line above; what a reader does not
+ * already have is what that group of words means.
+ *
+ * `of a Site`, not `of this Site`. No aspect is missing content because of
+ * anything about the site on screen - the product has no content model for any
+ * of them - and a sentence that read as a fact about this particular site
+ * would be the wrong claim, in the way this project is careful about
+ * everywhere else.
+ *
  * Because it is derived, a tab that becomes a destination leaves this sentence
  * in the same change that moves it. A written-out list would have gone stale
  * the first time an aspect got content, and would then have been a screen
@@ -123,10 +134,8 @@ export function labelledAspectsSentence(
     return null;
   }
 
-  const named =
-    labels.length === 1
-      ? labels[0]
-      : `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
+  const counted = COUNT_WORDS[labels.length] ?? String(labels.length);
+  const noun = labels.length === 1 ? "aspect" : "aspects";
   const verb = labels.length === 1 ? "has" : "have";
 
   // What this build contains, not what a later one will. The promise
@@ -135,8 +144,27 @@ export function labelledAspectsSentence(
   // nobody has made. The guard scans this module, so the phrases it refuses
   // cannot be written here either - which is why this comment describes them
   // instead of quoting one.
-  return `${named} ${verb} no content in this build yet.`;
+  return `${counted} ${noun} of a Site ${verb} no content in this build yet.`;
 }
+
+/**
+ * Counts, spelled, for the one sentence that needs them.
+ *
+ * Indexed by the count, so `COUNT_WORDS[0]` is the word for none. It stops at
+ * the size of the inventory; a longer row falls back to a digit rather than
+ * running off the end and rendering `undefined`.
+ */
+const COUNT_WORDS = [
+  "No",
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+];
 
 /**
  * The index the labelled group starts at, or -1 when there is none.

@@ -336,18 +336,38 @@ describe("the row says which aspects it cannot open, and says it in words", () =
    * the row exists not to say. T011C adds a second signal that does not depend
    * on seeing a difference between two greys.
    */
-  it("names exactly the labelled tabs, and none of the destinations", async () => {
+  it("counts exactly the tabs it cannot open", async () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 
     const sentence = within(tabRow()).getByText(/no content in this build yet/);
 
+    // It counts rather than names, because the names are one line above it.
+    // What has to stay true is that the count is the number of labelled tabs
+    // and not a number somebody typed.
+    expect(sentence.textContent).toBe(
+      "Six aspects of a Site have no content in this build yet.",
+    );
+    expect(LABELLED_IN_PLACE_TABS).toHaveLength(6);
+
+    // And the row above still names them, so nothing was lost by shortening
+    // the sentence.
     for (const label of LABELLED_IN_PLACE_TABS) {
-      expect(sentence.textContent).toContain(label);
+      expect(within(tabRow()).getByText(label, { exact: true })).toBeInTheDocument();
     }
-    for (const label of DESTINATION_TABS) {
-      expect(sentence.textContent).not.toContain(label);
-    }
+  });
+
+  it("says nothing about the site it is rendered for", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+
+    // `of a Site`, not `of this Site`. No aspect is missing content because of
+    // anything about MG-002; the product has no content model for any of them.
+    // A sentence that read as a fact about this site would be the wrong claim.
+    const sentence = within(tabRow()).getByText(/no content in this build yet/);
+
+    expect(sentence.textContent).not.toMatch(/this site/i);
+    expect(sentence.textContent).not.toMatch(/MG-002|Kalangala/);
   });
 
   it("separates the two groups with something other than colour", async () => {
@@ -417,8 +437,10 @@ describe("the sentence is derived from the inventory, not written out", () => {
       { label: "Work", kind: "labelled_in_place" },
     ]);
 
-    expect(before).toBe("Health and Work have no content in this build yet.");
-    expect(after).toBe("Work has no content in this build yet.");
+    expect(before).toBe(
+      "Two aspects of a Site have no content in this build yet.",
+    );
+    expect(after).toBe("One aspect of a Site has no content in this build yet.");
   });
 
   it("reads grammatically with one aspect left", () => {
@@ -427,7 +449,7 @@ describe("the sentence is derived from the inventory, not written out", () => {
         destination,
         { label: "Evidence", kind: "labelled_in_place" },
       ]),
-    ).toBe("Evidence has no content in this build yet.");
+    ).toBe("One aspect of a Site has no content in this build yet.");
   });
 
   it("says nothing at all when every aspect has content", () => {
@@ -437,8 +459,7 @@ describe("the sentence is derived from the inventory, not written out", () => {
 
   it("matches what the real inventory renders", () => {
     expect(labelledAspectsSentence()).toBe(
-      "Health, Performance, Findings, Work, Financials and Evidence have no " +
-        "content in this build yet.",
+      "Six aspects of a Site have no content in this build yet.",
     );
   });
 });

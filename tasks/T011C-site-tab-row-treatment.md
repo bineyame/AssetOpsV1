@@ -65,11 +65,16 @@ does not know the convention.
   `disabled`, `aria-disabled`, `title`, `tabindex`, or control role. The three
   states stay three: this slice changes how a label looks, never what it is.
 - A visible divider separates the destination group from the labelled group.
-- A line under the row names the labelled aspects and states that they have no
-  content in this build yet.
-- That line is derived from the tab inventory, not written out. An aspect that
-  becomes a destination leaves the sentence in the same change that moves it,
-  so the sentence can never contradict the row.
+- A line under the row states how many aspects have no content in this build
+  yet. It counts rather than names them: the row one line above already names
+  them, and repeating six names under a row that just showed six names is
+  heavier than the row it explains. Settled by the user after seeing the first
+  version rendered.
+- The line makes a claim about the build, not about the site on screen. No
+  aspect is missing content because of anything about that site.
+- The count is derived from the tab inventory, not written out. An aspect that
+  becomes a destination changes the count in the same change that moves it, so
+  the line can never contradict the row.
 - The line renders nothing when no tab is labelled in place.
 - The row still renders exactly the eight v6.9 labels, in order, in both gate
   states, on both Site surfaces.
@@ -92,8 +97,10 @@ does not know the convention.
 - UI test asserting destination tabs and labelled tabs are distinguishable by
   something a test can see: the labelled ones are not links, and the
   destinations are.
-- UI test asserting the line under the row names exactly the labelled tabs,
-  derived from the inventory rather than from a written-out list.
+- UI test asserting the line counts exactly the labelled tabs, derived from the
+  inventory rather than from a number someone typed, and that the row above
+  still names them.
+- UI test asserting the line names no site and says nothing about `this Site`.
 - UI test proving the line disappears when the inventory has no labelled tab,
   and reads grammatically when it has one.
 - UI test asserting no promise vocabulary anywhere in the row or its line.
