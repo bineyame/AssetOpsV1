@@ -18,26 +18,32 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T010-lab-template-and-create-surfaces-to-mockup-quality.md`
-(Status: `in_review`).
+No active task. T010 closed out 2026-09-18.
 
-T010 is built on `task/T010-lab-template-and-create-surfaces-to-mockup-quality`
-and awaits independent review. `USER_REVIEW_REQUIRED: false`: no capability and
-no product language, all of it settled at the T006 checkpoint. The review
-packet is `.agent/T010-review-packet.md`.
+Independent review returned one medium finding, fixed on the branch: the
+Simulator Lab home said no site could be created from a template, directly
+above the `+ Add site` button the slice had just added. True when T005 wrote
+it, false the moment the entry point appeared, and invisible to every test
+because each was checking its own half.
 
-Two things the reviewer should look at first. Two files in this slice were
-destroyed mid-slice by a `git checkout --` used as an undo on uncommitted work,
-and rebuilt; they are a reconstruction and deserve reading as new code. And the
-create client's refused result now carries the backend's refusal code, which is
-what lets a refusal be placed against the field it concerns without reading the
-message text.
+Verified in a browser by the user, the first time any of this has been looked
+at rather than asserted. T009's visual vocabulary and T010's two Lab surfaces
+both render. The operator screens T011 to T013 will dress are still unlooked-at.
 
-T005 to T009 and T010A are complete, in `tasks/completed/` with their Review
-Outcomes.
+Two things to carry forward. The standing brief now makes committing a
+precondition of proving a guard, after `git checkout --` was twice used as an
+undo on uncommitted work and twice discarded real work. And three consecutive
+reviews have been unable to run the frontend suite, because Vite fails loading
+its config in the reviewer's environment, so the frontend numbers for T009,
+T010A and T010 rest on the Implementer's runs alone. That is worth fixing
+before T011 goes to review.
 
-Next after review: T011, the Sites index to canonical screen one, which
-inherits the toolbar and filter patterns this slice added to the vocabulary.
+T005 to T009, T010A and T010 are complete, in `tasks/completed/` with their
+Review Outcomes.
+
+Next: T011, the Sites index to canonical screen one. It inherits the toolbar,
+control and action patterns T010 added to the shared vocabulary, and its
+`+ New Site` restyling is the work T009 deliberately left alone.
 
 ## Current Site Foundation Sequence
 
@@ -49,6 +55,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009: shared visual vocabulary. Complete.
 - T010A: the fetch seam, split out of T010. Complete.
+- T010: Lab template and create surfaces to mockup quality. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 
