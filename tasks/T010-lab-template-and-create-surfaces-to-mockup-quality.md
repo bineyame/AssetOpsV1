@@ -152,13 +152,10 @@ change half of one user journey.
   not a Site and still offers no action.
 - UI tests for the create flow: template selection, identity input, review, and
   successful creation, all in the enabled state.
-- Focused frontend-client/backend-response integration test covering the real
-  Site Foundation frontend API clients against representative backend responses
-  for Site list, Site detail, create success, validation failure, empty state,
-  and not-found/error envelopes. This test binds the shared fetch seam before
-  more fidelity work accumulates on it. If it proves too large for this slice,
-  split it into `T010A - Site Foundation Fetch Seam Integration Test` before
-  T010 and do not defer it past T011.
+- Completed prerequisite: `T010A - Site Foundation Fetch Seam Integration Test`
+  binds the real Site Foundation frontend API clients to representative backend
+  responses for Site list, Site detail, create success, validation failure,
+  empty state, and not-found/error envelopes before this fidelity work.
 - UI tests for the refusal cases from T006, asserting each message is unchanged
   in meaning and now renders against the field it concerns.
 - UI test asserting the flow's step count equals the number of real input
