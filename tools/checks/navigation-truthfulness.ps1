@@ -141,11 +141,11 @@ function Get-OperatorSiteTabFailures {
     # capability exists and is unavailable right now, which is a different and
     # false claim, and a title attribute is the same claim whispered.
     $disabledAffordance = @(
-        'disabled\s*[=:]',
+        '\bdisabled\s*[=:]',
         'aria-disabled\s*=',
         'not-allowed',
         'coming soon',
-        'title\s*='
+        '\btitle\s*='
     )
 
     $declarations = @()
