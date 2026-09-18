@@ -1,7 +1,23 @@
-import { act } from "@testing-library/react";
+import { act, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
+
+/**
+ * How long `findBy*` and `waitFor` may wait for the DOM to settle.
+ *
+ * Testing Library's own default is 1s, and it is separate from Vitest's
+ * per-test timeout: a `findByRole` that exceeds it throws "Unable to find an
+ * element", which reads like a real assertion failure rather than the slow
+ * machine it actually is. That is the harder half of the flakiness recorded in
+ * the T007, T008 and T009 packets, because it does not look like a timeout.
+ *
+ * Every test file pays for its own jsdom environment first, and on a loaded
+ * machine that alone can cost several seconds. Raising this tolerates a slow
+ * environment; it weakens no assertion. An element that never appears still
+ * fails, and a test that finds it in 50ms still finishes in 50ms.
+ */
+configure({ asyncUtilTimeout: 10000 });
 
 /**
  * Settle promise-driven state updates before React Testing Library unmounts.

@@ -18,27 +18,34 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T009 closed out 2026-09-17.
+No active task. T010A closed out 2026-09-18.
 
-Independent review returned one medium finding, fixed on the branch: the Site
-substrate's loading, not-found and unavailable states kept a raw `<h1>` while
-their loaded states had moved to the shared `PageHeader`, leaving one surface
-half on the vocabulary and half bespoke. The reviewer found no fault with the
-Lab rail, the changed inherited assertions, the rendered values, or the badge
-rule. The Review Outcome is in
-`tasks/completed/T009-shared-visual-vocabulary.md`.
+Independent review returned one medium finding, fixed on the branch: the
+frontend tests verified the response half of the fetch seam and not the request
+half, so a create test would have passed while the client sent the wrong
+method, an empty body, or no content type. Fourteen cases now assert their
+request against the same captured contract the response comes from.
 
-Two things it leaves for whoever picks up T010. Nobody has rendered any of this
-in a browser and it is a visual slice, so the first fidelity slice to run the
-app is checking T009's work as well as its own. And frontend flakiness under
-CPU contention is broader than the single case T007 and T008 recorded: any file
-can time out under load, so a single red run on a loaded machine should be
-re-run before it is believed.
+The 2026-09-17 fetch-seam decision is closed after five slices open. The seam
+is now a checked-in contract: the backend generates
+`contract-fixtures/site-foundation-fetch-seam.json` from real responses and
+fails when it goes stale, and the frontend reads it back through the three real
+clients. Neither side imports the other.
 
-T005 to T008 are complete. Their task files are in `tasks/completed/` with
+Two things worth carrying forward. The frontend flakiness T007, T008 and T009
+each recorded is diagnosed and fixed, and it had a second cause nobody had
+found: Testing Library's own `waitFor` timeout is separate from Vitest's and
+throws "Unable to find an element", which reads as an assertion failure rather
+than a slow machine. And two consecutive reviews have been unable to run the
+frontend suite at all, because Vite fails loading its config in the reviewer's
+environment, so the frontend numbers for T009 and T010A rest on the
+Implementer's runs alone.
+
+T005 to T009 are complete. Their task files are in `tasks/completed/` with
 their Review Outcomes.
 
-Next: T010, the Lab template and create surfaces to mockup quality.
+Next: T010, the Lab template and create surfaces to mockup quality. Its fetch
+seam prerequisite is now met.
 
 ## Current Site Foundation Sequence
 
@@ -49,6 +56,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T007: Site Details by `site_id`. Complete.
 - T008: read-only Site Configuration; second user-review checkpoint. Complete.
 - T009: shared visual vocabulary. Complete.
+- T010A: the fetch seam, split out of T010. Complete.
 - T010-T013, with T011A inserted: staged visual fidelity after real
   content exists.
 

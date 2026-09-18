@@ -315,3 +315,62 @@ What this slice leaves open.
 5. `SiteConfiguration.tsx` carries a UTF-8 BOM, pre-existing from T008. It is
    invisible to the compiler and the tests and silently defeats line-anchored
    shell commands.
+
+## T010A - Site Foundation fetch seam
+
+What this slice settled in code.
+
+The frontend/backend fetch seam is now a checked-in contract rather than an
+assumption. `backend/tests/test_fetch_seam_contract.py` drives the real
+application through `create_app` across six app configurations and captures
+what every endpoint actually returns into
+`contract-fixtures/site-foundation-fetch-seam.json`, 24 cases.
+`frontend/src/__tests__/fetchSeamContract.test.ts` reads that same file back and
+puts the three real clients in front of it, 26 tests.
+
+Neither side imports the other. The fixture is the only crossing, which is what
+keeps `tools/checks/dependency-direction.ps1` intact and why the fixture lives
+at the repository root rather than inside either project.
+
+The anti-rot rule is the load-bearing part, not the assertions. A normal backend
+run fails when the captured responses stop matching what the backend sends, so
+a contract change breaks the generator before it can quietly teach the frontend
+tests a shape that no longer exists. Regeneration is explicit:
+`ASSETOPS_UPDATE_CONTRACT_FIXTURE=1 python -m pytest backend/tests/test_fetch_seam_contract.py`.
+A fixture nobody regenerates looks like coverage while proving nothing.
+
+Seven backend guards sit beside the generator so that regenerating cannot
+silently erase a distinction: an empty index is not an unreadable store, an
+unknown Site is not an unreadable store, every create refusal still carries a
+renderable `detail.message`, a closed gate serves no Lab route, a closed gate
+does not reach Site reads, a template never acquires Site identity, and no
+response carries evidence or simulator-truth fields.
+
+Two facts the seam exposed, both previously unwritten.
+
+1. The backend has two refusal envelope styles. `GET /api/sites/{id}` and all
+   four create refusals return `detail: {code, message}`. The Sites list 503 and
+   every template error return `detail: "<string>"`. The clients survive it
+   because only the create path reads `detail.message` and the others branch on
+   status codes, so this is an asymmetry rather than a defect - but it is now
+   captured, and changing either style breaks the generator.
+2. With the gate closed, an unserved Lab route and a genuinely unknown template
+   are indistinguishable to the template detail client: both are 404, both
+   become `not_found`. That is acceptable only because a closed gate serves no
+   screen that could call it, and it is asserted rather than left implicit.
+
+The fixture is read with `fs.readFileSync` from `process.cwd()`, not imported.
+An import would make the bundler resolve a path outside the frontend project,
+and `import.meta.url` is not a file URL under Vite's transform.
+
+What this slice leaves open.
+
+1. The seam covers the Site Foundation clients only. Any future client gets no
+   coverage until its cases are added to the generator.
+2. The fixture pins response shape, not backend behaviour under real stores. It
+   is generated over fakes and a temporary store, as every other API test here
+   is.
+3. Nothing asserts that the app wires its clients with the same base paths the
+   fixture records. The frontend test spells `/api/simulator-lab/...` itself,
+   because the gate's chokepoint rule forbids importing those constants outside
+   the gated module.

@@ -1,6 +1,6 @@
 # T010A - Site Foundation Fetch Seam Integration Test
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T010A-site-foundation-fetch-seam-integration-test`
@@ -171,3 +171,78 @@ template and create surfaces accumulate more UI over an unverified seam.
 User review is not required for this slice. It adds no capability, no product
 language, and no UI surface. It only makes the existing frontend/backend
 contract testable before T010 changes presentation on top of it.
+
+## Review Outcome
+
+Reviewer verdict: accept after one medium finding was fixed on the branch. No
+other findings, no blocking open questions. The review was independent: Codex
+reviewed work Claude authored, per the role separation in
+`.ai/PROJECT_RULES.md`.
+
+Finding: the frontend tests verified the response half of the seam and not the
+request half. The fixture records the method, path and body of every captured
+request, but the fake `fetch` accepted only `fetch`'s first argument, so
+everything about a request except its URL was invisible. The create tests would
+have passed while the client stopped sending `POST`, sent an empty body, sent
+the wrong site identity, or dropped its `Content-Type` - and the real backend
+would not have answered 201 or any of those refusals for such a request. A seam
+closed in one direction is not closed.
+
+Fixed on the branch in `2b8db05`. `serve()` records `init` as well as `input`;
+`expectRequestMatchedCapture` asserts method, path, body and content type
+against the same fixture case the response comes from, so the request half is
+checked against the captured contract rather than against literals written in
+the test; and `capturedCreateInput` feeds each create call the body the backend
+actually received for that case, so a create test cannot drift into asserting a
+response the backend would never have sent for the request being made. Fourteen
+cases now assert their request, across all three clients and both gate states.
+
+The fix was proven load-bearing, and the first three of these passed silently
+before it: sending `GET` instead of `POST` fails six tests, an empty body fails
+six, a missing content type fails six, and a wrong Site detail path fails three.
+
+Judgement calls the reviewer examined without objection: the two shared test
+timeout changes raise tolerance for a known slow environment rather than
+weakening assertions; the seven backend distinction guards cover the product
+distinctions the task names and materially narrow the wrong-but-consistent
+regeneration failure mode without closing it; the two contract facts the packet
+reports are real in the fixture and are correctly captured rather than
+"fixed", because changing a response envelope is product scope outside a
+test-only slice; and the diff contains no product-code route, response-shape, or
+copy change.
+
+Reviewer checks: architecture guard passed, agent workflow guard passed, the
+seam test's own 8 tests passed, frontend `tsc --noEmit` clean. The reviewer
+independently verified the anti-rot guard rather than taking it on trust, by
+changing a captured status in the fixture, watching the backend test fail, and
+restoring it.
+
+The reviewer could **not** verify three of the packet's claims, and said so
+plainly rather than inferring them. The full backend suite failed in that
+environment on pytest temp-directory permissions - `PermissionError: [WinError
+5]` on `pytest-of-assef`, 89 errors alongside 215 passes - so `304 passed` was
+not confirmed there. The frontend suite and the production build could not run
+at all, because Vite failed while loading its config. That is the second
+consecutive review unable to run the frontend suite for the same reason, so the
+frontend numbers in both T009 and T010A rest on the Implementer's runs alone.
+Worth fixing before a third.
+
+Checks re-run in the implementing session after the fix: architecture guard
+passed, agent workflow guard passed, backend `pytest -q` 304 passed, frontend
+`vitest run` 378 passed across 15 files, `tsc --noEmit` clean, `npm run build`
+clean with the bundle unchanged, which confirms the fixture is not shipped.
+
+Also settled here, beyond the task: the frontend flakiness that T007, T008 and
+T009 each recorded and none diagnosed. It had two causes, and the second is why
+it stayed unexplained - Vitest's 5s per-test timeout was the visible half, while
+Testing Library's separate 1s `waitFor` timeout throws "Unable to find an
+element", which reads as a real assertion failure rather than a slow machine.
+Both raised. The suite then passed repeatedly at full concurrency with the
+machine under heavy load.
+
+User review is not required for this slice, as the User Review section above
+states. It adds no capability, no product language, and no UI.
+
+The full review packet is at `.agent/T010A-review-packet.md`, the reviewer's
+findings at `.agent/T010A-review-findings.md`, and the handoffs beside them. All
+are local-only.
