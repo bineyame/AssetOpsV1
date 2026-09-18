@@ -1,6 +1,6 @@
 # T012 - Site Details To Canonical Screen Two
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T012-site-details-to-canonical-screen-two`

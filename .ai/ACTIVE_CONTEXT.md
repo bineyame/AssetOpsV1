@@ -18,46 +18,40 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Two slices in review, stacked, awaiting one browser pass.
+T012, Site Details to canonical screen two. Built and in review on
+`task/T012-site-details-to-canonical-screen-two`, `bd2fa52`, stacked on T011C.
+Packet at `.agent/T012-review-packet.md`.
 
-T011B, shell and dense content overflow containment, at `3bea36c`. Independent
-review: **reject until browser verification is completed**, one High finding and
-it is not a code finding - "I did not find a separate structural code finding in
-the diff". The Reviewer has no browser either and refused to approve a layout
-fix on structure alone. Packet at `.agent/T011B-review-packet.md`.
+Three slices are now stacked and unmerged: T011B, T011C, T012. Review with
+`git diff a5d35e6...HEAD` for T012; the other two have their own bases.
 
-T011C, Site tab row treatment, accepted by the user and by independent review.
-Its one finding, stale durable records, is fixed. It is not merged, because it
-is stacked on T011B and merging it would carry T011B with it. A user-review
-finding on T011A, raised at the browser: the six labelled tabs read as disabled.
-They were not disabled - a destination was `#55617a` and a label `#6b7690`, five
-percent apart, so the row said one active and seven greyed out. Treatment fix,
-never a state change. Packet at `.agent/T011C-review-packet.md`.
+The Site page is titled by `site_id`, has breadcrumbs for the first time, and
+carries the Quick actions panel where the three-state rule becomes markup. Two
+different rules apply on that one panel: the gate rule, about existence, and
+the sequencing rule, about eligibility. Getting either backwards looks like a
+detail and is not.
 
-463 frontend tests across 17 files, 304 backend, both guards, typecheck and
-build clean on both.
+494 frontend tests across 18 files, 304 backend, both guards, typecheck and
+build clean.
 
 ### Browser verification: partly done, rest deferred by the user
 
 Done and settled. The user rendered the Site tab row, reported the six read as
-disabled, chose the treatment, and confirmed the revision. That produced T011C
-and is recorded in T011A's User Review Outcome.
+disabled, chose the treatment, and confirmed the revision. That produced T011C.
 
 **Not done, and deferred by the user's decision to move on:** T011B's own
-evidence. Nobody has confirmed that the rail and workspace bar stay anchored
-while the table scrolls, that an empty operator page with the gate open is no
-longer taller than the window, or that the standalone Lab frame is still full
-height.
+evidence, and now T012's. Nobody has seen the rail stay anchored while a table
+scrolls, nor the Quick actions panel, which is three disabled buttons each with
+a paragraph of reason.
 
-This matters because **T011B's independent review rejected it pending exactly
-that evidence**, with no structural finding. So T011B is not mergeable on the
-record as it stands. Three ways forward, none of them chosen yet: the user does
-the pass; someone else does; or the project decides a layout fix may merge on
-structural evidence and records that as a decision, which would be a change to
-what review means here rather than a shortcut around one review.
+**T011B's independent review rejected it pending exactly that evidence**, with
+no structural finding, so the stack is not mergeable on the record as it
+stands. Three ways forward, none chosen: the user does the pass; someone else
+does; or the project decides a layout fix may merge on structural evidence and
+records that as a decision, which changes what review means here rather than
+working around one review.
 
-T005 to T011, T010A and T011A are complete. T011A carries its User Review
-Outcome, which records the finding above and what the user settled.
+T005 to T011, T010A and T011A are complete.
 
 ## Current Site Foundation Sequence
 
@@ -75,7 +69,9 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
   review deferred to the pass after T011B.
 - T011B: shell and dense content overflow containment. In review, rejected
   pending browser evidence.
-- T011C: Site tab row treatment, from T011A's user review. In review.
+- T011C: Site tab row treatment, from T011A's user review. Accepted by user
+  and review; merge waits on T011B.
+- T012: Site Details to canonical screen two. In review.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 
@@ -84,22 +80,23 @@ and the configured single-line diagram, is unblocked for planning and is not
 yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
 or its signal selector.
 
-## Read For T012
+## Read For T013
 
-T012 dresses Site Details to canonical screen two. The tab row, the Foundation
-name and the overflow rule are all settled before it starts, so what is left is
-page composition against content that already exists.
+T013 dresses Foundation to canonical screen three: the v6.9 subtab row filtered
+by the T008 checkpoint, and the redundant `Foundation` panel heading T011A left
+for it.
 
-- `tasks/T012-site-details-to-canonical-screen-two.md`
-- `.ai/CODE_STATE.md`, the T009, T011, T011A and T011B entries.
+- `tasks/T013-foundation-to-canonical-screen-three.md`
+- `.ai/CODE_STATE.md`, the T008, T011A, T011C and T012 entries. T012 settles the
+  screen grammar T013 follows: identity header, panels, extension slots, and
+  the three affordance states.
 - `.ai/FEATURE_MAP.md`, `## Canonical Screen Fidelity`, and within it
-  `### Viewport and overflow commitment` and `#### Operator Site tabs`. The
+  `#### Foundation name and subtabs`, `### Not rendered, labelled, or disabled:
+  three states, not two`, and `### Viewport and overflow commitment`. The
   viewport section is not reachable from the Feature Map Index, so it has to be
   named.
-- `.ai/FEATURE_MAP.md`, `#### Guards that follow from this architecture`.
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-13-shared-site-substrate`
-  - `D-2026-09-13-provenance-status-vocabulary`
   - `D-2026-09-13-canonical-fidelity`
 
 ## Settled Direction
