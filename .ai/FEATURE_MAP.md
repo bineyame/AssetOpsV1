@@ -1274,6 +1274,69 @@ v6.9 disagree, v6.9 settles it; where a user review has already redirected a
 surface, that decision settles it; where v6.9 is silent, the mockup governs
 layout and this map governs truthfulness.
 
+### Viewport and overflow commitment
+
+M1 is a desktop operator and developer-lab product. Its committed viewport is
+desktop-class browser width: at least `1280px` CSS pixels, with the canonical
+mockup image at `1536px` by `1024px` treated as desktop composition evidence.
+M1 does not claim mobile support, phone support, or portrait-tablet support,
+and neither v6.9 nor `ScreenMockups.png` defines a narrow-width form of these
+screens. That silence is not an external requirement to follow; it is the
+project's responsibility to settle honestly here.
+
+Below the committed width the product must degrade truthfully rather than
+pretend to be a mobile application. The same backed content and the same
+navigation truth rules remain in force, but the build may present a
+desktop-density layout with internal scrolling and, where needed, a clear
+unsupported-viewport state for a screen that cannot be operated honestly at the
+available width. It must not introduce a separate mobile information
+architecture, a reduced Site model, a different rail inventory, or a different
+tab vocabulary in order to fit.
+
+Page-level overflow is not an allowed way to handle density. Shell chrome is
+chrome: the rail and any workspace bar stay anchored to the viewport's
+navigation frame, and overflowing page content scrolls only inside the content
+region that owns it. Horizontal overflow belongs to the specific dense content
+that needs it, such as a table or tab row, never to the whole document. Vertical
+overflow belongs to the page body or the content region, not to a nested
+`100vh` double-count that makes an otherwise empty shell taller than the
+viewport. The one exception is the Simulator Lab shell's standalone use of the
+shared frame: the implementation must preserve a full-height Lab frame without
+making the operator shell count the viewport height twice.
+
+Dense tables keep their milestone columns at every width where the screen
+renders. A column hidden only because the viewport is narrow is not one of the
+three v6.9 states; it would be a fourth treatment and would contradict the
+Sites index column inventory unless a later user-reviewed task explicitly
+replaces the inventory with a stronger responsive inventory. For M1, a table
+that cannot fit horizontally gets an internal horizontal scroll region and
+retains its rendered columns, headers, row semantics, and actions. A stacked
+card presentation is a different screen form and is out of scope for M1 unless
+the user reviews and accepts it as a separate product commitment.
+
+The rail does not collapse to icon-only or become a drawer in M1. Removing rail
+labels would weaken navigation truthfulness unless each item still exposed the
+same destination name with equal clarity, and a drawer would introduce mobile
+chrome this milestone does not claim. The operator and Lab rail inventories
+remain the source of truth; narrow width changes may alter available space, not
+which destinations the product says exist.
+
+The operator Site tab row keeps the full v6.9 operator Site tab vocabulary at
+all widths where it renders. The row may scroll within its own region when it
+does not fit. It must not hide the six labelled-in-place tabs in an overflow
+menu while leaving Overview and Foundation visible, because that would teach
+that the Site has only two primary aspects. It must not collapse to a menu that
+mixes destinations and labelled-in-place tabs without preserving their two
+treatments.
+
+Responsive breakpoints, if introduced in CSS, belong in `frontend/src/ui/tokens.css`
+as part of the shared visual vocabulary protected by T009. The enforceable seam
+is that both shells and the shared Site substrate consume the same breakpoint
+tokens and that page-level overflow is not used to move shell chrome. Exact
+pixel behavior, table scroll mechanics, and browser visual inspection remain
+review-time checks unless and until a guard can assert them without becoming a
+layout snapshot.
+
 ### Fidelity to the mockup is not fidelity to its errors
 
 Two concrete corrections that a fidelity slice must make rather than copy:
@@ -1452,7 +1515,10 @@ route, disabled button, or inert fake destination.
 
 Index columns use `rendered` or `not rendered`. A rendered column must be backed
 by a record field or a deliberately unavailable value such as `--` for an
-evidence-derived fact with no accepted evidence.
+evidence-derived fact with no accepted evidence. A column is not allowed to
+become `not rendered` merely because the viewport is narrow; that is a layout
+condition, not a product state. During M1, narrow-width table pressure is handled
+by internal table scrolling while preserving the rendered milestone inventory.
 
 #### Lab rail
 
@@ -1461,6 +1527,8 @@ The Lab rail is v6.9's Simulator Lab developer shell, reproduced by
 it `Home | Sites | Simulator Lab | Scenarios | Site Templates | Library |
 Documentation | Settings` at lines 657, 845 and 2379. The Lab rail is gated
 with Simulator Lab surfaces and execution; it is not operator navigation.
+M1 keeps it as a labelled rail at the committed desktop width and does not
+define an icon-only or drawer variant for narrow widths.
 
 | Item | Source | M1 state | What makes it true | When the state changes |
 | --- | --- | --- | --- | --- |
@@ -1485,7 +1553,8 @@ The operator rail target is v6.9 line 442's ten object classes in five groups:
 `Evidence`, and `Financials | Reports (P1)` at line 442. The operator shell
 navigation invariant is at line 448. The current M1 operator rail remains small
 because a navigation item appears only when its route renders a truthful
-surface.
+surface. M1 keeps it as a labelled rail at the committed desktop width and does
+not define an icon-only or drawer variant for narrow widths.
 
 | Item | Source | M1 state | What makes it true | When the state changes |
 | --- | --- | --- | --- | --- |
@@ -1533,6 +1602,12 @@ Changes to planned tasks: T012 must replace `Configuration`, `Devices`,
 lines 464 and 615.
 `Devices`, `Gateway`, `Ingestion`, `Events` and `Logs` are Lab run tabs or
 site-scoped future content, not operator Site tab vocabulary for M1.
+
+Narrow-width behavior: the row keeps all eight labels and their two treatments.
+It may scroll within the tab-row region if it does not fit, but it must not
+drop labelled-in-place tabs, move only some labels into an overflow menu, or
+turn labels into disabled controls. Hiding tabs for fit would change the Site
+aspect model rather than merely change layout.
 
 #### Foundation name and subtabs
 
@@ -1620,6 +1695,12 @@ Those columns exist because this project's M1 Site record carries them and a
 user review settled that they render separately. An inventory built only from
 external sources will keep losing project-specific facts.
 
+Narrow-width behavior does not reopen the T006 user review. The nine columns
+remain the milestone Sites index definition where the table renders. Keeping
+them and giving the table its own horizontal scroll is a layout policy; dropping
+some of them by viewport would be a product-policy change that needs user
+review and a stronger replacement for the column inventory guard.
+
 Changes to planned tasks: T011 shipped Name, Type/archetype, Location, Mode,
 Lifecycle, Configuration origin, Template provenance, Last analysed and
 Actions, explaining Location, Lifecycle, Configuration origin and Template
@@ -1640,7 +1721,9 @@ navigation does grow is stronger than a count freeze:
 | Lab rail inventory | v6.9 lines 657, 845, 2379 | enforce a single gated Lab rail definition | Every rendered Lab item appears in the definition, is absent when the Lab gate is off, and has a real route when present | Ships with the Lab shell rail work |
 | Operator Site tab inventory | v6.9 lines 464, 615 | enforce one tab definition for the operator Site shell | The tab row renders exactly the v6.9 Site tab labels; destination tabs have routes, labelled-in-place tabs are not links/buttons/routes | Ships with the inserted rename/tab-inventory slice |
 | Foundation subtab inventory | v6.9 line 2117 plus T008 user review | enforce one filtered subtab definition | The row renders Definition, Topology, Controls and Readiness as specified; Changes is absent until the change model exists | Ships with T013 rewrite |
-| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1, T006 user review and the M1 Site record | enforce one column definition | Rendered columns match the nine-column milestone definition; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite |
+| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1, T006 user review and the M1 Site record | enforce one column definition | Rendered columns match the nine-column milestone definition at all widths where the table renders; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite; any viewport-based column dropping needs user review and a stronger replacement inventory |
+| Shell overflow containment | Viewport and overflow commitment above | enforce that shell chrome does not move because dense content overflows | App shells keep rail/workspace chrome out of document-level horizontal scrolling; dense regions own their own overflow; standalone Lab full-height behavior is preserved without operator-shell double-counting | Ships with the correction slice that fixes the current overflow defects |
+| Shared breakpoint vocabulary | T009 shared visual vocabulary plus viewport commitment above | enforce common breakpoint tokens if breakpoints are introduced | Breakpoint values live in `frontend/src/ui/tokens.css` and are consumed through the shared vocabulary by shells and substrate surfaces | Ships only if a task introduces breakpoints; exact visual fit remains review-time/browser verification |
 
 The inventories should be single definitions consumed by rendering and tests,
 mirroring the substrate single-definition guard. The guard strength becomes
@@ -1682,10 +1765,12 @@ operator rail.
 
 Settled architecture: the two rails; the operator Site tab set; tab-as-chrome
 versus tab-as-destination; Foundation naming; the filtered Foundation subtab
-row; Sites index column source rules; guard replacement strategy; and the
-substrate ownership rule. Needs user choice only if the user wants to override
-v6.9 lines 464, 615 and 2117 and the accepted T008 checkpoint on naming or
-operator Site vocabulary.
+row; Sites index column source rules; the M1 desktop viewport commitment;
+content-owned overflow rather than page-level overflow; guard replacement
+strategy; and the substrate ownership rule. Needs user choice only if the user
+wants to override v6.9 lines 464, 615 and 2117, the accepted T008 checkpoint on
+naming or operator Site vocabulary, the T006/T011 nine-column Sites index, or
+the M1 decision not to claim a mobile/tablet product form.
 
 #### Planner settlement for T009-T016
 
@@ -1735,6 +1820,28 @@ Guard migration:
   `ScreenMockups.png` screen 1, T006 user review and the M1 Site record, and
   omitted v6.9 columns stay absent until their sources exist. This ships with
   T011.
+- Shell overflow containment: definition belongs to the shared frame and table
+  vocabulary, not to the Sites index alone. A correction slice may go before
+  T012/T013 and independently of product-fidelity work. It should fix the two
+  decision-free defects now observed: document-level horizontal overflow from
+  dense tables, and operator-shell vertical overflow caused by nested full-height
+  frames when the workspace bar is present. The slice must preserve the
+  standalone Simulator Lab frame's full-height behavior, keep the Sites index
+  nine-column inventory intact, and verify in a browser that rail/workspace
+  chrome stays anchored while only the dense content region scrolls.
+- Shared breakpoint vocabulary: if an implementation task introduces
+  breakpoints, they are tokens in `frontend/src/ui/tokens.css`, and both shells
+  and the shared Site substrate use the shared vocabulary. If no breakpoint is
+  needed for the correction slice, do not invent one just to name a policy.
+
+User-review checkpoint: not required for the mechanical overflow correction
+slice if it implements the policy above without changing content, labels,
+columns, tab inventory, rail inventory, or responsive product form. Required if
+a future task proposes any of these changes: supporting mobile/tablet as a
+claimed product form; hiding, reordering, or stacking Sites index columns by
+viewport; collapsing a rail to icon-only or a drawer; moving operator Site tabs
+into an overflow menu; or replacing table rows with cards. The user would be
+settling the narrow-width product commitment itself, not CSS technique.
 
 Per-task verdicts for the Planner:
 
