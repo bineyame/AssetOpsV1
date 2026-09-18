@@ -1,6 +1,6 @@
 /*
  * The shared visual vocabulary: brand header, rail, breadcrumbs, page header,
- * section tab row, badge and pill, table, and panel.
+ * section tab row, badge and pill, table and its overflow region, and panel.
  *
  * One definition per pattern. A surface that wants a table uses this table; a
  * surface that keeps a bespoke one is a second visual system, which is the
@@ -77,8 +77,22 @@ button:focus-visible {
   min-height: 100vh;
 }
 
+/*
+ * The frame fills what the workspace bar leaves, and stops claiming a viewport
+ * of its own while it does it.
+ *
+ * `.app-frame` keeps `min-height: 100vh` because `SimulatorLabShell` renders it
+ * standalone, outside this shell, and a developer workspace with a short page
+ * should still be full height. Nested here that same rule was a second claim on
+ * the viewport: the shell already owns 100vh, so an operator page came out at
+ * 100vh plus the height of the workspace bar and scrolled vertically even when
+ * it was empty. Overriding the minimum for the nested case is what separates
+ * the two uses; deleting it from `.app-frame` would take the Lab's full height
+ * with it.
+ */
 .app-shell > .app-frame {
   flex: 1;
+  min-height: 0;
 }
 
 .workspace-bar {
@@ -403,6 +417,29 @@ button:focus-visible {
 }
 
 /* Table ------------------------------------------------------------------- */
+
+/*
+ * The region that owns a table's overflow.
+ *
+ * A table will not shrink below its min-content width, so a wide one has to
+ * put the excess somewhere. Before T011B it put it on the document, and the
+ * rail and workspace bar scrolled sideways with the rows. Here the excess
+ * stays inside the region and the chrome around it does not move.
+ *
+ * Only the inline axis is named. CSS will not let one axis scroll while the
+ * other stays `visible`, so the block axis resolves to `auto` as well - but
+ * this box has no height constraint, so it grows to its rows and that axis
+ * never produces a scrollbar. Giving it a height is what would put rows behind
+ * an inner scrollbar nobody asked for, so nothing here does.
+ */
+.data-table__scroll {
+  overflow-x: auto;
+}
+
+.data-table__scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
 
 .data-table {
   width: 100%;
