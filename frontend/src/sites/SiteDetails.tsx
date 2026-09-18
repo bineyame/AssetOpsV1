@@ -156,12 +156,19 @@ export function SiteDetails({
  * client, no router, and no shell in the way.
  *
  * The six provenance-and-status concepts are laid out as six separate facts.
- * Lifecycle status and mode are adjacent rows and never one row: `Simulated`
- * is the rendering of `source.mode`, it is provenance rather than status or
- * health, and putting it inside lifecycle status is the exact collapse the
- * canonical mockup makes and this product does not. Configuration origin is a
- * third fact, about the document rather than the evidence, and none of the
- * three is derived from or defaulted from another.
+ * `Simulated` is the rendering of `source.mode`; it is provenance rather than
+ * status or health, and putting it inside lifecycle status is the exact
+ * collapse the canonical mockup makes and this product does not. Configuration
+ * origin is a third fact, about the document rather than the evidence, and
+ * none of the three is derived from or defaulted from another.
+ *
+ * T007 put lifecycle status next to mode so a reader could see the two were
+ * different. T012 moves it up into the site's own facts, where the task's
+ * information architecture puts it, and the separation survives the move
+ * because adjacency was never what carried it: separate terms, separate values
+ * and separate tones are, and each of those is asserted. The prose under
+ * provenance still names lifecycle status and says where it went, so nothing
+ * on the screen implies the two were merged.
  */
 export interface SiteDetailFactsProps {
   site: SiteDetailReadModel;
@@ -208,6 +215,22 @@ export function SiteDetailFacts({
 
       {tabs}
 
+      {/*
+        * Every fact the record carries about the site itself, in one panel.
+        *
+        * Lifecycle status is here rather than beside Mode, which is where T007
+        * put it. The two were adjacent then so a reader could see they were
+        * different, and the mockup's single `Status` field is still the error
+        * this screen exists to correct - but adjacency was never what carried
+        * that. Separate terms, separate values and separate tones are, and
+        * each of those is asserted. What lifecycle status is, is a fact about
+        * the site, so it sits with the site's other facts.
+        *
+        * The foundation's version and validity start are here for the same
+        * reason: they describe this site's configured content. What a
+        * foundation is, as a model, is explained underneath, because that is a
+        * statement about the product rather than a fact about this site.
+        */}
       <Panel
         heading="Site information"
         headingId="site-detail-identity-heading"
@@ -218,8 +241,19 @@ export function SiteDetailFacts({
           <Fact term="Type">{view.siteType}</Fact>
           <Fact term="Location">{view.location}</Fact>
           <Fact term="Timezone">{view.timezone}</Fact>
+          <Fact term="Lifecycle status">
+            <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+          </Fact>
+          <Fact term="Foundation version">{view.foundationVersion}</Fact>
+          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
           <Fact term="Summary">{view.foundationSummary}</Fact>
         </FactList>
+        <p>
+          The foundation is the site's configured content, copied from the
+          template when the site was created. It is component truth declared by
+          a document: nothing here states that a device exists, is
+          commissioned, or has ever reported a measurement.
+        </p>
       </Panel>
 
       <Panel
@@ -236,9 +270,6 @@ export function SiteDetailFacts({
            * Template provenance stays plain text, because a site created from
            * no template renders an absence there rather than a value.
            */}
-          <Fact term="Lifecycle status">
-            <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
-          </Fact>
           <Fact term="Mode">
             <Badge tone="provenance">{view.sourceMode}</Badge>
           </Fact>
@@ -249,23 +280,11 @@ export function SiteDetailFacts({
         </FactList>
         <p>
           These are separate facts about a site and none is derived from
-          another. Lifecycle status is where the site is in its own life. Mode
-          is where the site's evidence comes from, and it is provenance rather
-          than status, health, or an assessment. Configuration origin is where
-          the site's configuration document came from.
-        </p>
-      </Panel>
-
-      <Panel heading="Foundation" headingId="site-detail-foundation-heading">
-        <FactList>
-          <Fact term="Foundation version">{view.foundationVersion}</Fact>
-          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
-        </FactList>
-        <p>
-          The foundation is the site's configured content, copied from the
-          template when the site was created. It is component truth declared by
-          a document: nothing here states that a device exists, is
-          commissioned, or has ever reported a measurement.
+          another. Mode is where the site's evidence comes from, and it is
+          provenance rather than status, health, or an assessment.
+          Configuration origin is where the site's configuration document came
+          from. Neither is lifecycle status, which is where the site is in its
+          own life and is listed above with the site's other facts.
         </p>
       </Panel>
 

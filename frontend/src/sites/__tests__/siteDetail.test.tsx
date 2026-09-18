@@ -128,7 +128,6 @@ const ABSENT_CONTROL_LABELS = [
   "Change",
 ];
 
-/** Quick Actions belongs to canonical screen 2 chrome and arrives with it. */
 /**
  * The Quick Actions the substrate must never render on its own.
  *
@@ -687,5 +686,90 @@ describe("the substrate is a leaf with no shell discriminant", () => {
     // only be a same-input assertion today. The real render-equivalence guard
     // needs a second consumer and ships with the Lab's site view at step 6.
     expect(second.container.innerHTML).toBe(firstMarkup);
+  });
+});
+
+describe("the Site information panel carries the facts assigned to it", () => {
+  /**
+   * The T012 review found the facts present on the screen but scattered:
+   * Lifecycle in the provenance panel, foundation version and validity in a
+   * panel of their own, while the acceptance criterion assigns all of them to
+   * `Site information`. The tests missed it because every fact was queried
+   * against the whole container, so a fact could be anywhere and still pass.
+   *
+   * These scope to the panel. A fact that moves out of it now fails here
+   * rather than passing somewhere else on the page.
+   */
+  function sitePanel(container: HTMLElement): HTMLElement {
+    const heading = container.querySelector("#site-detail-identity-heading");
+    const panel = heading?.closest("section");
+
+    if (!panel) {
+      throw new Error("No Site information panel to scope to.");
+    }
+    return panel as HTMLElement;
+  }
+
+  function termsIn(panel: HTMLElement): string[] {
+    return Array.from(panel.querySelectorAll("dt")).map(
+      (term) => term.textContent ?? "",
+    );
+  }
+
+  it("carries exactly the facts the task assigns to it", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    expect(termsIn(sitePanel(container))).toEqual([
+      "Site ID",
+      "Name",
+      "Type",
+      "Location",
+      "Timezone",
+      "Lifecycle status",
+      "Foundation version",
+      "Valid from",
+      "Summary",
+    ]);
+  });
+
+  it("renders each of those facts from the record, inside that panel", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    const panel = sitePanel(container);
+
+    expect(factValue(panel, "Site ID")).toBe("MG-002");
+    expect(factValue(panel, "Lifecycle status")).toBe("Planned");
+    expect(factValue(panel, "Foundation version")).toBe("1");
+    expect(factValue(panel, "Valid from")).toBe("2026-09-14T09:12:00Z");
+  });
+
+  it("keeps mode and configuration origin out of it", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // Lifecycle moved; provenance did not. Mode is about where evidence comes
+    // from and configuration origin is about the document, and neither is a
+    // fact about the site in the sense this panel collects.
+    const terms = termsIn(sitePanel(container));
+
+    expect(terms).not.toContain("Mode");
+    expect(terms).not.toContain("Configuration origin");
+    expect(terms).not.toContain("Created from template");
+    expect(terms).not.toContain("Status");
+  });
+
+  it("still states lifecycle and mode as separate facts after the move", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // The seam this slice must not break while rearranging panels. Separate
+    // terms, separate values, neither bleeding into the other, and no single
+    // collapsed `Status`.
+    expect(factValue(container, "Lifecycle status")).toBe("Planned");
+    expect(factValue(container, "Mode")).toBe("Simulated");
+    expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated/i);
+    expect(factValue(container, "Mode")).not.toMatch(/planned/i);
   });
 });
