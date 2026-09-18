@@ -26,7 +26,9 @@ it is not a code finding - "I did not find a separate structural code finding in
 the diff". The Reviewer has no browser either and refused to approve a layout
 fix on structure alone. Packet at `.agent/T011B-review-packet.md`.
 
-T011C, Site tab row treatment, at `a804a15`, on top of T011B. A user-review
+T011C, Site tab row treatment, accepted by the user and by independent review.
+Its one finding, stale durable records, is fixed. It is not merged, because it
+is stacked on T011B and merging it would carry T011B with it. A user-review
 finding on T011A, raised at the browser: the six labelled tabs read as disabled.
 They were not disabled - a destination was `#55617a` and a label `#6b7690`, five
 percent apart, so the row said one active and seven greyed out. Treatment fix,
