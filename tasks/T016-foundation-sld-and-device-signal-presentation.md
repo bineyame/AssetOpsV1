@@ -16,6 +16,8 @@ SLD view model and renders device/signal configuration from the same canonical
 Foundation source. SLD labels, ratings, configured signal availability, and
 device rows agree because they are derived from the same validated topology,
 device, and mapping facts.
+The diagram area and device/signal tables obey the viewport policy: dense
+content owns its own overflow and the shell chrome stays anchored.
 
 This content lives inside the renamed Foundation surface and its subtab
 architecture. It does not add `Devices & Sensors` as an operator Site tab, and
@@ -55,6 +57,9 @@ and run setup stay behind their own later checkpoint.
 - The device/signal presentation renders from the same validated Foundation
   facts as the SLD: devices, mapped components, signal IDs, display labels,
   units, protocol metadata where declared, and sample cadence where declared.
+- Device/signal tables preserve their configured columns at every width where
+  they render. If they cannot fit, they scroll inside their own region rather
+  than causing document-level horizontal overflow.
 - This device/signal content is presented within Foundation's subtab
   architecture. It may enrich Topology and Controls or a clearly scoped
   Foundation panel, but it does not add `Devices & Sensors` as an operator Site
@@ -77,6 +82,9 @@ and run setup stay behind their own later checkpoint.
   with a stable, accessible reason. It lists or links to the affected configured
   facts where useful, but it does not hide unmatched assets, render a partial
   diagram as complete, or fall back to a generic graph.
+- The configured SLD region may provide internal scrolling or fit treatment for
+  the diagram itself, but it must not move the operator rail, workspace bar, or
+  page-level chrome. Exact visual fit remains browser/review-time evidence.
 - The device/signal presentation still renders for an incompatible SLD if the
   device/mapping configuration itself is valid, because a diagram incompatibility
   is not evidence that the Site has no devices.
@@ -152,6 +160,9 @@ and run setup stay behind their own later checkpoint.
   product conclusion is read by this configured SLD.
 - Shared Site presentation substrate: CI guard.
   Foundation remains in `frontend/src/sites/**` and shell-neutral.
+- Shell overflow containment: review-time plus focused tests/checks.
+  The configured SLD and device/signal tables own their overflow instead of
+  creating page-level horizontal scrolling.
 
 ## Focused Tests And Checks
 
@@ -160,6 +171,9 @@ and run setup stay behind their own later checkpoint.
   signal availability from the record.
 - UI test asserting SLD labels and device/signal rows agree on names, ratings,
   units, and signal availability from the same fixture.
+- UI test asserting device/signal tables keep their configured columns and have
+  an owning overflow region, with no viewport-based column hiding or card
+  replacement.
 - View-model test comparing rendered component, connection, device, signal, and
   mapping IDs with canonical Foundation IDs and asserting no extra or missing
   element.
@@ -204,6 +218,9 @@ and run setup stay behind their own later checkpoint.
   editing controls.
 - Do not add or rename operator Site tabs. In particular, do not introduce
   `Devices & Sensors` as an operator Site tab.
+- Do not hide device/signal columns by viewport, move them to a separate
+  narrow-width card layout, or let the SLD/device presentation create
+  document-level horizontal overflow.
 - Do not silently settle breaker/control vocabulary or cold-room symbol
   treatment without presenting them in the User Review section.
 
