@@ -1,6 +1,6 @@
 # T012 - Site Details To Canonical Screen Two
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T012-site-details-to-canonical-screen-two`
@@ -258,3 +258,75 @@ User review is deliberately not required for this slice. It adds no capability
 and does not reopen the Foundation naming decision from T011A. Every action it
 renders is either absent or disabled, and the product language on the screen was
 settled at the T006, T008, and T011A checkpoints.
+
+## Review Outcome
+
+Independent review by Codex: **accept with findings fixed on the branch**. One
+Medium, fixed in `f3c2520`. The review was independent: Codex reviewed work
+Claude authored, per `.ai/PROJECT_RULES.md`.
+
+### The finding
+
+The `Site information` panel did not carry the facts the acceptance criterion
+assigns to it. Lifecycle sat in `Provenance and status`, and Foundation version
+and Valid from had a panel of their own. Nothing was fabricated and nothing was
+missing from the screen; the information architecture this task specifies was
+not built.
+
+The Reviewer named why the tests missed it, which is the more useful half:
+every fact was queried against the whole container, so a fact could be anywhere
+on the page and pass. Panel membership was never tested, only presence.
+
+Fixed by moving Lifecycle status, Foundation version and Valid from into `Site
+information`, and by adding four assertions that scope to the panel by its
+heading id and throw when there is no panel to scope to. Mode, Configuration
+origin and Created from template stayed in `Provenance and status`, because
+those describe where evidence and documents come from rather than the site.
+
+Rearranging panels risked a settled seam. The mockup collapses lifecycle and
+mode into one `Status`, and T007 placed them adjacent so a reader could see
+they were not the same. Adjacency was never what carried that - separate terms,
+values and tones are - so the separation survived, and the doc comment claiming
+they are adjacent rows was corrected rather than left to go stale.
+
+### What the Reviewer decided rather than accepted
+
+- The gate rule and the sequencing rule are implemented in the expected split.
+  The two Lab actions come only from the gated module and disappear with the
+  gate closed; `View Live Data` stays in the substrate, disabled for an evidence
+  prerequisite in both states.
+- The move from display name to `site_id` did not need a separate user
+  checkpoint, because the task called it out and the display name is still
+  visible beneath the heading.
+- The disabled-button accessibility trade is acceptable as implemented: the
+  reason is visible text, associated by `aria-describedby`, and the button is
+  genuinely inert. It declined to block on keyboard tabbing skipping disabled
+  controls without a product-wide standard for focusable unavailable actions.
+  That risk stands rather than being closed.
+- Substrate boundaries hold: no shell, simulator or feature-flag import under
+  `frontend/src/sites/**`.
+
+### Checks
+
+Reviewer: architecture guard, workflow guard, backend `304 passed`, and
+`npx.cmd tsc --noEmit` all passed. The frontend suite and build failed under its
+sandbox for the known esbuild reason. It could not reproduce the browser
+evidence either - port 8000 was in use and Vite would not start there.
+
+Implementing session, after the fix: both guards pass, backend `304 passed`,
+frontend `498 passed` across 18 files, `tsc --noEmit` clean, build clean at
+212.05 kB.
+
+Browser evidence from `tools/layout-evidence.mjs`, measured against this branch:
+at 1280x800 and 1000x700 the Site page takes no horizontal page scroll, renders
+all eight tabs, and renders all three Quick actions disabled - `Open in
+Simulator Lab`, `Start Simulation`, `View Live Data`. Every claim held.
+
+### Not verified
+
+Nobody has judged whether the screen reads well. The measurements say the Quick
+actions panel renders three disabled controls; they say nothing about whether
+three disabled buttons each carrying a paragraph of reason reads as informative
+or as three apologies, which is the open question the packet names as Residual
+Risk 1. `USER_REVIEW_REQUIRED` is false for this slice and the task sets no
+browser criterion, so that judgement is outstanding rather than owed.

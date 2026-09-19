@@ -18,46 +18,29 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-T012, Site Details to canonical screen two. Built and in review on
-`task/T012-site-details-to-canonical-screen-two`, `bd2fa52`, stacked on T011C.
-Packet at `.agent/T012-review-packet.md`.
+No active task. T012 closed out 2026-09-19.
 
-Three slices are now stacked and unmerged: T011B, T011C, T012. Review with
-`git diff a5d35e6...HEAD` for T012; the other two have their own bases.
+Independent review returned accept with one Medium finding, fixed on the branch:
+the `Site information` panel did not carry the facts the acceptance criterion
+assigns to it. The lesson is in `.ai/CODE_STATE.md` - every fact was asserted
+against the whole container, so panel membership was never tested, only
+presence. Assertions now scope by heading id and throw when there is no panel to
+scope to.
 
-The Site page is titled by `site_id`, has breadcrumbs for the first time, and
-carries the Quick actions panel where the three-state rule becomes markup. Two
-different rules apply on that one panel: the gate rule, about existence, and
-the sequencing rule, about eligibility. Getting either backwards looks like a
-detail and is not.
+T011B, T011C and T012 are merged. `tools/layout-evidence.mjs` measured every
+layout claim against a real browser before each merge, and all held.
 
-494 frontend tests across 18 files, 304 backend, both guards, typecheck and
-build clean.
+What no tool has answered: whether these screens read well. The Quick actions
+panel is three disabled buttons each carrying a paragraph of reason, and whether
+that is informative or three apologies is a judgement nobody has made.
+`USER_REVIEW_REQUIRED` was false for T012 and the task set no browser criterion,
+so it is outstanding rather than owed.
 
-### Browser verification: measured, and the one thing measurement cannot do
+Next: T013, Foundation to canonical screen three. It carries the v6.9 subtab row
+filtered by the T008 checkpoint, and the redundant `Foundation` panel heading
+T011A left for it.
 
-`tools/layout-evidence.mjs` drives the installed Chrome over the DevTools
-Protocol and reports numbers. No dependency, nothing to install: Node has a
-built-in WebSocket client and Chrome is already on the machine. Run it with the
-backend and the dev server up.
-
-Every T011B and T012 claim holds. The one that matters is at 1000x700, where
-the table scrolls 272px inside its own region while the rail stays at `left 0`.
-At 1280 the table does not overflow at all, so only the narrow case exercises
-the containment - worth knowing before anyone trusts a single-width check.
-Operator home with the gate open measures `scrollHeight 800` against
-`clientHeight 800`, which is the number the vertical defect was.
-
-It is deliberately not in `tools/check-architecture.ps1`. That runner must run
-anywhere; this needs a browser and two servers. Whether layout evidence becomes
-a standing check is an Architect decision about what review means here.
-
-**What it does not replace.** Nobody has judged whether these screens read
-well. The user's own pass produced the tab-row finding, which no measurement
-would have caught, and T012's Quick actions panel - three disabled buttons each
-with a paragraph of reason - has still not been looked at by anyone.
-
-T005 to T011, T010A and T011A are complete.
+T005 to T012 are complete, in `tasks/completed/` with their Review Outcomes.
 
 ## Current Site Foundation Sequence
 
@@ -73,11 +56,11 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T011: Sites index to canonical screen one. Complete.
 - T011A: Foundation naming and the operator Site tab row. Complete; user
   review deferred to the pass after T011B.
-- T011B: shell and dense content overflow containment. In review, rejected
-  pending browser evidence.
-- T011C: Site tab row treatment, from T011A's user review. Accepted by user
-  and review; merge waits on T011B.
-- T012: Site Details to canonical screen two. In review.
+- T011B: shell and dense content overflow containment. Complete; its browser
+  evidence is measured by `tools/layout-evidence.mjs`.
+- T011C: Site tab row treatment, from T011A's user review. Complete.
+- T012: Site Details to canonical screen two. Complete.
+- T013: Foundation to canonical screen three. Planned, next.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 
