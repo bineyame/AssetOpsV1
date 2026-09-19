@@ -1,6 +1,6 @@
 # T014 - Foundation Topology, Devices, And Signal Mappings
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T014-foundation-topology-devices-and-signal-mappings`
