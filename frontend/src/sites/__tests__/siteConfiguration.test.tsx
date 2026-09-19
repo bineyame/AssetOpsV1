@@ -65,6 +65,13 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
         rating: null,
       },
     ],
+    // This site's foundation declares none of the four sections
+    // T014 added. `null` is that statement; the backend refuses an
+    // empty list, so there is no other way to say it.
+    topology: null,
+    devices: null,
+    signal_mappings: null,
+    control_assumptions: null,
   },
 };
 
@@ -80,6 +87,116 @@ const SHIPPED_SITE: SiteDetailReadModel = {
   ...USER_SIMULATED_SITE,
   origin: "SHIPPED",
   template: null,
+};
+
+/**
+ * The same site with the four T014 sections declared.
+ *
+ * Deliberately the same components and the same identity as the site above, so
+ * the two can be compared directly: everything that differs on screen between
+ * them is content this site's foundation declares and the other's does not.
+ *
+ * The meter is the case worth having. It is attached to `site-meter` and its
+ * bus-voltage signal describes `battery` - a device describing a component it
+ * is not attached to. A view model that took the device's component instead of
+ * the mapping's would still look right on every other row.
+ */
+const DECLARED_SITE: SiteDetailReadModel = {
+  ...USER_SIMULATED_SITE,
+  foundation: {
+    ...USER_SIMULATED_SITE.foundation,
+    topology: {
+      nodes: [
+        {
+          node_id: "pv-array",
+          component_id: "pv-array",
+          node_role: "GENERATION",
+        },
+        {
+          node_id: "battery",
+          component_id: "battery",
+          node_role: "STORAGE",
+        },
+        {
+          node_id: "site-meter",
+          component_id: "site-meter",
+          node_role: "METERING",
+        },
+      ],
+      connections: [
+        {
+          connection_id: "array-to-meter",
+          from_node: "pv-array",
+          to_node: "site-meter",
+          medium: "AC",
+        },
+        {
+          connection_id: "battery-to-meter",
+          from_node: "battery",
+          to_node: "site-meter",
+          medium: "DC",
+        },
+      ],
+    },
+    devices: [
+      {
+        device_id: "pv-inverter-controller",
+        device_type: "CONTROLLER",
+        display_name: "PV inverter controller",
+        component_id: "pv-array",
+        signals: [
+          {
+            signal_id: "ac-power",
+            display_name: "AC output power",
+            unit: "kW",
+          },
+        ],
+      },
+      {
+        device_id: "site-meter-unit",
+        device_type: "METER",
+        display_name: "Site meter unit",
+        component_id: "site-meter",
+        signals: [
+          {
+            signal_id: "bus-voltage",
+            display_name: "Bus voltage",
+            unit: "V",
+          },
+        ],
+      },
+    ],
+    signal_mappings: [
+      {
+        mapping_id: "pv-ac-power",
+        device_id: "pv-inverter-controller",
+        signal_id: "ac-power",
+        component_id: "pv-array",
+      },
+      {
+        mapping_id: "battery-bus-voltage",
+        device_id: "site-meter-unit",
+        signal_id: "bus-voltage",
+        component_id: "battery",
+      },
+    ],
+    control_assumptions: [
+      {
+        assumption_id: "solar-first-dispatch",
+        display_name: "Solar is dispatched first",
+        component_id: null,
+        basis: "TEMPLATE",
+        statement: "A declared assumption about intended operation.",
+      },
+      {
+        assumption_id: "battery-reserve",
+        display_name: "The battery holds a reserve",
+        component_id: "battery",
+        basis: "SITE",
+        statement: "The battery retains a reserve for evening supply.",
+      },
+    ],
+  },
 };
 
 /** The Foundation subtab labels a container renders, in order. */
@@ -455,17 +572,34 @@ describe("the six provenance and status concepts stay six here too", () => {
   });
 });
 
-describe("what the M1 foundation does not declare is stated, not implied", () => {
+describe("what this site's foundation does not declare is stated, not implied", () => {
   it.each([
-    ["Devices", /declares components and nothing below them/i],
-    ["Signal mappings", /no mapping can be declared while no device is/i],
-    ["Control assumptions", /declares no control assumptions/i],
+    ["Topology", /declares no topology/i],
+    ["Devices", /declares no device/i],
+    ["Signal mappings", /declares no device-to-signal mapping/i],
+    ["Control assumptions", /declares no control assumption/i],
   ])("states %s as undeclared, with the reason", async (term, reason) => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
 
     expect(factValue(container, term)).toMatch(/^Not declared\./);
     expect(factValue(container, term)).toMatch(reason);
+  });
+
+  it("says the absence is about this document, not about what a schema can hold", async () => {
+    const { container } = renderConfiguration(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // T008's reason was that the M1 schema had nowhere to put a device. T014
+    // gives it somewhere, so that reason became untrue the moment this slice
+    // landed, and a reason that is no longer true is worse than none: it
+    // explains an absence by a constraint the product no longer has.
+    expect(spacedText(container)).not.toMatch(
+      /nothing below them|the M1 site foundation (?:declares|carries)/i,
+    );
+    expect(factValue(container, "Devices")).toMatch(
+      /this site's foundation document declares no device/i,
+    );
   });
 
   it("says the absence is about the document, not about the site", async () => {
@@ -693,5 +827,310 @@ describe("the configuration is addressed by site ID and nothing else", () => {
     expect(
       await screen.findByRole("heading", { level: 2, name: "No such site" }),
     ).toBeInTheDocument();
+  });
+});
+
+/** Every row of the table named by a subsection heading, as cell text. */
+function tableRows(container: HTMLElement, headingId: string): string[][] {
+  const table = container.querySelector(`table[aria-labelledby="${headingId}"]`);
+
+  expect(table, `no table named by ${headingId}`).not.toBeNull();
+  return Array.from((table as HTMLElement).querySelectorAll("tbody tr")).map(
+    (row) =>
+      Array.from(row.querySelectorAll("td")).map(
+        (cell) => cell.textContent ?? "",
+      ),
+  );
+}
+
+/** The column headers of the table named by a subsection heading. */
+function tableColumns(container: HTMLElement, headingId: string): string[] {
+  const table = container.querySelector(`table[aria-labelledby="${headingId}"]`);
+
+  expect(table, `no table named by ${headingId}`).not.toBeNull();
+  return Array.from((table as HTMLElement).querySelectorAll("thead th")).map(
+    (column) => column.textContent ?? "",
+  );
+}
+
+const TOPOLOGY_NODES_ID = "foundation-topology-nodes-heading";
+const CONNECTIONS_ID = "foundation-topology-connections-heading";
+const DEVICES_ID = "foundation-devices-heading";
+const MAPPINGS_ID = "foundation-signal-mappings-heading";
+const ASSUMPTIONS_ID = "foundation-control-assumptions-heading";
+
+describe("a declared topology renders as configuration read back", () => {
+  it("renders one row per declared topology node, named by its component", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(tableRows(container, TOPOLOGY_NODES_ID)).toEqual([
+      ["PV array", "Generation", "pv-array", "pv-array"],
+      ["Battery energy storage", "Storage", "battery", "battery"],
+      ["Site meter", "Metering", "site-meter", "site-meter"],
+    ]);
+  });
+
+  it("renders each connection by the components at its ends", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // Named by component rather than by node identity: a reader following a
+    // connection is following two components, and resolving two node ids to
+    // see that is work the view model should have done.
+    expect(tableRows(container, CONNECTIONS_ID)).toEqual([
+      ["PV array", "Site meter", "AC", "array-to-meter"],
+      ["Battery energy storage", "Site meter", "DC", "battery-to-meter"],
+    ]);
+  });
+
+  it("renders each device with the component it is attached to and what it can report", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(tableRows(container, DEVICES_ID)).toEqual([
+      [
+        "PV inverter controller",
+        "Controller",
+        "PV array",
+        "AC output power (kW)",
+        "pv-inverter-controller",
+      ],
+      [
+        "Site meter unit",
+        "Meter",
+        "Site meter",
+        "Bus voltage (V)",
+        "site-meter-unit",
+      ],
+    ]);
+  });
+
+  it("renders a mapping against the component the mapping declares", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // The meter is attached to `site-meter` and this signal describes
+    // `battery`. Taking the device's component instead of the mapping's would
+    // read as `Site meter` here and would be wrong in exactly the way a whole
+    // class of real mapping is: a meter reports for what it measures, not for
+    // where it is bolted.
+    expect(tableRows(container, MAPPINGS_ID)).toEqual([
+      ["AC output power", "kW", "PV inverter controller", "PV array", "pv-ac-power"],
+      [
+        "Bus voltage",
+        "V",
+        "Site meter unit",
+        "Battery energy storage",
+        "battery-bus-voltage",
+      ],
+    ]);
+  });
+
+  it("renders a control assumption about the site without naming a component", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(tableRows(container, ASSUMPTIONS_ID)).toEqual([
+      [
+        "Solar is dispatched first",
+        "The whole site",
+        "Template",
+        "A declared assumption about intended operation.",
+      ],
+      [
+        "The battery holds a reserve",
+        "Battery energy storage",
+        "Site",
+        "The battery retains a reserve for evening supply.",
+      ],
+    ]);
+  });
+
+  it("stops stating the absences the record now supplies", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // The T008 absences disappear only where the record supplies values, which
+    // is what the paired test below holds the other half of.
+    const terms = Array.from(container.querySelectorAll("dt")).map(
+      (term) => term.textContent,
+    );
+
+    expect(terms).not.toContain("Devices");
+    expect(terms).not.toContain("Signal mappings");
+    expect(terms).not.toContain("Control assumptions");
+    expect(terms).not.toContain("Topology");
+    expect(spacedText(container)).not.toMatch(/Not declared/);
+  });
+
+  it("still states them for a site whose foundation declares none", async () => {
+    const { container } = renderConfiguration(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // The same screen, the same schema, a document that declares nothing. A
+    // site with no declared devices must say so in words: an empty table would
+    // state that this site has none.
+    expect(container.querySelector(`#${DEVICES_ID}`)).not.toBeNull();
+    expect(
+      container.querySelector(`table[aria-labelledby="${DEVICES_ID}"]`),
+    ).toBeNull();
+    expect(factValue(container, "Devices")).toMatch(/^Not declared\./);
+  });
+
+  it("renders no digit the declared record does not supply", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const fromRecord = new Set(digitRuns(JSON.stringify(DECLARED_SITE)));
+    const onScreen = digitRuns(container.textContent ?? "");
+
+    expect(onScreen.length).toBeGreaterThan(0);
+    for (const value of onScreen) {
+      expect(fromRecord).toContain(value);
+    }
+  });
+});
+
+describe("declared topology content states nothing operational", () => {
+  it("renders no runtime, evidence, or condition column", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const columns = Array.from(container.querySelectorAll("th")).map(
+      (column) => column.textContent ?? "",
+    );
+
+    expect(columns.length).toBeGreaterThan(0);
+    for (const column of columns) {
+      expect(column).not.toMatch(
+        /\b(status|state|health|last (?:data|seen|reading)|value|reading|telemetry|condition|cadence)\b/i,
+      );
+    }
+  });
+
+  it("uses no source-health or assessment vocabulary about a device", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(spacedText(container)).not.toMatch(SOURCE_HEALTH_VOCABULARY);
+    expect(spacedText(container)).not.toMatch(ASSESSMENT_VOCABULARY);
+  });
+
+  it("says devices are configured and awaiting runtime, not operating", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(spacedText(container)).toMatch(
+      /configured assets awaiting runtime and evidence/i,
+    );
+    expect(spacedText(container)).toMatch(/none has reported/i);
+  });
+
+  it("names no control state, setpoint, or breaker position", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // Held for the T016 checkpoint. A column or a value here would settle the
+    // vocabulary silently, which is the one thing this slice must not do.
+    // `open` and `closed` are deliberately not in this list. The validity copy
+    // says the interval is half-open, and a ban that matched it would be a ban
+    // nobody could keep - which gets silenced by widening it, and a widened
+    // ban is how a real one stops working.
+    expect(spacedText(container)).not.toMatch(
+      /\b(breaker|contactor|setpoint|set point|tripped|control mode)\b/i,
+    );
+  });
+
+  it("renders no action control, in the declared state either", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(container.querySelectorAll(ACTION_SELECTOR)).toHaveLength(0);
+    expect(container.querySelectorAll("[disabled]")).toHaveLength(0);
+    expect(container.querySelectorAll("[aria-disabled]")).toHaveLength(0);
+  });
+});
+
+describe("every dense relationship table owns its own overflow", () => {
+  it("renders every table through the shared region, with a name", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const tables = Array.from(container.querySelectorAll("table"));
+
+    // Five relationship tables plus the components table. Asserted as a
+    // minimum rather than exactly, so adding a declared section does not have
+    // to touch this, but not as "more than zero", which would pass on a screen
+    // that rendered one.
+    expect(tables.length).toBeGreaterThanOrEqual(6);
+
+    for (const table of tables) {
+      const region = table.closest(".data-table__scroll");
+
+      // The region is what keeps a wide table from pushing the rail and the
+      // workspace bar sideways. A table with nothing between it and the
+      // document is the T011B defect, one screen at a time.
+      expect(region).not.toBeNull();
+      expect((region as HTMLElement).getAttribute("role")).toBe("region");
+      expect((region as HTMLElement).getAttribute("tabindex")).toBe("0");
+
+      const labelledBy = table.getAttribute("aria-labelledby") ?? "";
+      expect(container.querySelector(`#${labelledBy}`)).not.toBeNull();
+    }
+  });
+
+  it("keeps every configured column, with no column dropped or collapsed", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // The M1 viewport policy is explicit that a column is never dropped
+    // because the viewport is narrow. jsdom has no layout, so what is asserted
+    // here is that the columns are rendered at all; the measured evidence that
+    // they stay inside their region is `tools/layout-evidence.mjs`.
+    expect(tableColumns(container, TOPOLOGY_NODES_ID)).toEqual([
+      "Component",
+      "Role in topology",
+      "Component ID",
+      "Node ID",
+    ]);
+    expect(tableColumns(container, CONNECTIONS_ID)).toEqual([
+      "From",
+      "To",
+      "Carries",
+      "Connection ID",
+    ]);
+    expect(tableColumns(container, DEVICES_ID)).toEqual([
+      "Device",
+      "Type",
+      "Attached to",
+      "Signals it can report",
+      "Device ID",
+    ]);
+    expect(tableColumns(container, MAPPINGS_ID)).toEqual([
+      "Signal",
+      "Unit",
+      "Reported by",
+      "Describes",
+      "Mapping ID",
+    ]);
+    expect(tableColumns(container, ASSUMPTIONS_ID)).toEqual([
+      "Assumption",
+      "Applies to",
+      "Declared by",
+      "What it assumes",
+    ]);
+  });
+
+  it("renders no table with a header row and no rows", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const tables = Array.from(container.querySelectorAll("table"));
+
+    expect(tables.length).toBeGreaterThan(0);
+    for (const table of tables) {
+      expect(table.querySelectorAll("tbody tr").length).toBeGreaterThan(0);
+    }
   });
 });

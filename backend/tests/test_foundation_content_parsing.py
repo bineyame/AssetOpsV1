@@ -226,7 +226,7 @@ DUPLICATE_IDENTITIES: list[Any] = [
             {
                 "node_id": "second-array",
                 "component_id": "pv-array",
-                "node_role": "SOURCE",
+                "node_role": "GENERATION",
             }
         ),
         "component_id",
@@ -452,7 +452,7 @@ UNSUPPORTED_VALUES: list[Any] = [
         id="unknown-topology-role",
     ),
     pytest.param(
-        lambda f: f["topology"]["nodes"][0].update(node_role="source"),
+        lambda f: f["topology"]["nodes"][0].update(node_role="generation"),
         id="topology-role-in-the-wrong-case",
     ),
     pytest.param(

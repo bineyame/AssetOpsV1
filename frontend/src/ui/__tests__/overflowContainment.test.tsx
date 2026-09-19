@@ -96,6 +96,13 @@ const SITE_DETAIL: SiteDetailReadModel = {
         rating: { value: 100, unit: "kW" },
       },
     ],
+    // This site's foundation declares none of the four sections
+    // T014 added. `null` is that statement; the backend refuses an
+    // empty list, so there is no other way to say it.
+    topology: null,
+    devices: null,
+    signal_mappings: null,
+    control_assumptions: null,
   },
 };
 

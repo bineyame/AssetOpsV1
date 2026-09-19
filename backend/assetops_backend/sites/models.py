@@ -74,9 +74,13 @@ RATING_UNITS = frozenset({"kW", "kWh", "kVA", "V", "A", "Hz", "L"})
 # This is topology position, not component identity: `component_type` remains
 # the canonical vocabulary for what a component IS, and no component carries a
 # second role axis.
+#
+# `GENERATION` rather than `SOURCE` deliberately. `source` already means where
+# a Site's evidence comes from, and a topology role sharing that word would put
+# two unrelated meanings of it on one screen.
 TOPOLOGY_NODE_ROLES = frozenset(
     {
-        "SOURCE",
+        "GENERATION",
         "CONVERSION",
         "STORAGE",
         "BUS",

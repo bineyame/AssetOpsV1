@@ -538,6 +538,60 @@ button:focus-visible {
   color: var(--text-muted);
 }
 
+/*
+ * A list of values inside one table cell.
+ *
+ * A device declares several signals and each is a separate fact, so they are a
+ * list rather than a comma-joined string: a reader can count them and a screen
+ * reader announces them as items. The bullets go, because a table cell already
+ * has enough structure.
+ */
+.cell-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell-list li + li {
+  margin-top: 2px;
+}
+
+/* Subsection, for a named block inside a panel ---------------------------- */
+
+/*
+ * A heading and its content, one level below a panel heading.
+ *
+ * The Foundation subtab row names sections by their panel headings, and no
+ * unlinked panel may sit between two the row names. So a panel that holds
+ * several named tables holds them as subsections rather than splitting into
+ * panels the row does not name.
+ *
+ * The table inside one keeps the panel body's padding out of its way: a
+ * DataTable supplies its own cell padding and its own overflow region, so a
+ * second layer of padding around it only narrows the space the columns have.
+ */
+.subsection + .subsection {
+  margin-top: var(--space-5);
+}
+
+.subsection__heading {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  scroll-margin-top: var(--space-5);
+}
+
+.subsection .data-table__scroll {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.subsection .data-table caption {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
 /* Badge and pill ---------------------------------------------------------- */
 
 /*

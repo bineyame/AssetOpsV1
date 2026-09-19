@@ -16,7 +16,15 @@ import {
   FOUNDATION_TOPOLOGY_ID,
   FoundationSubtabs,
 } from "./FoundationSubtabs";
-import type { SiteKeyParameterView } from "./siteViewModel";
+import type {
+  ControlAssumptionView,
+  FoundationDeviceView,
+  SiteDeclaredSection,
+  SiteKeyParameterView,
+  SignalMappingView,
+  TopologyConnectionView,
+  TopologyNodeView,
+} from "./siteViewModel";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
@@ -74,10 +82,17 @@ import {
  * - No telemetry, chart, series, gauge, count, source health, or analytics. A
  *   configuration-only site has no evidence, and a zero is a measurement claim
  *   rather than an absence.
- * - No device, signal mapping, or control assumption rendered as content. The
- *   M1 foundation declares none, and each is stated as undeclared with its
- *   reason rather than rendered as an empty list, which would say this site
- *   has none.
+ * - No empty table. Topology, devices, signal mappings and control assumptions
+ *   render as content when this site's foundation declares them, and as a
+ *   stated absence with its reason when it does not. Never as a table with a
+ *   header row and no rows: that is a screen saying it looked and found
+ *   nothing, which is a claim about the site rather than about its document.
+ *
+ * Where the new content sits is settled, not incidental. The subtab row names
+ * Definition, Topology and Controls, and T013's rule is that no unlinked panel
+ * may sit between the sections it names - so the topology, device and mapping
+ * tables live INSIDE the Topology panel as subsections, and the components
+ * table stays below Controls where T013 put it.
  */
 export const SITE_CONFIGURATION_HEADING_ID = "site-configuration-heading";
 
@@ -280,25 +295,44 @@ export function SiteConfigurationFacts({
         heading="Topology"
         headingId={FOUNDATION_TOPOLOGY_ID}
       >
-        <FactList>
-          <SiteConfigurationStatedAbsence name="Devices" fact={view.devices} />
-          <SiteConfigurationStatedAbsence
-            name="Signal mappings"
-            fact={view.signalMappings}
-          />
-        </FactList>
+        <p>
+          What this site&apos;s foundation declares about how its components
+          are joined, which devices are configured against them, and which
+          component each device signal describes. All of it is configuration
+          read back. Nothing here is a reading: no device has reported, and no
+          value below has ever been measured.
+        </p>
+
+        {/*
+          * Topology is one declaration, so it is one absence. When a document
+          * declares none, the nodes and the connections are not two separate
+          * things missing: the statement is made once, under the name the
+          * subtab row uses, rather than repeated under two subsection
+          * headings that would both give the same reason.
+          */}
+        {view.topologyNodes.status === "not_declared" ? (
+          <FactList>
+            <SiteConfigurationStatedAbsence
+              name="Topology"
+              fact={view.topologyNodes.absence}
+            />
+          </FactList>
+        ) : (
+          <>
+            <SiteTopologyNodes section={view.topologyNodes} />
+            <SiteTopologyConnections section={view.topologyConnections} />
+          </>
+        )}
+
+        <SiteFoundationDevices section={view.devices} />
+        <SiteSignalMappings section={view.signalMappings} />
       </Panel>
 
       <Panel
         heading="Controls"
         headingId={FOUNDATION_CONTROLS_ID}
       >
-        <FactList>
-          <SiteConfigurationStatedAbsence
-            name="Control assumptions"
-            fact={view.controlAssumptions}
-          />
-        </FactList>
+        <SiteControlAssumptions section={view.controlAssumptions} />
       </Panel>
 
       {/*
@@ -414,6 +448,242 @@ export function SiteConfigurationStatedAbsence({
     <Fact term={name}>
       {fact.value}. {fact.reason}
     </Fact>
+  );
+}
+
+/**
+ * One subsection inside a panel: a heading, and either a table or the
+ * statement that this site&apos;s foundation declares nothing to put in it.
+ *
+ * The two branches are the point. A section with declared content renders its
+ * table through `DataTable`, which supplies the region that owns the table&apos;s
+ * horizontal overflow so a wide relationship table scrolls inside itself
+ * rather than pushing the shell sideways. A section with nothing declared
+ * renders words - the absence and the reason for it - and no table at all,
+ * because a header row over an empty body would state that this site has no
+ * devices, which is a claim about the site and not about its document.
+ *
+ * The heading is an `h3`. The Foundation subtab row names sections by their
+ * panel headings, and T013 holds that no unlinked panel may sit between the
+ * sections the row names, so these are subsections of Topology rather than
+ * panels of their own.
+ */
+export interface SiteConfigurationSubsectionProps<T> {
+  name: string;
+  headingId: string;
+  section: SiteDeclaredSection<T>;
+  /** What the declared content means, rendered above the table. */
+  caption: string;
+  columns: string[];
+  row: (entry: T) => { key: string; cells: ReactNode[] };
+}
+
+export function SiteConfigurationSubsection<T>({
+  name,
+  headingId,
+  section,
+  caption,
+  columns,
+  row,
+}: SiteConfigurationSubsectionProps<T>) {
+  if (section.status === "not_declared") {
+    return (
+      <div className="subsection">
+        <h3 className="subsection__heading" id={headingId}>
+          {name}
+        </h3>
+        <FactList>
+          <SiteConfigurationStatedAbsence
+            name={name}
+            fact={section.absence}
+          />
+        </FactList>
+      </div>
+    );
+  }
+
+  return (
+    <div className="subsection">
+      <h3 className="subsection__heading" id={headingId}>
+        {name}
+      </h3>
+      <DataTable labelledBy={headingId}>
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column} scope="col">
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {section.entries.map((entry) => {
+            const { key, cells } = row(entry);
+            return (
+              <tr key={key}>
+                {cells.map((cell, index) => (
+                  <td key={`${key}-${columns[index]}`}>{cell}</td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </DataTable>
+    </div>
+  );
+}
+
+/** Where each component sits in the declared topology. */
+export function SiteTopologyNodes({
+  section,
+}: {
+  section: SiteDeclaredSection<TopologyNodeView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Topology nodes"
+      headingId="foundation-topology-nodes-heading"
+      section={section}
+      caption="Where each declared component sits in this site's topology. The role is its position in the topology, not its condition and not what it is doing."
+      columns={["Component", "Role in topology", "Component ID", "Node ID"]}
+      row={(node) => ({
+        key: node.nodeId,
+        cells: [node.componentName, node.role, node.componentId, node.nodeId],
+      })}
+    />
+  );
+}
+
+/** What the document declares is joined to what. */
+export function SiteTopologyConnections({
+  section,
+}: {
+  section: SiteDeclaredSection<TopologyConnectionView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Connections"
+      headingId="foundation-topology-connections-heading"
+      section={section}
+      caption="The connections this site's foundation declares. The direction is the one the document declares; nothing here says anything has flowed."
+      columns={["From", "To", "Carries", "Connection ID"]}
+      row={(connection) => ({
+        key: connection.connectionId,
+        cells: [
+          connection.from,
+          connection.to,
+          connection.medium,
+          connection.connectionId,
+        ],
+      })}
+    />
+  );
+}
+
+/**
+ * The devices the foundation declares, and what each can report.
+ *
+ * The signals column is availability: what this device is configured to be
+ * able to send. There is no column for a value, an instant, or a condition,
+ * because the record carries none - a configured device is awaiting runtime
+ * and evidence, and a column here would have to invent what to put in it.
+ */
+export function SiteFoundationDevices({
+  section,
+}: {
+  section: SiteDeclaredSection<FoundationDeviceView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Devices"
+      headingId="foundation-devices-heading"
+      section={section}
+      caption="The devices this site's foundation declares. These are configured assets awaiting runtime and evidence: none has reported, and nothing here states that any of them is reporting or that any is not."
+      columns={["Device", "Type", "Attached to", "Signals it can report", "Device ID"]}
+      row={(device) => ({
+        key: device.deviceId,
+        cells: [
+          device.displayName,
+          device.deviceType,
+          device.attachedTo,
+          <ul className="cell-list" key={`${device.deviceId}-signals`}>
+            {device.signals.map((signal) => (
+              <li key={signal.signalId}>
+                {signal.displayName} ({signal.unit})
+              </li>
+            ))}
+          </ul>,
+          device.deviceId,
+        ],
+      })}
+    />
+  );
+}
+
+/**
+ * Which component each declared device signal describes.
+ *
+ * Declared, never inferred. A device attached to one component may describe
+ * another - a meter on the bus describing the load it feeds - and only these
+ * rows say so.
+ */
+export function SiteSignalMappings({
+  section,
+}: {
+  section: SiteDeclaredSection<SignalMappingView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Signal mappings"
+      headingId="foundation-signal-mappings-heading"
+      section={section}
+      caption="Which component each declared device signal describes. Every row is a declaration in this site's foundation: none is inferred from a name, a type, or a position in the topology."
+      columns={["Signal", "Unit", "Reported by", "Describes", "Mapping ID"]}
+      row={(mapping) => ({
+        key: mapping.mappingId,
+        cells: [
+          mapping.signalName,
+          mapping.unit,
+          mapping.deviceName,
+          mapping.describes,
+          mapping.mappingId,
+        ],
+      })}
+    />
+  );
+}
+
+/**
+ * What the foundation assumes about how this site is operated.
+ *
+ * Assumptions in words, with what each is about and where it was declared.
+ * There is no control state, no setpoint and no breaker position here: that
+ * vocabulary is not decided, and a column for it would decide it.
+ */
+export function SiteControlAssumptions({
+  section,
+}: {
+  section: SiteDeclaredSection<ControlAssumptionView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Control assumptions"
+      headingId="foundation-control-assumptions-heading"
+      section={section}
+      caption="What this site's foundation assumes about how the site is intended to be operated. These are declared assumptions, not control actions, and none of them describes how the site has actually run."
+      columns={["Assumption", "Applies to", "Declared by", "What it assumes"]}
+      row={(assumption) => ({
+        key: assumption.assumptionId,
+        cells: [
+          assumption.displayName,
+          assumption.appliesTo,
+          assumption.basis,
+          assumption.statement,
+        ],
+      })}
+    />
   );
 }
 

@@ -186,6 +186,7 @@ describe("the fixture is the contract, not a convenience", () => {
       "gate_closed_template_detail",
       "gate_closed_template_list",
       "simulator_lab_status_enabled",
+      "site_detail_declares_no_foundation_content",
       "site_detail_loaded",
       "site_detail_not_found",
       "site_detail_store_unavailable",
@@ -262,6 +263,67 @@ describe("the Site detail client against real responses", () => {
     );
     expect(ratings).toContain(null);
     expect(ratings.some((rating) => rating !== null)).toBe(true);
+  });
+
+  it("tells a declared Foundation from one that declares none", async () => {
+    // The distinction T014 is built around, checked against real responses on
+    // both sides. `null` is this Site's Foundation declaring no devices; an
+    // empty array would let a screen render a device table with no rows and
+    // state that the Site HAS none.
+    const { calls } = serve("site_detail_declares_no_foundation_content");
+
+    const result = await createSiteDirectoryClient().getSite("MG-002");
+
+    expectRequestMatchedCapture(
+      "site_detail_declares_no_foundation_content",
+      calls,
+    );
+    expect(result.status).toBe("loaded");
+    if (result.status !== "loaded") return;
+
+    expect(result.site.foundation.topology).toBeNull();
+    expect(result.site.foundation.devices).toBeNull();
+    expect(result.site.foundation.signal_mappings).toBeNull();
+    expect(result.site.foundation.control_assumptions).toBeNull();
+
+    // And the declared case is genuinely declared, so the assertion above is
+    // not passing because the backend sends null for everything.
+    const declared = fixtureCase("site_detail_loaded").response.body as {
+      foundation: Record<string, unknown>;
+    };
+    for (const field of [
+      "topology",
+      "devices",
+      "signal_mappings",
+      "control_assumptions",
+    ]) {
+      expect(declared.foundation[field]).not.toBeNull();
+    }
+  });
+
+  it("carries no runtime or evidence value on a declared device", async () => {
+    const { calls } = serve("site_detail_loaded");
+
+    const result = await createSiteDirectoryClient().getSite("MG-002");
+
+    expectRequestMatchedCapture("site_detail_loaded", calls);
+    expect(result.status).toBe("loaded");
+    if (result.status !== "loaded") return;
+
+    const devices = result.site.foundation.devices ?? [];
+    expect(devices.length).toBeGreaterThan(0);
+    for (const device of devices) {
+      expect(device.signals.length).toBeGreaterThan(0);
+      for (const signal of device.signals) {
+        // A declared signal is availability. A fourth key would be a place for
+        // a reading, and a screen would find it.
+        expect(Object.keys(signal).sort()).toEqual([
+          "display_name",
+          "signal_id",
+          "unit",
+        ]);
+      }
+    }
   });
 
   it("reads an unknown Site as not found", async () => {

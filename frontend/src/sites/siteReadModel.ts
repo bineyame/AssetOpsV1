@@ -85,6 +85,89 @@ export interface SiteComponentReadModel {
 }
 
 /**
+ * One position in a site's declared electrical topology.
+ *
+ * A node is not a component. It is the place a declared component occupies,
+ * and `componentId` always names a component the same foundation declares -
+ * the backend refuses a document where it does not, so nothing here has to
+ * cope with a reference that dangles.
+ */
+export interface TopologyNodeReadModel {
+  node_id: string;
+  component_id: string;
+  node_role: string;
+}
+
+/**
+ * One declared connection between two topology nodes.
+ *
+ * The direction is the direction the document declares. It is not a
+ * measurement, and nothing on a screen may present it as flow.
+ */
+export interface TopologyConnectionReadModel {
+  connection_id: string;
+  from_node: string;
+  to_node: string;
+  medium: string;
+}
+
+export interface FoundationTopologyReadModel {
+  nodes: TopologyNodeReadModel[];
+  connections: TopologyConnectionReadModel[];
+}
+
+/**
+ * One signal a declared device is configured to be able to report.
+ *
+ * Availability, never a reading. There is no value field, no timestamp and no
+ * cadence, so no screen can render a measurement out of this and no screen has
+ * to decide what a missing one would mean.
+ */
+export interface DeviceSignalReadModel {
+  signal_id: string;
+  display_name: string;
+  unit: string;
+}
+
+/**
+ * One device the foundation declares.
+ *
+ * A configured asset awaiting runtime and evidence. It is never healthy,
+ * online, offline, stale or degraded: this record carries no field that could
+ * say so, which is what keeps a device table from becoming a status board.
+ */
+export interface FoundationDeviceReadModel {
+  device_id: string;
+  device_type: string;
+  display_name: string;
+  component_id: string;
+  signals: DeviceSignalReadModel[];
+}
+
+/** One declared binding from a device signal to the component it describes. */
+export interface SignalMappingReadModel {
+  mapping_id: string;
+  device_id: string;
+  signal_id: string;
+  component_id: string;
+}
+
+/**
+ * One declared assumption about how a site is expected to be operated.
+ *
+ * `component_id` is `null` when the assumption is about the site rather than
+ * one component. It is not a control model: there is no state, no setpoint and
+ * no breaker position here, because that vocabulary is not decided.
+ */
+export interface ControlAssumptionReadModel {
+  assumption_id: string;
+  display_name: string;
+  component_id: string | null;
+  basis: string;
+  statement: string;
+}
+
+/**
  * The foundation on a site record.
  *
  * The version and the start of the validity interval are metadata about the
@@ -96,17 +179,22 @@ export interface SiteComponentReadModel {
  * mechanism that produces a later version. A field carrying an invented end
  * would state when this configuration stops being true.
  *
- * There is no topology, device, signal-mapping, or control-assumption field
- * either, and no empty list standing in for one. The M1 foundation schema
- * declares none of them: they arrive with causal step 4. An empty list here
- * would let a screen say this site has no devices, when what is true is that
- * this milestone's configuration document cannot carry one.
+ * Topology, devices, signal mappings and control assumptions arrive with T014,
+ * and each is `null` when this site's foundation declares none. `null` is the
+ * only way that is said, because the backend refuses an empty list: `[]` would
+ * let a screen state that this site HAS no devices, and what is true is
+ * narrower - its configuration document declares none. A screen has to be able
+ * to tell those apart, so the read model does.
  */
 export interface SiteFoundationReadModel {
   version: number;
   valid_from: string;
   summary: string;
   components: SiteComponentReadModel[];
+  topology: FoundationTopologyReadModel | null;
+  devices: FoundationDeviceReadModel[] | null;
+  signal_mappings: SignalMappingReadModel[] | null;
+  control_assumptions: ControlAssumptionReadModel[] | null;
 }
 
 /**

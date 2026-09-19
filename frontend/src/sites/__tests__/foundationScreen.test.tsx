@@ -65,6 +65,84 @@ const SITE: SiteDetailReadModel = {
         rating: null,
       },
     ],
+    // This site's foundation declares none of the four sections
+    // T014 added. `null` is that statement; the backend refuses an
+    // empty list, so there is no other way to say it.
+    topology: null,
+    devices: null,
+    signal_mappings: null,
+    control_assumptions: null,
+  },
+};
+
+/**
+ * The same site with topology, devices, mappings and control assumptions.
+ *
+ * Every assertion in this file that is about an absence is repeated against
+ * this record. That is the point: T013's bans were written on a screen with
+ * one table and three stated absences, and a slice that fills the screen with
+ * relationship tables is exactly when a ban stops being exercised by the case
+ * it was written for.
+ */
+const DECLARED_SITE: SiteDetailReadModel = {
+  ...SITE,
+  foundation: {
+    ...SITE.foundation,
+    topology: {
+      nodes: [
+        {
+          node_id: "pv-array",
+          component_id: "pv-array",
+          node_role: "GENERATION",
+        },
+        { node_id: "battery", component_id: "battery", node_role: "STORAGE" },
+        {
+          node_id: "site-meter",
+          component_id: "site-meter",
+          node_role: "METERING",
+        },
+      ],
+      connections: [
+        {
+          connection_id: "array-to-meter",
+          from_node: "pv-array",
+          to_node: "site-meter",
+          medium: "AC",
+        },
+      ],
+    },
+    devices: [
+      {
+        device_id: "pv-inverter-controller",
+        device_type: "CONTROLLER",
+        display_name: "PV inverter controller",
+        component_id: "pv-array",
+        signals: [
+          {
+            signal_id: "ac-power",
+            display_name: "AC output power",
+            unit: "kW",
+          },
+        ],
+      },
+    ],
+    signal_mappings: [
+      {
+        mapping_id: "pv-ac-power",
+        device_id: "pv-inverter-controller",
+        signal_id: "ac-power",
+        component_id: "pv-array",
+      },
+    ],
+    control_assumptions: [
+      {
+        assumption_id: "solar-first-dispatch",
+        display_name: "Solar is dispatched first",
+        component_id: null,
+        basis: "TEMPLATE",
+        statement: "A declared assumption about intended operation.",
+      },
+    ],
   },
 };
 
@@ -81,6 +159,13 @@ const UNRATED_SITE: SiteDetailReadModel = {
         rating: null,
       },
     ],
+    // This site's foundation declares none of the four sections
+    // T014 added. `null` is that statement; the backend refuses an
+    // empty list, so there is no other way to say it.
+    topology: null,
+    devices: null,
+    signal_mappings: null,
+    control_assumptions: null,
   },
 };
 
@@ -367,6 +452,140 @@ describe("the configured diagram is absent, and so is the space for it", () => {
     // Every panel on this screen has content. A panel with an empty body, or
     // one holding only whitespace, would be the reserved region this slice
     // must not leave behind.
+    const panels = Array.from(container.querySelectorAll("section.panel"));
+
+    expect(panels.length).toBeGreaterThan(0);
+    for (const panel of panels) {
+      const body = panel.querySelector(".panel__body");
+
+      expect((body?.textContent ?? "").trim().length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("the declared topology does not become a diagram", () => {
+  it("renders no diagram, no diagram heading, and no signal selector", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
+    // The same ban as above, against the record that makes it interesting.
+    // Before T014 nothing on this screen could have been drawn; now the
+    // product holds nodes, connections and signals, and the temptation to draw
+    // them is the whole of what T015 and T016 are for.
+    expect(
+      container.querySelectorAll("svg, canvas, img, figure, picture"),
+    ).toHaveLength(0);
+    expect(spacedText(container)).not.toMatch(
+      /\b(single line diagram|one-line|schematic|diagram|signal selector|real power)\b/i,
+    );
+    expect(
+      container.querySelectorAll("select, [role='combobox'], [role='listbox']"),
+    ).toHaveLength(0);
+  });
+
+  it("offers no way to choose a signal", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
+    // Signals are declared and listed. A control that picks one is the signal
+    // selector, and it belongs to the slice that has something to show for the
+    // signal a reader picked.
+    expect(container.querySelectorAll("input, select, [role='radio']")).toHaveLength(
+      0,
+    );
+    expect(spacedText(container)).not.toMatch(/select a signal|choose a signal/i);
+  });
+
+  it("keeps no unlinked panel between the sections the row names", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
+    // T013's rule, re-asserted against the record that would have broken it.
+    // The topology, device and mapping tables are subsections of Topology
+    // rather than panels of their own precisely because a panel between
+    // Topology and Controls would make the row misleading about where a
+    // section ends.
+    const headings = Array.from(
+      container.querySelectorAll("section.panel h2"),
+    ).map((heading) => heading.textContent ?? "");
+
+    const positions = ["Definition", "Topology", "Controls"].map((label) =>
+      headings.indexOf(label),
+    );
+
+    for (const position of positions) {
+      expect(position).toBeGreaterThanOrEqual(0);
+    }
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    expect(headings.slice(positions[1] + 1, positions[2])).toEqual([]);
+  });
+
+  it("keeps every subtab link pointing at a section that is still there", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
+    const links = within(subtabRow()).getAllByRole("link");
+
+    expect(links).toHaveLength(3);
+    for (const link of links) {
+      const href = link.getAttribute("href") ?? "";
+
+      expect(href.startsWith("#")).toBe(true);
+      expect(container.querySelector(href)).not.toBeNull();
+      expect(container.querySelector(href)?.textContent).toBe(link.textContent);
+    }
+  });
+
+  it("puts the topology content under the section the row names", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
+    // The row says Topology locates the topology. If the tables sat in a panel
+    // of their own, the link would land somewhere that did not contain them
+    // and the row would be telling a reader the wrong thing.
+    const panel = container
+      .querySelector("#foundation-topology-heading")
+      ?.closest("section");
+
+    expect(panel).not.toBeNull();
+    for (const headingId of [
+      "foundation-topology-nodes-heading",
+      "foundation-topology-connections-heading",
+      "foundation-devices-heading",
+      "foundation-signal-mappings-heading",
+    ]) {
+      expect((panel as HTMLElement).querySelector(`#${headingId}`)).not.toBeNull();
+    }
+
+    const controls = container
+      .querySelector("#foundation-controls-heading")
+      ?.closest("section");
+
+    expect(controls).not.toBeNull();
+    expect(
+      (controls as HTMLElement).querySelector(
+        "#foundation-control-assumptions-heading",
+      ),
+    ).not.toBeNull();
+  });
+
+  it("gives Readiness no section, even with the page full of content", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
+    const headings = Array.from(container.querySelectorAll("h2, h3")).map(
+      (heading) => heading.textContent,
+    );
+
+    expect(headings.length).toBeGreaterThan(0);
+    expect(headings).not.toContain("Readiness");
+    expect(headings).not.toContain("Changes");
+  });
+
+  it("keeps every panel body non-empty, with nothing warm for a diagram", async () => {
+    const { container } = renderFoundation(DECLARED_SITE);
+    await settledScreen();
+
     const panels = Array.from(container.querySelectorAll("section.panel"));
 
     expect(panels.length).toBeGreaterThan(0);

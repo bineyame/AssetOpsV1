@@ -89,7 +89,7 @@ foundation:
     nodes:
       - node_id: pv-array
         component_id: pv-array
-        node_role: SOURCE
+        node_role: GENERATION
       - node_id: pv-inverter
         component_id: pv-inverter
         node_role: CONVERSION
@@ -101,7 +101,7 @@ foundation:
         node_role: CONVERSION
       - node_id: generator
         component_id: generator
-        node_role: SOURCE
+        node_role: GENERATION
       - node_id: fuel-tank
         component_id: fuel-tank
         node_role: FUEL_STORAGE

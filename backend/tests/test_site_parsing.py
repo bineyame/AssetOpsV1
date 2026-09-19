@@ -78,7 +78,7 @@ def foundation_content() -> dict[str, Any]:
                 {
                     "node_id": "pv-array",
                     "component_id": "pv-array",
-                    "node_role": "SOURCE",
+                    "node_role": "GENERATION",
                 },
                 {
                     "node_id": "site-meter",

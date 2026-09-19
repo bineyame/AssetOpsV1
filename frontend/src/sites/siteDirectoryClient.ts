@@ -115,6 +115,128 @@ function isSiteComponent(value: unknown): boolean {
 }
 
 /**
+ * A declared section, or the absence of one.
+ *
+ * `null` is the document declaring none, and it is the only absence accepted.
+ * A missing key is not that statement - it is a response that does not carry
+ * the field - and letting it through would put `undefined` where a view model
+ * asks whether the site declares any devices, which is a question `undefined`
+ * answers wrongly.
+ */
+function isDeclaredOrNull(
+  value: unknown,
+  entry: (candidate: unknown) => boolean,
+): boolean {
+  if (value === null) {
+    return true;
+  }
+  // Also refused: an empty array. The backend never sends one, because `[]`
+  // and `null` would be two spellings of one fact and a screen could not tell
+  // "declares none" from "has none". A response carrying one is a response
+  // from something that is not this contract.
+  return Array.isArray(value) && value.length > 0 && value.every(entry);
+}
+
+function isTopologyNode(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const node = value as Record<string, unknown>;
+  return (
+    typeof node.node_id === "string" &&
+    typeof node.component_id === "string" &&
+    typeof node.node_role === "string"
+  );
+}
+
+function isTopologyConnection(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const connection = value as Record<string, unknown>;
+  return (
+    typeof connection.connection_id === "string" &&
+    typeof connection.from_node === "string" &&
+    typeof connection.to_node === "string" &&
+    typeof connection.medium === "string"
+  );
+}
+
+function isFoundationTopology(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value !== "object") {
+    return false;
+  }
+  const topology = value as Record<string, unknown>;
+  return (
+    Array.isArray(topology.nodes) &&
+    topology.nodes.length > 0 &&
+    topology.nodes.every(isTopologyNode) &&
+    Array.isArray(topology.connections) &&
+    topology.connections.length > 0 &&
+    topology.connections.every(isTopologyConnection)
+  );
+}
+
+function isDeviceSignal(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const signal = value as Record<string, unknown>;
+  return (
+    typeof signal.signal_id === "string" &&
+    typeof signal.display_name === "string" &&
+    typeof signal.unit === "string"
+  );
+}
+
+function isFoundationDevice(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const device = value as Record<string, unknown>;
+  return (
+    typeof device.device_id === "string" &&
+    typeof device.device_type === "string" &&
+    typeof device.display_name === "string" &&
+    typeof device.component_id === "string" &&
+    Array.isArray(device.signals) &&
+    device.signals.length > 0 &&
+    device.signals.every(isDeviceSignal)
+  );
+}
+
+function isSignalMapping(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const mapping = value as Record<string, unknown>;
+  return (
+    typeof mapping.mapping_id === "string" &&
+    typeof mapping.device_id === "string" &&
+    typeof mapping.signal_id === "string" &&
+    typeof mapping.component_id === "string"
+  );
+}
+
+function isControlAssumption(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const assumption = value as Record<string, unknown>;
+  return (
+    typeof assumption.assumption_id === "string" &&
+    typeof assumption.display_name === "string" &&
+    (assumption.component_id === null ||
+      typeof assumption.component_id === "string") &&
+    typeof assumption.basis === "string" &&
+    typeof assumption.statement === "string"
+  );
+}
+
+/**
  * The detail shape, checked field by field down to a component's rating.
  *
  * Every field a site surface reads is checked here, because this guard is the
@@ -126,7 +248,11 @@ function isSiteComponent(value: unknown): boolean {
  * never half a site.
  *
  * The guard grows with the read model. A field added to the foundation that is
- * not checked here is a field a malformed response can smuggle past.
+ * not checked here is a field a malformed response can smuggle past. T014 adds
+ * four, and all four are checked including their absence spelling: the four
+ * sections are `null` or declared content, never a missing key and never an
+ * empty array, because a screen that could not tell those apart would state
+ * that a site has no devices on the strength of a truncated response.
  */
 export function isSiteDetail(value: unknown): value is SiteDetailReadModel {
   if (!isSiteSummary(value)) {
@@ -143,7 +269,11 @@ export function isSiteDetail(value: unknown): value is SiteDetailReadModel {
     typeof foundation.valid_from === "string" &&
     typeof foundation.summary === "string" &&
     Array.isArray(foundation.components) &&
-    foundation.components.every(isSiteComponent)
+    foundation.components.every(isSiteComponent) &&
+    isFoundationTopology(foundation.topology) &&
+    isDeclaredOrNull(foundation.devices, isFoundationDevice) &&
+    isDeclaredOrNull(foundation.signal_mappings, isSignalMapping) &&
+    isDeclaredOrNull(foundation.control_assumptions, isControlAssumption)
   );
 }
 

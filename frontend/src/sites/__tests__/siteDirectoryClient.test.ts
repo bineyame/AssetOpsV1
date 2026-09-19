@@ -54,6 +54,13 @@ const SITE_DETAIL_BODY: SiteDetailReadModel = {
         rating: null,
       },
     ],
+    // This site's foundation declares none of the four sections
+    // T014 added. `null` is that statement; the backend refuses an
+    // empty list, so there is no other way to say it.
+    topology: null,
+    devices: null,
+    signal_mappings: null,
+    control_assumptions: null,
   },
 };
 
@@ -64,6 +71,24 @@ function bodyWithFoundation(foundation: unknown): unknown {
 function bodyWithComponents(components: unknown): unknown {
   return bodyWithFoundation({ ...SITE_DETAIL_BODY.foundation, components });
 }
+
+/** The same body with one of the four T014 sections replaced. */
+function bodyWithSection(section: string, value: unknown): unknown {
+  return bodyWithFoundation({ ...SITE_DETAIL_BODY.foundation, [section]: value });
+}
+
+const DECLARED_NODES = [
+  { node_id: "pv-array", component_id: "pv-array", node_role: "GENERATION" },
+];
+
+const DECLARED_CONNECTIONS = [
+  {
+    connection_id: "array-to-meter",
+    from_node: "pv-array",
+    to_node: "site-meter",
+    medium: "AC",
+  },
+];
 
 /**
  * Bodies whose site fields are all correct and whose foundation is not, and
@@ -106,6 +131,10 @@ const SHAPES_THAT_FABRICATE_A_VALUE: [string, unknown][] = [
       version: 1,
       valid_from: "2026-09-14T09:12:00Z",
       components: [],
+      topology: null,
+      devices: null,
+      signal_mappings: null,
+      control_assumptions: null,
     }),
   ],
   [
@@ -142,9 +171,104 @@ const SHAPES_THAT_FABRICATE_A_VALUE: [string, unknown][] = [
   ],
 ];
 
+/**
+ * Bodies whose expanded Foundation sections are wrong.
+ *
+ * These are the T014 half, and the first entry is the one that matters. An
+ * empty array is not a malformed body in any structural sense - it parses, it
+ * maps, it renders - and that is exactly the problem: it renders a device
+ * table with a header row and no rows, which states that this site has no
+ * devices. The backend never sends one, so the guard refuses it here rather
+ * than letting a screen make a claim about the world on the strength of a
+ * response nothing in the product produces.
+ */
+const SHAPES_WITH_A_BROKEN_FOUNDATION_SECTION: [string, unknown][] = [
+  [
+    "an empty devices array, which would render an empty device table",
+    bodyWithSection("devices", []),
+  ],
+  [
+    "an empty signal mappings array",
+    bodyWithSection("signal_mappings", []),
+  ],
+  [
+    "an empty control assumptions array",
+    bodyWithSection("control_assumptions", []),
+  ],
+  ["no topology key at all", bodyWithSection("topology", undefined)],
+  ["no devices key at all", bodyWithSection("devices", undefined)],
+  ["no signal mappings key at all", bodyWithSection("signal_mappings", undefined)],
+  [
+    "no control assumptions key at all",
+    bodyWithSection("control_assumptions", undefined),
+  ],
+  ["a topology that is not an object", bodyWithSection("topology", "radial")],
+  [
+    "a topology with no nodes",
+    bodyWithSection("topology", { connections: DECLARED_CONNECTIONS }),
+  ],
+  [
+    "a topology with no connections",
+    bodyWithSection("topology", { nodes: DECLARED_NODES }),
+  ],
+  [
+    "a topology node with no role",
+    bodyWithSection("topology", {
+      nodes: [{ node_id: "pv-array", component_id: "pv-array" }],
+      connections: DECLARED_CONNECTIONS,
+    }),
+  ],
+  [
+    "a device with no signals",
+    bodyWithSection("devices", [
+      {
+        device_id: "pv-inverter-controller",
+        device_type: "CONTROLLER",
+        display_name: "PV inverter controller",
+        component_id: "pv-array",
+        signals: [],
+      },
+    ]),
+  ],
+  [
+    "a signal with no unit",
+    bodyWithSection("devices", [
+      {
+        device_id: "pv-inverter-controller",
+        device_type: "CONTROLLER",
+        display_name: "PV inverter controller",
+        component_id: "pv-array",
+        signals: [{ signal_id: "ac-power", display_name: "AC output power" }],
+      },
+    ]),
+  ],
+  [
+    "a mapping with no device",
+    bodyWithSection("signal_mappings", [
+      {
+        mapping_id: "pv-ac-power",
+        signal_id: "ac-power",
+        component_id: "pv-array",
+      },
+    ]),
+  ],
+  [
+    "a control assumption with no statement",
+    bodyWithSection("control_assumptions", [
+      {
+        assumption_id: "solar-first-dispatch",
+        display_name: "Solar is dispatched first",
+        component_id: null,
+        basis: "TEMPLATE",
+      },
+    ]),
+  ],
+];
+
 const MALFORMED_DETAIL_BODIES: [string, unknown][] = [
   ...SHAPES_THAT_THROW_WHILE_RENDERING,
   ...SHAPES_THAT_FABRICATE_A_VALUE,
+  ...SHAPES_WITH_A_BROKEN_FOUNDATION_SECTION,
 ];
 
 function respondWith(body: unknown, status = 200): void {
@@ -245,6 +369,34 @@ describe("a malformed detail response is unavailable, never half a site", () => 
       ).toBe(true);
     },
   );
+
+  it("refuses an empty section rather than rendering it as declared", async () => {
+    // The sharpest of the T014 refusals, and worth its own test because it is
+    // the only one that would not look broken. `[]` parses and renders; what
+    // it renders is a table saying this site has no devices, which is a claim
+    // about the site that no configuration document is entitled to make.
+    const body = bodyWithSection("devices", []);
+
+    expect(isSiteDetail(body)).toBe(false);
+
+    respondWith(body);
+    expect(await createSiteDirectoryClient().getSite("MG-002")).toEqual({
+      status: "unavailable",
+    });
+  });
+
+  it("accepts null for a section, which is the document declaring none", async () => {
+    // The other half of the pair. Without this the test above could be
+    // satisfied by a guard that refused every absence, and the screen would
+    // have no way to state one.
+    const body = bodyWithSection("devices", null);
+
+    expect(isSiteDetail(body)).toBe(true);
+
+    respondWith(body);
+    const result = await createSiteDirectoryClient().getSite("MG-002");
+    expect(result.status).toBe("loaded");
+  });
 
   it("refuses a body whose site fields are wrong under a good foundation", async () => {
     respondWith({ ...SITE_DETAIL_BODY, site_id: 2 });

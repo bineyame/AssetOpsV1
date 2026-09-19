@@ -270,7 +270,7 @@
                 {
                   "component_id": "pv-array",
                   "node_id": "pv-array",
-                  "node_role": "SOURCE"
+                  "node_role": "GENERATION"
                 },
                 {
                   "component_id": "site-meter",
@@ -548,7 +548,7 @@
                 {
                   "component_id": "pv-array",
                   "node_id": "pv-array",
-                  "node_role": "SOURCE"
+                  "node_role": "GENERATION"
                 },
                 {
                   "component_id": "site-meter",
