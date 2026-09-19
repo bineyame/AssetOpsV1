@@ -269,6 +269,13 @@ button:focus-visible {
   margin-bottom: var(--space-5);
 }
 
+.page-header__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .page-header__heading {
   margin: 0;
   font-size: var(--text-2xl);
@@ -808,4 +815,53 @@ button:focus-visible {
 
 .stack > * + * {
   margin-top: var(--space-4);
+}
+
+/* Action list ------------------------------------------------------------- */
+
+/*
+ * Actions the product can name but cannot yet perform, each with its reason
+ * beside it rather than behind a tooltip.
+ *
+ * The reason is what makes the disabled state honest, so it is styled as
+ * content rather than hidden until hover: a `disabled` button takes no focus
+ * and fires no pointer events, so anything attached to hovering it is
+ * unreachable by keyboard and unreliable by mouse.
+ */
+.action-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+}
+
+.action-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-start;
+}
+
+.action {
+  font: inherit;
+  font-weight: var(--weight-medium);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.action:disabled {
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border-color: var(--border-subtle);
+}
+
+.action-list__reason {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }

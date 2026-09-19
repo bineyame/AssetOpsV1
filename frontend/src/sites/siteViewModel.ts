@@ -139,6 +139,8 @@ export interface SiteDetailView extends SiteView {
   timezone: string;
   foundationVersion: string;
   foundationValidFrom: string;
+  /** The summary the foundation document carries, verbatim. */
+  foundationSummary: string;
   integrationReadiness: SiteUnavailableFact;
   evidenceAvailability: SiteUnavailableFact;
   sourceHealth: SiteUnavailableFact;
@@ -192,6 +194,7 @@ export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView 
     timezone: site.timezone,
     foundationVersion: `${site.foundation.version}`,
     foundationValidFrom: site.foundation.valid_from,
+    foundationSummary: site.foundation.summary,
     integrationReadiness: INTEGRATION_READINESS_UNAVAILABLE,
     evidenceAvailability: EVIDENCE_AVAILABILITY_UNAVAILABLE,
     sourceHealth: SOURCE_HEALTH_UNAVAILABLE,

@@ -9,11 +9,16 @@ import type { ReactNode } from "react";
  * this feature refuses to draw. T011 is the slice that fills it, with the
  * gated create entry point the Sites index already had.
  *
- * There is still no badge slot. The mockups put a provenance badge beside a
- * Site's name; that is the Site identity header and belongs to T012. And two
- * of the header controls the mockups draw, `Edit` and `Version History`, are
- * never rendered at all, so the slot is for what exists rather than for what
- * the mockup shows.
+ * `badge` is the slot T009 said would belong to T012, and this is T012. The
+ * mockups put a provenance badge beside a Site's name, and a Site's identity
+ * header is the one place that is a fact rather than decoration: `Simulated`
+ * is the rendering of `source.mode`, and it sits beside the identity because
+ * it is about where this subject's evidence comes from.
+ *
+ * It renders nothing when empty, like `actions`. Two of the header controls
+ * the mockups draw, `Edit` and `Version History`, are never rendered at all,
+ * so the action slot is for what exists rather than for what the mockup
+ * shows.
  *
  * `actions` renders nothing when empty, so a screen with no action gets no
  * container and no gap.
@@ -28,6 +33,8 @@ export interface PageHeaderProps {
   headingId?: string;
   /** One line under the heading. */
   subtitle?: ReactNode;
+  /** Rendered beside the heading. Nothing renders when this is empty. */
+  badge?: ReactNode;
   /** Rendered opposite the heading. Nothing renders when this is empty. */
   actions?: ReactNode;
 }
@@ -46,14 +53,18 @@ export function PageHeader({
   title,
   headingId,
   subtitle,
+  badge,
   actions,
 }: PageHeaderProps) {
   return (
     <header className="page-header">
       <div>
-        <h1 className="page-header__heading" id={headingId}>
-          {title}
-        </h1>
+        <div className="page-header__title">
+          <h1 className="page-header__heading" id={headingId}>
+            {title}
+          </h1>
+          {isEmpty(badge) ? null : badge}
+        </div>
         {subtitle === undefined ? null : (
           <p className="page-header__subtitle">{subtitle}</p>
         )}

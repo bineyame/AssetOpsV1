@@ -122,6 +122,34 @@ function renderAt(
   );
 }
 
+/**
+ * One `<main>` markup string with the Quick Actions panel removed, and nothing
+ * else removed.
+ *
+ * The panel is found by its own heading id rather than by position or by
+ * matching text, so this cannot quietly start stripping more than it was
+ * written to strip. It throws when the panel is not there, because a stripper
+ * that silently removes nothing would turn this comparison into a comparison
+ * of two identical unstripped strings and pass for the wrong reason.
+ */
+const PANEL_OPEN = '<section class="panel"';
+
+function stripQuickActions(markup: string): string {
+  const panels = markup.split(PANEL_OPEN);
+  const kept = panels.filter(
+    (panel) => !panel.includes('id="site-detail-actions-heading"'),
+  );
+
+  if (kept.length === panels.length) {
+    throw new Error(
+      "No Quick Actions panel found to strip. The comparison this feeds would " +
+        "have passed without comparing what it exists to compare.",
+    );
+  }
+
+  return kept.join(PANEL_OPEN);
+}
+
 describe("a site is opened from a Sites row", () => {
   it("renders the site the row addresses", async () => {
     renderAt("/sites", ENABLED);
@@ -132,7 +160,7 @@ describe("a site is opened from a Sites row", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "Kalangala Mini-Grid",
+        name: "MG-002",
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
@@ -144,7 +172,7 @@ describe("a site is opened from a Sites row", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "Kalangala Mini-Grid",
+        name: "MG-002",
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
@@ -164,7 +192,7 @@ describe("a site is opened from a Sites row", () => {
 
   it("offers the Site tab destinations and the Sites index, and nothing else", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
-    await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
+    await screen.findByRole("heading", { level: 1, name: "MG-002" });
 
     const main = within(container).getByRole("main");
 
@@ -180,24 +208,34 @@ describe("a site is opened from a Sites row", () => {
         .getAllByRole("link")
         .map((link) => [link.getAttribute("href"), link.textContent]),
     ).toEqual([
+      ["/sites", "Sites"],
       ["/sites/MG-002", "Overview"],
       ["/sites/MG-002/foundation", "Foundation"],
-      ["/sites", "Back to Sites"],
     ]);
   });
 
-  it("offers no control on the site page beyond those links", async () => {
+  it("offers no enabled control on the site page", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
-    await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
+    await screen.findByRole("heading", { level: 1, name: "MG-002" });
 
     const main = within(container).getByRole("main");
 
-    expect(
+    // T007 asserted no control at all. T012 adds the Quick Actions panel, and
+    // every control in it is disabled with its reason, so what stays absolute
+    // is the claim underneath: nothing on this page can be operated. An
+    // enabled control here would be a capability the product does not have.
+    const controls = Array.from(
       main.querySelectorAll(
         "button, input, select, textarea, form, [role='button'], [role='tab'], [contenteditable='true']",
       ),
-    ).toHaveLength(0);
-    expect(main.querySelectorAll("[disabled], [aria-disabled]")).toHaveLength(0);
+    );
+
+    expect(controls.length).toBeGreaterThan(0);
+    expect(main.querySelectorAll("input, select, textarea, form")).toHaveLength(0);
+    for (const control of controls) {
+      expect(control.tagName).toBe("BUTTON");
+      expect((control as HTMLButtonElement).disabled).toBe(true);
+    }
   });
 });
 
@@ -211,16 +249,16 @@ describe("the site route is an operator capability", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "Kalangala Mini-Grid",
+        name: "MG-002",
       }),
     ).toBeInTheDocument();
   });
 
-  it("renders identical markup in both gate states", async () => {
+  it("renders identical Site facts in both gate states", async () => {
     const enabled = renderAt("/sites/MG-002", ENABLED);
     await within(enabled.container).findByRole("heading", {
       level: 1,
-      name: "Kalangala Mini-Grid",
+      name: "MG-002",
     });
     const enabledMarkup = within(enabled.container).getByRole("main").outerHTML;
     enabled.unmount();
@@ -228,33 +266,89 @@ describe("the site route is an operator capability", () => {
     const disabled = renderAt("/sites/MG-002", DISABLED);
     await within(disabled.container).findByRole("heading", {
       level: 1,
-      name: "Kalangala Mini-Grid",
+      name: "MG-002",
     });
 
-    expect(within(disabled.container).getByRole("main").outerHTML).toBe(
-      enabledMarkup,
-    );
+    // Everything except the Quick Actions panel, which T012 makes differ on
+    // purpose: the gated actions are absent with the gate off and rendered
+    // disabled with it open. That is the gate rule doing its job rather than
+    // the gate leaking into Site semantics, so what must not vary is every
+    // fact about the site, and the panel is removed from both sides.
+    expect(
+      stripQuickActions(within(disabled.container).getByRole("main").outerHTML),
+    ).toBe(stripQuickActions(enabledMarkup));
+  });
+
+  it("names no simulator surface at all with the gate off", async () => {
+    const { container } = renderAt("/sites/MG-003", DISABLED, [
+      LIVE_SITE_DETAIL,
+    ]);
+    await screen.findByRole("heading", { level: 1, name: "MG-003" });
+
+    const main = within(container).getByRole("main");
+
+    // Scoped to the site page. The workspace utility chrome above the operator
+    // shell carries the gated `Open Simulator Lab` entry point when the gate
+    // is open, which is T004's chokepoint and not this route's.
+    //
+    // With the gate closed this page says nothing about a Simulator Lab at
+    // all: not a control, not a label, not a greyed-out hint that a developer
+    // workspace exists. That is the gate rule, and it is stricter than the
+    // sequencing rule below.
+    expect(main.textContent).not.toMatch(/simulat/i);
+    for (const anchor of Array.from(main.querySelectorAll("a"))) {
+      expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
+    }
   });
 
   it.each([
     ["gate off", DISABLED],
     ["gate on", ENABLED],
-  ])("names and reaches no simulator surface with the %s", async (_name, flags) => {
+  ])("reaches no simulator surface with the %s", async (_name, flags) => {
     const { container } = renderAt("/sites/MG-003", flags as FeatureFlags, [
       LIVE_SITE_DETAIL,
     ]);
-    await screen.findByRole("heading", { level: 1, name: "Buvuma Mini-Grid" });
+    await screen.findByRole("heading", { level: 1, name: "MG-003" });
 
     const main = within(container).getByRole("main");
 
-    // Scoped to the site page. The workspace utility chrome above the
-    // operator shell carries the gated `Open Simulator Lab` entry point when
-    // the gate is open, which is T004's chokepoint and not this route's; what
-    // this slice must not add is a crossing from the site page itself.
-    expect(main.textContent).not.toMatch(/simulat/i);
+    // This half of the claim is absolute in both states and is the one that
+    // matters. With the gate open T012 names two Lab actions, disabled, with
+    // their prerequisites. Naming is not reaching: there is no link, no href,
+    // and nothing a click can follow.
     for (const anchor of Array.from(main.querySelectorAll("a"))) {
       expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
     }
+    expect(main.innerHTML).not.toMatch(/href="[^"]*simulat/i);
+  });
+
+  it("names the two Lab actions with the gate on, disabled and inert", async () => {
+    const { container } = renderAt("/sites/MG-003", ENABLED, [
+      LIVE_SITE_DETAIL,
+    ]);
+    await screen.findByRole("heading", { level: 1, name: "MG-003" });
+
+    const main = within(container).getByRole("main");
+
+    // The sequencing rule, as opposed to the gate rule above. The capability
+    // is one the map can sequence and cannot yet perform, so it is rendered
+    // and disabled with the step that would make it work named beside it.
+    for (const label of ["Open in Simulator Lab", "Start Simulation"]) {
+      const action = within(main).getByRole("button", { name: label });
+
+      expect((action as HTMLButtonElement).disabled).toBe(true);
+
+      const reason = main.querySelector(
+        "#" + action.getAttribute("aria-describedby"),
+      );
+
+      expect(reason?.textContent ?? "").not.toBe("");
+    }
+
+    const before = main.innerHTML;
+    fireEvent.click(within(main).getByRole("button", { name: "Start Simulation" }));
+
+    expect(main.innerHTML).toBe(before);
   });
 });
 

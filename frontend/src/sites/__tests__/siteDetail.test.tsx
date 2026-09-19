@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SiteDetails } from "../SiteDetails";
@@ -128,11 +128,17 @@ const ABSENT_CONTROL_LABELS = [
   "Change",
 ];
 
-/** Quick Actions belongs to canonical screen 2 chrome and arrives with it. */
-const ABSENT_QUICK_ACTION_LABELS = [
+/**
+ * The Quick Actions the substrate must never render on its own.
+ *
+ * Both are Simulator Lab actions. Deciding them means reading the feature flag
+ * and naming the Lab's address, which this module may not do, so they reach the
+ * panel through the slot the composing shell fills. With the slot empty - a
+ * gate-off build, and every test in this file - they are absent.
+ */
+const SHELL_SUPPLIED_QUICK_ACTION_LABELS = [
   "Open in Simulator Lab",
   "Start Simulation",
-  "View Live Data",
 ];
 
 const FORBIDDEN_ACTION_PATTERN =
@@ -173,9 +179,15 @@ describe("a site is rendered from its record", () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
+    // The heading is the `site_id`, not the display name. What addresses a
+    // site is what titles its page; the name is a label on the thing rather
+    // than the thing, so it renders beneath. T007 titled this with the display
+    // name because identity had nowhere else to go on that screen; canonical
+    // screen 2 gives it a header of its own.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
+      screen.getByRole("heading", { level: 1, name: "MG-002" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("Kalangala Mini-Grid", { selector: "p" })).toBeInTheDocument();
     expect(factValue(container, "Site ID")).toBe("MG-002");
     expect(factValue(container, "Name")).toBe("Kalangala Mini-Grid");
     expect(factValue(container, "Type")).toBe("Mini-grid");
@@ -351,6 +363,21 @@ describe("the six provenance and status concepts are six facts", () => {
     expect(factValue(container, "Source health")).toMatch(/^Not recorded\./);
   });
 
+  it("renders the identity header badge as mode, and never as status", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // Canonical screen 2 puts a badge beside the Site's identity. It is the
+    // rendering of `source.mode`, which is the one thing about the subject
+    // that belongs in its header - not lifecycle, not health, not an
+    // assessment.
+    const header = container.querySelector(".page-header__title");
+
+    expect(header?.textContent).toContain("MG-002");
+    expect(header?.textContent).toContain("Simulated");
+    expect(header?.textContent).not.toMatch(/Planned|User|healthy|online/i);
+  });
+
   it("puts the Simulated badge next to lifecycle status, never inside it", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
@@ -510,9 +537,22 @@ describe("a configuration-only site fabricates nothing", () => {
   });
 });
 
-describe("no action control renders, in any state", () => {
+describe("what renders is absent or disabled, and never enabled", () => {
+  /**
+   * T007 and T008 asserted that no control rendered at all. T012 changes that
+   * deliberately, and the change is narrower than it looks.
+   *
+   * What T007 refused was a control for a capability M1 decided against -
+   * editing, deleting, version history - and that refusal is unchanged and
+   * still absolute below. What T012 adds is the other kind: a capability the
+   * product can sequence but cannot yet perform, which renders disabled and
+   * says what would make it work.
+   *
+   * The two must not blur, which is why the absence assertions stay exactly as
+   * strong as they were and the new ones assert disabled rather than merely
+   * "not enabled".
+   */
   it.each([
-    ["a configured site", { status: "loaded", site: USER_SIMULATED_SITE }],
     ["a site that is not found", { status: "not_found" }],
     ["an unreadable store", { status: "unavailable" }],
   ])("offers no control at all for %s", async (_name, result) => {
@@ -521,36 +561,106 @@ describe("no action control renders, in any state", () => {
     );
     await settledScreen();
 
-    // Absence, not disablement: nothing here is rendered and then greyed out,
-    // so there is no control to check `disabled` or `aria-disabled` on.
+    // A screen that could not read a site has nothing to act on, so the Quick
+    // Actions panel is not rendered there at all - not rendered empty, and not
+    // rendered with everything greyed out.
     expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
     expect(container.querySelectorAll("[disabled]")).toHaveLength(0);
     expect(container.querySelectorAll("[aria-disabled]")).toHaveLength(0);
+    expect(container.textContent ?? "").not.toMatch(/quick actions/i);
+  });
+
+  it("renders no enabled control for a configured site", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // Every control on this screen is disabled. Not "most of them": an enabled
+    // control would be a capability that exists, and none does.
+    const controls = Array.from(
+      container.querySelectorAll(INTERACTIVE_SELECTOR),
+    );
+
+    expect(controls.length).toBeGreaterThan(0);
+    for (const control of controls) {
+      expect(control.tagName).toBe("BUTTON");
+      expect((control as HTMLButtonElement).disabled).toBe(true);
+    }
+  });
+
+  it("gives every disabled control a visible, associated reason", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // A disabled control with no reason is a dead end. A reason in a tooltip
+    // is a reason a keyboard cannot reach, because a disabled button takes no
+    // focus - so the reason is rendered as text and tied to the control.
+    for (const control of Array.from(container.querySelectorAll("button"))) {
+      const describedBy = control.getAttribute("aria-describedby");
+
+      expect(describedBy).toBeTruthy();
+
+      const reason = container.querySelector("#" + describedBy);
+
+      expect(reason).not.toBeNull();
+      expect((reason?.textContent ?? "").length).toBeGreaterThan(20);
+    }
+  });
+
+  it("does nothing when a disabled control is clicked", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    const before = container.innerHTML;
+    for (const control of Array.from(container.querySelectorAll("button"))) {
+      fireEvent.click(control);
+    }
+    await settledScreen();
+
+    // Nothing to navigate to, nothing to submit, and no handler to call.
+    expect(container.innerHTML).toBe(before);
+    expect(container.querySelectorAll("form")).toHaveLength(0);
   });
 
   it.each(ABSENT_CONTROL_LABELS)("does not render %s anywhere", async (label) => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
+    // Unchanged from T007. These are deferred by decision, so they are absent
+    // from the DOM rather than disabled: disabled would read as "soon", and
+    // none of these is coming.
     expect(screen.queryByRole("button", { name: label })).toBeNull();
     expect(screen.queryByRole("link", { name: label })).toBeNull();
     expect(screen.queryByText(label)).toBeNull();
     expect(container.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });
 
-  it.each(ABSENT_QUICK_ACTION_LABELS)(
-    "does not render %s, enabled or disabled",
+  it.each(SHELL_SUPPLIED_QUICK_ACTION_LABELS)(
+    "does not render %s from the substrate alone",
     async (label) => {
       const { container } = renderSite(USER_SIMULATED_SITE);
       await settledScreen();
 
-      // These belong to the Quick Actions panel, which is canonical screen 2
-      // chrome. Nothing here invents a container in order to hold a disabled
-      // control.
+      // The slot is empty here, and that is the gate-off shape. The substrate
+      // cannot name the Lab, so with nothing filling the slot the Lab is not
+      // named.
       expect(screen.queryByText(label)).toBeNull();
-      expect(container.textContent ?? "").not.toMatch(/quick actions/i);
+      expect(container.textContent ?? "").not.toMatch(/simulator|simulation/i);
     },
   );
+
+  it("still renders the panel correctly with the slot empty", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // Not an empty frame waiting to be filled: `View Live Data` is an operator
+    // capability, unavailable for an operator reason, so the panel says
+    // something true on its own.
+    const action = screen.getByRole("button", { name: "View Live Data" });
+
+    expect((action as HTMLButtonElement).disabled).toBe(true);
+    expect(container.textContent).toMatch(/Quick actions/);
+    expect(container.querySelectorAll("button")).toHaveLength(1);
+  });
 
   it("offers no crossing into the Simulator Lab", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
@@ -576,5 +686,90 @@ describe("the substrate is a leaf with no shell discriminant", () => {
     // only be a same-input assertion today. The real render-equivalence guard
     // needs a second consumer and ships with the Lab's site view at step 6.
     expect(second.container.innerHTML).toBe(firstMarkup);
+  });
+});
+
+describe("the Site information panel carries the facts assigned to it", () => {
+  /**
+   * The T012 review found the facts present on the screen but scattered:
+   * Lifecycle in the provenance panel, foundation version and validity in a
+   * panel of their own, while the acceptance criterion assigns all of them to
+   * `Site information`. The tests missed it because every fact was queried
+   * against the whole container, so a fact could be anywhere and still pass.
+   *
+   * These scope to the panel. A fact that moves out of it now fails here
+   * rather than passing somewhere else on the page.
+   */
+  function sitePanel(container: HTMLElement): HTMLElement {
+    const heading = container.querySelector("#site-detail-identity-heading");
+    const panel = heading?.closest("section");
+
+    if (!panel) {
+      throw new Error("No Site information panel to scope to.");
+    }
+    return panel as HTMLElement;
+  }
+
+  function termsIn(panel: HTMLElement): string[] {
+    return Array.from(panel.querySelectorAll("dt")).map(
+      (term) => term.textContent ?? "",
+    );
+  }
+
+  it("carries exactly the facts the task assigns to it", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    expect(termsIn(sitePanel(container))).toEqual([
+      "Site ID",
+      "Name",
+      "Type",
+      "Location",
+      "Timezone",
+      "Lifecycle status",
+      "Foundation version",
+      "Valid from",
+      "Summary",
+    ]);
+  });
+
+  it("renders each of those facts from the record, inside that panel", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    const panel = sitePanel(container);
+
+    expect(factValue(panel, "Site ID")).toBe("MG-002");
+    expect(factValue(panel, "Lifecycle status")).toBe("Planned");
+    expect(factValue(panel, "Foundation version")).toBe("1");
+    expect(factValue(panel, "Valid from")).toBe("2026-09-14T09:12:00Z");
+  });
+
+  it("keeps mode and configuration origin out of it", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // Lifecycle moved; provenance did not. Mode is about where evidence comes
+    // from and configuration origin is about the document, and neither is a
+    // fact about the site in the sense this panel collects.
+    const terms = termsIn(sitePanel(container));
+
+    expect(terms).not.toContain("Mode");
+    expect(terms).not.toContain("Configuration origin");
+    expect(terms).not.toContain("Created from template");
+    expect(terms).not.toContain("Status");
+  });
+
+  it("still states lifecycle and mode as separate facts after the move", async () => {
+    const { container } = renderSite(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    // The seam this slice must not break while rearranging panels. Separate
+    // terms, separate values, neither bleeding into the other, and no single
+    // collapsed `Status`.
+    expect(factValue(container, "Lifecycle status")).toBe("Planned");
+    expect(factValue(container, "Mode")).toBe("Simulated");
+    expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated/i);
+    expect(factValue(container, "Mode")).not.toMatch(/planned/i);
   });
 });

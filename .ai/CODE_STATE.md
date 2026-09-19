@@ -707,3 +707,101 @@ What this slice leaves open.
 4. Colour and divider have no guard clause. Consistent with the viewport
    policy, which leaves exact visual fit to review, but it means a future slice
    could regrey the row without anything failing except a human looking.
+
+## T012 - Site Details to canonical screen two
+
+What this slice settled in code.
+
+The Site page is titled by `site_id`, with the display name beneath it and the
+mode badge beside it. What addresses a site titles its page; a name is a label
+on the thing rather than the thing. The id rendered is the record's, so a
+case-variant address still resolves to one spelling on screen.
+
+Breadcrumbs exist for the first time. The shell names the parent, because where
+a surface sits in a route hierarchy is a shell's fact about its own routes, and
+the substrate appends the Site from the loaded record. That split is what T011A
+could not do: a crumb built from the address would have rendered `mg-002` on a
+page showing `MG-002`. `Back to Sites` is gone, superseded by the crumb.
+
+`PageHeader` gained the `badge` slot T009 deferred to this slice.
+
+Quick actions is where the three-state rule becomes markup, and it carries two
+different rules at once.
+
+- The gate rule is about existence. `Open in Simulator Lab` and `Start
+  Simulation` come from `simulatorLabSiteActions` in the one gated module,
+  which returns an empty list when the flag is off, so a gate-off build renders
+  no control, no label and no hint that a developer workspace exists.
+- The sequencing rule is about eligibility. With the flag on those two render
+  disabled, naming the causal step that would make them work.
+- `View Live Data` obeys only the second rule. It is not a simulator
+  capability, so it is the substrate's, renders in both gate states, and is
+  unavailable for an evidence reason rather than a Lab reason.
+
+Getting either rule backwards looks like a detail and is not: a gated control
+rendered disabled leaks the existence of a developer workspace into a build
+that has none, and a sequenced control that disappears hides a capability the
+product intends to have.
+
+Every disabled control carries its prerequisite as visible text tied by
+`aria-describedby`, never a tooltip: a disabled button takes no focus, so a
+tooltip on one is a reason a keyboard cannot reach. Everything M1 decided
+against stays absent from the DOM, because disabled would read as soon.
+
+The substrate gained its second and third slots, `parentCrumb` and
+`quickActions`. It still imports no shell code, no simulator code and no
+feature flag, and carries no discriminant. With the slots empty - the shape a
+substrate test renders and the shape a gate-off build produces - the panel is
+still correct rather than an empty frame.
+
+Four inherited assertions moved and none was loosened. "No control renders"
+became "no enabled control renders", which also requires every control to be a
+button. "Identical markup in both gate states" became identical Site facts,
+comparing everything but the Quick actions panel, with a stripper that throws
+when it finds no panel so it cannot pass by deleting both sides. "Names and
+reaches no simulator surface" split into an absolute reachability claim in both
+states and a naming claim scoped to gate-off, plus a new positive assertion for
+gate-on. The heading assertions followed the title to `site_id` and gained the
+display name beneath it.
+
+What this slice leaves open.
+
+1. Not rendered in a browser. Three disabled buttons each with a paragraph of
+   reason may be the heaviest region on the screen.
+2. A disabled button takes no focus, so a keyboard user tabs past all three
+   actions. The reasons are visible text and are read in document order, but
+   they are not reachable by tabbing to the control they describe.
+3. The mode badge appears twice, in the identity header and in the provenance
+   panel. Both are true; a reader may wonder whether they are one fact.
+4. The prerequisite strings are authored prose about the product's own
+   sequencing, not derived facts. They will need revisiting as those steps land.
+5. The Site information panel keeps the heading id
+   `site-detail-identity-heading` while its heading text changed.
+6. `site_id` as the page title is a visible change to a screen the user has
+   already seen titled by the display name.
+
+What review corrected in T012.
+
+The `Site information` panel did not carry the facts the task assigns to it:
+Lifecycle sat with provenance, and the foundation's version and validity had a
+panel of their own. They moved. Mode, configuration origin and template
+provenance stayed, because those describe where evidence and documents come
+from rather than the site itself.
+
+The reason it went unnoticed is the part worth keeping. Every fact was asserted
+with a helper that searched the whole container, so a fact could be anywhere on
+the page and still satisfy a criterion that names a panel. Panel membership was
+never tested, only presence. The assertions now scope by heading id and throw
+when there is no panel to scope to.
+
+Proving that took two attempts and the first was wrong. Deleting a fact fails
+plenty of assertions and proves nothing about membership; the scenario the
+finding describes is a fact still on the page in the wrong place. Moving
+lifecycle back to provenance leaves every global assertion green and fails only
+the two scoped ones, which is the proof that was needed.
+
+Rearranging panels put a settled seam at risk: the mockup collapses lifecycle
+and mode into one `Status`, and T007 placed them adjacent so a reader could see
+they were not. Adjacency was never what carried it - separate terms, values and
+tones are - so the separation survived the move, and the doc comment claiming
+they are adjacent rows was corrected rather than left to go stale.
