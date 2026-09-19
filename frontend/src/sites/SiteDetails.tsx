@@ -70,12 +70,15 @@ export interface SiteDetailsProps {
    */
   tabs?: ReactNode;
   /**
-   * Where this Site sits in the composing shell's own route hierarchy. The
-   * shell knows its routes; this knows the Site. So the shell names the parent
-   * and this appends the Site, spelled the way the record spells it rather
-   * than the way the address did.
+   * Where this Site sits in the composing shell's own route hierarchy.
+   *
+   * The shell knows its routes; this knows the Site. So the shell builds the
+   * trail above this page and this appends the current crumb, spelled the way
+   * the record spells it rather than the way the address did. It is a function
+   * because a deeper surface needs the canonical `site_id` to build its own
+   * parent, and only this side has it.
    */
-  parentCrumb?: Crumb;
+  parentTrail?: (siteId: string) => Crumb[];
   /**
    * Site actions the composing shell owns, placed inside the Quick actions
    * panel. The gated ones cannot live here: they depend on the feature flag
@@ -88,7 +91,7 @@ export function SiteDetails({
   siteId,
   detail,
   tabs,
-  parentCrumb,
+  parentTrail,
   quickActions,
 }: SiteDetailsProps) {
   const result = useSiteRecord(siteId, detail);
@@ -143,7 +146,7 @@ export function SiteDetails({
     <SiteDetailFacts
       site={result.site}
       tabs={tabs}
-      parentCrumb={parentCrumb}
+      parentTrail={parentTrail}
       quickActions={quickActions}
     />
   );
@@ -174,8 +177,8 @@ export interface SiteDetailFactsProps {
   site: SiteDetailReadModel;
   /** See `SiteDetailsProps.tabs`. */
   tabs?: ReactNode;
-  /** See `SiteDetailsProps.parentCrumb`. */
-  parentCrumb?: Crumb;
+  /** See `SiteDetailsProps.parentTrail`. */
+  parentTrail?: (siteId: string) => Crumb[];
   /** See `SiteDetailsProps.quickActions`. */
   quickActions?: ReactNode;
 }
@@ -183,15 +186,15 @@ export interface SiteDetailFactsProps {
 export function SiteDetailFacts({
   site,
   tabs,
-  parentCrumb,
+  parentTrail,
   quickActions,
 }: SiteDetailFactsProps) {
   const view = deriveSiteDetailView(site);
 
   return (
     <>
-      {parentCrumb === undefined ? null : (
-        <Breadcrumbs trail={[parentCrumb, { label: view.siteId }]} />
+      {parentTrail === undefined ? null : (
+        <Breadcrumbs trail={[...parentTrail(view.siteId), { label: view.siteId }]} />
       )}
 
       {/*

@@ -6,6 +6,7 @@ import {
 } from "../sites/SiteConfiguration";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { siteDetailHref } from "./operatorSiteRoutes";
 
 /**
  * The operator route for one site's Foundation, addressed by `site_id`.
@@ -56,9 +57,13 @@ import { OperatorSiteTabs } from "./operatorSiteTabs";
  */
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
+  sitesPath: string;
 }
 
-export function SiteFoundationFrame({ detail }: SiteFoundationFrameProps) {
+export function SiteFoundationFrame({
+  detail,
+  sitesPath,
+}: SiteFoundationFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
 
   return (
@@ -67,6 +72,10 @@ export function SiteFoundationFrame({ detail }: SiteFoundationFrameProps) {
         siteId={siteId}
         detail={detail}
         tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
+        parentTrail={(canonicalSiteId) => [
+          { label: "Sites", to: sitesPath },
+          { label: canonicalSiteId, to: siteDetailHref(canonicalSiteId) },
+        ]}
       />
     </main>
   );

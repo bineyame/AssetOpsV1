@@ -73,7 +73,7 @@ export function SiteDetailFrame({
         siteId={siteId}
         detail={detail}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
-        parentCrumb={{ label: "Sites", to: sitesPath }}
+        parentTrail={() => [{ label: "Sites", to: sitesPath }]}
         quickActions={simulatorLabSiteActions(flags).map((action) => (
           <SiteQuickAction
             key={action.label}

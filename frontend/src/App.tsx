@@ -115,7 +115,12 @@ export function App({
           />
           <Route
             path={SITE_FOUNDATION_ROUTE_PATH}
-            element={<SiteFoundationFrame detail={siteDetail} />}
+            element={
+              <SiteFoundationFrame
+                detail={siteDetail}
+                sitesPath={SITES_PATH}
+              />
+            }
           />
           <Route
             path={LEGACY_SITE_CONFIGURATION_ROUTE_PATH}

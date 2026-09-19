@@ -320,11 +320,28 @@ export const CONTROL_ASSUMPTIONS_NOT_DECLARED: SiteUnavailableFact = {
  * could be collapsed into one another, and one derivation in one view model
  * would be enough to make the two screens disagree about what a site is.
  */
+/**
+ * One headline number the foundation actually declares.
+ *
+ * Derived only from components that carry a rating. A component with no
+ * declared rating produces no key parameter at all - not a dash, not a zero,
+ * not an empty row. The components table already states that component's
+ * absence of a rating in words, which is a statement about the document; a
+ * blank line in a parameters list would read as a property of the site.
+ */
+export interface SiteKeyParameterView {
+  /** The component the parameter belongs to. */
+  label: string;
+  /** The declared value with its canonical unit, exactly as the record has it. */
+  value: string;
+}
+
 export interface SiteConfigurationView extends SiteDetailView {
   foundationSummary: string;
   foundationValiditySemantics: string;
   configurationFixedAtCreation: string;
   components: SiteComponentView[];
+  keyParameters: SiteKeyParameterView[];
   devices: SiteUnavailableFact;
   signalMappings: SiteUnavailableFact;
   controlAssumptions: SiteUnavailableFact;
@@ -353,6 +370,16 @@ export function deriveSiteConfigurationView(
     foundationValiditySemantics: FOUNDATION_VALIDITY_SEMANTICS,
     configurationFixedAtCreation: CONFIGURATION_FIXED_AT_CREATION,
     components: site.foundation.components.map(deriveSiteComponentView),
+    // Filtered on the record, not on the rendered string. A component whose
+    // rating is absent is dropped here rather than rendered as an absence,
+    // because a parameters list is a list of what the foundation declares and
+    // an entry that declares nothing does not belong in one.
+    keyParameters: site.foundation.components
+      .filter((component) => component.rating !== null)
+      .map((component) => ({
+        label: label(component.component_type, COMPONENT_TYPE_LABELS),
+        value: `${component.rating?.value} ${component.rating?.unit}`,
+      })),
     devices: DEVICES_NOT_DECLARED,
     signalMappings: SIGNAL_MAPPINGS_NOT_DECLARED,
     controlAssumptions: CONTROL_ASSUMPTIONS_NOT_DECLARED,

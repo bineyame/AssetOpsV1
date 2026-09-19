@@ -81,8 +81,23 @@ const SHIPPED_SITE: SiteDetailReadModel = {
   template: null,
 };
 
-const INTERACTIVE_SELECTOR = [
-  "a[href]",
+/**
+ * Everything that acts on the site, as opposed to everything interactive.
+ *
+ * T008 banned every interactive element here, which was right when the surface
+ * had no links at all. T013 gives it a subtab row of same-page section links,
+ * and a link that scrolls to a heading is not an action on a site. So the ban
+ * on acting stays absolute and `a[href]` moves out of it, with every remaining
+ * anchor pinned separately to a fragment that resolves.
+ */
+/** The Foundation subtab labels a container renders, in order. */
+function subtabLabels(container: HTMLElement): string[] {
+  return Array.from(container.querySelectorAll(".site-tabs__list li")).map(
+    (item) => item.textContent ?? "",
+  );
+}
+
+const ACTION_SELECTOR = [
   "button",
   "input",
   "select",
@@ -92,11 +107,11 @@ const INTERACTIVE_SELECTOR = [
   "summary",
   "[onclick]",
   "[role='button']",
-  "[role='link']",
   "[role='menuitem']",
   "[role='tab']",
   "[contenteditable='true']",
 ].join(", ");
+
 
 /**
  * The controls the mockups show on canonical screen 3 that this slice does not
@@ -330,9 +345,23 @@ describe("no action control renders, in any state", () => {
 
     // Absence, not disablement: nothing here is rendered and then greyed out,
     // so there is no control to check `disabled` or `aria-disabled` on.
-    expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
+    //
+    // T013 adds the Foundation subtab row, whose section links are the only
+    // interactive elements this surface has. They are navigation within one
+    // page, not actions on the site, so the claim narrows from "nothing is
+    // interactive" to "nothing acts" - and gains the stricter half below,
+    // which pins every link to a fragment resolving to a section that is
+    // actually on the page.
+    expect(container.querySelectorAll(ACTION_SELECTOR)).toHaveLength(0);
     expect(container.querySelectorAll("[disabled]")).toHaveLength(0);
     expect(container.querySelectorAll("[aria-disabled]")).toHaveLength(0);
+
+    for (const anchor of Array.from(container.querySelectorAll("a[href]"))) {
+      const href = anchor.getAttribute("href") ?? "";
+
+      expect(href.startsWith("#")).toBe(true);
+      expect(container.querySelector(href)).not.toBeNull();
+    }
   });
 
   it.each(ABSENT_CONTROL_LABELS)("does not render %s as a control", async (label) => {
@@ -361,6 +390,7 @@ describe("the screen is read-only whatever the configuration origin is", () => {
     await settledScreen(user.container);
     const userFacts = factPairs(user.container);
     const userComponents = componentRows(user.container);
+    const userSubtabs = subtabLabels(user.container);
     user.unmount();
 
     const shipped = renderConfiguration(SHIPPED_SITE);
@@ -382,9 +412,14 @@ describe("the screen is read-only whatever the configuration origin is", () => {
     expect(componentRows(shipped.container)).toEqual(userComponents);
 
     // And it is read-only in both: origin is not a permission.
-    expect(
-      shipped.container.querySelectorAll(INTERACTIVE_SELECTOR),
-    ).toHaveLength(0);
+    expect(shipped.container.querySelectorAll(ACTION_SELECTOR)).toHaveLength(0);
+
+    // The subtab row is identical too, so origin does not change which
+    // sections of a foundation the product says exist. Captured before the
+    // first render was unmounted, because a list read off an unmounted
+    // container is empty and would have compared two nothings.
+    expect(subtabLabels(shipped.container)).toEqual(userSubtabs);
+    expect(userSubtabs.length).toBeGreaterThan(0);
   });
 });
 
