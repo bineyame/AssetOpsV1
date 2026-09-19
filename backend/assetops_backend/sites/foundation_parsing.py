@@ -82,7 +82,23 @@ CONTROL_ASSUMPTION_KEYS = frozenset(
 # defect as a store nobody can read, arriving one panel later.
 MAX_TOPOLOGY_NODES = 64
 MAX_CONNECTIONS = 128
-MAX_DEVICES = 128
+# 64 rather than 128, and the difference is whether this cap can fire at all.
+#
+# A device carries an id, a name, a component reference and a signal list, and
+# the document walker counts every key and scalar in it. Measured against the
+# 2,000-node document ceiling, a document is refused for node count at 77
+# devices - so a cap of 128 could never be reached. Such a document was refused,
+# but for the wrong reason and with a message about node counts rather than
+# about devices, which tells a reader nothing about what to remove.
+#
+# A cap that cannot fire is not protection. This one moves under the ceiling
+# rather than the ceiling moving over it: raising the ceiling to reach the cap
+# would have loosened a whole-document guard to make a per-section guard
+# reachable, which is backwards.
+#
+# 64 leaves headroom under the 77 the ceiling refuses at, so the cap stays the
+# first thing to fire even as a device grows more signals.
+MAX_DEVICES = 64
 MAX_SIGNALS_PER_DEVICE = 32
 MAX_SIGNAL_MAPPINGS = 256
 MAX_CONTROL_ASSUMPTIONS = 32

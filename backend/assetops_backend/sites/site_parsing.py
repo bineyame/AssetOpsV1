@@ -80,8 +80,8 @@ RATING_KEYS = frozenset({"value", "unit"})
 # index with rows nobody can scroll past, and an index that cannot be opened
 # is worse than a create that was refused.
 SITE_DOCUMENT_LIMITS = DocumentLimits(
-    max_nodes=8_000,
-    max_text_length=96_000,
+    max_nodes=2_000,
+    max_text_length=64_000,
     max_nesting_depth=8,
 )
 MAX_COMPONENTS = 64

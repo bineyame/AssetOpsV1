@@ -60,8 +60,8 @@ RATING_KEYS = frozenset({"value", "unit"})
 # Bounds. A pathological document is refused rather than accepted: without
 # these, one shipped or later user-authored file can exhaust memory or fill a
 # screen with ten thousand rows.
-MAX_DOCUMENT_NODES = 8_000
-MAX_DOCUMENT_TEXT_LENGTH = 96_000
+MAX_DOCUMENT_NODES = 2_000
+MAX_DOCUMENT_TEXT_LENGTH = 64_000
 MAX_NESTING_DEPTH = 8
 MAX_COMPONENTS = 64
 MAX_IDENTIFIER_LENGTH = 64
