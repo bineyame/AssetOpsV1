@@ -19,6 +19,7 @@ import {
   labelledAspectsSentence,
   type OperatorSiteTab,
 } from "../operatorSiteTabs";
+import { spacedText } from "../../test/text";
 
 /**
  * The operator Site tab row.
@@ -263,7 +264,7 @@ describe.each(SITE_SURFACES)(
           "[disabled], [aria-disabled], [title], [tabindex], [onclick]",
         ),
       ).toHaveLength(0);
-      expect(row.textContent).not.toMatch(
+      expect(spacedText(row)).not.toMatch(
         /\b(coming soon|not yet available|unavailable|disabled|locked)\b/i,
       );
     });
@@ -275,7 +276,7 @@ describe.each(SITE_SURFACES)(
       const rail = screen.getByRole("navigation", { name: "Operator routes" });
 
       expect(tabRow()).not.toBe(rail);
-      expect(rail.textContent).not.toMatch(/foundation/i);
+      expect(spacedText(rail)).not.toMatch(/foundation/i);
       expect(rail.contains(tabRow())).toBe(false);
     });
   },
@@ -366,8 +367,8 @@ describe("the row says which aspects it cannot open, and says it in words", () =
     // A sentence that read as a fact about this site would be the wrong claim.
     const sentence = within(tabRow()).getByText(/no content in this build yet/);
 
-    expect(sentence.textContent).not.toMatch(/this site/i);
-    expect(sentence.textContent).not.toMatch(/MG-002|Kalangala/);
+    expect(spacedText(sentence)).not.toMatch(/this site/i);
+    expect(spacedText(sentence)).not.toMatch(/MG-002|Kalangala/);
   });
 
   it("separates the two groups with something other than colour", async () => {
@@ -392,7 +393,7 @@ describe("the row says which aspects it cannot open, and says it in words", () =
     // The sentence describes this build. A sentence about a later one would be
     // a promise nobody has made, and `coming soon` is banned in the guard for
     // the same reason.
-    expect(tabRow().textContent).not.toMatch(
+    expect(spacedText(tabRow())).not.toMatch(
       /\b(coming soon|soon|shortly|in a future|will be|planned for|roadmap)\b/i,
     );
   });

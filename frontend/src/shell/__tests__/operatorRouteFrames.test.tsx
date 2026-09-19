@@ -6,6 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * The operator route frames that name no site.
@@ -158,8 +159,8 @@ describe("operator route frame empty states", () => {
       const { container } = renderAt(path);
       await settledScreen();
 
-      expect(container.textContent).not.toMatch(/MG-?\s*\d/i);
-      expect(container.textContent).not.toMatch(/\bsite[-_\s]?id\b/i);
+      expect(spacedText(container)).not.toMatch(/MG-?\s*\d/i);
+      expect(spacedText(container)).not.toMatch(/\bsite[-_\s]?id\b/i);
     },
   );
 });
@@ -194,7 +195,7 @@ describe("operator route navigation", () => {
       const { container } = renderAt(path, simulatorLabDisabled);
       await screen.findByRole("main");
 
-      expect(container.textContent).not.toMatch(/simulator/i);
+      expect(spacedText(container)).not.toMatch(/simulator/i);
       for (const link of Array.from(container.querySelectorAll("a"))) {
         expect(link.getAttribute("href")).not.toMatch(/simulator/i);
       }

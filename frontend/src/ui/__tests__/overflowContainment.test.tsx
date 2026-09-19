@@ -18,6 +18,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * What T011B can assert in a test, and what it deliberately cannot.
@@ -264,7 +265,7 @@ describe("the correction buys no space from the inventories", () => {
         "button, select, [role='button'], [role='menu'], [aria-haspopup], [aria-expanded], [hidden]",
       ),
     ).toHaveLength(0);
-    expect(row.textContent).not.toMatch(/\bmore\b|…|\.\.\./i);
+    expect(spacedText(row)).not.toMatch(/\bmore\b|…|\.\.\./i);
   });
 });
 

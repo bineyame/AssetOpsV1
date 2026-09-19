@@ -237,12 +237,12 @@ describe("a configuration is rendered from its foundation document", () => {
 
     // A start date on its own leaves a reader to guess whether the
     // configuration has since stopped applying.
-    expect(container.textContent ?? "").toMatch(/half-open/i);
-    expect(container.textContent ?? "").toMatch(/has no recorded end/i);
+    expect(spacedText(container)).toMatch(/half-open/i);
+    expect(spacedText(container)).toMatch(/has no recorded end/i);
 
     // And it is not a configuration history, which is a different thing the
     // product does not have.
-    expect(container.textContent ?? "").toMatch(/not a configuration history/i);
+    expect(spacedText(container)).toMatch(/not a configuration history/i);
   });
 
   it("renders no digit the record does not supply", async () => {
@@ -275,7 +275,7 @@ describe("a configuration is rendered from its foundation document", () => {
     await settledScreen();
 
     expect(factValue(container, "Site ID")).toBe("MG-002");
-    expect(container.textContent).not.toMatch(/mg-002/);
+    expect(spacedText(container)).not.toMatch(/mg-002/);
   });
 });
 
@@ -290,10 +290,10 @@ describe("configuration is fixed at creation", () => {
         name: "Configuration is fixed at creation",
       }),
     ).toBeInTheDocument();
-    expect(container.textContent ?? "").toMatch(
+    expect(spacedText(container)).toMatch(
       /Configuration is fixed at creation in M1/,
     );
-    expect(container.textContent ?? "").toMatch(
+    expect(spacedText(container)).toMatch(
       /AssetOps does not edit a site's foundation in this milestone/i,
     );
   });
@@ -310,7 +310,7 @@ describe("configuration is fixed at creation", () => {
     expect(statement).not.toMatch(
       /\b(not yet|for now|at present|currently|soon|coming|future|will be able|planned)\b/i,
     );
-    expect(container.textContent ?? "").not.toMatch(
+    expect(spacedText(container)).not.toMatch(
       /\b(coming soon|not yet available|will be editable|future release)\b/i,
     );
   });
@@ -322,10 +322,10 @@ describe("configuration is fixed at creation", () => {
     // `Version History` is the one to watch: the eventual capability in that
     // territory is an auditable intervention record, so this label would name
     // a real future capability by the wrong name.
-    expect(container.textContent ?? "").not.toMatch(/version history/i);
-    expect(container.textContent ?? "").not.toMatch(/edit configuration/i);
-    expect(container.textContent ?? "").not.toMatch(/\brollback\b/i);
-    expect(container.textContent ?? "").not.toMatch(/\bapproval\b/i);
+    expect(spacedText(container)).not.toMatch(/version history/i);
+    expect(spacedText(container)).not.toMatch(/edit configuration/i);
+    expect(spacedText(container)).not.toMatch(/\brollback\b/i);
+    expect(spacedText(container)).not.toMatch(/\bapproval\b/i);
   });
 });
 
@@ -377,7 +377,7 @@ describe("no action control renders, in any state", () => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(container.textContent ?? "").not.toMatch(/simulator/i);
+    expect(spacedText(container)).not.toMatch(/simulator/i);
     for (const anchor of Array.from(container.querySelectorAll("a"))) {
       expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
     }
@@ -477,7 +477,7 @@ describe("what the M1 foundation does not declare is stated, not implied", () =>
     expect(factValue(container, "Devices")).toMatch(
       /not a statement that this site has no devices/i,
     );
-    expect(container.textContent ?? "").not.toMatch(/\bno devices are configured\b/i);
+    expect(spacedText(container)).not.toMatch(/\bno devices are configured\b/i);
   });
 
   it("renders no empty list, table, or count standing in for them", async () => {
@@ -583,8 +583,8 @@ describe("a configuration-only site fabricates nothing", () => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(container.textContent ?? "").not.toMatch(SOURCE_HEALTH_VOCABULARY);
-    expect(container.textContent ?? "").not.toMatch(ASSESSMENT_VOCABULARY);
+    expect(spacedText(container)).not.toMatch(SOURCE_HEALTH_VOCABULARY);
+    expect(spacedText(container)).not.toMatch(ASSESSMENT_VOCABULARY);
   });
 
   it("labels a declared rating as declared, never as a measurement", async () => {
@@ -596,7 +596,7 @@ describe("a configuration-only site fabricates nothing", () => {
     );
 
     expect(columns).toContain("Declared rating");
-    expect(container.textContent ?? "").toMatch(
+    expect(spacedText(container)).toMatch(
       /These are configuration, not measurements/i,
     );
   });
@@ -630,7 +630,7 @@ describe("the configuration is addressed by site ID and nothing else", () => {
 
     // Not found is a refusal, never a site with an empty foundation.
     expect(container.querySelectorAll("dl, table")).toHaveLength(0);
-    expect(container.textContent).not.toMatch(/Foundation version/i);
+    expect(spacedText(container)).not.toMatch(/Foundation version/i);
   });
 
   it("names no site when the address identifies none", async () => {
@@ -685,7 +685,7 @@ describe("the configuration is addressed by site ID and nothing else", () => {
 
     rerender(<SiteConfiguration siteId="MG-404" detail={detail} />);
 
-    expect(container.textContent ?? "").not.toMatch(/MG-002|Kalangala|pv-array/);
+    expect(spacedText(container)).not.toMatch(/MG-002|Kalangala|pv-array/);
     expect(container.querySelectorAll("dl, table")).toHaveLength(0);
 
     answerSecond({ status: "not_found" });

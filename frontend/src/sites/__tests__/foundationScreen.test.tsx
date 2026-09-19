@@ -180,6 +180,32 @@ describe("the Foundation subtab row is v6.9's, filtered", () => {
     }
   });
 
+  it("keeps no unlinked panel between the sections it names", async () => {
+    const { container } = renderFoundation();
+    await settledScreen();
+
+    // The row names Topology and Controls and does not name the components
+    // table. An unnamed panel wedged between two named ones makes the row
+    // misleading about where a section ends - and it had a measurable cost:
+    // with the table above it, Controls could only be reached by the document
+    // clamping at the bottom, so its link landed somewhere different from
+    // every other link in the row.
+    const headings = Array.from(
+      container.querySelectorAll("section.panel h2"),
+    ).map((heading) => heading.textContent ?? "");
+
+    const linked = ["Definition", "Topology", "Controls"];
+    const positions = linked.map((label) => headings.indexOf(label));
+
+    for (const position of positions) {
+      expect(position).toBeGreaterThanOrEqual(0);
+    }
+
+    // In row order, and with nothing unnamed between Topology and Controls.
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    expect(headings.slice(positions[1] + 1, positions[2])).toEqual([]);
+  });
+
   it("does not borrow the Site tab row's treatment", async () => {
     renderFoundation();
     await settledScreen();

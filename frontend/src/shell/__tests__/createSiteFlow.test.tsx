@@ -20,6 +20,7 @@ import {
   simulatorLabAddSiteEntryPoints,
   simulatorLabCreateSiteEntryPoints,
 } from "../simulatorLabRoutes";
+import { spacedText } from "../../test/text";
 
 /**
  * UI tests for the gated create-a-site flow.
@@ -177,11 +178,11 @@ describe("what the create flow states about templates and sites", () => {
 
     const main = screen.getByRole("main");
 
-    expect(main.textContent).toMatch(/copied into the new site/i);
-    expect(main.textContent).toMatch(
+    expect(spacedText(main)).toMatch(/copied into the new site/i);
+    expect(spacedText(main)).toMatch(
       /changing the template later never changes a site already created from it/i,
     );
-    expect(main.textContent).toMatch(
+    expect(spacedText(main)).toMatch(
       /which template and which template version it came from/i,
     );
   });
@@ -192,11 +193,11 @@ describe("what the create flow states about templates and sites", () => {
 
     const main = screen.getByRole("main");
 
-    expect(main.textContent).toMatch(/normal site in the product/i);
-    expect(main.textContent).toMatch(
+    expect(spacedText(main)).toMatch(/normal site in the product/i);
+    expect(spacedText(main)).toMatch(
       /stays there when the Simulator Lab is switched off/i,
     );
-    expect(main.textContent).toMatch(/Nothing is published or promoted/i);
+    expect(spacedText(main)).toMatch(/Nothing is published or promoted/i);
   });
 
   it("states that a site ID is permanent and configuration is fixed at creation", async () => {
@@ -644,11 +645,11 @@ describe("two entry points, one flow, one chokepoint", () => {
     // false the moment this frame grew an entry point, and invisible to every
     // other test because each was checking its own half.
     expect(screen.getByRole("link", { name: "+ Add site" })).toBeInTheDocument();
-    expect(main.textContent).not.toMatch(/no site can be created/i);
-    expect(main.textContent).not.toMatch(/nothing.{0,40}can produce a site/i);
+    expect(spacedText(main)).not.toMatch(/no site can be created/i);
+    expect(spacedText(main)).not.toMatch(/nothing.{0,40}can produce a site/i);
 
     // The distinction the copy exists for is still made.
-    expect(main.textContent).toMatch(/a template is not a site/i);
+    expect(spacedText(main)).toMatch(/a template is not a site/i);
   });
 
   it("reaches the same create flow from the Lab as from the operator index", async () => {

@@ -289,8 +289,6 @@ export function SiteConfigurationFacts({
         </FactList>
       </Panel>
 
-      <SiteConfigurationComponents components={view.components} />
-
       <Panel
         heading="Controls"
         headingId={FOUNDATION_CONTROLS_ID}
@@ -302,6 +300,19 @@ export function SiteConfigurationFacts({
           />
         </FactList>
       </Panel>
+
+      {/*
+        * The components table sits after Controls, not between Topology and
+        * Controls where T013 first put it.
+        *
+        * The row names Topology and Controls and does not name this, and an
+        * unnamed panel wedged between two named ones makes the row misleading
+        * about where a section ends. It also had a measurable cost: with this
+        * table above it, Controls could be reached only by the document
+        * clamping at the bottom of the page, so its link landed 336px from the
+        * top while every other link landed at 24px.
+        */}
+      <SiteConfigurationComponents components={view.components} />
 
       <Panel
         heading="Not available for this site"

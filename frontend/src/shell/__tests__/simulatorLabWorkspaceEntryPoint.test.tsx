@@ -11,6 +11,7 @@ import {
   simulatorLabWorkspaceEntryPoints,
 } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Shell-hierarchy tests for the Simulator Lab entry point.
@@ -105,7 +106,7 @@ describe("operator navigation does not change with the gate", () => {
       expect(
         within(navigation).queryByRole("link", { name: /simulator/i }),
       ).toBeNull();
-      expect(navigation.textContent).not.toMatch(/simulat/i);
+      expect(spacedText(navigation)).not.toMatch(/simulat/i);
       for (const link of Array.from(navigation.querySelectorAll("a"))) {
         expect(link.getAttribute("href")).not.toMatch(/simulat/i);
       }
@@ -131,8 +132,8 @@ describe("workspace entry point: disabled", () => {
       expect(
         screen.queryByRole("link", { name: SIMULATOR_LAB_ENTRY_POINT_LABEL }),
       ).toBeNull();
-      expect(container.textContent).not.toMatch(/simulat/i);
-      expect(container.textContent).not.toMatch(/workspace/i);
+      expect(spacedText(container)).not.toMatch(/simulat/i);
+      expect(spacedText(container)).not.toMatch(/workspace/i);
     },
   );
 });
