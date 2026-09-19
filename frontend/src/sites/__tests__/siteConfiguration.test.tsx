@@ -9,6 +9,7 @@ import type {
 } from "../siteReadModel";
 import { deriveSiteConfigurationView } from "../siteViewModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Tests for one site's configuration, presented from the shared substrate.
@@ -81,8 +82,23 @@ const SHIPPED_SITE: SiteDetailReadModel = {
   template: null,
 };
 
-const INTERACTIVE_SELECTOR = [
-  "a[href]",
+/** The Foundation subtab labels a container renders, in order. */
+function subtabLabels(container: HTMLElement): string[] {
+  return Array.from(container.querySelectorAll(".section-nav__list li")).map(
+    (item) => item.textContent ?? "",
+  );
+}
+
+/**
+ * Everything that acts on the site, as opposed to everything interactive.
+ *
+ * T008 banned every interactive element here, which was right when the surface
+ * had no links at all. T013 gives it a subtab row of same-page section links,
+ * and a link that scrolls to a heading is not an action on a site. So the ban
+ * on acting stays absolute and `a[href]` moves out of it, with every remaining
+ * anchor pinned separately to a fragment that resolves.
+ */
+const ACTION_SELECTOR = [
   "button",
   "input",
   "select",
@@ -92,7 +108,6 @@ const INTERACTIVE_SELECTOR = [
   "summary",
   "[onclick]",
   "[role='button']",
-  "[role='link']",
   "[role='menuitem']",
   "[role='tab']",
   "[contenteditable='true']",
@@ -222,12 +237,12 @@ describe("a configuration is rendered from its foundation document", () => {
 
     // A start date on its own leaves a reader to guess whether the
     // configuration has since stopped applying.
-    expect(container.textContent ?? "").toMatch(/half-open/i);
-    expect(container.textContent ?? "").toMatch(/has no recorded end/i);
+    expect(spacedText(container)).toMatch(/half-open/i);
+    expect(spacedText(container)).toMatch(/has no recorded end/i);
 
     // And it is not a configuration history, which is a different thing the
     // product does not have.
-    expect(container.textContent ?? "").toMatch(/not a configuration history/i);
+    expect(spacedText(container)).toMatch(/not a configuration history/i);
   });
 
   it("renders no digit the record does not supply", async () => {
@@ -260,7 +275,7 @@ describe("a configuration is rendered from its foundation document", () => {
     await settledScreen();
 
     expect(factValue(container, "Site ID")).toBe("MG-002");
-    expect(container.textContent).not.toMatch(/mg-002/);
+    expect(spacedText(container)).not.toMatch(/mg-002/);
   });
 });
 
@@ -275,10 +290,10 @@ describe("configuration is fixed at creation", () => {
         name: "Configuration is fixed at creation",
       }),
     ).toBeInTheDocument();
-    expect(container.textContent ?? "").toMatch(
+    expect(spacedText(container)).toMatch(
       /Configuration is fixed at creation in M1/,
     );
-    expect(container.textContent ?? "").toMatch(
+    expect(spacedText(container)).toMatch(
       /AssetOps does not edit a site's foundation in this milestone/i,
     );
   });
@@ -295,7 +310,7 @@ describe("configuration is fixed at creation", () => {
     expect(statement).not.toMatch(
       /\b(not yet|for now|at present|currently|soon|coming|future|will be able|planned)\b/i,
     );
-    expect(container.textContent ?? "").not.toMatch(
+    expect(spacedText(container)).not.toMatch(
       /\b(coming soon|not yet available|will be editable|future release)\b/i,
     );
   });
@@ -307,10 +322,10 @@ describe("configuration is fixed at creation", () => {
     // `Version History` is the one to watch: the eventual capability in that
     // territory is an auditable intervention record, so this label would name
     // a real future capability by the wrong name.
-    expect(container.textContent ?? "").not.toMatch(/version history/i);
-    expect(container.textContent ?? "").not.toMatch(/edit configuration/i);
-    expect(container.textContent ?? "").not.toMatch(/\brollback\b/i);
-    expect(container.textContent ?? "").not.toMatch(/\bapproval\b/i);
+    expect(spacedText(container)).not.toMatch(/version history/i);
+    expect(spacedText(container)).not.toMatch(/edit configuration/i);
+    expect(spacedText(container)).not.toMatch(/\brollback\b/i);
+    expect(spacedText(container)).not.toMatch(/\bapproval\b/i);
   });
 });
 
@@ -330,9 +345,23 @@ describe("no action control renders, in any state", () => {
 
     // Absence, not disablement: nothing here is rendered and then greyed out,
     // so there is no control to check `disabled` or `aria-disabled` on.
-    expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
+    //
+    // T013 adds the Foundation subtab row, whose section links are the only
+    // interactive elements this surface has. They are navigation within one
+    // page, not actions on the site, so the claim narrows from "nothing is
+    // interactive" to "nothing acts" - and gains the stricter half below,
+    // which pins every link to a fragment resolving to a section that is
+    // actually on the page.
+    expect(container.querySelectorAll(ACTION_SELECTOR)).toHaveLength(0);
     expect(container.querySelectorAll("[disabled]")).toHaveLength(0);
     expect(container.querySelectorAll("[aria-disabled]")).toHaveLength(0);
+
+    for (const anchor of Array.from(container.querySelectorAll("a[href]"))) {
+      const href = anchor.getAttribute("href") ?? "";
+
+      expect(href.startsWith("#")).toBe(true);
+      expect(container.querySelector(href)).not.toBeNull();
+    }
   });
 
   it.each(ABSENT_CONTROL_LABELS)("does not render %s as a control", async (label) => {
@@ -348,7 +377,7 @@ describe("no action control renders, in any state", () => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(container.textContent ?? "").not.toMatch(/simulator/i);
+    expect(spacedText(container)).not.toMatch(/simulator/i);
     for (const anchor of Array.from(container.querySelectorAll("a"))) {
       expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
     }
@@ -361,6 +390,7 @@ describe("the screen is read-only whatever the configuration origin is", () => {
     await settledScreen(user.container);
     const userFacts = factPairs(user.container);
     const userComponents = componentRows(user.container);
+    const userSubtabs = subtabLabels(user.container);
     user.unmount();
 
     const shipped = renderConfiguration(SHIPPED_SITE);
@@ -382,9 +412,14 @@ describe("the screen is read-only whatever the configuration origin is", () => {
     expect(componentRows(shipped.container)).toEqual(userComponents);
 
     // And it is read-only in both: origin is not a permission.
-    expect(
-      shipped.container.querySelectorAll(INTERACTIVE_SELECTOR),
-    ).toHaveLength(0);
+    expect(shipped.container.querySelectorAll(ACTION_SELECTOR)).toHaveLength(0);
+
+    // The subtab row is identical too, so origin does not change which
+    // sections of a foundation the product says exist. Captured before the
+    // first render was unmounted, because a list read off an unmounted
+    // container is empty and would have compared two nothings.
+    expect(subtabLabels(shipped.container)).toEqual(userSubtabs);
+    expect(userSubtabs.length).toBeGreaterThan(0);
   });
 });
 
@@ -442,7 +477,7 @@ describe("what the M1 foundation does not declare is stated, not implied", () =>
     expect(factValue(container, "Devices")).toMatch(
       /not a statement that this site has no devices/i,
     );
-    expect(container.textContent ?? "").not.toMatch(/\bno devices are configured\b/i);
+    expect(spacedText(container)).not.toMatch(/\bno devices are configured\b/i);
   });
 
   it("renders no empty list, table, or count standing in for them", async () => {
@@ -494,8 +529,19 @@ describe("a configuration-only site fabricates nothing", () => {
 
     // The layout closes over that space rather than leaving a hole labelled
     // for a future diagram.
-    expect(container.textContent ?? "").not.toMatch(
-      /single line diagram|one-line diagram|\bdiagram\b|\btopology\b/i,
+    //
+    // `spacedText` rather than `textContent`, and the difference is not
+    // cosmetic. `textContent` glues adjacent elements together, so a banned
+    // word sitting next to its neighbour has no word boundary and the ban
+    // cannot match it. This assertion passed that way while matching nothing
+    // at all.
+    //
+    // `topology` left the list. T013 renders a Topology subtab and panel by
+    // requirement, so banning the word here would ask a later slice to hide
+    // content the task demands. What is banned is diagram vocabulary, which is
+    // what this test is named for.
+    expect(spacedText(container)).not.toMatch(
+      /single line diagram|one-line diagram|\bdiagram\b|\bschematic\b/i,
     );
 
     const headings = Array.from(
@@ -537,8 +583,8 @@ describe("a configuration-only site fabricates nothing", () => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(container.textContent ?? "").not.toMatch(SOURCE_HEALTH_VOCABULARY);
-    expect(container.textContent ?? "").not.toMatch(ASSESSMENT_VOCABULARY);
+    expect(spacedText(container)).not.toMatch(SOURCE_HEALTH_VOCABULARY);
+    expect(spacedText(container)).not.toMatch(ASSESSMENT_VOCABULARY);
   });
 
   it("labels a declared rating as declared, never as a measurement", async () => {
@@ -550,7 +596,7 @@ describe("a configuration-only site fabricates nothing", () => {
     );
 
     expect(columns).toContain("Declared rating");
-    expect(container.textContent ?? "").toMatch(
+    expect(spacedText(container)).toMatch(
       /These are configuration, not measurements/i,
     );
   });
@@ -584,7 +630,7 @@ describe("the configuration is addressed by site ID and nothing else", () => {
 
     // Not found is a refusal, never a site with an empty foundation.
     expect(container.querySelectorAll("dl, table")).toHaveLength(0);
-    expect(container.textContent).not.toMatch(/Foundation version/i);
+    expect(spacedText(container)).not.toMatch(/Foundation version/i);
   });
 
   it("names no site when the address identifies none", async () => {
@@ -639,7 +685,7 @@ describe("the configuration is addressed by site ID and nothing else", () => {
 
     rerender(<SiteConfiguration siteId="MG-404" detail={detail} />);
 
-    expect(container.textContent ?? "").not.toMatch(/MG-002|Kalangala|pv-array/);
+    expect(spacedText(container)).not.toMatch(/MG-002|Kalangala|pv-array/);
     expect(container.querySelectorAll("dl, table")).toHaveLength(0);
 
     answerSecond({ status: "not_found" });

@@ -118,6 +118,10 @@ function Invoke-NavigationTruthfulnessCheck {
         $failures.Add($failure) | Out-Null
     }
 
+    foreach ($failure in (Get-FoundationSubtabFailures)) {
+        $failures.Add($failure) | Out-Null
+    }
+
     return $failures
 }
 
@@ -215,6 +219,118 @@ function Get-OperatorSiteTabFailures {
                         "$($line.Trim()). A tab the product cannot open is " +
                         "labelled in place, never disabled: these are not " +
                         "switched off, they are not built.")) | Out-Null
+                    break
+                }
+            }
+        }
+    }
+
+    return $failures
+}
+
+# The Foundation subtab row: one definition, in the shared substrate, with
+# `Changes` absent and the superseded mockup vocabulary gone.
+#
+# This row lives in the substrate rather than a shell, unlike the operator Site
+# tab row above it. The difference is real: which aspects a workspace divides a
+# Site into is a shell's opinion, but what a Foundation is made of is the same
+# whoever renders it, so both shells present these four.
+function Get-FoundationSubtabFailures {
+    $failures = New-Object System.Collections.Generic.List[string]
+
+    $inventoryName = "FOUNDATION_SUBTABS"
+    $substrateRoot = "frontend/src/sites"
+
+    # v6.9 line 2117 lists five. `Changes` is filtered out by the accepted T008
+    # checkpoint: lines 2149 and 2225-2228 make it a real intervention and
+    # change-effect capability rather than the mockup's `Version History`, no
+    # configuration-change model exists, and naming it would promise a meaning
+    # a reader would guess wrongly. Absent in every state, not labelled.
+    $forbiddenSubtab = "Changes"
+
+    # What T013 replaced. These were the old mockup-derived subtab names and
+    # they must not come back as a Foundation subtab row.
+    $supersededVocabulary = @("Summary", "Components", "Control Logic", "Settings")
+
+    # A subtab this build cannot open is labelled, never disabled. Same rule as
+    # the tab row above, same reason.
+    $disabledAffordance = @(
+        '\bdisabled\s*[=:]',
+        'aria-disabled\s*=',
+        'not-allowed',
+        'coming soon',
+        '\btitle\s*='
+    )
+
+    $declarations = @()
+    $inventoryModules = @()
+
+    foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
+        $declaresInventory = $false
+
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match "(?:const|let|var|enum)\s+$inventoryName\s*(?::|=)") {
+                $declarations += "$($module.Path):${lineNumber}"
+                $declaresInventory = $true
+            }
+        }
+
+        if ($declaresInventory) { $inventoryModules += $module }
+    }
+
+    if ($declarations.Count -eq 0) {
+        $failures.Add(("No module declares $inventoryName, so every Foundation " +
+            "subtab check below is vacuous. The row renders from one inventory " +
+            "that the rendering and the tests both read. Update the check, do " +
+            "not delete it.")) | Out-Null
+        return $failures
+    }
+
+    if ($declarations.Count -gt 1) {
+        $failures.Add(("$inventoryName is declared in " +
+            "$($declarations -join ', '). The Foundation subtab row has one " +
+            "definition; two are two answers to what a Foundation is made of.")) | Out-Null
+    }
+
+    foreach ($module in $inventoryModules) {
+        if (-not $module.Path.StartsWith("$substrateRoot/")) {
+            $failures.Add(("$inventoryName is declared in $($module.Path). " +
+                "What a Foundation is made of is the same whoever renders it, " +
+                "so the row belongs in the shared substrate at $substrateRoot, " +
+                "not in a shell.")) | Out-Null
+        }
+
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+
+            if ($line -match "label\s*:\s*[""']$forbiddenSubtab[""']") {
+                $failures.Add(("'$forbiddenSubtab' is declared as a Foundation " +
+                    "subtab at $($module.Path):${lineNumber}: $($line.Trim()). " +
+                    "v6.9 makes it an intervention and change-effect " +
+                    "capability, no configuration-change model exists, and the " +
+                    "T008 checkpoint removed that territory rather than " +
+                    "leaving it as chrome. It is absent in every state, not " +
+                    "labelled in place.")) | Out-Null
+            }
+
+            foreach ($label in $supersededVocabulary) {
+                if ($line -match "label\s*:\s*[""']$label[""']") {
+                    $failures.Add(("Superseded Foundation subtab vocabulary at " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()). " +
+                        "'$label' is the mockup-derived name T013 replaced; the " +
+                        "row is v6.9's at line 2117, filtered.")) | Out-Null
+                }
+            }
+
+            foreach ($pattern in $disabledAffordance) {
+                if ($line -match $pattern) {
+                    $failures.Add(("Disabled affordance in the Foundation " +
+                        "subtab row at $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()). A subtab this build cannot open is " +
+                        "labelled in place, never disabled.")) | Out-Null
                     break
                 }
             }

@@ -14,6 +14,7 @@ import type {
 } from "../../sites/siteReadModel";
 import { CREATE_SITE_ENTRY_POINT_LABEL } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Route-level tests for the operator Sites index.
@@ -190,9 +191,9 @@ describe("the gated way into the create flow", () => {
     expect(
       container.querySelectorAll("button, input, select, textarea, form"),
     ).toHaveLength(0);
-    expect(main.textContent).not.toMatch(/simulat/i);
-    expect(main.textContent).not.toMatch(/create/i);
-    expect(main.textContent).not.toMatch(/add a site/i);
+    expect(spacedText(main)).not.toMatch(/simulat/i);
+    expect(spacedText(main)).not.toMatch(/create/i);
+    expect(spacedText(main)).not.toMatch(/add a site/i);
   });
 
   it("still offers the create action once a site exists", async () => {
@@ -278,8 +279,8 @@ describe("the gated way into the create flow", () => {
       expect(
         within(navigation).getAllByRole("link").map((link) => link.textContent),
       ).toEqual(OPERATOR_NAVIGATION_LABELS);
-      expect(navigation.textContent).not.toMatch(/simulat/i);
-      expect(navigation.textContent).not.toMatch(/create/i);
+      expect(spacedText(navigation)).not.toMatch(/simulat/i);
+      expect(spacedText(navigation)).not.toMatch(/create/i);
 
       view.unmount();
     }

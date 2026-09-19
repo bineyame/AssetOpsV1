@@ -805,3 +805,114 @@ and mode into one `Status`, and T007 placed them adjacent so a reader could see
 they were not. Adjacency was never what carried it - separate terms, values and
 tones are - so the separation survived the move, and the doc comment claiming
 they are adjacent rows was corrected rather than left to go stale.
+
+## T013 - Foundation to canonical screen three
+
+What this slice settled in code.
+
+The Foundation subtab row is `FOUNDATION_SUBTABS` in
+`frontend/src/sites/FoundationSubtabs.tsx`: v6.9 line 2117's five, with
+`Changes` filtered out. It lives in the substrate rather than a shell, and the
+distinction from the operator Site tab row is real. Which aspects a workspace
+divides a Site into is a shell's opinion; what a Foundation is made of is the
+same whoever renders it, so both shells will present these four.
+
+`Changes` is absent in every state, not labelled in place. v6.9 lines 2149 and
+2225-2228 make it an intervention and change-effect capability rather than the
+mockup's `Version History`, no configuration-change model exists, and the T008
+checkpoint removed that territory. Labelling it would name a capability whose
+eventual meaning is not the one a reader would assume, which is worse than
+naming nothing. The guard holds it.
+
+Definition, Topology and Controls are fragment links to sections on this page.
+Not routes, because the content is all on one screen and a route would be a
+second address for something already here; not a client-side switcher, because
+that would hide content with no reason to be hidden. Readiness is labelled in
+place with no section to point at, and a test asserts no heading anywhere is
+named `Readiness` - an empty panel for it would be the placeholder the task
+forbids.
+
+The panel headed `Foundation` under a page titled `Foundation` is gone. T011A
+left it deliberately and named this slice its owner. It is `Definition` now and
+carries what that subtab is supposed to carry - identity, summary, validity and
+provenance - rather than being scattered across three panels the row does not
+name.
+
+`keyParameters` is filtered on the record, not on the rendered string. A
+component with no declared rating produces no parameter at all, and the panel
+does not render when nothing is rated. The components table states which
+components declare no rating, in words, which is a fact about the document; a
+blank line in a parameters list would read as a property of the site.
+
+Breadcrumbs generalised T012's prop: both Site surfaces take
+`parentTrail(siteId)` rather than a single crumb, because Foundation's parent is
+the Site and only the substrate knows how the record spells it.
+
+T008's ban on every interactive element narrowed to a ban on acting, and gained
+a stricter half: every anchor on the surface must be a fragment resolving to a
+section that is actually on the page.
+
+A proof lesson, from the same family as T011A's. The first attempt to prove
+that subtab links resolve changed the shared id constant - which moves the link
+and its target together, so by construction they cannot disagree and nothing
+failed. An assertion guaranteed by the design is not proved by breaking the
+design symmetrically. The real failure mode is a section that stops rendering
+while its subtab stays, and that is what the second proof did.
+
+What this slice leaves open.
+
+1. Two tab rows now stack on this page, the Site tabs and then the Foundation
+   subtabs. Whether that reads as a hierarchy or as clutter is unjudged.
+2. Definition is eleven facts and two paragraphs. It may want splitting, which
+   would mean revisiting what the criterion assigns to it.
+3. Fragment links scroll; they do not filter. A reader expecting tabs may find
+   that flat.
+4. The sentence under the subtab row is hardcoded, unlike the operator row's
+   derived one, because exactly one subtab is labelled in place. If a second
+   ever is, it goes stale - the failure T011C's derived sentence exists to
+   prevent.
+5. The evidence-absence panel is deliberately not Readiness content, but a
+   reader may still connect them.
+
+What review and the Architect corrected in T013.
+
+The Foundation row is section navigation, not a tab switcher. The Architect
+settled that in its UI/UX hat after the user asked what clicking a subtab is
+supposed to do, and `.ai/FEATURE_MAP.md` carries it: clicking locates a named
+section on the same page and does not swap panels, route, or hide content. v6.9
+and the mockup name and draw the row but say nothing about behaviour, so the
+project owns it.
+
+It therefore does not borrow the tab treatment. `.section-nav` is its own
+pattern - a contents line labelled `On this page`, smaller and lighter, with no
+underline rail and no active state, because nothing is current when every
+section is on the page at once. Two stacked rows may share vocabulary but must
+not ask a reader to infer two behaviours from one appearance.
+
+`scroll-margin-top` on `.panel__heading` gives a section link somewhere
+deliberate to land. The anchors target headings, so the margin belongs on the
+heading and not on the panel.
+
+The components table moved below Controls. It is not named by the row, and an
+unlinked panel between two named sections makes the row misleading about where
+a section ends. It also had a measured cost: with the table above it, Controls
+could be reached only by the document clamping at the page bottom, landing
+336px from the top while every other link landed at 24px. It now lands at its
+target minus the margin, like the others. A test holds the principle rather
+than the arrangement: no unlinked panel may sit between the sections the row
+names.
+
+The lesson worth carrying is about assertions, not layout.
+
+`Node.textContent` concatenates descendants with nothing between them. A
+word-boundary ban cannot match a word glued to its neighbour, so
+`/\btopology\b/` never matched `...creationTopology...` and `/\bdiagram\b/` in
+the same regex was dead with it - the ban holding the configured diagram out of
+step 3 was checking nothing, and had been for several slices. `spacedText` in
+`frontend/src/test/text.ts` joins text nodes with a space so a boundary ban
+means what it says.
+
+Ninety-three assertions across fourteen test files had the same hole and now
+use it. None was hiding a live violation, which is the point: a ban can stop
+working without anything failing, and nothing in the suite would have said so.
+When a defect is a class rather than an instance, the sweep is the fix.

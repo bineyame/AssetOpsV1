@@ -1,6 +1,22 @@
 ﻿import type { ReactNode } from "react";
 
-import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
+import {
+  Badge,
+  Breadcrumbs,
+  DataTable,
+  Fact,
+  FactList,
+  PageHeader,
+  Panel,
+  type Crumb,
+} from "../ui";
+import {
+  FOUNDATION_CONTROLS_ID,
+  FOUNDATION_DEFINITION_ID,
+  FOUNDATION_TOPOLOGY_ID,
+  FoundationSubtabs,
+} from "./FoundationSubtabs";
+import type { SiteKeyParameterView } from "./siteViewModel";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
@@ -74,12 +90,20 @@ export interface SiteConfigurationProps {
    * when it is absent, and nothing here reads what is in it.
    */
   tabs?: ReactNode;
+  /**
+   * The trail above this page, built by the shell from the canonical
+   * `site_id`. Foundation sits two levels down, so its parent is the Site
+   * itself, and the Site's crumb has to be spelled the way the record spells
+   * it rather than the way the address did.
+   */
+  parentTrail?: (siteId: string) => Crumb[];
 }
 
 export function SiteConfiguration({
   siteId,
   detail,
   tabs,
+  parentTrail,
 }: SiteConfigurationProps) {
   const result = useSiteRecord(siteId, detail);
 
@@ -142,7 +166,13 @@ export function SiteConfiguration({
     );
   }
 
-  return <SiteConfigurationFacts site={result.site} tabs={tabs} />;
+  return (
+    <SiteConfigurationFacts
+      site={result.site}
+      tabs={tabs}
+      parentTrail={parentTrail}
+    />
+  );
 }
 
 /**
@@ -155,45 +185,62 @@ export interface SiteConfigurationFactsProps {
   site: SiteDetailReadModel;
   /** See `SiteConfigurationProps.tabs`. */
   tabs?: ReactNode;
+  /** See `SiteConfigurationProps.parentTrail`. */
+  parentTrail?: (siteId: string) => Crumb[];
 }
 
 export function SiteConfigurationFacts({
   site,
   tabs,
+  parentTrail,
 }: SiteConfigurationFactsProps) {
   const view = deriveSiteConfigurationView(site);
 
   return (
     <>
+      {parentTrail === undefined ? null : (
+        <Breadcrumbs
+          trail={[...parentTrail(view.siteId), { label: "Foundation" }]}
+        />
+      )}
+
+      {/*
+        * The page is Foundation and the subtitle says whose. T011A settled
+        * that this heading reads `Foundation`, and it still does; what was
+        * missing was any statement of which site's foundation this is, which
+        * a reader arriving from a bookmark had no way to tell.
+        */}
       <PageHeader
         title="Foundation"
         headingId={SITE_CONFIGURATION_HEADING_ID}
+        subtitle={`${view.displayName} · ${view.siteId}`}
       />
 
       {tabs}
 
-      <Panel heading="Site" headingId="site-configuration-identity-heading">
+      <FoundationSubtabs />
+
+      {/*
+        * Definition, as v6.9 names it. T011A left a panel headed `Foundation`
+        * directly under a page titled `Foundation` and said this slice owned
+        * the correction; this is it, and the panel now carries what the
+        * criterion assigns to Definition: identity, summary, validity and
+        * provenance, in one place rather than scattered across three panels
+        * the subtab row does not name.
+        */}
+      <Panel
+        heading="Definition"
+        headingId={FOUNDATION_DEFINITION_ID}
+      >
         <FactList>
           <Fact term="Site ID">{view.siteId}</Fact>
           <Fact term="Name">{view.displayName}</Fact>
           <Fact term="Type">{view.siteType}</Fact>
           <Fact term="Location">{view.location}</Fact>
           <Fact term="Timezone">{view.timezone}</Fact>
-        </FactList>
-      </Panel>
-
-      <Panel
-        heading="Configuration is fixed at creation"
-        headingId="site-configuration-fixed-heading"
-      >
-        <p>{view.configurationFixedAtCreation}</p>
-      </Panel>
-
-      <Panel
-        heading="Provenance and status"
-        headingId="site-configuration-provenance-heading"
-      >
-        <FactList>
+          <Fact term="Foundation version">{view.foundationVersion}</Fact>
+          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
+          <Fact term="Summary">{view.foundationSummary}</Fact>
           {/*
            * Three vocabularies, three tones, never one status pill. Template
            * provenance stays plain text: a site created from no template
@@ -210,6 +257,7 @@ export function SiteConfigurationFacts({
           </Fact>
           <Fact term="Created from template">{view.templateProvenance}</Fact>
         </FactList>
+        <p>{view.foundationValiditySemantics}</p>
         <p>
           These are separate facts about a site and none is derived from
           another. Configuration origin is where this site&apos;s configuration
@@ -220,22 +268,17 @@ export function SiteConfigurationFacts({
       </Panel>
 
       <Panel
-        heading="Foundation"
-        headingId="site-configuration-foundation-heading"
+        heading="Configuration is fixed at creation"
+        headingId="site-configuration-fixed-heading"
       >
-        <FactList>
-          <Fact term="Foundation version">{view.foundationVersion}</Fact>
-          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
-          <Fact term="Summary">{view.foundationSummary}</Fact>
-        </FactList>
-        <p>{view.foundationValiditySemantics}</p>
+        <p>{view.configurationFixedAtCreation}</p>
       </Panel>
 
-      <SiteConfigurationComponents components={view.components} />
+      <SiteKeyParameters parameters={view.keyParameters} />
 
       <Panel
-        heading="Not declared in this foundation"
-        headingId="site-configuration-undeclared-heading"
+        heading="Topology"
+        headingId={FOUNDATION_TOPOLOGY_ID}
       >
         <FactList>
           <SiteConfigurationStatedAbsence name="Devices" fact={view.devices} />
@@ -243,12 +286,33 @@ export function SiteConfigurationFacts({
             name="Signal mappings"
             fact={view.signalMappings}
           />
+        </FactList>
+      </Panel>
+
+      <Panel
+        heading="Controls"
+        headingId={FOUNDATION_CONTROLS_ID}
+      >
+        <FactList>
           <SiteConfigurationStatedAbsence
             name="Control assumptions"
             fact={view.controlAssumptions}
           />
         </FactList>
       </Panel>
+
+      {/*
+        * The components table sits after Controls, not between Topology and
+        * Controls where T013 first put it.
+        *
+        * The row names Topology and Controls and does not name this, and an
+        * unnamed panel wedged between two named ones makes the row misleading
+        * about where a section ends. It also had a measurable cost: with this
+        * table above it, Controls could be reached only by the document
+        * clamping at the bottom of the page, so its link landed 336px from the
+        * top while every other link landed at 24px.
+        */}
+      <SiteConfigurationComponents components={view.components} />
 
       <Panel
         heading="Not available for this site"
@@ -350,5 +414,47 @@ export function SiteConfigurationStatedAbsence({
     <Fact term={name}>
       {fact.value}. {fact.reason}
     </Fact>
+  );
+}
+
+/**
+ * The headline numbers the foundation declares.
+ *
+ * Only what is there. A component with no declared rating produces no row -
+ * not a dash, not a zero, not a greyed entry - because this panel is a list of
+ * what the document states, and a blank line in it would read as a property of
+ * the site rather than a gap in the document. The components table says which
+ * components declare no rating, in words, which is the honest place for that.
+ *
+ * The panel does not render at all when the foundation declares no rated
+ * component. An empty card headed `Key parameters` would be chrome claiming
+ * content, which is the one thing every panel in this tree refuses.
+ *
+ * The value is the record's, verbatim, with the unit the record carries. No
+ * conversion, no rounding, no unit the document did not choose: a number this
+ * screen reformatted would be a number this screen authored.
+ */
+export interface SiteKeyParametersProps {
+  parameters: SiteKeyParameterView[];
+}
+
+export function SiteKeyParameters({ parameters }: SiteKeyParametersProps) {
+  if (parameters.length === 0) {
+    return null;
+  }
+
+  return (
+    <Panel
+      heading="Key parameters"
+      headingId="site-configuration-key-parameters-heading"
+    >
+      <FactList>
+        {parameters.map((parameter) => (
+          <Fact key={`${parameter.label}-${parameter.value}`} term={parameter.label}>
+            {parameter.value}
+          </Fact>
+        ))}
+      </FactList>
+    </Panel>
   );
 }

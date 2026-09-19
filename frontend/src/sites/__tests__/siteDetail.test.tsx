@@ -9,6 +9,7 @@ import type {
 } from "../siteReadModel";
 import { deriveSiteDetailView } from "../siteViewModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Tests for one site, presented from the shared substrate.
@@ -211,7 +212,7 @@ describe("a site is rendered from its record", () => {
     await settledScreen();
 
     expect(factValue(container, "Site ID")).toBe("MG-002");
-    expect(container.textContent).not.toMatch(/mg-002/);
+    expect(spacedText(container)).not.toMatch(/mg-002/);
   });
 
   it("says plainly when a site came from no template", async () => {
@@ -274,8 +275,8 @@ describe("the site is addressed by site ID and nothing else", () => {
 
     // Not found is a refusal, never a site with empty fields.
     expect(container.querySelectorAll("dl")).toHaveLength(0);
-    expect(container.textContent).not.toMatch(/Lifecycle status/i);
-    expect(container.textContent).not.toMatch(/Configuration origin/i);
+    expect(spacedText(container)).not.toMatch(/Lifecycle status/i);
+    expect(spacedText(container)).not.toMatch(/Configuration origin/i);
   });
 
   it("names no site when the address identifies none", async () => {
@@ -317,7 +318,7 @@ describe("the site is addressed by site ID and nothing else", () => {
 
     rerender(<SiteDetails siteId="MG-404" detail={detail} />);
 
-    expect(container.textContent ?? "").not.toMatch(/MG-002|Kalangala/);
+    expect(spacedText(container)).not.toMatch(/MG-002|Kalangala/);
     expect(container.querySelectorAll("dl")).toHaveLength(0);
     expect(
       screen.getByText(/Loading the configured site\./),
@@ -328,7 +329,7 @@ describe("the site is addressed by site ID and nothing else", () => {
     expect(
       await screen.findByRole("heading", { level: 2, name: "No such site" }),
     ).toBeInTheDocument();
-    expect(container.textContent ?? "").not.toMatch(/MG-002|Kalangala/);
+    expect(spacedText(container)).not.toMatch(/MG-002|Kalangala/);
   });
 
   it("states an unreadable store rather than an absent site", async () => {
@@ -387,7 +388,7 @@ describe("the six provenance and status concepts are six facts", () => {
     // correct rather than copy.
     expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated/i);
     expect(factValue(container, "Mode")).not.toMatch(/planned/i);
-    expect(container.textContent).not.toMatch(/Simulated \/ Planned/);
+    expect(spacedText(container)).not.toMatch(/Simulated \/ Planned/);
 
     const terms = Array.from(container.querySelectorAll("dt")).map(
       (term) => term.textContent,
@@ -487,7 +488,7 @@ describe("a configuration-only site fabricates nothing", () => {
     ).toHaveLength(0);
     expect(screen.queryAllByRole("figure")).toHaveLength(0);
     expect(screen.queryAllByRole("img")).toHaveLength(0);
-    expect(container.textContent ?? "").not.toMatch(
+    expect(spacedText(container)).not.toMatch(
       /single line diagram|diagram|signal/i,
     );
     expect(screen.queryByRole("combobox")).toBeNull();
@@ -497,7 +498,7 @@ describe("a configuration-only site fabricates nothing", () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(container.textContent ?? "").not.toMatch(/\b(image|photo|map)\b/i);
+    expect(spacedText(container)).not.toMatch(/\b(image|photo|map)\b/i);
   });
 
   it("renders no tab bar", async () => {
@@ -515,7 +516,7 @@ describe("a configuration-only site fabricates nothing", () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(container.textContent ?? "").not.toMatch(SOURCE_HEALTH_VOCABULARY);
+    expect(spacedText(container)).not.toMatch(SOURCE_HEALTH_VOCABULARY);
   });
 
   it("renders no evidence-derived value, count, or column", async () => {
@@ -567,7 +568,7 @@ describe("what renders is absent or disabled, and never enabled", () => {
     expect(container.querySelectorAll(INTERACTIVE_SELECTOR)).toHaveLength(0);
     expect(container.querySelectorAll("[disabled]")).toHaveLength(0);
     expect(container.querySelectorAll("[aria-disabled]")).toHaveLength(0);
-    expect(container.textContent ?? "").not.toMatch(/quick actions/i);
+    expect(spacedText(container)).not.toMatch(/quick actions/i);
   });
 
   it("renders no enabled control for a configured site", async () => {
@@ -631,7 +632,7 @@ describe("what renders is absent or disabled, and never enabled", () => {
     expect(screen.queryByRole("button", { name: label })).toBeNull();
     expect(screen.queryByRole("link", { name: label })).toBeNull();
     expect(screen.queryByText(label)).toBeNull();
-    expect(container.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
+    expect(spacedText(container)).not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });
 
   it.each(SHELL_SUPPLIED_QUICK_ACTION_LABELS)(
@@ -644,7 +645,7 @@ describe("what renders is absent or disabled, and never enabled", () => {
       // cannot name the Lab, so with nothing filling the slot the Lab is not
       // named.
       expect(screen.queryByText(label)).toBeNull();
-      expect(container.textContent ?? "").not.toMatch(/simulator|simulation/i);
+      expect(spacedText(container)).not.toMatch(/simulator|simulation/i);
     },
   );
 
@@ -658,7 +659,7 @@ describe("what renders is absent or disabled, and never enabled", () => {
     const action = screen.getByRole("button", { name: "View Live Data" });
 
     expect((action as HTMLButtonElement).disabled).toBe(true);
-    expect(container.textContent).toMatch(/Quick actions/);
+    expect(spacedText(container)).toMatch(/Quick actions/);
     expect(container.querySelectorAll("button")).toHaveLength(1);
   });
 

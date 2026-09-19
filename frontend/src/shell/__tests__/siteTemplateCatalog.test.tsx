@@ -12,6 +12,7 @@ import type {
   SiteTemplateListResult,
 } from "../siteTemplateCatalogClient";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * UI tests for the gated Site Templates surfaces.
@@ -144,9 +145,9 @@ describe("site templates listing", () => {
     expect(
       within(main).getByText(/no site identity/i),
     ).toBeInTheDocument();
-    expect(main.textContent).toMatch(/no lifecycle status/i);
-    expect(main.textContent).toMatch(/no location/i);
-    expect(main.textContent).toMatch(/no timezone bound to a real place/i);
+    expect(spacedText(main)).toMatch(/no lifecycle status/i);
+    expect(spacedText(main)).toMatch(/no location/i);
+    expect(spacedText(main)).toMatch(/no timezone bound to a real place/i);
   });
 
   it("states an unreadable catalog rather than showing an empty one", async () => {
@@ -236,11 +237,11 @@ describe("site template inspection", () => {
     expect(
       within(main).getByRole("heading", { name: /a template is not a site/i }),
     ).toBeInTheDocument();
-    expect(main.textContent).toMatch(
+    expect(spacedText(main)).toMatch(
       /template identity never becomes a site identity/i,
     );
-    expect(main.textContent).not.toMatch(/\bsite[-_ ]?id\b/i);
-    expect(main.textContent).not.toMatch(/MG-?\s*\d/i);
+    expect(spacedText(main)).not.toMatch(/\bsite[-_ ]?id\b/i);
+    expect(spacedText(main)).not.toMatch(/MG-?\s*\d/i);
   });
 
   it("states that declared components are not evidence", async () => {
@@ -320,7 +321,7 @@ describe("template surfaces offer no capability the product lacks", () => {
       );
 
       for (const link of Array.from(container.querySelectorAll("a"))) {
-        expect(link.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
+        expect(spacedText(link)).not.toMatch(FORBIDDEN_ACTION_PATTERN);
         expect(link.getAttribute("href") ?? "").not.toMatch(
           FORBIDDEN_ACTION_PATTERN,
         );
@@ -411,9 +412,9 @@ describe("templates never appear as sites", () => {
       const { container } = renderAt(route);
       await settledScreen();
 
-      expect(container.textContent).not.toMatch(/template/i);
-      expect(container.textContent).not.toMatch(TEMPLATE.display_name);
-      expect(container.textContent).not.toMatch(TEMPLATE.template_id);
+      expect(spacedText(container)).not.toMatch(/template/i);
+      expect(spacedText(container)).not.toMatch(TEMPLATE.display_name);
+      expect(spacedText(container)).not.toMatch(TEMPLATE.template_id);
     },
   );
 
@@ -562,9 +563,9 @@ describe("the catalog filters over the records it actually has", () => {
     // The distinction the catalog has kept since T005: what the build ships
     // and what a filter matched are different facts.
     const main = screen.getByRole("main");
-    expect(main.textContent).toMatch(/statement about the filter/i);
-    expect(main.textContent).toMatch(/3 templates ship/);
-    expect(main.textContent).not.toMatch(
+    expect(spacedText(main)).toMatch(/statement about the filter/i);
+    expect(spacedText(main)).toMatch(/3 templates ship/);
+    expect(spacedText(main)).not.toMatch(
       /This build ships no site templates\./,
     );
   });

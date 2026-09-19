@@ -13,6 +13,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * The operator route for one site's Foundation.
@@ -137,8 +138,8 @@ describe("a site's Foundation is addressed under that site", () => {
     const { container } = renderAt("/sites/mg-002/foundation");
     await settledScreen();
 
-    expect(container.textContent).toMatch(/MG-002/);
-    expect(container.textContent).not.toMatch(/mg-002/);
+    expect(spacedText(container)).toMatch(/MG-002/);
+    expect(spacedText(container)).not.toMatch(/mg-002/);
   });
 
   it("states not found at the address of a site that is not configured", async () => {
@@ -201,9 +202,9 @@ describe("a site's Foundation is addressed under that site", () => {
     // The domain word survives the rename: a site still has a configuration
     // origin and its configuration is still fixed at creation. What must not
     // survive is the screen being called Site configuration.
-    expect(main.textContent).toMatch(/Configuration is fixed at creation/);
-    expect(main.textContent).toMatch(/Configuration origin/);
-    expect(main.textContent).not.toMatch(/Site configuration/i);
+    expect(spacedText(main)).toMatch(/Configuration is fixed at creation/);
+    expect(spacedText(main)).toMatch(/Configuration origin/);
+    expect(spacedText(main)).not.toMatch(/Site configuration/i);
     expect(
       screen.queryByRole("heading", { name: /Site configuration/i }),
     ).toBeNull();
@@ -281,8 +282,8 @@ describe("the address T008 served this surface at still resolves", () => {
     const { container } = renderAt("/sites/mg-002/configuration");
     await settledScreen();
 
-    expect(container.textContent).toMatch(/MG-002/);
-    expect(container.textContent).not.toMatch(/mg-002/);
+    expect(spacedText(container)).toMatch(/MG-002/);
+    expect(spacedText(container)).not.toMatch(/mg-002/);
   });
 
   it("renders no surface of its own", async () => {
@@ -352,12 +353,12 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
     ).toEqual(OPERATOR_NAVIGATION_LABELS);
     expect(destinations).not.toContain("/site-configuration");
     expect(destinations).not.toContain("/site-details");
-    expect(navigation.textContent).not.toMatch(/site configuration/i);
-    expect(navigation.textContent).not.toMatch(/site details/i);
+    expect(spacedText(navigation)).not.toMatch(/site configuration/i);
+    expect(spacedText(navigation)).not.toMatch(/site details/i);
 
     // The rename does not put the surface into the rail under its new name
     // either: a rail item still could not say which site it would open.
-    expect(navigation.textContent).not.toMatch(/foundation/i);
+    expect(spacedText(navigation)).not.toMatch(/foundation/i);
 
     // Nor one that names a site: no navigation item could say which.
     expect(destinations.filter((href) => /^\/sites\/./.test(href))).toEqual([]);

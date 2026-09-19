@@ -12,6 +12,7 @@ import type {
   SiteDetailReadModel,
   SiteSummary,
 } from "../../sites/siteReadModel";
+import { spacedText } from "../../test/text";
 
 /**
  * Route-level tests for one site, addressed by `site_id`.
@@ -295,7 +296,7 @@ describe("the site route is an operator capability", () => {
     // all: not a control, not a label, not a greyed-out hint that a developer
     // workspace exists. That is the gate rule, and it is stricter than the
     // sequencing rule below.
-    expect(main.textContent).not.toMatch(/simulat/i);
+    expect(spacedText(main)).not.toMatch(/simulat/i);
     for (const anchor of Array.from(main.querySelectorAll("a"))) {
       expect(anchor.getAttribute("href")).not.toMatch(/simulat/i);
     }
@@ -393,8 +394,8 @@ describe("operator navigation lost an item and gained none", () => {
     expect(destinations).not.toContain("/site-details");
     expect(destinations).not.toContain("/site-configuration");
     expect(destinations.filter((href) => /^\/sites\/./.test(href))).toEqual([]);
-    expect(navigation.textContent).not.toMatch(/site details/i);
-    expect(navigation.textContent).not.toMatch(/site configuration/i);
+    expect(spacedText(navigation)).not.toMatch(/site details/i);
+    expect(spacedText(navigation)).not.toMatch(/site configuration/i);
   });
 
   it("serves nothing at the parameterless Site Details address", () => {

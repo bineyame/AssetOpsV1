@@ -12,6 +12,7 @@ import {
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * The Sites index reads the Site store. It is injected here and empty, so a
@@ -183,7 +184,7 @@ describe("simulator lab gate: disabled", () => {
       expect(container.querySelectorAll("form, button, input, select")).toHaveLength(
         0,
       );
-      expect(container.textContent).not.toMatch(/create/i);
+      expect(spacedText(container)).not.toMatch(/create/i);
     },
   );
 
@@ -212,7 +213,7 @@ describe("simulator lab gate: disabled", () => {
     (url) => {
       const { container } = renderAt(url, DISABLED);
 
-      expect(container.textContent).not.toMatch(/simulat/i);
+      expect(spacedText(container)).not.toMatch(/simulat/i);
     },
   );
 
@@ -239,7 +240,7 @@ describe("simulator lab gate: disabled", () => {
       for (const href of hrefs) {
         expect(href).not.toMatch(/simulat/i);
       }
-      expect(container.textContent).not.toMatch(/simulat/i);
+      expect(spacedText(container)).not.toMatch(/simulat/i);
     },
   );
 

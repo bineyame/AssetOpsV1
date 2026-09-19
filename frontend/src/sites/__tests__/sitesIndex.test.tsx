@@ -6,6 +6,7 @@ import { SitesIndex } from "../SitesIndex";
 import type { SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "../siteReadModel";
 import { deriveSiteView } from "../siteViewModel";
+import { spacedText } from "../../test/text";
 
 /**
  * Tests for the shared Site presentation substrate.
@@ -112,7 +113,7 @@ describe("sites index states", () => {
       await screen.findByRole("heading", { level: 2, name: "No sites configured" }),
     ).toBeInTheDocument();
     expect(container.querySelectorAll("table")).toHaveLength(0);
-    expect(container.textContent).not.toMatch(/\d/);
+    expect(spacedText(container)).not.toMatch(/\d/);
   });
 
   it("states an unreadable store rather than showing an empty one", async () => {
@@ -121,7 +122,7 @@ describe("sites index states", () => {
     expect(
       await screen.findByRole("heading", { level: 2, name: "Sites unavailable" }),
     ).toBeInTheDocument();
-    expect(container.textContent).not.toMatch(/No sites configured/i);
+    expect(spacedText(container)).not.toMatch(/No sites configured/i);
   });
 });
 
@@ -476,7 +477,7 @@ describe("the index shows no capability the product lacks", () => {
       ["A", "/sites/MG-002"],
       ["A", "/sites/MG-002"],
     ]);
-    expect(container.textContent ?? "").not.toMatch(FORBIDDEN_ACTION_PATTERN);
+    expect(spacedText(container)).not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });
 
   it("shows no evidence-derived column, chart, health, or finding", async () => {
@@ -527,7 +528,7 @@ describe("the index shows no capability the product lacks", () => {
 
     // The vocabulary rule is untouched and is what actually names the
     // deferred capability.
-    expect(container.textContent ?? "").not.toMatch(
+    expect(spacedText(container)).not.toMatch(
       /single line diagram|diagram|signal/i,
     );
   });

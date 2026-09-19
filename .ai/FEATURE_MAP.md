@@ -1652,6 +1652,19 @@ that `Foundation > Changes` is a real intervention/change-effect capability,
 not the mockup's `Version History` and not a placeholder. Rendering `Changes`
 early would be a false claim in the same territory T008 explicitly removed.
 
+Behaviourally this row is Foundation section navigation, not a tab switcher.
+Definition, Topology and Controls point to named sections on the one Foundation
+page; clicking one locates that section and does not swap panels, route to a
+second address, or hide the other Foundation content. Readiness remains labelled
+in place, with no link, tab role, disabled state, route or empty panel until an
+evidence-readiness source contract exists. The row must therefore be visually
+subordinate to, and distinguishable from, the operator Site tab row above it:
+two stacked rows may share vocabulary, but they must not ask the reader to infer
+two different behaviours from the same tab treatment. Section-link targets
+should land with their headings readable below the surrounding chrome; the last
+section should not be accepted as "reached" only because the document clamped at
+the bottom of the page.
+
 | Item | Source | M1 state | What makes it true | When the state changes |
 | --- | --- | --- | --- | --- |
 | Definition | v6.9 line 2117 | rendered | Site Foundation identity, purpose/summary, validity and provenance fields | Dressed in T013 as the Foundation summary/definition content |

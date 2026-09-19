@@ -18,35 +18,33 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T012 closed out 2026-09-19.
+No active task. T013 closed out 2026-09-19.
 
-Independent review returned accept with one Medium finding, fixed on the branch:
-the `Site information` panel did not carry the facts the acceptance criterion
-assigns to it. The lesson is in `.ai/CODE_STATE.md` - every fact was asserted
-against the whole container, so panel membership was never tested, only
-presence. Assertions now scope by heading id and throw when there is no panel to
-scope to.
+**Causal Sequencing step 3 is complete.** T005 to T013 are all in
+`tasks/completed/` with their Review Outcomes. The operator product has a Sites
+index at canonical screen one, Site Details at screen two, and Foundation at
+screen three minus the diagram; a settled Foundation name, route and redirect;
+the eight-tab operator Site row; and a viewport commitment with the overflow
+behaviour behind it.
 
-T011B, T011C and T012 are merged. `tools/layout-evidence.mjs` measured every
-layout claim against a real browser before each merge, and all held.
+T013 took two independent reviews and an Architect ruling between them. What it
+left behind, beyond the screen:
 
-What no tool has answered: whether these screens read well. The Quick actions
-panel is three disabled buttons each carrying a paragraph of reason, and whether
-that is informative or three apologies is a judgement nobody has made.
-`USER_REVIEW_REQUIRED` was false for T012 and the task set no browser criterion,
-so it is outstanding rather than owed.
+- The Foundation row is section navigation, not tabs, settled in
+  `.ai/FEATURE_MAP.md` by the Architect's UI/UX hat.
+- `spacedText` in `frontend/src/test/text.ts`. `textContent` glues adjacent
+  elements together, so a word-boundary ban cannot match a word beside its
+  neighbour. Ninety-three assertions across fourteen files had that hole. Use
+  `spacedText` for any absence assertion with a `` pattern; none of the old
+  ones was hiding a live violation, but every one could have stopped working
+  silently.
 
-Next: T013, Foundation to canonical screen three. It carries the v6.9 subtab row
-filtered by the T008 checkpoint, and the redundant `Foundation` panel heading
-T011A left for it.
+Next: T014, Foundation topology, devices and signal mappings. That is causal
+step 4, and it is the first slice that adds content rather than arranging it.
 
-T005 to T012 are complete, in `tasks/completed/` with their Review Outcomes.
-
-T011B and T011C were merged without being closed out and sat at `in_review` in
-`tasks/` while their code was on `main`. Caught by the user, not by a check.
-Nothing enforces that a merged slice's task file says so, which is why it
-drifted silently; whether that should be enforced is an open question for the
-Architect rather than something to bolt on here.
+Still unjudged by anyone: whether these screens read well. The Foundation page
+stacks two rows, and T012's Quick actions panel is three disabled buttons each
+carrying a paragraph of reason.
 
 ## Current Site Foundation Sequence
 
@@ -66,7 +64,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
   evidence is measured by `tools/layout-evidence.mjs`.
 - T011C: Site tab row treatment, from T011A's user review. Complete.
 - T012: Site Details to canonical screen two. Complete.
-- T013: Foundation to canonical screen three. Planned, next.
+- T013: Foundation to canonical screen three. Complete.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 
@@ -75,22 +73,23 @@ and the configured single-line diagram, is unblocked for planning and is not
 yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
 or its signal selector.
 
-## Read For T013
+## Read For T014
 
-T013 dresses Foundation to canonical screen three: the v6.9 subtab row filtered
-by the T008 checkpoint, and the redundant `Foundation` panel heading T011A left
-for it.
+T014 is causal step 4's first slice: Foundation topology, devices and signal
+mappings. It adds content rather than arranging it, which is the first time
+since T008 that the schema grows.
 
-- `tasks/T013-foundation-to-canonical-screen-three.md`
-- `.ai/CODE_STATE.md`, the T008, T011A, T011C and T012 entries. T012 settles the
-  screen grammar T013 follows: identity header, panels, extension slots, and
-  the three affordance states.
-- `.ai/FEATURE_MAP.md`, `## Canonical Screen Fidelity`, and within it
-  `#### Foundation name and subtabs`, `### Not rendered, labelled, or disabled:
-  three states, not two`, and `### Viewport and overflow commitment`. The
-  viewport section is not reachable from the Feature Map Index, so it has to be
-  named.
+- `tasks/T014-foundation-topology-devices-and-signal-mappings.md`
+- `.ai/CODE_STATE.md`, the T008, T012 and T013 entries. T013 settles the screen
+  this content lands on, including which sections the Foundation row names and
+  the rule that an unlinked panel may not sit between them.
+- `.ai/FEATURE_MAP.md`, `### 2. Topology, Components, Devices, And Single Line
+  Diagram`, and within `## Canonical Screen Fidelity` the sections
+  `#### Foundation name and subtabs` and `### Viewport and overflow
+  commitment`. The viewport section is not reachable from the Feature Map
+  Index, so it has to be named.
 - `.ai/DECISIONS.md` decision-index entries:
+  - `D-2026-09-13-site-foundation-persistence`
   - `D-2026-09-13-shared-site-substrate`
   - `D-2026-09-13-canonical-fidelity`
 

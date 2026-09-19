@@ -13,6 +13,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Canonical screen two, at the route.
@@ -307,7 +308,7 @@ describe("what canonical screen two draws and this product does not", () => {
     // The foundation carries no image, so a frame for one would be chrome
     // pretending to content.
     expect(main.querySelectorAll("img, figure, picture, svg, canvas, map")).toHaveLength(0);
-    expect(main.textContent).not.toMatch(/\b(map|photo|image|upload)\b/i);
+    expect(spacedText(main)).not.toMatch(/\b(map|photo|image|upload)\b/i);
   });
 
   it("renders no diagram, no frame for one, and no signal selector", async () => {
@@ -316,7 +317,7 @@ describe("what canonical screen two draws and this product does not", () => {
 
     const main = within(container).getByRole("main");
 
-    expect(main.textContent).not.toMatch(
+    expect(spacedText(main)).not.toMatch(
       /\b(single line diagram|one-line|schematic|signal|topology)\b/i,
     );
     expect(main.querySelectorAll("select, [role='combobox']")).toHaveLength(0);
@@ -328,7 +329,7 @@ describe("what canonical screen two draws and this product does not", () => {
 
     const main = within(container).getByRole("main");
 
-    expect(main.textContent).not.toMatch(
+    expect(spacedText(main)).not.toMatch(
       /\b(online|offline|stale|degraded|healthy|kwh|kw\b|last data|uptime)\b/i,
     );
 
