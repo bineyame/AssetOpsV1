@@ -26,6 +26,15 @@ from typing import Any, Callable
 
 import pytest
 
+from assetops_backend.sites.foundation_parsing import (
+    MAX_CONNECTIONS,
+    MAX_CONTROL_ASSUMPTIONS,
+    MAX_DEVICES,
+    MAX_SIGNALS_PER_DEVICE,
+    MAX_SIGNAL_MAPPINGS,
+    MAX_TOPOLOGY_NODES,
+)
+
 from assetops_backend.sites.models import (
     CONNECTION_MEDIA,
     CONTROL_ASSUMPTION_BASES,
@@ -729,4 +738,115 @@ class TestTheSharedFixtureIsRealisticEnough:
         assert any(
             assumption["component_id"] is not None
             for assumption in content["control_assumptions"]
+        )
+
+
+class TestEveryCapCanFire:
+    """Every cardinality cap must be reachable before the document ceiling.
+
+    Three caps in this module shipped above the 2,000-node document ceiling and
+    could never fire. A document that exceeded them was refused - but for node
+    count, with a message naming nodes rather than the thing the author had too
+    many of, which tells a reader nothing about what to remove.
+
+    That is the same family as the two guard patterns that could never match in
+    T011A and the diagram ban that could never match in T013: protection that
+    looks present and is not. The instances were fixed by moving each cap under
+    the ceiling; this holds the property, so the next cap added above it fails
+    here rather than being found three reviews later.
+
+    Each case builds a document at ``cap + 1`` and asserts the refusal names the
+    limit. A refusal mentioning node counts means the ceiling spoke first and
+    the cap is dead.
+    """
+
+    @staticmethod
+    def _grow_devices(foundation: dict[str, Any], n: int) -> None:
+        sample = copy.deepcopy(foundation["devices"][0])
+        foundation["devices"] = [
+            {**copy.deepcopy(sample), "device_id": f"device-{index}"}
+            for index in range(n)
+        ]
+        foundation["signal_mappings"] = None
+
+    @staticmethod
+    def _grow_topology_nodes(foundation: dict[str, Any], n: int) -> None:
+        sample = copy.deepcopy(foundation["topology"]["nodes"][0])
+        foundation["topology"]["nodes"] = [
+            {**copy.deepcopy(sample), "node_id": f"node-{index}"}
+            for index in range(n)
+        ]
+
+    @staticmethod
+    def _grow_connections(foundation: dict[str, Any], n: int) -> None:
+        sample = copy.deepcopy(foundation["topology"]["connections"][0])
+        foundation["topology"]["connections"] = [
+            {**copy.deepcopy(sample), "connection_id": f"connection-{index}"}
+            for index in range(n)
+        ]
+
+    @staticmethod
+    def _grow_signal_mappings(foundation: dict[str, Any], n: int) -> None:
+        sample = copy.deepcopy(foundation["signal_mappings"][0])
+        foundation["signal_mappings"] = [copy.deepcopy(sample) for _ in range(n)]
+
+    @staticmethod
+    def _grow_signals(foundation: dict[str, Any], n: int) -> None:
+        device = foundation["devices"][0]
+        sample = copy.deepcopy(device["signals"][0])
+        key = "signal_id" if "signal_id" in sample else next(iter(sample))
+        device["signals"] = [
+            {**copy.deepcopy(sample), key: f"signal-{index}"} for index in range(n)
+        ]
+        foundation["signal_mappings"] = None
+
+    @staticmethod
+    def _grow_control_assumptions(foundation: dict[str, Any], n: int) -> None:
+        sample = copy.deepcopy(foundation["control_assumptions"][0])
+        foundation["control_assumptions"] = [
+            {**copy.deepcopy(sample), "assumption_id": f"assumption-{index}"}
+            for index in range(n)
+        ]
+
+    @pytest.mark.parametrize(
+        "cap,grow",
+        [
+            pytest.param(MAX_DEVICES, _grow_devices, id="devices"),
+            pytest.param(MAX_TOPOLOGY_NODES, _grow_topology_nodes, id="topology-nodes"),
+            pytest.param(MAX_CONNECTIONS, _grow_connections, id="connections"),
+            pytest.param(MAX_SIGNAL_MAPPINGS, _grow_signal_mappings, id="signal-mappings"),
+            pytest.param(MAX_SIGNALS_PER_DEVICE, _grow_signals, id="signals-per-device"),
+            pytest.param(
+                MAX_CONTROL_ASSUMPTIONS,
+                _grow_control_assumptions,
+                id="control-assumptions",
+            ),
+        ],
+    )
+    @families
+    def test_the_cap_speaks_before_the_document_ceiling(
+        self, cap, grow, foundation_of, parse, refusal
+    ) -> None:
+        foundation = copy.deepcopy(foundation_of())
+        grow.__func__(foundation, cap + 1)
+
+        with pytest.raises(refusal) as error:
+            parse(foundation)
+
+        message = str(error.value)
+
+        assert str(cap) in message, (
+            f"A document at {cap + 1} entries was refused, but not by this cap: "
+            f"{message!r}. The cap sits above the document ceiling and can "
+            f"never fire, so the refusal names the wrong thing and tells an "
+            f"author nothing about what to remove. Move the cap under the "
+            f"ceiling rather than the ceiling over the cap."
+        )
+        # Matched against the ceiling's own wording, not the bare word `nodes`.
+        # One of these collections is literally called `topology.nodes`, so its
+        # correct refusal contains that word - and a check that treated the
+        # word as proof of the wrong guard would fail on a passing case. The
+        # ceiling says `has more than N nodes`; nothing else does.
+        assert "has more than" not in message, (
+            f"The document ceiling spoke first: {message!r}. See above."
         )

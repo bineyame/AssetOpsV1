@@ -100,7 +100,18 @@ MAX_CONNECTIONS = 128
 # first thing to fire even as a device grows more signals.
 MAX_DEVICES = 64
 MAX_SIGNALS_PER_DEVICE = 32
-MAX_SIGNAL_MAPPINGS = 256
+# 160 rather than 256, for the reason MAX_DEVICES is 64 rather than 128.
+#
+# Measured: the 2,000-node document ceiling starts refusing at 208 mappings, so
+# a cap of 256 could never be reached and a 257-entry list was refused for node
+# count instead - the wrong guard, with a message naming nodes rather than
+# mappings. 160 leaves headroom under 208 so this stays the first guard to
+# speak.
+#
+# Every cap in this module is measured that way by
+# `TestEveryCapCanFire`: build a document at cap + 1 and read which guard
+# answers. A cap above the ceiling is not a limit, it is a comment.
+MAX_SIGNAL_MAPPINGS = 160
 MAX_CONTROL_ASSUMPTIONS = 32
 
 MAX_IDENTIFIER_LENGTH = 64
