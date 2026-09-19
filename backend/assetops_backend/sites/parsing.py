@@ -25,6 +25,10 @@ import re
 from typing import Any, Mapping, NoReturn
 
 from assetops_backend.sites.document_bounds import DocumentLimits, reject_oversized
+from assetops_backend.sites.foundation_parsing import (
+    FOUNDATION_CONTENT_KEYS,
+    parse_foundation_content,
+)
 from assetops_backend.sites.models import (
     COMPONENT_TYPES,
     RATING_UNITS,
@@ -43,7 +47,13 @@ SITE_ONLY_FIELDS = ("site_id", "lifecycle_status", "location", "timezone")
 TEMPLATE_KEYS = frozenset(
     {"template_id", "template_version", "display_name", "foundation"}
 )
-FOUNDATION_KEYS = frozenset({"site_type", "summary", "components"})
+# The component list plus the four sections `foundation_parsing` validates.
+# Extended from one place so a key this parser allows and the Site parser does
+# not cannot exist: a template whose Foundation the Site store would refuse is
+# a template that seeds an unreadable Site.
+FOUNDATION_KEYS = (
+    frozenset({"site_type", "summary", "components"}) | FOUNDATION_CONTENT_KEYS
+)
 COMPONENT_KEYS = frozenset({"component_id", "component_type", "display_name", "rating"})
 RATING_KEYS = frozenset({"value", "unit"})
 
@@ -60,6 +70,10 @@ MAX_SUMMARY_LENGTH = 600
 MAX_TEMPLATE_VERSION = 10_000
 
 IDENTIFIER_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def _invalid(message: str) -> NoReturn:
+    raise SiteTemplateConfigurationInvalid(message)
 
 
 def parse_site_template(document: Mapping[str, Any], *, source: str) -> SiteTemplate:
@@ -158,8 +172,22 @@ def _parse_foundation(raw: Any, *, source: str) -> TemplateFoundation:
             )
         seen.add(component.component_id)
 
+    content = parse_foundation_content(
+        foundation,
+        component_ids=frozenset(seen),
+        where="foundation",
+        source=source,
+        invalid=_invalid,
+    )
+
     return TemplateFoundation(
-        site_type=site_type, summary=summary, components=components
+        site_type=site_type,
+        summary=summary,
+        components=components,
+        topology=content.topology,
+        devices=content.devices,
+        signal_mappings=content.signal_mappings,
+        control_assumptions=content.control_assumptions,
     )
 
 

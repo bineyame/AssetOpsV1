@@ -18,37 +18,50 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T013 closed out 2026-09-19.
+No active task. T014 closed out 2026-09-19.
 
-**Causal Sequencing step 3 is complete.** T005 to T013 are all in
-`tasks/completed/` with their Review Outcomes. The operator product has a Sites
-index at canonical screen one, Site Details at screen two, and Foundation at
-screen three minus the diagram; a settled Foundation name, route and redirect;
-the eight-tab operator Site row; and a viewport commitment with the overflow
-behaviour behind it.
+**Causal Sequencing step 4 has started.** T014 was its first slice and the first
+since T008 to add content rather than arrange it: the canonical Foundation now
+carries topology, devices, signal mappings and control assumptions, the shipped
+hybrid mini-grid template declares all four, a created Site copies them, and the
+Foundation screen renders them instead of stating them as absent. It was also
+the first slice built by a different Implementer agent.
 
-T013 took two independent reviews and an Architect ruling between them. What it
-left behind, beyond the screen:
+What it left behind, beyond the screen:
 
-- The Foundation row is section navigation, not tabs, settled in
-  `.ai/FEATURE_MAP.md` by the Architect's UI/UX hat.
-- `spacedText` in `frontend/src/test/text.ts`. `textContent` glues adjacent
-  elements together, so a word-boundary ban cannot match a word beside its
-  neighbour. Ninety-three assertions across fourteen files had that hole. Use
-  `spacedText` for any absence assertion with a `` pattern; none of the old
-  ones was hiding a live violation, but every one could have stopped working
-  silently.
+- One strict validator for the Foundation content, shared by the template parser
+  and the Site parser, with a test asserting they expose the same object.
+- `null` versus `[]`. `null` is a document declaring none; an empty list is
+  refused everywhere, because `[]` renders as a table with a header row and no
+  rows, which says the site HAS none.
+- **Every cardinality cap must be reachable.** Two review findings, both fixed,
+  and the first opened a third defect: relaxed document bounds were restored,
+  and restoring them exposed three caps sitting above the node ceiling where
+  they could never fire. Move a cap under the ceiling, never the ceiling over
+  the cap. `TestEveryCapCanFire` now measures every cap automatically. The full
+  lesson is in `.ai/CODE_STATE.md` under T014, and it is the third appearance of
+  one family in this project.
 
-Next: T014, Foundation topology, devices and signal mappings. That is causal
-step 4, and it is the first slice that adds content rather than arranging it.
+A deviation worth remembering rather than repeating: a locally created Site in
+gitignored `var/sites/` was deleted to make browser evidence deterministic. Add
+a Site or use a temporary store; never delete ignored user data for convenience.
 
-Still unjudged by anyone: whether these screens read well. The Foundation page
-stacks two rows, and T012's Quick actions panel is three disabled buttons each
-carrying a paragraph of reason.
+Backend `441 passed`, frontend `560 passed` across 19 files, both guards,
+typecheck and build clean, and `tools/layout-evidence.mjs` reports all claims
+holding at 1280x800, 1000x700 and 640x700.
+
+Next: T015, the hybrid mini-grid SLD view model. It renders nothing - it turns
+the Foundation topology T014 persists into a view model the T016 diagram reads.
+
+Still unjudged by anyone: whether these screens read well. Six tables now share
+the Foundation page, and `node_id` and `component_id` carry the same string in
+the shipped template, so the nodes table shows two identical columns.
+
+T005 to T014 are complete, in `tasks/completed/` with their Review Outcomes.
 
 ## Current Site Foundation Sequence
 
-Reworked Site Foundation tasks are T005-T013 in `tasks/`.
+Reworked Site Foundation tasks are T005-T013; T014 opens step 4.
 
 - T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
 - T006: create a Site from a template; first user-review checkpoint. Complete.
@@ -65,31 +78,30 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
 - T011C: Site tab row treatment, from T011A's user review. Complete.
 - T012: Site Details to canonical screen two. Complete.
 - T013: Foundation to canonical screen three. Complete.
+- T014: Foundation topology, devices and signal mappings. In review.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 
-The second checkpoint is closed. Causal Sequencing step 4, topology, devices,
-and the configured single-line diagram, is unblocked for planning and is not
-yet planned. No T009-T013 slice may render the diagram, an empty frame for it,
-or its signal selector.
+The second checkpoint is closed. Causal Sequencing step 4 has begun: T014
+carries topology, devices and signal mappings in the canonical Foundation. The
+configured single-line diagram is still not built - T015 owns its view model and
+T016 renders it - and no slice before T016 may render the diagram, an empty
+frame for it, or its signal selector.
 
-## Read For T014
+## Read For The Next Slice
 
-T014 is causal step 4's first slice: Foundation topology, devices and signal
-mappings. It adds content rather than arranging it, which is the first time
-since T008 that the schema grows.
+T015 is the hybrid mini-grid SLD view model. It renders nothing: it turns the
+Foundation topology T014 persists into a view model that T016's diagram reads.
+That separation is the point - a view model with no renderer can be tested
+against records without a screen to argue about.
 
-- `tasks/T014-foundation-topology-devices-and-signal-mappings.md`
-- `.ai/CODE_STATE.md`, the T008, T012 and T013 entries. T013 settles the screen
-  this content lands on, including which sections the Foundation row names and
-  the rule that an unlinked panel may not sit between them.
+- `tasks/T015-hybrid-mini-grid-sld-view-model.md`
+- `.ai/CODE_STATE.md`, the T013 and T014 entries. T014 settles the schema this
+  reads, and the rule that every cardinality cap must be reachable.
 - `.ai/FEATURE_MAP.md`, `### 2. Topology, Components, Devices, And Single Line
-  Diagram`, and within `## Canonical Screen Fidelity` the sections
-  `#### Foundation name and subtabs` and `### Viewport and overflow
-  commitment`. The viewport section is not reachable from the Feature Map
-  Index, so it has to be named.
+  Diagram`, and `## Canonical Screen Fidelity` for the rule that no diagram,
+  frame or signal selector renders until T016.
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-13-site-foundation-persistence`
   - `D-2026-09-13-shared-site-substrate`
   - `D-2026-09-13-canonical-fidelity`
 
@@ -154,8 +166,11 @@ specs are acceptable only when they protect dangerous firsts.
 
 ## Inherited M1 Step 3 Exclusions
 
-Tasks T005-T013 inherit these exclusions unless a later reviewed task explicitly
-changes them:
+Tasks T005-T014 inherit these exclusions unless a later reviewed task explicitly
+changes them. T014 is the one deliberate change so far: the Foundation schema
+now carries topology, devices, signal mappings and control assumptions, which
+the "no Devices & Sensors screen" exclusion below never covered - what it
+forbids is a device-management surface, and none exists.
 
 - No in-place Site/Foundation editing, Save/Publish over an existing Site,
   rename, duplicate, delete, configuration history, rollback, approval flow, or

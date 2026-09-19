@@ -16,7 +16,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Callable
 
-from assetops_backend.sites.models import SiteRecord, SiteTemplate
+from assetops_backend.sites.foundation_parsing import render_foundation_content
+from assetops_backend.sites.models import FoundationContent, SiteRecord, SiteTemplate
 from assetops_backend.sites.ports import SiteRepository, SiteTemplateCatalog
 from assetops_backend.sites.site_parsing import CreateSiteRequest, parse_site_document
 
@@ -186,6 +187,24 @@ class SiteCreationService:
                     }
                     for component in template.foundation.components
                 ],
+                # The rest of the Foundation seed, copied the same way: the
+                # renderer builds fresh mappings and lists out of the
+                # template's records, so the created Site shares no structure
+                # with the template and a later template change cannot reach
+                # back into it.
+                #
+                # A template that declares no topology seeds a Site that
+                # declares none. The absence is copied as faithfully as the
+                # content, because inventing an empty topology here would let
+                # the Site's screen state something the template never said.
+                **render_foundation_content(
+                    FoundationContent(
+                        topology=template.foundation.topology,
+                        devices=template.foundation.devices,
+                        signal_mappings=template.foundation.signal_mappings,
+                        control_assumptions=template.foundation.control_assumptions,
+                    )
+                ),
             },
         }
 

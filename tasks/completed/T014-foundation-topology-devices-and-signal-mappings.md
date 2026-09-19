@@ -1,6 +1,6 @@
 # T014 - Foundation Topology, Devices, And Signal Mappings
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T014-foundation-topology-devices-and-signal-mappings`
@@ -203,3 +203,94 @@ contract and validation surface, but it does not yet fix the visual SLD
 archetype, incompatible-topology UI, cold-room/electrical symbol treatment, or
 final device/signal wording. Those are held for the T016 checkpoint where the
 user can see them together.
+
+## Review Outcome
+
+Independent review by Codex: **accept with findings fixed on the branch**. Two
+Medium, both fixed, and the first opened a third defect neither the packet nor
+the finding had named.
+
+This slice was built by a different Implementer agent from T009-T013. Its
+numbers were verified independently before review and again after: backend
+`441 passed`, frontend `560 passed` across 19 files, `tsc` clean, build clean,
+both guards passing, `main` untouched throughout.
+
+### Finding 1: document bounds relaxed on a false premise
+
+`MAX_DOCUMENT_NODES` 2,000 -> 8,000 and `MAX_DOCUMENT_TEXT_LENGTH` 64,000 ->
+96,000, on both document families, justified in the packet by the expanded
+template no longer fitting the old budget.
+
+The template fits with room to spare: 11,417 characters and about 328 YAML
+nodes, five to six times under the old limits. Both restored.
+
+**Restoring them exposed three caps that could never fire.** With the ceiling
+back at 2,000 nodes, cardinality tests failed - not because a document was
+accepted but because it was refused by the wrong guard, naming node counts
+rather than the collection an author had too many of. Measured by bisection:
+
+| Cap | Was | Ceiling refuses at | Now |
+| --- | --- | --- | --- |
+| `MAX_DEVICES` | 128 | 77 devices | 64 |
+| `MAX_SIGNAL_MAPPINGS` | 256 | 208 mappings | 160 |
+| `MAX_SIGNALS_PER_DEVICE` | 32 | reachable | 32, unchanged |
+| `MAX_TOPOLOGY_NODES` | 64 | reachable | 64, unchanged |
+| `MAX_CONNECTIONS` | 128 | reachable | 128, unchanged |
+| `MAX_CONTROL_ASSUMPTIONS` | 32 | reachable | 32, unchanged |
+
+Each dead cap moved under the ceiling rather than the ceiling moving over it.
+Raising a whole-document guard to make a per-section guard reachable is
+backwards, and was how the bounds came to be relaxed in the first place.
+
+Three dead caps in one slice made the instances stop being the point.
+`TestEveryCapCanFire` holds the property: for every cap, build a document at
+`cap + 1` and require the refusal to name the limit rather than the node count.
+A cap added above the ceiling now fails there. Proved by putting
+`MAX_SIGNAL_MAPPINGS` back to 256, which fails it on both families.
+
+This is the third appearance of the same family - two guard patterns that could
+never match in T011A, a diagram ban that could never match in T013, and now
+caps above their own ceiling.
+
+### Finding 2: ignored local Site data discarded
+
+`var/sites/` held two locally created Sites and now holds one. `testsite1.yaml`
+was deleted so browser evidence could run over deterministic content, and that
+directory is gitignored, so it is gone rather than recoverable.
+
+The Reviewer's judgement is right: nothing in T014 required deleting rather
+than adding a Site, or pointing the evidence run at a new Site alongside the
+existing data. `.ai/PROJECT_RULES.md` says do not discard unrelated user
+changes, and data outside version control is where that matters most. It is
+recorded as a deviation rather than residual risk, and the user was told
+directly rather than left to find it in a packet.
+
+### What the Reviewer confirmed rather than accepted
+
+- `null` versus `[]` holds in the parser, the frontend response guard and the
+  render path. Empty lists are refused by `_require_non_empty_list`, the client
+  refuses empty `devices`, `signal_mappings` and `control_assumptions`, and no
+  valid document can produce an empty table.
+- No additional tracked-code defect in the hotspots the dispatch named: the
+  shared-parser identity, the rewritten `Not declared` reasons, the frozenset
+  scan that keeps breaker vocabulary out of schema names, and the two
+  deviations the Implementer took deliberately.
+
+### Checks
+
+Reviewer: architecture guard, workflow guard, backend suite and `tsc` all
+passed. The frontend suite, the production build and the browser evidence could
+not run under its sandbox, for the known esbuild reason.
+
+Implementing session, after both fixes: backend `441 passed`, frontend
+`560 passed` across 19 files, `tsc --noEmit` clean, build clean at 221.31 kB,
+both guards pass, and `tools/layout-evidence.mjs` reports all claims holding at
+1280x800, 1000x700 and 640x700 - the last added because at the wider two every
+table fits, so the overflow claim was passing on an empty set.
+
+### Not verified
+
+Nobody has judged whether this screen reads well. Six tables on one page is new
+and unjudged; `node_id` and `component_id` carry the same string in the shipped
+template, so the nodes table shows two identical columns; and whether identity
+columns earn their width is a product question no measurement answers.

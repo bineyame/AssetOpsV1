@@ -916,3 +916,158 @@ Ninety-three assertions across fourteen test files had the same hole and now
 use it. None was hiding a live violation, which is the point: a ban can stop
 working without anything failing, and nothing in the suite would have said so.
 When a defect is a class rather than an instance, the sweep is the fix.
+
+## T014 - Foundation topology, devices and signal mappings
+
+What this slice settled in code.
+
+The canonical `SiteFoundation` carries `topology`, `devices`, `signal_mappings`
+and `control_assumptions` beside the T008 four. This is the first slice since
+T008 that adds content rather than arranging it, and the shape of what it added
+is the substance of the entry.
+
+`backend/assetops_backend/sites/foundation_parsing.py` is one strict validator
+for all four sections, called by the template parser and the Site parser alike.
+That is stronger than the T008 "one strict parser" rule rather than a repeat of
+it: the two parsers own different identity and provenance rules, but what a
+Foundation declares below its component list is the same thing whoever wrote the
+document, so it is checked by the same function. Two copies would have let a
+template declare a topology the Site store refuses, and the Site it seeded would
+be unreadable in the store it was written to. A test asserts the two modules
+expose the same object, not merely that both validate.
+
+`null` and `[]` are different facts and stay different all the way to the
+screen. `null` is the document declaring none; an empty list is refused by the
+parser, refused by the frontend response guard, and never sent by the API. The
+reason is one sentence: `[]` renders as a table with a header row and no rows,
+which says this site HAS no devices, and a configuration document is not
+entitled to make a claim about the world. It is the only malformed body in this
+tree that would not look broken, which is why it is refused twice.
+
+References resolve or the document is refused. The component list is the only
+component authority: a topology node, a device, a mapping and an assumption each
+name a declared component, a connection names two declared nodes, and a mapping
+names a declared device plus one of that device's own declared signals. A
+mapping's component is deliberately separate from its device's - a site meter on
+the bus describing the distribution load is the case that exists for, and a view
+model taking the device's component instead would look right on every other row.
+
+Signal identity is per device. Two controllers both reporting `ac-power` is
+ordinary, and a globally unique spelling would turn every mapping into a naming
+convention rather than a declaration.
+
+Vocabularies are closed and small: `TOPOLOGY_NODE_ROLES`, `CONNECTION_MEDIA`,
+`DEVICE_TYPES`, `SIGNAL_UNITS`, `CONTROL_ASSUMPTION_BASES`. `SIGNAL_UNITS` is
+separate from `RATING_UNITS` on purpose - a nameplate rating and a reportable
+signal are different kinds of fact, and one vocabulary would let `kVA` onto a
+signal and `%` onto a rating. The topology role is `GENERATION`, not `SOURCE`,
+because `source` already means where a Site's evidence comes from and the two
+would have sat on one screen beside each other.
+
+A control assumption is an identity, a name, the component it is about or `null`
+for the site, its provenance, and a statement in words. No state, no setpoint,
+no mode, no breaker position. A test scans every `frozenset` in `models.py` for
+control-state values so that vocabulary cannot be settled in a schema name
+before the T016 checkpoint sees the question.
+
+The T008 stated absences survive, and their reasons changed. They explained the
+absence by what the M1 schema could carry; this slice gives the schema somewhere
+to put a device, so that explanation became untrue the moment it landed. They
+now say what this site's document declares. A test bans the old wording: a
+reason that is no longer true is worse than no reason, because it explains an
+absence by a constraint the product no longer has.
+
+On the screen, the tables are subsections of the Topology panel rather than
+panels of their own, because T013 settled that no unlinked panel may sit between
+the sections the subtab row names. `SiteDeclaredSection<T>` is the two-state
+type behind them: declared content, or the absence with its reason. There is no
+third state and no empty `entries`.
+
+`tools/layout-evidence.mjs` measures every table on a page now, not the first
+one, and visits Foundation at 640px. At 1280 and 1000 every table fits, so the
+containment claim was a claim about an empty set - it would have passed on a
+page whose regions did not scroll at all. At 640 all six overflow, each scrolls
+inside its own region, the document does not, and an explicit claim asserts the
+set is not empty so the check cannot go quiet as content narrows.
+
+A proof lesson, in the same family as T011A's and T013's. Putting diagram
+vocabulary into the connections caption failed only the declared-state ban; the
+inherited undeclared-state ban did not notice, because that caption does not
+render when topology is `null`. A ban written against the screen as it was is
+not a ban against the screen as it becomes, and the slice that fills a screen
+with new content is exactly when the old bans stop being exercised by the case
+they were written for.
+
+What this slice leaves open.
+
+1. Six tables on one screen, and nobody has judged whether it reads well. T013
+   already left the two stacked rows unjudged; Topology is now four tables and a
+   paragraph.
+2. `node_id` and `component_id` carry the same string in the shipped template,
+   so the nodes table shows two columns of identical values. The schema keeps
+   them separate and the parser assumes nothing, but it may read as a redundant
+   column rather than as two identities that coincide.
+3. Identity columns are rendered in every table because a later diagram,
+   evidence record and mapping version are keyed on them. Whether they earn
+   their width is unjudged.
+4. `TOPOLOGY_NODE_ROLES` has seven values chosen for one archetype. A cold-chain
+   site will need more, and the closed set makes that a deliberate edit.
+5. No component-level `role` axis was added. `component_type` is already the
+   canonical component vocabulary and the current template needs no second one;
+   if the Architect intended a distinct component role, it is additive.
+6. The template API response still carries only `site_type`, `summary` and
+   `components`. The template store and parser carry all four sections - that is
+   what the create flow copies - but nothing on the Lab's template surfaces
+   renders them, and a field does not reach the wire before a screen renders it.
+7. No migration path for a stored Site. Fine while M1 ships zero Sites and
+   configuration is fixed at creation; a real question the first time the schema
+   changes after anyone has data. Pre-T014 local dev Sites still parse and
+   render stated absences.
+8. Document bounds rose to 8,000 nodes and 96,000 characters on both families,
+   because the expanded template no longer fits the old budget. Nesting depth is
+   unchanged at 8 and the deepest path reaches 6.
+
+What review corrected in T014.
+
+The document bounds were relaxed on a false premise - `MAX_DOCUMENT_NODES`
+2,000 to 8,000 and `MAX_DOCUMENT_TEXT_LENGTH` 64,000 to 96,000, justified by an
+expanded template that in fact fits the old limits five to six times over. Both
+restored.
+
+Restoring them exposed three cardinality caps that could never fire.
+`MAX_DEVICES` was 128 while the node ceiling refuses at 77 devices;
+`MAX_SIGNAL_MAPPINGS` was 256 while the ceiling refuses at 208. A document past
+either was refused, but for node count, with a message naming nodes rather than
+the collection an author had too many of - which tells them nothing about what
+to remove. Both moved under the ceiling, to 64 and 160. The other four were
+measured and were already reachable.
+
+The direction matters and is the reusable part: **move the cap under the
+ceiling, never the ceiling over the cap.** Raising a whole-document guard to
+make a per-section guard reachable is how the bounds came to be relaxed in the
+first place.
+
+`TestEveryCapCanFire` in `backend/tests/test_foundation_content_parsing.py`
+holds the property rather than the instances: for every cap, build a document
+at `cap + 1` and require the refusal to name the limit rather than the node
+count. Add a cap, and it is measured there automatically.
+
+This is the third appearance of one family in this project - two guard patterns
+that could never match in T011A, a diagram ban that could never match in T013,
+and now caps above their own ceiling. The common shape is protection that looks
+present and is not, and it is invisible precisely because the suite stays
+green. Assume a new guard is dead until a violation makes it speak, and read
+which guard answered rather than only that something failed.
+
+Writing the reachability test reproduced the same defect once more. Its first
+version asserted the refusal did not contain the word `nodes`, which fails on a
+passing case: one collection is called `topology.nodes`, so its correct message
+contains the word. It matches the ceiling's own wording now, `has more than N
+nodes`. A check that matches the wrong thing fails as badly as one that matches
+nothing.
+
+Also recorded as a deviation rather than residual risk: a locally created Site
+in gitignored `var/sites/` was deleted to make browser evidence deterministic.
+Nothing in the slice required deleting rather than adding one, and data outside
+version control is exactly where "do not discard unrelated user changes"
+matters most.

@@ -29,7 +29,12 @@ from assetops_backend.sites.adapters.yaml_shipped_site_store import (
 from assetops_backend.sites.adapters.yaml_user_site_store import WritableYamlSiteStore
 from assetops_backend.sites.models import SiteRecord, SiteTemplate
 from assetops_backend.sites.ports import SiteNotFound, SiteStoreUnavailable
-from test_site_parsing import valid_create_request, valid_site_document
+from assetops_backend.sites.site_parsing import parse_site_document
+from test_site_parsing import (
+    valid_create_request,
+    valid_site_document,
+    without_foundation_content,
+)
 from test_site_repository import FakeSiteRepository, site, snapshot, write_document
 from test_site_template_parsing import parse as parse_template
 from test_site_template_parsing import valid_document as valid_template_document
@@ -606,11 +611,17 @@ class TestSiteDetail:
     def test_the_detail_shape_carries_the_foundation_and_nothing_more(
         self, created: TestClient
     ) -> None:
-        """The read-only Site Configuration surface reads this shape.
+        """The read-only Foundation surface reads this shape.
 
-        Pinned exactly rather than checked only for the fields T008 added, so
-        that a later slice cannot quietly put topology, devices, or a mapping
-        version on the wire before a screen renders it and a review has seen it.
+        Pinned exactly rather than checked only for the fields each slice adds,
+        so that a later slice cannot quietly put a diagram runtime field, a
+        layout, an evidence value, or a mapping version on the wire before a
+        screen renders it and a review has seen it.
+
+        T014 adds four keys and no more. `topology` carries nodes and
+        connections; it does not carry coordinates, a layout, an archetype
+        name, or a rendering hint, because a diagram is causal step 4's second
+        slice and its view model is T015's.
         """
         foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
 
@@ -619,7 +630,70 @@ class TestSiteDetail:
             "valid_from",
             "summary",
             "components",
+            "topology",
+            "devices",
+            "signal_mappings",
+            "control_assumptions",
         }
+
+    def test_the_topology_shape_carries_no_diagram_or_layout_field(
+        self, created: TestClient
+    ) -> None:
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+
+        assert set(foundation["topology"]) == {"nodes", "connections"}
+        for node in foundation["topology"]["nodes"]:
+            assert set(node) == {"node_id", "component_id", "node_role"}
+        for connection in foundation["topology"]["connections"]:
+            assert set(connection) == {
+                "connection_id",
+                "from_node",
+                "to_node",
+                "medium",
+            }
+
+    def test_the_device_shape_carries_no_runtime_or_evidence_field(
+        self, created: TestClient
+    ) -> None:
+        """A declared device is a configured asset awaiting runtime.
+
+        There is no field here for a reading, a last-seen instant, a cadence,
+        or a health state, so no later screen can read one out of
+        configuration and present it as operational truth.
+        """
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+
+        for device in foundation["devices"]:
+            assert set(device) == {
+                "device_id",
+                "device_type",
+                "display_name",
+                "component_id",
+                "signals",
+            }
+            for signal in device["signals"]:
+                assert set(signal) == {"signal_id", "display_name", "unit"}
+
+    def test_the_mapping_and_assumption_shapes_are_pinned(
+        self, created: TestClient
+    ) -> None:
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+
+        for mapping in foundation["signal_mappings"]:
+            assert set(mapping) == {
+                "mapping_id",
+                "device_id",
+                "signal_id",
+                "component_id",
+            }
+        for assumption in foundation["control_assumptions"]:
+            assert set(assumption) == {
+                "assumption_id",
+                "display_name",
+                "component_id",
+                "basis",
+                "statement",
+            }
 
     @pytest.mark.parametrize("flags", [DISABLED, ENABLED], ids=["gate-off", "gate-on"])
     def test_the_detail_route_is_never_gated(
@@ -720,29 +794,64 @@ class TestSiteConfigurationReadPath:
 
         assert meter["rating"] is None
 
-    def test_the_foundation_declares_no_device_mapping_or_control_field(
+    def test_the_foundation_carries_the_expanded_seed_copied_at_creation(
         self, created: TestClient
     ) -> None:
-        """Not even an empty one.
+        """Topology, devices, mappings and assumptions reach the wire.
 
-        An empty list would let a screen say this Site has no devices. What is
-        true is narrower and is about the document: the M1 Foundation schema
-        has nowhere to put one. Those arrive with causal step 4.
+        The same read path, not a second endpoint under the Site: Site Details
+        and Foundation are two presentations of one configured Site, so
+        expanding what a Foundation declares expands this response and adds no
+        resource.
         """
-        response = created.get(f"{SITES_PATH}/MG-002")
-        foundation = response.json()["foundation"]
+        foundation = created.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+
+        assert [node["node_id"] for node in foundation["topology"]["nodes"]] == [
+            "pv-array",
+            "site-meter",
+        ]
+        assert [
+            device["device_id"] for device in foundation["devices"]
+        ] == ["pv-inverter-controller", "site-meter-unit"]
+        assert [
+            mapping["mapping_id"] for mapping in foundation["signal_mappings"]
+        ] == ["pv-ac-power", "meter-bus-voltage"]
+        assert [
+            assumption["assumption_id"]
+            for assumption in foundation["control_assumptions"]
+        ] == ["solar-first-dispatch", "one-metering-point"]
+
+    def test_a_foundation_declaring_none_carries_null_not_an_empty_list(
+        self,
+    ) -> None:
+        """The distinction the whole schema is built around.
+
+        `null` is this Site's Foundation declaring no devices. An empty list
+        would be a licence for a screen to state that this Site HAS no devices,
+        which is a claim about the site rather than about its document, and the
+        two must not arrive looking the same.
+        """
+        bare = parse_site_document(
+            without_foundation_content(valid_site_document()), source="fixture"
+        )
+        client = TestClient(
+            create_app(
+                DISABLED,
+                site_template_catalog=FakeCatalog(),
+                site_repository=FakeSiteRepository([bare]),
+            )
+        )
+
+        foundation = client.get(f"{SITES_PATH}/MG-002").json()["foundation"]
 
         for field in (
-            "devices",
             "topology",
-            "connections",
+            "devices",
             "signal_mappings",
-            "mapping_version",
             "control_assumptions",
-            "control_mode",
         ):
-            assert field not in foundation
-            assert field not in response.text
+            assert field in foundation
+            assert foundation[field] is None
 
     def test_the_validity_interval_is_open_ended(self, created: TestClient) -> None:
         """`valid_from` and no `valid_to`.

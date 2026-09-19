@@ -40,8 +40,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
+from assetops_backend.sites.foundation_parsing import render_foundation_content
 from assetops_backend.sites.identity import SITE_ID_RULE, validate_site_id
-from assetops_backend.sites.models import SiteComponent, SiteRecord
+from assetops_backend.sites.models import FoundationContent, SiteComponent, SiteRecord
 from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
     SiteIdentityConflict,
@@ -118,14 +119,21 @@ def site_detail(record: SiteRecord) -> dict[str, object]:
     series, or a plausible-looking default would be a claim the product cannot
     back.
 
-    T008 adds the Foundation *content* - the summary and the declared
-    components - because the read-only Site Configuration surface renders it.
-    That is the whole of what an M1 Foundation declares. Topology connections,
-    devices, signal mappings, and control assumptions have no field here
-    because the M1 Foundation schema has none: they arrive with causal step 4,
-    and declaring an empty list for each now would let a screen state that this
-    Site has no devices, when what is true is that this milestone's
-    configuration document cannot carry one.
+    T008 added the Foundation *content* - the summary and the declared
+    components - because the read-only Foundation surface renders it. T014 adds
+    the four sections below them: `topology`, `devices`, `signal_mappings`, and
+    `control_assumptions`.
+
+    Each of those four is `null` when this Site's Foundation declares none, and
+    `null` is the only way that is said. There is deliberately no empty list:
+    an empty list would let a screen state that this Site has no devices, and
+    what is true is narrower - this Site's configuration document declares
+    none. A screen has to be able to tell those apart, so the wire does.
+
+    Nothing in any of the four is runtime or evidence. A declared signal says
+    the device is configured to be able to report it; there is no field for a
+    reading, a timestamp, a cadence, or a health state, so nothing downstream
+    can read one out of configuration.
 
     The validity interval is open-ended. `valid_from` is the start and there is
     no `valid_to`, because a Foundation stays valid until a later version
@@ -143,6 +151,14 @@ def site_detail(record: SiteRecord) -> dict[str, object]:
                 site_component(component)
                 for component in record.foundation.components
             ],
+            **render_foundation_content(
+                FoundationContent(
+                    topology=record.foundation.topology,
+                    devices=record.foundation.devices,
+                    signal_mappings=record.foundation.signal_mappings,
+                    control_assumptions=record.foundation.control_assumptions,
+                )
+            ),
         },
     }
 

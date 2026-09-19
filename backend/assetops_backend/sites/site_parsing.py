@@ -24,6 +24,11 @@ from dataclasses import dataclass
 from typing import Any, Mapping, NoReturn
 
 from assetops_backend.sites.document_bounds import DocumentLimits, reject_oversized
+from assetops_backend.sites.foundation_parsing import (
+    FOUNDATION_CONTENT_KEYS,
+    parse_foundation_content,
+    render_foundation_content,
+)
 from assetops_backend.sites.identity import validate_site_id
 from assetops_backend.sites.models import (
     COMPONENT_TYPES,
@@ -32,6 +37,7 @@ from assetops_backend.sites.models import (
     RATING_UNITS,
     SITE_TYPES,
     SOURCE_MODES,
+    FoundationContent,
     Rating,
     SiteComponent,
     SiteFoundation,
@@ -59,7 +65,14 @@ SITE_KEYS = frozenset(
 LOCATION_KEYS = frozenset({"country", "locality"})
 SOURCE_KEYS = frozenset({"mode"})
 TEMPLATE_KEYS = frozenset({"template_id", "template_version"})
-FOUNDATION_KEYS = frozenset({"version", "valid_from", "summary", "components"})
+# The T008 metadata and component list, plus the four sections
+# `foundation_parsing` validates. Extended from the same constant the template
+# parser extends, so the two document families cannot diverge into one store
+# accepting a Foundation the other refuses.
+FOUNDATION_KEYS = (
+    frozenset({"version", "valid_from", "summary", "components"})
+    | FOUNDATION_CONTENT_KEYS
+)
 COMPONENT_KEYS = frozenset({"component_id", "component_type", "display_name", "rating"})
 RATING_KEYS = frozenset({"value", "unit"})
 
@@ -231,6 +244,18 @@ def render_site_document(record: SiteRecord) -> dict[str, Any]:
                 }
                 for component in record.foundation.components
             ],
+            # The four sections T014 adds, written unconditionally with `None`
+            # where the foundation declares none. Total rather than
+            # conditional, so a round trip returns an equal record whether the
+            # document declared them or not.
+            **render_foundation_content(
+                FoundationContent(
+                    topology=record.foundation.topology,
+                    devices=record.foundation.devices,
+                    signal_mappings=record.foundation.signal_mappings,
+                    control_assumptions=record.foundation.control_assumptions,
+                )
+            ),
         },
     }
 
@@ -414,11 +439,23 @@ def _parse_foundation(raw: Any, *, source: str) -> SiteFoundation:
             )
         seen.add(component.component_id)
 
+    content = parse_foundation_content(
+        raw,
+        component_ids=frozenset(seen),
+        where="site.foundation",
+        source=source,
+        invalid=_invalid,
+    )
+
     return SiteFoundation(
         version=version,
         valid_from=valid_from,
         summary=summary,
         components=parsed,
+        topology=content.topology,
+        devices=content.devices,
+        signal_mappings=content.signal_mappings,
+        control_assumptions=content.control_assumptions,
     )
 
 

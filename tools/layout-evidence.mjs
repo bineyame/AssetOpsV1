@@ -112,7 +112,29 @@ const MEASURE = `(() => {
     scrolledBy = Math.round(scroller.scrollLeft);
   }
   const railLeftAfter = rail ? Math.round(rail.getBoundingClientRect().left) : null;
+  // Every table on the page, not only the first. Before T014 a Foundation had
+  // one table; it now has six, and measuring one of them would report on a
+  // screen that no longer exists. Each is scrolled to its end so the rail
+  // measurement below covers all of them at once.
+  const scrollers = Array.from(
+    document.querySelectorAll(".data-table__scroll"),
+  ).map((region) => {
+    const table = region.querySelector("table");
+    const overflows = region.scrollWidth > region.clientWidth;
+    region.scrollLeft = 99999;
+    return {
+      name: region.getAttribute("aria-labelledby"),
+      overflows,
+      scrolledBy: Math.round(region.scrollLeft),
+      columnCount: table ? table.querySelectorAll("thead th").length : 0,
+      rowCount: table ? table.querySelectorAll("tbody tr").length : 0,
+      focusable: region.getAttribute("tabindex") === "0",
+    };
+  });
+  const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
+    scrollers,
+    railLeftAfterAll,
     pageScrollsHorizontally: doc.scrollWidth > doc.clientWidth,
     pageScrollWidth: doc.scrollWidth,
     pageClientWidth: doc.clientWidth,
@@ -258,6 +280,12 @@ allPass =
 for (const [label, width, height] of [
   ["1280x800", 1280, 800],
   ["1000x700", 1000, 700],
+  // Narrow enough that the dense relationship tables cannot fit. Without a
+  // width where something actually overflows, "every table that overflows
+  // scrolls inside its own region" is a claim about an empty set: it passes on
+  // a page whose regions do not scroll at all, which is the defect it exists
+  // to catch. The claim below asserts the set is not empty here.
+  ["640x700, narrow enough that a dense table cannot fit", 640, 700],
 ]) {
   const foundation = await visit(
     cdp,
@@ -295,6 +323,48 @@ for (const [label, width, height] of [
         foundation.buttons.length === 0
           ? "no action rendered"
           : foundation.buttons.map((b) => b.label).join(", "),
+      ],
+      // T014 fills this page with relationship tables. The viewport
+      // commitment is that a dense table keeps its columns and scrolls inside
+      // its own region; these three claims are that commitment, measured.
+      [
+        "every table on the page has a named, focusable overflow region",
+        foundation.scrollers.length > 0 &&
+          foundation.scrollers.every((s) => s.focusable && s.name),
+        foundation.scrollers.map((s) => s.name ?? "unnamed").join(", "),
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        foundation.scrollers
+          .filter((s) => s.overflows)
+          .every((s) => s.scrolledBy > 0),
+        foundation.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the rail does not move when every table is scrolled to its end",
+        foundation.railLeftBefore === foundation.railLeftAfterAll,
+        `left ${foundation.railLeftBefore} -> ${foundation.railLeftAfterAll}`,
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              foundation.scrollers.some((s) => s.overflows),
+              `${foundation.scrollers.filter((s) => s.overflows).length} of ${foundation.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+      [
+        "no table renders a header row with no rows under it",
+        foundation.scrollers.every((s) => s.columnCount === 0 || s.rowCount > 0),
+        foundation.scrollers
+          .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
+          .join("; "),
       ],
     ]) && allPass;
 }

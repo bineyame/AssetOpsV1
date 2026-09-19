@@ -193,7 +193,92 @@
                 "rating": null
               }
             ],
+            "control_assumptions": [
+              {
+                "assumption_id": "solar-first-dispatch",
+                "basis": "TEMPLATE",
+                "component_id": null,
+                "display_name": "Solar is dispatched first",
+                "statement": "A declared assumption about intended operation."
+              },
+              {
+                "assumption_id": "one-metering-point",
+                "basis": "TEMPLATE",
+                "component_id": "site-meter",
+                "display_name": "One billing-relevant metering point",
+                "statement": "The site meter is the one billing-relevant point."
+              }
+            ],
+            "devices": [
+              {
+                "component_id": "pv-array",
+                "device_id": "pv-inverter-controller",
+                "device_type": "CONTROLLER",
+                "display_name": "PV inverter controller",
+                "signals": [
+                  {
+                    "display_name": "AC output power",
+                    "signal_id": "ac-power",
+                    "unit": "kW"
+                  },
+                  {
+                    "display_name": "Lifetime energy delivered",
+                    "signal_id": "lifetime-energy",
+                    "unit": "kWh"
+                  }
+                ]
+              },
+              {
+                "component_id": "site-meter",
+                "device_id": "site-meter-unit",
+                "device_type": "METER",
+                "display_name": "Site meter",
+                "signals": [
+                  {
+                    "display_name": "Bus voltage",
+                    "signal_id": "bus-voltage",
+                    "unit": "V"
+                  }
+                ]
+              }
+            ],
+            "signal_mappings": [
+              {
+                "component_id": "pv-array",
+                "device_id": "pv-inverter-controller",
+                "mapping_id": "pv-ac-power",
+                "signal_id": "ac-power"
+              },
+              {
+                "component_id": "site-meter",
+                "device_id": "site-meter-unit",
+                "mapping_id": "meter-bus-voltage",
+                "signal_id": "bus-voltage"
+              }
+            ],
             "summary": "A site used by tests only.",
+            "topology": {
+              "connections": [
+                {
+                  "connection_id": "array-to-meter",
+                  "from_node": "pv-array",
+                  "medium": "AC",
+                  "to_node": "site-meter"
+                }
+              ],
+              "nodes": [
+                {
+                  "component_id": "pv-array",
+                  "node_id": "pv-array",
+                  "node_role": "GENERATION"
+                },
+                {
+                  "component_id": "site-meter",
+                  "node_id": "site-meter",
+                  "node_role": "METERING"
+                }
+              ]
+            },
             "valid_from": "2026-01-01T00:00:00Z",
             "version": 1
           },
@@ -304,6 +389,61 @@
         "status": 200
       }
     },
+    "site_detail_declares_no_foundation_content": {
+      "description": "A Site whose Foundation declares no topology, devices, mappings or control assumptions. Each is null, never an empty list.",
+      "request": {
+        "method": "GET",
+        "path": "/api/sites/MG-002"
+      },
+      "response": {
+        "body": {
+          "display_name": "Kalangala Mini-Grid",
+          "foundation": {
+            "components": [
+              {
+                "component_id": "pv-array",
+                "component_type": "PV_ARRAY",
+                "display_name": "PV array",
+                "rating": {
+                  "unit": "kW",
+                  "value": 100.0
+                }
+              },
+              {
+                "component_id": "site-meter",
+                "component_type": "METER",
+                "display_name": "Site meter",
+                "rating": null
+              }
+            ],
+            "control_assumptions": null,
+            "devices": null,
+            "signal_mappings": null,
+            "summary": "A site used by tests only.",
+            "topology": null,
+            "valid_from": "2026-01-01T00:00:00Z",
+            "version": 1
+          },
+          "lifecycle_status": "PLANNED",
+          "location": {
+            "country": "Uganda",
+            "locality": "Kalangala"
+          },
+          "origin": "USER",
+          "site_id": "MG-002",
+          "site_type": "MINIGRID",
+          "source": {
+            "mode": "SIMULATED"
+          },
+          "template": {
+            "template_id": "hybrid-mini-grid-100kw",
+            "template_version": 1
+          },
+          "timezone": "Africa/Kampala"
+        },
+        "status": 200
+      }
+    },
     "site_detail_loaded": {
       "description": "One Site with its Foundation, carrying both a component with a declared rating and one whose rating is null.",
       "request": {
@@ -331,7 +471,92 @@
                 "rating": null
               }
             ],
+            "control_assumptions": [
+              {
+                "assumption_id": "solar-first-dispatch",
+                "basis": "TEMPLATE",
+                "component_id": null,
+                "display_name": "Solar is dispatched first",
+                "statement": "A declared assumption about intended operation."
+              },
+              {
+                "assumption_id": "one-metering-point",
+                "basis": "TEMPLATE",
+                "component_id": "site-meter",
+                "display_name": "One billing-relevant metering point",
+                "statement": "The site meter is the one billing-relevant point."
+              }
+            ],
+            "devices": [
+              {
+                "component_id": "pv-array",
+                "device_id": "pv-inverter-controller",
+                "device_type": "CONTROLLER",
+                "display_name": "PV inverter controller",
+                "signals": [
+                  {
+                    "display_name": "AC output power",
+                    "signal_id": "ac-power",
+                    "unit": "kW"
+                  },
+                  {
+                    "display_name": "Lifetime energy delivered",
+                    "signal_id": "lifetime-energy",
+                    "unit": "kWh"
+                  }
+                ]
+              },
+              {
+                "component_id": "site-meter",
+                "device_id": "site-meter-unit",
+                "device_type": "METER",
+                "display_name": "Site meter",
+                "signals": [
+                  {
+                    "display_name": "Bus voltage",
+                    "signal_id": "bus-voltage",
+                    "unit": "V"
+                  }
+                ]
+              }
+            ],
+            "signal_mappings": [
+              {
+                "component_id": "pv-array",
+                "device_id": "pv-inverter-controller",
+                "mapping_id": "pv-ac-power",
+                "signal_id": "ac-power"
+              },
+              {
+                "component_id": "site-meter",
+                "device_id": "site-meter-unit",
+                "mapping_id": "meter-bus-voltage",
+                "signal_id": "bus-voltage"
+              }
+            ],
             "summary": "A site used by tests only.",
+            "topology": {
+              "connections": [
+                {
+                  "connection_id": "array-to-meter",
+                  "from_node": "pv-array",
+                  "medium": "AC",
+                  "to_node": "site-meter"
+                }
+              ],
+              "nodes": [
+                {
+                  "component_id": "pv-array",
+                  "node_id": "pv-array",
+                  "node_role": "GENERATION"
+                },
+                {
+                  "component_id": "site-meter",
+                  "node_id": "site-meter",
+                  "node_role": "METERING"
+                }
+              ]
+            },
             "valid_from": "2026-01-01T00:00:00Z",
             "version": 1
           },

@@ -58,8 +58,120 @@ def valid_site_document() -> dict[str, Any]:
                     "rating": None,
                 },
             ],
+            **foundation_content(),
         },
     }
+
+
+def foundation_content() -> dict[str, Any]:
+    """The four sections T014 adds, over the two components above.
+
+    Small on purpose - two components, two devices, three signals, two
+    mappings, two assumptions - but it exercises every reference the validator
+    checks: a node naming a component, a connection naming two nodes, a device
+    naming a component, and a mapping naming a device, one of that device's
+    declared signals, and a component.
+    """
+    return {
+        "topology": {
+            "nodes": [
+                {
+                    "node_id": "pv-array",
+                    "component_id": "pv-array",
+                    "node_role": "GENERATION",
+                },
+                {
+                    "node_id": "site-meter",
+                    "component_id": "site-meter",
+                    "node_role": "METERING",
+                },
+            ],
+            "connections": [
+                {
+                    "connection_id": "array-to-meter",
+                    "from_node": "pv-array",
+                    "to_node": "site-meter",
+                    "medium": "AC",
+                }
+            ],
+        },
+        "devices": [
+            {
+                "device_id": "pv-inverter-controller",
+                "device_type": "CONTROLLER",
+                "display_name": "PV inverter controller",
+                "component_id": "pv-array",
+                "signals": [
+                    {
+                        "signal_id": "ac-power",
+                        "display_name": "AC output power",
+                        "unit": "kW",
+                    },
+                    {
+                        "signal_id": "lifetime-energy",
+                        "display_name": "Lifetime energy delivered",
+                        "unit": "kWh",
+                    },
+                ],
+            },
+            {
+                "device_id": "site-meter-unit",
+                "device_type": "METER",
+                "display_name": "Site meter",
+                "component_id": "site-meter",
+                "signals": [
+                    {
+                        "signal_id": "bus-voltage",
+                        "display_name": "Bus voltage",
+                        "unit": "V",
+                    }
+                ],
+            },
+        ],
+        "signal_mappings": [
+            {
+                "mapping_id": "pv-ac-power",
+                "device_id": "pv-inverter-controller",
+                "signal_id": "ac-power",
+                "component_id": "pv-array",
+            },
+            {
+                "mapping_id": "meter-bus-voltage",
+                "device_id": "site-meter-unit",
+                "signal_id": "bus-voltage",
+                "component_id": "site-meter",
+            },
+        ],
+        "control_assumptions": [
+            {
+                "assumption_id": "solar-first-dispatch",
+                "display_name": "Solar is dispatched first",
+                "component_id": None,
+                "basis": "TEMPLATE",
+                "statement": "A declared assumption about intended operation.",
+            },
+            {
+                "assumption_id": "one-metering-point",
+                "display_name": "One billing-relevant metering point",
+                "component_id": "site-meter",
+                "basis": "TEMPLATE",
+                "statement": "The site meter is the one billing-relevant point.",
+            },
+        ],
+    }
+
+
+def without_foundation_content(document: dict[str, Any]) -> dict[str, Any]:
+    """The same document with the four T014 sections left out entirely.
+
+    Left out, not emptied. A foundation that declares no device says so by
+    being silent; an empty list would be the document stating that the site has
+    none, which is a different claim and one this schema refuses to let anyone
+    make.
+    """
+    for key in ("topology", "devices", "signal_mappings", "control_assumptions"):
+        document["foundation"].pop(key, None)
+    return document
 
 
 def valid_create_request() -> dict[str, Any]:
@@ -173,8 +285,13 @@ class TestStrictness:
 
         public = [name for name in dir(site_parsing) if not name.startswith("_")]
 
+        # Three, and the third is the point: the Foundation content below the
+        # component list is validated by `foundation_parsing`, which the
+        # template parser calls too, so a user-authored document and a shipped
+        # one are checked by exactly the same code.
         assert [name for name in public if name.startswith("parse")] == [
             "parse_create_site_request",
+            "parse_foundation_content",
             "parse_site_document",
         ]
 
@@ -198,7 +315,7 @@ class TestStrictness:
                 lambda d: d["template"].update(extra="x"), id="unknown-template-key"
             ),
             pytest.param(
-                lambda d: d["foundation"].update(topology=[]),
+                lambda d: d["foundation"].update(extra="x"),
                 id="unknown-foundation-key",
             ),
             pytest.param(
