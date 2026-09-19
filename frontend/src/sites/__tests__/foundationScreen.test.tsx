@@ -180,6 +180,27 @@ describe("the Foundation subtab row is v6.9's, filtered", () => {
     }
   });
 
+  it("does not borrow the Site tab row's treatment", async () => {
+    renderFoundation();
+    await settledScreen();
+
+    // The Architect's UI/UX ruling: two stacked rows may share vocabulary, but
+    // they must not ask a reader to infer two different behaviours from one
+    // treatment. The Site tab row swaps what you are looking at; this locates
+    // a section on the page you are already on.
+    const row = subtabRow();
+
+    expect(row.className).toContain("section-nav");
+    expect(row.className).not.toContain("site-tabs");
+    expect(row.querySelectorAll(".site-tabs__link, .site-tabs__label")).toHaveLength(
+      0,
+    );
+
+    // And it carries no active state, because nothing is current when every
+    // section is on the page at once.
+    expect(row.querySelectorAll('[aria-current]')).toHaveLength(0);
+  });
+
   it("gives Readiness no link, no control, and no section to point at", async () => {
     const { container } = renderFoundation();
     await settledScreen();

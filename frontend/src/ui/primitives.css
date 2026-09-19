@@ -865,3 +865,82 @@ button:focus-visible {
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
+
+/* Section navigation -------------------------------------------------------- */
+
+/*
+ * A row that locates sections on the page it is already on.
+ *
+ * Deliberately not `.site-tabs`, and the separation is the point. A tab row
+ * says "this swaps what you are looking at"; this says "this is further down
+ * the same page". T013 built the Foundation row with the tab classes and the
+ * Architect ruled that stacking two rows in one treatment asks a reader to
+ * infer two different behaviours from the same appearance.
+ *
+ * So it is subordinate by construction: smaller, lighter, inline, no
+ * underline rail and no active state, because there is no "current" section
+ * when all of them are on screen at once. It reads as a contents line, which
+ * is what it is.
+ */
+.section-nav {
+  margin-bottom: var(--space-5);
+}
+
+.section-nav__label {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.section-nav__list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+}
+
+.section-nav__item {
+  display: flex;
+}
+
+.section-nav__link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.section-nav__link:hover {
+  text-decoration: underline;
+}
+
+/*
+ * A section this build does not have. Same two-state rule as the tab row: not
+ * a link, not a control, and never disabled - it is not switched off, it is
+ * not built.
+ */
+.section-nav__absent {
+  color: var(--text-muted);
+}
+
+.section-nav__note {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/*
+ * Where a section link lands.
+ *
+ * Without this a heading scrolls flush to the viewport edge, which puts it
+ * under nothing and makes the section look like it starts mid-air. The margin
+ * is the room the heading needs to read as a heading once it arrives.
+ */
+.panel__heading {
+  scroll-margin-top: var(--space-5);
+}

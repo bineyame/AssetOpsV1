@@ -136,9 +136,11 @@ const MEASURE = `(() => {
     // Scoped by landmark name, because a Foundation page carries two of these
     // rows - the operator Site tabs and the Foundation subtabs - and counting
     // them together would say twelve and mean nothing.
-    navRows: Array.from(document.querySelectorAll("nav.site-tabs")).map((nav) => ({
+    navRows: Array.from(
+      document.querySelectorAll("nav.site-tabs, nav.section-nav"),
+    ).map((nav) => ({
       label: nav.getAttribute("aria-label"),
-      items: Array.from(nav.querySelectorAll(".site-tabs__list li")).map((li) =>
+      items: Array.from(nav.querySelectorAll("li")).map((li) =>
         (li.textContent || "").trim(),
       ),
     })),

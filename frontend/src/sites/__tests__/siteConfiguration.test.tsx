@@ -84,7 +84,7 @@ const SHIPPED_SITE: SiteDetailReadModel = {
 
 /** The Foundation subtab labels a container renders, in order. */
 function subtabLabels(container: HTMLElement): string[] {
-  return Array.from(container.querySelectorAll(".site-tabs__list li")).map(
+  return Array.from(container.querySelectorAll(".section-nav__list li")).map(
     (item) => item.textContent ?? "",
   );
 }

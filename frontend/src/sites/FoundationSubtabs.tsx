@@ -30,9 +30,17 @@
  * disabled state, and deliberately no empty panel to point at - a section
  * heading with nothing under it is the layout form of a fabricated value.
  *
- * This is the same two-state treatment the operator Site tab row uses one
- * level up, and it renders with the same vocabulary classes, because it is the
- * same pattern: things you can open, and things this build can only name.
+ * ## Why this does not look like the tab row above it
+ *
+ * It carries the same two states - things you can reach, and things this build
+ * can only name - but it is not the same pattern and must not borrow the same
+ * treatment. A tab row says "this swaps what you are looking at". This says
+ * "this is further down the same page". T013 first rendered it with the tab
+ * classes, and the Architect's UI/UX ruling was that two stacked rows in one
+ * treatment ask a reader to infer two different behaviours from one
+ * appearance. So it is `.section-nav`: smaller, lighter, a contents line
+ * rather than a switcher, with no active state, because nothing is "current"
+ * when every section is on the page at once.
  */
 
 /** The id of the section a subtab opens. */
@@ -73,35 +81,29 @@ export const FOUNDATION_SUBTABS: FoundationSubtab[] = [
 export const FOUNDATION_SUBTABS_LABEL = "Foundation sections";
 
 export function FoundationSubtabs() {
-  const groupStart = FOUNDATION_SUBTABS.findIndex(
-    (subtab) => subtab.kind === "labelled_in_place",
-  );
-
   return (
-    <nav className="site-tabs" aria-label={FOUNDATION_SUBTABS_LABEL}>
-      <ol className="site-tabs__list">
-        {FOUNDATION_SUBTABS.map((subtab, index) => (
+    <nav className="section-nav" aria-label={FOUNDATION_SUBTABS_LABEL}>
+      <p className="section-nav__label">On this page</p>
+      <ol className="section-nav__list">
+        {FOUNDATION_SUBTABS.map((subtab) => (
           <li
-            className={
-              index === groupStart
-                ? "site-tabs__item site-tabs__item--group-start"
-                : "site-tabs__item"
-            }
+            className="section-nav__item"
             key={subtab.label}
           >
             {subtab.kind === "section" ? (
-              <a className="site-tabs__link" href={`#${subtab.targetId}`}>
+              <a className="section-nav__link" href={`#${subtab.targetId}`}>
                 {subtab.label}
               </a>
             ) : (
-              <span className="site-tabs__label">{subtab.label}</span>
+              <span className="section-nav__absent">{subtab.label}</span>
             )}
           </li>
         ))}
       </ol>
 
-      <p className="site-tabs__aspects">
-        Readiness has no content in this build yet.
+      <p className="section-nav__note">
+        Readiness has no section on this page: this build has no evidence
+        readiness model.
       </p>
     </nav>
   );
