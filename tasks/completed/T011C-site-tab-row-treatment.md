@@ -1,6 +1,6 @@
 # T011C - Site Tab Row Treatment
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T011C-site-tab-row-treatment`
@@ -125,3 +125,63 @@ does not know the convention.
 Not required. The user settled the treatment before the work started, and this
 slice implements that choice. The browser pass that confirms it is the same one
 already outstanding for T011A and T011B.
+
+## Review Outcome
+
+Independent review by Codex: **reject until the documentation finding is
+corrected**, then corrected and accepted. One Low finding, and no code finding
+at all: "I did not find a product/code behavior defect in the tab treatment."
+
+### The finding
+
+Two durable records still described the pre-revision state. `.ai/CODE_STATE.md`
+listed "Not seen" as this slice's first open item, and T011A's User Review
+Outcome said the line *names* the aspects. Both were true before the user's
+browser pass and false after it: the user did see this row, and the settled line
+counts rather than names.
+
+Low severity understates why it mattered, and the Reviewer said so: T012 is
+explicitly told to read `.ai/CODE_STATE.md`, so the stale record would have told
+the next agent that this row's browser result was unknown and that the settled
+treatment lists six names. A handoff document lying to the slice it hands off
+to.
+
+Fixed in the commit `T011C: correct two records that still described the
+pre-revision line`. The error was mine in a repeatable way: I revised the
+sentence and updated the prose beside it, then left the open-items list and the
+T011A outcome describing what had been replaced. A revision sweeps every record
+of what was revised. The open-items list read 1, 2, 4, 5, 6, which was the tell.
+
+### What the Reviewer verified rather than accepted
+
+- The three states are still three: Overview and Foundation remain links, and
+  the six remain spans with no route, control or disabled affordance. That was
+  the seam this slice could have undone while making a label legible.
+- `labelledAspectsSentence` is genuinely derived, with tests exercising
+  fabricated inventories of two labelled aspects, one, all destinations, and
+  the real one.
+- The active tab stays distinguishable by underline and weight while the
+  destinations inherit the global link colour.
+- The moved baseline is correct: the active underline still lands on the list
+  border now that the sentence lives inside the same nav.
+- The sentence inside the `Site sections` nav explains the row rather than the
+  Site record, so it belongs there. Known Deviation (c) accepted, with the
+  screen-reader discoverability risk named as correctly stated.
+
+### User review
+
+The treatment itself was settled by the user before the work started, and
+confirmed by them at the browser afterwards: they rendered the first version,
+reported the row reads right and the sentence is heavy, and the sentence was
+shortened from naming all six to counting them. That exchange is recorded in
+T011A's User Review Outcome, which is where the original finding lives.
+
+### Checks
+
+Reviewer: architecture guard, workflow guard, backend `304 passed`,
+`npx.cmd tsc --noEmit` clean. The frontend suite and build failed under its
+sandbox for the known esbuild reason.
+
+Implementing session: both guards pass, backend `304 passed`, frontend
+`464 passed` across 17 files at the time of the merge, `tsc --noEmit` clean,
+build clean.

@@ -1,6 +1,6 @@
 # T011B - Shell And Dense Content Overflow Containment
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T011B-shell-and-dense-content-overflow-containment`

@@ -42,6 +42,12 @@ T011A left for it.
 
 T005 to T012 are complete, in `tasks/completed/` with their Review Outcomes.
 
+T011B and T011C were merged without being closed out and sat at `in_review` in
+`tasks/` while their code was on `main`. Caught by the user, not by a check.
+Nothing enforces that a merged slice's task file says so, which is why it
+drifted silently; whether that should be enforced is an open question for the
+Architect rather than something to bolt on here.
+
 ## Current Site Foundation Sequence
 
 Reworked Site Foundation tasks are T005-T013 in `tasks/`.
