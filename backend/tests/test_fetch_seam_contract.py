@@ -40,7 +40,12 @@ from assetops_backend.sites.ports import (
     SiteStoreUnavailable,
     SiteTemplateStoreUnavailable,
 )
-from test_site_parsing import valid_create_request, valid_site_document
+from assetops_backend.sites.site_parsing import parse_site_document
+from test_site_parsing import (
+    valid_create_request,
+    valid_site_document,
+    without_foundation_content,
+)
 from test_site_repository import FakeSiteRepository, site
 from test_site_template_parsing import parse as parse_template
 from test_site_template_parsing import valid_document as valid_template_document
@@ -217,6 +222,26 @@ def _generate() -> dict[str, Any]:
             "GET",
             f"{TEMPLATES_PATH}/no-such-template",
             description="An unknown template identity.",
+        )
+
+    # A Foundation that declares no topology, no device, no mapping and no
+    # control assumption. Captured as its own case because `null` and an empty
+    # list are the distinction the expanded schema exists to keep: a screen
+    # reading this body must state the absence in words, not render an empty
+    # device table that would say this Site has none.
+    declares_none = parse_site_document(
+        without_foundation_content(valid_site_document()), source="fixture"
+    )
+    with _client(ENABLED, repository=FakeSiteRepository([declares_none])) as bare:
+        cases["site_detail_declares_no_foundation_content"] = _capture(
+            bare,
+            "GET",
+            SITE_DETAIL_PATH,
+            description=(
+                "A Site whose Foundation declares no topology, devices, "
+                "mappings or control assumptions. Each is null, never an "
+                "empty list."
+            ),
         )
 
     with _client(ENABLED) as empty:
@@ -488,6 +513,42 @@ class TestTheSeamItselfHoldsItsDistinctions:
             cases["gate_closed_site_detail"]["response"]
             == cases["site_detail_loaded"]["response"]
         )
+
+    def test_a_declared_foundation_is_distinguishable_from_one_that_declares_none(
+        self, cases: dict[str, Any]
+    ) -> None:
+        """The distinction the expanded Foundation is built around.
+
+        A frontend reading these two bodies has to be able to tell "this Site
+        declares no devices" from "this Site declares these devices". If the
+        empty case ever came back as `[]`, a screen could render an empty
+        device table and state something about the site that its configuration
+        document never said.
+        """
+        declared = cases["site_detail_loaded"]["response"]["body"]["foundation"]
+        none = cases["site_detail_declares_no_foundation_content"]["response"][
+            "body"
+        ]["foundation"]
+
+        for field in (
+            "topology",
+            "devices",
+            "signal_mappings",
+            "control_assumptions",
+        ):
+            assert none[field] is None, f"{field} came back as something other than null"
+            assert declared[field] is not None, f"{field} carries no declared content"
+
+    def test_a_declared_device_carries_no_runtime_or_evidence_value(
+        self, cases: dict[str, Any]
+    ) -> None:
+        """Devices reach the wire as configured assets awaiting runtime."""
+        foundation = cases["site_detail_loaded"]["response"]["body"]["foundation"]
+
+        assert foundation["devices"], "the device guard must not be vacuous"
+        for device in foundation["devices"]:
+            for signal in device["signals"]:
+                assert set(signal) == {"signal_id", "display_name", "unit"}
 
     def test_a_template_never_acquires_site_identity(
         self, cases: dict[str, Any]

@@ -49,6 +49,64 @@ COMPONENT_TYPES = frozenset(
 # against.
 RATING_UNITS = frozenset({"kW", "kWh", "kVA", "V", "A", "Hz", "L"})
 
+# --- Foundation content below the component list ----------------------------
+#
+# T014 adds topology, devices, signal availability, device-to-signal mappings,
+# and control assumptions to what a Foundation may declare. Everything here is
+# shared between a template's Foundation and a Site's Foundation, in the same
+# way `Rating` already is: these are leaf value types, and a Site's copy is
+# free to diverge in its VALUES without either Foundation growing a mode.
+#
+# Two vocabularies this slice deliberately does NOT settle, because the T016
+# user-review checkpoint owns them:
+#
+#   - whether a breaker is a device, component state, or both, and what the
+#     control state vocabulary is. `ControlAssumption` below therefore carries
+#     a declared statement and its basis, not a control model.
+#   - how cold-room process symbols relate to mini-grid electrical topology.
+#     `TOPOLOGY_NODE_ROLES` carries only the electrical positions the shipped
+#     hybrid mini-grid template needs to parse.
+
+# Where a component sits in the site's electrical topology. Closed, because a
+# later SLD archetype binds against these and an unrecognised role would be a
+# node nothing could draw.
+#
+# This is topology position, not component identity: `component_type` remains
+# the canonical vocabulary for what a component IS, and no component carries a
+# second role axis.
+TOPOLOGY_NODE_ROLES = frozenset(
+    {
+        "SOURCE",
+        "CONVERSION",
+        "STORAGE",
+        "BUS",
+        "METERING",
+        "LOAD",
+        "FUEL_STORAGE",
+    }
+)
+
+# What flows along a connection. Closed for the same reason: a connection whose
+# medium is not understood cannot be drawn or simulated, so it is a
+# configuration error rather than a passthrough string.
+CONNECTION_MEDIA = frozenset({"AC", "DC", "FUEL"})
+
+# What kind of thing a declared device is. Deliberately small: only what the
+# shipped hybrid mini-grid template needs. A device here is a configured asset,
+# never an operating one - nothing in this record says a device exists, has
+# been commissioned, or has ever reported.
+DEVICE_TYPES = frozenset({"METER", "SENSOR", "CONTROLLER"})
+
+# Units a declared signal may carry. Closed, and separate from `RATING_UNITS`:
+# a nameplate rating and a reportable signal are different kinds of fact, and
+# collapsing their vocabularies would let a rating unit onto a signal.
+SIGNAL_UNITS = frozenset({"kW", "kWh", "V", "Hz", "L", "degC", "W/m2", "%"})
+
+# Where a declared control assumption comes from. Provenance about the
+# assumption, not a control vocabulary: `TEMPLATE` is an assumption the
+# archetype declared and the site copied, `SITE` is one declared for this site.
+CONTROL_ASSUMPTION_BASES = frozenset({"TEMPLATE", "SITE"})
+
 
 @dataclass(frozen=True)
 class Rating:
@@ -59,6 +117,139 @@ class Rating:
 
     value: float
     unit: str
+
+
+@dataclass(frozen=True)
+class TopologyNode:
+    """One position in the site's electrical topology.
+
+    A node is not a component: it is the place a declared component occupies in
+    the topology. `component_id` must name a component the same Foundation
+    declares, which is what keeps the topology from becoming a second component
+    authority.
+    """
+
+    node_id: str
+    component_id: str
+    node_role: str
+
+
+@dataclass(frozen=True)
+class TopologyConnection:
+    """One declared connection between two topology nodes.
+
+    Directed from `from_node` to `to_node`, and both must name nodes the same
+    topology declares. The direction is the declared flow direction in the
+    document; it is not a measurement and nothing here says anything is
+    flowing.
+    """
+
+    connection_id: str
+    from_node: str
+    to_node: str
+    medium: str
+
+
+@dataclass(frozen=True)
+class FoundationTopology:
+    """The declared topology: what the nodes are and how they connect."""
+
+    nodes: tuple[TopologyNode, ...]
+    connections: tuple[TopologyConnection, ...]
+
+
+@dataclass(frozen=True)
+class DeviceSignal:
+    """One signal a declared device is configured to be able to report.
+
+    Signal AVAILABILITY, not a reading. That a device declares a `kW` signal is
+    not a claim that any value has ever arrived, and this record has nowhere to
+    put one.
+
+    `signal_id` is unique within its device only. Two devices may both declare
+    `ac-power`, and a mapping names the device and the signal together.
+    """
+
+    signal_id: str
+    display_name: str
+    unit: str
+
+
+@dataclass(frozen=True)
+class FoundationDevice:
+    """One device the Foundation declares, and the signals it can report.
+
+    `component_id` is the component the device is attached to, and it must name
+    a component the same Foundation declares. A device is configured
+    configuration: it is awaiting runtime and evidence, and nothing here states
+    that it is reporting or that it is not.
+    """
+
+    device_id: str
+    device_type: str
+    display_name: str
+    component_id: str
+    signals: tuple[DeviceSignal, ...]
+
+
+@dataclass(frozen=True)
+class SignalMapping:
+    """A declared binding from one device signal to the component it describes.
+
+    This is the canonical device-to-signal fact. It is never inferred from a
+    display name, a topology position, a protocol label, a simulator fixture
+    name, or mockup text: if the document does not declare it, the product does
+    not know it.
+
+    The device it names must be declared, the signal must be one that device
+    declares, and the component must be one the Foundation declares. A device
+    attached to one component may map a signal to another - a site meter
+    attached to the bus reporting the distribution load's consumption is the
+    case this exists for.
+    """
+
+    mapping_id: str
+    device_id: str
+    signal_id: str
+    component_id: str
+
+
+@dataclass(frozen=True)
+class ControlAssumption:
+    """One declared assumption about how this site is expected to be operated.
+
+    Deliberately not a control model. It carries an identity, what the
+    assumption is about, where the assumption came from, and the assumption in
+    words. It declares no control state, no setpoint, no mode, and no breaker
+    position, because whether a breaker is a device, component state, or both
+    is a product decision this slice does not make.
+
+    `component_id` is `None` when the assumption is about the site rather than
+    one component. Absent and `None` are the same fact here and both are
+    written as `None`.
+    """
+
+    assumption_id: str
+    display_name: str
+    component_id: str | None
+    basis: str
+    statement: str
+
+
+@dataclass(frozen=True)
+class FoundationContent:
+    """The four Foundation sections below the component list.
+
+    Each is `None` when the document does not declare that section. `None` is the
+    document being silent; there is no empty collection, because an empty list
+    would let a screen state that a site has no devices when what is true is
+    that its Foundation does not declare any.
+    """
+
+    topology: FoundationTopology | None = None
+    devices: tuple[FoundationDevice, ...] | None = None
+    signal_mappings: tuple[SignalMapping, ...] | None = None
+    control_assumptions: tuple[ControlAssumption, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -79,14 +270,19 @@ class TemplateComponent:
 class TemplateFoundation:
     """The Foundation content a template would produce.
 
-    T005 declares the archetype and its components. Topology connections,
-    devices, signal mappings, and control assumptions belong to causal step 4
-    and are deliberately absent rather than stubbed.
+    T005 declared the archetype and its components. T014 adds the four sections
+    below them, and each is `None` when the template document does not declare
+    it: a template that declares no devices seeds a Site that declares no
+    devices, and neither states that the site has none.
     """
 
     site_type: str
     summary: str
     components: tuple[TemplateComponent, ...]
+    topology: FoundationTopology | None = None
+    devices: tuple[FoundationDevice, ...] | None = None
+    signal_mappings: tuple[SignalMapping, ...] | None = None
+    control_assumptions: tuple[ControlAssumption, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -181,16 +377,24 @@ class SiteComponent:
 class SiteFoundation:
     """The versioned, time-valid Foundation content of a Site.
 
-    M1 carries the version, the start of the validity interval, and the
-    component seed copied from the template. Topology connections, devices,
-    signal mappings, and control assumptions are causal step 4 and are absent
-    rather than stubbed.
+    The version, the start of the validity interval, and the component seed
+    copied from the template, plus the four sections T014 adds: topology,
+    devices, device-to-signal mappings, and control assumptions.
+
+    Each of the four is `None` when this Site's Foundation document declares
+    none, and `None` is the only way to say that. There is no empty collection,
+    because an empty list is a screen's licence to state that this site has no
+    devices, and what the document supports is narrower: it declares none.
     """
 
     version: int
     valid_from: str
     summary: str
     components: tuple[SiteComponent, ...]
+    topology: FoundationTopology | None = None
+    devices: tuple[FoundationDevice, ...] | None = None
+    signal_mappings: tuple[SignalMapping, ...] | None = None
+    control_assumptions: tuple[ControlAssumption, ...] | None = None
 
 
 @dataclass(frozen=True)

@@ -17,8 +17,10 @@ foundation:
   site_type: MINIGRID
   summary: >-
     Solar-plus-storage mini-grid with a diesel generator for backup and a
-    metered distribution load. Declared design ratings only; topology,
-    devices, and signal mappings are not part of this template.
+    metered distribution load. Declares design ratings, the electrical
+    topology, the configured devices and the signals they can report, the
+    device-to-signal mappings, and the operating assumptions the archetype
+    makes.
   components:
     - component_id: pv-array
       component_type: PV_ARRAY
@@ -72,3 +74,259 @@ foundation:
       rating:
         value: 80
         unit: kW
+
+  # --- Topology -----------------------------------------------------------
+  #
+  # Where each declared component sits, and what connects to what. This is the
+  # canonical topology: no diagram, view model, simulator fixture, or mockup
+  # may declare a different one, and none of them may add a component. Every
+  # component_id below names a component declared above.
+  #
+  # A connection's direction is the declared direction of flow in this
+  # document. It is not a measurement and nothing here says anything is
+  # flowing.
+  topology:
+    nodes:
+      - node_id: pv-array
+        component_id: pv-array
+        node_role: SOURCE
+      - node_id: pv-inverter
+        component_id: pv-inverter
+        node_role: CONVERSION
+      - node_id: battery
+        component_id: battery
+        node_role: STORAGE
+      - node_id: battery-pcs
+        component_id: battery-pcs
+        node_role: CONVERSION
+      - node_id: generator
+        component_id: generator
+        node_role: SOURCE
+      - node_id: fuel-tank
+        component_id: fuel-tank
+        node_role: FUEL_STORAGE
+      - node_id: ac-bus
+        component_id: ac-bus
+        node_role: BUS
+      - node_id: site-meter
+        component_id: site-meter
+        node_role: METERING
+      - node_id: distribution-load
+        component_id: distribution-load
+        node_role: LOAD
+    connections:
+      - connection_id: pv-array-to-inverter
+        from_node: pv-array
+        to_node: pv-inverter
+        medium: DC
+      - connection_id: pv-inverter-to-bus
+        from_node: pv-inverter
+        to_node: ac-bus
+        medium: AC
+      - connection_id: battery-to-pcs
+        from_node: battery
+        to_node: battery-pcs
+        medium: DC
+      - connection_id: pcs-to-bus
+        from_node: battery-pcs
+        to_node: ac-bus
+        medium: AC
+      - connection_id: fuel-tank-to-generator
+        from_node: fuel-tank
+        to_node: generator
+        medium: FUEL
+      - connection_id: generator-to-bus
+        from_node: generator
+        to_node: ac-bus
+        medium: AC
+      - connection_id: bus-to-meter
+        from_node: ac-bus
+        to_node: site-meter
+        medium: AC
+      - connection_id: meter-to-load
+        from_node: site-meter
+        to_node: distribution-load
+        medium: AC
+
+  # --- Devices ------------------------------------------------------------
+  #
+  # Configured devices and the signals each is configured to be able to
+  # report. Signal availability, never a reading: nothing here claims a device
+  # exists, is commissioned, or has ever sent a value, and there is nowhere in
+  # this shape to put one.
+  devices:
+    - device_id: pv-inverter-controller
+      device_type: CONTROLLER
+      display_name: PV inverter controller
+      component_id: pv-inverter
+      signals:
+        - signal_id: ac-power
+          display_name: AC output power
+          unit: kW
+        - signal_id: lifetime-energy
+          display_name: Lifetime energy delivered
+          unit: kWh
+    - device_id: pv-irradiance-sensor
+      device_type: SENSOR
+      display_name: Plane-of-array irradiance sensor
+      component_id: pv-array
+      signals:
+        - signal_id: irradiance
+          display_name: Plane-of-array irradiance
+          unit: W/m2
+        - signal_id: module-temperature
+          display_name: Module temperature
+          unit: degC
+    - device_id: battery-pcs-controller
+      device_type: CONTROLLER
+      display_name: Battery PCS controller
+      component_id: battery-pcs
+      signals:
+        - signal_id: ac-power
+          display_name: AC power at the PCS
+          unit: kW
+        - signal_id: state-of-charge
+          display_name: Battery state of charge
+          unit: "%"
+    - device_id: generator-controller
+      device_type: CONTROLLER
+      display_name: Generator controller
+      component_id: generator
+      signals:
+        - signal_id: ac-power
+          display_name: Generator output power
+          unit: kW
+        - signal_id: output-voltage
+          display_name: Generator output voltage
+          unit: V
+    - device_id: fuel-level-sensor
+      device_type: SENSOR
+      display_name: Fuel level sensor
+      component_id: fuel-tank
+      signals:
+        - signal_id: fuel-level
+          display_name: Fuel level
+          unit: L
+    - device_id: site-meter-unit
+      device_type: METER
+      display_name: Site meter
+      component_id: site-meter
+      signals:
+        - signal_id: active-power
+          display_name: Active power through the meter
+          unit: kW
+        - signal_id: throughput-energy
+          display_name: Energy through the meter
+          unit: kWh
+        - signal_id: bus-voltage
+          display_name: Bus voltage
+          unit: V
+        - signal_id: bus-frequency
+          display_name: Bus frequency
+          unit: Hz
+
+  # --- Device-to-signal mappings ------------------------------------------
+  #
+  # Which component each declared device signal describes. Declared, never
+  # inferred: not from a display name, not from a topology position, not from
+  # a protocol label, and not from a component type.
+  #
+  # A device may be attached to one component and describe another. The site
+  # meter sits at the metering point and describes both the distribution load
+  # and the bus it is connected to, and only these declarations say so.
+  signal_mappings:
+    - mapping_id: pv-inverter-ac-power
+      device_id: pv-inverter-controller
+      signal_id: ac-power
+      component_id: pv-inverter
+    - mapping_id: pv-array-energy
+      device_id: pv-inverter-controller
+      signal_id: lifetime-energy
+      component_id: pv-array
+    - mapping_id: pv-array-irradiance
+      device_id: pv-irradiance-sensor
+      signal_id: irradiance
+      component_id: pv-array
+    - mapping_id: pv-array-module-temperature
+      device_id: pv-irradiance-sensor
+      signal_id: module-temperature
+      component_id: pv-array
+    - mapping_id: battery-pcs-ac-power
+      device_id: battery-pcs-controller
+      signal_id: ac-power
+      component_id: battery-pcs
+    - mapping_id: battery-state-of-charge
+      device_id: battery-pcs-controller
+      signal_id: state-of-charge
+      component_id: battery
+    - mapping_id: generator-ac-power
+      device_id: generator-controller
+      signal_id: ac-power
+      component_id: generator
+    - mapping_id: generator-output-voltage
+      device_id: generator-controller
+      signal_id: output-voltage
+      component_id: generator
+    - mapping_id: fuel-tank-level
+      device_id: fuel-level-sensor
+      signal_id: fuel-level
+      component_id: fuel-tank
+    - mapping_id: load-active-power
+      device_id: site-meter-unit
+      signal_id: active-power
+      component_id: distribution-load
+    - mapping_id: load-energy
+      device_id: site-meter-unit
+      signal_id: throughput-energy
+      component_id: distribution-load
+    - mapping_id: ac-bus-voltage
+      device_id: site-meter-unit
+      signal_id: bus-voltage
+      component_id: ac-bus
+    - mapping_id: ac-bus-frequency
+      device_id: site-meter-unit
+      signal_id: bus-frequency
+      component_id: ac-bus
+
+  # --- Control assumptions ------------------------------------------------
+  #
+  # What this archetype assumes about how a site built from it is intended to
+  # be operated. Declared assumptions in words, with the component each is
+  # about and where it came from.
+  #
+  # Deliberately not a control model. No setpoint, no mode, no breaker
+  # position, and no control state vocabulary: whether a breaker is a device,
+  # component state, or both is a product decision that has not been made, and
+  # naming one here would make it by accident.
+  control_assumptions:
+    - assumption_id: solar-first-dispatch
+      display_name: Solar is dispatched before the generator
+      component_id: null
+      basis: TEMPLATE
+      statement: >-
+        The archetype assumes photovoltaic output is consumed or stored before
+        the diesel generator is called on. This is a declared assumption about
+        intended operation; it is not a control action and not a record of how
+        any site has run.
+    - assumption_id: battery-reserve
+      display_name: The battery holds a reserve
+      component_id: battery
+      basis: TEMPLATE
+      statement: >-
+        The battery is assumed to retain a reserve for evening supply rather
+        than being discharged to empty. The reserve level itself is not
+        declared here.
+    - assumption_id: generator-backup-only
+      display_name: The generator runs as backup
+      component_id: generator
+      basis: TEMPLATE
+      statement: >-
+        The diesel generator is assumed to run only when photovoltaic output
+        and stored energy together cannot serve the load.
+    - assumption_id: single-metering-point
+      display_name: One billing-relevant metering point
+      component_id: site-meter
+      basis: TEMPLATE
+      statement: >-
+        The site meter is assumed to be the single billing-relevant metering
+        point between the AC bus and the distribution load.

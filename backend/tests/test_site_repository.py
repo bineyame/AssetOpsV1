@@ -51,7 +51,11 @@ from assetops_backend.sites.site_parsing import (
     parse_site_document,
     render_site_document,
 )
-from test_site_parsing import valid_create_request, valid_site_document
+from test_site_parsing import (
+    valid_create_request,
+    valid_site_document,
+    without_foundation_content,
+)
 from test_site_template_parsing import parse as parse_template
 from test_site_template_parsing import valid_document as valid_template_document
 
@@ -254,8 +258,11 @@ class TestServicesOverFakes:
 
 
 class TestCreationServiceDecidesProvenance:
-    def _service(self) -> tuple[SiteCreationService, FakeSiteRepository, SiteTemplate]:
-        template = parse_template(valid_template_document())
+    def _service(
+        self, template: SiteTemplate | None = None
+    ) -> tuple[SiteCreationService, FakeSiteRepository, SiteTemplate]:
+        if template is None:
+            template = parse_template(valid_template_document())
         repository = FakeSiteRepository()
         return (
             SiteCreationService(repository, FakeTemplateCatalog([template])),
@@ -321,7 +328,37 @@ class TestCreationServiceDecidesProvenance:
 
         assert repository.list_sites() == ()
 
-    def test_the_created_site_carries_no_topology_devices_or_mappings(self) -> None:
+    def test_the_created_site_copies_the_expanded_foundation_seed(self) -> None:
+        """Topology, devices, mappings and assumptions arrive with the Site.
+
+        T008 left these out because the schema had nowhere to put them. T014
+        gives them somewhere, and the seed a template contributes is now the
+        whole Foundation rather than the component list alone.
+        """
+        service, _, template = self._service()
+
+        record = service.create_site_from_template(
+            parse_create_site_request(
+                {**valid_create_request(), "template_id": template.template_id}
+            )
+        )
+        foundation = record.foundation
+
+        assert foundation.topology == template.foundation.topology
+        assert foundation.devices == template.foundation.devices
+        assert foundation.signal_mappings == template.foundation.signal_mappings
+        assert (
+            foundation.control_assumptions == template.foundation.control_assumptions
+        )
+
+    def test_the_created_site_does_not_live_reference_the_template(self) -> None:
+        """The seed is a copy, down to the mappings.
+
+        The records are frozen, so identity is what is checked: the created
+        Site must not hold the template's own tuples. If it did, the copy would
+        be nominal and a later template edit that rebuilt those structures in
+        place would reach back into Sites that already exist.
+        """
         service, _, template = self._service()
 
         record = service.create_site_from_template(
@@ -330,8 +367,36 @@ class TestCreationServiceDecidesProvenance:
             )
         )
 
-        for field in ("topology", "devices", "signal_mappings", "control_assumptions"):
-            assert not hasattr(record.foundation, field)
+        assert record.foundation.devices is not template.foundation.devices
+        assert (
+            record.foundation.signal_mappings
+            is not template.foundation.signal_mappings
+        )
+        assert record.foundation.topology is not template.foundation.topology
+
+    def test_a_template_declaring_no_topology_seeds_a_site_declaring_none(
+        self,
+    ) -> None:
+        """The absence is copied as faithfully as the content.
+
+        A template that declares no device must not produce a Site whose
+        Foundation declares an empty device list: that would be the created
+        Site stating something the template never said.
+        """
+        bare = parse_template(without_foundation_content(valid_template_document()))
+        service, _, _ = self._service(template=bare)
+
+        record = service.create_site_from_template(
+            parse_create_site_request(
+                {**valid_create_request(), "template_id": bare.template_id}
+            )
+        )
+        foundation = record.foundation
+
+        assert foundation.topology is None
+        assert foundation.devices is None
+        assert foundation.signal_mappings is None
+        assert foundation.control_assumptions is None
 
 
 class TestShippedSiteStoreShipsEmpty:
