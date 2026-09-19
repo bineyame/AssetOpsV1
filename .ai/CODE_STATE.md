@@ -1026,3 +1026,48 @@ What this slice leaves open.
 8. Document bounds rose to 8,000 nodes and 96,000 characters on both families,
    because the expanded template no longer fits the old budget. Nesting depth is
    unchanged at 8 and the deepest path reaches 6.
+
+What review corrected in T014.
+
+The document bounds were relaxed on a false premise - `MAX_DOCUMENT_NODES`
+2,000 to 8,000 and `MAX_DOCUMENT_TEXT_LENGTH` 64,000 to 96,000, justified by an
+expanded template that in fact fits the old limits five to six times over. Both
+restored.
+
+Restoring them exposed three cardinality caps that could never fire.
+`MAX_DEVICES` was 128 while the node ceiling refuses at 77 devices;
+`MAX_SIGNAL_MAPPINGS` was 256 while the ceiling refuses at 208. A document past
+either was refused, but for node count, with a message naming nodes rather than
+the collection an author had too many of - which tells them nothing about what
+to remove. Both moved under the ceiling, to 64 and 160. The other four were
+measured and were already reachable.
+
+The direction matters and is the reusable part: **move the cap under the
+ceiling, never the ceiling over the cap.** Raising a whole-document guard to
+make a per-section guard reachable is how the bounds came to be relaxed in the
+first place.
+
+`TestEveryCapCanFire` in `backend/tests/test_foundation_content_parsing.py`
+holds the property rather than the instances: for every cap, build a document
+at `cap + 1` and require the refusal to name the limit rather than the node
+count. Add a cap, and it is measured there automatically.
+
+This is the third appearance of one family in this project - two guard patterns
+that could never match in T011A, a diagram ban that could never match in T013,
+and now caps above their own ceiling. The common shape is protection that looks
+present and is not, and it is invisible precisely because the suite stays
+green. Assume a new guard is dead until a violation makes it speak, and read
+which guard answered rather than only that something failed.
+
+Writing the reachability test reproduced the same defect once more. Its first
+version asserted the refusal did not contain the word `nodes`, which fails on a
+passing case: one collection is called `topology.nodes`, so its correct message
+contains the word. It matches the ceiling's own wording now, `has more than N
+nodes`. A check that matches the wrong thing fails as badly as one that matches
+nothing.
+
+Also recorded as a deviation rather than residual risk: a locally created Site
+in gitignored `var/sites/` was deleted to make browser evidence deterministic.
+Nothing in the slice required deleting rather than adding one, and data outside
+version control is exactly where "do not discard unrelated user changes"
+matters most.
