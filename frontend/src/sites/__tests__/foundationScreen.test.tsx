@@ -9,6 +9,7 @@ import {
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Canonical screen three, minus the diagram.
@@ -135,7 +136,10 @@ describe("the Foundation subtab row is v6.9's, filtered", () => {
     expect(FOUNDATION_SUBTABS.map((subtab) => subtab.label)).not.toContain(
       "Changes",
     );
-    expect(container.textContent ?? "").not.toMatch(
+    // `spacedText`, not `textContent`: the latter glues adjacent elements
+    // together, leaving a banned word with no boundary to match against, so
+    // this absence would pass without checking anything.
+    expect(spacedText(container)).not.toMatch(
       /\b(changes|change history|version history|revision)\b/i,
     );
   });
@@ -272,7 +276,7 @@ describe("Key parameters renders only what the foundation declares", () => {
       .querySelector("#site-configuration-key-parameters-heading")
       ?.closest("section") as HTMLElement;
 
-    expect(panel.textContent).not.toMatch(/--|—|\bN\/A\b|\bnone\b|\b0\b/i);
+    expect(spacedText(panel)).not.toMatch(/--|—|\bN\/A\b|\bnone\b|\b0\b/i);
   });
 
   it("renders no panel at all when nothing declares a rating", async () => {
@@ -283,7 +287,10 @@ describe("Key parameters renders only what the foundation declares", () => {
     expect(
       container.querySelector("#site-configuration-key-parameters-heading"),
     ).toBeNull();
-    expect(container.textContent ?? "").not.toMatch(/Key parameters/);
+    // `spacedText`, not `textContent`: the latter glues adjacent elements
+    // together, leaving a banned word with no boundary to match against, so
+    // this absence would pass without checking anything.
+    expect(spacedText(container)).not.toMatch(/Key parameters/);
   });
 });
 
@@ -295,7 +302,10 @@ describe("the configured diagram is absent, and so is the space for it", () => {
     expect(
       container.querySelectorAll("svg, canvas, img, figure, picture"),
     ).toHaveLength(0);
-    expect(container.textContent ?? "").not.toMatch(
+    // `spacedText`, not `textContent`: the latter glues adjacent elements
+    // together, leaving a banned word with no boundary to match against, so
+    // this absence would pass without checking anything.
+    expect(spacedText(container)).not.toMatch(
       /\b(single line diagram|one-line|schematic|diagram|signal selector|real power)\b/i,
     );
     expect(

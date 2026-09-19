@@ -9,6 +9,7 @@ import type {
 } from "../siteReadModel";
 import { deriveSiteConfigurationView } from "../siteViewModel";
 import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
 
 /**
  * Tests for one site's configuration, presented from the shared substrate.
@@ -81,6 +82,13 @@ const SHIPPED_SITE: SiteDetailReadModel = {
   template: null,
 };
 
+/** The Foundation subtab labels a container renders, in order. */
+function subtabLabels(container: HTMLElement): string[] {
+  return Array.from(container.querySelectorAll(".site-tabs__list li")).map(
+    (item) => item.textContent ?? "",
+  );
+}
+
 /**
  * Everything that acts on the site, as opposed to everything interactive.
  *
@@ -90,13 +98,6 @@ const SHIPPED_SITE: SiteDetailReadModel = {
  * on acting stays absolute and `a[href]` moves out of it, with every remaining
  * anchor pinned separately to a fragment that resolves.
  */
-/** The Foundation subtab labels a container renders, in order. */
-function subtabLabels(container: HTMLElement): string[] {
-  return Array.from(container.querySelectorAll(".site-tabs__list li")).map(
-    (item) => item.textContent ?? "",
-  );
-}
-
 const ACTION_SELECTOR = [
   "button",
   "input",
@@ -111,7 +112,6 @@ const ACTION_SELECTOR = [
   "[role='tab']",
   "[contenteditable='true']",
 ].join(", ");
-
 
 /**
  * The controls the mockups show on canonical screen 3 that this slice does not
@@ -529,8 +529,19 @@ describe("a configuration-only site fabricates nothing", () => {
 
     // The layout closes over that space rather than leaving a hole labelled
     // for a future diagram.
-    expect(container.textContent ?? "").not.toMatch(
-      /single line diagram|one-line diagram|\bdiagram\b|\btopology\b/i,
+    //
+    // `spacedText` rather than `textContent`, and the difference is not
+    // cosmetic. `textContent` glues adjacent elements together, so a banned
+    // word sitting next to its neighbour has no word boundary and the ban
+    // cannot match it. This assertion passed that way while matching nothing
+    // at all.
+    //
+    // `topology` left the list. T013 renders a Topology subtab and panel by
+    // requirement, so banning the word here would ask a later slice to hide
+    // content the task demands. What is banned is diagram vocabulary, which is
+    // what this test is named for.
+    expect(spacedText(container)).not.toMatch(
+      /single line diagram|one-line diagram|\bdiagram\b|\bschematic\b/i,
     );
 
     const headings = Array.from(
