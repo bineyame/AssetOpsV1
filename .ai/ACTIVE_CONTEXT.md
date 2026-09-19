@@ -18,35 +18,29 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T012 closed out 2026-09-19.
+T013, Foundation to canonical screen three. Built and in review on
+`task/T013-foundation-to-canonical-screen-three`. Packet at
+`.agent/T013-review-packet.md`.
 
-Independent review returned accept with one Medium finding, fixed on the branch:
-the `Site information` panel did not carry the facts the acceptance criterion
-assigns to it. The lesson is in `.ai/CODE_STATE.md` - every fact was asserted
-against the whole container, so panel membership was never tested, only
-presence. Assertions now scope by heading id and throw when there is no panel to
-scope to.
+The two things worth reviewing are both absences. `Changes` is absent in every
+state and that is the subtab row rather than a gap in it. The configured
+diagram is absent and so is any space kept warm for it - a test requires every
+panel body to have content, so a reserved empty region fails rather than
+passing as chrome nobody looked at.
 
-T011B, T011C and T012 are merged. `tools/layout-evidence.mjs` measured every
-layout claim against a real browser before each merge, and all held.
+19 frontend test files, 304 backend, both guards, typecheck and build clean.
+`tools/layout-evidence.mjs` reports all claims holding, now including the
+Foundation screen at 1280x800 and 1000x700.
 
-What no tool has answered: whether these screens read well. The Quick actions
-panel is three disabled buttons each carrying a paragraph of reason, and whether
-that is informative or three apologies is a judgement nobody has made.
-`USER_REVIEW_REQUIRED` was false for T012 and the task set no browser criterion,
-so it is outstanding rather than owed.
+**This is the last planned slice of Causal Sequencing step 3.** Step 4 -
+topology, devices and the configured Single Line Diagram - is T014 onward and
+is not started.
 
-Next: T013, Foundation to canonical screen three. It carries the v6.9 subtab row
-filtered by the T008 checkpoint, and the redundant `Foundation` panel heading
-T011A left for it.
+Still unjudged by anyone: whether these screens read well. Two tab rows now
+stack on the Foundation page, and T012's Quick actions panel is three disabled
+buttons each with a paragraph of reason.
 
 T005 to T012 are complete, in `tasks/completed/` with their Review Outcomes.
-
-T011B and T011C were merged without being closed out and sat at `in_review` in
-`tasks/` while their code was on `main`. Caught by the user, not by a check.
-Nothing enforces that a merged slice's task file says so, which is why it
-drifted silently; whether that should be enforced is an open question for the
-Architect rather than something to bolt on here.
 
 ## Current Site Foundation Sequence
 
@@ -66,7 +60,7 @@ Reworked Site Foundation tasks are T005-T013 in `tasks/`.
   evidence is measured by `tools/layout-evidence.mjs`.
 - T011C: Site tab row treatment, from T011A's user review. Complete.
 - T012: Site Details to canonical screen two. Complete.
-- T013: Foundation to canonical screen three. Planned, next.
+- T013: Foundation to canonical screen three. In review.
 - T012-T013: staged visual fidelity, against the tab row and the name T011A
   settled, and under the viewport commitment.
 

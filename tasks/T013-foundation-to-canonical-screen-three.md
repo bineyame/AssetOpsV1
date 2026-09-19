@@ -1,6 +1,6 @@
 # T013 - Foundation To Canonical Screen Three, Minus The Diagram
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T013-foundation-to-canonical-screen-three`

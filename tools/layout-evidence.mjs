@@ -133,6 +133,15 @@ const MEASURE = `(() => {
     tabLabels: Array.from(document.querySelectorAll(".site-tabs__list li")).map(
       (li) => (li.textContent || "").trim(),
     ),
+    // Scoped by landmark name, because a Foundation page carries two of these
+    // rows - the operator Site tabs and the Foundation subtabs - and counting
+    // them together would say twelve and mean nothing.
+    navRows: Array.from(document.querySelectorAll("nav.site-tabs")).map((nav) => ({
+      label: nav.getAttribute("aria-label"),
+      items: Array.from(nav.querySelectorAll(".site-tabs__list li")).map((li) =>
+        (li.textContent || "").trim(),
+      ),
+    })),
     bodyText: (document.body.textContent || "").slice(0, 0),
   };
 })()`;
@@ -243,6 +252,50 @@ allPass =
       `scrollHeight ${short.pageScrollHeight} vs clientHeight ${short.pageClientHeight}`,
     ],
   ]) && allPass;
+
+for (const [label, width, height] of [
+  ["1280x800", 1280, 800],
+  ["1000x700", 1000, 700],
+]) {
+  const foundation = await visit(
+    cdp,
+    "/sites/MG-001/foundation",
+    width,
+    height,
+    ".site-tabs",
+  );
+  const subtabs =
+    foundation.navRows.find((row) => row.label === "Foundation sections")
+      ?.items ?? [];
+  const siteTabs =
+    foundation.navRows.find((row) => row.label === "Site sections")?.items ?? [];
+
+  allPass =
+    report(`Foundation at ${label}`, foundation, [
+      [
+        "the page does not scroll horizontally",
+        !foundation.pageScrollsHorizontally,
+        `scrollWidth ${foundation.pageScrollWidth} vs clientWidth ${foundation.pageClientWidth}`,
+      ],
+      [
+        "the Site tab row still carries all eight",
+        siteTabs.length === 8,
+        siteTabs.join(" | "),
+      ],
+      [
+        "the Foundation subtab row is the four, without Changes",
+        subtabs.length === 4 && !subtabs.includes("Changes"),
+        subtabs.join(" | "),
+      ],
+      [
+        "no enabled action renders",
+        foundation.buttons.every((b) => b.disabled),
+        foundation.buttons.length === 0
+          ? "no action rendered"
+          : foundation.buttons.map((b) => b.label).join(", "),
+      ],
+    ]) && allPass;
+}
 
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
 allPass =
