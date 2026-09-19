@@ -1,6 +1,6 @@
 # T013 - Foundation To Canonical Screen Three, Minus The Diagram
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T013-foundation-to-canonical-screen-three`
@@ -236,3 +236,82 @@ already renders.
 This is the last planned slice of Causal Sequencing step 3. Step 4, topology,
 devices, and the configured Single Line Diagram, is not planned or started
 until the T008 and T011A checkpoints are accepted or redirected.
+
+## Review Outcome
+
+Two independent reviews by Codex, plus an Architect ruling between them. Final
+verdict: **accept with findings fixed on the branch**. Three findings across the
+two passes, all fixed.
+
+### First review
+
+**Accept with findings fixed.** One Medium: the inherited no-diagram assertion
+still banned `\btopology\b` while this slice renders Topology by requirement.
+The Reviewer predicted it would fail against the new screen.
+
+It did not fail, and why not is the finding underneath the finding.
+`Node.textContent` concatenates descendants with nothing between them, so the
+screen reads `...fixed at creationTopologyDevices...`, and a word-boundary ban
+cannot match a word glued to its neighbour. The assertion passed because it
+could not match, and `\bdiagram\b` in the same regex was dead the same way -
+the ban holding step 4 out of step 3 was checking nothing.
+
+Fixed two ways: `topology` left the list, and the comparison moved to
+`spacedText`, a helper that joins text nodes with a space so a boundary ban
+means what it says.
+
+### The Architect ruling
+
+The user asked whether clicking a Foundation subtab is supposed to locate a
+page section. The Architect answered in its UI/UX hat and settled it in
+`.ai/FEATURE_MAP.md`: the row is **section navigation, not a tab switcher**.
+Clicking locates a named section on the same page; it does not swap panels,
+route, or hide content. v6.9 and the mockup name and draw the row but are
+silent on behaviour, so the project owns it. Not a user-review checkpoint -
+that would only be needed to remove the row, change its inventory, or make the
+sections real tabbed panels.
+
+It ruled two things about the implementation not acceptable: the row shared one
+visual treatment with the operator Site tab row directly above it, and section
+links landed flush against the viewport edge.
+
+### Second review, of the post-ruling delta
+
+**Accept with findings fixed.** Two Medium.
+
+The first overruled a judgement the Implementer had declined to make. Controls
+could be reached only by the document clamping at the bottom, landing 336px
+from the top while every other link landed at 24px. The Implementer argued both
+remedies were worse than the symptom; the Reviewer ruled it an acceptance gap
+and closed off the tempting option - *do not satisfy this with an empty bottom
+region* - which left the fix it suggested and the Implementer had not seen. The
+components table was an unlinked panel wedged between two sections the row does
+name, which made the row misleading about where a section ends as well as
+pushing Controls out of reach. Moved below Controls, measured at 1280x800,
+Controls now lands at 1583: its target minus the 24px margin, the same landing
+every other link gets.
+
+The second was the class the Implementer asked the Reviewer to hunt for after
+the first review surfaced it. Ninety-three absence assertions across fourteen
+test files still compared word-boundary patterns against `textContent`. All now
+use `spacedText`. None was hiding a live violation - the suite passed unchanged
+- but each was a ban that could have stopped working without anything failing.
+
+### Checks
+
+Reviewers: architecture guard, agent workflow guard, backend `304 passed`, and
+`tsc --noEmit` all passed in both passes. The frontend suite, the production
+build and the browser evidence could not run under either sandbox, for the
+known esbuild reason and because port 8000 was occupied.
+
+Implementing session: both guards pass, backend `304 passed`, frontend
+`19 test files`, `tsc --noEmit` clean, build clean at 213.46 kB, and
+`tools/layout-evidence.mjs` reports all claims holding, including the
+Foundation screen at 1280x800 and 1000x700.
+
+### Not verified
+
+Nobody has judged whether this screen reads well. The Foundation page stacks
+two rows - the operator Site tabs, then the Foundation section navigation -
+and while the Architect ruled the treatments must differ and they now do,
+whether the result reads as a hierarchy is a judgement no measurement makes.

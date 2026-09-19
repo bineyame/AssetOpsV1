@@ -873,3 +873,46 @@ What this slice leaves open.
    prevent.
 5. The evidence-absence panel is deliberately not Readiness content, but a
    reader may still connect them.
+
+What review and the Architect corrected in T013.
+
+The Foundation row is section navigation, not a tab switcher. The Architect
+settled that in its UI/UX hat after the user asked what clicking a subtab is
+supposed to do, and `.ai/FEATURE_MAP.md` carries it: clicking locates a named
+section on the same page and does not swap panels, route, or hide content. v6.9
+and the mockup name and draw the row but say nothing about behaviour, so the
+project owns it.
+
+It therefore does not borrow the tab treatment. `.section-nav` is its own
+pattern - a contents line labelled `On this page`, smaller and lighter, with no
+underline rail and no active state, because nothing is current when every
+section is on the page at once. Two stacked rows may share vocabulary but must
+not ask a reader to infer two behaviours from one appearance.
+
+`scroll-margin-top` on `.panel__heading` gives a section link somewhere
+deliberate to land. The anchors target headings, so the margin belongs on the
+heading and not on the panel.
+
+The components table moved below Controls. It is not named by the row, and an
+unlinked panel between two named sections makes the row misleading about where
+a section ends. It also had a measured cost: with the table above it, Controls
+could be reached only by the document clamping at the page bottom, landing
+336px from the top while every other link landed at 24px. It now lands at its
+target minus the margin, like the others. A test holds the principle rather
+than the arrangement: no unlinked panel may sit between the sections the row
+names.
+
+The lesson worth carrying is about assertions, not layout.
+
+`Node.textContent` concatenates descendants with nothing between them. A
+word-boundary ban cannot match a word glued to its neighbour, so
+`/\btopology\b/` never matched `...creationTopology...` and `/\bdiagram\b/` in
+the same regex was dead with it - the ban holding the configured diagram out of
+step 3 was checking nothing, and had been for several slices. `spacedText` in
+`frontend/src/test/text.ts` joins text nodes with a space so a boundary ban
+means what it says.
+
+Ninety-three assertions across fourteen test files had the same hole and now
+use it. None was hiding a live violation, which is the point: a ban can stop
+working without anything failing, and nothing in the suite would have said so.
+When a defect is a class rather than an instance, the sweep is the fix.
