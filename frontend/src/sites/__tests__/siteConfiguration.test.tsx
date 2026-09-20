@@ -7,9 +7,17 @@ import type {
   SiteDetailReadModel,
   SiteDetailResult,
 } from "../siteReadModel";
-import { deriveSiteConfigurationView } from "../siteViewModel";
+import {
+  FOUNDATION_DEVICE_METADATA_LIMITS,
+  deriveSiteConfigurationView,
+} from "../siteViewModel";
+import {
+  AWAITING_RUNTIME_OR_EVIDENCE,
+  SITE_SLD_HEADING,
+} from "../SiteSingleLineDiagram";
+import { SLD_UNAVAILABLE_STATEMENTS } from "../sldViewModel";
 import { settledScreen } from "../../test/settled";
-import { spacedText } from "../../test/text";
+import { spacedText, withoutRegion } from "../../test/text";
 
 /**
  * Tests for one site's configuration, presented from the shared substrate.
@@ -255,6 +263,31 @@ const ABSENT_CONTROL_LABELS = [
   "Rollback",
   "Change",
 ];
+
+/**
+ * The section that owns the configured diagram, and the block inside it that
+ * asks the two questions this slice does not answer.
+ *
+ * T016 renders both, and both are narrow exceptions to bans that hold over the
+ * rest of the screen: `diagram` is a word this surface may finally say, and
+ * the control vocabulary is something the review checkpoint has to be able to
+ * ask about. `withoutRegion` removes one of them and throws if it is not
+ * there, so an exception that stopped existing cannot quietly widen the ban it
+ * was carved out of.
+ */
+const SLD_REGION = "[data-sld-region]";
+const REVIEW_QUESTION = "[data-review-question]";
+
+/**
+ * The control vocabulary this build must not use as a fact.
+ *
+ * `open` and `closed` are deliberately not in this list. The validity copy
+ * says the interval is half-open, and a ban that matched it would be a ban
+ * nobody could keep - which gets silenced by widening it, and a widened ban is
+ * how a real one stops working.
+ */
+const CONTROL_VOCABULARY =
+  /\b(breaker|contactor|setpoint|set point|tripped|control mode)\b/i;
 
 /** Source health vocabulary, which must not appear where no health exists. */
 const SOURCE_HEALTH_VOCABULARY = /\b(online|offline|stale|degraded|healthy)\b/i;
@@ -657,12 +690,19 @@ describe("a configuration-only site fabricates nothing", () => {
     expect(screen.queryAllByRole("img")).toHaveLength(0);
   });
 
-  it("renders no single line diagram, no frame for one, and no signal selector", async () => {
+  it("keeps diagram vocabulary inside the diagram section, and renders no signal selector", async () => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
     await settledScreen();
 
-    // The layout closes over that space rather than leaving a hole labelled
-    // for a future diagram.
+    // T016 inverted the first half of this. The configured diagram renders
+    // now, so a screen-wide ban on the word would be a ban on the content the
+    // task requires - and dropping it would leave the rest of the surface with
+    // nothing holding diagram vocabulary out of it.
+    //
+    // So the ban narrows to everywhere outside the section that owns the
+    // diagram, and holds there exactly as it did. This site's foundation
+    // declares no topology, so what that section holds is the refusal rather
+    // than a drawing; the ban outside it is the same either way.
     //
     // `spacedText` rather than `textContent`, and the difference is not
     // cosmetic. `textContent` glues adjacent elements together, so a banned
@@ -672,22 +712,37 @@ describe("a configuration-only site fabricates nothing", () => {
     //
     // `topology` left the list. T013 renders a Topology subtab and panel by
     // requirement, so banning the word here would ask a later slice to hide
-    // content the task demands. What is banned is diagram vocabulary, which is
-    // what this test is named for.
-    expect(spacedText(container)).not.toMatch(
+    // content the task demands.
+    const elsewhere = withoutRegion(container, SLD_REGION);
+
+    expect(spacedText(elsewhere)).not.toMatch(
       /single line diagram|one-line diagram|\bdiagram\b|\bschematic\b/i,
     );
 
     const headings = Array.from(
-      container.querySelectorAll("h1, h2, h3, h4, h5, h6"),
+      elsewhere.querySelectorAll("h1, h2, h3, h4, h5, h6"),
     ).map((heading) => heading.textContent ?? "");
+
+    expect(headings.length).toBeGreaterThan(0);
     for (const heading of headings) {
       expect(heading).not.toMatch(/diagram|signal selector|select a signal/i);
     }
 
+    // The exception is one section, named once, and it is where the diagram
+    // heading lives. Two of them would mean the surface had grown a second
+    // home for this content.
+    expect(container.querySelectorAll(SLD_REGION)).toHaveLength(1);
+    expect(
+      Array.from(container.querySelectorAll("h3")).map(
+        (heading) => heading.textContent,
+      ),
+    ).toContain(SITE_SLD_HEADING);
+
     // `Signal mappings` appears, as a stated absence with its reason. A
     // selector is a control, and there is none: no combobox, no listbox, no
-    // select element of any kind.
+    // select element of any kind. This half is unchanged - the signal selector
+    // is still absent, because there is still nothing to show for the signal a
+    // reader would have picked.
     expect(screen.queryByRole("combobox")).toBeNull();
     expect(screen.queryByRole("listbox")).toBeNull();
     expect(container.querySelectorAll("select, datalist")).toHaveLength(0);
@@ -916,9 +971,17 @@ describe("a declared topology renders as configuration read back", () => {
     // class of real mapping is: a meter reports for what it measures, not for
     // where it is bolted.
     expect(tableRows(container, MAPPINGS_ID)).toEqual([
-      ["AC output power", "kW", "PV inverter controller", "PV array", "pv-ac-power"],
+      [
+        "AC output power",
+        "ac-power",
+        "kW",
+        "PV inverter controller",
+        "PV array",
+        "pv-ac-power",
+      ],
       [
         "Bus voltage",
+        "bus-voltage",
         "V",
         "Site meter unit",
         "Battery energy storage",
@@ -992,6 +1055,100 @@ describe("a declared topology renders as configuration read back", () => {
   });
 });
 
+/**
+ * A diagram incompatibility is a fact about the drawing, and nothing else.
+ *
+ * `DECLARED_SITE` declares three topology nodes and no bus, which is exactly
+ * what the hybrid mini-grid archetype cannot arrange - so this file's main
+ * fixture is already the interesting case. It has valid devices and valid
+ * mappings, and a screen that stopped rendering them because the archetype had
+ * no lane for its topology would be treating "we cannot draw this" as "there
+ * is nothing here".
+ */
+describe("an undrawable topology hides nothing the document declares", () => {
+  it("states the refusal where the drawing would have been", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const region = container.querySelector(SLD_REGION) as HTMLElement;
+
+    expect(region).not.toBeNull();
+    expect(region.querySelector("[data-sld-unavailable]")).not.toBeNull();
+    // The refusal is the view model's own, word for word. Two surfaces
+    // explaining one refusal differently is how a stable reason stops being
+    // one.
+    expect(spacedText(region)).toContain(
+      SLD_UNAVAILABLE_STATEMENTS.BUS_CARDINALITY_UNSUPPORTED,
+    );
+    // And not a partial drawing of the part the archetype did understand.
+    expect(region.querySelectorAll("svg")).toHaveLength(0);
+    expect(region.querySelectorAll("[data-sld-node]")).toHaveLength(0);
+  });
+
+  it("says the refusal is about the drawing and not about the site", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const region = container.querySelector(SLD_REGION) as HTMLElement;
+
+    expect(spacedText(region)).toMatch(
+      /statement about the drawing, not about the site/i,
+    );
+    expect(spacedText(region)).toMatch(/Nothing is hidden/i);
+  });
+
+  it("still renders every device and mapping the document declares", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // The whole point. The archetype refused the topology; the devices and the
+    // mappings are unaffected, because neither was what it refused.
+    expect(tableRows(container, DEVICES_ID)).toHaveLength(
+      DECLARED_SITE.foundation.devices?.length ?? 0,
+    );
+    expect(tableRows(container, MAPPINGS_ID)).toHaveLength(
+      DECLARED_SITE.foundation.signal_mappings?.length ?? 0,
+    );
+    expect(tableRows(container, TOPOLOGY_NODES_ID)).toHaveLength(
+      DECLARED_SITE.foundation.topology?.nodes.length ?? 0,
+    );
+
+    // Stated as declared content, not as an absence. A screen that answered a
+    // diagram refusal by saying the document declares no device would be
+    // making a claim about the site out of a limit of the archetype.
+    expect(factPairs(container).map(([term]) => term)).not.toContain("Devices");
+  });
+
+  it("puts no value slot on a screen with no drawing to hang one on", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // The slot belongs to a drawn node. With no drawing there is no node, so
+    // there is nothing for the words to be about, and printing them anyway
+    // would be chrome claiming content.
+    expect(spacedText(container)).not.toContain(AWAITING_RUNTIME_OR_EVIDENCE);
+  });
+
+  it("states the two device facts this build's schema cannot carry", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    // In words, once, rather than as two columns of dashes. A dash under
+    // `Protocol` would say the product looked at this device and found none,
+    // which is a claim about the device instead of about the schema.
+    expect(spacedText(container)).toContain(FOUNDATION_DEVICE_METADATA_LIMITS);
+
+    const columns = Array.from(container.querySelectorAll("th")).map(
+      (column) => column.textContent ?? "",
+    );
+
+    expect(columns.length).toBeGreaterThan(0);
+    for (const column of columns) {
+      expect(column).not.toMatch(/\b(protocol|cadence|sample rate|interval)\b/i);
+    }
+  });
+});
+
 describe("declared topology content states nothing operational", () => {
   it("renders no runtime, evidence, or condition column", async () => {
     const { container } = renderConfiguration(DECLARED_SITE);
@@ -1027,19 +1184,38 @@ describe("declared topology content states nothing operational", () => {
     expect(spacedText(container)).toMatch(/none has reported/i);
   });
 
-  it("names no control state, setpoint, or breaker position", async () => {
+  it("names no control state, setpoint, or breaker position outside the question that asks for one", async () => {
     const { container } = renderConfiguration(DECLARED_SITE);
     await settledScreen();
 
-    // Held for the T016 checkpoint. A column or a value here would settle the
-    // vocabulary silently, which is the one thing this slice must not do.
-    // `open` and `closed` are deliberately not in this list. The validity copy
-    // says the interval is half-open, and a ban that matched it would be a ban
-    // nobody could keep - which gets silenced by widening it, and a widened
-    // ban is how a real one stops working.
-    expect(spacedText(container)).not.toMatch(
-      /\b(breaker|contactor|setpoint|set point|tripped|control mode)\b/i,
-    );
+    // T016 is the checkpoint that settles this vocabulary, and a checkpoint
+    // that cannot name the candidates is not a question anyone can answer. So
+    // the ban narrows to everywhere outside the block that asks, where it
+    // holds exactly as it did, and gains a second half that is stricter than
+    // the first ever was.
+    expect(
+      spacedText(withoutRegion(container, REVIEW_QUESTION)),
+    ).not.toMatch(CONTROL_VOCABULARY);
+
+    const asked = container.querySelector(REVIEW_QUESTION) as HTMLElement;
+
+    expect(asked).not.toBeNull();
+    // The exception is real: the block does use the vocabulary, so the ban
+    // above is narrowed around something rather than around nothing.
+    expect(spacedText(asked)).toMatch(CONTROL_VOCABULARY);
+    // And it uses it as a question. A block that named the candidates without
+    // saying they are undecided would have settled the vocabulary in the one
+    // place this slice is allowed to speak it.
+    expect(spacedText(asked)).toMatch(/is not decided|has not been decided/i);
+    expect(spacedText(asked)).toMatch(/not chosen|neither has been given/i);
+
+    // The vocabulary may be spoken in prose, in the block that asks, and
+    // nowhere in any form that presents it as a fact about this site. A column
+    // heading, a cell, a badge or a label on the drawing would each be this
+    // slice answering its own question.
+    expect(
+      asked.querySelectorAll("table, th, td, .badge, svg, [data-sld-node]"),
+    ).toHaveLength(0);
   });
 
   it("renders no action control, in the declared state either", async () => {
@@ -1109,6 +1285,10 @@ describe("every dense relationship table owns its own overflow", () => {
     ]);
     expect(tableColumns(container, MAPPINGS_ID)).toEqual([
       "Signal",
+      // T016 adds the identity the document binds by. A signal id is unique
+      // within its device only, so the row carries the id and the device that
+      // declares it, and neither alone would identify the signal.
+      "Signal ID",
       "Unit",
       "Reported by",
       "Describes",
