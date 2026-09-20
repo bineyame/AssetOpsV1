@@ -2067,6 +2067,18 @@ Divide into slices:
 - Run setup selection of Site, scenario, interval, timestep, seed, duration,
   and speed defaults.
 
+M1B planner sequencing:
+- T017 carries the checkpoint on a gated Fuel Loss Event detail screen. It puts
+  provisional proposals on screen for scenario versioning, event taxonomy, and
+  the public/private parameter boundary.
+- T018 and T019 are intentionally not task files until the T017 User Review
+  Outcome is recorded. T018 is expected to make the accepted public/private
+  scenario detail contract stricter and reusable for run setup. T019 is
+  expected to build run setup over accepted scenario semantics and declared
+  `site_id` targets.
+- If T017 changes the proposal, the Planner updates this sequence before any
+  run setup implementation starts.
+
 Seams inside the feature: scenario label not Site identity, public scenario
 authoring versus private test oracle, deterministic run identity inputs.
 
