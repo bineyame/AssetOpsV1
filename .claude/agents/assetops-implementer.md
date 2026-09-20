@@ -60,6 +60,17 @@ rather than loosen them.
 
 - `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1`.
 - Backend and frontend suites, typecheck, and the production build.
+- `node tools/layout-evidence.mjs <base-url>` when the slice is
+  layout-sensitive: shell layout, dense tables, intrinsic-width drawings, SVG
+  geometry, tab or subtab treatment, or viewport behaviour. jsdom has no
+  layout, so no suite here can see what this measures.
+
+A missing precondition is not a pass. If Chrome, the backend or the dev server
+is unavailable, record `layout evidence: not run` with the blocking
+precondition and say the affected layout claim is unverified. Any new measured
+claim about overflow, visibility or rendered content needs at least one
+measurement proving its set is non-empty - T014's dense-table claim was passing
+on an empty set until a 640px measurement was added.
 
 Report actual output. If something fails and you cannot fix it inside the
 task's scope, say so with the failure text. Never present a filtered or

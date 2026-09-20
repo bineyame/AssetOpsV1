@@ -79,6 +79,14 @@ Implementer's numbers, and do not spend the review debugging it.
 `tsc --noEmit` does run, because it does not go through esbuild, so type
 correctness is still independently checkable.
 
+`tools/layout-evidence.mjs` will usually not run for you either, since it needs
+Chrome, the backend and a dev server. You are still expected to check the
+packet for it whenever the slice is layout-sensitive - shell layout, dense
+tables, intrinsic-width drawings, SVG geometry, tab or subtab treatment, or
+viewport behaviour. A packet that omits it, or that records a skipped run as a
+pass rather than as `not run` with its blocking precondition, is a finding even
+though you cannot rerun it yourself.
+
 If any other check cannot run, say so plainly and name what you could not
 verify. An honest gap is worth more than an inferred pass, and it is how all of
 the above was found.

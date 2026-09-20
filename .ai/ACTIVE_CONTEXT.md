@@ -52,17 +52,30 @@ typecheck and build clean at 240.35 kB. `tools/layout-evidence.mjs` reports all
 claims holding at 1280, 1000 and 640 wide.
 
 `var/sites/` holds `mg-001` plus `mg-002` (declares a cold room) and `mg-003`
-(two AC buses), added for the checkpoint. They are gitignored local data: delete
-them or keep them as fixtures for the next slice needing either shape.
+(two AC buses), added for the T016 checkpoint. **The user asked that these be
+kept as fixtures.** They are gitignored, so nothing in the repo protects them:
+do not clear this directory, and add rather than replace when a slice needs
+another shape. `mg-002` is the only local Site declaring a cold room and
+`mg-003` the only one the SLD archetype refuses, so both are the only way to
+open those two states in a browser.
 
-### Two questions left for an Architect, both raised and neither answered
+### Two seam questions, settled 2026-09-20
 
-- Whether layout evidence should become a standing check. `layout-evidence.mjs`
-  is deliberately not in `tools/check-architecture.ps1`: that runner must run
-  anywhere and this needs a browser and two servers.
-- Whether a guard should enforce that a merged slice's task file says complete.
-  T011B and T011C sat at `in_review` on `main` until the user noticed; nothing
-  ties a task's status to whether its branch is merged.
+The Architect recommended, the user accepted, and both entries are now in
+`.ai/DECISIONS.md`.
+
+- Layout evidence is standing closeout evidence for layout-sensitive slices,
+  carried in the review packet, still outside `tools/check-architecture.ps1`. A
+  missing precondition records `not run` and leaves the claim unverified, never
+  green. See `.ai/WORKFLOW.md` Review Packet and Closeout.
+- No guard ties a merged slice's task status to branch state. Closeout is
+  manual: Review Outcome recorded and status set before the merge.
+
+The breaker and control vocabulary is **still open**. An Architect
+recommendation the user has not yet accepted is in
+`.agent/breaker-vocabulary-recommendation.md`: a breaker is topology and, when
+instrumented, something a device reports about; position is evidence, not
+Foundation configuration; M1 carries nothing beyond T014's control assumptions.
 
 ## Current Site Foundation Sequence
 
