@@ -401,18 +401,21 @@ describe("the scenario detail screen states no product conclusion", () => {
     );
     const leaves = textNodes(main);
 
-    // The fallbacks really are on screen, so this is not a test of a record
-    // that renders the same branches as the one above.
+    // The digit rule first, so that a fallback which grew a digit fails on the
+    // rule it breaks rather than on the presence check below it.
+    for (const leaf of leaves.filter((value) => /\d/.test(value))) {
+      expect(expected).toContain(leaf);
+    }
+
+    // And the fallbacks really are on screen, so this is not a second run over
+    // the branches the loaded record already takes. A fallback that vanished
+    // would leave the loop above passing over nothing.
     expect(leaves).toContain("No earlier version");
     expect(leaves).toContain("None declared");
     expect(leaves).toContain(
       "This scenario declares no scenario-level parameter.",
     );
     expect(leaves).toContain("This scenario declares no expectation.");
-
-    for (const leaf of leaves.filter((value) => /\d/.test(value))) {
-      expect(expected).toContain(leaf);
-    }
   });
 });
 
