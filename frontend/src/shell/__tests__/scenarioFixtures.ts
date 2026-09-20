@@ -367,21 +367,21 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
     dispatch_rules: [
       {
         rule_id: "half-open-interval",
-        display_name: "The run interval and every step are half-open",
+        display_name: "Half-open interval and steps",
         statement:
           "An instant belongs to exactly one step, so applying something " +
           "once is a property of the time model.",
       },
       {
         rule_id: "point-applied-once",
-        display_name: "A point entry is applied exactly once",
+        display_name: "A point applies once",
         statement:
           "An offset on a step boundary belongs to the step that begins " +
           "there and never to the step that ends there.",
       },
       {
         rule_id: "window-active-span",
-        display_name: "A window entry is active across a half-open span",
+        display_name: "A window's active span",
         statement:
           "The step beginning exactly at the end of a window is outside it.",
       },
@@ -389,7 +389,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
     bound_cases: [
       {
         case_id: "fuel-tank-capacity",
-        display_name: "The tank cannot hold more than its capacity",
+        display_name: "Tank capacity",
         policy: "BOUNDED_AND_RECORDED",
         statement:
           "A change that would take the stored volume above capacity fills " +
@@ -397,7 +397,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       },
       {
         case_id: "insufficient-fuel",
-        display_name: "A draw larger than the fuel present fails the run",
+        display_name: "Insufficient fuel",
         policy: "FAIL_RUN",
         statement:
           "The run stops and names the entry rather than emptying the tank " +
@@ -405,7 +405,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       },
       {
         case_id: "invalid-rate",
-        display_name: "A negative or unusable rate never reaches a run",
+        display_name: "Invalid rate or quantity",
         policy: "REFUSED_AT_PARSE",
         statement:
           "Refused when the definition is read, so no run setup and no " +

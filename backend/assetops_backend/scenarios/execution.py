@@ -146,7 +146,7 @@ class DispatchRule:
 DISPATCH_RULES: tuple[DispatchRule, ...] = (
     DispatchRule(
         rule_id="half-open-interval",
-        display_name="The run interval and every step are half-open",
+        display_name="Half-open interval and steps",
         statement=(
             "A run covers its start instant up to but not including its end "
             "instant, and each step covers its own start up to but not "
@@ -157,7 +157,7 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
     ),
     DispatchRule(
         rule_id="point-applied-once",
-        display_name="A point entry is applied exactly once",
+        display_name="A point applies once",
         statement=(
             "A point entry is due in the one step whose half-open span "
             "contains its offset, and is applied at the start of that step. An "
@@ -168,7 +168,7 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
     ),
     DispatchRule(
         rule_id="window-active-span",
-        display_name="A window entry is active across a half-open span",
+        display_name="A window's active span",
         statement=(
             "A window entry is active for every step whose start lies at or "
             "after its offset and before its offset plus its length. The step "
@@ -178,7 +178,7 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
     ),
     DispatchRule(
         rule_id="quantity-across-a-window",
-        display_name="A quantity declared over a window totals to that quantity",
+        display_name="A quantity across a window",
         statement=(
             "A window entry that declares a quantity rather than a rate moves "
             "exactly that quantity, and the state at the end of the window is "
@@ -189,7 +189,7 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
     ),
     DispatchRule(
         rule_id="interval-wide-span",
-        display_name="An interval-wide entry holds for the whole run",
+        display_name="An interval-wide entry",
         statement=(
             "An interval-wide entry starts at offset zero and holds until the "
             "run interval ends. It declares no length, because the length is "
@@ -198,7 +198,7 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
     ),
     DispatchRule(
         rule_id="outside-the-interval",
-        display_name="An entry outside the chosen interval is not silently dropped",
+        display_name="An entry outside the interval",
         statement=(
             "An entry whose offset, or whose window, falls outside the "
             "interval a run chooses is a mismatch between the scenario and the "
@@ -234,7 +234,7 @@ BOUND_POLICIES = frozenset({"REFUSED_AT_PARSE", "FAIL_RUN", "BOUNDED_AND_RECORDE
 BOUND_CASES: tuple[BoundCase, ...] = (
     BoundCase(
         case_id="fuel-tank-capacity",
-        display_name="The tank cannot hold more than its capacity",
+        display_name="Tank capacity",
         policy="BOUNDED_AND_RECORDED",
         statement=(
             "The declared capacity bounds the stored volume at every step. A "
@@ -245,7 +245,7 @@ BOUND_CASES: tuple[BoundCase, ...] = (
     ),
     BoundCase(
         case_id="delivery-overflow",
-        display_name="A delivery larger than the space left is bounded and recorded",
+        display_name="Delivery overflow",
         policy="BOUNDED_AND_RECORDED",
         statement=(
             "A delivery is applied up to the space the tank has and the "
@@ -257,7 +257,7 @@ BOUND_CASES: tuple[BoundCase, ...] = (
     ),
     BoundCase(
         case_id="insufficient-fuel",
-        display_name="A draw larger than the fuel present fails the run",
+        display_name="Insufficient fuel",
         policy="FAIL_RUN",
         statement=(
             "A consumption or removal that would take the stored volume below "
@@ -269,7 +269,7 @@ BOUND_CASES: tuple[BoundCase, ...] = (
     ),
     BoundCase(
         case_id="invalid-rate",
-        display_name="A negative or unusable rate never reaches a run",
+        display_name="Invalid rate or quantity",
         policy="REFUSED_AT_PARSE",
         statement=(
             "A rate or quantity that is negative, infinite, or not a number is "
