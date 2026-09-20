@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { SiteDetailReadModel } from "../siteReadModel";
 import {
+  type SldValueSlot,
   HYBRID_MINI_GRID_ARCHETYPE,
   SLD_UNAVAILABLE_CODES,
   SLD_UNAVAILABLE_STATEMENTS,
@@ -749,5 +750,33 @@ describe("unsupported topology is explicit", () => {
     // Every other node in that document is placeable. Drawing the eight it
     // understood would be the partial diagram this boundary exists to refuse.
     expect(allStrings(result).join(" ")).not.toContain("n-solar");
+  });
+});
+
+/**
+ * The value slots are empty at the type level, and that is checked here rather
+ * than assumed.
+ *
+ * Every runtime assertion above passes if `SldValueSlot` is widened to permit
+ * an optional field: the objects this build produces are still empty, still
+ * frozen, still carry no key. What changes is the contract - the type would
+ * then say a reading may be attached, which is the claim this slice exists not
+ * to make. Proved by widening it: zero tests failed.
+ *
+ * `@ts-expect-error` closes that. While a slot may hold no field, the
+ * assignment below is an error and the directive is used. Widen the type and
+ * the error disappears, the directive becomes unused, and `tsc` fails with
+ * "Unused '@ts-expect-error' directive" - which is the compile-time way of
+ * saying the guarantee was removed.
+ */
+describe("a value slot cannot be widened without the compiler noticing", () => {
+  it("rejects a field at the type level", () => {
+    // @ts-expect-error a value slot may never carry a field, of any name
+    const runtime: SldValueSlot = { lastReading: 1 };
+    // @ts-expect-error nor may it carry evidence metadata
+    const evidence: SldValueSlot = { acceptedAt: "2026-01-01T00:00:00Z" };
+
+    expect(Object.keys(runtime)).toHaveLength(1);
+    expect(Object.keys(evidence)).toHaveLength(1);
   });
 });
