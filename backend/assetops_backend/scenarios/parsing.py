@@ -17,6 +17,31 @@ duplicate timeline identities, malformed ordering and offset values, misplaced
 private expectation fields, malformed target-site declarations, and a
 target-site policy whose shape does not match the policy it declares.
 
+T018 adds the execution contract to that list, and the refusals there are the
+ones that carry the most weight, because each closes a way for an authored
+value to mean two things at once:
+
+- an execution role whose entry kind cannot carry it - above all an evidence
+  condition that tries to be a cause, which is the exact ambiguity the slice
+  exists to remove;
+- a reported observation that declares ownership, or carries a state effect.
+  There is no field on a reported value that could name it as the source of an
+  initial state or a transition, and that is the structural form of "an
+  observation never prescribes private world state";
+- a timing shape whose fields do not match it: a point with a length, a window
+  without one, a rate applied at an instant;
+- two answers to one initial world value, or none;
+- a reporting cadence, in the one position a cadence could plausibly be
+  smuggled into - a duration parameter hung on a reported observation.
+  Foundation declares that a signal can report and declares no cadence, and
+  nothing here may infer one from a device name, from display text, or from
+  the spacing between authored entries;
+- a negative, infinite, or not-a-number quantity in a dimension where none is
+  meaningful. That is the `invalid-rate` bound case in
+  `scenarios/execution.py`, and it is the only one of the four this build can
+  enforce end to end, because it is the only one decidable without executing
+  anything.
+
 It does **not** decide whether a declared target `site_id` names a Site that
 exists. That is resolved by `ScenarioDetailService` against the `SiteRepository`
 port and reported as a target-resolution state for the screen. The separation is
@@ -46,13 +71,22 @@ document in `var/scenarios/` is never seen by a test and would otherwise put
 value cannot be satisfied by a scan that turns out not to reach it, which is
 exactly how the T017 review found this gap.
 
-Two identifier-valued positions are deliberately NOT covered.
-`target_site.site_id` and `target_site.template_id` are references into other
-identity spaces, whose naming this domain does not own. Refusing a token there
-would refuse a legitimately-named Site or template rather than protect scenario
-vocabulary, and a guard that blocks something legitimate is a guard somebody
-relaxes. Free-text fields are not covered either, for the reason stated in
-`assetops_backend/control_vocabulary.py`: prose is English, not schema.
+T018 adds three more positions this domain owns and therefore scans:
+`source_id` and the `observation.source_id` that references it, and
+`state_key`. A state key is where a breaker position would most plausibly
+arrive next - a world state called `breaker-position` would read as perfectly
+natural to an author - so it is validated as an identifier and refused on the
+same rule.
+
+Identifier-valued positions deliberately NOT covered are references into other
+identity spaces, whose naming this domain does not own: `target_site.site_id`,
+`target_site.template_id`, and the `device_id` and `signal_id` an observation
+source borrows from the target Site's Foundation. Refusing a token there would
+refuse a legitimately-named Site, template or device rather than protect
+scenario vocabulary, and a guard that blocks something legitimate is a guard
+somebody relaxes. Free-text fields are not covered either, for the reason
+stated in `assetops_backend/control_vocabulary.py`: prose is English, not
+schema.
 
 ## Origin is not declared
 
@@ -66,6 +100,7 @@ them, so each one names what is wrong and what would be acceptable instead.
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any, Mapping, NoReturn
 
@@ -74,19 +109,38 @@ from assetops_backend.control_vocabulary import (
     banned_tokens_in,
 )
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
+from assetops_backend.scenarios.execution import (
+    CANONICAL_UNITS,
+    NON_NEGATIVE_DIMENSIONS,
+    RATE_INTEGRALS,
+)
 from assetops_backend.scenarios.identity import validate_scenario_id
 from assetops_backend.scenarios.models import (
+    CADENCE_OWNERSHIP,
     EVENT_CATEGORIES,
+    EXECUTABLE_ROLES,
+    EXECUTION_REQUIREMENTS,
+    EXECUTION_ROLES,
     EXPECTATION_KINDS,
+    INITIALIZATION_OWNERS,
+    OBSERVATION_SOURCE_KINDS,
     PARAMETER_UNITS,
+    ROLES_BY_ENTRY_KIND,
     SCENARIO_ORIGINS,
+    STATE_EFFECT_DIRECTIONS,
     TARGET_SITE_POLICIES,
     TIMELINE_ENTRY_KINDS,
+    TIMING_SHAPES,
+    EntryTiming,
+    ObservationBinding,
+    ObservationSource,
+    ParameterOwnership,
     PrivateExpectation,
     ScenarioDefinition,
     ScenarioParameter,
     ScenarioTargetSite,
     ScenarioVersion,
+    StateEffect,
     TimelineEntry,
 )
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
@@ -100,6 +154,7 @@ SCENARIO_KEYS = frozenset(
         "purpose",
         "version",
         "target_site",
+        "observation_sources",
         "timeline",
         "public_parameters",
         "private_expectations",
@@ -109,6 +164,16 @@ VERSION_KEYS = frozenset(
     {"scenario_version", "version_valid_from", "supersedes"}
 )
 TARGET_SITE_KEYS = frozenset({"policy", "site_id", "template_id", "requirement"})
+OBSERVATION_SOURCE_KEYS = frozenset(
+    {
+        "source_id",
+        "source_kind",
+        "device_id",
+        "signal_id",
+        "cadence_ownership",
+        "description",
+    }
+)
 TIMELINE_ENTRY_KEYS = frozenset(
     {
         "event_id",
@@ -118,9 +183,32 @@ TIMELINE_ENTRY_KEYS = frozenset(
         "category",
         "description",
         "parameters",
+        "execution_role",
+        "state_key",
+        "execution_requirement",
+        "timing",
+        "state_effect",
+        "observation",
     }
 )
-PARAMETER_KEYS = frozenset({"parameter_id", "display_name", "value", "unit"})
+TIMING_KEYS = frozenset({"shape", "duration_minutes"})
+STATE_EFFECT_KEYS = frozenset(
+    {"direction", "quantity_parameter_id", "rate_parameter_id"}
+)
+OBSERVATION_BINDING_KEYS = frozenset({"source_id", "reported_parameter_id"})
+OWNERSHIP_KEYS = frozenset({"owner", "initializes"})
+PARAMETER_KEYS = frozenset(
+    {
+        "parameter_id",
+        "display_name",
+        "value",
+        "unit",
+        "execution_role",
+        "state_key",
+        "execution_requirement",
+        "ownership",
+    }
+)
 EXPECTATION_KEYS = frozenset(
     {"expectation_id", "display_name", "oracle_kind", "statement"}
 )
@@ -159,6 +247,7 @@ MAX_TIMELINE_ENTRIES = 200
 MAX_PARAMETERS_PER_ENTRY = 16
 MAX_PUBLIC_PARAMETERS = 64
 MAX_PRIVATE_EXPECTATIONS = 32
+MAX_OBSERVATION_SOURCES = 32
 MAX_DISPLAY_NAME_LENGTH = 120
 MAX_DESCRIPTION_LENGTH = 400
 MAX_PURPOSE_LENGTH = 800
@@ -249,6 +338,9 @@ def parse_scenario_document(
 
     version = _parse_version(document.get("version"), source=source)
     target_site = _parse_target_site(document.get("target_site"), source=source)
+    observation_sources = _parse_observation_sources(
+        document.get("observation_sources"), source=source
+    )
     timeline = _parse_timeline(document.get("timeline"), source=source)
     public_parameters = _parse_public_parameters(
         document.get("public_parameters"), source=source
@@ -257,17 +349,22 @@ def parse_scenario_document(
         document.get("private_expectations"), source=source
     )
 
-    return ScenarioDefinition(
+    scenario = ScenarioDefinition(
         scenario_id=scenario_id,
         display_name=display_name,
         purpose=purpose,
         origin=origin,
         version=version,
         target_site=target_site,
+        observation_sources=observation_sources,
         timeline=timeline,
         public_parameters=public_parameters,
         private_expectations=private_expectations,
     )
+
+    _validate_execution_contract(scenario, source=source)
+
+    return scenario
 
 
 def _parse_version(raw: Any, *, source: str) -> ScenarioVersion:
@@ -517,6 +614,43 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
         required=False,
     )
 
+    execution_role = _require_choice(
+        raw, "execution_role", EXECUTION_ROLES, where=where, source=source
+    )
+    allowed_roles = ROLES_BY_ENTRY_KIND[entry_kind]
+    if execution_role not in allowed_roles:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}' is a {entry_kind} entry with execution role "
+            f"{execution_role!r} in {source}. A {entry_kind} entry may carry "
+            f"{sorted(allowed_roles)}. An evidence condition states what the "
+            "evidence path is expected to be in, so it may be delivered as a "
+            "reported observation or carried as description - it may never be "
+            "a cause, because then one row would prescribe both a cause and "
+            "its own expected result."
+        )
+
+    state_key, execution_requirement = _parse_execution_placement(
+        raw, execution_role, where=where, source=source
+    )
+
+    timing = _parse_timing(
+        raw.get("timing"), offset=offset, where=where, source=source
+    )
+
+    state_effect = _parse_state_effect(
+        raw.get("state_effect"),
+        execution_role=execution_role,
+        timing=timing,
+        where=where,
+        source=source,
+    )
+    observation = _parse_observation_binding(
+        raw.get("observation"),
+        execution_role=execution_role,
+        where=where,
+        source=source,
+    )
+
     return TimelineEntry(
         event_id=event_id,
         sequence=sequence,
@@ -525,6 +659,12 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
         category=category,
         description=description,
         parameters=parameters,
+        execution_role=execution_role,
+        state_key=state_key,
+        execution_requirement=execution_requirement,
+        timing=timing,
+        state_effect=state_effect,
+        observation=observation,
     )
 
 
@@ -596,6 +736,19 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     value = raw.get("value")
     unit = raw.get("unit")
 
+    execution_role = _require_choice(
+        raw, "execution_role", EXECUTION_ROLES, where=where, source=source
+    )
+    state_key, execution_requirement = _parse_execution_placement(
+        raw, execution_role, where=where, source=source
+    )
+    ownership = _parse_ownership(
+        raw.get("ownership"),
+        execution_role=execution_role,
+        where=where,
+        source=source,
+    )
+
     # `isinstance(True, int)` is True, so booleans are excluded by type: a
     # scenario parameter is a quantity or a phrase, never a flag.
     if type(value) in (int, float):
@@ -605,11 +758,16 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
                 f"{source}, got {unit!r}. A numeric parameter carries a unit, "
                 "because a quantity without one cannot be read."
             )
+        _reject_unusable_quantity(float(value), unit, where=where, source=source)
         return ScenarioParameter(
             parameter_id=parameter_id,
             display_name=display_name,
             value=float(value),
             unit=unit,
+            execution_role=execution_role,
+            state_key=state_key,
+            execution_requirement=execution_requirement,
+            ownership=ownership,
         )
 
     if isinstance(value, str):
@@ -618,6 +776,15 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
                 f"'{where}.unit' must be absent when the value is text, in "
                 f"{source}. A unit on a phrase is meaningless, and a screen "
                 "would render it as though the phrase were a quantity."
+            )
+        if execution_role in EXECUTABLE_ROLES:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' carries text and the executable role "
+                f"{execution_role!r} in {source}. An executor consumes "
+                "quantities in canonical units; a phrase would have to be "
+                "parsed out of display text, which is exactly what a canonical "
+                "unit exists to avoid. Author it as a quantity with a unit, or "
+                "mark it NON_EXECUTABLE_CONDITION."
             )
         text = _require_free_text(
             raw,
@@ -631,12 +798,45 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             display_name=display_name,
             value=text,
             unit=None,
+            execution_role=execution_role,
+            state_key=state_key,
+            execution_requirement=execution_requirement,
+            ownership=ownership,
         )
 
     raise ScenarioConfigurationInvalid(
         f"'{where}.value' must be a number with a unit, or text without one, "
         f"in {source}, got {value!r}"
     )
+
+
+def _reject_unusable_quantity(
+    value: float, unit: str, *, where: str, source: str
+) -> None:
+    """The `invalid-rate` bound case, enforced where it can be enforced.
+
+    `scenarios/execution.py` declares four bound cases and this is the only one
+    decidable without executing anything, so it is the only one this build
+    holds end to end. Refusing here means no run setup and no kernel ever sees
+    a rate or a quantity it would have to invent a rule for.
+    """
+    if not math.isfinite(value):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.value' is {value!r} in {source}. A quantity must be a "
+            "finite number: an infinity or a not-a-number would reach a run as "
+            "a state transition nothing could bound."
+        )
+
+    dimension = CANONICAL_UNITS[unit].dimension
+    if value < 0 and dimension in NON_NEGATIVE_DIMENSIONS:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.value' is {value} {unit} in {source}, and a "
+            f"{dimension.lower().replace('_', ' ')} cannot be negative. State "
+            "the direction with the entry's state effect rather than with the "
+            "sign of a quantity: a negative rate reaching a kernel would have "
+            "to be clamped or reinterpreted, and this product does neither "
+            "silently."
+        )
 
 
 def _parse_private_expectations(
@@ -718,6 +918,685 @@ def _parse_private_expectations(
         )
 
     return tuple(parsed)
+
+
+def _parse_execution_placement(
+    raw: Mapping[str, Any], execution_role: str, *, where: str, source: str
+) -> tuple[str | None, str | None]:
+    """The two fields an executable value must carry, and must not otherwise.
+
+    An executable value names the state it concerns and says whether later run
+    setup may proceed without support for it. A non-executable condition names
+    neither, because nothing consumes it and a state key on a value nothing
+    consumes would read as a claim about the world.
+    """
+    state_key = raw.get("state_key")
+    requirement = raw.get("execution_requirement")
+
+    if execution_role not in EXECUTABLE_ROLES:
+        if state_key is not None or requirement is not None:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' declares role {execution_role!r} and also a state "
+                f"key or an execution requirement in {source}. A "
+                "non-executable condition is description: nothing consumes "
+                "it, so naming a state for it would read as a claim about the "
+                "world that no executor will ever make true."
+            )
+        return None, None
+
+    if state_key is None:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.state_key' is required for the executable role "
+            f"{execution_role!r} in {source}. An executable value names the "
+            "world or reporting state it concerns, so later run setup can "
+            "decide whether the chosen model profile supports it."
+        )
+
+    resolved_state_key = _require_identifier(
+        raw, "state_key", where=where, source=source
+    )
+    resolved_requirement = _require_choice(
+        raw,
+        "execution_requirement",
+        EXECUTION_REQUIREMENTS,
+        where=where,
+        source=source,
+    )
+    return resolved_state_key, resolved_requirement
+
+
+def _parse_ownership(
+    raw: Any, *, execution_role: str, where: str, source: str
+) -> ParameterOwnership | None:
+    """Who answers for a value an executor would consume.
+
+    Present exactly for `CAUSAL_INPUT` and `FORCING_INPUT`. The refusal that
+    matters is the one for `REPORTED_OBSERVATION`: a reported value with an
+    ownership record could be named as the source of an initial world state,
+    and that is the whole thing this slice exists to make impossible.
+    """
+    owns = execution_role in {"CAUSAL_INPUT", "FORCING_INPUT"}
+
+    if not owns:
+        if raw is not None:
+            if execution_role == "REPORTED_OBSERVATION":
+                raise ScenarioConfigurationInvalid(
+                    f"'{where}' is a reported observation and declares "
+                    f"ownership in {source}. A reported value never "
+                    "initializes or transitions private world state: it is "
+                    "what a source said, not what the world was told to do. "
+                    "Declare the cause that produced it as its own causal "
+                    "entry instead."
+                )
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' declares role {execution_role!r} and also "
+                f"ownership in {source}. Only a causal or forcing input has "
+                "an owner, because only those are consumed."
+            )
+        return None
+
+    if not isinstance(raw, Mapping):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.ownership' must be an object declaring "
+            f"{sorted(OWNERSHIP_KEYS)} in {source}. Every value an executor "
+            "consumes has an owner that answers for it: the site's "
+            "foundation, this scenario, a run override, or a versioned model "
+            "rule. A value with no owner is one a trace could invent."
+        )
+
+    _reject_unknown_keys(
+        raw, OWNERSHIP_KEYS, where=f"{where}.ownership", source=source
+    )
+
+    owner = _require_choice(
+        raw,
+        "owner",
+        INITIALIZATION_OWNERS,
+        where=f"{where}.ownership",
+        source=source,
+    )
+
+    initializes = raw.get("initializes")
+    if type(initializes) is not bool:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.ownership.initializes' must be true or false in "
+            f"{source}, got {initializes!r}. It says whether this value is an "
+            "initial world value or a coefficient a transition uses; those "
+            "are different obligations and a run freezes them differently."
+        )
+
+    return ParameterOwnership(owner=owner, initializes=initializes)
+
+
+def _parse_timing(
+    raw: Any, *, offset: int, where: str, source: str
+) -> EntryTiming:
+    """Where an entry sits in time, as a shape with validated fields.
+
+    The shapes are distinct rather than a duration that may be absent: a point
+    with a length and a window without one are both authoring mistakes with a
+    plausible-looking document, and a screen cannot tell them apart from what
+    the author meant.
+    """
+    if not isinstance(raw, Mapping):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.timing' must be an object declaring "
+            f"{sorted(TIMING_KEYS)} in {source}. Every entry declares whether "
+            "it happens at an instant, across a window, or for the whole "
+            "interval, because a dispatcher cannot infer that from an offset."
+        )
+
+    _reject_unknown_keys(
+        raw, TIMING_KEYS, where=f"{where}.timing", source=source
+    )
+
+    shape = _require_choice(
+        raw, "shape", TIMING_SHAPES, where=f"{where}.timing", source=source
+    )
+    duration = raw.get("duration_minutes")
+
+    if shape == "POINT":
+        if duration is not None:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}.timing' is a POINT and declares a length of "
+                f"{duration!r} in {source}. A point happens at its offset and "
+                "has no length; if it lasts, it is a WINDOW."
+            )
+        return EntryTiming(shape=shape, duration_minutes=None)
+
+    if shape == "INTERVAL_WIDE":
+        if duration is not None:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}.timing' is INTERVAL_WIDE and declares a length of "
+                f"{duration!r} in {source}. An interval-wide entry lasts as "
+                "long as the run does, and how long that is belongs to run "
+                "setup rather than to the scenario."
+            )
+        if offset != 0:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' is INTERVAL_WIDE and starts at offset {offset} in "
+                f"{source}. An entry that holds for the whole interval starts "
+                "when the interval does; one that starts later is a WINDOW "
+                "with a length."
+            )
+        return EntryTiming(shape=shape, duration_minutes=None)
+
+    if type(duration) is not int or not 1 <= duration <= MAX_OFFSET_MINUTES:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.timing.duration_minutes' must be an integer between 1 "
+            f"and {MAX_OFFSET_MINUTES} for a WINDOW in {source}, got "
+            f"{duration!r}. A window without a length has no end, so nothing "
+            "can say which steps it is active for."
+        )
+    if offset + duration > MAX_OFFSET_MINUTES:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.timing' runs from {offset} to {offset + duration} "
+            f"minutes in {source}, past the {MAX_OFFSET_MINUTES}-minute limit "
+            "on where a scenario may place anything."
+        )
+
+    return EntryTiming(shape=shape, duration_minutes=duration)
+
+
+def _parse_state_effect(
+    raw: Any,
+    *,
+    execution_role: str,
+    timing: EntryTiming,
+    where: str,
+    source: str,
+) -> StateEffect | None:
+    """What a causal entry changes. Present exactly for `CAUSAL_INPUT`.
+
+    This is the whole of the private-state transition surface an authored
+    scenario can reach, which is why every other role is refused one by name
+    rather than by silence.
+    """
+    if execution_role != "CAUSAL_INPUT":
+        if raw is not None:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' declares role {execution_role!r} and also a state "
+                f"effect in {source}. Only a causal input changes private "
+                "world state. A reported observation with one would be an "
+                "authored reading writing itself into the world it claims to "
+                "be reporting on."
+            )
+        return None
+
+    if not isinstance(raw, Mapping):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.state_effect' must be an object declaring "
+            f"{sorted(STATE_EFFECT_KEYS)} in {source}. A causal input says "
+            "what it changes and by how much; one that does not is a cause "
+            "with no consequence, and a kernel would have nothing to apply."
+        )
+
+    _reject_unknown_keys(
+        raw, STATE_EFFECT_KEYS, where=f"{where}.state_effect", source=source
+    )
+
+    direction = _require_choice(
+        raw,
+        "direction",
+        STATE_EFFECT_DIRECTIONS,
+        where=f"{where}.state_effect",
+        source=source,
+    )
+
+    quantity_id = raw.get("quantity_parameter_id")
+    rate_id = raw.get("rate_parameter_id")
+
+    if (quantity_id is None) == (rate_id is None):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.state_effect' must name exactly one of "
+            "'quantity_parameter_id' and 'rate_parameter_id' in "
+            f"{source}. A transition is either a quantity applied once or a "
+            "rate applied across a window; declaring both, or neither, leaves "
+            "the magnitude undefined."
+        )
+
+    if quantity_id is not None:
+        resolved = _require_identifier(
+            raw, "quantity_parameter_id", where=f"{where}.state_effect", source=source
+        )
+        return StateEffect(
+            direction=direction,
+            quantity_parameter_id=resolved,
+            rate_parameter_id=None,
+        )
+
+    if timing.shape != "WINDOW":
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.state_effect' applies a rate and the entry is timed as "
+            f"{timing.shape} in {source}. A rate moves nothing at an instant "
+            "and has no total over an interval nobody has chosen, so a rate "
+            "effect belongs to a WINDOW with a declared length."
+        )
+
+    resolved = _require_identifier(
+        raw, "rate_parameter_id", where=f"{where}.state_effect", source=source
+    )
+    return StateEffect(
+        direction=direction,
+        quantity_parameter_id=None,
+        rate_parameter_id=resolved,
+    )
+
+
+def _parse_observation_binding(
+    raw: Any, *, execution_role: str, where: str, source: str
+) -> ObservationBinding | None:
+    """Which source a reported entry arrives through, and which value it carries."""
+    if execution_role != "REPORTED_OBSERVATION":
+        if raw is not None:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' declares role {execution_role!r} and also an "
+                f"observation binding in {source}. Only a reported "
+                "observation arrives through a source."
+            )
+        return None
+
+    if not isinstance(raw, Mapping):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.observation' must be an object declaring "
+            f"{sorted(OBSERVATION_BINDING_KEYS)} in {source}. A reported value "
+            "names the source it came through, because a reading with no "
+            "source is indistinguishable from a value somebody wrote down as "
+            "the answer."
+        )
+
+    _reject_unknown_keys(
+        raw,
+        OBSERVATION_BINDING_KEYS,
+        where=f"{where}.observation",
+        source=source,
+    )
+
+    return ObservationBinding(
+        source_id=_require_identifier(
+            raw, "source_id", where=f"{where}.observation", source=source
+        ),
+        reported_parameter_id=_require_identifier(
+            raw,
+            "reported_parameter_id",
+            where=f"{where}.observation",
+            source=source,
+        ),
+    )
+
+
+def _parse_observation_sources(
+    raw: Any, *, source: str
+) -> tuple[ObservationSource, ...]:
+    """The device and non-device sources this scenario's readings arrive through.
+
+    Absent is legal and means the scenario authors no reported observation.
+    Whether that is consistent with the timeline is checked once the timeline
+    is parsed, so that a missing source is reported against the entry that
+    wanted one.
+    """
+    if raw is None:
+        return ()
+
+    where = "scenario.observation_sources"
+    if not isinstance(raw, list):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}' must be a list of sources, or absent, in {source}"
+        )
+    if len(raw) > MAX_OBSERVATION_SOURCES:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}' declares {len(raw)} sources in {source}, above the "
+            f"limit of {MAX_OBSERVATION_SOURCES}"
+        )
+
+    parsed: list[ObservationSource] = []
+    seen: set[str] = set()
+
+    for index, entry in enumerate(raw):
+        entry_where = f"{where}[{index}]"
+        if not isinstance(entry, Mapping):
+            raise ScenarioConfigurationInvalid(
+                f"'{entry_where}' must be an object in {source}"
+            )
+
+        _reject_unknown_keys(
+            entry, OBSERVATION_SOURCE_KEYS, where=entry_where, source=source
+        )
+
+        source_id = _require_identifier(
+            entry, "source_id", where=entry_where, source=source
+        )
+        if source_id in seen:
+            raise ScenarioConfigurationInvalid(
+                f"Duplicate observation 'source_id' {source_id!r} in {source}"
+            )
+        seen.add(source_id)
+
+        source_kind = _require_choice(
+            entry,
+            "source_kind",
+            OBSERVATION_SOURCE_KINDS,
+            where=entry_where,
+            source=source,
+        )
+        description = _require_free_text(
+            entry,
+            "description",
+            max_length=MAX_DESCRIPTION_LENGTH,
+            where=entry_where,
+            source=source,
+        )
+        cadence_ownership = _require_choice(
+            entry,
+            "cadence_ownership",
+            CADENCE_OWNERSHIP,
+            where=entry_where,
+            source=source,
+        )
+
+        device_id = entry.get("device_id")
+        signal_id = entry.get("signal_id")
+
+        if source_kind == "DEVICE_SIGNAL":
+            device_id = _require_foundation_reference(
+                entry, "device_id", where=entry_where, source=source
+            )
+            signal_id = _require_foundation_reference(
+                entry, "signal_id", where=entry_where, source=source
+            )
+            if cadence_ownership != "NOT_DECLARED":
+                raise ScenarioConfigurationInvalid(
+                    f"'{entry_where}' is a device signal and declares cadence "
+                    f"ownership {cadence_ownership!r} in {source}. A site's "
+                    "foundation declares that a signal can report and "
+                    "declares no cadence, so the truthful answer here is "
+                    "NOT_DECLARED until a versioned observation profile owns "
+                    "one. Nothing may infer a cadence from a device name, "
+                    "from display text, or from the spacing between entries."
+                )
+        else:
+            if device_id is not None or signal_id is not None:
+                raise ScenarioConfigurationInvalid(
+                    f"'{entry_where}' is an {source_kind} source and names a "
+                    f"device or a signal in {source}. A value a person wrote "
+                    "down has its own identity and no device identity; "
+                    "borrowing one would put a hand-recorded note into the "
+                    "evidence path wearing a sensor's name."
+                )
+            if cadence_ownership != "NOT_APPLICABLE":
+                raise ScenarioConfigurationInvalid(
+                    f"'{entry_where}' is an {source_kind} source and declares "
+                    f"cadence ownership {cadence_ownership!r} in {source}. A "
+                    "person writing a value down has no reporting rate for "
+                    "anyone to own, so the truthful answer is NOT_APPLICABLE."
+                )
+
+        parsed.append(
+            ObservationSource(
+                source_id=source_id,
+                source_kind=source_kind,
+                device_id=device_id,
+                signal_id=signal_id,
+                cadence_ownership=cadence_ownership,
+                description=description,
+            )
+        )
+
+    return tuple(parsed)
+
+
+def _require_foundation_reference(
+    mapping: Mapping[str, Any], key: str, *, where: str, source: str
+) -> str:
+    """A device or signal identity borrowed from the target Site's Foundation.
+
+    Shape only, and deliberately not scanned for scenario vocabulary: the
+    scenario domain does not own how a Site names its devices, and refusing a
+    token here would refuse a legitimately-named device rather than protect
+    anything of ours. Whether the identity resolves is the service's question,
+    exactly as it is for a declared target Site.
+    """
+    value = mapping.get(key)
+    if (
+        not isinstance(value, str)
+        or len(value) > MAX_TEMPLATE_ID_LENGTH
+        or not IDENTIFIER_PATTERN.match(value)
+    ):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.{key}' must name a configured device or signal as "
+            f"lowercase alphanumeric words separated by a hyphen in {source}, "
+            f"got {value!r}. A device-signal source reports through an "
+            "identity the target site's foundation declares."
+        )
+    return value
+
+
+def _validate_execution_contract(
+    scenario: ScenarioDefinition, *, source: str
+) -> None:
+    """The rules that need the whole document, not one section of it.
+
+    Each of these is a way for a document whose parts are all individually
+    well formed to mean two things at once, which is the failure shape T018
+    exists to close. They are checked here rather than inside a section
+    because none of them can be: a state effect naming a parameter cannot be
+    resolved until every parameter is parsed.
+    """
+    parameters: dict[str, ScenarioParameter] = {}
+    for parameter in scenario.public_parameters:
+        parameters[parameter.parameter_id] = parameter
+    for entry in scenario.timeline:
+        for parameter in entry.parameters:
+            if parameter.parameter_id in parameters:
+                raise ScenarioConfigurationInvalid(
+                    f"Duplicate parameter identity "
+                    f"{parameter.parameter_id!r} in {source}. A parameter "
+                    "identity is unique across the whole definition, because "
+                    "a state effect and an observation binding refer to one "
+                    "by that name and two answers would make the reference "
+                    "ambiguous."
+                )
+            parameters[parameter.parameter_id] = parameter
+
+    _validate_initial_world_values(parameters, source=source)
+
+    sources = {item.source_id: item for item in scenario.observation_sources}
+    referenced: set[str] = set()
+
+    for entry in scenario.timeline:
+        _validate_entry_parameters(entry, source=source)
+        _validate_entry_state_effect(entry, parameters, source=source)
+        referenced |= _validate_entry_observation(
+            entry, parameters, sources, source=source
+        )
+
+    unreferenced = sorted(set(sources) - referenced)
+    if unreferenced:
+        raise ScenarioConfigurationInvalid(
+            f"Observation sources {unreferenced} are declared in {source} and "
+            "no entry reports through them. A declared source nothing uses is "
+            "a device identity on a screen with nothing behind it."
+        )
+
+
+def _validate_initial_world_values(
+    parameters: Mapping[str, ScenarioParameter], *, source: str
+) -> None:
+    """One attributable answer per initial world value, and never two."""
+    initializers: dict[str, str] = {}
+    for parameter in parameters.values():
+        ownership = parameter.ownership
+        if ownership is None or not ownership.initializes:
+            continue
+        state_key = parameter.state_key
+        if state_key is None:
+            continue
+        if state_key in initializers:
+            raise ScenarioConfigurationInvalid(
+                f"Both {initializers[state_key]!r} and "
+                f"{parameter.parameter_id!r} initialize the state "
+                f"{state_key!r} in {source}. An initial world value has one "
+                "attributable owner: two would let a run start from whichever "
+                "the code happened to read first."
+            )
+        initializers[state_key] = parameter.parameter_id
+
+
+def _validate_entry_parameters(entry: TimelineEntry, *, source: str) -> None:
+    """A parameter on an entry executes the way its entry does, or not at all."""
+    for parameter in entry.parameters:
+        if parameter.execution_role == "NON_EXECUTABLE_CONDITION":
+            continue
+        if parameter.execution_role != entry.execution_role:
+            raise ScenarioConfigurationInvalid(
+                f"Parameter {parameter.parameter_id!r} on entry "
+                f"{entry.event_id!r} declares role "
+                f"{parameter.execution_role!r} while the entry declares "
+                f"{entry.execution_role!r}, in {source}. A parameter on an "
+                "entry is part of that entry: it executes the way the entry "
+                "does, or it is description. A third answer would let an "
+                "executable value hide inside an entry nothing executes it "
+                "with."
+            )
+        if parameter.state_key != entry.state_key:
+            raise ScenarioConfigurationInvalid(
+                f"Parameter {parameter.parameter_id!r} on entry "
+                f"{entry.event_id!r} names state {parameter.state_key!r} "
+                f"while the entry names {entry.state_key!r}, in {source}."
+            )
+
+    if entry.execution_role != "REPORTED_OBSERVATION":
+        return
+
+    # The cadence prohibition, at the one position a cadence could arrive
+    # without anything else refusing it first. A duration parameter on a
+    # reading is how "it reports every fifteen minutes" gets written down, and
+    # every other part of such a document is legal: the unit is in the
+    # vocabulary, the identifier is well formed, the role is real.
+    timed = [
+        parameter.parameter_id
+        for parameter in entry.parameters
+        if parameter.unit is not None
+        and CANONICAL_UNITS[parameter.unit].dimension == "TIME"
+    ]
+    if timed:
+        raise ScenarioConfigurationInvalid(
+            f"Reported observation {entry.event_id!r} carries the duration "
+            f"parameters {sorted(timed)} in {source}. A duration on a reading "
+            "is a reporting cadence, and a scenario does not own one: a "
+            "site's foundation declares that a signal can report and declares "
+            "no cadence, and a cadence arrives when a versioned observation "
+            "profile declares it. A gap in reporting is authored as its own "
+            "entry with a window, which is a condition on the reporting path "
+            "rather than a rate."
+        )
+
+
+def _validate_entry_state_effect(
+    entry: TimelineEntry,
+    parameters: Mapping[str, ScenarioParameter],
+    *,
+    source: str,
+) -> None:
+    effect = entry.state_effect
+    if effect is None:
+        return
+
+    named = effect.quantity_parameter_id or effect.rate_parameter_id
+    assert named is not None  # the section parser refuses neither and both
+    parameter = parameters.get(named)
+    if parameter is None:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} applies parameter {named!r} in "
+            f"{source} and no parameter with that identity is declared. A "
+            "state effect names a value the definition carries rather than "
+            "repeating a number, so the screen and a kernel cannot disagree "
+            "about the magnitude."
+        )
+
+    if parameter.execution_role != "CAUSAL_INPUT":
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} applies parameter {named!r}, which "
+            f"declares role {parameter.execution_role!r}, in {source}. Only a "
+            "causal input may be the magnitude of a private-state transition."
+        )
+
+    if parameter.state_key != entry.state_key:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} changes state {entry.state_key!r} "
+            f"using parameter {named!r}, which names state "
+            f"{parameter.state_key!r}, in {source}."
+        )
+
+    if parameter.unit is None:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} applies parameter {named!r}, which "
+            f"carries no unit, in {source}."
+        )
+
+    dimension = CANONICAL_UNITS[parameter.unit].dimension
+
+    if effect.rate_parameter_id is not None:
+        if dimension not in RATE_INTEGRALS:
+            raise ScenarioConfigurationInvalid(
+                f"Entry {entry.event_id!r} applies {named!r} as a rate and its "
+                f"unit {parameter.unit!r} is a {dimension} in {source}. Only "
+                f"{sorted(RATE_INTEGRALS)} can be accumulated across a window "
+                "into a quantity this product knows how to apply."
+            )
+        return
+
+    if dimension in RATE_INTEGRALS:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} applies {named!r} as a one-off quantity "
+            f"and its unit {parameter.unit!r} is a rate in {source}. A rate is "
+            "declared with 'rate_parameter_id' and applied across a window."
+        )
+
+
+def _validate_entry_observation(
+    entry: TimelineEntry,
+    parameters: Mapping[str, ScenarioParameter],
+    sources: Mapping[str, ObservationSource],
+    *,
+    source: str,
+) -> set[str]:
+    binding = entry.observation
+    if binding is None:
+        return set()
+
+    if binding.source_id not in sources:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} reports through source "
+            f"{binding.source_id!r} in {source} and no such observation "
+            "source is declared. Every reading names the device or the person "
+            "it came through, and the declaration is where a reader finds out "
+            "which."
+        )
+
+    reported = parameters.get(binding.reported_parameter_id)
+    if reported is None:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} reports parameter "
+            f"{binding.reported_parameter_id!r} in {source} and no parameter "
+            "with that identity is declared."
+        )
+
+    if reported not in entry.parameters:
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} reports parameter "
+            f"{binding.reported_parameter_id!r}, which belongs to a different "
+            f"entry, in {source}. A reading carries its own value."
+        )
+
+    if reported.execution_role != "REPORTED_OBSERVATION":
+        raise ScenarioConfigurationInvalid(
+            f"Entry {entry.event_id!r} reports parameter "
+            f"{binding.reported_parameter_id!r}, which declares role "
+            f"{reported.execution_role!r}, in {source}."
+        )
+
+    return {binding.source_id}
 
 
 def _require_identifier(

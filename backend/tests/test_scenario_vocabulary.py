@@ -64,6 +64,7 @@ from control_vocabulary import (
 )
 from scenario_fixtures import scenario_document
 
+import assetops_backend.scenarios.execution as scenario_execution
 import assetops_backend.scenarios.models as scenario_models
 import assetops_backend.scenarios.parsing as scenario_parsing
 from assetops_backend.scenarios.parsing import parse_scenario_document
@@ -81,7 +82,11 @@ class TestTheScenarioDomainModel:
     def test_no_scenario_vocabulary_declares_a_position_or_a_mode(self) -> None:
         vocabularies = {
             f"{module.__name__}.{name}": value
-            for module in (scenario_models, scenario_parsing)
+            for module in (
+                scenario_models,
+                scenario_parsing,
+                scenario_execution,
+            )
             for name, value in vars(module).items()
             if isinstance(value, frozenset)
         }
@@ -112,11 +117,34 @@ class TestTheScenarioDomainModel:
             "PARAMETER_UNITS",
             "EXPECTATION_KINDS",
             "TARGET_SITE_POLICIES",
+            # T018's execution vocabularies. A world state key, a source kind
+            # or an execution role is exactly the kind of position a breaker
+            # word would arrive in next, so the scan has to be able to see
+            # them by the names they are declared under.
+            "EXECUTION_ROLES",
+            "EXECUTION_REQUIREMENTS",
+            "INITIALIZATION_OWNERS",
+            "TIMING_SHAPES",
+            "STATE_EFFECT_DIRECTIONS",
+            "OBSERVATION_SOURCE_KINDS",
+            "CADENCE_OWNERSHIP",
         ):
             assert isinstance(getattr(scenario_models, name), frozenset)
 
-        for name in ("SCENARIO_KEYS", "TIMELINE_ENTRY_KEYS", "PARAMETER_KEYS"):
+        for name in (
+            "SCENARIO_KEYS",
+            "TIMELINE_ENTRY_KEYS",
+            "PARAMETER_KEYS",
+            "OBSERVATION_SOURCE_KEYS",
+            "TIMING_KEYS",
+            "STATE_EFFECT_KEYS",
+            "OBSERVATION_BINDING_KEYS",
+            "OWNERSHIP_KEYS",
+        ):
             assert isinstance(getattr(scenario_parsing, name), frozenset)
+
+        for name in ("BOUND_POLICIES", "RECONCILIATION_STATES"):
+            assert isinstance(getattr(scenario_execution, name), frozenset)
 
 
 class TestTheShippedDefinition:
@@ -269,19 +297,50 @@ class TestTheIdentifierAuditIsComplete:
     #: References into other identity spaces. The scenario domain does not own
     #: how a Site or a site template is named, and refusing a token there would
     #: refuse a legitimately-named Site rather than protect scenario vocabulary.
-    NOT_SCENARIO_VOCABULARY = frozenset({"site_id", "template_id"})
+    #: `device_id` and `signal_id` join them: an observation source borrows
+    #: those from the target Site's Foundation, and refusing a token there
+    #: would refuse a legitimately-named device rather than protect anything
+    #: this domain owns.
+    NOT_SCENARIO_VOCABULARY = frozenset(
+        {"site_id", "template_id", "device_id", "signal_id"}
+    )
 
-    def test_every_identifier_field_in_the_schema_is_classified(self) -> None:
-        schema_keys = set().union(
+    #: Every key set the scenario schema declares. Stated once, because the
+    #: audit below and its mirror image must be over the same set: a key set
+    #: added to one and forgotten in the other would leave a position audited
+    #: in one direction only.
+    @staticmethod
+    def schema_keys() -> set[str]:
+        return set().union(
             scenario_parsing.SCENARIO_KEYS,
             scenario_parsing.VERSION_KEYS,
             scenario_parsing.TARGET_SITE_KEYS,
+            scenario_parsing.OBSERVATION_SOURCE_KEYS,
             scenario_parsing.TIMELINE_ENTRY_KEYS,
+            scenario_parsing.TIMING_KEYS,
+            scenario_parsing.STATE_EFFECT_KEYS,
+            scenario_parsing.OBSERVATION_BINDING_KEYS,
+            scenario_parsing.OWNERSHIP_KEYS,
             scenario_parsing.PARAMETER_KEYS,
             scenario_parsing.EXPECTATION_KEYS,
         )
 
-        identifier_fields = {key for key in schema_keys if key.endswith("_id")}
+    def test_every_identifier_field_in_the_schema_is_classified(self) -> None:
+        """Identifier-valued positions, by shape rather than by memory.
+
+        T018 widens this from `*_id` to `*_key` as well. A world state key is
+        an identifier this domain coins and renders as the name of a thing,
+        and `state_key: breaker-position` would have read as perfectly natural
+        to an author - which is the same hole, one field along, that the T017
+        review found in `parameter_id`.
+        """
+        schema_keys = self.schema_keys()
+
+        identifier_fields = {
+            key
+            for key in schema_keys
+            if key.endswith("_id") or key.endswith("_key")
+        }
         assert identifier_fields, (
             "the audit found no identifier field in the scenario schema, so it "
             "is not proving anything. Update the audit, do not delete it."
@@ -299,14 +358,7 @@ class TestTheIdentifierAuditIsComplete:
 
     def test_nothing_is_scanned_that_the_schema_does_not_declare(self) -> None:
         """The other direction: a scanned key nothing declares is dead."""
-        schema_keys = set().union(
-            scenario_parsing.SCENARIO_KEYS,
-            scenario_parsing.TIMELINE_ENTRY_KEYS,
-            scenario_parsing.PARAMETER_KEYS,
-            scenario_parsing.EXPECTATION_KEYS,
-        )
-
-        assert IDENTIFIER_VALUED_KEYS <= schema_keys
+        assert IDENTIFIER_VALUED_KEYS <= self.schema_keys()
 
 
 class TestAnAcceptedDocumentCannotCarryBannedVocabulary:

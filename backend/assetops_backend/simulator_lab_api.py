@@ -51,11 +51,23 @@ from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
 
+from assetops_backend.scenarios.execution import (
+    BOUND_CASES,
+    CANONICAL_UNITS,
+    DISPATCH_RULES,
+    EXECUTION_CONTRACT_VERSION,
+    canonical_quantity,
+    initialization_inputs,
+    reconcile_reported_observations,
+    state_transition_inputs,
+)
 from assetops_backend.scenarios.identity import (
     SCENARIO_ID_RULE,
     validate_scenario_id,
 )
 from assetops_backend.scenarios.models import (
+    ObservationSource,
+    ObservationSourceResolution,
     PrivateExpectation,
     ScenarioDefinition,
     ScenarioParameter,
@@ -169,18 +181,51 @@ def _detail(template: SiteTemplate) -> dict[str, object]:
 
 
 def scenario_parameter(parameter: ScenarioParameter) -> dict[str, object]:
-    """One authored parameter.
+    """One authored parameter, with what an executor may do with it.
 
     `unit` is `null` for a text parameter rather than an empty string, because
     no unit and a blank unit are different facts and a screen renders them
     differently.
+
+    `canonical` is present for every quantity and absent for text. It carries
+    the value in canonical terms with its dimension, so a consumer converts
+    without parsing the display text a screen shows - which is the difference
+    between a contract and a convention about formatting.
+
+    `ownership` is absent for a reported observation, and that absence is a
+    fact rather than a gap: a reported value has no owner because it
+    initializes nothing.
     """
-    return {
+    payload: dict[str, object] = {
         "parameter_id": parameter.parameter_id,
         "display_name": parameter.display_name,
         "value": parameter.value,
         "unit": parameter.unit,
+        "execution_role": parameter.execution_role,
+        "state_key": parameter.state_key,
+        "execution_requirement": parameter.execution_requirement,
+        "ownership": (
+            None
+            if parameter.ownership is None
+            else {
+                "owner": parameter.ownership.owner,
+                "initializes": parameter.ownership.initializes,
+            }
+        ),
+        "canonical": None,
     }
+
+    if parameter.unit is not None and isinstance(parameter.value, float):
+        value, unit, dimension = canonical_quantity(
+            parameter.value, parameter.unit
+        )
+        payload["canonical"] = {
+            "value": value,
+            "unit": unit,
+            "dimension": dimension,
+        }
+
+    return payload
 
 
 def scenario_timeline_entry(entry: TimelineEntry) -> dict[str, object]:
@@ -190,6 +235,10 @@ def scenario_timeline_entry(entry: TimelineEntry) -> dict[str, object]:
     the start of a simulated interval nobody has chosen yet. There is no
     outcome, no observed value, and no status, because this row is what the
     simulated world will be told to do and not a report that it did it.
+
+    `state_effect` and `observation` are mutually exclusive by construction in
+    the record, so a client reading this payload can tell a cause from a
+    reading without interpreting any wording.
     """
     return {
         "event_id": entry.event_id,
@@ -198,8 +247,159 @@ def scenario_timeline_entry(entry: TimelineEntry) -> dict[str, object]:
         "entry_kind": entry.entry_kind,
         "category": entry.category,
         "description": entry.description,
+        "execution_role": entry.execution_role,
+        "state_key": entry.state_key,
+        "execution_requirement": entry.execution_requirement,
+        "timing": {
+            "shape": entry.timing.shape,
+            "duration_minutes": entry.timing.duration_minutes,
+        },
+        "state_effect": (
+            None
+            if entry.state_effect is None
+            else {
+                "direction": entry.state_effect.direction,
+                "quantity_parameter_id": (
+                    entry.state_effect.quantity_parameter_id
+                ),
+                "rate_parameter_id": entry.state_effect.rate_parameter_id,
+            }
+        ),
+        "observation": (
+            None
+            if entry.observation is None
+            else {
+                "source_id": entry.observation.source_id,
+                "reported_parameter_id": (
+                    entry.observation.reported_parameter_id
+                ),
+            }
+        ),
         "parameters": [
             scenario_parameter(parameter) for parameter in entry.parameters
+        ],
+    }
+
+
+def scenario_observation_source(source: ObservationSource) -> dict[str, object]:
+    """One declared source, as the document declares it.
+
+    `cadence_ownership` is a statement about who owns the reporting rate and
+    never a rate. There is no field here a cadence could occupy, which is what
+    keeps "nothing infers a cadence" from depending on nobody trying.
+    """
+    return {
+        "source_id": source.source_id,
+        "source_kind": source.source_kind,
+        "device_id": source.device_id,
+        "signal_id": source.signal_id,
+        "cadence_ownership": source.cadence_ownership,
+        "description": source.description,
+    }
+
+
+def scenario_observation_source_resolution(
+    resolution: ObservationSourceResolution,
+) -> dict[str, object]:
+    """What one declared source resolved to on this installation."""
+    return {
+        "source_id": resolution.source_id,
+        "state": resolution.state,
+        "device_display_name": resolution.device_display_name,
+        "signal_display_name": resolution.signal_display_name,
+        "reason": resolution.reason,
+        "cadence_statement": resolution.cadence_statement,
+    }
+
+
+def scenario_execution_contract(
+    scenario: ScenarioDefinition,
+) -> dict[str, object]:
+    """The executable meaning of this scenario, for a later run setup.
+
+    Three kinds of thing, deliberately in one section so a reader and a client
+    meet them together:
+
+    - the semantics every scenario shares - canonical units, dispatch rules,
+      and bound policies - which are versioned simulator rules rather than
+      authored content;
+    - what this scenario's own inputs initialize and transition, which is the
+      whole of the surface an executor would consume;
+    - whether each reported observation is reached by the causal inputs the
+      same scenario declares.
+
+    The last one is contract arithmetic, not execution. It states a
+    disagreement where one exists instead of letting a reported number quietly
+    stand in for private world state, and it changes nothing.
+    """
+    return {
+        "contract_version": EXECUTION_CONTRACT_VERSION,
+        "canonical_units": [
+            {
+                "unit": unit,
+                "canonical_unit": canonical.canonical_unit,
+                "dimension": canonical.dimension,
+            }
+            for unit, canonical in sorted(CANONICAL_UNITS.items())
+        ],
+        "dispatch_rules": [
+            {
+                "rule_id": rule.rule_id,
+                "display_name": rule.display_name,
+                "statement": rule.statement,
+            }
+            for rule in DISPATCH_RULES
+        ],
+        "bound_cases": [
+            {
+                "case_id": case.case_id,
+                "display_name": case.display_name,
+                "policy": case.policy,
+                "statement": case.statement,
+            }
+            for case in BOUND_CASES
+        ],
+        "initialization_inputs": [
+            {
+                "parameter_id": item.parameter_id,
+                "display_name": item.display_name,
+                "state_key": item.state_key,
+                "owner": item.owner,
+                "value": item.value,
+                "unit": item.unit,
+                "canonical_value": item.canonical_value,
+                "canonical_unit": item.canonical_unit,
+            }
+            for item in initialization_inputs(scenario)
+        ],
+        "state_transition_inputs": [
+            {
+                "event_id": item.event_id,
+                "state_key": item.state_key,
+                "direction": item.direction,
+                "parameter_id": item.parameter_id,
+                "applied_value": item.applied_value,
+                "applied_unit": item.applied_unit,
+                "starts_at_offset": item.starts_at_offset,
+                "complete_at_offset": item.complete_at_offset,
+            }
+            for item in state_transition_inputs(scenario)
+        ],
+        "observation_reconciliation": [
+            {
+                "event_id": item.event_id,
+                "source_id": item.source_id,
+                "parameter_id": item.parameter_id,
+                "state_key": item.state_key,
+                "offset_minutes": item.offset_minutes,
+                "reported_value": item.reported_value,
+                "declared_value": item.declared_value,
+                "difference": item.difference,
+                "unit": item.unit,
+                "state": item.state,
+                "accounted_by": list(item.accounted_by),
+            }
+            for item in reconcile_reported_observations(scenario)
         ],
     }
 
@@ -234,7 +434,7 @@ def scenario_public_summary(scenario: ScenarioDefinition) -> dict[str, object]:
 
 
 def scenario_public_detail(scenario: ScenarioDefinition) -> dict[str, object]:
-    """The catalog shape plus the public timeline and public parameters."""
+    """The catalog shape plus the public timeline, parameters and contract."""
     return {
         **scenario_public_summary(scenario),
         "timeline": [
@@ -244,6 +444,11 @@ def scenario_public_detail(scenario: ScenarioDefinition) -> dict[str, object]:
             scenario_parameter(parameter)
             for parameter in scenario.public_parameters
         ],
+        "observation_sources": [
+            scenario_observation_source(source)
+            for source in scenario.observation_sources
+        ],
+        "execution_contract": scenario_execution_contract(scenario),
     }
 
 
@@ -485,10 +690,15 @@ def build_simulator_lab_router(
             ) from error
 
         resolution = scenario_detail.resolve_target_site(scenario)
+        sources = scenario_detail.resolve_observation_sources(scenario)
 
         return {
             "scenario": scenario_public_detail(scenario),
             "target_resolution": scenario_target_resolution(resolution),
+            "observation_source_resolutions": [
+                scenario_observation_source_resolution(item)
+                for item in sources
+            ],
             # The private half, in a section of its own. Built by a function
             # that reads no public field, so a client cannot confuse the two
             # for one another either.
