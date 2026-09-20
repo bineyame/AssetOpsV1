@@ -114,7 +114,7 @@ export const EXECUTION_ROLE_LEGEND: ReadonlyArray<readonly [string, string]> = [
   ],
   [
     "FORCING_INPUT",
-    "An exogenous condition the run is put under, on the world or on the reporting path. It names the state it forces; it is not a change the scenario computes.",
+    "An exogenous condition the run is put under, on the world or on the reporting path. It names the state it forces and who owns that profile, and it declares no starting value of its own: the profile already says what the state is when the interval begins.",
   ],
   [
     "REPORTED_OBSERVATION",
@@ -339,9 +339,13 @@ export function ScenarioFrame({
               <p>
                 Proposed: the four roles above, on every public parameter and
                 every timeline row, with only a causal input able to reach
-                private world state. A reported reading carries no owner and no
-                state effect at all, so there is no field it could arrive in as
-                an initial value or a change.
+                private world state. That is enforced twice over and not only
+                described: a reported reading carries no owner and no state
+                effect at all, so there is no field it could arrive in as an
+                initial value or a change; and a forcing input, which does have
+                an owner, may not declare a starting value either, because the
+                profile it names already says what its state is when the
+                interval begins.
               </p>
               <p>
                 Proposed with it: an evidence condition may be delivered as a
@@ -637,6 +641,9 @@ export function ScenarioFrame({
         </p>
 
         <FactList>
+          <Fact term="Execution contract version">
+            {contract.contract_version}
+          </Fact>
           {contract.dispatch_rules.map((rule) => (
             <Fact key={rule.rule_id} term={rule.display_name}>
               {rule.statement}
@@ -739,6 +746,15 @@ export function ScenarioFrame({
           from the reported value, the difference is stated with its sign
           rather than left for a reader to work out.
         </p>
+        <p>
+          Where it cannot answer it says so and says why, rather than
+          reporting a number the contract refuses elsewhere. There are three
+          such cases and each is a different fact: no declared starting value
+          for the state, a declared cause still running when the reading is
+          taken, and a declared cause that would take the state past a bound
+          this definition declares. Working out what a run does at a bound is
+          the runtime&apos;s, not this screen&apos;s.
+        </p>
 
         {contract.observation_reconciliation.length > 0 ? (
           <DataTable labelledBy="scenario-reconciliation-heading">
@@ -760,13 +776,16 @@ export function ScenarioFrame({
                   <td>{item.source_id}</td>
                   <td>{item.offset_minutes}</td>
                   <td>{`${item.reported_value} ${item.unit}`}</td>
-                  <td>{amount(item.declared_value, item.unit)}</td>
-                  <td>{amount(item.difference, item.unit)}</td>
                   <td>
-                    {item.state}
+                    {amount(item.declared_value, item.unit)}
                     <span className="cell-secondary">
                       {accountedByText(item)}
                     </span>
+                  </td>
+                  <td>{amount(item.difference, item.unit)}</td>
+                  <td>
+                    {item.state}
+                    <span className="cell-secondary">{item.reason}</span>
                   </td>
                 </tr>
               ))}

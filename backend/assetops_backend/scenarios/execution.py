@@ -43,6 +43,7 @@ from fractions import Fraction
 from typing import Iterable
 
 from assetops_backend.scenarios.models import (
+    STATE_CHANGING_ROLES,
     ScenarioDefinition,
     ScenarioParameter,
     TimelineEntry,
@@ -77,6 +78,9 @@ class CanonicalUnit:
 #: asserts this covers `PARAMETER_UNITS` exactly, so a unit added to the
 #: authoring vocabulary without a conversion fails the build rather than
 #: arriving at a consumer as text to parse.
+#:
+#: No duration unit appears here, and that is the cadence prohibition in its
+#: structural form - see `DURATION_UNIT_SPELLINGS` below.
 CANONICAL_UNITS: dict[str, CanonicalUnit] = {
     "L": CanonicalUnit("VOLUME", "L", 1, 1),
     "L/h": CanonicalUnit("VOLUME_RATE", "L/min", 1, 60),
@@ -87,9 +91,52 @@ CANONICAL_UNITS: dict[str, CanonicalUnit] = {
     "degC": CanonicalUnit("TEMPERATURE", "degC", 1, 1),
     "W/m2": CanonicalUnit("IRRADIANCE", "W/m2", 1, 1),
     "%": CanonicalUnit("FRACTION", "%", 1, 1),
-    "min": CanonicalUnit("TIME", "min", 1, 1),
-    "h": CanonicalUnit("TIME", "min", 60, 1),
 }
+
+#: Spellings of a duration, refused as a parameter unit anywhere.
+#:
+#: T018 first enforced the cadence prohibition at one position - a duration
+#: parameter on a reported observation - and the review found three more the
+#: rule did not reach: a top-level duration, a duration on the entry that
+#: forces the reporting path, and a reading timed as a window. Closing them
+#: one at a time is how the next one gets missed, so the closure is at the
+#: vocabulary instead: a duration has no unit to be written in, so there is no
+#: position it can occupy as a parameter.
+#:
+#: This is a narrowing rather than a new field. `min` and `h` were authoring
+#: units until this slice moved `run-window-length`, `removal-window-length`
+#: and `gap-length` into `timing.duration_minutes`, which is where an entry's
+#: length now lives and the only place it may. A duration that is NOT an
+#: entry's length has no legitimate home in this product today; if a later
+#: slice needs one, it reopens this vocabulary with a reason on the record
+#: rather than by an author finding a gap.
+#:
+#: Listed generously, because the point is the refusal message. A spelling
+#: outside this set is refused anyway by the closed unit vocabulary; a
+#: spelling inside it is refused with an explanation of where a duration
+#: belongs.
+DURATION_UNIT_SPELLINGS = frozenset(
+    {
+        "min",
+        "mins",
+        "minute",
+        "minutes",
+        "h",
+        "hr",
+        "hrs",
+        "hour",
+        "hours",
+        "s",
+        "sec",
+        "secs",
+        "second",
+        "seconds",
+        "ms",
+        "d",
+        "day",
+        "days",
+    }
+)
 
 #: Which dimension a rate becomes when it is applied across a window of
 #: canonical time. Only the rates this product can integrate are here; a rate
@@ -98,12 +145,12 @@ CANONICAL_UNITS: dict[str, CanonicalUnit] = {
 RATE_INTEGRALS: dict[str, str] = {"VOLUME_RATE": "VOLUME"}
 
 #: Dimensions whose values cannot be negative. A negative volume, rate, power,
-#: energy, irradiance or duration is not a small authoring slip with a
-#: defensible reading: it is an invalid input, and the invalid-rate bound case
-#: below says it is refused at parse rather than clamped later. Temperature and
+#: energy or irradiance is not a small authoring slip with a defensible
+#: reading: it is an invalid input, and the invalid-rate bound case below says
+#: it is refused at parse rather than clamped later. Temperature and
 #: percentage are deliberately absent, because a negative degC is ordinary.
 NON_NEGATIVE_DIMENSIONS = frozenset(
-    {"VOLUME", "VOLUME_RATE", "POWER", "ENERGY", "IRRADIANCE", "TIME"}
+    {"VOLUME", "VOLUME_RATE", "POWER", "ENERGY", "IRRADIANCE"}
 )
 
 
@@ -346,15 +393,25 @@ def initialization_inputs(
 ) -> tuple[InitializationInput, ...]:
     """Every initial world value the scenario declares, with its owner.
 
-    Only a parameter whose ownership says it initializes appears here. A
-    reported observation cannot: it carries no ownership record at all, which
-    is the structural form of "a recording may not hide initialization".
+    Two conditions, and the second is deliberately not a restatement of a
+    parser rule. A parameter appears here only if its ownership says it
+    initializes AND its role is one of `STATE_CHANGING_ROLES`. The parser
+    refuses the combination that would make the second condition matter, so
+    this is the layer that keeps holding if that refusal is ever loosened -
+    which is exactly what the T018 review found had happened by accident for a
+    forcing input.
+
+    A reported observation cannot reach here at all: it carries no ownership
+    record, which is the structural form of "a recording may not hide
+    initialization".
     """
     inputs: list[InitializationInput] = []
 
     for parameter in _all_parameters(scenario).values():
         ownership = parameter.ownership
         if ownership is None or not ownership.initializes:
+            continue
+        if parameter.execution_role not in STATE_CHANGING_ROLES:
             continue
         if parameter.state_key is None or parameter.unit is None:
             continue
@@ -471,9 +528,16 @@ def _complete_at(entry: TimelineEntry) -> int | None:
 #: `ACCOUNTED_FOR` means the declared causal inputs reach the reported value
 #: exactly. `NOT_ACCOUNTED_FOR` means they do not, and the difference is
 #: reported with its sign so a reader can see which way and by how much.
-#: `NOT_RECONCILABLE` means the contract cannot answer: no declared initial
-#: value for the state, or a causal window that is still running when the
-#: reading is taken.
+#: `NOT_RECONCILABLE` means the contract cannot answer, for one of three
+#: reasons it names: no declared initial value for the state, a causal window
+#: still running when the reading is taken, or a declared bound reached before
+#: it.
+#:
+#: The third was the T018 review's finding. Summing every completed transition
+#: without consulting a bound reported a declared volume above the capacity
+#: the same document declares, under a column headed "declared causes reach" -
+#: a number the contract refuses elsewhere. Applying the bound is the kernel's
+#: job and out of scope here, so the contract declines to answer instead.
 #:
 #: There is no value meaning "close enough". A reported value that differs from
 #: the declared causes differs for a reason, and the reason is either another
@@ -482,6 +546,90 @@ def _complete_at(entry: TimelineEntry) -> int | None:
 RECONCILIATION_STATES = frozenset(
     {"ACCOUNTED_FOR", "NOT_ACCOUNTED_FOR", "NOT_RECONCILABLE"}
 )
+
+#: The reasons, as product copy. Digit-free on purpose: the quantities belong
+#: in the record's own columns, and prose that restated them would be a second
+#: place for a number to drift.
+ACCOUNTED_FOR_REASON = (
+    "the causes declared before this reading reach the value it reports"
+)
+NOT_ACCOUNTED_FOR_REASON = (
+    "the causes declared before this reading do not reach the value it "
+    "reports, and no declared cause accounts for the difference"
+)
+NO_DECLARED_INITIAL_VALUE = (
+    "no initial value is declared for this state, so there is nothing for the "
+    "declared causes to start from"
+)
+OPEN_CAUSAL_WINDOW = (
+    "a declared cause is still running when this reading is taken, and "
+    "apportioning part of a window would be a transition rule rather than a "
+    "contract"
+)
+BOUND_REACHED_UPPER = (
+    "a declared cause would take this state above a bound the same definition "
+    "declares before the reading. What a run does then is the bounded "
+    "transition the bound case names, and computing it belongs to the runtime"
+)
+BOUND_REACHED_LOWER = (
+    "a declared cause would take this state below a bound the same definition "
+    "declares before the reading. What a run does then is what the bound case "
+    "names, and deciding it belongs to the runtime"
+)
+
+#: The floor every stored quantity has, whether or not a document declares
+#: one. The `insufficient-fuel` bound case states it in words - a draw that
+#: would take the stored volume below zero - so the contract may rely on it
+#: without inventing anything.
+IMPLICIT_LOWER_BOUND_DIMENSIONS: dict[str, float] = {"VOLUME": 0.0}
+
+
+def declared_bounds(
+    scenario: ScenarioDefinition,
+) -> dict[str, tuple[float | None, float | None]]:
+    """The `(lower, upper)` a document declares for each world state.
+
+    Upper bounds come from a `bounds` declaration on an initial world value;
+    nothing is inferred from two state keys that happen to share a prefix. The
+    lower bound for a stored quantity is the floor the `insufficient-fuel`
+    bound case already states in words.
+
+    Everything here is in canonical units, because a bound and the value it
+    limits have to be compared in the same terms and an authored unit is not
+    guaranteed to be the canonical one.
+    """
+    lower: dict[str, float] = {}
+    upper: dict[str, float] = {}
+
+    for parameter in _all_parameters(scenario).values():
+        if parameter.unit is None or not isinstance(parameter.value, float):
+            continue
+
+        canonical_value, _, dimension = canonical_quantity(
+            parameter.value, parameter.unit
+        )
+
+        if (
+            parameter.state_key is not None
+            and dimension in IMPLICIT_LOWER_BOUND_DIMENSIONS
+        ):
+            lower.setdefault(
+                parameter.state_key,
+                IMPLICIT_LOWER_BOUND_DIMENSIONS[dimension],
+            )
+
+        bound = parameter.bounds
+        if bound is None:
+            continue
+        if bound.bound_kind == "UPPER":
+            upper[bound.state_key] = canonical_value
+        else:
+            lower[bound.state_key] = canonical_value
+
+    return {
+        state_key: (lower.get(state_key), upper.get(state_key))
+        for state_key in set(lower) | set(upper)
+    }
 
 
 @dataclass(frozen=True)
@@ -498,6 +646,11 @@ class ObservationReconciliation:
     difference: float | None
     unit: str
     state: str
+    #: Why the contract answered the way it did. Always present, because a
+    #: `NOT_RECONCILABLE` with no reason is three different facts wearing one
+    #: name: no declared initial value, an open causal window, and a declared
+    #: bound reached are not the same problem and do not have the same fix.
+    reason: str
     accounted_by: tuple[str, ...]
 
 
@@ -521,6 +674,7 @@ def reconcile_reported_observations(
         entry.state_key: entry for entry in initialization_inputs(scenario)
     }
     transitions = state_transition_inputs(scenario)
+    bounds_by_state = declared_bounds(scenario)
 
     results: list[ObservationReconciliation] = []
 
@@ -543,6 +697,7 @@ def reconcile_reported_observations(
         )
 
         initial = initial_by_state.get(state_key)
+        bounds = bounds_by_state.get(state_key, (None, None))
         relevant = [
             transition
             for transition in transitions
@@ -558,35 +713,62 @@ def reconcile_reported_observations(
             )
         ]
 
-        if initial is None or straddling:
-            results.append(
-                ObservationReconciliation(
-                    event_id=entry.event_id,
-                    source_id=binding.source_id,
-                    parameter_id=parameter.parameter_id,
-                    state_key=state_key,
-                    offset_minutes=entry.offset_minutes,
-                    reported_value=reported_value,
-                    declared_value=None,
-                    difference=None,
-                    unit=reported_unit,
-                    state="NOT_RECONCILABLE",
-                    accounted_by=(),
-                )
+        def unanswerable(reason: str) -> ObservationReconciliation:
+            return ObservationReconciliation(
+                event_id=entry.event_id,
+                source_id=binding.source_id,
+                parameter_id=parameter.parameter_id,
+                state_key=state_key,
+                offset_minutes=entry.offset_minutes,
+                reported_value=reported_value,
+                declared_value=None,
+                difference=None,
+                unit=reported_unit,
+                state="NOT_RECONCILABLE",
+                reason=reason,
+                accounted_by=(),
             )
+
+        if initial is None:
+            results.append(unanswerable(NO_DECLARED_INITIAL_VALUE))
+            continue
+        if straddling:
+            results.append(unanswerable(OPEN_CAUSAL_WINDOW))
             continue
 
-        applied = [
-            transition
-            for transition in relevant
-            if transition.complete_at_offset is not None
-            and transition.complete_at_offset <= entry.offset_minutes
-        ]
+        applied = sorted(
+            (
+                transition
+                for transition in relevant
+                if transition.complete_at_offset is not None
+                and transition.complete_at_offset <= entry.offset_minutes
+            ),
+            key=lambda transition: transition.complete_at_offset or 0,
+        )
 
+        lower, upper = bounds
+
+        # Walked in completion order rather than summed, because a bound is
+        # reached at a moment: a delivery that overfills and a draw that
+        # empties both land inside the sequence, and a total that happens to
+        # come back inside the bounds would hide them.
         declared = _exact(initial.canonical_value)
+        reached: str | None = None
         for transition in applied:
             magnitude = _exact(transition.applied_value)
-            declared += magnitude if transition.direction == "INCREASE" else -magnitude
+            declared += (
+                magnitude if transition.direction == "INCREASE" else -magnitude
+            )
+            if upper is not None and declared > _exact(upper):
+                reached = BOUND_REACHED_UPPER
+                break
+            if lower is not None and declared < _exact(lower):
+                reached = BOUND_REACHED_LOWER
+                break
+
+        if reached is not None:
+            results.append(unanswerable(reached))
+            continue
 
         difference = _exact(reported_value) - declared
 
@@ -602,6 +784,11 @@ def reconcile_reported_observations(
                 difference=float(difference),
                 unit=reported_unit,
                 state="ACCOUNTED_FOR" if difference == 0 else "NOT_ACCOUNTED_FOR",
+                reason=(
+                    ACCOUNTED_FOR_REASON
+                    if difference == 0
+                    else NOT_ACCOUNTED_FOR_REASON
+                ),
                 accounted_by=tuple(
                     transition.event_id for transition in applied
                 ),

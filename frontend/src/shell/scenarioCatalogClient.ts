@@ -35,6 +35,12 @@ export interface ScenarioParameterOwnership {
   initializes: boolean;
 }
 
+/** That this world value limits another one, and at which end. */
+export interface ScenarioParameterBound {
+  state_key: string;
+  bound_kind: string;
+}
+
 /** A quantity in canonical terms, so nothing has to parse display text. */
 export interface ScenarioCanonicalQuantity {
   value: number;
@@ -52,6 +58,7 @@ export interface ScenarioParameter {
   state_key: string | null;
   execution_requirement: string | null;
   ownership: ScenarioParameterOwnership | null;
+  bounds: ScenarioParameterBound | null;
   canonical: ScenarioCanonicalQuantity | null;
 }
 
@@ -144,6 +151,8 @@ export interface ScenarioObservationReconciliation {
   difference: number | null;
   unit: string;
   state: string;
+  /** Which of the answers this is, in words. Always present. */
+  reason: string;
   accounted_by: string[];
 }
 
@@ -258,6 +267,18 @@ function isOwnership(value: unknown): boolean {
   );
 }
 
+function isParameterBound(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.state_key === "string" && typeof value.bound_kind === "string"
+  );
+}
+
 function isCanonical(value: unknown): boolean {
   if (value === null) {
     return true;
@@ -287,6 +308,7 @@ function isParameter(value: unknown): value is ScenarioParameter {
     isNullableString(parameter.state_key) &&
     isNullableString(parameter.execution_requirement) &&
     isOwnership(parameter.ownership) &&
+    isParameterBound(parameter.bounds) &&
     isCanonical(parameter.canonical)
   );
 }
@@ -427,6 +449,7 @@ function isReconciliation(
     (value.difference === null || typeof value.difference === "number") &&
     typeof value.unit === "string" &&
     typeof value.state === "string" &&
+    typeof value.reason === "string" &&
     Array.isArray(value.accounted_by) &&
     value.accounted_by.every((item) => typeof item === "string")
   );

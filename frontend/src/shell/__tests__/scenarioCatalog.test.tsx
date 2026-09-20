@@ -539,6 +539,42 @@ describe("the detail screen reconciles the readings it renders", () => {
     });
   });
 
+  it("says which answer each reading got, and why", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const table = tableNamed(
+      "The readings, against the causes declared before them",
+    );
+
+    // A NOT_RECONCILABLE with no reason would be three different facts
+    // wearing one name, so the reason is rendered beside the result.
+    for (const result of SCENARIO_DETAIL.execution_contract
+      .observation_reconciliation) {
+      expect(within(table).getAllByText(result.reason).length).toBeGreaterThan(
+        0,
+      );
+    }
+  });
+
+  it("names the version of the semantics being accepted", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const panel = panelNamed(
+      "How an entry is dispatched, and what happens at a bound",
+    );
+
+    expect(
+      within(panel).getByText("Execution contract version"),
+    ).toBeInTheDocument();
+    expect(
+      within(panel).getByText(
+        String(SCENARIO_DETAIL.execution_contract.contract_version),
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("says the difference is unresolved rather than resolving it here", async () => {
     const { container } = renderAt(SCENARIO_URL);
     await settledScreen();

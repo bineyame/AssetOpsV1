@@ -29,13 +29,21 @@ import yaml
 from scenario_fixtures import scenario_document
 
 from assetops_backend.scenarios.execution import (
+    ACCOUNTED_FOR_REASON,
     BOUND_CASES,
     BOUND_POLICIES,
+    BOUND_REACHED_LOWER,
+    BOUND_REACHED_UPPER,
+    NOT_ACCOUNTED_FOR_REASON,
+    NO_DECLARED_INITIAL_VALUE,
+    OPEN_CAUSAL_WINDOW,
     CANONICAL_UNITS,
     DISPATCH_RULES,
+    DURATION_UNIT_SPELLINGS,
     NON_NEGATIVE_DIMENSIONS,
     RATE_INTEGRALS,
     canonical_quantity,
+    declared_bounds,
     initialization_inputs,
     reconcile_reported_observations,
     state_transition_inputs,
@@ -50,6 +58,7 @@ from assetops_backend.scenarios.models import (
     TIMELINE_ENTRY_KINDS,
 )
 from assetops_backend.scenarios.parsing import parse_scenario_document
+from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
 from assetops_backend.sites.models import DeviceSignal
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -196,8 +205,70 @@ class TestNoObservationReachesPrivateState:
     """
 
     def test_only_a_causal_input_may_change_private_state(self) -> None:
-        assert STATE_CHANGING_ROLES == {"CAUSAL_INPUT"}
+        """Measured against documents, not against the constant's own literal.
+
+        The T018 review found this test asserting `STATE_CHANGING_ROLES ==
+        {"CAUSAL_INPUT"}` and nothing else - a tautology with no consumer
+        anywhere in the tree, which is why it could not catch a forcing input
+        that declared `initializes: true` and came back as the initializer of
+        a world state while the screen said only a causal input could.
+
+        So the assertions below are about behaviour at both layers that now
+        enforce it: the parser refuses the declaration, and
+        `initialization_inputs` would skip it even if the parser did not.
+        """
         assert STATE_CHANGING_ROLES < EXECUTABLE_ROLES
+
+        # Layer one: the parser. A forcing input is otherwise entirely legal
+        # here - it has an owner, a state key and a requirement - so the only
+        # rule that can refuse it is this one.
+        document = scenario_document()
+        document["timeline"][0]["parameters"][0]["ownership"][
+            "initializes"
+        ] = True
+
+        with pytest.raises(
+            ScenarioConfigurationInvalid, match="initialization"
+        ):
+            parse_scenario_document(document, source="a test", origin="SHIPPED")
+
+        # Layer two: the inventory, which does not trust layer one. Every
+        # initial world value in both documents comes from a role in the set.
+        for scenario in (shipped_scenario(), fixture_scenario()):
+            parameters = {
+                parameter.parameter_id: parameter
+                for parameter in _every_parameter(scenario)
+            }
+            inputs = initialization_inputs(scenario)
+            assert inputs
+            for item in inputs:
+                assert (
+                    parameters[item.parameter_id].execution_role
+                    in STATE_CHANGING_ROLES
+                ), item.parameter_id
+
+    def test_a_forcing_input_reclassification_cannot_smuggle_in_an_initializer(
+        self,
+    ) -> None:
+        """The review's own reproduction, kept as a permanent case.
+
+        Reclassifying the starting level to `FORCING_INPUT` used to parse and
+        still come back as the initializer of `fuel-tank-volume`.
+        """
+        document = shipped_document()
+        starting = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "starting-fuel-level"
+        )
+        starting["execution_role"] = "FORCING_INPUT"
+
+        with pytest.raises(
+            ScenarioConfigurationInvalid, match="initialization"
+        ):
+            parse_scenario_document(
+                document, source="a test", origin="SHIPPED"
+            )
 
     def test_an_evidence_condition_can_never_be_a_cause(self) -> None:
         """The ambiguity T018 exists to remove, as a rule over the taxonomy."""
@@ -325,6 +396,50 @@ class TestObservationSourcesAndCadence:
         assert hand.source_kind == "OPERATOR_RECORD"
         assert hand.device_id is None
         assert hand.signal_id is None
+
+    def test_no_duration_is_an_authoring_unit(self) -> None:
+        """The cadence prohibition in the form that reaches every position.
+
+        The T018 review found the first version of this rule closed one
+        position - a duration parameter on a reported observation - and left
+        a top-level duration, a duration on the entry forcing the reporting
+        path, and a reading timed as a window all accepted. A rule written
+        per position is a rule with positions left over, so the closure is at
+        the vocabulary: there is no unit a duration could be written in.
+        """
+        assert PARAMETER_UNITS
+        assert DURATION_UNIT_SPELLINGS
+
+        overlap = {
+            unit
+            for unit in PARAMETER_UNITS
+            if unit.casefold() in DURATION_UNIT_SPELLINGS
+        }
+        assert not overlap, (
+            f"The authoring unit vocabulary admits the durations {sorted(overlap)}. "
+            "An entry's length is declared by its timing and a reporting "
+            "cadence is not a scenario's to declare, so a duration has no "
+            "parameter to live in."
+        )
+
+        # And no unit that remains maps to a time dimension by another name.
+        assert not {
+            unit
+            for unit, canonical in CANONICAL_UNITS.items()
+            if canonical.dimension == "TIME"
+        }
+
+    def test_a_reading_is_always_timed_as_a_point(self) -> None:
+        """The other half of the same closure, over both documents."""
+        for scenario in (shipped_scenario(), fixture_scenario()):
+            readings = [
+                entry
+                for entry in scenario.timeline
+                if entry.execution_role == "REPORTED_OBSERVATION"
+            ]
+            assert readings
+            for entry in readings:
+                assert entry.timing.shape == "POINT", entry.event_id
 
     def test_no_source_declares_a_cadence(self) -> None:
         scenario = shipped_scenario()
@@ -516,6 +631,86 @@ class TestReconciliation:
         assert inspection.reported_value == 150.0
         assert inspection.difference == -104.0
         assert inspection.state == "NOT_ACCOUNTED_FOR"
+
+    def test_a_reading_after_a_bound_is_reached_is_not_reported_at_all(
+        self,
+    ) -> None:
+        """The T018 review's reproduction, kept.
+
+        Summing every completed transition without consulting a bound
+        reported a declared volume above the capacity the same document
+        declares, under a column headed "declared causes reach" - a number
+        the contract refuses elsewhere. Applying the bound would be the
+        kernel; declining to answer is the contract.
+        """
+        document = shipped_document()
+        for entry in document["timeline"]:
+            if entry["event_id"] == "scheduled-refuelling":
+                entry["offset_minutes"] = 1550
+
+        results = {
+            result.event_id: result
+            for result in reconcile_reported_observations(
+                parse_scenario_document(
+                    document, source="a test", origin="SHIPPED"
+                )
+            )
+        }
+
+        assert results
+        for result in results.values():
+            assert result.state == "NOT_RECONCILABLE", result.event_id
+            assert result.declared_value is None
+            assert result.difference is None
+            assert "above a bound" in result.reason
+
+        # Non-vacuous: without the delivery moved, the same two readings are
+        # answered, so the assertion above is about the bound and not about
+        # the readings being unanswerable in general.
+        unmoved = {
+            result.event_id: result
+            for result in reconcile_reported_observations(shipped_scenario())
+        }
+        assert set(unmoved) == set(results)
+        for result in unmoved.values():
+            assert result.state == "NOT_ACCOUNTED_FOR"
+
+    def test_the_declared_bound_is_declared_rather_than_guessed(self) -> None:
+        """Nothing infers that a capacity limits a volume from their names."""
+        bounds = declared_bounds(shipped_scenario())
+
+        assert bounds["fuel-tank-volume"] == (0.0, 500.0)
+
+        # Remove the declaration and the upper bound is gone: it came from the
+        # document, not from the two state keys sharing a prefix.
+        document = shipped_document()
+        for parameter in document["public_parameters"]:
+            parameter.pop("bounds", None)
+
+        without = declared_bounds(
+            parse_scenario_document(document, source="a test", origin="SHIPPED")
+        )
+        assert without["fuel-tank-volume"] == (0.0, None)
+
+    def test_each_unanswerable_reading_says_which_of_the_three_it_is(
+        self,
+    ) -> None:
+        """A `NOT_RECONCILABLE` with no reason is three facts wearing one name."""
+        reasons = {
+            NO_DECLARED_INITIAL_VALUE,
+            OPEN_CAUSAL_WINDOW,
+            BOUND_REACHED_UPPER,
+            BOUND_REACHED_LOWER,
+            ACCOUNTED_FOR_REASON,
+            NOT_ACCOUNTED_FOR_REASON,
+        }
+        assert len(reasons) == 6
+        for reason in reasons:
+            assert reason.strip()
+            assert not any(character.isdigit() for character in reason)
+
+        for result in reconcile_reported_observations(shipped_scenario()):
+            assert result.reason in reasons
 
     def test_a_reading_inside_an_open_causal_window_is_not_guessed_at(
         self,

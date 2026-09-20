@@ -146,6 +146,21 @@ EXECUTABLE_ROLES = frozenset(
 )
 
 #: The roles that may reach initialization or a private-state transition. One.
+#:
+#: This is enforced rather than described, in two places that do not depend on
+#: each other: `_parse_ownership` refuses `initializes: true` outside this set,
+#: and `initialization_inputs` skips any parameter whose role is outside it.
+#:
+#: The T018 review found the gap this closes. A forcing input could declare
+#: `initializes: true` and came back as the initializer of a world state,
+#: while the screen's role legend said in so many words that only a causal
+#: input could reach private state. A `USER_REVIEW_REQUIRED` screen asserting
+#: a guarantee the code did not hold would have locked the guarantee in.
+#:
+#: The rule is also the truer contract. An exogenous state's value at every
+#: instant comes from the forcing profile itself, including the first, so a
+#: separate initial-value declaration beside it would be two answers to what
+#: that state is at the start of the interval.
 STATE_CHANGING_ROLES = frozenset({"CAUSAL_INPUT"})
 
 #: Which execution roles each timeline entry kind may carry.
@@ -210,6 +225,15 @@ TIMING_SHAPES = frozenset({"POINT", "WINDOW", "INTERVAL_WIDE"})
 #: Which way a causal entry moves the state it names.
 STATE_EFFECT_DIRECTIONS = frozenset({"INCREASE", "DECREASE"})
 
+#: Which end of another state a declared world value bounds.
+#:
+#: Capacity was a world state with nothing connecting it to the volume it
+#: limits, so the contract could report a declared level above a capacity the
+#: same document declares - which the T018 review reproduced. A bound is now
+#: declared rather than inferred from two state keys that happen to share a
+#: prefix.
+BOUND_KINDS = frozenset({"UPPER", "LOWER"})
+
 #: What a reported observation arrives through.
 #:
 #: `DEVICE_SIGNAL` names a device and a signal the target Site's Foundation
@@ -246,8 +270,16 @@ CADENCE_OWNERSHIP = frozenset({"NOT_DECLARED", "NOT_APPLICABLE"})
 # Every unit here has a canonical dimension and conversion in
 # `scenarios/execution.py`, asserted exhaustively by a test, so a consumer
 # converts a quantity without parsing the display text a screen shows.
+#
+# No duration unit is in this set, and its absence is load-bearing. An entry's
+# length is declared by `timing.duration_minutes` and nowhere else, so a
+# duration written as a parameter is either a reporting cadence - which a
+# scenario does not own - or a length in the wrong field. Leaving `min` and
+# `h` here would have left a position at every parameter in the document for
+# one to arrive in, which is the hole the T018 review found when the rule
+# against it was written for one position only.
 PARAMETER_UNITS = frozenset(
-    {"L", "L/h", "kW", "kWh", "V", "Hz", "degC", "W/m2", "%", "min", "h"}
+    {"L", "L/h", "kW", "kWh", "V", "Hz", "degC", "W/m2", "%"}
 )
 
 # What a private expectation asserts. Test-oracle vocabulary: each value names
@@ -313,6 +345,19 @@ class ParameterOwnership:
 
 
 @dataclass(frozen=True)
+class ParameterBound:
+    """That this world value limits another one, and at which end.
+
+    Declared, never inferred. `fuel-tank-capacity` and `fuel-tank-volume` are
+    two state keys, and nothing about their spellings says one limits the
+    other; a contract that guessed from a shared prefix would be guessing.
+    """
+
+    state_key: str
+    bound_kind: str
+
+
+@dataclass(frozen=True)
 class ScenarioParameter:
     """One authored parameter: public authoring data, with its execution role.
 
@@ -345,6 +390,7 @@ class ScenarioParameter:
     state_key: str | None
     execution_requirement: str | None
     ownership: ParameterOwnership | None
+    bounds: ParameterBound | None
 
 
 @dataclass(frozen=True)

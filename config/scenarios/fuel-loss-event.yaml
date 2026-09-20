@@ -92,6 +92,13 @@ public_parameters:
       # checks against that rating, not the value a run would use.
       owner: SITE_FOUNDATION
       initializes: true
+    bounds:
+      # Capacity and volume are two world states, and nothing about their
+      # names says one limits the other. Declaring it is what lets the
+      # contract notice that a declared cause would take the tank past its
+      # capacity, and decline to report a level the same definition refuses.
+      state_key: fuel-tank-volume
+      bound_kind: UPPER
 
   - parameter_id: starting-fuel-level
     display_name: Fuel level at the start of the interval

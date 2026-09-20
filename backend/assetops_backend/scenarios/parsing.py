@@ -31,11 +31,15 @@ value to mean two things at once:
 - a timing shape whose fields do not match it: a point with a length, a window
   without one, a rate applied at an instant;
 - two answers to one initial world value, or none;
-- a reporting cadence, in the one position a cadence could plausibly be
-  smuggled into - a duration parameter hung on a reported observation.
-  Foundation declares that a signal can report and declares no cadence, and
-  nothing here may infer one from a device name, from display text, or from
-  the spacing between authored entries;
+- a reporting cadence, closed at the vocabulary rather than at a position.
+  No duration unit is an authoring unit, so a duration cannot be written as a
+  parameter anywhere in a document, and a reported observation must be timed
+  as a POINT, so it cannot be spread across a window either. Foundation
+  declares that a signal can report and declares no cadence, and nothing here
+  infers one from a device name, from display text, or from the spacing
+  between authored entries. What this does NOT reach is prose: a description
+  may say "every fifteen minutes" in English, and it is English, exactly as
+  the breaker ban treats free text;
 - a negative, infinite, or not-a-number quantity in a dimension where none is
   meaningful. That is the `invalid-rate` bound case in
   `scenarios/execution.py`, and it is the only one of the four this build can
@@ -111,6 +115,7 @@ from assetops_backend.control_vocabulary import (
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
+    DURATION_UNIT_SPELLINGS,
     NON_NEGATIVE_DIMENSIONS,
     RATE_INTEGRALS,
 )
@@ -122,11 +127,13 @@ from assetops_backend.scenarios.models import (
     EXECUTION_REQUIREMENTS,
     EXECUTION_ROLES,
     EXPECTATION_KINDS,
+    BOUND_KINDS,
     INITIALIZATION_OWNERS,
     OBSERVATION_SOURCE_KINDS,
     PARAMETER_UNITS,
     ROLES_BY_ENTRY_KIND,
     SCENARIO_ORIGINS,
+    STATE_CHANGING_ROLES,
     STATE_EFFECT_DIRECTIONS,
     TARGET_SITE_POLICIES,
     TIMELINE_ENTRY_KINDS,
@@ -134,6 +141,7 @@ from assetops_backend.scenarios.models import (
     EntryTiming,
     ObservationBinding,
     ObservationSource,
+    ParameterBound,
     ParameterOwnership,
     PrivateExpectation,
     ScenarioDefinition,
@@ -197,6 +205,7 @@ STATE_EFFECT_KEYS = frozenset(
 )
 OBSERVATION_BINDING_KEYS = frozenset({"source_id", "reported_parameter_id"})
 OWNERSHIP_KEYS = frozenset({"owner", "initializes"})
+BOUND_KEYS = frozenset({"state_key", "bound_kind"})
 PARAMETER_KEYS = frozenset(
     {
         "parameter_id",
@@ -207,6 +216,7 @@ PARAMETER_KEYS = frozenset(
         "state_key",
         "execution_requirement",
         "ownership",
+        "bounds",
     }
 )
 EXPECTATION_KEYS = frozenset(
@@ -637,6 +647,19 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
         raw.get("timing"), offset=offset, where=where, source=source
     )
 
+    # A reading is taken at an instant. A window on one says either that the
+    # source reported repeatedly across it - a cadence, which a scenario does
+    # not own - or that the value is an aggregate over it, and this product
+    # has no vocabulary for an aggregate. Both readings are refused rather
+    # than one of them being guessed at.
+    if execution_role == "REPORTED_OBSERVATION" and timing.shape != "POINT":
+        raise ScenarioConfigurationInvalid(
+            f"'{where}' is a reported observation timed as {timing.shape} in "
+            f"{source}. A reading happens at an instant, so it is a POINT. A "
+            "reading spread over a window would be a reporting cadence or an "
+            "aggregate, and a scenario declares neither."
+        )
+
     state_effect = _parse_state_effect(
         raw.get("state_effect"),
         execution_role=execution_role,
@@ -736,6 +759,21 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     value = raw.get("value")
     unit = raw.get("unit")
 
+    # Before anything else, because the generic unknown-unit refusal would be
+    # true and useless here. A duration is not a parameter in this product:
+    # an entry's length belongs to its timing, and a reporting rate belongs to
+    # a versioned observation profile that does not exist yet.
+    if isinstance(unit, str) and unit.casefold() in DURATION_UNIT_SPELLINGS:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.unit' is the duration {unit!r} in {source}. A scenario "
+            "parameter may not carry a duration at all. An entry's length is "
+            "declared by its timing, as 'duration_minutes' on a WINDOW; a "
+            "reporting cadence is not a scenario's to declare, because a "
+            "site's foundation declares that a signal can report and declares "
+            "no rate, and one arrives when a versioned observation profile "
+            "declares it."
+        )
+
     execution_role = _require_choice(
         raw, "execution_role", EXECUTION_ROLES, where=where, source=source
     )
@@ -745,6 +783,13 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     ownership = _parse_ownership(
         raw.get("ownership"),
         execution_role=execution_role,
+        where=where,
+        source=source,
+    )
+    bounds = _parse_parameter_bound(
+        raw.get("bounds"),
+        ownership=ownership,
+        state_key=state_key,
         where=where,
         source=source,
     )
@@ -768,6 +813,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             state_key=state_key,
             execution_requirement=execution_requirement,
             ownership=ownership,
+            bounds=bounds,
         )
 
     if isinstance(value, str):
@@ -802,6 +848,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             state_key=state_key,
             execution_requirement=execution_requirement,
             ownership=ownership,
+            bounds=bounds,
         )
 
     raise ScenarioConfigurationInvalid(
@@ -974,6 +1021,14 @@ def _parse_ownership(
     matters is the one for `REPORTED_OBSERVATION`: a reported value with an
     ownership record could be named as the source of an initial world state,
     and that is the whole thing this slice exists to make impossible.
+
+    `initializes: true` is narrower still and is confined to
+    `STATE_CHANGING_ROLES`. A forcing input has an owner because a run has to
+    know who answers for the profile it is put under, but the value of an
+    exogenous state at every instant comes from that profile, including the
+    first - so an initial-value declaration beside it would be a second answer
+    to the same question. The T018 review found a forcing input initializing a
+    world state while the screen said only a causal input could.
     """
     owns = execution_role in {"CAUSAL_INPUT", "FORCING_INPUT"}
 
@@ -1025,7 +1080,74 @@ def _parse_ownership(
             "are different obligations and a run freezes them differently."
         )
 
+    if initializes and execution_role not in STATE_CHANGING_ROLES:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}' declares role {execution_role!r} and initializes the "
+            f"world state {raw.get('owner')!r} answers for, in {source}. Only "
+            f"{sorted(STATE_CHANGING_ROLES)} may reach initialization or a "
+            "private-state transition. An exogenous state's value at every "
+            "instant comes from the forcing profile itself, including the "
+            "first, so an initial value declared beside it would be a second "
+            "answer to what that state is when the interval starts."
+        )
+
     return ParameterOwnership(owner=owner, initializes=initializes)
+
+
+def _parse_parameter_bound(
+    raw: Any,
+    *,
+    ownership: ParameterOwnership | None,
+    state_key: str | None,
+    where: str,
+    source: str,
+) -> ParameterBound | None:
+    """That this world value limits another one.
+
+    Optional, and allowed only on a declared INITIAL world value: a bound is
+    itself a world value a run starts from, so whatever answers for the one
+    answers for the other. A coefficient or a reported reading bounding
+    something would be a limit with no owner.
+
+    Without this declaration the contract knows a capacity and a volume as two
+    unrelated state keys, which is how `reconcile_reported_observations` came
+    to report a declared level above the capacity the same document declares.
+    """
+    if raw is None:
+        return None
+
+    if ownership is None or not ownership.initializes:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}' declares a bound on another state without being an "
+            f"initial world value itself, in {source}. A bound is a world "
+            "value a run starts from and has to be owned like one."
+        )
+
+    if not isinstance(raw, Mapping):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.bounds' must be an object declaring "
+            f"{sorted(BOUND_KEYS)} in {source}."
+        )
+
+    _reject_unknown_keys(
+        raw, BOUND_KEYS, where=f"{where}.bounds", source=source
+    )
+
+    bounded = _require_identifier(
+        raw, "state_key", where=f"{where}.bounds", source=source
+    )
+    if bounded == state_key:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.bounds' bounds {bounded!r}, which is the state this "
+            f"value already is, in {source}. A bound limits another state; a "
+            "value that bounded itself would say nothing."
+        )
+
+    bound_kind = _require_choice(
+        raw, "bound_kind", BOUND_KINDS, where=f"{where}.bounds", source=source
+    )
+
+    return ParameterBound(state_key=bounded, bound_kind=bound_kind)
 
 
 def _parse_timing(
@@ -1465,31 +1587,14 @@ def _validate_entry_parameters(entry: TimelineEntry, *, source: str) -> None:
                 f"while the entry names {entry.state_key!r}, in {source}."
             )
 
-    if entry.execution_role != "REPORTED_OBSERVATION":
-        return
-
-    # The cadence prohibition, at the one position a cadence could arrive
-    # without anything else refusing it first. A duration parameter on a
-    # reading is how "it reports every fifteen minutes" gets written down, and
-    # every other part of such a document is legal: the unit is in the
-    # vocabulary, the identifier is well formed, the role is real.
-    timed = [
-        parameter.parameter_id
-        for parameter in entry.parameters
-        if parameter.unit is not None
-        and CANONICAL_UNITS[parameter.unit].dimension == "TIME"
-    ]
-    if timed:
-        raise ScenarioConfigurationInvalid(
-            f"Reported observation {entry.event_id!r} carries the duration "
-            f"parameters {sorted(timed)} in {source}. A duration on a reading "
-            "is a reporting cadence, and a scenario does not own one: a "
-            "site's foundation declares that a signal can report and declares "
-            "no cadence, and a cadence arrives when a versioned observation "
-            "profile declares it. A gap in reporting is authored as its own "
-            "entry with a window, which is a condition on the reporting path "
-            "rather than a rate."
-        )
+    # The cadence prohibition used to live here, as a TIME-dimension check on
+    # a reported observation's parameters. The T018 review found it closed one
+    # position and left three open - a top-level duration, a duration on the
+    # entry forcing the reporting path, and a reading timed as a window - so
+    # it moved to where no position can escape it. A duration has no unit to
+    # be written in (`DURATION_UNIT_SPELLINGS`), and a reading must be a POINT
+    # (`_parse_timeline_entry`). Nothing is checked here any more because
+    # there is nothing left that could reach this far.
 
 
 def _validate_entry_state_effect(

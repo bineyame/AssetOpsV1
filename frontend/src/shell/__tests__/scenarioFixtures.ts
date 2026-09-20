@@ -58,6 +58,7 @@ function causal(
   initializes: boolean,
   owner = "SCENARIO_INPUT",
   state_key = "fuel-tank-volume",
+  bounds: ScenarioParameter["bounds"] = null,
 ): ScenarioParameter {
   return {
     parameter_id,
@@ -68,6 +69,7 @@ function causal(
     state_key,
     execution_requirement: "REQUIRED",
     ownership: { owner, initializes },
+    bounds: bounds ?? null,
     canonical: {
       value: canonicalValue,
       unit: canonicalUnit,
@@ -90,6 +92,7 @@ function reported(
     state_key: "fuel-tank-volume",
     execution_requirement: "REQUIRED",
     ownership: null,
+    bounds: null,
     canonical: { value, unit: "L", dimension: "VOLUME" },
   };
 }
@@ -108,6 +111,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       true,
       "SITE_FOUNDATION",
       "fuel-tank-capacity",
+      { state_key: "fuel-tank-volume", bound_kind: "UPPER" },
     ),
     causal(
       "starting-fuel-level",
@@ -128,6 +132,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       state_key: "fuel-tank-volume",
       execution_requirement: "REQUIRED",
       ownership: { owner: "SCENARIO_INPUT", initializes: false },
+      bounds: null,
       canonical: {
         value: 0.23333333333333334,
         unit: "L/min",
@@ -147,6 +152,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       state_key: null,
       execution_requirement: null,
       ownership: null,
+      bounds: null,
       canonical: null,
     },
   ],
@@ -192,6 +198,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
           state_key: "site-load-demand",
           execution_requirement: "REQUIRED",
           ownership: { owner: "SCENARIO_INPUT", initializes: false },
+          bounds: null,
           canonical: { value: 72, unit: "kW", dimension: "POWER" },
         },
       ],
@@ -238,6 +245,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
           state_key: null,
           execution_requirement: null,
           ownership: null,
+          bounds: null,
           canonical: { value: 45, unit: "kW", dimension: "POWER" },
         },
       ],
@@ -446,6 +454,9 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
         difference: -99,
         unit: "L",
         state: "NOT_ACCOUNTED_FOR",
+        reason:
+          "the causes declared before this reading do not reach the value " +
+          "it reports, and no declared cause accounts for the difference",
         accounted_by: ["generator-run-window", "unaccounted-fuel-removal"],
       },
       {
@@ -459,6 +470,9 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
         difference: -104,
         unit: "L",
         state: "NOT_ACCOUNTED_FOR",
+        reason:
+          "the causes declared before this reading do not reach the value " +
+          "it reports, and no declared cause accounts for the difference",
         accounted_by: ["generator-run-window", "unaccounted-fuel-removal"],
       },
     ],
@@ -694,6 +708,8 @@ export function recordRenderedStrings(
     );
   }
 
+  rendered.push(String(detail.execution_contract.contract_version));
+
   for (const rule of detail.execution_contract.dispatch_rules) {
     rendered.push(rule.display_name, rule.statement);
   }
@@ -719,6 +735,7 @@ export function recordRenderedStrings(
         ? "Cannot be worked out"
         : `${item.difference} ${item.unit}`,
       item.state,
+      item.reason,
       item.accounted_by.length === 0
         ? "no declared cause is complete by this offset"
         : `counting ${item.accounted_by.join(", ")}`,

@@ -607,6 +607,64 @@ class TestTheExecutionContractIsRefusedWhenItMeansTwoThings:
             id="a-cadence-on-a-reading",
         ),
         pytest.param(
+            # The three positions the T018 review found the first version of
+            # the cadence rule did not reach. Each is measured separately,
+            # because measuring one position is exactly what let the other
+            # three through.
+            #
+            # One: a top-level duration, belonging to no entry at all.
+            lambda d: d["public_parameters"].append(
+                {
+                    "parameter_id": "sensor-sample-interval",
+                    "display_name": "How often the sensor reports",
+                    "value": 15,
+                    "unit": "min",
+                    "execution_role": "NON_EXECUTABLE_CONDITION",
+                }
+            ),
+            "cadence",
+            id="a-cadence-as-a-top-level-parameter",
+        ),
+        pytest.param(
+            # Two: a duration on the entry that forces the reporting path,
+            # which is where an observation-profile consumer would look for
+            # one. In the shipped document that entry is the reporting gap.
+            lambda d: d["timeline"][0]["parameters"].append(
+                {
+                    "parameter_id": "sensor-sample-interval",
+                    "display_name": "How often the source reports",
+                    "value": 15,
+                    "unit": "min",
+                    "execution_role": "FORCING_INPUT",
+                    "state_key": "example-demand",
+                    "execution_requirement": "REQUIRED",
+                    "ownership": {
+                        "owner": "SCENARIO_INPUT",
+                        "initializes": False,
+                    },
+                }
+            ),
+            "cadence",
+            id="a-cadence-on-a-forcing-entry",
+        ),
+        pytest.param(
+            # Three: no duration parameter at all - the reading itself timed
+            # as a window, which says either that it reported repeatedly
+            # across it or that the value is an aggregate.
+            lambda d: d["timeline"][2].update(
+                timing={"shape": "WINDOW", "duration_minutes": 15}
+            ),
+            "reported observation timed as WINDOW",
+            id="a-reading-spread-across-a-window",
+        ),
+        pytest.param(
+            # And an hour reads the same as a minute. The refusal is about
+            # the dimension, not about one spelling of it.
+            lambda d: d["public_parameters"][0].update(unit="h"),
+            "duration",
+            id="a-duration-in-hours",
+        ),
+        pytest.param(
             # A negative rate: the invalid-rate bound case, refused at parse
             # rather than clamped by a kernel that does not exist yet.
             lambda d: d["public_parameters"][3].update(value=-6),

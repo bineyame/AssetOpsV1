@@ -305,6 +305,7 @@ class TestTheDetailRoute:
             "state_key": "example-demand",
             "execution_requirement": "REQUIRED",
             "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
+            "bounds": None,
             "canonical": {"value": 64.0, "unit": "kW", "dimension": "POWER"},
         }
 

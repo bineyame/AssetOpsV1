@@ -212,6 +212,14 @@ def scenario_parameter(parameter: ScenarioParameter) -> dict[str, object]:
                 "initializes": parameter.ownership.initializes,
             }
         ),
+        "bounds": (
+            None
+            if parameter.bounds is None
+            else {
+                "state_key": parameter.bounds.state_key,
+                "bound_kind": parameter.bounds.bound_kind,
+            }
+        ),
         "canonical": None,
     }
 
@@ -397,6 +405,7 @@ def scenario_execution_contract(
                 "difference": item.difference,
                 "unit": item.unit,
                 "state": item.state,
+                "reason": item.reason,
                 "accounted_by": list(item.accounted_by),
             }
             for item in reconcile_reported_observations(scenario)
