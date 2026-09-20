@@ -5,13 +5,15 @@
 # that is too wide scrolls inside the region that owns it rather than pushing
 # the document sideways.
 #
-# Four rules, and the last one matters most because it is the tempting wrong
-# fix:
+# Five rules, and the one about hiding matters most because it is the tempting
+# wrong fix:
 #
 #   - every table goes through the shared primitive, which supplies the region
 #   - that region actually contains the inline axis
+#   - the configured diagram has a region of its own that does the same
 #   - the frame is full height standalone and not full height nested, so the
 #     Lab keeps its viewport and the operator shell stops claiming a second one
+#   - every svg goes through the diagram module, which supplies that region
 #   - no shell surface hides page overflow instead of containing it
 #
 # Hiding is not containing. `overflow-x: hidden` on the document makes the
@@ -31,6 +33,16 @@ function Invoke-ShellOverflowCheck {
     $primitivesCss = "frontend/src/ui/primitives.css"
     $tablePrimitive = "frontend/src/ui/DataTable.tsx"
     $scrollClass = ".data-table__scroll"
+
+    # The configured single line diagram is the second piece of dense content
+    # with an intrinsic width. The archetype has five lanes and a lane is wide
+    # enough for a component name and a declared rating, so the drawing is
+    # wider than the content column at the committed 1280px and far wider below
+    # it. It is not a table, so the table rule above cannot reach it, and
+    # without a rule of its own it would push the rail sideways exactly as the
+    # Sites index did before T011B.
+    $diagramScrollClass = ".sld__scroll"
+    $diagramModule = "frontend/src/sites/SiteSingleLineDiagram.tsx"
 
     if (-not (Test-Path -LiteralPath $primitivesCss -PathType Leaf)) {
         $failures.Add("Missing $primitivesCss, so every overflow rule below is unenforceable") | Out-Null
@@ -83,6 +95,25 @@ function Invoke-ShellOverflowCheck {
             "'overflow-x: auto' or 'overflow-x: scroll'. The region that wraps " +
             "every table is what keeps a wide table from pushing the rail and " +
             "the workspace bar sideways; without the declaration it is a div.")) | Out-Null
+    }
+
+    # 1b. The diagram's region contains the inline axis too, for the same
+    #     reason and with the same wording: a wrapper that does not declare it
+    #     is a div, and the overflow goes straight past it to the document.
+    $diagramContainsInlineAxis = $false
+    foreach ($block in $blocks) {
+        if ($block.Selector -ne $diagramScrollClass) { continue }
+        if ($block.Declarations -match '(?m)^\s*overflow(-x)?\s*:\s*(auto|scroll)\s*;') {
+            $diagramContainsInlineAxis = $true
+        }
+    }
+
+    if (-not $diagramContainsInlineAxis) {
+        $failures.Add(("$diagramScrollClass in $primitivesCss does not declare " +
+            "'overflow-x: auto' or 'overflow-x: scroll'. The configured single " +
+            "line diagram has an intrinsic width wider than the content " +
+            "column, and without the region that owns it the drawing pushes " +
+            "the rail and the workspace bar sideways.")) | Out-Null
     }
 
     # 2. The frame is full height standalone, and not full height nested.
@@ -146,6 +177,63 @@ function Invoke-ShellOverflowCheck {
         $failures.Add(("$tablePrimitive renders no table element, so the " +
             "one-table-pattern check is vacuous. Update the check, do not " +
             "delete it.")) | Out-Null
+    }
+
+    # --- One diagram pattern ---------------------------------------------------
+
+    # 5. Every svg goes through the diagram module, and the diagram module
+    #    wraps it in the region. An svg rendered anywhere else is a drawing
+    #    with nothing between it and the document - the same defect as a bare
+    #    table, in the one other place this build has dense content with an
+    #    intrinsic width.
+    $diagramRegionSeen = $false
+    $diagramSvgSeen = $false
+
+    foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+
+            if ($line -match [regex]::Escape($diagramScrollClass.TrimStart("."))) {
+                if ($module.Path -eq $diagramModule) { $diagramRegionSeen = $true }
+            }
+
+            # A comment naming the element is not an element. AppHeader's own
+            # doc comment says the brand mark is drawn in CSS rather than as an
+            # inline <svg>, and a scan that could not tell those apart would
+            # report a drawing where there is a sentence about not having one.
+            $code = $line.Trim()
+            if ($code.StartsWith("*") -or $code.StartsWith("//") -or $code.StartsWith("/*")) { continue }
+
+            # `$` as well as whitespace: a multi-line JSX element puts nothing
+            # after the tag name on its own line, and a pattern that required a
+            # following character would miss exactly the elements worth finding.
+            if ($line -notmatch '<svg(\s|>|$)') { continue }
+
+            if ($module.Path -eq $diagramModule) {
+                $diagramSvgSeen = $true
+                continue
+            }
+
+            $failures.Add(("An svg element outside the diagram module at " +
+                "$($module.Path):${lineNumber}: $($line.Trim()). The " +
+                "configured diagram renders through $diagramModule, which " +
+                "supplies the region that owns its overflow. A drawing " +
+                "anywhere else has nothing between it and the document.")) | Out-Null
+        }
+    }
+
+    if (-not $diagramSvgSeen) {
+        $failures.Add(("$diagramModule renders no svg element, so the " +
+            "one-diagram-pattern check is vacuous. Update the check, do not " +
+            "delete it.")) | Out-Null
+    }
+
+    if (-not $diagramRegionSeen) {
+        $failures.Add(("$diagramModule does not render " +
+            "$diagramScrollClass, so the drawing it renders has no region " +
+            "that owns its overflow. The CSS rule above would then be a rule " +
+            "for a class nothing uses.")) | Out-Null
     }
 
     return $failures

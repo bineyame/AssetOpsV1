@@ -27,8 +27,10 @@ import type {
 } from "./siteViewModel";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
+import { SiteSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { useSiteRecord } from "./useSiteRecord";
 import {
+  FOUNDATION_DEVICE_METADATA_LIMITS,
   deriveSiteConfigurationView,
   type SiteComponentView,
   type SiteUnavailableFact,
@@ -76,9 +78,12 @@ import {
  *   wrongly: no configuration-change model exists, and the eventual shape of
  *   that territory is an auditable intervention record, which is a different
  *   thing.
- * - No single line diagram, no empty frame reserved for one, and no signal
- *   selector. The configured diagram is a later causal step, and a hole in the
- *   layout labelled for it would claim a step that has not landed.
+ * - No signal selector. Signals are declared and listed, and a control that
+ *   picks one belongs to the slice that has something to show for the signal a
+ *   reader picked. The configured diagram itself now renders, inside the
+ *   Topology section: T016 is the causal step that earns it, and it draws only
+ *   what `deriveSiteSldView` validated against the archetype - never a partial
+ *   arrangement and never an empty frame.
  * - No telemetry, chart, series, gauge, count, source health, or analytics. A
  *   configuration-only site has no evidence, and a zero is a measurement claim
  *   rather than an absence.
@@ -310,6 +315,20 @@ export function SiteConfigurationFacts({
           * subtab row uses, rather than repeated under two subsection
           * headings that would both give the same reason.
           */}
+        {/*
+          * The diagram comes first inside Topology, above the tables that say
+          * the same thing in rows. It is the same facts in two forms and the
+          * drawing is the one a reader looks at first; putting it under six
+          * tables would make the section read as though the tables were the
+          * subject and the diagram an afterthought.
+          *
+          * It is a subsection and not a panel of its own. T013's rule is that
+          * no unlinked panel may sit between the sections the Foundation row
+          * names, and a panel headed for the diagram between Topology and
+          * Controls would make the row misleading about where Topology ends.
+          */}
+        <SiteSingleLineDiagram site={site} />
+
         {view.topologyNodes.status === "not_declared" ? (
           <FactList>
             <SiteConfigurationStatedAbsence
@@ -326,6 +345,16 @@ export function SiteConfigurationFacts({
 
         <SiteFoundationDevices section={view.devices} />
         <SiteSignalMappings section={view.signalMappings} />
+
+        {/*
+          * Two device facts this build does not hold, stated once rather than
+          * given a column each. `.ai/FEATURE_MAP.md` lists protocol metadata
+          * and sample cadence as prerequisites of this feature area; T014's
+          * schema carries neither, and the parser refuses a document that
+          * declares one. A column of dashes would say the product looked for a
+          * protocol and found none, which is a claim about the device.
+          */}
+        <p className="note">{FOUNDATION_DEVICE_METADATA_LIMITS}</p>
       </Panel>
 
       <Panel
@@ -640,11 +669,19 @@ export function SiteSignalMappings({
       headingId="foundation-signal-mappings-heading"
       section={section}
       caption="Which component each declared device signal describes. Every row is a declaration in this site's foundation: none is inferred from a name, a type, or a position in the topology."
-      columns={["Signal", "Unit", "Reported by", "Describes", "Mapping ID"]}
+      columns={[
+        "Signal",
+        "Signal ID",
+        "Unit",
+        "Reported by",
+        "Describes",
+        "Mapping ID",
+      ]}
       row={(mapping) => ({
         key: mapping.mappingId,
         cells: [
           mapping.signalName,
+          mapping.signalId,
           mapping.unit,
           mapping.deviceName,
           mapping.describes,

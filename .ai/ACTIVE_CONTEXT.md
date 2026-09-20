@@ -18,85 +18,78 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T015 closed out 2026-09-20.
+No active task. T016 closed out 2026-09-20, and **M1A is complete.**
 
-The SLD view model turns a validated Foundation into either a compatible
-hybrid mini-grid diagram view or an explicit unavailable result with a stable
-reason. It renders nothing, and nothing outside tests imports it until T016 -
-which is why the production bundle is unchanged from `main`.
+Every planned task T001-T016 is in `tasks/completed/` with its Review Outcome.
+`tasks/` is empty. No M1B task exists, and none should be created without
+planning.
 
-Two reviews: accept with two findings fixed, then accept with none. Both
-findings were the family this project keeps meeting, and the count is now five.
-The full list and the three habits that fall out of it are in
-`.ai/CODE_STATE.md` under T015. The short version:
+T016 drew the configured Single Line Diagram inside Foundation and carried the
+M1A user-review checkpoint. Independent review: accept, no findings - the first
+clean first-pass review since T011. User review: accepted as built.
 
-- **Assume a new guard is dead until a violation makes it speak**, and read
-  which guard answered, not only that something failed.
-- **When a claim is enforced by a type, test the type**, not only the values.
-- **An escape that can become a control character is worth printing once.**
+### The checkpoint settled one question and not the other
 
-A sweep across TypeScript, PowerShell, Node and Python found no other live
-instance.
+**Cold-room symbol treatment: accepted as proposed.** A declared cold room draws
+in the lane its topology role puts it in, with its own shape. It is still marked
+`Proposed treatment` on screen, and `SldCandidateTreatment.settled` is still the
+literal `false`. Removing that marker is a visible product change and should be
+its own commit.
 
-How it was built is worth remembering: the Implementer agent stalled before
-committing, before running any check and before writing a packet. Its work was
-committed verbatim and unreviewed so it could not be lost, then verified and
-extended from the outside. If an agent stalls, check the branch before assuming
-nothing survived.
+**Breaker and control vocabulary: still open.** It was presented with candidates
+the project had considered and not chosen, and no proposal - so accepting the
+screen chose nothing. It stays banned everywhere outside the review block, and
+T014's `frozenset` scan keeps it out of schema names.
 
-Backend `441 passed`, frontend 20 test files, both guards, typecheck and build
-clean.
+Nothing in M1A draws a breaker, so nothing was blocked. **The first slice that
+renders or stores a breaker state needs the answer first, and it should come
+back to the user rather than choosing quietly.**
 
-Next: T016, the configured SLD and device/signal presentation. It renders what
-T015 produces, and **it carries the user-review checkpoint** that settles the
-two vocabularies T014 and T015 both deliberately left open - whether a breaker
-is a device or component state, and how cold-room symbols relate to mini-grid
-topology.
+### State
 
-T005 to T015 are complete, in `tasks/completed/` with their Review Outcomes.
+Backend `441 passed`, frontend `629 passed` across 20 files, both guards,
+typecheck and build clean at 240.35 kB. `tools/layout-evidence.mjs` reports all
+claims holding at 1280, 1000 and 640 wide.
+
+`var/sites/` holds `mg-001` plus `mg-002` (declares a cold room) and `mg-003`
+(two AC buses), added for the checkpoint. They are gitignored local data: delete
+them or keep them as fixtures for the next slice needing either shape.
+
+### Two questions left for an Architect, both raised and neither answered
+
+- Whether layout evidence should become a standing check. `layout-evidence.mjs`
+  is deliberately not in `tools/check-architecture.ps1`: that runner must run
+  anywhere and this needs a browser and two servers.
+- Whether a guard should enforce that a merged slice's task file says complete.
+  T011B and T011C sat at `in_review` on `main` until the user noticed; nothing
+  ties a task's status to whether its branch is merged.
 
 ## Current Site Foundation Sequence
 
-Reworked Site Foundation tasks are T005-T013; T014 opens step 4.
+**Every planned task is complete.** T001-T016, including T010A and T011A-T011C,
+are in `tasks/completed/`, each with its Review Outcome. The per-slice record of
+what each settled is in `.ai/CODE_STATE.md`; this file deliberately no longer
+carries one line per slice, which is what pushed it over its cap.
 
-- T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
-- T006: create a Site from a template; first user-review checkpoint. Complete.
-- T007: Site Details by `site_id`. Complete.
-- T008: read-only Site Configuration; second user-review checkpoint. Complete.
-- T009: shared visual vocabulary. Complete.
-- T010A: the fetch seam, split out of T010. Complete.
-- T010: Lab template and create surfaces to mockup quality. Complete.
-- T011: Sites index to canonical screen one. Complete.
-- T011A: Foundation naming and the operator Site tab row. Complete; user
-  review deferred to the pass after T011B.
-- T011B: shell and dense content overflow containment. Complete; its browser
-  evidence is measured by `tools/layout-evidence.mjs`.
-- T011C: Site tab row treatment, from T011A's user review. Complete.
-- T012: Site Details to canonical screen two. Complete.
-- T013: Foundation to canonical screen three. Complete.
-- T014: Foundation topology, devices and signal mappings. In review.
-- T012-T013: staged visual fidelity, against the tab row and the name T011A
-  settled, and under the viewport commitment.
-
-The second checkpoint is closed. Causal Sequencing step 4 has begun: T014
-carries topology, devices and signal mappings in the canonical Foundation. The
-configured single-line diagram is still not built - T015 owns its view model and
-T016 renders it - and no slice before T016 may render the diagram, an empty
-frame for it, or its signal selector.
+Causal Sequencing steps 3 and 4 are complete in code. The configured diagram
+renders inside one named section of Foundation; everywhere else on the surface
+the diagram vocabulary is still banned, and the signal selector is still absent,
+because there is nothing to show for the signal a reader would have picked.
 
 ## Read For The Next Slice
 
-T015 is the hybrid mini-grid SLD view model. It renders nothing: it turns the
-Foundation topology T014 persists into a view model that T016's diagram reads.
-That separation is the point - a view model with no renderer can be tested
-against records without a screen to argue about.
+Nothing is planned beyond T016. M1B, Scenario Catalog And Run Setup, is not
+planned or started until this checkpoint is accepted or redirected, and the
+user may reorder, split or remove what follows.
 
-- `tasks/T015-hybrid-mini-grid-sld-view-model.md`
-- `.ai/CODE_STATE.md`, the T013 and T014 entries. T014 settles the schema this
-  reads, and the rule that every cardinality cap must be reachable.
+For reviewing T016:
+
+- `tasks/T016-foundation-sld-and-device-signal-presentation.md`
+- `.agent/T016-review-packet.md`, whose `Absence Assertions Changed` section
+  names every ban that moved and what it says now.
+- `.ai/CODE_STATE.md`, the T014, T015 and T016 entries.
 - `.ai/FEATURE_MAP.md`, `### 2. Topology, Components, Devices, And Single Line
-  Diagram`, and `## Canonical Screen Fidelity` for the rule that no diagram,
-  frame or signal selector renders until T016.
+  Diagram` and `### Viewport and overflow commitment`.
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-13-shared-site-substrate`
   - `D-2026-09-13-canonical-fidelity`
@@ -162,18 +155,25 @@ specs are acceptable only when they protect dangerous firsts.
 
 ## Inherited M1 Step 3 Exclusions
 
-Tasks T005-T014 inherit these exclusions unless a later reviewed task explicitly
-changes them. T014 is the one deliberate change so far: the Foundation schema
-now carries topology, devices, signal mappings and control assumptions, which
-the "no Devices & Sensors screen" exclusion below never covered - what it
-forbids is a device-management surface, and none exists.
+Tasks T005-T016 inherit these exclusions unless a later reviewed task explicitly
+changes them. Two deliberate changes so far. T014: the Foundation schema now
+carries topology, devices, signal mappings and control assumptions, which the
+"no Devices & Sensors screen" exclusion below never covered - what it forbids is
+a device-management surface, and none exists. T016: the Single Line Diagram, its
+view model and the diagram region are built, which is what causal step 4 is for.
+Everything else in that exclusion still holds - no empty diagram frame, no
+signal selector, no topology auto-layout, no Devices & Sensors screen and no
+device-management surface - and the bans are narrowed to the rest of the
+surface rather than removed.
 
 - No in-place Site/Foundation editing, Save/Publish over an existing Site,
   rename, duplicate, delete, configuration history, rollback, approval flow, or
   disabled placeholder for those capabilities.
 - No user-facing removal flow.
-- No Single Line Diagram, empty diagram frame, signal selector, SLD view model,
-  topology auto-layout, Devices & Sensors screen, or device-management surface.
+- No empty diagram frame, signal selector, topology auto-layout, drag/drop or
+  diagram editing, Devices & Sensors screen, or device-management surface. The
+  Single Line Diagram and its view model are built, by T015 and T016; the rest
+  of this line is unchanged.
 - No scenarios, run setup, simulator execution, gateway staging, ingestion,
   source envelopes, evidence records, source health, charts, analytics, Replay,
   or Findings.

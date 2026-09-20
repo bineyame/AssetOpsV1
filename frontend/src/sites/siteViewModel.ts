@@ -88,7 +88,14 @@ export const NO_TEMPLATE_PROVENANCE = "Not created from a template";
  */
 export const NO_ANALYSIS_IN_WINDOW = "--";
 
-function label(value: string, labels: Record<string, string>): string {
+/**
+ * A canonical value rendered in the words a reader sees, or the value itself.
+ *
+ * Exported because the diagram and the tables must spell a role and a medium
+ * the same way. Two label maps for one vocabulary is how a screen comes to
+ * call the same thing two things.
+ */
+export function label(value: string, labels: Record<string, string>): string {
   return labels[value] ?? value;
 }
 
@@ -230,7 +237,7 @@ export interface SiteComponentView {
  */
 export const NO_RATING_DECLARED = "No rating declared";
 
-const COMPONENT_TYPE_LABELS: Record<string, string> = {
+export const COMPONENT_TYPE_LABELS: Record<string, string> = {
   PV_ARRAY: "PV array",
   INVERTER: "Inverter",
   BATTERY: "Battery",
@@ -319,6 +326,24 @@ export const SIGNAL_MAPPINGS_NOT_DECLARED: SiteUnavailableFact = {
     "device name, a component type, or a position in the topology, so where " +
     "a document declares none, none is stated.",
 };
+
+/**
+ * The two device facts a foundation in this build cannot carry.
+ *
+ * `.ai/FEATURE_MAP.md` names protocol metadata and sample cadence as
+ * prerequisites of the topology and device feature area, and T014's schema
+ * declares neither: the parser refuses a device that carries a protocol key
+ * and refuses a signal that carries a cadence. So this is a statement about
+ * what a document in this build can say, made once in words, rather than a
+ * column of dashes - which would say the product looked at this device and
+ * found no protocol, a claim about the device instead of about the schema.
+ */
+export const FOUNDATION_DEVICE_METADATA_LIMITS =
+  "A foundation in this build declares a device's identity, its type, the " +
+  "component it is attached to, and the signals it can report. It carries no " +
+  "protocol label and no sampling interval for any device, so neither is " +
+  "stated here for any of them. That is a limit of the configuration " +
+  "document, not something looked for and missing on these devices.";
 
 export const CONTROL_ASSUMPTIONS_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
@@ -420,6 +445,7 @@ export interface FoundationDeviceView {
  */
 export interface SignalMappingView {
   mappingId: string;
+  signalId: string;
   signalName: string;
   deviceName: string;
   describes: string;
@@ -468,7 +494,7 @@ export interface SiteConfigurationView extends SiteDetailView {
 }
 
 /** What a topology node's role is called on screen. */
-const TOPOLOGY_NODE_ROLE_LABELS: Record<string, string> = {
+export const TOPOLOGY_NODE_ROLE_LABELS: Record<string, string> = {
   GENERATION: "Generation",
   CONVERSION: "Conversion",
   STORAGE: "Storage",
@@ -479,7 +505,7 @@ const TOPOLOGY_NODE_ROLE_LABELS: Record<string, string> = {
 };
 
 /** What a connection carries, as the document declares it. */
-const CONNECTION_MEDIUM_LABELS: Record<string, string> = {
+export const CONNECTION_MEDIUM_LABELS: Record<string, string> = {
   AC: "AC",
   DC: "DC",
   FUEL: "Fuel",
@@ -680,6 +706,10 @@ export function deriveSignalMappings(
       const signal = signals[`${mapping.device_id}/${mapping.signal_id}`];
       return {
         mappingId: mapping.mapping_id,
+        // The mapping's own signal identity, not the device's display name for
+        // it. A signal id is unique within its device only, so the row carries
+        // both: the id the document binds by and the device that declares it.
+        signalId: mapping.signal_id,
         signalName: signal?.displayName ?? mapping.signal_id,
         deviceName: deviceNames[mapping.device_id] ?? mapping.device_id,
         describes:

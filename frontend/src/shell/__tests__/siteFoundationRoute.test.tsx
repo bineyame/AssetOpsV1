@@ -12,6 +12,7 @@ import type {
   SiteDetailReadModel,
   SiteSummary,
 } from "../../sites/siteReadModel";
+import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 
@@ -73,6 +74,23 @@ const SITE_DETAIL: SiteDetailReadModel = {
 };
 
 /**
+ * A second record at a second address, whose topology the archetype can draw.
+ *
+ * `SITE_DETAIL` declares no topology, so before T016 the gate-identity check
+ * below compared two screens with no diagram on either. That is the shape of
+ * assertion this project keeps finding dead: it would have passed just as
+ * readily on a build whose diagram read the feature flag.
+ *
+ * It is served by the detail client only and is deliberately not in the
+ * directory, because what the Sites index lists is a different claim and other
+ * tests in this tree make it.
+ */
+const DRAWABLE_SITE_DETAIL: SiteDetailReadModel = {
+  ...HYBRID_MINI_GRID_SITE,
+  site_id: "MG-003",
+};
+
+/**
  * Operator navigation as T004 left it.
  *
  * Both parameterless site destinations are in this list, and both have since
@@ -123,7 +141,7 @@ function renderAt(path: string, flags: FeatureFlags = DISABLED) {
       <App
         flags={flags}
         siteDirectory={directoryWith([SITE])}
-        siteDetail={detailClientFor([SITE_DETAIL])}
+        siteDetail={detailClientFor([SITE_DETAIL, DRAWABLE_SITE_DETAIL])}
       />
     </MemoryRouter>,
   );
@@ -231,17 +249,32 @@ describe("the Foundation surface is an operator capability and is never gated", 
     ).toBeInTheDocument();
   });
 
-  it("renders identically in both gate states", async () => {
-    const closed = renderAt("/sites/MG-002/foundation", DISABLED);
-    await settledScreen(closed.container);
-    const closedMarkup = closed.container.querySelector("main")?.innerHTML;
-    closed.unmount();
+  it.each([
+    ["a foundation with no topology", "MG-002", 0],
+    ["a foundation the archetype draws", "MG-003", 9],
+  ])(
+    "renders %s identically in both gate states",
+    async (_name, siteId, drawnNodes) => {
+      const closed = renderAt(`/sites/${siteId}/foundation`, DISABLED);
+      await settledScreen(closed.container);
+      const closedMain = closed.container.querySelector("main") as HTMLElement;
+      const closedMarkup = closedMain.innerHTML;
 
-    const open = renderAt("/sites/MG-002/foundation", ENABLED);
-    await settledScreen(open.container);
+      // The anti-vacuity half. Two identical screens with no diagram on either
+      // would satisfy this assertion on a build whose diagram read the gate,
+      // so the case that matters is the one with a drawing in it - and this
+      // says which case each run is.
+      expect(closedMain.querySelectorAll("[data-sld-node]")).toHaveLength(
+        drawnNodes,
+      );
+      closed.unmount();
 
-    expect(open.container.querySelector("main")?.innerHTML).toBe(closedMarkup);
-  });
+      const open = renderAt(`/sites/${siteId}/foundation`, ENABLED);
+      await settledScreen(open.container);
+
+      expect(open.container.querySelector("main")?.innerHTML).toBe(closedMarkup);
+    },
+  );
 
   it.each([
     ["closed", DISABLED],

@@ -718,7 +718,13 @@ describe("unsupported topology is explicit", () => {
     );
     expect(refusal(unknownMediumSite).reason.detail).toContain("HYDRAULIC");
     expect(refusal(danglingComponentSite).reason.detail).toContain("c-fuel");
-    expect(refusal(twoBusSite).reason.detail).toContain("2");
+    // Both buses, by identity. This was a count until T016 had to render the
+    // detail on a screen that allows no digit the record did not supply;
+    // naming the nodes is strictly more than counting them, and a reader can
+    // act on it.
+    expect(refusal(twoBusSite).reason.detail).toContain("n-bus");
+    expect(refusal(twoBusSite).reason.detail).toContain("n-bus-b");
+    expect(refusal(twoBusSite).reason.detail).not.toMatch(/\d/);
   });
 
   it("refuses a second bus rather than drawing one of them", () => {

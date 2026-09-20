@@ -666,9 +666,17 @@ export function deriveSiteSldView(site: SiteDetailReadModel): SiteSldView {
 
   const buses = topology.nodes.filter((node) => node.node_role === "BUS");
   if (buses.length !== 1) {
+    // Named, not counted. T016 renders this detail on a screen whose standing
+    // rule is that no digit appears that the record did not supply, and a
+    // count is a number this module authored rather than one the document
+    // states. Naming the nodes is also what a reader can act on: `2` says
+    // there is a problem, `n-bus-a, n-bus-b` says where it is.
     return unavailable(
       "BUS_CARDINALITY_UNSUPPORTED",
-      `The topology declares ${buses.length} nodes in the BUS role.`,
+      buses.length === 0
+        ? "The topology declares no node in the BUS role."
+        : "The topology declares more than one node in the BUS role: " +
+          `${buses.map((node) => node.node_id).join(", ")}.`,
     );
   }
 

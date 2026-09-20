@@ -34,3 +34,42 @@ export function spacedText(container: HTMLElement): string {
 
   return parts.join(" ");
 }
+
+/**
+ * A copy of a container with one named region's subtree removed.
+ *
+ * For a ban that used to hold over a whole screen and now holds everywhere
+ * except one region that earned an exception. T016 is the first slice with
+ * any: the configured diagram renders, so `diagram` is a word the screen is
+ * finally allowed to say, and the control vocabulary is a thing the review
+ * checkpoint has to be able to ask about. Neither exception may leak: outside
+ * those regions both bans hold exactly as they did.
+ *
+ * It throws when the selector matches nothing, and that is the important part.
+ * A narrowing helper that silently found no region would assert over the whole
+ * screen while the test's name claimed a narrower scope - and on a screen that
+ * had lost the region, the ban it was narrowed for would pass for the wrong
+ * reason. This is the shape of failure this project has shipped five times,
+ * and it is cheap to close here.
+ */
+export function withoutRegion(
+  container: HTMLElement,
+  selector: string,
+): HTMLElement {
+  const clone = container.cloneNode(true) as HTMLElement;
+  const regions = Array.from(clone.querySelectorAll(selector));
+
+  if (regions.length === 0) {
+    throw new Error(
+      `withoutRegion found nothing matching ${selector}. The exception it ` +
+        "carves out is not on this screen, so an assertion made against the " +
+        "result would be about the whole screen while claiming to be about " +
+        "everything outside one region.",
+    );
+  }
+
+  for (const region of regions) {
+    region.remove();
+  }
+  return clone;
+}

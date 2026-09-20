@@ -131,9 +131,39 @@ const MEASURE = `(() => {
       focusable: region.getAttribute("tabindex") === "0",
     };
   });
+  // The configured diagram is the second piece of dense content with an
+  // intrinsic width, and it is not a table, so the region scan above cannot
+  // see it. Measured here and scrolled to its end before the rail is read
+  // again, so the rail claim below covers the drawing as well as the tables.
+  const diagrams = Array.from(document.querySelectorAll(".sld__scroll")).map(
+    (region) => {
+      const svg = region.querySelector("svg");
+      const overflows = region.scrollWidth > region.clientWidth;
+      region.scrollLeft = 99999;
+      return {
+        name: region.getAttribute("aria-labelledby"),
+        overflows,
+        scrolledBy: Math.round(region.scrollLeft),
+        focusable: region.getAttribute("tabindex") === "0",
+        nodes: svg ? svg.querySelectorAll("[data-sld-node]").length : 0,
+        connections: svg ? svg.querySelectorAll("[data-sld-connection]").length : 0,
+        named:
+          svg !== null &&
+          svg.getAttribute("role") === "img" &&
+          (svg.getAttribute("aria-labelledby") || "").length > 0,
+      };
+    },
+  );
+  const diagramRefusals = document.querySelectorAll("[data-sld-unavailable]").length;
+  const slots = Array.from(document.querySelectorAll(".sld-node__slot")).map((slot) =>
+    (slot.textContent || "").trim(),
+  );
   const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
     scrollers,
+    diagrams,
+    diagramRefusals,
+    slots,
     railLeftAfterAll,
     pageScrollsHorizontally: doc.scrollWidth > doc.clientWidth,
     pageScrollWidth: doc.scrollWidth,
@@ -357,6 +387,13 @@ for (const [label, width, height] of [
               foundation.scrollers.some((s) => s.overflows),
               `${foundation.scrollers.filter((s) => s.overflows).length} of ${foundation.scrollers.length} overflow`,
             ],
+            [
+              "the diagram overflows here too, so its scroll claim is not vacuous",
+              foundation.diagrams.some((d) => d.overflows),
+              foundation.diagrams
+                .map((d) => (d.overflows ? "overflows" : "fits"))
+                .join("; "),
+            ],
           ]
         : []),
       [
@@ -365,6 +402,53 @@ for (const [label, width, height] of [
         foundation.scrollers
           .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
           .join("; "),
+      ],
+      // T016 draws the configured diagram here. It has an intrinsic width the
+      // content column does not have, so it is the one piece of content on
+      // this page most able to push the rail sideways - and jsdom cannot see
+      // any of that.
+      [
+        "the configured diagram is drawn, with nodes and connections",
+        foundation.diagrams.length === 1 &&
+          foundation.diagrams[0].nodes > 0 &&
+          foundation.diagrams[0].connections > 0,
+        foundation.diagrams
+          .map((d) => `${d.nodes} nodes, ${d.connections} connections`)
+          .join("; ") || "no diagram region",
+      ],
+      [
+        "the drawing sits in a named, focusable region and carries a name",
+        foundation.diagrams.every((d) => d.focusable && d.name && d.named),
+        foundation.diagrams
+          .map(
+            (d) =>
+              `${d.name ?? "unnamed"}: focusable ${d.focusable}, labelled ${d.named}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the diagram scrolls inside its own region when it overflows",
+        foundation.diagrams
+          .filter((d) => d.overflows)
+          .every((d) => d.scrolledBy > 0),
+        foundation.diagrams
+          .map((d) =>
+            d.overflows ? `overflows, scrolled ${d.scrolledBy}px` : "fits",
+          )
+          .join("; "),
+      ],
+      [
+        "every drawn node carries an empty slot and nothing else",
+        foundation.slots.length === (foundation.diagrams[0]?.nodes ?? -1) &&
+          foundation.slots.every((slot) => slot === "Awaiting runtime/evidence"),
+        `${foundation.slots.length} slots: ${[...new Set(foundation.slots)].join(" | ")}`,
+      ],
+      [
+        "a drawn diagram and a refusal are never both on the page",
+        (foundation.diagrams[0]?.nodes ?? 0) > 0
+          ? foundation.diagramRefusals === 0
+          : foundation.diagramRefusals === 1,
+        `${foundation.diagrams[0]?.nodes ?? 0} nodes, ${foundation.diagramRefusals} refusals`,
       ],
     ]) && allPass;
 }
