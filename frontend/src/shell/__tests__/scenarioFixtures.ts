@@ -231,29 +231,31 @@ function parameterValue(parameter: ScenarioParameter): string {
  * here that contains a digit must actually appear on the screen.
  */
 export function recordRenderedStrings(
+  detail: ScenarioDetail = SCENARIO_DETAIL,
   resolution: ScenarioTargetResolution = RESOLVED_TARGET,
+  expectations: ScenarioPrivateExpectation[] = PRIVATE_EXPECTATIONS,
 ): string[] {
   const rendered: string[] = [
-    SCENARIO_DETAIL.display_name,
-    SCENARIO_DETAIL.origin,
-    SCENARIO_DETAIL.purpose,
-    SCENARIO_DETAIL.scenario_id,
-    String(SCENARIO_DETAIL.version.scenario_version),
-    SCENARIO_DETAIL.version.version_valid_from,
-    SCENARIO_DETAIL.target_site.policy,
-    SCENARIO_DETAIL.target_site.requirement,
+    detail.display_name,
+    detail.origin,
+    detail.purpose,
+    detail.scenario_id,
+    String(detail.version.scenario_version),
+    detail.version.version_valid_from,
+    detail.target_site.policy,
+    detail.target_site.requirement,
     resolution.reason,
   ];
 
   rendered.push(
-    SCENARIO_DETAIL.version.supersedes === null
+    detail.version.supersedes === null
       ? "No earlier version"
-      : String(SCENARIO_DETAIL.version.supersedes),
+      : String(detail.version.supersedes),
   );
-  rendered.push(SCENARIO_DETAIL.target_site.site_id ?? "None declared");
-  rendered.push(SCENARIO_DETAIL.target_site.template_id ?? "None declared");
+  rendered.push(detail.target_site.site_id ?? "None declared");
+  rendered.push(detail.target_site.template_id ?? "None declared");
 
-  for (const parameter of SCENARIO_DETAIL.public_parameters) {
+  for (const parameter of detail.public_parameters) {
     rendered.push(
       parameter.display_name,
       parameterValue(parameter),
@@ -261,7 +263,7 @@ export function recordRenderedStrings(
     );
   }
 
-  for (const entry of SCENARIO_DETAIL.timeline) {
+  for (const entry of detail.timeline) {
     rendered.push(
       String(entry.sequence),
       String(entry.offset_minutes),
@@ -275,7 +277,7 @@ export function recordRenderedStrings(
     }
   }
 
-  for (const expectation of PRIVATE_EXPECTATIONS) {
+  for (const expectation of expectations) {
     rendered.push(
       expectation.display_name,
       expectation.oracle_kind,
@@ -285,3 +287,31 @@ export function recordRenderedStrings(
 
   return rendered;
 }
+
+/**
+ * The same screen, on a record that takes every authored fallback branch.
+ *
+ * Without this the fallbacks are dead code in every test. Proving the digit
+ * rule on the loaded record only was not enough: a deliberate digit inserted
+ * into the "No earlier version" fallback PASSED, because this fixture's
+ * `supersedes` is set and that branch never rendered. Authored text that no
+ * test renders is authored text no assertion covers.
+ *
+ * It carries no digit anywhere, on purpose. The screen's own fallbacks must
+ * not introduce one, and the digit assertion over this record is what says so.
+ */
+export const SCENARIO_DETAIL_FALLBACKS: ScenarioDetail = {
+  ...SCENARIO_DETAIL,
+  version: {
+    scenario_version: SCENARIO_DETAIL.version.scenario_version,
+    version_valid_from: SCENARIO_DETAIL.version.version_valid_from,
+    supersedes: null,
+  },
+  target_site: {
+    policy: "TEMPLATE_DERIVED",
+    site_id: null,
+    template_id: "hybrid-mini-grid",
+    requirement: "A site built from the hybrid mini-grid archetype.",
+  },
+  public_parameters: [],
+};

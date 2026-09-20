@@ -14,6 +14,7 @@ import {
 } from "../ScenarioFrame";
 import type {
   ScenarioCatalogClient,
+  ScenarioDetail,
   ScenarioDetailResult,
   ScenarioListResult,
   ScenarioTargetResolution,
@@ -24,6 +25,7 @@ import {
   RESOLVED_TARGET,
   SCENARIO_DETAIL,
   SCENARIO_SUMMARY,
+  SCENARIO_DETAIL_FALLBACKS,
   UNAVAILABLE_TARGET,
   UNCONFIGURED_TARGET,
   recordRenderedStrings,
@@ -60,12 +62,14 @@ function catalogOf(
 
 function loadedDetail(
   targetResolution: ScenarioTargetResolution = RESOLVED_TARGET,
+  scenario: ScenarioDetail = SCENARIO_DETAIL,
+  privateExpectations = PRIVATE_EXPECTATIONS,
 ): ScenarioDetailResult {
   return {
     status: "loaded",
-    scenario: SCENARIO_DETAIL,
+    scenario,
     targetResolution,
-    privateExpectations: PRIVATE_EXPECTATIONS,
+    privateExpectations,
   };
 }
 
@@ -347,7 +351,9 @@ describe("the scenario detail screen states no product conclusion", () => {
     // The checkable claim is at leaf level. Every text node is either exactly
     // a string the record supplies, or it carries no digit at all.
     const main = screen.getByRole("main");
-    const expected = new Set(recordRenderedStrings(RESOLVED_TARGET));
+    const expected = new Set(
+      recordRenderedStrings(SCENARIO_DETAIL, RESOLVED_TARGET),
+    );
     const leaves = textNodes(main);
     const withDigits = leaves.filter((leaf) => /\d/.test(leaf));
 
@@ -370,6 +376,42 @@ describe("the scenario detail screen states no product conclusion", () => {
     expect(expectedWithDigits.length).toBeGreaterThan(15);
     for (const value of expectedWithDigits) {
       expect(rendered).toContain(value);
+    }
+  });
+
+  it("renders no digit in the authored fallbacks either", async () => {
+    // The loaded record takes none of the fallback branches - it has a
+    // superseded version, a declared site, parameters on most rows - so the
+    // strings the screen falls back to are dead code in the test above. That
+    // was proved: a deliberate digit inserted into "No earlier version" passed,
+    // because that branch never rendered.
+    //
+    // This record takes those branches. It carries no digit of its own, so
+    // every digit-bearing leaf here would be one the screen invented.
+    renderAt(
+      SCENARIO_URL,
+      ENABLED,
+      catalogOf(loadedDetail(NOT_APPLICABLE_TARGET, SCENARIO_DETAIL_FALLBACKS, [])),
+    );
+    await settledScreen();
+
+    const main = screen.getByRole("main");
+    const expected = new Set(
+      recordRenderedStrings(SCENARIO_DETAIL_FALLBACKS, NOT_APPLICABLE_TARGET, []),
+    );
+    const leaves = textNodes(main);
+
+    // The fallbacks really are on screen, so this is not a test of a record
+    // that renders the same branches as the one above.
+    expect(leaves).toContain("No earlier version");
+    expect(leaves).toContain("None declared");
+    expect(leaves).toContain(
+      "This scenario declares no scenario-level parameter.",
+    );
+    expect(leaves).toContain("This scenario declares no expectation.");
+
+    for (const leaf of leaves.filter((value) => /\d/.test(value))) {
+      expect(expected).toContain(leaf);
     }
   });
 });
