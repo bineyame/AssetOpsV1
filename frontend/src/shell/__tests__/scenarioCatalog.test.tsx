@@ -343,6 +343,37 @@ describe("the scenario detail screen states no product conclusion", () => {
       expect(supplied).toContain(run);
     }
   });
+
+  it("puts no digit in prose at all, only in the places a record fills", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    // The assertion above is necessary and not sufficient. It compares digit
+    // RUNS against the set the record supplies, so an invented small number -
+    // "all 7 categories" - is indistinguishable from a sequence number the
+    // record really has, and it passes. That was verified by introducing
+    // exactly that sentence and watching it pass.
+    //
+    // This is the claim that holds: the only digits on the screen are inside
+    // the three containers a record fills. Prose has none, so an invented
+    // count in a sentence has nowhere to hide.
+    const prose = screen.getByRole("main").cloneNode(true) as HTMLElement;
+
+    for (const selector of [
+      ".data-table__scroll",
+      ".fact-list__value",
+      ".action-list__reason",
+    ]) {
+      const filled = prose.querySelectorAll(selector);
+      // Each container must actually be present, or removing it would carve
+      // out nothing and this would silently become an assertion about a
+      // screen that had lost the region.
+      expect(filled.length).toBeGreaterThan(0);
+      filled.forEach((node) => node.remove());
+    }
+
+    expect(spacedText(prose)).not.toMatch(/\d/);
+  });
 });
 
 describe("the scenario detail screen's next-step controls", () => {
