@@ -30,12 +30,22 @@ Case. Identity is compared case-insensitively, so `Fuel-Loss-Event` and
 rule on purpose: if the shape refused it, the case-variant conflict the storage
 decision requires could never arise and the rule that detects it would be a
 rule about an empty set.
+
+Vocabulary. A `scenario_id` is an identifier this domain coins and renders as
+the name of a thing, so it is scenario vocabulary and carries the
+breaker/control ban with it. That was found by the T017 review: the scan the
+slice shipped read mapping keys and upper-snake enum values, and a `scenario_id`
+is neither, so `breaker-trip-event` passed everything.
 """
 
 from __future__ import annotations
 
 import re
 
+from assetops_backend.control_vocabulary import (
+    CONTROL_VOCABULARY_RULE,
+    banned_tokens_in,
+)
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
 
 #: Bounds. Long enough for a descriptive scenario name, short enough that an
@@ -91,6 +101,13 @@ def validate_scenario_id(value: object, *, where: str = "scenario_id") -> str:
         raise ScenarioConfigurationInvalid(
             f"{where} {value!r} is a reserved device name and cannot be used "
             f"as a scenario ID. {SCENARIO_ID_RULE}"
+        )
+
+    banned = banned_tokens_in(value)
+    if banned:
+        raise ScenarioConfigurationInvalid(
+            f"{where} {value!r} is built from control-state vocabulary "
+            f"{banned}. {CONTROL_VOCABULARY_RULE}"
         )
 
     return value

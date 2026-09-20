@@ -32,6 +32,28 @@ no Site could ever have. The Site error that rule raises is translated into
 this package's vocabulary at the point of use, so no Site exception escapes
 through the scenario port.
 
+## Identifiers are vocabulary
+
+`scenario_id`, `event_id`, `parameter_id` and `expectation_id` are identifiers
+this domain coins for its own parts, and every one of them is rendered as the
+name of a thing. They are therefore scenario schema vocabulary and carry the
+breaker/control ban: `_require_identifier` refuses one built from a banned
+token, with the same rule text the vocabulary scan uses.
+
+Enforcing it here rather than only in a test matters twice. A user-authored
+document in `var/scenarios/` is never seen by a test and would otherwise put
+`breaker-position` on a screen as a parameter name; and a rule enforced by a
+value cannot be satisfied by a scan that turns out not to reach it, which is
+exactly how the T017 review found this gap.
+
+Two identifier-valued positions are deliberately NOT covered.
+`target_site.site_id` and `target_site.template_id` are references into other
+identity spaces, whose naming this domain does not own. Refusing a token there
+would refuse a legitimately-named Site or template rather than protect scenario
+vocabulary, and a guard that blocks something legitimate is a guard somebody
+relaxes. Free-text fields are not covered either, for the reason stated in
+`assetops_backend/control_vocabulary.py`: prose is English, not schema.
+
 ## Origin is not declared
 
 `origin` is supplied by the store, not read from the document. A user-authored
@@ -47,6 +69,10 @@ from __future__ import annotations
 import re
 from typing import Any, Mapping, NoReturn
 
+from assetops_backend.control_vocabulary import (
+    CONTROL_VOCABULARY_RULE,
+    banned_tokens_in,
+)
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.scenarios.identity import validate_scenario_id
 from assetops_backend.scenarios.models import (
@@ -448,16 +474,9 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
 
     _reject_unknown_keys(raw, TIMELINE_ENTRY_KEYS, where=where, source=source)
 
-    event_id = raw.get("event_id")
-    if (
-        not isinstance(event_id, str)
-        or len(event_id) > MAX_TEMPLATE_ID_LENGTH
-        or not IDENTIFIER_PATTERN.match(event_id)
-    ):
-        raise ScenarioConfigurationInvalid(
-            f"'{where}.event_id' must be lowercase alphanumeric words "
-            f"separated by a hyphen in {source}, got {event_id!r}"
-        )
+    event_id = _require_identifier(
+        raw, "event_id", where=where, source=source
+    )
 
     sequence = raw.get("sequence")
     if type(sequence) is not int or not 1 <= sequence <= MAX_SEQUENCE:
@@ -562,16 +581,9 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
 
     _reject_unknown_keys(raw, PARAMETER_KEYS, where=where, source=source)
 
-    parameter_id = raw.get("parameter_id")
-    if (
-        not isinstance(parameter_id, str)
-        or len(parameter_id) > MAX_TEMPLATE_ID_LENGTH
-        or not IDENTIFIER_PATTERN.match(parameter_id)
-    ):
-        raise ScenarioConfigurationInvalid(
-            f"'{where}.parameter_id' must be lowercase alphanumeric words "
-            f"separated by a hyphen in {source}, got {parameter_id!r}"
-        )
+    parameter_id = _require_identifier(
+        raw, "parameter_id", where=where, source=source
+    )
 
     display_name = _require_free_text(
         raw,
@@ -669,17 +681,9 @@ def _parse_private_expectations(
             private_section=True,
         )
 
-        expectation_id = entry.get("expectation_id")
-        if (
-            not isinstance(expectation_id, str)
-            or len(expectation_id) > MAX_TEMPLATE_ID_LENGTH
-            or not IDENTIFIER_PATTERN.match(expectation_id)
-        ):
-            raise ScenarioConfigurationInvalid(
-                f"'{entry_where}.expectation_id' must be lowercase "
-                f"alphanumeric words separated by a hyphen in {source}, got "
-                f"{expectation_id!r}"
-            )
+        expectation_id = _require_identifier(
+            entry, "expectation_id", where=entry_where, source=source
+        )
         if expectation_id in seen:
             raise ScenarioConfigurationInvalid(
                 f"Duplicate 'expectation_id' {expectation_id!r} in {source}"
@@ -714,6 +718,36 @@ def _parse_private_expectations(
         )
 
     return tuple(parsed)
+
+
+def _require_identifier(
+    mapping: Mapping[str, Any], key: str, *, where: str, source: str
+) -> str:
+    """Validate one identifier this domain coins, shape and vocabulary.
+
+    Two refusals, deliberately separate. The shape refusal is about spelling;
+    the vocabulary refusal is about what the product is allowed to name, and it
+    names the decision so an author meets the reason rather than a rule number.
+    """
+    value = mapping.get(key)
+    if (
+        not isinstance(value, str)
+        or len(value) > MAX_TEMPLATE_ID_LENGTH
+        or not IDENTIFIER_PATTERN.match(value)
+    ):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.{key}' must be lowercase alphanumeric words separated "
+            f"by a hyphen in {source}, got {value!r}"
+        )
+
+    banned = banned_tokens_in(value)
+    if banned:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.{key}' {value!r} is built from control-state vocabulary "
+            f"{banned} in {source}. {CONTROL_VOCABULARY_RULE}"
+        )
+
+    return value
 
 
 def _require_free_text(
