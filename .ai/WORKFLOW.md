@@ -130,11 +130,29 @@ Provide concise evidence:
 - Files materially changed.
 - Acceptance criteria status.
 - Checks run.
+- Layout evidence, when the slice is layout-sensitive.
 - Known deviations.
 - Residual risk.
 - User-review focus.
 
 The review packet is evidence, not implementation history.
+
+A slice is layout-sensitive when it changes shell layout, dense tables,
+intrinsic-width drawings, SVG geometry, tab or subtab treatment, or viewport
+behaviour. Such a slice runs `tools/layout-evidence.mjs` and records the exact
+command, the base URL when non-default, and the final result line. A missing
+precondition is not a pass: when Chrome, the backend or the dev server is
+unavailable, record `layout evidence: not run` with the blocking precondition,
+and the affected layout claim is unverified rather than green. Every new
+measured claim about overflow, visibility or rendered content carries at least
+one measurement proving its set is non-empty.
+
+## Closeout
+
+Before a slice is merged, its Review Outcome is recorded in the task file and
+its status is set to complete, or the task says explicitly what is still open.
+Nothing checks this, so it is the Reviewer's and the user's to hold: T011B and
+T011C reached `main` at `in_review`, and the user noticed rather than a guard.
 
 ## User Review
 

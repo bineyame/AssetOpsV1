@@ -23,6 +23,8 @@ rationale in the dated entries below.
 | `D-2026-09-17-site-foundation-fetch-seam` | 2026-09-17 | The Site Foundation frontend/backend fetch seam needs a focused integration test before expansion. |
 | `D-2026-09-17-client-demo-readiness` | 2026-09-17 | Client demo readiness begins at the Simulated Evidence Loop; business-outcome demo readiness begins at Evidence-Backed Operational Findings. |
 | `D-2026-09-17-foundation-screen-architecture` | 2026-09-17 | The operator Site surface formerly called Site Configuration becomes Foundation, with line-cited Site tabs, filtered Foundation subtabs, route compatibility, and inventory guards. |
+| `D-2026-09-20-layout-evidence-standing` | 2026-09-20 | Browser layout evidence is standing closeout evidence for layout-sensitive slices, kept outside the portable architecture runner. |
+| `D-2026-09-20-no-merged-task-status-guard` | 2026-09-20 | No guard ties a merged slice's task status to branch state; closeout discipline stays manual until the drift recurs. |
 
 ## 2026-09-11
 
@@ -994,3 +996,65 @@ heading and tab labels, operator Site tab row, Foundation subtab row, planned
 T009-T016 task wording and sequencing, navigation truthfulness guard,
 architecture guard messages, frontend tests, shared Site substrate naming
 cleanup, and future Planner rewrites of uncompleted task files.
+
+## 2026-09-20
+
+Decision: `tools/layout-evidence.mjs` becomes standing closeout evidence for
+layout-sensitive slices, owned by the Implementer and checked by the Reviewer
+from the review packet. It stays out of `tools/check-architecture.ps1`.
+
+A slice is layout-sensitive when it changes shell layout, dense tables,
+intrinsic-width drawings, SVG geometry, tab or subtab treatment, or viewport
+behaviour. Such a slice names layout evidence in its checks, and its packet
+carries the exact command, the base URL when non-default, and the final result
+line. A packet that omits it, or records a skipped run as a pass, is a review
+finding.
+
+A missing precondition is not a pass. When Chrome, the backend or the dev
+server is unavailable, the closeout records `layout evidence: not run` with the
+blocking precondition, and the Reviewer treats the affected layout claim as
+unverified.
+
+Every new measured claim about overflow, visibility or rendered content must
+include at least one measurement proving its set is non-empty, generalising the
+640px measurement that exposed T014's dense-table claim passing on an empty
+set.
+
+Reason: the tool has found defects no suite on this project can see - T011B's
+original shell overflow defect, T014's empty-set dense-table claim, and T016's
+connection routed through a component, SVG text leaving its box, and a label
+colliding with the name it marks. That is too much signal to leave ad hoc. But
+it needs a browser, the backend and a dev server, while the architecture runner
+protects seams that must hold anywhere and fails any unwired module. Putting it
+in that runner would either make the portable runner non-portable or introduce
+skips, and a skipped protection that reports success is the exact failure shape
+this project keeps finding.
+
+Affected scope: `.ai/WORKFLOW.md` closeout and review packet, the Implementer
+and Reviewer standing briefs, task checks for layout-sensitive slices, and
+review packets. No change to `tools/check-architecture.ps1` or its manifest.
+
+## 2026-09-20
+
+Decision: no guard is added to tie a merged slice's task status to its branch
+state. Closeout discipline stays manual: before a merge, the Review Outcome is
+recorded and the task status is set to complete or explicitly left open.
+
+Reason: branch state is the wrong authority. Branches are deleted, rebased and
+renamed, and a fast-forward merge leaves none at all, so a guard built on
+`git branch --merged main` would miss normal workflows and overfit the one
+failure already seen. `tasks/` is also empty, so a guard written now would
+assert over no members - the seventh instance of the family this project keeps
+shipping rather than a defence against it. The process-creep rule wants a
+second occurrence or an explicit ask, and the user asked for a recommendation
+rather than for the guard.
+
+If the drift recurs, the shape to build reads task files rather than branches:
+each active task carries a stable id and status, completed work moves to
+`tasks/completed/` with `Status: complete` and a Review Outcome before closeout,
+and a checked-in deliberately-incomplete sample task proves the guard can fail.
+Without that fail-case anchor it would join the dead patterns, the unreachable
+caps and the type contract no runtime test could falsify.
+
+Affected scope: `.ai/WORKFLOW.md` closeout, the Implementer and Reviewer
+standing briefs. No new tool, no change to `tools/check-agent-workflow.ps1`.
