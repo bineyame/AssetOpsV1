@@ -1,6 +1,6 @@
 # T018 - Executable Scenario Contract
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T018-executable-scenario-contract`

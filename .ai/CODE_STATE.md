@@ -1506,3 +1506,97 @@ Until the user answers, the values in `EVENT_CATEGORIES`,
 `TIMELINE_ENTRY_KINDS` and `SCENARIO_VERSION_FIELDS` are provisional in
 meaning but strict in enforcement: the parser refuses anything outside them.
 T018 and T019 stay non-implementable until the Review Outcome is recorded.
+
+## T018 - The executable scenario contract
+
+What this slice settled in code.
+
+Scenario content now has two orthogonal axes. `entry_kind` and `category` say
+what sort of authored item something is; `execution_role` says what an
+executor may do with it. Collapsing them would make a row's meaning depend on
+who is reading it, which is exactly the ambiguity T017 left open.
+
+Four roles: `CAUSAL_INPUT` initializes or changes private world state and is
+the only one that may; `FORCING_INPUT` is an exogenous condition on the world
+or on the reporting path; `REPORTED_OBSERVATION` arrives through a named
+source; `NON_EXECUTABLE_CONDITION` is description nothing consumes.
+
+The guarantee "an observation never prescribes private world state" is
+structural, not a rule to remember. `ROLES_BY_ENTRY_KIND` refuses an evidence
+condition that tries to be a cause. A reported value may carry no `ownership`
+block and no `state_effect`, so there is no field it could arrive in as an
+initial value or a transition. `initialization_inputs` and
+`state_transition_inputs` are built only from causal inputs. Three layers, and
+a deliberate violation had to be applied at the third to measure the contract
+test at all - relaxing the parser rule tripped a different guard first, twice.
+
+`scenarios/execution.py` is a new module and it holds what the roles commit
+the product to, because those semantics are the same for every scenario and
+are versioned simulator rules rather than authoring: canonical units, dispatch
+rules, bound cases. It converts through exact ratios rather than floats, so
+14 L/h over 240 min is 56.0 and not 56.00000000000001 - a screen showing the
+second would state a precision the scenario does not have.
+
+`reconcile_reported_observations` lives there and is contract arithmetic, not
+a kernel. No clock, no timestep, no state record, no output for any instant
+the scenario did not author a reading at, and it declines to answer when a
+causal window is still open rather than apportioning half an effect. The
+module docstring says so, and a reviewer should keep checking it: the scope
+limit that forbids a kernel is the reason the line matters.
+
+Bound behaviour has three policies and the absent fourth is the point: there
+is no `SILENT_CLAMP` and no `DISCARD`. `invalid-rate` is the one of four cases
+decidable without executing anything, so the parser enforces it end to end - a
+negative or non-finite quantity in a non-negative dimension is refused when
+the definition is read.
+
+Cadence is declared and never derived. A device source says `NOT_DECLARED`, an
+operator record says `NOT_APPLICABLE`, and the vocabulary has no value meaning
+"the scenario declares it". The prohibition is enforced where a cadence would
+actually be written: a duration parameter on a reading, refused by name. That
+Foundation declares no cadence is checked rather than asserted - a test pins
+`DeviceSignal` to exactly `signal_id`, `display_name`, `unit`.
+
+`ScenarioDetailService.resolve_observation_sources` follows the target-site
+split exactly: the parser validates that a device-signal source names a
+well-formed device and signal, and the service resolves them against the Site
+store into a screen state. A missing device is an unresolved source, not an
+unreadable scenario.
+
+The identifier audit widened from `*_id` to `*_key`. A world state key is an
+identifier this domain coins and renders as the name of a thing, and
+`state_key: breaker-position` would have read as perfectly natural to an
+author - the same hole the T017 review found in `parameter_id`, one field
+along. Proved by putting `breaker-position-availability` in the shipped
+document and watching both the parser and the scan name `BREAKER`.
+
+The shipped Fuel Loss Event's numbers are unchanged and they do not agree.
+430 L initial, less 56 L over the dispatch window, less 120 L removed, is
+254 L at both reading offsets, against 155 L reported and 150 L
+hand-recorded. Both readings are now classified as reported observations from
+a named source, so neither prescribes tank state and the contract is coherent.
+What it also does is say the difference out loud, with quantity and sign, and
+leave the resolution to review. Editing a number into agreement would have
+settled a product question by arithmetic. Two authored values did change
+shape: `overcast-day` gained a 360-minute window, which is the distance
+between two offsets the document already declared, and the free-text
+`observed-signal` parameter was removed because `observation_sources` now
+carries that identity machine-readably.
+
+The tenth member of the family, and it is a layout one.
+
+`minmax(8rem, auto)` on the `.fact-list` term column gives that track a
+max-content growth limit, and grid hands a non-flexible track all the free
+space it can absorb before a `1fr` track sees any. A long term therefore took
+the whole row, the value column resolved to zero, and its text pushed the
+DOCUMENT sideways: seventeen pixels of horizontal scroll at 640px, with the
+rail going with it. The first cap made it worse by moving the overflow one
+level down into the value column. **A cap has to leave the other column room
+for its longest word.** Twelve rem measured clean. jsdom has no layout, so
+neither suite could have seen any of it - only `tools/layout-evidence.mjs`
+could, and only because the slice ran it.
+
+What T018 deliberately does not do: no model profile, so nothing computes a
+Draft status; no run, no trace, no kernel. Every executable input names the
+state it needs and whether it is required, which is what makes that decision
+possible for T019.

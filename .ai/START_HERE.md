@@ -17,9 +17,10 @@ resulting operational evidence in the UI.
 
 Planning status:
 
-M1A and T017 are complete. T018 is the active planned scenario-execution
-contract slice; `.ai/ACTIVE_CONTEXT.md` names the task, relevant decision IDs,
-and feature-map sections to read.
+M1A and T017 are complete. T018, the scenario-execution contract, is built and
+in review; it carries a user-review checkpoint that T019 waits on.
+`.ai/ACTIVE_CONTEXT.md` names the task, relevant decision IDs, and feature-map
+sections to read.
 
 ## Current Route
 
