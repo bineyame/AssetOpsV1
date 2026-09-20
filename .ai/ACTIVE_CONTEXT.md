@@ -14,32 +14,34 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-`tasks/T017-scenario-catalog-fuel-loss-detail.md` is built and at
-`Status: in_review` on branch `task/T017-scenario-catalog-fuel-loss-detail`.
-Not merged. Packet: `.agent/T017-review-packet.md`, findings at
-`.agent/T017-review-findings.md`.
+No active task. **T017 closed out 2026-09-21 and M1B's checkpoint is settled.**
 
-The Reviewer returned accept-with-findings; both acceptance gaps (F1, the
-vocabulary ban missing identifier-valued positions; F2, the digit assertion
-carving out authored prose) are closed on the branch with proofs.
+T017 built the gated Scenarios catalog and the Fuel Loss Event detail screen
+over a new `ScenarioDefinition` domain: strict parser, domain port, composed
+shipped and writable stores. Independent review returned two acceptance gaps,
+both fixed on the branch, and the re-review accepted with no findings.
 
-Next step is **user review**, which T017 carries as the M1B checkpoint. The screen at `/simulator-lab/scenarios/fuel-loss-event` puts a
-provisional proposal in front of the user for three decisions:
+User review: **"looks good"**, accepting all three proposals. Recorded in
+`D-2026-09-21-scenario-authoring-semantics` and in the task's User Review
+Outcome. Versioning fields, event taxonomy and the public/private boundary are
+**settled values**; the on-screen provisional marking is deliberately still
+there, and removing it is its own slice.
 
-- scenario versioning fields, in the identity and version panel;
-- event taxonomy, under the timeline and its legend;
-- public authoring parameters versus private test-oracle expectations, in the
-  private expectations panel, with the public parameters panel above it.
+**T018 and T019 are now plannable.** The Planner held them as sequence entries
+in `.ai/FEATURE_MAP.md` rather than writing task files that would need
+rewriting; this outcome is what that pass was waiting for.
 
-Each region states a proposal, what is already settled, and what accepting or
-redirecting means, so accepting the screen is a decision. Run setup language
-is answered by the third: the screen names the missing run setup / Draft
-SimulationRun prerequisite on the disabled `Create Draft Run` control.
+### The lesson T017 paid for
 
-T018 and T019 are not task files yet and are not implementable until the T017
-User Review Outcome is recorded. They are sequenced in `.ai/FEATURE_MAP.md`
-under `Early Feature: Scenario Catalog And Run Setup`.
-
+The vocabulary guard built to be unconditional had a hole exactly where a
+parameter key lives, and four deliberate violations missed it. The parameter
+proof added `breaker_position` as a mapping *key*, which the strict parser
+already refuses as unknown - so it failed loudly and proved nothing about the
+rule it was written for. **A deliberate violation has to be one the rest of the
+system would otherwise accept**, or it measures the wrong guard. Found by the
+independent Reviewer, not by the proofs. That is the eighth member of the
+family and it is written into `backend/tests/control_vocabulary.py` rather than
+only into a packet.
 ## Current State
 
 M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.

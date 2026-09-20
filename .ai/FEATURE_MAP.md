@@ -609,12 +609,22 @@ Semantics settled:
   disabled with a named prerequisite; controls belonging to SimulationRun,
   ingestion, Replay, or operator evidence surfaces are absent.
 
-Semantics to decide at the T017 checkpoint:
-- Required scenario versioning fields.
-- Event taxonomy: load, weather, equipment, data quality, loss/fraud,
-  intervention, maintenance.
-- Which parameters are public authoring data versus private test-oracle
-  expectations.
+Semantics settled at the T017 checkpoint, 2026-09-21, accepted as proposed
+(`D-2026-09-21-scenario-authoring-semantics`):
+- Scenario versioning fields: `scenario_id`, `scenario_version`,
+  `version_valid_from`, `supersedes`.
+- Event taxonomy: three timeline entry kinds - `EVENT`, `INTERVENTION`,
+  `EVIDENCE_CONDITION` - and seven categories: `LOAD`, `WEATHER`, `EQUIPMENT`,
+  `DATA_QUALITY`, `LOSS_OR_FRAUD`, `INTERVENTION`, `MAINTENANCE`. Breaker
+  position and control mode are excluded by construction.
+- Public authoring parameters may inform future run setup and runtime.
+  Private expectations - `DETECTION`, `MAGNITUDE`, `TIMING`,
+  `NO_FALSE_POSITIVE` - are test-oracle metadata only, separated as parsed
+  fields rather than by presentation, and never reach product evidence,
+  source envelopes, operator UI, exports or provenance.
+
+The values are settled; the on-screen provisional marking is not yet removed.
+Removing it is a visible product change and belongs to a slice that says so.
 
 ### 4. SimulationRun Runtime And Simulator Lab Shell
 
