@@ -1,6 +1,6 @@
 # T016 - Foundation SLD And Device/Signal Presentation
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T016-foundation-sld-and-device-signal-presentation`
@@ -249,3 +249,71 @@ What the user is being asked to settle:
 Capability planning for M1A stops at this checkpoint. M1B, Scenario Catalog And
 Run Setup, is not planned or started until this checkpoint is accepted or
 redirected.
+
+## Review Outcome
+
+Independent review by Codex: **accept, no findings.** First clean first-pass
+review since T011.
+
+It verified rather than accepted: that the narrowed absence assertions are
+preserved or strengthened, that `withoutRegion` throws when its carve-out region
+is missing and the tests assert both the exception's existence and the ban
+outside it, that the bans on other surfaces were left outside the diff, that the
+diagram renderer reads `deriveSiteSldView` and performs no component lookup,
+device resolution or signal derivation of its own, and that the refusal path
+renders no drawing while device, mapping and topology rows still render.
+
+It agreed with both deviations and with the changed bus-cardinality wording:
+naming the offending nodes rather than rendering an authored count "preserves
+the no-invented-digit rule and gives the reader the exact configured
+identities".
+
+Reviewer checks: both guards passed, backend `441 passed`, `tsc --noEmit`
+clean. The frontend suite, the build and the browser evidence could not run
+under its sandbox for the known esbuild reason.
+
+Verified independently in the coordinating session before and after review:
+backend `441 passed`, frontend `629 passed` across 20 files, `tsc` clean, build
+clean at 240.35 kB, both guards, and `tools/layout-evidence.mjs` reporting all
+claims holding at 1280, 1000 and 640 wide.
+
+## User Review Outcome
+
+User review completed 2026-09-20. Verdict, in the user's words: **"it looks ok
+from my side."**
+
+The slice is accepted as built. The archetype, the incompatible-topology state,
+the device and signal wording, the `Awaiting runtime/evidence` treatment and the
+read-only presentation all stand as shipped.
+
+### What that settles, and what it does not
+
+**Cold-room symbol treatment: accepted as proposed.** T016 put a proposal on
+screen - a declared cold room drawn in the lane its declared topology role puts
+it in, with its own shape, marked `Proposed treatment` - and the user accepted
+it. A later slice may stop marking it provisional. `SldCandidateTreatment` and
+its `settled: false` literal stay until that slice does so deliberately, because
+removing the marker is a visible product change and should be one commit that
+says so, not a side effect.
+
+**Breaker and control vocabulary: still open, by construction.** This question
+was presented with candidates the project had *considered and not chosen* -
+`open`, `closed`, `tripped` for position and `auto`, `manual` for mode - and no
+proposal. There was nothing on screen to accept, so accepting the screen did not
+choose one. The vocabulary remains banned everywhere outside the review block.
+
+That is not a gap in the checkpoint. Nothing in M1A draws a breaker or names a
+control position, so nothing was blocked on the answer. **The first slice that
+needs to render a breaker state, or store one, needs the answer first**, and it
+should come back to the user rather than choosing quietly. The `frozenset` scan
+T014 left in place keeps that honest in the meantime.
+
+### Local review data
+
+`var/sites/mg-002.yaml` and `mg-003.yaml` were added so the two checkpoint
+states could be opened in a browser. They are gitignored local data and can be
+deleted now the checkpoint is closed, or kept as fixtures for the next slice
+that needs a cold room or a two-bus topology. `mg-001.yaml` was untouched
+throughout.
+
+**This closes M1A.** No M1B task is created here.

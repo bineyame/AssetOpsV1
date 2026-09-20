@@ -18,71 +18,62 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-T016, the configured SLD and device/signal presentation, is in review on
-`task/T016-foundation-sld-and-device-signal-presentation`. Not merged.
+No active task. T016 closed out 2026-09-20, and **M1A is complete.**
 
-**It carries the M1A user-review checkpoint**, the first since T008. Two
-decisions are presented on the screen and not taken: whether a breaker is a
-device, component state or both and what the control vocabulary is, and how a
-cold room's process symbol relates to mini-grid electrical topology. Both are
-in the block headed `Open for review` inside the diagram section. Capability
-planning for M1A stops until the user accepts or redirects.
+Every planned task T001-T016 is in `tasks/completed/` with its Review Outcome.
+`tasks/` is empty. No M1B task exists, and none should be created without
+planning.
 
-Foundation now draws the configured diagram for a topology the hybrid
-mini-grid archetype can arrange, and the explicit refusal with its reason for
-one it cannot. The drawing is presentation over `deriveSiteSldView` and adds
-nothing: rendered node, connection and component ids are compared to the
-Foundation's for exact equality. Device and signal content still renders when
-only the diagram is incompatible.
+T016 drew the configured Single Line Diagram inside Foundation and carried the
+M1A user-review checkpoint. Independent review: accept, no findings - the first
+clean first-pass review since T011. User review: accepted as built.
 
-Seven slices of bans held the diagram out of this surface. None was deleted;
-each is narrowed to where it still holds, by `withoutRegion`, which throws when
-the region it excepts is not there. The details, and which assertion now says
-what, are in `.agent/T016-review-packet.md` and `.ai/CODE_STATE.md` under T016.
+### The checkpoint settled one question and not the other
 
-Backend `441 passed`, frontend 20 files `629 passed`, both guards, typecheck,
-the production build, and `node tools/layout-evidence.mjs` at 1280, 1000 and
-640 all clean. Nine proofs, each committed first, each read for which
-assertion answered. One of them is worth carrying: widening
-`SldCandidateTreatment.settled` to `boolean` broke zero of 279 runtime
-assertions and was caught only by `tsc`.
+**Cold-room symbol treatment: accepted as proposed.** A declared cold room draws
+in the lane its topology role puts it in, with its own shape. It is still marked
+`Proposed treatment` on screen, and `SldCandidateTreatment.settled` is still the
+literal `false`. Removing that marker is a visible product change and should be
+its own commit.
 
-The habit this slice adds: **jsdom cannot see a diagram, so a diagram has to be
-looked at.** Three defects survived a green suite and were found in a browser.
+**Breaker and control vocabulary: still open.** It was presented with candidates
+the project had considered and not chosen, and no proposal - so accepting the
+screen chose nothing. It stays banned everywhere outside the review block, and
+T014's `frozenset` scan keeps it out of schema names.
 
-Local review data, gitignored and additive: `var/sites/mg-002.yaml` declares a
-cold room and `mg-003.yaml` declares two AC buses, so both reviewable states
-can be opened. `mg-001.yaml` is untouched.
+Nothing in M1A draws a breaker, so nothing was blocked. **The first slice that
+renders or stores a breaker state needs the answer first, and it should come
+back to the user rather than choosing quietly.**
 
-T005 to T015 are complete, in `tasks/completed/` with their Review Outcomes.
+### State
+
+Backend `441 passed`, frontend `629 passed` across 20 files, both guards,
+typecheck and build clean at 240.35 kB. `tools/layout-evidence.mjs` reports all
+claims holding at 1280, 1000 and 640 wide.
+
+`var/sites/` holds `mg-001` plus `mg-002` (declares a cold room) and `mg-003`
+(two AC buses), added for the checkpoint. They are gitignored local data: delete
+them or keep them as fixtures for the next slice needing either shape.
+
+### Two questions left for an Architect, both raised and neither answered
+
+- Whether layout evidence should become a standing check. `layout-evidence.mjs`
+  is deliberately not in `tools/check-architecture.ps1`: that runner must run
+  anywhere and this needs a browser and two servers.
+- Whether a guard should enforce that a merged slice's task file says complete.
+  T011B and T011C sat at `in_review` on `main` until the user noticed; nothing
+  ties a task's status to whether its branch is merged.
 
 ## Current Site Foundation Sequence
 
-Reworked Site Foundation tasks are T005-T013; T014 opens step 4.
+**Every planned task is complete.** T001-T016, including T010A and T011A-T011C,
+are in `tasks/completed/`, each with its Review Outcome. The per-slice record of
+what each settled is in `.ai/CODE_STATE.md`; this file deliberately no longer
+carries one line per slice, which is what pushed it over its cap.
 
-- T005: shipped Site Template catalog in Simulator Lab, gated. Complete.
-- T006: create a Site from a template; first user-review checkpoint. Complete.
-- T007: Site Details by `site_id`. Complete.
-- T008: read-only Site Configuration; second user-review checkpoint. Complete.
-- T009: shared visual vocabulary. Complete.
-- T010A: the fetch seam, split out of T010. Complete.
-- T010: Lab template and create surfaces to mockup quality. Complete.
-- T011: Sites index to canonical screen one. Complete.
-- T011A: Foundation naming and the operator Site tab row. Complete; user
-  review deferred to the pass after T011B.
-- T011B: shell and dense content overflow containment. Complete; its browser
-  evidence is measured by `tools/layout-evidence.mjs`.
-- T011C: Site tab row treatment, from T011A's user review. Complete.
-- T012: Site Details to canonical screen two. Complete.
-- T013: Foundation to canonical screen three. Complete.
-- T014: Foundation topology, devices and signal mappings. Complete.
-- T015: the hybrid mini-grid SLD view model. Complete.
-- T016: the configured SLD and device/signal presentation. In review, and it
-  carries the M1A user-review checkpoint.
-
-Causal Sequencing step 4 is complete in code. The configured diagram renders,
-inside one named section of Foundation; everywhere else on the surface the
-diagram vocabulary is still banned, and the signal selector is still absent
+Causal Sequencing steps 3 and 4 are complete in code. The configured diagram
+renders inside one named section of Foundation; everywhere else on the surface
+the diagram vocabulary is still banned, and the signal selector is still absent,
 because there is nothing to show for the signal a reader would have picked.
 
 ## Read For The Next Slice

@@ -1300,3 +1300,71 @@ Local review data, not in the build. `var/sites/mg-002.yaml` (a cold room) and
 created, because the shipped template declares no cold room and is drawable, so
 neither reviewable state could otherwise be opened in a browser. `var/sites/`
 is gitignored and `mg-001.yaml` is untouched.
+
+## T016 - Foundation SLD and device/signal presentation
+
+What this slice settled in code.
+
+Foundation draws the configured Single Line Diagram, as an `h3` subsection of
+the Topology panel rather than a panel of its own - T013's rule forbids an
+unlinked panel between the sections the Foundation row names, and a diagram
+belongs with the topology it draws.
+
+`SiteSingleLineDiagram.tsx` reads `deriveSiteSldView` and nothing else. No
+component lookup, no device resolution, no signal derivation: every identity it
+draws came out of the T015 view model, which is already tested to introduce
+nothing. Its own decisions are geometry, wrapping and glyph rendering. The
+independent Reviewer confirmed that from the code rather than from the tests.
+
+Two states, never neither and never both: a drawing, or the refusal with its
+stable statement. When the diagram is incompatible the device, mapping and
+topology rows still render, because a diagram incompatibility is not evidence
+that the Site has no devices.
+
+The archetype's own vocabulary reaches the DOM only as `data-` attributes, never
+as text, which is why T015's ban on that vocabulary is unchanged and is now
+finally exercised by a screen that draws.
+
+Eight absence assertions were narrowed, none deleted, through `withoutRegion` in
+`frontend/src/test/text.ts`. It removes one named region and **throws when the
+region is absent**, so an exception that stopped existing cannot silently widen
+the ban it was carved out of. Proved: removing `data-sld-region` fails nine
+tests with that message rather than passing.
+
+The bus-cardinality refusal names the offending nodes instead of counting them.
+This screen allows no digit the record did not supply, and a count is a number
+the build authored.
+
+New guard clauses in `tools/checks/shell-overflow.ps1`: the diagram's scroll
+region must declare `overflow-x`, and every `<svg>` must render through the
+diagram module. Six new measured claims in `tools/layout-evidence.mjs`.
+
+Three defects only the browser found: a connection routed through the battery
+power conversion system, SVG text running out of its box because SVG neither
+wraps nor clips, and a label colliding with the name it marks. None of them is
+visible to jsdom, and none would have been found by reading.
+
+The family, at six.
+
+Widening `SldCandidateTreatment.settled` from the literal `false` to `boolean` -
+the flag marking the cold-room treatment provisional - passes **every runtime
+assertion**. Only `tsc` catches it, through an unused `@ts-expect-error`. The
+Implementer found and closed that unprompted, which is T015's lesson arriving
+before the defect rather than after it.
+
+So the habits hold: assume a new guard is dead until a violation makes it speak;
+read which guard answered; and when a claim is enforced by a type, test the
+type.
+
+What the checkpoint settled, and what it did not.
+
+The cold-room treatment was proposed on screen and accepted. The breaker and
+control vocabulary was presented with candidates considered and **not chosen**,
+so accepting the screen chose nothing: it remains open, and it remains banned
+everywhere outside the review block. Nothing in M1A draws a breaker, so nothing
+was blocked. **The first slice that renders or stores a breaker state needs the
+answer first, from the user.** T014's `frozenset` scan keeps that honest.
+
+`SldCandidateTreatment` and its `settled: false` literal stay until a slice
+removes the provisional marker deliberately. Removing it is a visible product
+change and should be a commit that says so.
