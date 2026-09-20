@@ -1071,3 +1071,117 @@ in gitignored `var/sites/` was deleted to make browser evidence deterministic.
 Nothing in the slice required deleting rather than adding one, and data outside
 version control is exactly where "do not discard unrelated user changes"
 matters most.
+
+## T015 - Hybrid mini-grid SLD view model
+
+What this slice settled in code.
+
+`frontend/src/sites/sldViewModel.ts` turns a validated Site Foundation into
+either a compatible hybrid mini-grid diagram view or an explicit unavailable
+result with a stable reason. It renders nothing, and nothing outside tests
+imports it until T016 - which is why the production bundle is unchanged.
+
+The archetype owns presentation and nothing else. Every node and connection in
+the output traces to a Foundation id; nothing declared goes missing and nothing
+undeclared appears. Binding is by canonical type and role, never by site id,
+display name or array position, and separate tests assert the model decides
+nothing from array order and nothing from a display name.
+
+Unsupported topology is a closed set of unavailable codes, each with a stable
+statement, each exercised by a document that produces it. An incompatible Site
+returns no diagram at all rather than a partial one - a partial diagram is the
+failure this state exists to prevent.
+
+`SldValueSlot = Record<string, never>`: a type that cannot hold a field, frozen
+at runtime. Runtime and evidence slots are named and empty on every node and
+connection, and nothing binds either boundary.
+
+The undecided vocabularies stay undecided. No control-state word appears in any
+key or value, and the cold-room symbol is `COLD_ROOM_TREATMENT_CANDIDATE` with
+an explicit unsettled marker rather than a silent decision - both belong to the
+T016 checkpoint.
+
+No new guard clause was added for the import criterion, and that was the right
+call. The module lives under `frontend/src/sites/`, where the substrate guard
+already bans shell, simulator and feature-flag imports, and there is no evidence
+store in this codebase to ban. A clause banning a module that does not exist
+cannot fail. The existing guard was proved to cover the new file rather than
+assumed to.
+
+The lesson this slice added to the family.
+
+Proving the slot assertions found the fourth instance of one shape. Widening
+`SldValueSlot` to `{ lastReading?: number }` failed **zero tests**: the objects
+this build produces are still empty, still frozen, still carry no key, so every
+runtime assertion passed. What changed was the contract - the type would then
+say a reading may be attached, which is the claim the slice exists not to make.
+
+Two `@ts-expect-error` assignments close it: while a slot may hold no field the
+directives are used, and widening the type makes them unused so `tsc` fails.
+
+So the family now reads: a guard pattern that cannot match (T011A), a ban
+compared against text that cannot contain a boundary (T013), a cap above its own
+ceiling (T014), and **a runtime assertion that survives the contract being
+widened underneath it** (T015). When a claim is enforced by a type, test the
+type, not only the values.
+
+How it was built, which matters for how much to trust it.
+
+The Implementer agent stalled before committing, before running any check, and
+before writing a packet. Its work was committed verbatim and unreviewed by the
+coordinating session so it could not be lost, then verified and extended from
+the outside. 783 lines of new logic were reviewed by their own tests and by
+proving, and the author verified none of it.
+
+What this slice leaves open.
+
+1. The archetype's lane and row assignment is tested for determinism and
+   non-collision, not for whether the geometry makes a sensible diagram. T016
+   inherits it either way.
+2. `SLD_UNAVAILABLE_STATEMENTS` is authored prose about the product's own
+   limits, and will need revisiting as archetypes are added.
+3. Nothing here has been seen, because there is nothing to see.
+
+What review corrected in T015.
+
+Two findings, both from the family this project keeps meeting.
+
+The test proving the Foundation screen renders none of the archetype's
+vocabulary built its matcher with a `\b` inside a JavaScript template string.
+That is a backspace character, U+0008, not a word-boundary escape: the regex
+source began with character code 8, so it matched nothing and passed on a
+screen rendering the token as readily as on one that did not. It is the same
+escape as the two dead PowerShell patterns in T011A, in a second language.
+
+`deriveSiteSldView` did not validate `device.component_id` or
+`mapping.component_id` against the declared components, so a dangling reference
+arrived as an `unplaced` entry and the model still reported `compatible`.
+Unplaced and unresolved look alike and are not: unplaced means the component
+exists and the diagram has nowhere for it; unresolved means it was never
+declared. Both are `REFERENCE_UNRESOLVED` now.
+
+The family, after five instances:
+
+1. T011A - a guard pattern that could never match, `\b` becoming a control
+   character in PowerShell.
+2. T013 - a ban compared against `textContent`, which glues elements together
+   so no word boundary exists to match.
+3. T014 - three cardinality caps above their own document ceiling.
+4. T015 - a runtime assertion that survived the contract widening underneath
+   it.
+5. T015 - `\b` becoming a control character again, this time in a JavaScript
+   template literal.
+
+The shape is always the same: protection that looks present, is not, and is
+invisible because the suite stays green. Three habits fall out of it, and they
+are cheaper than the reviews that found these.
+
+- **Assume a new guard is dead until a violation makes it speak**, and read
+  *which* guard answered rather than only that something failed.
+- **When a claim is enforced by a type, test the type**, not only the values.
+- **An escape that can become a control character is worth printing once.** The
+  character code says in a second what review cannot see at all.
+
+A sweep across TypeScript, PowerShell, Node and Python found no other live
+instance. The only embedded control character in the tree is deliberate:
+`test_site_parsing.py` uses a BEL to prove free text containing one is refused.
