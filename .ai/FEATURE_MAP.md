@@ -1156,8 +1156,9 @@ when their named input does not exist.
    - UI-verifiable outcome: user sees scenario events and setup choices without
      any claimed AssetOps conclusion.
    - Deliberately unavailable: execution, Commit, Open in AssetOps, product
-     findings, private expectations, and persistence editing; the UI labels the
-     scenario as authoring/setup only.
+     findings, private expectations as product evidence, source-envelope input,
+     operator UI, or product provenance, and persistence editing; the UI labels
+     the scenario as authoring/setup only.
 
 6. Draft SimulationRun shell and recorded runtime playback.
    - Becomes true: a Draft run opens in Simulator Lab with clock, controls,

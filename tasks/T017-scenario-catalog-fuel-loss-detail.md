@@ -96,8 +96,8 @@ recorded.
   operator intervention. They may not define event types, enum values,
   parameter keys, badges, columns, or filters named for breaker position or
   mode.
-- If scenario typed taxonomy values are introduced, the T014 breaker/control
-  vocabulary protection grows to cover scenario model and fixture vocabulary.
+- The T014 breaker/control vocabulary protection grows to cover the scenario
+  domain model, parser fixtures, and `config/scenarios/fuel-loss-event.yaml`.
   The protection asserts `OPEN`, `CLOSED`, `TRIPPED`, `AUTO`, `MANUAL`, and
   `BREAKER` cannot enter scenario schema vocabulary, and ships with a proof that
   a deliberate violation fails for the intended reason.
@@ -112,8 +112,11 @@ recorded.
 - The parser refuses unknown keys, unsupported taxonomy values, malformed
   version fields, duplicate timeline identities, malformed ordering or
   timestamp/offset values, misplaced private expectation fields, duplicate or
-  case-variant `scenario_id` values within or across stores, and unresolved
-  target-site policy violations.
+  case-variant `scenario_id` values within or across stores, malformed
+  target-site declarations, and invalid target-site policy shape.
+- The scenario detail service/read model resolves any concrete target `site_id`
+  through `SiteRepository` and returns a target-resolution state for the UI.
+  An unresolvable target Site is a detail-screen state, not a parser failure.
 - The detail screen states that `ScenarioDefinition` answers what happens
   during the simulated interval and Site Foundation answers what the Site is.
   The two do not duplicate one another.
@@ -162,8 +165,9 @@ recorded.
 - Public scenario authoring versus private test oracle: private expectation
   fields do not appear in public scenario API payloads consumed by normal
   product surfaces or in operator UI.
-- Breaker/control vocabulary boundary: existing T014 protection extended if
-  scenario typed vocabulary is introduced, with a failing proof case.
+- Breaker/control vocabulary boundary: existing T014 protection extended to the
+  scenario domain model, parser fixtures, and shipped Fuel Loss Event definition,
+  with a failing proof case.
 - Mockup fidelity versus product honesty: UI tests. The screen follows v6.9 and
   mockup structure only for backed scenario data and does not copy example
   digits or product claims.
@@ -175,8 +179,11 @@ recorded.
 - Backend/API tests for strict scenario catalog and detail records, including
   unknown keys, unsupported taxonomy values, malformed version fields,
   duplicate timeline identities, malformed ordering/timestamps, duplicate or
-  case-variant `scenario_id` conflicts, target-site policy violations, and
-  private expectation separation.
+  case-variant `scenario_id` conflicts, malformed target-site declarations,
+  invalid target policy shape, and private expectation separation.
+- Backend/API tests proving a resolvable target Site enables `Open target Site`
+  and an unresolvable target Site produces the disabled or absent control state
+  with an accessible reason.
 - Backend/API or adapter tests proving composed shipped/user scenario stores
   have no overlay or precedence and fail loudly on duplicate identities within
   or across stores.
@@ -190,9 +197,10 @@ recorded.
   action, verification, Commit, ingestion, Replay, or product conclusion.
 - UI tests covering the three provisional review regions: versioning fields,
   event taxonomy, and public/private parameter boundary.
-- Test or guard proof for any new breaker/control vocabulary scan extension,
-  including at least one deliberate violation that fails for the intended
-  reason.
+- Test or guard proof for the breaker/control vocabulary scan extension across
+  scenario domain model, parser fixtures, and
+  `config/scenarios/fuel-loss-event.yaml`, including at least one deliberate
+  violation that fails for the intended reason.
 - Layout evidence with `tools/layout-evidence.mjs` because the event timeline
   is dense table content. The review packet records the command, base URL when
   non-default, and final result line.
