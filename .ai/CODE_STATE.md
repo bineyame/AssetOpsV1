@@ -1141,3 +1141,47 @@ What this slice leaves open.
 2. `SLD_UNAVAILABLE_STATEMENTS` is authored prose about the product's own
    limits, and will need revisiting as archetypes are added.
 3. Nothing here has been seen, because there is nothing to see.
+
+What review corrected in T015.
+
+Two findings, both from the family this project keeps meeting.
+
+The test proving the Foundation screen renders none of the archetype's
+vocabulary built its matcher with a `\b` inside a JavaScript template string.
+That is a backspace character, U+0008, not a word-boundary escape: the regex
+source began with character code 8, so it matched nothing and passed on a
+screen rendering the token as readily as on one that did not. It is the same
+escape as the two dead PowerShell patterns in T011A, in a second language.
+
+`deriveSiteSldView` did not validate `device.component_id` or
+`mapping.component_id` against the declared components, so a dangling reference
+arrived as an `unplaced` entry and the model still reported `compatible`.
+Unplaced and unresolved look alike and are not: unplaced means the component
+exists and the diagram has nowhere for it; unresolved means it was never
+declared. Both are `REFERENCE_UNRESOLVED` now.
+
+The family, after five instances:
+
+1. T011A - a guard pattern that could never match, `\b` becoming a control
+   character in PowerShell.
+2. T013 - a ban compared against `textContent`, which glues elements together
+   so no word boundary exists to match.
+3. T014 - three cardinality caps above their own document ceiling.
+4. T015 - a runtime assertion that survived the contract widening underneath
+   it.
+5. T015 - `\b` becoming a control character again, this time in a JavaScript
+   template literal.
+
+The shape is always the same: protection that looks present, is not, and is
+invisible because the suite stays green. Three habits fall out of it, and they
+are cheaper than the reviews that found these.
+
+- **Assume a new guard is dead until a violation makes it speak**, and read
+  *which* guard answered rather than only that something failed.
+- **When a claim is enforced by a type, test the type**, not only the values.
+- **An escape that can become a control character is worth printing once.** The
+  character code says in a second what review cannot see at all.
+
+A sweep across TypeScript, PowerShell, Node and Python found no other live
+instance. The only embedded control character in the tree is deliberate:
+`test_site_parsing.py` uses a BEL to prove free text containing one is refused.

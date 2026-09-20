@@ -18,40 +18,42 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-T015, the hybrid mini-grid SLD view model. Built and in review on
-`task/T015-hybrid-mini-grid-sld-view-model`. Packet at
-`.agent/T015-review-packet.md`.
+No active task. T015 closed out 2026-09-20.
 
-It renders nothing. The view model turns a validated Foundation into either a
-compatible diagram view or an explicit unavailable result with a stable reason,
-and nothing outside tests imports it until T016 - which is why the production
-bundle is unchanged from `main`.
+The SLD view model turns a validated Foundation into either a compatible
+hybrid mini-grid diagram view or an explicit unavailable result with a stable
+reason. It renders nothing, and nothing outside tests imports it until T016 -
+which is why the production bundle is unchanged from `main`.
 
-**How it was built matters for how much to trust it.** The Implementer agent
-stalled with a watchdog failure before committing anything, before running a
-single check, and before writing a packet. Its work was found uncommitted,
+Two reviews: accept with two findings fixed, then accept with none. Both
+findings were the family this project keeps meeting, and the count is now five.
+The full list and the three habits that fall out of it are in
+`.ai/CODE_STATE.md` under T015. The short version:
+
+- **Assume a new guard is dead until a violation makes it speak**, and read
+  which guard answered, not only that something failed.
+- **When a claim is enforced by a type, test the type**, not only the values.
+- **An escape that can become a control character is worth printing once.**
+
+A sweep across TypeScript, PowerShell, Node and Python found no other live
+instance.
+
+How it was built is worth remembering: the Implementer agent stalled before
+committing, before running any check and before writing a packet. Its work was
 committed verbatim and unreviewed so it could not be lost, then verified and
-extended from the outside. 783 lines of new logic were reviewed by their own
-tests and by proving; the author verified none of it.
+extended from the outside. If an agent stalls, check the branch before assuming
+nothing survived.
 
-Proving found one defect, and it is the fourth instance of one family. Widening
-`SldValueSlot` failed zero tests, because the runtime objects stay empty while
-the contract quietly widens. Two `@ts-expect-error` assignments close it. The
-family now reads: a pattern that cannot match, a ban against text that cannot
-contain a boundary, a cap above its own ceiling, and a runtime assertion that
-survives the contract being widened underneath it. **When a claim is enforced
-by a type, test the type, not only the values.**
+Backend `441 passed`, frontend 20 test files, both guards, typecheck and build
+clean.
 
-Backend `441 passed`, frontend `606 passed` across 20 files, both guards,
-typecheck and build clean.
+Next: T016, the configured SLD and device/signal presentation. It renders what
+T015 produces, and **it carries the user-review checkpoint** that settles the
+two vocabularies T014 and T015 both deliberately left open - whether a breaker
+is a device or component state, and how cold-room symbols relate to mini-grid
+topology.
 
-Next after review: T016, the configured SLD and device/signal presentation. It
-renders what T015 produces, and it carries the user-review checkpoint that
-settles the two vocabularies T014 and T015 both deliberately left open -
-whether a breaker is a device or component state, and how cold-room symbols
-relate to mini-grid topology.
-
-T005 to T014 are complete, in `tasks/completed/` with their Review Outcomes.
+T005 to T015 are complete, in `tasks/completed/` with their Review Outcomes.
 
 ## Current Site Foundation Sequence
 

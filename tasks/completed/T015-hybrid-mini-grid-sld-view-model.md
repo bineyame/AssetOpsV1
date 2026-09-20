@@ -1,6 +1,6 @@
 # T015 - Hybrid Mini-Grid SLD View Model
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T015-hybrid-mini-grid-sld-view-model`
@@ -170,3 +170,85 @@ User review is not required for this slice. The slice creates the logical
 boundary and tests the compatibility behavior, but it deliberately does not put
 the archetype, incompatible-topology language, cold-room symbol treatment, or
 device/signal wording in front of the user yet. T016 carries that checkpoint.
+
+## Review Outcome
+
+Two independent reviews by Codex. First: **accept with findings fixed on the
+branch**, two Medium. After the fixes: **accept, no findings.**
+
+### How this slice was built, which shaped the review
+
+The Implementer agent stalled with a watchdog failure before committing
+anything, before running a single check and before writing a packet. Its work
+was found uncommitted, committed verbatim and unreviewed by the coordinating
+session so it could not be lost, then verified and extended from the outside.
+783 lines of new logic were never verified by their author, and there is no
+record of authorial intent. The Reviewer was told this and asked to weigh
+reading over sampling.
+
+### Finding 1: the anti-vacuity anchor was itself vacuous
+
+The test proving the Foundation screen renders none of the archetype's
+presentation vocabulary built its matcher with
+``new RegExp(`\b${token}\b`)``. Inside a JavaScript template string `\b` is a
+backspace character, U+0008, not a word-boundary escape.
+
+Verified rather than accepted: the first character of that regex source is code
+8; escaped it is code 92, and only the escaped form matches a screen showing
+`BUSBAR`. The test passed on a screen rendering the token exactly as readily as
+on one that did not - and its job was to be the anchor proving the view model
+stays invisible.
+
+Fixed, with the token escaped as well, since these strings come from the
+archetype and one carrying a metacharacter would change what is searched for.
+Proved: rendering `BUSBAR` in a panel body now fails exactly that test and no
+other. Before the fix, the same probe failed nothing.
+
+**This is the same escape as the two dead PowerShell patterns in T011A, in a
+different language.**
+
+### Finding 2: a broken reference wearing an unplaced costume
+
+`deriveSiteSldView` validated topology node components, connection endpoints
+and mapping device/signal references, but not `device.component_id` or
+`mapping.component_id` against the declared component set. Those arrived as
+`unplaced` entries instead.
+
+The two look alike and are not. A device naming a component the archetype does
+not place is unplaced: the component exists and the diagram has nowhere for it.
+A device naming a component the foundation never declared is a broken
+reference - and it produced a model reporting `compatible` while carrying
+device and signal facts anchored to something that does not exist.
+
+Both now return `REFERENCE_UNRESOLVED` naming the offending id, so that code
+covers every kind of reference this view model reads. Proved: removing the
+device check fails two of the three new tests.
+
+### The re-review
+
+Accept, no findings. It verified the repaired matcher, **swept live source for
+the same literal-backspace bug and found none**, re-read the reference
+validation paths, and confirmed `unplaced` still covers declared-but-unplaced
+components rather than having been collapsed into the refusal.
+
+That sweep was repeated independently here across TypeScript, PowerShell, Node
+and Python. No live template literal or double-quoted string carries an
+unescaped `\b`, and the single embedded control character in the tree is
+deliberate: `test_site_parsing.py` uses a BEL to prove free text containing a
+control character is refused.
+
+### Checks
+
+Reviewer, both passes: architecture guard, workflow guard, backend `441 passed`
+and `tsc --noEmit` all passed. The frontend suite and build could not run under
+its sandbox for the known esbuild reason.
+
+Implementing session, after both fixes: backend `441 passed`, frontend 20 test
+files, `tsc` clean, build clean at 221.31 kB - unchanged from `main`, because
+nothing imports the view model outside tests until T016.
+
+### Not verified
+
+Nothing renders, so there is nothing to see and no browser evidence to gather.
+The archetype's geometry is tested for determinism and non-collision, not for
+whether it makes a sensible diagram; T016 inherits it either way.
