@@ -1645,3 +1645,36 @@ different facts wearing one name.
 
 The habit underneath all three: a guard, a sentence and a number each have to
 be checked against the thing they describe, not against themselves.
+
+### What round two left open
+
+Re-review accepted the slice. It reproduced every before/after rather than
+reading the packet, judged both departures from its own suggested fixes to be
+better than what it offered, and confirmed the T017 vocabularies byte-identical
+after a round that narrowed the unit vocabulary. Four findings, all Low, all
+preferences or test-strength points, none an acceptance gap. They were not
+fixed before merge and are the first cleanup available to a later slice:
+
+- **Intra-instant ordering is load-bearing and undeclared.** Transitions
+  completing at the same offset are walked in authored `sequence` order, which
+  is deterministic, but `DISPATCH_RULES` does not say so - and with the bound
+  walk that order decides whether the contract answers or abstains. Two causes
+  at one instant, authored either way round, give `NOT_RECONCILABLE` or
+  `declared 454.0`. Never a wrong number, and the shipped document has no
+  simultaneous transitions on one state. Criterion 6 made "applied exactly
+  once" a property of the time model; this is the sibling case it does not
+  cover, and the fix is a `DISPATCH_RULES` entry rather than code.
+- **The second initialization layer is real but unmeasured.** The role guard
+  in `initialization_inputs` holds if the parser refusal is ever loosened -
+  verified by constructing the record directly - but the branch is unreachable
+  through `parse_scenario_document`, so no test exercises it. The same shape as
+  the round-one lesson, one size smaller.
+- **The contract-version test is honest but weak.** The fixture value and
+  `EXECUTION_CONTRACT_VERSION` are both `1`, so a hard-coded `1` in the
+  component would still pass, and the backend asserts `>= 1` rather than
+  equality with the constant.
+- **Two forward constraints live only in code comments.** A `POINT`-only
+  reading has no shape for a metered `kWh` aggregate, which a later evidence
+  slice will meet; and no duration has an authoring home outside
+  `timing.duration_minutes` until a slice reopens that vocabulary on the
+  record.

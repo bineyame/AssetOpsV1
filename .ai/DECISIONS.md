@@ -32,6 +32,7 @@ rationale in the dated entries below.
 | `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. |
 | `D-2026-09-21-scenario-authoring-semantics` | 2026-09-21 | The T017 checkpoint settles scenario versioning fields, the event taxonomy, and the public/private parameter boundary. |
 | `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
+| `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. |
 
 ## 2026-09-11
 
@@ -1330,3 +1331,64 @@ redesigning downstream contracts.
 Affected scope: M1B run-setup semantics, T018/T019 planning, M1C task sequence,
 runtime initialization and step contracts, event-time semantics, trace
 provenance, simulator tests, Simulator Lab claims, and golden-trace use.
+
+## 2026-09-21
+
+Decision: `D-2026-09-21-scenario-execution-contract`. The T018 checkpoint
+settles what an authored scenario value means to an executor. The user
+reviewed the Fuel Loss Event screen and accepted all four proposals.
+
+**Execution roles: accepted as proposed.** Every public parameter and every
+timeline entry carries one machine-readable execution role - `CAUSAL_INPUT`,
+`FORCING_INPUT`, `REPORTED_OBSERVATION`, `NON_EXECUTABLE_CONDITION` - on an
+axis orthogonal to the T017 entry kinds and categories, which are unchanged.
+Only a causal input may reach initialization or a private-state transition,
+and that is enforced at two independent layers rather than asserted. A
+forcing input names the state it forces and is binding on a later kernel, but
+may not declare a starting value: an exogenous state's value at every instant
+comes from its profile, including the first, so an initial value beside it
+would be a second answer to one question. A reported observation carries no
+ownership and no state effect, so there is no field it could arrive in.
+
+**Initialization and cadence ownership: accepted as proposed.** Every initial
+world value has exactly one owner - Site Foundation, the scenario, a run
+override, or a versioned model rule - and two owners for one value is refused
+when the definition is read. The scenario owns no cadence. Foundation declares
+that a signal can report and declares its unit, and declares no rate; nothing
+derives a cadence from a device name, from displayed text, or from the spacing
+between rows. A cadence arrives when a versioned observation profile declares
+one. The prohibition is closed at the unit vocabulary rather than per
+position: a duration has no authoring unit, so there is no position it can
+occupy. A hand-recorded value is a real source with its own identity and no
+device identity.
+
+**Timing and bounds: accepted as proposed.** An entry is an instant, a window
+with a declared length, or the whole interval, validated as three distinct
+shapes; a rate may only be declared over a window. The run interval and every
+step are half-open, so a boundary entry is applied by the step that begins
+there and by no other, making "applied exactly once" a property of the time
+model. Every bound case either refuses the definition, fails the run, or
+produces a bounded change recorded with the quantity it refused. There is
+deliberately no option meaning clamp quietly or drop the remainder.
+
+**An unreached reading is stated, not resolved: accepted as proposed.** The
+Fuel Loss declared causes reach 254 L where the sensor reports 155 L and the
+operator records 150 L. Both readings are reported observations from a named
+source, so neither prescribes tank state and the contract is coherent; what
+the contract must also do is say out loud that its declared causes do not
+reach either, with quantity and sign. The residual stands at -99 L and -104 L,
+`NOT_ACCOUNTED_FOR`. The three honest ways out - model the missing cause,
+declare a reporting behaviour that explains the difference, or accept the
+readings and change the causes - remain open and are the user's to choose in a
+later slice. Until one is chosen, later run setup treats an unreached reading
+as a reason to block rather than as a rounding matter.
+
+Reason: run setup cannot freeze honest inputs while a timeline row can
+ambiguously prescribe both a cause and its expected result. Classifying the
+values resolves that without editing any authored number, which would have
+settled a product question by arithmetic rather than by review.
+
+Affected scope: T019 Draft run setup and its `BLOCKED` computation, T021's
+kernel and its initialization/step contract, T022's device observations, the
+scenario parser vocabularies and payloads, and any later slice that resolves
+the Fuel Loss residual.
