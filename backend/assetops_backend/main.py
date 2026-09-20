@@ -19,6 +19,8 @@ from __future__ import annotations
 from fastapi import APIRouter, FastAPI
 
 from assetops_backend.config import FeatureFlags, load_feature_flags
+from assetops_backend.scenarios.composition import build_scenario_repository
+from assetops_backend.scenarios.ports import ScenarioDefinitionRepository
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
 from assetops_backend.sites.composition import (
     build_site_repository,
@@ -45,6 +47,7 @@ def create_app(
     *,
     site_template_catalog: SiteTemplateCatalog | None = None,
     site_repository: SiteRepository | None = None,
+    scenario_repository: ScenarioDefinitionRepository | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -61,6 +64,14 @@ def create_app(
     catalog to find that out. The Site repository is built in both states,
     because the Sites index is an operator capability that the gate does not
     reach.
+
+    The scenario repository is built only when the gate is open, for the same
+    reason as the template catalog and not for the reason the Site repository
+    is built in both. Scenarios are a Simulator Lab surface: no operator route
+    reads one, so a closed gate must not touch the scenario store to discover
+    that it serves no scenario route. The store still exists and is still
+    readable; nothing about a scenario is gated except the surfaces that show
+    it.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -76,7 +87,14 @@ def create_app(
             if site_template_catalog is None
             else site_template_catalog
         )
-        app.include_router(build_simulator_lab_router(catalog, repository))
+        scenarios = (
+            build_scenario_repository()
+            if scenario_repository is None
+            else scenario_repository
+        )
+        app.include_router(
+            build_simulator_lab_router(catalog, repository, scenarios)
+        )
 
     return app
 

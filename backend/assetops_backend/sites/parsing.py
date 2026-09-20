@@ -24,7 +24,7 @@ from __future__ import annotations
 import re
 from typing import Any, Mapping, NoReturn
 
-from assetops_backend.sites.document_bounds import DocumentLimits, reject_oversized
+from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.sites.foundation_parsing import (
     FOUNDATION_CONTENT_KEYS,
     parse_foundation_content,

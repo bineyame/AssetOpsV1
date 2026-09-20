@@ -19,7 +19,6 @@ action on the store.
 """
 
 __all__ = [
-    "document_bounds",
     "identity",
     "models",
     "ports",

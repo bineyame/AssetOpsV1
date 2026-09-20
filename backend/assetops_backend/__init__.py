@@ -6,4 +6,4 @@ evidence, analytics, and findings as later slices add them.
 T001 scope: service liveness only.
 """
 
-__all__ = ["main"]
+__all__ = ["document_bounds", "main"]

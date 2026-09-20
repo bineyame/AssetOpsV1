@@ -26,8 +26,23 @@ it stays fully visible when the Lab is switched off. There is no publish step
 and no promote step, because it was a product object from the instant it
 existed.
 
-The create path runs handler to service to port to adapter, with no shortcut
-to storage. This module names no file, no path, and no serialization format.
+The scenario routes T017 adds are reads, through the
+`ScenarioDefinitionRepository` port. They serve saved `ScenarioDefinition`
+records: what a simulated interval is intended to do, before any run exists.
+No route here starts, stages, commits, ingests, or replays anything, and none
+of them returns an assessment, a source-health result, a confidence, a
+severity, or a Finding, because none of those has a truthful source.
+
+The scenario detail route carries the private test-oracle expectations in a
+section of its own, built by a payload function that never reads any public
+field and vice versa. That is the public/private boundary: it is in the record
+and in the payload builders, not in what a screen chooses to draw. The catalog
+listing carries no expectation at all, and the operator Sites API - which is
+mounted in both gate states and lives in another module - has no field one
+could occupy.
+
+Every path runs handler to service to port to adapter, with no shortcut to
+storage. This module names no file, no path, and no serialization format.
 """
 
 from __future__ import annotations
@@ -36,6 +51,28 @@ from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
 
+from assetops_backend.scenarios.identity import (
+    SCENARIO_ID_RULE,
+    validate_scenario_id,
+)
+from assetops_backend.scenarios.models import (
+    PrivateExpectation,
+    ScenarioDefinition,
+    ScenarioParameter,
+    ScenarioTargetResolution,
+    TimelineEntry,
+)
+from assetops_backend.scenarios.ports import (
+    ScenarioConfigurationInvalid,
+    ScenarioDefinitionRepository,
+    ScenarioIdentityConflict,
+    ScenarioNotFound,
+    ScenarioStoreUnavailable,
+)
+from assetops_backend.scenarios.service import (
+    ScenarioCatalogService,
+    ScenarioDetailService,
+)
 from assetops_backend.sites.models import SiteTemplate
 from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
@@ -59,6 +96,8 @@ SIMULATOR_LAB_API_PREFIX = "/api/simulator-lab"
 SITE_TEMPLATES_ROUTE = "/site-templates"
 SITE_TEMPLATE_DETAIL_ROUTE = "/site-templates/{template_id}"
 CREATE_SITE_ROUTE = "/sites"
+SCENARIOS_ROUTE = "/scenarios"
+SCENARIO_DETAIL_ROUTE = "/scenarios/{scenario_id}"
 
 # Refusal codes. The message is the product copy a user reads; the code is what
 # a client switches on, so neither has to be parsed out of the other.
@@ -66,6 +105,8 @@ REFUSAL_INVALID_REQUEST = "SITE_REQUEST_INVALID"
 REFUSAL_SITE_ID_IN_USE = "SITE_ID_IN_USE"
 REFUSAL_TEMPLATE_NOT_FOUND = "TEMPLATE_NOT_FOUND"
 REFUSAL_STORE_UNAVAILABLE = "SITE_STORE_UNAVAILABLE"
+REFUSAL_SCENARIO_NOT_FOUND = "SCENARIO_NOT_FOUND"
+REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 
 
 def _refusal(code: str, message: str) -> dict[str, object]:
@@ -111,16 +152,160 @@ def _detail(template: SiteTemplate) -> dict[str, object]:
     }
 
 
+# --- Scenario payloads ------------------------------------------------------
+#
+# Two builders, and the split between them IS the public/private boundary.
+#
+# `scenario_public_summary` and `scenario_public_detail` read only the public
+# fields of a `ScenarioDefinition`. Neither mentions `private_expectations`, so
+# neither can leak one by omission, by a later field being added to a loop, or
+# by a screen forgetting to filter. `scenario_private_expectations` reads only
+# that field and nothing else.
+#
+# A test asserts that directly: a record whose expectations carry a sentinel
+# renders a public payload the sentinel does not appear in, and the same
+# sentinel does appear in the private payload, so the assertion cannot pass
+# because the sentinel was never there.
+
+
+def scenario_parameter(parameter: ScenarioParameter) -> dict[str, object]:
+    """One authored parameter.
+
+    `unit` is `null` for a text parameter rather than an empty string, because
+    no unit and a blank unit are different facts and a screen renders them
+    differently.
+    """
+    return {
+        "parameter_id": parameter.parameter_id,
+        "display_name": parameter.display_name,
+        "value": parameter.value,
+        "unit": parameter.unit,
+    }
+
+
+def scenario_timeline_entry(entry: TimelineEntry) -> dict[str, object]:
+    """One authored timeline row, in the order and placement it declares.
+
+    There is no instant and no run duration here: an offset is measured from
+    the start of a simulated interval nobody has chosen yet. There is no
+    outcome, no observed value, and no status, because this row is what the
+    simulated world will be told to do and not a report that it did it.
+    """
+    return {
+        "event_id": entry.event_id,
+        "sequence": entry.sequence,
+        "offset_minutes": entry.offset_minutes,
+        "entry_kind": entry.entry_kind,
+        "category": entry.category,
+        "description": entry.description,
+        "parameters": [
+            scenario_parameter(parameter) for parameter in entry.parameters
+        ],
+    }
+
+
+def scenario_public_summary(scenario: ScenarioDefinition) -> dict[str, object]:
+    """Catalog shape: scenario identity, version identity, and target.
+
+    No timeline, no parameters, and no expectation. A catalog row says which
+    scenarios are saved; reading one is the detail route's job.
+
+    `target_site` is the declaration the document makes, not a resolution. The
+    catalog does not read the Site store, so it states which site a scenario
+    asks for without claiming that site is configured.
+    """
+    return {
+        "scenario_id": scenario.scenario_id,
+        "display_name": scenario.display_name,
+        "purpose": scenario.purpose,
+        "origin": scenario.origin,
+        "version": {
+            "scenario_version": scenario.version.scenario_version,
+            "version_valid_from": scenario.version.version_valid_from,
+            "supersedes": scenario.version.supersedes,
+        },
+        "target_site": {
+            "policy": scenario.target_site.policy,
+            "site_id": scenario.target_site.site_id,
+            "template_id": scenario.target_site.template_id,
+            "requirement": scenario.target_site.requirement,
+        },
+    }
+
+
+def scenario_public_detail(scenario: ScenarioDefinition) -> dict[str, object]:
+    """The catalog shape plus the public timeline and public parameters."""
+    return {
+        **scenario_public_summary(scenario),
+        "timeline": [
+            scenario_timeline_entry(entry) for entry in scenario.timeline
+        ],
+        "public_parameters": [
+            scenario_parameter(parameter)
+            for parameter in scenario.public_parameters
+        ],
+    }
+
+
+def scenario_private_expectations(
+    scenario: ScenarioDefinition,
+) -> list[dict[str, object]]:
+    """The private test-oracle expectations, and nothing else.
+
+    Served on the gated Simulator Lab detail route only. These are developer
+    metadata about what a future test should be able to conclude; they are not
+    evidence, not provenance, and not a product claim, and no operator payload,
+    export, or analytic has a field they could occupy.
+    """
+    return [
+        {
+            "expectation_id": expectation.expectation_id,
+            "display_name": expectation.display_name,
+            "oracle_kind": expectation.oracle_kind,
+            "statement": expectation.statement,
+        }
+        for expectation in scenario.private_expectations
+    ]
+
+
+def scenario_target_resolution(
+    resolution: ScenarioTargetResolution,
+) -> dict[str, object]:
+    """What the declared target Site resolved to, as a screen state.
+
+    Beside the scenario rather than inside it, because it is not scenario
+    content: it is what this installation's Site store answered when asked
+    about the Site the scenario declares. The same scenario resolves
+    differently on two machines and the document does not change.
+    """
+    return {
+        "state": resolution.state,
+        "site_id": resolution.site_id,
+        "display_name": resolution.display_name,
+        "reason": resolution.reason,
+    }
+
+
 def build_simulator_lab_router(
-    catalog: SiteTemplateCatalog, repository: SiteRepository
+    catalog: SiteTemplateCatalog,
+    repository: SiteRepository,
+    scenarios: ScenarioDefinitionRepository,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
-    Both arrive as ports. This module never learns whether templates or Sites
-    are files, rows, or objects, and it never imports an adapter.
+    All three arrive as ports. This module never learns whether templates,
+    Sites, or scenarios are files, rows, or objects, and it never imports an
+    adapter.
+
+    The Site repository reaches the scenario detail service as well as the
+    create service, and that is the only place the two domains meet: a scenario
+    declares which Site it needs, and resolving that declaration is a read
+    against the Site port. Nothing flows the other way.
     """
     service = SiteTemplateCatalogService(catalog)
     creation = SiteCreationService(repository, catalog)
+    scenario_catalog = ScenarioCatalogService(scenarios)
+    scenario_detail = ScenarioDetailService(scenarios, repository)
     router = APIRouter(prefix=SIMULATOR_LAB_API_PREFIX, tags=["simulator-lab"])
 
     @router.get("/status")
@@ -221,5 +406,93 @@ def build_simulator_lab_router(
             ) from error
 
         return site_summary(record)
+
+    @router.get(SCENARIOS_ROUTE)
+    def list_scenarios() -> dict[str, object]:
+        """List every saved ScenarioDefinition.
+
+        A store that cannot be read, and a duplicate identity across the two
+        stores, are both stated as unavailable rather than degraded into "no
+        scenarios are saved". Those are different facts, and a catalog must not
+        claim the second when the first is true.
+        """
+        try:
+            saved = scenario_catalog.list_scenarios()
+        except (
+            ScenarioIdentityConflict,
+            ScenarioConfigurationInvalid,
+            ScenarioStoreUnavailable,
+        ) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
+            ) from error
+
+        return {
+            "scenarios": [
+                scenario_public_summary(scenario) for scenario in saved
+            ]
+        }
+
+    @router.get(SCENARIO_DETAIL_ROUTE)
+    def read_scenario(scenario_id: str) -> dict[str, object]:
+        """Return one saved scenario, and what its declared target resolves to.
+
+        The requested identity is validated here rather than only inside the
+        port, so a malformed identity and an unreadable store cannot arrive as
+        the same exception and be reported as the same thing. A malformed
+        identity is answered as not found, because no scenario could ever carry
+        it.
+
+        The target resolution is computed after the scenario is read and never
+        decides whether it can be read. A scenario whose declared Site is not
+        configured is a readable scenario with an unresolved target, which is a
+        screen state rather than a broken document.
+        """
+        try:
+            validate_scenario_id(scenario_id)
+        except ScenarioConfigurationInvalid as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_SCENARIO_NOT_FOUND,
+                    f"No scenario with scenario ID {scenario_id!r} is saved, "
+                    f"and no scenario could have that ID. {SCENARIO_ID_RULE}",
+                ),
+            ) from error
+
+        try:
+            scenario = scenario_detail.get_scenario(scenario_id)
+        except ScenarioNotFound as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_SCENARIO_NOT_FOUND,
+                    f"No scenario with scenario ID {scenario_id!r} is saved. "
+                    "Scenario IDs are compared without regard to case, so a "
+                    "different capitalisation of a saved scenario would have "
+                    "been found.",
+                ),
+            ) from error
+        except (
+            ScenarioIdentityConflict,
+            ScenarioConfigurationInvalid,
+            ScenarioStoreUnavailable,
+        ) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
+            ) from error
+
+        resolution = scenario_detail.resolve_target_site(scenario)
+
+        return {
+            "scenario": scenario_public_detail(scenario),
+            "target_resolution": scenario_target_resolution(resolution),
+            # The private half, in a section of its own. Built by a function
+            # that reads no public field, so a client cannot confuse the two
+            # for one another either.
+            "private_expectations": scenario_private_expectations(scenario),
+        }
 
     return router

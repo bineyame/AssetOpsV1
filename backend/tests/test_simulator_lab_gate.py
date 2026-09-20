@@ -19,16 +19,20 @@ SIMULATOR_LAB_STATUS_PATH = "/api/simulator-lab/status"
 SITE_TEMPLATES_PATH = "/api/simulator-lab/site-templates"
 SITE_TEMPLATE_DETAIL_PATH = "/api/simulator-lab/site-templates/{template_id}"
 CREATE_SITE_PATH = "/api/simulator-lab/sites"
+SCENARIOS_PATH = "/api/simulator-lab/scenarios"
+SCENARIO_DETAIL_PATH = "/api/simulator-lab/scenarios/{scenario_id}"
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
-# added the two template paths and T006 added the create path; the inventory
-# assertions below are extended to name them rather than relaxed to tolerate
-# them.
+# added the two template paths, T006 added the create path, and T017 added the
+# two scenario paths; the inventory assertions below are extended to name them
+# rather than relaxed to tolerate them.
 SIMULATOR_LAB_SERVED_PATHS = {
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
     SITE_TEMPLATE_DETAIL_PATH,
     CREATE_SITE_PATH,
+    SCENARIOS_PATH,
+    SCENARIO_DETAIL_PATH,
 }
 
 # Paths an operator, a script, or a stale bookmark could plausibly aim at the
@@ -40,6 +44,8 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     SITE_TEMPLATES_PATH,
     "/api/simulator-lab/site-templates/hybrid-mini-grid-100kw",
     CREATE_SITE_PATH,
+    SCENARIOS_PATH,
+    "/api/simulator-lab/scenarios/fuel-loss-event",
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",
