@@ -52,8 +52,12 @@ typecheck and build clean at 240.35 kB. `tools/layout-evidence.mjs` reports all
 claims holding at 1280, 1000 and 640 wide.
 
 `var/sites/` holds `mg-001` plus `mg-002` (declares a cold room) and `mg-003`
-(two AC buses), added for the checkpoint. They are gitignored local data: delete
-them or keep them as fixtures for the next slice needing either shape.
+(two AC buses), added for the T016 checkpoint. **The user asked that these be
+kept as fixtures.** They are gitignored, so nothing in the repo protects them:
+do not clear this directory, and add rather than replace when a slice needs
+another shape. `mg-002` is the only local Site declaring a cold room and
+`mg-003` the only one the SLD archetype refuses, so both are the only way to
+open those two states in a browser.
 
 ### Two questions left for an Architect, both raised and neither answered
 
