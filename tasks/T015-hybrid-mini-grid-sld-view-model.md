@@ -1,6 +1,6 @@
 # T015 - Hybrid Mini-Grid SLD View Model
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T015-hybrid-mini-grid-sld-view-model`

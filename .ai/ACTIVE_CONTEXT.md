@@ -18,44 +18,38 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T014 closed out 2026-09-19.
+T015, the hybrid mini-grid SLD view model. Built and in review on
+`task/T015-hybrid-mini-grid-sld-view-model`. Packet at
+`.agent/T015-review-packet.md`.
 
-**Causal Sequencing step 4 has started.** T014 was its first slice and the first
-since T008 to add content rather than arrange it: the canonical Foundation now
-carries topology, devices, signal mappings and control assumptions, the shipped
-hybrid mini-grid template declares all four, a created Site copies them, and the
-Foundation screen renders them instead of stating them as absent. It was also
-the first slice built by a different Implementer agent.
+It renders nothing. The view model turns a validated Foundation into either a
+compatible diagram view or an explicit unavailable result with a stable reason,
+and nothing outside tests imports it until T016 - which is why the production
+bundle is unchanged from `main`.
 
-What it left behind, beyond the screen:
+**How it was built matters for how much to trust it.** The Implementer agent
+stalled with a watchdog failure before committing anything, before running a
+single check, and before writing a packet. Its work was found uncommitted,
+committed verbatim and unreviewed so it could not be lost, then verified and
+extended from the outside. 783 lines of new logic were reviewed by their own
+tests and by proving; the author verified none of it.
 
-- One strict validator for the Foundation content, shared by the template parser
-  and the Site parser, with a test asserting they expose the same object.
-- `null` versus `[]`. `null` is a document declaring none; an empty list is
-  refused everywhere, because `[]` renders as a table with a header row and no
-  rows, which says the site HAS none.
-- **Every cardinality cap must be reachable.** Two review findings, both fixed,
-  and the first opened a third defect: relaxed document bounds were restored,
-  and restoring them exposed three caps sitting above the node ceiling where
-  they could never fire. Move a cap under the ceiling, never the ceiling over
-  the cap. `TestEveryCapCanFire` now measures every cap automatically. The full
-  lesson is in `.ai/CODE_STATE.md` under T014, and it is the third appearance of
-  one family in this project.
+Proving found one defect, and it is the fourth instance of one family. Widening
+`SldValueSlot` failed zero tests, because the runtime objects stay empty while
+the contract quietly widens. Two `@ts-expect-error` assignments close it. The
+family now reads: a pattern that cannot match, a ban against text that cannot
+contain a boundary, a cap above its own ceiling, and a runtime assertion that
+survives the contract being widened underneath it. **When a claim is enforced
+by a type, test the type, not only the values.**
 
-A deviation worth remembering rather than repeating: a locally created Site in
-gitignored `var/sites/` was deleted to make browser evidence deterministic. Add
-a Site or use a temporary store; never delete ignored user data for convenience.
+Backend `441 passed`, frontend `606 passed` across 20 files, both guards,
+typecheck and build clean.
 
-Backend `441 passed`, frontend `560 passed` across 19 files, both guards,
-typecheck and build clean, and `tools/layout-evidence.mjs` reports all claims
-holding at 1280x800, 1000x700 and 640x700.
-
-Next: T015, the hybrid mini-grid SLD view model. It renders nothing - it turns
-the Foundation topology T014 persists into a view model the T016 diagram reads.
-
-Still unjudged by anyone: whether these screens read well. Six tables now share
-the Foundation page, and `node_id` and `component_id` carry the same string in
-the shipped template, so the nodes table shows two identical columns.
+Next after review: T016, the configured SLD and device/signal presentation. It
+renders what T015 produces, and it carries the user-review checkpoint that
+settles the two vocabularies T014 and T015 both deliberately left open -
+whether a breaker is a device or component state, and how cold-room symbols
+relate to mini-grid topology.
 
 T005 to T014 are complete, in `tasks/completed/` with their Review Outcomes.
 
