@@ -14,41 +14,52 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active planned task: `tasks/T017-scenario-catalog-fuel-loss-detail.md`.
+`tasks/T017-scenario-catalog-fuel-loss-detail.md` is built and at
+`Status: in_review` on branch `task/T017-scenario-catalog-fuel-loss-detail`.
+Not merged. Packet: `.agent/T017-review-packet.md`.
 
-T017 starts M1B, Scenario Catalog And Run Setup. It has been revised after
-Architect review to fold in the ScenarioDefinition model, composed
-shipped/writable scenario storage, runtime-injection seam, and scenario-detail
-affordance rule. It is ready for Architect review before Implementer pickup.
+Next step is Reviewer, then **user review**, which T017 carries as the M1B
+checkpoint. The screen at `/simulator-lab/scenarios/fuel-loss-event` puts a
+provisional proposal in front of the user for three decisions:
 
-T017 carries `USER_REVIEW_REQUIRED: true`. It is the M1B checkpoint for:
+- scenario versioning fields, in the identity and version panel;
+- event taxonomy, under the timeline and its legend;
+- public authoring parameters versus private test-oracle expectations, in the
+  private expectations panel, with the public parameters panel above it.
 
-- scenario versioning fields;
-- event taxonomy;
-- public authoring parameters versus private test-oracle expectations;
-- run setup language prerequisites.
+Each region states a proposal, what is already settled, and what accepting or
+redirecting means, so accepting the screen is a decision. Run setup language
+is answered by the third: the screen names the missing run setup / Draft
+SimulationRun prerequisite on the disabled `Create Draft Run` control.
 
-T018 and T019 are not task files yet. They depend on the T017 User Review
-Outcome and are sequenced in `.ai/FEATURE_MAP.md` under
-`Early Feature: Scenario Catalog And Run Setup`.
+T018 and T019 are not task files yet and are not implementable until the T017
+User Review Outcome is recorded. They are sequenced in `.ai/FEATURE_MAP.md`
+under `Early Feature: Scenario Catalog And Run Setup`.
 
 ## Current State
 
 M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.
-T016 drew the configured Single Line Diagram inside Foundation and was accepted
-by user review on 2026-09-20.
+M1B has opened: T017 is built and in review.
 
-Cold-room symbol treatment was accepted as proposed. Breaker/control vocabulary
-was settled by `D-2026-09-20-breaker-vocabulary`: breaker position is evidence,
-not Foundation configuration; `OPEN`, `CLOSED`, `TRIPPED`, `AUTO`, `MANUAL`,
-and `BREAKER` are not Foundation schema vocabulary. A scenario taxonomy must
-not smuggle those terms into schema vocabulary either.
+Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
+position is evidence, not configuration. T017 grew that protection to the
+scenario domain and moved the banned list to
+`backend/tests/control_vocabulary.py`, read by both scans. It is unconditional
+and covers the scenario model, the parser key vocabularies, the shipped
+definition and the parser fixtures.
+
+`config/scenarios/fuel-loss-event.yaml` is tracked, read-only, and the one
+shipped scenario. Unlike `config/sites/`, that store deliberately does not ship
+empty: there is no scenario create flow, so an empty store would leave a fresh
+checkout nothing to inspect.
 
 `var/sites/` holds `mg-001`, `mg-002` (cold room), and `mg-003` (two AC buses).
 The user asked that these be kept as fixtures. They are gitignored, so add
 fixtures when needed and do not clear, replace, or delete that directory.
+`var/scenarios/` is the writable scenario store; it is gitignored, empty, and
+nothing in the product can write to it yet.
 
-## Read For T017
+## Read For The T017 Review
 
 - `tasks/T017-scenario-catalog-fuel-loss-detail.md`
 - `.ai/FEATURE_MAP.md`
@@ -71,12 +82,13 @@ fixtures when needed and do not clear, replace, or delete that directory.
   - T014
   - T015
   - T016
+  - T017
 - `.ai/WORKFLOW.md`
   - Task Spec Size
   - Review Packet
   - Closeout
 
-## Settled Direction For T017
+## Settled Direction For M1B
 
 - Scenario catalog is a Simulator Lab surface, not an operator surface, and is
   gated with `simulator_lab.enabled`.
@@ -121,3 +133,7 @@ Per-slice details live in `.ai/CODE_STATE.md`.
   Foundation naming, operator tab inventory, and overflow posture.
 - T014-T016 settled Foundation topology/devices/mappings, SLD view model, and
   configured SLD/device presentation.
+- T017 settled the ScenarioDefinition domain, its port and composed stores, the
+  parser/service split over target-site resolution, the parsed-field
+  public/private boundary, and the Lab's scenario surfaces. The three
+  checkpoint semantics are proposed on screen and not yet answered.

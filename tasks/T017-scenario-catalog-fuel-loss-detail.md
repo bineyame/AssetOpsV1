@@ -1,6 +1,6 @@
 # T017 - Scenario Catalog Fuel Loss Detail
 
-Status: active
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T017-scenario-catalog-fuel-loss-detail`
