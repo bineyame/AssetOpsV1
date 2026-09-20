@@ -563,7 +563,11 @@ for (const [label, width, height] of [
         `${scenario.privateRegions} region(s), visible ${scenario.privateRegionVisible}`,
       ],
       [
-        "the only enabled action is the target site link",
+        // Measured over buttons. The one enabled control this screen may carry
+        // is the target-site LINK, which is an anchor rather than a button
+        // precisely because following it is navigation, so it is deliberately
+        // outside this set. Which states enable it is covered by the UI suite.
+        "no enabled button renders",
         scenario.buttons.every((b) => b.disabled),
         scenario.buttons.length === 0
           ? "no button rendered"
