@@ -105,11 +105,28 @@ export const SITE_SLD_UNAVAILABLE_NOTE =
 
 /** The layout lattice, in CSS pixels. The one thing this module decides. */
 const PADDING = 28;
-const COLUMN_PITCH = 236;
-const ROW_PITCH = 124;
-const NODE_WIDTH = 176;
-const NODE_HEIGHT = 92;
+const COLUMN_PITCH = 260;
+const ROW_PITCH = 140;
+const NODE_WIDTH = 200;
+const NODE_HEIGHT = 108;
 const GLYPH = 26;
+
+/**
+ * Where the text in a box starts, and how much of it fits on a line.
+ *
+ * SVG text does not wrap and does not clip, so a name longer than its box runs
+ * out of the side of it and across whatever is drawn there - which is how
+ * `Battery power conversion system` came to have a connection running through
+ * it. The name is wrapped instead of shortened: a truncated component name is
+ * a fact hidden to make a layout tidy, and this surface refuses that
+ * everywhere else.
+ */
+const TEXT_LEFT = 14 + GLYPH + 10;
+const NAME_LINE_BUDGET = 18;
+const NAME_LINES = 2;
+
+/** The empty space between two lanes, which is where a run turns. */
+const LANE_GAP = COLUMN_PITCH - NODE_WIDTH;
 
 interface Box {
   x: number;
@@ -121,6 +138,37 @@ function boxFor(node: SldNodeView): Box {
     x: PADDING + node.position.column * COLUMN_PITCH,
     y: PADDING + node.position.row * ROW_PITCH,
   };
+}
+
+/**
+ * A display name broken onto at most two lines, on word boundaries.
+ *
+ * The remainder goes on the last line whole rather than being cut: a name too
+ * long for two lines overflows its box, which is visible and fixable, where a
+ * name with its end removed looks deliberate and is not.
+ */
+function wrapName(name: string): string[] {
+  const words = name.split(/\s+/).filter((word) => word.length > 0);
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current === "" ? word : `${current} ${word}`;
+
+    if (candidate.length <= NAME_LINE_BUDGET || current === "") {
+      current = candidate;
+      continue;
+    }
+    if (lines.length === NAME_LINES - 1) {
+      current = candidate;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+  }
+
+  if (current !== "") lines.push(current);
+  return lines.length === 0 ? [name] : lines;
 }
 
 function ratingText(node: SldNodeView): string {
@@ -150,9 +198,16 @@ function runPoints(from: Box, to: Box, turn: SldConnectionView["route"]["turn"])
     return `${x},${startY} ${x},${endY}`;
   }
 
-  const startX = from.x + NODE_WIDTH;
-  const endX = to.x;
-  const turnX = Math.round((startX + endX) / 2);
+  // The turn happens in the gap immediately before the destination lane, not
+  // at the midpoint of the whole run. A run that skips a lane - the generator
+  // reaching the bus past the conversion lane - turns at the midpoint straight
+  // through whatever that lane is holding, and a line crossing a component box
+  // reads as a connection to it.
+  const rightward = to.x >= from.x;
+  const startX = rightward ? from.x + NODE_WIDTH : from.x;
+  const endX = rightward ? to.x : to.x + NODE_WIDTH;
+  const turnX = rightward ? endX - LANE_GAP / 2 : endX + LANE_GAP / 2;
+
   return `${startX},${fromMidY} ${turnX},${fromMidY} ${turnX},${toMidY} ${endX},${toMidY}`;
 }
 
@@ -272,20 +327,41 @@ function SldNode({ node }: { node: SldNodeView }) {
         rx={6}
       />
       <Glyph symbol={node.symbol} x={box.x + 14} y={box.y + 14} />
-      <text className="sld-node__name" x={box.x + 14 + GLYPH + 10} y={box.y + 28}>
-        {node.displayName}
+      {/*
+        * One `text` element holding the whole name, wrapped into `tspan`
+        * lines. One element per line would put the name on the screen as two
+        * separate strings, and an assertion comparing a label to the record
+        * would then have to know how this component chose to break it.
+        */}
+      <text className="sld-node__name" x={box.x + TEXT_LEFT} y={box.y + 26}>
+        {wrapName(node.displayName).map((line, index) => (
+          <tspan
+            key={line}
+            x={box.x + TEXT_LEFT}
+            dy={index === 0 ? 0 : 16}
+          >
+            {line}
+          </tspan>
+        ))}
       </text>
-      <text className="sld-node__rating" x={box.x + 14 + GLYPH + 10} y={box.y + 46}>
+      <text className="sld-node__rating" x={box.x + TEXT_LEFT} y={box.y + 64}>
         {ratingText(node)}
       </text>
-      <text className="sld-node__slot" x={box.x + 14} y={box.y + NODE_HEIGHT - 14}>
-        {AWAITING_RUNTIME_OR_EVIDENCE}
-      </text>
       {node.candidate === null ? null : (
-        <text className="sld-node__candidate" x={box.x + NODE_WIDTH - 12} y={box.y + 18}>
+        // Inside the box, on its own line. Over the corner it sat on top of
+        // the component's name, which put the marking in the way of the thing
+        // it is a marking about.
+        <text
+          className="sld-node__candidate"
+          x={box.x + TEXT_LEFT}
+          y={box.y + 82}
+        >
           Proposed treatment
         </text>
       )}
+      <text className="sld-node__slot" x={box.x + 14} y={box.y + NODE_HEIGHT - 10}>
+        {AWAITING_RUNTIME_OR_EVIDENCE}
+      </text>
     </g>
   );
 }

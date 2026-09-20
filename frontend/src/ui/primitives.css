@@ -668,7 +668,6 @@ button:focus-visible {
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   fill: var(--accent);
-  text-anchor: end;
 }
 
 .sld-node[data-sld-candidate="unsettled"] .sld-node__box {

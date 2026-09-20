@@ -885,9 +885,19 @@ describe("the SLD view model reaches the screen, and nothing else does", () => {
 
     const diagram = drawableDiagram(HYBRID_MINI_GRID_SITE);
     const drawing = container.querySelector("svg") as SVGElement;
+    // Reassembled from its `tspan` lines, joined by the space the wrap
+    // consumed. `textContent` would glue the lines together and give
+    // `Generator fueltank`, which is the same failure `spacedText` exists for,
+    // inside one element instead of between two. Reassembling it means a
+    // dropped or invented word fails here.
     const drawnLabels = Array.from(
       drawing.querySelectorAll(".sld-node__name"),
-    ).map((text) => text.textContent ?? "");
+    ).map((text) =>
+      Array.from(text.querySelectorAll("tspan"))
+        .map((line) => line.textContent ?? "")
+        .join(" ")
+        .trim(),
+    );
     const drawnRatings = Array.from(
       drawing.querySelectorAll(".sld-node__rating"),
     ).map((text) => text.textContent ?? "");
