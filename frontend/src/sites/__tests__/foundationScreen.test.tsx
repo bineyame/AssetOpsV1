@@ -565,8 +565,14 @@ describe("a foundation with no topology gets no drawing and is told why", () => 
     const refused = sld.querySelectorAll("[data-sld-unavailable]").length;
 
     // Exactly one of the two, never neither and never both. Neither is the
-    // empty frame; both would be a refusal with a drawing under it.
-    expect(drawn > 0 ? 1 : 0).not.toBe(refused > 0 ? 1 : 0);
+    // empty frame; both would be a refusal with a drawing under it. Spelled
+    // out rather than compared as two booleans, so the failure says which of
+    // the four states the screen was in.
+    const state = `${drawn > 0 ? "drawing" : "no drawing"}, ${
+      refused > 0 ? "refusal" : "no refusal"
+    }`;
+
+    expect(state).toMatch(/^(drawing, no refusal|no drawing, refusal)$/);
   });
 });
 
