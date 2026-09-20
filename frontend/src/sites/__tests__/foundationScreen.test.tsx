@@ -677,7 +677,19 @@ describe("the SLD view model exists and reaches no screen", () => {
     // document's. A screen showing one of them is a screen rendering the view
     // model, whatever it looks like.
     for (const token of SLD_PRESENTATION_TOKENS(HYBRID_MINI_GRID_SITE)) {
-      expect(text).not.toMatch(new RegExp(`\b${token}\b`));
+      // `\\b`, not `\b`. Inside a template string `\b` is a backspace
+      // character, U+0008, not a word-boundary escape - so this looked for
+      // backspaces around the token and could not match anything. It passed
+      // on a screen rendering BUSBAR exactly as readily as on one that did
+      // not, which is the whole failure: an anti-vacuity anchor that was
+      // itself vacuous.
+      //
+      // The token is escaped too. These strings come from the archetype, and
+      // one carrying a regex metacharacter would quietly change what is being
+      // searched for.
+      const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      expect(text).not.toMatch(new RegExp(`\\b${escaped}\\b`));
     }
   });
 
