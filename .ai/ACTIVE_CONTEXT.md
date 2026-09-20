@@ -16,10 +16,14 @@ resulting operational evidence in the UI.
 
 `tasks/T017-scenario-catalog-fuel-loss-detail.md` is built and at
 `Status: in_review` on branch `task/T017-scenario-catalog-fuel-loss-detail`.
-Not merged. Packet: `.agent/T017-review-packet.md`.
+Not merged. Packet: `.agent/T017-review-packet.md`, findings at
+`.agent/T017-review-findings.md`.
 
-Next step is Reviewer, then **user review**, which T017 carries as the M1B
-checkpoint. The screen at `/simulator-lab/scenarios/fuel-loss-event` puts a
+The Reviewer returned accept-with-findings; both acceptance gaps (F1, the
+vocabulary ban missing identifier-valued positions; F2, the digit assertion
+carving out authored prose) are closed on the branch with proofs.
+
+Next step is **user review**, which T017 carries as the M1B checkpoint. The screen at `/simulator-lab/scenarios/fuel-loss-event` puts a
 provisional proposal in front of the user for three decisions:
 
 - scenario versioning fields, in the identity and version panel;

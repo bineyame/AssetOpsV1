@@ -1444,20 +1444,56 @@ redirecting mean. T016's checkpoint put candidates on screen with no proposal
 and settled nothing; a region that cannot be rendered without a proposal is the
 structural answer to that.
 
-The family, at seven.
+The family, at eight, and the eighth is the one worth carrying forward.
 
-`digitsInRecord()` compares digit RUNS against the set the record supplies, so
-an invented small number is indistinguishable from a sequence number the record
-really has. A deliberate "all 7 categories" in the prose **passed it**. The
-claim that actually holds is narrower and checkable: prose carries no digit at
-all, because every digit on the screen sits inside a container a record fills
-(`.data-table__scroll`, `.fact-list__value`, `.action-list__reason`). Each
-container is proved present before it is carved out. The weak assertion was
-kept beside the strong one - it still catches an invented large number
-anywhere - but it is no longer the only one.
+**A proof can pass for the wrong reason, and then it has proved nothing.** The
+vocabulary scan read mapping keys and upper-snake enum values. A scenario
+parameter key is neither: it is the lowercase identifier in the `parameter_id`
+FIELD. So `parameter_id: breaker-position` passed the guard and the parser, and
+so did `event_id: auto-mode-change` and a `scenario_id` built the same way.
 
-So the habit that found it: after writing a guard, break the thing it protects
-in the cheapest way a careless author would, not the most obvious way.
+Four deliberate violations did not find it. The reason is the lesson: the
+parameter proof added `breaker_position` as a mapping KEY, and the strict
+parser already refuses unknown mapping keys, so the document was refused before
+the vocabulary rule was ever consulted. It failed, it failed loudly, and it
+measured a different guard. **A deliberate violation has to be one the rest of
+the system would otherwise accept.** An independent reviewer found this, not the
+proofs.
+
+The fix moved the banned list into product code at
+`assetops_backend/control_vocabulary.py`, so `scenarios/parsing.py` and
+`scenarios/identity.py` refuse a banned identifier at parse time rather than
+the rule living only in a scan that might not reach the position it protects.
+The scan gained an `identifier` position kind, and
+`TestTheIdentifierAuditIsComplete` makes the audit permanent: every `*_id`
+field in the scenario schema must be classified as scenario vocabulary or as a
+reference into another identity space, and a new one fails until somebody
+decides which. Fixing only the position the review named would have left the
+next one.
+
+The ninth, found by a proof in the same pass.
+
+The invented-digit assertion took three attempts.
+`digitsInRecord()` compared digit RUNS against the record's runs, so an
+invented `7` matched a real sequence number - a deliberate "all 7 categories"
+passed. Carving out the containers that hold record values failed for the
+complementary reason a reviewer named: those containers hold authored text too,
+so a static digit in a table heading was removed wholesale. What holds is at
+leaf level: every text node is either exactly a string the record supplies, or
+carries no digit at all, asserted in both directions so the expectation cannot
+be padded.
+
+Then the proof of THAT found a third thing: a digit inserted into the
+`No earlier version` fallback still passed, because the loaded fixture takes
+the other branch and the fallback never rendered. **Authored text that no test
+renders is authored text no assertion covers, whatever the assertion says.** A
+second record that takes every fallback branch, and carries no digit of its
+own, closed it.
+
+So three habits, in the order they were learned the hard way: break the thing a
+guard protects in the cheapest way a careless author would; check that the
+break reaches the guard you meant rather than some earlier one; and check that
+the branch you broke is a branch the test renders at all.
 
 What the checkpoint proposes, and what it does not settle.
 
