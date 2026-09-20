@@ -1,15 +1,11 @@
 # Active Context
 
-Keep this file compact and current. It is the agent handoff for what matters
-now; durable reasoning stays in `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`,
-`.ai/ARCHITECTURE.md`, `.ai/CODE_STATE.md`, and the task files.
+Keep this file compact and current. Durable reasoning lives in
+`.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`, `.ai/ARCHITECTURE.md`,
+`.ai/CODE_STATE.md`, and the task files.
 
 Size rule: this file stays under 200 lines, enforced by
-`tools/check-agent-workflow.ps1`. Every agent reads it in full, so it is the one
-document whose growth is paid on every task. It was trimmed once for that reason
-and grew back to nearly four times the trimmed size in six slices, because
-per-slice records accumulated here. They now live in `.ai/CODE_STATE.md`. If a
-section here grows by one entry per slice, it is in the wrong file.
+`tools/check-agent-workflow.ps1`.
 
 ## Current Milestone
 
@@ -18,142 +14,96 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T016 closed out 2026-09-20, and **M1A is complete.**
+Active planned task: `tasks/T017-scenario-catalog-fuel-loss-detail.md`.
 
-Every planned task T001-T016 is in `tasks/completed/` with its Review Outcome.
-`tasks/` is empty. No M1B task exists, and none should be created without
-planning.
+T017 starts M1B, Scenario Catalog And Run Setup. It has been revised after
+Architect review to fold in the ScenarioDefinition model, composed
+shipped/writable scenario storage, runtime-injection seam, and scenario-detail
+affordance rule. It is ready for Architect review before Implementer pickup.
 
-T016 drew the configured Single Line Diagram inside Foundation and carried the
-M1A user-review checkpoint. Independent review: accept, no findings - the first
-clean first-pass review since T011. User review: accepted as built.
+T017 carries `USER_REVIEW_REQUIRED: true`. It is the M1B checkpoint for:
 
-### Both checkpoint questions are now settled
+- scenario versioning fields;
+- event taxonomy;
+- public authoring parameters versus private test-oracle expectations;
+- run setup language prerequisites.
 
-**Cold-room symbol treatment: accepted as proposed** at the checkpoint. A
-declared cold room draws in the lane its topology role puts it in, with its own
-shape. It is still marked `Proposed treatment` on screen and
-`SldCandidateTreatment.settled` is still the literal `false`. Removing that
-marker is a visible product change and should be its own commit.
+T018 and T019 are not task files yet. They depend on the T017 User Review
+Outcome and are sequenced in `.ai/FEATURE_MAP.md` under
+`Early Feature: Scenario Catalog And Run Setup`.
 
-**Breaker and control vocabulary: settled 2026-09-20**, after the checkpoint,
-on an Architect recommendation the user accepted
-(`D-2026-09-20-breaker-vocabulary`). A breaker is topology and, when
-instrumented, something a device reports about - never both in one record.
-Position is **evidence, not Foundation configuration**, so the position and mode
-words are not Foundation schema vocabulary and `BREAKER` is not a `DEVICE_TYPE`.
-M1 carries nothing beyond T014's declared control assumptions. T014's
-`frozenset` scan is kept with its rationale rewritten; it narrows only when a
-reviewed slice adds the topology/evidence separation and tests that position
-cannot be stored as configuration. What the first breaker slice must still
-decide is listed in `.ai/FEATURE_MAP.md` section 2.
+## Current State
 
-### State
+M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.
+T016 drew the configured Single Line Diagram inside Foundation and was accepted
+by user review on 2026-09-20.
 
-Backend `441 passed`, frontend `629 passed` across 20 files, both guards,
-typecheck and build clean at 240.35 kB. `tools/layout-evidence.mjs` reports all
-claims holding at 1280, 1000 and 640 wide.
+Cold-room symbol treatment was accepted as proposed. Breaker/control vocabulary
+was settled by `D-2026-09-20-breaker-vocabulary`: breaker position is evidence,
+not Foundation configuration; `OPEN`, `CLOSED`, `TRIPPED`, `AUTO`, `MANUAL`,
+and `BREAKER` are not Foundation schema vocabulary. A scenario taxonomy must
+not smuggle those terms into schema vocabulary either.
 
-`var/sites/` holds `mg-001` plus `mg-002` (declares a cold room) and `mg-003`
-(two AC buses), added for the T016 checkpoint. **The user asked that these be
-kept as fixtures.** They are gitignored, so nothing in the repo protects them:
-do not clear this directory, and add rather than replace when a slice needs
-another shape. `mg-002` is the only local Site declaring a cold room and
-`mg-003` the only one the SLD archetype refuses, so both are the only way to
-open those two states in a browser.
+`var/sites/` holds `mg-001`, `mg-002` (cold room), and `mg-003` (two AC buses).
+The user asked that these be kept as fixtures. They are gitignored, so add
+fixtures when needed and do not clear, replace, or delete that directory.
 
-### Two seam questions, settled 2026-09-20
+## Read For T017
 
-The Architect recommended, the user accepted, and both entries are now in
-`.ai/DECISIONS.md`.
-
-- Layout evidence is standing closeout evidence for layout-sensitive slices,
-  carried in the review packet, still outside `tools/check-architecture.ps1`. A
-  missing precondition records `not run` and leaves the claim unverified, never
-  green. See `.ai/WORKFLOW.md` Review Packet and Closeout.
-- No guard ties a merged slice's task status to branch state. Closeout is
-  manual: Review Outcome recorded and status set before the merge.
-
-No seam question is open. The breaker vocabulary was settled the same day; see
-the checkpoint section above.
-
-## Current Site Foundation Sequence
-
-**Every planned task is complete.** T001-T016, including T010A and T011A-T011C,
-are in `tasks/completed/`, each with its Review Outcome. The per-slice record of
-what each settled is in `.ai/CODE_STATE.md`; this file deliberately no longer
-carries one line per slice, which is what pushed it over its cap.
-
-Causal Sequencing steps 3 and 4 are complete in code. The configured diagram
-renders inside one named section of Foundation; everywhere else on the surface
-the diagram vocabulary is still banned, and the signal selector is still absent,
-because there is nothing to show for the signal a reader would have picked.
-
-## Read For The Next Slice
-
-Nothing is planned beyond T016. M1B, Scenario Catalog And Run Setup, is not
-planned or started until this checkpoint is accepted or redirected, and the
-user may reorder, split or remove what follows.
-
-For reviewing T016:
-
-- `tasks/T016-foundation-sld-and-device-signal-presentation.md`
-- `.agent/T016-review-packet.md`, whose `Absence Assertions Changed` section
-  names every ban that moved and what it says now.
-- `.ai/CODE_STATE.md`, the T014, T015 and T016 entries.
-- `.ai/FEATURE_MAP.md`, `### 2. Topology, Components, Devices, And Single Line
-  Diagram` and `### Viewport and overflow commitment`.
+- `tasks/T017-scenario-catalog-fuel-loss-detail.md`
+- `.ai/FEATURE_MAP.md`
+  - Client-Demo Roadmap
+  - `### 3. Scenario Authoring And Scenario Catalog`
+  - `### 4. SimulationRun Runtime And Simulator Lab Shell`
+  - `### Early Feature: Scenario Catalog And Run Setup`
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-13-shared-site-substrate`
+  - `D-2026-09-11-simulator-gate`
+  - `D-2026-09-13-template-and-create-surfaces-gated`
+  - `D-2026-09-13-site-foundation-persistence`
   - `D-2026-09-13-canonical-fidelity`
+  - `D-2026-09-20-breaker-vocabulary`
+  - `D-2026-09-20-scenario-definition-model`
+  - `D-2026-09-20-scenario-definition-storage`
+  - `D-2026-09-20-run-scoped-event-injection`
+  - `D-2026-09-20-scenario-detail-affordances`
+  - `D-2026-09-20-layout-evidence-standing`
+- `.ai/CODE_STATE.md`
+  - T014
+  - T015
+  - T016
+- `.ai/WORKFLOW.md`
+  - Task Spec Size
+  - Review Packet
+  - Closeout
 
-## Settled Direction
+## Settled Direction For T017
 
-- M1 ships zero canonical Sites. First run has a genuinely empty Sites index.
-- A template is not a Site and never has `site_id`, lifecycle status, location,
-  or a place-bound timezone.
-- Template browsing and Site creation are Simulator Lab surfaces behind
-  `simulator_lab.enabled`.
-- Sites index, Site Details, and the Foundation surface are operator surfaces
-  and are never gated. T008 built the surface under the working name Site
-  Configuration; T011A renames it to Foundation and keeps the old address as a
-  redirect. `configuration` stays as the domain word.
-- A tab is a destination only when a route behind it renders a truthful surface
-  for the identified site. A canonical aspect with no content yet is labelled in
-  place, never disabled: disabled says the capability exists and is switched
-  off.
-- M1 commits to desktop-class width, at least 1280px, and claims no mobile,
-  phone or portrait-tablet form. Page-level overflow is not an allowed answer to
-  density: shell chrome stays anchored and dense content owns its own scroll.
-  Nothing may be dropped to fit - not a Sites index column, not a rail label,
-  not one of the eight Site tabs.
-- A Site created from the Lab is a normal product Site with
-  `source.mode = SIMULATED`; there is no Lab-owned Site store and no publish or
-  promote step.
-- Operator navigation does not grow for Site Foundation slices.
-- Operator Site page and Lab Site page share one presentation substrate at
-  `frontend/src/sites/`.
-- Source mode, Site lifecycle, configuration origin, evidence readiness, and
-  source health are separate concepts.
-
-## What The Code Already Settles
-
-In `.ai/CODE_STATE.md`, one entry per slice, so this file does not carry a
-growing record. Read the entries the "Read For" list above names.
-
-- What T006 settled: the Site record shape, the two stores, identity rules, the
-  create and index APIs, the substrate modules.
-- What T007 settled: the per-Site read path and its refusals, the detail wire
-  shape, the operator site routes, the three stated-absence facts.
-- Tooling: the per-seam architecture guard, and the settle helper that frontend
-  tests must use instead of awaiting a heading or a landmark.
-
-Carried-forward risk lives there too, per slice, with closed items marked
-settled in place rather than deleted. Open at the time of writing: no
-integration test binds the real frontend clients to the backend (third slice
-running, and now a decision rather than a gap); the Site record has no created
-or updated timestamp; integration readiness is a stated absence with no field
-behind it.
+- Scenario catalog is a Simulator Lab surface, not an operator surface, and is
+  gated with `simulator_lab.enabled`.
+- Only `frontend/src/shell/simulatorLabRoutes.tsx` may name simulator URLs.
+- Adding a truthful Scenarios route may add Scenarios to the Lab rail; operator
+  navigation and operator Site tabs do not grow.
+- ScenarioDefinition answers what happens during the simulated interval. Site
+  Foundation answers what the Site is. The two do not duplicate each other.
+- The shipped Fuel Loss Event is a directly selectable ScenarioDefinition at
+  `config/scenarios/fuel-loss-event.yaml`, read through composed shipped and
+  writable stores behind a scenario-domain port. Writable user definitions live
+  under gitignored `var/scenarios/`.
+- Scenario events are authored sub-artifacts inside a scenario version, not
+  top-level stored entities. Future runtime injections are run-scoped
+  SimulationRun intervention-history records and are not written back into the
+  scenario version.
+- Scenario labels, scenario versions, run names, and `run_id` never become
+  `site_id`.
+- Private expectations are test-oracle metadata only. They never enter source
+  envelopes, accepted evidence, operator UI, normal product provenance, exports,
+  analytics, or Findings.
+- M1B has no ingestion, no accepted evidence, no Draft run yet, and no Findings.
+  T017 screens must describe intention, not report outcome.
+- No invented digits: a count, timestamp, duration, seed, volume, confidence, or
+  parameter value appears only when the record supplies it.
+- Dense tables and timeline layouts require browser layout evidence in the
+  review packet.
 
 ## Standard Checks
 
@@ -161,38 +111,13 @@ behind it.
 - `tools/check-agent-workflow.ps1`
 - Existing backend and frontend tests relevant to the active slice.
 
-## Task Spec Hygiene
+## What The Code Already Settles
 
-Follow `.ai/WORKFLOW.md`, Task Spec Size and Avoiding Spec Chaff. Large early M1
-specs are acceptable only when they protect dangerous firsts.
+Per-slice details live in `.ai/CODE_STATE.md`.
 
-## Inherited M1 Step 3 Exclusions
-
-Tasks T005-T016 inherit these exclusions unless a later reviewed task explicitly
-changes them. Two deliberate changes so far. T014: the Foundation schema now
-carries topology, devices, signal mappings and control assumptions, which the
-"no Devices & Sensors screen" exclusion below never covered - what it forbids is
-a device-management surface, and none exists. T016: the Single Line Diagram, its
-view model and the diagram region are built, which is what causal step 4 is for.
-Everything else in that exclusion still holds - no empty diagram frame, no
-signal selector, no topology auto-layout, no Devices & Sensors screen and no
-device-management surface - and the bans are narrowed to the rest of the
-surface rather than removed.
-
-- No in-place Site/Foundation editing, Save/Publish over an existing Site,
-  rename, duplicate, delete, configuration history, rollback, approval flow, or
-  disabled placeholder for those capabilities.
-- No user-facing removal flow.
-- No empty diagram frame, signal selector, topology auto-layout, drag/drop or
-  diagram editing, Devices & Sensors screen, or device-management surface. The
-  Single Line Diagram and its view model are built, by T015 and T016; the rest
-  of this line is unchanged.
-- No scenarios, run setup, simulator execution, gateway staging, ingestion,
-  source envelopes, evidence records, source health, charts, analytics, Replay,
-  or Findings.
-- No speculative database, ORM, migration tool, cache, query DSL, pagination,
-  or port methods beyond the active slice.
-- No operator navigation item, second simulator chokepoint, or weakening of
-  previous route, API, navigation, architecture, or fabricated-value guards.
-- No mockup value, timestamp, status, label, control, or destination unless the
-  active slice supplies truthful backing content.
+- T006-T008 settled Site records, stores, read paths, Foundation basics, and
+  frontend/backend Site client shape.
+- T009-T013 settled shared visual vocabulary, canonical Site screens,
+  Foundation naming, operator tab inventory, and overflow posture.
+- T014-T016 settled Foundation topology/devices/mappings, SLD view model, and
+  configured SLD/device presentation.

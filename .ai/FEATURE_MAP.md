@@ -561,12 +561,22 @@ state, because that slice will have the evidence contract in front of it:
 Visible in: Scenarios list, Scenario Details, Simulator Lab run setup.
 
 Causal prerequisites:
-- ScenarioTemplate and ScenarioDefinition identities, versions, types, and
-  descriptions.
-- Event timeline model with scheduled events, interventions, evidence
-  conditions, parameters, and usage.
+- ScenarioDefinition identity, version identity, display metadata, target-site
+  requirement, public timeline, public parameters, and private expectations.
+- Strict scenario parser and `ScenarioDefinitionRepository`-style port over
+  composed shipped read-only definitions under `config/scenarios/` and
+  gitignored writable definitions under `var/scenarios/`.
+- One globally unique `scenario_id` space across shipped and writable stores,
+  with no overlay, no precedence, and duplicate or case-variant conflicts
+  failing loudly.
+- Event timeline model with authored scenario events, authored interventions,
+  evidence conditions, parameters, and stable timeline identities scoped to a
+  scenario version.
 - Private expectations/test assertions kept outside the product evidence path.
 - Scenario target: declared Site or template-derived Site with stable `site_id`.
+- A future ScenarioTemplate catalog remains separate from ScenarioDefinition
+  identity; T017 does not need one because the shipped Fuel Loss Event is a
+  directly selectable ScenarioDefinition.
 
 Candidate tasks, after review:
 - Add scenario catalog and scenario detail views for the Fuel Loss Event.
@@ -579,7 +589,27 @@ UI-verifiable outcomes:
 - User can inspect Fuel Loss Event events and parameters before running it.
 - Run setup explains what will happen without claiming an AssetOps conclusion.
 
-Semantics to decide:
+Semantics settled:
+- ScenarioDefinition is the saved, versioned scenario artifact. ScenarioEvent,
+  authored Intervention, EvidenceCondition and PrivateExpectation have the
+  meanings recorded in `D-2026-09-20-scenario-definition-model`.
+- Timeline events are saved sub-artifacts inside a scenario version and are
+  addressed by `(scenario_id, scenario_version, event_id)`, not stored as a
+  top-level Event repository in M1B.
+- Storage follows `D-2026-09-20-scenario-definition-storage`: the shipped Fuel
+  Loss Event lives at `config/scenarios/fuel-loss-event.yaml`, user definitions
+  live under `var/scenarios/`, and both are reached only through the scenario
+  domain port.
+- Versioning invariants are settled even though exact fields are not:
+  scenario identity and version are distinct, referenced versions are
+  immutable, timeline identities are stable within a version, and future runs
+  freeze the concrete scenario version they used.
+- Scenario detail affordances follow
+  `D-2026-09-20-scenario-detail-affordances`: native next-step controls may be
+  disabled with a named prerequisite; controls belonging to SimulationRun,
+  ingestion, Replay, or operator evidence surfaces are absent.
+
+Semantics to decide at the T017 checkpoint:
 - Required scenario versioning fields.
 - Event taxonomy: load, weather, equipment, data quality, loss/fraud,
   intervention, maintenance.
@@ -606,6 +636,9 @@ Causal prerequisites:
 - Determinism identity includes Site definition/configuration, scenario version,
   seed, simulator version, mappings/config, intervention history, and simulation
   interval; this identity is frozen once committed.
+- Runtime event injection is run-scoped intervention history under
+  SimulationRun identity, not authored scenario content and not a top-level
+  scenario artifact. See `D-2026-09-20-run-scoped-event-injection`.
 - Recorded-run player contract that can later swap its upstream state producer
   for the real deterministic runtime loop without changing downstream device,
   gateway, ingestion, or UI contracts.
@@ -690,6 +723,10 @@ Causal prerequisites:
 - Layered validation for source envelopes, typed records, Foundation semantics,
   and stream/evidence assessment.
 - Logs for gateway, parser, validator, ingestion storage, and quality issues.
+- Scenario private expectations, authored causes, and runtime private truth do
+  not cross this boundary. Gateway and ingestion consume only released source
+  envelopes and typed evidence records, never ScenarioDefinition private
+  expectation fields or run-scoped injection records as product evidence.
 
 Candidate tasks, after review:
 - Show staged gateway output for a Draft run with no `received_at`.
@@ -1119,8 +1156,9 @@ when their named input does not exist.
    - UI-verifiable outcome: user sees scenario events and setup choices without
      any claimed AssetOps conclusion.
    - Deliberately unavailable: execution, Commit, Open in AssetOps, product
-     findings, private expectations, and persistence editing; the UI labels the
-     scenario as authoring/setup only.
+     findings, private expectations as product evidence, source-envelope input,
+     operator UI, or product provenance, and persistence editing; the UI labels
+     the scenario as authoring/setup only.
 
 6. Draft SimulationRun shell and recorded runtime playback.
    - Becomes true: a Draft run opens in Simulator Lab with clock, controls,
@@ -1907,6 +1945,7 @@ depend on them.
 | Configuration persistence port | Site and template configuration is reached only through domain-defined ports; storage technology lives in adapters selected in one composition root. Port signatures and errors use domain records, never paths, file handles, YAML text, or store-specific exceptions. | CI architecture check bans imports of `sites/adapters/**` from anywhere except the single allowlisted composition module, and bans `yaml`, `pathlib`, `sqlite3`, and `open(` inside `sites/` outside `adapters/`; a fake in-memory adapter satisfies the port in service tests without importing an adapter. | Storage assumptions leak into read models, API, and UI, and replacing the store becomes a rewrite of every caller instead of one adapter. | CI guard |
 | Shipped versus user-authored configuration | Shipped canonical configuration is read-only at runtime and lives outside the writable store. Templates are not Sites and hold no `site_id`. `site_id` is globally unique across both stores with no overlay and no precedence; `template_id` is origin provenance and never Site identity. M1 ships zero Sites in the shipped Site store: the shipped content that ships is the template catalog, and every Site in the product is one a user created. | Test asserts the same `site_id` in both stores fails loudly at load, create refuses an id present in either store case-insensitively, no write path resolves inside the shipped catalog, and changing a template does not alter an already-created Site. A further test asserts the shipped Site store is empty on a clean checkout and the Sites index therefore renders its first-run empty state; the disjointness tests use a fixture store, not a product-visible Site. | Shipped and user configuration merge into one ambiguous namespace, a template release silently rewrites Foundations that committed history depends on, or a fixture Site nobody configured makes the Sites index look real before the capability that fills it exists. | CI guard |
 | User-authored configuration input | User-supplied configuration is untrusted input at a strict boundary: the fully materialized document is validated before any write, unknown keys and oversized documents are rejected, `site_id` is charset-constrained and cannot traverse or collide case-insensitively, free text is never identity or a path, and writes are atomic. | Parser/adapter tests cover unknown keys, oversized input, `..` and separator and absolute-looking ids, case-variant collision, and a failed write leaving the store byte-identical. | A user document takes down the Sites index, escapes the store directory, or forks Site identity. | Unit/contract test |
+| Scenario definition source | ScenarioDefinitions are reached through a domain port over composed read-only shipped and writable user stores. The shipped Fuel Loss Event is a ScenarioDefinition, not a template; `scenario_id` is globally unique across both stores with no overlay or precedence; events are addressed only inside a scenario version. | Parser/adapter tests reject unknown keys, unsupported taxonomy values, malformed version fields, duplicate timeline identities, malformed ordering/timestamps, misplaced private expectations, duplicate or case-variant `scenario_id` values within or across stores, and target-site policy violations. Architecture checks keep YAML/path/store exceptions inside adapters and the composition root. | Scenario identity forks by store, the first catalog becomes a fixture literal, template recipes masquerade as run-ready scenarios, or private oracle metadata leaks into product paths. | Unit/contract test + CI guard |
 | Shared Site presentation substrate | Where both shells present a Site they present it from one substrate: one read model, one view model, one set of presentation components, in `frontend/src/sites/`. Neither shell forks any of the three, and neither defines Site presentation of its own. Each shell may only compose and add through named slots the substrate declares: the Lab adds run and execution context, the operator adds a gated way into the Lab. The substrate carries no shell/mode/variant discriminant, is a leaf that imports no shell code, no simulator code, and no feature flag, and never imports what fills a slot. | Three checks, because a call-the-same-function check does not catch drift. (1) **Render equivalence**, the primary guard: render the substrate over one fixture `SiteRecord` in the operator composition and in the Lab composition and assert the shared region's DOM subtrees are identical, so every difference is provably additive; ships with the Lab's Site view at step 6, when a second consumer first exists. (2) **Single definition**, a CI architecture check: Site presentation components, view-model derivation, and Site read-model types resolve in `frontend/src/sites/**` only, and no module under `shell/**` or the Lab feature root declares one; ships with the first Site presentation slice. (3) **Leaf direction**, a CI import check: `frontend/src/sites/**` imports nothing from `shell/**`, the Lab feature root, or `config/featureFlags`, and contains no `simulator`, `lab`, `variant`, or `mode`-discriminant prop; ships with the same slice. | Two shells drift into two Site models. The operator Site page and the Lab Site page begin disagreeing about what a Site is: different labels for the same field, different unavailable states, a field derived one way here and another way there, and eventually two read models with a translation layer between them. By the time anyone notices, both have users and neither can be changed alone. The cheaper variant of the same failure is a `variant="lab"` branch inside the shared core, which looks shared and drifts anyway. | CI guard + contract test |
 | Mockup fidelity versus product honesty | A screen adopts canonical mockup layout only for content the product can source truthfully. Mockup values are never copied as content. Three treatments, never blurred: a gated or decided-against capability is not rendered; a canonical tab with no content contract yet is labelled in place; a built capability that is not currently eligible is disabled with its reason stated. A navigation destination appears only when its route renders a truthful surface, and operator navigation does not grow on the strength of a mockup rail that is in fact the Simulator Lab shell's own navigation. | Per-screen UI test asserts: no mockup literal (`2 min ago`, `1.2 M`, `20 kW`, `Kampala`, `Jan 1, 2026` and the rest of the fixture strings) appears in the DOM unless the record under test supplies it; no enabled control lacks a backing capability; deferred-by-decision controls are absent from the DOM rather than disabled; every disabled control exposes an accessible reason; every rendered nav item resolves to a route that renders real content, and none is disabled; `Mode` and lifecycle never share a column. | The product ships a convincing shell of the mockup whose columns, controls, and navigation teach capabilities that do not exist. The honesty posture is lost exactly where it is most visible and most trusted, and the mockup's own vocabulary errors, such as `Simulated` in a `Status` column, become the product's data model. | CI guard |
 | SLD archetype boundary | SLD archetype owns presentation only and must not create, remove, rename, or reinterpret canonical components or connections. | View-model test compares rendered component/connection IDs against canonical topology and checks incompatible topology state. | Diagram becomes a second topology model and diverges from simulation/evidence. | Unit/contract test |
@@ -2062,17 +2101,35 @@ representation.
 Demo roadmap task range: T017-T019.
 
 Divide into slices:
-- Scenario identity/version/detail view for Fuel Loss Event.
-- Public event timeline/parameters and private expectation separation.
+- Strict scenario source and Fuel Loss Event catalog/detail view over a shipped
+  ScenarioDefinition plus writable user store composition.
+- Public event timeline/parameters and private expectation separation, with
+  parser-level separation rather than presentation-only hiding.
 - Run setup selection of Site, scenario, interval, timestep, seed, duration,
   and speed defaults.
 
+M1B planner sequencing:
+- T017 carries the checkpoint on a gated Fuel Loss Event detail screen. It puts
+  provisional proposals on screen for scenario versioning, event taxonomy, and
+  the public/private parameter boundary. It remains one vertical slice because
+  the strict repository/parser work, composed stores, and detail screen produce
+  one observable deliverable: inspecting the shipped Fuel Loss Event from the
+  real scenario source.
+- T018 and T019 are intentionally not task files until the T017 User Review
+  Outcome is recorded. T018 is expected to make the accepted public/private
+  scenario detail contract stricter and reusable for run setup. T019 is
+  expected to build run setup over accepted scenario semantics and declared
+  `site_id` targets.
+- If T017 changes the proposal, the Planner updates this sequence before any
+  run setup implementation starts.
+
 Seams inside the feature: scenario label not Site identity, public scenario
-authoring versus private test oracle, deterministic run identity inputs.
+authoring versus private test oracle, shipped/user scenario-store disjointness,
+scenario port isolation, deterministic run identity inputs.
 
 Must not bundle: simulator execution, product conclusions, Commit, ingestion,
-Finding creation, or in-product scenario editing persistence beyond the chosen
-fixture/repository.
+Finding creation, runtime injection controls, or in-product scenario editing
+persistence beyond the chosen repository.
 
 User-review checkpoint: required for event taxonomy, public/private scenario
 parameters, and run setup language because they fix domain semantics and demo

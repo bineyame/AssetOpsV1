@@ -26,6 +26,10 @@ rationale in the dated entries below.
 | `D-2026-09-20-layout-evidence-standing` | 2026-09-20 | Browser layout evidence is standing closeout evidence for layout-sensitive slices, kept outside the portable architecture runner. |
 | `D-2026-09-20-no-merged-task-status-guard` | 2026-09-20 | No guard ties a merged slice's task status to branch state; closeout discipline stays manual until the drift recurs. |
 | `D-2026-09-20-breaker-vocabulary` | 2026-09-20 | A breaker is topology and, when instrumented, a reported-about thing; position is evidence, not Foundation configuration. |
+| `D-2026-09-20-scenario-definition-model` | 2026-09-20 | ScenarioDefinition is the saved, versioned scenario artifact; events are saved sub-artifacts inside a scenario version. |
+| `D-2026-09-20-scenario-definition-storage` | 2026-09-20 | ScenarioDefinitions use composed shipped and writable stores behind a domain port, with one disjoint scenario_id space. |
+| `D-2026-09-20-run-scoped-event-injection` | 2026-09-20 | Future event injection is run-scoped intervention history, not authored scenario content. |
+| `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. |
 
 ## 2026-09-11
 
@@ -1126,3 +1130,114 @@ rationale and failure message, and any future slice touching breakers, control
 policy, or the Foundation control vocabulary. No schema field, model, route, or
 rendered surface changes now; T014's `ControlAssumption`, T015's typed empty
 slots and T016's presentation all stand as shipped.
+
+## 2026-09-20
+
+Decision: `ScenarioDefinition` is the saved, versioned scenario artifact for
+M1B. It has scenario identity, version identity, display metadata, target-site
+requirement, public timeline, public parameters, and private expectations in
+separate parsed fields. `ScenarioTemplate`, if introduced later, is a reusable
+recipe in a separate identity space; it is not executable by itself and does not
+live-update existing definitions.
+
+`ScenarioEvent`, authored `Intervention`, and `EvidenceCondition` are ordered
+authored items inside a `ScenarioDefinition` version. They are saved
+sub-artifacts because they persist inside the definition document, but they are
+not top-level stored entities in M1B. Their address is
+`(scenario_id, scenario_version, event_id)`. `PrivateExpectation` is
+test-oracle metadata only: it is not pipeline input, public authoring data,
+product evidence, operator UI, or product provenance.
+
+The exact scenario versioning fields stay provisional until the T017 user
+review checkpoint. The invariants are settled now: identity and version are
+distinct; a version referenced by a run is immutable; timeline identities are
+stable within a version; a future run freezes the concrete scenario version it
+used and never follows latest.
+
+Reason: A Fuel Loss Event timeline row has no useful lifecycle without the
+scenario's target requirement, interval defaults, seed, public/private boundary,
+evidence visibility model, and version identity. Making events a repository
+root now would introduce reuse, deletion, lookup, and compatibility semantics
+that M1B cannot verify. Keeping templates separate follows the Site
+Template/Site distinction and prevents recipe changes from rewriting saved
+definitions.
+
+Affected scope: Scenario domain model, scenario parser, Scenario catalog and
+detail payloads, future run setup, private expectation isolation, T017
+checkpoint content, and T018/T019 task sequencing.
+
+## 2026-09-20
+
+Decision: `ScenarioDefinition` storage uses strict canonical YAML behind a
+`ScenarioDefinitionRepository`-style domain port. The shipped Fuel Loss Event is
+a read-only tracked definition at `config/scenarios/fuel-loss-event.yaml`, and
+writable user or project definitions live under gitignored `var/scenarios/`.
+Both roots compose into one repository with one globally unique `scenario_id`
+space. Duplicate identities, including case variants, are configuration
+conflicts within a store or across stores; there is no overlay and no
+precedence.
+
+The port speaks domain records and scenario-domain errors only: not found,
+identity conflict, configuration invalid, and store unavailable. YAML, paths,
+file handles, parser exceptions, duplicate-file checks, filesystem errors, and
+store availability translation stay inside adapters and the composition root.
+
+Reason: T017 has no scenario creation flow, so a fresh checkout needs a tracked
+read-only scenario definition for the catalog to show. That is parallel to
+shipped configured instances, not to reusable templates. The writable store
+still exists because later authoring needs a place to persist user definitions,
+but identity must remain disjoint from the beginning or run history will not
+have a stable scenario anchor.
+
+Affected scope: Scenario storage layout, scenario repository port, composition
+root, strict parser and adapter tests, first-run catalog behavior, future
+scenario authoring, and future migration away from file-backed storage.
+
+## 2026-09-20
+
+Decision: Future event injection is modeled as run-scoped
+`InjectedRunEvent` / intervention-history records under `SimulationRun`
+identity, not as authored `ScenarioEvent` rows and not as top-level scenario
+artifacts. Runtime injections are addressed by a run-scoped family such as
+`(run_id, injected_event_id)` or `(run_id, intervention_sequence)`. They are
+never written back into the selected scenario version, never create an implicit
+scenario version, and never become inherited by another run.
+
+Reason: Authored scenario events exist before a run and define reusable
+scenario content. Injected events are accepted during one run as deterministic
+runtime input. Committed replay needs to save them, but under the run's ordered
+intervention history so two runs can start from the same scenario version and
+diverge only by run-scoped inputs. Promotion of a useful injection sequence into
+authored scenario content is a future authoring capability with explicit UI and
+review, not an automatic runtime side effect.
+
+Affected scope: Scenario timeline model, SimulationRun runtime model,
+intervention logs, deterministic replay, quick actions, event-log presentation,
+and T020+ task planning. M1B names the seam but implements no injection models,
+storage, APIs, or controls.
+
+## 2026-09-20
+
+Decision: On the T017 scenario detail screen, a disabled control appears only
+when the action is native to the viewed `ScenarioDefinition` and the missing
+prerequisite is the next named causal capability. `Run` / `Create Draft Run` is
+rendered disabled with visible reason text naming the missing run setup / Draft
+`SimulationRun` prerequisite. `Open target Site` is the only product bridge: it
+is enabled only when the declared target Site resolves, otherwise absent or
+disabled with an accessible reason.
+
+`Commit`, `Open in AssetOps`, runtime controls, gateway output, ingestion,
+Replay, Findings, and product analytics are absent from the scenario detail
+screen because they belong to `SimulationRun`, ingestion, Replay, or operator
+evidence/product surfaces rather than to `ScenarioDefinition`.
+
+Reason: This is a precise application of
+`D-2026-09-13-canonical-fidelity`, not an amendment to it. Disabled means "this
+action belongs to the object you are viewing, but the current record or
+milestone lacks the named prerequisite to perform it." Controls from another
+root object or downstream lifecycle teach the wrong object model when shown as
+disabled placeholders.
+
+Affected scope: Scenario detail screen actions, accessibility reason text,
+mockup-fidelity tests, run setup sequencing, and future control placement on
+SimulationRun, ingestion, Replay, and operator evidence surfaces.
