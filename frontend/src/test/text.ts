@@ -17,6 +17,26 @@
  * ban means what it says.
  */
 export function spacedText(container: HTMLElement): string {
+  return textNodes(container).join(" ");
+}
+
+/**
+ * Every non-empty text node in a container, trimmed, in document order.
+ *
+ * The unit `spacedText` is built from, exposed because some assertions need
+ * the pieces rather than the sentence. An assertion that every digit on a
+ * screen came from a record has to compare a rendered leaf against a record
+ * value, and joining the leaves first destroys exactly the boundary it needs:
+ * a record value and the static label beside it become one string, so an
+ * invented digit in the label can no longer be told apart from the value.
+ *
+ * That was T017's second review finding. Carving out whole containers was the
+ * first attempt, and it failed because the containers hold authored text too -
+ * a table has headings, a fact value has a fallback, an action reason is
+ * prose. Leaves are the level at which "this came from the record" is a claim
+ * that can be checked.
+ */
+export function textNodes(container: HTMLElement): string[] {
   const walker = container.ownerDocument.createTreeWalker(
     container,
     NodeFilter.SHOW_TEXT,
@@ -32,7 +52,7 @@ export function spacedText(container: HTMLElement): string {
     node = walker.nextNode();
   }
 
-  return parts.join(" ");
+  return parts;
 }
 
 /**

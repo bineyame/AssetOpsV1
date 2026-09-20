@@ -1,11 +1,17 @@
-"""Document bounds, shared by the template parser and the Site parser.
+"""Document bounds, shared by every strict parser in the product.
 
-Both parsers refuse a pathological document before doing any field-level work
-on it, and both must refuse it the same way. A user-authored Site document is
-untrusted input; a shipped template document is trusted only in the sense that
-somebody reviewed it. Neither is allowed to exhaust memory, nest without limit,
-or fill a screen with ten thousand rows, and an oversized document must not be
-able to make the Sites index unopenable.
+Every parser refuses a pathological document before doing any field-level work
+on it, and all of them must refuse it the same way. A user-authored Site or
+scenario document is untrusted input; a shipped template or scenario document
+is trusted only in the sense that somebody reviewed it. None of them is allowed
+to exhaust memory, nest without limit, or fill a screen with ten thousand rows,
+and an oversized document must not be able to make an index unopenable.
+
+It lives at the package root rather than inside `sites/` because the rule is
+about documents, not about Sites. The scenario parser refuses an oversized
+document by the same mechanism, and a shared rule reached through one domain's
+package would be a dependency that says the wrong thing about which domain owns
+it.
 
 This module walks an already-loaded structure. It opens nothing, decodes
 nothing, and locates nothing, so it needs no exemption from the

@@ -1368,3 +1368,141 @@ answer first, from the user.** T014's `frozenset` scan keeps that honest.
 `SldCandidateTreatment` and its `settled: false` literal stay until a slice
 removes the provisional marker deliberately. Removing it is a visible product
 change and should be a commit that says so.
+
+## T017 - Scenario catalog and Fuel Loss Event detail
+
+What this slice settled in code.
+
+`backend/assetops_backend/scenarios/` is the first new domain package since
+Sites. It is built to the same shape and holds the same line:
+`ScenarioDefinitionRepository` in `ports.py` speaks domain records and its own
+error family - not found, identity conflict, configuration invalid, store
+unavailable - and `adapters/` owns every path, file handle and YAML call. The
+error family is parallel to the Site one and deliberately not a reuse of it: a
+missing scenario and a missing Site are different facts about different
+identity spaces.
+
+There is no write path anywhere in the package. T017 ships no scenario creation
+flow, so neither store has a create method and the port has none to implement.
+That is structural, not a convention, and `tools/checks/configuration-persistence.ps1`
+holds it: writes are allowed only in the one Site user-store adapter, so a
+write appearing in any scenario module fails the build.
+
+Two stores, one `scenario_id` space, no overlay and no precedence. Duplicates
+within a store are caught by the document reader, which is the only layer that
+can see two files; duplicates across stores are caught by the composite. Both
+fail on list and on read - a read that quietly picked a store would be
+precedence arrived at by accident.
+
+`config/scenarios/fuel-loss-event.yaml` is tracked and read-only at runtime,
+and unlike `config/sites/` the shipped scenario store deliberately does NOT
+ship empty: with no create flow, an empty store would leave a fresh checkout
+with nothing to inspect. The guard asserts both asymmetric expectations rather
+than tolerating either.
+
+The parser/service split is the load-bearing seam and it was an Architect
+finding before it was code. `scenarios/parsing.py` validates the SHAPE of the
+target-site declaration - including the policy-shape rule, where each field is
+individually well formed and only the combination is wrong - and never reaches
+into Site storage. `ScenarioDetailService` resolves the declared `site_id`
+through `SiteRepository` and returns one of four target-resolution states.
+Removing a Site therefore makes a scenario's target unresolved; it does not
+make the scenario unreadable, and a test asserts the timeline still renders in
+that state.
+
+Public authoring data and private test-oracle expectations are separate parsed
+fields on `ScenarioDefinition` and separate payload builders in
+`simulator_lab_api.py`. The public builders never name the private field, so
+they cannot leak one by omission. Proved with a sentinel that is present in the
+private payload and absent from the public one, so the assertion cannot pass
+because the sentinel was never there.
+
+The breaker/control vocabulary protection grew and the banned list moved to
+`backend/tests/control_vocabulary.py`, read by both scans. It now covers the
+scenario domain model, the parser's key vocabularies, the shipped definition
+and `backend/tests/scenario_fixtures.py`. It compares TOKENS, not substrings,
+and scans schema positions only: every mapping key, plus every string value
+spelled in upper snake case, which is exactly how this project spells an
+enumerated value. Prose is not schema, so a description may use the word
+"closed" in English while a category may not. The ban is unconditional: the
+taxonomy is typed, because the parser refuses an unsupported value.
+
+Four deliberate violations proved it: a banned category in the model, a
+`breaker_position: CLOSED` parameter key in the shipped document, the same key
+in the fixture, and `BREAKER` as a Foundation `DEVICE_TYPE`. Each failed
+naming the offending term.
+
+`tools/checks/configuration-persistence.ps1` is now stated once and applied per
+configuration domain rather than written out twice. Four deliberate violations
+proved the scenario half: a scenario adapter imported outside its composition
+module, `import yaml` above the scenario adapter layer, a `.mkdir(` in the
+shipped scenario store, and the shipped definition removed.
+
+`frontend/src/ui/ReviewProposal.tsx` is a new primitive whose TYPE requires a
+question, a proposal, what is already settled, and what accepting and
+redirecting mean. T016's checkpoint put candidates on screen with no proposal
+and settled nothing; a region that cannot be rendered without a proposal is the
+structural answer to that.
+
+The family, at eight, and the eighth is the one worth carrying forward.
+
+**A proof can pass for the wrong reason, and then it has proved nothing.** The
+vocabulary scan read mapping keys and upper-snake enum values. A scenario
+parameter key is neither: it is the lowercase identifier in the `parameter_id`
+FIELD. So `parameter_id: breaker-position` passed the guard and the parser, and
+so did `event_id: auto-mode-change` and a `scenario_id` built the same way.
+
+Four deliberate violations did not find it. The reason is the lesson: the
+parameter proof added `breaker_position` as a mapping KEY, and the strict
+parser already refuses unknown mapping keys, so the document was refused before
+the vocabulary rule was ever consulted. It failed, it failed loudly, and it
+measured a different guard. **A deliberate violation has to be one the rest of
+the system would otherwise accept.** An independent reviewer found this, not the
+proofs.
+
+The fix moved the banned list into product code at
+`assetops_backend/control_vocabulary.py`, so `scenarios/parsing.py` and
+`scenarios/identity.py` refuse a banned identifier at parse time rather than
+the rule living only in a scan that might not reach the position it protects.
+The scan gained an `identifier` position kind, and
+`TestTheIdentifierAuditIsComplete` makes the audit permanent: every `*_id`
+field in the scenario schema must be classified as scenario vocabulary or as a
+reference into another identity space, and a new one fails until somebody
+decides which. Fixing only the position the review named would have left the
+next one.
+
+The ninth, found by a proof in the same pass.
+
+The invented-digit assertion took three attempts.
+`digitsInRecord()` compared digit RUNS against the record's runs, so an
+invented `7` matched a real sequence number - a deliberate "all 7 categories"
+passed. Carving out the containers that hold record values failed for the
+complementary reason a reviewer named: those containers hold authored text too,
+so a static digit in a table heading was removed wholesale. What holds is at
+leaf level: every text node is either exactly a string the record supplies, or
+carries no digit at all, asserted in both directions so the expectation cannot
+be padded.
+
+Then the proof of THAT found a third thing: a digit inserted into the
+`No earlier version` fallback still passed, because the loaded fixture takes
+the other branch and the fallback never rendered. **Authored text that no test
+renders is authored text no assertion covers, whatever the assertion says.** A
+second record that takes every fallback branch, and carries no digit of its
+own, closed it.
+
+So three habits, in the order they were learned the hard way: break the thing a
+guard protects in the cheapest way a careless author would; check that the
+break reaches the guard you meant rather than some earlier one; and check that
+the branch you broke is a branch the test renders at all.
+
+What the checkpoint proposes, and what it does not settle.
+
+Three `ReviewProposal` regions on `/simulator-lab/scenarios/fuel-loss-event`:
+`scenario-versioning` in the identity panel, `scenario-event-taxonomy` under
+the timeline and its legend, and `scenario-public-private-boundary` in the
+private expectations panel. Each states a proposal, not a menu.
+
+Until the user answers, the values in `EVENT_CATEGORIES`,
+`TIMELINE_ENTRY_KINDS` and `SCENARIO_VERSION_FIELDS` are provisional in
+meaning but strict in enforcement: the parser refuses anything outside them.
+T018 and T019 stay non-implementable until the Review Outcome is recorded.

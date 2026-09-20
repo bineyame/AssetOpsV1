@@ -155,6 +155,29 @@ const MEASURE = `(() => {
     },
   );
   const diagramRefusals = document.querySelectorAll("[data-sld-unavailable]").length;
+  // T017's checkpoint regions. A proposal that renders but has no box is a
+  // proposal nobody can read, and "the screen carries a proposal" would then be
+  // true of a page where all three were invisible.
+  const proposalNodes = Array.from(
+    document.querySelectorAll("[data-review-proposal]"),
+  );
+  const reviewProposals = proposalNodes.map((node) =>
+    node.getAttribute("data-review-proposal"),
+  );
+  const reviewProposalsVisible = proposalNodes.filter((node) => {
+    const box = node.getBoundingClientRect();
+    return box.width > 0 && box.height > 0;
+  }).length;
+  const privateNodes = Array.from(
+    document.querySelectorAll("[data-private-region]"),
+  );
+  const privateRegions = privateNodes.length;
+  const privateRegionVisible =
+    privateNodes.length > 0 &&
+    privateNodes.every((node) => {
+      const box = node.getBoundingClientRect();
+      return box.width > 0 && box.height > 0;
+    });
   const slots = Array.from(document.querySelectorAll(".sld-node__slot")).map((slot) =>
     (slot.textContent || "").trim(),
   );
@@ -163,6 +186,10 @@ const MEASURE = `(() => {
     scrollers,
     diagrams,
     diagramRefusals,
+    reviewProposals,
+    reviewProposalsVisible,
+    privateRegions,
+    privateRegionVisible,
     slots,
     railLeftAfterAll,
     pageScrollsHorizontally: doc.scrollWidth > doc.clientWidth,
@@ -452,6 +479,141 @@ for (const [label, width, height] of [
       ],
     ]) && allPass;
 }
+
+// T017's scenario detail. The event timeline is six columns of dense content
+// with an unbreakable description and a parameter list per row, so it is the
+// same situation the Sites index and the Foundation relationship tables are
+// in: it must keep every column and scroll inside its own region rather than
+// pushing the rail sideways. jsdom cannot see any of that.
+//
+// 640px is measured for the reason T014 needed it: without a width where
+// something actually overflows, "every table that overflows scrolls inside its
+// own region" is a claim about an empty set, and it passes on a page whose
+// regions do not scroll at all. The non-vacuity claim below asserts the set is
+// not empty there.
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["1000x700, below the commitment", 1000, 700],
+  ["640x700, narrow enough that the timeline cannot fit", 640, 700],
+]) {
+  const scenario = await visit(
+    cdp,
+    "/simulator-lab/scenarios/fuel-loss-event",
+    width,
+    height,
+    ".review-proposal",
+  );
+
+  allPass =
+    report(`Scenario detail at ${label}`, scenario, [
+      [
+        "the page does not scroll horizontally",
+        !scenario.pageScrollsHorizontally,
+        `scrollWidth ${scenario.pageScrollWidth} vs clientWidth ${scenario.pageClientWidth}`,
+      ],
+      [
+        "every table on the page has a named, focusable overflow region",
+        scenario.scrollers.length > 0 &&
+          scenario.scrollers.every((s) => s.focusable && s.name),
+        scenario.scrollers.map((s) => s.name ?? "unnamed").join(", "),
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        scenario.scrollers
+          .filter((s) => s.overflows)
+          .every((s) => s.scrolledBy > 0),
+        scenario.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the rail does not move when every table is scrolled to its end",
+        scenario.railLeftBefore === scenario.railLeftAfterAll,
+        `left ${scenario.railLeftBefore} -> ${scenario.railLeftAfterAll}`,
+      ],
+      [
+        "no table renders a header row with no rows under it",
+        scenario.scrollers.every((s) => s.columnCount === 0 || s.rowCount > 0),
+        scenario.scrollers
+          .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
+          .join("; "),
+      ],
+      [
+        "the timeline keeps all six of its columns",
+        scenario.scrollers.some((s) => s.columnCount === 6),
+        scenario.scrollers.map((s) => `${s.name}: ${s.columnCount}`).join("; "),
+      ],
+      [
+        "all three review proposals are on the page",
+        scenario.reviewProposals.length === 3,
+        scenario.reviewProposals.join(" | ") || "none",
+      ],
+      [
+        "every review proposal is visible, not collapsed or clipped away",
+        scenario.reviewProposals.length > 0 &&
+          scenario.reviewProposalsVisible === scenario.reviewProposals.length,
+        `${scenario.reviewProposalsVisible} of ${scenario.reviewProposals.length} have a non-zero box`,
+      ],
+      [
+        "the private expectations region is on the page and visible",
+        scenario.privateRegionVisible === true,
+        `${scenario.privateRegions} region(s), visible ${scenario.privateRegionVisible}`,
+      ],
+      [
+        // Measured over buttons. The one enabled control this screen may carry
+        // is the target-site LINK, which is an anchor rather than a button
+        // precisely because following it is navigation, so it is deliberately
+        // outside this set. Which states enable it is covered by the UI suite.
+        "no enabled button renders",
+        scenario.buttons.every((b) => b.disabled),
+        scenario.buttons.length === 0
+          ? "no button rendered"
+          : scenario.buttons
+              .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
+              .join(", "),
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              scenario.scrollers.some((s) => s.overflows),
+              `${scenario.scrollers.filter((s) => s.overflows).length} of ${scenario.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
+
+const scenarios = await visit(
+  cdp,
+  "/simulator-lab/scenarios",
+  1280,
+  800,
+  "table",
+);
+allPass =
+  report("Scenario catalog at 1280x800", scenarios, [
+    [
+      "the page does not scroll horizontally",
+      !scenarios.pageScrollsHorizontally,
+      `scrollWidth ${scenarios.pageScrollWidth} vs clientWidth ${scenarios.pageClientWidth}`,
+    ],
+    [
+      "the catalog renders a row from the real scenario store",
+      scenarios.scrollers.some((s) => s.rowCount > 0),
+      scenarios.scrollers
+        .map((s) => `${s.name}: ${s.rowCount} rows`)
+        .join("; ") || "no table",
+    ],
+    [
+      "the rail does not move when the table is scrolled",
+      scenarios.railLeftBefore === scenarios.railLeftAfterAll,
+      `left ${scenarios.railLeftBefore} -> ${scenarios.railLeftAfterAll}`,
+    ],
+  ]) && allPass;
 
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
 allPass =

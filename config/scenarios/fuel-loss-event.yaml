@@ -1,0 +1,220 @@
+# The shipped Fuel Loss Event scenario definition.
+#
+# Tracked, read-only at runtime, and validated by the same strict parser a
+# user-authored definition crosses. It describes what a simulated interval is
+# intended to do. It is not evidence, and nothing in it claims that AssetOps
+# has observed anything: no run of it exists.
+#
+# Offsets are minutes from the start of the simulated interval. The scenario
+# does not say when that interval is, how fast it is stepped, or what seed it
+# uses, because choosing those is run setup and run setup does not exist yet.
+
+scenario_id: fuel-loss-event
+display_name: Fuel Loss Event
+purpose: >-
+  Exercise the path from an unaccounted fuel removal at a mini-grid's generator
+  fuel tank through to the evidence a later analysis would have to work from.
+  The removal happens outside any run or refuelling window, a reporting gap
+  hides the step itself, and an operator's hand-recorded level arrives
+  afterwards, so the simulated interval carries both the cause and the
+  imperfect record of it.
+
+version:
+  scenario_version: 1
+  version_valid_from: '2026-09-20T00:00:00Z'
+  supersedes: null
+
+target_site:
+  policy: DECLARED_SITE
+  site_id: MG-001
+  template_id: null
+  requirement: >-
+    A mini-grid whose foundation declares a fuel-storage component feeding a
+    generator, a device that can report a fuel level in litres from that
+    component, and a metered distribution load.
+
+public_parameters:
+  - parameter_id: tank-capacity
+    display_name: Fuel tank capacity the scenario assumes
+    value: 500
+    unit: L
+  - parameter_id: starting-fuel-level
+    display_name: Fuel level at the start of the interval
+    value: 430
+    unit: L
+  - parameter_id: generator-fuel-rate
+    display_name: Generator fuel consumption while dispatched
+    value: 14
+    unit: L/h
+  - parameter_id: observed-signal
+    display_name: Signal the scenario expects to carry the story
+    value: fuel-level, from the fuel level sensor on the fuel tank
+    unit: null
+
+timeline:
+  - event_id: baseline-load-profile
+    sequence: 1
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      The distribution load follows the site's ordinary weekday shape for the
+      whole interval, so nothing later in the timeline is explained by demand
+      being unusual.
+    parameters:
+      - parameter_id: evening-peak-load
+        display_name: Evening peak demand
+        value: 72
+        unit: kW
+      - parameter_id: overnight-base-load
+        display_name: Overnight base demand
+        value: 18
+        unit: kW
+
+  - event_id: overcast-day
+    sequence: 2
+    offset_minutes: 720
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Irradiance stays well below a clear-sky day, so the battery reaches the
+      evening with less stored energy than usual and the generator is needed.
+    parameters:
+      - parameter_id: peak-irradiance
+        display_name: Peak plane-of-array irradiance
+        value: 310
+        unit: W/m2
+
+  - event_id: generator-run-window
+    sequence: 3
+    offset_minutes: 1080
+    entry_kind: EVENT
+    category: EQUIPMENT
+    description: >-
+      The generator is dispatched to cover the evening peak and consumes fuel
+      at the declared rate for the length of the window. This is the only
+      legitimate fuel consumption in the interval.
+    parameters:
+      - parameter_id: dispatched-output
+        display_name: Generator output while dispatched
+        value: 45
+        unit: kW
+      - parameter_id: run-window-length
+        display_name: Length of the dispatch window
+        value: 240
+        unit: min
+
+  - event_id: unaccounted-fuel-removal
+    sequence: 4
+    offset_minutes: 1500
+    entry_kind: EVENT
+    category: LOSS_OR_FRAUD
+    description: >-
+      Fuel leaves the tank outside any dispatch or refuelling window. This is
+      the authored cause the scenario exists for; it is what the simulated
+      world is told to do, not a finding about any site.
+    parameters:
+      - parameter_id: volume-removed
+        display_name: Volume removed
+        value: 120
+        unit: L
+      - parameter_id: removal-window-length
+        display_name: Length of the removal window
+        value: 45
+        unit: min
+
+  - event_id: fuel-level-reporting-gap
+    sequence: 5
+    offset_minutes: 1490
+    entry_kind: EVENT
+    category: DATA_QUALITY
+    description: >-
+      The fuel level sensor reports nothing across the removal window, so the
+      step itself never arrives as a reading and has to be inferred from the
+      levels on either side of the gap.
+    parameters:
+      - parameter_id: gap-length
+        display_name: Length of the reporting gap
+        value: 90
+        unit: min
+
+  - event_id: fuel-level-after-the-gap
+    sequence: 6
+    offset_minutes: 1590
+    entry_kind: EVIDENCE_CONDITION
+    category: LOSS_OR_FRAUD
+    description: >-
+      When reporting resumes, the fuel level is far below what the dispatch
+      window alone accounts for. This is the condition the evidence path is
+      expected to be in, stated so a later analysis has something to be right
+      or wrong about.
+    parameters:
+      - parameter_id: level-after-the-gap
+        display_name: Fuel level when reporting resumes
+        value: 155
+        unit: L
+
+  - event_id: operator-tank-inspection
+    sequence: 7
+    offset_minutes: 1800
+    entry_kind: INTERVENTION
+    category: INTERVENTION
+    description: >-
+      A site operator inspects the tank and records the level by hand, giving
+      the interval a second, independent account of the same quantity.
+    parameters:
+      - parameter_id: hand-recorded-level
+        display_name: Level the operator records
+        value: 150
+        unit: L
+
+  - event_id: scheduled-refuelling
+    sequence: 8
+    offset_minutes: 2400
+    entry_kind: EVENT
+    category: MAINTENANCE
+    description: >-
+      The scheduled fuel delivery tops the tank up. A later analysis must not
+      read this rise as anything other than the delivery it is.
+    parameters:
+      - parameter_id: volume-delivered
+        display_name: Volume delivered
+        value: 300
+        unit: L
+
+# Private test-oracle metadata.
+#
+# This section is not public authoring data. It says what a future test should
+# be able to conclude about a run of this scenario, so it is kept in its own
+# parsed field and rendered by its own payload builder. It never enters source
+# envelopes, accepted evidence, operator screens, product provenance, exports,
+# analytics, or Findings.
+private_expectations:
+  - expectation_id: removal-is-separable-from-consumption
+    display_name: The removal is separable from ordinary consumption
+    oracle_kind: DETECTION
+    statement: >-
+      A later analysis of the accepted evidence must be able to separate the
+      unaccounted removal from the fuel the dispatch window legitimately
+      consumed, using only what the evidence path carries.
+
+  - expectation_id: removed-volume-within-tolerance
+    display_name: The attributed volume matches what was removed
+    oracle_kind: MAGNITUDE
+    statement: >-
+      Any volume a later analysis attributes to the removal must be within
+      10 litres of the 120 litres this scenario removes.
+
+  - expectation_id: refuelling-is-not-a-loss
+    display_name: The scheduled delivery is not read as a loss
+    oracle_kind: NO_FALSE_POSITIVE
+    statement: >-
+      The scheduled refuelling must not be attributed to the removal, in either
+      direction, by any later analysis of this interval.
+
+  - expectation_id: gap-does-not-hide-the-removal
+    display_name: The reporting gap does not hide the removal
+    oracle_kind: TIMING
+    statement: >-
+      The reporting gap must not prevent a later analysis from placing the
+      removal within the interval it happened in.

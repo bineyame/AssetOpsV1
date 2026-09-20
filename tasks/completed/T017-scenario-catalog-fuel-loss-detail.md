@@ -1,6 +1,6 @@
 # T017 - Scenario Catalog Fuel Loss Detail
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T017-scenario-catalog-fuel-loss-detail`
@@ -239,3 +239,52 @@ The screen must ask the user to accept or redirect these provisional proposals:
 Accepting the screen should settle those proposals enough for the Planner to
 make T018 and T019 implementation-ready. If the user redirects any proposal,
 the next planning pass updates the sequence before run setup work begins.
+
+## User Review Outcome
+
+User review completed 2026-09-21. Verdict, in the user's words: **"looks
+good."**
+
+The slice is accepted as built, and unlike the M1A checkpoint this one
+**settles what it was built to settle**. Each of the three questions carried a
+proposal on screen, marked provisional, stating what accepting adopts and what
+redirecting would mean - so accepting the screen was a decision rather than a
+ratification of a menu.
+
+### What that settles
+
+**Scenario versioning fields: accepted as proposed.** A scenario version
+carries `scenario_id`, `scenario_version`, `version_valid_from` and
+`supersedes`. Identity and version stay distinct, a version referenced by a run
+is immutable, and a future `SimulationRun` freezes the version it used rather
+than following latest.
+
+**Event taxonomy: accepted as proposed.** Three timeline entry kinds - `EVENT`,
+`INTERVENTION`, `EVIDENCE_CONDITION` - and seven categories: `LOAD`, `WEATHER`,
+`EQUIPMENT`, `DATA_QUALITY`, `LOSS_OR_FRAUD`, `INTERVENTION`, `MAINTENANCE`.
+Breaker position and control mode are excluded by construction, and the
+vocabulary guard now reaches identifier-valued schema positions so they cannot
+arrive as `parameter_id: breaker-position` either.
+
+**Public authoring data versus private test-oracle expectations: accepted as
+proposed.** Public authoring parameters may inform future run setup and runtime
+behaviour. Private expectations - `DETECTION`, `MAGNITUDE`, `TIMING`,
+`NO_FALSE_POSITIVE` - are test-oracle metadata only. The split is a parsed-field
+separation with separate payload builders, not a presentation choice, and
+private expectations never reach product evidence, source envelopes, operator
+UI, exports or provenance.
+
+### What this unblocks
+
+T018 and T019 are now implementable. The Planner held them as sequence entries
+in `.ai/FEATURE_MAP.md` rather than writing task files that would need
+rewriting; this outcome is the input that pass was waiting for.
+
+### What it does not settle
+
+The values are settled; the code comments still describe them as provisional
+and `SCENARIO_VERSION_FIELDS`, `TIMELINE_ENTRY_KINDS` and `EVENT_CATEGORIES`
+carry that wording. Removing the provisional marking, and the on-screen review
+regions with it, is a visible product change and should be its own slice that
+says so, not a side effect of this closeout - the same treatment T016's
+cold-room marker was given.

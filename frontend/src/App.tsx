@@ -15,6 +15,7 @@ import {
   SITE_DETAIL_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
+import type { ScenarioCatalogClient } from "./shell/scenarioCatalogClient";
 import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
 import type { SiteCreationClient } from "./shell/siteCreationClient";
 import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
@@ -74,10 +75,10 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * carried across, so an old bookmark lands on the same site under the name the
  * product now uses.
  *
- * `siteTemplateCatalog`, `siteDirectory`, `siteDetail`, and `siteCreation` are injection
- * points for tests. The default clients read the real APIs; a test supplies
- * fakes so a UI assertion is about what the screen renders from a record
- * rather than about network timing.
+ * `siteTemplateCatalog`, `siteDirectory`, `siteDetail`, `siteCreation`, and
+ * `scenarioCatalog` are injection points for tests. The default clients read
+ * the real APIs; a test supplies fakes so a UI assertion is about what the
+ * screen renders from a record rather than about network timing.
  */
 export interface AppProps {
   flags?: FeatureFlags;
@@ -85,6 +86,7 @@ export interface AppProps {
   siteDirectory?: SiteDirectoryClient;
   siteDetail?: SiteDetailClient;
   siteCreation?: SiteCreationClient;
+  scenarioCatalog?: ScenarioCatalogClient;
 }
 
 export function App({
@@ -93,6 +95,7 @@ export function App({
   siteDirectory = defaultSiteDirectory,
   siteDetail = defaultSiteDirectory,
   siteCreation,
+  scenarioCatalog,
 }: AppProps) {
   return (
     <Routes>
@@ -133,6 +136,7 @@ export function App({
         siteTemplateCatalog,
         siteCreation,
         SITES_PATH,
+        scenarioCatalog,
       ).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}

@@ -30,6 +30,7 @@ rationale in the dated entries below.
 | `D-2026-09-20-scenario-definition-storage` | 2026-09-20 | ScenarioDefinitions use composed shipped and writable stores behind a domain port, with one disjoint scenario_id space. |
 | `D-2026-09-20-run-scoped-event-injection` | 2026-09-20 | Future event injection is run-scoped intervention history, not authored scenario content. |
 | `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. |
+| `D-2026-09-21-scenario-authoring-semantics` | 2026-09-21 | The T017 checkpoint settles scenario versioning fields, the event taxonomy, and the public/private parameter boundary. |
 
 ## 2026-09-11
 
@@ -1241,3 +1242,43 @@ disabled placeholders.
 Affected scope: Scenario detail screen actions, accessibility reason text,
 mockup-fidelity tests, run setup sequencing, and future control placement on
 SimulationRun, ingestion, Replay, and operator evidence surfaces.
+
+## 2026-09-21
+
+Decision: the T017 user-review checkpoint settles the three scenario authoring
+semantics M1B was blocked on. All three were accepted as proposed.
+
+A scenario version carries `scenario_id`, `scenario_version`,
+`version_valid_from` and `supersedes`.
+
+The event taxonomy is three timeline entry kinds - `EVENT`, `INTERVENTION`,
+`EVIDENCE_CONDITION` - and seven categories: `LOAD`, `WEATHER`, `EQUIPMENT`,
+`DATA_QUALITY`, `LOSS_OR_FRAUD`, `INTERVENTION`, `MAINTENANCE`. Breaker
+position and control mode are excluded by construction, and the vocabulary ban
+now reaches identifier-valued schema positions so they cannot arrive as a
+`parameter_id` either.
+
+Public authoring parameters may inform future run setup and runtime behaviour.
+Private expectations - `DETECTION`, `MAGNITUDE`, `TIMING`, `NO_FALSE_POSITIVE`
+- are test-oracle metadata only. The boundary is a parsed-field separation with
+separate payload builders, not a presentation choice, and private expectations
+never reach product evidence, source envelopes, operator UI, exports or
+provenance.
+
+Reason: unlike the M1A checkpoint, each question carried a proposal on screen,
+marked provisional, stating what accepting adopts and what redirecting would
+mean. The user's verdict was "looks good", so accepting the screen was a
+decision rather than ratification of a menu. M1A's breaker question was
+presented with candidates the project had considered and not chosen and no
+proposal, settled nothing, and had to go to an Architect afterwards; T017 was
+planned specifically not to repeat that.
+
+The values are settled. The on-screen provisional marking and the `provisional`
+wording on `SCENARIO_VERSION_FIELDS`, `TIMELINE_ENTRY_KINDS` and
+`EVENT_CATEGORIES` are not yet removed. Removing them, and the review regions
+with them, is a visible product change and belongs to a slice that says so -
+the same treatment T016's cold-room marker was given.
+
+Affected scope: `.ai/FEATURE_MAP.md` section 3, T018 and T019 planning, the
+scenario domain vocabularies, the scenario detail screen's review regions, and
+any future slice that authors, versions, or runs a scenario.

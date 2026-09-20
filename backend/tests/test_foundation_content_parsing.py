@@ -543,7 +543,17 @@ class TestUnsupportedValues:
         a meter. This narrows only when a reviewed slice adds the explicit
         topology/evidence separation and tests that position cannot be stored
         as configuration.
+
+        T017 moved the banned list into `control_vocabulary.py` and grew the
+        protection to the scenario domain model, the shipped scenario
+        definition and the parser fixtures, in
+        `test_scenario_vocabulary.py`. This scan is unchanged in what it
+        asserts and now reads the same list the scenario scan does: two copies
+        would drift, and the drift would show up as a scan passing because it
+        was checking a shorter list.
         """
+        from control_vocabulary import BANNED_CONTROL_VOCABULARY, tokens_of
+
         import assetops_backend.sites.models as models
 
         vocabularies = {
@@ -552,14 +562,19 @@ class TestUnsupportedValues:
             if isinstance(value, frozenset)
         }
         assert vocabularies, "the vocabulary scan must not be vacuous"
+        assert BANNED_CONTROL_VOCABULARY, "the banned list must not be empty"
 
         declared = {value for sets in vocabularies.values() for value in sets}
-        for banned in ("OPEN", "CLOSED", "TRIPPED", "AUTO", "MANUAL", "BREAKER"):
-            assert banned not in declared, (
-                f"{banned!r} is control-state vocabulary. Breaker position is "
-                "evidence, not Foundation configuration, and no Foundation "
-                "model may declare it until a slice adds the topology and "
-                "evidence contract that makes it truthful."
+        for banned in BANNED_CONTROL_VOCABULARY:
+            offenders = sorted(
+                value for value in declared if banned in tokens_of(value)
+            )
+            assert not offenders, (
+                f"{banned!r} is control-state vocabulary, declared here as "
+                f"{offenders}. Breaker position is evidence, not Foundation "
+                "configuration, and no Foundation model may declare it until a "
+                "slice adds the topology and evidence contract that makes it "
+                "truthful."
             )
 
 

@@ -27,3 +27,8 @@ export {
 export { NavRail, type NavRailItem, type NavRailProps } from "./NavRail";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { Panel, type PanelProps } from "./Panel";
+export {
+  ReviewProposal,
+  type ReviewProposalProps,
+  REVIEW_PROPOSAL_STATUS,
+} from "./ReviewProposal";
