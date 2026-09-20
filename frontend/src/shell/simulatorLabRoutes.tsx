@@ -2,10 +2,17 @@ import type { ReactElement } from "react";
 
 import type { FeatureFlags } from "../config/featureFlags";
 import { CreateSiteFrame } from "./CreateSiteFrame";
+import { ScenarioFrame } from "./ScenarioFrame";
+import { ScenariosFrame } from "./ScenariosFrame";
 import { SimulatorLabFrame } from "./SimulatorLabFrame";
 import { SimulatorLabShell } from "./SimulatorLabShell";
 import { SiteTemplateFrame } from "./SiteTemplateFrame";
 import { SiteTemplatesFrame } from "./SiteTemplatesFrame";
+import { siteDetailHref } from "./operatorSiteRoutes";
+import {
+  createScenarioCatalogClient,
+  type ScenarioCatalogClient,
+} from "./scenarioCatalogClient";
 import {
   createSiteCreationClient,
   type SiteCreationClient,
@@ -55,11 +62,20 @@ export const SITE_TEMPLATE_DETAIL_PATH = `${SITE_TEMPLATES_PATH}/:templateId`;
  *  never the object it creates. */
 export const CREATE_SITE_PATH = `${SIMULATOR_LAB_PATH}/create-site`;
 
+/** Scenario authoring is a Simulator Lab capability, so the catalog and the
+ *  detail surface hang off the Lab prefix too. A saved ScenarioDefinition is
+ *  not a Lab object - it is product configuration in a product store, read
+ *  through a product port - but the surfaces that show it are the developer
+ *  workspace's, and no operator route reads a scenario. */
+export const SCENARIOS_PATH = `${SIMULATOR_LAB_PATH}/scenarios`;
+export const SCENARIO_DETAIL_PATH = `${SCENARIOS_PATH}/:scenarioId`;
+
 /** The gated template and create APIs, spelled here for the same chokepoint
  *  reason. The operator Sites API is not a simulator path and is not spelled
  *  here: it is never gated. */
 export const SITE_TEMPLATES_API_PATH = "/api/simulator-lab/site-templates";
 export const CREATE_SITE_API_PATH = "/api/simulator-lab/sites";
+export const SCENARIOS_API_PATH = "/api/simulator-lab/scenarios";
 
 /**
  * The workspace utility entry-point label from the v6.9 product document
@@ -102,17 +118,32 @@ const defaultSiteTemplateCatalog = createSiteTemplateCatalogClient(
 
 const defaultSiteCreation = createSiteCreationClient(CREATE_SITE_API_PATH);
 
+const defaultScenarioCatalog = createScenarioCatalogClient(SCENARIOS_API_PATH);
+
 export function siteTemplateHref(templateId: string): string {
   return `${SITE_TEMPLATES_PATH}/${encodeURIComponent(templateId)}`;
+}
+
+/**
+ * The address of one saved scenario.
+ *
+ * The identity is encoded rather than interpolated raw, for the same reason a
+ * `site_id` is: a `scenario_id` is charset-constrained at the backend port, so
+ * nothing awkward can reach this for a saved scenario, and encoding is what
+ * keeps a *requested* identity that is not a valid one from changing the shape
+ * of the address it is refused at.
+ */
+export function scenarioHref(scenarioId: string): string {
+  return `${SCENARIOS_PATH}/${encodeURIComponent(scenarioId)}`;
 }
 
 /**
  * The Simulator Lab rail's items.
  *
  * Declared here because this module is the only place a simulator URL may be
- * spelled, and listed here because a rail item is a destination claim: each of
- * these two resolves to a surface that renders real content today. The mockup
- * rail's other items have no truthful route behind them in this build and are
+ * spelled, and listed here because a rail item is a destination claim: each one
+ * resolves to a surface that renders real content today. The mockup rail's
+ * other items have no truthful route behind them in this build and are
  * therefore absent rather than dead.
  *
  * The create flow is not here. It is an action reached from a site index, not
@@ -121,6 +152,13 @@ export function siteTemplateHref(templateId: string): string {
 const SIMULATOR_LAB_RAIL_ITEMS = [
   { to: SIMULATOR_LAB_PATH, label: "Simulator Lab", end: true },
   { to: SITE_TEMPLATES_PATH, label: "Site Templates", end: false },
+  // T017 adds the third. The mockup rail has drawn `Scenarios` since the
+  // beginning and it has been absent every time, because nothing stood behind
+  // it. It appears now for the reason the other two did: the route renders
+  // real scenario records from the real scenario store. The rail still lists
+  // only what exists - `Devices`, `Ingestion`, `Events`, `Library`,
+  // `Documentation` and `Settings` remain absent rather than dead.
+  { to: SCENARIOS_PATH, label: "Scenarios", end: false },
 ];
 
 export interface GatedRoute {
@@ -138,6 +176,7 @@ export function simulatorLabRoutes(
   catalog: SiteTemplateCatalogClient = defaultSiteTemplateCatalog,
   creation: SiteCreationClient = defaultSiteCreation,
   sitesPath: string = "/sites",
+  scenarios: ScenarioCatalogClient = defaultScenarioCatalog,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -192,6 +231,31 @@ export function simulatorLabRoutes(
           creation={creation}
           sitesPath={sitesPath}
           simulatorLabPath={SIMULATOR_LAB_PATH}
+        />,
+      ),
+    },
+    {
+      path: SCENARIOS_PATH,
+      element: inLabShell(
+        <ScenariosFrame
+          catalog={scenarios}
+          scenarioHref={scenarioHref}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
+        />,
+      ),
+    },
+    {
+      path: SCENARIO_DETAIL_PATH,
+      element: inLabShell(
+        // `siteHref` is handed in from the operator route module rather than
+        // built here. A scenario's target site is an operator surface, and
+        // this module owns simulator addresses only; deciding where a site
+        // lives is not its call.
+        <ScenarioFrame
+          catalog={scenarios}
+          scenariosPath={SCENARIOS_PATH}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
+          siteHref={siteDetailHref}
         />,
       ),
     },

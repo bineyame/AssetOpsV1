@@ -490,13 +490,15 @@ describe("the create flow leads back to the operator index", () => {
       link.textContent,
     ]);
 
-    // Still an exact allowlist, and still closed. The first two entries are
-    // the Lab's own rail, which T009 made a real component; both name surfaces
-    // that already rendered truthful content before the rail existed. The
-    // create flow itself still leads exactly two places and nowhere else.
+    // Still an exact allowlist, and still closed. The first three entries are
+    // the Lab's own rail, which T009 made a real component and T017 grew by
+    // one; each names a surface that renders truthful content. The create flow
+    // itself still leads exactly two places and nowhere else, and in
+    // particular it does not acquire a way into the scenario catalog.
     expect(links).toEqual([
       ["/simulator-lab", "Simulator Lab"],
       ["/simulator-lab/site-templates", "Site Templates"],
+      ["/simulator-lab/scenarios", "Scenarios"],
       ["/simulator-lab", "Back to the Simulator Lab"],
       ["/sites", "Go to Sites"],
     ]);

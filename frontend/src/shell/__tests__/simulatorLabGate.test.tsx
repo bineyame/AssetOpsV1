@@ -89,11 +89,23 @@ const SITE_TEMPLATE_URLS = [
  */
 const CREATE_SITE_URLS = ["/simulator-lab/create-site"];
 
+/**
+ * The Lab surfaces T017 added. Scenarios are a developer-workspace capability,
+ * so the catalog and one scenario's detail are gated and listed here. What
+ * they show is product configuration in a product store; the gate covers the
+ * surfaces, never the records.
+ */
+const SCENARIO_URLS = [
+  "/simulator-lab/scenarios",
+  "/simulator-lab/scenarios/fuel-loss-event",
+];
+
 /** Everything that must be unserved while the gate is closed. */
 const UNSERVED_WHEN_DISABLED = [
   ...SIMULATOR_URLS,
   ...SITE_TEMPLATE_URLS,
   ...CREATE_SITE_URLS,
+  ...SCENARIO_URLS,
 ];
 
 /** Execution URLs that no slice has implemented, in either flag state. */
@@ -173,6 +185,13 @@ describe("simulator lab gate: disabled", () => {
     expect(
       simulatorLabRoutes(DISABLED).map((route) => route.path),
     ).not.toContain("/simulator-lab/create-site");
+  });
+
+  it("registers no scenario route either", () => {
+    const paths = simulatorLabRoutes(DISABLED).map((route) => route.path);
+
+    expect(paths).not.toContain("/simulator-lab/scenarios");
+    expect(paths).not.toContain("/simulator-lab/scenarios/:scenarioId");
   });
 
   it.each(OPERATOR_ROUTES)(
@@ -268,12 +287,14 @@ describe("simulator lab gate: disabled", () => {
 });
 
 describe("simulator lab gate: enabled", () => {
-  it("registers the Simulator Lab routes, including Site Templates and create", () => {
+  it("registers the Simulator Lab routes, including Site Templates, create and scenarios", () => {
     expect(simulatorLabRoutes(ENABLED).map((route) => route.path)).toEqual([
       "/simulator-lab",
       "/simulator-lab/site-templates",
       "/simulator-lab/site-templates/:templateId",
       "/simulator-lab/create-site",
+      "/simulator-lab/scenarios",
+      "/simulator-lab/scenarios/:scenarioId",
     ]);
   });
 
@@ -402,6 +423,10 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
     expect(links).toEqual([
       ["/simulator-lab", "Simulator Lab"],
       ["/simulator-lab/site-templates", "Site Templates"],
+      // T017 adds the rail's third destination. It is a place, not an action,
+      // and it renders real scenario records; the Lab home body is unchanged,
+      // so this adds a destination without adding a control.
+      ["/simulator-lab/scenarios", "Scenarios"],
       ["/simulator-lab/site-templates", "Site Templates"],
       // T010 gives the Lab its own way into the create flow. The same path and
       // the same gate as the operator index's entry point, differing only in

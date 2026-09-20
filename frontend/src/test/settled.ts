@@ -6,7 +6,7 @@ import { waitFor } from "@testing-library/react";
  * afterwards, in any settled state.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template)\./;
+  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template|saved scenarios|the saved scenario)\./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.

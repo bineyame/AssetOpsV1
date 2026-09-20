@@ -11,6 +11,7 @@ import type {
 import type { SiteSummary } from "../../sites/siteReadModel";
 import { SITES_PATH } from "../../shell/operatorSiteRoutes";
 import {
+  SCENARIOS_PATH,
   SIMULATOR_LAB_PATH,
   SITE_TEMPLATES_PATH,
 } from "../../shell/simulatorLabRoutes";
@@ -74,14 +75,19 @@ function renderAt(path: string, flags = ENABLED, sites: SiteSummary[] = []) {
 }
 
 describe("the Simulator Lab rail lists only truthful destinations", () => {
-  it("lists exactly the two surfaces that render real content", () => {
+  it("lists exactly the surfaces that render real content", () => {
     renderAt(SIMULATOR_LAB_PATH, ENABLED);
 
     const rail = screen.getByRole("navigation", {
       name: "Simulator Lab routes",
     });
 
-    // An exact allowlist, in order. A ninth item, or a different one, fails.
+    // An exact allowlist, in order. A further item, or a different one, fails.
+    //
+    // T017 adds `Scenarios`. It was in the absent list below until this slice,
+    // and it moved out of it for the only reason that list allows: the route
+    // now renders real scenario records from the real scenario store. The rest
+    // of the mockup rail is still absent, and still absent rather than dead.
     expect(
       within(rail)
         .getAllByRole("link")
@@ -89,12 +95,12 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
     ).toEqual([
       [SIMULATOR_LAB_PATH, "Simulator Lab"],
       [SITE_TEMPLATES_PATH, "Site Templates"],
+      [SCENARIOS_PATH, "Scenarios"],
     ]);
   });
 
   it.each([
     "Home",
-    "Scenarios",
     "Devices",
     "Ingestion",
     "Events",
