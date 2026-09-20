@@ -6,7 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
-import { spacedText } from "../../test/text";
+import { spacedText, textNodes } from "../../test/text";
 import { REVIEW_PROPOSAL_STATUS } from "../../ui";
 import {
   PROPOSED_EVENT_CATEGORIES,
@@ -26,7 +26,7 @@ import {
   SCENARIO_SUMMARY,
   UNAVAILABLE_TARGET,
   UNCONFIGURED_TARGET,
-  digitsInRecord,
+  recordRenderedStrings,
 } from "./scenarioFixtures";
 
 /**
@@ -330,49 +330,47 @@ describe("the scenario detail screen states no product conclusion", () => {
     ).toBeNull();
   });
 
-  it("renders no digit the record did not supply", async () => {
+  it("renders no digit that is not a record value, leaf by leaf", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();
 
-    const supplied = digitsInRecord();
-    const rendered =
-      spacedText(screen.getByRole("main")).match(/\d+/g) ?? [];
-
-    expect(rendered.length).toBeGreaterThan(0);
-    for (const run of rendered) {
-      expect(supplied).toContain(run);
-    }
-  });
-
-  it("puts no digit in prose at all, only in the places a record fills", async () => {
-    renderAt(SCENARIO_URL);
-    await settledScreen();
-
-    // The assertion above is necessary and not sufficient. It compares digit
-    // RUNS against the set the record supplies, so an invented small number -
-    // "all 7 categories" - is indistinguishable from a sequence number the
-    // record really has, and it passes. That was verified by introducing
-    // exactly that sentence and watching it pass.
+    // The acceptance criterion is that no digit appears unless the record
+    // supplies it. Two weaker forms of this were tried and both were rejected
+    // in review, for reasons worth keeping:
     //
-    // This is the claim that holds: the only digits on the screen are inside
-    // the three containers a record fills. Prose has none, so an invented
-    // count in a sentence has nowhere to hide.
-    const prose = screen.getByRole("main").cloneNode(true) as HTMLElement;
+    // - comparing digit RUNS against the runs the record contains passes for
+    //   an invented `7` as soon as any sequence number is 7;
+    // - removing the containers that hold record values and banning digits in
+    //   what is left carves out authored text too, because a table has
+    //   headings, a fact value has a fallback and an action reason is prose.
+    //
+    // The checkable claim is at leaf level. Every text node is either exactly
+    // a string the record supplies, or it carries no digit at all.
+    const main = screen.getByRole("main");
+    const expected = new Set(recordRenderedStrings(RESOLVED_TARGET));
+    const leaves = textNodes(main);
+    const withDigits = leaves.filter((leaf) => /\d/.test(leaf));
 
-    for (const selector of [
-      ".data-table__scroll",
-      ".fact-list__value",
-      ".action-list__reason",
-    ]) {
-      const filled = prose.querySelectorAll(selector);
-      // Each container must actually be present, or removing it would carve
-      // out nothing and this would silently become an assertion about a
-      // screen that had lost the region.
-      expect(filled.length).toBeGreaterThan(0);
-      filled.forEach((node) => node.remove());
+    // Non-vacuous: this screen really does render digits, so the loop below
+    // is not iterating over nothing.
+    expect(withDigits.length).toBeGreaterThan(15);
+
+    for (const leaf of withDigits) {
+      expect(expected).toContain(leaf);
     }
 
-    expect(spacedText(prose)).not.toMatch(/\d/);
+    // And the other direction, so the expectation cannot be padded into
+    // uselessness: every digit-bearing string the record is supposed to put on
+    // this screen is actually on it. Adding a junk entry to make a violation
+    // pass would fail here.
+    const rendered = new Set(leaves);
+    const expectedWithDigits = [...expected].filter((value) =>
+      /\d/.test(value),
+    );
+    expect(expectedWithDigits.length).toBeGreaterThan(15);
+    for (const value of expectedWithDigits) {
+      expect(rendered).toContain(value);
+    }
   });
 });
 

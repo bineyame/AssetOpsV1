@@ -1,5 +1,6 @@
 import type {
   ScenarioDetail,
+  ScenarioParameter,
   ScenarioPrivateExpectation,
   ScenarioSummary,
   ScenarioTargetResolution,
@@ -199,54 +200,88 @@ export const NOT_APPLICABLE_TARGET: ScenarioTargetResolution = {
     "site, so there is no site to open.",
 };
 
-/** Every digit run the record supplies, for the invented-digit assertion. */
-export function digitsInRecord(): Set<string> {
-  const digits = new Set<string>();
+/**
+ * How a parameter reads on screen. The screen's own rule, restated here so the
+ * expectation is built from the record rather than read back off the DOM.
+ */
+function parameterValue(parameter: ScenarioParameter): string {
+  return parameter.unit === null
+    ? String(parameter.value)
+    : `${parameter.value} ${parameter.unit}`;
+}
 
-  const add = (value: unknown): void => {
-    for (const run of String(value).match(/\d+/g) ?? []) {
-      digits.add(run);
-    }
-  };
+/**
+ * Every string the scenario detail screen renders FROM THE RECORD, as the
+ * screen renders it: one entry per rendered leaf, not per field.
+ *
+ * This replaces the digit-run comparison the T017 review rejected. That one
+ * asked whether each digit run on the screen appeared anywhere in the record,
+ * which an invented `7` satisfies as soon as any sequence number is 7. The
+ * follow-up - remove the containers that hold record values, then ban digits
+ * in what is left - was rejected for the complementary reason: those
+ * containers hold authored text too, so a static digit inside a table heading
+ * was carved out wholesale.
+ *
+ * The claim that is actually checkable is at leaf level: a text node on this
+ * screen either equals one of these strings, or it contains no digit at all. A
+ * heading is authored, so it may not carry a digit; a value is record-backed,
+ * so it must match exactly. An invented digit has nowhere to be either.
+ *
+ * The list is asserted in both directions, so it cannot be padded: every entry
+ * here that contains a digit must actually appear on the screen.
+ */
+export function recordRenderedStrings(
+  resolution: ScenarioTargetResolution = RESOLVED_TARGET,
+): string[] {
+  const rendered: string[] = [
+    SCENARIO_DETAIL.display_name,
+    SCENARIO_DETAIL.origin,
+    SCENARIO_DETAIL.purpose,
+    SCENARIO_DETAIL.scenario_id,
+    String(SCENARIO_DETAIL.version.scenario_version),
+    SCENARIO_DETAIL.version.version_valid_from,
+    SCENARIO_DETAIL.target_site.policy,
+    SCENARIO_DETAIL.target_site.requirement,
+    resolution.reason,
+  ];
 
-  add(SCENARIO_DETAIL.version.scenario_version);
-  add(SCENARIO_DETAIL.version.version_valid_from);
-  add(SCENARIO_DETAIL.version.supersedes);
-  add(SCENARIO_DETAIL.target_site.site_id);
-  add(SCENARIO_DETAIL.purpose);
-  add(SCENARIO_DETAIL.target_site.requirement);
+  rendered.push(
+    SCENARIO_DETAIL.version.supersedes === null
+      ? "No earlier version"
+      : String(SCENARIO_DETAIL.version.supersedes),
+  );
+  rendered.push(SCENARIO_DETAIL.target_site.site_id ?? "None declared");
+  rendered.push(SCENARIO_DETAIL.target_site.template_id ?? "None declared");
 
   for (const parameter of SCENARIO_DETAIL.public_parameters) {
-    add(parameter.value);
-    add(parameter.display_name);
+    rendered.push(
+      parameter.display_name,
+      parameterValue(parameter),
+      parameter.parameter_id,
+    );
   }
 
   for (const entry of SCENARIO_DETAIL.timeline) {
-    add(entry.sequence);
-    add(entry.offset_minutes);
-    add(entry.description);
-    add(entry.event_id);
+    rendered.push(
+      String(entry.sequence),
+      String(entry.offset_minutes),
+      entry.entry_kind,
+      entry.category,
+      entry.description,
+      entry.event_id,
+    );
     for (const parameter of entry.parameters) {
-      add(parameter.value);
-      add(parameter.display_name);
+      rendered.push(parameter.display_name, parameterValue(parameter));
     }
   }
 
   for (const expectation of PRIVATE_EXPECTATIONS) {
-    add(expectation.statement);
-    add(expectation.display_name);
+    rendered.push(
+      expectation.display_name,
+      expectation.oracle_kind,
+      expectation.statement,
+    );
   }
 
-  for (const resolution of [
-    RESOLVED_TARGET,
-    UNCONFIGURED_TARGET,
-    UNAVAILABLE_TARGET,
-    NOT_APPLICABLE_TARGET,
-  ]) {
-    add(resolution.reason);
-    add(resolution.site_id);
-    add(resolution.display_name);
-  }
-
-  return digits;
+  return rendered;
 }
