@@ -528,11 +528,21 @@ class TestUnsupportedValues:
             assert len(vocabulary) > 0
 
     def test_no_control_state_vocabulary_is_declared(self) -> None:
-        """The T016 checkpoint owns this, and this slice must not pre-empt it.
+        """Position is evidence; Foundation configuration may not declare it.
 
-        Whether a breaker is a device, component state, or both is undecided.
-        A closed set of breaker positions or control modes here would decide it
-        silently, in schema names, before anyone had seen the question.
+        Settled 2026-09-20 (`D-2026-09-20-breaker-vocabulary`): a breaker is a
+        topology element and, when instrumented, something a device reports
+        about - but its position is a time-scoped operational fact, which in
+        this project means evidence. A closed set of breaker positions or
+        control modes in a Foundation model would let a YAML field assert an
+        operating condition nothing ever observed.
+
+        `BREAKER` stays banned with the position words. Admitting it as a
+        `DEVICE_TYPE` would answer the other half of the question early, by
+        saying a breaker is a configured reporting device in the same sense as
+        a meter. This narrows only when a reviewed slice adds the explicit
+        topology/evidence separation and tests that position cannot be stored
+        as configuration.
         """
         import assetops_backend.sites.models as models
 
@@ -546,8 +556,10 @@ class TestUnsupportedValues:
         declared = {value for sets in vocabularies.values() for value in sets}
         for banned in ("OPEN", "CLOSED", "TRIPPED", "AUTO", "MANUAL", "BREAKER"):
             assert banned not in declared, (
-                f"{banned!r} is a control-state value. The control vocabulary "
-                "is held for the T016 user-review checkpoint."
+                f"{banned!r} is control-state vocabulary. Breaker position is "
+                "evidence, not Foundation configuration, and no Foundation "
+                "model may declare it until a slice adds the topology and "
+                "evidence contract that makes it truthful."
             )
 
 

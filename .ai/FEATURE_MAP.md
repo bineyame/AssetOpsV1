@@ -535,10 +535,26 @@ UI-verifiable outcomes:
 - A compatible Site can reuse the hybrid mini-grid archetype without code
   changes, while incompatible topology is explicit rather than hidden.
 
-Semantics to decide:
-- Breaker/control state vocabulary and whether breakers are devices, component
-  state, or both.
-- How cold-room process symbols relate to mini-grid electrical topology.
+Semantics settled:
+- A breaker is both a topology element and, when the site is instrumented for
+  it, something a device may report about - but never both in one record.
+  Position is evidence, not Foundation configuration, so `open`, `closed`,
+  `tripped`, `auto` and `manual` are not Foundation schema vocabulary. M1
+  carries only declared control assumptions. See
+  `D-2026-09-20-breaker-vocabulary`.
+- Cold-room process symbols: a declared cold room draws in the lane its
+  declared topology role puts it in, with its own shape. Accepted at the T016
+  checkpoint; still marked `Proposed treatment` on screen until a slice
+  deliberately removes the marker.
+
+Semantics still to decide, at the first slice that renders or stores a breaker
+state, because that slice will have the evidence contract in front of it:
+- Whether canonical topology names breakers as components, connection
+  equipment, connection attributes, or a distinct inline element.
+- The accepted-evidence vocabulary for positions and control modes.
+- Whether `tripped` is a position, an event, a protection outcome, or several
+  of those in different evidence records.
+- The symbol set for breaker drawings.
 
 ### 3. Scenario Authoring And Scenario Catalog
 

@@ -25,6 +25,7 @@ rationale in the dated entries below.
 | `D-2026-09-17-foundation-screen-architecture` | 2026-09-17 | The operator Site surface formerly called Site Configuration becomes Foundation, with line-cited Site tabs, filtered Foundation subtabs, route compatibility, and inventory guards. |
 | `D-2026-09-20-layout-evidence-standing` | 2026-09-20 | Browser layout evidence is standing closeout evidence for layout-sensitive slices, kept outside the portable architecture runner. |
 | `D-2026-09-20-no-merged-task-status-guard` | 2026-09-20 | No guard ties a merged slice's task status to branch state; closeout discipline stays manual until the drift recurs. |
+| `D-2026-09-20-breaker-vocabulary` | 2026-09-20 | A breaker is topology and, when instrumented, a reported-about thing; position is evidence, not Foundation configuration. |
 
 ## 2026-09-11
 
@@ -1058,3 +1059,70 @@ caps and the type contract no runtime test could falsify.
 
 Affected scope: `.ai/WORKFLOW.md` closeout, the Implementer and Reviewer
 standing briefs. No new tool, no change to `tools/check-agent-workflow.ps1`.
+
+## 2026-09-20
+
+Decision: a breaker is both a topology element and, when the site has
+instrumentation for it, something a device may report about - but never both in
+one record. Its position is evidence, not Foundation configuration. M1 carries
+nothing beyond the declared control assumptions T014 already carries: identity,
+name, optional component reference, provenance, and a statement in words.
+
+This keeps two product claims apart:
+
+- "This site is wired with a controllable or protective element between these
+  topology nodes" - configuration and topology.
+- "This breaker was open, closed, tripped, automatic or manual at this time" -
+  evidence.
+
+So `OPEN`, `CLOSED`, `TRIPPED`, `AUTO` and `MANUAL` are not Foundation schema
+vocabulary, and `BREAKER` is not a Foundation `DEVICE_TYPE`. The eventual model
+separates four things: a topology declaration for where the breaker is; device
+and signal mappings for what can report about it; evidence records for what was
+observed and when; and declared control policy or assumption for what operation
+is intended, in words for M1.
+
+T014's `frozenset` scan in
+`backend/tests/test_foundation_content_parsing.py` is kept, not narrowed and not
+retired, with its rationale rewritten to this decision. Retiring it would let a
+later Foundation change smuggle position vocabulary into configuration before
+the evidence model exists. Narrowing it to position words alone would admit
+`BREAKER` as a device type and so answer half the question early. It narrows
+only when a reviewed slice adds the explicit topology/evidence separation and
+tests that position cannot be stored as configuration.
+
+Reason: v6.9 gives the Simulator Lab a truthful runtime breaker state, with
+loads and sources connected to the AC bus through named breakers and a legend
+carrying breaker open/closed, because the simulator owns physical truth. Where
+it gives Foundation control policy it defines no breaker-position schema, no
+AssetOps control-state vocabulary, and no rule that configured policy equals
+observed state. That silence is the finding: this seam is ours to decide, and
+the causal chain the product already commits to - physical/control state
+transition, device observation, gateway, source envelopes, AssetOps evidence -
+puts position on the evidence side of it.
+
+Carrying nothing more in M1 is the positive answer rather than a deferral. M1
+has no evidence object, controller record, runtime overlay or breaker component
+model that could truthfully hold a position. Adding the vocabulary now would
+unlock no UI-verifiable value; it would teach the product to state an operating
+condition without the evidence path that makes such a statement legitimate. A
+screen could show a breaker open because a YAML field said so, which collapses
+the simulator-truth and AssetOps-evidence boundary and makes Foundation look
+like a live operations model.
+
+Left open deliberately, for the first slice that renders or stores a breaker
+state, because that slice will have the evidence contract in front of it:
+whether canonical topology names breakers as components, connection equipment,
+connection attributes or a distinct inline element; the accepted-evidence
+vocabulary for positions and control modes; whether `tripped` is a position, an
+event, a protection outcome or several of those in different records; and the
+symbol set for breaker drawings. Eventually the SLD draws a breaker as an inline
+topology element and may overlay an evidence-backed position on it, with
+simulator runtime truth and accepted evidence staying separate overlays as
+T015's slots already keep them.
+
+Affected scope: `.ai/FEATURE_MAP.md` section 2 semantics, the `frozenset` scan's
+rationale and failure message, and any future slice touching breakers, control
+policy, or the Foundation control vocabulary. No schema field, model, route, or
+rendered surface changes now; T014's `ControlAssumption`, T015's typed empty
+slots and T016's presentation all stand as shipped.
