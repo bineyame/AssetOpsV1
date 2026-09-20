@@ -16,8 +16,10 @@ resulting operational evidence in the UI.
 
 Active planned task: `tasks/T017-scenario-catalog-fuel-loss-detail.md`.
 
-T017 starts M1B, Scenario Catalog And Run Setup. It is planning-only complete
-and ready for Implementer pickup after this planning branch is reviewed.
+T017 starts M1B, Scenario Catalog And Run Setup. It has been revised after
+Architect review to fold in the ScenarioDefinition model, composed
+shipped/writable scenario storage, runtime-injection seam, and scenario-detail
+affordance rule. It is ready for Architect review before Implementer pickup.
 
 T017 carries `USER_REVIEW_REQUIRED: true`. It is the M1B checkpoint for:
 
@@ -57,7 +59,13 @@ fixtures when needed and do not clear, replace, or delete that directory.
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-11-simulator-gate`
   - `D-2026-09-13-template-and-create-surfaces-gated`
+  - `D-2026-09-13-site-foundation-persistence`
+  - `D-2026-09-13-canonical-fidelity`
   - `D-2026-09-20-breaker-vocabulary`
+  - `D-2026-09-20-scenario-definition-model`
+  - `D-2026-09-20-scenario-definition-storage`
+  - `D-2026-09-20-run-scoped-event-injection`
+  - `D-2026-09-20-scenario-detail-affordances`
   - `D-2026-09-20-layout-evidence-standing`
 - `.ai/CODE_STATE.md`
   - T014
@@ -77,6 +85,14 @@ fixtures when needed and do not clear, replace, or delete that directory.
   navigation and operator Site tabs do not grow.
 - ScenarioDefinition answers what happens during the simulated interval. Site
   Foundation answers what the Site is. The two do not duplicate each other.
+- The shipped Fuel Loss Event is a directly selectable ScenarioDefinition at
+  `config/scenarios/fuel-loss-event.yaml`, read through composed shipped and
+  writable stores behind a scenario-domain port. Writable user definitions live
+  under gitignored `var/scenarios/`.
+- Scenario events are authored sub-artifacts inside a scenario version, not
+  top-level stored entities. Future runtime injections are run-scoped
+  SimulationRun intervention-history records and are not written back into the
+  scenario version.
 - Scenario labels, scenario versions, run names, and `run_id` never become
   `site_id`.
 - Private expectations are test-oracle metadata only. They never enter source
