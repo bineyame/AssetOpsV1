@@ -15,8 +15,9 @@ resulting operational evidence in the UI.
 ## Active Task
 
 Active task: `tasks/T018-executable-scenario-contract.md`, Status `in_review`.
-Packet at `.agent/T018-review-packet.md`. **This slice needs user review
-before T019 begins.**
+Packet at `.agent/T018-review-packet.md`. Independent review returned accept
+with five findings; all five are fixed on the branch and it is back for
+re-review. **This slice needs user review before T019 begins.**
 
 T018 gave every authored scenario value a machine-readable execution role -
 causal input, forcing input, reported observation, non-executable condition -
@@ -49,6 +50,13 @@ T018 paid it twice more. A deliberate "power applied as a rate" was refused
 by the role rule before the dimension rule was consulted, and two attempts to
 get a reading into the initialization inputs tripped a different guard first.
 Both were rewritten until they measured what they named.
+
+T018's review added the other half of the same family: a guard, a sentence
+and a number each have to be checked against the thing they describe, not
+against themselves. A legend claimed a guarantee the parser did not hold, a
+cadence rule written for one position left three open, and the reconciliation
+reported a volume its own bound policy refuses. The T018 entry in
+`.ai/CODE_STATE.md` has all three.
 
 ## Current State
 

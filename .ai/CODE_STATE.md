@@ -1600,3 +1600,48 @@ What T018 deliberately does not do: no model profile, so nothing computes a
 Draft status; no run, no trace, no kernel. Every executable input names the
 state it needs and whether it is required, which is what makes that decision
 possible for T019.
+
+### What review round one changed, and the three lessons in it
+
+Independent review accepted the slice with five findings, all fixed on the
+branch. Three are worth carrying forward because each is a failure shape, not
+a typo.
+
+**A screen may not assert a guarantee the code does not hold.** The role
+legend said only a causal input could reach private world state, and the
+proposal asked the user to accept that, while a forcing input could declare
+`initializes: true` and came back as the initializer of a world state. On a
+`USER_REVIEW_REQUIRED` screen that is worse than a plain bug: accepting it
+would have locked in a guarantee nothing enforced. The fix made the sentence
+true rather than weakening it, because the stricter rule is also truer - an
+exogenous state's value at every instant comes from its forcing profile,
+including the first. `STATE_CHANGING_ROLES` had no consumer anywhere and its
+only test asserted its own literal value; it now has two consumers that do
+not depend on each other, and a test that measures both.
+
+**A rule written for one position is a rule with positions left over.** The
+cadence prohibition was enforced on a duration parameter hung on a reported
+observation. Three neighbours were wide open: a top-level duration, a duration
+on the entry forcing the reporting path, and a reading timed as a window. The
+fix was not to add two more position rules. `min` and `h` stopped being
+authoring units, so a duration has no unit to be written in anywhere, and the
+closed unit vocabulary the parser already enforced does the work; separately a
+reading must be a POINT. The packet had claimed "there is no field a rate
+could occupy" while three fields could - so the claim is now true rather than
+softened, and what the rule does not reach is stated: prose, which is English.
+
+**A contract may not report a number the same contract refuses.** The
+reconciliation summed every completed transition without consulting a bound
+and, with the delivery moved before the readings, reported a declared 554 L
+against a declared 500 L capacity under a column headed "declared causes
+reach". Capacity and volume were two state keys with nothing connecting them,
+so a `bounds` declaration now says which state a world value limits - declared
+rather than guessed from a shared prefix. Reaching a bound makes the reading
+`NOT_RECONCILABLE`, because applying the clamp is the kernel's. The
+transitions are walked in completion order rather than summed, since a bound
+is reached at a moment and a total that came back inside would hide it. Every
+answer now carries a reason: a `NOT_RECONCILABLE` with none was three
+different facts wearing one name.
+
+The habit underneath all three: a guard, a sentence and a number each have to
+be checked against the thing they describe, not against themselves.
