@@ -28,22 +28,25 @@ T016 drew the configured Single Line Diagram inside Foundation and carried the
 M1A user-review checkpoint. Independent review: accept, no findings - the first
 clean first-pass review since T011. User review: accepted as built.
 
-### The checkpoint settled one question and not the other
+### Both checkpoint questions are now settled
 
-**Cold-room symbol treatment: accepted as proposed.** A declared cold room draws
-in the lane its topology role puts it in, with its own shape. It is still marked
-`Proposed treatment` on screen, and `SldCandidateTreatment.settled` is still the
-literal `false`. Removing that marker is a visible product change and should be
-its own commit.
+**Cold-room symbol treatment: accepted as proposed** at the checkpoint. A
+declared cold room draws in the lane its topology role puts it in, with its own
+shape. It is still marked `Proposed treatment` on screen and
+`SldCandidateTreatment.settled` is still the literal `false`. Removing that
+marker is a visible product change and should be its own commit.
 
-**Breaker and control vocabulary: still open.** It was presented with candidates
-the project had considered and not chosen, and no proposal - so accepting the
-screen chose nothing. It stays banned everywhere outside the review block, and
-T014's `frozenset` scan keeps it out of schema names.
-
-Nothing in M1A draws a breaker, so nothing was blocked. **The first slice that
-renders or stores a breaker state needs the answer first, and it should come
-back to the user rather than choosing quietly.**
+**Breaker and control vocabulary: settled 2026-09-20**, after the checkpoint,
+on an Architect recommendation the user accepted
+(`D-2026-09-20-breaker-vocabulary`). A breaker is topology and, when
+instrumented, something a device reports about - never both in one record.
+Position is **evidence, not Foundation configuration**, so the position and mode
+words are not Foundation schema vocabulary and `BREAKER` is not a `DEVICE_TYPE`.
+M1 carries nothing beyond T014's declared control assumptions. T014's
+`frozenset` scan is kept with its rationale rewritten; it narrows only when a
+reviewed slice adds the topology/evidence separation and tests that position
+cannot be stored as configuration. What the first breaker slice must still
+decide is listed in `.ai/FEATURE_MAP.md` section 2.
 
 ### State
 
@@ -71,11 +74,8 @@ The Architect recommended, the user accepted, and both entries are now in
 - No guard ties a merged slice's task status to branch state. Closeout is
   manual: Review Outcome recorded and status set before the merge.
 
-The breaker and control vocabulary is **still open**. An Architect
-recommendation the user has not yet accepted is in
-`.agent/breaker-vocabulary-recommendation.md`: a breaker is topology and, when
-instrumented, something a device reports about; position is evidence, not
-Foundation configuration; M1 carries nothing beyond T014's control assumptions.
+No seam question is open. The breaker vocabulary was settled the same day; see
+the checkpoint section above.
 
 ## Current Site Foundation Sequence
 
