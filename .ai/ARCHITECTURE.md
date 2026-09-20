@@ -77,6 +77,41 @@ Private scenario expectations and simulator truth are test-oracle or Lab-only
 context. They must not cross into Source Envelopes, accepted evidence, operator
 views, analytics, exports, or findings.
 
+## Causal Runtime Authority
+
+`ScenarioDefinition` authors time-bound causes, external conditions,
+interventions, and evidence conditions. It does not author the resulting world
+state trajectory. Site Foundation supplies physical/configuration facts; a
+frozen `SimulationRun` supplies interval, timestep, seed, selected Site and
+Foundation version, selected scenario version, simulator version, resolved
+initialization inputs, and ordered run-scoped interventions. The runtime owns
+initialization and the causal transition from one private world state to the
+next.
+
+The first executable Fuel Loss path therefore requires a minimal deterministic
+causal kernel before any trace may be treated as simulator output. Its runtime
+contract must express initialization plus a step operation over current state,
+simulation time, timestep, and events due in that step. Event-boundary
+semantics must make each authored cause apply exactly once. The kernel may be
+deliberately narrow, but changing or removing a supported cause must change or
+remove its consequence while all unrelated frozen inputs remain fixed.
+
+A manually authored state trace can prove UI, clock, binding, and downstream
+contract behaviour; it cannot prove that a scenario caused the states it
+contains. Golden traces are permitted only as reproducible outputs of a named
+causal runtime version and frozen deterministic identity. They are regression
+or playback artifacts, not an independent source of simulator truth. Schema
+validation proves shape, invariant validation proves internal consistency, and
+causal correctness requires execution by the kernel plus independent example,
+boundary, and metamorphic tests. These three claims must not be collapsed.
+
+Initial conditions must be explicit and attributable. They may come from Site
+Foundation, versioned simulator initialization rules, or declared supported
+scenario/run inputs; a trace may not hide or invent them. Runtime provenance
+binds outputs to the exact Site/Foundation version, scenario version, resolved
+public parameters, interval, timestep, seed, simulator version, initialization
+inputs, and intervention history that produced them.
+
 ## Contract Posture
 
 Data crossing product boundaries should be explicit, validated, and testable.

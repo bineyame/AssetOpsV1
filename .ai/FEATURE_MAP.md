@@ -21,7 +21,7 @@ active task file to choose only the needed sections.
 | Architecture and CI seams to preserve | Enforceable Protected Seams |
 | Topology, devices, or single-line diagram planning | Early Feature: Topology, Devices, And SLD |
 | Scenario and run setup planning | Early Feature: Scenario Catalog And Run Setup |
-| SimulationRun runtime planning | Early Feature: Draft SimulationRun And Recorded Runtime |
+| SimulationRun runtime planning | Early Feature: Draft SimulationRun And Causal Runtime |
 | Gateway, Commit, or ingestion planning | Early Feature: Gateway Publication, Commit, And Ingestion |
 | Evidence, Replay, or provenance views | Early Feature: AssetOps Evidence Views And Replay |
 | Product conclusion chain or Findings | Early Feature: First Product Conclusion Chain |
@@ -75,21 +75,22 @@ Resolved M1 schema decision:
   identity, simulation, ingestion, analytics, or evidence interpretation.
 
 Resolved first execution-mode decision:
-- The first Simulator Lab vertical slice uses a deterministic recorded-run
-  player, not the complete physical runtime.
-- The recorded player is a bootstrap state producer only. It must use the same
-  runtime-facing interfaces, clock semantics, event representations,
-  device-reporting path, gateway staging path, and downstream ingestion
-  contracts intended for the real deterministic simulator.
-- The implementation must not introduce a demo-only ingestion path or expose
-  precomputed AssetOps conclusions.
-- Wherever practical, recordings should represent simulator/world state and
-  events rather than final gateway envelopes, so device reporting and gateway
-  publication are exercised from the first slice.
-- The following vertical slice should replace the recorded state source with
-  the real deterministic runtime loop without redesigning the Simulator Lab UI,
-  runtime contract, device layer, gateway publication, ingestion boundary, or
-  AssetOps downstream path.
+- The first authoritative state producer is a minimal deterministic causal
+  runtime kernel, not a manually authored recorded-run player.
+- Scenario definitions author causes and conditions; initialization and the
+  runtime step contract compute world-state trajectories from frozen run
+  inputs. Event dispatch has explicit half-open boundary semantics and applies
+  each due cause exactly once.
+- Generated golden traces may exercise clock, UI, device, gateway, and
+  downstream contracts, but only as reproducible outputs of a named kernel
+  version and exact deterministic identity. A mismatched trace is refused.
+- Schema validity, internal invariants, and causal correctness are separate
+  proofs. Causality is demonstrated by executable transitions and independent
+  example, boundary, and metamorphic tests, not by authoring a fixture that
+  agrees with the scenario.
+- Later physical realism replaces or deepens the kernel behind the same
+  runtime-facing interfaces without redesigning the Lab UI, device layer,
+  gateway publication, ingestion boundary, or AssetOps downstream path.
 
 Resolved M1 source/evidence contract decision:
 - M1 separates the canonical Source Envelope from typed AssetOps evidence
@@ -351,8 +352,8 @@ section only names milestone order, demo readiness, and review checkpoints.
 | --- | --- | --- | --- |
 | M0: Site Foundation Fidelity | T009-T013 | Prototype walkthrough foundation. Not client-demo-ready. | T006 and T008 checkpoints already cover the product-language decisions; fidelity slices do not add one. |
 | M1A: Topology, Devices, Signals, And SLD | T014-T016 | Configured physical model and SLD become real. Still no operational evidence. | User review for SLD archetype, incompatible-topology treatment, and device/signal wording. |
-| M1B: Scenario Catalog And Run Setup | T017-T019 | Simulation authoring and run setup become real against configured Site anchors. | User review for event taxonomy, public/private scenario parameters, and run setup language. |
-| M1C: Prototype Walkthrough: Recorded Runtime | T020-T022 | Simulator Lab resembles `SimulatorLab1.png`, but runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. |
+| M1B: Scenario Catalog And Run Setup | T017-T019 | Simulation authoring and run setup become real against configured Site anchors. | User review for taxonomy/public-private semantics, executable roles, initialization/timing, and run setup language. |
+| M1C: Prototype Walkthrough: Causal Runtime | T020-T022 | A minimal causal kernel drives the Simulator Lab; generated golden traces support regression/playback, and runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. |
 | Demo Ready v1: Simulated Evidence Loop | T023-T029 | Earliest honest client-ready mini-grid demo. | User review after T029. |
 | Demo Ready v1.5: Cold-Chain Evidence Loop | T030-T033 | Cold-chain demo after a truthful cold-chain model exists. | User review for cold-chain wording and domain claims. |
 | Demo Ready v2: Evidence-Backed Operational Findings | T034-T038 | First business-outcome demo. | User review after T038. |
@@ -643,23 +644,26 @@ Causal prerequisites:
 - Simulation clock, timestep, wall elapsed, simulated elapsed, progress,
   execution speed, pause/resume, step, fast-forward, reset, rerun, replay, and
   jump-to.
-- Determinism identity includes Site definition/configuration, scenario version,
-  seed, simulator version, mappings/config, intervention history, and simulation
-  interval; this identity is frozen once committed.
+- Determinism identity includes Site definition/configuration, scenario version
+  and resolved parameters, interval, timestep, seed, simulator/model version,
+  explicit initialization inputs, observation/publication profile,
+  source/gateway identities, mappings/config, and intervention history. Draft
+  creation freezes these execution inputs; Commit makes the resulting history
+  immutable.
 - Runtime event injection is run-scoped intervention history under
   SimulationRun identity, not authored scenario content and not a top-level
   scenario artifact. See `D-2026-09-20-run-scoped-event-injection`.
-- Recorded-run player contract that can later swap its upstream state producer
-  for the real deterministic runtime loop without changing downstream device,
-  gateway, ingestion, or UI contracts.
+- Initialization and deterministic step/event-cursor contract that resolves
+  explicit inputs and computes state; later model depth stays behind the same
+  downstream device, gateway, ingestion, and UI contracts.
 
 Candidate tasks, after review:
-- Build Simulator Lab shell with run header, tabs, controls, and paused
-  recorded demo run.
+- Build Simulator Lab shell with run header, tabs, controls, and a paused Draft
+  run backed by the minimal causal kernel.
 - Add run-management read model with Draft/Committed status columns and allowed
   actions.
-- Implement deterministic recorded-run playback through the runtime-facing
-  clock/state/event interface before full physics.
+- Implement the minimal Fuel Loss causal kernel before producing golden traces;
+  generate reproducible traces from it for regression and playback use.
 - Add Commit eligibility/blocked state for overlapping committed simulated
   history using half-open interval checks.
 - Add Rerun as new Draft `run_id` with previous deterministic inputs as
@@ -689,18 +693,25 @@ Causal prerequisites:
 - Private simulator state for irradiance, temperature, cloud cover, wind,
   generation, load, battery SOC/power, generator state, fuel tank, cold-room
   temperature, breakers, and injected events.
-- Recorded state/event source for M1, shaped as simulator/world state rather
-  than final gateway envelopes wherever practical.
+- Minimal executable state/event kernel for M1, with explicit initialization,
+  canonical units, deterministic stepping, and exactly-once due-event dispatch.
+- Generated golden state/event traces, when useful, are derived artifacts of
+  that kernel rather than an alternate state authority.
 - Device realism layer translating truth to reported values with bias, cadence,
   stale/missing samples, failures, delay, duplicate/out-of-order messages, and
   quality.
 - Event log separating scheduled scenario events, manual interventions, device
   events, and gateway publication events.
+- Explicit versioned observation rules supply cadence and reporting behavior;
+  current Foundation configuration declares signal availability and mapping but
+  no cadence, so runtime may not infer one from display text or spacing.
 
 Candidate tasks, after review:
-- Add deterministic recorded world-state frames/events for the MG-001 run.
+- Add deterministic fuel-tank/generator transitions for the MG-001 run and
+  generate golden state/event traces from the kernel.
 - Bind runtime values to SLD, site state, environment, devices, and timeline.
-- Add non-persistent inject-event controls for the first event types.
+- Add run-scoped injection only after scheduled-event causality is proven; it
+  is not part of the initial T020-T022 sequence.
 
 UI-verifiable outcomes:
 - User sees truth and reported sensor values side by side inside Simulator Lab.
@@ -710,8 +721,20 @@ UI-verifiable outcomes:
 Semantics to decide:
 - Which simulator truth values may appear in Simulator Lab versus AssetOps admin
   overlays.
-- Minimum physical causality needed for a credible M1 demo.
 - Intervention log persistence and replay rules.
+
+Settled minimum causality for the first kernel:
+- Resolve the configured fuel tank and generator; initialize every state value
+  from an attributable frozen input; account for generator consumption, fuel
+  removal, and delivery in canonical units; apply scheduled events exactly
+  once; and define rather than silently clamp or ignore bounds failures.
+- Consume the shipped load and irradiance forcing inputs with their declared
+  timing shape and expose their supported runtime state without claiming a
+  complete power-flow model. Required executable inputs unsupported by the
+  chosen model profile block the run rather than being ignored.
+- Metamorphic proofs vary removal magnitude and time or remove the event and
+  observe the corresponding state consequence while preserving the unaffected
+  prefix and unrelated state.
 
 ### 6. Gateway Publication And Ingestion Visibility
 
@@ -976,9 +999,10 @@ reviewed:
 2. The configured topology renders as a single line diagram and Devices &
    Sensors table from the same source.
 3. Fuel Loss Event appears in Scenarios and can be selected in run setup.
-4. A paused Draft SimulationRun opens in Simulator Lab from a recorded-run
-   player with clock, controls, SLD, environment, devices, gateway staging, and
-   event timeline.
+4. A paused Draft SimulationRun opens in Simulator Lab from a minimal causal
+   runtime with clock, controls, supported SLD/environment/device values, and
+   event timeline; gateway staging is explicitly unavailable until the next
+   slice, and any playback trace is generated by that runtime.
 5. Commit releases staged Source Envelopes with typed records; Ingestion Logs
    and Gateway & Ingestion show released/accepted/rejected state with correct
    timestamps.
@@ -1170,24 +1194,25 @@ when their named input does not exist.
      operator UI, or product provenance, and persistence editing; the UI labels
      the scenario as authoring/setup only.
 
-6. Draft SimulationRun shell and recorded runtime playback.
+6. Draft SimulationRun shell and minimal causal runtime.
    - Becomes true: a Draft run opens in Simulator Lab with clock, controls,
      run metadata, SLD runtime slots, environment, devices, gateway staging
-     panel, event timeline, and recorded world-state playback.
+     unavailable state, event timeline, and causally computed world state.
    - Depends on: steps 2, 3, 4, and 5.
    - Real dependency: simulator execution needs gated routes, Site/Foundation
      identity, topology/device bindings, and run intent.
-   - UI-verifiable outcome: user can inspect a paused recorded MG-001 run,
+   - UI-verifiable outcome: user can inspect a paused MG-001 run,
      advance time, and see simulator truth/reported values change only inside
-     Simulator Lab.
+     Simulator Lab. Unsupported environment, electrical, and SLD values remain
+     explicitly unavailable rather than being inferred.
    - Deliberately unavailable: product conclusions, Commit if no staged output
      or ineligible state, Open in AssetOps for Draft evidence, and normal
      AssetOps updates; controls explain Draft envelopes are not released until
      Commit.
-   - Split/merge note: recorded playback and full deterministic runtime should
-     be split. The recorded player proves UI/contracts first; the deterministic
-     runtime can replace the state producer later without changing downstream
-     contracts.
+   - Split/merge note: Draft identity/shell, the minimal causal kernel, and Lab
+     execution/bindings should remain reviewable slices. Generated golden
+     traces may prove stable UI/contracts after the kernel exists; later model
+     depth must not change downstream contracts.
 
 7. Gateway staging and strict envelope preview.
    - Becomes true: Draft runs stage immutable canonical Source Envelopes with
@@ -2125,13 +2150,18 @@ M1B planner sequencing:
   the strict repository/parser work, composed stores, and detail screen produce
   one observable deliverable: inspecting the shipped Fuel Loss Event from the
   real scenario source.
-- T018 and T019 are intentionally not task files until the T017 User Review
-  Outcome is recorded. T018 is expected to make the accepted public/private
-  scenario detail contract stricter and reusable for run setup. T019 is
-  expected to build run setup over accepted scenario semantics and declared
-  `site_id` targets.
-- If T017 changes the proposal, the Planner updates this sequence before any
-  run setup implementation starts.
+- T018 hardens the accepted scenario detail into an executable scenario
+  contract before run setup. It classifies authored entries as causal inputs,
+  external forcing inputs, reported observation inputs, or non-executable
+  evidence conditions;
+  settles initialization ownership, units, point/window timing, and dispatch
+  semantics; and resolves contradictions rather than letting expected state
+  values silently prescribe private runtime truth.
+- T019 builds run setup only after T018. It freezes and validates the exact
+  Site/Foundation, scenario, initialization, interval, timestep, seed,
+  simulator/model-profile, mapping, and public-override inputs needed by the
+  causal kernel. A resulting Draft may be `READY` or `BLOCKED`; it does not
+  execute or create an authoritative trace.
 
 Seams inside the feature: scenario label not Site identity, public scenario
 authoring versus private test oracle, shipped/user scenario-store disjointness,
@@ -2141,30 +2171,39 @@ Must not bundle: simulator execution, product conclusions, Commit, ingestion,
 Finding creation, runtime injection controls, or in-product scenario editing
 persistence beyond the chosen repository.
 
-User-review checkpoint: required for event taxonomy, public/private scenario
-parameters, and run setup language because they fix domain semantics and demo
-narrative.
+User-review checkpoint: T017 settled event taxonomy and public/private scenario
+parameters. T018 reviews execution roles, initialization, timing, and bound
+behavior; T019 reviews run setup language and READY/BLOCKED treatment. These
+fix domain semantics and the demo narrative before execution begins.
 
-### Early Feature: Draft SimulationRun And Recorded Runtime
+### Early Feature: Draft SimulationRun And Causal Runtime
 
 Demo roadmap task range: T020-T022.
 
 Divide into slices:
-- Draft SimulationRun model/read model with lifecycle and execution status.
-- Simulator Lab run header, controls, tabs, and disabled Draft product bridge.
-- Recorded-run player through the runtime-facing clock/state/event interface.
-- Runtime bindings to SLD/environment/devices/timeline.
-- Non-persistent event injection that appends to intervention log semantics.
+- T020: Runs inventory/detail read model and Simulator Lab run header/shell over
+  the persisted Draft created by T019, with controls and the product bridge
+  truthful to its READY/BLOCKED and not-yet-executed state.
+- T021: minimal causal Fuel Loss kernel with explicit initialization,
+  deterministic step/event cursor, and fuel-tank/generator state.
+- T022: Lab execution, supported runtime bindings, and the minimal device
+  observation transform needed for truth/reported-value comparison, plus
+  reproducibly generated golden traces for regression/playback. Unsupported
+  environment/electrical/SLD values remain explicitly unavailable; gateway
+  staging remains unavailable until T023.
+- Event injection only after scheduled-event causality is proven; injections
+  append to run-scoped intervention history and are deferred beyond this first
+  three-slice sequence unless replanned explicitly.
 
 Seams inside the feature: simulator/product boundary, deterministic identity,
 truth versus reported values, intervention causality, feature gate.
 
-Must not bundle: full physical simulator replacement, accepted ingestion,
-AssetOps conclusions, source health, or Findings.
+Must not bundle: broad physical-model realism, accepted ingestion, AssetOps
+conclusions, source health, or Findings. Manual state traces are not a permitted
+substitute for the minimal kernel.
 
-User-review checkpoint: required for Simulator Lab control semantics, truth
-visibility, and injection behavior because they fix UI/UX and simulator domain
-semantics.
+User-review checkpoint: required for Simulator Lab control semantics and truth
+visibility because they fix UI/UX and simulator domain semantics.
 
 ### Early Feature: Gateway Publication, Commit, And Ingestion
 

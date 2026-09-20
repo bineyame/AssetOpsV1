@@ -14,7 +14,13 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. **T017 closed out 2026-09-21 and M1B's checkpoint is settled.**
+Active planned task: `tasks/T018-executable-scenario-contract.md`.
+
+T017 closed out 2026-09-21 and its checkpoint semantics are settled. A later
+Architect correction, `D-2026-09-21-causal-runtime-before-golden-traces`, now
+requires an executable scenario contract before run setup and a minimal causal
+kernel before any authoritative/golden state trace. T018 is the next slice and
+carries user review for that scenario/runtime meaning.
 
 T017 built the gated Scenarios catalog and the Fuel Loss Event detail screen
 over a new `ScenarioDefinition` domain: strict parser, domain port, composed
@@ -27,9 +33,11 @@ Outcome. Versioning fields, event taxonomy and the public/private boundary are
 **settled values**; the on-screen provisional marking is deliberately still
 there, and removing it is its own slice.
 
-**T018 and T019 are now plannable.** The Planner held them as sequence entries
-in `.ai/FEATURE_MAP.md` rather than writing task files that would need
-rewriting; this outcome is what that pass was waiting for.
+T018 through T023 are planned. T018 classifies scenario content and resolves
+initialization/timing/bound semantics; T019 owns Draft creation, persistence,
+and frozen inputs without execution. T020 owns Runs inventory/detail and the
+pre-execution shell, T021 the minimal Fuel Loss kernel, T022 Lab execution and
+device observations, and T023 immutable staged Source Envelopes.
 
 ### The lesson T017 paid for
 
@@ -45,7 +53,7 @@ only into a packet.
 ## Current State
 
 M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.
-M1B has opened: T017 is built and in review.
+M1B is active: T017 is complete and T018 is planned.
 
 Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
 position is evidence, not configuration. T017 grew that protection to the
@@ -65,29 +73,22 @@ fixtures when needed and do not clear, replace, or delete that directory.
 `var/scenarios/` is the writable scenario store; it is gitignored, empty, and
 nothing in the product can write to it yet.
 
-## Read For The T017 Review
+## Read For T018
 
-- `tasks/T017-scenario-catalog-fuel-loss-detail.md`
+- `tasks/T018-executable-scenario-contract.md`
 - `.ai/FEATURE_MAP.md`
   - Client-Demo Roadmap
   - `### 3. Scenario Authoring And Scenario Catalog`
   - `### 4. SimulationRun Runtime And Simulator Lab Shell`
+  - `### 5. Simulated World, Environment, Devices, And Event Injection`
   - `### Early Feature: Scenario Catalog And Run Setup`
+- `.ai/ARCHITECTURE.md`
+  - Causal Runtime Authority
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-11-simulator-gate`
-  - `D-2026-09-13-template-and-create-surfaces-gated`
-  - `D-2026-09-13-site-foundation-persistence`
-  - `D-2026-09-13-canonical-fidelity`
-  - `D-2026-09-20-breaker-vocabulary`
   - `D-2026-09-20-scenario-definition-model`
-  - `D-2026-09-20-scenario-definition-storage`
-  - `D-2026-09-20-run-scoped-event-injection`
-  - `D-2026-09-20-scenario-detail-affordances`
-  - `D-2026-09-20-layout-evidence-standing`
+  - `D-2026-09-21-scenario-authoring-semantics`
+  - `D-2026-09-21-causal-runtime-before-golden-traces`
 - `.ai/CODE_STATE.md`
-  - T014
-  - T015
-  - T016
   - T017
 - `.ai/WORKFLOW.md`
   - Task Spec Size
@@ -116,6 +117,14 @@ nothing in the product can write to it yet.
 - Private expectations are test-oracle metadata only. They never enter source
   envelopes, accepted evidence, operator UI, normal product provenance, exports,
   analytics, or Findings.
+- Scenario authors specify causes, external conditions/observations, and
+  non-executable evidence conditions; they do not author computed private-state
+  trajectories. T018 makes those roles explicit for Fuel Loss.
+- Initial state must resolve from attributable Foundation, scenario, run, or
+  versioned model inputs. A recording may not hide initialization.
+- A minimal deterministic causal kernel precedes authoritative golden traces.
+  Generated traces are reproducible regression/playback artifacts bound to the
+  exact frozen deterministic identity, never an alternate state authority.
 - M1B has no ingestion, no accepted evidence, no Draft run yet, and no Findings.
   T017 screens must describe intention, not report outcome.
 - No invented digits: a count, timestamp, duration, seed, volume, confidence, or
@@ -141,5 +150,6 @@ Per-slice details live in `.ai/CODE_STATE.md`.
   configured SLD/device presentation.
 - T017 settled the ScenarioDefinition domain, its port and composed stores, the
   parser/service split over target-site resolution, the parsed-field
-  public/private boundary, and the Lab's scenario surfaces. The three
-  checkpoint semantics are proposed on screen and not yet answered.
+  public/private boundary, and the Lab's scenario surfaces. Its three checkpoint
+  semantics were accepted on 2026-09-21; provisional UI markers remain for
+  T018 to remove as part of the executable-contract screen change.

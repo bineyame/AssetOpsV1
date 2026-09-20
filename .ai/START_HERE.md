@@ -17,9 +17,9 @@ resulting operational evidence in the UI.
 
 Planning status:
 
-The Stack, Shell, And Gate feature is complete. Site Foundation planning is
-reworked as T005-T013, and `.ai/ACTIVE_CONTEXT.md` names the next task, relevant
-decision IDs, and feature-map sections to read.
+M1A and T017 are complete. T018 is the active planned scenario-execution
+contract slice; `.ai/ACTIVE_CONTEXT.md` names the task, relevant decision IDs,
+and feature-map sections to read.
 
 ## Current Route
 
