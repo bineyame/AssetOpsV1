@@ -31,6 +31,7 @@ rationale in the dated entries below.
 | `D-2026-09-20-run-scoped-event-injection` | 2026-09-20 | Future event injection is run-scoped intervention history, not authored scenario content. |
 | `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. |
 | `D-2026-09-21-scenario-authoring-semantics` | 2026-09-21 | The T017 checkpoint settles scenario versioning fields, the event taxonomy, and the public/private parameter boundary. |
+| `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
 
 ## 2026-09-11
 
@@ -1282,3 +1283,50 @@ the same treatment T016's cold-room marker was given.
 Affected scope: `.ai/FEATURE_MAP.md` section 3, T018 and T019 planning, the
 scenario domain vocabularies, the scenario detail screen's review regions, and
 any future slice that authors, versions, or runs a scenario.
+
+## 2026-09-21
+
+Decision: a minimal executable deterministic causal runtime kernel must precede
+any state trace treated as authoritative simulator output. This supersedes
+`D-2026-09-11`'s first-execution-mode decision that a recorded-run player would
+act as the initial state producer and later be replaced by the real runtime.
+The stable clock/state/event, device, gateway, ingestion, and UI seams from that
+decision remain required.
+
+`ScenarioDefinition` authors causes and conditions in time, not their resulting
+state trajectory. Site Foundation, frozen run inputs, explicit initialization
+inputs, and versioned simulator rules initialize private world state. The
+runtime applies due events exactly once through an initialization/step contract
+and computes subsequent state. For the Fuel Loss Event, the first kernel must
+at least resolve the configured tank, account for declared initial fuel,
+generator consumption, removal, and delivery inputs, enforce declared bounds,
+and make changes to event quantity or timing produce corresponding changes in
+the state trajectory.
+
+A state trace may be retained only as a golden trace or playback fixture: it is
+generated reproducibly by a named simulator version from a frozen deterministic
+identity and used for regression, UI, clock, binding, or downstream contract
+proof. A manually authored trace can be schema-valid and internally consistent
+while still being causally circular, so it cannot certify simulation. Schema
+validation, invariant/consistency validation, and causal correctness are
+separate proof obligations. Causal proof requires executable transition rules
+plus independent examples, boundary cases, and metamorphic checks such as
+removing, retiming, or resizing an event and observing only the corresponding
+consequence change.
+
+Runtime provenance binds each result or golden trace to the exact Site and
+Foundation version, scenario version and resolved public parameters, interval,
+timestep, seed, simulator version, explicit initialization inputs, mappings,
+and ordered intervention history. A mismatch refuses playback; it never falls
+back to a trace produced for different inputs.
+
+Reason: a fixture written to agree with a scenario proves only agreement
+between two authored artifacts. Without an independently executable causal
+rule it cannot show that the scenario influenced world state. A narrow real
+kernel costs less than carrying that false claim through device, gateway, and
+evidence work, and lets later physical realism deepen the producer without
+redesigning downstream contracts.
+
+Affected scope: M1B run-setup semantics, T018/T019 planning, M1C task sequence,
+runtime initialization and step contracts, event-time semantics, trace
+provenance, simulator tests, Simulator Lab claims, and golden-trace use.

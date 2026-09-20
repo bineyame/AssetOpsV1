@@ -41,9 +41,12 @@ configured Single Line Diagram.
 `M1B: Scenario Catalog And Run Setup` makes simulation selection and setup real
 against configured Site anchors.
 
-`M1C: Prototype Walkthrough: Recorded Runtime` makes Simulator Lab resemble the
+`M1C: Prototype Walkthrough: Causal Runtime` makes Simulator Lab resemble the
 canonical runtime mockscreen with run state, controls, runtime panels, timeline,
-and overlays. It is still simulator behavior, not AssetOps product evidence.
+and overlays driven by a minimal deterministic causal kernel. Reproducible
+golden traces may support regression and playback, but are not the authority
+for world-state causality. Runtime truth is still simulator behavior, not
+AssetOps product evidence.
 
 `Demo Ready v1: Simulated Evidence Loop` is the earliest honest client-ready
 mini-grid demo. The product can show a simulated Site producing staged
