@@ -1185,3 +1185,118 @@ are cheaper than the reviews that found these.
 A sweep across TypeScript, PowerShell, Node and Python found no other live
 instance. The only embedded control character in the tree is deliberate:
 `test_site_parsing.py` uses a BEL to prove free text containing one is refused.
+
+## T016 - Foundation SLD and device/signal presentation
+
+What this slice settled in code.
+
+`frontend/src/sites/SiteSingleLineDiagram.tsx` renders the configured Single
+Line Diagram inside Foundation. It reads `deriveSiteSldView` and nothing else:
+no component lookup, no device resolution, no signal derivation. Every identity
+it draws came out of the T015 view model, and a UI test compares the rendered
+node, connection and component id sets to the Foundation's for exact equality
+in both directions. That chain - record, tested view model, renderer that adds
+nothing - is why a diagram on this screen can be trusted to be a picture of the
+record.
+
+Two states, and neither degrades into the other. Compatible gets the drawing,
+the diagram's contents in text, and a statement of anything the archetype has
+no place for. Incompatible gets the refusal with its stable statement and its
+detail, and no nodes at all. A test asserts the section holds exactly one of
+the two, never neither and never both.
+
+The archetype's own vocabulary stays off the screen. `BUSBAR`, `TERMINAL`,
+`SOLID`, `COLUMN_FIRST` reach the DOM as `data-` attributes and never as text,
+so T015's ban on that vocabulary is unchanged and is now exercised by a screen
+that renders the diagram. The same trick is what lets a test bind to the
+archetype's decisions without the product having words for them.
+
+Every drawn node carries one line reading `Awaiting runtime/evidence`, from one
+exported constant the drawing, the contents table and the tests all read.
+Rendered rather than left blank: a gap beside a component reads as a value that
+failed to arrive.
+
+Where it sits is settled. The diagram is a subsection of Topology, not a panel
+of its own, because T013's rule is that no unlinked panel may sit between the
+sections the Foundation row names.
+
+Narrowing a ban without loosening it. `withoutRegion` in
+`frontend/src/test/text.ts` removes one named region and **throws** when the
+region is not there. That throw is the whole point: a narrowing helper that
+silently found no region would assert over the whole screen while the test's
+name claimed a narrower scope, and on a screen that had lost the region the ban
+would pass for the wrong reason. Three bans are narrowed this way - diagram
+vocabulary, control vocabulary, cold-chain vocabulary - and each gained a
+second half stricter than the original. The control one is the sharpest: the
+vocabulary may be spoken in prose inside the block that asks the question, and
+in no form that makes it a fact - no column, no cell, no badge, no label on the
+drawing.
+
+One assertion's purpose expired and was replaced rather than dropped. "No panel
+body is empty" was written when an empty body could only be a region kept warm
+for a diagram that did not exist. It now covers subsections too, and adds the
+claim the old one could not make: the diagram section holds either a drawing
+with nodes in it or a refusal with a reason.
+
+`tools/checks/shell-overflow.ps1` gained the diagram's half of the table rule:
+`.sld__scroll` must declare `overflow-x`, and every `<svg>` must render through
+the diagram module. Both refuse to run vacuously. The svg scan skips comment
+lines, because the first version reported AppHeader's own doc comment, which
+mentions `<svg>` in a sentence about not having one.
+
+`tools/layout-evidence.mjs` measures the drawing at 1280, 1000 and 640: drawn
+with nodes and connections, region named and focusable, scrolls inside itself,
+one empty slot per node, and never a drawing and a refusal together. At 640 it
+asserts the drawing actually overflows, so the scroll claim is not about an
+empty set.
+
+Three smaller settlements. The mapping rows carry the `signal_id` the document
+binds by, because a signal id is unique within its device only. Protocol
+metadata and sample cadence - both named in the feature map, neither in T014's
+schema - are stated once in words, with a `th` ban holding them out of a column
+of dashes. The bus-cardinality refusal names the offending nodes instead of
+counting them, because T016 renders that detail on a screen where no digit may
+appear that the record did not supply.
+
+The lesson this slice adds, and the one it re-learns.
+
+Re-learned, as the sixth instance of the family: widening
+`SldCandidateTreatment.settled` from `false` to `boolean` broke **zero** of 279
+runtime assertions and was caught only by `tsc`, through an unused
+`@ts-expect-error`. T015 wrote that habit down; T016 is the first slice to use
+it on a new claim rather than to fix an old one.
+
+New: **jsdom cannot see a diagram, so a diagram has to be looked at.** Three
+defects survived a green suite and were found in a browser. A run that skipped
+a lane turned at the midpoint of its whole length, drawing a line through
+whatever that lane held. SVG text neither wraps nor clips, so a component name
+longer than its box ran out of the side of it and across the drawing - fixed by
+wrapping onto two lines, never by truncating, because a shortened component
+name is a fact hidden to tidy a layout. And `Proposed treatment` sat on top of
+the name it was a marking about. The agreement test then caught the wrap
+immediately, which is the useful half: `textContent` across two `tspan` lines
+gives `Generator fueltank`, the same gluing `spacedText` exists for, inside one
+element instead of between two.
+
+What this slice leaves open.
+
+1. The lane and row assignment is still tested only for determinism, inherited
+   from T015. The routing defect above is evidence that another arrangement
+   could carry another such flaw that no test can see.
+2. A component name longer than two wrapped lines overflows its box. Nothing is
+   hidden; it would be visibly untidy. No name in the shipped catalogue does.
+3. The drawing has no keyboard navigation of its own. Its region is a named
+   focus stop and its contents are a table; reaching one node by keyboard is
+   not possible and is not claimed.
+4. `role="img"` hides the drawing's inner text from assistive technology. The
+   `title` and `desc` name it and point at the tables, which carry every fact
+   it draws, so a screen-reader user reads the tables and not the picture.
+5. The two vocabularies are still open. They are now open *on the screen*,
+   which is the difference this slice makes, but nothing is settled until the
+   checkpoint is answered.
+
+Local review data, not in the build. `var/sites/mg-002.yaml` (a cold room) and
+`var/sites/mg-003.yaml` (two AC buses) were added beside the Site the user
+created, because the shipped template declares no cold room and is drawable, so
+neither reviewable state could otherwise be opened in a browser. `var/sites/`
+is gitignored and `mg-001.yaml` is untouched.

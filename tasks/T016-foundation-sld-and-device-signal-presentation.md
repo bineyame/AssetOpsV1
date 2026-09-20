@@ -1,6 +1,6 @@
 # T016 - Foundation SLD And Device/Signal Presentation
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T016-foundation-sld-and-device-signal-presentation`

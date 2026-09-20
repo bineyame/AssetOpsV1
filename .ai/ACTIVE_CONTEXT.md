@@ -18,40 +18,41 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-No active task. T015 closed out 2026-09-20.
+T016, the configured SLD and device/signal presentation, is in review on
+`task/T016-foundation-sld-and-device-signal-presentation`. Not merged.
 
-The SLD view model turns a validated Foundation into either a compatible
-hybrid mini-grid diagram view or an explicit unavailable result with a stable
-reason. It renders nothing, and nothing outside tests imports it until T016 -
-which is why the production bundle is unchanged from `main`.
+**It carries the M1A user-review checkpoint**, the first since T008. Two
+decisions are presented on the screen and not taken: whether a breaker is a
+device, component state or both and what the control vocabulary is, and how a
+cold room's process symbol relates to mini-grid electrical topology. Both are
+in the block headed `Open for review` inside the diagram section. Capability
+planning for M1A stops until the user accepts or redirects.
 
-Two reviews: accept with two findings fixed, then accept with none. Both
-findings were the family this project keeps meeting, and the count is now five.
-The full list and the three habits that fall out of it are in
-`.ai/CODE_STATE.md` under T015. The short version:
+Foundation now draws the configured diagram for a topology the hybrid
+mini-grid archetype can arrange, and the explicit refusal with its reason for
+one it cannot. The drawing is presentation over `deriveSiteSldView` and adds
+nothing: rendered node, connection and component ids are compared to the
+Foundation's for exact equality. Device and signal content still renders when
+only the diagram is incompatible.
 
-- **Assume a new guard is dead until a violation makes it speak**, and read
-  which guard answered, not only that something failed.
-- **When a claim is enforced by a type, test the type**, not only the values.
-- **An escape that can become a control character is worth printing once.**
+Seven slices of bans held the diagram out of this surface. None was deleted;
+each is narrowed to where it still holds, by `withoutRegion`, which throws when
+the region it excepts is not there. The details, and which assertion now says
+what, are in `.agent/T016-review-packet.md` and `.ai/CODE_STATE.md` under T016.
 
-A sweep across TypeScript, PowerShell, Node and Python found no other live
-instance.
+Backend `441 passed`, frontend 20 files `629 passed`, both guards, typecheck,
+the production build, and `node tools/layout-evidence.mjs` at 1280, 1000 and
+640 all clean. Nine proofs, each committed first, each read for which
+assertion answered. One of them is worth carrying: widening
+`SldCandidateTreatment.settled` to `boolean` broke zero of 279 runtime
+assertions and was caught only by `tsc`.
 
-How it was built is worth remembering: the Implementer agent stalled before
-committing, before running any check and before writing a packet. Its work was
-committed verbatim and unreviewed so it could not be lost, then verified and
-extended from the outside. If an agent stalls, check the branch before assuming
-nothing survived.
+The habit this slice adds: **jsdom cannot see a diagram, so a diagram has to be
+looked at.** Three defects survived a green suite and were found in a browser.
 
-Backend `441 passed`, frontend 20 test files, both guards, typecheck and build
-clean.
-
-Next: T016, the configured SLD and device/signal presentation. It renders what
-T015 produces, and **it carries the user-review checkpoint** that settles the
-two vocabularies T014 and T015 both deliberately left open - whether a breaker
-is a device or component state, and how cold-room symbols relate to mini-grid
-topology.
+Local review data, gitignored and additive: `var/sites/mg-002.yaml` declares a
+cold room and `mg-003.yaml` declares two AC buses, so both reviewable states
+can be opened. `mg-001.yaml` is untouched.
 
 T005 to T015 are complete, in `tasks/completed/` with their Review Outcomes.
 
@@ -74,29 +75,30 @@ Reworked Site Foundation tasks are T005-T013; T014 opens step 4.
 - T011C: Site tab row treatment, from T011A's user review. Complete.
 - T012: Site Details to canonical screen two. Complete.
 - T013: Foundation to canonical screen three. Complete.
-- T014: Foundation topology, devices and signal mappings. In review.
-- T012-T013: staged visual fidelity, against the tab row and the name T011A
-  settled, and under the viewport commitment.
+- T014: Foundation topology, devices and signal mappings. Complete.
+- T015: the hybrid mini-grid SLD view model. Complete.
+- T016: the configured SLD and device/signal presentation. In review, and it
+  carries the M1A user-review checkpoint.
 
-The second checkpoint is closed. Causal Sequencing step 4 has begun: T014
-carries topology, devices and signal mappings in the canonical Foundation. The
-configured single-line diagram is still not built - T015 owns its view model and
-T016 renders it - and no slice before T016 may render the diagram, an empty
-frame for it, or its signal selector.
+Causal Sequencing step 4 is complete in code. The configured diagram renders,
+inside one named section of Foundation; everywhere else on the surface the
+diagram vocabulary is still banned, and the signal selector is still absent
+because there is nothing to show for the signal a reader would have picked.
 
 ## Read For The Next Slice
 
-T015 is the hybrid mini-grid SLD view model. It renders nothing: it turns the
-Foundation topology T014 persists into a view model that T016's diagram reads.
-That separation is the point - a view model with no renderer can be tested
-against records without a screen to argue about.
+Nothing is planned beyond T016. M1B, Scenario Catalog And Run Setup, is not
+planned or started until this checkpoint is accepted or redirected, and the
+user may reorder, split or remove what follows.
 
-- `tasks/T015-hybrid-mini-grid-sld-view-model.md`
-- `.ai/CODE_STATE.md`, the T013 and T014 entries. T014 settles the schema this
-  reads, and the rule that every cardinality cap must be reachable.
+For reviewing T016:
+
+- `tasks/T016-foundation-sld-and-device-signal-presentation.md`
+- `.agent/T016-review-packet.md`, whose `Absence Assertions Changed` section
+  names every ban that moved and what it says now.
+- `.ai/CODE_STATE.md`, the T014, T015 and T016 entries.
 - `.ai/FEATURE_MAP.md`, `### 2. Topology, Components, Devices, And Single Line
-  Diagram`, and `## Canonical Screen Fidelity` for the rule that no diagram,
-  frame or signal selector renders until T016.
+  Diagram` and `### Viewport and overflow commitment`.
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-13-shared-site-substrate`
   - `D-2026-09-13-canonical-fidelity`
@@ -162,18 +164,25 @@ specs are acceptable only when they protect dangerous firsts.
 
 ## Inherited M1 Step 3 Exclusions
 
-Tasks T005-T014 inherit these exclusions unless a later reviewed task explicitly
-changes them. T014 is the one deliberate change so far: the Foundation schema
-now carries topology, devices, signal mappings and control assumptions, which
-the "no Devices & Sensors screen" exclusion below never covered - what it
-forbids is a device-management surface, and none exists.
+Tasks T005-T016 inherit these exclusions unless a later reviewed task explicitly
+changes them. Two deliberate changes so far. T014: the Foundation schema now
+carries topology, devices, signal mappings and control assumptions, which the
+"no Devices & Sensors screen" exclusion below never covered - what it forbids is
+a device-management surface, and none exists. T016: the Single Line Diagram, its
+view model and the diagram region are built, which is what causal step 4 is for.
+Everything else in that exclusion still holds - no empty diagram frame, no
+signal selector, no topology auto-layout, no Devices & Sensors screen and no
+device-management surface - and the bans are narrowed to the rest of the
+surface rather than removed.
 
 - No in-place Site/Foundation editing, Save/Publish over an existing Site,
   rename, duplicate, delete, configuration history, rollback, approval flow, or
   disabled placeholder for those capabilities.
 - No user-facing removal flow.
-- No Single Line Diagram, empty diagram frame, signal selector, SLD view model,
-  topology auto-layout, Devices & Sensors screen, or device-management surface.
+- No empty diagram frame, signal selector, topology auto-layout, drag/drop or
+  diagram editing, Devices & Sensors screen, or device-management surface. The
+  Single Line Diagram and its view model are built, by T015 and T016; the rest
+  of this line is unchanged.
 - No scenarios, run setup, simulator execution, gateway staging, ingestion,
   source envelopes, evidence records, source health, charts, analytics, Replay,
   or Findings.
