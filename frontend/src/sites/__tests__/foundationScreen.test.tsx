@@ -8,6 +8,11 @@ import {
 } from "../FoundationSubtabs";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
+import {
+  SLD_UNAVAILABLE_STATEMENTS,
+  deriveSiteSldView,
+} from "../sldViewModel";
+import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 
@@ -594,5 +599,125 @@ describe("the declared topology does not become a diagram", () => {
 
       expect((body?.textContent ?? "").trim().length).toBeGreaterThan(0);
     }
+  });
+});
+
+/**
+ * T015 builds the SLD view model. Nothing renders it.
+ *
+ * The bans above were written when no view model existed, which made them
+ * bans against a temptation. There is now a function in the substrate that
+ * turns this exact record into nodes, positions, symbols and routes, so the
+ * temptation is a two-line import away and the bans are finally being
+ * exercised by the case they were written for.
+ *
+ * The first test here is the anti-vacuity anchor. If this record ever stopped
+ * being drawable, every assertion below would keep passing while proving
+ * nothing - which is the failure this project has now shipped three times.
+ */
+describe("the SLD view model exists and reaches no screen", () => {
+  const SLD_PRESENTATION_TOKENS = (site: SiteDetailReadModel): string[] => {
+    const result = deriveSiteSldView(site);
+    if (result.status !== "compatible") return [];
+
+    const tokens = new Set<string>();
+    for (const node of result.diagram.nodes) {
+      tokens.add(node.symbol);
+      tokens.add(node.visualRole);
+    }
+    for (const connection of result.diagram.connections) {
+      tokens.add(connection.route.stroke);
+      tokens.add(connection.route.turn);
+    }
+    return [...tokens];
+  };
+
+  it("draws this record, so the bans below are about a real temptation", () => {
+    const result = deriveSiteSldView(HYBRID_MINI_GRID_SITE);
+
+    expect(result.status).toBe("compatible");
+    if (result.status !== "compatible") return;
+    expect(result.diagram.nodes.length).toBeGreaterThan(0);
+    expect(result.diagram.connections.length).toBeGreaterThan(0);
+    expect(SLD_PRESENTATION_TOKENS(HYBRID_MINI_GRID_SITE).length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it("renders no diagram, no frame, and no signal selector for it", async () => {
+    const { container } = renderFoundation(HYBRID_MINI_GRID_SITE);
+    await settledScreen();
+
+    expect(
+      container.querySelectorAll("svg, canvas, img, figure, picture"),
+    ).toHaveLength(0);
+    expect(spacedText(container)).not.toMatch(
+      /\b(single line diagram|one-line|schematic|diagram|signal selector|real power)\b/i,
+    );
+    expect(
+      container.querySelectorAll(
+        "select, input, datalist, [role='combobox'], [role='listbox'], [role='radio']",
+      ),
+    ).toHaveLength(0);
+
+    for (const panel of Array.from(container.querySelectorAll("section.panel"))) {
+      const body = panel.querySelector(".panel__body");
+
+      expect((body?.textContent ?? "").trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("puts none of the archetype's own vocabulary on the screen", async () => {
+    const { container } = renderFoundation(HYBRID_MINI_GRID_SITE);
+    await settledScreen();
+
+    const text = spacedText(container);
+
+    // Symbols, visual roles, strokes and turns are the archetype's, not the
+    // document's. A screen showing one of them is a screen rendering the view
+    // model, whatever it looks like.
+    for (const token of SLD_PRESENTATION_TOKENS(HYBRID_MINI_GRID_SITE)) {
+      expect(text).not.toMatch(new RegExp(`\b${token}\b`));
+    }
+  });
+
+  it("states no incompatible-topology refusal either", async () => {
+    const { container } = renderFoundation(HYBRID_MINI_GRID_SITE);
+    await settledScreen();
+
+    const text = spacedText(container);
+
+    // The unavailable copy is T016's user-review checkpoint. It has not been
+    // in front of the user, so it is not in front of anyone.
+    expect(Object.values(SLD_UNAVAILABLE_STATEMENTS).length).toBeGreaterThan(0);
+    for (const statement of Object.values(SLD_UNAVAILABLE_STATEMENTS)) {
+      expect(text).not.toContain(statement);
+    }
+    // Not `archetype`: the shipped template's own control assumptions use the
+    // word in their declared statements, and banning it would be banning a
+    // document's words rather than this slice's vocabulary.
+    expect(text).not.toMatch(
+      /\b(incompatible|unsupported topology|cannot be drawn|no drawing)\b/i,
+    );
+  });
+
+  it("renders no runtime value, evidence value, or health term for it", async () => {
+    const { container } = renderFoundation(HYBRID_MINI_GRID_SITE);
+    await settledScreen();
+
+    const columns = Array.from(container.querySelectorAll("th")).map(
+      (column) => column.textContent ?? "",
+    );
+
+    expect(columns.length).toBeGreaterThan(0);
+    for (const column of columns) {
+      expect(column).not.toMatch(
+        /\b(status|state|health|last (?:data|seen|reading)|value|reading|telemetry|condition|cadence)\b/i,
+      );
+    }
+
+    expect(spacedText(container)).not.toMatch(
+      /\b(online|offline|stale|degraded|healthy|watch|needs attention)\b/i,
+    );
   });
 });
