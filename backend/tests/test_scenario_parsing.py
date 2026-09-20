@@ -57,8 +57,9 @@ class TestTheCanonicalDocumentParses:
         assert record.scenario_id == "example-scenario"
         assert record.version.scenario_version == 2
         assert record.version.supersedes == 1
-        assert len(record.timeline) == 3
-        assert len(record.public_parameters) == 2
+        assert len(record.timeline) == 4
+        assert len(record.public_parameters) == 4
+        assert len(record.observation_sources) == 2
         assert len(record.private_expectations) == 1
 
     def test_origin_comes_from_the_store_and_not_the_document(self) -> None:
@@ -226,6 +227,7 @@ DUPLICATE_TIMELINE_IDENTITIES: list[Any] = [
                 "display_name": "Again",
                 "value": 1,
                 "unit": "kW",
+                "execution_role": "NON_EXECUTABLE_CONDITION",
             }
         )
         or d["timeline"][1]["parameters"].append(
@@ -234,9 +236,26 @@ DUPLICATE_TIMELINE_IDENTITIES: list[Any] = [
                 "display_name": "And again",
                 "value": 2,
                 "unit": "kW",
+                "execution_role": "NON_EXECUTABLE_CONDITION",
             }
         ),
         id="duplicate-parameter-id",
+    ),
+    pytest.param(
+        # A parameter identity repeated across two SECTIONS, which the
+        # per-section duplicate check cannot see. A state effect and an
+        # observation binding both refer to a parameter by name, so two
+        # parameters with one name make the reference ambiguous.
+        lambda d: d["timeline"][1]["parameters"].append(
+            {
+                "parameter_id": "quantity-parameter",
+                "display_name": "The same name in another section",
+                "value": 1,
+                "unit": "kW",
+                "execution_role": "NON_EXECUTABLE_CONDITION",
+            }
+        ),
+        id="duplicate-parameter-id-across-sections",
     ),
     pytest.param(
         lambda d: d["public_parameters"][1].update(
@@ -514,3 +533,328 @@ class TestVocabulariesAreNotVacuous:
         assert "L/h" in PARAMETER_UNITS
         assert "L/h" not in RATING_UNITS and "L/h" not in SIGNAL_UNITS
         assert "kVA" in RATING_UNITS and "kVA" not in PARAMETER_UNITS
+
+
+class TestTheExecutionContractIsRefusedWhenItMeansTwoThings:
+    """T018's refusals, each over a document that is otherwise valid.
+
+    This is the shape the T017 review taught: a deliberate violation has to be
+    one the rest of the system would otherwise accept. Every mutation below
+    uses legal vocabulary in a legal position - a real role, a real unit, a
+    well-formed identifier - so an unknown key, a malformed identifier or an
+    unsupported enumerated value cannot be what refuses it. The only rule that
+    can is the one the case names.
+
+    `test_the_same_document_is_valid_without_that_one_change` at the bottom is
+    what makes that claim checkable rather than argued.
+    """
+
+    EXECUTION_CONTRADICTIONS: list[Any] = [
+        pytest.param(
+            # An evidence condition trying to be a cause. This is the exact
+            # ambiguity the slice exists to remove: one row prescribing both a
+            # cause and its own expected result.
+            lambda d: d["timeline"][3].update(
+                execution_role="CAUSAL_INPUT",
+                state_effect={
+                    "direction": "DECREASE",
+                    "quantity_parameter_id": "resumed-level",
+                },
+                observation=None,
+            ),
+            "evidence condition",
+            id="evidence-condition-as-a-cause",
+        ),
+        pytest.param(
+            # An intervention that both records a level and moves the world.
+            # Every field here is individually legal: an INTERVENTION may be a
+            # causal input, and a state effect is a real field.
+            lambda d: d["timeline"][2].update(
+                state_effect={
+                    "direction": "DECREASE",
+                    "quantity_parameter_id": "recorded-level",
+                }
+            ),
+            "state effect",
+            id="reported-observation-with-a-state-effect",
+        ),
+        pytest.param(
+            # A reported value claiming to initialize private state. The
+            # ownership block is well formed and its owner is real vocabulary.
+            lambda d: d["timeline"][2]["parameters"][0].update(
+                ownership={"owner": "SCENARIO_INPUT", "initializes": True}
+            ),
+            "reported observation",
+            id="reported-observation-that-owns-an-initial-value",
+        ),
+        pytest.param(
+            # A reporting cadence, written the way an author would write one.
+            # The unit is in the vocabulary, the identifier is well formed and
+            # the role matches its entry, so nothing else in the parser
+            # objects to it.
+            lambda d: d["timeline"][2]["parameters"].append(
+                {
+                    "parameter_id": "sample-interval",
+                    "display_name": "How often the source reports",
+                    "value": 15,
+                    "unit": "min",
+                    "execution_role": "REPORTED_OBSERVATION",
+                    "state_key": "example-stored-volume",
+                    "execution_requirement": "REQUIRED",
+                }
+            ),
+            "cadence",
+            id="a-cadence-on-a-reading",
+        ),
+        pytest.param(
+            # The three positions the T018 review found the first version of
+            # the cadence rule did not reach. Each is measured separately,
+            # because measuring one position is exactly what let the other
+            # three through.
+            #
+            # One: a top-level duration, belonging to no entry at all.
+            lambda d: d["public_parameters"].append(
+                {
+                    "parameter_id": "sensor-sample-interval",
+                    "display_name": "How often the sensor reports",
+                    "value": 15,
+                    "unit": "min",
+                    "execution_role": "NON_EXECUTABLE_CONDITION",
+                }
+            ),
+            "cadence",
+            id="a-cadence-as-a-top-level-parameter",
+        ),
+        pytest.param(
+            # Two: a duration on the entry that forces the reporting path,
+            # which is where an observation-profile consumer would look for
+            # one. In the shipped document that entry is the reporting gap.
+            lambda d: d["timeline"][0]["parameters"].append(
+                {
+                    "parameter_id": "sensor-sample-interval",
+                    "display_name": "How often the source reports",
+                    "value": 15,
+                    "unit": "min",
+                    "execution_role": "FORCING_INPUT",
+                    "state_key": "example-demand",
+                    "execution_requirement": "REQUIRED",
+                    "ownership": {
+                        "owner": "SCENARIO_INPUT",
+                        "initializes": False,
+                    },
+                }
+            ),
+            "cadence",
+            id="a-cadence-on-a-forcing-entry",
+        ),
+        pytest.param(
+            # Three: no duration parameter at all - the reading itself timed
+            # as a window, which says either that it reported repeatedly
+            # across it or that the value is an aggregate.
+            lambda d: d["timeline"][2].update(
+                timing={"shape": "WINDOW", "duration_minutes": 15}
+            ),
+            "reported observation timed as WINDOW",
+            id="a-reading-spread-across-a-window",
+        ),
+        pytest.param(
+            # And an hour reads the same as a minute. The refusal is about
+            # the dimension, not about one spelling of it.
+            lambda d: d["public_parameters"][0].update(unit="h"),
+            "duration",
+            id="a-duration-in-hours",
+        ),
+        pytest.param(
+            # A negative rate: the invalid-rate bound case, refused at parse
+            # rather than clamped by a kernel that does not exist yet.
+            lambda d: d["public_parameters"][3].update(value=-6),
+            "cannot be negative",
+            id="a-negative-rate",
+        ),
+        pytest.param(
+            lambda d: d["public_parameters"][3].update(value=float("inf")),
+            "finite number",
+            id="an-infinite-rate",
+        ),
+        pytest.param(
+            # A rate applied at an instant moves nothing.
+            lambda d: d["timeline"][1].update(timing={"shape": "POINT"}),
+            "rate",
+            id="a-rate-applied-at-a-point",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][1]["timing"].update(
+                shape="WINDOW", duration_minutes=None
+            ),
+            "WINDOW",
+            id="a-window-with-no-length",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][2]["timing"].update(duration_minutes=30),
+            "POINT",
+            id="a-point-with-a-length",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][0]["timing"].update(shape="WINDOW"),
+            "WINDOW",
+            id="interval-wide-changed-to-a-window-with-no-length",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][0].update(offset_minutes=60),
+            "INTERVAL_WIDE",
+            id="interval-wide-that-starts-late",
+        ),
+        pytest.param(
+            # Two answers to one initial world value.
+            lambda d: d["public_parameters"][3]["ownership"].update(
+                initializes=True
+            ),
+            "initialize",
+            id="two-owners-for-one-initial-value",
+        ),
+        pytest.param(
+            # A causal entry with no consequence.
+            lambda d: d["timeline"][1].update(state_effect=None),
+            "state_effect",
+            id="a-cause-with-no-consequence",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][1].update(
+                state_effect={
+                    "direction": "DECREASE",
+                    "quantity_parameter_id": "draw-rate",
+                }
+            ),
+            "rate",
+            id="a-rate-applied-as-a-one-off-quantity",
+        ),
+        pytest.param(
+            # A dimension nothing knows how to accumulate, applied as a rate.
+            # The parameter is a causal input on the entry's own state with
+            # the entry's own role, so the role rule cannot be what refuses
+            # it: only the dimension rule can.
+            lambda d: d["timeline"][1]["parameters"].append(
+                {
+                    "parameter_id": "draw-power",
+                    "display_name": "Power while the equipment runs",
+                    "value": 5,
+                    "unit": "kW",
+                    "execution_role": "CAUSAL_INPUT",
+                    "state_key": "example-stored-volume",
+                    "execution_requirement": "REQUIRED",
+                    "ownership": {
+                        "owner": "SCENARIO_INPUT",
+                        "initializes": False,
+                    },
+                }
+            )
+            or d["timeline"][1]["state_effect"].update(
+                rate_parameter_id="draw-power"
+            ),
+            "POWER",
+            id="a-dimension-that-cannot-be-accumulated",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][1]["state_effect"].update(
+                rate_parameter_id="no-such-parameter"
+            ),
+            "no parameter with that identity",
+            id="a-state-effect-naming-nothing",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][2]["observation"].update(
+                source_id="no-such-source"
+            ),
+            "no such observation source",
+            id="a-reading-from-an-undeclared-source",
+        ),
+        pytest.param(
+            lambda d: d["timeline"][2]["observation"].update(
+                reported_parameter_id="resumed-level"
+            ),
+            "different entry",
+            id="a-reading-carrying-a-value-from-elsewhere",
+        ),
+        pytest.param(
+            # An operator record borrowing a device's identity.
+            lambda d: d["observation_sources"][1].update(
+                device_id="example-sensor", signal_id="example-level"
+            ),
+            "device identity",
+            id="an-operator-record-with-a-device-identity",
+        ),
+        pytest.param(
+            # A device source claiming somebody owns its cadence.
+            lambda d: d["observation_sources"][0].update(
+                cadence_ownership="NOT_APPLICABLE"
+            ),
+            "NOT_DECLARED",
+            id="a-device-source-claiming-its-cadence-is-settled",
+        ),
+        pytest.param(
+            lambda d: d["observation_sources"].append(
+                {
+                    "source_id": "unused-source",
+                    "source_kind": "OPERATOR_RECORD",
+                    "cadence_ownership": "NOT_APPLICABLE",
+                    "description": "Declared and never reported through.",
+                }
+            ),
+            "no entry reports through",
+            id="a-declared-source-nothing-uses",
+        ),
+        pytest.param(
+            # An executable value with no state to execute against.
+            lambda d: d["public_parameters"][2].pop("state_key"),
+            "state_key",
+            id="an-executable-value-naming-no-state",
+        ),
+        pytest.param(
+            # Description that names a state anyway.
+            lambda d: d["public_parameters"][0].update(
+                state_key="example-stored-volume"
+            ),
+            "non-executable",
+            id="a-description-naming-a-state",
+        ),
+        pytest.param(
+            # A parameter executing differently from the entry it sits in.
+            lambda d: d["timeline"][0]["parameters"][0].update(
+                execution_role="CAUSAL_INPUT"
+            ),
+            "while the entry declares",
+            id="a-parameter-that-executes-unlike-its-entry",
+        ),
+        pytest.param(
+            # Text where an executor expects a quantity.
+            lambda d: d["public_parameters"][1].update(
+                execution_role="FORCING_INPUT",
+                state_key="example-demand",
+                execution_requirement="REQUIRED",
+                ownership={"owner": "SCENARIO_INPUT", "initializes": False},
+            ),
+            "canonical unit",
+            id="text-in-an-executable-role",
+        ),
+    ]
+
+    @pytest.mark.parametrize("mutate,expected", EXECUTION_CONTRADICTIONS)
+    def test_the_parser_refuses_it(
+        self, mutate: Mutation, expected: str
+    ) -> None:
+        with pytest.raises(ScenarioConfigurationInvalid) as refused:
+            parse(mutated(mutate))
+
+        assert expected in str(refused.value), str(refused.value)
+
+    @pytest.mark.parametrize("mutate,expected", EXECUTION_CONTRADICTIONS)
+    def test_the_same_document_is_valid_without_that_one_change(
+        self, mutate: Mutation, expected: str
+    ) -> None:
+        """Without this, every refusal above could be about anything.
+
+        The fixture is parsed unmutated on every case, so the only difference
+        between a document that parses and one that is refused is the single
+        change the case makes.
+        """
+        parse(scenario_document())

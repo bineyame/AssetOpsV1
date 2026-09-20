@@ -75,9 +75,26 @@ ENUMERATED_VALUE_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]+$")
 #: vocabulary. Audited rather than guessed: these are exactly the identifiers
 #: `scenarios/parsing.py` and `scenarios/identity.py` validate and own.
 #:
-#: `site_id` and `template_id` are absent on purpose - see the module docstring.
+#: `site_id` and `template_id` are absent on purpose - see the module
+#: docstring, and `device_id` and `signal_id` are absent for the same reason:
+#: an observation source borrows those from the target Site's Foundation.
+#:
+#: `state_key` is here even though it is not spelled `_id`. A world state key
+#: is an identifier this domain coins and renders as the name of a thing, and
+#: it is exactly where a breaker position would arrive next - a state called
+#: `breaker-position` would read as perfectly natural to an author.
 IDENTIFIER_VALUED_KEYS = frozenset(
-    {"scenario_id", "event_id", "parameter_id", "expectation_id"}
+    {
+        "scenario_id",
+        "event_id",
+        "parameter_id",
+        "expectation_id",
+        "source_id",
+        "reported_parameter_id",
+        "quantity_parameter_id",
+        "rate_parameter_id",
+        "state_key",
+    }
 )
 
 

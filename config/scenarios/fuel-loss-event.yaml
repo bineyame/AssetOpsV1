@@ -8,6 +8,21 @@
 # Offsets are minutes from the start of the simulated interval. The scenario
 # does not say when that interval is, how fast it is stepped, or what seed it
 # uses, because choosing those is run setup and run setup does not exist yet.
+#
+# T018 adds the execution contract. Every value below says what an executor
+# may do with it: cause private world state, force an exogenous condition,
+# arrive as a reading through a named source, or be description an executor
+# does not consume. The rules those roles commit the product to - canonical
+# units, half-open dispatch, and bound behaviour - live in
+# `assetops_backend/scenarios/execution.py`, because they are the same for
+# every scenario and are versioned simulator semantics rather than authoring.
+#
+# The numbers here are the ones the T017 checkpoint shipped and are unchanged.
+# They do not agree with each other: the causal inputs declared below reach a
+# different tank level than the two readings do. That disagreement is now
+# stated by the contract rather than hidden by it - see the reconciliation the
+# detail screen renders - and resolving it is a product decision the T018
+# review carries.
 
 scenario_id: fuel-loss-event
 display_name: Fuel Loss Event
@@ -33,23 +48,83 @@ target_site:
     generator, a device that can report a fuel level in litres from that
     component, and a metered distribution load.
 
+# Where every reading in this scenario arrives through.
+#
+# The device source names a device and a signal the target site's foundation
+# configures. The scenario validates the shape of those identities and nothing
+# more; whether this installation has them is resolved against the site store
+# and reported beside the scenario, exactly as the declared target site is.
+#
+# Neither source declares a cadence, and neither may. A foundation declares
+# that a signal CAN report and declares its unit; it declares no rate. Nothing
+# in this product infers one from a device name, from the text a screen shows,
+# or from the spacing between the entries below.
+observation_sources:
+  - source_id: fuel-level-sensor-reading
+    source_kind: DEVICE_SIGNAL
+    device_id: fuel-level-sensor
+    signal_id: fuel-level
+    cadence_ownership: NOT_DECLARED
+    description: >-
+      The fuel level sensor configured on the fuel tank, reporting the tank
+      level in litres. How often it reports is not declared anywhere yet and
+      is not inferable from this scenario.
+
+  - source_id: operator-hand-record
+    source_kind: OPERATOR_RECORD
+    cadence_ownership: NOT_APPLICABLE
+    description: >-
+      A site operator reading the tank by hand and writing the level down.
+      This is a real observation with its own identity and no device identity:
+      it did not arrive through any configured signal.
+
 public_parameters:
   - parameter_id: tank-capacity
     display_name: Fuel tank capacity the scenario assumes
     value: 500
     unit: L
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-capacity
+    execution_requirement: REQUIRED
+    ownership:
+      # The foundation is the authority: MG-001 declares a fuel-storage
+      # component with a rating. The value here is the requirement run setup
+      # checks against that rating, not the value a run would use.
+      owner: SITE_FOUNDATION
+      initializes: true
+    bounds:
+      # Capacity and volume are two world states, and nothing about their
+      # names says one limits the other. Declaring it is what lets the
+      # contract notice that a declared cause would take the tank past its
+      # capacity, and decline to report a level the same definition refuses.
+      state_key: fuel-tank-volume
+      bound_kind: UPPER
+
   - parameter_id: starting-fuel-level
     display_name: Fuel level at the start of the interval
     value: 430
     unit: L
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    ownership:
+      # A foundation says how large the tank is, never how full it is, so the
+      # scenario owns this one. A run may override it; nothing may leave it
+      # unstated, because then a trajectory would begin from a number nobody
+      # could attribute.
+      owner: SCENARIO_INPUT
+      initializes: true
+
   - parameter_id: generator-fuel-rate
     display_name: Generator fuel consumption while dispatched
     value: 14
     unit: L/h
-  - parameter_id: observed-signal
-    display_name: Signal the scenario expects to carry the story
-    value: fuel-level, from the fuel level sensor on the fuel tank
-    unit: null
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: false
 
 timeline:
   - event_id: baseline-load-profile
@@ -61,15 +136,32 @@ timeline:
       The distribution load follows the site's ordinary weekday shape for the
       whole interval, so nothing later in the timeline is explained by demand
       being unusual.
+    execution_role: FORCING_INPUT
+    state_key: site-load-demand
+    execution_requirement: REQUIRED
+    timing:
+      shape: INTERVAL_WIDE
     parameters:
       - parameter_id: evening-peak-load
         display_name: Evening peak demand
         value: 72
         unit: kW
+        execution_role: FORCING_INPUT
+        state_key: site-load-demand
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
       - parameter_id: overnight-base-load
         display_name: Overnight base demand
         value: 18
         unit: kW
+        execution_role: FORCING_INPUT
+        state_key: site-load-demand
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
 
   - event_id: overcast-day
     sequence: 2
@@ -79,11 +171,26 @@ timeline:
     description: >-
       Irradiance stays well below a clear-sky day, so the battery reaches the
       evening with less stored energy than usual and the generator is needed.
+    execution_role: FORCING_INPUT
+    state_key: plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      # The overcast daylight period runs from this offset up to the start of
+      # the dispatch window below. The length is the distance between two
+      # offsets this definition already declares rather than a new magnitude.
+      shape: WINDOW
+      duration_minutes: 360
     parameters:
       - parameter_id: peak-irradiance
         display_name: Peak plane-of-array irradiance
         value: 310
         unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
 
   - event_id: generator-run-window
     sequence: 3
@@ -94,15 +201,25 @@ timeline:
       The generator is dispatched to cover the evening peak and consumes fuel
       at the declared rate for the length of the window. This is the only
       legitimate fuel consumption in the interval.
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 240
+    state_effect:
+      direction: DECREASE
+      rate_parameter_id: generator-fuel-rate
     parameters:
       - parameter_id: dispatched-output
         display_name: Generator output while dispatched
         value: 45
         unit: kW
-      - parameter_id: run-window-length
-        display_name: Length of the dispatch window
-        value: 240
-        unit: min
+        # Description, not an input. What a generator delivers electrically
+        # follows from the demand it is covering; authoring it as a cause
+        # would be authoring a state trajectory, which is the thing
+        # D-2026-09-21-causal-runtime-before-golden-traces forbids.
+        execution_role: NON_EXECUTABLE_CONDITION
 
   - event_id: unaccounted-fuel-removal
     sequence: 4
@@ -113,15 +230,26 @@ timeline:
       Fuel leaves the tank outside any dispatch or refuelling window. This is
       the authored cause the scenario exists for; it is what the simulated
       world is told to do, not a finding about any site.
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 45
+    state_effect:
+      direction: DECREASE
+      quantity_parameter_id: volume-removed
     parameters:
       - parameter_id: volume-removed
         display_name: Volume removed
         value: 120
         unit: L
-      - parameter_id: removal-window-length
-        display_name: Length of the removal window
-        value: 45
-        unit: min
+        execution_role: CAUSAL_INPUT
+        state_key: fuel-tank-volume
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
 
   - event_id: fuel-level-reporting-gap
     sequence: 5
@@ -132,11 +260,14 @@ timeline:
       The fuel level sensor reports nothing across the removal window, so the
       step itself never arrives as a reading and has to be inferred from the
       levels on either side of the gap.
-    parameters:
-      - parameter_id: gap-length
-        display_name: Length of the reporting gap
-        value: 90
-        unit: min
+    # A condition forced on the reporting path, not on the tank. It changes
+    # nothing about how much fuel is present and carries no state effect.
+    execution_role: FORCING_INPUT
+    state_key: fuel-level-reporting-availability
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 90
 
   - event_id: fuel-level-after-the-gap
     sequence: 6
@@ -145,14 +276,24 @@ timeline:
     category: LOSS_OR_FRAUD
     description: >-
       When reporting resumes, the fuel level is far below what the dispatch
-      window alone accounts for. This is the condition the evidence path is
-      expected to be in, stated so a later analysis has something to be right
-      or wrong about.
+      window alone accounts for. This is a reading from the configured fuel
+      level sensor, not a level the simulated world is told to hold.
+    execution_role: REPORTED_OBSERVATION
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    timing:
+      shape: POINT
+    observation:
+      source_id: fuel-level-sensor-reading
+      reported_parameter_id: level-after-the-gap
     parameters:
       - parameter_id: level-after-the-gap
         display_name: Fuel level when reporting resumes
         value: 155
         unit: L
+        execution_role: REPORTED_OBSERVATION
+        state_key: fuel-tank-volume
+        execution_requirement: REQUIRED
 
   - event_id: operator-tank-inspection
     sequence: 7
@@ -162,11 +303,22 @@ timeline:
     description: >-
       A site operator inspects the tank and records the level by hand, giving
       the interval a second, independent account of the same quantity.
+    execution_role: REPORTED_OBSERVATION
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    timing:
+      shape: POINT
+    observation:
+      source_id: operator-hand-record
+      reported_parameter_id: hand-recorded-level
     parameters:
       - parameter_id: hand-recorded-level
         display_name: Level the operator records
         value: 150
         unit: L
+        execution_role: REPORTED_OBSERVATION
+        state_key: fuel-tank-volume
+        execution_requirement: REQUIRED
 
   - event_id: scheduled-refuelling
     sequence: 8
@@ -176,11 +328,25 @@ timeline:
     description: >-
       The scheduled fuel delivery tops the tank up. A later analysis must not
       read this rise as anything other than the delivery it is.
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume
+    execution_requirement: REQUIRED
+    timing:
+      shape: POINT
+    state_effect:
+      direction: INCREASE
+      quantity_parameter_id: volume-delivered
     parameters:
       - parameter_id: volume-delivered
         display_name: Volume delivered
         value: 300
         unit: L
+        execution_role: CAUSAL_INPUT
+        state_key: fuel-tank-volume
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
 
 # Private test-oracle metadata.
 #

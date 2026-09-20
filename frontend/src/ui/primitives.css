@@ -448,16 +448,45 @@ button:focus-visible {
 
 /* Description list, for record facts ------------------------------------- */
 
+/*
+ * The term column is capped rather than `auto`.
+ *
+ * With `minmax(8rem, auto)` the term track's growth limit is its max-content
+ * width, and grid hands a non-flexible track all the free space it can absorb
+ * before a `1fr` track sees any. A long term therefore took the whole row, the
+ * value column resolved to zero, and its text pushed the DOCUMENT sideways -
+ * measured at 640px, where the page gained seventeen pixels of horizontal
+ * scroll and the rail went with it.
+ *
+ * A fact list has no scroll region of its own to put an overflow in, so the
+ * cap is the fix rather than a wrapper. The cap has to leave the value column
+ * room for its longest word as well: `minmax(0, 1fr)` lets that column reach
+ * zero width, and its text then overflows the column instead of the row,
+ * which is the same failure one level down. Twelve rem was measured at the
+ * narrowest width this project checks.
+ */
 .fact-list {
   display: grid;
-  grid-template-columns: minmax(8rem, auto) minmax(0, 1fr);
+  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
   gap: var(--space-2) var(--space-4);
   margin: 0;
 }
 
+/*
+ * The term column sizes to its content, so an unbreakable term sets the grid's
+ * minimum width and the excess lands on the document. A fact list is not a
+ * table and has no scroll region of its own to put it in.
+ *
+ * Every term was short prose until a legend started naming vocabulary values:
+ * `NON_EXECUTABLE_CONDITION` has no break opportunity in it, and at 640px it
+ * pushed the whole page sideways by the overflow this rule now prevents.
+ * Measured, not guessed - jsdom has no layout, so only
+ * `tools/layout-evidence.mjs` can see it.
+ */
 .fact-list__term {
   font-size: var(--text-sm);
   color: var(--text-muted);
+  overflow-wrap: anywhere;
 }
 
 .fact-list__value {

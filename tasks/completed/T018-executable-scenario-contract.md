@@ -1,6 +1,6 @@
 # T018 - Executable Scenario Contract
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T018-executable-scenario-contract`
@@ -102,3 +102,42 @@ Review the executable meaning of the Fuel Loss entries, especially initial
 conditions, point/window and bound behavior, and whether post-gap/manual levels
 are external observations rather than prescribed simulator state. T019 does
 not begin until this is accepted or redirected.
+
+## Review Outcome
+
+Independent review, round one: accept with five findings fixed on the branch -
+a screen sentence stronger than the contract, a cadence rule that held at one
+position of four, a reconciliation that reported a volume its own bound policy
+refuses, and two packet corrections. All five fixed.
+
+Independent review, round two: **accept**. Every before/after reproduced rather
+than read. Both departures from the reviewer's own suggested fixes were judged
+better than what it offered: closing the cadence hole at the unit vocabulary
+rather than at four positions, and refusing `initializes: true` on a forcing
+input rather than weakening the legend. Four new findings, all Low, all
+preferences or test-strength points, none an acceptance gap. They are recorded
+in `.ai/CODE_STATE.md` under "What round two left open" and are not fixed here.
+
+Checks at acceptance, re-run independently by the reviewer: backend 702 passed,
+frontend 691 passed across 21 files, `tsc` clean, production build clean, both
+`.ps1` checks pass, `node tools/layout-evidence.mjs http://localhost:5173`
+returning `ALL CLAIMS HOLD` across 89 claims with the narrow case at
+`scrollWidth 625 vs clientWidth 625`.
+
+## User Review Outcome
+
+User review 2026-09-21: **"it looks good"**, accepting all four proposals -
+`scenario-execution-roles`, `scenario-input-ownership`,
+`scenario-timing-and-bounds`, and `scenario-observation-reconciliation`.
+Recorded in `D-2026-09-21-scenario-execution-contract`.
+
+The fourth proposal is the one that carried a decision, and the screen stated
+what accepting it means: the contract states the 254 L versus 155/150 L
+difference with quantity and sign rather than hiding it, and the resolution is
+left to a later slice the user directs. So the residual stands at -99 L and
+-104 L, `NOT_ACCOUNTED_FOR`, and the three ways out - model the missing cause,
+declare a reporting behaviour that explains it, or change the causes to match
+the readings - remain open and unchosen. Until one is chosen, an unreached
+reading is a reason for later run setup to block rather than a rounding matter.
+
+No authored Fuel Loss number was edited to reach this acceptance.

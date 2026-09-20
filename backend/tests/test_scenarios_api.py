@@ -42,6 +42,8 @@ from assetops_backend.simulator_lab_api import (
     scenario_public_summary,
 )
 from assetops_backend.sites.models import (
+    DeviceSignal,
+    FoundationDevice,
     SiteFoundation,
     SiteLocation,
     SiteRecord,
@@ -271,18 +273,26 @@ class TestTheDetailRoute:
 
         assert [entry["event_id"] for entry in timeline] == [
             "first-entry",
+            "draw-window",
             "second-entry",
             "third-entry",
         ]
-        assert [entry["sequence"] for entry in timeline] == [1, 2, 3]
-        assert [entry["offset_minutes"] for entry in timeline] == [0, 120, 240]
+        assert [entry["sequence"] for entry in timeline] == [1, 2, 3, 4]
+        assert [entry["offset_minutes"] for entry in timeline] == [
+            0,
+            60,
+            120,
+            240,
+        ]
         assert [entry["entry_kind"] for entry in timeline] == [
+            "EVENT",
             "EVENT",
             "INTERVENTION",
             "EVIDENCE_CONDITION",
         ]
         assert [entry["category"] for entry in timeline] == [
             "LOAD",
+            "EQUIPMENT",
             "MAINTENANCE",
             "DATA_QUALITY",
         ]
@@ -291,6 +301,12 @@ class TestTheDetailRoute:
             "display_name": "Peak demand",
             "value": 64.0,
             "unit": "kW",
+            "execution_role": "FORCING_INPUT",
+            "state_key": "example-demand",
+            "execution_requirement": "REQUIRED",
+            "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
+            "bounds": None,
+            "canonical": {"value": 64.0, "unit": "kW", "dimension": "POWER"},
         }
 
     def test_identity_is_matched_without_regard_to_case(self) -> None:
@@ -359,7 +375,7 @@ class TestTargetSiteResolution:
             f"{SCENARIOS_PATH}/example-scenario"
         ).json()
 
-        assert len(body["scenario"]["timeline"]) == 3
+        assert len(body["scenario"]["timeline"]) == 4
 
     @pytest.mark.parametrize(
         "failure",
@@ -573,3 +589,310 @@ class TestTheShippedDefinitionThroughTheRealComposition:
 
         assert {entry["category"] for entry in timeline} == EVENT_CATEGORIES
         assert {entry["entry_kind"] for entry in timeline} == TIMELINE_ENTRY_KINDS
+
+
+def site_with_the_fuel_sensor(site_id: str = "MG-001") -> SiteRecord:
+    """A Site whose Foundation declares the device the scenario reports through.
+
+    Built here rather than read from `var/sites/`, which is gitignored: a test
+    that depended on a developer's local fixture would pass or fail for
+    reasons outside the repository.
+    """
+    base = site(site_id)
+    return SiteRecord(
+        site_id=base.site_id,
+        display_name=base.display_name,
+        site_type=base.site_type,
+        location=base.location,
+        timezone=base.timezone,
+        lifecycle_status=base.lifecycle_status,
+        origin=base.origin,
+        source=base.source,
+        template=base.template,
+        foundation=SiteFoundation(
+            version=base.foundation.version,
+            valid_from=base.foundation.valid_from,
+            summary=base.foundation.summary,
+            components=base.foundation.components,
+            devices=(
+                FoundationDevice(
+                    device_id="example-sensor",
+                    device_type="SENSOR",
+                    display_name="Stored level sensor",
+                    component_id="storage",
+                    signals=(
+                        DeviceSignal(
+                            signal_id="example-level",
+                            display_name="Stored level",
+                            unit="L",
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class TestTheExecutionContractOnThePayload:
+    """T018's half of the detail payload.
+
+    A later run setup has to be able to read the execution meaning of a
+    scenario without interpreting any wording, so everything below is checked
+    as a field rather than as text.
+    """
+
+    def detail(self) -> dict:
+        return client().get(f"{SCENARIOS_PATH}/example-scenario").json()
+
+    def test_every_value_carries_its_execution_role(self) -> None:
+        body = self.detail()["scenario"]
+
+        assert all(
+            "execution_role" in parameter
+            for parameter in body["public_parameters"]
+        )
+        assert all("execution_role" in entry for entry in body["timeline"])
+        assert all(
+            "execution_role" in parameter
+            for entry in body["timeline"]
+            for parameter in entry["parameters"]
+        )
+
+    def test_a_quantity_is_convertible_without_reading_display_text(
+        self,
+    ) -> None:
+        body = self.detail()["scenario"]
+        rate = next(
+            parameter
+            for parameter in body["public_parameters"]
+            if parameter["parameter_id"] == "draw-rate"
+        )
+
+        assert rate["unit"] == "L/h"
+        assert rate["canonical"] == {
+            "value": 0.1,
+            "unit": "L/min",
+            "dimension": "VOLUME_RATE",
+        }
+
+    def test_a_text_parameter_carries_no_canonical_quantity(self) -> None:
+        body = self.detail()["scenario"]
+        text = next(
+            parameter
+            for parameter in body["public_parameters"]
+            if parameter["parameter_id"] == "text-parameter"
+        )
+
+        assert text["canonical"] is None
+        assert text["execution_role"] == "NON_EXECUTABLE_CONDITION"
+
+    def test_a_cause_and_a_reading_are_told_apart_by_fields(self) -> None:
+        entries = {
+            entry["event_id"]: entry
+            for entry in self.detail()["scenario"]["timeline"]
+        }
+
+        cause = entries["draw-window"]
+        assert cause["state_effect"] == {
+            "direction": "DECREASE",
+            "quantity_parameter_id": None,
+            "rate_parameter_id": "draw-rate",
+        }
+        assert cause["observation"] is None
+        assert cause["timing"] == {"shape": "WINDOW", "duration_minutes": 60}
+
+        reading = entries["second-entry"]
+        assert reading["state_effect"] is None
+        assert reading["observation"] == {
+            "source_id": "example-hand-record",
+            "reported_parameter_id": "recorded-level",
+        }
+        assert reading["timing"] == {"shape": "POINT", "duration_minutes": None}
+
+    def test_the_contract_carries_the_shared_semantics(self) -> None:
+        contract = self.detail()["scenario"]["execution_contract"]
+
+        assert contract["contract_version"] >= 1
+        assert contract["canonical_units"]
+        assert {rule["rule_id"] for rule in contract["dispatch_rules"]} >= {
+            "half-open-interval",
+            "point-applied-once",
+            "window-active-span",
+        }
+        assert {case["case_id"] for case in contract["bound_cases"]} == {
+            "fuel-tank-capacity",
+            "delivery-overflow",
+            "insufficient-fuel",
+            "invalid-rate",
+        }
+
+    def test_the_contract_names_the_owner_of_each_initial_value(self) -> None:
+        contract = self.detail()["scenario"]["execution_contract"]
+
+        assert contract["initialization_inputs"] == [
+            {
+                "parameter_id": "starting-level",
+                "display_name": "Stored level at the start of the interval",
+                "state_key": "example-stored-volume",
+                "owner": "SCENARIO_INPUT",
+                "value": 200.0,
+                "unit": "L",
+                "canonical_value": 200.0,
+                "canonical_unit": "L",
+            }
+        ]
+
+
+class TestObservationSourceResolution:
+    """The same parser/service split the target Site declaration uses."""
+
+    def test_a_configured_device_and_signal_resolve(self) -> None:
+        body = client(
+            sites=FakeSites((site_with_the_fuel_sensor("MG-900"),))
+        ).get(f"{SCENARIOS_PATH}/example-scenario").json()
+
+        resolutions = {
+            item["source_id"]: item
+            for item in body["observation_source_resolutions"]
+        }
+
+        device = resolutions["example-device-reading"]
+        assert device["state"] == "RESOLVED"
+        assert device["device_display_name"] == "Stored level sensor"
+        assert device["signal_display_name"] == "Stored level"
+
+    def test_an_operator_record_resolves_to_no_device_on_purpose(self) -> None:
+        body = client(
+            sites=FakeSites((site_with_the_fuel_sensor("MG-900"),))
+        ).get(f"{SCENARIOS_PATH}/example-scenario").json()
+
+        hand = next(
+            item
+            for item in body["observation_source_resolutions"]
+            if item["source_id"] == "example-hand-record"
+        )
+
+        assert hand["state"] == "NOT_APPLICABLE"
+        assert hand["device_display_name"] is None
+        assert "person" in hand["reason"]
+
+    def test_a_site_declaring_no_devices_is_not_configured_rather_than_empty(
+        self,
+    ) -> None:
+        body = client().get(f"{SCENARIOS_PATH}/example-scenario").json()
+
+        device = next(
+            item
+            for item in body["observation_source_resolutions"]
+            if item["source_id"] == "example-device-reading"
+        )
+
+        assert device["state"] == "NOT_CONFIGURED"
+
+    @pytest.mark.parametrize(
+        "failure",
+        [
+            SiteStoreUnavailable("unreadable"),
+            SiteIdentityConflict("two documents, one identity"),
+        ],
+    )
+    def test_an_unreadable_site_store_is_unknown_not_absent(
+        self, failure: Exception
+    ) -> None:
+        body = client(sites=FakeSites(failure=failure)).get(
+            f"{SCENARIOS_PATH}/example-scenario"
+        ).json()
+
+        device = next(
+            item
+            for item in body["observation_source_resolutions"]
+            if item["source_id"] == "example-device-reading"
+        )
+
+        assert device["state"] == "UNAVAILABLE"
+        assert "not a statement that the device is absent" in device["reason"]
+
+    def test_no_resolution_states_a_cadence(self) -> None:
+        """The statement is about ownership and never about a rate.
+
+        Checked by looking for a digit: a cadence is a number, and a sentence
+        with no number in it cannot be one.
+        """
+        body = client(
+            sites=FakeSites((site_with_the_fuel_sensor("MG-900"),))
+        ).get(f"{SCENARIOS_PATH}/example-scenario").json()
+
+        resolutions = body["observation_source_resolutions"]
+        assert resolutions
+
+        for item in resolutions:
+            assert item["cadence_statement"].strip()
+            assert not any(
+                character.isdigit() for character in item["cadence_statement"]
+            ), item["cadence_statement"]
+
+
+class TestTheShippedReconciliation:
+    """The 254 L against 155 L and 150 L conflict, on the payload.
+
+    Run through the real composition, because the claim is about the shipped
+    definition rather than about a fixture built to make it true.
+    """
+
+    def contract(self) -> dict:
+        served = TestClient(
+            create_app(ENABLED, site_repository=FakeSites((site("MG-001"),)))
+        )
+        return served.get(f"{SCENARIOS_PATH}/fuel-loss-event").json()[
+            "scenario"
+        ]["execution_contract"]
+
+    def test_the_readings_are_reported_against_the_declared_causes(
+        self,
+    ) -> None:
+        results = {
+            item["event_id"]: item
+            for item in self.contract()["observation_reconciliation"]
+        }
+
+        assert set(results) == {
+            "fuel-level-after-the-gap",
+            "operator-tank-inspection",
+        }
+
+        after_the_gap = results["fuel-level-after-the-gap"]
+        assert after_the_gap["reported_value"] == 155.0
+        assert after_the_gap["declared_value"] == 254.0
+        assert after_the_gap["difference"] == -99.0
+        assert after_the_gap["state"] == "NOT_ACCOUNTED_FOR"
+        assert after_the_gap["source_id"] == "fuel-level-sensor-reading"
+
+        inspection = results["operator-tank-inspection"]
+        assert inspection["reported_value"] == 150.0
+        assert inspection["difference"] == -104.0
+        assert inspection["source_id"] == "operator-hand-record"
+
+    def test_the_rate_is_accumulated_to_a_readable_quantity(self) -> None:
+        transitions = {
+            item["event_id"]: item
+            for item in self.contract()["state_transition_inputs"]
+        }
+
+        assert transitions["generator-run-window"]["applied_value"] == 56.0
+        assert transitions["generator-run-window"]["applied_unit"] == "L"
+        assert transitions["generator-run-window"]["starts_at_offset"] == 1080
+        assert transitions["generator-run-window"]["complete_at_offset"] == 1320
+
+    def test_no_reported_value_appears_among_the_transition_inputs(
+        self,
+    ) -> None:
+        contract = self.contract()
+
+        consumed = {
+            item["parameter_id"] for item in contract["state_transition_inputs"]
+        } | {item["parameter_id"] for item in contract["initialization_inputs"]}
+
+        assert consumed
+        assert "level-after-the-gap" not in consumed
+        assert "hand-recorded-level" not in consumed
+        assert "dispatched-output" not in consumed

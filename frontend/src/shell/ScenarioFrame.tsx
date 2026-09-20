@@ -13,22 +13,25 @@ import {
 import type {
   ScenarioCatalogClient,
   ScenarioDetailResult,
+  ScenarioObservationReconciliation,
+  ScenarioObservationSourceResolution,
   ScenarioParameter,
   ScenarioTargetResolution,
   ScenarioTimelineEntry,
 } from "./scenarioCatalogClient";
 
 /**
- * Read-only inspection of one saved ScenarioDefinition, and the M1B
- * user-review checkpoint.
+ * Read-only inspection of one saved ScenarioDefinition, and its executable
+ * contract.
  *
  * ## What this screen says, and what it refuses to say
  *
- * It says what a simulated interval is intended to do. It does not say that
+ * It says what a simulated interval is intended to do, and what an executor
+ * would be allowed to do with each authored value. It does not say that
  * AssetOps has observed anything: no run exists in this build, so there is no
- * outcome, no accepted evidence, no source health, no confidence, no severity,
- * no incident, no action, no verification outcome and no product conclusion
- * anywhere on it, and no control that would produce one.
+ * outcome, no accepted evidence, no source quality result, no incident, no
+ * action and no product judgement anywhere on it, and no control that would
+ * produce one.
  *
  * Two controls are rendered, and the rule for which
  * (`D-2026-09-20-scenario-detail-affordances`) is that a disabled control
@@ -36,29 +39,34 @@ import type {
  * missing prerequisite is the next named causal capability. `Create Draft Run`
  * is native to a scenario and is rendered disabled with the prerequisite named.
  * `Open target Site` is the one product bridge, enabled only when the declared
- * target resolves. Everything downstream - commit, release, ingestion, replay,
- * runtime controls, gateway output, product analytics - belongs to another
- * object or another lifecycle, so it is absent rather than disabled: a
- * disabled control from a later step teaches the wrong object model.
+ * target resolves. Everything downstream belongs to another object or another
+ * lifecycle, so it is absent rather than disabled: a disabled control from a
+ * later step teaches the wrong object model.
  *
- * ## The three provisional proposals
+ * ## What T017 settled, and what this screen now asks
  *
- * This is a checkpoint screen, and a checkpoint screen has to make accepting it
- * a decision. Each `ReviewProposal` region states one question, this project's
- * proposal, what is already settled, and what accepting or redirecting would
- * mean. None of them offers a menu: the last checkpoint that did settled
- * nothing.
+ * The T017 checkpoint was accepted on 2026-09-21
+ * (`D-2026-09-21-scenario-authoring-semantics`). Its three provisional regions
+ * are gone and the versioning fields, the entry kinds and the categories are
+ * rendered as settled values. Nothing about them changed; only the marking
+ * did.
+ *
+ * What this screen asks about instead is the execution contract: the four
+ * roles, who owns each initial world value and each reporting cadence, how a
+ * point and a window are dispatched and bounded, and what to do about two
+ * readings the declared causes do not reach.
  *
  * ## Digits
  *
- * Every number on this screen comes from the scenario record or the Site
- * record: a version, a supersedes, an offset, a parameter value. The prose,
- * including all three proposal regions, contains no digit at all, which is what
- * makes "no invented digit" checkable rather than argued.
+ * Every number on this screen comes from the scenario record, the contract the
+ * backend computes from it, or the Site record: a version, an offset, a
+ * parameter value, a canonical value, a declared level, a difference. The
+ * prose, including every proposal region, contains no digit at all, which is
+ * what makes "no invented digit" checkable rather than argued.
  */
 
 /**
- * The proposed event taxonomy, with what each value means.
+ * The event taxonomy, with what each value means.
  *
  * Declared here because a legend is presentation and the frontend has no
  * access to the backend's vocabulary module. What keeps the two from drifting
@@ -68,7 +76,7 @@ import type {
  * value the rendered record uses. A category added on either side without the
  * other fails one of them.
  */
-export const PROPOSED_TIMELINE_ENTRY_KINDS: ReadonlyArray<
+export const TIMELINE_ENTRY_KIND_LEGEND: ReadonlyArray<
   readonly [string, string]
 > = [
   ["EVENT", "Something the simulated world does."],
@@ -79,9 +87,7 @@ export const PROPOSED_TIMELINE_ENTRY_KINDS: ReadonlyArray<
   ],
 ];
 
-export const PROPOSED_EVENT_CATEGORIES: ReadonlyArray<
-  readonly [string, string]
-> = [
+export const EVENT_CATEGORY_LEGEND: ReadonlyArray<readonly [string, string]> = [
   ["LOAD", "What the site is asked to supply."],
   ["WEATHER", "Conditions the site operates under."],
   [
@@ -92,6 +98,32 @@ export const PROPOSED_EVENT_CATEGORIES: ReadonlyArray<
   ["LOSS_OR_FRAUD", "Quantities leaving the site unaccounted for."],
   ["INTERVENTION", "An operator or technician acting on the site."],
   ["MAINTENANCE", "Planned work, including scheduled deliveries."],
+];
+
+/**
+ * The execution roles, with what an executor may do with each.
+ *
+ * Held to the same rule as the taxonomy legend above: a backend test asserts
+ * the shipped definition uses every role, and a frontend test asserts this
+ * legend covers every role the rendered record uses.
+ */
+export const EXECUTION_ROLE_LEGEND: ReadonlyArray<readonly [string, string]> = [
+  [
+    "CAUSAL_INPUT",
+    "Initializes or changes private world state. The only role that may.",
+  ],
+  [
+    "FORCING_INPUT",
+    "An exogenous condition the run is put under, on the world or on the reporting path. It names the state it forces and who owns that profile, and it declares no starting value of its own: the profile already says what the state is when the interval begins.",
+  ],
+  [
+    "REPORTED_OBSERVATION",
+    "A value arriving through a named source. It never initializes or changes private world state, and it carries no owner that could claim it does.",
+  ],
+  [
+    "NON_EXECUTABLE_CONDITION",
+    "Authored description an executor does not consume: what the interval is expected to look like, rather than what it is told to do.",
+  ],
 ];
 
 export interface ScenarioFrameProps {
@@ -185,7 +217,13 @@ export function ScenarioFrame({
     );
   }
 
-  const { scenario, targetResolution, privateExpectations } = result;
+  const {
+    scenario,
+    targetResolution,
+    observationSourceResolutions,
+    privateExpectations,
+  } = result;
+  const contract = scenario.execution_contract;
 
   return (
     <main aria-labelledby="scenario-heading">
@@ -232,48 +270,6 @@ export function ScenarioFrame({
               : scenario.version.supersedes}
           </Fact>
         </FactList>
-
-        <ReviewProposal
-          id="scenario-versioning"
-          question="Which fields should a scenario version carry?"
-          proposal={
-            <>
-              <p>
-                Proposed: the four above. A scenario identity that never
-                changes; a scenario version, which is the thing a future run
-                freezes; the instant that version became the authored one; and
-                the version it superseded, so drift between versions stays
-                inspectable without a separate history store.
-              </p>
-              <p>
-                Deliberately not proposed: a lifecycle state such as draft or
-                released, an author, or a change note. None of them has a
-                capability behind it in this milestone, and a field with nothing
-                to fill it invites a screen to state something nobody recorded.
-              </p>
-            </>
-          }
-          settled={
-            <>
-              Scenario identity and scenario version are distinct; a version a
-              run has referenced is immutable; timeline identities are stable
-              within a version; and a future run freezes the concrete version it
-              used rather than following the latest.
-            </>
-          }
-          onAccepting={
-            <>
-              This field list, as the version identity run setup will be built
-              on.
-            </>
-          }
-          onRedirecting={
-            <>
-              Naming which field to add or drop, before run setup is built
-              against it.
-            </>
-          }
-        />
       </Panel>
 
       <Panel heading="Target site" headingId="scenario-target-heading">
@@ -308,7 +304,84 @@ export function ScenarioFrame({
       </Panel>
 
       <Panel
-        heading="Public authoring parameters"
+        heading="How each authored value executes"
+        headingId="scenario-roles-heading"
+      >
+        <p>
+          Every value below carries one execution role. The role is what an
+          executor is allowed to do with it, and it is a field rather than a
+          reading of the wording, so a later run setup does not have to
+          interpret a description to know whether a row is a cause or a
+          reading.
+        </p>
+
+        <FactList>
+          {EXECUTION_ROLE_LEGEND.map(([value, gloss]) => (
+            <Fact key={value} term={value}>
+              {gloss}
+            </Fact>
+          ))}
+        </FactList>
+
+        <p>
+          An executable value also names the state it concerns and says whether
+          later run setup may proceed without support for it. A required input
+          the chosen model profile does not support blocks that run setup
+          rather than being quietly left out, because a run that skipped part
+          of a scenario would still claim to have executed it.
+        </p>
+
+        <ReviewProposal
+          id="scenario-execution-roles"
+          question="Should every authored value carry one of these four execution roles?"
+          proposal={
+            <>
+              <p>
+                Proposed: the four roles above, on every public parameter and
+                every timeline row, with only a causal input able to reach
+                private world state. That is enforced twice over and not only
+                described: a reported reading carries no owner and no state
+                effect at all, so there is no field it could arrive in as an
+                initial value or a change; and a forcing input, which does have
+                an owner, may not declare a starting value either, because the
+                profile it names already says what its state is when the
+                interval begins.
+              </p>
+              <p>
+                Proposed with it: an evidence condition may be delivered as a
+                reported reading or carried as description, and may never be a
+                cause. That is the ambiguity this slice exists to remove - one
+                row that prescribed both a cause and its own expected result
+                would let a scenario author the state trajectory instead of the
+                causes.
+              </p>
+            </>
+          }
+          settled={
+            <>
+              The three entry kinds and the seven categories, accepted at the
+              previous checkpoint. The roles here are a second axis beside
+              them, not a replacement: a row still says what sort of authored
+              item it is, and now also says how it executes.
+            </>
+          }
+          onAccepting={
+            <>
+              These four roles, as the classification later run setup and the
+              first kernel are built on.
+            </>
+          }
+          onRedirecting={
+            <>
+              Naming a role to add, drop, or merge, or a value on this screen
+              whose role is wrong.
+            </>
+          }
+        />
+      </Panel>
+
+      <Panel
+        heading="Scenario-level authoring parameters"
         headingId="scenario-public-parameters-heading"
       >
         <p>
@@ -323,6 +396,10 @@ export function ScenarioFrame({
               <tr>
                 <th scope="col">Parameter</th>
                 <th scope="col">Value</th>
+                <th scope="col">In canonical terms</th>
+                <th scope="col">Execution role</th>
+                <th scope="col">State</th>
+                <th scope="col">Owner</th>
                 <th scope="col">Parameter ID</th>
               </tr>
             </thead>
@@ -331,6 +408,10 @@ export function ScenarioFrame({
                 <tr key={parameter.parameter_id}>
                   <td>{parameter.display_name}</td>
                   <td>{parameterValue(parameter)}</td>
+                  <td>{canonicalValue(parameter)}</td>
+                  <td>{parameter.execution_role}</td>
+                  <td>{parameter.state_key ?? "Not consumed"}</td>
+                  <td>{ownershipText(parameter)}</td>
                   <td>{parameter.parameter_id}</td>
                 </tr>
               ))}
@@ -339,6 +420,161 @@ export function ScenarioFrame({
         ) : (
           <p>This scenario declares no scenario-level parameter.</p>
         )}
+      </Panel>
+
+      <Panel
+        heading="Initial world values and who owns them"
+        headingId="scenario-initialization-heading"
+      >
+        <p>
+          Every value the simulated world would start from has one owner that
+          answers for it. A site&apos;s Foundation owns what the site is; this
+          scenario owns what the interval starts from; a run may override
+          either; a versioned model rule owns what neither states. A start
+          value with no owner is one a recording could invent, which is why
+          there is no such option here.
+        </p>
+
+        {contract.initialization_inputs.length > 0 ? (
+          <DataTable labelledBy="scenario-initialization-heading">
+            <thead>
+              <tr>
+                <th scope="col">World state</th>
+                <th scope="col">Starting value</th>
+                <th scope="col">In canonical terms</th>
+                <th scope="col">Owner</th>
+                <th scope="col">Declared by</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contract.initialization_inputs.map((input) => (
+                <tr key={input.state_key}>
+                  <td>{input.state_key}</td>
+                  <td>{`${input.value} ${input.unit}`}</td>
+                  <td>
+                    {`${input.canonical_value} ${input.canonical_unit}`}
+                  </td>
+                  <td>{input.owner}</td>
+                  <td>{input.display_name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        ) : (
+          <p>This scenario declares no initial world value.</p>
+        )}
+      </Panel>
+
+      <Panel
+        heading="Where each reading comes from"
+        headingId="scenario-sources-heading"
+      >
+        <p>
+          Every reading in the timeline arrives through one of these. A device
+          source names a device and a signal the target site configures; a
+          hand-recorded value names neither, because it did not arrive through
+          any configured signal and borrowing one would put an operator&apos;s
+          note into the evidence path wearing a sensor&apos;s name.
+        </p>
+
+        {scenario.observation_sources.length > 0 ? (
+          <DataTable labelledBy="scenario-sources-heading">
+            <thead>
+              <tr>
+                <th scope="col">Source</th>
+                <th scope="col">Kind</th>
+                <th scope="col">Device</th>
+                <th scope="col">Signal</th>
+                <th scope="col">On this installation</th>
+                <th scope="col">Who owns the reporting cadence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scenario.observation_sources.map((source) => {
+                const resolution = observationSourceResolutions.find(
+                  (item) => item.source_id === source.source_id,
+                );
+                return (
+                  <tr key={source.source_id}>
+                    <td>
+                      {source.source_id}
+                      <span className="cell-secondary">
+                        {source.description}
+                      </span>
+                    </td>
+                    <td>{source.source_kind}</td>
+                    <td>{deviceText(source.device_id, resolution)}</td>
+                    <td>{signalText(source.signal_id, resolution)}</td>
+                    <td>
+                      {resolution?.reason ??
+                        "Nothing is known about this source on this installation."}
+                    </td>
+                    <td>
+                      {source.cadence_ownership}
+                      <span className="cell-secondary">
+                        {resolution?.cadence_statement ??
+                          "No statement about this source's cadence is available."}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </DataTable>
+        ) : (
+          <p>This scenario declares no observation source.</p>
+        )}
+
+        <ReviewProposal
+          id="scenario-input-ownership"
+          question="Who should own an initial world value, and who should own a reporting cadence?"
+          proposal={
+            <>
+              <p>
+                Proposed for initial values: exactly one owner each, from the
+                site&apos;s Foundation, this scenario, a run override, or a
+                versioned model rule, as the table above this one shows. Two
+                owners for one value is refused when the definition is read,
+                because a run would otherwise start from whichever the code
+                happened to consult first.
+              </p>
+              <p>
+                Proposed for cadence: the scenario owns none. A site&apos;s
+                Foundation declares that a signal can report and declares its
+                unit; it declares no rate, and there is nothing else to derive
+                one from. Nothing infers a cadence from a device&apos;s name,
+                from what a screen shows, or from the spacing between rows, and
+                a duration written onto a reading is refused by name. A cadence
+                arrives when a versioned observation profile declares one.
+              </p>
+              <p>
+                A hand-recorded value is a real source with its own identity
+                and no device identity, which is what the table above states
+                rather than leaving blank.
+              </p>
+            </>
+          }
+          settled={
+            <>
+              Initial conditions must be explicit and attributable, and a trace
+              may not hide or invent one. What is being asked here is which
+              owners the product recognises and where a cadence comes from,
+              not whether attribution is required.
+            </>
+          }
+          onAccepting={
+            <>
+              These four owners, and a scenario that owns no reporting cadence
+              at all.
+            </>
+          }
+          onRedirecting={
+            <>
+              Naming an owner to add or drop, or saying that a scenario should
+              be able to declare how often a source reports.
+            </>
+          }
+        />
       </Panel>
 
       <Panel
@@ -357,8 +593,10 @@ export function ScenarioFrame({
             <tr>
               <th scope="col">Order</th>
               <th scope="col">Offset (minutes)</th>
+              <th scope="col">Timing</th>
               <th scope="col">Kind</th>
               <th scope="col">Category</th>
+              <th scope="col">Execution role</th>
               <th scope="col">What is authored</th>
               <th scope="col">Parameters</th>
             </tr>
@@ -378,54 +616,234 @@ export function ScenarioFrame({
             Category and kind legend
           </h3>
           <FactList>
-            {PROPOSED_TIMELINE_ENTRY_KINDS.map(([value, gloss]) => (
+            {TIMELINE_ENTRY_KIND_LEGEND.map(([value, gloss]) => (
               <Fact key={value} term={value}>
                 {gloss}
               </Fact>
             ))}
-            {PROPOSED_EVENT_CATEGORIES.map(([value, gloss]) => (
+            {EVENT_CATEGORY_LEGEND.map(([value, gloss]) => (
               <Fact key={value} term={value}>
                 {gloss}
               </Fact>
             ))}
           </FactList>
         </div>
+      </Panel>
+
+      <Panel
+        heading="How an entry is dispatched, and what happens at a bound"
+        headingId="scenario-dispatch-heading"
+      >
+        <p>
+          These rules are the same for every scenario, so they are versioned
+          simulator semantics rather than authoring. They are shown here
+          because they are what the timing column above commits the product to.
+        </p>
+
+        <FactList>
+          <Fact term="Execution contract version">
+            {contract.contract_version}
+          </Fact>
+          {contract.dispatch_rules.map((rule) => (
+            <Fact key={rule.rule_id} term={rule.display_name}>
+              {rule.statement}
+            </Fact>
+          ))}
+        </FactList>
+
+        <div className="subsection">
+          <h3 className="subsection__heading" id="scenario-bounds-heading">
+            What a later run does at a bound
+          </h3>
+          <DataTable labelledBy="scenario-bounds-heading">
+            <thead>
+              <tr>
+                <th scope="col">Case</th>
+                <th scope="col">Policy</th>
+                <th scope="col">What that means</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contract.bound_cases.map((boundCase) => (
+                <tr key={boundCase.case_id}>
+                  <td>{boundCase.display_name}</td>
+                  <td>{boundCase.policy}</td>
+                  <td>{boundCase.statement}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </div>
 
         <ReviewProposal
-          id="scenario-event-taxonomy"
-          question="What should the scenario event taxonomy be?"
+          id="scenario-timing-and-bounds"
+          question="How should an entry be placed in time, and what should happen when a bound is reached?"
           proposal={
             <>
               <p>
-                Proposed: two axes, both closed. Every timeline row has a kind
-                and a category, and the legend above is the whole of both. The
-                parser refuses any other value, so an unsupported category
-                cannot reach a screen, a run, or a simulator.
+                Proposed for timing: an instant, a window with a declared
+                length, or the whole interval, validated as three distinct
+                shapes. A point with a length and a window without one are both
+                refused, because either one looks like a complete definition
+                and means something the author did not write. A rate may only
+                be declared over a window, since a rate at an instant moves
+                nothing.
               </p>
               <p>
-                Deliberately absent: breaker position and control mode. An
-                equipment or intervention row names an authored cause or action
-                in words and in its parameters; a position or a mode is a
-                time-scoped operational fact, which in this project means
-                evidence. A check fails the build if one becomes a kind, a
-                category, a parameter key, or a unit, in the model, in the
-                shipped definition, or in a test fixture.
+                Proposed for dispatch: the run interval and every step are
+                half-open, so an instant belongs to exactly one step and an
+                entry on a boundary is applied by the step that begins there
+                and by no other. Applying something once becomes a property of
+                the time model rather than of whichever code reads it.
+              </p>
+              <p>
+                Proposed for bounds: the table above. Every case either refuses
+                the definition when it is read, fails the run, or produces a
+                bounded change recorded with the quantity it refused. There is
+                deliberately no option meaning clamp quietly or drop the
+                remainder - a trajectory nothing in the evidence path can
+                account for is worse than a run that stops and says why.
               </p>
             </>
           }
           settled={
             <>
-              Timeline rows are authored sub-artifacts inside a scenario
-              version, addressed by scenario identity, version and event
-              identity. A future runtime injection is a run-scoped record under
-              a simulation run and is never written back into a scenario
-              version. Breaker position and control mode are evidence, not
-              configuration and not scenario schema.
+              Simulation intervals are half-open, and a scheduled cause is
+              applied exactly once. What is being asked is how the shapes above
+              realise that, and which bound behaviour is acceptable.
             </>
           }
-          onAccepting={<>These kinds and these categories, as the closed taxonomy.</>}
+          onAccepting={
+            <>
+              These three timing shapes, this boundary rule, and these four
+              bound policies.
+            </>
+          }
           onRedirecting={
-            <>Naming a category or kind to add, drop, merge, or rename.</>
+            <>
+              Naming a shape to add or drop, or a bound case whose policy
+              should be different.
+            </>
+          }
+        />
+      </Panel>
+
+      <Panel
+        heading="The readings, against the causes declared before them"
+        headingId="scenario-reconciliation-heading"
+      >
+        <p>
+          Neither reading below prescribes what the simulated world holds. Each
+          is a value from a named source, and neither appears among the inputs
+          that start or change private world state. What this table adds is the
+          other half: whether the causes this scenario declares actually reach
+          the value the source reports.
+        </p>
+        <p>
+          The declared column is arithmetic over the authored causes that are
+          complete by that offset, in canonical units. It computes no
+          trajectory, holds no state, and changes nothing. Where it differs
+          from the reported value, the difference is stated with its sign
+          rather than left for a reader to work out.
+        </p>
+        <p>
+          Where it cannot answer it says so and says why, rather than
+          reporting a number the contract refuses elsewhere. There are three
+          such cases and each is a different fact: no declared starting value
+          for the state, a declared cause still running when the reading is
+          taken, and a declared cause that would take the state past a bound
+          this definition declares. Working out what a run does at a bound is
+          the runtime&apos;s, not this screen&apos;s.
+        </p>
+
+        {contract.observation_reconciliation.length > 0 ? (
+          <DataTable labelledBy="scenario-reconciliation-heading">
+            <thead>
+              <tr>
+                <th scope="col">Reading</th>
+                <th scope="col">Source</th>
+                <th scope="col">Offset (minutes)</th>
+                <th scope="col">Reported</th>
+                <th scope="col">Declared causes reach</th>
+                <th scope="col">Difference</th>
+                <th scope="col">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contract.observation_reconciliation.map((item) => (
+                <tr key={item.event_id}>
+                  <td>{item.event_id}</td>
+                  <td>{item.source_id}</td>
+                  <td>{item.offset_minutes}</td>
+                  <td>{`${item.reported_value} ${item.unit}`}</td>
+                  <td>
+                    {amount(item.declared_value, item.unit)}
+                    <span className="cell-secondary">
+                      {accountedByText(item)}
+                    </span>
+                  </td>
+                  <td>{amount(item.difference, item.unit)}</td>
+                  <td>
+                    {item.state}
+                    <span className="cell-secondary">{item.reason}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        ) : (
+          <p>This scenario authors no reading to reconcile.</p>
+        )}
+
+        <ReviewProposal
+          id="scenario-observation-reconciliation"
+          question="What should happen when the declared causes do not reach a reported reading?"
+          proposal={
+            <>
+              <p>
+                Proposed: state it, with the quantity and the sign, and do not
+                resolve it in code. The two readings this scenario authors are
+                reported observations from a named source, so neither can
+                prescribe tank state and the contract is coherent as it stands.
+                What it also has to say out loud is that the causes it declares
+                do not reach either of them.
+              </p>
+              <p>
+                Deliberately not done: adjusting any authored number so that
+                the two sides agree. The values on this screen are the ones the
+                previous checkpoint accepted, and editing them into agreement
+                would settle a product question by arithmetic rather than by
+                review.
+              </p>
+              <p>
+                There are three honest ways out and they are yours to choose
+                between: model the missing cause as its own causal entry;
+                declare a reporting behaviour that explains the difference; or
+                accept the authored readings and change the causes. Until one
+                is chosen, a later run setup should treat an unreached reading
+                as a reason to block rather than as a rounding matter.
+              </p>
+            </>
+          }
+          settled={
+            <>
+              A scenario authors causes and conditions, not the state
+              trajectory they produce, and a reported value is never private
+              world truth. Both readings are already classified that way and
+              neither reaches an initial value or a state change.
+            </>
+          }
+          onAccepting={
+            <>
+              The contract stating the difference rather than hiding it, with
+              the resolution left to a later slice you direct.
+            </>
+          }
+          onRedirecting={
+            <>
+              Naming which of the three ways out to take, or saying that a
+              difference of this size should be tolerated and why.
+            </>
           }
         />
       </Panel>
@@ -466,53 +884,6 @@ export function ScenarioFrame({
             <p>This scenario declares no expectation.</p>
           )}
         </div>
-
-        <ReviewProposal
-          id="scenario-public-private-boundary"
-          question="Which scenario data is public authoring data, and which is a private test-oracle expectation?"
-          proposal={
-            <>
-              <p>
-                Proposed: everything that describes what the simulated world
-                does is public authoring data. That is the identity, the
-                version, the target-site requirement, the parameters above the
-                timeline, and every timeline row with its kind, category,
-                offset, description and parameters.
-              </p>
-              <p>
-                Everything that describes what a later test should be able to
-                conclude is a private expectation: the region directly above,
-                and nothing else.
-              </p>
-              <p>
-                The split is in the parser, not in this screen. The two halves
-                are separate parsed fields with separate payload builders, and
-                the builders that produce the public sections never read the
-                private field, so no operator surface can receive one by
-                omission or by a screen forgetting to filter.
-              </p>
-            </>
-          }
-          settled={
-            <>
-              A private expectation is test-oracle metadata only. It is never
-              pipeline input, product evidence, operator content, an export, an
-              analytic, or product provenance.
-            </>
-          }
-          onAccepting={
-            <>
-              This boundary, as the contract run setup and the evidence path
-              will be built against.
-            </>
-          }
-          onRedirecting={
-            <>
-              Naming a value on this screen that belongs on the other side of
-              the line.
-            </>
-          }
-        />
       </Panel>
 
       <Panel
@@ -598,8 +969,20 @@ function TimelineRow({ entry }: { entry: ScenarioTimelineEntry }) {
     <tr>
       <td>{entry.sequence}</td>
       <td>{entry.offset_minutes}</td>
+      <td>
+        {entry.timing.shape}
+        {entry.timing.duration_minutes === null ? null : (
+          <span className="cell-secondary">
+            {`${entry.timing.duration_minutes} min`}
+          </span>
+        )}
+      </td>
       <td>{entry.entry_kind}</td>
       <td>{entry.category}</td>
+      <td>
+        {entry.execution_role}
+        <span className="cell-secondary">{executionDetail(entry)}</span>
+      </td>
       <td>
         {entry.description}
         <span className="cell-secondary">{entry.event_id}</span>
@@ -612,6 +995,9 @@ function TimelineRow({ entry }: { entry: ScenarioTimelineEntry }) {
             {entry.parameters.map((parameter) => (
               <li key={parameter.parameter_id}>
                 {parameter.display_name}: {parameterValue(parameter)}
+                <span className="cell-secondary">
+                  {parameter.execution_role}
+                </span>
               </li>
             ))}
           </ul>
@@ -619,6 +1005,29 @@ function TimelineRow({ entry }: { entry: ScenarioTimelineEntry }) {
       </td>
     </tr>
   );
+}
+
+/**
+ * What an entry's role actually does, in the entry's own terms.
+ *
+ * A cause says which state it moves and which way; a reading says which source
+ * it came through; a forcing input says what it forces. Description says it is
+ * not consumed, rather than leaving the cell blank: a blank cell reads as
+ * missing data, and this is a fact.
+ */
+function executionDetail(entry: ScenarioTimelineEntry): string {
+  if (entry.state_effect !== null && entry.state_key !== null) {
+    const direction =
+      entry.state_effect.direction === "INCREASE" ? "raises" : "lowers";
+    return `${direction} ${entry.state_key}`;
+  }
+  if (entry.observation !== null) {
+    return `reported through ${entry.observation.source_id}`;
+  }
+  if (entry.state_key !== null) {
+    return `forces ${entry.state_key}`;
+  }
+  return "not consumed by an executor";
 }
 
 /**
@@ -632,4 +1041,67 @@ function parameterValue(parameter: ScenarioParameter): string {
   return parameter.unit === null
     ? String(parameter.value)
     : `${parameter.value} ${parameter.unit}`;
+}
+
+/** The same quantity in canonical terms, or why there is none. */
+function canonicalValue(parameter: ScenarioParameter): string {
+  return parameter.canonical === null
+    ? "Not a quantity"
+    : `${parameter.canonical.value} ${parameter.canonical.unit}`;
+}
+
+/**
+ * Who owns a parameter, as one phrase.
+ *
+ * A reported value says so explicitly rather than rendering an empty cell.
+ * That it owns nothing is the guarantee this screen is here to show, and an
+ * empty cell would read as a field somebody forgot to fill.
+ */
+function ownershipText(parameter: ScenarioParameter): string {
+  if (parameter.ownership === null) {
+    return parameter.execution_role === "REPORTED_OBSERVATION"
+      ? "Reported, so it owns nothing"
+      : "Not consumed, so it owns nothing";
+  }
+  return parameter.ownership.initializes
+    ? `${parameter.ownership.owner}, starting value`
+    : `${parameter.ownership.owner}, used by a change`;
+}
+
+function deviceText(
+  deviceId: string | null,
+  resolution: ScenarioObservationSourceResolution | undefined,
+): string {
+  if (deviceId === null) {
+    return "No device";
+  }
+  return resolution?.device_display_name === undefined ||
+    resolution.device_display_name === null
+    ? deviceId
+    : `${deviceId}, ${resolution.device_display_name}`;
+}
+
+function signalText(
+  signalId: string | null,
+  resolution: ScenarioObservationSourceResolution | undefined,
+): string {
+  if (signalId === null) {
+    return "No signal";
+  }
+  return resolution?.signal_display_name === undefined ||
+    resolution.signal_display_name === null
+    ? signalId
+    : `${signalId}, ${resolution.signal_display_name}`;
+}
+
+/** A quantity the contract could compute, or a statement that it could not. */
+function amount(value: number | null, unit: string): string {
+  return value === null ? "Cannot be worked out" : `${value} ${unit}`;
+}
+
+function accountedByText(item: ScenarioObservationReconciliation): string {
+  if (item.accounted_by.length === 0) {
+    return "no declared cause is complete by this offset";
+  }
+  return `counting ${item.accounted_by.join(", ")}`;
 }
