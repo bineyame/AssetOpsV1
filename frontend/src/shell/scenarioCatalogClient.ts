@@ -24,12 +24,54 @@
  * than silently reusing public content.
  */
 
+/**
+ * Who answers for a value an executor would consume.
+ *
+ * Absent for a reported observation, and that absence is a fact rather than a
+ * gap: a reading has no owner because it initializes nothing.
+ */
+export interface ScenarioParameterOwnership {
+  owner: string;
+  initializes: boolean;
+}
+
+/** A quantity in canonical terms, so nothing has to parse display text. */
+export interface ScenarioCanonicalQuantity {
+  value: number;
+  unit: string;
+  dimension: string;
+}
+
 /** One authored parameter. `unit` is null for a text parameter. */
 export interface ScenarioParameter {
   parameter_id: string;
   display_name: string;
   value: number | string;
   unit: string | null;
+  execution_role: string;
+  state_key: string | null;
+  execution_requirement: string | null;
+  ownership: ScenarioParameterOwnership | null;
+  canonical: ScenarioCanonicalQuantity | null;
+}
+
+/** Where an entry sits in time: an instant, a window, or the whole interval. */
+export interface ScenarioEntryTiming {
+  shape: string;
+  duration_minutes: number | null;
+}
+
+/** What a causal entry changes. Present only for a causal input. */
+export interface ScenarioStateEffect {
+  direction: string;
+  quantity_parameter_id: string | null;
+  rate_parameter_id: string | null;
+}
+
+/** Which source a reading arrives through. Present only for an observation. */
+export interface ScenarioObservationBinding {
+  source_id: string;
+  reported_parameter_id: string;
 }
 
 /** One authored timeline row, placed by an offset from the interval start. */
@@ -41,6 +83,86 @@ export interface ScenarioTimelineEntry {
   category: string;
   description: string;
   parameters: ScenarioParameter[];
+  execution_role: string;
+  state_key: string | null;
+  execution_requirement: string | null;
+  timing: ScenarioEntryTiming;
+  state_effect: ScenarioStateEffect | null;
+  observation: ScenarioObservationBinding | null;
+}
+
+/** A declared device or non-device source a reading arrives through. */
+export interface ScenarioObservationSource {
+  source_id: string;
+  source_kind: string;
+  device_id: string | null;
+  signal_id: string | null;
+  cadence_ownership: string;
+  description: string;
+}
+
+export interface ScenarioDispatchRule {
+  rule_id: string;
+  display_name: string;
+  statement: string;
+}
+
+export interface ScenarioBoundCase {
+  case_id: string;
+  display_name: string;
+  policy: string;
+  statement: string;
+}
+
+export interface ScenarioInitializationInput {
+  parameter_id: string;
+  display_name: string;
+  state_key: string;
+  owner: string;
+  value: number;
+  unit: string;
+  canonical_value: number;
+  canonical_unit: string;
+}
+
+/**
+ * One reported reading against the causes declared before it.
+ *
+ * `declared_value` and `difference` are null when the contract cannot answer:
+ * no declared initial value for the state, or a causal window still open when
+ * the reading is taken. A contract that guessed at half a window would be
+ * making a transition rule up, and transition rules belong to the runtime.
+ */
+export interface ScenarioObservationReconciliation {
+  event_id: string;
+  source_id: string;
+  parameter_id: string;
+  state_key: string;
+  offset_minutes: number;
+  reported_value: number;
+  declared_value: number | null;
+  difference: number | null;
+  unit: string;
+  state: string;
+  accounted_by: string[];
+}
+
+export interface ScenarioExecutionContract {
+  contract_version: number;
+  dispatch_rules: ScenarioDispatchRule[];
+  bound_cases: ScenarioBoundCase[];
+  initialization_inputs: ScenarioInitializationInput[];
+  observation_reconciliation: ScenarioObservationReconciliation[];
+}
+
+/** What a declared observation source resolved to on this installation. */
+export interface ScenarioObservationSourceResolution {
+  source_id: string;
+  state: string;
+  device_display_name: string | null;
+  signal_display_name: string | null;
+  reason: string;
+  cadence_statement: string;
 }
 
 export interface ScenarioVersionIdentity {
@@ -69,6 +191,8 @@ export interface ScenarioSummary {
 export interface ScenarioDetail extends ScenarioSummary {
   timeline: ScenarioTimelineEntry[];
   public_parameters: ScenarioParameter[];
+  observation_sources: ScenarioObservationSource[];
+  execution_contract: ScenarioExecutionContract;
 }
 
 /** Test-oracle metadata. Never operator content, never product evidence. */
@@ -103,6 +227,7 @@ export type ScenarioDetailResult =
       status: "loaded";
       scenario: ScenarioDetail;
       targetResolution: ScenarioTargetResolution;
+      observationSourceResolutions: ScenarioObservationSourceResolution[];
       privateExpectations: ScenarioPrivateExpectation[];
     }
   | { status: "not_found" }
@@ -113,25 +238,102 @@ export interface ScenarioCatalogClient {
   getScenario(scenarioId: string): Promise<ScenarioDetailResult>;
 }
 
-function isParameter(value: unknown): value is ScenarioParameter {
-  if (value === null || typeof value !== "object") {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function isNullableString(value: unknown): boolean {
+  return value === null || typeof value === "string";
+}
+
+function isOwnership(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (!isRecord(value)) {
     return false;
   }
-  const parameter = value as Record<string, unknown>;
+  return (
+    typeof value.owner === "string" && typeof value.initializes === "boolean"
+  );
+}
+
+function isCanonical(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.value === "number" &&
+    typeof value.unit === "string" &&
+    typeof value.dimension === "string"
+  );
+}
+
+function isParameter(value: unknown): value is ScenarioParameter {
+  if (!isRecord(value)) {
+    return false;
+  }
+  const parameter = value;
   return (
     typeof parameter.parameter_id === "string" &&
     typeof parameter.display_name === "string" &&
     (typeof parameter.value === "number" ||
       typeof parameter.value === "string") &&
-    (parameter.unit === null || typeof parameter.unit === "string")
+    isNullableString(parameter.unit) &&
+    typeof parameter.execution_role === "string" &&
+    isNullableString(parameter.state_key) &&
+    isNullableString(parameter.execution_requirement) &&
+    isOwnership(parameter.ownership) &&
+    isCanonical(parameter.canonical)
+  );
+}
+
+function isTiming(value: unknown): boolean {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.shape === "string" &&
+    (value.duration_minutes === null ||
+      typeof value.duration_minutes === "number")
+  );
+}
+
+function isStateEffect(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.direction === "string" &&
+    isNullableString(value.quantity_parameter_id) &&
+    isNullableString(value.rate_parameter_id)
+  );
+}
+
+function isObservationBinding(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.source_id === "string" &&
+    typeof value.reported_parameter_id === "string"
   );
 }
 
 function isTimelineEntry(value: unknown): value is ScenarioTimelineEntry {
-  if (value === null || typeof value !== "object") {
+  if (!isRecord(value)) {
     return false;
   }
-  const entry = value as Record<string, unknown>;
+  const entry = value;
   return (
     typeof entry.event_id === "string" &&
     typeof entry.sequence === "number" &&
@@ -140,7 +342,128 @@ function isTimelineEntry(value: unknown): value is ScenarioTimelineEntry {
     typeof entry.category === "string" &&
     typeof entry.description === "string" &&
     Array.isArray(entry.parameters) &&
-    entry.parameters.every(isParameter)
+    entry.parameters.every(isParameter) &&
+    typeof entry.execution_role === "string" &&
+    isNullableString(entry.state_key) &&
+    isNullableString(entry.execution_requirement) &&
+    isTiming(entry.timing) &&
+    isStateEffect(entry.state_effect) &&
+    isObservationBinding(entry.observation)
+  );
+}
+
+function isObservationSource(
+  value: unknown,
+): value is ScenarioObservationSource {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.source_id === "string" &&
+    typeof value.source_kind === "string" &&
+    isNullableString(value.device_id) &&
+    isNullableString(value.signal_id) &&
+    typeof value.cadence_ownership === "string" &&
+    typeof value.description === "string"
+  );
+}
+
+function isDispatchRule(value: unknown): value is ScenarioDispatchRule {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.rule_id === "string" &&
+    typeof value.display_name === "string" &&
+    typeof value.statement === "string"
+  );
+}
+
+function isBoundCase(value: unknown): value is ScenarioBoundCase {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.case_id === "string" &&
+    typeof value.display_name === "string" &&
+    typeof value.policy === "string" &&
+    typeof value.statement === "string"
+  );
+}
+
+function isInitializationInput(
+  value: unknown,
+): value is ScenarioInitializationInput {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.parameter_id === "string" &&
+    typeof value.display_name === "string" &&
+    typeof value.state_key === "string" &&
+    typeof value.owner === "string" &&
+    typeof value.value === "number" &&
+    typeof value.unit === "string" &&
+    typeof value.canonical_value === "number" &&
+    typeof value.canonical_unit === "string"
+  );
+}
+
+function isReconciliation(
+  value: unknown,
+): value is ScenarioObservationReconciliation {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.event_id === "string" &&
+    typeof value.source_id === "string" &&
+    typeof value.parameter_id === "string" &&
+    typeof value.state_key === "string" &&
+    typeof value.offset_minutes === "number" &&
+    typeof value.reported_value === "number" &&
+    (value.declared_value === null ||
+      typeof value.declared_value === "number") &&
+    (value.difference === null || typeof value.difference === "number") &&
+    typeof value.unit === "string" &&
+    typeof value.state === "string" &&
+    Array.isArray(value.accounted_by) &&
+    value.accounted_by.every((item) => typeof item === "string")
+  );
+}
+
+function isExecutionContract(
+  value: unknown,
+): value is ScenarioExecutionContract {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.contract_version === "number" &&
+    Array.isArray(value.dispatch_rules) &&
+    value.dispatch_rules.every(isDispatchRule) &&
+    Array.isArray(value.bound_cases) &&
+    value.bound_cases.every(isBoundCase) &&
+    Array.isArray(value.initialization_inputs) &&
+    value.initialization_inputs.every(isInitializationInput) &&
+    Array.isArray(value.observation_reconciliation) &&
+    value.observation_reconciliation.every(isReconciliation)
+  );
+}
+
+function isObservationSourceResolution(
+  value: unknown,
+): value is ScenarioObservationSourceResolution {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.source_id === "string" &&
+    typeof value.state === "string" &&
+    isNullableString(value.device_display_name) &&
+    isNullableString(value.signal_display_name) &&
+    typeof value.reason === "string" &&
+    typeof value.cadence_statement === "string"
   );
 }
 
@@ -179,7 +502,10 @@ function isScenarioDetail(value: unknown): value is ScenarioDetail {
     Array.isArray(scenario.timeline) &&
     scenario.timeline.every(isTimelineEntry) &&
     Array.isArray(scenario.public_parameters) &&
-    scenario.public_parameters.every(isParameter)
+    scenario.public_parameters.every(isParameter) &&
+    Array.isArray(scenario.observation_sources) &&
+    scenario.observation_sources.every(isObservationSource) &&
+    isExecutionContract(scenario.execution_contract)
   );
 }
 
@@ -256,9 +582,12 @@ export function createScenarioCatalogClient(
         }
         const body = (await response.json()) as Record<string, unknown>;
         const expectations = body?.private_expectations;
+        const sources = body?.observation_source_resolutions;
         if (
           !isScenarioDetail(body?.scenario) ||
           !isTargetResolution(body?.target_resolution) ||
+          !Array.isArray(sources) ||
+          !sources.every(isObservationSourceResolution) ||
           !Array.isArray(expectations) ||
           !expectations.every(isExpectation)
         ) {
@@ -268,6 +597,7 @@ export function createScenarioCatalogClient(
           status: "loaded",
           scenario: body.scenario as ScenarioDetail,
           targetResolution: body.target_resolution as ScenarioTargetResolution,
+          observationSourceResolutions: sources,
           privateExpectations: expectations,
         };
       } catch {

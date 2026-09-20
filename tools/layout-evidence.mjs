@@ -480,7 +480,7 @@ for (const [label, width, height] of [
     ]) && allPass;
 }
 
-// T017's scenario detail. The event timeline is six columns of dense content
+// The scenario detail. The event timeline is eight columns of dense content
 // with an unbreakable description and a parameter list per row, so it is the
 // same situation the Sites index and the Foundation relationship tables are
 // in: it must keep every column and scroll inside its own region rather than
@@ -542,13 +542,16 @@ for (const [label, width, height] of [
           .join("; "),
       ],
       [
-        "the timeline keeps all six of its columns",
-        scenario.scrollers.some((s) => s.columnCount === 6),
+        // Eight since T018: the execution role and the timing shape are
+        // columns rather than prose, because a later run setup reads them as
+        // fields and a reviewer has to be able to see the same thing.
+        "the timeline keeps all eight of its columns",
+        scenario.scrollers.some((s) => s.columnCount === 8),
         scenario.scrollers.map((s) => `${s.name}: ${s.columnCount}`).join("; "),
       ],
       [
-        "all three review proposals are on the page",
-        scenario.reviewProposals.length === 3,
+        "all four review proposals are on the page",
+        scenario.reviewProposals.length === 4,
         scenario.reviewProposals.join(" | ") || "none",
       ],
       [
