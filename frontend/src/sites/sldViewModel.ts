@@ -611,7 +611,31 @@ export function deriveSiteSldView(site: SiteDetailReadModel): SiteSldView {
     }
   }
 
+  // A device or a mapping may name a component the archetype does not place -
+  // that is `unplaced`, and it is a fact about the diagram. Naming a component
+  // the foundation never declared is a different thing wearing the same
+  // clothes: a broken reference. Without these two checks it arrived as an
+  // `unplaced` entry, so a model reporting `compatible` could carry device and
+  // signal facts anchored to a component that does not exist.
+  for (const device of devices) {
+    if (!components.has(device.component_id)) {
+      return unavailable(
+        "REFERENCE_UNRESOLVED",
+        `Device ${device.device_id} is attached to component ` +
+          `${device.component_id}, which the foundation does not declare.`,
+      );
+    }
+  }
+
   for (const mapping of mappings) {
+    if (!components.has(mapping.component_id)) {
+      return unavailable(
+        "REFERENCE_UNRESOLVED",
+        `Mapping ${mapping.mapping_id} names component ` +
+          `${mapping.component_id}, which the foundation does not declare.`,
+      );
+    }
+
     if (availableSignal(mapping, devicesById) === null) {
       return unavailable(
         "REFERENCE_UNRESOLVED",

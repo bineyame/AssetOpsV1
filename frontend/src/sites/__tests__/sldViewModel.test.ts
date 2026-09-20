@@ -780,3 +780,104 @@ describe("a value slot cannot be widened without the compiler noticing", () => {
     expect(Object.keys(evidence)).toHaveLength(1);
   });
 });
+
+describe("a reference to a component the foundation never declared", () => {
+  /**
+   * `unplaced` and `unresolved` look alike and are not.
+   *
+   * A device or mapping naming a component the archetype does not place is
+   * unplaced: the component exists, the diagram simply has nowhere for it, and
+   * saying so is a fact about the drawing. A device or mapping naming a
+   * component the foundation never declared is a broken reference, and before
+   * the T015 review it arrived as an unplaced entry - so a model reporting
+   * `compatible` could carry device and signal facts anchored to something
+   * that does not exist.
+   *
+   * The backend refuses such a document, so neither case should reach here
+   * from the store. They are checked for the same reason the sibling reference
+   * checks are: the alternative to checking is a diagram that disagrees with
+   * the record it is supposedly of.
+   */
+  function refused(site: SiteDetailReadModel) {
+    const result = deriveSiteSldView(site);
+
+    expect(result.status).toBe("unavailable");
+    if (result.status !== "unavailable") {
+      throw new Error("expected an unavailable result");
+    }
+    return result;
+  }
+
+  it("refuses a device attached to an undeclared component", () => {
+    const site: SiteDetailReadModel = {
+      ...HYBRID_MINI_GRID_SITE,
+      foundation: {
+        ...HYBRID_MINI_GRID_SITE.foundation,
+        devices: (HYBRID_MINI_GRID_SITE.foundation.devices ?? []).map(
+          (device, index) =>
+            index === 0 ? { ...device, component_id: "no-such-component" } : device,
+        ),
+      },
+    };
+
+    const result = refused(site);
+
+    expect(result.reason.code).toBe("REFERENCE_UNRESOLVED");
+    expect(result.reason.detail).toContain("no-such-component");
+  });
+
+  it("refuses a mapping naming an undeclared component", () => {
+    const site: SiteDetailReadModel = {
+      ...HYBRID_MINI_GRID_SITE,
+      foundation: {
+        ...HYBRID_MINI_GRID_SITE.foundation,
+        signal_mappings: (
+          HYBRID_MINI_GRID_SITE.foundation.signal_mappings ?? []
+        ).map((mapping, index) =>
+          index === 0 ? { ...mapping, component_id: "no-such-component" } : mapping,
+        ),
+      },
+    };
+
+    const result = refused(site);
+
+    expect(result.reason.code).toBe("REFERENCE_UNRESOLVED");
+    expect(result.reason.detail).toContain("no-such-component");
+  });
+
+  it("does not carry either as an unplaced fact on a compatible model", () => {
+    // The shape of the defect: before the fix, both produced `compatible`
+    // with the dangling reference tucked into `unplaced`.
+    for (const site of [
+      {
+        ...HYBRID_MINI_GRID_SITE,
+        foundation: {
+          ...HYBRID_MINI_GRID_SITE.foundation,
+          devices: (HYBRID_MINI_GRID_SITE.foundation.devices ?? []).map(
+            (device, index) =>
+              index === 0
+                ? { ...device, component_id: "no-such-component" }
+                : device,
+          ),
+        },
+      },
+      {
+        ...HYBRID_MINI_GRID_SITE,
+        foundation: {
+          ...HYBRID_MINI_GRID_SITE.foundation,
+          signal_mappings: (
+            HYBRID_MINI_GRID_SITE.foundation.signal_mappings ?? []
+          ).map((mapping, index) =>
+            index === 0
+              ? { ...mapping, component_id: "no-such-component" }
+              : mapping,
+          ),
+        },
+      },
+    ]) {
+      expect(deriveSiteSldView(site as SiteDetailReadModel).status).not.toBe(
+        "compatible",
+      );
+    }
+  });
+});
