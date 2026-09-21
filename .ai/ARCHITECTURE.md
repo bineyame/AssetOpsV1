@@ -112,6 +112,54 @@ binds outputs to the exact Site/Foundation version, scenario version, resolved
 public parameters, interval, timestep, seed, simulator version, initialization
 inputs, and intervention history that produced them.
 
+Projecting a document is static validation. Composing projections into a
+value-at-a-time is a kernel. A component that owns a transition rule is a
+kernel regardless of what it is called, how narrow it is, or whether it emits a
+trajectory. Reporting what a document declares is always allowed; deciding what
+those declarations reach is not, until the thing that owns transition rules
+exists. This is the same rule as the golden-trace rule with one word changed: a
+kernel precedes any authoritative trace, and a kernel precedes any verdict that
+depends on composing causes.
+
+The author's side of that line is the same rule seen from the other end. An
+expectation is legitimate when it occupies a position where being wrong causes
+a failure, and circular when it occupies a position where being wrong causes
+agreement. An authored value the system reads as fact is load-bearing; the same
+value compared against an independently computed one is an oracle. A scenario
+may carry oracles and may not carry consequences.
+
+## Physical Property Ownership
+
+Four owners, and two swap tests that decide between them.
+
+Site Foundation declares what the site *is*. The model profile declares how the
+simulator *reasons* about things of that kind. The scenario declares what
+*happens* during one interval. The publication profile declares how the
+reporting installation *behaves*.
+
+Swap the asset for another of the same type and the value changes: Foundation.
+Swap the scenario and it changes: scenario. Neither, but a better simulator
+would change it: model profile. Neither, ever: a universal constant, and it
+belongs in code.
+
+A coefficient and the law that consumes it are different objects with different
+owners, and a name that covers both hides the seam. *This generator burns
+14 L/h at its dispatch point* is Foundation. *Consumption is proportional to
+runtime* is a model rule. *The generator ran from this offset for this long* is
+the scenario. A physical property of a machine that lives in a scenario means
+the story has replaced the asset, and the same scenario run against a different
+machine would carry the first machine's physics with it.
+
+Declaring an owner is not the same as being able to carry its value. A
+vocabulary of owners with no field for one of them produces a correct answerer
+and no answer. Where an owner is declarable, something must be able to hold
+what it declares and something must be able to address it.
+
+The coefficient a product uses to form an expectation comes from Foundation
+configuration, never from the scenario's private rate. A product that reads the
+number the simulator used computes its conclusion from the cause and gets the
+right answer for the wrong reason.
+
 ## Contract Posture
 
 Data crossing product boundaries should be explicit, validated, and testable.
