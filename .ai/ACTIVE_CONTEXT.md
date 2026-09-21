@@ -29,30 +29,37 @@ inspectable reasons. Cadence, simulator source identity and gateway identity
 come from the selected versioned profile or the run blocks - held by a module
 that cannot import a Site record at all.
 
-T018 closed out 2026-09-21. Independent review accepted it over two rounds -
-five findings fixed, then four Low findings left open - and user review
-returned **"it looks good"**, accepting all four proposals. The execution
-contract is settled in `D-2026-09-21-scenario-execution-contract`: every
-authored value carries a machine-readable execution role, and initialization
-ownership, canonical units, timing, dispatch and bound behaviour are settled.
+T018 closed out 2026-09-21, accepted by review and by the user. The execution
+contract is settled in `D-2026-09-21-scenario-execution-contract`.
 
 **The Fuel Loss residual is accepted as stated, not resolved.** The declared
 causes reach 254 L where the sensor reports 155 L and the operator records
-150 L, leaving -99 L and -104 L `NOT_ACCOUNTED_FOR`. The three ways out -
-model the missing cause, declare a reporting behaviour, or change the causes -
-are open and the user's to direct. T019 applied the consequence the decision
-names: an unreached reading is a reason to block. **The shipped Fuel Loss
-Event therefore cannot reach `READY` in this build**, by construction - two of
-its five blocking reasons are the residual, and three are forcing states the
-first kernel does not model. `READY` is proved against fixtures.
+150 L. The three ways out - model the missing cause, declare a reporting
+behaviour, or change the causes - are open and the user's to direct. T019
+applied the consequence the decision names: an unreached reading blocks. **The
+shipped Fuel Loss Event therefore cannot reach `READY` in this build**, by
+construction - two of its five blocking reasons are the residual and three are
+forcing states the first kernel does not model. `READY` is proved on fixtures.
 
 Two of T018's four Low findings are closed by T019 and marked settled in
 place: intra-instant ordering is now a `DISPATCH_RULES` entry, because a
-persisted Draft's blocking reasons made the authored order observable from
-outside the contract, and `EXECUTION_CONTRACT_VERSION` moved to 2, which also
-made the weak contract-version test strong. Two remain: the unmeasured second
+persisted Draft's blocking reason made the question observable from outside
+the contract, and `EXECUTION_CONTRACT_VERSION` moved to 2, which also made the
+weak contract-version test strong. Two remain: the unmeasured second
 initialization layer and two forward constraints that live only in code
 comments.
+
+**The T019 checkpoint reversed that ordering rule before independent review.**
+Authored `sequence` order is not physics, serialising simultaneous causes
+abstains on a level the state is never in, and declaring it would have obliged
+T021's kernel to serialise sub-steps inside one instant - removing the
+metamorphic invariant `D-2026-09-21-causal-runtime-before-golden-traces` asks
+for. Simultaneous causes are now a group with a net effect whose
+order-dependence is decided exactly, and the contract abstains only when one
+extreme reaches a bound and the other does not. **The amendment to
+`D-2026-09-21-scenario-execution-contract` is Architect's and is pending** -
+that decision's text does not yet say this. Whether `NOT_RECONCILABLE` should
+become a second blocking kind on a run was raised there and left open.
 
 ### The lesson T017 paid for
 

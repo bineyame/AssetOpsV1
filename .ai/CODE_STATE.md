@@ -1662,9 +1662,11 @@ fixed before merge and are the first cleanup available to a later slice:
   abstains. Two causes at one instant, authored either way round, give
   `NOT_RECONCILABLE` or `declared 454.0`. Never a wrong number, and the
   shipped document has no simultaneous transitions on one state. T019 made it
-  observable from outside the contract, because both answers became blocking
-  reasons on a persisted Draft, so it is now the `intra-instant-order`
-  dispatch rule with two tests showing both outcomes.
+  observable from outside the contract, because the answer became a blocking
+  reason persisted on a Draft, so it is now the `intra-instant-order` dispatch
+  rule. The rule does NOT say authored order decides: the T019 checkpoint
+  reversed that, and simultaneous causes are a group with a net effect whose
+  order-dependence is decided exactly. The T019 entry has the reasoning.
 - **The second initialization layer is real but unmeasured.** The role guard
   in `initialization_inputs` holds if the parser refusal is ever loosened -
   verified by constructing the record directly - but the branch is unreachable
@@ -1774,18 +1776,72 @@ in the resolver, and the run identity assembled in the service. The third
 found a hole in the guard: its vacuity check counted `def allocate_run_id(` as
 a call, so "nothing allocates" would have passed on a tree where nothing did.
 
-What T019 settled from T018's open list, and what it left.
+What T019 settled from T018's open list, and what the checkpoint reversed.
 
-`intra-instant-order` is now a `DISPATCH_RULES` entry, because T019 made the
-ordering observable from outside the contract: an unreached reading and an
-unanswerable one are two different blocking reasons on a **persisted** Draft,
-so the authored order decides what a stored run says about itself.
-`EXECUTION_CONTRACT_VERSION` moved to 2 because the rule set gained a rule,
-which also closed the weak contract-version test for free - it now compares
-against the constant, and the frontend fixture stays at 1 so the two cannot be
-one literal by accident. The other two round-two findings are untouched and
-unaffected: the unmeasured second initialization layer, and the two forward
-constraints that live only in code comments.
+`intra-instant-order` is now a `DISPATCH_RULES` entry. Freezing run inputs is
+what made the question decidable from outside the contract: whether the
+reconciliation answers or abstains becomes a blocking reason **persisted** on
+a Draft and read back, so the rule decides what a stored run says about
+itself and belongs in the contract rather than in the stability of a sort.
+
+**The first rule this slice declared was wrong and the T019 checkpoint
+reversed it.** It said two transitions completing at one offset apply in
+authored `sequence` order. Three things were wrong with that, and they are
+the reason the replacement looks as it does:
+
+- serialising two causes the author declared to happen together produces a
+  level the state is never in, and the contract then abstained *on a number
+  that does not exist* - the same family as the round-one finding where a
+  contract reported a number the same contract refuses;
+- `sequence` is an authoring and display field, and reading it as physics is
+  the shape of the bound that used to be guessed from a shared prefix;
+- it would have obliged T021's kernel to serialise sub-steps within one
+  instant in document order and evaluate bounds between them, forbidding a
+  net-change-per-step implementation, making bound behaviour depend on
+  document position, and removing the metamorphic invariant
+  `D-2026-09-21-causal-runtime-before-golden-traces` asks for - under that
+  rule, reordering two simultaneous entries changes the trajectory. It also
+  sat badly beside `quantity-across-a-window`, which already declares
+  intra-step path independence for a single entry.
+
+What replaced it: everything completing on one state at one offset is one
+step with a net effect, and a bound is evaluated on that net. Order-dependence
+is decided exactly rather than assumed, by testing the two extremes that
+bracket every ordering - every increase first against the upper bound, every
+decrease first against the lower. If the net itself ends outside a bound every
+ordering does, so that is the bound case it already was. If neither extreme
+reaches one, no ordering does and the net stands. Only when one extreme
+reaches a bound and the other does not is the group genuinely ambiguous, and
+then the contract abstains with `ORDER_DEPENDENT_GROUP`, a fourth
+`NOT_RECONCILABLE` reason saying to separate the offsets. **Order is expressed
+as time, not as position in a document**, and `accounted_by` is sorted within
+each instant so the whole record is order-independent - asserted by comparing
+two documents that differ only in the listing order of one pair.
+
+`EXECUTION_CONTRACT_VERSION` is 2 and **the bump policy is now written beside
+it**: a version moves when the space of behaviours a conforming
+implementation may exhibit changes, including when it narrows, and never for
+wording. That is stricter than "the rule set is what is versioned", which the
+first draft said, and the difference has a cost:
+`D-2026-09-21-causal-runtime-before-golden-traces` makes a provenance
+mismatch REFUSE playback rather than fall back, so a version that moved on a
+prose edit would force regeneration of golden traces that were never invalid.
+Under that test the reversal moves nothing further - version 1 left the
+instant unspecified, both drafts narrow the same space, and nothing ever
+conformed to the first draft.
+
+The version move also closed the weak contract-version test for free: it now
+compares against the constant, and the frontend fixture stays at 1 so the two
+cannot be one literal by accident. The other two round-two findings are
+untouched and unaffected: the unmeasured second initialization layer, and the
+two forward constraints that live only in code comments.
+
+Two things about the ordering change are NOT settled here. The amendment to
+`D-2026-09-21-scenario-execution-contract` is Architect's and is pending, and
+whether `NOT_RECONCILABLE` should be a second blocking kind on a run - today
+every non-`ACCOUNTED_FOR` result emits `OBSERVATION_NOT_ACCOUNTED_FOR`, with
+the difference surviving only in the statement and in `declared_value` being
+absent - was raised at the checkpoint and deliberately left open.
 
 What T019 deliberately does not do: no execution, no step, no trace, no
 staging, no Commit, no ingestion, no Replay, no analytics, no Findings. No run
