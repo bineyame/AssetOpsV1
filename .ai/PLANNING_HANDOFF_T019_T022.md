@@ -54,18 +54,28 @@ a narrowing of work in flight, not a new slice.
 setup: the observation blocking reasons and their call site in the run-setup
 service, the `OBSERVATION_NOT_ACCOUNTED_FOR` member of the blocking
 vocabulary, and the test assertions that name it. The shipped Fuel Loss Draft
-blocks on three `STATE_NOT_SUPPORTED` reasons rather than five. Separately, the
-reconciliation arithmetic moves out of the product path and into the test suite
-as an explicitly labelled reference implementation with its expiry stated as
-T021; `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly one
-non-test caller today and move with it.
+blocks on three `STATE_NOT_SUPPORTED` reasons rather than five. And
+`reconcile_reported_observations` is relabelled in place as a reference
+implementation for the execution contract, with its expiry stated as T021.
 
 **May not.** Change the `BLOCKED` outcome itself, which the user accepted and
-which is unchanged. Touch the scenario-detail reconciliation panel or the
-`observation_reconciliation` API payload — removing a visible panel from merged
-work is a product change belonging to a slice that says so, and it goes with
-(f) in T022. Widen the shipped model profile. Resolve the residual. Delete the
-arithmetic rather than relocating it.
+which is unchanged. Widen the shipped model profile. Resolve the residual.
+Delete the arithmetic rather than relocating it. Touch the scenario-detail
+reconciliation panel or the `observation_reconciliation` API payload.
+
+**A conflict the Planner has to resolve, and it is the user's call.** (j) says
+the arithmetic leaves the product path. It has two product-path uses, not one.
+T019's blocking reason is the first and it goes now. The second is
+`observation_reconciliation`, built in `simulator_lab_api.py` and rendered as a
+panel at `frontend/src/shell/ScenarioFrame.tsx`, which is T018 work already
+merged to `main`. The function cannot actually leave the product path while
+that caller exists, so T019 can only get the blocking use and the label. When
+the panel goes is Open Question 5 and it is **not decided**. The Architect's
+read is that it goes with (f) in T022, because that is when the authored
+readings disappear and the panel has nothing to reconcile, and that until then
+it is honest. If the user wants it gone sooner it is its own small slice, not
+a widening of T019. Do not let a task file settle this by writing a scope line
+either way.
 
 **Depends on.** Nothing new. The Reviewer re-reads the narrowed diff.
 

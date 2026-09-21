@@ -1645,13 +1645,28 @@ labelled as a reference implementation and carrying a stated expiry. It does
 not belong in the product path.
 
 `reconcile_reported_observations` is the instance. Amendment 1's (e) removes
-the feature it became: the blocking reason now, and the scenario-detail panel
-when (f) lands. It does not remove the arithmetic. The arithmetic moves out of
-the product path rather than out of the repository, where it exercises the
+the feature it became. It does not remove the arithmetic: that moves out of the
+product path rather than out of the repository, where it exercises the
 execution contract against the shipped document until T021 exists. Its expiry
 is T021: when the kernel lands, the two are compared and the kernel is what
 survives. `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly
 one non-test caller today, which is reconciliation, so they move with it.
+
+**The move happens in two steps, and the second is not yet scheduled.** The
+function has two product-path uses, not one. T019's blocking reason is the
+first and it goes now. The second is the `observation_reconciliation` payload
+built in `simulator_lab_api.py` and rendered as a panel on the scenario detail
+screen, which is T018 work already merged to `main`. The function cannot leave
+the product path while that caller exists, so T019 removes the blocking use and
+labels the function as a reference implementation with its expiry stated, and
+the move completes when the panel goes. **When the panel goes is an open
+question and this decision does not settle it.** Removing a visible panel from
+merged work is a product change belonging to a slice that says so, and the
+Architect read's recommendation — that it goes with (f) in T022, because that
+is when the authored readings disappear and the panel has nothing left to
+reconcile — is a recommendation, not part of what was accepted. Until then the
+panel is honest: it describes a real property of a document that does still
+contain two authored readings.
 
 Reason: `EXECUTION_CONTRACT_VERSION` versions a set of rules, and a
 specification with zero implementations is under-tested. The standard remedy is
