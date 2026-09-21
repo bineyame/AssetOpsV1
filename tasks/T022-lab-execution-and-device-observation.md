@@ -13,22 +13,51 @@ Draft SimulationRun And Causal Runtime.
 
 A user opens a compatible `READY` Fuel Loss Draft, starts it, pauses/resumes or
 steps it, and inspects causally computed private fuel/generator state alongside
-the configured fuel-level device's reported observations. The event timeline
-shows scheduled causes and observation conditions at simulation time. Unsupported
-values and gateway staging remain explicitly unavailable.
+the fuel-level device's *generated* observations. The event timeline shows
+scheduled causes and evidence conditions at simulation time. The scenario
+detail screen states, in words, that the document declares causes and does not
+declare what the tank holds or what a device reads. Unsupported values and
+gateway staging remain explicitly unavailable.
 
 ## Why This Is Next
 
 T021 supplies the authoritative causal state producer. This slice connects it
 to the Simulator Lab clock, controls, configured SLD/device bindings, and the
-minimum observation transform needed to demonstrate that truth and what a
-device reports are different objects. Only after this path works can T023 stage
-canonical publications honestly.
+observation transform that makes truth and what a device reports two different
+objects. Only after this path works can T023 stage canonical publications
+honestly.
+
+It is also where the shipped document stops authoring readings. The authored
+155 L at offset 1590 was a hand-simulation of exactly the sample this slice's
+transform generates, and it was wrong by 99 L. Removing it is what makes the
+document consistent with acceptance criteria this slice already carries.
 
 ## Dependencies
 
 - T020 run detail shell over persisted Drafts.
-- T021 accepted minimal Fuel Loss kernel and runtime-facing contract.
+- T021's accepted minimal Fuel Loss kernel, and the trajectory it reported,
+  because the document's corrected numbers come out of that loop.
+- T021A's parser closure, if the user keeps it as a separate slice. If it is
+  folded in, its criteria land here and the contract version moves with them.
+- The reporting-path authority decision, if it moved the reporting-path forcing
+  to the publication profile, because it changes which profile the transform
+  asks.
+
+## Decisions Due Before Implementation
+
+- **When the `observation_reconciliation` panel leaves the scenario detail
+  screen.** This is Open Question 5 and it is not decided. The panel and its
+  API payload are merged T018 work and the second product-path caller of
+  `reconcile_reported_observations`; the function cannot leave the product path
+  while it exists. The Architect's read is that it goes with (f), because that
+  is when the authored readings disappear and the panel has nothing left to
+  reconcile, and that until then it is honest. Removing a visible panel from
+  merged work is a product change and belongs to a slice that says it is making
+  it. This slice does not settle it by scope line: the user decides before
+  implementation starts, and if the answer is yes, the removal and its
+  test-suite consequence are added here as acceptance criteria.
+- Whether the operator's hand reading carries a declared reading error, from
+  T021's document correction.
 
 ## Acceptance Criteria
 
@@ -51,24 +80,37 @@ canonical publications honestly.
   irradiance forcing bind to the Lab using canonical component/signal IDs.
   Unsupported electrical, battery, environmental consequence, and SLD values
   remain labelled unavailable rather than inferred.
-- The minimal observation transform resolves the configured fuel-level device
-  and signal mapping, applies the cadence frozen from the explicit versioned
-  observation profile and the scenario's reporting gap, and emits ordered
-  run-local observations distinct from private truth. Foundation supplies no
-  cadence in the current schema, so none is inferred from configuration text.
-- Reported-observation inputs such as the accepted post-gap level and manual
-  inspection affect only their defined observation/event presentation. They do
-  not initialize or mutate private fuel state. Non-executable evidence
-  conditions remain timeline expectations, not observations, unless T018
-  explicitly classified them otherwise.
-- The accepted hand inspection becomes a run-local manual operational
-  observation with its explicit non-device source identity and occurrence
-  time. It is not copied straight from a scenario timeline row into an envelope;
-  T023 may publish only this persisted observation through its typed source
-  path.
+- The observation transform samples private state rather than copying it. It
+  runs on the cadence the frozen publication profile declares, not on the
+  kernel's timestep; it resolves the configured device and signal mapping from
+  the frozen Foundation; a reporting-path forcing changes what is reported
+  without changing what is true; and its output objects are distinct records
+  from private state, not copies. Truth exists at every step and a reading
+  exists only at a sample. No cadence is inferred from Foundation or from
+  configuration text.
+- The shipped Fuel Loss document no longer authors what a device reads. The
+  authored 155 L at 1590 and 150 L at 1800 are removed. The entry at 1590
+  survives as an evidence condition asserting that a reading arrives there and
+  is materially below what dispatch accounts for, backed by a `DETECTION`
+  expectation and carrying no value. The operator's inspection at 1800 keeps
+  the act and loses the number.
+- The operator's inspection becomes a run-local manual operational observation
+  with its explicit non-device source identity and occurrence time, and its
+  value is generated from private state at that offset through the
+  `operator-hand-record` source, perturbed only by a declared reading error if
+  the document declares one. It is not copied from a scenario timeline row into
+  an envelope; T023 may publish only this persisted observation.
+- Reported-observation inputs and non-executable evidence conditions affect
+  only their defined observation and timeline presentation. They do not
+  initialize or mutate private state, which is what the `REPORTED_OBSERVATION`
+  role exists for and what survives (f) unchanged.
 - The UI presents private truth and reported values with unmistakable labels,
   simulation timestamps, source identity where applicable, and missing-sample
-  states. It does not label either as accepted evidence.
+  states, including the samples the reporting gap suppresses. It does not label
+  either as accepted evidence.
+- The scenario detail screen states in product language that the document
+  declares causes and does not declare what the tank holds or what a device
+  reads. The wording is reviewed as copy, not only as layout.
 - The configured SLD reuses the established view model and fills only supported
   runtime slots. The operator Foundation remains configuration-only and does
   not receive these values.
@@ -87,18 +129,21 @@ canonical publications honestly.
 
 - Runtime private truth, reported observation, staged publication, and accepted
   evidence are four distinct states. T022 implements only the first two.
-- A device observation is generated under configured mapping/cadence and may
-  differ from or omit private truth. It is not evidence until a later envelope
-  crosses ingestion and is accepted.
+- A device observation is generated under configured mapping and cadence and
+  may differ from or omit private truth. It is not evidence until a later
+  envelope crosses ingestion and is accepted.
+- Reporting availability, sensor bias, dropout and gateway outage are one
+  family and they attach to the observation transform, not to the kernel.
 - Reset replays the same deterministic identity; Rerun, which allocates a new
   Draft identity, remains a later capability.
 
 ## Protected Seams
 
+- Truth/observation separation: typed contracts and UI labels prevent a
+  reported input from becoming private state or accepted evidence, and prevent
+  a generated reading from being presented as truth.
 - Shared configured-Site substrate: runtime values attach through Lab-owned
   extension slots; shared/operator Site components import no simulator module.
-- Truth/observation separation: typed contracts and UI labels prevent a
-  reported input from becoming private state or accepted evidence.
 - Deterministic runtime authority: the clock drives T021 transitions; golden
   traces are derived artifacts only.
 - Feature gate and URL chokepoint: all run execution remains Lab-only.
@@ -113,9 +158,16 @@ canonical publications honestly.
   runtime and observation history without re-executing or selecting a trace.
 - Clock tests for timestep advancement, half-open end behavior, and no duplicate
   event application across pause/resume or reset.
-- Observation tests for configured device/signal resolution, cadence, reporting
-  gap, ordered timestamps, explicit manual-observation source, and separation
-  of private truth from reported/manual values.
+- Observation tests for device/signal resolution, cadence taken from the frozen
+  publication profile, suppressed samples across the reporting gap, ordered
+  timestamps, the generated operator-record value and its explicit source, and
+  separation of private truth from reported values.
+- A test proving the generated sample at the offset the document used to author
+  is computed from private state and matches the kernel's trajectory, rather
+  than reproducing any authored number.
+- Document test proving no reported observation carries an authored value and
+  that the evidence condition at 1590 asserts a relationship rather than a
+  quantity.
 - UI tests compare supported runtime slots against runtime records, assert
   unsupported values and gateway staging remain unavailable, and prove the
   operator Foundation still has no runtime values.
@@ -128,6 +180,9 @@ canonical publications honestly.
 
 ## Scope Limits
 
+- No sensor bias in the Fuel Loss Event. The mockups already carry a separate
+  `Sensor Bias` scenario, and keeping Fuel Loss free of bias keeps its one
+  lesson clean: a real loss, hidden by a reporting gap.
 - No arbitrary fast-forward/jump-to, Rerun, Replay, or event injection unless
   separately replanned.
 - No Source Envelope, gateway staging, Commit, ingestion, accepted evidence,
@@ -139,5 +194,13 @@ canonical publications honestly.
 
 User review is required for control behavior, private-truth visibility,
 truth-versus-reported labels, unavailable-value treatment, and the resulting
-Simulator Lab narrative. Do not assume T023 presentation remains correct if the
-user redirects those semantics.
+Simulator Lab narrative.
+
+One review item is not a control. The scenario detail screen now says in words
+that the document declares causes and does not declare what the tank holds or
+what a device reads. That sentence is the product-facing statement of this
+whole sequence and is worth reviewing as copy. If the reconciliation panel is
+removed in this slice, its removal is reviewed here too.
+
+Do not assume T023 presentation remains correct if the user redirects those
+semantics.
