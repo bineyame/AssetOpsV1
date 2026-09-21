@@ -747,8 +747,9 @@ function CreatedDraft({ run }: { run: RunSummary }) {
             exists.
           </li>
           <li>
-            It is a draft. Nothing in this build can make simulated history
-            permanent, so no draft is eligible for that yet.
+            It is a draft and it cannot be committed. Committing is what makes
+            simulated history permanent and releases evidence from it, and no
+            slice in this build can do either.
           </li>
           <li>
             No evidence has been accepted from it, and no operator surface
