@@ -7,6 +7,11 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "pyyaml>=6.0",
+    # The IANA time zone database, for `zoneinfo`. Declared rather than left
+    # to the host: Windows ships no system database, and without this
+    # `available_timezones()` finds nothing - so a membership test would
+    # refuse every real zone on one of the two platforms this is developed on.
+    "tzdata>=2024.1",
 ]
 
 [project.optional-dependencies]
