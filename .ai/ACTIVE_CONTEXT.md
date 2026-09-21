@@ -38,6 +38,18 @@ the causes - are open and the user's to direct in a later slice. **Until one
 is chosen, T019 treats an unreached reading as a reason to block, not a
 rounding matter.** No authored number was edited.
 
+**The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
+Twelve of them, (a) through (l), reasoned in
+`Docs/simulator-scenario-authoring-and-runtime.md` and recorded in five
+`.ai/DECISIONS.md` entries dated 2026-09-21. The consequences that change
+planning: run setup stops adjudicating cause-to-observation coupling, so the
+shipped Draft blocks on three reasons rather than five; a scenario stops
+authoring what a device reads; a new slice **T020A** is inserted between T020
+and T021 for Foundation physical properties and model-rule carriers; and the
+Fuel Loss document is corrected during T021 from what the kernel computes.
+Read `.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task
+file in that range.
+
 Four Low findings from T018's second review round are unfixed and are the
 first cleanup available: undeclared intra-instant ordering in `DISPATCH_RULES`,
 an unmeasured second initialization layer, a weak contract-version test, and
