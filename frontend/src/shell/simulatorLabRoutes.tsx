@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import type { FeatureFlags } from "../config/featureFlags";
 import { CreateSiteFrame } from "./CreateSiteFrame";
+import { RunSetupFrame } from "./RunSetupFrame";
 import { ScenarioFrame } from "./ScenarioFrame";
 import { ScenariosFrame } from "./ScenariosFrame";
 import { SimulatorLabFrame } from "./SimulatorLabFrame";
@@ -18,9 +19,17 @@ import {
   type SiteCreationClient,
 } from "./siteCreationClient";
 import {
+  createRunSetupClient,
+  type RunSetupClient,
+} from "./runSetupClient";
+import {
   createSiteTemplateCatalogClient,
   type SiteTemplateCatalogClient,
 } from "./siteTemplateCatalogClient";
+import {
+  createSiteDirectoryClient,
+  type SiteDetailClient,
+} from "../sites/siteDirectoryClient";
 
 /**
  * The gated Simulator Lab route table and workspace entry-point table.
@@ -70,12 +79,21 @@ export const CREATE_SITE_PATH = `${SIMULATOR_LAB_PATH}/create-site`;
 export const SCENARIOS_PATH = `${SIMULATOR_LAB_PATH}/scenarios`;
 export const SCENARIO_DETAIL_PATH = `${SCENARIOS_PATH}/:scenarioId`;
 
+/** Setting a run up is a Simulator Lab capability, and it hangs off the
+ *  scenario it sets a run up for: a run is bound to one scenario version, so
+ *  the address carries the scenario rather than leaving it to a field. What
+ *  it creates is a product SimulationRun record in the product store; the
+ *  surface that creates it is the developer workspace's. */
+export const RUN_SETUP_PATH = `${SCENARIO_DETAIL_PATH}/run-setup`;
+
 /** The gated template and create APIs, spelled here for the same chokepoint
  *  reason. The operator Sites API is not a simulator path and is not spelled
  *  here: it is never gated. */
 export const SITE_TEMPLATES_API_PATH = "/api/simulator-lab/site-templates";
 export const CREATE_SITE_API_PATH = "/api/simulator-lab/sites";
 export const SCENARIOS_API_PATH = "/api/simulator-lab/scenarios";
+export const RUN_PROFILES_API_PATH = "/api/simulator-lab/run-profiles";
+export const RUNS_API_PATH = "/api/simulator-lab/runs";
 
 /**
  * The workspace utility entry-point label from the v6.9 product document
@@ -120,6 +138,13 @@ const defaultSiteCreation = createSiteCreationClient(CREATE_SITE_API_PATH);
 
 const defaultScenarioCatalog = createScenarioCatalogClient(SCENARIOS_API_PATH);
 
+const defaultRunSetup = createRunSetupClient(RUN_PROFILES_API_PATH, RUNS_API_PATH);
+
+/** The operator Sites API, read by run setup for the foundation version a run
+ *  freezes. It is not a simulator path and is not gated; the client is built
+ *  here only because this module composes the frames. */
+const defaultSiteDetail = createSiteDirectoryClient();
+
 export function siteTemplateHref(templateId: string): string {
   return `${SITE_TEMPLATES_PATH}/${encodeURIComponent(templateId)}`;
 }
@@ -135,6 +160,11 @@ export function siteTemplateHref(templateId: string): string {
  */
 export function scenarioHref(scenarioId: string): string {
   return `${SCENARIOS_PATH}/${encodeURIComponent(scenarioId)}`;
+}
+
+/** The address at which a run is set up for one saved scenario. */
+export function runSetupHref(scenarioId: string): string {
+  return `${scenarioHref(scenarioId)}/run-setup`;
 }
 
 /**
@@ -177,6 +207,8 @@ export function simulatorLabRoutes(
   creation: SiteCreationClient = defaultSiteCreation,
   sitesPath: string = "/sites",
   scenarios: ScenarioCatalogClient = defaultScenarioCatalog,
+  runSetup: RunSetupClient = defaultRunSetup,
+  siteDetail: SiteDetailClient = defaultSiteDetail,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -256,6 +288,20 @@ export function simulatorLabRoutes(
           scenariosPath={SCENARIOS_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
           siteHref={siteDetailHref}
+          runSetupHref={runSetupHref}
+        />,
+      ),
+    },
+    {
+      path: RUN_SETUP_PATH,
+      element: inLabShell(
+        <RunSetupFrame
+          catalog={scenarios}
+          siteDetail={siteDetail}
+          runSetup={runSetup}
+          scenariosPath={SCENARIOS_PATH}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
+          scenarioHref={scenarioHref}
         />,
       ),
     },

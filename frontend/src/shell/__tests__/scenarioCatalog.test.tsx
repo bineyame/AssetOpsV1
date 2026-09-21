@@ -610,17 +610,32 @@ describe("the scenario detail screen states no product outcome", () => {
     expect(spacedText(screen.getByRole("main"))).not.toMatch(BANNED);
   });
 
-  it("renders no enabled control except the resolved target site link", async () => {
+  it("renders no enabled control except the two links that lead somewhere", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();
 
     const main = screen.getByRole("main");
 
-    for (const button of within(main).getAllByRole("button", {
+    for (const button of within(main).queryAllByRole("button", {
       hidden: true,
     })) {
       expect(button).toBeDisabled();
     }
+
+    // Stated as an exact set rather than as "no button is enabled", which
+    // this screen now satisfies by having no button at all when the target
+    // resolves. An empty set passes the loop above and would pass it on a
+    // screen that had grown a third destination.
+    expect(
+      within(main)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual([
+      "Open target site",
+      "Create Draft Run",
+      "Back to Scenarios",
+      "Back to the Simulator Lab",
+    ]);
     expect(
       within(main).queryByRole("button", { name: /commit|ingest|replay|run now/i }),
     ).toBeNull();
@@ -722,8 +737,28 @@ describe("the scenario detail screen states no product outcome", () => {
 });
 
 describe("the scenario detail screen's next-step controls", () => {
-  it("renders Create Draft Run disabled, with the missing prerequisite named", async () => {
+  it("opens run setup when the declared target resolves", async () => {
+    // T019 built the surface this control waited for, so the control leads to
+    // it. A disabled control here would now be claiming run setup does not
+    // exist, which is the kind of sentence a screen may not assert once the
+    // code says otherwise.
     renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    expect(
+      screen.getByRole("link", { name: "Create Draft Run" }),
+    ).toHaveAttribute(
+      "href",
+      "/simulator-lab/scenarios/fuel-loss-event/run-setup",
+    );
+  });
+
+  it("keeps Create Draft Run disabled when there is no site to bind to", async () => {
+    renderAt(
+      SCENARIO_URL,
+      ENABLED,
+      catalogOf(loadedDetail(UNCONFIGURED_TARGET)),
+    );
     await settledScreen();
 
     const control = screen.getByRole("button", { name: "Create Draft Run" });
@@ -733,8 +768,8 @@ describe("the scenario detail screen's next-step controls", () => {
     const reasonId = control.getAttribute("aria-describedby");
     expect(reasonId).not.toBeNull();
     const reason = document.getElementById(reasonId as string);
-    expect(reason?.textContent).toMatch(/run setup does not exist yet/i);
-    expect(reason?.textContent).toMatch(/draft simulation run/i);
+    expect(reason?.textContent).toContain(UNCONFIGURED_TARGET.reason);
+    expect(reason?.textContent).toMatch(/bound to a concrete site/i);
   });
 
   it("opens the target site when the declared target resolves", async () => {
