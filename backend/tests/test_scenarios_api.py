@@ -29,6 +29,7 @@ from scenario_fixtures import scenario_document
 
 from assetops_backend.config import FeatureFlags
 from assetops_backend.main import create_app
+from assetops_backend.scenarios.execution import EXECUTION_CONTRACT_VERSION
 from assetops_backend.scenarios.models import ScenarioDefinition
 from assetops_backend.scenarios.parsing import parse_scenario_document
 from assetops_backend.scenarios.ports import (
@@ -712,12 +713,17 @@ class TestTheExecutionContractOnThePayload:
     def test_the_contract_carries_the_shared_semantics(self) -> None:
         contract = self.detail()["scenario"]["execution_contract"]
 
-        assert contract["contract_version"] >= 1
+        # Equality with the constant, not `>= 1`. Both the payload and the
+        # constant were 1 until T019, so a hard-coded 1 in either would have
+        # passed the old assertion - the weak-test finding T018's second
+        # review round left open, closed here because the version moved.
+        assert contract["contract_version"] == EXECUTION_CONTRACT_VERSION
         assert contract["canonical_units"]
         assert {rule["rule_id"] for rule in contract["dispatch_rules"]} >= {
             "half-open-interval",
             "point-applied-once",
             "window-active-span",
+            "intra-instant-order",
         }
         assert {case["case_id"] for case in contract["bound_cases"]} == {
             "fuel-tank-capacity",

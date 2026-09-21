@@ -513,10 +513,123 @@ class TestTimingAndDispatch:
         assert "point-applied-once" in by_id
         assert "window-active-span" in by_id
         assert "half-open-interval" in by_id
+        assert "intra-instant-order" in by_id
 
         for rule in DISPATCH_RULES:
             assert rule.statement.strip()
             assert rule.display_name.strip()
+
+
+def _with_simultaneous_transitions(first: str, second: str) -> dict:
+    """The fixture, with a delivery and a draw completing at one instant.
+
+    Both are points at the same offset, before the reading at 120 minutes, so
+    which one is applied first is decided by nothing except the authored order
+    - which is exactly what the `intra-instant-order` dispatch rule declares.
+
+    The two are built identically apart from direction and magnitude, and the
+    caller chooses the order, so the pair of tests below differ in one thing.
+    """
+    document = scenario_document()
+
+    def transition(event_id: str, direction: str, value: float) -> dict:
+        return {
+            "event_id": event_id,
+            "sequence": 0,
+            "offset_minutes": 110,
+            "entry_kind": "EVENT",
+            "category": "MAINTENANCE",
+            "description": "A quantity moves at the same instant as another.",
+            "execution_role": "CAUSAL_INPUT",
+            "state_key": "example-stored-volume",
+            "execution_requirement": "REQUIRED",
+            "timing": {"shape": "POINT"},
+            "state_effect": {
+                "direction": direction,
+                "quantity_parameter_id": f"{event_id}-volume",
+            },
+            "parameters": [
+                {
+                    "parameter_id": f"{event_id}-volume",
+                    "display_name": "A volume this entry moves",
+                    "value": value,
+                    "unit": "L",
+                    "execution_role": "CAUSAL_INPUT",
+                    "state_key": "example-stored-volume",
+                    "execution_requirement": "REQUIRED",
+                    "ownership": {
+                        "owner": "SCENARIO_INPUT",
+                        "initializes": False,
+                    },
+                }
+            ],
+        }
+
+    entries = {
+        "delivery": transition("simultaneous-delivery", "INCREASE", 300),
+        "draw": transition("simultaneous-draw", "DECREASE", 250),
+    }
+
+    document["timeline"][2:2] = [entries[first], entries[second]]
+    for position, entry in enumerate(document["timeline"], start=1):
+        entry["sequence"] = position
+
+    return document
+
+
+def _reading_after_the_pair(document: dict):
+    results = {
+        result.event_id: result
+        for result in reconcile_reported_observations(
+            parse_scenario_document(document, source="a test", origin="SHIPPED")
+        )
+    }
+    return results["second-entry"]
+
+
+class TestIntraInstantOrder:
+    """The order two things at one instant are applied in, declared and shown.
+
+    T018's review left this as a Low finding: the order is deterministic - the
+    authored `sequence`, which the parser holds equal to document order - and
+    `DISPATCH_RULES` did not say so. T019 made it observable from outside the
+    contract, because an unreached reading is now a reason a Draft run is
+    `BLOCKED` and an unanswerable one is a different reason. A rule that
+    decides what a persisted run says about itself is a rule that belongs in
+    the contract rather than in the stability of a sort.
+
+    The two tests below are the same document with the two entries swapped,
+    and they are here to show the order is load-bearing rather than to bless
+    either answer. Neither is a wrong number: one is an answer and the other
+    is the contract declining to give one.
+    """
+
+    def test_the_rule_says_the_authored_order_decides(self) -> None:
+        rule = {item.rule_id: item for item in DISPATCH_RULES}[
+            "intra-instant-order"
+        ]
+
+        assert "authored order" in rule.statement
+        assert "bound" in rule.statement
+
+    def test_a_delivery_before_a_draw_stays_inside_the_bound(self) -> None:
+        reading = _reading_after_the_pair(
+            _with_simultaneous_transitions("delivery", "draw")
+        )
+
+        # 200 L, plus 300 delivered, less 250 drawn, less the 6 the window
+        # draws by the time the reading is taken.
+        assert reading.declared_value == 244.0
+        assert reading.state == "NOT_ACCOUNTED_FOR"
+
+    def test_the_same_two_in_the_other_order_reach_the_bound(self) -> None:
+        reading = _reading_after_the_pair(
+            _with_simultaneous_transitions("draw", "delivery")
+        )
+
+        assert reading.declared_value is None
+        assert reading.state == "NOT_RECONCILABLE"
+        assert reading.reason == BOUND_REACHED_LOWER
 
 
 class TestBoundCases:

@@ -53,7 +53,12 @@ from assetops_backend.scenarios.models import (
 #: can say which version of these semantics it was built against. It is not the
 #: scenario version and not the simulator version: it is the version of the
 #: rules below.
-EXECUTION_CONTRACT_VERSION = 1
+#:
+#: Two since T019, which declared the intra-instant ordering rule. The rule
+#: describes behaviour this module already had rather than changing it, and
+#: the version still moves: the rule set is what is versioned, and a consumer
+#: that froze version one froze a set in which that rule was unstated.
+EXECUTION_CONTRACT_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -241,6 +246,19 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "An interval-wide entry starts at offset zero and holds until the "
             "run interval ends. It declares no length, because the length is "
             "the run's and choosing that is run setup."
+        ),
+    ),
+    DispatchRule(
+        rule_id="intra-instant-order",
+        display_name="Two things at one instant",
+        statement=(
+            "Two entries that take effect at the same instant are applied in "
+            "the authored order the scenario declares, which is stable and "
+            "visible in the document. The order is load-bearing wherever a "
+            "bound is: a delivery and a draw that complete together reach a "
+            "bound in one order and not in the other, and the consequence "
+            "differs accordingly. A scenario that does not want its authored "
+            "order to decide places the two at different offsets."
         ),
     ),
     DispatchRule(
@@ -752,6 +770,16 @@ def reconcile_reported_observations(
         # reached at a moment: a delivery that overfills and a draw that
         # empties both land inside the sequence, and a total that happens to
         # come back inside the bounds would hide them.
+        #
+        # Two transitions completing at the same offset are walked in the
+        # authored order, because this sort is stable and
+        # `state_transition_inputs` returns them in document order, which the
+        # parser holds equal to ascending `sequence`. That is the
+        # `intra-instant-order` dispatch rule, and it is declared there rather
+        # than left as a property of this sort: with the bound walk the order
+        # decides whether the contract answers or abstains, and T019 made that
+        # visible from the run side by turning the answer into a Draft's
+        # blocking reason.
         declared = _exact(initial.canonical_value)
         reached: str | None = None
         for transition in applied:
