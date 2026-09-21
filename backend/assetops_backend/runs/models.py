@@ -185,16 +185,17 @@ class FrozenInterval:
     instant belongs to exactly one step, which is what makes "applied exactly
     once" a property of the time model rather than of whoever reads it.
 
-    `timezone` is the target Site's, validated as real IANA membership before
-    it is frozen. The instants themselves are UTC, because a run interval is a
-    pair of instants and an instant does not need a zone to be one.
+    The instants are UTC, because an interval is a pair of instants and an
+    instant does not need a zone to be one. The zone this run is placed in
+    local time by is the target Site's and lives on `FrozenSiteBinding`, where
+    the Site answers for it; a second copy here would be a second answer to
+    what time zone the run is in.
     """
 
     start_time: str
     end_time: str
     duration_minutes: int
     timestep_minutes: int
-    timezone: str
 
 
 @dataclass(frozen=True)
