@@ -37,6 +37,7 @@ from assetops_backend.scenarios.execution import (
     NOT_ACCOUNTED_FOR_REASON,
     NO_DECLARED_INITIAL_VALUE,
     OPEN_CAUSAL_WINDOW,
+    ORDER_DEPENDENT_GROUP,
     CANONICAL_UNITS,
     DISPATCH_RULES,
     DURATION_UNIT_SPELLINGS,
@@ -520,15 +521,24 @@ class TestTimingAndDispatch:
             assert rule.display_name.strip()
 
 
-def _with_simultaneous_transitions(first: str, second: str) -> dict:
-    """The fixture, with a delivery and a draw completing at one instant.
+def _with_simultaneous_transitions(
+    first: tuple[str, str, float],
+    second: tuple[str, str, float],
+    *,
+    capacity: float | None = None,
+) -> dict:
+    """The fixture, with two causes completing on one state at one instant.
 
-    Both are points at the same offset, before the reading at 120 minutes, so
-    which one is applied first is decided by nothing except the authored order
-    - which is exactly what the `intra-instant-order` dispatch rule declares.
+    Both are points at the same offset, before the reading at a hundred and
+    twenty minutes, so the scenario declares them as simultaneous and nothing
+    in the document says which happens first. The caller supplies the pair and
+    the order they are listed in, which is what lets the tests below show that
+    the listing order changes nothing.
 
-    The two are built identically apart from direction and magnitude, and the
-    caller chooses the order, so the pair of tests below differ in one thing.
+    `capacity` adds a declared upper bound on the stored volume, the way the
+    shipped document declares one: a second world value whose `bounds` says
+    which state it limits. Nothing infers it from the two state keys looking
+    related.
     """
     document = scenario_document()
 
@@ -565,16 +575,33 @@ def _with_simultaneous_transitions(first: str, second: str) -> dict:
             ],
         }
 
-    entries = {
-        "delivery": transition("simultaneous-delivery", "INCREASE", 300),
-        "draw": transition("simultaneous-draw", "DECREASE", 250),
-    }
+    if capacity is not None:
+        document["public_parameters"].append(
+            {
+                "parameter_id": "example-capacity",
+                "display_name": "How much the store holds",
+                "value": capacity,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": "example-stored-capacity",
+                "execution_requirement": "REQUIRED",
+                "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
+                "bounds": {
+                    "state_key": "example-stored-volume",
+                    "bound_kind": "UPPER",
+                },
+            }
+        )
 
-    document["timeline"][2:2] = [entries[first], entries[second]]
+    document["timeline"][2:2] = [transition(*first), transition(*second)]
     for position, entry in enumerate(document["timeline"], start=1):
         entry["sequence"] = position
 
     return document
+
+
+DELIVERY = ("simultaneous-delivery", "INCREASE")
+DRAW = ("simultaneous-draw", "DECREASE")
 
 
 def _reading_after_the_pair(document: dict):
@@ -588,48 +615,181 @@ def _reading_after_the_pair(document: dict):
 
 
 class TestIntraInstantOrder:
-    """The order two things at one instant are applied in, declared and shown.
+    """Two causes at one instant are a group with a net, not a sequence.
 
-    T018's review left this as a Low finding: the order is deterministic - the
-    authored `sequence`, which the parser holds equal to document order - and
-    `DISPATCH_RULES` did not say so. T019 made it observable from outside the
-    contract, because an unreached reading is now a reason a Draft run is
-    `BLOCKED` and an unanswerable one is a different reason. A rule that
-    decides what a persisted run says about itself is a rule that belongs in
-    the contract rather than in the stability of a sort.
+    T018's review left the ordering as a Low finding: the walk was
+    deterministic, in authored `sequence` order, and `DISPATCH_RULES` did not
+    say so. T019 first declared that authored order, and the T019 checkpoint
+    reversed it, for three reasons worth keeping.
 
-    The two tests below are the same document with the two entries swapped,
-    and they are here to show the order is load-bearing rather than to bless
-    either answer. Neither is a wrong number: one is an answer and the other
-    is the contract declining to give one.
+    Serialising two things the author declared to happen together produces a
+    level the state is never in, and the contract then abstained on a number
+    that does not exist - the same family as the round-one finding where a
+    contract reported a number the same contract refuses. `sequence` is an
+    authoring and display field, and reading it as physics is the shape of the
+    bound that used to be guessed from a shared prefix. And it would have
+    obliged the first kernel to serialise sub-steps inside one instant in
+    document order, which forbids a net-change-per-step implementation and
+    removes the metamorphic invariant
+    `D-2026-09-21-causal-runtime-before-golden-traces` asks for: reordering
+    equivalent entries must change nothing.
+
+    So the group has a net, bounds are evaluated on it, and order-dependence
+    is decided exactly rather than assumed. The tests below measure both
+    halves of that: a group whose net is unambiguous is answered, and only a
+    group where one extreme reaches a bound and the other does not is
+    abstained on.
     """
 
-    def test_the_rule_says_the_authored_order_decides(self) -> None:
+    def test_the_rule_says_the_net_decides_and_order_is_time(self) -> None:
         rule = {item.rule_id: item for item in DISPATCH_RULES}[
             "intra-instant-order"
         ]
 
-        assert "authored order" in rule.statement
-        assert "bound" in rule.statement
+        assert "net effect" in rule.statement
+        assert "authoring" in rule.statement
+        assert "separating the offsets" in rule.statement
+        # The reversed claim must be gone rather than softened.
+        assert "authored order" not in rule.statement
 
-    def test_a_delivery_before_a_draw_stays_inside_the_bound(self) -> None:
+    def test_a_group_whose_net_is_unambiguous_is_answered(self) -> None:
+        """The half that would be missing if only the refusing case were
+        measured. Neither extreme reaches a bound, so no ordering does."""
         reading = _reading_after_the_pair(
-            _with_simultaneous_transitions("delivery", "draw")
+            _with_simultaneous_transitions(
+                (*DELIVERY, 100), (*DRAW, 50), capacity=500
+            )
         )
 
-        # 200 L, plus 300 delivered, less 250 drawn, less the 6 the window
-        # draws by the time the reading is taken.
+        # Two hundred, plus a net fifty at the instant, less the six the
+        # window draws by the time the reading is taken.
         assert reading.declared_value == 244.0
         assert reading.state == "NOT_ACCOUNTED_FOR"
 
-    def test_the_same_two_in_the_other_order_reach_the_bound(self) -> None:
+    def test_the_listing_order_of_a_group_changes_nothing_at_all(self) -> None:
+        """The invariant the reversal restores, measured over the whole
+        record rather than over the declared value alone: `accounted_by` is
+        part of what a reader sees, so it has to be order-independent too."""
+        one_way = _reading_after_the_pair(
+            _with_simultaneous_transitions(
+                (*DELIVERY, 100), (*DRAW, 50), capacity=500
+            )
+        )
+        the_other = _reading_after_the_pair(
+            _with_simultaneous_transitions(
+                (*DRAW, 50), (*DELIVERY, 100), capacity=500
+            )
+        )
+
+        assert one_way == the_other
+        assert "simultaneous-delivery" in one_way.accounted_by
+        assert "simultaneous-draw" in one_way.accounted_by
+
+    def test_a_group_one_ordering_could_overfill_is_abstained_on(self) -> None:
+        """Every increase first reaches five hundred and fifty against a
+        declared five hundred; every decrease first reaches one hundred and
+        then four hundred and fifty, and does not. The group is genuinely
+        ambiguous, so the contract declines rather than picking."""
         reading = _reading_after_the_pair(
-            _with_simultaneous_transitions("draw", "delivery")
+            _with_simultaneous_transitions(
+                (*DELIVERY, 350), (*DRAW, 100), capacity=500
+            )
         )
 
         assert reading.declared_value is None
         assert reading.state == "NOT_RECONCILABLE"
-        assert reading.reason == BOUND_REACHED_LOWER
+        assert reading.reason == ORDER_DEPENDENT_GROUP
+
+    def test_a_group_one_ordering_could_empty_is_abstained_on(self) -> None:
+        """The lower bound is the floor every stored quantity has, so this
+        case needs no declared capacity. Every decrease first reaches minus
+        fifty; every increase first does not."""
+        reading = _reading_after_the_pair(
+            _with_simultaneous_transitions((*DRAW, 250), (*DELIVERY, 300))
+        )
+
+        assert reading.declared_value is None
+        assert reading.state == "NOT_RECONCILABLE"
+        assert reading.reason == ORDER_DEPENDENT_GROUP
+
+    def test_a_group_whose_net_breaches_is_the_ordinary_bound_case(
+        self,
+    ) -> None:
+        """Not everything about a group is an ambiguity. When the net itself
+        ends outside a bound, every ordering ends outside it, so this is the
+        bound case the same contract already had and it keeps its own
+        reason."""
+        reading = _reading_after_the_pair(
+            _with_simultaneous_transitions(
+                (*DELIVERY, 400), (*DRAW, 50), capacity=500
+            )
+        )
+
+        assert reading.state == "NOT_RECONCILABLE"
+        assert reading.reason == BOUND_REACHED_UPPER
+
+    def test_a_lone_transition_that_breaches_is_still_the_bound_case(
+        self,
+    ) -> None:
+        """A group of one has no ordering to be ambiguous about, so the
+        reversal changed nothing for the case T018's review found."""
+        document = scenario_document()
+        document["timeline"][2:2] = [
+            {
+                "event_id": "one-large-delivery",
+                "sequence": 0,
+                "offset_minutes": 110,
+                "entry_kind": "EVENT",
+                "category": "MAINTENANCE",
+                "description": "A delivery larger than the store holds.",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": "example-stored-volume",
+                "execution_requirement": "REQUIRED",
+                "timing": {"shape": "POINT"},
+                "state_effect": {
+                    "direction": "INCREASE",
+                    "quantity_parameter_id": "one-large-delivery-volume",
+                },
+                "parameters": [
+                    {
+                        "parameter_id": "one-large-delivery-volume",
+                        "display_name": "A volume this entry moves",
+                        "value": 400,
+                        "unit": "L",
+                        "execution_role": "CAUSAL_INPUT",
+                        "state_key": "example-stored-volume",
+                        "execution_requirement": "REQUIRED",
+                        "ownership": {
+                            "owner": "SCENARIO_INPUT",
+                            "initializes": False,
+                        },
+                    }
+                ],
+            }
+        ]
+        document["public_parameters"].append(
+            {
+                "parameter_id": "example-capacity",
+                "display_name": "How much the store holds",
+                "value": 500,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": "example-stored-capacity",
+                "execution_requirement": "REQUIRED",
+                "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
+                "bounds": {
+                    "state_key": "example-stored-volume",
+                    "bound_kind": "UPPER",
+                },
+            }
+        )
+        for position, entry in enumerate(document["timeline"], start=1):
+            entry["sequence"] = position
+
+        reading = _reading_after_the_pair(document)
+
+        assert reading.state == "NOT_RECONCILABLE"
+        assert reading.reason == BOUND_REACHED_UPPER
 
 
 class TestBoundCases:
