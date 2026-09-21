@@ -1,0 +1,203 @@
+"""The run store: a Draft survives a restart, or it was never written.
+
+These tests reach the adapter directly, which is what a test is allowed to do
+and a product module is not. Everything above the composition module receives
+the port.
+
+Two properties carry the weight. A persisted Draft comes back byte-for-byte
+equal as a record - not similar, equal - because a frozen identity that does
+not survive its own round trip is not frozen. And a create that fails leaves
+the store exactly as it was: no partial document, no stray file, nothing a
+later read would pick up.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+from run_fixtures import (
+    FakeRuns,
+    FakeScenarios,
+    FakeSites,
+    model_profile,
+    publication_profile,
+    scenario,
+    setup_request,
+    site,
+)
+
+from assetops_backend.runs.adapters.yaml_run_documents import DOCUMENT_SUFFIX
+from assetops_backend.runs.adapters.yaml_run_store import (
+    RUN_STORE_ROOT,
+    YamlRunStore,
+)
+from assetops_backend.runs.models import SimulationRun
+from assetops_backend.runs.ports import (
+    RunConfigurationInvalid,
+    RunIdentityConflict,
+    RunNotFound,
+)
+from assetops_backend.runs.service import RunSetupService
+
+
+def a_run(**overrides) -> SimulationRun:
+    """One frozen Draft, produced by the real service.
+
+    Built rather than hand-written, so the document these tests round-trip is
+    the document the product actually writes.
+    """
+    setup = RunSetupService(
+        FakeRuns(),
+        FakeSites((site(),)),
+        FakeScenarios((scenario(),)),
+        model_profiles=(model_profile(),),
+        publication_profiles=(publication_profile(),),
+        now=lambda: "2026-09-21T09:00:00Z",
+    )
+    return setup.create_draft_run(setup_request(**overrides))
+
+
+class TestPersistence:
+    def test_a_draft_survives_a_restart(self, tmp_path: Path) -> None:
+        """A second store over the same root is what a restart looks like."""
+        record = a_run()
+        YamlRunStore(tmp_path).create_run(record)
+
+        after_restart = YamlRunStore(tmp_path)
+
+        assert after_restart.get_run(record.run_id) == record
+        assert after_restart.list_runs() == (record,)
+
+    def test_the_whole_frozen_identity_round_trips(self, tmp_path: Path) -> None:
+        record = a_run()
+        YamlRunStore(tmp_path).create_run(record)
+
+        stored = YamlRunStore(tmp_path).get_run(record.run_id)
+
+        assert stored.deterministic_identity == record.deterministic_identity
+        assert stored.blocking_reasons == record.blocking_reasons
+        assert stored.created_at == record.created_at
+        assert stored.execution_status == record.execution_status
+
+    def test_a_blocked_draft_round_trips_with_its_reasons(
+        self, tmp_path: Path
+    ) -> None:
+        setup = RunSetupService(
+            FakeRuns(),
+            FakeSites((site(),)),
+            FakeScenarios((scenario(),)),
+            model_profiles=(model_profile(),),
+            publication_profiles=(publication_profile(gateway_id=None),),
+            now=lambda: "2026-09-21T09:00:00Z",
+        )
+        record = setup.create_draft_run(setup_request())
+        assert record.execution_status == "BLOCKED"
+
+        YamlRunStore(tmp_path).create_run(record)
+
+        assert YamlRunStore(tmp_path).get_run(record.run_id) == record
+
+    def test_overlapping_drafts_are_allowed(self, tmp_path: Path) -> None:
+        """Two Drafts over the same site, scenario and interval. Deliberately
+        permitted: experimentation is what a Draft is for, and Commit is where
+        overlap is decided."""
+        store = YamlRunStore(tmp_path)
+        first = a_run()
+        second = a_run()
+
+        store.create_run(first)
+        store.create_run(second)
+
+        assert first.run_id != second.run_id
+        assert {record.run_id for record in store.list_runs()} == {
+            first.run_id,
+            second.run_id,
+        }
+
+    def test_an_empty_store_is_empty_rather_than_unreadable(
+        self, tmp_path: Path
+    ) -> None:
+        store = YamlRunStore(tmp_path / "not-created-yet")
+
+        assert store.list_runs() == ()
+
+    def test_an_unknown_run_is_not_found(self, tmp_path: Path) -> None:
+        with pytest.raises(RunNotFound):
+            YamlRunStore(tmp_path).get_run("run-" + "0" * 32)
+
+
+class TestTheWriteIsAllOrNothing:
+    def test_the_same_identity_is_never_written_twice(
+        self, tmp_path: Path
+    ) -> None:
+        store = YamlRunStore(tmp_path)
+        record = a_run()
+        store.create_run(record)
+
+        with pytest.raises(RunIdentityConflict):
+            store.create_run(record)
+
+        assert len(store.list_runs()) == 1
+
+    def test_no_staging_file_is_left_behind(self, tmp_path: Path) -> None:
+        store = YamlRunStore(tmp_path)
+        store.create_run(a_run())
+
+        left = [path.name for path in tmp_path.iterdir()]
+
+        assert len(left) == 1
+        assert left[0].endswith(DOCUMENT_SUFFIX)
+
+    def test_a_hand_edited_document_is_refused_rather_than_read(
+        self, tmp_path: Path
+    ) -> None:
+        """The store's own parser is strict about the product's own output.
+
+        A status somebody typed is exactly the thing that must not come back
+        as a run: this edit makes a run with blocking reasons claim to be
+        READY, which the record's invariant refuses.
+        """
+        store = YamlRunStore(tmp_path)
+        setup = RunSetupService(
+            FakeRuns(),
+            FakeSites((site(),)),
+            FakeScenarios((scenario(),)),
+            model_profiles=(model_profile(),),
+            publication_profiles=(publication_profile(gateway_id=None),),
+            now=lambda: "2026-09-21T09:00:00Z",
+        )
+        store.create_run(setup.create_draft_run(setup_request()))
+
+        document = next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
+        document.write_text(
+            document.read_text(encoding="utf-8").replace(
+                "execution_status: BLOCKED", "execution_status: READY"
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+    def test_an_unreadable_document_is_refused_rather_than_skipped(
+        self, tmp_path: Path
+    ) -> None:
+        store = YamlRunStore(tmp_path)
+        store.create_run(a_run())
+
+        document = next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
+        document.write_text("this: is: not: a run", encoding="utf-8")
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+
+class TestTheStoreRoot:
+    def test_the_root_is_outside_every_shipped_configuration_root(self) -> None:
+        """A run is a record this installation produced, so it is no more
+        shippable than a user's site."""
+        parts = RUN_STORE_ROOT.parts
+
+        assert parts[-2:] == ("var", "runs")
+        assert "config" not in parts
