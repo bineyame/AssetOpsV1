@@ -133,8 +133,11 @@ function Invoke-RunSetupCheck {
                 }
             }
 
-            if ($line -match '\ballocate_run_id\s*\(') {
-                if ($module.Path -eq $allocator -or $module.Path -eq $identityModule) {
+            # The definition is not a call. Counting it would let the
+            # vacuity check below pass on a tree where nothing allocates at
+            # all, which is the shape of hole this project keeps finding.
+            if ($line -match '\ballocate_run_id\s*\(' -and $line -notmatch '^\s*def\s') {
+                if ($module.Path -eq $allocator) {
                     $allocationSightings++
                 }
                 else {
