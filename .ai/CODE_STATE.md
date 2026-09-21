@@ -1655,26 +1655,142 @@ after a round that narrowed the unit vocabulary. Four findings, all Low, all
 preferences or test-strength points, none an acceptance gap. They were not
 fixed before merge and are the first cleanup available to a later slice:
 
-- **Intra-instant ordering is load-bearing and undeclared.** Transitions
-  completing at the same offset are walked in authored `sequence` order, which
-  is deterministic, but `DISPATCH_RULES` does not say so - and with the bound
-  walk that order decides whether the contract answers or abstains. Two causes
-  at one instant, authored either way round, give `NOT_RECONCILABLE` or
-  `declared 454.0`. Never a wrong number, and the shipped document has no
-  simultaneous transitions on one state. Criterion 6 made "applied exactly
-  once" a property of the time model; this is the sibling case it does not
-  cover, and the fix is a `DISPATCH_RULES` entry rather than code.
+- **Intra-instant ordering is load-bearing and undeclared.** SETTLED by T019.
+  Transitions completing at the same offset are walked in authored `sequence`
+  order, which is deterministic, but `DISPATCH_RULES` did not say so - and
+  with the bound walk that order decides whether the contract answers or
+  abstains. Two causes at one instant, authored either way round, give
+  `NOT_RECONCILABLE` or `declared 454.0`. Never a wrong number, and the
+  shipped document has no simultaneous transitions on one state. T019 made it
+  observable from outside the contract, because both answers became blocking
+  reasons on a persisted Draft, so it is now the `intra-instant-order`
+  dispatch rule with two tests showing both outcomes.
 - **The second initialization layer is real but unmeasured.** The role guard
   in `initialization_inputs` holds if the parser refusal is ever loosened -
   verified by constructing the record directly - but the branch is unreachable
   through `parse_scenario_document`, so no test exercises it. The same shape as
   the round-one lesson, one size smaller.
-- **The contract-version test is honest but weak.** The fixture value and
-  `EXECUTION_CONTRACT_VERSION` are both `1`, so a hard-coded `1` in the
-  component would still pass, and the backend asserts `>= 1` rather than
-  equality with the constant.
+- **The contract-version test is honest but weak.** SETTLED by T019, as a
+  side effect of the entry above. The fixture value and
+  `EXECUTION_CONTRACT_VERSION` were both `1`, so a hard-coded `1` in the
+  component would still have passed, and the backend asserted `>= 1`. The
+  constant moved to `2` because the rule set gained a rule; the backend now
+  asserts equality with it and the frontend fixture stays at `1`, so the two
+  cannot be one literal by accident.
 - **Two forward constraints live only in code comments.** A `POINT`-only
   reading has no shape for a metered `kWh` aggregate, which a later evidence
   slice will meet; and no duration has an authoring home outside
   `timing.duration_minutes` until a slice reopens that vocabulary on the
   record.
+
+## T019 - Draft run setup
+
+What this slice settled in code.
+
+`backend/assetops_backend/runs/` is the third domain package, built to the
+same shape as `sites/` and `scenarios/` and holding the same line: a port
+speaking domain records with its own error family, one composition module, one
+adapter layer. It is deliberately not a reuse of either - a missing run, a
+missing Site and a missing scenario are three facts about three identity
+spaces - and it is the second package in the product with a write path.
+
+**The refusal line is the slice.** A refusal means the request could not be
+frozen: something it names does not exist, does not resolve, is not well
+formed, or would have to be invented. No `run_id` is allocated and nothing is
+written, so there is nothing afterwards to inspect. `BLOCKED` means everything
+was frozen and the run still must not execute: the Draft exists, is persisted,
+and carries reasons. `runs/refusals.py` states it once, and the code has the
+shape: everything in `_freeze` raises, everything in `_blocking_reasons`
+returns. Every refusal test asserts the store is empty afterwards, because an
+error raised after a write looks identical without that assertion.
+
+Nine refusal kinds and six blocking-reason kinds, each a different fact with
+its own code on the wire. The `BLOCKED` five for the shipped Fuel Loss Event
+against the shipped profile are three unmodelled forcing states and two
+unreached readings - the second pair being
+`D-2026-09-21-scenario-execution-contract` applied as written, so **the
+shipped scenario cannot reach `READY` in this build by construction**. `READY`
+is proved against a fixture scenario instead. A later slice that resolves the
+residual or widens the model profile changes that, and the test naming the
+three unsupported states will fail when it does, which is the point.
+
+**Nothing is defaulted, in either direction.** A parameter the scenario
+declares `RUN_OVERRIDE` must be supplied by the run and a parameter the
+scenario owns may not be overridden; a Foundation-owned initial value is
+resolved through a binding the model profile declares, never by matching a
+state key against a component by spelling, and a Foundation that disagrees
+with the scenario's stated requirement refuses rather than silently winning.
+Two components that both fit the binding also refuse: two answers to one
+initial value is not something a run may choose between.
+
+**Cadence, simulator source identity and gateway identity are structural.**
+They are resolved in `runs/profiles.py`, which imports nothing from the Site
+domain, and the two records that carry them may be constructed only there and
+in the store's own document parser. `tools/checks/run-setup.ps1` holds both,
+plus the identity chokepoint: the `run-` prefix is spelled in
+`runs/identity.py` alone and one caller allocates. The ban is on the IMPORT
+rather than on words like `display_name` or `lifecycle_status`, which collide
+with the run's own fields - a ban with exceptions is a ban somebody widens.
+
+A run identity is allocated from nothing: no Site, no scenario, no text, no
+clock, no counter. The request has no field for one and a request that sends
+one is refused by name, which is how "a scenario label never becomes a
+`site_id`" holds one space further along.
+
+Real IANA membership is checked against `zoneinfo.available_timezones()`, in
+both directions: `Africa/Atlantis` is refused though it is shaped like a zone
+and `UTC` is accepted though it is not. `tzdata` is a declared dependency
+because Windows ships no database and a membership test against an empty set
+refuses every real zone. "Not a zone" and "no database" are two different
+failures and stay two.
+
+`frozen_inputs` turns the identity into one row per value with its answerer,
+and a test walks `dataclasses.fields(DeterministicIdentity)`: a field added
+with no answerer fails the build rather than reaching a screen in a column
+with nothing under it. The four answerers correspond one to one with T018's
+`INITIALIZATION_OWNERS`, asserted, so a fifth owner on either side fails.
+
+The persistence guard now registers a third domain. A run is not
+configuration, but the seam is the same one, and the guard proved it by
+failing with seven findings the moment the store appeared.
+
+The eleventh member of the family, and it is the tenth one again.
+
+T018 capped the fact list's TERM column because an unbreakable term pushed the
+document sideways at 640px. T019 put an unbreakable VALUE in the same
+component - a run identity is thirty-six characters with no break opportunity
+- and the value column resolved to 103px against 230px of content: seventy-
+nine pixels of horizontal document scroll, rail included. **A fix applied to
+one column of a two-column component is a fix with one column left over.**
+`.fact-list__value` now breaks anywhere, which is the right treatment for a
+machine identity. Only `tools/layout-evidence.mjs` could see it, and only
+because the tool was taught to fill the form and submit it first - the summary
+does not exist until somebody does.
+
+Three deliberate violations proved the new guard, each accepted by all 785
+backend tests and caught only by the scan: the observation binding built
+inline in the service with identical behaviour, an unused Site-record import
+in the resolver, and the run identity assembled in the service. The third
+found a hole in the guard: its vacuity check counted `def allocate_run_id(` as
+a call, so "nothing allocates" would have passed on a tree where nothing did.
+
+What T019 settled from T018's open list, and what it left.
+
+`intra-instant-order` is now a `DISPATCH_RULES` entry, because T019 made the
+ordering observable from outside the contract: an unreached reading and an
+unanswerable one are two different blocking reasons on a **persisted** Draft,
+so the authored order decides what a stored run says about itself.
+`EXECUTION_CONTRACT_VERSION` moved to 2 because the rule set gained a rule,
+which also closed the weak contract-version test for free - it now compares
+against the constant, and the frontend fixture stays at 1 so the two cannot be
+one literal by accident. The other two round-two findings are untouched and
+unaffected: the unmeasured second initialization layer, and the two forward
+constraints that live only in code comments.
+
+What T019 deliberately does not do: no execution, no step, no trace, no
+staging, no Commit, no ingestion, no Replay, no analytics, no Findings. No run
+inventory and no run detail surface either - the setup summary is returned
+once and is not addressable, which is T020's to fix. A template-derived
+scenario cannot have a run set up for it at all: a run is bound to a concrete
+Site, and matching the Site's template provenance would be Site provenance
+driving a run input.

@@ -1,7 +1,11 @@
 # T019 - Draft Run Setup
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
+
+Built on `task/T019-draft-run-setup`, from `main` at `a0dc56c`. Evidence is in
+`.agent/T019-review-packet.md`, including the layout measurement and the three
+deliberate violations that prove the new guard.
 
 Intended branch: `task/T019-draft-run-setup`
 
