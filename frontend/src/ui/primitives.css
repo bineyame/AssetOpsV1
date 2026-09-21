@@ -489,9 +489,26 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
+/*
+ * The same rule, one column over, and found the same way.
+ *
+ * T018 capped the term column because an unbreakable term pushed the page
+ * sideways. T019 put an unbreakable VALUE in: a run identity is thirty-six
+ * characters with no break opportunity in it, and at 640px the value column
+ * resolved to a hundred and three pixels against two hundred and thirty of
+ * content, so the document gained seventy-nine pixels of horizontal scroll
+ * and the rail went with it.
+ *
+ * A machine identity is the right thing to break across lines - it is read a
+ * character at a time or copied whole, never scanned as a word - and a fact
+ * list still has no scroll region of its own to put an overflow in. Measured
+ * by `tools/layout-evidence.mjs`; jsdom has no layout, so no suite here could
+ * have seen it.
+ */
 .fact-list__value {
   margin: 0;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 /* Table ------------------------------------------------------------------- */
