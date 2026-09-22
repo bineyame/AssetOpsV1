@@ -15,8 +15,9 @@ Site Configuration's Key Parameters panel for MG-001 shows the diesel
 generator's specific fuel consumption beside the ratings it already lists. Run
 setup's frozen-inputs summary shows that coefficient resolving from *site
 foundation* rather than from *scenario*, and a run against a Site whose
-Foundation does not declare it blocks with an inspectable reason. That one line
-in each of two tables the user already reads is the seam repair made visible.
+Foundation does not declare it is refused with an inspectable reason. That one
+line in each of two tables the user already reads is the seam repair made
+visible.
 
 ## Why This Is Next
 
@@ -71,19 +72,29 @@ user's decision.
 - `SupportedState` can carry a model-rule value. A scenario declaring
   `owner: MODEL_RULE` resolves its value from the selected model profile, and
   the frozen identity records `MODEL_PROFILE` as that value's origin the same
-  way a Foundation-sourced value records Foundation. A `MODEL_RULE` owner the
-  selected profile carries no value for blocks with an inspectable reason and
-  produces no default. This closes the T019 review's L9 finding.
+  way a Foundation-sourced value records Foundation. This is what closes the
+  T019 review's L9 finding: the vocabulary already declares the owner and names
+  the answerer correctly, and what was missing was somewhere for the answer to
+  live.
+- A `MODEL_RULE` owner the selected profile carries no value for blocks with an
+  inspectable reason and produces no default. It uses the blocking kind T019
+  introduced for an initial value the selected profile cannot answer, rather
+  than a second kind for the same fact. If T019 moved only the Foundation case
+  across the refusal line, this slice moves the model-rule case with it and
+  says so.
 - The shipped site template declares the generator's specific fuel consumption
   as a named property with its canonical unit.
 - MG-001 carries the property, re-created from the updated template or with the
   property added to the instance. Templates instantiate by copy, so editing the
-  template alone leaves a demo site that still blocks. `mg-002` and `mg-003`
-  remain in `var/sites/` as the fixtures the user asked to keep.
+  template alone leaves a demo site whose runs are still refused. `mg-002` and
+  `mg-003` remain in `var/sites/` as the fixtures the user asked to keep.
 - `generator-fuel-rate` leaves `config/scenarios/fuel-loss-event.yaml`. Run
-  setup freezes the coefficient from Foundation, records its origin, and blocks
-  with an inspectable reason when the resolved Site's Foundation does not
-  declare it. No scenario value and no default substitutes for it.
+  setup freezes the coefficient from Foundation and records its origin. The two
+  ways that can fail land on opposite sides of the refusal line: a selected
+  model profile that declares no binding for it **blocks**, because a different
+  profile fixes it, and a resolved Site whose Foundation declares no matching
+  property **refuses**, because the declared owner has no answer and no profile
+  helps. No scenario value and no default substitutes for either.
 - Site Configuration's Key Parameters panel shows the declared property with
   its unit. The panel's existing rule holds: an entry appears because the
   record declares it, and a component that declares nothing produces no row.
@@ -103,6 +114,10 @@ user's decision.
 - Declaring an owner is not the same as being able to carry its value. Where an
   owner is declarable, something must hold what it declares and something must
   be able to address it.
+- The refusal line, as T019 settled it: the scenario's declared owner has no
+  answer, so refuse, because no profile helps; the selected profile cannot
+  answer, so block, because a different profile fixes it. Every new failure
+  this slice adds is placed by that rule and by no other reasoning.
 - A Foundation says how large a tank is, never how full. Starting fuel level
   stays a scenario input.
 
@@ -133,8 +148,8 @@ user's decision.
 - Model-rule carrier tests: a `MODEL_RULE` owner resolves from the profile with
   `MODEL_PROFILE` recorded as origin; an uncarried `MODEL_RULE` owner blocks.
 - Run-setup tests: the coefficient freezes from Foundation with Foundation
-  origin, the scenario no longer supplies it, and a Site without the property
-  blocks rather than falling back.
+  origin, the scenario no longer supplies it, a profile with no binding for it
+  blocks, and a Site without the property is refused rather than falling back.
 - Fixture proof that MG-001 carries the property and that `mg-002` and `mg-003`
   still load.
 - UI tests for the Key Parameters row and the frozen-inputs origin label, with
