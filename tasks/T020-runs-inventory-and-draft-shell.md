@@ -67,6 +67,19 @@ is the defect M4 removed, and that difference is this half of the slice.
   correspondence assertion's second half is a subset, so a fifth member passes
   it silently. T020 puts this table on a permanent linkable screen, so the
   label is corrected before it has been read.
+- `cadence_resolution` is deleted from the frozen observation binding rather
+  than renamed. It is a total function of `source_kind` and `cadence_minutes` -
+  a cadence present means a profile declared one, absent on an operator record
+  means no rate to own, absent on a device signal means nobody declared one -
+  so the parser's biconditional spends fourteen lines checking a record against
+  a restatement of itself, and `provenance.py` branches on the two fields
+  instead. A stored run document accepts unknown keys, so the 34 existing
+  Drafts stay readable with the key ignored and nothing is cleared. This is a
+  run-record shape change, not a scenario-document one, so
+  `EXECUTION_CONTRACT_VERSION` does not move
+  (`D-2026-09-22-contract-version-scope`). The rule it restores is in
+  `.ai/ARCHITECTURE.md`: store what was contingent, compute what follows from
+  structure.
 - A `READY` run carries a disclosure of what the status does not assert: that
   every required executable input resolved and the selected model profile
   declares it can consume them, and that nothing has verified the model can
@@ -162,10 +175,6 @@ is the defect M4 removed, and that difference is this half of the slice.
   the publication profile already supplies. Moving authority over
   `fuel-level-reporting-availability` to that profile is T020B's, and it
   changes behaviour rather than a label.
-- No change to `CADENCE_RESOLUTIONS`, which carries the same mislabel in a
-  vocabulary that is persisted on the frozen identity. Changing a stored member
-  is what T019's logged lesson says makes older Drafts unparseable; it is with
-  the user and is not this slice's.
 - No new SimulationRun creation or persistence adapter; T019 owns them, and
   defaults change only what the form offers, not what run setup does with the
   request.
