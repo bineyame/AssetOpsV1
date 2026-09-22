@@ -106,3 +106,24 @@ explicitly asks for it.
 - Do not discard unrelated user changes.
 - Do not merge your own work when acting as Reviewer.
 - Leave work in a reviewable state.
+
+## One Working Copy
+
+Every agent works in the same checkout on the same branch, so any edit, stage,
+or checkout by a second agent changes the tree under the first one, which then
+measures a tree it did not write. This has cost real recovery three times: two
+commits landed on a branch that moved mid-edit, a Reviewer's probe code was
+measured by a live Implementer, and a branch checkout rewrote file mtimes under
+a running agent.
+
+- One agent edits at a time. If you did not start the work in progress, do not
+  edit, stage, commit, or check out in that tree.
+- A Reviewer reads. Probe code and instrumentation do not go into the reviewed
+  tree while its author is still working.
+- Do not switch branches while an agent is running, including for unrelated
+  work.
+- Evidence measured while another agent held the tree is not evidence. Say so
+  and measure again.
+
+This is discipline standing in for isolation, and it is needed only until each
+agent can be given its own worktree.
