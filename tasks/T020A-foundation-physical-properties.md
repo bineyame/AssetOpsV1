@@ -43,11 +43,16 @@ answer. Settled in `D-2026-09-21-physical-property-ownership`.
 ## Decisions Due Before Implementation
 
 The coefficient's canonical unit follows the `dispatched-output` half of the
-`REQUIRED` forcing-state decision, which is the user's and is still open. A
-runtime-based model rule wants `L/h`; an energy-based one wants `L/kWh` and a
-generator-output forcing to multiply it by. The carriers below are the same
-either way, so only the shipped value's unit waits on it. Do not migrate the
-unit later by choosing one here: the answer arrives with that decision.
+`REQUIRED` forcing-state decision: whether generator output is promoted to a
+`FORCING_INPUT` on `generator-output-power`. A runtime-based model rule wants
+`L/h`; an energy-based one wants `L/kWh` and a generator-output forcing to
+multiply it by. That half is due **before this slice is implemented**, earlier
+than the rest of the forcing-state decision, because this slice writes the
+property into the shipped template and into MG-001 and changing it afterwards
+is a unit migration on a Foundation document and on an instance created by
+copy. The carriers below are identical either way, so only the shipped value's
+unit waits. A slice that picks a unit to get itself unblocked has taken the
+user's decision.
 
 ## Acceptance Criteria
 
@@ -156,8 +161,8 @@ unit later by choosing one here: the answer arrives with that decision.
 
 ## User Review
 
-User review is required, and this placement is a Planner proposal the user may
-decline. Two things in the slice are the kind the project reviews: the
+User review is required. The user took this checkpoint on 2026-09-22, and two
+things in the slice are the kind the project reviews: the
 per-component-type physical property vocabulary is a durable configuration
 contract in the same family as the breaker/control vocabulary, and the Key
 Parameters panel is a user-facing surface gaining a new row. Re-creating MG-001
