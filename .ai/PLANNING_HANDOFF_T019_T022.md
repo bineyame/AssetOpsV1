@@ -1,5 +1,11 @@
 # Planner Handoff — T019 Narrowing Through T022
 
+**Revised 2026-09-22**, after the Planner's first pass and two user decisions.
+T021A is accepted as its own slice. T020A carries its own user-review
+checkpoint. The coefficient's unit deadline is earlier than this file first
+said, and the `READY` disclosure now has an owner for its retirement. Those
+four changes are marked below.
+
 Scope: feature-level guidance for the slices affected by the proposals the user
 accepted on 2026-09-21. This is a scoped, disposable handoff, not a canonical
 artifact. `.ai/PLANNING_GUIDANCE.md` stays general; this file carries the
@@ -24,19 +30,35 @@ The five decisions: `D-2026-09-21-scenario-execution-contract-amendment-1`,
 `D-2026-09-21-specification-reference-implementation`,
 `D-2026-09-21-physical-property-ownership`.
 
-## Two things that gate task files, not slices
+## Three things that gate task files or implementations, not slices
 
-**The `REQUIRED` forcing-state decision is due before T021's task file is
-written.** It decides what the first kernel must model, so a T021 task file
-written before it would scope the kernel by accident. It is one decision with
-three parts: what happens to `site-load-demand`,
-`plane-of-array-irradiance` and `fuel-level-reporting-availability`; whether
-reporting-path authority moves from the model profile to the publication
-profile; and whether `dispatched-output` is promoted to a `FORCING_INPUT` on
-`generator-output-power`. The user owns it. Do not write T021's task file
-first and patch it after.
+**Revised 2026-09-22: the forcing-state decision has two deadlines, not one.**
+This file originally put the whole of it before T021's task file. One part of
+it is due earlier, and the earlier part is easy to miss because it looks like
+a kernel question.
 
-**The four unpinned kernel semantics are due at the same time.** Window
+**The `dispatched-output` half is due before T020A is implemented.** Whether
+generator output is promoted to a `FORCING_INPUT` on `generator-output-power`
+decides the canonical unit of the Foundation consumption property: a
+runtime-based model rule wants `L/h`, an energy-based one wants `L/kWh` and a
+generator-output forcing to multiply it by. T020A is what writes that property
+into the shipped template and into MG-001, so deciding it in T020A and
+changing it later is a unit migration on a Foundation document and on an
+instance created by copy. The carriers are the same either way, so only the
+shipped value waits — but it waits on a user decision, not on the
+Implementer's judgement, and a T020A that picks a unit to get unblocked has
+made the decision.
+
+**The rest is due before T021's task file is written.** What happens to
+`site-load-demand`, `plane-of-array-irradiance` and
+`fuel-level-reporting-availability`, and whether reporting-path authority
+moves from the model profile to the publication profile. These decide what the
+first kernel must model, so a T021 task file written before them would scope
+the kernel by accident. The user owns it. Do not write T021's task file first
+and patch it after.
+
+**The four unpinned kernel semantics are due at the same time as that second
+half.** Window
 apportionment, observe-before-or-after within a step, a forcing outside its
 declared window, and what happens after a bounded change. Each would let two
 conforming kernels disagree, so each is `EXECUTION_CONTRACT_VERSION` business
@@ -95,8 +117,21 @@ because no causal runtime exists yet. This is disclosure on a record, so it
 belongs in the payload as well as on the screen — a screen-only note is a
 presentation choice and this is a property of the status.
 
+**Revised 2026-09-22: the disclosure names a condition, and T021 owns
+retiring it.** The Planner's T020 said the slice landing the conformance test
+would retire it and the Planner's T021 said retirement belonged to a slice
+that says it is doing that, which between them left nobody holding it and
+would have left false copy on screen after T021. T021 retires it, because
+T021's conformance test is what makes it false, and a claim that has become
+false goes in the slice that falsifies it rather than waiting for a slice that
+says so. That precedent — the cold-room marker, the provisional markings —
+covers removing something still honest, which is the opposite case. Recorded
+in `D-2026-09-22-expiry-follows-the-condition`. T020's job is unchanged: write
+the disclosure so it names the condition rather than a slice number, so the
+retiring slice can recognise it.
+
 **May not.** Rename `READY`. The word becomes correct when T021's conformance
-test lands two slices away, and renaming ripples through the payload, the
+test lands, and renaming ripples through the payload, the
 frontend, the tests and the screens this slice is building. Add a second run
 store, create runs, or show runtime state. Widen into the conformance test,
 which needs a kernel.
@@ -118,8 +153,15 @@ it. Make this an explicit item in the review packet.
 ## T020A — Foundation physical properties and model-rule carriers
 
 New slice. After T020, before T021. Boundary-changing, so expect a longer task
-spec than a normal UI slice and a user-review checkpoint on the property
-vocabulary.
+spec than a normal UI slice. **Revised 2026-09-22: the user took the
+checkpoint. `USER_REVIEW_REQUIRED: true`**, on the property vocabulary and its
+units — it changes Foundation's schema and the Key Parameters panel, which is
+the kind of change this project reviews.
+
+**Revised 2026-09-22: a user decision is due before this slice is
+implemented.** The coefficient's canonical unit follows the
+`dispatched-output` promotion; see the deadline section above. Do not let the
+slice choose a unit to get itself unblocked.
 
 **Must deliver.** Three carriers that move together, because any one alone
 still leaves an owner that can be declared and not answered.
@@ -193,9 +235,11 @@ slice is.
 2. **The `supported_states` conformance test.** The shipped model profile's
    supported set equals the set of states the kernel actually implements,
    **derived from the kernel, not hand-maintained**. A test that restates the
-   tuple closes nothing. When it lands, `READY` means what its name says and
-   T020's disclosure can be retired by a later slice that says it is doing
-   that.
+   tuple closes nothing. When it lands, `READY` means what its name says.
+   **Revised 2026-09-22: this slice also retires T020's disclosure**, because
+   this is the slice that makes it false. It is not a later slice's to pick
+   up and it is not optional; see
+   `D-2026-09-22-expiry-follows-the-condition`.
 
 3. **Run the kernel against the shipped Fuel Loss document and report the
    resulting trajectory.** This is the loop. The document's authored numbers
@@ -218,14 +262,53 @@ review. Display a state trajectory in the Lab, which is T022. Model power flow,
 battery, weather synthesis or dispatch logic — carrying a forcing is not a
 claim that its consequences are modelled.
 
-**Depends on.** T020A's Foundation coefficient and model-rule carrier. The
-`REQUIRED` forcing-state decision and the four unpinned semantics, both before
-the task file is written. T020's run-detail shell for the small visible
-readiness result.
+Also may not: **remove the reference implementation.** T021 compares it
+against the kernel and reports any disagreement, and the kernel is the
+surviving authority. Removing it from the repository follows its last
+remaining product-path caller, which is the `observation_reconciliation`
+panel, and when that goes is undecided. Comparing is this slice's; removing is
+not.
 
-**Proposals landing here.** (i), the second half of (l), and the expiry of (j)
-— when the kernel lands, the reference implementation and the kernel are
-compared and the kernel is what survives.
+**Depends on.** T020A's Foundation coefficient and model-rule carrier. The
+second half of the `REQUIRED` forcing-state decision and the four unpinned
+semantics, both before the task file is written. T020's run-detail shell for
+the small visible readiness result.
+
+**Proposals landing here.** (i), the second half of (l) including the
+disclosure's retirement, and (j)'s comparison against the kernel — not (j)'s
+removal.
+
+## T021A — Reported observations carry no execution requirement
+
+**New since 2026-09-22.** The user accepted the Planner's split of (g) out of
+T022 into its own slice, placed between T021 and T022. The task file exists at
+`tasks/T021A-reported-observation-requirement-closure.md`.
+
+**Why it is its own slice, so a later reader does not fold it back in.** The
+version-bump window is free only while no golden trace exists, and T022 is the
+slice that first produces one. Folding (g) into T022 makes that slice's
+internal ordering load-bearing — the parser change would have to land before
+trace generation inside one slice — and closes the window entirely if T022 is
+ever split. It sits after T021 rather than before because the kernel never
+reads `execution_requirement` on a reported observation, so nothing about the
+kernel depends on it either way.
+
+**Must deliver.** The parser gives `execution_requirement` no position on a
+`REPORTED_OBSERVATION`, closed at the structure rather than as a rule applied
+after parsing. The shipped document's reported-observation entries lose the
+field. `EXECUTION_CONTRACT_VERSION` moves 2 to 3, and the new version reaches
+the frozen identity of runs set up after it while a Draft already frozen under
+version 2 keeps what it was frozen under.
+
+**May not.** Remove the authored reading *values* — that is (f) and it is
+T022's. Touch the reconciliation panel or its payload. Change anything else in
+the execution contract, the kernel, or the observation transform.
+
+**Depends on.** T019's narrowing, merged. Once the observation blocking
+reasons are gone, removing the field changes no run-setup outcome, which is
+what makes this slice small.
+
+**Proposals landing here.** (g), alone.
 
 ## T022 — Lab execution and device observation
 
@@ -245,16 +328,18 @@ consistent with criteria the user has already accepted.
    a run-local manual operational observation whose value is generated from
    truth at that offset through the `operator-hand-record` source, optionally
    perturbed by a declared reading error if the user chose to model one.
-2. **(g), closed at the parser.** `execution_requirement` is forbidden on a
-   `REPORTED_OBSERVATION` — no position the field can occupy, the way duration
-   units were closed at the unit vocabulary. `EXECUTION_CONTRACT_VERSION` moves
-   2 to 3. This may be a small slice before T022 instead; it is free now and
-   will not be once a golden trace exists.
-3. **The reconciliation panel leaves the scenario detail screen.** (f) is when
-   the authored readings disappear and the panel has nothing to reconcile.
-   Until then it is honest, because it describes a real property of a document
-   that does contain two authored readings. This is a visible product change on
-   merged work and the slice must say it is making it.
+2. **A recommendation, not a requirement: the reconciliation panel leaves the
+   scenario detail screen here.** (f) is when the authored readings disappear
+   and the panel has nothing left to reconcile, and it is also what unblocks
+   removing the reference implementation, whose last product-path caller the
+   panel is. But **the user has not decided this** — it is Open Question 5.
+   Until they do, the panel is honest, because it describes a real property of
+   a document that does still contain two authored readings. If the user says
+   yes, it is a visible product change on merged work and this slice must say
+   it is making it. If they say no or say nothing, T022 leaves it alone and
+   the reference implementation stays.
+
+*(g) is no longer here.* Revised 2026-09-22: it is T021A.
 
 **May not.** Let any authored reading reach a transition or an initialization —
 that is what the `REPORTED_OBSERVATION` role is for and it survives (f)
@@ -265,11 +350,12 @@ separate `Sensor Bias` scenario, and keeping Fuel Loss free of bias keeps its
 one lesson clean — a real loss, hidden by a reporting gap.
 
 **Depends on.** T021's kernel, and T021's reported trajectory, because the
-document's corrected numbers come out of that loop. The reporting-path
-authority question, if it moved the reporting-path forcing to the publication
-profile, changes which profile the transform asks.
+document's corrected numbers come out of that loop. T021A, so the document
+being edited here is already under contract version 3 and the field is already
+gone. The reporting-path authority question, if it moved the reporting-path
+forcing to the publication profile, changes which profile the transform asks.
 
-**Proposals landing here.** (f) and (g).
+**Proposals landing here.** (f), alone.
 
 **User review is already required on this slice** for control behaviour,
 private-truth visibility, truth-versus-reported labels and unavailable-value
@@ -283,10 +369,9 @@ copy, not only as layout.
 
 - Task file contents, acceptance criteria wording, scope-limit lists, test
   structure, and user-review placement. All the Planner's.
-- Whether T020A needs its own user-review checkpoint. It changes Foundation's
-  schema and the Key Parameters panel, which argues yes; the Planner should
-  propose one and the user can decline it.
-- Whether (g) rides inside T022 or lands as a small slice before it.
+- **Closed 2026-09-22:** T020A carries its own user-review checkpoint, and (g)
+  is its own slice, T021A. Both were left open here and both are now the
+  user's answer, not a recommendation.
 - Every open question listed under `Open Questions Before Task Breakdown` in
   `.ai/FEATURE_MAP.md`. None of them is closed by this handoff, and a task file
   that closes one by implementation rather than by decision is the failure this

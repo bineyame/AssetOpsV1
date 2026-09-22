@@ -38,6 +38,7 @@ rationale in the dated entries below.
 | `D-2026-09-21-projection-versus-composition` | 2026-09-21 | Projecting a document is static validation; composing projections into a value-at-a-time is a kernel, whatever the component is called. |
 | `D-2026-09-21-specification-reference-implementation` | 2026-09-21 | A specification's reference implementation lives in the test suite, labelled and with a stated expiry, never in the product path; `reconcile_reported_observations` moves there. |
 | `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. |
+| `D-2026-09-22-expiry-follows-the-condition` | 2026-09-22 | A gap-covering artifact names the condition as its expiry, never a slice number; a claim that has become false goes in the slice that falsifies it, and a thing still honest goes when someone decides to remove it. |
 
 ## 2026-09-11
 
@@ -1488,8 +1489,12 @@ reads is either vacuous or a category error, and the meaning it was carrying,
 "this run must produce such a reading", already has a home in the private
 expectations under `DETECTION` and `TIMING`. This narrows the space of
 conforming behaviours, so `EXECUTION_CONTRACT_VERSION` moves 2 to 3 under (d).
-It is free now and will not be once a golden trace exists. Lands in T022 or a
-small slice before it.
+It is free now and will not be once a golden trace exists. The user placed it
+in its own slice, **T021A**, on 2026-09-22: T022 is the slice that first
+produces a golden trace, so burying the version move inside it would make that
+slice's internal ordering load-bearing and would close the free window if T022
+were ever split. It sits after T021 because the kernel never reads
+`execution_requirement` on a reported observation.
 
 **(i) A fifth oracle kind, `TRAJECTORY`.** The four accepted oracle kinds are
 all about analysis outcomes. None is about world trajectory, so the author's
@@ -1581,9 +1586,12 @@ a conformance test asserting that the shipped profile's supported set equals
 the set of states the kernel actually implements, derived from the kernel
 rather than hand-maintained, which is the treatment this project already gives
 the cadence and duration-unit prohibitions. The word becomes correct when that
-test lands, two slices away, and renaming it would ripple through the API
-payload, the frontend, the tests and T020's screens to fix a word that is about
-to become true.
+test lands, and renaming it would ripple through the API payload, the
+frontend, the tests and T020's screens to fix a word that is about to become
+true. The disclosure becomes false at the same moment, so **T021 retires it in
+the slice that lands the conformance test**, under
+`D-2026-09-22-expiry-follows-the-condition`; this entry originally left the
+retirement to an unnamed later slice and nothing owned it.
 
 This is deliberately not treated the way `RUNNING` was. `RUNNING` could never
 be reached in this build, so it was pure fiction and deletion was the only
@@ -1647,26 +1655,40 @@ not belong in the product path.
 `reconcile_reported_observations` is the instance. Amendment 1's (e) removes
 the feature it became. It does not remove the arithmetic: that moves out of the
 product path rather than out of the repository, where it exercises the
-execution contract against the shipped document until T021 exists. Its expiry
-is T021: when the kernel lands, the two are compared and the kernel is what
-survives. `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly
-one non-test caller today, which is reconciliation, so they move with it.
+execution contract against the shipped document until a kernel exists.
+`declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly one
+non-test caller today, which is reconciliation, so they move with it.
 
-**The move happens in two steps, and the second is not yet scheduled.** The
-function has two product-path uses, not one. T019's blocking reason is the
-first and it goes now. The second is the `observation_reconciliation` payload
-built in `simulator_lab_api.py` and rendered as a panel on the scenario detail
-screen, which is T018 work already merged to `main`. The function cannot leave
-the product path while that caller exists, so T019 removes the blocking use and
-labels the function as a reference implementation with its expiry stated, and
-the move completes when the panel goes. **When the panel goes is an open
-question and this decision does not settle it.** Removing a visible panel from
-merged work is a product change belonging to a slice that says so, and the
-Architect read's recommendation — that it goes with (f) in T022, because that
-is when the authored readings disappear and the panel has nothing left to
-reconcile — is a recommendation, not part of what was accepted. Until then the
-panel is honest: it describes a real property of a document that does still
-contain two authored readings.
+**Its expiry is a condition, not a slice number.** Two distinct events, and an
+earlier draft of this entry collapsed them into "the expiry is T021", which the
+sequence cannot deliver. It **stops being an authority** when the kernel lands:
+T021 runs the two against the shipped document, compares them, and the kernel
+is what survives any disagreement. It **leaves the repository** when its last
+remaining caller goes, which is a different event on a different clock. See
+`D-2026-09-22-expiry-follows-the-condition`.
+
+**The removal happens in two steps, and the second is gated on an open
+question.** The function has two product-path uses, not one. T019's blocking
+reason is the first and it goes now. The second is the
+`observation_reconciliation` payload built at
+`backend/assetops_backend/simulator_lab_api.py:411` and rendered as a panel at
+`frontend/src/shell/ScenarioFrame.tsx:759`, which is T018 work already merged
+to `main`. The function cannot leave the repository while that caller exists,
+so T019 removes the blocking use and labels the function as a reference
+implementation, and removal follows the last remaining caller.
+
+**When that caller goes is Open Question 5 in
+`Docs/simulator-scenario-authoring-and-runtime.md`, it is still open, and this
+decision does not settle it.** Removing a visible panel from merged work is a
+product change belonging to a slice that says so, and the Architect read's
+recommendation — that it goes with (f) in T022, because that is when the
+authored readings disappear and the panel has nothing left to reconcile — is a
+recommendation, not part of what the user accepted. Until then the panel is
+honest: it describes a real property of a document that does still contain two
+authored readings, so it is removed when someone decides to remove it rather
+than because it has become false. No slice before that decision may treat the
+removal as in scope, and T021 in particular performs the comparison and not the
+removal.
 
 Reason: `EXECUTION_CONTRACT_VERSION` versions a set of rules, and a
 specification with zero implementations is under-tested. The standard remedy is
@@ -1771,3 +1793,68 @@ and `SupportedState`, run setup's frozen-inputs resolution and its blocking
 reasons, `config/scenarios/fuel-loss-event.yaml`, `var/sites/mg-001.yaml`,
 Site Configuration's Key Parameters panel, the M1C task sequence, and T021's
 initialization.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-expiry-follows-the-condition`. A thing that exists only
+because a condition holds names **the condition** as its expiry, never a slice
+number. Two artifacts in the M1C sequence exist for exactly that reason, they
+were each given a slice number, and in both cases the number was wrong.
+
+**The rule.** When something is created to cover a gap — a reference
+implementation standing in for a missing kernel, a disclosure standing in for a
+missing verifier — the thing that ends it is the condition closing, not a
+calendar position in a plan. A slice number is a guess about when the condition
+will close, and a guess written into a record is read later as a commitment.
+State the condition; let the slice that ends it be whichever slice ends it.
+
+**And what happens then depends on whether the thing has become false.** This
+is the part that separates the two instances and it is the useful half of the
+rule:
+
+- A claim that has become **false** goes in the same slice that falsifies it.
+  Leaving it is not caution, it is shipping a false statement, and no
+  "visible product change belongs to a slice that says so" argument applies to
+  a sentence that is no longer true.
+- A thing that is still **honest** but no longer needed goes when someone
+  decides to remove it. That is the case the existing precedent covers — T016's
+  cold-room marker, T017's provisional markings — and it is a product decision
+  with its own slice.
+
+**Instance one: the `READY` disclosure.**
+`D-2026-09-21-run-setup-outcome-vocabulary` has T020 disclose that `READY` does
+not assert the model can execute its inputs, and T021 close the gap with a
+conformance test deriving `supported_states` from the kernel. The condition the
+disclosure names is *nothing verifies the supported set against a kernel*. The
+conformance test ends that condition, so the disclosure becomes false in the
+slice that lands it, and **T021 retires it**. It is not a later slice's to pick
+up, and until now no slice owned it at all: T020's task file said the slice
+landing the conformance test would retire it and T021's said retirement
+belonged to a slice that says it is doing that, which between them left it
+homeless. T021 says it is doing it. `BLOCKED` never carried an equivalent claim
+and nothing about it changes.
+
+**Instance two: the reconciliation reference implementation.**
+`D-2026-09-21-specification-reference-implementation` said its expiry was T021.
+It cannot be. Two events, on two clocks. It stops being an **authority** when
+the kernel lands and the two are compared, which is T021. It leaves the
+**repository** when its last remaining product-path caller goes, and that
+caller is the `observation_reconciliation` panel, whose removal is Open
+Question 5 and is undecided. The reference implementation is still honest in
+the meantime: it describes a real property of a document that does still
+contain two authored readings. So it waits for a decision rather than for a
+slice, and T021 compares without removing.
+
+Reason: both artifacts were recorded with a slice number because the slice was
+the nearest visible landmark, and in both cases the landmark was not the thing
+that actually ends them. The cost is not symmetric, which is why the rule
+carries the false-versus-honest distinction rather than just "name the
+condition": a disclosure left past its condition is a false statement on a
+screen, and a reference implementation removed before its callers is a broken
+build. Erring the same way on both would be wrong in one of them.
+
+Affected scope: `D-2026-09-21-run-setup-outcome-vocabulary`,
+`D-2026-09-21-specification-reference-implementation`, T020's disclosure and
+its stated expiry, T021's conformance test and its comparison against the
+reference implementation, Open Question 5, `.ai/ARCHITECTURE.md` under
+Presentation Honesty, and any future artifact created to cover a gap.
