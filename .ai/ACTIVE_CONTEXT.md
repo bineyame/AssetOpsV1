@@ -38,28 +38,31 @@ on screen, and T021 retires that disclosure in the slice landing the
 conformance test. The re-review's N3-N6 residual risk in
 `.agent/T019-review-packet.md` should be read before T020 reads the run store.
 
-**The refusal line moved at that review**, recorded in the 2026-09-22
-extension to `D-2026-09-21-run-setup-outcome-vocabulary`: the scenario's
-declared owner has no answer, refuse, because no profile helps; the selected
-profile cannot answer, block, because a different profile fixes it. Four
-location failures block as `INITIAL_VALUE_NOT_RESOLVED`; the
-Foundation/scenario contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE`,
-because the frozen identity can hold no answer and not two.
-`.ai/ARCHITECTURE.md` now carries the naming rule that keeps the two
-vocabularies legible. **A Foundation that declares no such property blocks**
-(`D-2026-09-22-foundation-property-absent-blocks`); the record said refuse and
-was wrong, and every failure of a Foundation-owned value now blocks.
+**The refusal line moved at that review** - who failed to answer decides it,
+recorded in the 2026-09-22 extension to
+`D-2026-09-21-run-setup-outcome-vocabulary`, with the naming rule that keeps
+the two vocabularies legible in `.ai/ARCHITECTURE.md`. Since then
+`D-2026-09-22-foundation-property-absent-blocks` settled the one case the
+record had wrong, so **every failure of a Foundation-owned value blocks** and
+`INITIAL_VALUE_ANSWERS_DISAGREE` is retired in T020A.
 
-**T020A grew.** A Foundation-owned scenario parameter has no value position at
-all (`D-2026-09-22-foundation-value-declaration`), which reaches
-`tank-capacity` as well as the coefficient, moves `EXECUTION_CONTRACT_VERSION`
-and retires `INITIAL_VALUE_ANSWERS_DISAGREE`. The `dispatched-output`
-promotion is still due before the slice is implemented. It also takes the
-`fuel-tank-volume` upper bound out of the document while keeping the `bounds`
-declaration that says which state caps which
-(`D-2026-09-22-capacity-bound-source`). Version numbers across the sequence
-are in `.ai/FEATURE_MAP.md`, *The execution-contract version ledger*; write
-moves, not literals.
+**T020A grew and a step follows it.** A Foundation-owned scenario parameter
+has no value position at all, which reaches `tank-capacity` as well as the
+coefficient, moves `EXECUTION_CONTRACT_VERSION`, retires
+`INITIAL_VALUE_ANSWERS_DISAGREE` and takes the `fuel-tank-volume` upper bound
+out of the document while keeping the `bounds` declaration. The coefficient is
+`L/kWh` and `dispatched-output` is promoted in the same slice. Then a
+**contract-alignment step** between T020A and T021 declares the four kernel
+semantics, refuses a requirement conflict instead of resolving it, lowers two
+forcing states to `OPTIONAL` and moves reporting authority to the publication
+profile - after which **the shipped Fuel Loss Event can reach `READY`**, and
+that step retires T020's fixture-only `READY` criterion. Decisions
+`D-2026-09-22-foundation-value-declaration`,
+`-capacity-bound-source`, `-consumption-coefficient-unit`,
+`-forcing-state-requirements`, `-kernel-step-semantics`,
+`-reconciliation-panel-retirement`. Version numbers are in
+`.ai/FEATURE_MAP.md`, *The execution-contract version ledger*; write moves,
+not literals.
 
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in
