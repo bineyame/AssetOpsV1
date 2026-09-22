@@ -1,6 +1,6 @@
 # T019 - Draft Run Setup
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Built on `task/T019-draft-run-setup`, from `main` at `a0dc56c`, and narrowed
@@ -116,3 +116,65 @@ Added by Amendment 1 after the slice was built, and binding on it before merge
 
 Review setup language, frozen input/provenance summary, and READY/BLOCKED
 treatment before M1C execution work begins.
+
+## Review Outcome
+
+Independent review, four rounds. Round one returned accept with fourteen
+findings - four Medium, ten Low - the sharpest being a guard whose docstring
+claimed product-wide reach while it scanned one directory, proved by a cadence
+derived from a device display name that passed all 789 tests. All fourteen were
+disposed of: twelve fixed, L8 moot once run setup stopped adjudicating
+coupling, L9 reshaped into a deviation naming T020A.
+
+Round two returned accept with two Low findings: a sentence printed twice on a
+run-store 503 whose test passed because its fixture was a message the wire
+cannot produce, and a client with no test at all, so the outcome mapping two
+earlier findings had changed was unproved. Both fixed; the client test was
+proved by staging each original defect back in and watching the frame tests
+stay green while the new ones failed.
+
+Round three, on the moved refusal line, returned accept with four findings.
+F1 is the one worth remembering: the invariant added to protect the newly
+nullable value required *a* blocking reason rather than a reason about the
+absent value, so a Draft could show "not resolved" for one state while the
+blocking table explained something else entirely. Unreachable from the service,
+which is why it was asserted on the record - and weaker than its own docstring
+until measured.
+
+Round four verified the vocabulary split. Checks at acceptance: backend 816
+passed, frontend 740 across 23 files, typecheck clean, production build clean,
+both `.ps1` checks, and `node tools/layout-evidence.mjs http://localhost:5173`
+returning `ALL CLAIMS HOLD` across 117 claims from a freshly started build.
+
+## User Review Outcome
+
+User review 2026-09-22, taken against the running app rather than a packet. The
+user created a Draft, saw it blocked, and triggered a refusal with a short
+interval.
+
+**The `BLOCKED` outcome: accepted.** The shipped Fuel Loss Event blocks on
+three `STATE_NOT_SUPPORTED` reasons and cannot reach `READY` in this build.
+
+**The screen wording: accepted as written.**
+
+**Form defaults: wanted, and deferred to T020.** Defaults with selection still
+available. The constraint carried into T020: a default must be visible and
+labelled as a default, never a silent pre-pick, because the defect removed here
+was not that fields were filled but that the browser chose two components of
+the frozen identity while the screen claimed nothing was prefilled.
+
+**The refusal line: moved, and this one changed code.** The user accepted the
+reviewer's principle and chose to align T019 to T020A rather than the reverse:
+the scenario's declared owner has no answer, so refuse, because no profile
+helps; the selected profile cannot answer, so block, because a different
+profile fixes it and the person gets a Draft to inspect. Four cases moved
+across, `FrozenInitializationInput` gained an absent case, and
+`INITIAL_VALUE_NOT_RESOLVED` joined the blocking vocabulary. The contradiction
+stays a refusal for a structural reason, not a policy one: every blocking case
+leaves the value with no answer, which the frozen identity can represent as
+absent, while a contradiction leaves it with two, which the identity has no
+shape for at all. That fact is now named in the vocabulary as
+`INITIAL_VALUE_ANSWERS_DISAGREE`.
+
+Recorded in `D-2026-09-21-run-setup-outcome-vocabulary`, which the amendment
+pass should extend with the moved line.
