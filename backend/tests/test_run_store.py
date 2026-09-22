@@ -193,6 +193,77 @@ class TestTheWriteIsAllOrNothing:
             YamlRunStore(tmp_path).list_runs()
 
 
+class TestAStoredRunMayNotContradictItself:
+    """The two cadence fields say different kinds of thing, and a document
+    where they disagree is a run a reader cannot interpret.
+
+    Reached by editing a written document rather than by constructing a
+    record, because this is the parser's rule and the parser only ever sees
+    documents. The store writes valid ones; the point is what happens when
+    something else does not.
+    """
+
+    def _stored(self, tmp_path: Path) -> Path:
+        YamlRunStore(tmp_path).create_run(a_run())
+        return next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
+
+    def test_a_resolved_cadence_with_no_cadence_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        document = self._stored(tmp_path)
+        document.write_text(
+            document.read_text(encoding="utf-8").replace(
+                "cadence_minutes: 15", "cadence_minutes: null"
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+    def test_an_unresolved_cadence_carrying_one_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        document = self._stored(tmp_path)
+        document.write_text(
+            document.read_text(encoding="utf-8").replace(
+                "cadence_resolution: MODEL_PROFILE",
+                "cadence_resolution: NOT_RESOLVED",
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+    def test_an_unknown_cadence_owner_is_refused(self, tmp_path: Path) -> None:
+        """The field the review found being read as free text while every
+        field beside it was a closed vocabulary."""
+        document = self._stored(tmp_path)
+        document.write_text(
+            document.read_text(encoding="utf-8").replace(
+                "cadence_ownership: NOT_DECLARED",
+                "cadence_ownership: EVERY_FIFTEEN_MINUTES",
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+    def test_the_document_this_edits_is_the_one_the_store_writes(
+        self, tmp_path: Path
+    ) -> None:
+        """Non-vacuity: the three edits above each replace text that is
+        really there, so none of them is a test of a string that never
+        appeared in a run document."""
+        text = self._stored(tmp_path).read_text(encoding="utf-8")
+
+        assert "cadence_minutes: 15" in text
+        assert "cadence_resolution: MODEL_PROFILE" in text
+        assert "cadence_ownership: NOT_DECLARED" in text
+
+
 class TestTheStoreRoot:
     def test_the_root_is_outside_every_shipped_configuration_root(self) -> None:
         """A run is a record this installation produced, so it is no more

@@ -57,6 +57,7 @@ from assetops_backend.runs.provenance import frozen_inputs
 from assetops_backend.runs.refusals import RUN_SETUP_REFUSAL_KINDS, RunSetupRefused
 from assetops_backend.runs.service import RunSetupService
 from assetops_backend.runs.timezones import (
+    TimeZoneDatabaseUnavailable,
     TimeZoneNotFound,
     validate_iana_timezone,
 )
@@ -788,7 +789,13 @@ class TestEveryFrozenValueNamesAnAnswerer:
     def test_every_identity_field_is_represented(self) -> None:
         """The completeness guard: a field added to the frozen identity with
         no answerer fails here rather than arriving on a screen in a column
-        with nothing under it."""
+        with nothing under it.
+
+        Top level only, which is why the audit below exists as well: this
+        compares row coverage against the ten fields of the identity, and a
+        field added to any of the records nested inside them would leave it
+        passing. The review found exactly that.
+        """
         record, _ = create()
         rows = frozen_inputs(record.deterministic_identity)
 
@@ -797,6 +804,116 @@ class TestEveryFrozenValueNamesAnAnswerer:
         declared = {field.name for field in fields(DeterministicIdentity)}
 
         assert covered == declared
+
+    def test_every_nested_frozen_field_is_classified(self) -> None:
+        """The audit the top-level check cannot be: every field of every
+        record inside the frozen identity, classified as rendered on the
+        summary or deliberately not.
+
+        Not every nested value belongs on a screen - a canonical restatement
+        of a value the row already shows is one number twice - so the honest
+        guard is not "everything is rendered" but "somebody decided about
+        everything". A field added anywhere in the frozen identity fails here
+        until it is classified, which is the same shape as T017's identifier
+        audit and exists for the same reason.
+        """
+        # Rendered on the setup summary as part of a row.
+        rendered = {
+            ("FrozenSiteBinding", "site_id"),
+            ("FrozenSiteBinding", "foundation_version"),
+            ("FrozenSiteBinding", "foundation_valid_from"),
+            ("FrozenSiteBinding", "site_type"),
+            ("FrozenSiteBinding", "timezone"),
+            ("FrozenScenarioBinding", "scenario_id"),
+            ("FrozenScenarioBinding", "scenario_version"),
+            ("FrozenScenarioBinding", "resolved_parameters"),
+            ("FrozenParameter", "parameter_id"),
+            ("FrozenParameter", "value"),
+            ("FrozenParameter", "unit"),
+            ("FrozenParameter", "answered_by"),
+            ("FrozenInterval", "start_time"),
+            ("FrozenInterval", "end_time"),
+            ("FrozenInterval", "duration_minutes"),
+            ("FrozenInterval", "timestep_minutes"),
+            ("FrozenProfileBinding", "model_profile_id"),
+            ("FrozenProfileBinding", "model_profile_version"),
+            ("FrozenProfileBinding", "publication_profile_id"),
+            ("FrozenProfileBinding", "publication_profile_version"),
+            ("FrozenProfileBinding", "execution_contract_version"),
+            ("FrozenInitializationInput", "state_key"),
+            ("FrozenInitializationInput", "value"),
+            ("FrozenInitializationInput", "unit"),
+            ("FrozenInitializationInput", "answered_by"),
+            ("FrozenInitializationInput", "answered_by_detail"),
+            ("FrozenObservationBinding", "source_id"),
+            ("FrozenObservationBinding", "cadence_minutes"),
+            ("FrozenObservationBinding", "cadence_resolution"),
+            ("FrozenPublicationIdentity", "simulator_source_id"),
+            ("FrozenPublicationIdentity", "gateway_id"),
+            ("FrozenSignalMapping", "mapping_id"),
+            ("FrozenSignalMapping", "device_id"),
+            ("FrozenSignalMapping", "signal_id"),
+            ("FrozenSignalMapping", "component_id"),
+        }
+
+        # Frozen and inspectable through the structured identity, and
+        # deliberately not given a row of its own, with the reason.
+        not_rendered = {
+            # The parameter identity already names it on its row.
+            ("FrozenInitializationInput", "parameter_id"),
+            # A canonical restatement of the value beside it. One number
+            # twice on a screen is one number that can disagree with itself.
+            ("FrozenInitializationInput", "canonical_value"),
+            ("FrozenInitializationInput", "canonical_unit"),
+            ("FrozenInitializationInput", "dimension"),
+            # The source's own identity is on the cadence row; what kind of
+            # source it is, and which device and signal it names, belong to
+            # the scenario surface that declares them.
+            ("FrozenObservationBinding", "source_kind"),
+            ("FrozenObservationBinding", "device_id"),
+            ("FrozenObservationBinding", "signal_id"),
+            # Who owns the cadence is the scenario's statement, and the row
+            # carries what this run froze rather than restating it.
+            ("FrozenObservationBinding", "cadence_ownership"),
+        }
+
+        from dataclasses import is_dataclass
+        import typing
+
+        import assetops_backend.runs.models as models
+
+        def nested(record_type: type, seen: set[str]) -> set[tuple[str, str]]:
+            if record_type.__name__ in seen:
+                return set()
+            seen.add(record_type.__name__)
+            found: set[tuple[str, str]] = set()
+            hints = typing.get_type_hints(record_type)
+            for field in fields(record_type):
+                found.add((record_type.__name__, field.name))
+                for argument in _referenced_types(hints[field.name]):
+                    if is_dataclass(argument):
+                        found |= nested(argument, seen)
+            return found
+
+        def _referenced_types(annotation: object) -> list[object]:
+            found = [annotation]
+            for argument in typing.get_args(annotation):
+                found.extend(_referenced_types(argument))
+            return found
+
+        declared = nested(models.DeterministicIdentity, set())
+        # The top level has its own test; this audit is about what is inside.
+        declared = {
+            item for item in declared if item[0] != "DeterministicIdentity"
+        }
+
+        assert declared, "nothing was walked, so this audit proves nothing"
+        assert declared == rendered | not_rendered, (
+            "A field of the frozen deterministic identity is neither rendered "
+            "on the setup summary nor classified as deliberately unrendered. "
+            "Decide which it is; a frozen value nobody decided about is a "
+            "value a reader cannot attribute."
+        )
 
     def test_every_row_names_one_of_the_four_answerers(self) -> None:
         record, _ = create()
@@ -916,3 +1033,130 @@ class TestTheShippedProfiles:
         assert RUN_SETUP_REFUSAL_KINDS
         with pytest.raises(ValueError):
             RunSetupRefused("NOT_A_KIND", "anything")
+
+
+class TestEveryRefusalKindIsReachable:
+    """Each kind, produced by a request that produces it.
+
+    The vocabulary test above proves only that an unknown kind is rejected.
+    It would pass on a build where three of the nine were unreachable, and
+    a refusal kind nothing can produce is a fact the product claims it can
+    state and cannot. This maps each kind to the request that causes it and
+    asserts the map covers the vocabulary exactly, so a kind added without a
+    way to reach it fails here.
+    """
+
+    def _timezone_database_unavailable(self) -> RunSetupRefused:
+        """The one kind no request shape can produce.
+
+        It needs the zone database itself to be unreadable, which is a fact
+        about the host. Patched rather than left untested, because "we could
+        not look" and "it is not there" being different facts is a claim this
+        slice makes and nothing else measured.
+        """
+        from assetops_backend.runs import timezones
+
+        def unreadable() -> frozenset[str]:
+            raise TimeZoneDatabaseUnavailable("no database on this host")
+
+        original = timezones._known_zones
+        timezones._known_zones = unreadable
+        try:
+            setup, store = service()
+            with pytest.raises(RunSetupRefused) as raised:
+                setup.create_draft_run(setup_request())
+            assert store.written == []
+            return raised.value
+        finally:
+            timezones._known_zones = original
+
+    def test_each_kind_has_a_request_that_produces_it(self) -> None:
+        produced = {
+            refuse(setup_request(seed=-1))[0].kind,
+            refuse(setup_request(), sites=FakeSites(()))[0].kind,
+            refuse(
+                setup_request(
+                    interval={"start_time": END_TIME, "end_time": START_TIME}
+                )
+            )[0].kind,
+            refuse(
+                setup_request(),
+                sites=FakeSites((site(timezone="Africa/Atlantis"),)),
+            )[0].kind,
+            self._timezone_database_unavailable().kind,
+            refuse(
+                setup_request(), sites=FakeSites((site(topology=None),))
+            )[0].kind,
+            refuse(setup_request(), sites=FakeSites((site(devices=()),)))[
+                0
+            ].kind,
+            refuse(
+                setup_request(
+                    run_inputs=[
+                        {
+                            "parameter_id": "draw-rate",
+                            "value": 1,
+                            "unit": "furlongs",
+                        }
+                    ]
+                )
+            )[0].kind,
+            self._missing_initialization_input().kind,
+        }
+
+        assert produced == RUN_SETUP_REFUSAL_KINDS
+
+    def _missing_initialization_input(self) -> RunSetupRefused:
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "RUN_OVERRIDE"
+        error, store = refuse(
+            setup_request(),
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+        )
+        assert store.written == []
+        return error
+
+    def test_an_unreadable_zone_database_is_not_an_unreal_zone(self) -> None:
+        """Two different facts, and the message says which one this is."""
+        error = self._timezone_database_unavailable()
+
+        assert error.kind == "TIMEZONE_DATABASE_UNAVAILABLE"
+        # The service's own wrapper, which is the product copy a reader
+        # meets. It says which fact this is, and it does not say the other.
+        assert "statement about the database rather than about the site" in (
+            error.message
+        )
+        assert "is not a name in the IANA" not in error.message
+
+    def test_the_two_zone_failures_are_two_exceptions(self) -> None:
+        """One level down, where the distinction is made.
+
+        The service can only report what the zone module tells it, so the
+        module is measured directly too: an empty database is not a zone that
+        does not exist, and neither message claims the other's fact.
+        """
+        from assetops_backend.runs import timezones
+
+        # The real rule, exercised through the real lookup: an empty database
+        # is NO database rather than a database with nothing in it. Reading
+        # it the other way would refuse every zone that exists, which is what
+        # this project's Windows machines would have done without `tzdata`.
+        timezones._known_zones.cache_clear()
+        original = timezones.zoneinfo.available_timezones
+        timezones.zoneinfo.available_timezones = lambda: set()
+        try:
+            with pytest.raises(TimeZoneDatabaseUnavailable):
+                validate_iana_timezone("Africa/Kampala", where="a test")
+        finally:
+            timezones.zoneinfo.available_timezones = original
+            timezones._known_zones.cache_clear()
+
+        # And a real database that does not hold the name is the other fact.
+        with pytest.raises(TimeZoneNotFound):
+            validate_iana_timezone("Africa/Atlantis", where="a test")

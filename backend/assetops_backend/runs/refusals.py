@@ -19,7 +19,7 @@ run would put a record in the store that names inputs nobody could resolve; a
 to be able to inspect in order to decide what to change.
 
 The kinds below are the refusal half. Each is a different fact with a
-different fix, which is why they are eight rather than one with a message: a
+different fix, which is why they are nine rather than one with a message: a
 malformed interval and a Site that is not configured are not the same problem
 and do not lead a reader to the same place.
 """

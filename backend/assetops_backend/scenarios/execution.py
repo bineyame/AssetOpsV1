@@ -734,9 +734,12 @@ class ObservationReconciliation:
     unit: str
     state: str
     #: Why the contract answered the way it did. Always present, because a
-    #: `NOT_RECONCILABLE` with no reason is three different facts wearing one
-    #: name: no declared initial value, an open causal window, and a declared
-    #: bound reached are not the same problem and do not have the same fix.
+    #: `NOT_RECONCILABLE` with no reason is four different facts wearing one
+    #: name: no declared initial value, an open causal window, a declared
+    #: bound reached, and a group of simultaneous causes whose outcome depends
+    #: on an order nobody declared are four problems with four different
+    #: fixes. The fourth arrived with T019's revised intra-instant rule and
+    #: this count did not follow it until the review said so.
     reason: str
     accounted_by: tuple[str, ...]
 

@@ -1039,21 +1039,41 @@ class TestReconciliation:
         )
         assert without["fuel-tank-volume"] == (0.0, None)
 
-    def test_each_unanswerable_reading_says_which_of_the_three_it_is(
-        self,
-    ) -> None:
-        """A `NOT_RECONCILABLE` with no reason is three facts wearing one name."""
+    def test_every_answer_says_which_one_it_is(self) -> None:
+        """A `NOT_RECONCILABLE` with no reason is several facts wearing one
+        name, and the same is true of an answer.
+
+        The set is built from the module rather than listed here, and the
+        count is derived from it. A hand-written count is a number to keep in
+        agreement with a set that grows: this test asserted six while
+        `ORDER_DEPENDENT_GROUP` existed and was not in it, so the new reason
+        was outside every assertion below.
+        """
+        import assetops_backend.scenarios.execution as contract
+
         reasons = {
+            getattr(contract, name)
+            for name in dir(contract)
+            if name.endswith(("_REASON", "_WINDOW", "_UPPER", "_LOWER", "_VALUE", "_GROUP"))
+            and isinstance(getattr(contract, name), str)
+        }
+
+        assert reasons >= {
+            ACCOUNTED_FOR_REASON,
+            NOT_ACCOUNTED_FOR_REASON,
             NO_DECLARED_INITIAL_VALUE,
             OPEN_CAUSAL_WINDOW,
             BOUND_REACHED_UPPER,
             BOUND_REACHED_LOWER,
-            ACCOUNTED_FOR_REASON,
-            NOT_ACCOUNTED_FOR_REASON,
+            ORDER_DEPENDENT_GROUP,
         }
-        assert len(reasons) == 6
+        assert len(reasons) == 7, sorted(reasons)
+
         for reason in reasons:
             assert reason.strip()
+            # Digit-free on purpose: the quantities belong in the record's
+            # own columns, and prose that restated them would be a second
+            # place for a number to drift.
             assert not any(character.isdigit() for character in reason)
 
         for result in reconcile_reported_observations(shipped_scenario()):

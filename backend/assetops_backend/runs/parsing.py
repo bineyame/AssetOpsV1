@@ -78,6 +78,7 @@ from assetops_backend.scenarios.execution import (
 )
 from assetops_backend.scenarios.identity import validate_scenario_id
 from assetops_backend.scenarios.models import (
+    CADENCE_OWNERSHIP,
     OBSERVATION_SOURCE_KINDS,
     PARAMETER_UNITS,
 )
@@ -999,7 +1000,49 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
 
 
 def _parse_observation_binding(entry: Any) -> FrozenObservationBinding:
+    """One frozen source, with the two cadence fields checked against each other.
+
+    `cadence_ownership` is a closed vocabulary like every field beside it, and
+    was read as free text until T019's review noticed the one that was not.
+
+    The cross-field rule matters more. `cadence_resolution` says where the
+    cadence came from and `cadence_minutes` is the cadence; a document saying
+    the profile resolved one while carrying none, or saying nobody resolved
+    one while carrying a number, is a run record that contradicts itself, and
+    a reader of a stored run would have no way to tell which half is true.
+    """
     raw = _mapping(entry, where="observation_binding")
+    resolution = _choice(
+        raw,
+        "cadence_resolution",
+        where="observation_binding",
+        allowed=CADENCE_RESOLUTIONS,
+    )
+    minutes = _optional_whole(
+        raw, "cadence_minutes", where="observation_binding"
+    )
+
+    if resolution == "MODEL_PROFILE" and minutes is None:
+        raise _bad(
+            "'observation_binding.cadence_resolution' is MODEL_PROFILE and no "
+            "cadence is recorded. A resolution says where the cadence came "
+            "from; it is not a cadence, and a run cannot have been resolved "
+            "to nothing."
+        )
+    if resolution != "MODEL_PROFILE" and minutes is not None:
+        raise _bad(
+            f"'observation_binding.cadence_resolution' is {resolution} and a "
+            "cadence is recorded anyway. Nothing but a publication profile "
+            "may supply one, so a cadence beside any other resolution is a "
+            "value with no owner."
+        )
+    if minutes is not None and minutes < 1:
+        raise _bad(
+            "'observation_binding.cadence_minutes' must be at least one "
+            "minute. A source that reports every zero minutes reports at no "
+            "rate, which is a different statement and has its own value."
+        )
+
     return FrozenObservationBinding(
         source_id=_text(raw, "source_id", where="observation_binding"),
         source_kind=_choice(
@@ -1010,18 +1053,14 @@ def _parse_observation_binding(entry: Any) -> FrozenObservationBinding:
         ),
         device_id=_optional_text(raw, "device_id", where="observation_binding"),
         signal_id=_optional_text(raw, "signal_id", where="observation_binding"),
-        cadence_ownership=_text(
-            raw, "cadence_ownership", where="observation_binding"
-        ),
-        cadence_minutes=_optional_whole(
-            raw, "cadence_minutes", where="observation_binding"
-        ),
-        cadence_resolution=_choice(
+        cadence_ownership=_choice(
             raw,
-            "cadence_resolution",
+            "cadence_ownership",
             where="observation_binding",
-            allowed=CADENCE_RESOLUTIONS,
+            allowed=CADENCE_OWNERSHIP,
         ),
+        cadence_minutes=minutes,
+        cadence_resolution=resolution,
     )
 
 
