@@ -48,6 +48,14 @@ state or treating a golden trace as authority.
   `run_id`. A structurally valid, fully frozen request whose executable inputs
   are unsupported by the selected model profile may persist as `BLOCKED` with
   inspectable reasons; no fabricated defaults make it `READY`.
+- **Which side of that line a failure falls on is decided by who failed to
+  answer**, settled at the T019 user review and aligned with T020A. The
+  scenario's declared owner has no answer, so nothing can be frozen and no
+  profile would help: refuse. The selected profile cannot answer, so a
+  different profile would: persist a `BLOCKED` Draft. An initial world value
+  the selected model profile cannot supply or locate is therefore a blocking
+  reason and not a refusal, the frozen identity can record a value as having
+  no answer, and a `READY` run may not carry one.
 - A created Draft has a new `run_id` distinct from `site_id` and `scenario_id`.
   It persists behind a SimulationRun domain port and survives restart;
   overlapping Drafts remain allowed. T019 returns only the setup summary; run

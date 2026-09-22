@@ -54,23 +54,26 @@ during T021 from what the kernel computes. Read
 `.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task file in
 that range.
 
-**T019 has applied (e) and (j), and closed the fourteen review findings.**
+**T019 has applied (e) and (j) and closed the fourteen review findings.**
 Run setup no longer adjudicates cause-to-observation coupling: the shipped
-Draft blocks on three `STATE_NOT_SUPPORTED` reasons, and every blocking kind
-is now a statement about the selected profile. The reconciliation is labelled
-as a specification reference implementation whose expiry is a condition, and
-the panel, the payload and the arithmetic are untouched. Twelve findings are
-fixed, L8 is moot under (e), and L9 is a Known Deviation naming **T020A** as
-the slice that adds the model-rule carrier.
+Draft blocks on three `STATE_NOT_SUPPORTED` reasons and every blocking kind
+is a statement about the selected profile. The reconciliation is labelled a
+specification reference implementation whose expiry is a condition; the
+panel, the payload and the arithmetic are untouched. L8 is moot under (e) and
+L9 names **T020A** for the model-rule carrier. **Re-review accepted it** with
+two Low findings fixed and four (N3-N6) in the packet's residual risk, which
+T020 should read before it reads that store.
 
-**Re-review accepted it** with two Low findings, both fixed on the branch: a
-duplicated "Nothing was written." on a run-store failure, and a client with
-no test of its own - every test stubbed the interface, so nothing measured
-what a response becomes. Four more (N3-N6) are recorded in the packet's
-residual risk rather than fixed; T020 reads that store next. The amendment to
-`D-2026-09-21-scenario-execution-contract` for the reversed ordering rule is
-Architect's and is pending. What waits on the user: the refusal line, the
-screen wording, and the prefill friction. The `BLOCKED` question is settled.
+**User review settled all four items.** `BLOCKED` stands and the wording is
+accepted. Form defaults are wanted and land in **T020**, where a default must
+be visible and labelled rather than a silent pre-pick. And **the refusal line
+moved**, aligned to T020A: the scenario's declared owner has no answer -
+refuse; the selected profile cannot answer - block, because a different
+profile would fix it. An initial value the profile cannot supply or locate is
+now `INITIAL_VALUE_NOT_RESOLVED` on a persisted Draft, the frozen identity can
+record a value as having no answer, and a `READY` run may not carry one. The
+amendment to `D-2026-09-21-scenario-execution-contract` for the reversed
+ordering rule is Architect's and is pending.
 
 Two of T018's four Low findings are closed by T019 and marked settled in place:
 intra-instant ordering became a `DISPATCH_RULES` entry - since reversed by the

@@ -1721,7 +1721,38 @@ the repository when its last product-path caller goes - the
 removal is Open Question 5 and undecided. No slice before that decision
 treats the removal as in scope.
 
-**The refusal line is the slice.** A refusal means the request could not be
+**The refusal line is the slice, and the T019 user review sharpened it into
+a question about who failed to answer.** The scenario's declared owner has no
+answer, so nothing can be frozen and no profile helps: refuse. The selected
+profile cannot answer, so a different profile would: persist a `BLOCKED`
+Draft. T019 was aligned to T020A rather than the reverse.
+
+The observation that decides the hard cases: **a Foundation's answer is only
+locatable THROUGH the selected profile's binding**, so failing to locate it is
+a joint fact about the pair, and the profile is the half a person can change
+on the setup form. Four failures therefore block - the profile declares no
+binding, the binding matches nothing, it matches more than one thing, or its
+unit is not the scenario's - and one refuses: the Foundation's value
+disagreeing with the value the scenario states it declares, where both
+declared owners answered and contradict each other. A profile pointing at
+some other component that happened to match would be resolving a
+contradiction by shopping for a value.
+
+`INITIAL_VALUE_NOT_RESOLVED` carries all four, and the name is chosen for
+that: it names the state the value is left in rather than the cause, so one
+name covers four causes here and T020A's uncarried `MODEL_RULE` case without
+rewording.
+
+**The frozen identity has one absent case, and it is load-bearing.**
+`FrozenInitializationInput.value` and its canonical restatement are nullable,
+absent together, enforced when a document is read; the unit is not, because
+the scenario declares it whether or not anything answers. **A `READY` run may
+not carry an absent value**, asserted on the record beside the status
+invariant - an absent value exists only because something blocked the run.
+This was a protected-seam change, so nothing else about the identity's shape
+moved.
+
+ A refusal means the request could not be
 frozen: something it names does not exist, does not resolve, is not well
 formed, or would have to be invented. No `run_id` is allocated and nothing is
 written, so there is nothing afterwards to inspect. `BLOCKED` means everything
@@ -1886,11 +1917,11 @@ two forward constraints that live only in code comments.
 
 What T019 leaves open, for the slice that meets it.
 
-- **A `MODEL_RULE`-owned initial value is refused whatever profile is
-  selected.** Review finding L9. `SupportedState` has no field a
-  model-supplied initial value could be carried in, so the refusal is honest
-  and the reason is that the carrier does not exist. **T020A adds it.** No
-  shipped scenario uses the owner.
+- **A `MODEL_RULE`-owned initial value has no carrier.** Review finding L9,
+  narrowed by the user review: it no longer refuses, it blocks with
+  `INITIAL_VALUE_NOT_RESOLVED`, so the person gets a Draft to inspect. What
+  remains is that no profile in this build can carry such a rule. **T020A
+  adds the carrier.** No shipped scenario declares the owner.
 - **Narrowing a stored vocabulary makes older Drafts unreadable, and the
   store fails closed.** Removing a blocking kind stopped every Draft written
   before it from parsing, and because `create_run` lists the store to refuse
