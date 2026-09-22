@@ -59,10 +59,10 @@ Run setup no longer adjudicates cause-to-observation coupling: the shipped
 Draft blocks on three `STATE_NOT_SUPPORTED` reasons and every blocking kind
 is a statement about the selected profile. The reconciliation is labelled a
 specification reference implementation whose expiry is a condition; the
-panel, the payload and the arithmetic are untouched. L8 is moot under (e) and
-L9 names **T020A** for the model-rule carrier. **Re-review accepted it** with
-two Low findings fixed and four (N3-N6) in the packet's residual risk, which
-T020 should read before it reads that store.
+panel, the payload and the arithmetic are untouched. L8 is moot under (e),
+L9 names **T020A** for the model-rule carrier, and re-review's N3-N6 are in
+the packet's residual risk, which T020 should read before it reads the run
+store.
 
 **User review settled all four items.** `BLOCKED` stands and the wording is
 accepted. Form defaults are wanted and land in **T020**, where a default must
@@ -75,12 +75,16 @@ record a value as having no answer, and a `READY` run may not carry one. The
 amendment to `D-2026-09-21-scenario-execution-contract` for the reversed
 ordering rule is Architect's and is pending.
 
-Two of T018's four Low findings are closed by T019 and marked settled in place:
-intra-instant ordering became a `DISPATCH_RULES` entry - since reversed by the
-checkpoint into the net/abstain rule - and `EXECUTION_CONTRACT_VERSION` moved
-to 2, which also made the weak contract-version test strong. Two remain: the
-unmeasured second initialization layer, and two forward constraints that live
-only in code comments.
+**The final gate accepted it**, four findings fixed: the absent-value
+invariant now requires a reason naming the same state, the record enforces
+the pairing its own docstring claims, `runs/refusals.py` is canonical again,
+and one unmodelled state is one blocking row. Whether the Foundation
+contradiction should leave `INITIALIZATION_INPUT_MISSING` for a kind of its
+own is with the user and was not in that round.
+
+Two of T018's four Low findings are closed by T019 and marked settled in
+place in `.ai/CODE_STATE.md`; two remain, the unmeasured second
+initialization layer and two forward constraints living only in comments.
 
 ## Current State
 
@@ -88,11 +92,9 @@ M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.
 M1B is active: T017 and T018 are complete and T019 is in review.
 
 Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
-position is evidence, not configuration. T017 grew that protection to the
-scenario domain and moved the banned list to
-`backend/tests/control_vocabulary.py`, read by both scans. It is unconditional
-and covers the scenario model, the parser key vocabularies, the shipped
-definition and the parser fixtures.
+position is evidence, not configuration. The banned list lives in
+`backend/tests/control_vocabulary.py`, is read by both scans, and is
+unconditional; T017's entry in `.ai/CODE_STATE.md` says what it covers.
 
 `config/scenarios/fuel-loss-event.yaml` is tracked, read-only, and the one
 shipped scenario. Unlike `config/sites/`, that store deliberately does not ship

@@ -1744,13 +1744,33 @@ name covers four causes here and T020A's uncarried `MODEL_RULE` case without
 rewording.
 
 **The frozen identity has one absent case, and it is load-bearing.**
-`FrozenInitializationInput.value` and its canonical restatement are nullable,
-absent together, enforced when a document is read; the unit is not, because
-the scenario declares it whether or not anything answers. **A `READY` run may
-not carry an absent value**, asserted on the record beside the status
-invariant - an absent value exists only because something blocked the run.
-This was a protected-seam change, so nothing else about the identity's shape
-moved.
+`FrozenInitializationInput.value` and its canonical restatement are nullable
+and absent together; the unit is not, because the scenario declares it
+whether or not anything answers. This was a protected-seam change, so nothing
+else about the identity's shape moved.
+
+Three invariants guard it and **all three live on the record**, because the
+service cannot produce a violation and a hand-edited document can:
+
+- a run is `READY` exactly when it carries no blocking reason;
+- every absent value has a blocking reason naming **the same state**. The
+  first version of this asked only whether the run carried any reason at all,
+  and the final gate satisfied it with an absent value beside a reason about
+  an unrelated profile identity. **An invariant that is weaker than its own
+  docstring is the docstring making a promise the code does not keep** - the
+  same family as a screen asserting a guarantee the parser did not hold;
+- the two number fields are absent together. That was enforced only where
+  documents are read, while the record's own docstring stated it as a
+  property of the record.
+
+The reason the contradiction case refuses while the four location failures
+block is **structural, not a judgement about fixability**: the four leave the
+value with no answer, which the record can represent as absent, and the
+contradiction leaves it with two, which the record cannot represent at all.
+A blocked Draft would have to freeze one of the two numbers. The earlier
+reason - that a profile finding another matching component would be shopping
+for a value - falls to a site that declares a second matching component whose
+rating equals the scenario's, and is kept only as the intuition.
 
  A refusal means the request could not be
 frozen: something it names does not exist, does not resolve, is not well
@@ -1945,6 +1965,12 @@ What T019 leaves open, for the slice that meets it.
 
 Two lessons from the last two rounds, because both are about tests rather
 than about runs.
+
+**A reason's `subject` is what makes two rows two facts.** A state the
+profile does not model was reported once per execution role, differing only
+in which role the prose named, so a reader counting rows counted one problem
+twice. Reasons are deduplicated on `(kind, subject)`, and a reason that
+really is one per role carries the role in its subject.
 
 **A guard's scope is part of its claim.** `tools/checks/run-setup.ps1`
 described itself as protecting the product while scanning one folder, and a
