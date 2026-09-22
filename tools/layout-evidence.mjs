@@ -181,6 +181,41 @@ const MEASURE = `(() => {
   const slots = Array.from(document.querySelectorAll(".sld-node__slot")).map((slot) =>
     (slot.textContent || "").trim(),
   );
+  // T020's Runs inventory rows: where each row goes and what it says about
+  // execution. A run identity is allocated per installation, so this script
+  // cannot know one in advance; it reads the inventory and then follows the
+  // rows, which is also how a person reaches a run.
+  const runRows = Array.from(
+    document.querySelectorAll('[aria-labelledby="runs-table-heading"] tbody tr'),
+  ).map((row) => {
+    const link = row.querySelector("a");
+    const cells = Array.from(row.querySelectorAll("td")).map((cell) =>
+      (cell.textContent || "").trim(),
+    );
+    return {
+      href: link ? link.getAttribute("href") : null,
+      // Site, Foundation, Scenario, Scenario version, Lifecycle, Execution.
+      status: cells.length > 5 ? cells[5] : null,
+    };
+  });
+  // The READY disclosure. Its presence is measured as rendered TEXT with a
+  // real box rather than as a heading that exists: a panel collapsed to zero
+  // height would satisfy "the screen says what READY does not assert" while
+  // saying nothing at all.
+  const disclosureHeading = document.getElementById("run-disclosure-heading");
+  const disclosurePanel = disclosureHeading
+    ? disclosureHeading.closest("section") || disclosureHeading.parentElement
+    : null;
+  const disclosureBox = disclosurePanel
+    ? disclosurePanel.getBoundingClientRect()
+    : null;
+  const disclosure =
+    disclosurePanel === null
+      ? null
+      : {
+          length: (disclosurePanel.textContent || "").trim().length,
+          visible: disclosureBox.width > 0 && disclosureBox.height > 0,
+        };
   const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
     scrollers,
@@ -191,6 +226,8 @@ const MEASURE = `(() => {
     privateRegions,
     privateRegionVisible,
     slots,
+    runRows,
+    disclosure,
     railLeftAfterAll,
     pageScrollsHorizontally: doc.scrollWidth > doc.clientWidth,
     pageScrollWidth: doc.scrollWidth,
@@ -322,10 +359,11 @@ const SUBMIT_RUN_SETUP = `(() => {
     return true;
   };
 
-  // The two profiles are chosen rather than assumed: nothing on this screen
-  // preselects them, because they are components of the frozen deterministic
-  // identity and the model profile decides the outcome. The first real
-  // option is taken - the leading one is the empty "choose" entry.
+  // The two profiles are chosen here rather than assumed. Since T020 the form
+  // does default them where there is exactly one option, and says in the
+  // field that it did; choosing explicitly keeps this script measuring the
+  // same submitted draft whether or not a second profile ever ships. The
+  // first real option is taken - the leading one is the empty "choose" entry.
   const chooseFirst = (id) => {
     const element = document.getElementById(id);
     if (!element) return false;
@@ -822,6 +860,248 @@ for (const [label, width, height] of [
           ]
         : []),
     ]) && allPass;
+}
+
+// T020's Runs inventory. Ten columns, two of them unbreakable identities, and
+// it is the first Lab screen whose row count grows with use. Measured at the
+// same three widths as every other dense table, for the same reason: without
+// a width at which something overflows, "every table that overflows scrolls
+// inside its own region" is a claim about an empty set.
+//
+// The two run detail measurements below are reached from here rather than
+// from a literal address, because a run identity is allocated per
+// installation and this script cannot know one in advance.
+let readyHref = null;
+let blockedHref = null;
+
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["1000x700, below the commitment", 1000, 700],
+  ["640x700, narrow enough that the inventory cannot fit", 640, 700],
+]) {
+  const runs = await visit(cdp, "/simulator-lab/runs", width, height, "table");
+  const inventory = runs.scrollers.find((s) => s.name === "runs-table-heading");
+
+  readyHref =
+    readyHref ??
+    runs.runRows.find((row) => row.status === "READY")?.href ??
+    null;
+  blockedHref =
+    blockedHref ??
+    runs.runRows.find((row) => row.status === "BLOCKED")?.href ??
+    null;
+
+  allPass =
+    report(`Runs inventory at ${label}`, runs, [
+      [
+        "the page does not scroll horizontally",
+        !runs.pageScrollsHorizontally,
+        `scrollWidth ${runs.pageScrollWidth} vs clientWidth ${runs.pageClientWidth}`,
+      ],
+      [
+        "every table on the page has a named, focusable overflow region",
+        runs.scrollers.length > 0 &&
+          runs.scrollers.every((s) => s.focusable && s.name),
+        runs.scrollers.map((s) => s.name ?? "unnamed").join(", "),
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        runs.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+        runs.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the rail does not move when the inventory is scrolled to its end",
+        runs.railLeftBefore === runs.railLeftAfterAll,
+        `left ${runs.railLeftBefore} -> ${runs.railLeftAfterAll}`,
+      ],
+      [
+        "the inventory keeps all ten of its columns",
+        inventory !== undefined && inventory.columnCount === 10,
+        inventory === undefined
+          ? "no region named runs-table-heading"
+          : `${inventory.columnCount} columns`,
+      ],
+      [
+        "the inventory renders a row from the real run store",
+        inventory !== undefined && inventory.rowCount > 0,
+        inventory === undefined
+          ? "no region named runs-table-heading"
+          : `${inventory.rowCount} rows`,
+      ],
+      [
+        "no table renders a header row with no rows under it",
+        runs.scrollers.every((s) => s.columnCount === 0 || s.rowCount > 0),
+        runs.scrollers
+          .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
+          .join("; "),
+      ],
+      [
+        // Stronger than "no enabled button": the inventory is a list of
+        // records and there is nothing on it to operate at all.
+        "the inventory offers no button of any kind",
+        runs.buttons.length === 0,
+        runs.buttons.map((b) => b.label).join(", ") || "no button rendered",
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              runs.scrollers.some((s) => s.overflows),
+              `${runs.scrollers.filter((s) => s.overflows).length} of ${runs.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
+
+// Both run states have to be on the page for the two measurements below to
+// mean anything. A missing one is a failure rather than a skip: a skipped
+// READY measurement would leave "the disclosure is visible" as a claim about
+// a page no browser drew, which is the exact failure mode every non-vacuity
+// claim in this file exists to prevent.
+if (readyHref === null || blockedHref === null) {
+  throw new Error(
+    "The run store does not hold both a READY and a BLOCKED draft, so the " +
+      `two run detail measurements cannot be made (READY ${readyHref}, ` +
+      `BLOCKED ${blockedHref}). No READY run is reachable through the ` +
+      "product path in this build; one is written through the SimulationRun " +
+      "port as a fixture.",
+  );
+}
+
+for (const [state, href, expectBlockedTable] of [
+  ["READY", readyHref, false],
+  ["BLOCKED", blockedHref, true],
+]) {
+  for (const [label, width, height] of [
+    ["1280x800, the committed minimum", 1280, 800],
+    ["1000x700, below the commitment", 1000, 700],
+    ["640x700, narrow enough that the frozen table cannot fit", 640, 700],
+  ]) {
+    const run = await visit(cdp, href, width, height, ".fact-list");
+    const frozen = run.scrollers.find((s) => s.name === "run-frozen-heading");
+    const blocked = run.scrollers.find((s) => s.name === "run-blocked-heading");
+
+    allPass =
+      report(`${state} draft run at ${label}`, run, [
+        [
+          // The claim that catches an unbreakable run identity in the fact
+          // list, which is exactly how T019 broke this page at 640px.
+          "the page does not scroll horizontally",
+          !run.pageScrollsHorizontally,
+          `scrollWidth ${run.pageScrollWidth} vs clientWidth ${run.pageClientWidth}`,
+        ],
+        [
+          "every table on the page has a named, focusable overflow region",
+          run.scrollers.length > 0 &&
+            run.scrollers.every((s) => s.focusable && s.name),
+          run.scrollers.map((s) => s.name ?? "unnamed").join(", "),
+        ],
+        [
+          "every table that overflows scrolls inside its own region",
+          run.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+          run.scrollers
+            .map(
+              (s) =>
+                `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+            )
+            .join("; "),
+        ],
+        [
+          "the rail does not move when every table is scrolled to its end",
+          run.railLeftBefore === run.railLeftAfterAll,
+          `left ${run.railLeftBefore} -> ${run.railLeftAfterAll}`,
+        ],
+        [
+          "the frozen input table keeps all four of its columns",
+          frozen !== undefined && frozen.columnCount === 4,
+          frozen === undefined
+            ? "no region named run-frozen-heading"
+            : `${frozen.columnCount} columns`,
+        ],
+        [
+          "the frozen input table renders a row for every frozen value",
+          frozen !== undefined && frozen.rowCount >= 20,
+          frozen === undefined
+            ? "no region named run-frozen-heading"
+            : `${frozen.rowCount} rows`,
+        ],
+        [
+          "no table renders a header row with no rows under it",
+          run.scrollers.every((s) => s.columnCount === 0 || s.rowCount > 0),
+          run.scrollers
+            .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
+            .join("; "),
+        ],
+        expectBlockedTable
+          ? [
+              "the blocked table names every reason the draft carries",
+              blocked !== undefined &&
+                blocked.columnCount === 3 &&
+                blocked.rowCount > 0,
+              blocked === undefined
+                ? "no region named run-blocked-heading"
+                : `${blocked.columnCount} columns, ${blocked.rowCount} rows`,
+            ]
+          : [
+              "a ready draft carries no blocked table",
+              blocked === undefined,
+              blocked === undefined
+                ? "absent"
+                : `${blocked.rowCount} rows on a READY run`,
+            ],
+        expectBlockedTable
+          ? [
+              // The disclosure qualifies READY. On a blocked draft there is
+              // no READY to qualify, and a panel about it would be a screen
+              // discussing a status the record does not hold.
+              "a blocked draft carries no readiness disclosure",
+              run.disclosure === null,
+              run.disclosure === null
+                ? "absent"
+                : `${run.disclosure.length} characters`,
+            ]
+          : [
+              "the readiness disclosure is drawn, with a real box and real text",
+              run.disclosure !== null &&
+                run.disclosure.visible &&
+                run.disclosure.length > 200,
+              run.disclosure === null
+                ? "no disclosure panel"
+                : `${run.disclosure.length} characters, visible ${run.disclosure.visible}`,
+            ],
+        expectBlockedTable
+          ? [
+              // A blocked draft cannot be run for a second, prior reason, so
+              // the same disabled button on both would say the two are the
+              // same distance from working.
+              "a blocked draft offers no run action at all",
+              run.buttons.length === 0,
+              run.buttons.map((b) => b.label).join(", ") || "no button rendered",
+            ]
+          : [
+              "the one action on a ready draft is rendered and disabled",
+              run.buttons.length === 1 && run.buttons[0].disabled,
+              run.buttons
+                .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
+                .join(", ") || "no button rendered",
+            ],
+        ...(width <= 640
+          ? [
+              [
+                "at least one table overflows here, so the claim above is not vacuous",
+                run.scrollers.some((s) => s.overflows),
+                `${run.scrollers.filter((s) => s.overflows).length} of ${run.scrollers.length} overflow`,
+              ],
+            ]
+          : []),
+      ]) && allPass;
+  }
 }
 
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
