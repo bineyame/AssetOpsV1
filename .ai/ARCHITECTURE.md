@@ -172,6 +172,47 @@ served. Existing simulated Sites, SIMULATED provenance, accepted evidence,
 operator routes, analytics, and Replay remain available because they are product
 history, not simulator execution.
 
+## Refusal And Blocking Vocabularies
+
+Where a request can be refused outright or persisted in a state that says it
+must not proceed, the two outcomes have disjoint vocabularies of kinds. The
+line between them is stated once, in
+`backend/assetops_backend/runs/refusals.py`, and is not restated here. What is
+stated here is the rule the names follow, so the line survives the vocabulary
+growing.
+
+**A kind's name must make its side derivable without reading a docstring.** A
+kind string reaches a client, a log and a screen with no comment attached, so
+whatever tells a reader which side it is on has to be in the name itself. Two
+things can carry that, and which one applies depends on the subject.
+
+- **Across different subjects, the subject carries it, and a shared verb is
+  not a collision.** `COMPONENT_OR_SIGNAL_UNRESOLVED` refuses while
+  `INITIAL_VALUE_NOT_RESOLVED` blocks. An observation source the Foundation
+  does not configure and an initial world value the selected profile could not
+  locate are different things with different fixes, and a reader who reads the
+  subject is not misled. Reserving words to one side would have cost a good
+  name and prevented neither collision this rule comes from.
+- **Within one subject, the shape must carry it, and shape means what the
+  frozen record can hold.** `INITIAL_VALUE_NOT_RESOLVED` and
+  `INITIAL_VALUE_ANSWERS_DISAGREE` share a subject, so the difference between
+  them has to be legible from the names: no answer is something the record can
+  represent as absent, so the request freezes and blocks; two answers is
+  something the record has no shape for, so nothing can be frozen and it
+  refuses. Names that differ by degree rather than by shape do not satisfy
+  this.
+
+The review question, for any kind added later: **from the name alone, which
+side of the line is it on?** If answering it needs the docstring, the name is
+wrong. A test asserting the two sets of strings are disjoint is the mechanical
+half and does not catch this.
+
+The rule is recorded because the experience repeated rather than because a
+slice required it: one vocabulary produced two near-collisions in a single
+slice, the dangerous one was caught by a reviewer and the surviving one by the
+implementer, and neither was caught by anything durable. See
+`D-2026-09-21-run-setup-outcome-vocabulary`.
+
 ## Shells And Navigation
 
 Simulator Lab exists to unblock product development before a real site exists.

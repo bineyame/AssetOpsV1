@@ -2333,8 +2333,11 @@ panel shows it resolving from *site foundation* rather than from *scenario*.
 That is the seam repair made visible in one line of a table the user already
 reads. The slice also re-creates MG-001 from the updated template, because
 templates instantiate by copy and a template change never reaches an existing
-instance; a slice that adds the field without doing that produces a site that
-still blocks.
+instance; a slice that adds the field without doing that produces a site whose
+runs are **refused**, not blocked. The coefficient's declared owner is
+Foundation, an instance carrying no such property leaves that owner with no
+answer, and no profile a person could choose on the setup form reaches a value
+that is not there. See `D-2026-09-21-run-setup-outcome-vocabulary`.
 
 **The loop inside T021.** T021 is no longer only a producer. It runs the kernel
 against the shipped Fuel Loss document, reports the resulting trajectory, and
