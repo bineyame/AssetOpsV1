@@ -748,6 +748,39 @@ class TestIntraInstantOrder:
         assert reading.state == "NOT_RECONCILABLE"
         assert reading.reason == ORDER_DEPENDENT_GROUP
 
+    def test_a_group_where_both_extremes_reach_a_bound_is_abstained_on(
+        self,
+    ) -> None:
+        """The case the statement left unspecified until T019's review.
+
+        Every increase first reaches five hundred and fifty against a
+        declared five hundred; every decrease first reaches minus fifty
+        against the floor. Both orderings reach A bound, but not the same
+        one, so what a kernel does still differs and the contract is no more
+        able to answer than when only one reaches. The code always abstained
+        here; the versioned statement did not say so, and an unspecified case
+        is one where two conforming kernels may legitimately disagree.
+        """
+        reading = _reading_after_the_pair(
+            _with_simultaneous_transitions(
+                (*DELIVERY, 350), (*DRAW, 250), capacity=500
+            )
+        )
+
+        assert reading.declared_value is None
+        assert reading.state == "NOT_RECONCILABLE"
+        assert reading.reason == ORDER_DEPENDENT_GROUP
+
+    def test_the_rule_states_the_both_extremes_case(self) -> None:
+        """The statement is versioned, so the case has to be in it and not
+        only in the code that implements it."""
+        rule = {item.rule_id: item for item in DISPATCH_RULES}[
+            "intra-instant-order"
+        ]
+
+        assert "either extreme" in rule.statement
+        assert "or both" in rule.statement
+
     def test_a_group_whose_net_breaches_is_the_ordinary_bound_case(
         self,
     ) -> None:

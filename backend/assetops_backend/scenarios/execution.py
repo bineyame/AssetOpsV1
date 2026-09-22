@@ -90,6 +90,17 @@ from assetops_backend.scenarios.models import (
 #: drafts narrow the same unspecified space, the number identifies the space
 #: rather than the wording, and no implementation ever conformed to the first
 #: draft: it existed only inside this slice.
+#:
+#: The same reasoning covers the second amendment, and it is worth spelling
+#: out, because the policy above would otherwise read as requiring a third
+#: number. T019's review found the statement silent on a group where BOTH
+#: extremes reach a bound - a case the code has always abstained on -
+#: and specifying it narrows the space a conforming kernel may occupy, which
+#: under the policy moves a version. It does not move here for the reason the
+#: first amendment did not: version two has never left this branch, nothing
+#: has ever conformed to it, and bumping would invent a version no consumer
+#: ever saw while spending the golden-trace regeneration the policy exists to
+#: avoid. Once this merges, the next narrowing is a three.
 EXECUTION_CONTRACT_VERSION = 2
 
 
@@ -292,11 +303,14 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "is decided exactly rather than assumed: every increase first "
             "tests the upper bound, every decrease first tests the lower, and "
             "if neither extreme reaches a bound then no ordering does and the "
-            "net stands. If one reaches a bound and the other does not, the "
-            "group is genuinely ambiguous and the contract declines to answer "
-            "rather than choosing an order. A scenario that needs one thing "
-            "to happen before another says so in time, by separating the "
-            "offsets."
+            "net stands. If either extreme reaches a bound while the net "
+            "itself stays inside, the group is ambiguous and the contract "
+            "declines to answer rather than choosing an order - whether one "
+            "extreme reaches a bound or both do, since two orderings that "
+            "reach different bounds are no more decidable than one that "
+            "reaches a bound and one that does not. A scenario that needs "
+            "one thing to happen before another says so in time, by "
+            "separating the offsets."
         ),
     ),
     DispatchRule(
@@ -868,8 +882,15 @@ def reconcile_reported_observations(
             # Then the two extremes, which bracket every ordering: no ordering
             # peaks above "every increase first" and none troughs below "every
             # decrease first". If neither extreme reaches a bound, no ordering
-            # does and the net stands; if exactly one does, the group is
-            # genuinely ambiguous and the contract will not pick an order.
+            # does and the net stands. If either does - one of them or both -
+            # the group is ambiguous and the contract will not pick an order.
+            #
+            # Both is a real case and the statement above names it, because a
+            # case a versioned statement leaves unspecified is a case where
+            # two conforming kernels may legitimately disagree: a group that
+            # overfills applied one way and empties applied the other reaches
+            # a bound under every ordering, but not the same bound, so what a
+            # kernel does still differs.
             peak = declared + increases
             trough = declared - decreases
             if (upper is not None and peak > _exact(upper)) or (
