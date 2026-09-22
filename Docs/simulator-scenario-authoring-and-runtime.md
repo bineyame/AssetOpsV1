@@ -49,6 +49,13 @@ such property blocks rather than refuses, which is
 `D-2026-09-22-foundation-property-absent-blocks`. The section below is kept as
 the reasoning; the decisions are what a slice is held to.
 
+**The three decisions still outstanding are recommended at the end of this
+document**, in
+[Three Decisions Outstanding](#three-decisions-outstanding-architect-recommendations):
+the coefficient's unit, the three `REQUIRED` forcing states together with the
+four unpinned kernel semantics, and when the reconciliation panel goes. Those
+are recommendations for review and nothing there is recorded as a decision.
+
 No code has been changed to match this document. Task files are the Planner's
 and now exist for T019 through T023; the code changes belong to the slices
 named in the per-task table below.
@@ -95,6 +102,7 @@ that would carry it.
 11. [Per-Task Contribution](#per-task-contribution)
 12. [Sequencing Constraints](#sequencing-constraints)
 13. [Open Questions](#open-questions)
+14. [Three Decisions Outstanding](#three-decisions-outstanding-architect-recommendations) — *the three still to take, recommended*
 
 ---
 
@@ -2440,3 +2448,223 @@ retired in T020A because nothing can produce it afterwards.
 Durable artifacts were written on 2026-09-21 after the user accepted (e)
 through (l); see the Status block at the top of this document for what landed
 where. Task files remain the Planner's and none has been changed.
+
+---
+
+## Three Decisions Outstanding: Architect Recommendations
+
+**Written 2026-09-22, for review. Nothing here is recorded as a decision and
+no task file has been touched.** Each one gives the recommendation, the
+reasoning, what it costs and in which slice, what it forecloses, and the
+honest alternative if you disagree.
+
+### 1. The coefficient's unit: `L/kWh`, and promote `dispatched-output`
+
+**Recommendation.** `L/kWh`. Promote `dispatched-output` from
+`NON_EXECUTABLE_CONDITION` to `FORCING_INPUT` on `generator-output-power`.
+
+**The argument that decides it is not the one I gave last time.** Apply the
+project's own swap test one notch deeper. *This generator burns 14 L/h at its
+dispatch point* changes if you change the dispatch point, and the dispatch
+point is the scenario's. So `L/h` is a property of machine **times** operating
+point, and half of that pair belongs to the story. `L/kWh` is a property of
+the machine alone, which is why the real engineering quantity is called
+*specific* fuel consumption. Writing `L/h` into Foundation puts a
+scenario-dependent number into Foundation: the same class of error as putting
+the coefficient in the scenario, mirrored. T020A is the slice whose whole
+purpose is repairing that class of error, and choosing `L/h` there would
+repair the seam in the wrong unit.
+
+**The earlier argument still holds as well.** The T018 comment forbidding
+authored generator output conflates *computing* with *forcing*. Forcing an
+exogenous condition the model does not solve is exactly what `FORCING_INPUT`
+is for, the same as load and irradiance. The comment's own reasoning — what a
+generator delivers follows from the demand it is covering — is an argument
+against computing it, which nobody is proposing.
+
+**What it costs T021, concretely, and it is less than it looks.** The shipped
+trajectory does not change. The generator window is 240 minutes:
+14 L/h × 4 h = 56 L, and 45 kW × 4 h = 180 kWh × 0.311 L/kWh = 56 L. Identical,
+so 430 − 56 − 120 = 254 L at offset 1590 still holds and T021's
+document-correction loop is undisturbed. What T021 gains is one more supported
+state on the shipped profile and a forced constant during the declared window.
+It is a multiplication, not a power-flow model: the kernel carries the forced
+value, it does not solve for it.
+
+**What `L/h` costs instead, which is easy to miss.** Nothing in T021 — it needs
+only the window and the rate. The cost lands in Foundation and in T034–T038. A
+Foundation that states 14 L/h and does not state the load it is true at states
+a number that is false at every other load, and the product's expectation
+would inherit it.
+
+**What happens to `generator-fuel-rate` either way.** It stops being the
+scenario's under option B and (k) regardless. Under `L/h` the dispatch event
+keeps `state_effect.rate_parameter_id` and the coefficient is the rate. Under
+`L/kWh` the coefficient is not a rate over time, so the event stops naming a
+rate at all: it declares that the generator runs and at what output, and the
+model rule — *consumption is specific consumption times energy delivered* —
+owns the transition. That is the cleaner shape, it is what T020A's
+`SupportedState` model-rule carrier exists for, and it removes the last place
+a scenario names a consumption rate.
+
+**Forecloses.** A first kernel with no notion of generator output. It commits
+the shipped profile to supporting `generator-output-power`, and it adds one
+`REQUIRED` forcing state to the list decision 2 is about.
+
+**If you disagree.** `L/h` is defensible *if* Foundation records the reference
+operating point beside it, so the figure is not silently load-specific. That
+is two numbers stored to avoid storing one, and the second is scenario-shaped
+— but it is honest, which a bare `L/h` is not.
+
+### 2a. The three `REQUIRED` forcing states
+
+**Recommendation.** Lower `site-load-demand` and `plane-of-array-irradiance`
+to `OPTIONAL`. Move `fuel-level-reporting-availability`'s authority to the
+publication profile — Open Question 3, yes.
+
+**Why lowering is a correction and not a dodge.** `REQUIRED` means an executor
+must model this to run this scenario. To produce the Fuel Loss tank trajectory
+an executor genuinely does not need irradiance or site demand: the scenario
+declares the dispatch directly, so nothing computes it from load and PV. A
+kernel that modelled them would be computing dispatch, which is a power-flow
+model and already a T021 may-not. They were marked `REQUIRED` by an author
+being careful, and lowering them is the same correction (e), (f) and (g) each
+made.
+
+**Lowering hides nothing, because the machinery already exists.**
+`_support_for` says it in one line: required and unsupported blocks, optional
+and unsupported is *recorded*. An `OPTIONAL` state the profile does not model
+becomes an `UnsupportedOptionalInput` on the run instead of a blocking reason.
+The Draft stops being blocked and still says what the profile does not model.
+
+**What this adds up to, which has not been stated anywhere.** With those two
+lowered, reporting availability moved, and decision 1's
+`generator-output-power` supported, **the shipped Fuel Loss Event reaches
+`READY` for the first time.** That matters more than the reason count. T021
+owes *run the kernel against the shipped document and report the trajectory*,
+and `BLOCKED` means everything was frozen and the run **must not execute**.
+Running a blocked Draft would contradict the status this sequence has just
+spent three decisions making honest. These are not three tidy-ups; they are
+what stands between the sequence and its own first executable run.
+
+**The `_executable_inputs` rider, and why lowering one position is not
+enough.** The collapse is on `(state_key, role)` and takes `REQUIRED` when two
+positions disagree. `site-load-demand` is declared in three positions and
+`plane-of-array-irradiance` in two, so lowering one changes nothing. My
+recommendation is not to bless that rule but to **refuse the conflict**: two
+positions disagreeing about whether one state is required is two answers to
+one question, the shape this project already refuses as
+`INITIAL_VALUE_ANSWERS_DISAGREE`. Silently taking the stricter value is how an
+author's mistake becomes a behaviour. Declare that a `(state_key, role)` pair
+must agree on its requirement, refuse a document where it does not, and delete
+the rule invented to paper over it.
+
+**The `FROZEN_INPUT_ANSWERERS` rider.** If the authority moves, add
+`PUBLICATION_PROFILE` as a fifth answerer and relabel the cadence row and the
+two publication-identity rows that say `MODEL_PROFILE` today. Right now that
+label is a mislabel sitting beside true detail text; after the move it is a
+false statement about which profile answered. The subset assertion in the
+answerer test permits a fifth member, so the cost is the wire value, the
+screen, and a docstring that says "the four". It belongs in whichever slice
+moves the authority, not after it.
+
+**Costs, and where.** Five document positions across two states, in the slice
+that lowers them. The reporting-path move gives the publication profile a
+supported-reporting-states concept it does not have, a small addition to
+`runs/profiles.py`. The conflict refusal is a parser rule and a test.
+
+**Forecloses.** A first kernel that models load or PV — deliberately. If a
+later scenario genuinely needs them modelled it raises its own requirement and
+the profile grows to meet it, which is the mechanism working rather than a
+limitation.
+
+**If you disagree.** Modelling them is the honest alternative, and it is a
+different slice than the roadmap names: PV, load and dispatch is a second
+kernel's worth of work, arriving before the first kernel has run once.
+
+### 2b. The four unpinned kernel semantics
+
+| Semantic | Recommendation | Why |
+| --- | --- | --- |
+| Window apportionment | **Linear ramp** across the steps | It is what an author means by 120 L over 45 minutes, and it is the only reading under which retiming or resizing a window changes the trajectory proportionally — the metamorphic invariant `D-2026-09-21-causal-runtime-before-golden-traces` asks for. It also sits beside `quantity-across-a-window`, which already declares intra-step path independence. |
+| Observe before or after the step's events | **After** | A sensor reads the world at the sample instant and the step has happened by then. It is the same rule as dispatch: a boundary entry is applied by the step that begins there, so a sample there sees it. For the shipped run it makes the 2400 sample 500.0 L rather than 254.0 L. |
+| A forcing outside its declared window | **Unavailable** | Not zero, which is a fabricated value, and not held, which is an invented persistence rule. A forcing's declared window is the whole of its claim, and *unavailable* is already this product's vocabulary for a value it does not have. |
+| After a bounded change | **The run continues and later causes apply to the bounded value** | Otherwise a bound is a disguised run failure, and the policy already has a separate case for that — `insufficient-fuel` is `FAIL_RUN`. `BOUNDED_AND_RECORDED` records the quantity refused, and recording a refusal only means something if the run goes on. |
+
+Two of these are free to declare now and will not stay free. A forcing outside
+its window is unreachable while the profile does not support irradiance, and
+becomes reachable the moment it does; the bounded-change rule decides
+everything after offset 2400 in the shipped document.
+
+**Where in the ledger.** Declaring them is a narrowing and spends a version
+number. The ledger already gives the declaration a step of its own between
+T020A and T021A, and that is exactly right: T020A → 3, the declaration → 4,
+T021 no move, T021A → 5. Keep it a step of its own rather than folding it into
+T021 — it is a contract declaration rather than kernel code, and T021 is near
+the top of its band. Worth noting that decision 1's role promotion and
+decision 2a's requirement lowering are **document** edits rather than contract
+changes, so they ride free and spend no number.
+
+**Forecloses.** Each pins a space two conforming kernels could have split on,
+which is the point. The one worth naming: *after* for observation means a
+boundary sample can never see pre-event state, so a scenario that wants that
+must separate the offsets — the same answer simultaneity got, and the same
+principle, that order is expressed as time rather than as position.
+
+### 3. Open Question 5: the reconciliation panel
+
+**Recommendation. Unchanged: it goes with (f) in T022.** I checked the
+interaction the bound decision might have created, and it does not bite.
+
+**Why it does not bite.** The reconciliation publishes one entry per reported
+observation, and the shipped document's reported observations are at offsets
+1590 and 1800. The only offset where the capacity bound could ever clamp is
+the 2400 delivery — 254 L plus 300 L against a 500 L tank. Both reconciled
+offsets sit before it, and 254 L is nowhere near 500 L, so removing the upper
+bound changes nothing the panel publishes. After T020A it renders exactly what
+it renders today. The bound walk's upper-bound machinery becomes dead code for
+this document, which is untidy rather than dishonest.
+
+**So the original reasoning stands.** The panel is honest while the document
+still contains two authored readings, because that is what it describes. (f)
+is what removes them, and a panel with nothing to reconcile is the thing that
+has become false. `D-2026-09-22-expiry-follows-the-condition` then puts its
+removal in the slice that falsifies it, which is T022.
+
+**Cost, and where.** T022 removes the panel and the
+`observation_reconciliation` payload and, with the last product-path caller
+gone, moves `reconcile_reported_observations`, `declared_bounds` and
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` out of the product path, completing (j).
+T022 already carries a user-review checkpoint, and removing a visible panel is
+a product change that belongs to a slice that says so — T022 says so.
+
+**Forecloses.** Nothing. This is the latest honest moment rather than the
+earliest possible one.
+
+**If you disagree.** The one argument for moving it earlier is independent of
+the bound: during T021 the reference implementation is compared against the
+kernel while still being a product surface, which is the *a throwaway that
+acquires users cannot be thrown away* problem
+`D-2026-09-21-specification-reference-implementation` names. Getting it out
+first would be a small slice of its own between T020A and T021 — delete the
+panel and the payload, relocate the three functions. That is a preference for
+tidiness before the comparison rather than a correctness need, and that
+decision already contemplated T021 comparing without removing.
+
+### Interactions, and what to decide first
+
+- **Decision 1 sits inside decision 2a.** Promoting `dispatched-output` adds
+  `generator-output-power` as a `REQUIRED` forcing state the shipped profile
+  must support, so decision 1 changes the list decision 2a is about. It has to
+  go first.
+- **Decision 2a is what lets T021 run at all**, through the `READY` argument
+  above, so it is the one with a consequence beyond its own slice.
+- **Decision 2b is independent** of both and is the cheapest to take. It needs
+  only to land before T021's task file is written.
+- **Decision 3 is independent of all of them** and blocks no planned slice.
+
+**Order: 1, then 2a, then 2b, then 3.** If only one can be taken now, take
+**1** — its deadline is the nearest, because T020A is implemented next and
+writes the unit into the shipped template and into MG-001, where changing it
+later is a migration on a Foundation document and on an instance created by
+copy.
