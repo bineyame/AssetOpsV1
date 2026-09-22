@@ -104,6 +104,15 @@ slice produces. See the document-correction criterion.
 - Capacity, insufficient-fuel, invalid-rate, and other supported bounds use the
   explicit behavior accepted in T018. The kernel never silently clamps, drops,
   or fabricates a transition.
+- The tank's capacity comes from the frozen identity, not from
+  `declared_bounds`. After T020A the document declares *which* state caps which
+  and the frozen run carries *how big* the tank is, resolved from Foundation,
+  so that function reports no upper value for `fuel-tank-volume` and is right
+  to (`D-2026-09-22-capacity-bound-source`). `BOUND_CASES["fuel-tank-capacity"]`
+  is unchanged and applies against the frozen value, which is what gives this
+  slice's document correction something to check the 2400 delivery against.
+  Meeting `(0.0, None)` and either inventing 500 or concluding the bound was
+  dropped are both wrong.
 - Identical frozen inputs and seed produce identical ordered states and runtime
   events. No wall-clock time, filesystem ordering, or mutable latest-version
   lookup affects execution.
