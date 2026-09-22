@@ -155,6 +155,12 @@ lowering would refuse the shipped document.
 - Two positions disagreeing about whether one state is required is two answers
   to one question. Resolving that silently by taking the stricter value is how
   an author's mistake becomes a behaviour.
+- That refusal carries no kind vocabulary, deliberately, and nobody should add
+  one. `.ai/ARCHITECTURE.md`'s naming rule is scoped to a layer where a request
+  can be refused *or* persisted as `BLOCKED`, and a parse failure has no
+  blocking twin: a document parses or it does not, and one that does not never
+  reaches run setup. `ScenarioConfigurationInvalid` carries no kinds today, so
+  naming one would create a vocabulary of a single member.
 - `OPTIONAL` and unsupported is *recorded*, not ignored. There is no third
   answer, because "supported if convenient" is how an input gets dropped.
 - The model profile models physics; the publication profile owns cadence and
