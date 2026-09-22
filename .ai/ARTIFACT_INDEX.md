@@ -33,6 +33,10 @@
   had to be re-checked each time the range grew.
 - `Docs/simulator-scenario-authoring-and-runtime.md` — the reference the
   2026-09-21 and 2026-09-22 simulator decisions cite
+- `Docs/declared-capability-and-what-checks-it.md` — Architect reflection on
+  why `cadence_resolution`, `supported_states` and OQ3 are one defect and not
+  three; records no decision. Delete when the pattern has a durable name or
+  the user decides it should not have one.
 - Active task file, after the user activates one planned task
 
 ## Historical
