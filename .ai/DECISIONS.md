@@ -34,7 +34,7 @@ rationale in the dated entries below.
 | `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
 | `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. Amended by `D-2026-09-21-scenario-execution-contract-amendment-1`. |
 | `D-2026-09-21-scenario-execution-contract-amendment-1` | 2026-09-21 | Amendment 1 to the execution contract: simultaneous causes net rather than order; the contract-version bump policy; run setup stops adjudicating cause-to-observation coupling; a scenario does not author what a device reads; `execution_requirement` is forbidden on a reported observation; a fifth `TRAJECTORY` oracle kind. |
-| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. |
+| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. Extended 2026-09-22: the refusal line moved to who failed to answer, four location failures block as `INITIAL_VALUE_NOT_RESOLVED`, and the contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE` because the frozen identity can hold no answer and not two. |
 | `D-2026-09-21-projection-versus-composition` | 2026-09-21 | Projecting a document is static validation; composing projections into a value-at-a-time is a kernel, whatever the component is called. |
 | `D-2026-09-21-specification-reference-implementation` | 2026-09-21 | A specification's reference implementation is labelled and carries a stated expiry; `reconcile_reported_observations` stops being an authority when a kernel is compared against it, and leaves the repository when its last product-path caller goes. |
 | `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. |
@@ -1598,6 +1598,64 @@ be reached in this build, so it was pure fiction and deletion was the only
 honest move. `READY` is reached and does assert something true, just less than
 its name suggests. Absence and overstatement warrant different remedies.
 
+**Extended 2026-09-22 at the T019 user review: the refusal line moved.** The
+user accepted the reviewer's principle and chose to align T019 to T020A rather
+than the reverse. The discriminator is **who failed to answer**:
+
+> The scenario's **declared owner** has no answer -> **refuse**, because no
+> profile helps.
+> The **selected profile** cannot answer -> **block**, because a different
+> profile fixes it and the person gets a persisted Draft to inspect.
+
+**Four cases moved from refusal to blocking.** A profile declaring no
+`foundation_binding`; a binding matching nothing; a binding matching more than
+one thing; and a binding whose unit is not the scenario's. What decides them:
+a Foundation's answer is only locatable *through* the selected profile's
+binding, so failing to locate it is a joint fact about the pair, and the
+profile is the half a person can change on the setup form.
+
+**A Foundation that declares no such property at all is not one of the four.**
+There the declared owner itself has no answer, no binding reaches a value that
+is not there, and no profile on the form would help, so it refuses. That is
+the case that governs T020A's template-copy consequence, and the two must not
+be collapsed: *the profile's binding could not locate an answer* blocks, *the
+declared owner has no answer to locate* refuses.
+
+**`FrozenInitializationInput` gained an absent case.** `value` and
+`canonical_value` are nullable and absent together; the unit is not, because
+the scenario declares it whether or not anything answers. The invariants live
+on the record rather than in the service, because the service cannot produce a
+violation and a hand-edited document can: a run is `READY` exactly when it
+carries no blocking reason, **a `READY` run may not carry an absent value**,
+and **every unresolved state must be named by a blocking reason's subject** -
+the same state, not merely some reason somewhere on the same run.
+
+**The new blocking kind is `INITIAL_VALUE_NOT_RESOLVED`.** It is named for the
+state the value is left in rather than for the cause, so one name carries all
+four cases, and **T020A reuses it for its `MODEL_RULE` carrier case** rather
+than introducing a second kind for the same fact.
+
+**The contradiction stays a refusal, for a structural reason worth carrying
+into the record.** Foundation and scenario both answer and disagree. Every
+blocking case leaves the value with **no** answer, which the frozen identity
+can represent as absent; a contradiction leaves it with **two**, which the
+identity has no shape for at all. A blocked Draft would have to freeze one of
+the two numbers, and choosing one is the thing refusing exists to prevent.
+This is not a judgement about which failure is easier to fix - the earlier
+version of that argument, that a profile finding another matching component
+would be shopping for a value, falls to a site declaring a second matching
+component whose rating happens to equal the scenario's, and is kept only as
+the intuition.
+
+**So the contradiction is its own refusal kind,**
+**`INITIAL_VALUE_ANSWERS_DISAGREE`,** split out of
+`INITIALIZATION_INPUT_MISSING`, which now covers only a declared owner that did
+not answer. Sharing one kind made it wrong about the case it mostly covered and
+left it one word from the blocking `INITIAL_VALUE_NOT_RESOLVED` with nothing in
+either name saying which side of the line it was on. The new name is the mirror of the blocking side - a run can
+carry "no answer" and cannot carry "answers disagree" - so the vocabulary
+carries the structural fact instead of a comment.
+
 Reason: a persisted `BLOCKED` Draft is the honest product of a run setup that
 can freeze everything and execute nothing, and it is more useful than a refusal
 because it can be inspected. The residual split follows from where each half
@@ -1608,7 +1666,11 @@ be said in the same place.
 Affected scope: T019's blocking-reason set and its fixtures, T020's run-detail
 disclosure and Runs inventory language, T021's task file scope and its
 `supported_states` conformance test, T022's ability to execute the shipped
-scenario, `runs/profiles.py`, and the shipped Fuel Loss document.
+scenario, `runs/profiles.py`, and the shipped Fuel Loss document. The 2026-09-22
+extension adds `runs/refusals.py`, `runs/models.py`'s blocking vocabulary and
+`FrozenInitializationInput`, `runs/service.py`'s freeze and blocking split,
+T020A's model-rule carrier and its consequence prose, and the naming rule in
+`.ai/ARCHITECTURE.md`.
 
 ## 2026-09-21
 
