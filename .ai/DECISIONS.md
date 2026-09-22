@@ -2331,6 +2331,19 @@ in the frozen identity, where run setup resolves 500 L from MG-001's Foundation
 and names `SITE_FOUNDATION` as the answerer. The test splits along the same
 seam the decision does, and the 500.0 keeps a home.
 
+**And that home has to be written, not moved, because T020A removes both of
+the ones the number has today.** There are exactly two assertions of 500 in
+the suite. One is the bound test above. The other is
+`test_run_setup.py`'s `INITIAL_VALUE_ANSWERS_DISAGREE` message assertion,
+which goes with that refusal kind in the same slice - and it is over a
+fixture scenario rather than the shipped tank in any case. Nothing today
+asserts that MG-001's Foundation answers 500 L for `fuel-tank-capacity`;
+`test_run_setup.py` names that state only in a supported-states set. So
+T020A must **add** the frozen-identity assertion. Without it the slice
+removes every mention of the shipped tank's capacity from the suite at the
+moment that number stops being in the document and becomes something only the
+profile's binding can reach.
+
 **A rider that sharpens an existing open question.** After option B,
 `declared_bounds("fuel-tank-volume")` returns `(0.0, None)` where the `0.0` is
 `IMPLICIT_LOWER_BOUND_DIMENSIONS` - so the function's entire answer for that
