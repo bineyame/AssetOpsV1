@@ -34,9 +34,19 @@ for every blocking reason is to choose a different profile, would leave them
 no way to tell which one to try.
 
 The kinds below are the refusal half. Each is a different fact with a
-different fix, which is why they are nine rather than one with a message: a
+different fix, which is why they are ten rather than one with a message: a
 malformed interval and a Site that is not configured are not the same problem
 and do not lead a reader to the same place.
+
+Two of them are about an initial world value and they are deliberately not
+one kind. **An absence and a contradiction are not the same shape**, and the
+difference is the whole of why one side of the line can persist a Draft and
+the other cannot: a value with no answer is something the frozen identity can
+record as absent, and a value with two answers is something it has no shape
+for at all. Naming both `INITIALIZATION_INPUT_MISSING` made the kind wrong
+about the case it mostly covered and put it one word from the blocking
+`INITIAL_VALUE_NOT_RESOLVED`, on the other side of a line this file exists to
+keep visible.
 """
 
 from __future__ import annotations
@@ -61,13 +71,18 @@ from __future__ import annotations
 #: - `COMPONENT_OR_SIGNAL_UNRESOLVED`: a declared observation source names a
 #:   device or a signal this Site's Foundation does not configure.
 #: - `INITIALIZATION_INPUT_MISSING`: an initial world value whose DECLARED
-#:   OWNER did not answer, or which has two answers that disagree. Today that
-#:   is a `RUN_OVERRIDE` value the request did not supply, and a Foundation
-#:   value that contradicts the value the scenario states the Foundation
-#:   declares. Both would make the run invent a number, which is the thing a
-#:   frozen identity exists to stop. A value the selected PROFILE could not
-#:   supply or locate is not here: that blocks, because a different profile
-#:   would answer.
+#:   OWNER did not answer. Today that is one case: a `RUN_OVERRIDE` value the
+#:   request did not supply. Nothing is there, and no profile can put it
+#:   there, so the run would have to invent a number - the thing a frozen
+#:   identity exists to stop. A value the selected PROFILE could not supply
+#:   or locate is NOT here: that blocks, because a different profile would
+#:   answer.
+#: - `INITIAL_VALUE_ANSWERS_DISAGREE`: an initial world value that has TWO
+#:   answers and they are not the same number. Today that is a Foundation
+#:   rating against the value the scenario states the Foundation declares.
+#:   Nothing is missing here, which is why it left the kind above: a run
+#:   cannot be frozen with two answers because the frozen identity has no
+#:   shape for two, and choosing one is the thing refusing prevents.
 #: - `UNIT_INVALID`: a supplied value carries a unit the contract does not
 #:   know, a unit the parameter does not use, or a quantity the `invalid-rate`
 #:   bound case refuses.
@@ -81,6 +96,7 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         "TARGET_TOPOLOGY_UNSUPPORTED",
         "COMPONENT_OR_SIGNAL_UNRESOLVED",
         "INITIALIZATION_INPUT_MISSING",
+        "INITIAL_VALUE_ANSWERS_DISAGREE",
         "UNIT_INVALID",
     }
 )

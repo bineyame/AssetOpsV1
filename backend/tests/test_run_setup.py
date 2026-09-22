@@ -611,13 +611,21 @@ class TestNothingIsDefaulted:
         ]
         assert store.written == [record]
 
-    def test_a_foundation_that_disagrees_is_still_refused(self) -> None:
+    def test_a_foundation_that_disagrees_is_refused_as_its_own_kind(
+        self,
+    ) -> None:
         """The case that stays a refusal, and the reason the split holds.
 
-        Both declared owners answered and they contradict each other. A
-        profile pointing at some other component that happened to match the
-        scenario's number would be resolving a contradiction by shopping for
-        a value, so nothing is frozen.
+        Both answered and they contradict each other, so the value has two
+        answers rather than none. Every blocking case leaves it with none,
+        which the frozen identity can record as absent; two is a shape the
+        identity does not have, so a blocked Draft would have to choose one
+        of the numbers - which is what refusing prevents.
+
+        It has a kind of its own since the T019 user review, because sharing
+        `INITIALIZATION_INPUT_MISSING` named it for an absence it is not, and
+        left it one word from the blocking `INITIAL_VALUE_NOT_RESOLVED` with
+        nothing in either name saying which side of the line it was on.
         """
         error, store = refuse(
             setup_request(),
@@ -625,9 +633,45 @@ class TestNothingIsDefaulted:
             model=model_profile(supported_states=foundation_bound_states()),
         )
 
-        assert error.kind == "INITIALIZATION_INPUT_MISSING"
+        assert error.kind == "INITIAL_VALUE_ANSWERS_DISAGREE"
         assert "200" in error.message and "500" in error.message
+        assert "two answers" in error.message
         assert store.written == []
+
+    def test_the_two_initial_value_kinds_are_two_different_facts(self) -> None:
+        """One request produces each, so the split is not a rename.
+
+        The absence refuses under `INITIALIZATION_INPUT_MISSING`; the
+        contradiction refuses under `INITIAL_VALUE_ANSWERS_DISAGREE`. If a
+        later change collapsed them, this fails rather than the vocabulary
+        quietly growing a synonym.
+        """
+        missing = self._missing_run_override()
+        contradicted, _ = refuse(
+            setup_request(),
+            scenarios=self._foundation_owned(),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+
+        assert missing.kind == "INITIALIZATION_INPUT_MISSING"
+        assert contradicted.kind == "INITIAL_VALUE_ANSWERS_DISAGREE"
+        assert missing.kind != contradicted.kind
+
+    def _missing_run_override(self) -> RunSetupRefused:
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "RUN_OVERRIDE"
+        error, store = refuse(
+            setup_request(),
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+        )
+        assert store.written == []
+        return error
 
     def test_a_model_rule_value_with_no_rule_blocks(self) -> None:
         """T020A adds the carrier; until it does, this is the profile failing
@@ -1433,6 +1477,7 @@ class TestEveryRefusalKindIsReachable:
                 )
             )[0].kind,
             self._missing_initialization_input().kind,
+            self._contradicted_initial_value().kind,
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
@@ -1452,6 +1497,35 @@ class TestEveryRefusalKindIsReachable:
         )
         assert store.written == []
         return error
+
+    def _contradicted_initial_value(self) -> RunSetupRefused:
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
+        error, store = refuse(
+            setup_request(),
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+        assert store.written == []
+        return error
+
+    def test_the_two_vocabularies_share_no_name(self) -> None:
+        """A refusal kind and a blocking kind are opposite sides of the line
+        this slice is organised around, so no string may be both. Asserted
+        because the two that are about an initial value now sit close enough
+        in meaning that a future kind could plausibly be added to the wrong
+        set, or to both."""
+        from assetops_backend.runs.models import BLOCKING_REASON_KINDS
+
+        assert RUN_SETUP_REFUSAL_KINDS & BLOCKING_REASON_KINDS == set()
+        assert "INITIAL_VALUE_ANSWERS_DISAGREE" in RUN_SETUP_REFUSAL_KINDS
+        assert "INITIAL_VALUE_NOT_RESOLVED" in BLOCKING_REASON_KINDS
 
     def test_an_unreadable_zone_database_is_not_an_unreal_zone(self) -> None:
         """Two different facts, and the message says which one this is."""

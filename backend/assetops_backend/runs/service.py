@@ -749,11 +749,13 @@ class RunSetupService:
           applied at one position - the failure shape this project keeps
           paying for.
 
-        Refuses, because no profile can fix it:
+        Refuses, as `INITIAL_VALUE_ANSWERS_DISAGREE`:
 
         - the Foundation's value disagrees with the value the scenario states
-          the Foundation declares. Both declared owners answered and they
-          contradict each other.
+          the Foundation declares. Both answered and they contradict each
+          other. It has a kind of its own rather than sharing the one for a
+          value nobody supplied, because an absence and a contradiction are
+          not the same shape and only one of them can be carried on a run.
 
         Two reasons for that one, and the structural one is the one that
         holds. **The four blocking cases leave the value with no answer,
@@ -878,16 +880,16 @@ class RunSetupService:
 
         if rating.value != declared:
             raise refuse(
-                "INITIALIZATION_INPUT_MISSING",
+                "INITIAL_VALUE_ANSWERS_DISAGREE",
                 f"Parameter {parameter_id} states that the site's foundation "
                 f"declares {declared} {unit} for {initial_state_key}, and the "
                 f"foundation of site {site.site_id} declares "
                 f"{rating.value} {rating.unit}. The scenario names the "
                 "foundation as the authority, so its own value is the "
                 "requirement to check; a run that froze one and discarded the "
-                "other would be choosing which is true. No model profile can "
-                "settle that, which is why this is refused rather than "
-                "blocked.",
+                "other would be choosing which is true. This value has two "
+                "answers rather than none, and a run has no way to carry two, "
+                "which is why it is refused rather than blocked.",
             )
 
         return rating.value, None, "SITE_FOUNDATION", foundation_detail
