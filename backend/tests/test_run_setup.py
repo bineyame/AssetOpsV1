@@ -645,14 +645,18 @@ class TestBlockedDraftsArePersisted:
         ]
         assert store.written == [record]
 
-    def test_an_unreached_reading_blocks_rather_than_rounding(self) -> None:
-        """`D-2026-09-21-scenario-execution-contract`, applied.
+    def test_an_unreached_reading_does_not_block_a_run(self) -> None:
+        """Amendment 1's proposal (e), measured as an absence.
 
-        The Fuel Loss residual was accepted as stated rather than resolved,
-        and the decision says what run setup does until one of the three ways
-        out is chosen. The fixture reconciles exactly, so this changes one
-        authored value to make it not reach - which is the same fact the
-        shipped document has, in a document this test owns.
+        Run setup has no kernel, so it cannot decide whether declared causes
+        reach a declared reading: that is a statement about what a run would
+        produce. An earlier version of this slice blocked on it. This is the
+        same document that blocked then - one authored value changed so the
+        causes do not reach the reading - and it is `READY` now.
+
+        Asserted as `READY` rather than as "no observation reason", because
+        an absence test that only looked for a kind would pass on a build
+        where the reason had been renamed.
         """
         document = scenario_document()
         document["timeline"][2]["parameters"][0]["value"] = 180
@@ -668,12 +672,56 @@ class TestBlockedDraftsArePersisted:
         )
         record = setup.create_draft_run(setup_request())
 
-        assert record.execution_status == "BLOCKED"
-        assert [reason.kind for reason in record.blocking_reasons] == [
-            "OBSERVATION_NOT_ACCOUNTED_FOR"
-        ]
-        assert record.blocking_reasons[0].subject == "second-entry"
+        assert record.execution_status == "READY"
+        assert record.blocking_reasons == ()
         assert store.written == [record]
+
+    def test_no_blocking_kind_is_about_the_scenario_disagreeing_with_itself(
+        self,
+    ) -> None:
+        """The vocabulary, not one code path.
+
+        Every blocking kind says something about the selected profile: an
+        input it does not model, or a value it does not resolve. A kind that
+        judged the scenario's own arithmetic would be (e) returning, and
+        deleting one call site would not stop it.
+        """
+        from assetops_backend.runs.models import BLOCKING_REASON_KINDS
+
+        assert BLOCKING_REASON_KINDS == {
+            "STATE_NOT_SUPPORTED",
+            "ROLE_NOT_SUPPORTED",
+            "CADENCE_NOT_RESOLVED",
+            "SOURCE_IDENTITY_NOT_RESOLVED",
+            "GATEWAY_IDENTITY_NOT_RESOLVED",
+        }
+
+    def test_run_setup_never_reconciles(self) -> None:
+        """The reference implementation has no caller in the run domain.
+
+        A scan rather than a mock, because the point is that no module in the
+        domain can reach it, not that one code path did not on one input.
+
+        It looks for a call or an import rather than for the name, because
+        the service's own docstring explains why it does not call it - and a
+        scan that banned the word would ban the explanation, which is how a
+        guard ends up relaxed by whoever meets it next.
+        """
+        import re
+        from pathlib import Path
+
+        domain = Path(__file__).resolve().parents[1] / "assetops_backend" / "runs"
+        modules = sorted(domain.rglob("*.py"))
+        reaches = re.compile(
+            r"reconcile_reported_observations\s*\(|import[^\n]*"
+            r"reconcile_reported_observations"
+        )
+
+        assert modules, "the run domain was not scanned, so this proves nothing"
+        for module in modules:
+            assert not reaches.search(
+                module.read_text(encoding="utf-8")
+            ), module.name
 
     def test_a_blocked_run_still_froze_everything(self) -> None:
         """A blocked Draft is a fully frozen Draft. If it were not, the

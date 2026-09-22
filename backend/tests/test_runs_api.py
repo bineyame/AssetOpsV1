@@ -327,24 +327,18 @@ class TestTheShippedFuelLossEventCannotReachReady:
         assert record.execution_status == "BLOCKED"
         assert store.written == [record]
 
-        unreached = [
-            reason
-            for reason in record.blocking_reasons
-            if reason.kind == "OBSERVATION_NOT_ACCOUNTED_FOR"
-        ]
-        assert {reason.subject for reason in unreached} == {
-            "fuel-level-after-the-gap",
-            "operator-tank-inspection",
+        # Three reasons and all three are the same kind: states the first
+        # model profile does not model. Named, so that widening the profile
+        # is visible here rather than silent.
+        #
+        # It was five before Amendment 1's proposal (e), and the other two
+        # were the readings the scenario's declared causes do not reach. Run
+        # setup has no kernel, so it never had standing to judge that; the
+        # outcome is unchanged and the reasons are sounder.
+        assert {reason.kind for reason in record.blocking_reasons} == {
+            "STATE_NOT_SUPPORTED"
         }
-
-        # The three forcing states the first kernel does not model. Named, so
-        # that widening the profile is visible here rather than silent.
-        unsupported = [
-            reason
-            for reason in record.blocking_reasons
-            if reason.kind == "STATE_NOT_SUPPORTED"
-        ]
-        assert {reason.subject for reason in unsupported} == {
+        assert {reason.subject for reason in record.blocking_reasons} == {
             "site-load-demand",
             "plane-of-array-irradiance",
             "fuel-level-reporting-availability",

@@ -31,20 +31,30 @@ the two halves collapsing into each other.
 ## What is deliberately not here
 
 No clock beyond the one that stamps when the Draft was created, no step, no
-event cursor, no state, no trace, no staging, no commit, and no evidence.
-`reconcile_reported_observations` is called and it is contract arithmetic, not
-execution: it answers whether the scenario's own declared causes reach the
-readings the same scenario declares, which is the question
-`D-2026-09-21-scenario-execution-contract` says run setup must not ignore.
+event cursor, no state, no trace, no staging, no commit, and no evidence. No
+reconciliation either, and that absence is the point of the next section.
 
-## The Fuel Loss residual
+## Why run setup does not judge a scenario's own arithmetic
 
-That decision accepted the residual as stated rather than resolved, and it
-said what run setup does with it: until one of the three ways out is chosen,
-an unreached reading is a reason to block rather than a rounding matter. That
-is `_observation_reasons` below, and it is the reason the shipped Fuel Loss
-Event cannot reach `READY` in this build. Making it `READY` would need a
-product decision nobody has made, not a tolerance.
+An earlier version of this slice blocked a run when the causes a scenario
+declares did not reach a reading the same scenario declares. Amendment 1's
+proposal (e) removed it, and the reasoning is worth keeping where a future
+slice will look for it: **run setup has no kernel, so it cannot decide that
+question.** Whether declared causes reach a reading is a statement about what
+a run would produce, and nothing here produces anything. What looked like
+caution was run setup adjudicating a comparison only an execution can settle.
+
+The shipped Fuel Loss Event is still `BLOCKED`, on the three states the first
+model profile does not model, so nothing a user sees changes - the outcome is
+now reached for a strictly sounder reason. `D-2026-09-21-scenario-execution-contract`
+still accepts the residual as stated rather than resolved; what changed is
+that stating it is the scenario contract's job and not this service's.
+
+`reconcile_reported_observations` still exists and still answers that question
+for the scenario detail surface. It is labelled as a specification reference
+implementation rather than a product feature - see
+`D-2026-09-21-specification-reference-implementation` - and nothing in this
+module calls it.
 """
 
 from __future__ import annotations
@@ -92,7 +102,6 @@ from assetops_backend.scenarios.execution import (
     EXECUTION_CONTRACT_VERSION,
     canonical_quantity,
     initialization_inputs,
-    reconcile_reported_observations,
 )
 from assetops_backend.scenarios.models import (
     EXECUTABLE_ROLES,
@@ -762,7 +771,6 @@ class RunSetupService:
 
         reasons.extend(_cadence_reasons(identity))
         reasons.extend(_publication_reasons(identity))
-        reasons.extend(_observation_reasons(scenario))
 
         return tuple(reasons), tuple(optional)
 
@@ -948,37 +956,6 @@ def _publication_reasons(
                 "gateway identity. A run publishes through a named gateway "
                 "or it does not publish, and nothing derives one from the "
                 "site or from its provenance."
-            ),
-        )
-
-
-def _observation_reasons(
-    scenario: ScenarioDefinition,
-) -> Iterable[BlockingReason]:
-    """An unreached reading blocks the run.
-
-    `D-2026-09-21-scenario-execution-contract` accepted the Fuel Loss residual
-    as stated rather than resolved, and it said what run setup does about it:
-    until one of the three ways out is chosen - model the missing cause,
-    declare a reporting behaviour, or change the causes - an unreached reading
-    is a reason to block rather than a rounding matter.
-
-    `NOT_RECONCILABLE` blocks for the same reason and is a different fact,
-    which is why the contract's own reason is carried through rather than
-    restated: a reading nobody can reconcile is not a reading the causes
-    missed.
-    """
-    for result in reconcile_reported_observations(scenario):
-        if result.state == "ACCOUNTED_FOR":
-            continue
-        yield BlockingReason(
-            kind="OBSERVATION_NOT_ACCOUNTED_FOR",
-            subject=result.event_id,
-            statement=(
-                f"The reading this entry declares is {result.state} against "
-                f"the causes the same scenario declares: {result.reason}. "
-                "Until that is resolved, a run must not execute a scenario "
-                "whose own numbers do not agree."
             ),
         )
 

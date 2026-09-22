@@ -159,13 +159,17 @@ const BLOCKED_RUN: RunSummary = {
   ...READY_RUN,
   run_id: "run-99aa88bb77cc66dd55ee44ff33221100",
   execution_status: "BLOCKED",
+  // Two reasons of two kinds, both about what the selected profile can do.
+  // A reason about the scenario disagreeing with its own arithmetic used to
+  // be here; Amendment 1's proposal (e) removed that from run setup, because
+  // deciding it needs a kernel and run setup has none.
   blocking_reasons: [
     {
-      kind: "OBSERVATION_NOT_ACCOUNTED_FOR",
-      subject: "fuel-level-after-the-gap",
+      kind: "CADENCE_NOT_RESOLVED",
+      subject: "fuel-level-sensor-reading",
       statement:
-        "The reading this entry declares is NOT_ACCOUNTED_FOR against the " +
-        "causes the same scenario declares.",
+        "The publication profile this run selected declares no cadence for " +
+        "a configured device signal, and nothing else may supply one.",
     },
     {
       kind: "STATE_NOT_SUPPORTED",

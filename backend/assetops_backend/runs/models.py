@@ -104,12 +104,16 @@ ANSWERER_BY_INITIALIZATION_OWNER = {
 #:   blocks rather than reporting at a rate somebody guessed.
 #: - `SOURCE_IDENTITY_NOT_RESOLVED` and `GATEWAY_IDENTITY_NOT_RESOLVED`: the
 #:   same rule for the two publication identities.
-#: - `OBSERVATION_NOT_ACCOUNTED_FOR`: the scenario's own declared causes do not
-#:   reach a reading the same scenario declares. This is the Fuel Loss residual
-#:   `D-2026-09-21-scenario-execution-contract` accepted as stated rather than
-#:   resolved, and the decision says what run setup does with it: until one of
-#:   the three ways out is chosen, an unreached reading is a reason to block
-#:   and not a rounding matter.
+#:
+#: Every one of the five is a statement about the SELECTED PROFILE: something
+#: the scenario requires that the profile does not model or does not resolve.
+#: That is the whole of what run setup can decide, and a sixth member was
+#: removed to make it so. `OBSERVATION_NOT_ACCOUNTED_FOR` blocked a run when
+#: the causes a scenario declares did not reach a reading the same scenario
+#: declares, and Amendment 1's proposal (e) took it out: run setup has no
+#: kernel, so it cannot settle a comparison only an execution can settle. A
+#: kind added here that is not about the profile's ability to execute an
+#: input is the same mistake returning.
 BLOCKING_REASON_KINDS = frozenset(
     {
         "STATE_NOT_SUPPORTED",
@@ -117,7 +121,6 @@ BLOCKING_REASON_KINDS = frozenset(
         "CADENCE_NOT_RESOLVED",
         "SOURCE_IDENTITY_NOT_RESOLVED",
         "GATEWAY_IDENTITY_NOT_RESOLVED",
-        "OBSERVATION_NOT_ACCOUNTED_FOR",
     }
 )
 
