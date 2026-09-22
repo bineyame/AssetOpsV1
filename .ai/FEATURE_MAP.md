@@ -354,7 +354,7 @@ section only names milestone order, demo readiness, and review checkpoints.
 | M0: Site Foundation Fidelity | T009-T013 | Prototype walkthrough foundation. Not client-demo-ready. | T006 and T008 checkpoints already cover the product-language decisions; fidelity slices do not add one. |
 | M1A: Topology, Devices, Signals, And SLD | T014-T016 | Configured physical model and SLD become real. Still no operational evidence. | User review for SLD archetype, incompatible-topology treatment, and device/signal wording. |
 | M1B: Scenario Catalog And Run Setup | T017-T019 | Simulation authoring and run setup become real against configured Site anchors. | User review for taxonomy/public-private semantics, executable roles, initialization/timing, and run setup language. |
-| M1C: Prototype Walkthrough: Causal Runtime | T020, T020A, T021, T021A, T022 | A minimal causal kernel drives the Simulator Lab; generated golden traces support regression/playback, and runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. T020A adds its own checkpoint on the Foundation property vocabulary. |
+| M1C: Prototype Walkthrough: Causal Runtime | T020, T020A, T020B, T021, T021A, T022 | A minimal causal kernel drives the Simulator Lab; generated golden traces support regression/playback, and runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. T020A adds its own checkpoint on the Foundation property vocabulary. |
 | Demo Ready v1: Simulated Evidence Loop | T023-T029 | Earliest honest client-ready mini-grid demo. | User review after T029. |
 | Demo Ready v1.5: Cold-Chain Evidence Loop | T030-T033 | Cold-chain demo after a truthful cold-chain model exists. | User review for cold-chain wording and domain claims. |
 | Demo Ready v2: Evidence-Backed Operational Findings | T034-T038 | First business-outcome demo. | User review after T038. |
@@ -2255,7 +2255,7 @@ fix domain semantics and the demo narrative before execution begins.
 
 ### Early Feature: Draft SimulationRun And Causal Runtime
 
-Demo roadmap task range: T020, T020A, T021, T022. T021A sits inside this
+Demo roadmap task range: T020, T020A, T020B, T021, T022. T021A sits inside this
 range in the sequence and belongs to Scenario Catalog And Run Setup by
 content; the M1C roadmap row lists it, and this feature does not own it.
 
@@ -2269,6 +2269,13 @@ Divide into slices:
   model-rule values, so the generator's specific fuel consumption can leave the
   scenario and describe the machine. Carries its own user-review checkpoint on
   the property vocabulary and its units.
+- T020B: execution contract alignment. The four kernel semantics are
+  declared in the contract, a requirement conflict is refused rather than
+  resolved, `site-load-demand` and `plane-of-array-irradiance` drop to
+  `OPTIONAL`, and reporting-path authority moves to the publication profile.
+  The shipped Fuel Loss Event reaches `READY` for the first time through the
+  product path, which is what lets T021 run a kernel against it at all, and
+  the slice retires T020's fixture-only `READY` criterion.
 - T021: minimal causal Fuel Loss kernel with explicit initialization,
   deterministic step/event cursor, and fuel-tank/generator state. Also retires
   T020's `READY` disclosure, because its conformance test is what makes the
@@ -2296,27 +2303,30 @@ The sequence gains two insertions and one loop. Nothing is reordered, and
 nothing in front of either insertion is blocked.
 
 ```
-  T019 ──► T020 ──► T020A ──► T021 ───────────► T021A ──► T022 ──► T023 ─► ...
-  narrowed unchanged NEW       kernel            NEW       (f) lands
-  by (e)   plus (l)  (k)       + TRAJECTORY      (g)
-  and (j)  disclosure Foundation  oracle (i)     contract
-                     properties + supported_     version
-                     and          states         moves
-                     carriers     conformance (l)
-                       │        + retires T020's
-                       │          disclosure
-                       │        + run against the
-                       │          shipped document
-                       │              │      ▲
-                       │              └──────┘
-                       │           document corrected
-                       │           from what the kernel
-                       │           computed
-                       │
-  the dispatched-output half of the REQUIRED forcing-state decision is due
-  BEFORE T020A is implemented, because it fixes the coefficient's unit
-  the rest of that decision is due BEFORE T021's task file is written,
-  because it decides the kernel's scope
+  T019 ─► T020 ─► T020A ─► T020B ─► T021 ────────► T021A ─► T022 ─► T023 ─► ...
+  narrowed unchngd NEW       NEW      kernel         NEW      (f) lands
+  by (e)   plus(l) (k)       contract + TRAJECTORY   (g)
+  and (j)  disclose Foundation aligned  oracle (i)   contract
+                   properties          + supported_  version
+                   and carriers          states      moves
+                                         conformance (l)
+                                       + retires T020's
+                                         disclosure
+                                       + run against the
+                                         shipped document
+                                             │      ▲
+                                             └──────┘
+                                          document corrected
+                                          from what the kernel
+                                          computed
+
+  T020B declares the four kernel semantics, refuses a requirement conflict
+  rather than resolving it, lowers two forcing states and moves reporting
+  authority - after which the shipped Fuel Loss Event reaches READY and T021
+  has a run it is allowed to execute. It also retires T020's fixture-only
+  READY criterion. Both decision deadlines this diagram used to carry were
+  met on 2026-09-22: the dispatched-output half before T020A, and the rest
+  before T021's task file.
 ```
 
 **Why T021A is its own slice.** The version-bump window is free only while no
@@ -2371,8 +2381,9 @@ T021, not a resequencing.
 | T020 | T019's persisted Drafts | an inventory over nothing |
 | T020A | T020 only for sequencing; independent of the kernel | nothing blocked in front of it |
 | T020A | the `dispatched-output` half of the forcing-state decision, before implementation | a Foundation property in the wrong unit, and a later unit migration on a Foundation document and on MG-001 |
+| T020B | T020A's coefficient and its `dispatched-output` promotion | a lowering that still leaves the shipped Draft blocked, so its outcome never appears |
 | T021 | T020A's Foundation coefficient and model-rule carrier | a first kernel whose physics arrive from the scenario, teaching every later kernel to do the same |
-| T021 | the rest of the `REQUIRED` forcing-state decision, before its task file | a kernel scoped by accident |
+| T021 | T020B's declared semantics and its `READY` shipped Draft | a kernel choosing contract semantics inside an implementation, and no run it is allowed to execute |
 | T021A | T019's narrowing, merged | a version move whose free window has closed, or a parser change that alters a run-setup outcome |
 | T022 | T021's kernel and its reported trajectory | an observation transform with no truth to sample, and a document that still authors the readings it is meant to generate |
 | T022 | the corrected Fuel Loss document | a generated reading and an authored reading disagreeing on the same screen |
@@ -2403,7 +2414,7 @@ across M1C, and it is the only place the count is stated.
 | `main` today | 2 | T019 merged it |
 | T020 | 2 | no contract change; the `READY` disclosure is not one |
 | T020A | 3 | narrowing: a Foundation-owned parameter has no value position, and the shipped document as it stands is refused by the new parser |
-| the contract-alignment step | 4 | two narrowings, one number: the four semantics pinned (`D-2026-09-22-kernel-step-semantics`), and a requirement conflict refused rather than resolved (`D-2026-09-22-forcing-state-requirements`). They share a slice, so nothing ever conformed to the version between them |
+| T020B | 4 | two narrowings, one number: the four semantics pinned (`D-2026-09-22-kernel-step-semantics`), and a requirement conflict refused rather than resolved (`D-2026-09-22-forcing-state-requirements`). They share a slice, so nothing ever conformed to the version between them |
 | T021 | 4 | no move: the `TRAJECTORY` oracle widens the document space off every executable path |
 | T021A | 5 | narrowing: no `execution_requirement` position on a reported observation |
 | T022 | 5 | no move: one document's content and a new component, not a change to the space |
@@ -2417,8 +2428,8 @@ unmerged window. It is how versions one and two absorbed two amendments each
 inside T019, and it applies again only if some slice below narrows twice
 internally.
 
-**The contract-alignment step is the ledger's one deliberate step of its
-own**, between T020A and T021, and it is where the four semantics and the
+**T020B, the contract-alignment step, is the ledger's one deliberate step of
+its own**, between T020A and T021, and it is where the four semantics and the
 requirement-conflict refusal are declared. Two narrowings in one unmerged
 window spend one number, which is the unreleased-version doctrine doing what
 it is for rather than an exception to it. The document edits that accompany

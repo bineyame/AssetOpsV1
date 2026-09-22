@@ -42,31 +42,25 @@ document has been carrying: what its declared causes actually do to the tank.
 - T020 exposes the run-detail shell and truthful pre-execution state.
 - T020A supplies the Foundation consumption coefficient and the model-rule
   carrier. Without them the first kernel's physics arrive from the scenario.
+- T020B declares the four kernel semantics this kernel obeys, refuses a
+  requirement conflict rather than resolving it, and makes the shipped Fuel
+  Loss Draft reach `READY`. All three are hard: a kernel that chose its own
+  window, sampling, out-of-window or post-bound rule would be deciding contract
+  semantics inside an implementation, and a `BLOCKED` Draft must not execute,
+  so without T020B this slice cannot run against the shipped document at all.
 
-## Decisions Due Before Implementation
+## Decisions Already Taken
 
-These are execution-contract decisions and they return to review. They are not
-choices the Implementer may make inside the kernel, because each would let two
-conforming kernels disagree, which is what `EXECUTION_CONTRACT_VERSION` exists
-to prevent. If any is still open when work starts, the slice stops and asks.
-
-- The `REQUIRED` forcing states the first kernel does not model:
-  `site-load-demand`, `plane-of-array-irradiance`, and
-  `fuel-level-reporting-availability`. Each is lowered in the scenario, modelled
-  by the profile, or reassigned.
-- Whether authority over the reporting path moves from the model profile to the
-  publication profile. If it stays, this kernel must model reporting
-  availability, which is not physics.
-- The four unpinned kernel semantics: window apportionment, whether a sample
-  within a step sees pre-event or post-event state, what a forcing is outside
-  its declared window, and whether a run continues after a bounded change and
-  whether later causes apply to the bounded value.
-
-The `dispatched-output` promotion is the remaining half of that forcing-state
-decision and it is due earlier still, before T020A is implemented, because it
-fixes the coefficient's canonical unit. It is therefore already answered by the
-time this slice runs, and its answer decides whether the consumption law here
-is runtime-based or energy-based.
+The execution-contract questions this task file used to hold open were closed
+by the user on 2026-09-22 and are not the Implementer's to reopen. The four
+kernel semantics are declared in the contract by T020B
+(`D-2026-09-22-kernel-step-semantics`); the three `REQUIRED` forcing states are
+settled by `D-2026-09-22-forcing-state-requirements`; and the coefficient's
+unit and the `dispatched-output` promotion are settled by
+`D-2026-09-22-consumption-coefficient-unit`, which makes the consumption law
+here energy-based - specific consumption times energy delivered - and gives the
+kernel one forced state during the declared window rather than a power-flow
+model.
 
 One decision is taken *during* the slice rather than before it: what the
 shipped Fuel Loss document should author, answered from the trajectory this
@@ -251,7 +245,7 @@ slice produces. See the document-correction criterion.
 ## User Review
 
 No new user checkpoint for the kernel itself; it implements semantics already
-accepted in T018 and amendment 1. Two things inside the slice do return to the
-user rather than being settled in implementation: the contract decisions listed
-above, and the correction to the shipped Fuel Loss document, which is presented
+accepted in T018, in amendment 1, and in the four 2026-09-22 decisions. One
+thing inside the slice returns to the user rather than being settled in
+implementation: the correction to the shipped Fuel Loss document, presented
 with the computed trajectory and decided by the user during the slice.
