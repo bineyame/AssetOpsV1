@@ -1,6 +1,6 @@
 # T020 - Runs Inventory And Draft Shell
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T020-runs-inventory-and-draft-shell`
