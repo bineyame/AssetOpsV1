@@ -6,10 +6,11 @@
  * allows that only in `simulatorLabRoutes.tsx`, which is where the paths live
  * and where this client is constructed.
  *
- * It reads the versioned profiles and it creates one Draft. There is no start,
- * step, pause, commit, stage, ingest, replay, rerun or delete method, so no
- * screen built on it can offer one. That is not a convention: a screen cannot
- * call what the client does not have, and the backend serves no such route.
+ * It reads the versioned profiles, it creates one Draft, and since T020 it
+ * lists and reads the Drafts that exist. There is still no start, step, pause,
+ * commit, stage, ingest, replay, rerun or delete method, so no screen built on
+ * it can offer one. That is not a convention: a screen cannot call what the
+ * client does not have, and the backend serves no such route.
  *
  * ## The two outcomes are two shapes
  *
@@ -83,6 +84,15 @@ export interface RunSummary {
   run_id: string;
   lifecycle_status: string;
   execution_status: string;
+  /**
+   * What the execution status does not assert, or `null` when it asserts
+   * nothing that needs qualifying.
+   *
+   * It arrives with the run rather than being written on a screen, because
+   * it is a property of the status: a caller reading this over the wire gets
+   * the same statement a person reading the screen does.
+   */
+  readiness_disclosure: string | null;
   created_at: string;
   site_id: string;
   scenario_id: string;
@@ -111,6 +121,39 @@ export interface RunSetupInput {
   publication_profile: { profile_id: string; profile_version: number };
   run_inputs: RunInputValue[];
 }
+
+/**
+ * One row of the Runs inventory.
+ *
+ * There is no progress, no elapsed time, no health and no evidence state,
+ * because nothing has produced any of them. A field for one would arrive as
+ * a zero, and a zero is a measurement.
+ */
+export interface RunInventoryRow {
+  run_id: string;
+  lifecycle_status: string;
+  execution_status: string;
+  created_at: string;
+  site_id: string;
+  foundation_version: number;
+  scenario_id: string;
+  scenario_version: number;
+  interval: {
+    start_time: string;
+    end_time: string;
+    duration_minutes: number;
+  };
+  blocking_reason_count: number;
+}
+
+export type RunListResult =
+  | { status: "loaded"; runs: RunInventoryRow[] }
+  | { status: "unavailable" };
+
+export type RunDetailResult =
+  | { status: "loaded"; run: RunSummary }
+  | { status: "not_found" }
+  | { status: "unavailable" };
 
 export type RunProfilesResult =
   | {
@@ -149,6 +192,8 @@ export type CreateRunResult =
 export interface RunSetupClient {
   listProfiles(): Promise<RunProfilesResult>;
   createRun(input: RunSetupInput): Promise<CreateRunResult>;
+  listRuns(): Promise<RunListResult>;
+  getRun(runId: string): Promise<RunDetailResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -241,6 +286,28 @@ function isUnsupportedOptional(
   );
 }
 
+function isInventoryRow(value: unknown): value is RunInventoryRow {
+  if (!isRecord(value)) {
+    return false;
+  }
+  const interval = value.interval;
+  return (
+    typeof value.run_id === "string" &&
+    typeof value.lifecycle_status === "string" &&
+    typeof value.execution_status === "string" &&
+    typeof value.created_at === "string" &&
+    typeof value.site_id === "string" &&
+    typeof value.foundation_version === "number" &&
+    typeof value.scenario_id === "string" &&
+    typeof value.scenario_version === "number" &&
+    isRecord(interval) &&
+    typeof interval.start_time === "string" &&
+    typeof interval.end_time === "string" &&
+    typeof interval.duration_minutes === "number" &&
+    typeof value.blocking_reason_count === "number"
+  );
+}
+
 export function isRunSummary(value: unknown): value is RunSummary {
   if (!isRecord(value)) {
     return false;
@@ -249,6 +316,7 @@ export function isRunSummary(value: unknown): value is RunSummary {
     typeof value.run_id === "string" &&
     typeof value.lifecycle_status === "string" &&
     typeof value.execution_status === "string" &&
+    isNullableString(value.readiness_disclosure) &&
     typeof value.created_at === "string" &&
     typeof value.site_id === "string" &&
     typeof value.scenario_id === "string" &&
@@ -296,6 +364,45 @@ export function createRunSetupClient(
           modelProfiles: models,
           publicationProfiles: publications,
         };
+      } catch {
+        return { status: "unavailable" };
+      }
+    },
+
+    async listRuns(): Promise<RunListResult> {
+      try {
+        const response = await fetch(runsPath);
+        if (!response.ok) {
+          return { status: "unavailable" };
+        }
+        const body = (await response.json()) as Record<string, unknown>;
+        const runs = body?.runs;
+        if (!Array.isArray(runs) || !runs.every(isInventoryRow)) {
+          return { status: "unavailable" };
+        }
+        return { status: "loaded", runs };
+      } catch {
+        return { status: "unavailable" };
+      }
+    },
+
+    async getRun(runId: string): Promise<RunDetailResult> {
+      try {
+        const response = await fetch(
+          `${runsPath}/${encodeURIComponent(runId)}`,
+        );
+        if (response.status === 404) {
+          // Not another run, and not an empty one: a run that is not there.
+          return { status: "not_found" };
+        }
+        if (!response.ok) {
+          return { status: "unavailable" };
+        }
+        const body = (await response.json()) as Record<string, unknown>;
+        if (!isRunSummary(body?.run)) {
+          return { status: "unavailable" };
+        }
+        return { status: "loaded", run: body.run as RunSummary };
       } catch {
         return { status: "unavailable" };
       }

@@ -66,6 +66,15 @@ const SIMULATOR_URLS = [
 ];
 
 /**
+ * The Lab surfaces T020 added: the Runs inventory and one Draft.
+ *
+ * They were execution URLs until T020, because nothing served them. They are
+ * reads - which runs exist, and what one froze - and they serve no execution
+ * of any kind, which is why the list below keeps everything else.
+ */
+const RUN_SURFACE_URLS = ["/simulator-lab/runs", "/simulator-lab/runs/run-1"];
+
+/**
  * The gated shell itself. The trailing-slash form is the same route: the router
  * normalises it, so both spellings serve the shell when the gate is open.
  */
@@ -108,9 +117,17 @@ const UNSERVED_WHEN_DISABLED = [
   ...SCENARIO_URLS,
 ];
 
-/** Execution URLs that no slice has implemented, in either flag state. */
+/**
+ * Execution URLs that no slice has implemented, in either flag state.
+ *
+ * T020 took the two run READ surfaces out of this set by serving them. What
+ * remains is execution itself - truth comparison and the execute verb - plus
+ * the ungated spellings, and none of those has ever been served.
+ */
 const EXECUTION_URLS = SIMULATOR_URLS.filter(
-  (url) => !SIMULATOR_LAB_SHELL_URLS.includes(url),
+  (url) =>
+    !SIMULATOR_LAB_SHELL_URLS.includes(url) &&
+    !RUN_SURFACE_URLS.includes(url),
 );
 
 /**
@@ -295,6 +312,8 @@ describe("simulator lab gate: enabled", () => {
       "/simulator-lab/create-site",
       "/simulator-lab/scenarios",
       "/simulator-lab/scenarios/:scenarioId",
+      "/simulator-lab/runs",
+      "/simulator-lab/runs/:runId",
       "/simulator-lab/scenarios/:scenarioId/run-setup",
     ]);
   });
@@ -390,7 +409,53 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       await settledScreen();
 
       for (const control of interactiveControls(container)) {
-        expect(controlDescription(control)).not.toMatch(RUN_ACTION_PATTERN);
+        const description = controlDescription(control);
+        if (!RUN_ACTION_PATTERN.test(description)) {
+          continue;
+        }
+
+        // T020 makes two truthful things match this pattern, so the ban
+        // moves from "nothing may say it" to "nothing may DO it".
+        //
+        // A link may: a destination called Runs, and a row naming a run
+        // identity, are navigation. Following one shows a record; it starts
+        // nothing.
+        //
+        // A disabled button may, and only with a reason attached. That is
+        // the third affordance state this project already uses - rendered,
+        // disabled, carrying the prerequisite - and a disabled control
+        // without a reason is a dead end, so it fails here too.
+        //
+        // Anything else still fails, and an ENABLED button saying any of
+        // these words fails however it is spelled.
+        const isNavigation = control.tagName === "A";
+        const isDisabledWithReason =
+          control.tagName === "BUTTON" &&
+          (control as HTMLButtonElement).disabled &&
+          control.getAttribute("aria-describedby") !== null;
+
+        expect(
+          isNavigation || isDisabledWithReason,
+          `${url} offers "${description}" as something other than a ` +
+            "destination or a disabled control with a reason",
+        ).toBe(true);
+      }
+    },
+  );
+
+  it.each(RUN_SURFACE_URLS)(
+    "offers no enabled control at all on the run surface %s when enabled",
+    async (url) => {
+      // The stronger half, stated separately so the allowance above cannot
+      // be read as "the run screens may act". Nothing on them may.
+      const { container } = renderAt(url, ENABLED);
+      await settledScreen();
+
+      for (const control of interactiveControls(container)) {
+        if (control.tagName === "A") {
+          continue;
+        }
+        expect(control).toBeDisabled();
       }
     },
   );
@@ -428,6 +493,11 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       // and it renders real scenario records; the Lab home body is unchanged,
       // so this adds a destination without adding a control.
       ["/simulator-lab/scenarios", "Scenarios"],
+      // T020 adds the rail's fourth destination, and it is a place rather
+      // than an action: it lists the Drafts run setup has written. The Lab
+      // home body is unchanged, so this adds a destination without adding a
+      // control.
+      ["/simulator-lab/runs", "Runs"],
       ["/simulator-lab/site-templates", "Site Templates"],
       // T010 gives the Lab its own way into the create flow. The same path and
       // the same gate as the operator index's entry point, differing only in

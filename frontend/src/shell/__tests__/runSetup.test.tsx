@@ -146,6 +146,10 @@ const READY_RUN: RunSummary = {
   run_id: "run-1f0c2b7a4e5d4c8fa1b2c3d4e5f60718",
   lifecycle_status: "DRAFT",
   execution_status: "READY",
+  readiness_disclosure:
+    "READY means every required executable input resolved and the selected " +
+    "model profile declares it can consume them. It does not mean the model " +
+    "can.",
   created_at: "2026-09-21T09:00:00Z",
   site_id: "MG-001",
   scenario_id: "fuel-loss-event",
@@ -159,6 +163,7 @@ const BLOCKED_RUN: RunSummary = {
   ...READY_RUN,
   run_id: "run-99aa88bb77cc66dd55ee44ff33221100",
   execution_status: "BLOCKED",
+  readiness_disclosure: null,
   // Two reasons of two kinds, both about what the selected profile can do.
   // A reason about the scenario disagreeing with its own arithmetic used to
   // be here; Amendment 1's proposal (e) removed that from run setup, because
@@ -218,6 +223,8 @@ function runClient(outcome: CreateRunResult): {
         calls.push(input);
         return Promise.resolve(outcome);
       },
+      listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
+      getRun: () => Promise.resolve({ status: "not_found" }),
     },
   };
 }
@@ -513,6 +520,8 @@ describe("when a read the screen depends on fails", () => {
     const client: RunSetupClient = {
       listProfiles: () => Promise.resolve({ status: "unavailable" }),
       createRun: () => Promise.resolve({ status: "created", run: READY_RUN }),
+      listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
+      getRun: () => Promise.resolve({ status: "not_found" }),
     };
     renderSetup(client);
     await settledScreen();
