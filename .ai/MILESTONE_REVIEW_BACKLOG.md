@@ -67,8 +67,22 @@ a name-suffix scan with a hand-written count where the durable fix is
 exporting a vocabulary `frozenset`, a dead duplicate docstring in the
 execution contract tests, and the remaining item in the packet.
 
+The floor now has numbers, measured by T020's review.
+`tools/layout-evidence.mjs:1029` asserts `frozen.rowCount >= 20` under a claim
+worded *the frozen input table renders a row for every frozen value*, and the
+two pages it runs against have **29** and **46** rows - so the floor could
+lose a third of one page and nine tenths of the other and still pass a claim
+that says "every". `:1046` is the same shape: `blocked.rowCount > 0` under
+*the blocked table names every reason the draft carries*, where the true
+number is three.
+
 *Safe to carry* because they were reviewed, judged Low, and none makes a false
-claim. T020 reads the same store and should read N3-N6 before it does.
+claim - a floor that is too low reports a true thing weakly rather than a
+false thing. T020 reads the same store and reused the same `>= 20` floor, so
+the fix is one place with two callers.
+
+*What would change the answer:* a page losing rows silently. The claim would
+still pass, and its wording says it would not.
 
 ### The answerer vocabulary's inherited shape
 
@@ -146,6 +160,39 @@ and every packet names its branch, which is authoritative.
 *What would change the answer:* nothing. Delete this entry at the milestone
 review; it is here so the pattern is visible rather than because it needs a
 fix.
+
+### The layout tool's action claims cannot see an enabled anchor
+
+`tools/layout-evidence.mjs:245` collects `document.querySelectorAll("main
+button")`, so every action claim built on it - `:947` *the inventory offers no
+button of any kind*, `:1084` *a blocked draft offers no run action at all*,
+`:1089` *the one action on a ready draft is rendered and disabled* - is
+satisfied by an enabled `<a className="action">`. That is an established idiom
+in this codebase, not a hypothetical: the Lab uses anchors as actions
+elsewhere, and T020's F1 finding was exactly that element.
+
+*Safe to carry* because the jsdom suites now close the link set on every run
+surface and they run in CI, where this tool does not. The tool measures
+layout; the affordance claims on it are a second opinion.
+
+*What would change the answer:* the tool becoming the primary affordance
+guard, or a surface whose links the jsdom suites do not close.
+
+### The evidence run's submit race
+
+`SUBMIT_RUN_SETUP` at `tools/layout-evidence.mjs:384` clicks the submit button
+without checking whether it is disabled, and that button is disabled until
+`/api/sites/MG-001` resolves. The action returns `true` either way, so the run
+proceeds to wait for a summary that was never requested. Reproduced three
+times during T020's review; two runs aborted.
+
+*Safe to carry* because it fails honestly. The wait times out and the run
+aborts with the error the script already raises for a page its action did not
+produce; it never yields a false PASS.
+
+*What would change the answer:* anyone treating an aborted run as a flake and
+re-running until green. The fix is to check `disabled` before clicking and to
+wait for the control rather than for a sleep.
 
 ## Tracked elsewhere, listed so the review finds them
 
