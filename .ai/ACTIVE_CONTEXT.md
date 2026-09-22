@@ -32,58 +32,38 @@ that cannot import a Site record at all.
 T018 closed out 2026-09-21, accepted by review and by the user. The execution
 contract is settled in `D-2026-09-21-scenario-execution-contract`.
 
-**The Fuel Loss residual is accepted as stated, not resolved.** The declared
-causes reach 254 L where the sensor reports 155 L and the operator records
-150 L. The three ways out - model the missing cause, declare a reporting
-behaviour, or change the causes - are open and the user's to direct. T019
-applied the consequence the decision names: an unreached reading blocks. **The
-shipped Fuel Loss Event therefore cannot reach `READY` in this build**, by
-construction - two of its five blocking reasons are the residual and three are
-forcing states the first kernel does not model. `READY` is proved on fixtures.
+**The Fuel Loss residual is answered by (f): a scenario does not author what a
+device reads.** The declared causes reach 254 L where the document authors
+readings of 155 L and 150 L. Those readings are hand-simulated, they are
+removed in T022, and the document is corrected during T021 from what the kernel
+computes. **The shipped Fuel Loss Event still cannot reach `READY` in this
+build**, by construction: once (e) lands it blocks on the three forcing states
+the first kernel does not model. `READY` is proved on fixtures.
 
-Two of T018's four Low findings are closed by T019 and marked settled in
-place: intra-instant ordering is now a `DISPATCH_RULES` entry, because a
-persisted Draft's blocking reason made the question observable from outside
-the contract, and `EXECUTION_CONTRACT_VERSION` moved to 2, which also made the
-weak contract-version test strong. Two remain: the unmeasured second
-initialization layer and two forward constraints that live only in code
-comments.
+**The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
+Twelve of them, (a) through (l), reasoned in
+`Docs/simulator-scenario-authoring-and-runtime.md` and recorded in five
+`.ai/DECISIONS.md` entries. The consequences that change planning: run setup
+stops adjudicating cause-to-observation coupling, so the shipped Draft blocks
+on three reasons rather than five; a scenario stops authoring what a device
+reads; two slices are inserted - **T020A** between T020 and T021 for Foundation
+physical properties and model-rule carriers, and **T021A** between T021 and
+T022 to close `execution_requirement` on reported observations while the
+version-bump window is still free; and the Fuel Loss document is corrected
+during T021 from what the kernel computes. Read
+`.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task file in
+that range.
 
-**The T019 checkpoint reversed that ordering rule before independent review.**
-Authored `sequence` order is not physics, serialising simultaneous causes
-abstains on a level the state is never in, and declaring it would have obliged
-T021's kernel to serialise sub-steps inside one instant - removing the
-metamorphic invariant `D-2026-09-21-causal-runtime-before-golden-traces` asks
-for. Simultaneous causes are now a group with a net effect whose
-order-dependence is decided exactly, and the contract abstains only when one
-extreme reaches a bound and the other does not. **The amendment to
-`D-2026-09-21-scenario-execution-contract` is Architect's and is pending** -
-that decision's text does not yet say this. Whether `NOT_RECONCILABLE` should
-become a second blocking kind on a run was raised there and left open.
+**T019 has not applied (e) yet.** Its run setup still blocks on the two
+unreached readings. Narrowing it to three reasons is the Implementer's next
+round, together with the T019 review's own findings.
 
-### The lesson T017 paid for
-
-The vocabulary guard built to be unconditional had a hole exactly where a
-parameter key lives, and four deliberate violations missed it. The parameter
-proof added `breaker_position` as a mapping *key*, which the strict parser
-already refuses as unknown - so it failed loudly and proved nothing about the
-rule it was written for. **A deliberate violation has to be one the rest of
-the system would otherwise accept**, or it measures the wrong guard. Found by
-the independent Reviewer, not by the proofs. That is the eighth member of the
-family and it is written into `backend/tests/control_vocabulary.py` rather
-than only into a packet.
-
-T018 paid it twice more. A deliberate "power applied as a rate" was refused
-by the role rule before the dimension rule was consulted, and two attempts to
-get a reading into the initialization inputs tripped a different guard first.
-Both were rewritten until they measured what they named.
-
-T018's review added the other half of the same family: a guard, a sentence
-and a number each have to be checked against the thing they describe, not
-against themselves. A legend claimed a guarantee the parser did not hold, a
-cadence rule written for one position left three open, and the reconciliation
-reported a volume its own bound policy refuses. The T018 entry in
-`.ai/CODE_STATE.md` has all three.
+Two of T018's four Low findings are closed by T019 and marked settled in place:
+intra-instant ordering became a `DISPATCH_RULES` entry - since reversed by the
+checkpoint into the net/abstain rule - and `EXECUTION_CONTRACT_VERSION` moved
+to 2, which also made the weak contract-version test strong. Two remain: the
+unmeasured second initialization layer, and two forward constraints that live
+only in code comments.
 
 ## Current State
 

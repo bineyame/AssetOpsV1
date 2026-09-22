@@ -13,25 +13,64 @@ Draft SimulationRun And Causal Runtime.
 
 A `READY` Fuel Loss Draft can be checked against a real executable model. Its
 run detail reports that the selected model profile is executable and names the
-private-state capabilities it supports. It still does not start or display a
-state trajectory; T022 owns execution and runtime presentation.
+private-state capabilities it supports, and that report is now backed by a
+conformance test rather than by a hand-written tuple. The `READY` disclosure
+T020 put on the record and the screen goes with it, because the test is what
+makes it false. The run still does not start or display a state trajectory;
+T022 owns execution and runtime presentation.
 
 ## Why This Is Next
 
-T020 makes persisted Drafts inspectable. The next causal prerequisite is the
-smallest real state producer that can execute the accepted Fuel Loss contract.
-Building it before controls or golden traces prevents authored fixtures from
-becoming simulator authority.
+T020 makes persisted Drafts inspectable and T020A gives the kernel physics that
+come from the machine rather than from the story. The next causal prerequisite
+is the smallest real state producer that can execute the accepted Fuel Loss
+contract. Building it before controls or golden traces prevents authored
+fixtures from becoming simulator authority.
 
 This backend-heavy slice directly unlocks T022's UI-verifiable execution. Its
 small visible readiness result proves the real run-to-kernel compatibility seam
 rather than adding a standalone simulator diagnostics product.
 
+It is also the first slice that can answer a question the shipped Fuel Loss
+document has been carrying: what its declared causes actually do to the tank.
+
 ## Dependencies
 
-- T018 has accepted execution roles, initialization, timing, and bound behavior.
+- T018 has accepted execution roles, initialization, timing, and bound
+  behavior, as amended on 2026-09-21.
 - T019 freezes all required inputs and persists READY/BLOCKED Drafts.
 - T020 exposes the run-detail shell and truthful pre-execution state.
+- T020A supplies the Foundation consumption coefficient and the model-rule
+  carrier. Without them the first kernel's physics arrive from the scenario.
+
+## Decisions Due Before Implementation
+
+These are execution-contract decisions and they return to review. They are not
+choices the Implementer may make inside the kernel, because each would let two
+conforming kernels disagree, which is what `EXECUTION_CONTRACT_VERSION` exists
+to prevent. If any is still open when work starts, the slice stops and asks.
+
+- The `REQUIRED` forcing states the first kernel does not model:
+  `site-load-demand`, `plane-of-array-irradiance`, and
+  `fuel-level-reporting-availability`. Each is lowered in the scenario, modelled
+  by the profile, or reassigned.
+- Whether authority over the reporting path moves from the model profile to the
+  publication profile. If it stays, this kernel must model reporting
+  availability, which is not physics.
+- The four unpinned kernel semantics: window apportionment, whether a sample
+  within a step sees pre-event or post-event state, what a forcing is outside
+  its declared window, and whether a run continues after a bounded change and
+  whether later causes apply to the bounded value.
+
+The `dispatched-output` promotion is the remaining half of that forcing-state
+decision and it is due earlier still, before T020A is implemented, because it
+fixes the coefficient's canonical unit. It is therefore already answered by the
+time this slice runs, and its answer decides whether the consumption law here
+is runtime-based or energy-based.
+
+One decision is taken *during* the slice rather than before it: what the
+shipped Fuel Loss document should author, answered from the trajectory this
+slice produces. See the document-correction criterion.
 
 ## Acceptance Criteria
 
@@ -40,17 +79,21 @@ rather than adding a standalone simulator diagnostics product.
   that step. It does not import UI, gateway, ingestion, or product analytics.
 - The first model profile resolves the configured generator and fuel tank from
   the frozen Foundation and consumes no display labels as identifiers or data.
+  The consumption coefficient resolves from Foundation; no physics is read from
+  the scenario.
 - Every initialized value is attributable to a frozen Foundation fact,
-  executable scenario input, supported run override, or versioned model rule.
-  Missing or ambiguous inputs produce a typed refusal, never a hidden default.
+  executable scenario input, supported run override, or versioned model rule
+  carried by the selected profile. Missing or ambiguous inputs produce a typed
+  refusal, never a hidden default.
 - The kernel represents simulation time, fuel quantity, generator operating
   state and cumulative generator consumption in canonical units. It also
   carries the accepted load and irradiance forcings as supported runtime inputs
   without claiming power-flow consequences the model does not calculate.
 - Generator consumption, fuel removal, and fuel delivery follow the execution
-  roles and point/window semantics accepted in T018. Reported observations and
-  non-executable evidence conditions cannot enter initialization or transition
-  inputs.
+  roles and point/window semantics accepted in T018 and amended on 2026-09-21,
+  including the net-effect treatment of simultaneous causes. Reported
+  observations and non-executable evidence conditions cannot enter
+  initialization or transition inputs.
 - Due-event selection follows the accepted half-open boundary convention and
   applies each authored cause exactly once across step boundaries, including
   when an event falls exactly on a boundary.
@@ -63,10 +106,37 @@ rather than adding a standalone simulator diagnostics product.
 - Kernel output is private simulator state/runtime events only. It contains no
   Source Envelope, evidence status, health conclusion, Finding, or private
   expectation.
+- A fifth oracle kind, `TRAJECTORY`, joins `EXPECTATION_KINDS`. It asserts a
+  private-state value at an offset, is checked by the kernel in tests, and is
+  read by no executable path and published nowhere. Two properties are part of
+  the deliverable: it is sparse and purposeful, one or two points the scenario
+  is about, because a dense set is a hand-authored trace occupying the oracle
+  position; and the slice states that it is a regression guard rather than a
+  correctness proof, because an author and a kernel performing the same
+  arithmetic and agreeing proves that two implementations agree.
+- A conformance test asserts that the shipped model profile's
+  `supported_states` equals the set of states the kernel actually implements,
+  derived from the kernel rather than restated by hand. A test that repeats the
+  tuple closes nothing. When this lands, `READY` means what its name says.
+- This slice retires T020's `READY` disclosure, from the run payload and from
+  the run-detail screen, because the conformance test is what makes it false.
+  A claim that has become false goes in the slice that falsifies it; leaving it
+  for a later slice ships a false sentence on a screen. `BLOCKED` is unaffected.
+- The labelled reference implementation of the execution contract is run
+  against the shipped document beside the kernel and the two are compared. Any
+  disagreement is reported and the kernel is the surviving authority from here
+  on.
+- The slice runs the kernel against the shipped Fuel Loss document under its
+  frozen Draft identity and reports the resulting private-state trajectory:
+  the value at each authored offset and the outcome at the capacity bound. The
+  document's authored numbers are then corrected from that trajectory. Which
+  corrections to make is the user's call taken during the slice, and producing
+  the trajectory that makes the call answerable is this slice's obligation. No
+  authored number changes without the computed trajectory that justifies it.
 - No state trace is hand-authored or accepted as execution input. T021 may
-  compare in-memory deterministic sequences in tests, but T022 owns any
-  persisted or checked-in golden playback/regression artifact after it wires
-  normal execution through this kernel.
+  compare in-memory deterministic sequences in tests; T022 owns any persisted
+  or checked-in golden playback artifact after it wires normal execution
+  through this kernel.
 - Run detail may show model readiness and supported capabilities, but exposes no
   private state value or apparent execution result before T022.
 
@@ -77,6 +147,10 @@ rather than adding a standalone simulator diagnostics product.
   this kernel.
 - The kernel owns computed private state. It is not evidence and is visible
   only through later Simulator Lab bindings.
+- An expectation is legitimate when it occupies a position where being wrong
+  causes a failure, and circular when it occupies a position where being wrong
+  causes agreement. That rule is why `TRAJECTORY` is an oracle and why the
+  conformance test is derived rather than restated.
 - The first kernel is intentionally narrow. Unsupported electrical,
   environmental, storage, or cold-chain consequences remain unavailable rather
   than being approximated implicitly.
@@ -86,7 +160,8 @@ rather than adding a standalone simulator diagnostics product.
 ## Protected Seams
 
 - Causal runtime authority: executable transitions precede authoritative or
-  golden traces.
+  golden traces, and precede any verdict that depends on composing causes.
+- Physical property ownership: the coefficient comes from Foundation.
 - Explicit initialization provenance: no fixture or model code hides initial
   state.
 - Execution-role boundary: observation/evidence-condition inputs cannot mutate
@@ -107,19 +182,34 @@ rather than adding a standalone simulator diagnostics product.
   the earlier prefix equal; removing it removes the discontinuity; changing the
   target affects only the resolved target or is refused.
 - Example accounting test covers initial fuel, generator consumption, removal,
-  and delivery under the exact accepted T018 bound behavior and canonical-unit
-  conversions.
-- Refusal tests cover missing component, unsupported topology/input, invalid
-  unit, missing initialization, impossible bound, and deterministic-identity
-  mismatch.
+  and delivery under the accepted bound behavior and canonical-unit conversions.
+- Refusal tests cover missing component, missing Foundation coefficient,
+  unsupported topology/input, invalid unit, missing initialization, impossible
+  bound, and deterministic-identity mismatch.
+- `TRAJECTORY` tests prove the oracle fails when the kernel disagrees with the
+  asserted value, and that it reaches no executable path and no published
+  output.
+- Conformance test proving the shipped profile's supported set is derived from
+  the kernel, including a proof that it fails when the profile claims a state
+  the kernel does not implement.
+- A test proving the `READY` disclosure is gone from the run payload and the
+  run-detail screen, which is the mirror of the test T020 wrote to prove it
+  was there.
 - Contract test proves reported observations, public evidence conditions, and
   private expectations are absent from kernel inputs and outputs.
 - UI/API test shows readiness only for a compatible READY Draft and no runtime
   values before execution.
+- The computed trajectory for the shipped document, in the review packet, as
+  the evidence behind any document correction.
 - Run architecture/workflow checks and relevant backend/frontend suites.
 
 ## Scope Limits
 
+- No removal of the reference implementation. It stops being an authority here
+  and leaves the repository when its last remaining product-path caller goes,
+  which is the `observation_reconciliation` panel and is undecided. Two events
+  on two clocks: comparing is this slice's, removing is not. The panel and its
+  payload are untouched here.
 - No Lab clock controls or displayed trajectory; those belong to T022.
 - No device observation transform, gateway envelope, staging, Commit,
   ingestion, Replay, analytics, or Finding.
@@ -130,6 +220,8 @@ rather than adding a standalone simulator diagnostics product.
 
 ## User Review
 
-No new user checkpoint. T021 implements the executable semantics reviewed in
-T018. Any required change to those semantics returns to planning/user review
-rather than being decided inside the kernel implementation.
+No new user checkpoint for the kernel itself; it implements semantics already
+accepted in T018 and amendment 1. Two things inside the slice do return to the
+user rather than being settled in implementation: the contract decisions listed
+above, and the correction to the shipped Fuel Loss document, which is presented
+with the computed trajectory and decided by the user during the slice.

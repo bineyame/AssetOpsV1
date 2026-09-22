@@ -32,7 +32,13 @@ rationale in the dated entries below.
 | `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. |
 | `D-2026-09-21-scenario-authoring-semantics` | 2026-09-21 | The T017 checkpoint settles scenario versioning fields, the event taxonomy, and the public/private parameter boundary. |
 | `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
-| `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. |
+| `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. Amended by `D-2026-09-21-scenario-execution-contract-amendment-1`. |
+| `D-2026-09-21-scenario-execution-contract-amendment-1` | 2026-09-21 | Amendment 1 to the execution contract: simultaneous causes net rather than order; the contract-version bump policy; run setup stops adjudicating cause-to-observation coupling; a scenario does not author what a device reads; `execution_requirement` is forbidden on a reported observation; a fifth `TRAJECTORY` oracle kind. |
+| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. |
+| `D-2026-09-21-projection-versus-composition` | 2026-09-21 | Projecting a document is static validation; composing projections into a value-at-a-time is a kernel, whatever the component is called. |
+| `D-2026-09-21-specification-reference-implementation` | 2026-09-21 | A specification's reference implementation lives in the test suite, labelled and with a stated expiry, never in the product path; `reconcile_reported_observations` moves there. |
+| `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. |
+| `D-2026-09-22-expiry-follows-the-condition` | 2026-09-22 | A gap-covering artifact names the condition as its expiry, never a slice number; a claim that has become false goes in the slice that falsifies it, and a thing still honest goes when someone decides to remove it. |
 
 ## 2026-09-11
 
@@ -1392,3 +1398,463 @@ Affected scope: T019 Draft run setup and its `BLOCKED` computation, T021's
 kernel and its initialization/step contract, T022's device observations, the
 scenario parser vocabularies and payloads, and any later slice that resolves
 the Fuel Loss residual.
+
+Amended by `D-2026-09-21-scenario-execution-contract-amendment-1`, which
+withdraws the closing clause about run setup blocking on an unreached reading.
+
+## 2026-09-21
+
+Decision: `D-2026-09-21-scenario-execution-contract-amendment-1`. Amendment 1
+to `D-2026-09-21-scenario-execution-contract`. Six changes, accepted by the
+user on 2026-09-21 after reading
+`Docs/simulator-scenario-authoring-and-runtime.md`, which carries the full
+reasoning and is committed alongside this entry. The original decision keeps
+its ID and its unamended text; this entry is what it means where the two
+differ. The bracketed letters are the labels that document uses.
+
+**(c) Simultaneous causes are a group with a net effect, not a sequence.** The
+original decision fixed half-open dispatch and exactly-once application but
+left within-instant ordering unspecified, so two conforming kernels could
+legitimately disagree at that instant. Transitions on one state completing at
+the same offset now form a group with a net effect, and bounds are evaluated on
+the group's net rather than between its members. Order-dependence is decided
+exactly: apply all increases first to test the upper bound, all decreases first
+to test the lower. If neither extreme breaches, no ordering breaches, the net
+is unambiguous, and the contract answers. If one extreme breaches and the other
+does not, the group is genuinely order-dependent and the contract abstains with
+its own reason, saying the scenario must separate the offsets if it wants order
+to decide. Order is expressed as time, never as position in a document.
+
+A first draft of this rule declared authored `sequence` order and was reversed
+inside T019 before independent review. Authored order is not physics,
+serialising simultaneous causes abstains on a level the state is never in, and
+declaring it would have obliged T021's kernel to serialise sub-steps inside one
+instant, removing the metamorphic invariant
+`D-2026-09-21-causal-runtime-before-golden-traces` asks for. Already
+implemented on `task/T019-draft-run-setup` as a `DISPATCH_RULES` entry.
+
+**(d) `EXECUTION_CONTRACT_VERSION` moves when the space of conforming
+behaviours changes, including when it narrows, and never for wording.** Pinning
+a previously unspecified semantic narrows the space and moves the number; a
+prose edit does not. The number identifies the space, not the text. (c) moved
+it from 1 to 2 because it pinned an instant the first version left open, and
+rewriting (c)'s content inside the same slice did not move it again, because
+both drafts narrow the same space and no implementation ever conformed to the
+first draft. The policy matters because
+`D-2026-09-21-causal-runtime-before-golden-traces` makes a provenance mismatch
+refuse playback, so a version that moved for prose would force regeneration of
+valid golden traces. Already implemented on `task/T019-draft-run-setup`.
+
+**(e) Run setup does not adjudicate cause-to-observation coupling.** This
+withdraws the original decision's closing clause, "later run setup treats an
+unreached reading as a reason to block rather than as a rounding matter."
+Deciding whether declared causes reach a declared reading requires composing
+those causes into a value at a time, which is a transition rule, and whatever
+owns a transition rule is a kernel. Run setup has no kernel, so the verdict was
+never run setup's to reach. `OBSERVATION_NOT_ACCOUNTED_FOR` therefore leaves
+the blocking-reason vocabulary and the observation reasons leave the run-setup
+service.
+
+The rest of the original fourth proposal stands. Both readings are still
+reported observations from a named source, neither prescribes tank state, and
+the residual is still real. What changes is where it is stated. Reconciliation
+found a genuine defect in the document, and it was wrong only about where it
+stood to look: a disagreement between an author's expectation and computed
+behaviour is a test failure, not a property of a run that has not happened.
+Lands in T019 before merge.
+
+**(f) A scenario does not author what a device reads.** The original decision
+left three ways out of the residual open. This takes the third and narrows it.
+The authored 155 L at offset 1590 and 150 L at offset 1800 are removed. What a
+run reports is generated by the observation transform from private state, at
+the cadence the frozen publication profile declares, perturbed only by declared
+reporting-path forcings. The 155 L value was a hand-simulation of exactly the
+sample the transform will generate at 1590, and it was wrong by 99 L.
+
+The `REPORTED_OBSERVATION` role survives unchanged and becomes more necessary,
+not less: it is precisely what stops an authored reading reaching a transition.
+Its meaning sharpens from "a value the contract checks the causes against" to
+"an expectation about what a run should produce, which no executable path may
+read." The entry at 1590 survives as an evidence condition asserting that a
+reading arrives there and is materially below what dispatch accounts for; the
+operator's inspection at 1800 keeps the act and loses the number. Lands in
+T022, and the replacement numbers are derived during T021 from what the kernel
+computes rather than chosen before it.
+
+**(g) `execution_requirement` is forbidden on a `REPORTED_OBSERVATION`.**
+Closed structurally at the parser, the way the original decision closed
+duration units: there is no position the field can occupy, rather than a rule
+someone has to remember. With (e) in place, `REQUIRED` on a value no executor
+reads is either vacuous or a category error, and the meaning it was carrying,
+"this run must produce such a reading", already has a home in the private
+expectations under `DETECTION` and `TIMING`. This narrows the space of
+conforming behaviours, so `EXECUTION_CONTRACT_VERSION` moves 2 to 3 under (d).
+It is free now and will not be once a golden trace exists. The user placed it
+in its own slice, **T021A**, on 2026-09-22: T022 is the slice that first
+produces a golden trace, so burying the version move inside it would make that
+slice's internal ordering load-bearing and would close the free window if T022
+were ever split. It sits after T021 because the kernel never reads
+`execution_requirement` on a reported observation.
+
+**(i) A fifth oracle kind, `TRAJECTORY`.** The four accepted oracle kinds are
+all about analysis outcomes. None is about world trajectory, so the author's
+most immediate and most confident expectation, what the tank does, had nowhere
+falsifiable to go and ended up as a `REPORTED_OBSERVATION` value, which is a
+load-bearing position. A `TRAJECTORY` oracle asserts a private-state value at
+an offset, is checked by the kernel in tests, and is never published and never
+read by any executable path.
+
+It is not a manually authored trace under another name. A trace as input is
+read and reported as the state, so being wrong causes agreement; an oracle is
+compared against an independently computed value, so being wrong causes a
+failure. Two guards keep it on the right side of that line. It must be sparse
+and purposeful, one or two points the scenario is about, because a dense set is
+a trace in the oracle position and fits the kernel to the author's arithmetic.
+And it must be stated as weak proof: if the author and the kernel perform the
+same arithmetic and agree, what is proven is that two implementations agree,
+which catches unit, dispatch and half-open errors and does not prove the
+physics. It is a regression guard, not a correctness proof. Lands in T021,
+which is what can check it. Without it, (f) deletes the author's expectation
+instead of relocating it.
+
+Reason: five of the six changes withdraw or narrow a claim the contract was
+making without the machinery to back it, and the sixth gives the withdrawn
+expectation a position where being wrong causes a failure. The rule underneath
+all of them, and the reason they are one amendment rather than six: an
+expectation is legitimate when it occupies a position where being wrong causes
+a failure, and circular when it occupies a position where being wrong causes
+agreement.
+
+Affected scope: `backend/assetops_backend/scenarios/execution.py` dispatch
+rules and the contract-version constant, `runs/service.py` blocking reasons,
+`runs/models.py` blocking vocabulary, the parser rule for
+`execution_requirement`, `EXPECTATION_KINDS`,
+`config/scenarios/fuel-loss-event.yaml`, the scenario detail screen's
+reconciliation panel, T019's narrowing before merge, T021's oracle check and
+document correction, and T022's observation transform.
+
+## 2026-09-21
+
+Decision: `D-2026-09-21-run-setup-outcome-vocabulary`. The T019 checkpoint
+settles what a run-setup outcome asserts and when the Fuel Loss residual is
+due. Accepted by the user on 2026-09-21. The first two parts were taken at the
+checkpoint itself and had until now been recorded only in a local handoff note;
+the third comes from the Architect read that followed.
+
+**(a) `BLOCKED` is the shipped run-setup outcome.** Setting up a run for the
+shipped Fuel Loss Event against the shipped `minimal-fuel-tank` model profile
+produces a persisted Draft that cannot execute. That is accepted as correct
+behaviour rather than treated as a defect to design around: a structurally
+valid, fully frozen request whose executable inputs the selected profile cannot
+consume is inspectable history, not a refusal. Under amendment 1's (e) the
+count drops from five reasons to three, all `STATE_NOT_SUPPORTED`, for
+`site-load-demand`, `plane-of-array-irradiance` and
+`fuel-level-reporting-availability`. The outcome does not change; only the
+reason count does. `READY` remains unreachable for the shipped document in this
+build and is proved against fixtures. T019 does not widen the shipped model
+profile and does not resolve the residual.
+
+**(b) The residual is a scheduled decision, and it splits.** The checkpoint
+treated it as one decision with two halves, both due before T021's task file.
+It is now two decisions with different deadlines, because (e) moved one of them
+out of run setup.
+
+- The `REQUIRED` forcing states the first kernel does not model stay due
+  **before T021's task file is written**, because they decide what the first
+  kernel must model. Either the scenario lowers their requirement level, or the
+  model profile grows to model them, or the authority for the reporting-path
+  one moves to the publication profile. If `dispatched-output` is promoted to a
+  forcing input, it joins this list. Deadline unchanged.
+- The two unreached readings stop being a run-setup blocker under (e) and
+  become a scenario-authoring question, due **before T022** and answered
+  **during T021** from what the kernel computes. The right removal magnitude
+  depends on what the kernel computes and on what the product can recover from
+  published evidence, so deciding the number first and then building the kernel
+  would fit the kernel to an authored expectation.
+
+**(l) `READY` discloses what it does not assert, and T021 verifies it.**
+`ModelProfile.supported_states` is a hand-written tuple that nothing checks
+against a kernel, because no kernel exists. `READY` therefore means every
+required executable input names a state that appears in that tuple with a
+matching role, and every frozen value resolved. It does not mean the model can
+execute them. If the shipped profile claims a state the eventual kernel does
+not implement, the Draft is `READY` anyway, and being wrong causes agreement.
+
+The remedy is disclosure now and structural closure later, not a rename. T020
+states on the run record and on screen what `READY` does not assert. T021 adds
+a conformance test asserting that the shipped profile's supported set equals
+the set of states the kernel actually implements, derived from the kernel
+rather than hand-maintained, which is the treatment this project already gives
+the cadence and duration-unit prohibitions. The word becomes correct when that
+test lands, and renaming it would ripple through the API payload, the
+frontend, the tests and T020's screens to fix a word that is about to become
+true. The disclosure becomes false at the same moment, so **T021 retires it in
+the slice that lands the conformance test**, under
+`D-2026-09-22-expiry-follows-the-condition`; this entry originally left the
+retirement to an unnamed later slice and nothing owned it.
+
+This is deliberately not treated the way `RUNNING` was. `RUNNING` could never
+be reached in this build, so it was pure fiction and deletion was the only
+honest move. `READY` is reached and does assert something true, just less than
+its name suggests. Absence and overstatement warrant different remedies.
+
+Reason: a persisted `BLOCKED` Draft is the honest product of a run setup that
+can freeze everything and execute nothing, and it is more useful than a refusal
+because it can be inspected. The residual split follows from where each half
+can actually be answered. And an execution status is the one place in this
+build that makes a claim about executability, so what it does not claim has to
+be said in the same place.
+
+Affected scope: T019's blocking-reason set and its fixtures, T020's run-detail
+disclosure and Runs inventory language, T021's task file scope and its
+`supported_states` conformance test, T022's ability to execute the shipped
+scenario, `runs/profiles.py`, and the shipped Fuel Loss document.
+
+## 2026-09-21
+
+Decision: `D-2026-09-21-projection-versus-composition`. Projecting a document
+is static validation. Composing projections into a value-at-a-time is a kernel.
+A component that owns a transition rule is a kernel regardless of what it is
+called, how narrow it is, or whether it emits a trajectory.
+
+This is the general form of
+`D-2026-09-21-causal-runtime-before-golden-traces` with one word changed. That
+decision says a kernel precedes any authoritative trace; this one says a kernel
+precedes any verdict that depends on composing causes. It is recorded as a
+durable rule in `.ai/ARCHITECTURE.md` under Causal Runtime Authority.
+
+Reason: the rule is what distinguishes the parts of T018's execution contract
+that are sound from the part amendment 1 withdraws. `declared_bounds` reports
+what a document declares and evolves nothing, so it is a projection and it
+stays. The bound walk inside `reconcile_reported_observations` applies bounds to
+a running value, which is a transition rule, so it was a kernel living in the
+validation layer under another name. Without a stated rule that distinction has
+to be rediscovered every time a validator is asked one more question, and three
+review rounds on reconciliation is what rediscovering it costs.
+
+The rule also names a live instance that predates it and is not yet fixed.
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` in `scenarios/execution.py` gives every
+volume state a lower bound of zero whether or not the document declares one.
+The asserted fact is true, but "volume is non-negative" is a model rule, not a
+projection of the document, and the validation layer is injecting it. Where it
+belongs is settled by `D-2026-09-21-physical-property-ownership`; when it moves
+is not yet scheduled.
+
+Affected scope: `.ai/ARCHITECTURE.md`, the scenario execution/validation layer,
+run setup's blocking computation, T021's kernel boundary, and any future
+component asked to decide something about a document by composing its
+declarations.
+
+## 2026-09-21
+
+Decision: `D-2026-09-21-specification-reference-implementation`. A
+specification's reference implementation belongs in the test suite, explicitly
+labelled as a reference implementation and carrying a stated expiry. It does
+not belong in the product path.
+
+`reconcile_reported_observations` is the instance. Amendment 1's (e) removes
+the feature it became. It does not remove the arithmetic: that moves out of the
+product path rather than out of the repository, where it exercises the
+execution contract against the shipped document until a kernel exists.
+`declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly one
+non-test caller today, which is reconciliation, so they move with it.
+
+**Its expiry is a condition, not a slice number.** Two distinct events, and an
+earlier draft of this entry collapsed them into "the expiry is T021", which the
+sequence cannot deliver. It **stops being an authority** when the kernel lands:
+T021 runs the two against the shipped document, compares them, and the kernel
+is what survives any disagreement. It **leaves the repository** when its last
+remaining caller goes, which is a different event on a different clock. See
+`D-2026-09-22-expiry-follows-the-condition`.
+
+**The removal happens in two steps, and the second is gated on an open
+question.** The function has two product-path uses, not one. T019's blocking
+reason is the first and it goes now. The second is the
+`observation_reconciliation` payload built at
+`backend/assetops_backend/simulator_lab_api.py:411` and rendered as a panel at
+`frontend/src/shell/ScenarioFrame.tsx:759`, which is T018 work already merged
+to `main`. The function cannot leave the repository while that caller exists,
+so T019 removes the blocking use and labels the function as a reference
+implementation, and removal follows the last remaining caller.
+
+**When that caller goes is Open Question 5 in
+`Docs/simulator-scenario-authoring-and-runtime.md`, it is still open, and this
+decision does not settle it.** Removing a visible panel from merged work is a
+product change belonging to a slice that says so, and the Architect read's
+recommendation — that it goes with (f) in T022, because that is when the
+authored readings disappear and the panel has nothing left to reconcile — is a
+recommendation, not part of what the user accepted. Until then the panel is
+honest: it describes a real property of a document that does still contain two
+authored readings, so it is removed when someone decides to remove it rather
+than because it has become false. No slice before that decision may treat the
+removal as in scope, and T021 in particular performs the comparison and not the
+removal.
+
+Reason: `EXECUTION_CONTRACT_VERSION` versions a set of rules, and a
+specification with zero implementations is under-tested. The standard remedy is
+a reference implementation, and that is what reconciliation accidentally
+became. The defect was never that it existed; it was that it shipped as product
+behaviour, as a run-setup blocking reason and a user-facing panel. Three review
+rounds on it, a simultaneity rule reversed after its first attempt, and four
+still-unpinned kernel semantics are not four unrelated incidents. They are one
+specification discovering it was underspecified by trying to implement itself,
+and the cheap version of that discovery is a labelled spike in the test suite.
+
+The generalisation, which is why this has its own ID: where a contract in this
+project needs exercising before its real implementation exists, the exercise is
+a test-suite artifact with a named expiry and a named successor, never a
+product surface. A product surface acquires users, screens and acceptance
+criteria, and then the throwaway cannot be thrown away.
+
+Affected scope: `backend/assetops_backend/scenarios/execution.py`, the
+`observation_reconciliation` API payload and the scenario-detail panel that
+renders it, T019's narrowing before merge, T021's comparison against the
+kernel, and any future contract that ships ahead of its implementation.
+
+## 2026-09-21
+
+Decision: `D-2026-09-21-physical-property-ownership`. Four owners are in play
+for any value a simulated run needs, and two swap tests decide which one owns a
+given value.
+
+> Foundation declares what the site **is**. The model profile declares how the
+> simulator **reasons** about things of that kind. The scenario declares what
+> **happens** during one interval. The publication profile declares how the
+> reporting installation **behaves**.
+>
+> Swap the asset for another of the same type and the value changes:
+> **Foundation**. Swap the scenario and it changes: **scenario**. Neither, but a
+> better simulator would change it: **model profile**. Neither, ever: a
+> universal constant, and it belongs in code.
+
+Fuel consumption looked ambiguous until the tests separated two things wearing
+one name. *This* generator burns 14 L/h at its dispatch point changes when the
+genset is swapped and not when the scenario is, so it is Foundation.
+*Consumption is proportional to runtime* changes under neither swap and would
+change under a better simulator, so it is a model rule. A coefficient and the
+law that consumes it are different objects with different owners. The shipped
+Fuel Loss document puts the coefficient in the scenario, which fails the first
+test decisively: run the same scenario against a different generator and 14 L/h
+would follow the story rather than the machine, which would mean the story had
+replaced the asset.
+
+**The vocabulary of owners is complete; the plumbing that carries their values
+is not.** Three holes, and they must move together or not at all.
+`SiteComponent` and `TemplateComponent` carry one optional scalar `rating` per
+component, so Foundation cannot express a second physical property at all.
+`FoundationBinding` can address only that scalar by `component_type` and
+`rating_unit`, so even if Foundation grew a property no binding could reach it.
+`SupportedState` carries no field a model-rule value could live in, so a
+scenario may declare `owner: MODEL_RULE`, run setup will correctly name
+`MODEL_PROFILE` as the answerer, and there is nowhere for the answer to come
+from. That is the T019 review's L9 finding.
+
+**A new slice, T020A, closes them, after T020 and before T021.** It is the one
+change in this sequence that is an insertion rather than a narrowing: you
+cannot narrow your way into a field that is not there. Nothing moves relative
+to anything else and nothing in front of it is blocked. Its minimum set is the
+generator's specific fuel consumption as a named property with a unit, and a
+`SupportedState` carrier for model-rule values. The fuel tank's minimum usable
+level is the honest home for the floor `IMPLICIT_LOWER_BOUND_DIMENSIONS`
+currently invents, but it does not block T021 and can follow. Efficiency
+curves, minimum load, ramp rate, tank geometry, sensor placement, battery
+chemistry and PV tilt are all absent from Foundation and none of them blocks
+T021, because the first kernel models none of the things they affect. The
+minimum set is not a wish list.
+
+**Templates instantiate by copy, so MG-001 must be re-created.** Adding the
+consumption property to `config/site-templates/hybrid-mini-grid-100kw.yaml`
+will not give it to MG-001, which was created by copy and lives in
+`var/sites/mg-001.yaml`; `.ai/ARCHITECTURE.md` is explicit that a later
+template change never alters an already-created instance. The demo site must be
+re-created from the updated template, or the property hand-added to the
+instance. Both are cheap, because it is a development fixture, but neither is
+automatic, and a slice that adds the field without doing this produces a site
+that still blocks.
+
+Reason: the coefficient does not merely belong somewhere tidier. The kernel
+needs it at T021 to move the tank at all, and a first kernel whose physics
+arrive from the scenario teaches every kernel after it to do the same. The
+separation this whole sequence exists to defend would be violated at the exact
+moment it first becomes testable. An earlier Architect read placed this with
+the product slices T034-T038, as something only the product needs in order to
+form an expectation; that was wrong by one milestone and is corrected here.
+
+The seam that holds whatever else is decided later: the consumption coefficient
+the product uses to form an expectation comes from Foundation configuration,
+never from the scenario's private rate. A product reading the number the
+simulator used would compute the Finding from the cause and get the right
+answer for the wrong reason.
+
+Affected scope: `backend/assetops_backend/sites/models.py` `SiteComponent` and
+`TemplateComponent`, the shipped site template and the strict parser's
+per-component-type property vocabulary, `runs/profiles.py` `FoundationBinding`
+and `SupportedState`, run setup's frozen-inputs resolution and its blocking
+reasons, `config/scenarios/fuel-loss-event.yaml`, `var/sites/mg-001.yaml`,
+Site Configuration's Key Parameters panel, the M1C task sequence, and T021's
+initialization.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-expiry-follows-the-condition`. A thing that exists only
+because a condition holds names **the condition** as its expiry, never a slice
+number. Two artifacts in the M1C sequence exist for exactly that reason, they
+were each given a slice number, and in both cases the number was wrong.
+
+**The rule.** When something is created to cover a gap — a reference
+implementation standing in for a missing kernel, a disclosure standing in for a
+missing verifier — the thing that ends it is the condition closing, not a
+calendar position in a plan. A slice number is a guess about when the condition
+will close, and a guess written into a record is read later as a commitment.
+State the condition; let the slice that ends it be whichever slice ends it.
+
+**And what happens then depends on whether the thing has become false.** This
+is the part that separates the two instances and it is the useful half of the
+rule:
+
+- A claim that has become **false** goes in the same slice that falsifies it.
+  Leaving it is not caution, it is shipping a false statement, and no
+  "visible product change belongs to a slice that says so" argument applies to
+  a sentence that is no longer true.
+- A thing that is still **honest** but no longer needed goes when someone
+  decides to remove it. That is the case the existing precedent covers — T016's
+  cold-room marker, T017's provisional markings — and it is a product decision
+  with its own slice.
+
+**Instance one: the `READY` disclosure.**
+`D-2026-09-21-run-setup-outcome-vocabulary` has T020 disclose that `READY` does
+not assert the model can execute its inputs, and T021 close the gap with a
+conformance test deriving `supported_states` from the kernel. The condition the
+disclosure names is *nothing verifies the supported set against a kernel*. The
+conformance test ends that condition, so the disclosure becomes false in the
+slice that lands it, and **T021 retires it**. It is not a later slice's to pick
+up, and until now no slice owned it at all: T020's task file said the slice
+landing the conformance test would retire it and T021's said retirement
+belonged to a slice that says it is doing that, which between them left it
+homeless. T021 says it is doing it. `BLOCKED` never carried an equivalent claim
+and nothing about it changes.
+
+**Instance two: the reconciliation reference implementation.**
+`D-2026-09-21-specification-reference-implementation` said its expiry was T021.
+It cannot be. Two events, on two clocks. It stops being an **authority** when
+the kernel lands and the two are compared, which is T021. It leaves the
+**repository** when its last remaining product-path caller goes, and that
+caller is the `observation_reconciliation` panel, whose removal is Open
+Question 5 and is undecided. The reference implementation is still honest in
+the meantime: it describes a real property of a document that does still
+contain two authored readings. So it waits for a decision rather than for a
+slice, and T021 compares without removing.
+
+Reason: both artifacts were recorded with a slice number because the slice was
+the nearest visible landmark, and in both cases the landmark was not the thing
+that actually ends them. The cost is not symmetric, which is why the rule
+carries the false-versus-honest distinction rather than just "name the
+condition": a disclosure left past its condition is a false statement on a
+screen, and a reference implementation removed before its callers is a broken
+build. Erring the same way on both would be wrong in one of them.
+
+Affected scope: `D-2026-09-21-run-setup-outcome-vocabulary`,
+`D-2026-09-21-specification-reference-implementation`, T020's disclosure and
+its stated expiry, T021's conformance test and its comparison against the
+reference implementation, Open Question 5, `.ai/ARCHITECTURE.md` under
+Presentation Honesty, and any future artifact created to cover a gap.
