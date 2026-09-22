@@ -2068,7 +2068,38 @@ criteria, not resequencing.
 
 ## Open Questions
 
-### 1. Four kernel semantics the contract does not yet declare
+**Swept 2026-09-22. Four are open; nine are closed.** The closed ones keep
+their reasoning and say what closed them, because the argument is often what a
+later slice needs rather than the verdict.
+
+| | Question | State |
+| --- | --- | --- |
+| 1 | Four unpinned kernel semantics | **Closed** — `D-2026-09-22-kernel-step-semantics` |
+| 2 | What the Fuel Loss document should author | **Open** — answered *during* T021, from what the kernel computes |
+| 3 | Model-profile versus publication-profile authority | **Closed** — `D-2026-09-22-forcing-state-requirements`, it moves |
+| 4.1 | Promoting `dispatched-output` | **Closed** — `D-2026-09-22-consumption-coefficient-unit`, promoted |
+| 4.2 | Whether the product reuses the kernel's coefficient | **Open** — T034-T038, and sharpened by the unit decision |
+| 5 | When the reconciliation panel goes | **Closed** — `D-2026-09-22-reconciliation-panel-retirement`, T022 |
+| 6 | The refuse-versus-block boundary at initialization | **Closed** — both halves, see below |
+| 7 | Reset and intervention history | **Open** — scheduled by trigger, not by position |
+| 8 | `NOT_RECONCILABLE` as a second blocking kind | **Closed** by (e) |
+| 9 | The document cannot be finalized before the kernel | **Closed** — it became a T021 criterion |
+| 10 | The `MAGNITUDE` tolerance is a picked number | **Open**, and it splits in two |
+| 11 | Physics in the validation layer | **Closed** — both halves now have answers |
+| 12 | "Run" is a noun with no verb | **Closed** — a review obligation, not a rename |
+| 13 | What declares the need | **Closed** — `D-2026-09-22-foundation-value-declaration` |
+
+Nothing open blocks a slice that is planned. Two are answered inside a slice
+(2 during T021, half of 10 with it), one waits for a milestone (4.2, and the
+other half of 10), and one waits for a capability that is deferred (7).
+
+### 1. Four kernel semantics the contract does not yet declare — now closed
+
+**Closed 2026-09-22 by `D-2026-09-22-kernel-step-semantics`**, and each *my
+read* below was taken as written: linear ramp, observe after, unavailable
+outside a declared window, and the run continues against a bounded value. The
+reasoning is kept because a kernel implementing them needs the argument, not
+the verdict.
 
 Each would let two conforming kernels disagree, which is precisely what
 `EXECUTION_CONTRACT_VERSION` exists to prevent, so each must be declared rather
@@ -2108,7 +2139,7 @@ value. For the shipped document this decides everything after offset 2400.
 otherwise a bound is a disguised run failure, which the policy already has a
 separate case for.
 
-### 2. What the Fuel Loss document should author
+### 2. What the Fuel Loss document should author — open, during T021
 
 **This is yours, and it is the one that most changes the demo narrative.**
 
@@ -2150,7 +2181,14 @@ disagree without either being wrong. This is a deliberate authoring choice, not
 a placeholder, because it declares a *cause on the reporting path* rather than a
 consequence.
 
-### 3. Model-profile versus publication-profile authority
+### 3. Model-profile versus publication-profile authority — now closed
+
+**Closed 2026-09-22 by `D-2026-09-22-forcing-state-requirements`: it moves.**
+The *my read* below was taken. One consequence this section did not list and
+the decision does: `FROZEN_INPUT_ANSWERERS` gains a fifth member,
+`PUBLICATION_PROFILE`, and the three rows stamped `MODEL_PROFILE` today are
+relabelled in the same slice, because after the move that label is a false
+statement rather than a mislabel.
 
 `runs/profiles.py` currently gives the model profile sole authority over every
 forcing state, including `fuel-level-reporting-availability`. But that is a
@@ -2184,7 +2222,22 @@ one family, and it is the observation transform's family. This was raised at the
 T019 checkpoint and deliberately not decided; it is now more pressing because
 (f) makes the observation transform a real component rather than a future one.
 
-### 4. Where the product's expectation comes from
+### 4. Where the product's expectation comes from — 4.1 closed, 4.2 open
+
+**4.1 closed 2026-09-22 by `D-2026-09-22-consumption-coefficient-unit`:
+option A, promoted.** The coefficient is `L/kWh`, which is what made the
+promotion necessary rather than merely recommended — an energy-based rule
+cannot be evaluated without generator output existing as a forced quantity.
+
+**4.2 is open and the unit decision sharpened it.** Path B below has the
+product computing expected consumption from generator **run hours** times a
+Foundation coefficient. Under `L/kWh` it computes from **energy delivered**,
+so the generator controller's `ac-power` stops being something the product
+merely gains and becomes something it needs, and the product must integrate a
+published power series rather than count hours. What remains genuinely
+T034-T038's is unchanged in shape and larger in consequence: whether the
+product's expectation uses the same Foundation coefficient the kernel used, or
+a separately declared operating assumption that may differ from it.
 
 **The largest gap between here and a Finding.** Path B of the worked example
 needs two things that do not exist:
@@ -2225,7 +2278,13 @@ the same number the simulator used gets the right answer for the wrong reason.
 The seam that holds whatever the answer: **the coefficient comes from
 Foundation, never from `generator-fuel-rate`.**
 
-### 5. When the reconciliation panel leaves the scenario screen
+### 5. When the reconciliation panel leaves the scenario screen — now closed
+
+**Closed 2026-09-22 by `D-2026-09-22-reconciliation-panel-retirement`: it
+goes with (f) in T022**, which is the *my read* below. The capacity-bound
+change was checked as a possible reason to move it earlier and does not reach
+it: both reconciled offsets, 1590 and 1800, precede the 2400 delivery, which
+is the only offset where a capacity bound could clamp.
 
 `reconcile_reported_observations` is published as `observation_reconciliation`
 at `backend/assetops_backend/simulator_lab_api.py:435` and rendered at
@@ -2243,7 +2302,18 @@ in a reduced form that states the disagreement in words the way
 reconcile. Until then it is honest — it describes a real property of a document
 that does contain two authored readings.
 
-### 6. The refuse-versus-block boundary at initialization
+### 6. The refuse-versus-block boundary at initialization — now closed
+
+**Closed 2026-09-22, in two halves by two different things.** Which side a
+failure falls on was settled at the T019 user review and then corrected by
+`D-2026-09-22-foundation-property-absent-blocks`; every failure of a
+Foundation-owned value blocks. And the half this section actually asks — what
+is left for T021 to refuse, given T019 has already frozen and validated
+everything it initializes from — is answered in
+`.ai/PLANNING_HANDOFF_T019_T022.md` under T021: defence in depth against a bad
+caller, unreachable through the normal path, and **tested directly**, because
+*unreachable* and *not yet reached* look identical in a test suite and only
+one of them is a guarantee.
 
 T019 draws a line that T021 will have to draw again, and they are currently
 drawn by different reasoning:
@@ -2262,7 +2332,12 @@ depth, with T021's refusals unreachable through the normal path and tested
 directly. But it should be stated, because "unreachable" and "not yet reached"
 look identical in a test suite.
 
-### 7. Reset and intervention history
+### 7. Reset and intervention history — open, scheduled by trigger
+
+**Still open, and deliberately not forced.** It is scheduled by trigger rather
+than by position, the same treatment option C got: **the trigger is the slice
+that plans injection**, which is deferred past T022. The *my read* below
+stands as a recommendation and nothing depends on taking it sooner.
 
 When an operator resets a run, does the intervention history clear? Reset
 "restores the same frozen initial state without allocating a new `run_id`". If
@@ -2305,7 +2380,33 @@ in `.ai/PLANNING_HANDOFF_T019_T022.md` and the loop drawn in the M1C
 sequencing revision. What it produced — what the document should author —
 is Open Question 2, which is still open and is answered during T021.
 
-### 10. The `MAGNITUDE` tolerance is a picked number
+### 10. The `MAGNITUDE` tolerance is a picked number — open, and it splits
+
+**The unit decision did not change what the range means, which is worth saying
+because it looks as though it should have.** At the shipped operating point
+the two are the same statement: 0.311 L/kWh plus or minus 0.056 over 180 kWh
+is the same 10 L as 14 L/h plus or minus 2.5 over four hours. The tolerance
+still admits any coefficient in that band and still nobody chose the band.
+
+**What did change is that there is now a second error source to declare.**
+Under `L/h` the product's expectation depended on runtime, which is a clean
+measurement. Under `L/kWh` it depends on energy delivered, which is a measured
+power series with its own error. A tolerance derived from declared sources now
+has to declare that one too.
+
+**So it splits, and the two halves have different homes.**
+
+- **The mutation tests belong in T021.** Pairing every oracle with a test
+  proving it *can* fail is worth doing for all four kinds, not just this one,
+  and T021 is the first slice with a kernel that can make an oracle fail.
+  Before that there is nothing to mutate against. *Recommended; the user's to
+  accept.*
+- **Deriving the tolerance from declared error sources waits for T034-T038.**
+  Until the product computes an expectation there are no error sources to
+  declare — coefficient spread, energy-measurement error, sample granularity
+  and rounding are all properties of a calculation that does not exist yet.
+  Picking a derived number before then would be picking a second number the
+  same way the first one was picked.
 
 `removed-volume-within-tolerance` requires a later analysis to attribute the
 removal within **10 litres of 120 litres**. Where did 10 come from? An author
@@ -2323,7 +2424,31 @@ rounding — so it has a stated basis; and pair every oracle with a mutation tes
 proving it *can* fail. The second is worth doing for all four oracles, not just
 this one.
 
-### 11. Physics in the validation layer
+### 11. Physics in the validation layer — now closed
+
+**Closed 2026-09-22. Both halves now have answers and neither needed a new
+decision.** *Where it belongs* was settled by
+`D-2026-09-21-physical-property-ownership`: *volume is non-negative* is a
+model rule and belongs to the model profile, whose `SupportedState`
+model-rule carrier T020A adds; *this tank cannot be drawn below its pickup* is
+a Foundation property and a named follower. *When it moves* is settled by
+`D-2026-09-22-reconciliation-panel-retirement`: `declared_bounds` and
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` leave the product path with reconciliation
+in T022, so the injected floor stops being a product claim there and becomes a
+test-suite artifact.
+
+What is left is an instruction rather than a question, and it is recorded in
+the T021 guidance: **the kernel takes its floor from the model profile, never
+from the validation layer's constant.**
+
+One thing this question gained before it closed, from
+`D-2026-09-22-foundation-value-declaration`: after a Foundation-owned
+parameter stops stating a value, the injected `0.0` is the **only** number
+left in `declared_bounds("fuel-tank-volume")`, so the validation layer's
+answer for that state became entirely its own invention. That did not change
+where the floor belongs. It removed the last thing standing beside it, which
+is why the question reads as more urgent than it is: the layer holding it is
+already scheduled to go.
 
 `IMPLICIT_LOWER_BOUND_DIMENSIONS = {"VOLUME": 0.0}` at
 `backend/assetops_backend/scenarios/execution.py:641` gives every volume state a
@@ -2357,7 +2482,7 @@ is non-negative* is a modelling axiom and belongs to the **model profile**.
 **Foundation**, as the second item of (k)'s minimum set. Neither belongs in
 the validation layer.
 
-### 12. "Run" is a noun with no verb — fine as is, but the button is not
+### 12. "Run" is a noun with no verb — now closed
 
 `SimulationRun`, `run_id`, the Runs inventory and "Create Draft Run" all name
 a record for something that cannot run, and T020 is about to build screens
@@ -2396,7 +2521,7 @@ packet, and the M1C user-review note in `.ai/FEATURE_MAP.md` says the same. If
 the reviewer or the user judges the whole misleading, the remedy returns to
 planning rather than being chosen inside the slice.
 
-### 13. What declares the need, once the coefficient leaves the scenario - now closed
+### 13. What declares the need, once the coefficient leaves the scenario — now closed
 
 **Closed 2026-09-22, both halves.** (k) moved the generator's specific fuel
 consumption to Foundation and nothing then told run setup that a run needs it,

@@ -2590,72 +2590,38 @@ and operator consequence.
 - The Lab step-6 question of whether the Lab needs its own Sites index or only a
   Site detail/run context view over the shared substrate is deferred to causal
   step 6. It does not block Site Foundation fidelity tasks T009-T013.
-- M1C carries live questions that the 2026-09-21 proposals did not close.
-  `Docs/simulator-scenario-authoring-and-runtime.md` has all twelve with the
-  reasoning; these are the ones that gate a slice:
-  - **Before T020A is implemented:** whether `dispatched-output` is promoted
-    to a `FORCING_INPUT` on `generator-output-power`. It is half of the
-    `REQUIRED` forcing-state decision and it is the half that arrives earliest,
-    because it fixes the canonical unit of the Foundation consumption
-    property: a runtime-based model rule wants `L/h`, an energy-based one wants
-    `L/kWh` and a generator-output forcing to multiply it by. T020A writes that
-    property into the shipped template and into MG-001, so choosing in T020A
-    and changing later is a unit migration on a Foundation document. Only the
-    shipped value waits on it; the carriers are the same either way.
-  - **Before T020A's task file, and it blocks the slice rather than scoping
-    it:** what declares that the run needs the coefficient, once
-    `generator-fuel-rate` leaves the scenario. Initialization inputs are
-    enumerated from scenario parameters and the coefficient is about to stop
-    being one, so run setup would resolve nothing and T021's kernel would have
-    nothing to read. Three options, their costs and a recommendation are in
-    `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the
-    need, once the scenario stops declaring it*. The same decision settles
-    whether a non-re-created MG-001 produces refused or blocked runs, which
-    six documents and T020A's task file currently assert one way and the code
-    answers the other.
-  - **Before T021's task file:** the rest of the `REQUIRED` forcing-state
-    decision — what happens to `site-load-demand`,
-    `plane-of-array-irradiance` and `fuel-level-reporting-availability`, and
-    whether reporting-path authority moves from the model profile to the
-    publication profile. And the four kernel semantics the execution contract
-    does not yet pin: window apportionment, whether a sample sees pre- or
-    post-event state within a step, what a forcing is outside its declared
-    window, and whether a run continues after a bounded change. Each would let
-    two conforming kernels disagree, so each is contract-version business and
-    must be declared rather than left to whoever writes T021. Settle with them
-    a rule that is currently invented and recorded only in T019's review
-    packet: `_executable_inputs` collapses executable inputs on
-    `(state_key, role)` and resolves a requirement conflict by taking
-    `REQUIRED`, on the reasoning that a state required anywhere is required.
-    That decides whether lowering a requirement in one position lowers it at
-    all, which is one of the three ways out of the forcing-state decision.
-  - **During T021:** what the Fuel Loss document should author. The removal
-    magnitude, and whether the 300 L delivery that overfills a 254 L tank
-    against a 500 L capacity is reduced or kept deliberately as a second
-    evidence puzzle.
-  - **Undecided, and it gates a removal:** when the
-    `observation_reconciliation` panel leaves the scenario detail screen.
-    Removing a visible panel on merged work is a product change that belongs
-    to a slice that says so, and the panel is still honest while the document
-    still contains two authored readings. It is the reference implementation's
-    last remaining product-path caller, so that function cannot leave the
-    repository until this is answered. The Architect read recommends it goes
-    with (f) in T022; that is a recommendation, not a decision.
-  - **Not yet scheduled:** the `MAGNITUDE` oracle's tolerance is a picked
-    number and no mutation test proves any oracle can fail; the implicit
-    volume floor in the validation layer now has a destination but no slice;
-    whether reset clears intervention history, which matters only when
-    injection is planned.
-  - **Scheduled by trigger rather than by position:** option C, the model
-    profile declaring that it needs a Foundation value, rather than the
-    scenario declaring the need on its behalf. It is where the need belongs -
-    the law is the thing that knows it needs a coefficient - and it was not
-    taken in T020A because it changes the shape of the frozen deterministic
-    identity in the same slice that changes Foundation's schema. **Trigger:
-    the first model rule that needs a Foundation value without a scenario
-    asking for it.** See `D-2026-09-22-foundation-value-declaration`.
-    `tank-capacity` is **not** on this list: it carried the same defect and
-    T020A now fixes it, because the parser rule keys on the owner and reaches
-    every Foundation-owned parameter.
+- M1C's questions were swept on 2026-09-22 and **four remain open, none of
+  them blocking a planned slice.** The full list with its reasoning is in
+  `Docs/simulator-scenario-authoring-and-runtime.md` under Open Questions,
+  which says what closed each of the other nine.
+  - **Answered during T021:** what the Fuel Loss document should author — the
+    removal magnitude, and whether the 300 L delivery that overfills a 254 L
+    tank against a 500 L capacity is reduced or kept deliberately as a second
+    evidence puzzle. It is answered from what the kernel computes, not before
+    it.
+  - **Recommended for T021, the user's to accept:** pairing every oracle kind
+    with a mutation test proving it can fail. T021 is the first slice with a
+    kernel that can make an oracle fail; before it there is nothing to mutate
+    against.
+  - **Waiting for T034-T038:** whether the product's expectation uses the same
+    Foundation coefficient the kernel used or a separately declared operating
+    assumption, and deriving the `MAGNITUDE` tolerance from declared error
+    sources rather than a picked number. Both need a calculation that does not
+    exist yet. The unit decision added a second error source to the latter,
+    energy measurement beside coefficient spread.
+  - **Scheduled by trigger, not by position:** whether reset clears
+    intervention history, triggered by the slice that plans injection, which
+    is deferred past T022.
+- One accepted change is scheduled the same way and is not a question: **option
+  C, the model profile declaring that it needs a Foundation value** rather than
+  the scenario declaring the need on its behalf. It is where the need belongs,
+  because the law is the thing that knows it needs a coefficient, and it was
+  not taken in T020A because it changes the shape of the frozen deterministic
+  identity in the same slice that changes Foundation's schema. **Trigger: the
+  first model rule that needs a Foundation value without a scenario asking for
+  it.** See `D-2026-09-22-foundation-value-declaration`. `tank-capacity` is
+  **not** scheduled this way: it carried the same defect and T020A fixes it,
+  because the parser rule keys on the owner and reaches every Foundation-owned
+  parameter.
 - Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.
