@@ -17,6 +17,42 @@ Every scan here asserts its own input is non-empty before asserting anything
 about it. A scan over an empty set passes on a tree where the thing it
 protects has been deleted, which is the failure shape this project has now
 shipped nine times.
+
+## `reconcile_reported_observations` is a specification reference implementation
+
+Labelled here rather than left to be inferred, per
+`D-2026-09-21-specification-reference-implementation`: a specification with
+zero implementations is under-tested, so the contract has one, and it belongs
+to the test suite rather than to the product.
+
+**It is not a product feature and nothing may treat it as one.** It answers
+one question about an authored document - do the causes declared before a
+reading reach the value that reading reports - and it answers it with no
+clock, no timestep, no state record and no output for any instant the
+scenario did not author a reading at. T019 removed the one thing that had
+made it a feature: run setup used to block a Draft on its verdict, and
+Amendment 1's proposal (e) took that out, because deciding whether causes
+reach a reading needs a kernel and run setup has none.
+
+**Its expiry is a condition, not a slice number**
+(`D-2026-09-22-expiry-follows-the-condition`), and it is two conditions on two
+clocks:
+
+- it stops being an **authority** when a kernel exists and the two are run
+  against the shipped document and compared. The kernel is what survives any
+  disagreement. That is the comparison T021 performs;
+- it leaves the **repository** when its last remaining product-path caller
+  goes. That caller is the `observation_reconciliation` payload built in
+  `simulator_lab_api.py` and rendered as a panel on the scenario detail
+  screen, which is merged T018 work.
+
+When that panel goes is Open Question 5 in
+`Docs/simulator-scenario-authoring-and-runtime.md` and it is **undecided**.
+Until someone decides, the panel is honest - it describes a real property of
+a document that does still contain two authored readings - so it is removed
+because somebody chose to, not because it became false. **No slice before that
+decision may treat the removal as in scope**, and the comparison is not the
+removal.
 """
 
 from __future__ import annotations
@@ -842,6 +878,11 @@ class TestBoundCases:
 
 
 class TestReconciliation:
+    """Exercising the reference implementation described in the module
+    docstring above. These are tests of a specification's reference
+    implementation, not of a product feature: nothing in the product decides
+    anything on their subject any more."""
+
     """Two-sided on purpose: one document reconciles and one does not."""
 
     def test_the_fixture_reconciles_exactly(self) -> None:

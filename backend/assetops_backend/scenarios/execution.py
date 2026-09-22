@@ -14,6 +14,22 @@ simulator rules rather than authored content:
 - whether each reported observation is accounted for by the causal inputs the
   same scenario declares.
 
+## `reconcile_reported_observations` is a reference implementation
+
+It is labelled as one, with its expiry stated as a condition, in
+`backend/tests/test_scenario_execution_contract.py`, per
+`D-2026-09-21-specification-reference-implementation`. The short form: it
+exercises this contract against a real document because a specification with
+no implementation is under-tested, it is not a product feature, and it stops
+being an authority the moment a kernel exists to be compared against. Its one
+remaining product-path caller is the scenario detail screen's reconciliation
+panel, and it leaves the repository when that caller does - which is Open
+Question 5 and undecided.
+
+Run setup used to be a second caller. Amendment 1's proposal (e) removed that,
+because deciding whether declared causes reach a reading needs a kernel, and
+run setup has none.
+
 ## This is not a runtime kernel
 
 `reconcile_reported_observations` is contract arithmetic and nothing more. It
