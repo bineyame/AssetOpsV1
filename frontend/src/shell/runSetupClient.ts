@@ -122,13 +122,29 @@ export type RunProfilesResult =
 
 export type CreateRunResult =
   | { status: "created"; run: RunSummary }
+  /**
+   * The Draft was created and persisted, and this client could not read the
+   * summary that came back.
+   *
+   * A fourth member rather than `unavailable`, because the difference is the
+   * only thing a reader needs: a run exists. Collapsing it would put "nothing
+   * was written" on screen over a run that was, which is the worst sentence
+   * this surface could say.
+   */
+  | { status: "created_but_unreadable" }
   | {
       status: "refused";
       code: string | null;
       refusalKind: string | null;
       message: string;
     }
-  | { status: "unavailable" };
+  /**
+   * The request did not complete. `message` carries the backend's own copy
+   * when it sent any - a store that could not be reached says so in product
+   * words, and discarding them to show a generic sentence would be the
+   * screen writing a second, worse version of the same fact.
+   */
+  | { status: "unavailable"; message: string | null };
 
 export interface RunSetupClient {
   listProfiles(): Promise<RunProfilesResult>;
@@ -286,46 +302,67 @@ export function createRunSetupClient(
     },
 
     async createRun(input: RunSetupInput): Promise<CreateRunResult> {
+      let response: Response;
       try {
-        const response = await fetch(runsPath, {
+        response = await fetch(runsPath, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         });
-
-        const body = (await response.json()) as Record<string, unknown>;
-
-        if (response.status === 201) {
-          const run = body?.run;
-          if (!isRunSummary(run)) {
-            return { status: "unavailable" };
-          }
-          return { status: "created", run };
-        }
-
-        // The backend's own refusal copy, placed rather than restated. A
-        // second copy of the rules in the browser is a second copy to keep in
-        // agreement, and the one in the browser is the one that drifts.
-        const detail = body?.detail;
-        if (response.status === 422 && isRecord(detail)) {
-          return {
-            status: "refused",
-            code: typeof detail.code === "string" ? detail.code : null,
-            refusalKind:
-              typeof detail.refusal_kind === "string"
-                ? detail.refusal_kind
-                : null,
-            message:
-              typeof detail.message === "string"
-                ? detail.message
-                : "The run setup request was refused.",
-          };
-        }
-
-        return { status: "unavailable" };
       } catch {
-        return { status: "unavailable" };
+        // The request never arrived, so nothing was written.
+        return { status: "unavailable", message: null };
       }
+
+      // Parsed separately from the send, and separately from the status,
+      // because a 201 whose body cannot be read is a run that exists. An
+      // earlier version parsed inside one try and reported that case as
+      // `unavailable`, and the screen then said nothing was written over a
+      // persisted Draft.
+      let body: Record<string, unknown> | null = null;
+      try {
+        body = (await response.json()) as Record<string, unknown>;
+      } catch {
+        body = null;
+      }
+
+      if (response.status === 201) {
+        const run = body?.run;
+        if (!isRunSummary(run)) {
+          return { status: "created_but_unreadable" };
+        }
+        return { status: "created", run };
+      }
+
+      // The backend's own copy, placed rather than restated. A second copy of
+      // the rules in the browser is a second copy to keep in agreement, and
+      // the one in the browser is the one that drifts.
+      const detail = body?.detail;
+      const message =
+        isRecord(detail) && typeof detail.message === "string"
+          ? detail.message
+          : null;
+
+      if (response.status === 422) {
+        return {
+          status: "refused",
+          code:
+            isRecord(detail) && typeof detail.code === "string"
+              ? detail.code
+              : null,
+          refusalKind:
+            isRecord(detail) && typeof detail.refusal_kind === "string"
+              ? detail.refusal_kind
+              : null,
+          message: message ?? "The run setup request was refused.",
+        };
+      }
+
+      // Every other status, a store failure among them. It is not a refusal -
+      // the request was not judged - but the backend's message says which
+      // store could not be reached, and that is worth more than a generic
+      // sentence.
+      return { status: "unavailable", message };
     },
   };
 }

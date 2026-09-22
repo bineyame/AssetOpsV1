@@ -239,7 +239,13 @@ function renderSetup(
   );
 }
 
-/** Fill the form the way a person would, and submit it. */
+/**
+ * Fill the form the way a person would, and submit it.
+ *
+ * The two profiles are chosen here rather than arriving chosen, because
+ * nothing on this screen chooses them: they are components of the frozen
+ * deterministic identity and the model profile decides the outcome.
+ */
 async function fillAndSubmit(): Promise<void> {
   fireEvent.change(screen.getByLabelText("Interval start"), {
     target: { value: "2026-09-21T00:00:00Z" },
@@ -252,6 +258,12 @@ async function fillAndSubmit(): Promise<void> {
   });
   fireEvent.change(screen.getByLabelText("Seed"), {
     target: { value: "20260921" },
+  });
+  fireEvent.change(screen.getByLabelText("Model profile"), {
+    target: { value: "minimal-fuel-tank@1" },
+  });
+  fireEvent.change(screen.getByLabelText("Publication profile"), {
+    target: { value: "simulator-lab-publication@1" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Create draft run" }));
 }
@@ -362,6 +374,185 @@ describe("the run setup screen before anything is submitted", () => {
       },
       run_inputs: [],
     });
+  });
+});
+
+describe("nothing on this screen is chosen for the person", () => {
+  it("chooses neither profile", async () => {
+    // Both are components of the frozen deterministic identity, and the
+    // model profile is what decides READY against BLOCKED. An earlier
+    // version selected the first of each, so the screen chose the outcome.
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    expect(screen.getByLabelText("Model profile")).toHaveValue("");
+    expect(screen.getByLabelText("Publication profile")).toHaveValue("");
+  });
+
+  it("offers an empty option on each profile select", async () => {
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    expect(
+      within(screen.getByLabelText("Model profile") as HTMLSelectElement)
+        .getAllByRole("option")
+        .map((option) => (option as HTMLOptionElement).value),
+    ).toEqual(["", "minimal-fuel-tank@1"]);
+  });
+
+  it("sends the empty choice and lets the backend refuse it", async () => {
+    // The same division of labour as every other field: the screen does not
+    // refuse a value before the rule that owns it has seen it.
+    const { client, calls } = runClient({
+      status: "refused",
+      code: "RUN_REQUEST_INVALID",
+      refusalKind: "REQUEST_INVALID",
+      message: "'model_profile'.profile_id '' is not a profile identity.",
+    });
+    renderSetup(client);
+    await settledScreen();
+
+    fireEvent.change(screen.getByLabelText("Interval start"), {
+      target: { value: "2026-09-21T00:00:00Z" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Create draft run" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(calls[0].model_profile).toEqual({
+      profile_id: "",
+      profile_version: Number.NaN,
+    });
+    expect(alert.textContent).toContain("is not a profile identity");
+  });
+
+  it("sends a decimal run input as the decimal it is", async () => {
+    // Parsing every field as a whole number turned a typed 812.5 into NaN,
+    // which arrived as null and came back refused as MISSING - a refusal
+    // about a field the person had filled in, invented by this screen.
+    const scenario: ScenarioDetail = {
+      ...SCENARIO_DETAIL,
+      public_parameters: SCENARIO_DETAIL.public_parameters.map((parameter) =>
+        parameter.parameter_id === "starting-fuel-level"
+          ? {
+              ...parameter,
+              ownership: { owner: "RUN_OVERRIDE", initializes: true },
+            }
+          : parameter,
+      ),
+    };
+    const { client, calls } = runClient({
+      status: "created",
+      run: READY_RUN,
+    });
+
+    renderSetup(client, scenarioClient(loadedScenario(RESOLVED_TARGET, scenario)));
+    await settledScreen();
+
+    fireEvent.change(
+      screen.getByLabelText(/Fuel level at the start of the interval in L/),
+      { target: { value: "812.5" } },
+    );
+    await fillAndSubmit();
+    await screen.findByText("Run ID");
+
+    expect(calls[0].run_inputs).toEqual([
+      { parameter_id: "starting-fuel-level", value: 812.5, unit: "L" },
+    ]);
+  });
+
+  it("still sends a whole timestep and a whole seed", async () => {
+    // The two fields the contract really does require a whole number for.
+    const { client, calls } = runClient({
+      status: "created",
+      run: READY_RUN,
+    });
+    renderSetup(client);
+    await settledScreen();
+    await fillAndSubmit();
+    await screen.findByText("Run ID");
+
+    expect(calls[0].timestep_minutes).toBe(15);
+    expect(calls[0].seed).toBe(20260921);
+  });
+});
+
+describe("when a read the screen depends on fails", () => {
+  const FAILING_SITE: SiteDetailClient = {
+    getSite: () => Promise.resolve({ status: "unavailable" }),
+  };
+
+  it("does not offer to create a run it cannot fill in", async () => {
+    // An earlier version left "Reading the configured site." on screen for
+    // ever, kept submit enabled, and sent a foundation version of NaN.
+    const { client, calls } = runClient({
+      status: "created",
+      run: READY_RUN,
+    });
+    render(
+      <MemoryRouter initialEntries={[RUN_SETUP_URL]}>
+        <App
+          flags={ENABLED}
+          siteDirectory={EMPTY_SITE_DIRECTORY}
+          siteDetail={FAILING_SITE}
+          scenarioCatalog={scenarioClient()}
+          runSetup={client}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+
+    const submit = screen.getByRole("button", { name: "Create draft run" });
+    expect(submit).toBeDisabled();
+    expect(spacedText(screen.getByRole("main"))).toMatch(
+      /the site store could not be read/i,
+    );
+    expect(calls).toEqual([]);
+  });
+
+  it("says so when the versioned profiles could not be read", async () => {
+    const client: RunSetupClient = {
+      listProfiles: () => Promise.resolve({ status: "unavailable" }),
+      createRun: () => Promise.resolve({ status: "created", run: READY_RUN }),
+    };
+    renderSetup(client);
+    await settledScreen();
+
+    expect(spacedText(screen.getByRole("main"))).toMatch(
+      /versioned profiles could not be read/i,
+    );
+  });
+});
+
+describe("a request that did not complete", () => {
+  it("renders the backend's own message rather than a generic one", async () => {
+    // A 503 carries product copy naming the store that could not be reached.
+    // Discarding it to show a generic sentence is the screen writing a
+    // second, worse version of the same fact.
+    renderSetup(
+      runClient({
+        status: "unavailable",
+        message: "The run store could not be written: var/runs.",
+      }).client,
+    );
+    await settledScreen();
+    await fillAndSubmit();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("The run store could not be written");
+    expect(alert.textContent).toMatch(/nothing was written/i);
+  });
+
+  it("never says nothing was written over a run that was", async () => {
+    // A 201 whose body cannot be read is a run that exists. Saying nothing
+    // was written there is the worst sentence this surface could say.
+    renderSetup(runClient({ status: "created_but_unreadable" }).client);
+    await settledScreen();
+    await fillAndSubmit();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toMatch(/was created and persisted/i);
+    expect(alert.textContent).not.toMatch(/nothing was written/i);
+    expect(screen.queryByText("Run ID")).toBeNull();
   });
 });
 

@@ -258,11 +258,29 @@ async function visit(cdp, path, width, height, waitFor, act) {
   // dense table scrolls inside its own region" would be a claim about a table
   // no browser had ever drawn.
   if (act) {
-    await cdp.send("Runtime.evaluate", {
+    // The script returns whether it found every control it meant to drive,
+    // and that answer is checked rather than discarded. It was discarded in
+    // the first version, so a renamed field or button would have produced a
+    // page with no summary on it and the measurement below would have
+    // reported an empty set of tables as a set that holds.
+    const acted = await cdp.send("Runtime.evaluate", {
       expression: act.script,
       returnByValue: true,
     });
-    await waitForSelector(cdp, act.waitFor);
+    if (acted.result.value !== true) {
+      throw new Error(
+        `The page action for ${path} did not find the controls it drives, ` +
+          "so nothing was submitted and there is nothing to measure. The " +
+          "form has changed and this script has not.",
+      );
+    }
+    const appeared = await waitForSelector(cdp, act.waitFor);
+    if (!appeared) {
+      throw new Error(
+        `The page action for ${path} ran and ${act.waitFor} never appeared. ` +
+          "Measuring now would report on a page the action did not produce.",
+      );
+    }
     await sleep(250);
   }
 
@@ -290,15 +308,30 @@ async function visit(cdp, path, width, height, waitFor, act) {
  * page at once.
  */
 const SUBMIT_RUN_SETUP = `(() => {
+  const setNative = (prototype, element, value) => {
+    const setter = Object.getOwnPropertyDescriptor(prototype, "value").set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+
   const setValue = (id, value) => {
     const element = document.getElementById(id);
     if (!element) return false;
-    const setter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      "value",
-    ).set;
-    setter.call(element, value);
-    element.dispatchEvent(new Event("input", { bubbles: true }));
+    setNative(window.HTMLInputElement.prototype, element, value);
+    return true;
+  };
+
+  // The two profiles are chosen rather than assumed: nothing on this screen
+  // preselects them, because they are components of the frozen deterministic
+  // identity and the model profile decides the outcome. The first real
+  // option is taken - the leading one is the empty "choose" entry.
+  const chooseFirst = (id) => {
+    const element = document.getElementById(id);
+    if (!element) return false;
+    const option = Array.from(element.options).find((item) => item.value !== "");
+    if (!option) return false;
+    setNative(window.HTMLSelectElement.prototype, element, option.value);
     return true;
   };
 
@@ -306,7 +339,9 @@ const SUBMIT_RUN_SETUP = `(() => {
     setValue("run-setup-start", "2026-09-21T00:00:00Z") &&
     setValue("run-setup-end", "2026-09-22T17:00:00Z") &&
     setValue("run-setup-timestep", "15") &&
-    setValue("run-setup-seed", "20260921");
+    setValue("run-setup-seed", "20260921") &&
+    chooseFirst("run-setup-model-profile") &&
+    chooseFirst("run-setup-publication-profile");
 
   const submit = Array.from(document.querySelectorAll("main button")).find(
     (button) => (button.textContent || "").trim() === "Create draft run",
@@ -702,6 +737,15 @@ for (const [label, width, height] of [
     { script: SUBMIT_RUN_SETUP, waitFor: ".data-table__scroll" },
   );
 
+  // The two tables by name. `scrollers.some(...)` would let one table's
+  // shape satisfy a claim written about the other.
+  const frozen = setup.scrollers.find(
+    (s) => s.name === "run-setup-frozen-heading",
+  );
+  const blocked = setup.scrollers.find(
+    (s) => s.name === "run-setup-blocked-heading",
+  );
+
   allPass =
     report(`Run setup summary at ${label}`, setup, [
       [
@@ -742,10 +786,31 @@ for (const [label, width, height] of [
           .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
           .join("; "),
       ],
+      // Named rather than "some table has four columns", which the blocked
+      // table could have satisfied by accident once it grew a column. The
+      // row count is asserted for the same reason the column count is: a
+      // frozen summary with a header and one row would satisfy every claim
+      // above it, and it is not a frozen summary.
       [
         "the frozen input table keeps all four of its columns",
-        setup.scrollers.some((s) => s.columnCount === 4),
-        setup.scrollers.map((s) => `${s.name}: ${s.columnCount}`).join("; "),
+        frozen !== undefined && frozen.columnCount === 4,
+        frozen === undefined
+          ? "no region named run-setup-frozen-heading"
+          : `${frozen.name}: ${frozen.columnCount} columns`,
+      ],
+      [
+        "the frozen input table renders a row for every frozen value",
+        frozen !== undefined && frozen.rowCount >= 20,
+        frozen === undefined
+          ? "no region named run-setup-frozen-heading"
+          : `${frozen.name}: ${frozen.rowCount} rows`,
+      ],
+      [
+        "the blocked table names every reason the draft carries",
+        blocked !== undefined && blocked.columnCount === 3 && blocked.rowCount === 3,
+        blocked === undefined
+          ? "no region named run-setup-blocked-heading"
+          : `${blocked.name}: ${blocked.columnCount} columns, ${blocked.rowCount} rows`,
       ],
       ...(width <= 640
         ? [

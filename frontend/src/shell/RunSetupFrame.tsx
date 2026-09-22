@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
-import type { SiteDetailReadModel } from "../sites/siteReadModel";
+import type { SiteDetailResult } from "../sites/siteReadModel";
 import type {
   ScenarioCatalogClient,
   ScenarioDetailResult,
@@ -106,15 +106,35 @@ function splitProfileKey(
 }
 
 /**
- * What a person typed, as the number the API expects.
+ * A whole number a person typed, for the two fields that take one.
  *
  * Text that is not a whole number becomes `NaN`, which is serialized as
  * `null` and refused by the backend with the rule it broke. That is
  * deliberate: the rule lives in one place, and this screen does not restate
  * it in order to refuse a little earlier.
+ *
+ * Used for the timestep and the seed ONLY. Both really are whole numbers in
+ * the contract, so a decimal in either is a value the backend refuses and
+ * should.
  */
-function typedNumber(text: string): number {
+function typedWholeNumber(text: string): number {
   return /^-?\d+$/.test(text.trim()) ? Number.parseInt(text.trim(), 10) : Number.NaN;
+}
+
+/**
+ * A quantity a person typed, for a value the scenario says the run owns.
+ *
+ * Decimals reach the backend. An earlier version parsed every field as a
+ * whole number, so a typed volume of eight hundred and twelve point five
+ * became `NaN`, arrived as `null`, and came back refused as MISSING - a
+ * refusal about a field the person had filled in, produced by this screen
+ * quietly having an opinion while its own docstring says the backend owns
+ * every rule. A run input is a quantity; how many decimals a unit may carry
+ * is the contract's business and not this screen's.
+ */
+function typedQuantity(text: string): number {
+  const trimmed = text.trim();
+  return /^-?\d+(\.\d+)?$/.test(trimmed) ? Number.parseFloat(trimmed) : Number.NaN;
 }
 
 /** The parameters this scenario declares the run owns, in authored order. */
@@ -137,7 +157,7 @@ export function RunSetupFrame({
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const [scenario, setScenario] = useState<ScenarioDetailResult | null>(null);
   const [profiles, setProfiles] = useState<RunProfilesResult | null>(null);
-  const [site, setSite] = useState<SiteDetailReadModel | null>(null);
+  const [site, setSite] = useState<SiteDetailResult | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [result, setResult] = useState<CreateRunResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -155,30 +175,16 @@ export function RunSetupFrame({
         setScenario(loaded);
       }
     });
+    // Loaded, and deliberately not chosen from. An earlier version selected
+    // the first of each, which made two components of the frozen
+    // deterministic identity values nobody picked - and the model profile is
+    // what decides READY against BLOCKED, so the screen would have been
+    // choosing the outcome. Both selects lead with an empty option and the
+    // backend refuses an unchosen profile, which is the same division of
+    // labour as every other field here.
     void runSetup.listProfiles().then((loaded) => {
-      if (!active) {
-        return;
-      }
-      setProfiles(loaded);
-      if (loaded.status === "loaded") {
-        setForm((current) => ({
-          ...current,
-          modelProfile:
-            current.modelProfile === "" && loaded.modelProfiles.length > 0
-              ? profileKey(
-                  loaded.modelProfiles[0].model_profile_id,
-                  loaded.modelProfiles[0].model_profile_version,
-                )
-              : current.modelProfile,
-          publicationProfile:
-            current.publicationProfile === "" &&
-            loaded.publicationProfiles.length > 0
-              ? profileKey(
-                  loaded.publicationProfiles[0].publication_profile_id,
-                  loaded.publicationProfiles[0].publication_profile_version,
-                )
-              : current.publicationProfile,
-        }));
+      if (active) {
+        setProfiles(loaded);
       }
     });
 
@@ -201,8 +207,11 @@ export function RunSetupFrame({
     }
 
     void siteDetail.getSite(targetSiteId).then((loaded) => {
-      if (active && loaded.status === "loaded") {
-        setSite(loaded.site);
+      if (active) {
+        // Every outcome, not only the one that works. An earlier version
+        // kept the loading text forever when the read failed, left submit
+        // enabled, and sent a foundation version of NaN.
+        setSite(loaded);
       }
     });
 
@@ -331,6 +340,27 @@ export function RunSetupFrame({
   const publicationProfiles =
     profiles.status === "loaded" ? profiles.publicationProfiles : [];
 
+  /**
+   * The foundation version this run would freeze, or nothing.
+   *
+   * A run names the exact version it was set up against, so a version this
+   * screen does not have is a run it cannot set up. There is no fallback,
+   * and the control below is disabled while it is missing - which is not the
+   * screen validating a value, it is the screen declining to send a request
+   * it cannot fill in.
+   */
+  const foundationVersion =
+    site?.status === "loaded" ? site.site.foundation.version : null;
+
+  const siteReadFailure =
+    site?.status === "not_found"
+      ? "This site is no longer configured, so there is no foundation " +
+        "version to freeze and no run can be set up."
+      : site?.status === "unavailable"
+        ? "The site store could not be read, so the foundation version this " +
+          "run would freeze is unknown and no run can be set up."
+        : null;
+
   const refusal = result?.status === "refused" ? result : null;
   const created = result?.status === "created" ? result.run : null;
 
@@ -341,17 +371,17 @@ export function RunSetupFrame({
 
     const outcome = await runSetup.createRun({
       site_id: resolution.site_id as string,
-      foundation_version: site?.foundation.version ?? Number.NaN,
+      foundation_version: foundationVersion as number,
       scenario_id: detail.scenario_id,
       scenario_version: detail.version.scenario_version,
       interval: { start_time: form.startTime, end_time: form.endTime },
-      timestep_minutes: typedNumber(form.timestep),
-      seed: typedNumber(form.seed),
+      timestep_minutes: typedWholeNumber(form.timestep),
+      seed: typedWholeNumber(form.seed),
       model_profile: splitProfileKey(form.modelProfile),
       publication_profile: splitProfileKey(form.publicationProfile),
       run_inputs: runOwned.map((parameter) => ({
         parameter_id: parameter.parameter_id,
-        value: typedNumber(form.runInputs[parameter.parameter_id] ?? ""),
+        value: typedQuantity(form.runInputs[parameter.parameter_id] ?? ""),
         unit: parameter.unit ?? "",
       })),
     });
@@ -384,11 +414,9 @@ export function RunSetupFrame({
           </Fact>
           <Fact term="Site">{resolution.site_id}</Fact>
           <Fact term="Foundation version">
-            {site === null ? (
-              "Reading the configured site."
-            ) : (
-              String(site.foundation.version)
-            )}
+            {foundationVersion === null
+              ? siteReadFailure ?? "Loading the configured site."
+              : String(foundationVersion)}
           </Fact>
         </FactList>
       </Panel>
@@ -475,6 +503,7 @@ export function RunSetupFrame({
               aria-describedby="run-setup-model-profile-rule"
               onChange={(event) => update("modelProfile", event.target.value)}
             >
+              <option value="">Choose a model profile</option>
               {modelProfiles.map((profile) => (
                 <option
                   key={profileKey(
@@ -513,6 +542,7 @@ export function RunSetupFrame({
                 update("publicationProfile", event.target.value)
               }
             >
+              <option value="">Choose a publication profile</option>
               {publicationProfiles.map((profile) => (
                 <option
                   key={profileKey(
@@ -539,6 +569,15 @@ export function RunSetupFrame({
               declares none blocks the draft.
             </span>
           </p>
+
+          {profiles.status === "unavailable" ? (
+            <p className="field-error" role="alert">
+              The versioned profiles could not be read, so there is nothing to
+              choose between and no run can be set up. This is a statement
+              about the request that failed, not a statement that the build
+              ships none.
+            </p>
+          ) : null}
 
           {runOwned.length === 0 ? (
             <p className="note">
@@ -588,8 +627,19 @@ export function RunSetupFrame({
 
           {result?.status === "unavailable" ? (
             <p className="field-error" role="alert">
-              The draft could not be created because the request could not be
-              completed. Nothing was written.
+              {result.message ??
+                "The draft could not be created because the request could " +
+                  "not be completed."}{" "}
+              Nothing was written.
+            </p>
+          ) : null}
+
+          {result?.status === "created_but_unreadable" ? (
+            <p className="field-error" role="alert">
+              A draft run was created and persisted, and this screen could not
+              read the summary that came back, so none of it is shown below.
+              Something was written: do not set the same run up again assuming
+              nothing was.
             </p>
           ) : null}
 
@@ -597,10 +647,23 @@ export function RunSetupFrame({
             <button
               className="action action--primary"
               type="submit"
-              disabled={submitting}
+              disabled={submitting || foundationVersion === null}
+              aria-describedby={
+                foundationVersion === null ? "run-setup-blocked-reason" : undefined
+              }
             >
               Create draft run
             </button>
+            {foundationVersion === null ? (
+              <span
+                className="action-list__reason"
+                id="run-setup-blocked-reason"
+              >
+                {siteReadFailure ??
+                  "The configured site has not been read yet, so the " +
+                    "foundation version this run would freeze is not known."}
+              </span>
+            ) : null}
           </p>
         </form>
       </Panel>
