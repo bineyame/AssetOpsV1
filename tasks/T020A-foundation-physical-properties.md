@@ -50,18 +50,19 @@ position an author may fill is one an author will fill.
 - T019's frozen-inputs resolution and blocking reasons, merged.
 - T020 for sequencing only; nothing in front of this slice is blocked.
 
-## Decisions Due Before Implementation
-
-The coefficient's canonical unit follows the `dispatched-output` half of the
-`REQUIRED` forcing-state decision - `L/h` if the model rule is runtime-based,
-`L/kWh` and a generator-output forcing if it is energy-based. It is due
-**before this slice is implemented**, earlier than the rest of that decision,
-because changing it afterwards is a unit migration on a Foundation document
-and on an instance created by copy. The carriers are identical either way, so
-only the shipped value's unit waits. A slice that picks a unit to get itself
-unblocked has taken the user's decision.
-
 ## Acceptance Criteria
+
+- The coefficient's canonical unit is `L/kWh`, specific fuel consumption, a
+  property of the machine alone. `L/h` is machine times operating point and the
+  point is the scenario's (`D-2026-09-22-consumption-coefficient-unit`).
+- `dispatched-output` is promoted from `NON_EXECUTABLE_CONDITION` to a
+  `FORCING_INPUT` on `generator-output-power`, and `generator-output-power`
+  joins the shipped model profile's supported states. Both belong here: under
+  `L/kWh` the coefficient is not a rate over time, so the dispatch event stops
+  naming a rate and the model rule - consumption is specific consumption times
+  energy delivered - owns the transition. Promoting later would publish a
+  document whose model rule depends on a state nothing declares, and T020B and
+  T021 both depend on this slice carrying it.
 
 - A Site component and a template component can declare named physical
   properties beyond `rating`. Each property carries a value and a canonical
@@ -137,13 +138,11 @@ unblocked has taken the user's decision.
   appears. `mg-002` and `mg-003` remain in `var/sites/` as the fixtures the
   user asked to keep.
 - The header comment of `config/scenarios/fuel-loss-event.yaml` says its
-  numbers are the ones the T017 checkpoint shipped and are unchanged. This is
-  the first slice to edit that file, so the header stops being true here and
-  is corrected with the edit.
+  numbers are the T017 checkpoint's and unchanged. This is the first slice to
+  edit that file, so the header stops being true here and is corrected with it.
 - Site Configuration's Key Parameters panel shows the declared property with
   its unit. The panel's existing rule holds: an entry appears because the
   record declares it, and a component that declares nothing produces no row.
-- Foundation remains read-only. This slice adds no edit path for any Site.
 
 ## Required Product And Domain Semantics
 
@@ -151,17 +150,16 @@ unblocked has taken the user's decision.
   `D-2026-09-21-physical-property-ownership`. What this slice needs from them:
   swap the asset and the value changes, so it is Foundation's.
 - A coefficient and the law that consumes it are different objects with
-  different owners. *This generator burns its rate at its dispatch point* is
-  Foundation. *Consumption is proportional to runtime* is a model rule.
+  different owners. *What this generator burns per kWh delivered* is
+  Foundation. *Consumption is specific consumption times energy* is the rule.
 - Declaring an owner is not the same as being able to carry its value, and
   stating a number is not the same as declaring a need. Where an owner is
   declarable, something must hold what it declares, something must be able to
   address it, and the document must be able to ask without answering.
-- The line, as the user settled it and as it now stands for this slice: the
-  selected profile cannot answer, so block, because a different profile fixes
-  it. Every Foundation-owned failure this slice adds is on that side, and
-  after the contradiction kind is retired none of them refuses. A refusal
-  still exists for other subjects; it no longer exists for this one.
+- The line the user settled: the selected profile cannot answer, so block,
+  because a different profile fixes it. Every Foundation-owned failure this
+  slice adds is on that side and, after the contradiction kind is retired,
+  none of them refuses.
 - A Foundation says how large a tank is, never how full. Starting fuel level
   stays a scenario input, and it keeps its value position because the scenario
   owns it.
@@ -193,9 +191,9 @@ unblocked has taken the user's decision.
 - Model-rule carrier tests: a `MODEL_RULE` owner resolves from the profile with
   `MODEL_PROFILE` recorded as origin; an uncarried `MODEL_RULE` owner blocks.
 - Run-setup tests: the coefficient freezes from Foundation with Foundation
-  origin, the scenario no longer supplies it, and each of the five ways it can
-  fail to resolve blocks rather than refusing or falling back, including a
-  Foundation that declares no such property.
+  origin, the scenario no longer supplies it, each of the five ways it can fail
+  to resolve blocks rather than refusing or falling back including an absent
+  property, and the promoted `generator-output-power` blocks nothing.
 - Parser test refusing a Foundation-owned parameter that states a value, whose
   deliberate violation is the shipped document as it stands today.
 - A test proving `INITIAL_VALUE_ANSWERS_DISAGREE` has no producer left, and
@@ -217,6 +215,8 @@ unblocked has taken the user's decision.
   still load.
 - UI tests for the Key Parameters row and the frozen-inputs origin label, with
   no digit that the record does not supply.
+- Scenario-detail test that `dispatched-output` presents as a forcing input on
+  `generator-output-power` and the dispatch event names no rate.
 - Layout evidence for the Key Parameters panel and the frozen-inputs table.
 - Run architecture/workflow checks, relevant suites, typecheck, and build.
 
