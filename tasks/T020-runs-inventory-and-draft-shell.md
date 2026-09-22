@@ -25,87 +25,85 @@ selectable, so a person can see what the form chose for them and change it.
 
 T019 owns Draft creation and persistence. Before execution exists, the product
 needs one truthful place to find those runs and distinguish a compatible Draft
-from a blocked one. This slice establishes that presentation and route contract
-without claiming that the causal kernel has run.
+from a blocked one, without claiming the causal kernel has run.
 
 `READY` is the one status in this build that makes a claim about executability,
 and what it checks is agreement between two declarations rather than an
 executable model. Disclosing that here is cheaper than renaming a word that
 becomes correct when T021's conformance test lands.
 
-The form defaults land here rather than reopening T019, and they land with a
-constraint. The T019 review's M4 finding was that the browser auto-selected the
-first model profile and the first publication profile — two components of the
-frozen deterministic identity, one of which decides `READY` versus `BLOCKED` —
-while the screen said nothing was prefilled. The fix removed the auto-select,
-which left the form empty. A shown default a person can override is honest; an
-invisible pre-pick is the defect M4 removed, so the difference between them is
-the point of this half of the slice.
+The form defaults land here rather than reopening T019, with a constraint. M4
+found the browser auto-selecting two components of the frozen deterministic
+identity while the screen said nothing was prefilled, and the fix left the form
+empty. A shown default a person can override is honest, an invisible pre-pick
+is the defect M4 removed, and that difference is this half of the slice.
 
 ## Dependencies
 
 - T018 executable scenario contract is accepted.
-- T019 persists Draft SimulationRuns and returns their identities, narrowed so
-  that run setup no longer adjudicates cause-to-observation coupling.
+- T019 persists Draft SimulationRuns, narrowed so that run setup no longer
+  adjudicates cause-to-observation coupling.
 
 ## Acceptance Criteria
 
 - The Lab rail exposes Runs only while `simulator_lab.enabled=true`; direct run
   URLs use the existing unavailable behavior when the gate is off.
 - Only the Simulator Lab route chokepoint names Runs and run-detail URLs.
-- The inventory lists persisted Drafts from the SimulationRun domain port and
-  shows record-backed run, Site, scenario-version, lifecycle, execution status,
-  and interval facts. It does not infer health, progress, or evidence state.
+- The inventory lists persisted Drafts from the SimulationRun domain port with
+  record-backed run, Site, scenario-version, lifecycle, execution status and
+  interval facts. It does not infer health, progress, or evidence state.
 - Selecting a row opens a run-detail shell for that `run_id`; an unknown run
   returns a stable not-found state rather than falling back to another run.
 - The detail summary exposes the frozen deterministic identity established by
   T019, including initialization provenance and selected model profile, without
   exposing private scenario expectations.
+- Every frozen row names the profile that actually answered it. The cadence row
+  and the two publication-identity rows say the model profile answered while
+  the detail beside them names the publication profile, which did. T020 puts
+  that table on a permanent linkable screen, so the label is corrected here
+  rather than after it has been read.
 - A `READY` run carries a disclosure of what the status does not assert: that
   every required executable input resolved and the selected model profile
   declares it can consume them, and that nothing has verified the model can
-  execute them because no causal runtime exists. The disclosure is a property of
-  the status, so it travels in the run payload a caller reads as well as
-  appearing on the run-detail screen; a screen-only note does not satisfy this.
-- The disclosure names the condition it exists for — that nothing verifies the
-  profile's supported set against a kernel — rather than a slice number, so the
-  slice that closes that condition can recognise what to retire. `BLOCKED`
-  gains no equivalent claim and keeps its persisted reasons.
+  execute them because no causal runtime exists. It is a property of the
+  status, so it travels in the run payload a caller reads as well as on the
+  screen; a screen-only note does not satisfy this. It names the condition it
+  exists for — that nothing verifies the profile's supported set against a
+  kernel — rather than a slice number, so the slice closing that condition can
+  recognise what to retire. `BLOCKED` gains no equivalent claim.
 - A `READY` Draft presents its native Run action disabled with an accessible
   reason naming the missing causal-runtime prerequisite. A `BLOCKED` Draft
-  presents no executable Run action and shows its persisted compatibility
-  reasons.
+  presents no executable Run action and shows its persisted reasons.
 - Runtime-only controls and values that have no capability yet are absent:
   clock advancement, pause/resume, step, reset, runtime overlays, observations,
   staged messages, Commit, Replay, and Open in AssetOps.
 - The shell reserves no plausible numeric runtime values. Unsupported or
   not-yet-executed content is labelled as such rather than rendered as zero.
 - The run setup form arrives with a default in every field it can honestly
-  default. A defaulted field shows, in the field itself rather than only in
-  surrounding help text, both that the value is a default and what value was
-  chosen, and every defaulted field remains selectable. A value the form chose
-  that a person cannot tell it chose does not satisfy this, whatever the value
-  is.
-- A field the form has no honest default for arrives empty rather than
-  prefilled with a plausible-looking value, and the request is refused or
-  blocked on it as it is today rather than proceeding on a guess.
-- Nothing on the setup screen claims that a field is unprefilled while it
-  carries a default.
+  default: the interval, the timestep, the seed, and a profile selection with
+  exactly one available option, which both profiles are in this build. A
+  defaulted field shows, in the field rather than only in surrounding help
+  text, that the value is a default and what it is, and stays selectable. A
+  value the form chose that a person cannot tell it chose does not satisfy
+  this, whatever the value is.
+- A value the scenario declares the run owns is never defaulted: it is an
+  initial world value, and a form supplying one is the fabricated default T019
+  refuses setup over. The shipped scenario declares none.
+- Any other field arrives empty rather than prefilled with a plausible-looking
+  value, and the request is refused or blocked on it as it is today rather
+  than proceeding on a guess.
 - Operator navigation and operator Site tabs remain unchanged.
 
 ## Required Product And Domain Semantics
 
-- T019 remains the sole owner of Draft creation and persistence in this
-  sequence. T020 adds inventory/detail read behavior and no second run store.
 - `Draft` is lifecycle; `READY` and `BLOCKED` are execution eligibility states.
   Neither means running, completed, committed, accepted, or evidenced.
-- A blocked run is inspectable history of a structurally valid frozen setup. A
-  malformed setup never allocated a run and therefore cannot appear here.
-- A default the person accepted is a run input, the same as a typed one. It is
-  not a fifth kind of answerer, so the frozen-inputs summary keeps answering
-  who owns a value rather than recording how the form came to hold it. The
-  honesty obligation is discharged at the form, where the person can still act
-  on it.
+- A blocked run is inspectable history of a structurally valid frozen setup; a
+  malformed setup never allocated a run and cannot appear here.
+- A default the person accepted is a run input, the same as a typed one, and
+  not a new kind of answerer: the frozen-inputs summary keeps answering who
+  owns a value rather than how the form came to hold it. The honesty
+  obligation is discharged at the form, where the person can still act on it.
 
 ## Protected Seams
 
@@ -115,10 +113,11 @@ the point of this half of the slice.
 - Simulator gate and URL chokepoint: route/API/UI checks.
 - Simulator/product boundary: the shell reads no accepted evidence or product
   analytics and adds nothing to operator navigation.
-- Presentation honesty: disabled actions name real prerequisites; downstream
-  actions belonging to other lifecycle objects are absent; a status discloses
-  what it does not assert in the same place it makes its claim; and a value the
-  form supplied is visible as one before it becomes part of a frozen identity.
+- Presentation honesty: disabled actions name real prerequisites, downstream
+  actions belonging to other lifecycle objects are absent, a status discloses
+  what it does not assert where it makes its claim, a frozen row names the
+  answerer that answered it, and a value the form supplied is visible as one
+  before it joins a frozen identity.
 
 ## Focused Tests And Review Evidence
 
@@ -126,39 +125,48 @@ the point of this half of the slice.
   and not-found behavior through the existing SimulationRun repository.
 - A test proving the `READY` disclosure is carried by the run payload and not
   only by the screen, and that `BLOCKED` carries no equivalent claim.
+- No `READY` run is reachable through the product path in this build: the
+  shipped scenario blocks and the layout tool creates blocked Drafts. Every
+  `READY` claim here — disclosure, disabled Run action, UI treatment, layout
+  evidence — is proved against a fixture run record written through the
+  SimulationRun port, as T019 proved `READY`, and the packet says which runs
+  in `var/runs/` are fixtures.
+- A test proving the cadence and publication-identity rows name the
+  publication profile as their answerer, and that no row's answerer disagrees
+  with the detail beside it.
 - Form tests proving each defaulted field is marked as defaulted, shows the
   chosen value, and can be changed; that a field with no honest default is
-  empty; and the M4 regression, that no field carries a value the screen does
-  not disclose. The model profile and the publication profile are the two the
-  finding named, so they are the two the regression test covers.
+  empty; and the M4 regression on the two profile selections, that no field
+  carries a value the screen does not disclose.
 - Route/UI tests for gated inventory/detail navigation, gate-off absence, and
   the single URL chokepoint.
 - UI tests proving READY and BLOCKED treatments, frozen-identity rendering,
   private-expectation absence, and absence of runtime/downstream claims.
-- Layout evidence for the Runs table and run header at the required viewports;
-  dense content owns its overflow and shell chrome remains fixed.
+- Layout evidence for the Runs table and run header at the required viewports:
+  dense content owns its overflow, shell chrome stays fixed.
 - Run architecture/workflow checks, relevant suites, typecheck, and build.
 
 ## Scope Limits
 
 - No rename of `READY`. The word becomes correct when T021's conformance test
-  lands, and renaming ripples through the payload, the frontend, the tests and
-  the screens this slice builds.
-- No `supported_states` conformance test; it needs a kernel.
+  lands, and renaming ripples through the payload, the frontend and the tests.
+- No `supported_states` conformance test; it needs a kernel. No widening of the
+  shipped model profile to make a `READY` run reachable, which is the cheapest
+  wrong way to satisfy the criteria above and is T019's prohibition standing.
 - No new SimulationRun creation or persistence adapter; T019 owns them, and
-  defaults change only what the form offers before a request is made, not what
-  run setup does with the request.
+  defaults change only what the form offers, not what run setup does with the
+  request.
 - No Rerun, which allocates a new Draft identity and remains a later
-  capability. A default is a starting value on the form, not a run derived
-  from another run.
+  capability.
 - No kernel execution, runtime state, device observation, golden trace,
   injection, gateway staging, Commit, ingestion, Replay, analytics, or Finding.
-- No operator navigation or operator Site-tab changes.
 
 ## User Review
 
-No additional user checkpoint. T019 reviews Draft identity and status language;
-T020 applies that accepted contract without introducing new domain semantics.
+No additional user checkpoint. T019 reviewed Draft identity and status
+language, and the defaults constraint is the one the user set at that review:
+visible, labelled, still selectable. T020 implements it and adds no question
+the user has not already answered.
 
 The review packet must carry one named item beyond the usual evidence: a
 cumulative presentation-honesty assessment of the finished screens. A Runs
