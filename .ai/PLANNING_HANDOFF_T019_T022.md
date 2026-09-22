@@ -6,10 +6,27 @@ checkpoint. The coefficient's unit deadline is earlier than this file first
 said, and the `READY` disclosure now has an owner for its retirement. Those
 four changes are marked below.
 
+**Revised again 2026-09-22, in a loose-ends pass before T020 is implemented.**
+Nine decisions landed that day and the open questions were swept; T020B was
+named and given a task file. The three gates this file listed as due are all
+met, the reconciliation panel is decided, the three mislabelled frozen rows
+move to T020, and the authority table now names the 2026-09-22 decisions.
+Each change says what it replaced.
+
+**The name is kept deliberately.** T020A, T020B and T021A all sit inside
+T019–T022, so the range in the title still bounds the contents; a rename would
+cost every reference to this path - `.ai/PLANNING_GUIDANCE.md`,
+`.ai/ARTIFACT_INDEX.md`, `.ai/ACTIVE_CONTEXT.md` and two decision entries - and
+buy nothing a section heading does not already give. What was actually wrong
+was the expiry, written as a slice number in the artifact index against
+`D-2026-09-22-expiry-follows-the-condition`; it is now written as its
+condition.
+
 Scope: feature-level guidance for the slices affected by the proposals the user
-accepted on 2026-09-21. This is a scoped, disposable handoff, not a canonical
-artifact. `.ai/PLANNING_GUIDANCE.md` stays general; this file carries the
-per-slice content and should be deleted once T022 closes out.
+accepted on 2026-09-21 and by the decisions taken on 2026-09-22. This is a
+scoped, disposable handoff, not a canonical artifact.
+`.ai/PLANNING_GUIDANCE.md` stays general; this file carries the per-slice
+content and is deleted when its last slice closes out.
 
 Written by the Architect. **The Planner writes the task files.** Nothing here
 is a task file and nothing here should be copied into one verbatim; task specs
@@ -19,18 +36,38 @@ are implementation guardrails and this is the reasoning they are cut from.
 
 | Need | Read |
 | --- | --- |
-| What was decided and why it binds | `.ai/DECISIONS.md`, the five 2026-09-21 entries listed below |
+| What was decided and why it binds | `.ai/DECISIONS.md`, the five 2026-09-21 entries and the nine 2026-09-22 entries listed below |
 | The durable rules | `.ai/ARCHITECTURE.md`, Causal Runtime Authority and Physical Property Ownership |
 | Sequencing, dependency structure, and the surfaced seams | `.ai/FEATURE_MAP.md`, `Early Feature: Draft SimulationRun And Causal Runtime` |
 | The full argument, worked example, and mock screens | `Docs/simulator-scenario-authoring-and-runtime.md` |
 
-The five decisions: `D-2026-09-21-scenario-execution-contract-amendment-1`,
+The five 2026-09-21 decisions:
+`D-2026-09-21-scenario-execution-contract-amendment-1`,
 `D-2026-09-21-run-setup-outcome-vocabulary`,
 `D-2026-09-21-projection-versus-composition`,
 `D-2026-09-21-specification-reference-implementation`,
 `D-2026-09-21-physical-property-ownership`.
 
+The nine 2026-09-22 decisions, all of which bind slices in this range and none
+of which existed when the per-slice sections below were first written:
+`D-2026-09-22-expiry-follows-the-condition`,
+`-contract-version-scope`, `-foundation-value-declaration`,
+`-capacity-bound-source`, `-foundation-property-absent-blocks`,
+`-consumption-coefficient-unit`, `-forcing-state-requirements`,
+`-kernel-step-semantics`, `-reconciliation-panel-retirement`. Where a section
+below disagrees with one of them, the decision wins.
+
 ## Three things that gate task files or implementations, not slices
+
+**All three gates were met on 2026-09-22 and nothing here is still waiting on
+the user.** The `dispatched-output` half is `D-2026-09-22-consumption-
+coefficient-unit`: `L/kWh`, promoted. The rest of the forcing-state decision
+is `D-2026-09-22-forcing-state-requirements`. The four kernel semantics are
+`D-2026-09-22-kernel-step-semantics`. T021's task file and T020B's were
+written after all three, so the instruction below about a task file written
+too early no longer applies to anything. The section is kept for why the
+deadlines fell where they did, which is what a later sequence needs; read the
+three decisions for what was chosen.
 
 **Revised 2026-09-22: the forcing-state decision has two deadlines, not one.**
 This file originally put the whole of it before T021's task file. One part of
@@ -78,7 +115,10 @@ service, the `OBSERVATION_NOT_ACCOUNTED_FOR` member of the blocking
 vocabulary, and the test assertions that name it. The shipped Fuel Loss Draft
 blocks on three `STATE_NOT_SUPPORTED` reasons rather than five. And
 `reconcile_reported_observations` is relabelled in place as a reference
-implementation for the execution contract, with its expiry stated as T021.
+implementation for the execution contract. This said *with its expiry stated
+as T021*; what shipped states the expiry as a **condition**, under
+`D-2026-09-22-expiry-follows-the-condition`, and the condition is met in T022
+by `D-2026-09-22-reconciliation-panel-retirement`.
 
 **May not.** Change the `BLOCKED` outcome itself, which the user accepted and
 which is unchanged. Widen the shipped model profile. Resolve the residual.
@@ -92,12 +132,15 @@ T019's blocking reason is the first and it goes now. The second is
 panel at `frontend/src/shell/ScenarioFrame.tsx`, which is T018 work already
 merged to `main`. The function cannot actually leave the product path while
 that caller exists, so T019 can only get the blocking use and the label. When
-the panel goes is Open Question 5 and it is **not decided**. The Architect's
-read is that it goes with (f) in T022, because that is when the authored
-readings disappear and the panel has nothing to reconcile, and that until then
-it is honest. If the user wants it gone sooner it is its own small slice, not
-a widening of T019. Do not let a task file settle this by writing a scope line
-either way.
+the panel goes was Open Question 5. **It is now decided**, on 2026-09-22:
+`D-2026-09-22-reconciliation-panel-retirement` takes the Architect's read
+below. It goes with (f) in T022, because that is when the authored readings
+disappear and the panel has nothing to reconcile, and until then it is honest.
+The reference implementation, `declared_bounds` and
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` leave the product path with it, which is
+where (j) completes. The instruction that followed - do not let a task file
+settle this - is discharged: the user settled it, and T022's task file is
+where it is written.
 
 **Depends on.** Nothing new. The Reviewer re-reads the narrowed diff.
 
@@ -130,11 +173,26 @@ in `D-2026-09-22-expiry-follows-the-condition`. T020's job is unchanged: write
 the disclosure so it names the condition rather than a slice number, so the
 retiring slice can recognise it.
 
+**Added 2026-09-22: the three mislabelled frozen rows are corrected here, not
+in T020B.** Run setup stamps `answered_by="MODEL_PROFILE"` on the cadence row
+and on both publication-identity rows while the detail beside them names the
+publication profile, which is what actually supplied the value. T020 is what
+puts that table on a permanent linkable screen, and rider two of
+`D-2026-09-22-forcing-state-requirements` exists so a mislabel does not reach
+one. So T020 relabels the rows **and introduces `PUBLICATION_PROFILE` into
+`FROZEN_INPUT_ANSWERERS`**, which is the part easy to miss: the set's own
+docstring says the four correspond exactly to the four initialization owners,
+so a fifth member needs that docstring and the test name saying "the four"
+corrected with it. The decision entry itself said this landed in the slice
+that moves the authority; that sentence is corrected in `.ai/DECISIONS.md`.
+
 **May not.** Rename `READY`. The word becomes correct when T021's conformance
 test lands, and renaming ripples through the payload, the
 frontend, the tests and the screens this slice is building. Add a second run
 store, create runs, or show runtime state. Widen into the conformance test,
-which needs a kernel.
+which needs a kernel. **Move reporting-path authority**: T020 corrects a label
+on a value the publication profile already supplies, and moving the authority
+is T020B's.
 
 **Depends on.** T019's persisted Drafts, merged and narrowed.
 
@@ -305,8 +363,11 @@ profile, not Foundation carriers, and not kernel.
    at all five positions — three and two respectively. Lowering one does
    nothing while the collapse exists, which is why (2) comes with it.
 4. **Reporting-path authority moves to the publication profile**, which gains
-   a supported-reporting-states concept, and `FROZEN_INPUT_ANSWERERS` gains
-   `PUBLICATION_PROFILE` with the three `MODEL_PROFILE` rows relabelled.
+   a supported-reporting-states concept. This said the answerer vocabulary
+   gains `PUBLICATION_PROFILE` here with the three rows relabelled;
+   **corrected 2026-09-22** — T020 does both, because it is what puts the
+   frozen-inputs table on a permanent screen and runs first. What is new here
+   is the authority, not the vocabulary.
 
 **Its version move.** (1) and (2) are both narrowings and both land here, so
 they spend one number between them — nothing ever conforms to the version
@@ -326,7 +387,8 @@ coincidences.
 
 **May not.** Touch the kernel. Widen the shipped model profile beyond
 `generator-output-power`, which T020A adds. Correct the document's authored
-numbers, which is T021's loop.
+numbers, which is T021's loop. Relabel the three frozen rows or change the
+answerer vocabulary a second time, both of which T020 has already done.
 
 **Depends on.** T020A, for the coefficient and the promotion it carries.
 
@@ -453,15 +515,16 @@ after parsing. The shipped document's reported-observation entries lose the
 field. `EXECUTION_CONTRACT_VERSION` moves by one, and the new version reaches
 the frozen identity of runs set up after it while a Draft already frozen under
 the previous version keeps what it was frozen under. **Write the move, not the
-literals.** The task file currently says "2 to 3" and T022's guidance says
-"already under version 3", and neither is safe: declaring the four unpinned
-kernel semantics is itself a narrowing that spends a number and is due before
-T021's task file, and the constant's own docstring carries an
-unreleased-version doctrine under which a narrowing that never leaves its
-branch spends nothing. See `D-2026-09-22-contract-version-scope` for when the
-number moves and `.ai/FEATURE_MAP.md`, *The execution-contract version
-ledger*, for what it is after each slice - three narrowings are now in flight
-and, as sequenced, none of them collapses into another.
+literals.** The task file said "2 to 3" and T022's guidance below said "already
+under version 3"; both have been corrected to relative form, and the reason
+they were unsafe still applies to anything written later. Declaring the four
+unpinned kernel semantics is itself a narrowing that spends a number, in T020B,
+and the constant's own docstring carries an unreleased-version doctrine under
+which a narrowing that never leaves its branch spends nothing. See
+`D-2026-09-22-contract-version-scope` for when the number moves and
+`.ai/FEATURE_MAP.md`, *The execution-contract version ledger*, for what it is
+after each slice - four narrowings are now in flight across three slices, and
+T020B's pair collapses into one number.
 
 **May not.** Remove the authored reading *values* — that is (f) and it is
 T022's. Touch the reconciliation panel or its payload. Change anything else in
@@ -491,16 +554,17 @@ consistent with criteria the user has already accepted.
    a run-local manual operational observation whose value is generated from
    truth at that offset through the `operator-hand-record` source, optionally
    perturbed by a declared reading error if the user chose to model one.
-2. **A recommendation, not a requirement: the reconciliation panel leaves the
-   scenario detail screen here.** (f) is when the authored readings disappear
-   and the panel has nothing left to reconcile, and it is also what unblocks
-   removing the reference implementation, whose last product-path caller the
-   panel is. But **the user has not decided this** — it is Open Question 5.
-   Until they do, the panel is honest, because it describes a real property of
-   a document that does still contain two authored readings. If the user says
-   yes, it is a visible product change on merged work and this slice must say
-   it is making it. If they say no or say nothing, T022 leaves it alone and
-   the reference implementation stays.
+2. **The reconciliation panel leaves the scenario detail screen here.** This
+   was a recommendation and Open Question 5; **the user decided it on
+   2026-09-22**, `D-2026-09-22-reconciliation-panel-retirement`. (f) is when
+   the authored readings disappear and the panel has nothing left to
+   reconcile, and it is also what unblocks removing the reference
+   implementation, whose last product-path caller the panel is. So the panel,
+   its payload, `reconcile_reported_observations`, `declared_bounds` and
+   `IMPLICIT_LOWER_BOUND_DIMENSIONS` all leave the product path in this slice,
+   which is where (j) completes. It is a visible product change on merged
+   work, so this slice says it is making it, and T022 already carries a
+   user-review checkpoint.
 
 *(g) is no longer here.* Revised 2026-09-22: it is T021A.
 
@@ -514,8 +578,8 @@ one lesson clean — a real loss, hidden by a reporting gap.
 
 **Depends on.** T021's kernel, and T021's reported trajectory, because the
 document's corrected numbers come out of that loop. T021A, so the document
-being edited here is already under contract version 3 and the field is already
-gone. The reporting-path authority question, if it moved the reporting-path
+being edited here is already under whatever version T021A produced and the
+field is already gone. The reporting-path authority question, if it moved the reporting-path
 forcing to the publication profile, changes which profile the transform asks.
 
 **Proposals landing here.** (f), alone.

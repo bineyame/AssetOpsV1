@@ -27,9 +27,12 @@
 - `.ai/CODE_STATE.md`
 - `.ai/FEATURE_MAP.md`
 - `.ai/PLANNING_HANDOFF_T019_T022.md` — scoped Architect-to-Planner handoff;
-  delete when T022 closes out
+  delete when its last slice closes out. The expiry is the condition and not a
+  slice number, under `D-2026-09-22-expiry-follows-the-condition`: the file
+  gained a T020B section after this line was written, and a number would have
+  had to be re-checked each time the range grew.
 - `Docs/simulator-scenario-authoring-and-runtime.md` — the reference the
-  2026-09-21 simulator decisions cite
+  2026-09-21 and 2026-09-22 simulator decisions cite
 - Active task file, after the user activates one planned task
 
 ## Historical

@@ -140,6 +140,7 @@ is live, and is deleted when its last slice closes out.
 Live now:
 
 - `.ai/PLANNING_HANDOFF_T019_T022.md` — the T019 narrowing, T020's `READY`
-  disclosure, the new T020A and T021A slices, and the additions to T021 and
-  T022 that the 2026-09-21 proposals require. Read it before writing or
-  revising any task file in that range. Revised 2026-09-22.
+  disclosure and its frozen-row relabel, the new T020A, T020B and T021A
+  slices, and the additions to T021 and T022 that the 2026-09-21 proposals and
+  the 2026-09-22 decisions require. Read it before writing or revising any
+  task file in that range. Revised twice on 2026-09-22.
