@@ -1491,7 +1491,10 @@ someone has to remember. With (e) in place, `REQUIRED` on a value no executor
 reads is either vacuous or a category error, and the meaning it was carrying,
 "this run must produce such a reading", already has a home in the private
 expectations under `DETECTION` and `TIMING`. This narrows the space of
-conforming behaviours, so `EXECUTION_CONTRACT_VERSION` moves 2 to 3 under (d).
+conforming behaviours, so `EXECUTION_CONTRACT_VERSION` moves by one under (d).
+(This read "2 to 3" as written, and two later narrowings now land before it;
+the count is in `.ai/FEATURE_MAP.md` under *The execution-contract version
+ledger*.)
 It is free now and will not be once a golden trace exists. The user placed it
 in its own slice, **T021A**, on 2026-09-22: T022 is the slice that first
 produces a golden trace, so burying the version move inside it would make that

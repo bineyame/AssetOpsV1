@@ -2272,8 +2272,9 @@ Divide into slices:
 - T021A: reported observations carry no execution requirement. The strict
   parser gives `execution_requirement` no position on a `REPORTED_OBSERVATION`,
   the shipped document's reported-observation entries lose the field, and
-  `EXECUTION_CONTRACT_VERSION` moves 2 to 3 and reaches the frozen identity of
-  runs set up after it. Contributes to the Scenario Catalog And Run Setup
+  `EXECUTION_CONTRACT_VERSION` moves by one and reaches the frozen identity of
+  runs set up after it, while a Draft already frozen keeps what it was frozen
+  under. What the number is by then is in the version ledger below. Contributes to the Scenario Catalog And Run Setup
   feature rather than to this one; it sits in this range because of when it has
   to happen, not because of what it is about.
 - T022: Lab execution, supported runtime bindings, and the minimal device

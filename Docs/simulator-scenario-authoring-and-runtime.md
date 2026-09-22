@@ -966,7 +966,10 @@ no position the field can occupy. With (e) in place, `REQUIRED` on a value no
 executor reads is either vacuous or a category error. The displaced meaning —
 "this run must produce such a reading" — already has a home in T017's private
 expectations (`DETECTION`, `TIMING`). This narrows the space of conforming
-behaviours, so `EXECUTION_CONTRACT_VERSION` moves 2 → 3. It is free now and
+behaviours, so `EXECUTION_CONTRACT_VERSION` moves by one. (Written as 2 → 3;
+two later narrowings now land before it, and the count is in
+`.ai/FEATURE_MAP.md` under *The execution-contract version ledger*.) It is
+free now and
 will not be after the first golden trace exists. Lands in T022 or a small slice
 before it.
 
