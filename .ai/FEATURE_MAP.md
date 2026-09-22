@@ -1004,6 +1004,10 @@ Semantics to decide:
 - Scenario causes and private truth are never product evidence provenance.
 - Source/gateway health uses Online/Stale/Offline plus quality; asset condition
   uses assessment vocabulary. These vocabularies must not collapse.
+- A bound's declaration is the document's and its value is the site's. A
+  document says which world state caps which; a Foundation says how big the
+  thing is. Nothing composes the two except a kernel reading a frozen run, and
+  a validator that reported both was a kernel in the validation layer.
 - Projecting a document is validation; composing projections into a
   value-at-a-time is a kernel. A component that owns a transition rule is a
   kernel whatever it is called, so no validator, run setup, or authoring
