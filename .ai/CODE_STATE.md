@@ -1655,26 +1655,356 @@ after a round that narrowed the unit vocabulary. Four findings, all Low, all
 preferences or test-strength points, none an acceptance gap. They were not
 fixed before merge and are the first cleanup available to a later slice:
 
-- **Intra-instant ordering is load-bearing and undeclared.** Transitions
-  completing at the same offset are walked in authored `sequence` order, which
-  is deterministic, but `DISPATCH_RULES` does not say so - and with the bound
-  walk that order decides whether the contract answers or abstains. Two causes
-  at one instant, authored either way round, give `NOT_RECONCILABLE` or
-  `declared 454.0`. Never a wrong number, and the shipped document has no
-  simultaneous transitions on one state. Criterion 6 made "applied exactly
-  once" a property of the time model; this is the sibling case it does not
-  cover, and the fix is a `DISPATCH_RULES` entry rather than code.
+- **Intra-instant ordering is load-bearing and undeclared.** SETTLED by T019.
+  Transitions completing at the same offset are walked in authored `sequence`
+  order, which is deterministic, but `DISPATCH_RULES` did not say so - and
+  with the bound walk that order decides whether the contract answers or
+  abstains. Two causes at one instant, authored either way round, give
+  `NOT_RECONCILABLE` or `declared 454.0`. Never a wrong number, and the
+  shipped document has no simultaneous transitions on one state. T019 made it
+  observable from outside the contract, because the answer became a blocking
+  reason persisted on a Draft, so it is now the `intra-instant-order` dispatch
+  rule. The rule does NOT say authored order decides: the T019 checkpoint
+  reversed that, and simultaneous causes are a group with a net effect whose
+  order-dependence is decided exactly. The T019 entry has the reasoning.
 - **The second initialization layer is real but unmeasured.** The role guard
   in `initialization_inputs` holds if the parser refusal is ever loosened -
   verified by constructing the record directly - but the branch is unreachable
   through `parse_scenario_document`, so no test exercises it. The same shape as
   the round-one lesson, one size smaller.
-- **The contract-version test is honest but weak.** The fixture value and
-  `EXECUTION_CONTRACT_VERSION` are both `1`, so a hard-coded `1` in the
-  component would still pass, and the backend asserts `>= 1` rather than
-  equality with the constant.
+- **The contract-version test is honest but weak.** SETTLED by T019, as a
+  side effect of the entry above. The fixture value and
+  `EXECUTION_CONTRACT_VERSION` were both `1`, so a hard-coded `1` in the
+  component would still have passed, and the backend asserted `>= 1`. The
+  constant moved to `2` because the rule set gained a rule; the backend now
+  asserts equality with it and the frontend fixture stays at `1`, so the two
+  cannot be one literal by accident.
 - **Two forward constraints live only in code comments.** A `POINT`-only
   reading has no shape for a metered `kWh` aggregate, which a later evidence
   slice will meet; and no duration has an authoring home outside
   `timing.duration_minutes` until a slice reopens that vocabulary on the
   record.
+
+## T019 - Draft run setup
+
+What this slice settled in code.
+
+`backend/assetops_backend/runs/` is the third domain package, built to the
+same shape as `sites/` and `scenarios/` and holding the same line: a port
+speaking domain records with its own error family, one composition module, one
+adapter layer. It is deliberately not a reuse of either - a missing run, a
+missing Site and a missing scenario are three facts about three identity
+spaces - and it is the second package in the product with a write path.
+
+**Run setup decides one kind of thing, and Amendment 1 is what made that
+true.** Every blocking reason is a statement about the SELECTED PROFILE:
+a state it does not model, a role it does not support, a cadence or a
+publication identity it does not resolve. A sixth kind was removed to make it
+so. `OBSERVATION_NOT_ACCOUNTED_FOR` blocked a run when the causes a scenario
+declared did not reach a reading the same scenario declared, and proposal (e)
+took it out: run setup has no kernel, so whether declared causes reach a
+reading is a statement about what a run would produce and not one it can
+make. The shipped Fuel Loss Draft blocks on three reasons rather than five;
+`BLOCKED` is unchanged as an outcome and is reached for a sounder reason. A
+kind added later that is not about the profile's ability to execute an input
+is that mistake returning, and the vocabulary is pinned as an exact set for
+exactly that reason.
+
+`reconcile_reported_observations` still exists, still answers that question
+for the scenario detail surface, and is labelled in the test suite as a
+specification reference implementation
+(`D-2026-09-21-specification-reference-implementation`). **Its expiry is a
+condition, not a slice number**: it stops being an authority when a kernel
+exists and the two are compared, which is T021's comparison, and it leaves
+the repository when its last product-path caller goes - the
+`observation_reconciliation` payload and the panel that renders it, whose
+removal is Open Question 5 and undecided. No slice before that decision
+treats the removal as in scope.
+
+**The refusal line is the slice, and the T019 user review sharpened it into
+a question about who failed to answer.** The scenario's declared owner has no
+answer, so nothing can be frozen and no profile helps: refuse. The selected
+profile cannot answer, so a different profile would: persist a `BLOCKED`
+Draft. T019 was aligned to T020A rather than the reverse.
+
+The observation that decides the hard cases: **a Foundation's answer is only
+locatable THROUGH the selected profile's binding**, so failing to locate it is
+a joint fact about the pair, and the profile is the half a person can change
+on the setup form. Four failures therefore block - the profile declares no
+binding, the binding matches nothing, it matches more than one thing, or its
+unit is not the scenario's - and one refuses: the Foundation's value
+disagreeing with the value the scenario states it declares, where both
+declared owners answered and contradict each other. A profile pointing at
+some other component that happened to match would be resolving a
+contradiction by shopping for a value.
+
+`INITIAL_VALUE_NOT_RESOLVED` carries all four, and the name is chosen for
+that: it names the state the value is left in rather than the cause, so one
+name covers four causes here and T020A's uncarried `MODEL_RULE` case without
+rewording.
+
+**The frozen identity has one absent case, and it is load-bearing.**
+`FrozenInitializationInput.value` and its canonical restatement are nullable
+and absent together; the unit is not, because the scenario declares it
+whether or not anything answers. This was a protected-seam change, so nothing
+else about the identity's shape moved.
+
+Three invariants guard it and **all three live on the record**, because the
+service cannot produce a violation and a hand-edited document can:
+
+- a run is `READY` exactly when it carries no blocking reason;
+- every absent value has a blocking reason naming **the same state**. The
+  first version of this asked only whether the run carried any reason at all,
+  and the final gate satisfied it with an absent value beside a reason about
+  an unrelated profile identity. **An invariant that is weaker than its own
+  docstring is the docstring making a promise the code does not keep** - the
+  same family as a screen asserting a guarantee the parser did not hold;
+- the two number fields are absent together. That was enforced only where
+  documents are read, while the record's own docstring stated it as a
+  property of the record.
+
+The reason the contradiction case refuses while the four location failures
+block is **structural, not a judgement about fixability**: the four leave the
+value with no answer, which the record can represent as absent, and the
+contradiction leaves it with two, which the record cannot represent at all.
+A blocked Draft would have to freeze one of the two numbers. The earlier
+reason - that a profile finding another matching component would be shopping
+for a value - falls to a site that declares a second matching component whose
+rating equals the scenario's, and is kept only as the intuition.
+
+**That argument is now in the vocabulary.** The contradiction is
+`INITIAL_VALUE_ANSWERS_DISAGREE` rather than sharing
+`INITIALIZATION_INPUT_MISSING` with a value nobody supplied: an absence and a
+contradiction are not the same shape, and the old name described the wrong
+one while sitting one word from the blocking `INITIAL_VALUE_NOT_RESOLVED`
+with nothing in either name saying which side of the line it was on. The new
+name is the mirror of the blocking side - a run can carry "no answer" and
+cannot carry "answers disagree" - so a reader knows from the name alone that
+it cannot appear on a persisted Draft and must be a refusal.
+
+A test asserts the refusal and blocking vocabularies share no string. The
+near-collision one step away is older and was left: `COMPONENT_OR_SIGNAL_
+UNRESOLVED` refuses while `INITIAL_VALUE_NOT_RESOLVED` blocks, so "unresolved"
+is already on both sides. **This vocabulary has no naming rule that would
+have prevented either collision**, and inventing one at the end of a review
+round is not an implementer's call.
+
+ A refusal means the request could not be
+frozen: something it names does not exist, does not resolve, is not well
+formed, or would have to be invented. No `run_id` is allocated and nothing is
+written, so there is nothing afterwards to inspect. `BLOCKED` means everything
+was frozen and the run still must not execute: the Draft exists, is persisted,
+and carries reasons. `runs/refusals.py` states it once, and the code has the
+shape: everything in `_freeze` raises, everything in `_blocking_reasons`
+returns. Every refusal test asserts the store is empty afterwards, because an
+error raised after a write looks identical without that assertion.
+
+Nine refusal kinds and six blocking-reason kinds, each a different fact with
+its own code on the wire. The `BLOCKED` five for the shipped Fuel Loss Event
+against the shipped profile are three unmodelled forcing states and two
+unreached readings - the second pair being
+`D-2026-09-21-scenario-execution-contract` applied as written, so **the
+shipped scenario cannot reach `READY` in this build by construction**. `READY`
+is proved against a fixture scenario instead. A later slice that resolves the
+residual or widens the model profile changes that, and the test naming the
+three unsupported states will fail when it does, which is the point.
+
+**Nothing is defaulted, in either direction.** A parameter the scenario
+declares `RUN_OVERRIDE` must be supplied by the run and a parameter the
+scenario owns may not be overridden; a Foundation-owned initial value is
+resolved through a binding the model profile declares, never by matching a
+state key against a component by spelling, and a Foundation that disagrees
+with the scenario's stated requirement refuses rather than silently winning.
+Two components that both fit the binding also refuse: two answers to one
+initial value is not something a run may choose between.
+
+**Cadence, simulator source identity and gateway identity are structural.**
+They are resolved in `runs/profiles.py`, which imports nothing from the Site
+domain, and the two records that carry them may be constructed only there and
+in the store's own document parser. `tools/checks/run-setup.ps1` holds both,
+plus the identity chokepoint: the `run-` prefix is spelled in
+`runs/identity.py` alone and one caller allocates.
+
+**That guard scanned one directory for its first two rounds, and the
+independent review disproved it.** A function in `simulator_lab_api.py`
+deriving a cadence from a device display name passed 789 tests and passed the
+architecture check, because the scan never looked outside
+`backend/assetops_backend/runs`. It scans the whole backend package now, with
+a vacuity assertion that fails if it ever reaches no module outside the run
+domain. The lesson generalises past this guard: **a guard's scope is part of
+its claim, and a module that describes itself as protecting the product while
+scanning one folder is a false statement about a real check.** The ban is on the IMPORT
+rather than on words like `display_name` or `lifecycle_status`, which collide
+with the run's own fields - a ban with exceptions is a ban somebody widens.
+
+A run identity is allocated from nothing: no Site, no scenario, no text, no
+clock, no counter. The request has no field for one and a request that sends
+one is refused by name, which is how "a scenario label never becomes a
+`site_id`" holds one space further along.
+
+Real IANA membership is checked against `zoneinfo.available_timezones()`, in
+both directions: `Africa/Atlantis` is refused though it is shaped like a zone
+and `UTC` is accepted though it is not. `tzdata` is a declared dependency
+because Windows ships no database and a membership test against an empty set
+refuses every real zone. "Not a zone" and "no database" are two different
+failures and stay two.
+
+`frozen_inputs` turns the identity into one row per value with its answerer,
+and a test walks `dataclasses.fields(DeterministicIdentity)`: a field added
+with no answerer fails the build rather than reaching a screen in a column
+with nothing under it. The four answerers correspond one to one with T018's
+`INITIALIZATION_OWNERS`, asserted, so a fifth owner on either side fails.
+
+The persistence guard now registers a third domain. A run is not
+configuration, but the seam is the same one, and the guard proved it by
+failing with seven findings the moment the store appeared.
+
+The eleventh member of the family, and it is the tenth one again.
+
+T018 capped the fact list's TERM column because an unbreakable term pushed the
+document sideways at 640px. T019 put an unbreakable VALUE in the same
+component - a run identity is thirty-six characters with no break opportunity
+- and the value column resolved to 103px against 230px of content: seventy-
+nine pixels of horizontal document scroll, rail included. **A fix applied to
+one column of a two-column component is a fix with one column left over.**
+`.fact-list__value` now breaks anywhere, which is the right treatment for a
+machine identity. Only `tools/layout-evidence.mjs` could see it, and only
+because the tool was taught to fill the form and submit it first - the summary
+does not exist until somebody does.
+
+Three deliberate violations proved the new guard, each accepted by all 785
+backend tests and caught only by the scan: the observation binding built
+inline in the service with identical behaviour, an unused Site-record import
+in the resolver, and the run identity assembled in the service. The third
+found a hole in the guard: its vacuity check counted `def allocate_run_id(` as
+a call, so "nothing allocates" would have passed on a tree where nothing did.
+
+What T019 settled from T018's open list, and what the checkpoint reversed.
+
+`intra-instant-order` is now a `DISPATCH_RULES` entry. Freezing run inputs is
+what made the question decidable from outside the contract: whether the
+reconciliation answers or abstains becomes a blocking reason **persisted** on
+a Draft and read back, so the rule decides what a stored run says about
+itself and belongs in the contract rather than in the stability of a sort.
+
+**The first rule this slice declared was wrong and the T019 checkpoint
+reversed it.** It said two transitions completing at one offset apply in
+authored `sequence` order. Three things were wrong with that, and they are
+the reason the replacement looks as it does:
+
+- serialising two causes the author declared to happen together produces a
+  level the state is never in, and the contract then abstained *on a number
+  that does not exist* - the same family as the round-one finding where a
+  contract reported a number the same contract refuses;
+- `sequence` is an authoring and display field, and reading it as physics is
+  the shape of the bound that used to be guessed from a shared prefix;
+- it would have obliged T021's kernel to serialise sub-steps within one
+  instant in document order and evaluate bounds between them, forbidding a
+  net-change-per-step implementation, making bound behaviour depend on
+  document position, and removing the metamorphic invariant
+  `D-2026-09-21-causal-runtime-before-golden-traces` asks for - under that
+  rule, reordering two simultaneous entries changes the trajectory. It also
+  sat badly beside `quantity-across-a-window`, which already declares
+  intra-step path independence for a single entry.
+
+What replaced it: everything completing on one state at one offset is one
+step with a net effect, and a bound is evaluated on that net. Order-dependence
+is decided exactly rather than assumed, by testing the two extremes that
+bracket every ordering - every increase first against the upper bound, every
+decrease first against the lower. If the net itself ends outside a bound every
+ordering does, so that is the bound case it already was. If neither extreme
+reaches one, no ordering does and the net stands. Only when one extreme
+reaches a bound and the other does not is the group genuinely ambiguous, and
+then the contract abstains with `ORDER_DEPENDENT_GROUP`, a fourth
+`NOT_RECONCILABLE` reason saying to separate the offsets. **Order is expressed
+as time, not as position in a document**, and `accounted_by` is sorted within
+each instant so the whole record is order-independent - asserted by comparing
+two documents that differ only in the listing order of one pair.
+
+The statement covers the case where BOTH extremes reach a bound, which the
+code always abstained on and the first draft left unspecified - T019's review
+found it, and under this contract's own bump policy an unspecified case is
+one where two conforming kernels may legitimately disagree.
+
+One thing about that rule is worth knowing before reading its history: **the
+argument that first motivated declaring it no longer holds**. It was declared
+because freezing run inputs made the answer a blocking reason on a persisted
+Draft. Proposal (e) then removed that blocking reason, so the rule reaches no
+run at all. It still belongs in the contract - it decides what the scenario
+detail surface reports and what a kernel must do at a shared instant - but a
+later reader should not take "a persisted run says it" as current.
+
+`EXECUTION_CONTRACT_VERSION` is 2 and **the bump policy is now written beside
+it**: a version moves when the space of behaviours a conforming
+implementation may exhibit changes, including when it narrows, and never for
+wording. That is stricter than "the rule set is what is versioned", which the
+first draft said, and the difference has a cost:
+`D-2026-09-21-causal-runtime-before-golden-traces` makes a provenance
+mismatch REFUSE playback rather than fall back, so a version that moved on a
+prose edit would force regeneration of golden traces that were never invalid.
+Under that test the reversal moves nothing further - version 1 left the
+instant unspecified, both drafts narrow the same space, and nothing ever
+conformed to the first draft.
+
+The version move also closed the weak contract-version test for free: it now
+compares against the constant, and the frontend fixture stays at 1 so the two
+cannot be one literal by accident. The other two round-two findings are
+untouched and unaffected: the unmeasured second initialization layer, and the
+two forward constraints that live only in code comments.
+
+What T019 leaves open, for the slice that meets it.
+
+- **A `MODEL_RULE`-owned initial value has no carrier.** Review finding L9,
+  narrowed by the user review: it no longer refuses, it blocks with
+  `INITIAL_VALUE_NOT_RESOLVED`, so the person gets a Draft to inspect. What
+  remains is that no profile in this build can carry such a rule. **T020A
+  adds the carrier.** No shipped scenario declares the owner.
+- **Narrowing a stored vocabulary makes older Drafts unreadable, and the
+  store fails closed.** Removing a blocking kind stopped every Draft written
+  before it from parsing, and because `create_run` lists the store to refuse
+  a duplicate identity, that stopped run creation entirely until the stale
+  documents were deleted. Free on unmerged data; not free after merge. There
+  is no migration path and no per-document quarantine, and one unreadable run
+  blocks the creation of every other. Checking identity by file name would
+  avoid it and is refused on purpose: identity is never read back out of a
+  file name. T020 reads this store and meets the same posture.
+- **The amendment to `D-2026-09-21-scenario-execution-contract`** for the
+  reversed ordering rule is Architect's and is pending.
+- **Four small things the re-review logged and left**, in the packet's
+  residual risk with the reasoning: the frozen-table layout claim asserting a
+  floor its wording outruns; the reason-set audit deriving membership from a
+  name-suffix scan with a hand-written count, where the durable fix is
+  exporting a vocabulary `frozenset` the way `BLOCKING_REASON_KINDS` is; a
+  dead duplicate docstring in the execution contract tests; and the
+  stale-vocabulary lockout's 503 saying the store could not be READ when it
+  is readable apart from one document - the same collapse this project
+  polices elsewhere, in copy this slice introduced.
+
+Two lessons from the last two rounds, because both are about tests rather
+than about runs.
+
+**A reason's `subject` is what makes two rows two facts.** A state the
+profile does not model was reported once per execution role, differing only
+in which role the prose named, so a reader counting rows counted one problem
+twice. Reasons are deduplicated on `(kind, subject)`, and a reason that
+really is one per role carries the role in its subject.
+
+**A guard's scope is part of its claim.** `tools/checks/run-setup.ps1`
+described itself as protecting the product while scanning one folder, and a
+reviewer disproved it with a function that passed 789 tests.
+
+**An assertion that holds against a value the product cannot make proves
+nothing about the product.** This slice met that three times: a fixture whose
+loading sentence the screen never says, a fixture whose 503 message the
+endpoint never sends, and a whole client tested only through a stub of its
+own interface - so a duplicated sentence in the copy survived a full review
+round. Stubbing an interface tests the caller; it never tests the thing that
+implements it.
+
+What T019 deliberately does not do: no execution, no step, no trace, no
+staging, no Commit, no ingestion, no Replay, no analytics, no Findings. No run
+inventory and no run detail surface either - the setup summary is returned
+once and is not addressable, which is T020's to fix. A template-derived
+scenario cannot have a run set up for it at all: a run is bound to a concrete
+Site, and matching the Site's template provenance would be Site provenance
+driving a run input.

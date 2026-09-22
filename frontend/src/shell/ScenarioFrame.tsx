@@ -37,7 +37,11 @@ import type {
  * (`D-2026-09-20-scenario-detail-affordances`) is that a disabled control
  * appears only when the action is native to the object being viewed and the
  * missing prerequisite is the next named causal capability. `Create Draft Run`
- * is native to a scenario and is rendered disabled with the prerequisite named.
+ * is native to a scenario, and since T019 it is a real destination whenever
+ * the declared target site resolves: run setup exists, and a control that
+ * stayed disabled would be claiming otherwise. When the target does not
+ * resolve it is still disabled, carrying the backend's own reason, because a
+ * run is bound to a concrete site and there is nothing to freeze without one.
  * `Open target Site` is the one product bridge, enabled only when the declared
  * target resolves. Everything downstream belongs to another object or another
  * lifecycle, so it is absent rather than disabled: a disabled control from a
@@ -133,6 +137,9 @@ export interface ScenarioFrameProps {
   /** The operator address of one site. Passed in, because this module may not
    *  decide where an operator surface lives. */
   siteHref: (siteId: string) => string;
+  /** Where a run is set up for this scenario. Passed in for the same reason:
+   *  this module may not spell a simulator URL. */
+  runSetupHref: (scenarioId: string) => string;
 }
 
 export function ScenarioFrame({
@@ -140,6 +147,7 @@ export function ScenarioFrame({
   scenariosPath,
   simulatorLabPath,
   siteHref,
+  runSetupHref,
 }: ScenarioFrameProps) {
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const [result, setResult] = useState<ScenarioDetailResult | null>(null);
@@ -892,20 +900,37 @@ export function ScenarioFrame({
       >
         <ul className="action-list">
           <li className="action-list__item">
-            <button
-              type="button"
-              className="action"
-              disabled
-              aria-describedby="scenario-run-reason"
-            >
-              Create Draft Run
-            </button>
-            <p className="action-list__reason" id="scenario-run-reason">
-              Run setup does not exist yet. Creating a draft simulation run
-              needs a run setup surface and a draft simulation run record, and
-              this build has neither, so there is nothing for this control to
-              do.
-            </p>
+            {targetResolution.state === "RESOLVED" &&
+            targetResolution.site_id !== null ? (
+              <>
+                <Link
+                  className="action"
+                  to={runSetupHref(scenario.scenario_id)}
+                >
+                  Create Draft Run
+                </Link>
+                <p className="action-list__reason">
+                  Setting a run up freezes the inputs a simulation would
+                  consume and creates a draft. It does not execute anything.
+                </p>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="action"
+                  disabled
+                  aria-describedby="scenario-run-reason"
+                >
+                  Create Draft Run
+                </button>
+                <p className="action-list__reason" id="scenario-run-reason">
+                  {targetResolution.reason} A run is bound to a concrete site
+                  and to the exact version of its foundation, so there is
+                  nothing to freeze until that site is configured here.
+                </p>
+              </>
+            )}
           </li>
         </ul>
       </Panel>

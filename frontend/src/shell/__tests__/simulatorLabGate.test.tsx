@@ -295,6 +295,7 @@ describe("simulator lab gate: enabled", () => {
       "/simulator-lab/create-site",
       "/simulator-lab/scenarios",
       "/simulator-lab/scenarios/:scenarioId",
+      "/simulator-lab/scenarios/:scenarioId/run-setup",
     ]);
   });
 

@@ -26,6 +26,7 @@ try {
         @{ Seam = "Dependency direction";            File = "dependency-direction.ps1";      Function = "Invoke-DependencyDirectionCheck" },
         @{ Seam = "Simulator feature gate";          File = "simulator-gate.ps1";            Function = "Invoke-SimulatorGateCheck" },
         @{ Seam = "Configuration persistence";       File = "configuration-persistence.ps1"; Function = "Invoke-ConfigurationPersistenceCheck" },
+        @{ Seam = "Run setup inputs and identity";   File = "run-setup.ps1";                 Function = "Invoke-RunSetupCheck" },
         @{ Seam = "Shared Site substrate";           File = "site-substrate.ps1";            Function = "Invoke-SiteSubstrateCheck" },
         @{ Seam = "Shared visual vocabulary";        File = "ui-primitives.ps1";             Function = "Invoke-UiPrimitivesCheck" },
         @{ Seam = "Navigation truthfulness";         File = "navigation-truthfulness.ps1";   Function = "Invoke-NavigationTruthfulnessCheck" },

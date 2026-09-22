@@ -21,6 +21,16 @@
 # seam that is not enforced: the scenario port would leak the first time
 # somebody reached past it.
 #
+# T019 registers a third domain, and it is deliberately not configuration: a
+# SimulationRun is a record this installation produced, not a document
+# somebody authored. It is registered here anyway because the persistence
+# seam it needs is exactly this one - a port, one composition module, one
+# adapter layer, one write path, one owned root outside version control - and
+# the guard caught the run store the moment it appeared, which is the whole
+# point of the "resolves outside every known domain" failure below. A second
+# copy of these rules for runs would be the drift this file was written to
+# avoid.
+#
 # Test files are exempt from the scans below for the same reason they are
 # exempt elsewhere: a test must be able to reach an adapter directly in order
 # to prove what the adapter does.
@@ -55,6 +65,14 @@ function Invoke-ConfigurationPersistenceCheck {
             Writer      = $null
             UserRootVar = "USER_SCENARIO_STORE_ROOT"
             UserRootOwner = "$backendRoot/scenarios/adapters/yaml_user_scenario_store.py"
+        },
+        @{
+            Name        = "run"
+            Package     = "$backendRoot/runs"
+            Composition = "$backendRoot/runs/composition.py"
+            Writer      = "$backendRoot/runs/adapters/yaml_run_store.py"
+            UserRootVar = "RUN_STORE_ROOT"
+            UserRootOwner = "$backendRoot/runs/adapters/yaml_run_store.py"
         }
     )
 

@@ -227,7 +227,19 @@ const MEASURE = `(() => {
   };
 })()`;
 
-async function visit(cdp, path, width, height, waitFor) {
+async function waitForSelector(cdp, selector) {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    await sleep(150);
+    const probe = await cdp.send("Runtime.evaluate", {
+      expression: `document.querySelector(${JSON.stringify(selector)}) !== null`,
+      returnByValue: true,
+    });
+    if (probe.result.value === true) return true;
+  }
+  return false;
+}
+
+async function visit(cdp, path, width, height, waitFor, act) {
   await cdp.send("Emulation.setDeviceMetricsOverride", {
     width,
     height,
@@ -236,15 +248,41 @@ async function visit(cdp, path, width, height, waitFor) {
   });
   await cdp.send("Page.navigate", { url: `${BASE}${path}` });
 
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    await sleep(150);
-    const probe = await cdp.send("Runtime.evaluate", {
-      expression: `document.querySelector(${JSON.stringify(waitFor)}) !== null`,
+  await waitForSelector(cdp, waitFor);
+  await sleep(250);
+
+  // Some pages only render the thing worth measuring after somebody does
+  // something. `act` is that somebody: it fills a form and submits it through
+  // real input events, then the page is waited on again before measuring.
+  // Without it the run setup summary could not be measured at all, and "the
+  // dense table scrolls inside its own region" would be a claim about a table
+  // no browser had ever drawn.
+  if (act) {
+    // The script returns whether it found every control it meant to drive,
+    // and that answer is checked rather than discarded. It was discarded in
+    // the first version, so a renamed field or button would have produced a
+    // page with no summary on it and the measurement below would have
+    // reported an empty set of tables as a set that holds.
+    const acted = await cdp.send("Runtime.evaluate", {
+      expression: act.script,
       returnByValue: true,
     });
-    if (probe.result.value === true) break;
+    if (acted.result.value !== true) {
+      throw new Error(
+        `The page action for ${path} did not find the controls it drives, ` +
+          "so nothing was submitted and there is nothing to measure. The " +
+          "form has changed and this script has not.",
+      );
+    }
+    const appeared = await waitForSelector(cdp, act.waitFor);
+    if (!appeared) {
+      throw new Error(
+        `The page action for ${path} ran and ${act.waitFor} never appeared. ` +
+          "Measuring now would report on a page the action did not produce.",
+      );
+    }
+    await sleep(250);
   }
-  await sleep(250);
 
   const result = await cdp.send("Runtime.evaluate", {
     expression: MEASURE,
@@ -252,6 +290,65 @@ async function visit(cdp, path, width, height, waitFor) {
   });
   return result.result.value;
 }
+
+/**
+ * Fill the run setup form and submit it, the way a person would.
+ *
+ * React reads the value from its own state, so setting `element.value`
+ * directly is invisible to it. The native setter plus a bubbling `input`
+ * event is what a real keystroke does, and it is the only way to drive a
+ * controlled input from outside React.
+ *
+ * The interval covers the whole shipped Fuel Loss Event - its last entry is a
+ * point at two thousand four hundred minutes - and divides by the timestep,
+ * so the request is structurally valid and the draft is created. It comes
+ * back BLOCKED against the shipped model profile, which is the truthful
+ * outcome for that scenario in this build and is exactly the state whose
+ * layout needs measuring: the frozen summary AND the reasons are both on the
+ * page at once.
+ */
+const SUBMIT_RUN_SETUP = `(() => {
+  const setNative = (prototype, element, value) => {
+    const setter = Object.getOwnPropertyDescriptor(prototype, "value").set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+
+  const setValue = (id, value) => {
+    const element = document.getElementById(id);
+    if (!element) return false;
+    setNative(window.HTMLInputElement.prototype, element, value);
+    return true;
+  };
+
+  // The two profiles are chosen rather than assumed: nothing on this screen
+  // preselects them, because they are components of the frozen deterministic
+  // identity and the model profile decides the outcome. The first real
+  // option is taken - the leading one is the empty "choose" entry.
+  const chooseFirst = (id) => {
+    const element = document.getElementById(id);
+    if (!element) return false;
+    const option = Array.from(element.options).find((item) => item.value !== "");
+    if (!option) return false;
+    setNative(window.HTMLSelectElement.prototype, element, option.value);
+    return true;
+  };
+
+  const filled =
+    setValue("run-setup-start", "2026-09-21T00:00:00Z") &&
+    setValue("run-setup-end", "2026-09-22T17:00:00Z") &&
+    setValue("run-setup-timestep", "15") &&
+    setValue("run-setup-seed", "20260921") &&
+    chooseFirst("run-setup-model-profile") &&
+    chooseFirst("run-setup-publication-profile");
+
+  const submit = Array.from(document.querySelectorAll("main button")).find(
+    (button) => (button.textContent || "").trim() === "Create draft run",
+  );
+  if (filled && submit) submit.click();
+  return filled && Boolean(submit);
+})()`;
 
 function report(title, m, checks) {
   console.log(`\n=== ${title} ===`);
@@ -617,6 +714,115 @@ allPass =
       `left ${scenarios.railLeftBefore} -> ${scenarios.railLeftAfterAll}`,
     ],
   ]) && allPass;
+
+// T019's run setup summary. It is the densest table the Lab has: four
+// columns, an unbreakable identity in one of them and a whole sentence in
+// another, and it only exists after a form has been submitted - so it is
+// reached here by filling the form rather than by navigating to it.
+//
+// 640px is measured for the reason every other dense table is measured there:
+// without a width at which something actually overflows, "every table that
+// overflows scrolls inside its own region" is a claim about an empty set.
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["1000x700, below the commitment", 1000, 700],
+  ["640x700, narrow enough that the summary cannot fit", 640, 700],
+]) {
+  const setup = await visit(
+    cdp,
+    "/simulator-lab/scenarios/fuel-loss-event/run-setup",
+    width,
+    height,
+    "form",
+    { script: SUBMIT_RUN_SETUP, waitFor: ".data-table__scroll" },
+  );
+
+  // The two tables by name. `scrollers.some(...)` would let one table's
+  // shape satisfy a claim written about the other.
+  const frozen = setup.scrollers.find(
+    (s) => s.name === "run-setup-frozen-heading",
+  );
+  const blocked = setup.scrollers.find(
+    (s) => s.name === "run-setup-blocked-heading",
+  );
+
+  allPass =
+    report(`Run setup summary at ${label}`, setup, [
+      [
+        "the page does not scroll horizontally",
+        !setup.pageScrollsHorizontally,
+        `scrollWidth ${setup.pageScrollWidth} vs clientWidth ${setup.pageClientWidth}`,
+      ],
+      [
+        "the frozen summary was drawn at all",
+        setup.scrollers.length > 0,
+        `${setup.scrollers.length} table region(s)`,
+      ],
+      [
+        "every table on the page has a named, focusable overflow region",
+        setup.scrollers.length > 0 &&
+          setup.scrollers.every((s) => s.focusable && s.name),
+        setup.scrollers.map((s) => s.name ?? "unnamed").join(", "),
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        setup.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+        setup.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the rail does not move when every table is scrolled to its end",
+        setup.railLeftBefore === setup.railLeftAfterAll,
+        `left ${setup.railLeftBefore} -> ${setup.railLeftAfterAll}`,
+      ],
+      [
+        "no table renders a header row with no rows under it",
+        setup.scrollers.every((s) => s.columnCount === 0 || s.rowCount > 0),
+        setup.scrollers
+          .map((s) => `${s.name}: ${s.columnCount} cols, ${s.rowCount} rows`)
+          .join("; "),
+      ],
+      // Named rather than "some table has four columns", which the blocked
+      // table could have satisfied by accident once it grew a column. The
+      // row count is asserted for the same reason the column count is: a
+      // frozen summary with a header and one row would satisfy every claim
+      // above it, and it is not a frozen summary.
+      [
+        "the frozen input table keeps all four of its columns",
+        frozen !== undefined && frozen.columnCount === 4,
+        frozen === undefined
+          ? "no region named run-setup-frozen-heading"
+          : `${frozen.name}: ${frozen.columnCount} columns`,
+      ],
+      [
+        "the frozen input table renders a row for every frozen value",
+        frozen !== undefined && frozen.rowCount >= 20,
+        frozen === undefined
+          ? "no region named run-setup-frozen-heading"
+          : `${frozen.name}: ${frozen.rowCount} rows`,
+      ],
+      [
+        "the blocked table names every reason the draft carries",
+        blocked !== undefined && blocked.columnCount === 3 && blocked.rowCount === 3,
+        blocked === undefined
+          ? "no region named run-setup-blocked-heading"
+          : `${blocked.name}: ${blocked.columnCount} columns, ${blocked.rowCount} rows`,
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              setup.scrollers.some((s) => s.overflows),
+              `${setup.scrollers.filter((s) => s.overflows).length} of ${setup.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
 
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
 allPass =

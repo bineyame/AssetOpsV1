@@ -19,6 +19,12 @@ from __future__ import annotations
 from fastapi import APIRouter, FastAPI
 
 from assetops_backend.config import FeatureFlags, load_feature_flags
+from assetops_backend.runs.composition import build_run_repository
+from assetops_backend.runs.ports import SimulationRunRepository
+from assetops_backend.runs.profiles import (
+    MODEL_PROFILES,
+    PUBLICATION_PROFILES,
+)
 from assetops_backend.scenarios.composition import build_scenario_repository
 from assetops_backend.scenarios.ports import ScenarioDefinitionRepository
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
@@ -48,6 +54,7 @@ def create_app(
     site_template_catalog: SiteTemplateCatalog | None = None,
     site_repository: SiteRepository | None = None,
     scenario_repository: ScenarioDefinitionRepository | None = None,
+    run_repository: SimulationRunRepository | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -72,6 +79,13 @@ def create_app(
     that it serves no scenario route. The store still exists and is still
     readable; nothing about a scenario is gated except the surfaces that show
     it.
+
+    The run store is built only when the gate is open too, and for a stronger
+    version of the same reason: setting a run up is a Simulator Lab
+    capability, so a closed build must not so much as open the directory runs
+    would be written to. The versioned profiles are passed in from the one
+    module that declares them, so a route never reaches for a catalog it
+    could also have imported.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -92,8 +106,16 @@ def create_app(
             if scenario_repository is None
             else scenario_repository
         )
+        runs = build_run_repository() if run_repository is None else run_repository
         app.include_router(
-            build_simulator_lab_router(catalog, repository, scenarios)
+            build_simulator_lab_router(
+                catalog,
+                repository,
+                scenarios,
+                runs,
+                MODEL_PROFILES,
+                PUBLICATION_PROFILES,
+            )
         )
 
     return app

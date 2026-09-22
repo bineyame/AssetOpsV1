@@ -14,6 +14,22 @@ simulator rules rather than authored content:
 - whether each reported observation is accounted for by the causal inputs the
   same scenario declares.
 
+## `reconcile_reported_observations` is a reference implementation
+
+It is labelled as one, with its expiry stated as a condition, in
+`backend/tests/test_scenario_execution_contract.py`, per
+`D-2026-09-21-specification-reference-implementation`. The short form: it
+exercises this contract against a real document because a specification with
+no implementation is under-tested, it is not a product feature, and it stops
+being an authority the moment a kernel exists to be compared against. Its one
+remaining product-path caller is the scenario detail screen's reconciliation
+panel, and it leaves the repository when that caller does - which is Open
+Question 5 and undecided.
+
+Run setup used to be a second caller. Amendment 1's proposal (e) removed that,
+because deciding whether declared causes reach a reading needs a kernel, and
+run setup has none.
+
 ## This is not a runtime kernel
 
 `reconcile_reported_observations` is contract arithmetic and nothing more. It
@@ -53,7 +69,39 @@ from assetops_backend.scenarios.models import (
 #: can say which version of these semantics it was built against. It is not the
 #: scenario version and not the simulator version: it is the version of the
 #: rules below.
-EXECUTION_CONTRACT_VERSION = 1
+#:
+#: **When this moves.** A version moves when the space of behaviours a
+#: conforming implementation may exhibit changes, including when it narrows.
+#: Wording does not move it.
+#:
+#: That is a stricter test than "the rule set is what is versioned", which an
+#: earlier draft of this comment used, and the difference has a cost
+#: downstream. `D-2026-09-21-causal-runtime-before-golden-traces` makes a
+#: provenance mismatch REFUSE playback rather than fall back, so a version
+#: that moved on a prose edit would force regeneration of golden traces that
+#: were never invalid.
+#:
+#: Two since T019, which declared what happens when two causes complete at one
+#: instant. Version one left that unspecified: two conforming version-one
+#: kernels could legitimately disagree at that instant, so declaring any rule
+#: for it narrows the space, and that is what moved the number. T019's review
+#: then replaced the rule's content - authored order gave way to a net effect
+#: with an exact ambiguity test - and the version did not move again. Both
+#: drafts narrow the same unspecified space, the number identifies the space
+#: rather than the wording, and no implementation ever conformed to the first
+#: draft: it existed only inside this slice.
+#:
+#: The same reasoning covers the second amendment, and it is worth spelling
+#: out, because the policy above would otherwise read as requiring a third
+#: number. T019's review found the statement silent on a group where BOTH
+#: extremes reach a bound - a case the code has always abstained on -
+#: and specifying it narrows the space a conforming kernel may occupy, which
+#: under the policy moves a version. It does not move here for the reason the
+#: first amendment did not: version two has never left this branch, nothing
+#: has ever conformed to it, and bumping would invent a version no consumer
+#: ever saw while spending the golden-trace regeneration the policy exists to
+#: avoid. Once this merges, the next narrowing is a three.
+EXECUTION_CONTRACT_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -241,6 +289,28 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "An interval-wide entry starts at offset zero and holds until the "
             "run interval ends. It declares no length, because the length is "
             "the run's and choosing that is run setup."
+        ),
+    ),
+    DispatchRule(
+        rule_id="intra-instant-order",
+        display_name="Two things at one instant",
+        statement=(
+            "Entries that take effect on one state at the same instant are a "
+            "group with a net effect, and a bound is evaluated on that net "
+            "rather than between the members. The order rows are written in "
+            "is authoring and display; it is not a fact about the world, so "
+            "it decides nothing here. Whether an ordering could have mattered "
+            "is decided exactly rather than assumed: every increase first "
+            "tests the upper bound, every decrease first tests the lower, and "
+            "if neither extreme reaches a bound then no ordering does and the "
+            "net stands. If either extreme reaches a bound while the net "
+            "itself stays inside, the group is ambiguous and the contract "
+            "declines to answer rather than choosing an order - whether one "
+            "extreme reaches a bound or both do, since two orderings that "
+            "reach different bounds are no more decidable than one that "
+            "reaches a bound and one that does not. A scenario that needs "
+            "one thing to happen before another says so in time, by "
+            "separating the offsets."
         ),
     ),
     DispatchRule(
@@ -528,16 +598,25 @@ def _complete_at(entry: TimelineEntry) -> int | None:
 #: `ACCOUNTED_FOR` means the declared causal inputs reach the reported value
 #: exactly. `NOT_ACCOUNTED_FOR` means they do not, and the difference is
 #: reported with its sign so a reader can see which way and by how much.
-#: `NOT_RECONCILABLE` means the contract cannot answer, for one of three
+#: `NOT_RECONCILABLE` means the contract cannot answer, for one of four
 #: reasons it names: no declared initial value for the state, a causal window
-#: still running when the reading is taken, or a declared bound reached before
-#: it.
+#: still running when the reading is taken, a declared bound reached before
+#: it, or a group of simultaneous causes whose outcome depends on an order the
+#: scenario does not declare.
 #:
 #: The third was the T018 review's finding. Summing every completed transition
 #: without consulting a bound reported a declared volume above the capacity
 #: the same document declares, under a column headed "declared causes reach" -
 #: a number the contract refuses elsewhere. Applying the bound is the kernel's
 #: job and out of scope here, so the contract declines to answer instead.
+#:
+#: The fourth is the same lesson once more, and T019's review found it. An
+#: earlier draft of `intra-instant-order` serialised simultaneous causes in
+#: authored order and evaluated bounds between them, so a delivery and a draw
+#: at one instant could reach a level the tank is never in - an artifact of
+#: serialising two things the author declared to happen together. The contract
+#: now evaluates the group's net and abstains only when an ordering could
+#: genuinely have changed the answer.
 #:
 #: There is no value meaning "close enough". A reported value that differs from
 #: the declared causes differs for a reason, and the reason is either another
@@ -575,6 +654,14 @@ BOUND_REACHED_LOWER = (
     "a declared cause would take this state below a bound the same definition "
     "declares before the reading. What a run does then is what the bound case "
     "names, and deciding it belongs to the runtime"
+)
+ORDER_DEPENDENT_GROUP = (
+    "two or more declared causes complete on this state at the same offset, "
+    "and whether a bound is reached between them depends on the order they "
+    "are applied in. The scenario declares them as simultaneous, so no order "
+    "is the true one and the contract will not pick between them. A scenario "
+    "that needs one to happen first says so in time, by separating the "
+    "offsets"
 )
 
 #: The floor every stored quantity has, whether or not a document declares
@@ -647,9 +734,12 @@ class ObservationReconciliation:
     unit: str
     state: str
     #: Why the contract answered the way it did. Always present, because a
-    #: `NOT_RECONCILABLE` with no reason is three different facts wearing one
-    #: name: no declared initial value, an open causal window, and a declared
-    #: bound reached are not the same problem and do not have the same fix.
+    #: `NOT_RECONCILABLE` with no reason is four different facts wearing one
+    #: name: no declared initial value, an open causal window, a declared
+    #: bound reached, and a group of simultaneous causes whose outcome depends
+    #: on an order nobody declared are four problems with four different
+    #: fixes. The fourth arrived with T019's revised intra-instant rule and
+    #: this count did not follow it until the review said so.
     reason: str
     accounted_by: tuple[str, ...]
 
@@ -736,35 +826,83 @@ def reconcile_reported_observations(
             results.append(unanswerable(OPEN_CAUSAL_WINDOW))
             continue
 
-        applied = sorted(
-            (
-                transition
-                for transition in relevant
-                if transition.complete_at_offset is not None
-                and transition.complete_at_offset <= entry.offset_minutes
-            ),
-            key=lambda transition: transition.complete_at_offset or 0,
-        )
+        applied = [
+            transition
+            for transition in relevant
+            if transition.complete_at_offset is not None
+            and transition.complete_at_offset <= entry.offset_minutes
+        ]
 
         lower, upper = bounds
 
-        # Walked in completion order rather than summed, because a bound is
+        # Walked instant by instant rather than summed, because a bound is
         # reached at a moment: a delivery that overfills and a draw that
         # empties both land inside the sequence, and a total that happens to
         # come back inside the bounds would hide them.
+        #
+        # Everything completing at one offset is ONE step, not several. That
+        # is the `intra-instant-order` dispatch rule and it is the whole of
+        # what this loop assumes about order: nothing here reads the order
+        # rows were written in, because that order is authoring rather than
+        # physics. Whether it could have mattered is decided exactly, by the
+        # two extremes below, and the result of this function does not depend
+        # on document order at all.
         declared = _exact(initial.canonical_value)
         reached: str | None = None
-        for transition in applied:
-            magnitude = _exact(transition.applied_value)
-            declared += (
-                magnitude if transition.direction == "INCREASE" else -magnitude
+
+        for offset in sorted({item.complete_at_offset for item in applied}):
+            group = [
+                item for item in applied if item.complete_at_offset == offset
+            ]
+            increases = sum(
+                (
+                    _exact(item.applied_value)
+                    for item in group
+                    if item.direction == "INCREASE"
+                ),
+                Fraction(0),
             )
-            if upper is not None and declared > _exact(upper):
+            decreases = sum(
+                (
+                    _exact(item.applied_value)
+                    for item in group
+                    if item.direction != "INCREASE"
+                ),
+                Fraction(0),
+            )
+            after = declared + increases - decreases
+
+            # The net endpoint first. Every ordering reaches it, so a bound
+            # broken there is broken however the group is applied, and that is
+            # the ordinary bound case rather than an ambiguity.
+            if upper is not None and after > _exact(upper):
                 reached = BOUND_REACHED_UPPER
                 break
-            if lower is not None and declared < _exact(lower):
+            if lower is not None and after < _exact(lower):
                 reached = BOUND_REACHED_LOWER
                 break
+
+            # Then the two extremes, which bracket every ordering: no ordering
+            # peaks above "every increase first" and none troughs below "every
+            # decrease first". If neither extreme reaches a bound, no ordering
+            # does and the net stands. If either does - one of them or both -
+            # the group is ambiguous and the contract will not pick an order.
+            #
+            # Both is a real case and the statement above names it, because a
+            # case a versioned statement leaves unspecified is a case where
+            # two conforming kernels may legitimately disagree: a group that
+            # overfills applied one way and empties applied the other reaches
+            # a bound under every ordering, but not the same bound, so what a
+            # kernel does still differs.
+            peak = declared + increases
+            trough = declared - decreases
+            if (upper is not None and peak > _exact(upper)) or (
+                lower is not None and trough < _exact(lower)
+            ):
+                reached = ORDER_DEPENDENT_GROUP
+                break
+
+            declared = after
 
         if reached is not None:
             results.append(unanswerable(reached))
@@ -789,8 +927,21 @@ def reconcile_reported_observations(
                     if difference == 0
                     else NOT_ACCOUNTED_FOR_REASON
                 ),
+                # Sorted within each instant, because within an instant
+                # there is no order to preserve. Across instants the
+                # completion offset is the order. Together that makes this
+                # tuple - and so the whole record - independent of the order
+                # the document happens to list simultaneous entries in, which
+                # is what the dispatch rule says and a test measures.
                 accounted_by=tuple(
-                    transition.event_id for transition in applied
+                    transition.event_id
+                    for transition in sorted(
+                        applied,
+                        key=lambda item: (
+                            item.complete_at_offset or 0,
+                            item.event_id,
+                        ),
+                    )
                 ),
             )
         )
