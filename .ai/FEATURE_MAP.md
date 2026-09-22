@@ -2419,14 +2419,15 @@ across M1C, and it is the only place the count is stated.
 | T021A | 5 | narrowing: no `execution_requirement` position on a reported observation |
 | T022 | 5 | no move: one document's content and a new component, not a change to the space |
 
-**Three narrowings are in flight and, as sequenced, each one merges in a
-different slice, so each spends a number. The unreleased-version doctrine
-collapses nothing here.** That doctrine - a narrowing that never leaves the
-branch it was made on does not spend a number, because nothing ever conformed
-to the version it would have replaced - only reaches narrowings that share an
-unmerged window. It is how versions one and two absorbed two amendments each
-inside T019, and it applies again only if some slice below narrows twice
-internally.
+**Four narrowings are in flight across three slices, so they spend three
+numbers rather than four.** The unreleased-version doctrine - a narrowing that
+never leaves the branch it was made on does not spend a number, because
+nothing ever conformed to the version it would have replaced - reaches
+narrowings that share an unmerged window. Here that is T020B's pair and only
+that pair; T020A's and T021A's each merge alone and each spends a number. It
+is the same doctrine that let versions one and two absorb two amendments each
+inside T019, and this paragraph counted three merging separately until the
+forcing-state decision put a second narrowing inside T020B.
 
 **T020B, the contract-alignment step, is the ledger's one deliberate step of
 its own**, between T020A and T021, and it is where the four semantics and the
@@ -2452,8 +2453,17 @@ unaffected.
 
 #### Seams this sequence surfaced
 
-Three seams became visible while working the sequence out. None is settled;
-each is named here so a slice does not settle it by accident.
+Three seams became visible while working the sequence out. This said none was
+settled. **The first and the third were settled on 2026-09-22** and are kept
+below for the reasoning rather than the verdict: reporting-path authority
+moves to the publication profile in T020B
+(`D-2026-09-22-forcing-state-requirements`, with its answerer half corrected
+one slice earlier in T020), and the coefficient is `L/kWh` with
+`dispatched-output` promoted, both in T020A
+(`D-2026-09-22-consumption-coefficient-unit`). The two deadlines the bullets
+state as future - *before T021's task file* and *before T020A is implemented*
+- were met that day. Only the second, the observation transform, is still
+open, and it is named so a slice does not settle it by accident.
 
 - **Cadence and reporting-path authority, between the model profile and the
   publication profile.** `runs/profiles.py` gives the model profile sole
