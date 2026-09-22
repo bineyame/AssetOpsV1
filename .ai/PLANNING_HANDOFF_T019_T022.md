@@ -185,6 +185,19 @@ Three things follow that the task file has to carry.
   `rating.value != declared` is its only producer and no document can state a
   `declared` any more. A refusal kind nothing can produce is the `RUNNING`
   case one layer down.
+- **The coefficient's unit is `L/kWh` and `dispatched-output` is promoted
+  here, not later** (`D-2026-09-22-consumption-coefficient-unit`). The
+  promotion is a role change on one parameter plus
+  `generator-output-power` in the shipped profile's supported states, and it
+  rides with this slice for a reason worth stating: under `L/kWh` the
+  coefficient is not a rate over time, so this slice rewires the dispatch
+  event's `state_effect` from `rate_parameter_id` to the model rule
+  *consumption is specific consumption times energy delivered*. Leaving the
+  promotion to a later step would publish a document whose model rule depends
+  on a state nothing declares. The two lowered forcing states are **not**
+  here; they belong to the contract-alignment step, because they are about
+  requirement levels and `READY` reachability rather than about the
+  coefficient.
 - **The `fuel-tank-volume` upper bound stops being something the document can
   state, and the `bounds` declaration stays anyway.** `declared_bounds` skips
   any parameter with no float value, so after this slice it reports
@@ -268,6 +281,54 @@ a separately declared operating assumption that may differ from it. That is a
 T034–T038 question and the worked example shows why it earns its keep. T020A
 supplies the Foundation coefficient; it does not decide who else reads it.
 
+## The contract-alignment step — between T020A and T021
+
+**New 2026-09-22, and the Planner names it.** The version ledger already gave
+this a step of its own. Four accepted decisions put work in it, and it exists
+because none of that work belongs in either neighbour: it is contract and
+profile, not Foundation carriers, and not kernel.
+
+**Must deliver.**
+
+1. **The four semantics, declared** — linear ramp across a window, observe
+   after the step, a forcing outside its window is unavailable, a bounded
+   change lets the run continue against the bounded value
+   (`D-2026-09-22-kernel-step-semantics`). Declared in the contract, not
+   decided inside a kernel.
+2. **A requirement conflict is refused rather than resolved.** Retire
+   `_executable_inputs`' `REQUIRED`-wins collapse; a `(state_key, role)` pair
+   must agree on its requirement and a document where it does not is refused,
+   at the parser, which is the layer that sees every position
+   (`D-2026-09-22-forcing-state-requirements`).
+3. **`site-load-demand` and `plane-of-array-irradiance` drop to `OPTIONAL`**,
+   at all five positions — three and two respectively. Lowering one does
+   nothing while the collapse exists, which is why (2) comes with it.
+4. **Reporting-path authority moves to the publication profile**, which gains
+   a supported-reporting-states concept, and `FROZEN_INPUT_ANSWERERS` gains
+   `PUBLICATION_PROFILE` with the three `MODEL_PROFILE` rows relabelled.
+
+**Its version move.** (1) and (2) are both narrowings and both land here, so
+they spend one number between them — nothing ever conforms to the version
+between two narrowings in one unmerged window. (3) and (4) are document
+content and profile shape, and spend nothing. See the ledger.
+
+**It retires a T020 criterion, and that is not optional.** T020 proves every
+`READY` claim against a fixture record written through the port, because no
+`READY` run exists through the product path. This step is what makes the
+shipped Fuel Loss Event reach `READY`, so the premise becomes false here and
+`D-2026-09-22-expiry-follows-the-condition` puts the retirement in the slice
+that falsifies it. The replacement is a `READY` proof on the shipped
+scenario. **This is the third artifact in this sequence to acquire an expiry
+this way** — after T020's `READY` disclosure and the reference
+implementation — which is the rule earning its keep rather than three
+coincidences.
+
+**May not.** Touch the kernel. Widen the shipped model profile beyond
+`generator-output-power`, which T020A adds. Correct the document's authored
+numbers, which is T021's loop.
+
+**Depends on.** T020A, for the coefficient and the promotion it carries.
+
 ## T021 — Minimal Fuel Loss causal kernel
 
 The planned task file stands. Three additions, and the third changes what the
@@ -326,6 +387,14 @@ not.
 second half of the `REQUIRED` forcing-state decision and the four unpinned
 semantics, both before the task file is written. T020's run-detail shell for
 the small visible readiness result.
+
+**The kernel takes its non-negativity floor from the model profile, never
+from `IMPLICIT_LOWER_BOUND_DIMENSIONS`.** *Volume is non-negative* is a model
+rule, the validation layer only ever injected it, and that layer leaves the
+product path in T022. The tank's minimum usable level is a separate Foundation
+property and a follower, not this slice's. See
+`D-2026-09-22-reconciliation-panel-retirement`, which closed open question 11
+by settling when the injected constant goes.
 
 **The tank's capacity comes from the frozen identity, not from
 `declared_bounds`, and the task file has to say so.** After T020A that
