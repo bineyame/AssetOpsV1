@@ -528,10 +528,18 @@ describe("a request that did not complete", () => {
     // A 503 carries product copy naming the store that could not be reached.
     // Discarding it to show a generic sentence is the screen writing a
     // second, worse version of the same fact.
+    //
+    // The fixture is the whole message the endpoint sends, closing sentence
+    // included. It used to be the store's raw string without it - a message
+    // the wire cannot produce - so the test passed while the screen printed
+    // "Nothing was written." twice on a real failure. An assertion held
+    // against a value the product cannot make is the shape this slice has
+    // now paid for three times.
     renderSetup(
       runClient({
         status: "unavailable",
-        message: "The run store could not be written: var/runs.",
+        message:
+          "The run store could not be written: var/runs. Nothing was written.",
       }).client,
     );
     await settledScreen();
@@ -539,7 +547,16 @@ describe("a request that did not complete", () => {
 
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toContain("The run store could not be written");
-    expect(alert.textContent).toMatch(/nothing was written/i);
+    expect(alert.textContent?.match(/nothing was written/gi)).toHaveLength(1);
+  });
+
+  it("says it once when there is no message to say it", async () => {
+    renderSetup(runClient({ status: "unavailable", message: null }).client);
+    await settledScreen();
+    await fillAndSubmit();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent?.match(/nothing was written/gi)).toHaveLength(1);
   });
 
   it("never says nothing was written over a run that was", async () => {

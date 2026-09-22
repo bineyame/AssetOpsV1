@@ -626,11 +626,17 @@ export function RunSetupFrame({
           )}
 
           {result?.status === "unavailable" ? (
+            /*
+             * The backend's sentence, or this screen's, and never both. Every
+             * 503 branch already ends by saying nothing was written, so
+             * appending it here printed it twice - "Nothing was written.
+             * Nothing was written." on a real run-store failure. The fallback
+             * says it because there is no message to say it.
+             */
             <p className="field-error" role="alert">
               {result.message ??
                 "The draft could not be created because the request could " +
-                  "not be completed."}{" "}
-              Nothing was written.
+                  "not be completed. Nothing was written."}
             </p>
           ) : null}
 
