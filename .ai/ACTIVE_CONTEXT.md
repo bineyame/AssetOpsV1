@@ -37,8 +37,8 @@ device reads.** The declared causes reach 254 L where the document authors
 readings of 155 L and 150 L. Those readings are hand-simulated, they are
 removed in T022, and the document is corrected during T021 from what the kernel
 computes. **The shipped Fuel Loss Event still cannot reach `READY` in this
-build**, by construction: once (e) lands it blocks on the three forcing states
-the first kernel does not model. `READY` is proved on fixtures.
+build**, by construction: with (e) landed it blocks on the three forcing
+states the first kernel does not model. `READY` is proved on fixtures.
 
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in
@@ -54,9 +54,16 @@ during T021 from what the kernel computes. Read
 `.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task file in
 that range.
 
-**T019 has not applied (e) yet.** Its run setup still blocks on the two
-unreached readings. Narrowing it to three reasons is the Implementer's next
-round, together with the T019 review's own findings.
+**T019 has applied (e) and (j), and closed the fourteen review findings.**
+Run setup no longer adjudicates cause-to-observation coupling: the shipped
+Draft blocks on three `STATE_NOT_SUPPORTED` reasons, and every blocking kind
+is now a statement about the selected profile. The reconciliation is labelled
+as a specification reference implementation whose expiry is a condition, and
+the panel, the payload and the arithmetic are untouched. Twelve findings are
+fixed, L8 is moot under (e), and L9 is a Known Deviation naming **T020A** as
+the slice that adds the model-rule carrier. The branch is ready for
+re-review; the amendment to `D-2026-09-21-scenario-execution-contract` for the
+reversed ordering rule is Architect's and is pending.
 
 Two of T018's four Low findings are closed by T019 and marked settled in place:
 intra-instant ordering became a `DISPATCH_RULES` entry - since reversed by the

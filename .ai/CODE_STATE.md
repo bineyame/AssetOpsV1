@@ -1696,6 +1696,31 @@ adapter layer. It is deliberately not a reuse of either - a missing run, a
 missing Site and a missing scenario are three facts about three identity
 spaces - and it is the second package in the product with a write path.
 
+**Run setup decides one kind of thing, and Amendment 1 is what made that
+true.** Every blocking reason is a statement about the SELECTED PROFILE:
+a state it does not model, a role it does not support, a cadence or a
+publication identity it does not resolve. A sixth kind was removed to make it
+so. `OBSERVATION_NOT_ACCOUNTED_FOR` blocked a run when the causes a scenario
+declared did not reach a reading the same scenario declared, and proposal (e)
+took it out: run setup has no kernel, so whether declared causes reach a
+reading is a statement about what a run would produce and not one it can
+make. The shipped Fuel Loss Draft blocks on three reasons rather than five;
+`BLOCKED` is unchanged as an outcome and is reached for a sounder reason. A
+kind added later that is not about the profile's ability to execute an input
+is that mistake returning, and the vocabulary is pinned as an exact set for
+exactly that reason.
+
+`reconcile_reported_observations` still exists, still answers that question
+for the scenario detail surface, and is labelled in the test suite as a
+specification reference implementation
+(`D-2026-09-21-specification-reference-implementation`). **Its expiry is a
+condition, not a slice number**: it stops being an authority when a kernel
+exists and the two are compared, which is T021's comparison, and it leaves
+the repository when its last product-path caller goes - the
+`observation_reconciliation` payload and the panel that renders it, whose
+removal is Open Question 5 and undecided. No slice before that decision
+treats the removal as in scope.
+
 **The refusal line is the slice.** A refusal means the request could not be
 frozen: something it names does not exist, does not resolve, is not well
 formed, or would have to be invented. No `run_id` is allocated and nothing is
@@ -1730,7 +1755,17 @@ They are resolved in `runs/profiles.py`, which imports nothing from the Site
 domain, and the two records that carry them may be constructed only there and
 in the store's own document parser. `tools/checks/run-setup.ps1` holds both,
 plus the identity chokepoint: the `run-` prefix is spelled in
-`runs/identity.py` alone and one caller allocates. The ban is on the IMPORT
+`runs/identity.py` alone and one caller allocates.
+
+**That guard scanned one directory for its first two rounds, and the
+independent review disproved it.** A function in `simulator_lab_api.py`
+deriving a cadence from a device display name passed 789 tests and passed the
+architecture check, because the scan never looked outside
+`backend/assetops_backend/runs`. It scans the whole backend package now, with
+a vacuity assertion that fails if it ever reaches no module outside the run
+domain. The lesson generalises past this guard: **a guard's scope is part of
+its claim, and a module that describes itself as protecting the product while
+scanning one folder is a false statement about a real check.** The ban is on the IMPORT
 rather than on words like `display_name` or `lifecycle_status`, which collide
 with the run's own fields - a ban with exceptions is a ban somebody widens.
 
@@ -1818,6 +1853,19 @@ as time, not as position in a document**, and `accounted_by` is sorted within
 each instant so the whole record is order-independent - asserted by comparing
 two documents that differ only in the listing order of one pair.
 
+The statement covers the case where BOTH extremes reach a bound, which the
+code always abstained on and the first draft left unspecified - T019's review
+found it, and under this contract's own bump policy an unspecified case is
+one where two conforming kernels may legitimately disagree.
+
+One thing about that rule is worth knowing before reading its history: **the
+argument that first motivated declaring it no longer holds**. It was declared
+because freezing run inputs made the answer a blocking reason on a persisted
+Draft. Proposal (e) then removed that blocking reason, so the rule reaches no
+run at all. It still belongs in the contract - it decides what the scenario
+detail surface reports and what a kernel must do at a shared instant - but a
+later reader should not take "a persisted run says it" as current.
+
 `EXECUTION_CONTRACT_VERSION` is 2 and **the bump policy is now written beside
 it**: a version moves when the space of behaviours a conforming
 implementation may exhibit changes, including when it narrows, and never for
@@ -1836,12 +1884,24 @@ cannot be one literal by accident. The other two round-two findings are
 untouched and unaffected: the unmeasured second initialization layer, and the
 two forward constraints that live only in code comments.
 
-Two things about the ordering change are NOT settled here. The amendment to
-`D-2026-09-21-scenario-execution-contract` is Architect's and is pending, and
-whether `NOT_RECONCILABLE` should be a second blocking kind on a run - today
-every non-`ACCOUNTED_FOR` result emits `OBSERVATION_NOT_ACCOUNTED_FOR`, with
-the difference surviving only in the statement and in `declared_value` being
-absent - was raised at the checkpoint and deliberately left open.
+What T019 leaves open, for the slice that meets it.
+
+- **A `MODEL_RULE`-owned initial value is refused whatever profile is
+  selected.** Review finding L9. `SupportedState` has no field a
+  model-supplied initial value could be carried in, so the refusal is honest
+  and the reason is that the carrier does not exist. **T020A adds it.** No
+  shipped scenario uses the owner.
+- **Narrowing a stored vocabulary makes older Drafts unreadable, and the
+  store fails closed.** Removing a blocking kind stopped every Draft written
+  before it from parsing, and because `create_run` lists the store to refuse
+  a duplicate identity, that stopped run creation entirely until the stale
+  documents were deleted. Free on unmerged data; not free after merge. There
+  is no migration path and no per-document quarantine, and one unreadable run
+  blocks the creation of every other. Checking identity by file name would
+  avoid it and is refused on purpose: identity is never read back out of a
+  file name. T020 reads this store and meets the same posture.
+- **The amendment to `D-2026-09-21-scenario-execution-contract`** for the
+  reversed ordering rule is Architect's and is pending.
 
 What T019 deliberately does not do: no execution, no step, no trace, no
 staging, no Commit, no ingestion, no Replay, no analytics, no Findings. No run

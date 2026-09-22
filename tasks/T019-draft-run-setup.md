@@ -3,9 +3,11 @@
 Status: in_review
 USER_REVIEW_REQUIRED: true
 
-Built on `task/T019-draft-run-setup`, from `main` at `a0dc56c`. Evidence is in
-`.agent/T019-review-packet.md`, including the layout measurement and the three
-deliberate violations that prove the new guard.
+Built on `task/T019-draft-run-setup`, from `main` at `a0dc56c`, and narrowed
+before merge by Amendment 1's proposals (e) and (j) - the two criteria at the
+end of the list below. Evidence is in `.agent/T019-review-packet.md`,
+including the layout measurement, the deliberate violations that prove each
+guard, and the disposition of the fourteen independent review findings.
 
 Intended branch: `task/T019-draft-run-setup`
 
@@ -56,6 +58,30 @@ state or treating a golden trace as authority.
 - Run setup does not infer cadence, source identity, or gateway identity from
   Site provenance, device display names, or source mode. The selected versioned
   model/publication profile must resolve those inputs or the run is `BLOCKED`.
+
+Added by Amendment 1 after the slice was built, and binding on it before merge
+(`.ai/PLANNING_HANDOFF_T019_T022.md`, T019; the proposals are (e) and (j)):
+
+- Run setup does not decide whether the causes a scenario declares reach a
+  reading the same scenario declares. It has no kernel, so that comparison is
+  not its to make: the observation blocking reasons, their call site, and the
+  `OBSERVATION_NOT_ACCOUNTED_FOR` member of the blocking vocabulary are gone,
+  and every remaining blocking kind is a statement about what the selected
+  profile can execute. The shipped Fuel Loss Draft blocks on three
+  `STATE_NOT_SUPPORTED` reasons rather than five. `BLOCKED` is unchanged as an
+  outcome: the shipped model profile still models neither site demand, nor
+  plane-of-array irradiance, nor the availability of the reporting path.
+- `reconcile_reported_observations` is labelled in the test suite as a
+  specification reference implementation rather than a product feature, with
+  its expiry stated as a condition and not a slice number
+  (`D-2026-09-22-expiry-follows-the-condition`). It stops being an authority
+  when a kernel exists and the two are compared, which is T021's comparison;
+  it leaves the repository when its last remaining product-path caller goes,
+  and that caller is the `observation_reconciliation` payload and the scenario
+  detail panel that renders it. When that happens is Open Question 5 and is
+  undecided, so T019 does not touch the panel, the payload, or the
+  reconciliation logic, and no slice before that decision treats the removal
+  as in scope.
 
 ## Protected Seams
 
