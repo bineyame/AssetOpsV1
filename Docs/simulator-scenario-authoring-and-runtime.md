@@ -21,9 +21,19 @@ What the acceptance produced, all on
   dependency structure, and the three seams this work surfaced.
 - `.ai/PLANNING_HANDOFF_T019_T022.md` — per-slice guidance for the Planner.
 
-No task file and no code have been changed to match this document. Task files
-are the Planner's; the code changes belong to the slices named in the
-per-task table below.
+**Revised 2026-09-22.** The user placed (g) in its own slice, **T021A**,
+between T021 and T022, rather than inside T022: the version-bump window is
+free only while no golden trace exists and T022 is what first produces one.
+T020A carries its own user-review checkpoint. And
+`D-2026-09-22-expiry-follows-the-condition` corrects two expiries this
+document stated as slice numbers — the reference implementation's removal
+follows its last remaining caller and is gated on Open Question 5, and
+T021 retires the `READY` disclosure because its conformance test is what makes
+the disclosure false.
+
+No code has been changed to match this document. Task files are the Planner's
+and now exist for T019 through T023; the code changes belong to the slices
+named in the per-task table below.
 
 Date: 2026-09-21. Author: Architect (Claude), at the user's request following
 the T019 checkpoint consults.

@@ -354,7 +354,7 @@ section only names milestone order, demo readiness, and review checkpoints.
 | M0: Site Foundation Fidelity | T009-T013 | Prototype walkthrough foundation. Not client-demo-ready. | T006 and T008 checkpoints already cover the product-language decisions; fidelity slices do not add one. |
 | M1A: Topology, Devices, Signals, And SLD | T014-T016 | Configured physical model and SLD become real. Still no operational evidence. | User review for SLD archetype, incompatible-topology treatment, and device/signal wording. |
 | M1B: Scenario Catalog And Run Setup | T017-T019 | Simulation authoring and run setup become real against configured Site anchors. | User review for taxonomy/public-private semantics, executable roles, initialization/timing, and run setup language. |
-| M1C: Prototype Walkthrough: Causal Runtime | T020, T020A, T021, T022 | A minimal causal kernel drives the Simulator Lab; generated golden traces support regression/playback, and runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. |
+| M1C: Prototype Walkthrough: Causal Runtime | T020, T020A, T021, T021A, T022 | A minimal causal kernel drives the Simulator Lab; generated golden traces support regression/playback, and runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. T020A adds its own checkpoint on the Foundation property vocabulary. |
 | Demo Ready v1: Simulated Evidence Loop | T023-T029 | Earliest honest client-ready mini-grid demo. | User review after T029. |
 | Demo Ready v1.5: Cold-Chain Evidence Loop | T030-T033 | Cold-chain demo after a truthful cold-chain model exists. | User review for cold-chain wording and domain claims. |
 | Demo Ready v2: Evidence-Backed Operational Findings | T034-T038 | First business-outcome demo. | User review after T038. |
@@ -667,8 +667,11 @@ Causal prerequisites:
   name suggests it says so. `READY` means every required executable input
   resolved and the selected model profile declares it can consume them; it does
   not mean a kernel can execute them, and it discloses that until a conformance
-  test derives the supported set from the kernel. See
-  `D-2026-09-21-run-setup-outcome-vocabulary`.
+  test derives the supported set from the kernel. The disclosure names that
+  condition rather than a slice, and the slice that lands the test retires it,
+  because that is the slice that makes it false. See
+  `D-2026-09-21-run-setup-outcome-vocabulary` and
+  `D-2026-09-22-expiry-follows-the-condition`.
 
 Candidate tasks, after review:
 - Build Simulator Lab shell with run header, tabs, controls, and a paused Draft
@@ -1021,6 +1024,10 @@ Semantics to decide:
 - An execution or readiness status states what it checked. Where the check is
   weaker than the word, the record and the screen say what is not asserted
   until something verifies it structurally.
+- Anything that exists only because a condition holds names the condition as
+  its expiry, not a slice number. A claim that has become false goes in the
+  slice that falsifies it; a thing still honest goes when someone decides to
+  remove it.
 
 ## Candidate Vertical Slices
 
@@ -2190,6 +2197,10 @@ Divide into slices:
   parser-level separation rather than presentation-only hiding.
 - Run setup selection of Site, scenario, interval, timestep, seed, duration,
   and speed defaults.
+- T021A: reported observations carry no execution requirement. Belongs to this
+  feature by content and lands in the M1C range by sequence, because the
+  contract-version move it carries is free only while no golden trace exists
+  and T022 is what first produces one. See the M1C sequencing revision.
 
 M1B planner sequencing:
 - T017 carries the checkpoint on a gated Fuel Loss Event detail screen. It puts
@@ -2246,9 +2257,19 @@ Divide into slices:
   properties on components beyond the single `rating` scalar, a
   `FoundationBinding` that can address one, and a `SupportedState` carrier for
   model-rule values, so the generator's specific fuel consumption can leave the
-  scenario and describe the machine.
+  scenario and describe the machine. Carries its own user-review checkpoint on
+  the property vocabulary and its units.
 - T021: minimal causal Fuel Loss kernel with explicit initialization,
-  deterministic step/event cursor, and fuel-tank/generator state.
+  deterministic step/event cursor, and fuel-tank/generator state. Also retires
+  T020's `READY` disclosure, because its conformance test is what makes the
+  disclosure false.
+- T021A: reported observations carry no execution requirement. The strict
+  parser gives `execution_requirement` no position on a `REPORTED_OBSERVATION`,
+  the shipped document's reported-observation entries lose the field, and
+  `EXECUTION_CONTRACT_VERSION` moves 2 to 3 and reaches the frozen identity of
+  runs set up after it. Contributes to the Scenario Catalog And Run Setup
+  feature rather than to this one; it sits in this range because of when it has
+  to happen, not because of what it is about.
 - T022: Lab execution, supported runtime bindings, and the minimal device
   observation transform needed for truth/reported-value comparison, plus
   reproducibly generated golden traces for regression/playback. Unsupported
@@ -2260,27 +2281,41 @@ Divide into slices:
 
 #### The 2026-09-21 sequencing revision
 
-The sequence gains one insertion and one loop. Nothing is reordered, and
-nothing in front of the insertion is blocked.
+The sequence gains two insertions and one loop. Nothing is reordered, and
+nothing in front of either insertion is blocked.
 
 ```
-  T019 ───► T020 ───► T020A ───► T021 ─────────────► T022 ───► T023 ─► ...
-  narrowed  unchanged  NEW        kernel               (f) lands
-  by (e)    plus (l)   (k)        + TRAJECTORY         (g) lands
-  and (j)   disclosure Foundation   oracle (i)
-                       properties  + supported_states
-                       and          conformance (l)
-                       carriers    + run against the
-                         │          shipped document
-                         │              │      ▲
-                         │              └──────┘
-                         │           document corrected
-                         │           from what the kernel
-                         │           computed
-                         │
-  decision on the REQUIRED forcing states is still due BEFORE
-  T021's task file is written, because it decides the kernel's scope
+  T019 ──► T020 ──► T020A ──► T021 ───────────► T021A ──► T022 ──► T023 ─► ...
+  narrowed unchanged NEW       kernel            NEW       (f) lands
+  by (e)   plus (l)  (k)       + TRAJECTORY      (g)
+  and (j)  disclosure Foundation  oracle (i)     contract
+                     properties + supported_     version
+                     and          states         2 ► 3
+                     carriers     conformance (l)
+                       │        + retires T020's
+                       │          disclosure
+                       │        + run against the
+                       │          shipped document
+                       │              │      ▲
+                       │              └──────┘
+                       │           document corrected
+                       │           from what the kernel
+                       │           computed
+                       │
+  the dispatched-output half of the REQUIRED forcing-state decision is due
+  BEFORE T020A is implemented, because it fixes the coefficient's unit
+  the rest of that decision is due BEFORE T021's task file is written,
+  because it decides the kernel's scope
 ```
+
+**Why T021A is its own slice.** The version-bump window is free only while no
+golden trace exists, and T022 is the slice that first produces one. Folding
+(g) into T022 would make that slice's internal ordering load-bearing — the
+parser change would have to land before the trace generation inside one
+slice — and would close the window entirely if T022 were ever split. It sits
+after T021 because the kernel never reads `execution_requirement` on a
+reported observation, so nothing about the kernel depends on it either way.
+Decided by the user on 2026-09-22.
 
 **Why T020A is an insertion and not a narrowing.** Two of the three changes in
 this revision withdraw overreach: run setup stops adjudicating cause-to-
@@ -2316,8 +2351,10 @@ T021, not a resequencing.
 | --- | --- | --- |
 | T020 | T019's persisted Drafts | an inventory over nothing |
 | T020A | T020 only for sequencing; independent of the kernel | nothing blocked in front of it |
+| T020A | the `dispatched-output` half of the forcing-state decision, before implementation | a Foundation property in the wrong unit, and a later unit migration on a Foundation document and on MG-001 |
 | T021 | T020A's Foundation coefficient and model-rule carrier | a first kernel whose physics arrive from the scenario, teaching every later kernel to do the same |
-| T021 | the `REQUIRED` forcing-state decision, before its task file | a kernel scoped by accident |
+| T021 | the rest of the `REQUIRED` forcing-state decision, before its task file | a kernel scoped by accident |
+| T021A | T019's narrowing, merged | a version move whose free window has closed, or a parser change that alters a run-setup outcome |
 | T022 | T021's kernel and its reported trajectory | an observation transform with no truth to sample, and a document that still authors the readings it is meant to generate |
 | T022 | the corrected Fuel Loss document | a generated reading and an authored reading disagreeing on the same screen |
 
@@ -2326,12 +2363,12 @@ T021, not a resequencing.
 | | Proposal | Slice |
 | --- | --- | --- |
 | (e) | run setup does not adjudicate coupling | T019, before merge |
-| (j) | reconciliation becomes a labelled test-only reference implementation | T019, with (e) |
-| (l) | `READY` disclosure | T020; its conformance test in T021 |
+| (j) | reconciliation becomes a labelled test-only reference implementation | T019, with (e); its comparison against the kernel in T021; its removal follows its last caller and is undecided |
+| (l) | `READY` disclosure | T020; its conformance test and the disclosure's retirement in T021 |
 | (k) | Foundation properties and owner carriers | T020A |
 | (i) | `TRAJECTORY` oracle kind | T021 |
+| (g) | `execution_requirement` forbidden on a reported observation | T021A |
 | (f) | observations are generated, not authored | T022 |
-| (g) | `execution_requirement` forbidden on a reported observation | T022, or a small slice before it |
 | (h) | projection versus composition | `.ai/ARCHITECTURE.md`; no code slice |
 
 #### Seams this sequence surfaced
@@ -2376,11 +2413,13 @@ each is named here so a slice does not settle it by accident.
   `NON_EXECUTABLE_CONDITION`, so nothing computes it and the generator
   controller, which Foundation says can publish `ac-power`, has nothing to
   publish. The Foundation coefficient arrives with T020A. Promoting generator
-  output to a forcing input is part of the forcing-state decision due before
-  T021's task file, and it has two payoffs: the controller gains something to
+  output to a forcing input has two payoffs — the controller gains something to
   publish, and an energy-based consumption rule becomes available instead of a
-  runtime-based one. The seam that holds whichever way it goes: the product's
-  coefficient comes from Foundation, never from the scenario's private rate.
+  runtime-based one — and because the second payoff decides the coefficient's
+  unit, that promotion is due **before T020A is implemented**, earlier than the
+  rest of the forcing-state decision. The seam that holds whichever way it
+  goes: the product's coefficient comes from Foundation, never from the
+  scenario's private rate.
 
 Seams inside the feature: simulator/product boundary, deterministic identity,
 truth versus reported values, projection versus composition, physical-property
@@ -2486,22 +2525,37 @@ and operator consequence.
 - M1C carries live questions that the 2026-09-21 proposals did not close.
   `Docs/simulator-scenario-authoring-and-runtime.md` has all twelve with the
   reasoning; these are the ones that gate a slice:
-  - **Before T021's task file:** the four kernel semantics the execution
-    contract does not yet pin — window apportionment, whether a sample sees
-    pre- or post-event state within a step, what a forcing is outside its
-    declared window, and whether a run continues after a bounded change. Each
-    would let two conforming kernels disagree, so each is contract-version
-    business and must be declared rather than left to whoever writes T021.
-    Also due here: the `REQUIRED` forcing states, model-profile versus
-    publication-profile authority over the reporting path, and whether
-    generator output is promoted to a forcing input.
+  - **Before T020A is implemented:** whether `dispatched-output` is promoted
+    to a `FORCING_INPUT` on `generator-output-power`. It is half of the
+    `REQUIRED` forcing-state decision and it is the half that arrives earliest,
+    because it fixes the canonical unit of the Foundation consumption
+    property: a runtime-based model rule wants `L/h`, an energy-based one wants
+    `L/kWh` and a generator-output forcing to multiply it by. T020A writes that
+    property into the shipped template and into MG-001, so choosing in T020A
+    and changing later is a unit migration on a Foundation document. Only the
+    shipped value waits on it; the carriers are the same either way.
+  - **Before T021's task file:** the rest of the `REQUIRED` forcing-state
+    decision — what happens to `site-load-demand`,
+    `plane-of-array-irradiance` and `fuel-level-reporting-availability`, and
+    whether reporting-path authority moves from the model profile to the
+    publication profile. And the four kernel semantics the execution contract
+    does not yet pin: window apportionment, whether a sample sees pre- or
+    post-event state within a step, what a forcing is outside its declared
+    window, and whether a run continues after a bounded change. Each would let
+    two conforming kernels disagree, so each is contract-version business and
+    must be declared rather than left to whoever writes T021.
   - **During T021:** what the Fuel Loss document should author. The removal
     magnitude, and whether the 300 L delivery that overfills a 254 L tank
     against a 500 L capacity is reduced or kept deliberately as a second
     evidence puzzle.
-  - **With T022:** when the `observation_reconciliation` panel leaves the
-    scenario detail screen. Removing a visible panel on merged work is a
-    product change that belongs to a slice that says so.
+  - **Undecided, and it gates a removal:** when the
+    `observation_reconciliation` panel leaves the scenario detail screen.
+    Removing a visible panel on merged work is a product change that belongs
+    to a slice that says so, and the panel is still honest while the document
+    still contains two authored readings. It is the reference implementation's
+    last remaining product-path caller, so that function cannot leave the
+    repository until this is answered. The Architect read recommends it goes
+    with (f) in T022; that is a recommendation, not a decision.
   - **Not yet scheduled:** the `MAGNITUDE` oracle's tolerance is a picked
     number and no mutation test proves any oracle can fail; the implicit
     volume floor in the validation layer now has a destination but no slice;

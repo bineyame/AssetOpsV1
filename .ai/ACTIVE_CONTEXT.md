@@ -44,9 +44,11 @@ Twelve of them, (a) through (l), reasoned in
 `.ai/DECISIONS.md` entries dated 2026-09-21. The consequences that change
 planning: run setup stops adjudicating cause-to-observation coupling, so the
 shipped Draft blocks on three reasons rather than five; a scenario stops
-authoring what a device reads; a new slice **T020A** is inserted between T020
-and T021 for Foundation physical properties and model-rule carriers; and the
-Fuel Loss document is corrected during T021 from what the kernel computes.
+authoring what a device reads; two slices are inserted — **T020A** between
+T020 and T021 for Foundation physical properties and model-rule carriers, and
+**T021A** between T021 and T022 to close `execution_requirement` on reported
+observations while the version-bump window is still free; and the Fuel Loss
+document is corrected during T021 from what the kernel computes.
 Read `.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task
 file in that range.
 
