@@ -26,6 +26,9 @@
 - `.ai/ACTIVE_CONTEXT.md`
 - `.ai/CODE_STATE.md`
 - `.ai/FEATURE_MAP.md`
+- `.ai/MILESTONE_REVIEW_BACKLOG.md` — what
+  `D-2026-09-22-milestone-speed-over-purity` carries rather than fixes; delete
+  when the milestone review has closed it out
 - `.ai/PLANNING_HANDOFF_T019_T022.md` — scoped Architect-to-Planner handoff;
   delete when its last slice closes out. The expiry is the condition and not a
   slice number, under `D-2026-09-22-expiry-follows-the-condition`: the file
@@ -33,6 +36,10 @@
   had to be re-checked each time the range grew.
 - `Docs/simulator-scenario-authoring-and-runtime.md` — the reference the
   2026-09-21 and 2026-09-22 simulator decisions cite
+- `Docs/declared-capability-and-what-checks-it.md` — Architect reflection on
+  why `cadence_resolution`, `supported_states` and OQ3 are one defect and not
+  three; records no decision. Delete when the pattern has a durable name or
+  the user decides it should not have one.
 - Active task file, after the user activates one planned task
 
 ## Historical

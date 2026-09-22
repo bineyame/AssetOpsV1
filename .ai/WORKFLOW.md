@@ -137,6 +137,18 @@ Provide concise evidence:
 
 The review packet is evidence, not implementation history.
 
+**For the rest of the simulator milestone, a Reviewer raises three things and
+records the rest.** Under `D-2026-09-22-milestone-speed-over-purity`: a defect
+that would be expensive to reverse later, a claim that would mislead an
+Implementer, and a decision only the user can take. Everything else - naming
+that is imperfect but honest, a redundant but true restatement, a vocabulary
+that would be better shaped and is not wrong - goes to
+`.ai/MILESTONE_REVIEW_BACKLOG.md` as a residual-risk entry rather than
+blocking the slice. *This would be better named* is a backlog entry; *this
+name is false* is still a finding, because a false name misleads. The complete
+review, including a possible refactor, follows milestone completion and proper
+testing, and the backlog is what it reads first.
+
 A slice is layout-sensitive when it changes shell layout, dense tables,
 intrinsic-width drawings, SVG geometry, tab or subtab treatment, or viewport
 behaviour. Such a slice runs `tools/layout-evidence.mjs` and records the exact

@@ -12,6 +12,15 @@ Size rule: this file stays under 200 lines, enforced by
 M1 - A user can configure one mini-grid site, simulate it, and inspect the
 resulting operational evidence in the UI.
 
+## Standing Direction
+
+**Speed over pedantic purity for the rest of the simulator milestone.** Stop
+only for a defect expensive to reverse later, a claim that would mislead an
+Implementer, or a decision only the user can take. Record everything else to
+`.ai/MILESTONE_REVIEW_BACKLOG.md` and carry it; the complete review, possibly
+a refactor, follows milestone completion and proper testing.
+`D-2026-09-22-milestone-speed-over-purity` governs every slice and review.
+
 ## Active Task
 
 Active task: none. **T019 is complete, accepted at user review on 2026-09-22,
@@ -22,14 +31,12 @@ settled in code is the T019 entry in `.ai/CODE_STATE.md`.
 `tasks/T020-runs-inventory-and-draft-shell.md`. It presents the Drafts T019
 writes to `var/runs/`, which nothing presents yet.
 
-T019 built the SimulationRun domain: a Draft is created from a scenario and a
-resolved Site, freezes the whole deterministic identity with an answerer for
-every value, persists behind its own port, and executes nothing. Cadence,
-simulator source identity and gateway identity come from the selected
-versioned profile or the run blocks - held by a module that cannot import a
-Site record at all. The shipped Fuel Loss Event blocks on three
-`STATE_NOT_SUPPORTED` reasons and cannot reach `READY` in this build;
-`READY` is proved on fixtures.
+T019 built the SimulationRun domain: a Draft freezes the whole deterministic
+identity with an answerer for every value, persists behind its own port, and
+executes nothing. Cadence and the two publication identities come from the
+selected profile - by a module that cannot import a Site - or the run blocks.
+The shipped Fuel Loss Event blocks on three `STATE_NOT_SUPPORTED` reasons and
+cannot reach `READY` in this build; `READY` is proved on fixtures.
 
 **What the T019 user review carried into T020.** Form defaults are wanted, and
 a default must be **visible and labelled** as a default, never a silent
@@ -83,14 +90,10 @@ between T021 and T022 to close `execution_requirement` while the version-bump
 window is still free. Read `.ai/PLANNING_HANDOFF_T019_T022.md` before writing
 or revising any task file in that range.
 
-Two of T018's four Low findings are closed by T019 and marked settled in
-place in `.ai/CODE_STATE.md`; two remain, the unmeasured second
-initialization layer and two forward constraints living only in comments.
-
 ## Current State
 
-M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.
-M1B is active: T017, T018 and T019 are complete; T020 is next.
+M1A is complete, T001-T016 are in `tasks/completed/` with Review Outcomes,
+and M1B is active: T017, T018 and T019 complete, T020 next.
 
 Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
 position is evidence, not configuration. The banned list lives in
@@ -118,8 +121,8 @@ machine has created, including the ones the layout tool creates.
   - `D-2026-09-21-run-setup-outcome-vocabulary` - the refusal line, the
     `READY` disclosure, and what T020 must show
   - `D-2026-09-21-scenario-execution-contract`
-  - `D-2026-09-22-forcing-state-requirements` - rider two only, the frozen-row
-    relabel T020 carries; the rest of that decision is T020B's
+  - `D-2026-09-22-forcing-state-requirements` - rider two, the relabel T020
+    carries; the rest is T020B's
 - `.ai/CODE_STATE.md` - T018, T019
 - `.ai/FEATURE_MAP.md`
   - `### 4. SimulationRun Runtime And Simulator Lab Shell`
@@ -145,11 +148,6 @@ machine has created, including the ones the layout tool creates.
   top-level stored entities. Future runtime injections are run-scoped
   SimulationRun intervention-history records and are not written back into the
   scenario version.
-- Scenario labels, scenario versions, run names, and `run_id` never become
-  `site_id`.
-- Private expectations are test-oracle metadata only. They never enter source
-  envelopes, accepted evidence, operator UI, normal product provenance, exports,
-  analytics, or Findings.
 - Scenario authors specify causes, external conditions/observations, and
   non-executable evidence conditions; they do not author computed private-state
   trajectories. T018 made those roles explicit and machine-readable, and made
@@ -159,12 +157,10 @@ machine has created, including the ones the layout tool creates.
 - A minimal deterministic causal kernel precedes authoritative golden traces.
   Generated traces are reproducible regression/playback artifacts bound to the
   exact frozen deterministic identity, never an alternate state authority.
-- M1B has no ingestion, no accepted evidence, no Draft run yet, and no Findings.
-  T017 and T018 screens must describe intention, not report outcome.
+- M1B has Drafts, and no ingestion, accepted evidence, execution or Findings.
+  A screen describes intention, not outcome, until something has run.
 - No invented digits: a count, timestamp, duration, seed, volume, confidence, or
   parameter value appears only when the record supplies it.
-- Dense tables and timeline layouts require browser layout evidence in the
-  review packet.
 
 ## Standard Checks
 

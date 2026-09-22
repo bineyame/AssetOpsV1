@@ -128,6 +128,18 @@ agreement. An authored value the system reads as fact is load-bearing; the same
 value compared against an independently computed one is an oracle. A scenario
 may carry oracles and may not carry consequences.
 
+**The same test governs configuration and provenance, not only authored
+expectations.** A declaration about who or what will supply something is worth
+storing only where being wrong causes a failure; where nothing can fail, the
+declaration is decoration and drifts. A binding resolved against a real record
+earns its place because it blocks when the record cannot answer. A field
+restating what the values beside it already say does not, because the only
+thing that checks it is the fact it restates. A capability declared in data
+with no falsifier yet is legitimate only while it discloses that, and the
+slice that can falsify it is what retires the disclosure. See
+`Docs/declared-capability-and-what-checks-it.md` for the three instances this
+was extracted from.
+
 ## Physical Property Ownership
 
 Four owners, and two swap tests that decide between them.
