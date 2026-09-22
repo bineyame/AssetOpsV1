@@ -322,6 +322,14 @@ describe("one draft run", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(DISCLOSURE)).toBeNull();
 
+    // A count, not a name. The assertion above names the button it expects
+    // to be missing, so an enabled button labelled anything else - "Proceed" -
+    // satisfied it. What "there is no run action to offer" means is that the
+    // screen carries no button at all.
+    expect(within(screen.getByRole("main")).queryAllByRole("button")).toEqual(
+      [],
+    );
+
     // And no link stands in for the button that is not here. The F1 fix
     // closed the link set on the READY screen; an anchor reading "Proceed"
     // then passed on this one, one branch over, because the absence asserted

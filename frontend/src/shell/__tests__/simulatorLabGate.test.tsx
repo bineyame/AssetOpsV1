@@ -144,6 +144,10 @@ const SIMULATOR_URLS = [
   "/simulator-lab/",
   "/simulator-lab/runs",
   "/simulator-lab/runs/run-1",
+  // The same screen's other branch. It is listed as a URL of its own because
+  // every claim in this file iterates URLs, so a branch that no URL reaches
+  // is a branch no claim has ever seen.
+  `/simulator-lab/runs/${BLOCKED_RUN_ID}`,
   "/simulator-lab/runs/run-1/truth",
   "/simulator-lab/execute",
   "/simulator",
@@ -151,13 +155,25 @@ const SIMULATOR_URLS = [
 ];
 
 /**
- * The Lab surfaces T020 added: the Runs inventory and one Draft.
+ * The Lab surfaces T020 added: the Runs inventory and one Draft, in each of
+ * its two execution states.
  *
  * They were execution URLs until T020, because nothing served them. They are
  * reads - which runs exist, and what one froze - and they serve no execution
  * of any kind, which is why the list below keeps everything else.
+ *
+ * The blocked identity is a member because this list is what the "no enabled
+ * control at all" claim iterates. Without it that claim visited the READY
+ * branch only, and an enabled button with a neutral label sat on the blocked
+ * branch through a green suite: the vocabulary ban could not see it, because
+ * "Proceed" is not a run word, and the closed link set could not see it,
+ * because a button is not an anchor.
  */
-const RUN_SURFACE_URLS = ["/simulator-lab/runs", "/simulator-lab/runs/run-1"];
+const RUN_SURFACE_URLS = [
+  "/simulator-lab/runs",
+  "/simulator-lab/runs/run-1",
+  `/simulator-lab/runs/${BLOCKED_RUN_ID}`,
+];
 
 /**
  * The gated shell itself. The trailing-slash form is the same route: the router
