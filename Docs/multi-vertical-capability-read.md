@@ -10,6 +10,66 @@ the repository contains today.
 
 ---
 
+## 0. Amendment, 2026-09-23, after the user's pushback
+
+The user pushed back on two claims in the first version and **was right about
+both.** This section says what moved and why; sections 5, 6, 7, 8 and 9 have
+been rewritten where they became false. The first version's sections 1 through
+4 stand.
+
+**What they said.** That "mini-grid's wedge is fuel" is a narrow view which
+discards the operational cost centres AssetOps can actually optimise —
+productive-use opportunity, battery degradation over time, curtailment,
+utilization — all of which have economic consequences that compound at
+portfolio level. And that they did not understand the insistence on an
+extremely narrow fuel-theft kernel when a mechanism could be designed that
+accommodates all three verticals while being populated mini-grid-first.
+
+**What was wrong, and it was mine.**
+
+1. **I collapsed a product into a finding.** "The wedge is fuel" took the first
+   *engineering milestone* — unaccounted fuel variance — and treated it as the
+   *commercial* entry point. They are not the same thing. That conflation then
+   did real work: "the first finding reads no power flow" is true, and I used
+   it to conclude that the physical families are ornament, via an unstated
+   premise that the first finding characterises the product. That premise is
+   false and I never defended it. The value is the compounding set of findings,
+   and findings two through N read power flow, state of charge and irradiance
+   directly.
+2. **The brief's 70% claim is substantially right and I demoted it with a
+   rigged test.** I tested it against the one finding that does not read power
+   flow. Test it against the cost centres actually named: diesel displacement
+   *is* the generation split; curtailment is a residual of the balance;
+   productive-use opportunity is surplus energy by hour; battery degradation
+   runs off the SOC trajectory that dispatch produces; utilization is
+   generation against capacity. Four of five read power flow and the fifth is
+   power flow. Section 5 is rewritten.
+3. **My T021 answer — "a registry with one entry, about an hour" — was the
+   minimum that let me keep saying yes to a narrow kernel.** The coordinator
+   asked directly whether it was sufficient. It is not, and the reason is
+   specific rather than philosophical: a registry of per-`state_key` transition
+   rules is a general mechanism *for independent states*, and every cost centre
+   the user named involves states that are **coupled within a single
+   timestep**. Section 6 replaces that recommendation.
+
+**And a gap in the planning record, not only in my document.** In
+`.ai/FEATURE_MAP.md` the words *productive*, *curtailment* and *utilization*
+appear zero times; *degradation* appears once, in `.ai/PRODUCT.md`. The mini-grid
+product has been narrowed to fuel reconciliation in the planning record itself,
+and my first version ratified that narrowing with an architectural argument
+rather than catching it. Where it should be recorded is in section 8.
+
+**What did not change, and why this is not a reversal of everything.** The
+sequencing conclusion survives: the evidence path is still the critical path,
+because a curtailment finding and a degradation finding need exactly the same
+unbuilt plumbing as a fuel finding — envelopes, ingestion, accepted evidence,
+read models, assessment. A richer world model with no path from it to a finding
+is a simulator, not a product. **I was right about the order and wrong about
+the reason, and the wrong reason produced wrong advice about shape.** Scope
+stays minimal; shape does not.
+
+---
+
 ## 1. The fact that reframes the whole brief
 
 `simulator/assetops_simulator/__init__.py` is thirteen lines long and its
@@ -168,12 +228,20 @@ evidence exists — no charts, no health, no fuel variance, no findings.
 So the mini-grid meeting has two honest shapes and you should pick one
 deliberately:
 
-- **Walk the built screens and narrate the finding.** Show the configuration
-  depth, which is real and is the part most competitors fake. Then show the
-  finding as an explicitly labelled storyboard — "this is what the product will
-  say, here is the evidence it will say it from, here is why it will not say it
-  until it can." That labelling is not a weakness in front of an operator; it
-  is the product's actual thesis made visible. This is available today.
+- **Walk the built screens and narrate the findings — plural.** Show the
+  configuration depth, which is real and is the part most competitors fake.
+  Then show the findings as an explicitly labelled storyboard — "this is what
+  the product will say, here is the evidence it will say it from, here is why
+  it will not say it until it can." That labelling is not a weakness in front
+  of an operator; it is the product's actual thesis made visible. This is
+  available today.
+  **Amended:** the first version said "the finding", singular, and meant fuel
+  variance. That is the wrong thing to narrate. The thesis is the compounding
+  set — diesel displacement, curtailment, productive-use headroom, battery
+  degradation, utilization, fuel variance — because the *compounding across a
+  portfolio* is the economic argument and any single finding is a demo. The
+  brief's own meeting question, *which of these problems is genuinely painful
+  today?*, presupposes a list. Walk in with the list.
 - **Wait for Demo Ready v1 plus the first finding.** That is `T023–T029` and
   `T034–T038`. Do not plan the meeting around it.
 
@@ -222,35 +290,61 @@ first e-mobility feature map. If it says it breaks, you have lost half a day.
 
 ## 5. How the capability set could be achieved, if you decide to
 
-### What is genuinely shared, and it is not power flow
+### What is genuinely shared — revised, because the first version got this wrong
 
-The brief's claim that the electrical power-flow model is "70%+ of the useful
-foundation across the three verticals" puts a defensible number on the wrong
-family. Test it against the three wedges:
+The first version said the brief's "70%+ of the useful foundation" claim put a
+defensible number on the wrong family. That was wrong, and the way it was wrong
+is instructive: I tested the claim against one finding rather than against the
+product.
 
-- Mini-grid's wedge is fuel: consumption against dispatch, variance, theft or
-  leak or mis-recording. Power flow is context, not the computation.
-- Cold-chain's wedge is temperature excursion and spoilage exposure. Power flow
-  matters only as *was the compressor powered*, which is one availability
-  signal, not a flow model.
-- E-mobility's wedge, per the brief's own metrics, is sessions per day, missed
-  sessions, queue wait, energy cost and throughput. That is scheduling and
-  session accounting under a site power limit — one scalar constraint, not a
-  bus balance.
+**Mini-grid is not one wedge, it is a set of compounding cost centres**, which
+is what the brief said and what the user restated. Take the ones they named and
+ask what each computation reads:
 
-Power flow is the mini-grid pack's largest single item. It is not the kernel's.
+| Cost centre | What the finding computes | Reads |
+| --- | --- | --- |
+| Fuel variance | Consumption against dispatch, versus records | Fuel stock, dispatch, a coefficient. **No power flow.** |
+| Diesel displacement | Share of load served by PV and battery versus genset | The generation split — this *is* the power balance |
+| Curtailment | Energy available and not absorbed, priced | Generation, load, battery acceptance, limits — the balance's residual |
+| Productive-use opportunity | Surplus energy by hour that a new load could absorb | Same balance, read as headroom |
+| Battery degradation | Stress from depth of discharge, C-rate, throughput, temperature | SOC trajectory, which dispatch produces |
+| Utilization | Delivered against installed capacity, over a window | Integrated flows |
 
-What *is* 70% shared is the skeleton that has no domain content in it at all:
+One of six reads no power flow, and it is the one I built the whole argument
+on. **The brief is right that the electrical balance is the single largest
+shared item, and the user is right that the value is the compounding, not any
+one finding.**
+
+The refinement worth keeping — and it is a refinement, not a rescue, because it
+changes what you build — is that what transfers between verticals is not a
+mini-grid power-flow model waiting to be generalised. It is a **balance-and-
+allocate step**: given the exogenous conditions and the current stored
+quantities, resolve this timestep's flows under limits and a policy. Mini-grid
+populates it with generation, load, battery power, curtailment and unserved
+load. A depot populates it with grid import, stationary battery and charger
+allocation under a site limit. A cold room populates it with compressor duty
+under a thermostat. Same position in the step, different occupants. That is
+what a kernel-plus-pack architecture is for, and section 6 is where it becomes
+a concrete recommendation about T021.
+
+The first version also said a depot's constraint is "one scalar, not a bus
+balance." That was minimising to protect a conclusion. A depot with solar, a
+stationary battery, several chargers and a site limit is the same equation with
+different terms populated.
+
+The rest of what is shared is the skeleton with no domain content in it at all:
 family 1 (deterministic time, state, step ordering), family 3's forcing
 mechanism (not its physics), family 17 (a device samples a state through a
 transform at a cadence), family 18 (envelope, gateway, ingestion), family 22
 (truth versus observed versus claimed), family 16's record mechanism, family 20
 (clone a frozen identity and vary one input), and family 23 (economics held
-separate from physics). Those eight are the kernel. They are also, with the
-exception of 20 and 23, exactly the eight the current roadmap already
-sequences. That is a strong result: **the existing plan is already building the
-shared 70%, and it is building it for mini-grid because you have to build it
-for something.**
+separate from physics). Add the balance-and-allocate step above, which is
+family 2's *mechanism* without family 2's content. Those nine are the kernel.
+
+The existing plan already sequences seven of them, and it is building them for
+mini-grid because you have to build them for something. What it does not
+currently sequence is the balance step and the economics dimension, and those
+two are the substance of the user's objection.
 
 ### The seam that makes packs possible already exists
 
@@ -272,6 +366,15 @@ That is the domain-pack boundary, in code, today, with a CI guard on the
 dependency direction and a run-setup check that fails the build if a Site fact
 reaches a cadence. Nobody planned it as a multi-vertical seam and it is one.
 
+**But it is only half a seam, and the first version treated it as the whole
+one.** `supported_states` declares *which* states a profile models. It says
+nothing about *how a step computes them*, and that is where coupling lives. A
+profile listing `pv-output`, `battery-state-of-charge`, `site-load-demand` and
+`curtailed-power` tells you those four states are modelled and gives no account
+of the fact that none of them can be computed without the other three. The
+declaration seam generalises cleanly; the execution seam does not exist yet,
+and T021 is the slice that creates it.
+
 ### Sequencing, if the three verticals are ever actually wanted
 
 One ordering principle: **a pack is worth building only after the evidence path
@@ -289,19 +392,59 @@ world model with nowhere to send its output.
 3. Second pack second, chosen by whichever meeting produced a real contact and
    a real pain, not by which one has the nicer physics.
 4. Families 19, 20, 21, 23 — recipe packs, what-if comparison, portfolio
-   generation, economics — are the demo-polish layer and are cheap once a
-   finding exists and the run identity is frozen, which it already is. They are
-   ornament before then, and expensive ornament, because each one needs a world
-   to operate on.
+   generation, economics — are cheap once a finding exists and the run identity
+   is frozen, which it already is. Family 23 is the exception the user's
+   objection surfaces: every cost centre they named is a flow times a price,
+   and `CANONICAL_UNITS` has no monetary dimension. Economics is a unit-system
+   change, so it is cheap only in the sense that it is small, not in the sense
+   that it is late.
 
-### Load-bearing versus ornament for the first finding
+### Load-bearing versus ornament — corrected
 
-Load-bearing: 1 (narrow), 7, 16 (minimal), 17 (cadence and gap; bias is what
-makes the finding *interesting* rather than arithmetic), 18, 22. Six families,
-four of which have a built contract already.
+The first version said fourteen families were "ornament until much later" and
+listed 2, 4, 5, 12, 13 and 21 among them. **That was the error, and it is worth
+naming rather than quietly editing.** Those six are not ornament; they are the
+*content* of the findings after the first. Calling them ornament was what let
+the physical half of the brief look optional.
 
-Ornament until much later: 2, 4, 5, 8, 9, 10, 11, 12, 13, 14, 19, 20, 21, 23.
-Fourteen families, none of which the first finding reads.
+Three tiers, which is what the first version should have had:
+
+- **Load-bearing for finding one:** 1 (narrow), 7, 16 (minimal), 17 (cadence
+  and gap — bias is what makes the finding interesting rather than arithmetic),
+  18, 22. Six families, four with a built contract already.
+- **Load-bearing for the mini-grid product, and therefore for the commercial
+  case the meeting rests on:** 2, 3, 4, 5, 6, 12, 13, 14, 21, 23. These are
+  diesel displacement, curtailment, productive use, degradation, utilization
+  and their portfolio roll-up. They are not needed for finding one and they are
+  not optional for the product.
+- **Genuinely later:** 8, 9, 10, 11 (the other two verticals' physics), 15, 19,
+  20.
+
+The practical consequence, and it is the whole of section 6's revision: **the
+first tier tells you what to build next; the second tells you what shape to
+build it in.**
+
+### How much later is "later", and does the fuel kernel obstruct?
+
+The user asked this directly. Concretely, per cost centre, assuming the fuel
+kernel ships as the first version recommended it — per-state transition rules,
+integrated stocks only:
+
+| Cost centre | Needs beyond the fuel kernel | Does that kernel help or obstruct? |
+| --- | --- | --- |
+| Fuel variance | Nothing | It is this |
+| Diesel displacement | Coupled resolution of generation, load, battery; per-step flows | **Obstructs.** Both are absent from the step's contract |
+| Curtailment | The same, plus curtailment as an explicit residual flow | **Obstructs**, same reason |
+| Productive-use opportunity | The same headroom, plus a monetary dimension | **Obstructs**, plus family 23 |
+| Battery degradation | An SOC stock and a stress stock whose flow derives from other states | **Obstructs** if flows are not emitted; **free** if they are |
+| Utilization | Flows integrated over a window | **Obstructs** if flows are not emitted |
+
+Five of six are flow consumers and none is served by a stock-only kernel. So
+the answer to "does a fuel-only kernel buy one finding and then a rebuild?" is
+**yes, if it is built to the first version's recommendation** — and the rebuild
+would land after T022's execution UI, T023's typed records and the first golden
+traces are all sitting on the step contract it changes. That is the expensive
+retrofit the user was pointing at, and the first version did not see it.
 
 ---
 
@@ -341,34 +484,84 @@ irradiance profile. Settling it now for one vertical settles it for three. This
 is the multi-vertical investment already in the plan, and it is already paid
 for.
 
-### T021 — Minimal Fuel Loss causal kernel
+### T021 — Minimal Fuel Loss causal kernel — REVISED
 
-**One thing, and it costs about an hour inside the slice.**
+The first version asked for a `state_key` → transition-rule registry with one
+entry, about an hour. **That was insufficient, and the coordinator was right to
+ask whether it was the minimum that let me keep saying yes to a narrow
+kernel.** It was.
 
-`.ai/ARCHITECTURE.md` already mandates the right interface: "initialization
-plus a step operation over current state, simulation time, timestep, and events
-due in that step." That is generic. The risk is not the signature, it is the
-body: a step that reads `state.fuel_volume` and writes `state.fuel_volume`
-directly is a fuel-tank kernel wearing a generic signature, and the second
-state key rewrites it.
+A registry of per-state transition rules is a general mechanism **for
+independent states**. Fuel tank volume is independent: its change depends on
+its own value and on the events due this step. Every state in every cost centre
+the user named is **coupled within the timestep** — battery SOC cannot be
+computed without dispatch, dispatch cannot be computed without generation and
+load, and curtailment is the residual of all three. A registry that applies
+each state's rule in turn has no way to express that, so the first coupled
+model does not add an entry: it replaces the step's contract. That is the
+rebuild.
 
-What I would ask for: **the mapping from `state_key` to transition rule is a
-registry, with one entry, and a test that asserts it.** Not a plugin system,
-not a pack loader, not an extension point — a dict and a conformance test that
-the kernel's supported state keys equal the model profile's
-`supported_states`. T021 already has a conformance test in scope (its
-UI-verifiable outcome is that the profile's executability claim is backed by a
-test rather than a hand-written tuple), so this is a shape requirement on work
-already being done rather than new work.
+**The revised recommendation: the step is three phases, and the fuel case
+exercises all three.**
 
-Why it is worth stopping for under the speed-over-purity rule: it qualifies as
-a defect expensive to reverse. The first kernel sets the shape every kernel
-after it copies — that sentence is already in T020A's own rationale about the
-coefficient — and after T022 there are golden traces bound to it.
+1. **Forcings and events.** Resolve the exogenous conditions for this step —
+   the scenario's forcing inputs, the events due at this boundary. Fuel case:
+   `generator-output-power` is 45 kW for this step, from the forcing T020A
+   promotes.
+2. **Resolve this step's flows**, given those conditions, the current stored
+   quantities, the declared limits and a policy. Fuel case: consumption is
+   specific consumption times energy delivered — one term, no simultaneity.
+   Mini-grid later: the bus balance with curtailment and unserved load as
+   residuals. Depot: charger allocation under the site limit. Cold room:
+   compressor duty under a thermostat.
+3. **Integrate the stored quantities** over the timestep using those flows,
+   under the bound cases T018 and T020B already contract. Fuel case: volume
+   decreases by the consumption flow, clamped at the Foundation capacity; the
+   `unaccounted-fuel-removal` event is an event-driven flow into the same
+   phase.
 
-**What I would not add to T021:** any second state. Not PV, not battery, not a
-generator state machine. The registry with one entry proves the shape. A second
-entry proves nothing more and costs a week.
+Phase 2 is **not a stub in the fuel case**. It converts a forcing in kW into a
+flow in litres per step via a model rule, which is exactly the work T021 is
+writing anyway. This is not speculative generality — it is naming a phase the
+slice already contains, so that the position exists before something has to
+occupy it non-trivially.
+
+**Second, and this is the one I now think is most expensive to retrofit: flows
+are first-class alongside stocks.** A stock is integrated state — volume, state
+of charge, chamber temperature, accumulated stress, cumulative energy. A flow
+is a per-step rate — consumption, charge and discharge power, cooling power,
+curtailed power. If the kernel emits only stocks, then curtailed kWh, served
+kWh, delivered energy and every other economic quantity has nowhere to come
+from, because **every economic bucket in the brief is a flow times a price,
+integrated.** Family 13, the stress accumulator, also stops needing any new
+machinery: it is a stock whose flow derives from other states. Emitting the
+consumption flow that T021 computes and currently would discard costs almost
+nothing.
+
+**And the stock-only assumption breaks inside T022, not years later.** T020A
+promotes `dispatched-output` to a forcing on `generator-output-power`, and the
+feature map's stated payoff is that the generator controller — which Foundation
+already says can publish `ac-power` — finally has something to publish. Power
+is a flow. So the first observable flow arrives in the slice immediately before
+the kernel, and a stock-only kernel cannot serve it. That is a defect inside
+the current plan, not a hypothetical about a second vertical.
+
+**What this costs.** One to two days inside T021, against the first version's
+one hour. Retrofitted after T022 and T023: a change to the runtime step
+contract, an `EXECUTION_CONTRACT_VERSION` move, regeneration of every golden
+trace, and edits to T022's execution presentation and T023's typed records. It
+passes the project's own stated test for stopping in
+`D-2026-09-22-milestone-speed-over-purity` — "a persisted shape, a contract
+version, an identity space, a published seam" — on all four counts.
+
+**What I still would not add to T021, and the line matters more now than
+before.** No second state. Not PV, not battery, not a generator state machine.
+Phase 2 has one trivial occupant, the profile still supports one state, and the
+shipped scenario still blocks on demand and irradiance. **Scope stays minimal;
+only shape changes.** If this concession is read as licence to build the
+power-flow model in T021, it has been read wrong — the argument for the shape
+is precisely that it lets you defer the content without paying for the deferral
+later.
 
 ### T021A — Reported observations carry no execution requirement
 
@@ -399,6 +592,14 @@ either way, there is exactly one row, and the frozen publication profile is
 already the natural place for the declaration to live. Cost of retrofitting it
 after T023 exists and golden traces are bound to it: a contract version move
 and a trace regeneration.
+
+**Added in the amendment: the transform must sample flows as well as stocks.**
+A fuel level sensor reads a stock; a power meter reads a flow; an energy meter
+reads an integrated flow. With T020A promoting generator output, the generator
+controller's `ac-power` signal is a flow and is publishable in this very slice,
+so both cases are exercised in T022 rather than one being anticipated. A
+transform keyed by (state key, signal) that only knows how to sample a stored
+quantity is the same defect as a stock-only kernel, one layer up.
 
 The related note: T022 already carries an open question about whether the
 operator's hand reading declares a reading error. That is the first instance of
@@ -433,12 +634,15 @@ envelope is not accidentally shaped around "the simulator staged this."
 | --- | --- |
 | T020A | None. Already carries the generic Foundation property carrier every pack needs. |
 | T020B | None. Already settles the kernel semantics every pack inherits. |
-| T021 | One: state-key → rule registry with one entry, plus the conformance test the slice already plans. ~1 hour. |
+| T021 | **Revised.** Three-phase step (forcings → resolve flows → integrate stocks) with a one-term phase 2, state keyed by `state_key`, and flows emitted alongside stocks. ~1–2 days, not the ~1 hour first claimed. |
 | T021A | None. |
-| T022 | One: make the observation transform table-driven by (state key, signal) rather than fuel-specific. Plus answer the reading-error open question yes. Small inside the slice, a version move afterwards. |
+| T022 | One: make the observation transform table-driven by (state key, signal) rather than fuel-specific, **and able to sample a flow as well as a stock**. Plus answer the reading-error open question yes. Small inside the slice, a version move afterwards. |
 | T023 | None. One naming caution on the typed-record allowlist. |
 
-Nothing in the brief justifies adding, reordering or deferring a slice.
+Still nothing in the brief justifies adding, reordering or deferring a slice.
+The revision is entirely about the shape of two slices already in the queue,
+which is what the user was pressing on and what the first version answered too
+cheaply.
 
 ---
 
@@ -456,6 +660,13 @@ Nothing in the brief justifies adding, reordering or deferring a slice.
   is the urge to make the shipped scenario stop blocking by adding physics —
   the right fix, which T020B already does, is to lower those two forcings to
   optional and disclose them as unsupported.
+  **The amendment sharpens this rather than reversing it.** Scope and shape are
+  different decisions and the first version ran them together. Widening the
+  kernel's *scope* — a second modelled state — is still wrong in T021.
+  Widening its *shape* so a second state can arrive without replacing the step
+  contract is now required. The test for anything proposed for T021: does the
+  model profile still support exactly one state when the slice closes? If yes,
+  it is shape. If no, it is scope, and it does not belong.
 - **Do not treat the e-mobility conversation as a product requirement.** The
   brief itself calls it exploratory and asks the contact to say where it
   breaks. Writing a charger model before that conversation converts free
@@ -514,22 +725,64 @@ Nothing in the brief justifies adding, reordering or deferring a slice.
    the abstraction, the preparation is half a day of static frames. If you feel
    you need e-mobility pixels that move, that is a real build and it should be
    a decision taken with its cost visible, not absorbed into a slice.
-6. **Does the "change policy → world changes" demo mechanic matter to you?**
-   It is the brief's most compelling single idea and it has no owner in the
-   current four-owner model, because no controller exists. If you want it, the
-   place it enters is whenever the first controller does — and that is a
-   decision about a fifth property owner, not a slice.
+6. **The fifth owner is no longer an open question — it is a gap, and the only
+   open part is when you close it.** The first version asked whether the
+   "change policy → world changes" mechanic mattered to you. Your own list
+   answers it: curtailment, dispatch and reserve are *controller* behaviour,
+   and if the economic case rests on them then a property-ownership model with
+   four owners and no place for policy will be retrofitted under pressure by
+   whoever builds the first controller. What is *not* urgent is deciding the
+   owner. Phase 2 of the revised step is where a controller sits, so naming
+   that position in T021 costs nothing and gives the decision somewhere to land
+   later. Deciding who owns a reserve threshold — Foundation, model profile,
+   scenario, or a new policy owner — can wait until something reads one.
+
+### Where the planning-record gap should be recorded
+
+Not edited in this pass, as instructed, but named precisely so it does not get
+lost:
+
+- **`.ai/FEATURE_MAP.md`, *Open Questions Before Task Breakdown*.** The
+  question is a product-scope one only the user can answer: *is the mini-grid
+  product fuel reconciliation, or a portfolio of operating-economics findings
+  of which fuel is the first?* Everything else follows from the answer.
+- **`.ai/FEATURE_MAP.md`, *Early Feature: First Product Conclusion Chain*
+  (`T034–T038`).** Its slice list is generator runtime assessment, fuel
+  reconciliation, variance and Finding promotion — four fuel slices. If the
+  answer to the question above is "a portfolio", this section is where diesel
+  displacement, curtailment, productive-use opportunity, degradation and
+  utilization become named future slices with causal prerequisites, which is
+  the form this document deliberately does not take.
+- **`.ai/MILESTONE_REVIEW_BACKLOG.md`** for the observation that the words
+  *productive*, *curtailment* and *utilization* appear zero times in the
+  feature map today, so the omission is on the record even if the scope
+  question is answered later.
 
 ---
 
-## 9. The headline
+## 9. The headline — revised
 
-The brief's architecture is right and its inventory is wrong by about a year.
-The shared 70% is not the power-flow model; it is the time-state-observation-
-envelope-ingestion-truth skeleton, and the current roadmap is already building
-it. Nothing in the brief changes what T020A, T020B, T021A or T023 should do.
-Two slices carry a cheap seam worth getting right now — a state-key registry in
-T021 and a table-driven observation transform in T022 — and both are shape
-requirements on work already planned rather than new scope. Neither meeting
-needs a vertical built for it; the mini-grid meeting needs a thesis and a
-shopping list, and the e-mobility meeting needs questions. Keep going.
+The brief's architecture is right and its inventory is wrong by about a year:
+there is still no simulator, no envelope, no ingestion and no finding. That
+part stands.
+
+What changed after the user's pushback: **mini-grid is a set of compounding
+cost centres, not a fuel wedge**, and the first version collapsed the product
+into its first finding. The brief's claim that the electrical balance is the
+biggest shared item is substantially right, and the refinement worth keeping is
+that what transfers is the *balance-and-allocate step*, which each vertical
+populates with its own terms. Five of the six cost centres the user named are
+consumers of per-step *flows*, and the kernel the first version recommended
+would have emitted only *stocks* — which is a rebuild, arriving after T022's
+UI, T023's records and the first golden traces are sitting on top of it. The
+stock-only assumption in fact breaks inside T022, because T020A makes the
+generator's power the first observable flow.
+
+So the revised answer to "design a mechanism for all three, populate mini-grid
+first" is **yes, and it costs one to two days, not a quarter.** T021 becomes a
+three-phase step — forcings, resolve flows, integrate stocks — with one term in
+the middle phase and one modelled state. Scope stays minimal; shape does not.
+T022's observation transform must sample flows as well as stocks. T020A, T020B,
+T021A and T023 are unchanged, no slice is added, reordered or deferred, and the
+evidence path is still the critical path — that conclusion was right for a
+reason the first version got wrong.
