@@ -27,7 +27,7 @@ in the private expectations under `DETECTION` and `TIMING`. Closing it at the
 parser is free while no golden trace exists, and T022 is the slice that first
 produces one.
 
-**Why this is its own slice, decided by the user on 2026-09-22.** Folding (g)
+**Why this is its own slice, decided by the user on 2026-09-22.** Folding this
 into T022 would make that slice's internal ordering load-bearing, because the
 parser change would have to land before trace generation inside one slice, and
 would close the window entirely if T022 were ever split. It also keeps T022's
@@ -41,6 +41,8 @@ observation, so nothing about the kernel depends on it either way.
 - T018's execution contract and its strict parser.
 - T019's narrowing, merged: the observation blocking reasons are already gone,
   so removing the field changes no run-setup outcome.
+- The version ledger, for what the number is when this slice starts. It is not
+  2 by the time this runs and no criterion here assumes a value.
 
 ## Acceptance Criteria
 
@@ -51,12 +53,15 @@ observation, so nothing about the kernel depends on it either way.
 - The shipped Fuel Loss document's reported-observation entries lose the field.
   Nothing else in that document changes in this slice; the authored values and
   their removal belong to T022.
-- `EXECUTION_CONTRACT_VERSION` moves 2 to 3, under the policy that the number
-  moves when the space of conforming behaviours changes, including when it
-  narrows, and never for wording.
+- `EXECUTION_CONTRACT_VERSION` moves by one from whatever this slice finds,
+  under the policy that the number moves when the space of conforming
+  behaviours changes, including when it narrows, and never for wording. The
+  literal is not written here: the count for the sequence is stated once, in
+  `.ai/FEATURE_MAP.md` under *The execution-contract version ledger*, and
+  T020A and the four-semantics declaration both move it before this slice.
 - The new version reaches the frozen identity of runs set up after it. A Draft
-  already frozen under version 2 keeps the version it was frozen under; nothing
-  rewrites a persisted identity.
+  already frozen under the previous version keeps what it was frozen under;
+  nothing rewrites a persisted identity.
 - The scenario detail screen reports the new contract version and shows no
   execution-requirement claim on a reported observation.
 
@@ -85,11 +90,12 @@ observation, so nothing about the kernel depends on it either way.
   would otherwise accept, so it measures the new prohibition rather than an
   existing guard.
 - A test proving the field remains accepted where it is still legitimate.
-- A contract-version test that checks the number against the declared rule set
-  rather than against itself, which is also the T018 round-two finding about a
-  weak version test.
-- Frozen-identity test: a new Draft freezes version 3; an existing persisted
-  Draft is unchanged.
+- A contract-version test that checks the move against the declared rule set
+  rather than against a literal, which is also the T018 round-two finding
+  about a weak version test.
+- Frozen-identity test: a new Draft freezes the moved version and an existing
+  persisted Draft is unchanged, asserted against the constant rather than
+  against a literal.
 - UI test for the scenario detail screen's reported-observation rows and
   version display.
 - Run architecture/workflow checks, relevant suites, typecheck, and build.
