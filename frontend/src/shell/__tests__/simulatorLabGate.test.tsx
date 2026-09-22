@@ -530,6 +530,64 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
   );
 
   /**
+   * The floor under the anchor allowance above.
+   *
+   * Both claims before this one let an anchor past: one because it matched
+   * the vocabulary but was navigation, the other by skipping anchors
+   * outright. Between them, `<Link className="action">Execute this run
+   * now</Link>` passed the whole suite - proved by adding it, not argued -
+   * while two test names said the screen was guarded.
+   *
+   * The ban cannot be written over what a control SAYS, because "Runs" and a
+   * run identity are truthful navigation. So it is written over the set: the
+   * links on a run surface are exactly the known destinations, by href and by
+   * text. A fifth link fails whatever it is called, and a renamed one fails
+   * too. This is the shape the Lab shell's allowlist below already uses, and
+   * it is the durable half of the fix - a word list is only the cheap half,
+   * because the next violation will use a word nobody listed.
+   */
+  it.each([
+    [
+      "/simulator-lab/runs",
+      [
+        ["/simulator-lab", "Simulator Lab"],
+        ["/simulator-lab/site-templates", "Site Templates"],
+        ["/simulator-lab/scenarios", "Scenarios"],
+        ["/simulator-lab/runs", "Runs"],
+        // The one row the injected store holds. A row link carries a run
+        // identity and goes to that run's record; it starts nothing.
+        ["/simulator-lab/runs/run-1", "run-1"],
+        ["/simulator-lab", "Back to the Simulator Lab"],
+        ["/simulator-lab/scenarios", "Go to Scenarios"],
+      ],
+    ],
+    [
+      "/simulator-lab/runs/run-1",
+      [
+        ["/simulator-lab", "Simulator Lab"],
+        ["/simulator-lab/site-templates", "Site Templates"],
+        ["/simulator-lab/scenarios", "Scenarios"],
+        ["/simulator-lab/runs", "Runs"],
+        ["/simulator-lab/runs", "Back to Runs"],
+        ["/simulator-lab", "Back to the Simulator Lab"],
+      ],
+    ],
+  ])(
+    "offers exactly the known destinations and no other link at %s",
+    async (url, destinations) => {
+      const { container } = renderAt(url as string, ENABLED);
+      await settledScreen();
+
+      const links = Array.from(container.querySelectorAll("a")).map((link) => [
+        link.getAttribute("href"),
+        link.textContent,
+      ]);
+
+      expect(links).toEqual(destinations);
+    },
+  );
+
+  /**
    * T005 gives the Lab its first destination, so the shell has two links
    * rather than one. The assertion is an exact allowlist of href and text
    * rather than a count: a third link, or a different destination, still

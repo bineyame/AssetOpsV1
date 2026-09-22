@@ -342,6 +342,13 @@ describe("one draft run", () => {
       /ingest/i,
       /open in assetops/i,
       /truth/i,
+      // The three this list was missing. An enabled anchor reading "Execute
+      // this run now" passed both guard suites until a reviewer added one:
+      // the ban was written over a word list, and the next violation used a
+      // word nobody had listed.
+      /execute/i,
+      /start/i,
+      /launch/i,
     ]) {
       expect(within(main).queryByRole("button", { name: banned })).toBeNull();
       expect(within(main).queryByRole("link", { name: banned })).toBeNull();
@@ -351,6 +358,17 @@ describe("one draft run", () => {
     const buttons = within(main).getAllByRole("button");
     expect(buttons).toHaveLength(1);
     expect(buttons[0]).toBeDisabled();
+
+    // The durable half: the links this screen carries are exactly the two
+    // ways back, by href and by text. A word list can only ban what somebody
+    // thought of; a closed set fails on a fifth link whatever it is called.
+    const links = within(main)
+      .getAllByRole("link")
+      .map((link) => [link.getAttribute("href"), link.textContent]);
+    expect(links).toEqual([
+      ["/simulator-lab/runs", "Back to Runs"],
+      ["/simulator-lab", "Back to the Simulator Lab"],
+    ]);
   });
 
   it("reserves no plausible runtime value", async () => {
