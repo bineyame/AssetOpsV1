@@ -54,9 +54,10 @@ becomes correct when T021's conformance test lands.
   execute them because no causal runtime exists. The disclosure is a property of
   the status, so it travels in the run payload a caller reads as well as
   appearing on the run-detail screen; a screen-only note does not satisfy this.
-- The disclosure names its own expiry: it is retired by the slice that lands the
-  `supported_states` conformance test, not by editing the copy. `BLOCKED` gains
-  no equivalent claim and keeps its persisted reasons.
+- The disclosure names the condition it exists for — that nothing verifies the
+  profile's supported set against a kernel — rather than a slice number, so the
+  slice that closes that condition can recognise what to retire. `BLOCKED`
+  gains no equivalent claim and keeps its persisted reasons.
 - A `READY` Draft presents its native Run action disabled with an accessible
   reason naming the missing causal-runtime prerequisite. A `BLOCKED` Draft
   presents no executable Run action and shows its persisted compatibility

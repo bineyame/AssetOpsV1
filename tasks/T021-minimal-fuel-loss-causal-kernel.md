@@ -14,8 +14,10 @@ Draft SimulationRun And Causal Runtime.
 A `READY` Fuel Loss Draft can be checked against a real executable model. Its
 run detail reports that the selected model profile is executable and names the
 private-state capabilities it supports, and that report is now backed by a
-conformance test rather than by a hand-written tuple. It still does not start
-or display a state trajectory; T022 owns execution and runtime presentation.
+conformance test rather than by a hand-written tuple. The `READY` disclosure
+T020 put on the record and the screen goes with it, because the test is what
+makes it false. The run still does not start or display a state trajectory;
+T022 owns execution and runtime presentation.
 
 ## Why This Is Next
 
@@ -55,16 +57,20 @@ to prevent. If any is still open when work starts, the slice stops and asks.
 - Whether authority over the reporting path moves from the model profile to the
   publication profile. If it stays, this kernel must model reporting
   availability, which is not physics.
-- Whether `dispatched-output` is promoted to a `FORCING_INPUT` on
-  `generator-output-power`, which also decides the coefficient's unit in T020A.
 - The four unpinned kernel semantics: window apportionment, whether a sample
   within a step sees pre-event or post-event state, what a forcing is outside
   its declared window, and whether a run continues after a bounded change and
   whether later causes apply to the bounded value.
 
+The `dispatched-output` promotion is the remaining half of that forcing-state
+decision and it is due earlier still, before T020A is implemented, because it
+fixes the coefficient's canonical unit. It is therefore already answered by the
+time this slice runs, and its answer decides whether the consumption law here
+is runtime-based or energy-based.
+
 One decision is taken *during* the slice rather than before it: what the
 shipped Fuel Loss document should author, answered from the trajectory this
-slice produces. See the last acceptance criterion.
+slice produces. See the document-correction criterion.
 
 ## Acceptance Criteria
 
@@ -111,13 +117,15 @@ slice produces. See the last acceptance criterion.
 - A conformance test asserts that the shipped model profile's
   `supported_states` equals the set of states the kernel actually implements,
   derived from the kernel rather than restated by hand. A test that repeats the
-  tuple closes nothing. When this lands, `READY` means what its name says;
-  retiring T020's disclosure copy belongs to a slice that says it is doing that.
+  tuple closes nothing. When this lands, `READY` means what its name says.
+- This slice retires T020's `READY` disclosure, from the run payload and from
+  the run-detail screen, because the conformance test is what makes it false.
+  A claim that has become false goes in the slice that falsifies it; leaving it
+  for a later slice ships a false sentence on a screen. `BLOCKED` is unaffected.
 - The labelled reference implementation of the execution contract is run
   against the shipped document beside the kernel and the two are compared. Any
-  disagreement is reported and the kernel is the surviving authority. Its
-  removal from the repository follows its last remaining caller and is not this
-  slice's to perform.
+  disagreement is reported and the kernel is the surviving authority from here
+  on.
 - The slice runs the kernel against the shipped Fuel Loss document under its
   frozen Draft identity and reports the resulting private-state trajectory:
   the value at each authored offset and the outcome at the capacity bound. The
@@ -184,6 +192,9 @@ slice produces. See the last acceptance criterion.
 - Conformance test proving the shipped profile's supported set is derived from
   the kernel, including a proof that it fails when the profile claims a state
   the kernel does not implement.
+- A test proving the `READY` disclosure is gone from the run payload and the
+  run-detail screen, which is the mirror of the test T020 wrote to prove it
+  was there.
 - Contract test proves reported observations, public evidence conditions, and
   private expectations are absent from kernel inputs and outputs.
 - UI/API test shows readiness only for a compatible READY Draft and no runtime
@@ -194,6 +205,11 @@ slice produces. See the last acceptance criterion.
 
 ## Scope Limits
 
+- No removal of the reference implementation. It stops being an authority here
+  and leaves the repository when its last remaining product-path caller goes,
+  which is the `observation_reconciliation` panel and is undecided. Two events
+  on two clocks: comparing is this slice's, removing is not. The panel and its
+  payload are untouched here.
 - No Lab clock controls or displayed trajectory; those belong to T022.
 - No device observation transform, gateway envelope, staging, Commit,
   ingestion, Replay, analytics, or Finding.
