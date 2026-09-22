@@ -1799,13 +1799,19 @@ shape: everything in `_freeze` raises, everything in `_blocking_reasons`
 returns. Every refusal test asserts the store is empty afterwards, because an
 error raised after a write looks identical without that assertion.
 
-Nine refusal kinds and six blocking-reason kinds, each a different fact with
-its own code on the wire. The `BLOCKED` five for the shipped Fuel Loss Event
-against the shipped profile are three unmodelled forcing states and two
-unreached readings - the second pair being
-`D-2026-09-21-scenario-execution-contract` applied as written, so **the
-shipped scenario cannot reach `READY` in this build by construction**. `READY`
-is proved against a fixture scenario instead. A later slice that resolves the
+Ten refusal kinds and six blocking-reason kinds, each a different fact with
+its own code on the wire. The three `BLOCKED` reasons for the shipped Fuel
+Loss Event against the shipped profile are three unmodelled forcing states,
+so **the shipped scenario cannot reach `READY` in this build by
+construction**. `READY` is proved against a fixture scenario instead.
+
+Both counts moved during this slice and an earlier draft of this paragraph
+kept the old ones. It said nine refusals, before the contradiction split out
+of `INITIALIZATION_INPUT_MISSING` as `INITIAL_VALUE_ANSWERS_DISAGREE` and
+`INITIAL_VALUE_NOT_RESOLVED` joined the blocking side; and it said five
+blocking reasons on the shipped Draft, which was true before (e) removed the
+two unreached readings and is contradicted three paragraphs above by this
+same entry. A later slice that resolves the
 residual or widens the model profile changes that, and the test naming the
 three unsupported states will fail when it does, which is the point.
 
@@ -1968,8 +1974,6 @@ What T019 leaves open, for the slice that meets it.
   blocks the creation of every other. Checking identity by file name would
   avoid it and is refused on purpose: identity is never read back out of a
   file name. T020 reads this store and meets the same posture.
-- **The amendment to `D-2026-09-21-scenario-execution-contract`** for the
-  reversed ordering rule is Architect's and is pending.
 - **Four small things the re-review logged and left**, in the packet's
   residual risk with the reasoning: the frozen-table layout claim asserting a
   floor its wording outruns; the reason-set audit deriving membership from a

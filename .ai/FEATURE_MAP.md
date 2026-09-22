@@ -2188,7 +2188,8 @@ representation.
 
 ### Early Feature: Scenario Catalog And Run Setup
 
-Demo roadmap task range: T017-T019.
+Demo roadmap task range: T017-T019, plus T021A, which belongs to this feature
+by content and lands in the M1C range by sequence.
 
 Divide into slices:
 - Strict scenario source and Fuel Loss Event catalog/detail view over a shipped
@@ -2227,7 +2228,10 @@ M1B planner sequencing:
   `OBSERVATION_NOT_ACCOUNTED_FOR` leaves the blocking vocabulary, the shipped
   Draft blocks on three `STATE_NOT_SUPPORTED` reasons rather than five, and the
   reconciliation arithmetic moves to the test suite as a labelled reference
-  implementation expiring at T021. The `BLOCKED` outcome itself is unchanged.
+  implementation whose expiry is a condition and not a slice number: it stops
+  being an authority when a kernel exists and the two are compared, and it
+  leaves the repository when its last product-path caller goes, which is
+  undecided. The `BLOCKED` outcome itself is unchanged.
   See `D-2026-09-21-scenario-execution-contract-amendment-1`,
   `D-2026-09-21-run-setup-outcome-vocabulary` and
   `D-2026-09-21-specification-reference-implementation`.
@@ -2247,7 +2251,9 @@ fix domain semantics and the demo narrative before execution begins.
 
 ### Early Feature: Draft SimulationRun And Causal Runtime
 
-Demo roadmap task range: T020, T020A, T021, T022.
+Demo roadmap task range: T020, T020A, T021, T022. T021A sits inside this
+range in the sequence and belongs to Scenario Catalog And Run Setup by
+content; the M1C roadmap row lists it, and this feature does not own it.
 
 Divide into slices:
 - T020: Runs inventory/detail read model and Simulator Lab run header/shell over
@@ -2266,8 +2272,9 @@ Divide into slices:
 - T021A: reported observations carry no execution requirement. The strict
   parser gives `execution_requirement` no position on a `REPORTED_OBSERVATION`,
   the shipped document's reported-observation entries lose the field, and
-  `EXECUTION_CONTRACT_VERSION` moves 2 to 3 and reaches the frozen identity of
-  runs set up after it. Contributes to the Scenario Catalog And Run Setup
+  `EXECUTION_CONTRACT_VERSION` moves by one and reaches the frozen identity of
+  runs set up after it, while a Draft already frozen keeps what it was frozen
+  under. What the number is by then is in the version ledger below. Contributes to the Scenario Catalog And Run Setup
   feature rather than to this one; it sits in this range because of when it has
   to happen, not because of what it is about.
 - T022: Lab execution, supported runtime bindings, and the minimal device
@@ -2290,7 +2297,7 @@ nothing in front of either insertion is blocked.
   by (e)   plus (l)  (k)       + TRAJECTORY      (g)
   and (j)  disclosure Foundation  oracle (i)     contract
                      properties + supported_     version
-                     and          states         2 ► 3
+                     and          states         moves
                      carriers     conformance (l)
                        │        + retires T020's
                        │          disclosure
@@ -2333,11 +2340,16 @@ panel shows it resolving from *site foundation* rather than from *scenario*.
 That is the seam repair made visible in one line of a table the user already
 reads. The slice also re-creates MG-001 from the updated template, because
 templates instantiate by copy and a template change never reaches an existing
-instance; a slice that adds the field without doing that produces a site whose
-runs are **refused**, not blocked. The coefficient's declared owner is
-Foundation, an instance carrying no such property leaves that owner with no
-answer, and no profile a person could choose on the setup form reaches a value
-that is not there. See `D-2026-09-21-run-setup-outcome-vocabulary`.
+instance. A slice that adds the field without doing that produces a site
+whose runs never resolve the coefficient, so the slice's own UI-verifiable
+outcome never appears.
+
+**Those runs block**, on `INITIAL_VALUE_NOT_RESOLVED`, and this paragraph
+used to say they are refused. After T020A the binding names the property as
+well as the component type, so a different profile naming a different
+property may find something the Foundation does declare, which under the
+discriminator is a block. See
+`D-2026-09-22-foundation-property-absent-blocks`.
 
 **The loop inside T021.** T021 is no longer only a producer. It runs the kernel
 against the shipped Fuel Loss document, reports the resulting trajectory, and
@@ -2373,6 +2385,50 @@ T021, not a resequencing.
 | (g) | `execution_requirement` forbidden on a reported observation | T021A |
 | (f) | observations are generated, not authored | T022 |
 | (h) | projection versus composition | `.ai/ARCHITECTURE.md`; no code slice |
+
+#### The execution-contract version ledger
+
+`EXECUTION_CONTRACT_VERSION` is stamped into every frozen run and a
+provenance mismatch refuses playback, so what the number is after each slice
+is a fact the sequence has to hold rather than a detail a slice picks.
+`D-2026-09-22-contract-version-scope` says when it moves; this is the count
+across M1C, and it is the only place the count is stated.
+
+| After | Version | Why |
+| --- | --- | --- |
+| `main` today | 2 | T019 merged it |
+| T020 | 2 | no contract change; the `READY` disclosure is not one |
+| T020A | 3 | narrowing: a Foundation-owned parameter has no value position, and the shipped document as it stands is refused by the new parser |
+| the four-semantics declaration | 4 | narrowing: four previously unspecified semantics pinned, each one a place two conforming kernels could have disagreed |
+| T021 | 4 | no move: the `TRAJECTORY` oracle widens the document space off every executable path |
+| T021A | 5 | narrowing: no `execution_requirement` position on a reported observation |
+| T022 | 5 | no move: one document's content and a new component, not a change to the space |
+
+**Three narrowings are in flight and, as sequenced, each one merges in a
+different slice, so each spends a number. The unreleased-version doctrine
+collapses nothing here.** That doctrine - a narrowing that never leaves the
+branch it was made on does not spend a number, because nothing ever conformed
+to the version it would have replaced - only reaches narrowings that share an
+unmerged window. It is how versions one and two absorbed two amendments each
+inside T019, and it applies again only if some slice below narrows twice
+internally.
+
+**Where the four-semantics declaration lands is not decided, and the table
+assumes a step of its own.** Whichever slice declares them spends the number.
+One variant changes the count: declaring them inside T020A would spend a
+single number for both narrowings and leave T021A at 4. It is not
+recommended - bundling a contract declaration into a Foundation-carrier slice
+makes that slice's internal ordering load-bearing, which is the argument that
+gave (g) a slice of its own.
+
+**So write the move, never the literal.** `tasks/T021A-reported-observation-
+requirement-closure.md` says "2 to 3" and T022's guidance says "already under
+version 3"; under this ledger both are wrong, and they were wrong before
+T020A joined the count. T021A moves the number by one and a Draft frozen
+under the previous version keeps what it was frozen under; T022 edits under
+whatever T021A produced. The frontend fixture deliberately pins 1 so the
+payload and the constant cannot be one literal by accident, and that is
+unaffected.
 
 #### Seams this sequence surfaced
 
@@ -2537,6 +2593,17 @@ and operator consequence.
     property into the shipped template and into MG-001, so choosing in T020A
     and changing later is a unit migration on a Foundation document. Only the
     shipped value waits on it; the carriers are the same either way.
+  - **Before T020A's task file, and it blocks the slice rather than scoping
+    it:** what declares that the run needs the coefficient, once
+    `generator-fuel-rate` leaves the scenario. Initialization inputs are
+    enumerated from scenario parameters and the coefficient is about to stop
+    being one, so run setup would resolve nothing and T021's kernel would have
+    nothing to read. Three options, their costs and a recommendation are in
+    `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the
+    need, once the scenario stops declaring it*. The same decision settles
+    whether a non-re-created MG-001 produces refused or blocked runs, which
+    six documents and T020A's task file currently assert one way and the code
+    answers the other.
   - **Before T021's task file:** the rest of the `REQUIRED` forcing-state
     decision — what happens to `site-load-demand`,
     `plane-of-array-irradiance` and `fuel-level-reporting-availability`, and
@@ -2546,7 +2613,13 @@ and operator consequence.
     post-event state within a step, what a forcing is outside its declared
     window, and whether a run continues after a bounded change. Each would let
     two conforming kernels disagree, so each is contract-version business and
-    must be declared rather than left to whoever writes T021.
+    must be declared rather than left to whoever writes T021. Settle with them
+    a rule that is currently invented and recorded only in T019's review
+    packet: `_executable_inputs` collapses executable inputs on
+    `(state_key, role)` and resolves a requirement conflict by taking
+    `REQUIRED`, on the reasoning that a state required anywhere is required.
+    That decides whether lowering a requirement in one position lowers it at
+    all, which is one of the three ways out of the forcing-state decision.
   - **During T021:** what the Fuel Loss document should author. The removal
     magnitude, and whether the 300 L delivery that overfills a 254 L tank
     against a 500 L capacity is reduced or kept deliberately as a second
@@ -2564,5 +2637,16 @@ and operator consequence.
     volume floor in the validation layer now has a destination but no slice;
     whether reset clears intervention history, which matters only when
     injection is planned.
+  - **Scheduled by trigger rather than by position:** option C, the model
+    profile declaring that it needs a Foundation value, rather than the
+    scenario declaring the need on its behalf. It is where the need belongs -
+    the law is the thing that knows it needs a coefficient - and it was not
+    taken in T020A because it changes the shape of the frozen deterministic
+    identity in the same slice that changes Foundation's schema. **Trigger:
+    the first model rule that needs a Foundation value without a scenario
+    asking for it.** See `D-2026-09-22-foundation-value-declaration`.
+    `tank-capacity` is **not** on this list: it carried the same defect and
+    T020A now fixes it, because the parser rule keys on the owner and reaches
+    every Foundation-owned parameter.
 - Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.

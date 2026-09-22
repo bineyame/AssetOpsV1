@@ -46,10 +46,17 @@ location failures block as `INITIAL_VALUE_NOT_RESOLVED`; the
 Foundation/scenario contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE`,
 because the frozen identity can hold no answer and not two.
 `.ai/ARCHITECTURE.md` now carries the naming rule that keeps the two
-vocabularies legible. **T020A must not collapse the two**: a profile binding
-that cannot locate a Foundation value blocks, a Foundation that declares no
-such property refuses, so a slice adding the property without re-creating
-MG-001 produces a site whose runs are refused.
+vocabularies legible. **A Foundation that declares no such property blocks**
+(`D-2026-09-22-foundation-property-absent-blocks`); the record said refuse and
+was wrong, and every failure of a Foundation-owned value now blocks.
+
+**T020A grew.** A Foundation-owned scenario parameter has no value position at
+all (`D-2026-09-22-foundation-value-declaration`), which reaches
+`tank-capacity` as well as the coefficient, moves `EXECUTION_CONTRACT_VERSION`
+and retires `INITIAL_VALUE_ANSWERS_DISAGREE`. The `dispatched-output`
+promotion is still due before the slice is implemented. Version numbers across
+the sequence are in `.ai/FEATURE_MAP.md`, *The execution-contract version
+ledger*; write moves, not literals.
 
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in

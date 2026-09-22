@@ -34,11 +34,14 @@ rationale in the dated entries below.
 | `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
 | `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. Amended by `D-2026-09-21-scenario-execution-contract-amendment-1`. |
 | `D-2026-09-21-scenario-execution-contract-amendment-1` | 2026-09-21 | Amendment 1 to the execution contract: simultaneous causes net rather than order; the contract-version bump policy; run setup stops adjudicating cause-to-observation coupling; a scenario does not author what a device reads; `execution_requirement` is forbidden on a reported observation; a fifth `TRAJECTORY` oracle kind. |
-| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. Extended 2026-09-22: the refusal line moved to who failed to answer, four location failures block as `INITIAL_VALUE_NOT_RESOLVED`, and the contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE` because the frozen identity can hold no answer and not two. |
+| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. Extended 2026-09-22: the refusal line moved to who failed to answer, four location failures block as `INITIAL_VALUE_NOT_RESOLVED`, and the contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE` because the frozen identity can hold no answer and not two. Its one consequence about a Foundation declaring no such property at all is superseded by `D-2026-09-22-foundation-property-absent-blocks`: that case blocks. |
 | `D-2026-09-21-projection-versus-composition` | 2026-09-21 | Projecting a document is static validation; composing projections into a value-at-a-time is a kernel, whatever the component is called. |
 | `D-2026-09-21-specification-reference-implementation` | 2026-09-21 | A specification's reference implementation is labelled and carries a stated expiry; `reconcile_reported_observations` stops being an authority when a kernel is compared against it, and leaves the repository when its last product-path caller goes. |
-| `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. |
+| `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. Its template-copy consequence is corrected by `D-2026-09-22-foundation-property-absent-blocks`: a non-re-created MG-001 blocks, it does not refuse. |
 | `D-2026-09-22-expiry-follows-the-condition` | 2026-09-22 | A gap-covering artifact names the condition as its expiry, never a slice number; a claim that has become false goes in the slice that falsifies it, and a thing still honest goes when someone decides to remove it. |
+| `D-2026-09-22-foundation-value-declaration` | 2026-09-22 | A scenario parameter whose declared owner is Site Foundation has no value position at all. The rule is keyed on the owner, so it reaches `tank-capacity` as well as the coefficient, moves the contract version, and retires `INITIAL_VALUE_ANSWERS_DISAGREE` in T020A. Option C is a named follower. |
+| `D-2026-09-22-foundation-property-absent-blocks` | 2026-09-22 | A Foundation that declares no such property at all blocks with `INITIAL_VALUE_NOT_RESOLVED`. It is a fifth case of the four, not a refusal, because after T020A the binding names the property and a different profile might name another. |
+| `D-2026-09-22-contract-version-scope` | 2026-09-22 | `EXECUTION_CONTRACT_VERSION` moves when a change can alter the outcome for a document that was already valid. A narrowing can; a pure widening off every executable path cannot, so the `TRAJECTORY` oracle kind does not move it. The absolute numbers are unstable and are written relatively. |
 
 ## 2026-09-11
 
@@ -1488,7 +1491,10 @@ someone has to remember. With (e) in place, `REQUIRED` on a value no executor
 reads is either vacuous or a category error, and the meaning it was carrying,
 "this run must produce such a reading", already has a home in the private
 expectations under `DETECTION` and `TIMING`. This narrows the space of
-conforming behaviours, so `EXECUTION_CONTRACT_VERSION` moves 2 to 3 under (d).
+conforming behaviours, so `EXECUTION_CONTRACT_VERSION` moves by one under (d).
+(This read "2 to 3" as written, and two later narrowings now land before it;
+the count is in `.ai/FEATURE_MAP.md` under *The execution-contract version
+ledger*.)
 It is free now and will not be once a golden trace exists. The user placed it
 in its own slice, **T021A**, on 2026-09-22: T022 is the slice that first
 produces a golden trace, so burying the version move inside it would make that
@@ -1621,6 +1627,22 @@ the case that governs T020A's template-copy consequence, and the two must not
 be collapsed: *the profile's binding could not locate an answer* blocks, *the
 declared owner has no answer to locate* refuses.
 
+> **Superseded 2026-09-22 by `D-2026-09-22-foundation-property-absent-blocks`:
+> that case blocks.** This paragraph was the one part of this extension the
+> code did not implement, and the discriminator above does not support it.
+> `_resolve_foundation_value` reaches a refusal down one path only,
+> `rating.value != declared`; every not-found blocks. For the refusal to have
+> held, run setup would have had to establish that the declared owner has no
+> answer without going through the profile's binding, and this entry says a
+> Foundation's answer is locatable only through that binding - which after
+> T020A names the property as well as the component type, so a different
+> profile naming a different property may find something the Foundation does
+> declare. Nothing else in this extension changes: the four blocking cases,
+> the absent value on `FrozenInitializationInput` and the three invariants
+> stand, and so does the structural argument for the contradiction refusal,
+> whose case `D-2026-09-22-foundation-value-declaration` removes the ability
+> to author at all.
+
 **`FrozenInitializationInput` gained an absent case.** `value` and
 `canonical_value` are nullable and absent together; the unit is not, because
 the scenario declares it whether or not anything answers. The invariants live
@@ -1733,8 +1755,8 @@ remaining caller goes, which is a different event on a different clock. See
 question.** The function has two product-path uses, not one. T019's blocking
 reason is the first and it goes now. The second is the
 `observation_reconciliation` payload built at
-`backend/assetops_backend/simulator_lab_api.py:411` and rendered as a panel at
-`frontend/src/shell/ScenarioFrame.tsx:759`, which is T018 work already merged
+`backend/assetops_backend/simulator_lab_api.py:435` and rendered as a panel at
+`frontend/src/shell/ScenarioFrame.tsx:767`, which is T018 work already merged
 to `main`. The function cannot leave the repository while that caller exists,
 so T019 removes the blocking use and labels the function as a reference
 implementation, and removal follows the last remaining caller.
@@ -1811,6 +1833,13 @@ scenario may declare `owner: MODEL_RULE`, run setup will correctly name
 `MODEL_PROFILE` as the answerer, and there is nowhere for the answer to come
 from. That is the T019 review's L9 finding.
 
+**A third thing was missed, and it is the subject of a decision due before
+T020A's task file.** The three holes below are carriers for a *value*. None of
+them declares the *need*: initialization inputs are enumerated from scenario
+parameters, and this entry has the coefficient leaving the scenario. See
+`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
+once the scenario stops declaring it*.
+
 **A new slice, T020A, closes them, after T020 and before T021.** It is the one
 change in this sequence that is an insertion rather than a narrowing: you
 cannot narrow your way into a field that is not there. Nothing moves relative
@@ -1832,10 +1861,20 @@ template change never alters an already-created instance. The demo site must be
 re-created from the updated template, or the property hand-added to the
 instance. Both are cheap, because it is a development fixture, but neither is
 automatic, and a slice that adds the field without doing this produces a site
-whose runs are **refused**, not blocked: the coefficient's declared owner is
-Foundation, and an instance carrying no such property leaves that owner with no
-answer. The four failures that block are the ones where the profile's binding
-cannot locate an answer that exists. See
+whose runs never resolve the coefficient.
+
+> **Corrected 2026-09-22 by `D-2026-09-22-foundation-property-absent-blocks`:
+> those runs block.** This sentence said they are refused. The code blocks,
+> and this entry was written the day before the user moved the refusal line,
+> so the claim was re-asserted in the 2026-09-22 extension to
+> `D-2026-09-21-run-setup-outcome-vocabulary` rather than re-derived against
+> the new discriminator. The obligation to re-create MG-001 is unchanged; what
+> changes is the warning. Without it the slice's own UI-verifiable outcome
+> never appears, which is a weaker consequence than a refusal and a sufficient
+> one. Nothing else in this entry is affected.
+
+The four failures that block are the ones where the profile's binding cannot
+locate an answer that exists. See
 `D-2026-09-21-run-setup-outcome-vocabulary`.
 
 Reason: the coefficient does not merely belong somewhere tidier. The kernel
@@ -1924,3 +1963,273 @@ Affected scope: `D-2026-09-21-run-setup-outcome-vocabulary`,
 its stated expiry, T021's conformance test and its comparison against the
 reference implementation, Open Question 5, `.ai/ARCHITECTURE.md` under
 Presentation Honesty, and any future artifact created to cover a gap.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-contract-version-scope`. Adding the `TRAJECTORY`
+oracle kind in T021 does **not** move `EXECUTION_CONTRACT_VERSION`. The move
+that T021A carries for (g) stands, and this entry says why the two are
+different rather than leaving the next reader to re-derive it. Two readers
+raised the question independently within a day, which is the signal that the
+policy in (d) is answerable but not yet answered in writing.
+
+**The question.** (d) says the number moves when the space of conforming
+behaviours changes, including when it narrows, and never for wording. (g)
+moved it for a change that alters no executor behaviour at all:
+`execution_requirement` on a `REPORTED_OBSERVATION` is read by nothing, which
+is the whole argument for removing it. Adding `TRAJECTORY` to
+`EXPECTATION_KINDS` also alters no executor behaviour, because no executable
+path reads any oracle. If document shape alone was enough to move the number
+for (g), the same reasoning reaches `TRAJECTORY`, and T021 moves it too.
+
+**Following (g) would bump on everything, so the test has to be sharper.**
+`scenarios/parsing.py` validates both vocabularies strictly. Under a strict
+parser every vocabulary change alters what an executor does with *some*
+document - refuse becomes run, or run becomes refuse - so "does executor
+behaviour change on some document" is satisfied by every change of either
+kind and separates nothing. It cannot be the test.
+
+**The axis that does separate them is direction, measured against the
+documents that already exist.**
+
+- (g) **narrows**: a document that was valid is now refused. A run could
+  already have been frozen against such a document, and after the move that
+  document no longer parses, so the artifact cannot be re-derived. That is
+  exactly the situation
+  `D-2026-09-21-causal-runtime-before-golden-traces` makes a provenance
+  mismatch refuse playback for, and it is what the number exists to signal.
+- `TRAJECTORY` **widens**: every document valid before is valid now and means
+  the same thing, and every artifact frozen before regenerates identically.
+  Nothing that exists is affected. Only documents that could not previously
+  have been written are, and no artifact was ever frozen against one.
+
+**So the policy, stated the way it is meant to be applied: the number moves
+when the change can alter the outcome for a document that was already valid.**
+A narrowing can. A pure widening cannot. "Including when it narrows" in (d)
+was written to catch the case a reader would otherwise forget, not to make
+widening a move; this entry says so rather than leaving it to be read either
+way.
+
+**One carve-out, kept deliberately.** A widening whose new construct sits on
+an executable path can change how an existing construct is interpreted beside
+it, and that reaches documents that already exist. This entry does not cover
+that case. `TRAJECTORY` is not it: no executable path reads any oracle, under
+`D-2026-09-21-scenario-authoring-semantics`, and
+`D-2026-09-21-scenario-execution-contract-amendment-1`'s (i) keeps it that
+way by construction.
+
+**Why the forward direction is not the number's job here.** A scenario
+document declares no contract version; the constant lives in code and is
+stamped onto a frozen run. Parser and constant ship together, so "a version-2
+executor meets a version-3 document" is not a state this product can be in.
+The only comparison the number ever serves is an older frozen run replayed
+against a newer build, which is the backward direction, and a widening is
+invisible in it.
+
+**This is distinguishing (g), not overruling it.** (g)'s move is correct and
+stays. What changes is that the reason for it is now recorded as its
+direction rather than as "the document shape changed", so the next vocabulary
+addition does not inherit a move it has not earned.
+
+**What each slice leaves the number at, and why the literals should go.**
+T021 leaves it at its current value. T021A moves it by one. The absolute
+numbers should not be written as literals anywhere, for two reasons already
+in the record and neither of them hypothetical:
+
+- Pinning the four unpinned kernel semantics is a narrowing and moves the
+  number. That declaration is due before T021's task file, so if it lands
+  before T021A, T021A's move is not `2` to `3`.
+- The constant's own docstring carries an unreleased-version doctrine: a
+  narrowing that never leaves the branch it was made on does not spend a
+  number, because nothing ever conformed to the version it would have
+  replaced. Two amendments have already been absorbed that way.
+
+`tasks/T021A-reported-observation-requirement-closure.md` hard-codes "2 to 3"
+and T022's guidance says "already under version 3". Both should say the move
+and the ordering rather than the values. That is the Planner's edit and it is
+unblocked by this entry.
+
+**The count itself is stated once**, in `.ai/FEATURE_MAP.md` under *The
+execution-contract version ledger*, because it is a property of the sequence
+and moves when the sequence does. Added 2026-09-22 once
+`D-2026-09-22-foundation-value-declaration` put a third narrowing in flight.
+
+Reason: the policy in (d) is sound and was stated against the case in front
+of it. Applied literally to a widening it spends a version number to buy
+nothing, which is precisely the cost (d) names when it explains why wording
+must not move the number - a version that moves for a change that invalidates
+nothing forces regeneration of golden traces that were never invalid. The
+refinement keeps (d)'s purpose rather than its sentence.
+
+Affected scope: `backend/assetops_backend/scenarios/execution.py`'s
+`EXECUTION_CONTRACT_VERSION` and the policy comment beside it, which states
+(d) correctly and is incomplete rather than wrong; T021's `TRAJECTORY` oracle;
+T021A's version move and the literals in its task file; T022's statement about
+which version it edits under; the slice that declares the four unpinned kernel
+semantics; and the carrier decision due before T020A, whose option B is a
+narrowing and would move the number if it is chosen.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-foundation-value-declaration`. **A scenario parameter
+whose declared owner is Site Foundation has no value position at all.** It
+declares the need - the state, the unit, that Foundation answers - and states
+no number. Option B of the three worked up in
+`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
+once the scenario stops declaring it*, accepted by the user on 2026-09-22.
+
+Closed at the structure, the way
+`D-2026-09-21-scenario-execution-contract-amendment-1`'s (g) closes
+`execution_requirement` and T018 closed duration units: there is no position
+the number can occupy, rather than a rule someone has to remember not to
+break.
+
+**Why not the other two.** Option A kept the parameter and its stated value as
+a requirement Foundation is checked against, which is the `tank-capacity`
+pattern already shipped. It costs least and it preserves exactly the seam (k)
+exists to remove: run the same scenario against a different generator and
+14 L/h still follows the story, now as a requirement that fails the run. A
+scenario that cannot run against a 12 L/h genset has a machine's physical
+property in it. Option C moved the need to the model profile, which is where
+it conceptually belongs, and spends two protected-seam changes in one slice;
+it is a follower, below.
+
+**What this reaches, and it is more than the coefficient.** The rule is keyed
+on the **owner**, because the owner is the only thing the scenario document
+carries that distinguishes these parameters: the binding that addresses a
+Foundation property lives in the model profile, and the scenario parser sees
+no profile at all. So the rule reaches every `owner: SITE_FOUNDATION`
+parameter. The shipped document has exactly one besides the coefficient -
+`tank-capacity`, which states 500 L for `fuel-tank-capacity` - and **T020A
+edits it too**.
+
+That is not a widening chosen for tidiness. Exempting one parameter needs a
+field invented for the exemption, which is a rule with an exception, and this
+project has paid for that shape twice already - the bound guessed from a
+shared prefix, and the unit case that was left a refusal while the cases
+either side of it moved. It is also the better outcome: `tank-capacity` has
+option A's defect today, so the seam repair lands complete rather than half.
+
+**It moves `EXECUTION_CONTRACT_VERSION`.** Under
+`D-2026-09-22-contract-version-scope` this is a narrowing that reaches a
+document which already exists: the shipped Fuel Loss document as it stands is
+refused by the new parser. The sequence-wide count is in `.ai/FEATURE_MAP.md`
+under *The execution-contract version ledger*, which is the one place it is
+stated.
+
+**And it retires `INITIAL_VALUE_ANSWERS_DISAGREE`, in T020A rather than
+later.** That refusal kind has exactly one producer, `rating.value !=
+declared` in `_resolve_foundation_value`, and after this decision no document
+can state a `declared` for a Foundation-owned value. Nothing can produce it.
+Two ways out were identified and the first is rejected: keeping a
+Foundation-owned parameter able to state a cross-check re-introduces the
+number in the scenario that this decision exists to remove. So the kind is
+**retired in the slice that removes its last producer**, under
+`D-2026-09-22-expiry-follows-the-condition`. A refusal kind nothing can
+produce is the `RUNNING` case one layer down - a vocabulary claiming a failure
+mode that cannot occur - and for pure absence deletion is the honest move.
+
+Two consequences of that worth carrying. With the contradiction gone and
+`D-2026-09-22-foundation-property-absent-blocks` settling the other side,
+**every failure of a Foundation-owned value now blocks and none refuses**; a
+reader meeting that should not take it for an oversight. And the naming rule
+in `.ai/ARCHITECTURE.md` still holds with one fewer pair to keep legible:
+`INITIAL_VALUE_NOT_RESOLVED` carries the whole Foundation side, and
+`INITIALIZATION_INPUT_MISSING` keeps its own producer, a `RUN_OVERRIDE` the
+request did not supply.
+
+**What does not change.** T021 reads the coefficient out of the frozen
+identity exactly as it would have. The three carriers (k) names are unchanged
+and still move together. MG-001 must still be re-created from the updated
+template.
+
+**Follower, with its trigger: option C.** The model profile declaring the need
+is where the need belongs - *consumption is proportional to runtime* is the
+model rule, and the law is the thing that knows it needs a coefficient. It was
+not taken because it changes the shape of the frozen deterministic identity,
+a protected seam, in the same slice that changes Foundation's schema, and
+because it puts frozen rows behind no scenario parameter. **Trigger: the first
+model rule that needs a Foundation value without a scenario asking for it.**
+Until then the scenario declares the need and this decision is how.
+
+Reason: the coefficient does not merely need somewhere to live, it needs
+somewhere the story cannot reach. A value position that an author may fill is
+a value position an author will fill, and the seam `D-2026-09-21-physical-
+property-ownership` defends is exactly the one that fails quietly - the
+document stays valid, the run still executes, and the physics follow the
+story to whichever machine the scenario is pointed at next.
+
+Affected scope: `backend/assetops_backend/scenarios/parsing.py` and the
+`InitializationInput` shape, `scenarios/execution.py`'s
+`initialization_inputs()` float filter and `EXECUTION_CONTRACT_VERSION`,
+`runs/service.py` `_resolve_foundation_value`'s `declared` argument and the
+retirement of `INITIAL_VALUE_ANSWERS_DISAGREE` from `runs/refusals.py`,
+`config/scenarios/fuel-loss-event.yaml` for both `generator-fuel-rate` and
+`tank-capacity`, T020A's scope and its task file, and the version ledger.
+
+And `.ai/ARCHITECTURE.md` under Refusal And Blocking Vocabularies, which the
+slice retiring the kind has to touch: the durable naming rule there uses
+`INITIAL_VALUE_NOT_RESOLVED` against `INITIAL_VALUE_ANSWERS_DISAGREE` as its
+worked example of *within one subject, the shape must carry it*. The rule is
+general and survives; its illustration stops existing, and a rule illustrated
+by a vocabulary member nobody can find reads as a rule that was not followed.
+Either re-illustrate it from the pair that remains or say the example is
+historical.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-foundation-property-absent-blocks`. **A Foundation
+that declares no such property at all blocks**, with
+`INITIAL_VALUE_NOT_RESOLVED`. It is a fifth case alongside the four, not a
+refusal. Accepted by the user on 2026-09-22. This corrects six statements in
+the record and supersedes the contrary paragraph in the 2026-09-22 extension
+to `D-2026-09-21-run-setup-outcome-vocabulary`.
+
+**Why.** The discriminator the user chose at the T019 review asks *would a
+different model profile fix this?* After T020A the `FoundationBinding` names
+the component type, **the property** and the unit, so the property name is as
+much the profile's aim as the component type is. A different profile naming a
+different property may well find something this Foundation does declare. That
+is a joint fact about the pair, the profile is the half a person can change on
+the setup form, and under the discriminator it blocks.
+
+For the refusal to have held, run setup would have had to establish that the
+declared owner has no answer **without** going through the profile's binding,
+and the same extension that asserted the refusal also says a Foundation's
+answer is locatable only through that binding. The two could not both be true.
+
+**Where the wrong claim came from, because the shape of the mistake is worth
+keeping.** It was written in `D-2026-09-21-physical-property-ownership` on
+2026-09-21, one day before the refusal line moved. When the line moved it was
+re-asserted in the extension rather than re-derived against the new
+discriminator, and five further documents and one task file copied it. A
+statement carried through a change that should have overturned it reads,
+afterwards, exactly like a statement that survived review.
+
+**What survives untouched.** The discriminator itself. The other four blocking
+cases. The absent case on `FrozenInitializationInput` and its three
+invariants. And the structural argument for why a contradiction could not be
+blocked - absence and contradiction are different shapes, and only one of them
+is something a frozen identity can hold. That argument is still correct;
+`D-2026-09-22-foundation-value-declaration` simply removes the only way to
+author two answers, so the case it described can no longer arise.
+
+**MG-001 still has to be re-created.** What changes is the warning, not the
+obligation: a slice that adds the property to the template without re-creating
+the instance produces Drafts that **block** on the missing coefficient, so the
+slice's own UI-verifiable outcome - the Key Parameters row, and the
+frozen-inputs row resolving from *site foundation* - never appears. A blocked
+Draft naming the missing property is also the more useful failure, because it
+is inspectable, where a refusal leaves nothing behind to look at.
+
+Reason: a persisted Draft the person can read is worth more than an error, and
+the discriminator already said so. The only thing holding the refusal up was a
+sentence written before the rule it was supposed to follow.
+
+Affected scope: the 2026-09-22 extension to
+`D-2026-09-21-run-setup-outcome-vocabulary`,
+`D-2026-09-21-physical-property-ownership`, `.ai/FEATURE_MAP.md`'s M1C
+sequencing revision, `.ai/PLANNING_HANDOFF_T019_T022.md` T020A,
+`.ai/ACTIVE_CONTEXT.md`, `Docs/simulator-scenario-authoring-and-runtime.md`,
+`tasks/T020A-foundation-physical-properties.md` which is the Planner's, and
+T020A's blocking-reason coverage.
