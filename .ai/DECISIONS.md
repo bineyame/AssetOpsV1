@@ -46,6 +46,7 @@ rationale in the dated entries below.
 | `D-2026-09-22-reconciliation-panel-retirement` | 2026-09-22 | The `observation_reconciliation` panel goes with (f) in T022, which completes (j) by taking the reference implementation, `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` out of the product path. Closes open questions 5 and 11. |
 | `D-2026-09-22-capacity-bound-source` | 2026-09-22 | A bound's declaration is the document's and its value is the site's. `declared_bounds` reports no upper value for `fuel-tank-volume` after T020A and that is the correct answer; the number lives in the frozen run and the first thing entitled to hold both halves is T021's kernel. |
 | `D-2026-09-22-foundation-property-absent-blocks` | 2026-09-22 | A Foundation that declares no such property at all blocks with `INITIAL_VALUE_NOT_RESOLVED`. It is a fifth case of the four, not a refusal, because after T020A the binding names the property and a different profile might name another. |
+| `D-2026-09-22-milestone-speed-over-purity` | 2026-09-22 | Speed over pedantic purity for the rest of the simulator milestone; a complete review, possibly a refactor, follows milestone completion and proper testing. Stop only for a defect expensive to reverse, a claim that would mislead an Implementer, or a decision only the user can take. Everything else is recorded to `.ai/MILESTONE_REVIEW_BACKLOG.md` and carried. **Governs every slice, pass and review after it.** |
 | `D-2026-09-22-contract-version-scope` | 2026-09-22 | `EXECUTION_CONTRACT_VERSION` moves when a change can alter the outcome for a document that was already valid. A narrowing can; a pure widening off every executable path cannot, so the `TRAJECTORY` oracle kind does not move it. The absolute numbers are unstable and are written relatively. |
 
 ## 2026-09-11
@@ -2616,3 +2617,54 @@ Affected scope: `backend/assetops_backend/simulator_lab_api.py`'s
 panel, `scenarios/execution.py`'s `reconcile_reported_observations`,
 `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS`, T022's scope and its
 user review, T021's kernel floor, and open questions 5 and 11.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-milestone-speed-over-purity`. **Speed matters more
+than pedantic purity for the rest of the simulator milestone. A complete
+review, including a possible refactor, happens once the milestone is complete
+and the thing has been tested properly.** Directed by the user on 2026-09-22.
+This governs every slice, pass and review after it.
+
+**What still gets stopped for.** Three things, and nothing else:
+
+- **A defect that would be expensive to reverse later.** A persisted shape, a
+  contract version, an identity space, a published seam - anything where the
+  cost of the fix grows with what gets built on top of it. `cadence_resolution`
+  qualified while it was a rename and stopped qualifying when it became a
+  deletion that costs nothing.
+- **A claim that would mislead an Implementer.** A statement in the record that
+  has outlived the thing it described, a criterion that points at a closed
+  question, a task file that disagrees with a decision. These are cheap to fix
+  and expensive to act on.
+- **A decision only the user can take.** Product semantics, user-visible
+  claims, evidence interpretation, demo narrative, and anything a task file
+  would otherwise settle by writing a scope line.
+
+**What now gets recorded and carried instead.** Naming that is imperfect but
+honest. A declaration whose falsifier is scheduled rather than absent, as long
+as it discloses that. A restatement that is redundant but not false. A
+vocabulary that would be better shaped and is not wrong. An internal
+inconsistency between two things that both tell the truth.
+
+**Carried is not dropped, and that is the whole of what makes this safe.**
+Everything carried goes on the list in `.ai/MILESTONE_REVIEW_BACKLOG.md` with
+what it is and why it was carried. The deferred review is the thing these are
+carried *to*: it is a named event with a list waiting for it, not an
+intention. A thing carried without being written down is dropped, and this
+decision does not authorise that.
+
+**What this changes for a Reviewer.** A Reviewer raises the three above and
+records the rest to the backlog rather than blocking a slice on it. "This
+would be better named" is a backlog entry. "This name is false" is still a
+finding, because a false name misleads an Implementer.
+
+Reason: three of the last several passes were vocabulary and naming questions.
+Each was individually defensible and the sequence they came in was
+collectively slower than the milestone can afford. The correction is not that
+those questions were wrong; it is that the milestone has a backstop and they
+can wait for it, and a question that can wait should.
+
+Affected scope: `.ai/ACTIVE_CONTEXT.md`, `.ai/WORKFLOW.md` for what a Reviewer
+raises, the new `.ai/MILESTONE_REVIEW_BACKLOG.md`, and every slice, planning
+pass and review for the rest of M1.

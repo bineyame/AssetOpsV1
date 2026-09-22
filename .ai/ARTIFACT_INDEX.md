@@ -26,6 +26,9 @@
 - `.ai/ACTIVE_CONTEXT.md`
 - `.ai/CODE_STATE.md`
 - `.ai/FEATURE_MAP.md`
+- `.ai/MILESTONE_REVIEW_BACKLOG.md` — what
+  `D-2026-09-22-milestone-speed-over-purity` carries rather than fixes; delete
+  when the milestone review has closed it out
 - `.ai/PLANNING_HANDOFF_T019_T022.md` — scoped Architect-to-Planner handoff;
   delete when its last slice closes out. The expiry is the condition and not a
   slice number, under `D-2026-09-22-expiry-follows-the-condition`: the file
