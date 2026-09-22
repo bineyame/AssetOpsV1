@@ -2046,6 +2046,11 @@ and T022's guidance says "already under version 3". Both should say the move
 and the ordering rather than the values. That is the Planner's edit and it is
 unblocked by this entry.
 
+**The count itself is stated once**, in `.ai/FEATURE_MAP.md` under *The
+execution-contract version ledger*, because it is a property of the sequence
+and moves when the sequence does. Added 2026-09-22 once
+`D-2026-09-22-foundation-value-declaration` put a third narrowing in flight.
+
 Reason: the policy in (d) is sound and was stated against the case in front
 of it. Applied literally to a widening it spends a version number to buy
 nothing, which is precisely the cost (d) names when it explains why wording
@@ -2158,6 +2163,15 @@ Affected scope: `backend/assetops_backend/scenarios/parsing.py` and the
 retirement of `INITIAL_VALUE_ANSWERS_DISAGREE` from `runs/refusals.py`,
 `config/scenarios/fuel-loss-event.yaml` for both `generator-fuel-rate` and
 `tank-capacity`, T020A's scope and its task file, and the version ledger.
+
+And `.ai/ARCHITECTURE.md` under Refusal And Blocking Vocabularies, which the
+slice retiring the kind has to touch: the durable naming rule there uses
+`INITIAL_VALUE_NOT_RESOLVED` against `INITIAL_VALUE_ANSWERS_DISAGREE` as its
+worked example of *within one subject, the shape must carry it*. The rule is
+general and survives; its illustration stops existing, and a rule illustrated
+by a vocabulary member nobody can find reads as a rule that was not followed.
+Either re-illustrate it from the pair that remains or say the example is
+historical.
 
 ## 2026-09-22
 

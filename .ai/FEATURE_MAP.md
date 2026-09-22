@@ -2296,7 +2296,7 @@ nothing in front of either insertion is blocked.
   by (e)   plus (l)  (k)       + TRAJECTORY      (g)
   and (j)  disclosure Foundation  oracle (i)     contract
                      properties + supported_     version
-                     and          states         2 ► 3
+                     and          states         moves
                      carriers     conformance (l)
                        │        + retires T020's
                        │          disclosure
@@ -2384,6 +2384,50 @@ T021, not a resequencing.
 | (g) | `execution_requirement` forbidden on a reported observation | T021A |
 | (f) | observations are generated, not authored | T022 |
 | (h) | projection versus composition | `.ai/ARCHITECTURE.md`; no code slice |
+
+#### The execution-contract version ledger
+
+`EXECUTION_CONTRACT_VERSION` is stamped into every frozen run and a
+provenance mismatch refuses playback, so what the number is after each slice
+is a fact the sequence has to hold rather than a detail a slice picks.
+`D-2026-09-22-contract-version-scope` says when it moves; this is the count
+across M1C, and it is the only place the count is stated.
+
+| After | Version | Why |
+| --- | --- | --- |
+| `main` today | 2 | T019 merged it |
+| T020 | 2 | no contract change; the `READY` disclosure is not one |
+| T020A | 3 | narrowing: a Foundation-owned parameter has no value position, and the shipped document as it stands is refused by the new parser |
+| the four-semantics declaration | 4 | narrowing: four previously unspecified semantics pinned, each one a place two conforming kernels could have disagreed |
+| T021 | 4 | no move: the `TRAJECTORY` oracle widens the document space off every executable path |
+| T021A | 5 | narrowing: no `execution_requirement` position on a reported observation |
+| T022 | 5 | no move: one document's content and a new component, not a change to the space |
+
+**Three narrowings are in flight and, as sequenced, each one merges in a
+different slice, so each spends a number. The unreleased-version doctrine
+collapses nothing here.** That doctrine - a narrowing that never leaves the
+branch it was made on does not spend a number, because nothing ever conformed
+to the version it would have replaced - only reaches narrowings that share an
+unmerged window. It is how versions one and two absorbed two amendments each
+inside T019, and it applies again only if some slice below narrows twice
+internally.
+
+**Where the four-semantics declaration lands is not decided, and the table
+assumes a step of its own.** Whichever slice declares them spends the number.
+One variant changes the count: declaring them inside T020A would spend a
+single number for both narrowings and leave T021A at 4. It is not
+recommended - bundling a contract declaration into a Foundation-carrier slice
+makes that slice's internal ordering load-bearing, which is the argument that
+gave (g) a slice of its own.
+
+**So write the move, never the literal.** `tasks/T021A-reported-observation-
+requirement-closure.md` says "2 to 3" and T022's guidance says "already under
+version 3"; under this ledger both are wrong, and they were wrong before
+T020A joined the count. T021A moves the number by one and a Draft frozen
+under the previous version keeps what it was frozen under; T022 edits under
+whatever T021A produced. The frontend fixture deliberately pins 1 so the
+payload and the constant cannot be one literal by accident, and that is
+unaffected.
 
 #### Seams this sequence surfaced
 
@@ -2592,5 +2636,16 @@ and operator consequence.
     volume floor in the validation layer now has a destination but no slice;
     whether reset clears intervention history, which matters only when
     injection is planned.
+  - **Scheduled by trigger rather than by position:** option C, the model
+    profile declaring that it needs a Foundation value, rather than the
+    scenario declaring the need on its behalf. It is where the need belongs -
+    the law is the thing that knows it needs a coefficient - and it was not
+    taken in T020A because it changes the shape of the frozen deterministic
+    identity in the same slice that changes Foundation's schema. **Trigger:
+    the first model rule that needs a Foundation value without a scenario
+    asking for it.** See `D-2026-09-22-foundation-value-declaration`.
+    `tank-capacity` is **not** on this list: it carried the same defect and
+    T020A now fixes it, because the parser rule keys on the owner and reaches
+    every Foundation-owned parameter.
 - Everything else in the M1 feature map is resolved and ready for task
   breakdown after user review.

@@ -362,9 +362,10 @@ literals.** The task file currently says "2 to 3" and T022's guidance says
 kernel semantics is itself a narrowing that spends a number and is due before
 T021's task file, and the constant's own docstring carries an
 unreleased-version doctrine under which a narrowing that never leaves its
-branch spends nothing. See `D-2026-09-22-contract-version-scope`. Confirmed
-there: the `TRAJECTORY` oracle T021 adds does **not** move it, so T021A's move
-is still the next one after whatever the semantics declaration costs.
+branch spends nothing. See `D-2026-09-22-contract-version-scope` for when the
+number moves and `.ai/FEATURE_MAP.md`, *The execution-contract version
+ledger*, for what it is after each slice - three narrowings are now in flight
+and, as sequenced, none of them collapses into another.
 
 **May not.** Remove the authored reading *values* — that is (f) and it is
 T022's. Touch the reconciliation panel or its payload. Change anything else in
