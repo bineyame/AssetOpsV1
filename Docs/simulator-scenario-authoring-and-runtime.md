@@ -35,6 +35,18 @@ cannot answer, block — which corrects two consequence statements below
 that said a site without the T020A property would block. It is refused. See
 the 2026-09-22 extension to `D-2026-09-21-run-setup-outcome-vocabulary`.
 
+**Revised again 2026-09-22, after a cold read of the whole sequence.** Two
+additions. `D-2026-09-22-contract-version-scope` answers whether the
+`TRAJECTORY` oracle kind moves `EXECUTION_CONTRACT_VERSION` - it does not -
+and says the absolute version numbers should stop being written as literals.
+And [What declares the need](#what-declares-the-need-once-the-scenario-stops-declaring-it)
+opens a decision due before T020A's task file: once `generator-fuel-rate`
+leaves the scenario, nothing in the current design tells run setup the run
+needs the coefficient. That section also finds that this document's own
+statement about a non-re-created MG-001 producing **refused** runs does not
+match the code, and marks it under decision rather than correcting it in a
+direction the user has not chosen.
+
 No code has been changed to match this document. Task files are the Planner's
 and now exist for T019 through T023; the code changes belong to the slices
 named in the per-task table below.
@@ -609,10 +621,191 @@ MG-001**, which was created by copy and lives in `var/sites/mg-001.yaml`. The
 demo site must be re-created from the updated template, or the property
 hand-added to the instance. Both are cheap — it is a development fixture —
 but neither is automatic, and a slice that adds the field without saying this
-will produce a site whose runs are **refused**, not blocked: the declared
-owner, Foundation, would have no answer, and no profile choice reaches a value
-that is not there. (Corrected 2026-09-22; see
-`D-2026-09-21-run-setup-outcome-vocabulary`.)
+will produce a site whose runs do not resolve the coefficient.
+
+> **Whether that is a refusal or a block is under decision, and this sentence
+> used to assert the refusal.** `runs/service.py` `_resolve_foundation_value`
+> returns the blocking `INITIAL_VALUE_NOT_RESOLVED` when a binding matches
+> nothing, and a Foundation carrying no such property is that case as the code
+> stands. The refusal reading needs a way to say *the declared owner has no
+> answer* that does not run through the profile's binding, and the T019
+> review's discriminator argues there is none. See
+> [What declares the need](#what-declares-the-need-once-the-scenario-stops-declaring-it),
+> which is due before T020A. Do not read this paragraph as settled either way.
+> What is not in doubt is that MG-001 must be re-created.
+
+### What declares the need, once the scenario stops declaring it
+
+**`[OPEN]` - decision due before T020A's task file. Options and a
+recommendation below; the choice is the user's.**
+
+(k) says the shipped template declares the generator's specific fuel
+consumption, `generator-fuel-rate` leaves the scenario, and run setup freezes
+the coefficient from Foundation. The three carriers (k) names are all
+necessary, and none of them answers a fourth question the slice cannot avoid:
+**once the scenario no longer declares the coefficient, what tells run setup
+that the run needs it?**
+
+Today nothing else could. `initialization_inputs()` in
+`scenarios/execution.py` enumerates *scenario parameters* - those whose
+ownership initializes, whose role is state-changing, and which carry a float
+`value`. `_freeze` in `runs/service.py` walks that list and dispatches on the
+owner, and the Foundation branch, `_resolve_foundation_value`, is reachable
+only from it. Delete the parameter and run setup enumerates nothing, resolves
+nothing and freezes nothing: the coefficient is not blocked and not refused,
+it is absent, and T021's kernel has nothing to read.
+
+A second thing is in the way and it is worth seeing before the options.
+`generator-fuel-rate` is `initializes: false` today. It is a rate the dispatch
+event consumes through `state_effect.rate_parameter_id`, not an initial world
+value, and run setup's whole Foundation-resolution path is on the
+initialization path. So "run setup freezes the coefficient from Foundation" is
+not a small edit to an existing path under any option. Each option below
+decides what kind of thing the coefficient is.
+
+#### Option A - the scenario keeps the parameter and names Foundation the authority
+
+Exactly the `fuel-tank-capacity` pattern already in the shipped document:
+`owner: SITE_FOUNDATION`, `initializes: true`, value present and commented as
+*the requirement run setup checks against that rating, not the value a run
+would use*.
+
+- **Cost: lowest.** `config/scenarios/fuel-loss-event.yaml` changes, plus the
+  two carriers T020A already owns. No parser change, no `_freeze` change, no
+  new answerer, no contract-version move.
+- **Refuse versus block:** the contradiction refusal stays reachable, because
+  the scenario still states a number for Foundation to contradict.
+- **T021:** the coefficient arrives as a frozen initialization input in the
+  shape the kernel already expects. No effect.
+- **It preserves the thing (k) exists to remove.** The swap test in
+  `D-2026-09-21-physical-property-ownership` says run the same scenario
+  against a different generator and 14 L/h must not follow the story. Under A
+  it does follow the story - as a requirement that now refuses the run. A
+  scenario that cannot run against a 12 L/h genset has a physical property of
+  a machine in it, wearing a checker's hat instead of an authority's.
+  `fuel-tank-capacity` has the same defect today and nobody has called it; it
+  is invisible only because tank capacity rarely varies between sites made
+  from one template. If A is chosen, that is a second instance to schedule,
+  not a precedent to lean on.
+
+#### Option B - the scenario declares the need and states no value
+
+`owner: SITE_FOUNDATION`, `initializes: true`, and **no value position at
+all** for a Foundation-owned parameter - closed at the structure the way (g)
+closes `execution_requirement` and T018 closed duration units, rather than as
+a rule someone has to remember.
+
+- **Cost: a parser change and a type change.** `InitializationInput.value`
+  becomes optional, `initialization_inputs()` drops its
+  `isinstance(parameter.value, float)` filter for this owner, and
+  `_resolve_foundation_value`'s `declared` becomes optional.
+- **It moves `EXECUTION_CONTRACT_VERSION`**, under
+  `D-2026-09-22-contract-version-scope`: a document that was valid - one
+  carrying a value beside a Foundation owner - is now refused, which is a
+  narrowing and reaches documents that already exist. Worth pricing
+  deliberately rather than discovering. It lands in the same free-window
+  conversation as (g), and if B is chosen the sensible shape is for T020A's
+  move and T021A's to be the two the sequence spends.
+- **Refuse versus block:** with no stated value there are never two answers,
+  so `INITIAL_VALUE_ANSWERS_DISAGREE` becomes unreachable for the
+  coefficient. If B is later applied to `fuel-tank-capacity` too, that refusal
+  kind has no producer at all - a vocabulary member naming a fact nothing can
+  make, which is the `RUNNING` problem one layer down. Either keep a
+  Foundation-owned parameter able to state a cross-check, or retire the kind
+  when its last producer goes. Do not let it become unreachable by accident.
+- **T021:** unchanged. The value still arrives frozen.
+- **It is the option that satisfies the swap test.** The scenario says this
+  run needs the generator's specific fuel consumption and Foundation answers;
+  it states no number. Swap the genset and the run picks up the new number
+  with no scenario edit. That is what (k) asked for.
+
+#### Option C - the model profile declares the need
+
+`SupportedState` already exists per state and already carries
+`foundation_binding`. C says a supported state may also declare that it
+*requires* a Foundation-supplied value at that address, and `_freeze`
+enumerates from the profile as well as from the scenario.
+
+- **Cost: highest, and it is the only option that changes the shape of the
+  frozen identity.** `FrozenInitializationInput.parameter_id` is a scenario
+  parameter id today; under C some frozen rows have no scenario parameter
+  behind them. The deterministic identity is a protected seam, and T020A
+  already changes Foundation's schema, so C makes two protected-seam changes
+  in one slice.
+- It also splits a column the frozen-inputs table does not have: the *need* is
+  declared by the profile and the *value* is answered by Foundation, and
+  "Answered by" carries one of those.
+- Every run against this profile freezes the coefficient, including runs of
+  scenarios that never dispatch a generator. Either right - the profile models
+  a generator, so it always needs one - or noise on unrelated runs.
+- **Refuse versus block: the cleanest of the three.** The need and the address
+  are both the profile's, so a failure to answer is unambiguously a joint fact
+  about the pair, everything blocks, and nothing is left to argue about.
+- **It is where the need conceptually belongs.**
+  `D-2026-09-21-physical-property-ownership` says *consumption is proportional
+  to runtime* is a model rule and *this generator burns 14 L/h* is Foundation.
+  The law is the thing that knows it needs a coefficient, and C puts the need
+  beside the law.
+
+#### Can run setup ever say Foundation declares no such property?
+
+Six documents say a T020A that adds the property without re-creating MG-001
+produces a site whose runs are **refused**. The code says otherwise, and so,
+on inspection, does the discriminator the user chose.
+
+`_resolve_foundation_value` reaches a refusal down exactly one path,
+`rating.value != declared`: both owners answered and the numbers differ. Every
+not-found - no binding, no match, more than one match, wrong unit - blocks. A
+Foundation carrying no such property is a not-found, so it blocks.
+
+The refusal reading needs run setup to establish *the declared owner has no
+answer* without going through the binding. The T019 review's discriminator
+says it cannot: a Foundation's answer is only locatable through the selected
+profile's binding, so failing to locate it is a joint fact about the pair. And
+after T020A the binding names the component type, the property and the unit,
+so the property name is as much the profile's aim as the component type is. A
+different profile naming a different property might find something MG-001 does
+declare. Under the discriminator as chosen, that is a block.
+
+The one way to keep the refusal is to **pin the property name outside the
+profile**, so an absent property is the declared owner's silence rather than
+the profile's aim missing - for instance by making the per-component-type
+property vocabulary the register the scenario names and the binding only
+locates. That vocabulary is authored rather than inferred, so consulting it is
+not the match-by-spelling T019 forbade. The cost is that the address becomes a
+three-part thing shared between scenario and profile, and the T019 principle
+has to be restated rather than applied.
+
+**This is the failure class this sequence keeps meeting.** The refusal claim
+comes from `D-2026-09-21-physical-property-ownership`, written on 2026-09-21,
+one day before the user moved the refusal line. It survived the move by being
+re-asserted in the 2026-09-22 extension rather than re-derived against the new
+discriminator, and five other documents copied it - plus
+`tasks/T020A-foundation-physical-properties.md`, which is the Planner's.
+
+#### Recommendation
+
+**Option B, and correct the seven statements to say the runs block.**
+
+B over A because A preserves the seam violation (k) exists to remove, and the
+`fuel-tank-capacity` precedent is a second instance to schedule rather than a
+reason to repeat it. B over C because C is more correct about where the need
+lives but spends two protected-seam changes in one slice and puts a frozen row
+behind no scenario parameter. C stays the right eventual home and should be
+named as the follower: the first model rule that needs a Foundation value
+without a scenario asking for it is what should carry it.
+
+On the refusal, correct it. A block is what the code does, what the
+discriminator implies, and the more useful outcome anyway, because the person
+gets a persisted Draft naming the missing property instead of an error that
+leaves nothing to inspect. T020A must still re-create MG-001; the reason
+becomes *otherwise the demo site's runs never resolve the coefficient and the
+slice's own UI-verifiable outcome never appears on screen*, which is a weaker
+warning than a refusal and a sufficient one.
+
+If the user would rather keep the refusal, the pinned-property-name variant
+above is the way, and it should be decided as part of this rather than
+discovered inside the slice.
 
 ### Does `READY` overreach?
 
@@ -2151,9 +2344,28 @@ render it."*
 The feature map **can** name the step (T021, T022), so disabled-with-reason is
 defensible. The risk is cumulative rather than local: a Runs inventory, a run
 detail, a frozen-identity panel and a disabled Run button together read as
-*almost working*, when no execution capability exists at all. `[OPEN]` Worth a
-deliberate look when T020's screens are reviewed — not a vocabulary change, a
-presentation-honesty check against a rule the project already has.
+*almost working*, when no execution capability exists at all. **`[CLOSED]`** —
+not as a vocabulary change but as a review obligation. T020's task file makes
+a cumulative presentation-honesty assessment a named item in the review
+packet, and the M1C user-review note in `.ai/FEATURE_MAP.md` says the same. If
+the reviewer or the user judges the whole misleading, the remedy returns to
+planning rather than being chosen inside the slice.
+
+### 13. What declares the need, once the coefficient leaves the scenario
+
+**Due before T020A's task file, and it is the one open question in this range
+that blocks a slice outright rather than scoping it.** (k) moves the
+generator's specific fuel consumption to Foundation, and nothing in the
+current design then tells run setup that a run needs it: initialization inputs
+are enumerated from scenario parameters, and the coefficient is about to stop
+being one. Three options, their costs, what each does to the refuse-versus-
+block line and to T021, and a recommendation are in
+[What declares the need](#what-declares-the-need-once-the-scenario-stops-declaring-it).
+
+It also carries a correction the user has to make rather than ratify: six
+documents say a T020A that does not re-create MG-001 produces **refused**
+runs, and the code blocks. Which way that goes depends on this decision, so
+those statements are marked under decision rather than corrected.
 
 ---
 

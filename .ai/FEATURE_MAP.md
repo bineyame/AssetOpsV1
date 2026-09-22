@@ -2333,11 +2333,21 @@ panel shows it resolving from *site foundation* rather than from *scenario*.
 That is the seam repair made visible in one line of a table the user already
 reads. The slice also re-creates MG-001 from the updated template, because
 templates instantiate by copy and a template change never reaches an existing
-instance; a slice that adds the field without doing that produces a site whose
-runs are **refused**, not blocked. The coefficient's declared owner is
-Foundation, an instance carrying no such property leaves that owner with no
-answer, and no profile a person could choose on the setup form reaches a value
-that is not there. See `D-2026-09-21-run-setup-outcome-vocabulary`.
+instance. A slice that adds the field without doing that produces a site
+whose runs never resolve the coefficient, so the slice's own UI-verifiable
+outcome never appears.
+
+**Whether those runs are refused or blocked is under decision.** This
+paragraph asserted the refusal, and `runs/service.py` blocks: a binding that
+matches nothing returns `INITIAL_VALUE_NOT_RESOLVED`, and a Foundation
+carrying no such property is that case. The refusal reading needs run setup to
+establish that the declared owner has no answer without going through the
+profile's binding, which the T019 discriminator argues it cannot. The claim
+predates that discriminator by a day and was re-asserted rather than
+re-derived against it. Resolved by the decision due before T020A's task file;
+see `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the
+need, once the scenario stops declaring it*, and
+`D-2026-09-21-run-setup-outcome-vocabulary`.
 
 **The loop inside T021.** T021 is no longer only a producer. It runs the kernel
 against the shipped Fuel Loss document, reports the resulting trajectory, and
@@ -2537,6 +2547,17 @@ and operator consequence.
     property into the shipped template and into MG-001, so choosing in T020A
     and changing later is a unit migration on a Foundation document. Only the
     shipped value waits on it; the carriers are the same either way.
+  - **Before T020A's task file, and it blocks the slice rather than scoping
+    it:** what declares that the run needs the coefficient, once
+    `generator-fuel-rate` leaves the scenario. Initialization inputs are
+    enumerated from scenario parameters and the coefficient is about to stop
+    being one, so run setup would resolve nothing and T021's kernel would have
+    nothing to read. Three options, their costs and a recommendation are in
+    `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the
+    need, once the scenario stops declaring it*. The same decision settles
+    whether a non-re-created MG-001 produces refused or blocked runs, which
+    six documents and T020A's task file currently assert one way and the code
+    answers the other.
   - **Before T021's task file:** the rest of the `REQUIRED` forcing-state
     decision — what happens to `site-load-demand`,
     `plane-of-array-irradiance` and `fuel-level-reporting-availability`, and

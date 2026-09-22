@@ -46,10 +46,23 @@ location failures block as `INITIAL_VALUE_NOT_RESOLVED`; the
 Foundation/scenario contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE`,
 because the frozen identity can hold no answer and not two.
 `.ai/ARCHITECTURE.md` now carries the naming rule that keeps the two
-vocabularies legible. **T020A must not collapse the two**: a profile binding
-that cannot locate a Foundation value blocks, a Foundation that declares no
-such property refuses, so a slice adding the property without re-creating
-MG-001 produces a site whose runs are refused.
+vocabularies legible. **Whether a Foundation that declares no such property
+refuses or blocks is under decision**: the record says refuse, the code
+blocks, and it is settled by the T020A carrier decision below. T020A must not
+settle it by implementation.
+
+**Two decisions are due before T020A, not one.** The `dispatched-output`
+promotion fixes the coefficient's unit and is due before the slice is
+implemented. And once `generator-fuel-rate` leaves the scenario, nothing tells
+run setup the run needs the coefficient - initialization inputs come from
+scenario parameters. Three options and a recommendation are in
+`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
+once the scenario stops declaring it*; that decision is due before T020A's
+task file and also settles the refusal question above.
+
+**`EXECUTION_CONTRACT_VERSION`:** T021's `TRAJECTORY` oracle does not move it,
+T021A's (g) does, and the absolute numbers should be written relatively
+(`D-2026-09-22-contract-version-scope`).
 
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in

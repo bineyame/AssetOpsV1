@@ -34,11 +34,12 @@ rationale in the dated entries below.
 | `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
 | `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. Amended by `D-2026-09-21-scenario-execution-contract-amendment-1`. |
 | `D-2026-09-21-scenario-execution-contract-amendment-1` | 2026-09-21 | Amendment 1 to the execution contract: simultaneous causes net rather than order; the contract-version bump policy; run setup stops adjudicating cause-to-observation coupling; a scenario does not author what a device reads; `execution_requirement` is forbidden on a reported observation; a fifth `TRAJECTORY` oracle kind. |
-| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. Extended 2026-09-22: the refusal line moved to who failed to answer, four location failures block as `INITIAL_VALUE_NOT_RESOLVED`, and the contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE` because the frozen identity can hold no answer and not two. |
+| `D-2026-09-21-run-setup-outcome-vocabulary` | 2026-09-21 | `BLOCKED` is the shipped run-setup outcome, now on three reasons; the Fuel Loss residual splits into two scheduled decisions with different deadlines; `READY` discloses what it does not assert and T021 verifies it against the kernel. Extended 2026-09-22: the refusal line moved to who failed to answer, four location failures block as `INITIAL_VALUE_NOT_RESOLVED`, and the contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE` because the frozen identity can hold no answer and not two. One consequence of that extension, a Foundation declaring no such property at all, is marked under decision pending the T020A carrier decision. |
 | `D-2026-09-21-projection-versus-composition` | 2026-09-21 | Projecting a document is static validation; composing projections into a value-at-a-time is a kernel, whatever the component is called. |
 | `D-2026-09-21-specification-reference-implementation` | 2026-09-21 | A specification's reference implementation is labelled and carries a stated expiry; `reconcile_reported_observations` stops being an authority when a kernel is compared against it, and leaves the repository when its last product-path caller goes. |
-| `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. |
+| `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. Its template-copy consequence is marked under decision pending the T020A carrier decision. |
 | `D-2026-09-22-expiry-follows-the-condition` | 2026-09-22 | A gap-covering artifact names the condition as its expiry, never a slice number; a claim that has become false goes in the slice that falsifies it, and a thing still honest goes when someone decides to remove it. |
+| `D-2026-09-22-contract-version-scope` | 2026-09-22 | `EXECUTION_CONTRACT_VERSION` moves when a change can alter the outcome for a document that was already valid. A narrowing can; a pure widening off every executable path cannot, so the `TRAJECTORY` oracle kind does not move it. The absolute numbers are unstable and are written relatively. |
 
 ## 2026-09-11
 
@@ -1621,6 +1622,22 @@ the case that governs T020A's template-copy consequence, and the two must not
 be collapsed: *the profile's binding could not locate an answer* blocks, *the
 declared owner has no answer to locate* refuses.
 
+> **Under decision, 2026-09-22.** This paragraph is the one part of this
+> extension that the code does not implement and that the discriminator above
+> may not support. `runs/service.py` `_resolve_foundation_value` reaches a
+> refusal down one path only, `rating.value != declared`, where both owners
+> answered and disagreed; every not-found blocks, and a Foundation carrying no
+> such property is a not-found. For the refusal to hold, run setup must
+> establish that the declared owner has no answer without going through the
+> profile's binding - and this entry's own discriminator says a Foundation's
+> answer is locatable only through that binding, which after T020A names the
+> property as well as the component type. Resolved by the decision due before
+> T020A's task file; see `Docs/simulator-scenario-authoring-and-runtime.md`,
+> *What declares the need, once the scenario stops declaring it*. Nothing else
+> in this extension is affected: the four blocking cases, the absent value on
+> `FrozenInitializationInput`, the three invariants and the contradiction
+> refusal all stand.
+
 **`FrozenInitializationInput` gained an absent case.** `value` and
 `canonical_value` are nullable and absent together; the unit is not, because
 the scenario declares it whether or not anything answers. The invariants live
@@ -1811,6 +1828,13 @@ scenario may declare `owner: MODEL_RULE`, run setup will correctly name
 `MODEL_PROFILE` as the answerer, and there is nowhere for the answer to come
 from. That is the T019 review's L9 finding.
 
+**A third thing was missed, and it is the subject of a decision due before
+T020A's task file.** The three holes below are carriers for a *value*. None of
+them declares the *need*: initialization inputs are enumerated from scenario
+parameters, and this entry has the coefficient leaving the scenario. See
+`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
+once the scenario stops declaring it*.
+
 **A new slice, T020A, closes them, after T020 and before T021.** It is the one
 change in this sequence that is an insertion rather than a narrowing: you
 cannot narrow your way into a field that is not there. Nothing moves relative
@@ -1832,10 +1856,20 @@ template change never alters an already-created instance. The demo site must be
 re-created from the updated template, or the property hand-added to the
 instance. Both are cheap, because it is a development fixture, but neither is
 automatic, and a slice that adds the field without doing this produces a site
-whose runs are **refused**, not blocked: the coefficient's declared owner is
-Foundation, and an instance carrying no such property leaves that owner with no
-answer. The four failures that block are the ones where the profile's binding
-cannot locate an answer that exists. See
+whose runs never resolve the coefficient.
+
+> **Under decision, 2026-09-22.** This sentence said those runs are
+> **refused**, not blocked. The code blocks, and this entry was written the
+> day before the user moved the refusal line, so the claim was re-asserted in
+> the 2026-09-22 extension to `D-2026-09-21-run-setup-outcome-vocabulary`
+> rather than re-derived against the new discriminator. Which way it goes is
+> settled by the decision due before T020A's task file; see
+> `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
+> once the scenario stops declaring it*. The obligation to re-create MG-001
+> does not depend on the answer, and nothing else in this entry does either.
+
+The four failures that block are the ones where the profile's binding cannot
+locate an answer that exists. See
 `D-2026-09-21-run-setup-outcome-vocabulary`.
 
 Reason: the coefficient does not merely belong somewhere tidier. The kernel
@@ -1924,3 +1958,103 @@ Affected scope: `D-2026-09-21-run-setup-outcome-vocabulary`,
 its stated expiry, T021's conformance test and its comparison against the
 reference implementation, Open Question 5, `.ai/ARCHITECTURE.md` under
 Presentation Honesty, and any future artifact created to cover a gap.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-contract-version-scope`. Adding the `TRAJECTORY`
+oracle kind in T021 does **not** move `EXECUTION_CONTRACT_VERSION`. The move
+that T021A carries for (g) stands, and this entry says why the two are
+different rather than leaving the next reader to re-derive it. Two readers
+raised the question independently within a day, which is the signal that the
+policy in (d) is answerable but not yet answered in writing.
+
+**The question.** (d) says the number moves when the space of conforming
+behaviours changes, including when it narrows, and never for wording. (g)
+moved it for a change that alters no executor behaviour at all:
+`execution_requirement` on a `REPORTED_OBSERVATION` is read by nothing, which
+is the whole argument for removing it. Adding `TRAJECTORY` to
+`EXPECTATION_KINDS` also alters no executor behaviour, because no executable
+path reads any oracle. If document shape alone was enough to move the number
+for (g), the same reasoning reaches `TRAJECTORY`, and T021 moves it too.
+
+**Following (g) would bump on everything, so the test has to be sharper.**
+`scenarios/parsing.py` validates both vocabularies strictly. Under a strict
+parser every vocabulary change alters what an executor does with *some*
+document - refuse becomes run, or run becomes refuse - so "does executor
+behaviour change on some document" is satisfied by every change of either
+kind and separates nothing. It cannot be the test.
+
+**The axis that does separate them is direction, measured against the
+documents that already exist.**
+
+- (g) **narrows**: a document that was valid is now refused. A run could
+  already have been frozen against such a document, and after the move that
+  document no longer parses, so the artifact cannot be re-derived. That is
+  exactly the situation
+  `D-2026-09-21-causal-runtime-before-golden-traces` makes a provenance
+  mismatch refuse playback for, and it is what the number exists to signal.
+- `TRAJECTORY` **widens**: every document valid before is valid now and means
+  the same thing, and every artifact frozen before regenerates identically.
+  Nothing that exists is affected. Only documents that could not previously
+  have been written are, and no artifact was ever frozen against one.
+
+**So the policy, stated the way it is meant to be applied: the number moves
+when the change can alter the outcome for a document that was already valid.**
+A narrowing can. A pure widening cannot. "Including when it narrows" in (d)
+was written to catch the case a reader would otherwise forget, not to make
+widening a move; this entry says so rather than leaving it to be read either
+way.
+
+**One carve-out, kept deliberately.** A widening whose new construct sits on
+an executable path can change how an existing construct is interpreted beside
+it, and that reaches documents that already exist. This entry does not cover
+that case. `TRAJECTORY` is not it: no executable path reads any oracle, under
+`D-2026-09-21-scenario-authoring-semantics`, and
+`D-2026-09-21-scenario-execution-contract-amendment-1`'s (i) keeps it that
+way by construction.
+
+**Why the forward direction is not the number's job here.** A scenario
+document declares no contract version; the constant lives in code and is
+stamped onto a frozen run. Parser and constant ship together, so "a version-2
+executor meets a version-3 document" is not a state this product can be in.
+The only comparison the number ever serves is an older frozen run replayed
+against a newer build, which is the backward direction, and a widening is
+invisible in it.
+
+**This is distinguishing (g), not overruling it.** (g)'s move is correct and
+stays. What changes is that the reason for it is now recorded as its
+direction rather than as "the document shape changed", so the next vocabulary
+addition does not inherit a move it has not earned.
+
+**What each slice leaves the number at, and why the literals should go.**
+T021 leaves it at its current value. T021A moves it by one. The absolute
+numbers should not be written as literals anywhere, for two reasons already
+in the record and neither of them hypothetical:
+
+- Pinning the four unpinned kernel semantics is a narrowing and moves the
+  number. That declaration is due before T021's task file, so if it lands
+  before T021A, T021A's move is not `2` to `3`.
+- The constant's own docstring carries an unreleased-version doctrine: a
+  narrowing that never leaves the branch it was made on does not spend a
+  number, because nothing ever conformed to the version it would have
+  replaced. Two amendments have already been absorbed that way.
+
+`tasks/T021A-reported-observation-requirement-closure.md` hard-codes "2 to 3"
+and T022's guidance says "already under version 3". Both should say the move
+and the ordering rather than the values. That is the Planner's edit and it is
+unblocked by this entry.
+
+Reason: the policy in (d) is sound and was stated against the case in front
+of it. Applied literally to a widening it spends a version number to buy
+nothing, which is precisely the cost (d) names when it explains why wording
+must not move the number - a version that moves for a change that invalidates
+nothing forces regeneration of golden traces that were never invalid. The
+refinement keeps (d)'s purpose rather than its sentence.
+
+Affected scope: `backend/assetops_backend/scenarios/execution.py`'s
+`EXECUTION_CONTRACT_VERSION` and the policy comment beside it, which states
+(d) correctly and is incomplete rather than wrong; T021's `TRAJECTORY` oracle;
+T021A's version move and the literals in its task file; T022's statement about
+which version it edits under; the slice that declares the four unpinned kernel
+semantics; and the carrier decision due before T020A, whose option B is a
+narrowing and would move the number if it is chosen.

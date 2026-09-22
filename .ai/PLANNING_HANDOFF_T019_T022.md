@@ -163,6 +163,22 @@ implemented.** The coefficient's canonical unit follows the
 `dispatched-output` promotion; see the deadline section above. Do not let the
 slice choose a unit to get itself unblocked.
 
+**Revised 2026-09-22 again: a second decision is due, and it gates the task
+file rather than the implementation.** Three carriers are listed below and
+there is a fourth question none of them answers: once `generator-fuel-rate`
+leaves the scenario, what tells run setup the run needs the coefficient?
+`initialization_inputs()` enumerates scenario parameters, `_freeze` walks that
+list, and `_resolve_foundation_value` is reachable only from it, so deleting
+the parameter leaves the coefficient neither blocked nor refused but absent,
+and T021's kernel with nothing to read. The coefficient is also
+`initializes: false` today, a rate the dispatch event consumes rather than an
+initial world value, so no option here is a small edit to an existing path.
+Three options, their costs, what each does to the refuse-versus-block line and
+to T021, and an Architect recommendation are in
+`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
+once the scenario stops declaring it*. **Do not write this task file first and
+patch it after.** The same decision settles the refusal consequence below.
+
 **Must deliver.** Three carriers that move together, because any one alone
 still leaves an owner that can be declared and not answered.
 
@@ -179,22 +195,30 @@ still leaves an owner that can be declared and not answered.
 
 Then the shipped template declares the generator's specific fuel consumption,
 `generator-fuel-rate` leaves the scenario, and run setup freezes the
-coefficient from Foundation. Two different outcomes when it does not resolve,
-and the slice must not collapse them: a selected profile whose binding cannot
+coefficient from Foundation. A selected profile whose binding cannot
 locate it - no binding declared, no match, more than one match, or the wrong
-unit - persists a Draft that blocks on `INITIAL_VALUE_NOT_RESOLVED`, while a
-Foundation that declares no such property at all is the declared owner having
-no answer and the request is **refused**. See
-`D-2026-09-21-run-setup-outcome-vocabulary`.
+unit - persists a Draft that blocks on `INITIAL_VALUE_NOT_RESOLVED`. Whether a
+Foundation that declares no such property at all is a fifth case of the same
+thing or a refusal is the decision named above: the record says refusal, the
+code says block, and after T020A the binding names the property as well as the
+component, so the property name is as much the profile's aim as the component
+type is. Do not let the task file settle it either way. See
+`D-2026-09-21-run-setup-outcome-vocabulary` and
+`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need*.
 
 **And MG-001 is re-created from the updated template.** Templates instantiate
 by copy and a template change never reaches an existing instance, so adding the
 property to `config/site-templates/hybrid-mini-grid-100kw.yaml` will not give
 it to `var/sites/mg-001.yaml`. A slice that adds the field without doing this
-produces a site whose runs are **refused**, not blocked - MG-001's Foundation
-would declare no such property, and that is the declared owner having no
-answer. `var/sites/` also holds `mg-002` and `mg-003` as fixtures the user
-asked to keep; do not clear the directory.
+produces a site whose runs never resolve the coefficient, so the slice's own
+UI-verifiable outcome never appears on screen. **Whether those runs are
+refused or blocked is under decision** and this paragraph asserted the
+refusal: `_resolve_foundation_value` blocks with
+`INITIAL_VALUE_NOT_RESOLVED` when a binding matches nothing, and a Foundation
+carrying no such property is that case. Settled by the decision named above;
+the obligation to re-create MG-001 does not depend on which way it goes.
+`var/sites/` also holds `mg-002` and `mg-003` as fixtures the user asked to
+keep; do not clear the directory.
 
 **UI-verifiable outcome, which it must have.** Site Configuration's Key
 Parameters panel shows the generator's fuel consumption. Run setup's
@@ -282,6 +306,23 @@ second half of the `REQUIRED` forcing-state decision and the four unpinned
 semantics, both before the task file is written. T020's run-detail shell for
 the small visible readiness result.
 
+**What T021 refuses, which the task file has to state rather than discover.**
+T019 has already frozen and validated everything T021 initializes from, so
+T021's "missing or ambiguous inputs" refusals are defence in depth against a
+bad caller, not a second validation layer with work to do. They are
+unreachable through the normal path and must be tested directly, because
+*unreachable* and *not yet reached* look identical in a test suite and only
+one of them is a guarantee. This is the open remainder of Open Question 6;
+the discriminator half of that question was settled by the 2026-09-22
+extension to `D-2026-09-21-run-setup-outcome-vocabulary`.
+
+**The `TRAJECTORY` oracle does not move `EXECUTION_CONTRACT_VERSION`**, under
+`D-2026-09-22-contract-version-scope`: it widens the document space off every
+executable path, so no document that was already valid changes outcome and no
+frozen artifact is affected. (g) moved the number because it narrows, which is
+a different direction. Pinning the four unpinned semantics *is* a narrowing
+and does move it, so whichever slice declares them spends a version.
+
 **Proposals landing here.** (i), the second half of (l) including the
 disclosure's retirement, and (j)'s comparison against the kernel — not (j)'s
 removal.
@@ -304,9 +345,17 @@ kernel depends on it either way.
 **Must deliver.** The parser gives `execution_requirement` no position on a
 `REPORTED_OBSERVATION`, closed at the structure rather than as a rule applied
 after parsing. The shipped document's reported-observation entries lose the
-field. `EXECUTION_CONTRACT_VERSION` moves 2 to 3, and the new version reaches
+field. `EXECUTION_CONTRACT_VERSION` moves by one, and the new version reaches
 the frozen identity of runs set up after it while a Draft already frozen under
-version 2 keeps what it was frozen under.
+the previous version keeps what it was frozen under. **Write the move, not the
+literals.** The task file currently says "2 to 3" and T022's guidance says
+"already under version 3", and neither is safe: declaring the four unpinned
+kernel semantics is itself a narrowing that spends a number and is due before
+T021's task file, and the constant's own docstring carries an
+unreleased-version doctrine under which a narrowing that never leaves its
+branch spends nothing. See `D-2026-09-22-contract-version-scope`. Confirmed
+there: the `TRAJECTORY` oracle T021 adds does **not** move it, so T021A's move
+is still the next one after whatever the semantics declaration costs.
 
 **May not.** Remove the authored reading *values* — that is (f) and it is
 T022's. Touch the reconciliation panel or its payload. Change anything else in
