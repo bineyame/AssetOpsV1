@@ -16,6 +16,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from scenario_fixtures import scenario_document
+
+from assetops_backend.scenarios.parsing import parse_scenario_document
 from run_fixtures import (
     FakeRuns,
     FakeScenarios,
@@ -188,6 +191,83 @@ class TestTheWriteIsAllOrNothing:
 
         document = next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
         document.write_text("this: is: not: a run", encoding="utf-8")
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+
+class TestAnUnansweredInitialValueSurvivesTheStore:
+    """A blocked Draft whose initial value nobody answered for.
+
+    The absent case is part of the frozen deterministic identity, so it has
+    to round trip like every other part of it. A store that wrote it and read
+    it back as something else - a zero, an error - would lose exactly the
+    fact the run was blocked for.
+    """
+
+    def _blocked_with_a_hole(self) -> SimulationRun:
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "MODEL_RULE"
+        setup = RunSetupService(
+            FakeRuns(),
+            FakeSites((site(),)),
+            FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+            model_profiles=(model_profile(),),
+            publication_profiles=(publication_profile(),),
+            now=lambda: "2026-09-22T09:00:00Z",
+        )
+        record = setup.create_draft_run(setup_request())
+        assert record.execution_status == "BLOCKED"
+        assert record.deterministic_identity.initialization_inputs[0].value is None
+        return record
+
+    def test_it_round_trips(self, tmp_path: Path) -> None:
+        record = self._blocked_with_a_hole()
+        YamlRunStore(tmp_path).create_run(record)
+
+        stored = YamlRunStore(tmp_path).get_run(record.run_id)
+
+        assert stored == record
+        assert stored.deterministic_identity.initialization_inputs[0].value is None
+        assert (
+            stored.deterministic_identity.initialization_inputs[0].unit == "L"
+        )
+
+    def test_half_an_absent_value_is_refused(self, tmp_path: Path) -> None:
+        """The two number fields are absent together or present together."""
+        YamlRunStore(tmp_path).create_run(self._blocked_with_a_hole())
+        document = next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
+        text = document.read_text(encoding="utf-8")
+        assert "canonical_value: null" in text
+        document.write_text(
+            text.replace("canonical_value: null", "canonical_value: 0.0"),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+    def test_a_stored_ready_run_may_not_carry_one(self, tmp_path: Path) -> None:
+        """The record's invariant, met through the parser."""
+        YamlRunStore(tmp_path).create_run(self._blocked_with_a_hole())
+        document = next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
+        text = document.read_text(encoding="utf-8")
+        start = text.index("blocking_reasons:")
+        end = text.index("unsupported_optional_inputs:")
+        document.write_text(
+            text[:start].replace(
+                "execution_status: BLOCKED", "execution_status: READY"
+            )
+            + "blocking_reasons: []\n"
+            + text[end:],
+            encoding="utf-8",
+        )
 
         with pytest.raises(RunConfigurationInvalid):
             YamlRunStore(tmp_path).list_runs()

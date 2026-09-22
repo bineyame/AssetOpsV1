@@ -726,6 +726,15 @@ def _optional_whole(
     return value
 
 
+def _optional_real(
+    raw: Mapping[str, Any], key: str, *, where: str
+) -> float | None:
+    """A number, or nothing, and nothing is a real answer."""
+    if raw.get(key) is None:
+        return None
+    return _real(raw, key, where=where)
+
+
 def _real(raw: Mapping[str, Any], key: str, *, where: str) -> float:
     value = raw.get(key)
     if type(value) not in (int, float) or isinstance(value, bool):
@@ -968,6 +977,14 @@ def _parse_parameter(entry: Any) -> FrozenParameter:
 
 
 def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
+    """One frozen initial value, with its absent case checked.
+
+    `value` may be absent, because a value the selected profile could not
+    supply or locate blocks the run rather than refusing it and the record
+    has to be able to say so. The two number fields are absent together: a
+    canonical restatement of nothing is nothing, and a document carrying one
+    without the other would be a run that half knows its own initial state.
+    """
     raw = _mapping(entry, where="initialization_input")
     unit = _text(raw, "unit", where="initialization_input")
     if unit not in PARAMETER_UNITS:
@@ -975,14 +992,24 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
             f"'initialization_input.unit' {unit!r} is not a unit this "
             "contract knows."
         )
+
+    value = _optional_real(raw, "value", where="initialization_input")
+    canonical_value = _optional_real(
+        raw, "canonical_value", where="initialization_input"
+    )
+    if (value is None) != (canonical_value is None):
+        raise _bad(
+            "'initialization_input.value' and its canonical restatement are "
+            "absent together or present together. A run that had one without "
+            "the other would half know its own initial state."
+        )
+
     return FrozenInitializationInput(
         state_key=_text(raw, "state_key", where="initialization_input"),
         parameter_id=_text(raw, "parameter_id", where="initialization_input"),
-        value=_real(raw, "value", where="initialization_input"),
+        value=value,
         unit=unit,
-        canonical_value=_real(
-            raw, "canonical_value", where="initialization_input"
-        ),
+        canonical_value=canonical_value,
         canonical_unit=_text(
             raw, "canonical_unit", where="initialization_input"
         ),

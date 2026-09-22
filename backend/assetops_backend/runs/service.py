@@ -23,10 +23,26 @@ that scrolled past.
 
 ## The refusal line, in this module
 
-`runs/refusals.py` states it. Here it is visible as the shape of the code: the
-whole of `_freeze` raises, and the whole of `_blocking_reasons` returns. A
-reason that could refuse, or a refusal that could become a reason, would be
-the two halves collapsing into each other.
+`runs/refusals.py` states it, and the T019 user review sharpened it to a
+question about WHO failed to answer:
+
+- the scenario's **declared owner** has no answer, so nothing can be frozen
+  and no profile would help - **refuse**;
+- the **selected profile** cannot answer, so a different profile would -
+  **persist a `BLOCKED` Draft** with the reason to inspect and the frozen
+  inputs to reason about.
+
+That moved a case. A Foundation-owned initial value the selected profile
+cannot locate used to be a refusal, and the person's fix for it - choose a
+different model profile - is the fix for every blocking reason there is, so
+refusing handed them nothing to inspect and no way to tell which profile to
+try. `_resolve_foundation_value` below now returns a reason instead of
+raising for those, and `_freeze` carries them out.
+
+It is no longer true that the whole of `_freeze` raises. What is true, and
+what the split rests on, is that a refusal means nothing could be frozen at
+all, while a blocked run is frozen in full - including a value marked as
+having no answer, which the record can now represent.
 
 ## What is deliberately not here
 
@@ -188,7 +204,7 @@ class RunSetupService:
         parameters = _parameters_by_id(scenario)
         supplied = self._resolve_run_inputs(request, parameters)
 
-        identity = self._freeze(
+        identity, frozen_reasons = self._freeze(
             request=request,
             site=site,
             scenario=scenario,
@@ -199,7 +215,10 @@ class RunSetupService:
         )
 
         reasons, optional = self._decide(
-            scenario=scenario, model=model, identity=identity
+            scenario=scenario,
+            model=model,
+            identity=identity,
+            frozen_reasons=frozen_reasons,
         )
 
         record = SimulationRun(
@@ -510,7 +529,17 @@ class RunSetupService:
         publication: PublicationProfile,
         parameters: dict[str, ScenarioParameter],
         supplied: dict[str, float],
-    ) -> DeterministicIdentity:
+    ) -> tuple[DeterministicIdentity, tuple[BlockingReason, ...]]:
+        """Freeze everything, and say which values had no answer.
+
+        The reasons come back rather than being raised, because a value the
+        selected profile cannot supply blocks the run instead of refusing it,
+        and a blocked run is frozen in full.
+        """
+        initialization, unresolved = self._freeze_initialization(
+            scenario=scenario, site=site, model=model, supplied=supplied
+        )
+
         resolved = tuple(
             FrozenParameter(
                 parameter_id=parameter_id,
@@ -552,9 +581,7 @@ class RunSetupService:
                 ),
                 execution_contract_version=EXECUTION_CONTRACT_VERSION,
             ),
-            initialization_inputs=self._freeze_initialization(
-                scenario=scenario, site=site, model=model, supplied=supplied
-            ),
+            initialization_inputs=initialization,
             observation_bindings=tuple(
                 resolve_observation_binding(source, publication)
                 for source in scenario.observation_sources
@@ -573,7 +600,7 @@ class RunSetupService:
             # event, and `D-2026-09-20-run-scoped-event-injection` puts one
             # here rather than in the scenario when something can.
             intervention_history=(),
-        )
+        ), unresolved
 
     def _freeze_initialization(
         self,
@@ -582,16 +609,30 @@ class RunSetupService:
         site: SiteRecord,
         model: ModelProfile,
         supplied: dict[str, float],
-    ) -> tuple[FrozenInitializationInput, ...]:
+    ) -> tuple[
+        tuple[FrozenInitializationInput, ...], tuple[BlockingReason, ...]
+    ]:
         """Every initial world value, resolved from the owner that owns it.
 
         The four owners are the four T018 settled, and each resolves from
-        exactly one place. A value whose owner does not answer refuses the
-        setup: `D-2026-09-21-causal-runtime-before-golden-traces` requires
-        that an initial condition be explicit and attributable, and a run that
-        fell back to another owner's number would have made it neither.
+        exactly one place. Two of them can fail, and they fail differently,
+        which is the whole of the refusal line applied here:
+
+        - the scenario says the RUN owns a value and the request did not
+          supply one: the declared owner has no answer and no profile helps,
+          so `_resolve_run_inputs` refuses before this runs;
+        - the scenario says the FOUNDATION or a MODEL RULE owns a value and
+          the selected profile cannot locate or supply it: a different
+          profile may, so the value is frozen as absent and the run carries a
+          reason.
+
+        `D-2026-09-21-causal-runtime-before-golden-traces` requires an initial
+        condition to be explicit and attributable. An absent value with a
+        named reason is both; a value quietly taken from another owner would
+        be neither.
         """
         frozen: list[FrozenInitializationInput] = []
+        reasons: list[BlockingReason] = []
 
         for initial in initialization_inputs(scenario):
             # The scenario parser refuses an owner outside the vocabulary, so
@@ -599,6 +640,8 @@ class RunSetupService:
             # `test_run_setup.py` before it could ever reach here.
             owner = initial.owner
             answered_by = ANSWERER_BY_INITIALIZATION_OWNER[owner]
+            value: float | None
+            reason: BlockingReason | None = None
 
             if owner == "SCENARIO_INPUT":
                 value = initial.value
@@ -610,31 +653,51 @@ class RunSetupService:
                 value = supplied[initial.parameter_id]
                 detail = "supplied by this run setup request"
             elif owner == "SITE_FOUNDATION":
-                value = self._foundation_value(
-                    initial_state_key=initial.state_key,
-                    parameter_id=initial.parameter_id,
-                    declared=initial.value,
-                    unit=initial.unit,
-                    site=site,
-                    model=model,
-                )
-                detail = (
-                    f"site {site.site_id} foundation version "
-                    f"{site.foundation.version}"
+                value, reason, answered_by, detail = (
+                    self._resolve_foundation_value(
+                        initial_state_key=initial.state_key,
+                        parameter_id=initial.parameter_id,
+                        declared=initial.value,
+                        unit=initial.unit,
+                        site=site,
+                        model=model,
+                    )
                 )
             else:
-                raise refuse(
-                    "INITIALIZATION_INPUT_MISSING",
-                    f"The initial value of {initial.state_key} is declared as "
-                    "owned by a versioned model rule, and model profile "
-                    f"{model.model_profile_id} version "
-                    f"{model.model_profile_version} declares no rule for it. "
-                    "Nothing else may answer for it.",
+                # A versioned model rule owns it, and no profile in this build
+                # carries one: `SupportedState` has no field a model-supplied
+                # initial value could live in. That carrier is T020A's to add,
+                # and until it exists this is the profile failing to answer -
+                # the same fact as a missing binding, so the same reason.
+                value = None
+                detail = (
+                    f"model profile {model.model_profile_id} version "
+                    f"{model.model_profile_version}, which declares no rule "
+                    "for it"
+                )
+                reason = BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial.state_key,
+                    statement=(
+                        f"The initial value of {initial.state_key} is "
+                        "declared as owned by a versioned model rule, and "
+                        f"model profile {model.model_profile_id} version "
+                        f"{model.model_profile_version} declares no rule for "
+                        "it. Nothing else may answer for it, so a profile "
+                        "that does is what this run needs."
+                    ),
                 )
 
-            canonical_value, canonical_unit, dimension = canonical_quantity(
-                value, initial.unit
+            if reason is not None:
+                reasons.append(reason)
+
+            canonical_value = (
+                None
+                if value is None
+                else canonical_quantity(value, initial.unit)[0]
             )
+            _, canonical_unit, dimension = canonical_quantity(0.0, initial.unit)
+
             frozen.append(
                 FrozenInitializationInput(
                     state_key=initial.state_key,
@@ -649,9 +712,9 @@ class RunSetupService:
                 )
             )
 
-        return tuple(frozen)
+        return tuple(frozen), tuple(reasons)
 
-    def _foundation_value(
+    def _resolve_foundation_value(
         self,
         *,
         initial_state_key: str,
@@ -660,8 +723,8 @@ class RunSetupService:
         unit: str,
         site: SiteRecord,
         model: ModelProfile,
-    ) -> float:
-        """The Foundation's answer for one initial world value.
+    ) -> tuple[float | None, BlockingReason | None, str, str]:
+        """The Foundation's answer for one initial world value, or a reason.
 
         Which declared fact answers is a binding the model profile carries,
         never a match by spelling: `fuel-tank-capacity` and a component called
@@ -669,31 +732,70 @@ class RunSetupService:
         other, which is the same reason T018's review made a bound a
         declaration rather than a shared prefix.
 
-        Three ways this refuses, and they are three different facts: the
-        profile declares no binding, the Foundation declares nothing that fits
-        it, or the Foundation declares more than one thing that fits. The last
-        matters most - two components that both fit are two answers, and
-        picking the first would be a run choosing which one on a reader's
-        behalf.
+        ## Four of the five failures here block, and one refuses
 
-        A Foundation that disagrees with the scenario's stated requirement
-        also refuses. The scenario says the Foundation is the authority, so
-        its own number is the requirement run setup checks; freezing the
-        Foundation's value and discarding the scenario's silently would be a
-        hidden default in the other direction.
+        The T019 user review settled the discriminator: **would a different
+        model profile fix this?** The Foundation's answer is only locatable
+        THROUGH the profile's binding, so a failure to locate it is a joint
+        fact about the pair - and the profile is the half a person can change
+        on the setup form.
+
+        Blocks, because a different profile may answer:
+
+        - the profile declares no binding, so nothing was even asked of the
+          Foundation;
+        - the binding matches nothing this Foundation declares. A binding on
+          another component type or another rating unit might match something
+          it does declare;
+        - the binding matches more than one thing, which is two answers to one
+          value. A more specific binding is a profile's to carry;
+        - the binding's unit is not the unit the scenario declares. That is a
+          disagreement between the profile and the scenario about what kind of
+          quantity this is, and the profile is the changeable half. It was a
+          `UNIT_INVALID` refusal until this round, and leaving it there while
+          the two cases either side of it moved would have been the same rule
+          applied at one position - the failure shape this project keeps
+          paying for.
+
+        Refuses, because no profile can fix it:
+
+        - the Foundation's value disagrees with the value the scenario states
+          the Foundation declares. Both declared owners answered and they
+          contradict each other. A profile pointing at some other component
+          that happened to match the scenario's number would be resolving a
+          contradiction by shopping for a value, so nothing is frozen and the
+          refusal names both numbers.
         """
+        foundation_detail = (
+            f"site {site.site_id} foundation version "
+            f"{site.foundation.version}"
+        )
+        profile_detail = (
+            f"model profile {model.model_profile_id} version "
+            f"{model.model_profile_version}"
+        )
+
         supported = model.supported(initial_state_key)
         binding = None if supported is None else supported.foundation_binding
 
         if binding is None:
-            raise refuse(
-                "INITIALIZATION_INPUT_MISSING",
-                f"The initial value of {initial_state_key} is declared as "
-                f"owned by the site's foundation, and model profile "
-                f"{model.model_profile_id} version "
-                f"{model.model_profile_version} declares no binding saying "
-                "which declared fact answers for it. Nothing here matches a "
-                "state to a component by the look of its name.",
+            return (
+                None,
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial_state_key,
+                    statement=(
+                        f"The initial value of {initial_state_key} is "
+                        "declared as owned by the site's foundation, and "
+                        f"{profile_detail} declares no binding saying which "
+                        "declared fact answers for it. Nothing here matches a "
+                        "state to a component by the look of its name, so a "
+                        "profile that declares the binding is what this run "
+                        "needs."
+                    ),
+                ),
+                "MODEL_PROFILE",
+                f"{profile_detail}, which declares no binding for it",
             )
 
         matches = [
@@ -705,35 +807,65 @@ class RunSetupService:
         ]
 
         if not matches:
-            raise refuse(
-                "INITIALIZATION_INPUT_MISSING",
-                f"The initial value of {initial_state_key} must come from a "
-                f"{binding.component_type} component rated in "
-                f"{binding.rating_unit}, and the foundation of site "
-                f"{site.site_id} declares none.",
+            return (
+                None,
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial_state_key,
+                    statement=(
+                        f"{profile_detail} looks for the initial value of "
+                        f"{initial_state_key} in a {binding.component_type} "
+                        f"component rated in {binding.rating_unit}, and the "
+                        f"foundation of site {site.site_id} declares none. A "
+                        "profile whose binding names something this site "
+                        "declares would resolve it."
+                    ),
+                ),
+                "SITE_FOUNDATION",
+                f"{foundation_detail}, which declares nothing the binding fits",
             )
 
         if len(matches) > 1:
             named = ", ".join(sorted(item.component_id for item in matches))
-            raise refuse(
-                "INITIALIZATION_INPUT_MISSING",
-                f"The initial value of {initial_state_key} must come from a "
-                f"{binding.component_type} component rated in "
-                f"{binding.rating_unit}, and the foundation of site "
-                f"{site.site_id} declares more than one: {named}. Two answers "
-                "to one initial value is not something a run may choose "
-                "between.",
+            return (
+                None,
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial_state_key,
+                    statement=(
+                        f"{profile_detail} looks for the initial value of "
+                        f"{initial_state_key} in a {binding.component_type} "
+                        f"component rated in {binding.rating_unit}, and the "
+                        f"foundation of site {site.site_id} declares more "
+                        f"than one: {named}. Two answers to one initial value "
+                        "is not something a run may choose between, so this "
+                        "needs a profile whose binding tells them apart."
+                    ),
+                ),
+                "SITE_FOUNDATION",
+                f"{foundation_detail}, which declares more than one match",
             )
 
         rating = matches[0].rating
         assert rating is not None  # filtered above
+
         if rating.unit != unit:
-            raise refuse(
-                "UNIT_INVALID",
-                f"The initial value of {initial_state_key} is declared in "
-                f"{unit} and the foundation declares {rating.unit}. A run "
-                "freezes the foundation's value, so the two must be the same "
-                "unit.",
+            return (
+                None,
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial_state_key,
+                    statement=(
+                        f"The scenario declares {initial_state_key} in "
+                        f"{unit} and {profile_detail} binds it to a rating in "
+                        f"{rating.unit}. A run freezes the foundation's "
+                        "value, so the two must be the same quantity; a "
+                        "profile bound to the unit the scenario uses would "
+                        "resolve it."
+                    ),
+                ),
+                "MODEL_PROFILE",
+                f"{profile_detail}, whose binding names another unit",
             )
 
         if rating.value != declared:
@@ -745,10 +877,12 @@ class RunSetupService:
                 f"{rating.value} {rating.unit}. The scenario names the "
                 "foundation as the authority, so its own value is the "
                 "requirement to check; a run that froze one and discarded the "
-                "other would be choosing which is true.",
+                "other would be choosing which is true. No model profile can "
+                "settle that, which is why this is refused rather than "
+                "blocked.",
             )
 
-        return rating.value
+        return rating.value, None, "SITE_FOUNDATION", foundation_detail
 
     # --- Deciding -----------------------------------------------------------
 
@@ -758,6 +892,7 @@ class RunSetupService:
         scenario: ScenarioDefinition,
         model: ModelProfile,
         identity: DeterministicIdentity,
+        frozen_reasons: tuple[BlockingReason, ...] = (),
     ) -> tuple[tuple[BlockingReason, ...], tuple[UnsupportedOptionalInput, ...]]:
         reasons: list[BlockingReason] = []
         optional: list[UnsupportedOptionalInput] = []
@@ -768,6 +903,11 @@ class RunSetupService:
                 reasons.append(reason)
             if unsupported is not None:
                 optional.append(unsupported)
+
+        # Beside the state and role reasons, because they are the same fact
+        # about the same profile: something the scenario needs that this
+        # profile cannot do.
+        reasons.extend(frozen_reasons)
 
         reasons.extend(_cadence_reasons(identity))
         reasons.extend(_publication_reasons(identity))

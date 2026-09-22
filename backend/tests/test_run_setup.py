@@ -20,7 +20,7 @@ found and T018 met twice more.
 
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import fields, replace
 
 import pytest
 from run_fixtures import (
@@ -49,6 +49,7 @@ from assetops_backend.runs.models import (
 from assetops_backend.runs.profiles import (
     MINIMAL_FUEL_TANK_MODEL,
     LAB_PUBLICATION_PROFILE,
+    FoundationBinding,
     SupportedState,
     resolve_observation_binding,
     resolve_publication_identity,
@@ -413,50 +414,44 @@ class TestNothingIsDefaulted:
         assert "SCENARIO_INPUT" in error.message
         assert store.written == []
 
-    def test_a_foundation_owned_value_needs_a_declared_binding(self) -> None:
-        """Nothing matches a state to a component by the look of its name."""
+    def test_a_foundation_owned_value_still_needs_a_declared_binding(
+        self,
+    ) -> None:
+        """Nothing matches a state to a component by the look of its name.
+
+        It blocks rather than refusing since the T019 user review moved the
+        line: the fix is to choose a profile that declares the binding, which
+        is the fix for every blocking reason there is, and refusing would
+        hand the person nothing to inspect.
+        """
         document = scenario_document()
         document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
 
-        error, store = refuse(
-            setup_request(),
+        setup, store = service(
             scenarios=FakeScenarios(
                 (
                     parse_scenario_document(
                         document, source="a test", origin="SHIPPED"
                     ),
                 )
-            ),
-        )
-
-        assert error.kind == "INITIALIZATION_INPUT_MISSING"
-        assert "binding" in error.message
-        assert store.written == []
-
-    def test_a_foundation_that_disagrees_with_the_scenario_is_refused(
-        self,
-    ) -> None:
-        """The scenario names the foundation as the authority, so its own
-        number is the requirement to check rather than a value to discard."""
-        document = scenario_document()
-        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
-        scenarios = FakeScenarios(
-            (
-                parse_scenario_document(
-                    document, source="a test", origin="SHIPPED"
-                ),
             )
         )
+        record = setup.create_draft_run(setup_request())
 
-        error, store = refuse(
-            setup_request(),
-            scenarios=scenarios,
-            model=model_profile(supported_states=foundation_bound_states()),
-        )
+        assert record.execution_status == "BLOCKED"
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        assert record.blocking_reasons[0].subject == "example-stored-volume"
+        assert "binding" in record.blocking_reasons[0].statement
+        assert store.written == [record]
 
-        assert error.kind == "INITIALIZATION_INPUT_MISSING"
-        assert "200" in error.message and "500" in error.message
-        assert store.written == []
+        # Frozen in full, with the hole named rather than papered over.
+        initial = record.deterministic_identity.initialization_inputs[0]
+        assert initial.value is None
+        assert initial.canonical_value is None
+        assert initial.unit == "L"
+        assert initial.answered_by == "MODEL_PROFILE"
 
     def test_a_foundation_that_agrees_is_frozen_from_the_foundation(
         self,
@@ -496,12 +491,10 @@ class TestNothingIsDefaulted:
         assert initial.answered_by == "SITE_FOUNDATION"
         assert "foundation version 1" in initial.answered_by_detail
 
-    def test_two_foundation_answers_are_refused_rather_than_chosen_between(
-        self,
-    ) -> None:
+    def _foundation_owned(self) -> FakeScenarios:
         document = scenario_document()
         document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
-        scenarios = FakeScenarios(
+        return FakeScenarios(
             (
                 parse_scenario_document(
                     document, source="a test", origin="SHIPPED"
@@ -509,9 +502,15 @@ class TestNothingIsDefaulted:
             )
         )
 
-        error, store = refuse(
-            setup_request(),
-            scenarios=scenarios,
+    def test_two_foundation_answers_are_never_chosen_between(self) -> None:
+        """Two components that both fit the binding are two answers.
+
+        Blocks rather than refusing, by the same discriminator: a binding
+        specific enough to tell them apart is a profile's to carry, so a
+        different profile would resolve it.
+        """
+        setup, store = service(
+            scenarios=self._foundation_owned(),
             sites=FakeSites(
                 (
                     site(
@@ -534,10 +533,125 @@ class TestNothingIsDefaulted:
             ),
             model=model_profile(supported_states=foundation_bound_states()),
         )
+        record = setup.create_draft_run(setup_request())
+
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        assert "more than one" in record.blocking_reasons[0].statement
+        assert store.written == [record]
+
+    def test_a_binding_that_matches_nothing_blocks(self) -> None:
+        """The second case the user left to the Implementer.
+
+        The Foundation's answer is only locatable through the profile's
+        binding, so failing to locate it is a joint fact about the pair - and
+        the profile is the half a person can change on the setup form. A
+        binding on another component type or unit might match something this
+        site does declare.
+        """
+        setup, store = service(
+            scenarios=self._foundation_owned(),
+            sites=FakeSites((site(components=()),)),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+        record = setup.create_draft_run(setup_request())
+
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        assert "declares none" in record.blocking_reasons[0].statement
+        assert store.written == [record]
+
+    def test_a_binding_in_another_unit_blocks(self) -> None:
+        """The third case, decided beyond the two the user named.
+
+        A binding whose unit is not the scenario's is the profile and the
+        scenario disagreeing about what kind of quantity this is, and the
+        profile is the changeable half. Leaving it a refusal while the cases
+        either side of it moved would be one rule applied at one position.
+        """
+        bound_in_kwh = (
+            SupportedState(
+                state_key="example-stored-volume",
+                supported_roles=frozenset(
+                    {"CAUSAL_INPUT", "REPORTED_OBSERVATION"}
+                ),
+                foundation_binding=FoundationBinding(
+                    component_type="BATTERY", rating_unit="kWh"
+                ),
+                statement="Bound to a rating in the wrong quantity.",
+            ),
+            default_supported_states()[1],
+        )
+
+        setup, store = service(
+            scenarios=self._foundation_owned(),
+            sites=FakeSites(
+                (
+                    site(
+                        components=(
+                            SiteComponent(
+                                component_id="example-battery",
+                                component_type="BATTERY",
+                                display_name="A battery",
+                                rating=Rating(value=200.0, unit="kWh"),
+                            ),
+                        )
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=bound_in_kwh),
+        )
+        record = setup.create_draft_run(setup_request())
+
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        assert store.written == [record]
+
+    def test_a_foundation_that_disagrees_is_still_refused(self) -> None:
+        """The case that stays a refusal, and the reason the split holds.
+
+        Both declared owners answered and they contradict each other. A
+        profile pointing at some other component that happened to match the
+        scenario's number would be resolving a contradiction by shopping for
+        a value, so nothing is frozen.
+        """
+        error, store = refuse(
+            setup_request(),
+            scenarios=self._foundation_owned(),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
 
         assert error.kind == "INITIALIZATION_INPUT_MISSING"
-        assert "more than one" in error.message
+        assert "200" in error.message and "500" in error.message
         assert store.written == []
+
+    def test_a_model_rule_value_with_no_rule_blocks(self) -> None:
+        """T020A adds the carrier; until it does, this is the profile failing
+        to answer, which is the same fact as a missing binding."""
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "MODEL_RULE"
+
+        setup, store = service(
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            )
+        )
+        record = setup.create_draft_run(setup_request())
+
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        assert store.written == [record]
+        assert (
+            record.deterministic_identity.initialization_inputs[0].value is None
+        )
 
 
 class TestBlockedDraftsArePersisted:
@@ -695,6 +809,7 @@ class TestBlockedDraftsArePersisted:
             "CADENCE_NOT_RESOLVED",
             "SOURCE_IDENTITY_NOT_RESOLVED",
             "GATEWAY_IDENTITY_NOT_RESOLVED",
+            "INITIAL_VALUE_NOT_RESOLVED",
         }
 
     def test_run_setup_never_reconciles(self) -> None:
@@ -776,6 +891,40 @@ class TestTheStatusIsComputed:
                 execution_status="BLOCKED",
                 created_at=record.created_at,
                 deterministic_identity=record.deterministic_identity,
+                blocking_reasons=(),
+                unsupported_optional_inputs=(),
+            )
+
+    def test_a_ready_run_may_not_carry_an_unanswered_initial_value(
+        self,
+    ) -> None:
+        """A frozen identity with a hole in it is not a runnable identity.
+
+        The absent case exists because something blocked the run, so a READY
+        run carrying one would be a run whose status and whose inputs
+        disagree. Constructed directly, because the service cannot produce
+        it - which is the point of asserting it on the record.
+        """
+        record, _ = create()
+        identity = record.deterministic_identity
+        holed = replace(
+            identity,
+            initialization_inputs=(
+                replace(
+                    identity.initialization_inputs[0],
+                    value=None,
+                    canonical_value=None,
+                ),
+            ),
+        )
+
+        with pytest.raises(ValueError):
+            SimulationRun(
+                run_id=record.run_id,
+                lifecycle_status="DRAFT",
+                execution_status="READY",
+                created_at=record.created_at,
+                deterministic_identity=holed,
                 blocking_reasons=(),
                 unsupported_optional_inputs=(),
             )

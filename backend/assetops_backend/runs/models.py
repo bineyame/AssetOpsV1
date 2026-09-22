@@ -104,16 +104,24 @@ ANSWERER_BY_INITIALIZATION_OWNER = {
 #:   blocks rather than reporting at a rate somebody guessed.
 #: - `SOURCE_IDENTITY_NOT_RESOLVED` and `GATEWAY_IDENTITY_NOT_RESOLVED`: the
 #:   same rule for the two publication identities.
+#: - `INITIAL_VALUE_NOT_RESOLVED`: an initial world value the selected profile
+#:   cannot supply or cannot locate. Named for the state it leaves the value
+#:   in rather than for the cause, because the causes differ - a profile that
+#:   declares no binding for a Foundation-owned value, one whose binding
+#:   matches nothing or matches twice, and one that declares no rule for a
+#:   value a scenario says a versioned model rule owns - and a reader needs
+#:   the same name for all of them: this run has no answer for that value and
+#:   a different profile may.
 #:
-#: Every one of the five is a statement about the SELECTED PROFILE: something
-#: the scenario requires that the profile does not model or does not resolve.
-#: That is the whole of what run setup can decide, and a sixth member was
-#: removed to make it so. `OBSERVATION_NOT_ACCOUNTED_FOR` blocked a run when
-#: the causes a scenario declares did not reach a reading the same scenario
-#: declares, and Amendment 1's proposal (e) took it out: run setup has no
-#: kernel, so it cannot settle a comparison only an execution can settle. A
-#: kind added here that is not about the profile's ability to execute an
-#: input is the same mistake returning.
+#: Every one of the six is a statement about the SELECTED PROFILE: something
+#: the scenario requires that the profile does not model, does not resolve, or
+#: cannot locate. That is the whole of what run setup can decide, and a
+#: seventh member was removed to make it so. `OBSERVATION_NOT_ACCOUNTED_FOR`
+#: blocked a run when the causes a scenario declares did not reach a reading
+#: the same scenario declares, and Amendment 1's proposal (e) took it out: run
+#: setup has no kernel, so it cannot settle a comparison only an execution can
+#: settle. A kind added here that is not about the profile's ability to
+#: execute an input is the same mistake returning.
 BLOCKING_REASON_KINDS = frozenset(
     {
         "STATE_NOT_SUPPORTED",
@@ -121,6 +129,7 @@ BLOCKING_REASON_KINDS = frozenset(
         "CADENCE_NOT_RESOLVED",
         "SOURCE_IDENTITY_NOT_RESOLVED",
         "GATEWAY_IDENTITY_NOT_RESOLVED",
+        "INITIAL_VALUE_NOT_RESOLVED",
     }
 )
 
@@ -220,13 +229,26 @@ class FrozenInitializationInput:
     value and its unit. What to call them on a screen is presentation, and a
     name copied into a run record is a second copy of something that can change
     underneath it.
+
+    **`value` has an absent case**, the way `cadence_minutes` does on the
+    binding beside it, and for the same reason. When the selected profile
+    cannot supply or locate the value, the Draft is `BLOCKED` rather than
+    refused - a different profile may answer, so the person gets a persisted
+    run to inspect - and the record has to be able to say "this value has no
+    answer" rather than being unable to represent it. `canonical_value` is
+    absent exactly when `value` is; the unit is not, because the scenario
+    declares it whether or not anything answers.
+
+    A `READY` run may not carry one. `SimulationRun` enforces that: an absent
+    value always has a blocking reason beside it, because the thing that made
+    it absent is the thing that blocked the run.
     """
 
     state_key: str
     parameter_id: str
-    value: float
+    value: float | None
     unit: str
-    canonical_value: float
+    canonical_value: float | None
     canonical_unit: str
     dimension: str
     answered_by: str
@@ -364,4 +386,21 @@ class SimulationRun:
                 f"is {expected}, not {self.execution_status!r}. The execution "
                 "status is computed from the reasons; it is never set beside "
                 "them."
+            )
+
+        # A frozen identity with a hole in it is not a runnable identity. The
+        # only reason an initial value can be absent is that something
+        # blocked the run, so a `READY` run carrying one would be a run whose
+        # status and whose inputs disagree.
+        unresolved = [
+            item.state_key
+            for item in self.deterministic_identity.initialization_inputs
+            if item.value is None
+        ]
+        if unresolved and not self.blocking_reasons:
+            raise ValueError(
+                f"A run with no blocking reason has no answer for "
+                f"{sorted(unresolved)}. An initial value is absent only "
+                "because something blocked the run, so a READY run cannot "
+                "carry one."
             )

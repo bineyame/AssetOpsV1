@@ -237,7 +237,15 @@ def frozen_inputs(
                 FrozenInput(
                     identity_field="initialization_inputs",
                     field=f"Initial {initial.state_key}",
-                    value=_quantity(initial.value, initial.unit),
+                    # "not resolved" rather than a blank or a zero, the same
+                    # words an unresolved cadence uses. A value nobody
+                    # answered for is a fact about the run, and the row that
+                    # carries it says whose answer is missing.
+                    value=(
+                        "not resolved"
+                        if initial.value is None
+                        else _quantity(initial.value, initial.unit)
+                    ),
                     answered_by=initial.answered_by,
                     answered_by_detail=initial.answered_by_detail,
                 )
