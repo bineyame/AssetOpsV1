@@ -6,6 +6,7 @@ import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteDetailResult } from "../sites/siteReadModel";
 import type {
   ScenarioCatalogClient,
+  ScenarioDetail,
   ScenarioDetailResult,
   ScenarioParameter,
 } from "./scenarioCatalogClient";
@@ -43,13 +44,30 @@ import type {
  * second copy to keep in agreement, and the one in the browser is the one
  * that drifts.
  *
- * ## Nothing is prefilled
+ * ## What the form chooses, and how it says so
  *
- * The interval, the timestep and the seed are empty until a person types
- * them. A prefilled number would be a digit on this screen that no record
- * supplies, which is the rule every screen in this tree is held to, and it
- * would also be run setup quietly choosing part of a run's deterministic
- * identity.
+ * T019 left every field empty, because M4 found the browser auto-selecting
+ * two components of the frozen deterministic identity while the screen said
+ * nothing was prefilled. The defect was never that fields were filled: it was
+ * that a person could not tell the form had chosen. The user settled the
+ * constraint at that review, and T020 implements it - **a default is visible,
+ * labelled as a default, and still changeable**.
+ *
+ * So each field that can be honestly defaulted arrives with a value AND with
+ * a mark beside the control saying what the default was. The mark stays after
+ * a person edits the field, because "the form chose 15 and you typed 30" is
+ * more useful than a mark that disappears the moment it stops being true.
+ *
+ * Two of them are derived from records rather than chosen: the interval's
+ * length comes from the scenario's own last entry, rounded up to a whole
+ * number of timesteps, so the default covers the scenario it is for. The
+ * start instant and the seed come from the clock, and the timestep is a
+ * chosen number; all three are marked.
+ *
+ * **A value the scenario declares the run owns is never defaulted.** It is an
+ * initial world value, and a form supplying one is the fabricated default run
+ * setup refuses over. Those fields arrive empty however many of them there
+ * are.
  *
  * Nothing is validated here either. The backend owns every rule and this
  * screen renders what it says, so a refusal is the product copy that names
@@ -68,6 +86,8 @@ export interface RunSetupFrameProps {
   scenariosPath: string;
   simulatorLabPath: string;
   scenarioHref: (scenarioId: string) => string;
+  /** Injected so a test can pin the day the defaults are derived from. */
+  now?: () => Date;
 }
 
 interface FormState {
@@ -137,6 +157,59 @@ function typedQuantity(text: string): number {
   return /^-?\d+(\.\d+)?$/.test(trimmed) ? Number.parseFloat(trimmed) : Number.NaN;
 }
 
+/** The timestep the form offers when nobody has chosen one. */
+export const DEFAULT_TIMESTEP_MINUTES = 15;
+
+/** Two digits of day, as `YYYY-MM-DD`, from an instant. */
+function isoDay(at: Date): string {
+  return at.toISOString().slice(0, 10);
+}
+
+/**
+ * The interval the form offers, derived from the scenario it is for.
+ *
+ * The length is not chosen: it is the scenario's own last moment - the latest
+ * offset any entry reaches, window lengths included - plus one timestep,
+ * rounded up to a whole number of timesteps. A run's interval is half-open,
+ * so an entry exactly at the end instant would fall outside it; the extra
+ * step is what keeps the default an interval that covers the scenario rather
+ * than one that refuses it.
+ *
+ * The start instant is midnight UTC today. That one is a clock reading and
+ * has no record behind it, which is exactly why the field says it is a
+ * default.
+ */
+export function defaultInterval(
+  scenario: ScenarioDetail,
+  now: Date,
+  timestepMinutes: number = DEFAULT_TIMESTEP_MINUTES,
+): { startTime: string; endTime: string } {
+  const lastMoment = scenario.timeline.reduce((latest, entry) => {
+    const ends = entry.offset_minutes + (entry.timing.duration_minutes ?? 0);
+    return Math.max(latest, ends);
+  }, 0);
+
+  const steps = Math.floor(lastMoment / timestepMinutes) + 1;
+  const start = new Date(`${isoDay(now)}T00:00:00Z`);
+  const end = new Date(start.getTime() + steps * timestepMinutes * 60_000);
+
+  return {
+    startTime: `${start.toISOString().slice(0, 19)}Z`,
+    endTime: `${end.toISOString().slice(0, 19)}Z`,
+  };
+}
+
+/**
+ * The seed the form offers: today's date with its separators removed.
+ *
+ * A seed has to be chosen by somebody and nothing in any record supplies one.
+ * A date is at least explicable to the next person reading the run, which an
+ * arbitrary constant is not.
+ */
+export function defaultSeed(now: Date): string {
+  return isoDay(now).replace(/-/g, "");
+}
+
 /** The parameters this scenario declares the run owns, in authored order. */
 function runOwnedParameters(
   parameters: ScenarioParameter[],
@@ -153,6 +226,7 @@ export function RunSetupFrame({
   scenariosPath,
   simulatorLabPath,
   scenarioHref,
+  now = () => new Date(),
 }: RunSetupFrameProps) {
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const [scenario, setScenario] = useState<ScenarioDetailResult | null>(null);
@@ -161,6 +235,11 @@ export function RunSetupFrame({
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [result, setResult] = useState<CreateRunResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  /**
+   * What the form chose, by field. Kept after an edit rather than cleared,
+   * so the screen can still say what the default was.
+   */
+  const [defaults, setDefaults] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let active = true;
@@ -183,8 +262,46 @@ export function RunSetupFrame({
     // backend refuses an unchosen profile, which is the same division of
     // labour as every other field here.
     void runSetup.listProfiles().then((loaded) => {
-      if (active) {
-        setProfiles(loaded);
+      if (!active) {
+        return;
+      }
+      setProfiles(loaded);
+      if (loaded.status !== "loaded") {
+        return;
+      }
+
+      // A default only where there is exactly one option. With two, the form
+      // would be choosing between them, and which model profile a run froze
+      // decides whether it is READY - that is the choice M4 found being made
+      // for people, and one option is not a choice.
+      const model =
+        loaded.modelProfiles.length === 1 ? loaded.modelProfiles[0] : null;
+      const publication =
+        loaded.publicationProfiles.length === 1
+          ? loaded.publicationProfiles[0]
+          : null;
+
+      if (model !== null) {
+        const key = profileKey(
+          model.model_profile_id,
+          model.model_profile_version,
+        );
+        setForm((current) => ({ ...current, modelProfile: key }));
+        setDefaults((current) => ({
+          ...current,
+          modelProfile: model.display_name,
+        }));
+      }
+      if (publication !== null) {
+        const key = profileKey(
+          publication.publication_profile_id,
+          publication.publication_profile_version,
+        );
+        setForm((current) => ({ ...current, publicationProfile: key }));
+        setDefaults((current) => ({
+          ...current,
+          publicationProfile: publication.display_name,
+        }));
       }
     });
 
@@ -192,6 +309,38 @@ export function RunSetupFrame({
       active = false;
     };
   }, [catalog, runSetup, scenarioId]);
+
+  // The interval is derived from the scenario, so it waits for the scenario
+  // rather than being chosen at mount. The timestep and the seed do not need
+  // it, and are set here too so that every default arrives at once - a form
+  // that filled itself in stages would show a person two different forms.
+  useEffect(() => {
+    if (scenario?.status !== "loaded") {
+      return;
+    }
+    const at = now();
+    const interval = defaultInterval(scenario.scenario, at);
+    const seed = defaultSeed(at);
+    const timestep = String(DEFAULT_TIMESTEP_MINUTES);
+
+    setForm((current) => ({
+      ...current,
+      startTime: interval.startTime,
+      endTime: interval.endTime,
+      timestep,
+      seed,
+    }));
+    setDefaults((current) => ({
+      ...current,
+      startTime: interval.startTime,
+      endTime: interval.endTime,
+      timestep,
+      seed,
+    }));
+    // `now` is a prop with a default value, so it changes identity on every
+    // render; the scenario is what this depends on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenario]);
 
   const targetSiteId =
     scenario?.status === "loaded" &&
@@ -394,6 +543,36 @@ export function RunSetupFrame({
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  /**
+   * The mark that says this value is one the form chose.
+   *
+   * Rendered inside the field's own block and tied to the control with
+   * `aria-describedby`, rather than left to a paragraph elsewhere on the
+   * screen: a person looking at a filled field has to be able to see, there,
+   * that nobody filled it. It keeps saying what the default WAS after an
+   * edit, which is more useful than a mark that vanishes.
+   */
+  function defaultMark(field: string) {
+    const chosen = defaults[field];
+    if (chosen === undefined) {
+      return null;
+    }
+    return (
+      <span className="field-default" id={`run-setup-${field}-default`}>
+        Default, chosen by this form: {chosen}
+      </span>
+    );
+  }
+
+  /** Every id a control is described by, defaults included. */
+  function describedBy(field: string, ...ids: string[]) {
+    const all = [...ids];
+    if (defaults[field] !== undefined) {
+      all.push(`run-setup-${field}-default`);
+    }
+    return all.length === 0 ? undefined : all.join(" ");
+  }
+
   return frame(
     <>
       {explanation}
@@ -432,9 +611,13 @@ export function RunSetupFrame({
               id="run-setup-start"
               name="start_time"
               value={form.startTime}
-              aria-describedby="run-setup-interval-rule"
+              aria-describedby={describedBy(
+                "startTime",
+                "run-setup-interval-rule",
+              )}
               onChange={(event) => update("startTime", event.target.value)}
             />
+            {defaultMark("startTime")}
           </p>
 
           <p className="toolbar__field">
@@ -446,9 +629,13 @@ export function RunSetupFrame({
               id="run-setup-end"
               name="end_time"
               value={form.endTime}
-              aria-describedby="run-setup-interval-rule"
+              aria-describedby={describedBy(
+                "endTime",
+                "run-setup-interval-rule",
+              )}
               onChange={(event) => update("endTime", event.target.value)}
             />
+            {defaultMark("endTime")}
             <span className="field-hint" id="run-setup-interval-rule">
               Two UTC instants, spelled as a date and a time with a trailing Z.
               The interval is half-open: it covers its start instant up to but
@@ -465,9 +652,13 @@ export function RunSetupFrame({
               id="run-setup-timestep"
               name="timestep_minutes"
               value={form.timestep}
-              aria-describedby="run-setup-timestep-rule"
+              aria-describedby={describedBy(
+                "timestep",
+                "run-setup-timestep-rule",
+              )}
               onChange={(event) => update("timestep", event.target.value)}
             />
+            {defaultMark("timestep")}
             <span className="field-hint" id="run-setup-timestep-rule">
               A whole number of minutes. The interval must be a whole multiple
               of it, so that no step runs past the end of the interval.
@@ -483,9 +674,10 @@ export function RunSetupFrame({
               id="run-setup-seed"
               name="seed"
               value={form.seed}
-              aria-describedby="run-setup-seed-rule"
+              aria-describedby={describedBy("seed", "run-setup-seed-rule")}
               onChange={(event) => update("seed", event.target.value)}
             />
+            {defaultMark("seed")}
             <span className="field-hint" id="run-setup-seed-rule">
               A whole number. It is part of what makes a run reproducible, so
               it is chosen rather than defaulted.
@@ -500,7 +692,10 @@ export function RunSetupFrame({
               className="control"
               id="run-setup-model-profile"
               value={form.modelProfile}
-              aria-describedby="run-setup-model-profile-rule"
+              aria-describedby={describedBy(
+                "modelProfile",
+                "run-setup-model-profile-rule",
+              )}
               onChange={(event) => update("modelProfile", event.target.value)}
             >
               <option value="">Choose a model profile</option>
@@ -519,6 +714,7 @@ export function RunSetupFrame({
                 </option>
               ))}
             </select>
+            {defaultMark("modelProfile")}
             <span className="field-hint" id="run-setup-model-profile-rule">
               The versioned model decides which world states can be executed.
               An input it does not model blocks the draft rather than being
@@ -537,7 +733,10 @@ export function RunSetupFrame({
               className="control"
               id="run-setup-publication-profile"
               value={form.publicationProfile}
-              aria-describedby="run-setup-publication-profile-rule"
+              aria-describedby={describedBy(
+                "publicationProfile",
+                "run-setup-publication-profile-rule",
+              )}
               onChange={(event) =>
                 update("publicationProfile", event.target.value)
               }
@@ -558,6 +757,7 @@ export function RunSetupFrame({
                 </option>
               ))}
             </select>
+            {defaultMark("publicationProfile")}
             <span
               className="field-hint"
               id="run-setup-publication-profile-rule"

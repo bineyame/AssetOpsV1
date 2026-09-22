@@ -237,6 +237,7 @@ export function simulatorLabRoutes(
   scenarios: ScenarioCatalogClient = defaultScenarioCatalog,
   runSetup: RunSetupClient = defaultRunSetup,
   siteDetail: SiteDetailClient = defaultSiteDetail,
+  now?: () => Date,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -351,6 +352,7 @@ export function simulatorLabRoutes(
           scenariosPath={SCENARIOS_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
           scenarioHref={scenarioHref}
+          {...(now === undefined ? {} : { now })}
         />,
       ),
     },

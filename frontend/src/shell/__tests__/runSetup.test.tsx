@@ -229,6 +229,9 @@ function runClient(outcome: CreateRunResult): {
   };
 }
 
+/** The day the defaults are derived from, pinned so they are assertable. */
+const TODAY = new Date("2026-09-22T11:32:00Z");
+
 function renderSetup(
   runSetup: RunSetupClient,
   catalog: ScenarioCatalogClient = scenarioClient(),
@@ -241,10 +244,24 @@ function renderSetup(
         siteDetail={SITE_DETAIL_CLIENT}
         scenarioCatalog={catalog}
         runSetup={runSetup}
+        now={() => TODAY}
       />
     </MemoryRouter>,
   );
 }
+
+/** Minutes between two instants the form produced. */
+function minutesBetween(from: string, to: string): number {
+  return (Date.parse(to) - Date.parse(from)) / 60_000;
+}
+
+/** The last moment the fixture scenario reaches, computed here rather than
+ *  by the helper under test. */
+const SCENARIO_LAST_MOMENT = SCENARIO_DETAIL.timeline.reduce(
+  (latest, entry) =>
+    Math.max(latest, entry.offset_minutes + (entry.timing.duration_minutes ?? 0)),
+  0,
+);
 
 /**
  * Fill the form the way a person would, and submit it.
@@ -302,17 +319,80 @@ describe("the run setup screen before anything is submitted", () => {
     ).toBeNull();
   });
 
-  it("prefills no interval, no timestep and no seed", async () => {
-    // A prefilled number would be a digit on this screen that no record
-    // supplies, and run setup quietly choosing part of a deterministic
-    // identity.
+  it("offers a default in every field it can honestly default", async () => {
+    // T019 left these empty, because M4 found the form choosing without
+    // saying so. The user settled the constraint at that review: a default
+    // is fine when a person can see it is one.
     renderSetup(runClient({ status: "created", run: READY_RUN }).client);
     await settledScreen();
 
-    expect(screen.getByLabelText("Interval start")).toHaveValue("");
-    expect(screen.getByLabelText("Interval end")).toHaveValue("");
-    expect(screen.getByLabelText("Timestep in minutes")).toHaveValue("");
-    expect(screen.getByLabelText("Seed")).toHaveValue("");
+    expect(screen.getByLabelText("Interval start")).toHaveValue(
+      "2026-09-22T00:00:00Z",
+    );
+    expect(screen.getByLabelText("Timestep in minutes")).toHaveValue("15");
+    expect(screen.getByLabelText("Seed")).toHaveValue("20260922");
+    expect(screen.getByLabelText("Model profile")).toHaveValue(
+      "minimal-fuel-tank@1",
+    );
+    expect(screen.getByLabelText("Publication profile")).toHaveValue(
+      "simulator-lab-publication@1",
+    );
+  });
+
+  it("derives the default interval from the scenario it is for", async () => {
+    // The length is the scenario's own last moment plus a step, rounded to
+    // whole steps: the interval is half-open, so an entry exactly at the end
+    // instant would fall outside it and the run would be refused.
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    const start = (screen.getByLabelText("Interval start") as HTMLInputElement)
+      .value;
+    const end = (screen.getByLabelText("Interval end") as HTMLInputElement)
+      .value;
+    const minutes = minutesBetween(start, end);
+
+    expect(SCENARIO_LAST_MOMENT).toBeGreaterThan(0);
+    expect(minutes).toBeGreaterThan(SCENARIO_LAST_MOMENT);
+    expect(minutes % 15).toBe(0);
+  });
+
+  it("says in the field that a value is one the form chose", async () => {
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    for (const [label, shown] of [
+      ["Interval start", "2026-09-22T00:00:00Z"],
+      ["Timestep in minutes", "15"],
+      ["Seed", "20260922"],
+      ["Model profile", "Minimal fuel tank model"],
+      ["Publication profile", "Simulator Lab publication profile"],
+    ]) {
+      const control = screen.getByLabelText(label);
+      const described = (control.getAttribute("aria-describedby") ?? "")
+        .split(" ")
+        .map((id) => document.getElementById(id)?.textContent ?? "")
+        .join(" ");
+
+      expect(described).toMatch(/Default, chosen by this form/);
+      expect(described).toContain(shown);
+    }
+  });
+
+  it("keeps the default visible after a person changes the value", async () => {
+    // "The form chose fifteen and you typed thirty" is more useful than a
+    // mark that vanishes the moment it stops being true.
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    fireEvent.change(screen.getByLabelText("Timestep in minutes"), {
+      target: { value: "30" },
+    });
+
+    expect(screen.getByLabelText("Timestep in minutes")).toHaveValue("30");
+    expect(spacedText(screen.getByRole("main"))).toContain(
+      "Default, chosen by this form: 15",
+    );
   });
 
   it("says the scenario declares no value the run owns", async () => {
@@ -385,15 +465,73 @@ describe("the run setup screen before anything is submitted", () => {
 });
 
 describe("nothing on this screen is chosen for the person", () => {
-  it("chooses neither profile", async () => {
-    // Both are components of the frozen deterministic identity, and the
-    // model profile is what decides READY against BLOCKED. An earlier
-    // version selected the first of each, so the screen chose the outcome.
-    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+  it("chooses no profile when there is a choice to make", async () => {
+    // A default where there is exactly one option is not a choice. With two,
+    // choosing one would be the screen deciding which model profile a run
+    // freezes - and that decides READY against BLOCKED, which is what M4
+    // found being decided for people.
+    const two: RunProfilesResult = {
+      status: "loaded",
+      modelProfiles: [
+        PROFILES.status === "loaded"
+          ? PROFILES.modelProfiles[0]
+          : ({} as never),
+        {
+          ...(PROFILES.status === "loaded"
+            ? PROFILES.modelProfiles[0]
+            : ({} as never)),
+          model_profile_id: "another-model",
+          display_name: "Another model",
+        },
+      ],
+      publicationProfiles:
+        PROFILES.status === "loaded" ? PROFILES.publicationProfiles : [],
+    };
+
+    renderSetup({
+      listProfiles: () => Promise.resolve(two),
+      createRun: () => Promise.resolve({ status: "created", run: READY_RUN }),
+      listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
+      getRun: () => Promise.resolve({ status: "not_found" }),
+    });
     await settledScreen();
 
     expect(screen.getByLabelText("Model profile")).toHaveValue("");
-    expect(screen.getByLabelText("Publication profile")).toHaveValue("");
+    // The one that still has a single option keeps its default.
+    expect(screen.getByLabelText("Publication profile")).toHaveValue(
+      "simulator-lab-publication@1",
+    );
+  });
+
+  it("carries no value the screen does not disclose", async () => {
+    // The M4 regression, in the form the user's decision leaves it: the
+    // defect was never that fields were filled, it was that a person could
+    // not tell the form had filled them. So every control holding a value
+    // before anybody types must point at a mark saying so.
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    const main = screen.getByRole("main");
+    const controls = [
+      ...within(main).getAllByRole("textbox"),
+      ...within(main).getAllByRole("combobox"),
+    ] as (HTMLInputElement | HTMLSelectElement)[];
+
+    expect(controls.length).toBeGreaterThan(0);
+    for (const control of controls) {
+      if (control.value === "") {
+        continue;
+      }
+      const described = (control.getAttribute("aria-describedby") ?? "")
+        .split(" ")
+        .map((id) => document.getElementById(id)?.textContent ?? "")
+        .join(" ");
+      expect(
+        described,
+        `${control.getAttribute("name") ?? control.id} holds a value the ` +
+          "screen does not say it chose",
+      ).toMatch(/Default, chosen by this form/);
+    }
   });
 
   it("offers an empty option on each profile select", async () => {
@@ -407,9 +545,10 @@ describe("nothing on this screen is chosen for the person", () => {
     ).toEqual(["", "minimal-fuel-tank@1"]);
   });
 
-  it("sends the empty choice and lets the backend refuse it", async () => {
-    // The same division of labour as every other field: the screen does not
-    // refuse a value before the rule that owns it has seen it.
+  it("sends a default a person cleared, and lets the backend refuse it", async () => {
+    // A default is changeable, and clearing one is a change. The screen does
+    // not put it back and does not refuse it before the rule that owns it
+    // has seen it.
     const { client, calls } = runClient({
       status: "refused",
       code: "RUN_REQUEST_INVALID",
@@ -419,9 +558,11 @@ describe("nothing on this screen is chosen for the person", () => {
     renderSetup(client);
     await settledScreen();
 
-    fireEvent.change(screen.getByLabelText("Interval start"), {
-      target: { value: "2026-09-21T00:00:00Z" },
+    fireEvent.change(screen.getByLabelText("Model profile"), {
+      target: { value: "" },
     });
+    expect(screen.getByLabelText("Model profile")).toHaveValue("");
+
     fireEvent.click(screen.getByRole("button", { name: "Create draft run" }));
 
     const alert = await screen.findByRole("alert");
@@ -783,8 +924,17 @@ describe("the run setup screen makes no downstream claim", () => {
     await screen.findByText(READY_RUN.run_id);
 
     // Every digit on this screen traces to the run record, to the scenario
-    // record, to the site record, or to what was just typed into the form.
+    // record, to the site record, to what was typed - or to a default this
+    // form chose and says it chose. The fourth source arrived with T020 and
+    // it is disclosed by construction: the test above proves no control can
+    // hold a value without a mark beside it saying the form chose it.
     const expected = new Set<string>([
+      "2026-09-22T00:00:00Z",
+      "Default, chosen by this form: 2026-09-22T00:00:00Z",
+      "Default, chosen by this form: 15",
+      "Default, chosen by this form: 20260922",
+      "Default, chosen by this form: Minimal fuel tank model",
+      "Default, chosen by this form: Simulator Lab publication profile",
       READY_RUN.run_id,
       READY_RUN.created_at,
       String(SCENARIO_DETAIL.version.scenario_version),
@@ -798,6 +948,36 @@ describe("the run setup screen makes no downstream claim", () => {
       ...FROZEN_INPUTS.map((row) => row.value),
       ...FROZEN_INPUTS.map((row) => row.answered_by_detail),
     ]);
+
+    // The interval end is derived from the scenario rather than chosen, so
+    // it is read from the mark that discloses it rather than written twice.
+    // What it must BE is pinned by the derivation test above; what this test
+    // asks is only that no digit appears from nowhere. It is read from the
+    // MARK and not from the control, because this test types over the field
+    // first - and the mark is what still shows the default afterwards.
+    // Each mark renders as a label and a value, which are two text nodes,
+    // so both go in. Read from the marks themselves because this test types
+    // over the fields first, and the mark is what still shows the default.
+    let marks = 0;
+    for (const field of [
+      "startTime",
+      "endTime",
+      "timestep",
+      "seed",
+      "modelProfile",
+      "publicationProfile",
+    ]) {
+      const mark = document.getElementById(`run-setup-${field}-default`);
+      if (mark === null) {
+        continue;
+      }
+      marks += 1;
+      expected.add(mark.textContent ?? "");
+      for (const node of mark.textContent?.split(": ") ?? []) {
+        expected.add(node.trim());
+      }
+    }
+    expect(marks).toBe(6);
 
     const leaves = textNodes(screen.getByRole("main"));
     const withDigits = leaves.filter((leaf) => /\d/.test(leaf));
