@@ -173,13 +173,13 @@ class TestWhatAReadyDraftFreezes:
 
         device = bindings["example-device-reading"]
         assert device.cadence_minutes == 15
-        assert device.cadence_resolution == "MODEL_PROFILE"
 
         # A person writing a value down reports at no rate, so there is no
-        # cadence for anything to own and no reason to block.
+        # cadence for anything to own and no reason to block. What that means
+        # is read off the source kind rather than stored beside it.
         hand = bindings["example-hand-record"]
         assert hand.cadence_minutes is None
-        assert hand.cadence_resolution == "NOT_APPLICABLE"
+        assert hand.source_kind == "OPERATOR_RECORD"
 
 
 class TestRunIdentity:
@@ -847,7 +847,7 @@ class TestBlockedDraftsArePersisted:
             for item in record.deterministic_identity.observation_bindings
         }["example-device-reading"]
         assert binding.cadence_minutes is None
-        assert binding.cadence_resolution == "NOT_RESOLVED"
+        assert binding.source_kind == "DEVICE_SIGNAL"
 
     def test_an_unresolved_source_identity_blocks(self) -> None:
         setup, store = service(
@@ -1222,7 +1222,6 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenInitializationInput", "answered_by_detail"),
             ("FrozenObservationBinding", "source_id"),
             ("FrozenObservationBinding", "cadence_minutes"),
-            ("FrozenObservationBinding", "cadence_resolution"),
             ("FrozenPublicationIdentity", "simulator_source_id"),
             ("FrozenPublicationIdentity", "gateway_id"),
             ("FrozenSignalMapping", "mapping_id"),
@@ -1290,7 +1289,14 @@ class TestEveryFrozenValueNamesAnAnswerer:
             "value a reader cannot attribute."
         )
 
-    def test_every_row_names_one_of_the_four_answerers(self) -> None:
+    def test_every_row_names_one_of_the_answerers(self) -> None:
+        """Named for the set rather than for its size.
+
+        It was `..._one_of_the_four_answerers` while the set had four, and
+        T020 made it five. A test named for a count is a second place the
+        count lives, and this one would have had to be renamed by whoever
+        added the member - which is exactly the edit nothing forced.
+        """
         record, _ = create()
         rows = frozen_inputs(record.deterministic_identity)
 
@@ -1300,13 +1306,86 @@ class TestEveryFrozenValueNamesAnAnswerer:
             assert row.answered_by_detail.strip(), row.field
             assert row.value.strip(), row.field
 
+    def test_no_row_names_an_answerer_its_own_detail_contradicts(self) -> None:
+        """The shape the mislabel had, rather than a list of the rows that
+        carried it.
+
+        Every row says who answered and which record answered. Those are two
+        statements about one fact, so a row whose detail names a publication
+        profile while its answerer says the model profile is a row
+        contradicting itself - which is what the cadence and both publication
+        identity rows did until T020.
+        """
+        record, _ = create()
+        rows = frozen_inputs(record.deterministic_identity)
+
+        checked = 0
+        for row in rows:
+            detail = row.answered_by_detail
+            if "publication profile" in detail:
+                assert row.answered_by == "PUBLICATION_PROFILE", row.field
+                checked += 1
+            elif "model profile" in detail:
+                assert row.answered_by == "MODEL_PROFILE", row.field
+                checked += 1
+
+        assert checked >= 3, "no profile-answered row was examined"
+
+    def test_a_run_with_two_device_sources_has_two_cadence_rows(self) -> None:
+        """A count of three was never the shape.
+
+        The mislabel was on every row a publication profile answered, and how
+        many that is depends on the scenario: a second device-signal source
+        is a second cadence row. Built by adding a binding to a real frozen
+        identity rather than by authoring a second source, because the
+        scenario parser refuses a declared source nothing reports through -
+        and what is being measured here is the row, not the document.
+        """
+        record, _ = create()
+        identity = record.deterministic_identity
+        device = identity.observation_bindings[0]
+        assert device.source_kind == "DEVICE_SIGNAL"
+
+        widened = replace(
+            identity,
+            observation_bindings=identity.observation_bindings
+            + (replace(device, source_id="second-device-reading"),),
+        )
+
+        cadence_rows = [
+            row
+            for row in frozen_inputs(widened)
+            if row.field.startswith("Cadence for")
+        ]
+
+        assert len(cadence_rows) == 3
+        assert [
+            row.answered_by
+            for row in cadence_rows
+            if row.value != "not applicable"
+        ] == ["PUBLICATION_PROFILE", "PUBLICATION_PROFILE"]
+
     def test_the_answerers_correspond_to_the_initialization_owners(self) -> None:
+        """What this can see, and what it cannot.
+
+        It sees an initialization owner with no answerer, and an answerer
+        mapped to from an owner that is not in the wider set. It CANNOT see a
+        member of the wider set that nothing produces, because the second
+        assertion is a subset - it has to be, since that set is deliberately
+        wider than the owners. `PUBLICATION_PROFILE` is why: it answers for
+        the cadence and the publication identities, which no initialization
+        owner owns, and it was missing for a whole slice without this
+        failing.
+        """
         assert set(ANSWERER_BY_INITIALIZATION_OWNER) == set(
             INITIALIZATION_OWNERS
         )
         assert (
             set(ANSWERER_BY_INITIALIZATION_OWNER.values())
             <= FROZEN_INPUT_ANSWERERS
+        )
+        assert "PUBLICATION_PROFILE" not in set(
+            ANSWERER_BY_INITIALIZATION_OWNER.values()
         )
 
     def test_a_whole_number_is_rendered_without_a_decimal_point(self) -> None:

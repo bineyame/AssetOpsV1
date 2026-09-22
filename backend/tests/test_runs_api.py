@@ -150,9 +150,11 @@ class TestACreatedDraft:
         assert rows["Scenario version"]["answered_by"] == "SCENARIO"
         assert rows["Seed"]["answered_by"] == "RUN_INPUT"
         assert rows["Seed"]["value"] == "4242"
+        # The publication profile supplies a cadence, and until T020 this row
+        # said the model profile answered it.
         assert (
             rows["Cadence for example-device-reading"]["answered_by"]
-            == "MODEL_PROFILE"
+            == "PUBLICATION_PROFILE"
         )
         for row in run["frozen_inputs"]:
             assert row["answered_by_detail"]

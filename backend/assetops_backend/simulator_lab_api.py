@@ -665,7 +665,6 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
                     "signal_id": item.signal_id,
                     "cadence_ownership": item.cadence_ownership,
                     "cadence_minutes": item.cadence_minutes,
-                    "cadence_resolution": item.cadence_resolution,
                 }
                 for item in identity.observation_bindings
             ],

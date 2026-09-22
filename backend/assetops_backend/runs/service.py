@@ -1103,7 +1103,12 @@ def _cadence_reasons(
     identity: DeterministicIdentity,
 ) -> Iterable[BlockingReason]:
     for binding in identity.observation_bindings:
-        if binding.cadence_resolution != "NOT_RESOLVED":
+        # A device signal with no cadence is the one unresolved case; an
+        # operator record has no rate to resolve.
+        if (
+            binding.cadence_minutes is not None
+            or binding.source_kind != "DEVICE_SIGNAL"
+        ):
             continue
         yield BlockingReason(
             kind="CADENCE_NOT_RESOLVED",
