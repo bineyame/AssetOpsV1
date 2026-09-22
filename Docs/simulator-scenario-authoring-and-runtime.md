@@ -853,9 +853,12 @@ overstatement warrant different remedies.
 *Why not rename.* `READY` becomes honest the moment the conformance test lands,
 two slices away. Renaming ripples through the API payload, the frontend, the
 tests and T020's screens — which are about to be built — to fix a word that is
-about to become correct. `[OPEN]` if you would rather narrow the name anyway,
-`RESOLVED` / `BLOCKED` is the pair I would pick; it names what was checked
-rather than what is now possible.
+about to become correct. **`[CLOSED]`** - the user took the disclosure and
+declined the rename in `D-2026-09-21-run-setup-outcome-vocabulary` ("the
+remedy is disclosure now and structural closure later, not a rename"), and
+T020's task file carries it as a scope limit. The alternative, had it gone the
+other way, was `RESOLVED` / `BLOCKED`: it names what was checked rather than
+what is now possible.
 
 ---
 
@@ -2146,6 +2149,17 @@ Consequences either way:
 - If it moves to the publication profile, the shipped Draft drops from three
   `STATE_NOT_SUPPORTED` reasons to two — still `BLOCKED` — and the publication
   profile gains a `supported_reporting_states` concept it does not have.
+- **A third consequence that was not on this list.** `FROZEN_INPUT_ANSWERERS`
+  has four members, bound one-to-one to T018's `INITIALIZATION_OWNERS`, and
+  there is no `PUBLICATION_PROFILE` among them. Run setup already stamps
+  `answered_by="MODEL_PROFILE"` on the cadence row and on both publication
+  identity rows, beside detail text that says the publication profile — so
+  the mislabel exists today and T020 is about to put it on a permanent
+  screen. Moving the authority makes it plainly wrong rather than merely
+  confusing, and needs a fifth answerer. The subset assertion in
+  `test_the_answerers_correspond_to_the_initialization_owners` permits a
+  fifth member, so the cost is the wire value, the screen, and a vocabulary
+  docstring that says "the four".
 
 *My read:* move it. Reporting availability, sensor bias and gateway outage form
 one family, and it is the observation transform's family. This was raised at the
@@ -2196,7 +2210,7 @@ Foundation, never from `generator-fuel-rate`.**
 ### 5. When the reconciliation panel leaves the scenario screen
 
 `reconcile_reported_observations` is published as `observation_reconciliation`
-at `backend/assetops_backend/simulator_lab_api.py:450` and rendered at
+at `backend/assetops_backend/simulator_lab_api.py:435` and rendered at
 `frontend/src/shell/ScenarioFrame.tsx:767`. That is T018, merged to `main`.
 
 (e) removes only the *blocking* use in T019. It deliberately does not touch the
@@ -2249,7 +2263,7 @@ render them differently? Under (e) both leave run setup together and the
 question does not arise. Recording it as **closed by (e)** rather than leaving
 it open.
 
-### 9. The document cannot be finalized before the kernel runs
+### 9. The document cannot be finalized before the kernel runs — now closed
 
 The first draft of this document listed "the readings resolve before T022" as
 a standalone decision. On reflection that is wrong, and it is the one real
@@ -2267,6 +2281,11 @@ the document is corrected from that. This needs one acceptance criterion added
 to T021's task file and changes nothing else in the sequence. It does mean
 Open Question 2 is answered **during** T021 rather than before it, which is a
 change from this document's first draft.
+
+**Closed.** Accepted and built into the sequence: it is T021's third addition
+in `.ai/PLANNING_HANDOFF_T019_T022.md` and the loop drawn in the M1C
+sequencing revision. What it produced — what the document should author —
+is Open Question 2, which is still open and is answered during T021.
 
 ### 10. The `MAGNITUDE` tolerance is a picked number
 

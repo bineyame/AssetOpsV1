@@ -1750,8 +1750,8 @@ remaining caller goes, which is a different event on a different clock. See
 question.** The function has two product-path uses, not one. T019's blocking
 reason is the first and it goes now. The second is the
 `observation_reconciliation` payload built at
-`backend/assetops_backend/simulator_lab_api.py:411` and rendered as a panel at
-`frontend/src/shell/ScenarioFrame.tsx:759`, which is T018 work already merged
+`backend/assetops_backend/simulator_lab_api.py:435` and rendered as a panel at
+`frontend/src/shell/ScenarioFrame.tsx:767`, which is T018 work already merged
 to `main`. The function cannot leave the repository while that caller exists,
 so T019 removes the blocking use and labels the function as a reference
 implementation, and removal follows the last remaining caller.

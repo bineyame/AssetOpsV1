@@ -2188,7 +2188,8 @@ representation.
 
 ### Early Feature: Scenario Catalog And Run Setup
 
-Demo roadmap task range: T017-T019.
+Demo roadmap task range: T017-T019, plus T021A, which belongs to this feature
+by content and lands in the M1C range by sequence.
 
 Divide into slices:
 - Strict scenario source and Fuel Loss Event catalog/detail view over a shipped
@@ -2227,7 +2228,10 @@ M1B planner sequencing:
   `OBSERVATION_NOT_ACCOUNTED_FOR` leaves the blocking vocabulary, the shipped
   Draft blocks on three `STATE_NOT_SUPPORTED` reasons rather than five, and the
   reconciliation arithmetic moves to the test suite as a labelled reference
-  implementation expiring at T021. The `BLOCKED` outcome itself is unchanged.
+  implementation whose expiry is a condition and not a slice number: it stops
+  being an authority when a kernel exists and the two are compared, and it
+  leaves the repository when its last product-path caller goes, which is
+  undecided. The `BLOCKED` outcome itself is unchanged.
   See `D-2026-09-21-scenario-execution-contract-amendment-1`,
   `D-2026-09-21-run-setup-outcome-vocabulary` and
   `D-2026-09-21-specification-reference-implementation`.
@@ -2247,7 +2251,9 @@ fix domain semantics and the demo narrative before execution begins.
 
 ### Early Feature: Draft SimulationRun And Causal Runtime
 
-Demo roadmap task range: T020, T020A, T021, T022.
+Demo roadmap task range: T020, T020A, T021, T022. T021A sits inside this
+range in the sequence and belongs to Scenario Catalog And Run Setup by
+content; the M1C roadmap row lists it, and this feature does not own it.
 
 Divide into slices:
 - T020: Runs inventory/detail read model and Simulator Lab run header/shell over
@@ -2567,7 +2573,13 @@ and operator consequence.
     post-event state within a step, what a forcing is outside its declared
     window, and whether a run continues after a bounded change. Each would let
     two conforming kernels disagree, so each is contract-version business and
-    must be declared rather than left to whoever writes T021.
+    must be declared rather than left to whoever writes T021. Settle with them
+    a rule that is currently invented and recorded only in T019's review
+    packet: `_executable_inputs` collapses executable inputs on
+    `(state_key, role)` and resolves a requirement conflict by taking
+    `REQUIRED`, on the reasoning that a state required anywhere is required.
+    That decides whether lowering a requirement in one position lowers it at
+    all, which is one of the three ways out of the forcing-state decision.
   - **During T021:** what the Fuel Loss document should author. The removal
     magnitude, and whether the 300 L delivery that overfills a 254 L tank
     against a 500 L capacity is reduced or kept deliberately as a second
