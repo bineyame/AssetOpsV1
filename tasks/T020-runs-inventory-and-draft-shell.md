@@ -17,6 +17,10 @@ Draft, inspect its frozen identity and status, and see which execution actions
 are unavailable and why. A `READY` run states, on the record and on the screen,
 what that status does not assert. No runtime state is shown yet.
 
+The run setup form also stops arriving empty. It offers defaults for the fields
+it can honestly default, each one visibly marked as a default and each one still
+selectable, so a person can see what the form chose for them and change it.
+
 ## Why This Is Next
 
 T019 owns Draft creation and persistence. Before execution exists, the product
@@ -28,6 +32,15 @@ without claiming that the causal kernel has run.
 and what it checks is agreement between two declarations rather than an
 executable model. Disclosing that here is cheaper than renaming a word that
 becomes correct when T021's conformance test lands.
+
+The form defaults land here rather than reopening T019, and they land with a
+constraint. The T019 review's M4 finding was that the browser auto-selected the
+first model profile and the first publication profile — two components of the
+frozen deterministic identity, one of which decides `READY` versus `BLOCKED` —
+while the screen said nothing was prefilled. The fix removed the auto-select,
+which left the form empty. A shown default a person can override is honest; an
+invisible pre-pick is the defect M4 removed, so the difference between them is
+the point of this half of the slice.
 
 ## Dependencies
 
@@ -67,6 +80,17 @@ becomes correct when T021's conformance test lands.
   staged messages, Commit, Replay, and Open in AssetOps.
 - The shell reserves no plausible numeric runtime values. Unsupported or
   not-yet-executed content is labelled as such rather than rendered as zero.
+- The run setup form arrives with a default in every field it can honestly
+  default. A defaulted field shows, in the field itself rather than only in
+  surrounding help text, both that the value is a default and what value was
+  chosen, and every defaulted field remains selectable. A value the form chose
+  that a person cannot tell it chose does not satisfy this, whatever the value
+  is.
+- A field the form has no honest default for arrives empty rather than
+  prefilled with a plausible-looking value, and the request is refused or
+  blocked on it as it is today rather than proceeding on a guess.
+- Nothing on the setup screen claims that a field is unprefilled while it
+  carries a default.
 - Operator navigation and operator Site tabs remain unchanged.
 
 ## Required Product And Domain Semantics
@@ -77,6 +101,11 @@ becomes correct when T021's conformance test lands.
   Neither means running, completed, committed, accepted, or evidenced.
 - A blocked run is inspectable history of a structurally valid frozen setup. A
   malformed setup never allocated a run and therefore cannot appear here.
+- A default the person accepted is a run input, the same as a typed one. It is
+  not a fifth kind of answerer, so the frozen-inputs summary keeps answering
+  who owns a value rather than recording how the form came to hold it. The
+  honesty obligation is discharged at the form, where the person can still act
+  on it.
 
 ## Protected Seams
 
@@ -88,7 +117,8 @@ becomes correct when T021's conformance test lands.
   analytics and adds nothing to operator navigation.
 - Presentation honesty: disabled actions name real prerequisites; downstream
   actions belonging to other lifecycle objects are absent; a status discloses
-  what it does not assert in the same place it makes its claim.
+  what it does not assert in the same place it makes its claim; and a value the
+  form supplied is visible as one before it becomes part of a frozen identity.
 
 ## Focused Tests And Review Evidence
 
@@ -96,6 +126,11 @@ becomes correct when T021's conformance test lands.
   and not-found behavior through the existing SimulationRun repository.
 - A test proving the `READY` disclosure is carried by the run payload and not
   only by the screen, and that `BLOCKED` carries no equivalent claim.
+- Form tests proving each defaulted field is marked as defaulted, shows the
+  chosen value, and can be changed; that a field with no honest default is
+  empty; and the M4 regression, that no field carries a value the screen does
+  not disclose. The model profile and the publication profile are the two the
+  finding named, so they are the two the regression test covers.
 - Route/UI tests for gated inventory/detail navigation, gate-off absence, and
   the single URL chokepoint.
 - UI tests proving READY and BLOCKED treatments, frozen-identity rendering,
@@ -110,7 +145,12 @@ becomes correct when T021's conformance test lands.
   lands, and renaming ripples through the payload, the frontend, the tests and
   the screens this slice builds.
 - No `supported_states` conformance test; it needs a kernel.
-- No new SimulationRun creation or persistence adapter; T019 owns them.
+- No new SimulationRun creation or persistence adapter; T019 owns them, and
+  defaults change only what the form offers before a request is made, not what
+  run setup does with the request.
+- No Rerun, which allocates a new Draft identity and remains a later
+  capability. A default is a starting value on the form, not a run derived
+  from another run.
 - No kernel execution, runtime state, device observation, golden trace,
   injection, gateway staging, Commit, ingestion, Replay, analytics, or Finding.
 - No operator navigation or operator Site-tab changes.
