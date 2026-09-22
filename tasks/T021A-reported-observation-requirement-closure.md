@@ -14,7 +14,7 @@ has to happen, not because of what it is about.
 
 The scenario detail screen for the Fuel Loss Event shows its reported
 observations without an execution-requirement claim, and the execution contract
-version it reports reads 3. An authored document that tries to put an execution
+version it reports is the one this slice moved it to. An authored document that tries to put an execution
 requirement on a reported observation is refused with an inspectable reason
 rather than parsed and ignored.
 
