@@ -27,24 +27,54 @@
 # Test files are exempt, as everywhere else in this directory: a test must be
 # able to reach across a boundary in order to prove where it is.
 #
+# SCOPE, and why it is the whole backend package rather than the run domain.
+# The first version of this module scanned `backend/assetops_backend/runs`
+# only, while the module it protects claimed the guard covered the product.
+# T019's independent review disproved that in the cheapest possible way: a
+# function in `simulator_lab_api.py` deriving a cadence from a device's
+# display name and building the frozen binding itself passed every test and
+# passed this check. A guard scoped to one directory protects one directory,
+# and the thing being protected - that a site fact cannot reach a
+# profile-resolved run input - is a property of the product, not of a folder.
+# So the scan below covers `backend/assetops_backend` and the allowlist is
+# two modules. The same widening applies to the run-identity rule: a second
+# place that can assemble a run identity is no less a second place for
+# sitting outside the run package.
+#
 # Do not weaken the checks below to make a task pass.
 
 function Invoke-RunSetupCheck {
     $failures = New-Object System.Collections.Generic.List[string]
 
-    $runsRoot = "backend/assetops_backend/runs"
+    $backendRoot = "backend/assetops_backend"
+    $runsRoot = "$backendRoot/runs"
 
     if (-not (Test-Path -LiteralPath $runsRoot -PathType Container)) {
         $failures.Add("Missing run domain root: $runsRoot") | Out-Null
         return $failures
     }
 
-    $runModules = @(Get-ScannedModules -Root $runsRoot -Extensions @(".py"))
+    # The whole product package, not the run domain. See SCOPE above.
+    $scanned = @(Get-ScannedModules -Root $backendRoot -Extensions @(".py"))
 
-    if ($runModules.Count -eq 0) {
-        $failures.Add(("No module was scanned under $runsRoot, so every run " +
+    if ($scanned.Count -eq 0) {
+        $failures.Add(("No module was scanned under $backendRoot, so every run " +
             "setup check below is vacuous. Update the check, do not delete it.")) | Out-Null
         return $failures
+    }
+
+    # The scan has to reach outside the run domain or it is the guard the
+    # review disproved. Asserted rather than assumed: a later change to
+    # Get-ScannedModules or to the layout that narrowed it back would
+    # otherwise pass silently.
+    $outsideTheRunDomain = @($scanned | Where-Object {
+        -not $_.Path.StartsWith("$runsRoot/")
+    })
+
+    if ($outsideTheRunDomain.Count -eq 0) {
+        $failures.Add(("The run setup scan reached no module outside $runsRoot, " +
+            "so it is the directory-scoped guard T019's review disproved. " +
+            "Update the check, do not delete it.")) | Out-Null
     }
 
     # --- 1. Profile-resolved inputs are built where no site can reach --------
@@ -63,7 +93,7 @@ function Invoke-RunSetupCheck {
     $siteModelImport = 'assetops_backend\.sites\.models'
     $constructionsSeen = 0
 
-    foreach ($module in $runModules) {
+    foreach ($module in $scanned) {
         $isResolver = $resolvers -contains $module.Path
 
         $lineNumber = 0
@@ -82,10 +112,10 @@ function Invoke-RunSetupCheck {
                     "$($module.Path):${lineNumber}: $($line.Trim()). The " +
                     "cadence, the simulator source identity and the gateway " +
                     "identity come from the selected versioned profile or the " +
-                    "run is blocked, so the records that carry them are built " +
-                    "only in $($resolvers -join ', ') - modules that cannot " +
-                    "import a site record and therefore cannot infer one of " +
-                    "those values from a site.")) | Out-Null
+                    "run is blocked, so nowhere in the product builds the " +
+                    "records that carry them except $($resolvers -join ', ') - " +
+                    "modules that cannot import a site record and therefore " +
+                    "cannot infer one of those values from a site.")) | Out-Null
             }
 
             if ($isResolver -and $line -match $siteModelImport) {
@@ -115,7 +145,7 @@ function Invoke-RunSetupCheck {
     $prefixSightings = 0
     $allocationSightings = 0
 
-    foreach ($module in $runModules) {
+    foreach ($module in $scanned) {
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
@@ -128,8 +158,8 @@ function Invoke-RunSetupCheck {
                     $failures.Add(("The run identity prefix is spelled in " +
                         "$($module.Path):${lineNumber}: $($line.Trim()). A run " +
                         "identity is allocated by $identityModule and nowhere " +
-                        "else; a second place that can assemble one is a " +
-                        "second answer to what a run is called.")) | Out-Null
+                        "else in the product; a second place that can assemble " +
+                        "one is a second answer to what a run is called.")) | Out-Null
                 }
             }
 
