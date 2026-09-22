@@ -29,17 +29,20 @@ honestly.
 
 It is also where the shipped document stops authoring readings. The authored
 155 L at offset 1590 was a hand-simulation of exactly the sample this slice's
-transform generates, and it was wrong by 99 L. Removing it is what makes the
-document consistent with acceptance criteria this slice already carries.
+transform generates, and the pre-kernel arithmetic puts the real sample near
+254 L; T021 computes what it actually is. Removing the authored number is what
+makes the document consistent with acceptance criteria this slice already
+carries, whatever the computed value turns out to be.
 
 ## Dependencies
 
 - T020 run detail shell over persisted Drafts.
 - T021's accepted minimal Fuel Loss kernel, and the trajectory it reported,
   because the document's corrected numbers come out of that loop.
-- T021A, so the document edited here is already under execution contract
-  version 3 and `execution_requirement` is already gone from its reported
-  observations.
+- T021A, so the document edited here is already under whatever contract
+  version T021A produced and `execution_requirement` is already gone from its
+  reported observations. This slice edits one document's content and adds a
+  component; it moves the number no further.
 - The reporting-path authority decision, if it moved the reporting-path forcing
   to the publication profile, because it changes which profile the transform
   asks.
@@ -51,8 +54,8 @@ document consistent with acceptance criteria this slice already carries.
   API payload are merged T018 work and the last remaining product-path caller
   of `reconcile_reported_observations`; that function cannot leave the
   repository while the panel exists. The Architect's read is that it goes with
-  (f), because that is when the authored readings disappear and the panel has
-  nothing left to reconcile — a recommendation, not a decision. Until then the
+  the removal of the authored readings below, because that is when the panel
+  has nothing left to reconcile — a recommendation, not a decision. Until then the
   panel is honest, and a thing still honest goes when someone decides to remove
   it rather than because it has become false. This slice does not settle it by
   scope line. If the user says yes before implementation starts, the removal
@@ -106,7 +109,7 @@ document consistent with acceptance criteria this slice already carries.
 - Reported-observation inputs and non-executable evidence conditions affect
   only their defined observation and timeline presentation. They do not
   initialize or mutate private state, which is what the `REPORTED_OBSERVATION`
-  role exists for and what survives (f) unchanged.
+  role exists for and what survives this slice's document edit unchanged.
 - The UI presents private truth and reported values with unmistakable labels,
   simulation timestamps, source identity where applicable, and missing-sample
   states, including the samples the reporting gap suppresses. It does not label

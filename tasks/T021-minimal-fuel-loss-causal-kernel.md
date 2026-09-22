@@ -83,8 +83,12 @@ slice produces. See the document-correction criterion.
   the scenario.
 - Every initialized value is attributable to a frozen Foundation fact,
   executable scenario input, supported run override, or versioned model rule
-  carried by the selected profile. Missing or ambiguous inputs produce a typed
-  refusal, never a hidden default.
+  carried by the selected profile. The kernel initializes only from a `READY`
+  run, which by record invariant carries no value marked absent, so a missing
+  or contradictory value here is a typed kernel initialization error and never
+  a hidden default. That error is not run setup's refusal and not its blocking
+  reason: both of those were decided before a `run_id` existed or before the
+  Draft was persisted, and neither vocabulary belongs to the kernel.
 - The kernel represents simulation time, fuel quantity, generator operating
   state and cumulative generator consumption in canonical units. It also
   carries the accepted load and irradiance forcings as supported runtime inputs
@@ -114,6 +118,12 @@ slice produces. See the document-correction criterion.
   position; and the slice states that it is a regression guard rather than a
   correctness proof, because an author and a kernel performing the same
   arithmetic and agreeing proves that two implementations agree.
+- `EXECUTION_CONTRACT_VERSION` does not move in this slice. Adding
+  `TRAJECTORY` widens the document space off every executable path, and a
+  widening invalidates no frozen run, so it spends no number. Pinning the four
+  unpinned semantics does move it, and that is the declaration's to spend
+  wherever it lands, not this slice's. The count is in `.ai/FEATURE_MAP.md`
+  under *The execution-contract version ledger*.
 - A conformance test asserts that the shipped model profile's
   `supported_states` equals the set of states the kernel actually implements,
   derived from the kernel rather than restated by hand. A test that repeats the
@@ -129,10 +139,13 @@ slice produces. See the document-correction criterion.
 - The slice runs the kernel against the shipped Fuel Loss document under its
   frozen Draft identity and reports the resulting private-state trajectory:
   the value at each authored offset and the outcome at the capacity bound. The
-  document's authored numbers are then corrected from that trajectory. Which
-  corrections to make is the user's call taken during the slice, and producing
-  the trajectory that makes the call answerable is this slice's obligation. No
-  authored number changes without the computed trajectory that justifies it.
+  authored numbers in scope are then corrected from that trajectory, and they
+  are the authored **causes** - the removal magnitude, and whether the 2400
+  delivery that overfills the tank is reduced or kept deliberately as a second
+  puzzle. Which corrections to make is the user's call taken during the slice;
+  producing the trajectory that makes it answerable is this slice's
+  obligation. No authored number changes without the computed trajectory that
+  justifies it.
 - No state trace is hand-authored or accepted as execution input. T021 may
   compare in-memory deterministic sequences in tests; T022 owns any persisted
   or checked-in golden playback artifact after it wires normal execution
@@ -180,12 +193,16 @@ slice produces. See the document-correction criterion.
 - Metamorphic tests prove: zero removal adds no removal delta; increasing the
   removal by delta changes post-event fuel by that delta; moving it later keeps
   the earlier prefix equal; removing it removes the discontinuity; changing the
-  target affects only the resolved target or is refused.
+  target affects only the resolved target or fails to initialize.
 - Example accounting test covers initial fuel, generator consumption, removal,
   and delivery under the accepted bound behavior and canonical-unit conversions.
-- Refusal tests cover missing component, missing Foundation coefficient,
-  unsupported topology/input, invalid unit, missing initialization, impossible
-  bound, and deterministic-identity mismatch.
+- Kernel initialization failure tests cover missing component, unsupported
+  topology or input, impossible bound, and deterministic-identity mismatch.
+  A missing or unlocatable Foundation coefficient, a wrong unit and an
+  unresolved initial value are not among them: run setup blocks on all three
+  before a run can reach the kernel, so the kernel's guard against them is a
+  record-level assertion and the packet says so rather than claiming a
+  reachable path.
 - `TRAJECTORY` tests prove the oracle fails when the kernel disagrees with the
   asserted value, and that it reaches no executable path and no published
   output.
@@ -210,6 +227,10 @@ slice produces. See the document-correction criterion.
   which is the `observation_reconciliation` panel and is undecided. Two events
   on two clocks: comparing is this slice's, removing is not. The panel and its
   payload are untouched here.
+- No correction of the two authored reported-observation readings, the 155 L
+  at 1590 and the 150 L at 1800. T022 removes them outright, so correcting
+  them here is work done twice and a reading the document should not carry at
+  all made briefly more accurate.
 - No Lab clock controls or displayed trajectory; those belong to T022.
 - No device observation transform, gateway envelope, staging, Commit,
   ingestion, Replay, analytics, or Finding.
