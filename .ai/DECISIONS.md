@@ -40,6 +40,7 @@ rationale in the dated entries below.
 | `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. Its template-copy consequence is corrected by `D-2026-09-22-foundation-property-absent-blocks`: a non-re-created MG-001 blocks, it does not refuse. |
 | `D-2026-09-22-expiry-follows-the-condition` | 2026-09-22 | A gap-covering artifact names the condition as its expiry, never a slice number; a claim that has become false goes in the slice that falsifies it, and a thing still honest goes when someone decides to remove it. |
 | `D-2026-09-22-foundation-value-declaration` | 2026-09-22 | A scenario parameter whose declared owner is Site Foundation has no value position at all. The rule is keyed on the owner, so it reaches `tank-capacity` as well as the coefficient, moves the contract version, and retires `INITIAL_VALUE_ANSWERS_DISAGREE` in T020A. Option C is a named follower. |
+| `D-2026-09-22-capacity-bound-source` | 2026-09-22 | A bound's declaration is the document's and its value is the site's. `declared_bounds` reports no upper value for `fuel-tank-volume` after T020A and that is the correct answer; the number lives in the frozen run and the first thing entitled to hold both halves is T021's kernel. |
 | `D-2026-09-22-foundation-property-absent-blocks` | 2026-09-22 | A Foundation that declares no such property at all blocks with `INITIAL_VALUE_NOT_RESOLVED`. It is a fifth case of the four, not a refusal, because after T020A the binding names the property and a different profile might name another. |
 | `D-2026-09-22-contract-version-scope` | 2026-09-22 | `EXECUTION_CONTRACT_VERSION` moves when a change can alter the outcome for a document that was already valid. A narrowing can; a pure widening off every executable path cannot, so the `TRAJECTORY` oracle kind does not move it. The absolute numbers are unstable and are written relatively. |
 
@@ -2167,6 +2168,17 @@ retirement of `INITIAL_VALUE_ANSWERS_DISAGREE` from `runs/refusals.py`,
 `config/scenarios/fuel-loss-event.yaml` for both `generator-fuel-rate` and
 `tank-capacity`, T020A's scope and its task file, and the version ledger.
 
+It also reaches a second float filter this entry did not name, in
+`declared_bounds`, and that consequence is settled separately by
+`D-2026-09-22-capacity-bound-source`: the `fuel-tank-volume` upper bound stops
+being something the document can state. The constraint that falls out and
+belongs to T020A: **the `bounds` declaration must survive the value's
+removal.** A bound's `state_key` and `bound_kind` say which world state caps
+which, which is a relationship between two states and not a property of a
+machine, so it stays in the document when the number goes. A parser that
+rejected `bounds` on a parameter stating no value would take the relationship
+out with the number and leave the kernel nothing saying what caps what.
+
 And `.ai/ARCHITECTURE.md` under Refusal And Blocking Vocabularies, which the
 slice retiring the kind has to touch: the durable naming rule there uses
 `INITIAL_VALUE_NOT_RESOLVED` against `INITIAL_VALUE_ANSWERS_DISAGREE` as its
@@ -2233,3 +2245,110 @@ sequencing revision, `.ai/PLANNING_HANDOFF_T019_T022.md` T020A,
 `.ai/ACTIVE_CONTEXT.md`, `Docs/simulator-scenario-authoring-and-runtime.md`,
 `tasks/T020A-foundation-physical-properties.md` which is the Planner's, and
 T020A's blocking-reason coverage.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-capacity-bound-source`. **A bound's declaration is the
+document's; a bound's value is the site's.** After
+`D-2026-09-22-foundation-value-declaration`, `declared_bounds` reports no
+upper value for `fuel-tank-volume`, and that is the correct answer rather than
+a hole to be plugged.
+
+**What was found.** `declared_bounds` skips any parameter whose value is not a
+float. After option B, `tank-capacity` states no number, the loop skips it, and
+the `fuel-tank-volume` bound becomes `(0.0, None)` with no error and no
+refusal. `backend/tests/test_scenario_execution_contract.py` asserts
+`(0.0, 500.0)` and goes red.
+
+**Why nothing sources the value back into the document.** A projection of a
+document cannot report a number the document does not carry, and after option B
+the document genuinely does not know how big the tank is - that is the whole
+of what option B moved. Sourcing the bound from the resolved Foundation value
+would make `declared_bounds` a function of document **and** Site. That does not
+make it a kernel, because it composes nothing over time, but it stops it being
+a projection of the document, and the scenario domain deliberately does not
+resolve a target Site: T017 split the parser from the service over exactly that.
+Sourcing it from the model profile's binding is worse, because the binding is
+the profile's and the scenario domain has no business reading a profile at all.
+The component entitled to hold a document and a resolved Site together is run
+setup, which freezes; and the component entitled to walk a bound against a
+running value is the kernel. Putting the walk in run setup is
+`reconcile_reported_observations` again under a different name.
+
+**And the number does not go anywhere.** `tank-capacity` is
+`owner: SITE_FOUNDATION` with `initializes: true`, so run setup already
+resolves it through the profile's binding and freezes it as
+`FrozenInitializationInput` for `fuel-tank-capacity`. The capacity moves from
+the document to the frozen run, which is where a machine's physical property
+belongs and is the same relocation option B performs for the coefficient.
+T021's kernel reads it there.
+
+**The consumer was already scheduled to leave.**
+`D-2026-09-21-specification-reference-implementation` records that
+`declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly one
+non-test caller, reconciliation, "so they move with it". Verified: the only
+non-test caller of `declared_bounds` is `reconcile_reported_observations`. A
+mechanism teaching `declared_bounds` to reach Foundation would build a
+cross-domain capability for a function already on its way to the test suite.
+The shipped document's own comment on the `bounds` block says its purpose is
+letting the contract "notice that a declared cause would take the tank past
+its capacity" - which is the bound walk, the kernel that was living in the
+validation layer, and the thing (h) and (j) removed.
+
+**What is lost, priced.** Nothing can notice the shipped document's 300 L
+delivery overfilling a 500 L tank from the document alone any more. That was
+never a projection: knowing the tank holds 254 L at offset 2400 requires
+composing the declared causes, which is a kernel. So this is (h) being
+applied, not a regression introduced here.
+`BOUND_CASES["fuel-tank-capacity"]` is a policy rather than a number and
+survives untouched; T021's kernel applies it against the frozen capacity, so
+the document correction T021 owes still has something to check against.
+
+**What is gained, and it is not nothing.** A capacity that cannot be found
+used to leave a document-level bound that might not match the site. It now
+blocks the run: a binding that cannot locate the Foundation rating produces
+`INITIAL_VALUE_NOT_RESOLVED`, a `READY` run may not carry an absent value, and
+every absent value must be named by a blocking reason for the same state. A
+silent `(0.0, None)` in a retiring validator is replaced by a run that will
+not claim to be ready.
+
+**The test, and why the cheap fix is worse than it looks.**
+`test_the_declared_bound_is_declared_rather_than_guessed` proves the bound is
+declared rather than inferred from two state keys sharing a prefix: it removes
+the `bounds` block and watches the upper bound vanish. After option B **both
+halves of that test return `(0.0, None)`**. Weakening the assertion to match
+does not merely lose a number - it leaves a test whose control and whose case
+are identical, passing while proving nothing. That is the failure T019 met
+three times and named: an assertion that holds against a value the product
+cannot make proves nothing about the product.
+
+So the property is re-proved where the distinction still exists, and it exists
+in two places, neither of them retiring. The **relationship** is in the parsed
+document and in the scenario-detail payload, which publishes
+`bounds: {state_key, bound_kind}` and never a number - so removing the `bounds`
+block is still an observable change and still a real control. The **value** is
+in the frozen identity, where run setup resolves 500 L from MG-001's Foundation
+and names `SITE_FOUNDATION` as the answerer. The test splits along the same
+seam the decision does, and the 500.0 keeps a home.
+
+**A rider that sharpens an existing open question.** After option B,
+`declared_bounds("fuel-tank-volume")` returns `(0.0, None)` where the `0.0` is
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` - so the function's entire answer for that
+state becomes the validation layer's own injected model rule, with the
+document supplying neither number. Open Question 11 had a destination and no
+slice; it now has a second reason and a sharper statement of itself.
+
+Reason: the question looked like "where does the bound come from now" and the
+answer is that it comes from where it always should have: a document says
+which state caps which, and a site says how big the tank is. The only thing
+that made the old arrangement look coherent was a validator composing the two,
+which is the component this sequence has spent three decisions removing.
+
+Affected scope: `backend/assetops_backend/scenarios/execution.py`
+`declared_bounds` and its float filter,
+`backend/tests/test_scenario_execution_contract.py`'s bound test and wherever
+the 500 L assertion lands in `backend/tests/test_run_setup.py`,
+`config/scenarios/fuel-loss-event.yaml`'s `tank-capacity` `bounds` block and
+the parser rule that must keep accepting it without a value, T020A's criterion
+for the bound, T021's kernel reading the capacity from the frozen identity,
+and Open Question 11.
