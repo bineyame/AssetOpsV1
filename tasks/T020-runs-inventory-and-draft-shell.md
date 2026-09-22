@@ -57,11 +57,16 @@ is the defect M4 removed, and that difference is this half of the slice.
 - The detail summary exposes the frozen deterministic identity established by
   T019, including initialization provenance and selected model profile, without
   exposing private scenario expectations.
-- Every frozen row names the profile that actually answered it. The cadence row
-  and the two publication-identity rows say the model profile answered while
-  the detail beside them names the publication profile, which did. T020 puts
-  that table on a permanent linkable screen, so the label is corrected here
-  rather than after it has been read.
+- Every frozen row names the profile that actually answered it: every row whose
+  value came from the publication profile now says so. That is a shape, not a
+  count of three - both cadence branches that resolve a cadence carry the
+  mislabel, and a run with two device-signal sources has two cadence rows. The
+  slice adds `PUBLICATION_PROFILE` to `FROZEN_INPUT_ANSWERERS` and corrects
+  with it the docstring saying there are four and
+  `test_every_row_names_one_of_the_four_answerers`. No guard stops that: the
+  correspondence assertion's second half is a subset, so a fifth member passes
+  it silently. T020 puts this table on a permanent linkable screen, so the
+  label is corrected before it has been read.
 - A `READY` run carries a disclosure of what the status does not assert: that
   every required executable input resolved and the selected model profile
   declares it can consume them, and that nothing has verified the model can
@@ -131,9 +136,9 @@ is the defect M4 removed, and that difference is this half of the slice.
   evidence — is proved against a fixture run record written through the
   SimulationRun port, as T019 proved `READY`, and the packet says which runs
   in `var/runs/` are fixtures.
-- A test proving the cadence and publication-identity rows name the
-  publication profile as their answerer, and that no row's answerer disagrees
-  with the detail beside it.
+- A test proving no row's answerer disagrees with the detail beside it, which
+  is the shape rather than a list of the rows that carry the mislabel today,
+  and one covering a run with two device-signal sources.
 - Form tests proving each defaulted field is marked as defaulted, shows the
   chosen value, and can be changed; that a field with no honest default is
   empty; and the M4 regression on the two profile selections, that no field
@@ -153,6 +158,14 @@ is the defect M4 removed, and that difference is this half of the slice.
 - No `supported_states` conformance test; it needs a kernel. No widening of the
   shipped model profile to make a `READY` run reachable, which is the cheapest
   wrong way to satisfy the criteria above and is T019's prohibition standing.
+- No move of reporting-path authority. This slice corrects a label on a value
+  the publication profile already supplies. Moving authority over
+  `fuel-level-reporting-availability` to that profile is T020B's, and it
+  changes behaviour rather than a label.
+- No change to `CADENCE_RESOLUTIONS`, which carries the same mislabel in a
+  vocabulary that is persisted on the frozen identity. Changing a stored member
+  is what T019's logged lesson says makes older Drafts unparseable; it is with
+  the user and is not this slice's.
 - No new SimulationRun creation or persistence adapter; T019 owns them, and
   defaults change only what the form offers, not what run setup does with the
   request.
