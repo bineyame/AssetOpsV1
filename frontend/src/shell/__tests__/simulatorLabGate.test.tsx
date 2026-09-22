@@ -9,6 +9,7 @@ import {
   featureFlagsWith,
   type FeatureFlags,
 } from "../../config/featureFlags";
+import type { RunSetupClient } from "../runSetupClient";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
@@ -21,6 +22,70 @@ import { spacedText } from "../../test/text";
  */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
   listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
+};
+
+/**
+ * The run store, injected and holding one draft.
+ *
+ * Injected for a reason the gate assertions depend on. Without a client the
+ * run surfaces render "the run store could not be read" - a screen with no
+ * controls on it at all - and every claim below about what those screens may
+ * and may not offer would be a claim about an empty set. The draft is `READY`
+ * so the one disabled action exists, which is the case the allowance further
+ * down is written for and the case that would hide an enabled one.
+ */
+const RUN_SETUP: RunSetupClient = {
+  listProfiles: () => Promise.resolve({ status: "unavailable" }),
+  createRun: () => Promise.resolve({ status: "unavailable", message: null }),
+  listRuns: () =>
+    Promise.resolve({
+      status: "loaded",
+      runs: [
+        {
+          run_id: "run-1",
+          lifecycle_status: "DRAFT",
+          execution_status: "READY",
+          created_at: "2026-09-22T09:00:00Z",
+          site_id: "MG-001",
+          foundation_version: 1,
+          scenario_id: "fuel-loss-event",
+          scenario_version: 1,
+          interval: {
+            start_time: "2026-09-21T00:00:00Z",
+            end_time: "2026-09-22T17:00:00Z",
+            duration_minutes: 2460,
+          },
+          blocking_reason_count: 0,
+        },
+      ],
+    }),
+  getRun: (runId: string) =>
+    Promise.resolve({
+      status: "loaded",
+      run: {
+        run_id: runId,
+        lifecycle_status: "DRAFT",
+        execution_status: "READY",
+        readiness_disclosure:
+          "READY means every required executable input resolved and the " +
+          "selected model profile declares it can consume them.",
+        created_at: "2026-09-22T09:00:00Z",
+        site_id: "MG-001",
+        scenario_id: "fuel-loss-event",
+        scenario_version: 1,
+        frozen_inputs: [
+          {
+            identity_field: "site",
+            field: "Site",
+            value: "MG-001",
+            answered_by: "SITE_FOUNDATION",
+            answered_by_detail: "site MG-001 foundation version 1",
+          },
+        ],
+        blocking_reasons: [],
+        unsupported_optional_inputs: [],
+      },
+    }),
 };
 
 /**
@@ -158,7 +223,11 @@ const RUN_ACTION_PATTERN =
 function renderAt(path: string, flags: FeatureFlags) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} />
+      <App
+        flags={flags}
+        siteDirectory={EMPTY_SITE_DIRECTORY}
+        runSetup={RUN_SETUP}
+      />
     </MemoryRouter>,
   );
 }
