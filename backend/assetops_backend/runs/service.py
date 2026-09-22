@@ -143,6 +143,45 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+class RunInventoryService:
+    """Read-only access to the Drafts run setup has written.
+
+    Two methods and no more. There is no create here - `RunSetupService` owns
+    that and the port has one write - and no update, delete, rerun, start or
+    commit, because nothing in this build can do any of them and a method for
+    one would be a contract with nothing behind it.
+
+    Ordering is fixed here rather than left to whichever adapter is composed,
+    the way the scenario catalog fixes its own. Newest first, because a run
+    store grows by appending and the run somebody wants is almost always the
+    one they just made; ties break on identity so the order is total and two
+    runs created in the same second do not swap places between reads.
+    """
+
+    def __init__(self, runs: SimulationRunRepository) -> None:
+        self._runs = runs
+
+    def list_runs(self) -> tuple[SimulationRun, ...]:
+        """Every persisted Draft, newest first."""
+        return tuple(
+            sorted(
+                self._runs.list_runs(),
+                key=lambda record: (record.created_at, record.run_id),
+                reverse=True,
+            )
+        )
+
+    def get_run(self, run_id: str) -> SimulationRun:
+        """One Draft by identity.
+
+        Raises:
+            RunNotFound: no such `run_id`. Never another run: a lookup that
+                fell back to something would put one run's frozen identity
+                under another run's name.
+        """
+        return self._runs.get_run(run_id)
+
+
 class RunSetupService:
     """Create one Draft SimulationRun from a setup request.
 

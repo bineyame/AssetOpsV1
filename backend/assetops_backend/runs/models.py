@@ -66,6 +66,40 @@ RUN_LIFECYCLE_STATUSES = frozenset({"DRAFT"})
 #: status nothing can reach is a claim that execution exists.
 RUN_EXECUTION_STATUSES = frozenset({"READY", "BLOCKED"})
 
+#: What `READY` does not assert, and why it says so.
+#:
+#: `READY` is the one status in this build that makes a claim about being
+#: executable, and what it actually checked is that two DECLARATIONS agree:
+#: the scenario says which states it needs executed, and the selected model
+#: profile says which states it supports. Nothing has run either against a
+#: kernel, because no kernel exists.
+#:
+#: The disclosure names **the condition it exists for** rather than a slice
+#: number, so the slice that closes the condition can recognise what to
+#: retire: `D-2026-09-22-expiry-follows-the-condition` is the rule, and the
+#: condition here is that nothing verifies a profile's supported set against
+#: an executable model. A conformance test deriving `supported_states` from a
+#: kernel ends it, and this becomes false in the slice that lands one.
+#:
+#: It is a property of the status, not of a run, so it is computed on the way
+#: out rather than stored. Every Draft written before this slice gets it on
+#: read, and a `BLOCKED` run gets nothing: `BLOCKED` claims a run may not
+#: execute, which needs no disclaimer about execution.
+READY_DISCLOSURE = (
+    "READY means every required executable input resolved and the selected "
+    "model profile declares it can consume them. It does not mean the model "
+    "can: nothing has verified that profile's supported states against an "
+    "executable model, because no causal runtime exists in this build. This "
+    "statement is retired by the slice that adds a conformance test deriving "
+    "the supported states from a kernel."
+)
+
+
+def readiness_disclosure(execution_status: str) -> str | None:
+    """What a status does not assert, or nothing when it asserts nothing."""
+    return READY_DISCLOSURE if execution_status == "READY" else None
+
+
 #: Who answers for one frozen value.
 #:
 #: Four of the five correspond exactly to the four initialization owners T018

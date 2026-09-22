@@ -61,10 +61,11 @@ from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
 
-from assetops_backend.runs.models import SimulationRun
+from assetops_backend.runs.models import SimulationRun, readiness_disclosure
 from assetops_backend.runs.ports import (
     RunConfigurationInvalid,
     RunIdentityConflict,
+    RunNotFound,
     RunStoreUnavailable,
     SimulationRunRepository,
 )
@@ -72,9 +73,10 @@ from assetops_backend.runs.profiles import (
     ModelProfile,
     PublicationProfile,
 )
+from assetops_backend.runs.identity import RUN_ID_RULE, validate_run_id
 from assetops_backend.runs.provenance import frozen_inputs
 from assetops_backend.runs.refusals import RunSetupRefused
-from assetops_backend.runs.service import RunSetupService
+from assetops_backend.runs.service import RunInventoryService, RunSetupService
 from assetops_backend.scenarios.execution import (
     BOUND_CASES,
     CANONICAL_UNITS,
@@ -136,6 +138,8 @@ SCENARIOS_ROUTE = "/scenarios"
 SCENARIO_DETAIL_ROUTE = "/scenarios/{scenario_id}"
 RUN_PROFILES_ROUTE = "/run-profiles"
 CREATE_RUN_ROUTE = "/runs"
+RUNS_ROUTE = "/runs"
+RUN_DETAIL_ROUTE = "/runs/{run_id}"
 
 # Refusal codes. The message is the product copy a user reads; the code is what
 # a client switches on, so neither has to be parsed out of the other.
@@ -146,6 +150,7 @@ REFUSAL_STORE_UNAVAILABLE = "SITE_STORE_UNAVAILABLE"
 REFUSAL_SCENARIO_NOT_FOUND = "SCENARIO_NOT_FOUND"
 REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 REFUSAL_RUN_STORE_UNAVAILABLE = "RUN_STORE_UNAVAILABLE"
+REFUSAL_RUN_NOT_FOUND = "RUN_NOT_FOUND"
 
 
 def run_refusal_code(kind: str) -> str:
@@ -587,6 +592,41 @@ def publication_profile_summary(
     }
 
 
+def run_inventory_row(record: SimulationRun) -> dict[str, object]:
+    """Inventory shape: which Drafts exist, and what each one is bound to.
+
+    Identity, the two statuses, the versions a run froze, and the interval it
+    covers. Every value comes from the record.
+
+    What is deliberately absent is what an inventory of runs invites: there
+    is no progress, no elapsed time, no health, no source quality, no
+    evidence state and no count of anything produced, because nothing has
+    been produced. A column for one of those would be a column of zeroes, and
+    a zero is a measurement.
+
+    The frozen identity is not here either. A row says which runs exist;
+    reading one is the detail route's job, the same split the scenario
+    catalog uses.
+    """
+    identity = record.deterministic_identity
+    return {
+        "run_id": record.run_id,
+        "lifecycle_status": record.lifecycle_status,
+        "execution_status": record.execution_status,
+        "created_at": record.created_at,
+        "site_id": identity.site.site_id,
+        "foundation_version": identity.site.foundation_version,
+        "scenario_id": identity.scenario.scenario_id,
+        "scenario_version": identity.scenario.scenario_version,
+        "interval": {
+            "start_time": identity.interval.start_time,
+            "end_time": identity.interval.end_time,
+            "duration_minutes": identity.interval.duration_minutes,
+        },
+        "blocking_reason_count": len(record.blocking_reasons),
+    }
+
+
 def run_summary(record: SimulationRun) -> dict[str, object]:
     """One Draft run: its identity, what it froze, and why it may not run.
 
@@ -599,6 +639,11 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
         "run_id": record.run_id,
         "lifecycle_status": record.lifecycle_status,
         "execution_status": record.execution_status,
+        # What the status does not assert, carried by the payload rather than
+        # written on a screen. A caller reading this over the wire gets the
+        # same statement the screen shows, because it is a property of the
+        # status and not a note somebody added to one surface.
+        "readiness_disclosure": readiness_disclosure(record.execution_status),
         "created_at": record.created_at,
         "site_id": identity.site.site_id,
         "scenario_id": identity.scenario.scenario_id,
@@ -735,6 +780,7 @@ def build_simulator_lab_router(
     creation = SiteCreationService(repository, catalog)
     scenario_catalog = ScenarioCatalogService(scenarios)
     scenario_detail = ScenarioDetailService(scenarios, repository)
+    run_inventory = RunInventoryService(runs)
     run_setup = RunSetupService(
         runs,
         repository,
@@ -1014,6 +1060,69 @@ def build_simulator_lab_router(
                     REFUSAL_RUN_STORE_UNAVAILABLE,
                     f"{error} Nothing was written.",
                 ),
+            ) from error
+
+        return {"run": run_summary(record)}
+
+    @router.get(RUNS_ROUTE)
+    def list_runs() -> dict[str, object]:
+        """Every Draft run setup has written, newest first.
+
+        A store that cannot be read is stated as unavailable rather than
+        degraded into "no runs are saved". Those are different facts and an
+        inventory must not claim the second when the first is true.
+        """
+        try:
+            records = run_inventory.list_runs()
+        except (RunConfigurationInvalid, RunStoreUnavailable) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_RUN_STORE_UNAVAILABLE, str(error)),
+            ) from error
+
+        return {"runs": [run_inventory_row(record) for record in records]}
+
+    @router.get(RUN_DETAIL_ROUTE)
+    def read_run(run_id: str) -> dict[str, object]:
+        """One Draft by its own identity.
+
+        The requested identity is validated here rather than only inside the
+        port, so a malformed identity and an unreadable store cannot arrive
+        as the same exception and be reported as the same thing. A malformed
+        identity is answered as not found, because no run could ever carry
+        it.
+
+        A run that is not there is never another run. The store compares
+        identities and this route returns what it answered; there is no
+        nearest match and no fallback, because a fallback would put one
+        run's frozen identity under another run's name.
+        """
+        try:
+            validate_run_id(run_id)
+        except RunConfigurationInvalid as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_RUN_NOT_FOUND,
+                    f"No run with run ID {run_id!r} is persisted, and no run "
+                    f"could have that ID. {RUN_ID_RULE}",
+                ),
+            ) from error
+
+        try:
+            record = run_inventory.get_run(run_id)
+        except RunNotFound as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_RUN_NOT_FOUND,
+                    f"No run with run ID {run_id!r} is persisted.",
+                ),
+            ) from error
+        except (RunConfigurationInvalid, RunStoreUnavailable) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_RUN_STORE_UNAVAILABLE, str(error)),
             ) from error
 
         return {"run": run_summary(record)}

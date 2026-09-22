@@ -287,12 +287,19 @@ class FakeRuns:
         return record
 
     def get_run(self, run_id: str) -> SimulationRun:
+        # A store that cannot be reached cannot be read either. The failure
+        # applies to every method rather than only to the write, because a
+        # fake that fails on one is a fake of a store nothing has.
+        if self._failure is not None:
+            raise self._failure
         for record in self.written:
             if record.run_id == run_id:
                 return record
         raise RunNotFound(run_id)
 
     def list_runs(self) -> Sequence[SimulationRun]:
+        if self._failure is not None:
+            raise self._failure
         return tuple(self.written)
 
 
