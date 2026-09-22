@@ -82,6 +82,71 @@ than being two vocabularies that happen to overlap.
 *Safe to carry* because after T020 every row names the profile that answered
 it, which is the part that reaches a screen.
 
+### The gate suite's vacuity shape survives in two more places
+
+T020 fixed one instance: the gate suite rendered the run surfaces with no run
+client, so a claim about what they may offer iterated an empty control list.
+The same shape is still there twice. `renderAt` injects
+`EMPTY_SITE_DIRECTORY`, so the Sites screen a gate claim walks has no rows and
+few controls, and the injected `RUN_SETUP` answers `listProfiles` with
+`unavailable`, so the run SETUP screen a gate claim walks renders a degraded
+panel rather than a form.
+
+*Safe to carry* because every load-bearing claim in that suite is an absence
+when the gate is closed, and an absence asserted over a thin screen is still
+an absence. The claim that had to bite - what an enabled run surface may
+offer - is the one T020 made non-vacuous.
+
+*What would change the answer:* a gate claim that asserts something is
+**present or enabled** on either of those two screens. Against an empty list
+or a degraded panel that claim would either fail loudly or pass for the wrong
+reason, and the injection has to become real first.
+
+### The inventory's bare `READY` cell
+
+`READY` appears in a table cell on the Runs inventory with no disclosure
+beside it and no room for one. The panel that says what the status does not
+assert exists only on the run detail. Both the T020 packet's
+presentation-honesty assessment and its independent review name this as the
+thinnest point of the slice.
+
+*Safe to carry* because the inventory's explanation panel says what ready and
+blocked describe before the table, the detail is one click away and states it
+in full, and T021's conformance test makes the word correct rather than
+qualified.
+
+*What would change the answer:* the inventory gaining a second signal that
+reads as readiness - a colour, an icon, a sort that puts `READY` first - or
+T021 slipping far enough that the qualified word is read for a long time
+without its qualification.
+
+### The answerer-contradiction property covers one cadence branch
+
+`test_no_row_names_an_answerer_its_own_detail_contradicts` is the guard that
+makes the `PUBLICATION_PROFILE` relabel a shape rather than a count. It
+exercises the branch where a cadence resolves. The not-resolved branch - a
+device signal whose profile declares no cadence - is correct by reading, but
+no run in that state is passed through the property.
+
+*Safe to carry* because the not-resolved branch blocks the run, and a blocked
+run's cadence row is covered by the blocking-reason assertions instead.
+
+*What would change the answer:* any change that lets an unresolved cadence
+reach a `READY` run, or a second answerer becoming able to answer a cadence.
+
+### Packet commit counts are stale two slices running
+
+`.agent/T020-review-packet.md` said seven commits when there were eight, and
+the T019 packet carried the same kind of error. The count is written before
+the last commits land and is never re-read.
+
+*Safe to carry* because it is a number in a document nothing computes from,
+and every packet names its branch, which is authoritative.
+
+*What would change the answer:* nothing. Delete this entry at the milestone
+review; it is here so the pattern is visible rather than because it needs a
+fix.
+
 ## Tracked elsewhere, listed so the review finds them
 
 - **Four open M1C questions** - `.ai/FEATURE_MAP.md`, *Open Questions Before
