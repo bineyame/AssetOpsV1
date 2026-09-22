@@ -321,6 +321,20 @@ describe("one draft run", () => {
       within(reasons).getByText("STATE_NOT_SUPPORTED"),
     ).toBeInTheDocument();
     expect(screen.queryByText(DISCLOSURE)).toBeNull();
+
+    // And no link stands in for the button that is not here. The F1 fix
+    // closed the link set on the READY screen; an anchor reading "Proceed"
+    // then passed on this one, one branch over, because the absence asserted
+    // above is an absence of BUTTONS. The set is closed on both branches now,
+    // because "there is no run action to offer" has to be true of every
+    // affordance, not of one element type.
+    const links = within(screen.getByRole("main"))
+      .getAllByRole("link")
+      .map((link) => [link.getAttribute("href"), link.textContent]);
+    expect(links).toEqual([
+      ["/simulator-lab/runs", "Back to Runs"],
+      ["/simulator-lab", "Back to the Simulator Lab"],
+    ]);
   });
 
   it("offers no runtime control of any kind", async () => {

@@ -34,6 +34,9 @@ const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
  * so the one disabled action exists, which is the case the allowance further
  * down is written for and the case that would hide an enabled one.
  */
+/** The run identity the injected store answers as `BLOCKED`. */
+const BLOCKED_RUN_ID = "run-blocked-1";
+
 const RUN_SETUP: RunSetupClient = {
   listProfiles: () => Promise.resolve({ status: "unavailable" }),
   createRun: () => Promise.resolve({ status: "unavailable", message: null }),
@@ -59,16 +62,22 @@ const RUN_SETUP: RunSetupClient = {
         },
       ],
     }),
+  // Two runs, because the detail screen has two branches and a claim that
+  // only ever renders one of them is a claim about half the screen. The
+  // reviewer's F1 probe was caught on the READY branch and a second anchor
+  // then passed on the BLOCKED one.
   getRun: (runId: string) =>
     Promise.resolve({
       status: "loaded",
       run: {
         run_id: runId,
         lifecycle_status: "DRAFT",
-        execution_status: "READY",
+        execution_status: runId === BLOCKED_RUN_ID ? "BLOCKED" : "READY",
         readiness_disclosure:
-          "READY means every required executable input resolved and the " +
-          "selected model profile declares it can consume them.",
+          runId === BLOCKED_RUN_ID
+            ? null
+            : "READY means every required executable input resolved and " +
+              "the selected model profile declares it can consume them.",
         created_at: "2026-09-22T09:00:00Z",
         site_id: "MG-001",
         scenario_id: "fuel-loss-event",
@@ -82,7 +91,18 @@ const RUN_SETUP: RunSetupClient = {
             answered_by_detail: "site MG-001 foundation version 1",
           },
         ],
-        blocking_reasons: [],
+        blocking_reasons:
+          runId === BLOCKED_RUN_ID
+            ? [
+                {
+                  kind: "STATE_NOT_SUPPORTED",
+                  subject: "site-load-demand",
+                  statement:
+                    "Model profile minimal-fuel-tank version 1 does not " +
+                    "model site-load-demand at all.",
+                },
+              ]
+            : [],
         unsupported_optional_inputs: [],
       },
     }),
@@ -563,6 +583,19 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
     ],
     [
       "/simulator-lab/runs/run-1",
+      [
+        ["/simulator-lab", "Simulator Lab"],
+        ["/simulator-lab/site-templates", "Site Templates"],
+        ["/simulator-lab/scenarios", "Scenarios"],
+        ["/simulator-lab/runs", "Runs"],
+        ["/simulator-lab/runs", "Back to Runs"],
+        ["/simulator-lab", "Back to the Simulator Lab"],
+      ],
+    ],
+    // The blocked branch of the same screen. It renders different content and
+    // a different action panel, so it is a different set of links to close.
+    [
+      `/simulator-lab/runs/${BLOCKED_RUN_ID}`,
       [
         ["/simulator-lab", "Simulator Lab"],
         ["/simulator-lab/site-templates", "Site Templates"],
