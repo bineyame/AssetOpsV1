@@ -2610,10 +2610,10 @@ and operator consequence.
     tank against a 500 L capacity is reduced or kept deliberately as a second
     evidence puzzle. It is answered from what the kernel computes, not before
     it.
-  - **Recommended for T021, the user's to accept:** pairing every oracle kind
-    with a mutation test proving it can fail. T021 is the first slice with a
-    kernel that can make an oracle fail; before it there is nothing to mutate
-    against.
+  - **Accepted for T021 on 2026-09-22 and carried by its task file:** pairing
+    every oracle kind with a mutation test proving it can fail. T021 is the
+    first slice with a kernel that can make an oracle fail; before it there is
+    nothing to mutate against.
   - **Waiting for T034-T038:** whether the product's expectation uses the same
     Foundation coefficient the kernel used or a separately declared operating
     assumption, and deriving the `MAGNITUDE` tolerance from declared error

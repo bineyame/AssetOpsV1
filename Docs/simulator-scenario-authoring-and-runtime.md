@@ -2399,8 +2399,8 @@ has to declare that one too.
 - **The mutation tests belong in T021.** Pairing every oracle with a test
   proving it *can* fail is worth doing for all four kinds, not just this one,
   and T021 is the first slice with a kernel that can make an oracle fail.
-  Before that there is nothing to mutate against. *Recommended; the user's to
-  accept.*
+  Before that there is nothing to mutate against. *Accepted by the user on
+  2026-09-22 and carried by `tasks/T021-minimal-fuel-loss-causal-kernel.md`.*
 - **Deriving the tolerance from declared error sources waits for T034-T038.**
   Until the product computes an expectation there are no error sources to
   declare — coefficient spread, energy-measurement error, sample granularity
