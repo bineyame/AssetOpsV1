@@ -2343,17 +2343,12 @@ instance. A slice that adds the field without doing that produces a site
 whose runs never resolve the coefficient, so the slice's own UI-verifiable
 outcome never appears.
 
-**Whether those runs are refused or blocked is under decision.** This
-paragraph asserted the refusal, and `runs/service.py` blocks: a binding that
-matches nothing returns `INITIAL_VALUE_NOT_RESOLVED`, and a Foundation
-carrying no such property is that case. The refusal reading needs run setup to
-establish that the declared owner has no answer without going through the
-profile's binding, which the T019 discriminator argues it cannot. The claim
-predates that discriminator by a day and was re-asserted rather than
-re-derived against it. Resolved by the decision due before T020A's task file;
-see `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the
-need, once the scenario stops declaring it*, and
-`D-2026-09-21-run-setup-outcome-vocabulary`.
+**Those runs block**, on `INITIAL_VALUE_NOT_RESOLVED`, and this paragraph
+used to say they are refused. After T020A the binding names the property as
+well as the component type, so a different profile naming a different
+property may find something the Foundation does declare, which under the
+discriminator is a block. See
+`D-2026-09-22-foundation-property-absent-blocks`.
 
 **The loop inside T021.** T021 is no longer only a producer. It runs the kernel
 against the shipped Fuel Loss document, reports the resulting trajectory, and

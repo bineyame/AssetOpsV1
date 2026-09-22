@@ -40,12 +40,14 @@ additions. `D-2026-09-22-contract-version-scope` answers whether the
 `TRAJECTORY` oracle kind moves `EXECUTION_CONTRACT_VERSION` - it does not -
 and says the absolute version numbers should stop being written as literals.
 And [What declares the need](#what-declares-the-need-once-the-scenario-stops-declaring-it)
-opens a decision due before T020A's task file: once `generator-fuel-rate`
-leaves the scenario, nothing in the current design tells run setup the run
-needs the coefficient. That section also finds that this document's own
-statement about a non-re-created MG-001 producing **refused** runs does not
-match the code, and marks it under decision rather than correcting it in a
-direction the user has not chosen.
+worked up the decision that was due before T020A's task file: once
+`generator-fuel-rate` leaves the scenario, nothing in the design told run
+setup the run needs the coefficient. **The user took both recommendations on
+2026-09-22.** Option B is
+`D-2026-09-22-foundation-value-declaration` and a Foundation that declares no
+such property blocks rather than refuses, which is
+`D-2026-09-22-foundation-property-absent-blocks`. The section below is kept as
+the reasoning; the decisions are what a slice is held to.
 
 No code has been changed to match this document. Task files are the Planner's
 and now exist for T019 through T023; the code changes belong to the slices
@@ -623,21 +625,25 @@ hand-added to the instance. Both are cheap — it is a development fixture —
 but neither is automatic, and a slice that adds the field without saying this
 will produce a site whose runs do not resolve the coefficient.
 
-> **Whether that is a refusal or a block is under decision, and this sentence
-> used to assert the refusal.** `runs/service.py` `_resolve_foundation_value`
-> returns the blocking `INITIAL_VALUE_NOT_RESOLVED` when a binding matches
-> nothing, and a Foundation carrying no such property is that case as the code
-> stands. The refusal reading needs a way to say *the declared owner has no
-> answer* that does not run through the profile's binding, and the T019
-> review's discriminator argues there is none. See
-> [What declares the need](#what-declares-the-need-once-the-scenario-stops-declaring-it),
-> which is due before T020A. Do not read this paragraph as settled either way.
-> What is not in doubt is that MG-001 must be re-created.
+> **Those runs block**, on `INITIAL_VALUE_NOT_RESOLVED`, and this sentence
+> used to assert a refusal. `_resolve_foundation_value` returns the blocking
+> kind when a binding matches nothing, and a Foundation carrying no such
+> property is that case; the refusal would have needed a way to say *the
+> declared owner has no answer* that does not run through the profile's
+> binding, and the T019 discriminator leaves none. Settled by
+> `D-2026-09-22-foundation-property-absent-blocks`. MG-001 must still be
+> re-created - what changes is the warning, not the obligation.
 
 ### What declares the need, once the scenario stops declaring it
 
-**`[OPEN]` - decision due before T020A's task file. Options and a
-recommendation below; the choice is the user's.**
+**`[ACCEPTED]` 2026-09-22 - the user took option B and the block.** Recorded
+as `D-2026-09-22-foundation-value-declaration` and
+`D-2026-09-22-foundation-property-absent-blocks`, which are what T020A is held
+to; this section is kept as the reasoning behind them. One consequence became
+clear only while writing the decision up and is in it rather than here: the
+rule is keyed on the parameter's **owner**, which is the only thing the
+document carries that separates these parameters, so it reaches
+`tank-capacity` as well as the coefficient and T020A edits both.
 
 (k) says the shipped template declares the generator's specific fuel
 consumption, `generator-fuel-rate` leaves the scenario, and run setup freezes
@@ -786,6 +792,7 @@ discriminator, and five other documents copied it - plus
 #### Recommendation
 
 **Option B, and correct the seven statements to say the runs block.**
+*Both accepted by the user on 2026-09-22.*
 
 B over A because A preserves the seam violation (k) exists to remove, and the
 `fuel-tank-capacity` precedent is a second instance to schedule rather than a
@@ -803,9 +810,9 @@ becomes *otherwise the demo site's runs never resolve the coefficient and the
 slice's own UI-verifiable outcome never appears on screen*, which is a weaker
 warning than a refusal and a sufficient one.
 
-If the user would rather keep the refusal, the pinned-property-name variant
-above is the way, and it should be decided as part of this rather than
-discovered inside the slice.
+*Not taken:* the pinned-property-name variant that would have kept the
+refusal. It is recorded above because the argument for the block is only as
+strong as the alternative it beat.
 
 ### Does `READY` overreach?
 
@@ -2370,21 +2377,22 @@ packet, and the M1C user-review note in `.ai/FEATURE_MAP.md` says the same. If
 the reviewer or the user judges the whole misleading, the remedy returns to
 planning rather than being chosen inside the slice.
 
-### 13. What declares the need, once the coefficient leaves the scenario
+### 13. What declares the need, once the coefficient leaves the scenario - now closed
 
-**Due before T020A's task file, and it is the one open question in this range
-that blocks a slice outright rather than scoping it.** (k) moves the
-generator's specific fuel consumption to Foundation, and nothing in the
-current design then tells run setup that a run needs it: initialization inputs
-are enumerated from scenario parameters, and the coefficient is about to stop
-being one. Three options, their costs, what each does to the refuse-versus-
-block line and to T021, and a recommendation are in
+**Closed 2026-09-22, both halves.** (k) moved the generator's specific fuel
+consumption to Foundation and nothing then told run setup that a run needs it,
+because initialization inputs are enumerated from scenario parameters and the
+coefficient was about to stop being one. The user took option B: a scenario
+parameter whose declared owner is Site Foundation has no value position at
+all (`D-2026-09-22-foundation-value-declaration`). And the six documents
+saying a non-re-created MG-001 produces **refused** runs were wrong; that case
+blocks (`D-2026-09-22-foundation-property-absent-blocks`). The reasoning is in
 [What declares the need](#what-declares-the-need-once-the-scenario-stops-declaring-it).
 
-It also carries a correction the user has to make rather than ratify: six
-documents say a T020A that does not re-create MG-001 produces **refused**
-runs, and the code blocks. Which way that goes depends on this decision, so
-those statements are marked under decision rather than corrected.
+What the closure added, which was not visible when the options were written:
+the parser rule keys on the owner, so it reaches `tank-capacity` too, T020A
+moves `EXECUTION_CONTRACT_VERSION`, and `INITIAL_VALUE_ANSWERS_DISAGREE` is
+retired in T020A because nothing can produce it afterwards.
 
 ---
 

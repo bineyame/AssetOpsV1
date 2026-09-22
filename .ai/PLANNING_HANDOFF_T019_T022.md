@@ -163,21 +163,33 @@ implemented.** The coefficient's canonical unit follows the
 `dispatched-output` promotion; see the deadline section above. Do not let the
 slice choose a unit to get itself unblocked.
 
-**Revised 2026-09-22 again: a second decision is due, and it gates the task
-file rather than the implementation.** Three carriers are listed below and
-there is a fourth question none of them answers: once `generator-fuel-rate`
-leaves the scenario, what tells run setup the run needs the coefficient?
-`initialization_inputs()` enumerates scenario parameters, `_freeze` walks that
-list, and `_resolve_foundation_value` is reachable only from it, so deleting
-the parameter leaves the coefficient neither blocked nor refused but absent,
-and T021's kernel with nothing to read. The coefficient is also
-`initializes: false` today, a rate the dispatch event consumes rather than an
-initial world value, so no option here is a small edit to an existing path.
-Three options, their costs, what each does to the refuse-versus-block line and
-to T021, and an Architect recommendation are in
+**Revised 2026-09-22 again: the second decision is taken and it widens this
+slice.** Three carriers are listed below and none of them answers what tells
+run setup the run needs the coefficient once `generator-fuel-rate` leaves the
+scenario. `D-2026-09-22-foundation-value-declaration` settles it: **a scenario
+parameter whose declared owner is Site Foundation has no value position at
+all.** It declares the need and states no number.
+
+Three things follow that the task file has to carry.
+
+- **`tank-capacity` changes too.** The rule is keyed on the owner, because
+  that is the only thing the document carries that distinguishes these
+  parameters - the binding lives in the model profile and the scenario parser
+  sees no profile. The shipped document has one other `owner: SITE_FOUNDATION`
+  parameter and its 500 L goes. This is scope, not tidying: exempting it needs
+  a field invented for the exemption.
+- **`EXECUTION_CONTRACT_VERSION` moves here.** The shipped document as it
+  stands is refused by the new parser, so this narrowing reaches a document
+  that already exists. See the ledger in `.ai/FEATURE_MAP.md`.
+- **`INITIAL_VALUE_ANSWERS_DISAGREE` is retired in this slice**, because
+  `rating.value != declared` is its only producer and no document can state a
+  `declared` any more. A refusal kind nothing can produce is the `RUNNING`
+  case one layer down.
+
+The full three-option argument is in
 `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
-once the scenario stops declaring it*. **Do not write this task file first and
-patch it after.** The same decision settles the refusal consequence below.
+once the scenario stops declaring it*. Option C, the model profile declaring
+the need, is a named follower and not this slice's.
 
 **Must deliver.** Three carriers that move together, because any one alone
 still leaves an owner that can be declared and not answered.
@@ -197,26 +209,23 @@ Then the shipped template declares the generator's specific fuel consumption,
 `generator-fuel-rate` leaves the scenario, and run setup freezes the
 coefficient from Foundation. A selected profile whose binding cannot
 locate it - no binding declared, no match, more than one match, or the wrong
-unit - persists a Draft that blocks on `INITIAL_VALUE_NOT_RESOLVED`. Whether a
+unit - persists a Draft that blocks on `INITIAL_VALUE_NOT_RESOLVED`. **A
 Foundation that declares no such property at all is a fifth case of the same
-thing or a refusal is the decision named above: the record says refusal, the
-code says block, and after T020A the binding names the property as well as the
-component, so the property name is as much the profile's aim as the component
-type is. Do not let the task file settle it either way. See
-`D-2026-09-21-run-setup-outcome-vocabulary` and
-`Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need*.
+thing and also blocks**, settled by
+`D-2026-09-22-foundation-property-absent-blocks`: after T020A the binding
+names the property as well as the component type, so a different profile
+naming a different property may find something the Foundation does declare.
+With the contradiction refusal retired, every failure of a Foundation-owned
+value blocks and none refuses.
 
 **And MG-001 is re-created from the updated template.** Templates instantiate
 by copy and a template change never reaches an existing instance, so adding the
 property to `config/site-templates/hybrid-mini-grid-100kw.yaml` will not give
 it to `var/sites/mg-001.yaml`. A slice that adds the field without doing this
-produces a site whose runs never resolve the coefficient, so the slice's own
-UI-verifiable outcome never appears on screen. **Whether those runs are
-refused or blocked is under decision** and this paragraph asserted the
-refusal: `_resolve_foundation_value` blocks with
-`INITIAL_VALUE_NOT_RESOLVED` when a binding matches nothing, and a Foundation
-carrying no such property is that case. Settled by the decision named above;
-the obligation to re-create MG-001 does not depend on which way it goes.
+produces a site whose runs **block** on the unresolved coefficient, so the
+slice's own UI-verifiable outcome never appears on screen. That is the
+warning, and it is weaker than the refusal this paragraph used to assert and
+sufficient. The obligation to re-create MG-001 is unchanged.
 `var/sites/` also holds `mg-002` and `mg-003` as fixtures the user asked to
 keep; do not clear the directory.
 
