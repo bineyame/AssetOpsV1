@@ -130,3 +130,16 @@ should either be tied to a named seam, moved into shared guidance, or removed.
 
 Do not treat later capabilities as out of scope for the product. Treat them as
 sequenced features whose prerequisites must be made real in the right order.
+
+## Scoped Handoffs
+
+This file stays general. When the Architect has feature-level guidance for a
+specific run of slices, it lives in its own scoped file, is named here while it
+is live, and is deleted when its last slice closes out.
+
+Live now:
+
+- `.ai/PLANNING_HANDOFF_T019_T022.md` — the T019 narrowing, T020's `READY`
+  disclosure, the new T020A and T021A slices, and the additions to T021 and
+  T022 that the 2026-09-21 proposals require. Read it before writing or
+  revising any task file in that range. Revised 2026-09-22.

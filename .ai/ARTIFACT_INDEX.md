@@ -26,6 +26,10 @@
 - `.ai/ACTIVE_CONTEXT.md`
 - `.ai/CODE_STATE.md`
 - `.ai/FEATURE_MAP.md`
+- `.ai/PLANNING_HANDOFF_T019_T022.md` — scoped Architect-to-Planner handoff;
+  delete when T022 closes out
+- `Docs/simulator-scenario-authoring-and-runtime.md` — the reference the
+  2026-09-21 simulator decisions cite
 - Active task file, after the user activates one planned task
 
 ## Historical
