@@ -77,10 +77,10 @@ ordering rule is Architect's and is pending.
 
 **The final gate accepted it**, four findings fixed: the absent-value
 invariant now requires a reason naming the same state, the record enforces
-the pairing its own docstring claims, `runs/refusals.py` is canonical again,
-and one unmodelled state is one blocking row. Whether the Foundation
-contradiction should leave `INITIALIZATION_INPUT_MISSING` for a kind of its
-own is with the user and was not in that round.
+the pairing its docstring claims, `runs/refusals.py` is canonical again, and
+one unmodelled state is one blocking row. The user then took the vocabulary
+split: the Foundation contradiction is `INITIAL_VALUE_ANSWERS_DISAGREE`, the
+mirror of the blocking side, because a run can carry no answer and not two.
 
 Two of T018's four Low findings are closed by T019 and marked settled in
 place in `.ai/CODE_STATE.md`; two remain, the unmeasured second

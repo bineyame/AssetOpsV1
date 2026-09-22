@@ -1772,6 +1772,23 @@ reason - that a profile finding another matching component would be shopping
 for a value - falls to a site that declares a second matching component whose
 rating equals the scenario's, and is kept only as the intuition.
 
+**That argument is now in the vocabulary.** The contradiction is
+`INITIAL_VALUE_ANSWERS_DISAGREE` rather than sharing
+`INITIALIZATION_INPUT_MISSING` with a value nobody supplied: an absence and a
+contradiction are not the same shape, and the old name described the wrong
+one while sitting one word from the blocking `INITIAL_VALUE_NOT_RESOLVED`
+with nothing in either name saying which side of the line it was on. The new
+name is the mirror of the blocking side - a run can carry "no answer" and
+cannot carry "answers disagree" - so a reader knows from the name alone that
+it cannot appear on a persisted Draft and must be a refusal.
+
+A test asserts the refusal and blocking vocabularies share no string. The
+near-collision one step away is older and was left: `COMPONENT_OR_SIGNAL_
+UNRESOLVED` refuses while `INITIAL_VALUE_NOT_RESOLVED` blocks, so "unresolved"
+is already on both sides. **This vocabulary has no naming rule that would
+have prevented either collision**, and inventing one at the end of a review
+round is not an implementer's call.
+
  A refusal means the request could not be
 frozen: something it names does not exist, does not resolve, is not well
 formed, or would have to be invented. No `run_id` is allocated and nothing is
