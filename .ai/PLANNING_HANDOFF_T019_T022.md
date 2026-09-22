@@ -185,6 +185,18 @@ Three things follow that the task file has to carry.
   `rating.value != declared` is its only producer and no document can state a
   `declared` any more. A refusal kind nothing can produce is the `RUNNING`
   case one layer down.
+- **The `fuel-tank-volume` upper bound stops being something the document can
+  state, and the `bounds` declaration stays anyway.** `declared_bounds` skips
+  any parameter with no float value, so after this slice it reports
+  `(0.0, None)` - which is the right answer, settled by
+  `D-2026-09-22-capacity-bound-source`. The number is already frozen from
+  Foundation as `fuel-tank-capacity`. **The constraint: the parser must keep
+  accepting a `bounds` block on a parameter that states no value.** A bound's
+  `state_key` and `bound_kind` say which world state caps which, which is a
+  relationship between two states rather than a property of a machine; taking
+  it out with the number would leave the kernel nothing saying what caps what,
+  and it would also remove it from the scenario-detail payload, which
+  publishes the relationship and never the number.
 
 The full three-option argument is in
 `Docs/simulator-scenario-authoring-and-runtime.md`, *What declares the need,
@@ -314,6 +326,17 @@ not.
 second half of the `REQUIRED` forcing-state decision and the four unpinned
 semantics, both before the task file is written. T020's run-detail shell for
 the small visible readiness result.
+
+**The tank's capacity comes from the frozen identity, not from
+`declared_bounds`, and the task file has to say so.** After T020A that
+function reports no upper value for `fuel-tank-volume`
+(`D-2026-09-22-capacity-bound-source`); the document declares *which* state
+caps which and the frozen run carries *how big* the tank is, resolved from
+Foundation. An implementer who reaches for `declared_bounds`, finds
+`(0.0, None)` and fills the gap will either invent 500 or conclude the bound
+was dropped, and both are wrong. `BOUND_CASES["fuel-tank-capacity"]` is
+unchanged and is applied against the frozen value - which is what gives this
+slice's document correction something to check the 300 L delivery against.
 
 **What T021 refuses, which the task file has to state rather than discover.**
 T019 has already frozen and validated everything T021 initializes from, so

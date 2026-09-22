@@ -54,9 +54,12 @@ was wrong, and every failure of a Foundation-owned value now blocks.
 all (`D-2026-09-22-foundation-value-declaration`), which reaches
 `tank-capacity` as well as the coefficient, moves `EXECUTION_CONTRACT_VERSION`
 and retires `INITIAL_VALUE_ANSWERS_DISAGREE`. The `dispatched-output`
-promotion is still due before the slice is implemented. Version numbers across
-the sequence are in `.ai/FEATURE_MAP.md`, *The execution-contract version
-ledger*; write moves, not literals.
+promotion is still due before the slice is implemented. It also takes the
+`fuel-tank-volume` upper bound out of the document while keeping the `bounds`
+declaration that says which state caps which
+(`D-2026-09-22-capacity-bound-source`). Version numbers across the sequence
+are in `.ai/FEATURE_MAP.md`, *The execution-contract version ledger*; write
+moves, not literals.
 
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in

@@ -2333,6 +2333,14 @@ It is nearly free to fix. `declared_bounds` has exactly one non-test caller —
 product path together, and the implicit floor lands where it belongs, in the
 model profile.
 
+**Sharpened 2026-09-22 by `D-2026-09-22-capacity-bound-source`.** After
+option B the shipped document states no capacity, so
+`declared_bounds("fuel-tank-volume")` returns `(0.0, None)` and the one
+number left in that answer is this injected floor. The validation layer's
+answer for that state becomes entirely its own invention, with the document
+supplying neither bound. That does not change where the floor belongs; it
+removes the last thing standing beside it.
+
 *My read:* move it with (j) — **and give it a destination**, which
 [Where Physical Properties Live](#the-rule-applied-to-everything-the-fuel-loss-path-touches)
 now supplies. Two different facts are tangled in the current constant. *Volume
