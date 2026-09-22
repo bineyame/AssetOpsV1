@@ -9,6 +9,7 @@ import {
   featureFlagsWith,
   type FeatureFlags,
 } from "../../config/featureFlags";
+import type { RunSetupClient } from "../runSetupClient";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
@@ -21,6 +22,90 @@ import { spacedText } from "../../test/text";
  */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
   listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
+};
+
+/**
+ * The run store, injected and holding one draft.
+ *
+ * Injected for a reason the gate assertions depend on. Without a client the
+ * run surfaces render "the run store could not be read" - a screen with no
+ * controls on it at all - and every claim below about what those screens may
+ * and may not offer would be a claim about an empty set. The draft is `READY`
+ * so the one disabled action exists, which is the case the allowance further
+ * down is written for and the case that would hide an enabled one.
+ */
+/** The run identity the injected store answers as `BLOCKED`. */
+const BLOCKED_RUN_ID = "run-blocked-1";
+
+const RUN_SETUP: RunSetupClient = {
+  listProfiles: () => Promise.resolve({ status: "unavailable" }),
+  createRun: () => Promise.resolve({ status: "unavailable", message: null }),
+  listRuns: () =>
+    Promise.resolve({
+      status: "loaded",
+      runs: [
+        {
+          run_id: "run-1",
+          lifecycle_status: "DRAFT",
+          execution_status: "READY",
+          created_at: "2026-09-22T09:00:00Z",
+          site_id: "MG-001",
+          foundation_version: 1,
+          scenario_id: "fuel-loss-event",
+          scenario_version: 1,
+          interval: {
+            start_time: "2026-09-21T00:00:00Z",
+            end_time: "2026-09-22T17:00:00Z",
+            duration_minutes: 2460,
+          },
+          blocking_reason_count: 0,
+        },
+      ],
+    }),
+  // Two runs, because the detail screen has two branches and a claim that
+  // only ever renders one of them is a claim about half the screen. The
+  // reviewer's F1 probe was caught on the READY branch and a second anchor
+  // then passed on the BLOCKED one.
+  getRun: (runId: string) =>
+    Promise.resolve({
+      status: "loaded",
+      run: {
+        run_id: runId,
+        lifecycle_status: "DRAFT",
+        execution_status: runId === BLOCKED_RUN_ID ? "BLOCKED" : "READY",
+        readiness_disclosure:
+          runId === BLOCKED_RUN_ID
+            ? null
+            : "READY means every required executable input resolved and " +
+              "the selected model profile declares it can consume them.",
+        created_at: "2026-09-22T09:00:00Z",
+        site_id: "MG-001",
+        scenario_id: "fuel-loss-event",
+        scenario_version: 1,
+        frozen_inputs: [
+          {
+            identity_field: "site",
+            field: "Site",
+            value: "MG-001",
+            answered_by: "SITE_FOUNDATION",
+            answered_by_detail: "site MG-001 foundation version 1",
+          },
+        ],
+        blocking_reasons:
+          runId === BLOCKED_RUN_ID
+            ? [
+                {
+                  kind: "STATE_NOT_SUPPORTED",
+                  subject: "site-load-demand",
+                  statement:
+                    "Model profile minimal-fuel-tank version 1 does not " +
+                    "model site-load-demand at all.",
+                },
+              ]
+            : [],
+        unsupported_optional_inputs: [],
+      },
+    }),
 };
 
 /**
@@ -59,10 +144,35 @@ const SIMULATOR_URLS = [
   "/simulator-lab/",
   "/simulator-lab/runs",
   "/simulator-lab/runs/run-1",
+  // The same screen's other branch. It is listed as a URL of its own because
+  // every claim in this file iterates URLs, so a branch that no URL reaches
+  // is a branch no claim has ever seen.
+  `/simulator-lab/runs/${BLOCKED_RUN_ID}`,
   "/simulator-lab/runs/run-1/truth",
   "/simulator-lab/execute",
   "/simulator",
   "/simulator/runs",
+];
+
+/**
+ * The Lab surfaces T020 added: the Runs inventory and one Draft, in each of
+ * its two execution states.
+ *
+ * They were execution URLs until T020, because nothing served them. They are
+ * reads - which runs exist, and what one froze - and they serve no execution
+ * of any kind, which is why the list below keeps everything else.
+ *
+ * The blocked identity is a member because this list is what the "no enabled
+ * control at all" claim iterates. Without it that claim visited the READY
+ * branch only, and an enabled button with a neutral label sat on the blocked
+ * branch through a green suite: the vocabulary ban could not see it, because
+ * "Proceed" is not a run word, and the closed link set could not see it,
+ * because a button is not an anchor.
+ */
+const RUN_SURFACE_URLS = [
+  "/simulator-lab/runs",
+  "/simulator-lab/runs/run-1",
+  `/simulator-lab/runs/${BLOCKED_RUN_ID}`,
 ];
 
 /**
@@ -108,9 +218,17 @@ const UNSERVED_WHEN_DISABLED = [
   ...SCENARIO_URLS,
 ];
 
-/** Execution URLs that no slice has implemented, in either flag state. */
+/**
+ * Execution URLs that no slice has implemented, in either flag state.
+ *
+ * T020 took the two run READ surfaces out of this set by serving them. What
+ * remains is execution itself - truth comparison and the execute verb - plus
+ * the ungated spellings, and none of those has ever been served.
+ */
 const EXECUTION_URLS = SIMULATOR_URLS.filter(
-  (url) => !SIMULATOR_LAB_SHELL_URLS.includes(url),
+  (url) =>
+    !SIMULATOR_LAB_SHELL_URLS.includes(url) &&
+    !RUN_SURFACE_URLS.includes(url),
 );
 
 /**
@@ -141,7 +259,11 @@ const RUN_ACTION_PATTERN =
 function renderAt(path: string, flags: FeatureFlags) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} />
+      <App
+        flags={flags}
+        siteDirectory={EMPTY_SITE_DIRECTORY}
+        runSetup={RUN_SETUP}
+      />
     </MemoryRouter>,
   );
 }
@@ -295,6 +417,8 @@ describe("simulator lab gate: enabled", () => {
       "/simulator-lab/create-site",
       "/simulator-lab/scenarios",
       "/simulator-lab/scenarios/:scenarioId",
+      "/simulator-lab/runs",
+      "/simulator-lab/runs/:runId",
       "/simulator-lab/scenarios/:scenarioId/run-setup",
     ]);
   });
@@ -390,8 +514,125 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       await settledScreen();
 
       for (const control of interactiveControls(container)) {
-        expect(controlDescription(control)).not.toMatch(RUN_ACTION_PATTERN);
+        const description = controlDescription(control);
+        if (!RUN_ACTION_PATTERN.test(description)) {
+          continue;
+        }
+
+        // T020 makes two truthful things match this pattern, so the ban
+        // moves from "nothing may say it" to "nothing may DO it".
+        //
+        // A link may: a destination called Runs, and a row naming a run
+        // identity, are navigation. Following one shows a record; it starts
+        // nothing.
+        //
+        // A disabled button may, and only with a reason attached. That is
+        // the third affordance state this project already uses - rendered,
+        // disabled, carrying the prerequisite - and a disabled control
+        // without a reason is a dead end, so it fails here too.
+        //
+        // Anything else still fails, and an ENABLED button saying any of
+        // these words fails however it is spelled.
+        const isNavigation = control.tagName === "A";
+        const isDisabledWithReason =
+          control.tagName === "BUTTON" &&
+          (control as HTMLButtonElement).disabled &&
+          control.getAttribute("aria-describedby") !== null;
+
+        expect(
+          isNavigation || isDisabledWithReason,
+          `${url} offers "${description}" as something other than a ` +
+            "destination or a disabled control with a reason",
+        ).toBe(true);
       }
+    },
+  );
+
+  it.each(RUN_SURFACE_URLS)(
+    "offers no enabled control at all on the run surface %s when enabled",
+    async (url) => {
+      // The stronger half, stated separately so the allowance above cannot
+      // be read as "the run screens may act". Nothing on them may.
+      const { container } = renderAt(url, ENABLED);
+      await settledScreen();
+
+      for (const control of interactiveControls(container)) {
+        if (control.tagName === "A") {
+          continue;
+        }
+        expect(control).toBeDisabled();
+      }
+    },
+  );
+
+  /**
+   * The floor under the anchor allowance above.
+   *
+   * Both claims before this one let an anchor past: one because it matched
+   * the vocabulary but was navigation, the other by skipping anchors
+   * outright. Between them, `<Link className="action">Execute this run
+   * now</Link>` passed the whole suite - proved by adding it, not argued -
+   * while two test names said the screen was guarded.
+   *
+   * The ban cannot be written over what a control SAYS, because "Runs" and a
+   * run identity are truthful navigation. So it is written over the set: the
+   * links on a run surface are exactly the known destinations, by href and by
+   * text. A fifth link fails whatever it is called, and a renamed one fails
+   * too. This is the shape the Lab shell's allowlist below already uses, and
+   * it is the durable half of the fix - a word list is only the cheap half,
+   * because the next violation will use a word nobody listed.
+   */
+  it.each([
+    [
+      "/simulator-lab/runs",
+      [
+        ["/simulator-lab", "Simulator Lab"],
+        ["/simulator-lab/site-templates", "Site Templates"],
+        ["/simulator-lab/scenarios", "Scenarios"],
+        ["/simulator-lab/runs", "Runs"],
+        // The one row the injected store holds. A row link carries a run
+        // identity and goes to that run's record; it starts nothing.
+        ["/simulator-lab/runs/run-1", "run-1"],
+        ["/simulator-lab", "Back to the Simulator Lab"],
+        ["/simulator-lab/scenarios", "Go to Scenarios"],
+      ],
+    ],
+    [
+      "/simulator-lab/runs/run-1",
+      [
+        ["/simulator-lab", "Simulator Lab"],
+        ["/simulator-lab/site-templates", "Site Templates"],
+        ["/simulator-lab/scenarios", "Scenarios"],
+        ["/simulator-lab/runs", "Runs"],
+        ["/simulator-lab/runs", "Back to Runs"],
+        ["/simulator-lab", "Back to the Simulator Lab"],
+      ],
+    ],
+    // The blocked branch of the same screen. It renders different content and
+    // a different action panel, so it is a different set of links to close.
+    [
+      `/simulator-lab/runs/${BLOCKED_RUN_ID}`,
+      [
+        ["/simulator-lab", "Simulator Lab"],
+        ["/simulator-lab/site-templates", "Site Templates"],
+        ["/simulator-lab/scenarios", "Scenarios"],
+        ["/simulator-lab/runs", "Runs"],
+        ["/simulator-lab/runs", "Back to Runs"],
+        ["/simulator-lab", "Back to the Simulator Lab"],
+      ],
+    ],
+  ])(
+    "offers exactly the known destinations and no other link at %s",
+    async (url, destinations) => {
+      const { container } = renderAt(url as string, ENABLED);
+      await settledScreen();
+
+      const links = Array.from(container.querySelectorAll("a")).map((link) => [
+        link.getAttribute("href"),
+        link.textContent,
+      ]);
+
+      expect(links).toEqual(destinations);
     },
   );
 
@@ -428,6 +669,11 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       // and it renders real scenario records; the Lab home body is unchanged,
       // so this adds a destination without adding a control.
       ["/simulator-lab/scenarios", "Scenarios"],
+      // T020 adds the rail's fourth destination, and it is a place rather
+      // than an action: it lists the Drafts run setup has written. The Lab
+      // home body is unchanged, so this adds a destination without adding a
+      // control.
+      ["/simulator-lab/runs", "Runs"],
       ["/simulator-lab/site-templates", "Site Templates"],
       // T010 gives the Lab its own way into the create flow. The same path and
       // the same gate as the operator index's entry point, differing only in

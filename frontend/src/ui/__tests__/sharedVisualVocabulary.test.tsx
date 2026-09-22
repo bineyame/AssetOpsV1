@@ -84,10 +84,10 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
 
     // An exact allowlist, in order. A further item, or a different one, fails.
     //
-    // T017 adds `Scenarios`. It was in the absent list below until this slice,
-    // and it moved out of it for the only reason that list allows: the route
-    // now renders real scenario records from the real scenario store. The rest
-    // of the mockup rail is still absent, and still absent rather than dead.
+    // T017 adds `Scenarios` and T020 adds `Runs`. Each moved out of the
+    // absent list below for the only reason that list allows: the route now
+    // renders real records from a real store. The rest of the mockup rail is
+    // still absent, and still absent rather than dead.
     expect(
       within(rail)
         .getAllByRole("link")
@@ -96,6 +96,7 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
       [SIMULATOR_LAB_PATH, "Simulator Lab"],
       [SITE_TEMPLATES_PATH, "Site Templates"],
       [SCENARIOS_PATH, "Scenarios"],
+      ["/simulator-lab/runs", "Runs"],
     ]);
   });
 

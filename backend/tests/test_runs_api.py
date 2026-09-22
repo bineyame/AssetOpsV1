@@ -18,6 +18,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from run_fixtures import (
+    END_TIME,
+    START_TIME,
     FakeRuns,
     FakeScenarios,
     FakeSites,
@@ -32,6 +34,7 @@ from scenario_fixtures import scenario_document
 from assetops_backend.main import health_router
 from assetops_backend.scenarios.parsing import parse_scenario_document
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
+from assetops_backend.runs.ports import RunStoreUnavailable
 from assetops_backend.sites.ports import SiteStoreUnavailable
 from assetops_backend.sites_api import build_sites_router
 
@@ -150,9 +153,11 @@ class TestACreatedDraft:
         assert rows["Scenario version"]["answered_by"] == "SCENARIO"
         assert rows["Seed"]["answered_by"] == "RUN_INPUT"
         assert rows["Seed"]["value"] == "4242"
+        # The publication profile supplies a cadence, and until T020 this row
+        # said the model profile answered it.
         assert (
             rows["Cadence for example-device-reading"]["answered_by"]
-            == "MODEL_PROFILE"
+            == "PUBLICATION_PROFILE"
         )
         for row in run["frozen_inputs"]:
             assert row["answered_by_detail"]
@@ -182,6 +187,203 @@ class TestACreatedDraft:
         assert (
             run["deterministic_identity"]["intervention_history"] == []
         )
+
+
+class TestTheInventory:
+    """Which Drafts exist, and nothing about what they have done."""
+
+    def _three_runs(self) -> tuple[TestClient, FakeRuns]:
+        served, store = client()
+        for _ in range(3):
+            assert served.post(RUNS_PATH, json=setup_request()).status_code == 201
+        return served, store
+
+    def test_it_lists_the_persisted_drafts(self) -> None:
+        served, store = self._three_runs()
+
+        body = served.get(RUNS_PATH).json()
+
+        assert len(body["runs"]) == 3
+        assert {row["run_id"] for row in body["runs"]} == {
+            record.run_id for record in store.written
+        }
+
+    def test_each_row_is_backed_by_the_record(self) -> None:
+        served, store = client()
+        created = served.post(RUNS_PATH, json=setup_request()).json()["run"]
+
+        row = served.get(RUNS_PATH).json()["runs"][0]
+
+        assert row["run_id"] == created["run_id"]
+        assert row["site_id"] == "MG-900"
+        assert row["scenario_id"] == "example-scenario"
+        assert row["scenario_version"] == 2
+        assert row["foundation_version"] == 1
+        assert row["lifecycle_status"] == "DRAFT"
+        assert row["execution_status"] == "READY"
+        assert row["interval"]["start_time"] == START_TIME
+        assert row["interval"]["end_time"] == END_TIME
+        assert row["blocking_reason_count"] == 0
+
+    def test_a_row_claims_nothing_about_what_a_run_has_done(self) -> None:
+        """An inventory of runs invites columns nothing can fill.
+
+        A zero is a measurement, so a progress or an evidence column would be
+        a claim rather than an empty space.
+        """
+        served, _ = client()
+        served.post(RUNS_PATH, json=setup_request())
+
+        row = served.get(RUNS_PATH).json()["runs"][0]
+
+        for absent in (
+            "progress",
+            "elapsed",
+            "state",
+            "health",
+            "source_health",
+            "evidence",
+            "observations",
+            "committed",
+            "findings",
+        ):
+            assert absent not in row, absent
+
+    def test_the_order_is_newest_first_and_total(self) -> None:
+        """Two runs made in the same second do not swap between reads."""
+        store = FakeRuns()
+        served, _ = client(runs=store)
+        for _ in range(3):
+            served.post(RUNS_PATH, json=setup_request())
+
+        first = [row["run_id"] for row in served.get(RUNS_PATH).json()["runs"]]
+        second = [row["run_id"] for row in served.get(RUNS_PATH).json()["runs"]]
+
+        assert first == second
+        # The fixture clock is fixed, so identity is what breaks the tie.
+        assert first == sorted(first, reverse=True)
+
+    def test_an_unreadable_store_is_not_an_empty_inventory(self) -> None:
+        """"The store could not be read" and "no runs are saved" are two
+        facts, and an inventory must not state the second for the first."""
+        served, _ = client(
+            runs=FakeRuns(failure=RunStoreUnavailable("unreadable"))
+        )
+
+        response = served.get(RUNS_PATH)
+
+        assert response.status_code == 503
+        assert response.json()["detail"]["code"] == "RUN_STORE_UNAVAILABLE"
+
+
+class TestOneRunByIdentity:
+    def test_it_returns_that_run(self) -> None:
+        served, _ = client()
+        created = served.post(RUNS_PATH, json=setup_request()).json()["run"]
+
+        body = served.get(f"{RUNS_PATH}/{created['run_id']}").json()
+
+        assert body["run"]["run_id"] == created["run_id"]
+        assert body["run"]["deterministic_identity"] == (
+            created["deterministic_identity"]
+        )
+        assert body["run"]["frozen_inputs"] == created["frozen_inputs"]
+
+    def test_an_unknown_run_is_never_another_run(self) -> None:
+        """A fallback would put one run's frozen identity under another
+        run's name, which is the worst thing this route could do."""
+        served, _ = client()
+        served.post(RUNS_PATH, json=setup_request())
+
+        response = served.get(f"{RUNS_PATH}/run-{'0' * 32}")
+
+        assert response.status_code == 404
+        assert response.json()["detail"]["code"] == "RUN_NOT_FOUND"
+        assert "run" not in response.json()
+
+    def test_a_malformed_identity_is_not_found_rather_than_a_store_error(
+        self,
+    ) -> None:
+        """No run could ever carry it, so it is answered as not found - and
+        it is answered without reading the store."""
+        served, _ = client(
+            runs=FakeRuns(failure=RunStoreUnavailable("never reached"))
+        )
+
+        response = served.get(f"{RUNS_PATH}/not-a-run-identity")
+
+        assert response.status_code == 404
+        assert response.json()["detail"]["code"] == "RUN_NOT_FOUND"
+
+    def test_no_private_scenario_expectation_reaches_a_run(self) -> None:
+        """A run freezes identities and versions, not scenario content.
+
+        There is no field a private expectation could arrive in, which is
+        what makes this true rather than a filter somebody remembered.
+        """
+        served, _ = client()
+        created = served.post(RUNS_PATH, json=setup_request()).json()["run"]
+
+        body = served.get(f"{RUNS_PATH}/{created['run_id']}")
+
+        assert "private_expectations" not in body.text
+        assert "oracle" not in body.text.lower()
+
+
+class TestWhatReadyDoesNotAssert:
+    """The disclosure travels with the status, not with a screen."""
+
+    def test_a_ready_run_carries_it_in_the_payload(self) -> None:
+        served, _ = client()
+        created = served.post(RUNS_PATH, json=setup_request()).json()["run"]
+
+        assert created["execution_status"] == "READY"
+        disclosure = created["readiness_disclosure"]
+        assert disclosure
+        assert "does not mean the model can" in disclosure
+        assert "no causal runtime exists" in disclosure
+
+    def test_it_survives_the_store_rather_than_being_added_by_one_route(
+        self,
+    ) -> None:
+        """Read back, a run that was never written with a disclosure has
+        one: it is a property of the status, computed on the way out, so
+        every Draft written before this slice gets it too."""
+        served, _ = client()
+        created = served.post(RUNS_PATH, json=setup_request()).json()["run"]
+
+        read_back = served.get(f"{RUNS_PATH}/{created['run_id']}").json()["run"]
+        row_count = len(served.get(RUNS_PATH).json()["runs"])
+
+        assert read_back["readiness_disclosure"] == (
+            created["readiness_disclosure"]
+        )
+        assert row_count == 1
+
+    def test_it_names_the_condition_rather_than_a_slice(self) -> None:
+        """`D-2026-09-22-expiry-follows-the-condition`: the slice that closes
+        the condition has to be able to recognise what to retire, and a slice
+        number in the text is a guess about when."""
+        served, _ = client()
+        disclosure = served.post(RUNS_PATH, json=setup_request()).json()[
+            "run"
+        ]["readiness_disclosure"]
+
+        assert "conformance test" in disclosure
+        assert "kernel" in disclosure
+        for slice_number in ("T021", "T022", "T020"):
+            assert slice_number not in disclosure
+
+    def test_a_blocked_run_makes_no_equivalent_claim(self) -> None:
+        """`BLOCKED` says a run may not execute, which needs no disclaimer
+        about execution."""
+        served, _ = client(
+            publication=publication_profile(cadence_minutes=None)
+        )
+        created = served.post(RUNS_PATH, json=setup_request()).json()["run"]
+
+        assert created["execution_status"] == "BLOCKED"
+        assert created["readiness_disclosure"] is None
 
 
 class TestARefusal:

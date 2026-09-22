@@ -52,7 +52,6 @@ from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.runs.identity import validate_run_id
 from assetops_backend.runs.models import (
     BLOCKING_REASON_KINDS,
-    CADENCE_RESOLUTIONS,
     FROZEN_INPUT_ANSWERERS,
     RUN_EXECUTION_STATUSES,
     RUN_LIFECYCLE_STATUSES,
@@ -634,7 +633,6 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                     "signal_id": item.signal_id,
                     "cadence_ownership": item.cadence_ownership,
                     "cadence_minutes": item.cadence_minutes,
-                    "cadence_resolution": item.cadence_resolution,
                 }
                 for item in identity.observation_bindings
             ],
@@ -1027,57 +1025,51 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
 
 
 def _parse_observation_binding(entry: Any) -> FrozenObservationBinding:
-    """One frozen source, with the two cadence fields checked against each other.
+    """One frozen source, with the cadence a publication profile resolved.
 
     `cadence_ownership` is a closed vocabulary like every field beside it, and
     was read as free text until T019's review noticed the one that was not.
 
-    The cross-field rule matters more. `cadence_resolution` says where the
-    cadence came from and `cadence_minutes` is the cadence; a document saying
-    the profile resolved one while carrying none, or saying nobody resolved
-    one while carrying a number, is a run record that contradicts itself, and
-    a reader of a stored run would have no way to tell which half is true.
+    There is no cross-field biconditional here any more, because there is no
+    second field to check against. `cadence_resolution` restated what the
+    source kind and the cadence already said, so the rule that checked them
+    against each other was a record being checked against itself; T020
+    deleted the field and the rule went with it. A stored document that still
+    carries the key is read with the key ignored, which is how the Drafts
+    written before this slice stay readable.
+
+    What remains is a rule between two REAL fields: a person writing a value
+    down reports at no rate, so an operator record carrying a cadence is a
+    document contradicting itself rather than restating itself.
     """
     raw = _mapping(entry, where="observation_binding")
-    resolution = _choice(
+    source_kind = _choice(
         raw,
-        "cadence_resolution",
+        "source_kind",
         where="observation_binding",
-        allowed=CADENCE_RESOLUTIONS,
+        allowed=OBSERVATION_SOURCE_KINDS,
     )
     minutes = _optional_whole(
         raw, "cadence_minutes", where="observation_binding"
     )
 
-    if resolution == "MODEL_PROFILE" and minutes is None:
+    if minutes is not None and source_kind != "DEVICE_SIGNAL":
         raise _bad(
-            "'observation_binding.cadence_resolution' is MODEL_PROFILE and no "
-            "cadence is recorded. A resolution says where the cadence came "
-            "from; it is not a cadence, and a run cannot have been resolved "
-            "to nothing."
+            f"'observation_binding.cadence_minutes' is recorded for a "
+            f"{source_kind} source. A person writing a value down reports at "
+            "no rate, so there is no cadence for anything to own."
         )
-    if resolution != "MODEL_PROFILE" and minutes is not None:
-        raise _bad(
-            f"'observation_binding.cadence_resolution' is {resolution} and a "
-            "cadence is recorded anyway. Nothing but a publication profile "
-            "may supply one, so a cadence beside any other resolution is a "
-            "value with no owner."
-        )
+
     if minutes is not None and minutes < 1:
         raise _bad(
             "'observation_binding.cadence_minutes' must be at least one "
             "minute. A source that reports every zero minutes reports at no "
-            "rate, which is a different statement and has its own value."
+            "rate, which is a different statement and has its own absence."
         )
 
     return FrozenObservationBinding(
         source_id=_text(raw, "source_id", where="observation_binding"),
-        source_kind=_choice(
-            raw,
-            "source_kind",
-            where="observation_binding",
-            allowed=OBSERVATION_SOURCE_KINDS,
-        ),
+        source_kind=source_kind,
         device_id=_optional_text(raw, "device_id", where="observation_binding"),
         signal_id=_optional_text(raw, "signal_id", where="observation_binding"),
         cadence_ownership=_choice(
@@ -1087,7 +1079,6 @@ def _parse_observation_binding(entry: Any) -> FrozenObservationBinding:
             allowed=CADENCE_OWNERSHIP,
         ),
         cadence_minutes=minutes,
-        cadence_resolution=resolution,
     )
 
 

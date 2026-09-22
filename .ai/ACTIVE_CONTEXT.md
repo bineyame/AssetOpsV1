@@ -23,34 +23,21 @@ a refactor, follows milestone completion and proper testing.
 
 ## Active Task
 
-Active task: none. **T019 is complete, accepted at user review on 2026-09-22,
-and merged.** Its file is `tasks/completed/T019-draft-run-setup.md`; what it
-settled in code is the T019 entry in `.ai/CODE_STATE.md`.
+**T020 is built and in review**, on branch
+`task/T020-runs-inventory-and-draft-shell`, seven commits over `main` at
+`f7ac1be`, not merged. Its file is `tasks/T020-runs-inventory-and-draft-shell.md`
+at `Status: in_review`; the evidence is `.agent/T020-review-packet.md` with
+screenshots in `.agent/T020-screens/`, and what it settled in code is the T020
+entry in `.ai/CODE_STATE.md`. `USER_REVIEW_REQUIRED: false`; the packet carries
+the cumulative presentation-honesty assessment the task asked for.
 
-**T020, Runs inventory and Draft shell, is next**:
-`tasks/T020-runs-inventory-and-draft-shell.md`. It presents the Drafts T019
-writes to `var/runs/`, which nothing presents yet.
+It delivered the gated Runs inventory and the Draft detail shell, the `READY`
+disclosure on the run record, the `PUBLICATION_PROFILE` relabel, the deletion
+of `cadence_resolution`, and labelled form defaults. **No `READY` run is
+reachable through the product path**: `READY` is proved against one fixture
+record written through the port, named in the packet.
 
-T019 built the SimulationRun domain: a Draft freezes the whole deterministic
-identity with an answerer for every value, persists behind its own port, and
-executes nothing. Cadence and the two publication identities come from the
-selected profile - by a module that cannot import a Site - or the run blocks.
-The shipped Fuel Loss Event blocks on three `STATE_NOT_SUPPORTED` reasons and
-cannot reach `READY` in this build; `READY` is proved on fixtures.
-
-**What the T019 user review carried into T020.** Form defaults are wanted, and
-a default must be **visible and labelled** as a default, never a silent
-pre-pick. `READY` must disclose what it does not assert, on the run record and
-on screen, and T021 retires that disclosure in the slice landing the
-conformance test. The re-review's N3-N6 residual risk in
-`.agent/T019-review-packet.md` should be read before T020 reads the run store.
-
-**T020 also carries the frozen-row relabel.** The cadence and both
-publication-identity rows say `MODEL_PROFILE` answered; the publication
-profile did. T020 corrects them and introduces `PUBLICATION_PROFILE` into
-`FROZEN_INPUT_ANSWERERS`, whose docstring and test name say "the four".
-`D-2026-09-22-forcing-state-requirements` rider two placed this in T020B and
-is corrected; T020B moves the authority and relabels nothing.
+**T020A is next**, then T020B.
 
 **The refusal line moved at that review** - who failed to answer decides it,
 recorded in the 2026-09-22 extension to
@@ -93,7 +80,7 @@ or revising any task file in that range.
 ## Current State
 
 M1A is complete, T001-T016 are in `tasks/completed/` with Review Outcomes,
-and M1B is active: T017, T018 and T019 complete, T020 next.
+and M1B is active: T017, T018 and T019 complete, T020 in review, T020A next.
 
 Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
 position is evidence, not configuration. The banned list lives in
@@ -111,22 +98,24 @@ fixtures when needed and do not clear, replace, or delete that directory.
 `var/scenarios/` is the writable scenario store; it is gitignored, empty, and
 nothing in the product can write to it yet. `var/runs/` is the run store T019
 added: gitignored, written by run setup, and holding whatever Drafts this
-machine has created, including the ones the layout tool creates.
+machine has created, including the ones the layout tool creates. T020 added one
+`READY` fixture record there, named in `.agent/T020-review-packet.md`; it is the
+only `READY` Draft, because none is reachable through the product path.
 
-## Read For T020
+## Read For T020A
 
-- `tasks/T020-runs-inventory-and-draft-shell.md` and, for residual risk,
-  `.agent/T019-review-packet.md`
+- `tasks/T020A-*.md`, and for residual risk `.agent/T020-review-packet.md`
+  and `.agent/T019-review-packet.md`
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-21-run-setup-outcome-vocabulary` - the refusal line, the
-    `READY` disclosure, and what T020 must show
-  - `D-2026-09-21-scenario-execution-contract`
-  - `D-2026-09-22-forcing-state-requirements` - rider two, the relabel T020
-    carries; the rest is T020B's
-- `.ai/CODE_STATE.md` - T018, T019
+  - `D-2026-09-22-foundation-property-absent-blocks`
+  - `D-2026-09-22-foundation-value-declaration`, `-capacity-bound-source`,
+    `-consumption-coefficient-unit`
+  - `D-2026-09-21-run-setup-outcome-vocabulary` - the refusal line
+- `.ai/CODE_STATE.md` - T018, T019, T020
 - `.ai/FEATURE_MAP.md`
   - `### 4. SimulationRun Runtime And Simulator Lab Shell`
   - `### Early Feature: Draft SimulationRun And Causal Runtime`
+  - *The execution-contract version ledger*
 - `.ai/ARCHITECTURE.md` - Causal Runtime Authority, Refusal And Blocking
   Vocabularies, Presentation Honesty
 - `.ai/WORKFLOW.md` - Review Packet, Closeout, User Review
@@ -192,3 +181,8 @@ Per-slice details live in `.ai/CODE_STATE.md`.
   `BLOCKED` line as the user moved it, allocated run identity, real IANA
   membership, profile-only resolution of cadence and the two publication
   identities, and the run store. Accepted and merged 2026-09-22.
+- T020 settled how those Drafts are read: the gated inventory and Draft detail,
+  the `READY` disclosure carried on the record rather than by a screen,
+  `PUBLICATION_PROFILE` as the fifth answerer, the deletion of
+  `cadence_resolution`, and the rule that a form default is visible, labelled
+  and still changeable. In review.

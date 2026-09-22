@@ -263,11 +263,16 @@ def frozen_inputs(
 
     if identity.observation_bindings:
         for binding in identity.observation_bindings:
-            if binding.cadence_resolution == "MODEL_PROFILE":
+            # Read off the two real fields rather than off a third that
+            # restated them. A cadence present means a publication profile
+            # declared one; absent on an operator record means there is no
+            # rate to own; absent on a device signal means nobody declared
+            # one.
+            if binding.cadence_minutes is not None:
                 value = f"{binding.cadence_minutes} minutes"
-                answered_by = "MODEL_PROFILE"
+                answered_by = "PUBLICATION_PROFILE"
                 detail = publication_detail
-            elif binding.cadence_resolution == "NOT_APPLICABLE":
+            elif binding.source_kind != "DEVICE_SIGNAL":
                 value = "not applicable"
                 answered_by = "SCENARIO"
                 detail = (
@@ -276,7 +281,7 @@ def frozen_inputs(
                 )
             else:
                 value = "not resolved"
-                answered_by = "MODEL_PROFILE"
+                answered_by = "PUBLICATION_PROFILE"
                 detail = (
                     f"{publication_detail}, which declares no cadence for a "
                     "configured device signal"
@@ -303,6 +308,9 @@ def frozen_inputs(
 
     rows.extend(
         [
+            # Both come from the publication profile and both said the
+            # model profile answered them. A row's answerer and the detail
+            # beside it named two different things.
             FrozenInput(
                 identity_field="publication",
                 field="Simulator source",
@@ -311,7 +319,7 @@ def frozen_inputs(
                     if identity.publication.simulator_source_id is not None
                     else "not resolved"
                 ),
-                answered_by="MODEL_PROFILE",
+                answered_by="PUBLICATION_PROFILE",
                 answered_by_detail=publication_detail,
             ),
             FrozenInput(
@@ -322,7 +330,7 @@ def frozen_inputs(
                     if identity.publication.gateway_id is not None
                     else "not resolved"
                 ),
-                answered_by="MODEL_PROFILE",
+                answered_by="PUBLICATION_PROFILE",
                 answered_by_detail=publication_detail,
             ),
         ]

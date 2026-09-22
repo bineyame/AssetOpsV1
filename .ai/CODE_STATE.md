@@ -2020,3 +2020,91 @@ once and is not addressable, which is T020's to fix. A template-derived
 scenario cannot have a run set up for it at all: a run is bound to a concrete
 Site, and matching the Site's template provenance would be Site provenance
 driving a run input.
+
+## T020 - Runs inventory and Draft shell
+
+What this slice settled in code.
+
+**The Drafts T019 writes are now addressable.** `RunInventoryService` in
+`backend/assetops_backend/runs/service.py` reads the SimulationRun port and
+nothing else, and sorts newest-first on `(created_at, run_id)` so the order is
+total rather than merely usually right. Two Lab routes serve it,
+`GET /api/simulator-lab/runs` and `GET /api/simulator-lab/runs/{run_id}`, and
+`frontend/src/shell/RunsFrame.tsx` and `RunFrame.tsx` render them. A
+not-found run and an unreadable store are different screens, because they are
+different facts about different things.
+
+**`READY` states what it does not assert, on the record.**
+`READY_DISCLOSURE` and `readiness_disclosure()` live in `runs/models.py` and
+derive from the execution status, so the payload a caller reads and the panel a
+person reads carry one sentence from one place - a screen composing its own
+would be a second place for the claim to drift. It names the condition that
+retires it, a conformance test deriving the supported states from a kernel,
+never a slice number (`D-2026-09-22-expiry-follows-the-condition`). `BLOCKED`
+gains nothing equivalent: there is no claim to qualify.
+
+**`PUBLICATION_PROFILE` is the fifth answerer.** The cadence and both
+publication-identity rows said `MODEL_PROFILE` answered them and the
+publication profile did. The correspondence assertion could not have caught it
+- its second half is a subset, so a new member passes silently - so the durable
+guard is
+`test_no_row_names_an_answerer_its_own_detail_contradicts`, which checks the
+property rather than the three rows that carried the mislabel, plus a two
+device-signal-source case where a count of three would have been wrong.
+
+**`cadence_resolution` was deleted rather than renamed.** It was a total
+function of `source_kind` and `cadence_minutes`, and storing it bought a
+fourteen-line parser biconditional that checked a record against a restatement
+of itself. `provenance.py` branches on the two fields instead. The run document
+parser tolerates unknown keys, so every Draft written before this stayed
+readable with the dead key ignored - which is also a strictness gap the
+scenario and site parsers do not have, recorded in the packet's residual risk.
+`EXECUTION_CONTRACT_VERSION` did not move: this is a run-record shape, not a
+scenario-document one (`D-2026-09-22-contract-version-scope`).
+
+**A form default is a thing the screen says it chose.** `RunSetupFrame` now
+defaults the interval, the timestep, the seed and any profile selection with
+exactly one option, and renders `.field-default` inside the field - "Default,
+chosen by this form: X" - tied to the control by `aria-describedby`. The mark
+stays after an edit, because "the form chose 15 and you typed 30" is more
+useful than a mark that vanishes when it stops being true. The interval's
+length is derived from the scenario's own last moment plus one timestep,
+rounded to whole steps, because the interval is half-open. The clock is
+injected (`App -> simulatorLabRoutes -> RunSetupFrame`) so a test can pin the
+day. A value the scenario declares the run owns is never defaulted: that is an
+initial world value, and a form supplying one is the fabricated default run
+setup refuses over. M4's regression is restated as a property - no control may
+hold a value the screen does not disclose - rather than as a list of fields.
+
+**A ban on words became a ban on capability.** The gate suite forbade run
+vocabulary on any control. After T020 a destination called "Runs", a row naming
+a run identity and a disabled "Run this draft" all match that pattern
+truthfully, so the rule is now: an anchor may match, a disabled button carrying
+a reason may match, nothing else may, and on the two run surfaces no
+non-anchor control may be enabled at all.
+
+**A gate claim that measured an empty screen.** The gate suite rendered the app
+with no run client, so both run surfaces showed "the run store could not be
+read" - no controls at all - and every claim about what they may offer was a
+claim about an empty set. Found by deliberate violation: an enabled Run button
+passed the whole suite. The store is injected now. The lesson generalises: a
+gate test that asserts an absence must first prove the screen rendered.
+
+What T020 leaves open, for the slice that meets it.
+
+- **No `READY` run is reachable through the product path.** The shipped model
+  profile cannot execute the shipped Fuel Loss Event. Every `READY` claim is
+  proved against a fixture run record written through the port
+  (`run-b54689cf5dd14b5eb49e2e7a00f7275c` in `var/runs/` on this machine) or
+  against an injected fixture in the UI suite. **T020B** makes the shipped
+  scenario reach `READY` and should re-run the layout evidence then.
+- **The inventory cannot disclose what `READY` does not assert.** The word
+  stands alone in a table cell; the panel that qualifies it exists only on the
+  detail. That is the thinnest point of the slice's presentation honesty and it
+  is named in the packet's assessment.
+- **The run store accepts unknown keys.** It is what kept older Drafts readable
+  here, and it is a strictness gap. Closing it would turn a field deletion into
+  a migration, so it was left.
+- **`tools/layout-evidence.mjs` creates one Draft per run**, T019 behaviour,
+  and nothing clears them. The inventory on a developer machine is dozens of
+  near-identical blocked Drafts.

@@ -66,18 +66,70 @@ RUN_LIFECYCLE_STATUSES = frozenset({"DRAFT"})
 #: status nothing can reach is a claim that execution exists.
 RUN_EXECUTION_STATUSES = frozenset({"READY", "BLOCKED"})
 
+#: What `READY` does not assert, and why it says so.
+#:
+#: `READY` is the one status in this build that makes a claim about being
+#: executable, and what it actually checked is that two DECLARATIONS agree:
+#: the scenario says which states it needs executed, and the selected model
+#: profile says which states it supports. Nothing has run either against a
+#: kernel, because no kernel exists.
+#:
+#: The disclosure names **the condition it exists for** rather than a slice
+#: number, so the slice that closes the condition can recognise what to
+#: retire: `D-2026-09-22-expiry-follows-the-condition` is the rule, and the
+#: condition here is that nothing verifies a profile's supported set against
+#: an executable model. A conformance test deriving `supported_states` from a
+#: kernel ends it, and this becomes false in the slice that lands one.
+#:
+#: It is a property of the status, not of a run, so it is computed on the way
+#: out rather than stored. Every Draft written before this slice gets it on
+#: read, and a `BLOCKED` run gets nothing: `BLOCKED` claims a run may not
+#: execute, which needs no disclaimer about execution.
+READY_DISCLOSURE = (
+    "READY means every required executable input resolved and the selected "
+    "model profile declares it can consume them. It does not mean the model "
+    "can: nothing has verified that profile's supported states against an "
+    "executable model, because no causal runtime exists in this build. This "
+    "statement is retired by the slice that adds a conformance test deriving "
+    "the supported states from a kernel."
+)
+
+
+def readiness_disclosure(execution_status: str) -> str | None:
+    """What a status does not assert, or nothing when it asserts nothing."""
+    return READY_DISCLOSURE if execution_status == "READY" else None
+
+
 #: Who answers for one frozen value.
 #:
-#: The four correspond exactly to the four initialization owners T018 settled
-#: (`INITIALIZATION_OWNERS`), and `ANSWERER_BY_INITIALIZATION_OWNER` below is
-#: that correspondence written down. They are a separate vocabulary because
-#: they answer a wider question - who answers for the interval, the seed, the
-#: cadence - and not only who owns an initial world value. A test asserts the
-#: mapping below covers `INITIALIZATION_OWNERS` exactly and lands inside this
-#: set, so a fifth owner on either side fails rather than quietly having no
-#: answerer.
+#: Four of the five correspond exactly to the four initialization owners T018
+#: settled (`INITIALIZATION_OWNERS`), and `ANSWERER_BY_INITIALIZATION_OWNER`
+#: below is that correspondence written down. They are a separate vocabulary
+#: because they answer a wider question - who answers for the interval, the
+#: seed, the cadence - and not only who owns an initial world value.
+#:
+#: `PUBLICATION_PROFILE` is the fifth and it has no initialization owner,
+#: which is why it was missing. A run selects two versioned profiles and they
+#: answer different questions: the model profile says which world states can
+#: be executed, and the publication profile supplies the reporting cadence and
+#: the two publication identities. Those rows said `MODEL_PROFILE` answered
+#: them and it did not. T020 puts that table on a screen somebody can link to,
+#: so the label is corrected before it has been read.
+#:
+#: Nothing caught the mislabel and nothing would have. The correspondence
+#: test asserts the mapping covers `INITIALIZATION_OWNERS` exactly and that
+#: its values land INSIDE this set - a subset, so a member with no owner
+#: passes silently. It has to be a subset, because this set is deliberately
+#: wider; what it cannot do is notice a value in it that nothing produces, or
+#: a row attributed to the wrong member.
 FROZEN_INPUT_ANSWERERS = frozenset(
-    {"SITE_FOUNDATION", "SCENARIO", "RUN_INPUT", "MODEL_PROFILE"}
+    {
+        "SITE_FOUNDATION",
+        "SCENARIO",
+        "RUN_INPUT",
+        "MODEL_PROFILE",
+        "PUBLICATION_PROFILE",
+    }
 )
 
 ANSWERER_BY_INITIALIZATION_OWNER = {
@@ -132,21 +184,6 @@ BLOCKING_REASON_KINDS = frozenset(
         "INITIAL_VALUE_NOT_RESOLVED",
     }
 )
-
-#: What a cadence statement on a frozen source is about.
-#:
-#: `MODEL_PROFILE` means the selected publication profile declared one and the
-#: run froze it. `NOT_APPLICABLE` means the source has no reporting rate to
-#: own, which is the truthful answer for a hand-recorded value. `NOT_RESOLVED`
-#: means nobody declared one, which is a blocking reason rather than a default.
-#:
-#: There is no value meaning "inferred". A cadence read off a device's name, a
-#: screen's text, or the spacing between authored entries is the thing this
-#: vocabulary exists to make unwritable.
-CADENCE_RESOLUTIONS = frozenset(
-    {"MODEL_PROFILE", "NOT_APPLICABLE", "NOT_RESOLVED"}
-)
-
 
 @dataclass(frozen=True)
 class FrozenSiteBinding:
@@ -266,6 +303,21 @@ class FrozenObservationBinding:
     Foundation declares that a signal can report and declares no rate; nothing
     here derives one from a device identity, from what a screen shows, or from
     the spacing between the entries that report through this source.
+
+    **There is no `cadence_resolution` field, and its absence is the point.**
+    It held one of three values and every one of them was a total function of
+    the two fields beside it: a cadence present means a publication profile
+    declared one, a cadence absent on an operator record means there is no
+    rate to own, and a cadence absent on a device signal means nobody declared
+    one. Storing it made the record carry a restatement of itself, which the
+    parser then spent fourteen lines checking against the thing it restated -
+    a biconditional that can only ever catch a document somebody edited by
+    hand into disagreeing with itself.
+
+    `.ai/ARCHITECTURE.md` states the rule it violated: store what was
+    contingent, compute what follows from structure. Which profile answered,
+    and what it answered, are contingent. Which of three sentences describes
+    that is not.
     """
 
     source_id: str
@@ -274,7 +326,6 @@ class FrozenObservationBinding:
     signal_id: str | None
     cadence_ownership: str
     cadence_minutes: int | None
-    cadence_resolution: str
 
 
 @dataclass(frozen=True)

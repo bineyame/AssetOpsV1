@@ -499,6 +499,7 @@ describe("the create flow leads back to the operator index", () => {
       ["/simulator-lab", "Simulator Lab"],
       ["/simulator-lab/site-templates", "Site Templates"],
       ["/simulator-lab/scenarios", "Scenarios"],
+      ["/simulator-lab/runs", "Runs"],
       ["/simulator-lab", "Back to the Simulator Lab"],
       ["/sites", "Go to Sites"],
     ]);

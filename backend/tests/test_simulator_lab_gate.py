@@ -23,6 +23,7 @@ SCENARIOS_PATH = "/api/simulator-lab/scenarios"
 SCENARIO_DETAIL_PATH = "/api/simulator-lab/scenarios/{scenario_id}"
 RUN_PROFILES_PATH = "/api/simulator-lab/run-profiles"
 CREATE_RUN_PATH = "/api/simulator-lab/runs"
+RUN_DETAIL_PATH = "/api/simulator-lab/runs/{run_id}"
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
 # added the two template paths, T006 added the create path, T017 added the
@@ -38,6 +39,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     SCENARIO_DETAIL_PATH,
     RUN_PROFILES_PATH,
     CREATE_RUN_PATH,
+    RUN_DETAIL_PATH,
 }
 
 # Paths an operator, a script, or a stale bookmark could plausibly aim at the
@@ -63,13 +65,14 @@ SIMULATOR_LAB_DIRECT_PATHS = [
 # must be unserved in BOTH flag states; enabling the gate must not conjure run
 # behavior into existence.
 #
-# `/api/simulator-lab/runs` left this list in T019, which made it a real path
-# - and it left it for setup only. A run can be created there; it cannot be
-# listed, read, executed, rerun or inspected, and the class at the bottom of
-# this file asserts each of those separately rather than letting one path's
-# arrival relax the rule for the rest.
+# `/api/simulator-lab/runs` left this list in T019, which made it a real
+# path, and T020 added listing and reading one. What has never been served,
+# and is what this list is for, is EXECUTION: a run cannot be started,
+# stepped, rerun, or asked for truth. The class at the bottom of this file
+# asserts each of those separately rather than letting the arrival of a read
+# route relax the rule for the rest.
 EXECUTION_PATHS = [
-    "/api/simulator-lab/runs/run-1",
+    "/api/simulator-lab/runs/run-1/truth",
     "/api/simulator-lab/runs/run-1/truth",
     "/api/simulator-lab/runs/run-1/rerun",
     "/api/simulator-lab/execute",
@@ -203,17 +206,32 @@ class TestRunSetupIsSetupAndNothingElse:
         assert response.status_code == 422
         assert response.json()["detail"]["run_created"] is False
 
-    def test_the_setup_path_serves_no_run_inventory(self) -> None:
-        """Inventory and detail presentation belong to T020."""
+    def test_the_run_paths_read_and_create_and_do_nothing_else(self) -> None:
+        """T020 adds listing and reading. Nothing else arrived with them.
+
+        The inventory and the detail route are reads, and the only write is
+        still setup. A run cannot be started, stepped, rerun or deleted
+        through any of these, and the verbs are asserted rather than assumed
+        because a router that grew one would serve it silently.
+        """
         client = TestClient(create_app(ENABLED))
 
-        assert client.get(CREATE_RUN_PATH).status_code == 405
+        assert client.get(CREATE_RUN_PATH).status_code == 200
+        # A well-formed identity that is not persisted, and a malformed one:
+        # both are not found, and neither is another run.
+        assert client.get(f"{CREATE_RUN_PATH}/run-{'0' * 32}").status_code == 404
         assert client.get(f"{CREATE_RUN_PATH}/run-1").status_code == 404
+
+        for request in (client.put, client.patch, client.delete):
+            assert request(f"{CREATE_RUN_PATH}/run-1").status_code == 405
+        assert client.post(f"{CREATE_RUN_PATH}/run-1").status_code == 405
 
     def test_no_run_path_is_served_when_the_gate_is_closed(self) -> None:
         client = TestClient(create_app(DISABLED))
 
         assert client.post(CREATE_RUN_PATH, json={}).status_code == 404
+        assert client.get(CREATE_RUN_PATH).status_code == 404
+        assert client.get(f"{CREATE_RUN_PATH}/run-1").status_code == 404
         assert client.get(RUN_PROFILES_PATH).status_code == 404
 
     def test_a_closed_gate_never_touches_the_run_store(self) -> None:

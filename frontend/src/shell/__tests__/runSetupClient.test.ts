@@ -34,6 +34,7 @@ const RUN: RunSummary = {
   run_id: "run-1f0c2b7a4e5d4c8fa1b2c3d4e5f60718",
   lifecycle_status: "DRAFT",
   execution_status: "BLOCKED",
+  readiness_disclosure: null,
   created_at: "2026-09-22T09:00:00Z",
   site_id: "MG-001",
   scenario_id: "fuel-loss-event",

@@ -996,6 +996,23 @@ button:focus-visible {
   border-color: var(--badge-lifecycle-text);
 }
 
+/*
+ * A value the form chose, marked in the field that carries it.
+ *
+ * Deliberately not styled as a hint: a hint explains a rule and this states
+ * a fact about the value sitting in the control. M4 found a screen choosing
+ * two components of a run's frozen identity without saying so, and the user's
+ * answer was that a default is fine as long as a person can see it is one -
+ * which only works if it reads differently from the help text around it.
+ */
+.field-default {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
 .field-error {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);

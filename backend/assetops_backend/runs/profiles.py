@@ -147,8 +147,10 @@ def resolve_observation_binding(
             device_id=source.device_id,
             signal_id=source.signal_id,
             cadence_ownership=source.cadence_ownership,
+            # A person writing a level down reports at no rate, so there is
+            # no cadence and nothing to own. What that means is read off the
+            # source kind rather than stored beside it.
             cadence_minutes=None,
-            cadence_resolution="NOT_APPLICABLE",
         )
 
     cadence = profile.device_signal_cadence_minutes
@@ -160,9 +162,6 @@ def resolve_observation_binding(
         signal_id=source.signal_id,
         cadence_ownership=source.cadence_ownership,
         cadence_minutes=cadence,
-        cadence_resolution=(
-            "NOT_RESOLVED" if cadence is None else "MODEL_PROFILE"
-        ),
     )
 
 

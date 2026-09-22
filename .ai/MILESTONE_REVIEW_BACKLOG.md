@@ -67,8 +67,22 @@ a name-suffix scan with a hand-written count where the durable fix is
 exporting a vocabulary `frozenset`, a dead duplicate docstring in the
 execution contract tests, and the remaining item in the packet.
 
+The floor now has numbers, measured by T020's review.
+`tools/layout-evidence.mjs:1029` asserts `frozen.rowCount >= 20` under a claim
+worded *the frozen input table renders a row for every frozen value*, and the
+two pages it runs against have **29** and **46** rows - so the floor could
+lose a third of one page and nine tenths of the other and still pass a claim
+that says "every". `:1046` is the same shape: `blocked.rowCount > 0` under
+*the blocked table names every reason the draft carries*, where the true
+number is three.
+
 *Safe to carry* because they were reviewed, judged Low, and none makes a false
-claim. T020 reads the same store and should read N3-N6 before it does.
+claim - a floor that is too low reports a true thing weakly rather than a
+false thing. T020 reads the same store and reused the same `>= 20` floor, so
+the fix is one place with two callers.
+
+*What would change the answer:* a page losing rows silently. The claim would
+still pass, and its wording says it would not.
 
 ### The answerer vocabulary's inherited shape
 
@@ -81,6 +95,104 @@ than being two vocabularies that happen to overlap.
 
 *Safe to carry* because after T020 every row names the profile that answered
 it, which is the part that reaches a screen.
+
+### The gate suite's vacuity shape survives in two more places
+
+T020 fixed one instance: the gate suite rendered the run surfaces with no run
+client, so a claim about what they may offer iterated an empty control list.
+The same shape is still there twice. `renderAt` injects
+`EMPTY_SITE_DIRECTORY`, so the Sites screen a gate claim walks has no rows and
+few controls, and the injected `RUN_SETUP` answers `listProfiles` with
+`unavailable`, so the run SETUP screen a gate claim walks renders a degraded
+panel rather than a form.
+
+*Safe to carry* because every load-bearing claim in that suite is an absence
+when the gate is closed, and an absence asserted over a thin screen is still
+an absence. The claim that had to bite - what an enabled run surface may
+offer - is the one T020 made non-vacuous.
+
+*What would change the answer:* a gate claim that asserts something is
+**present or enabled** on either of those two screens. Against an empty list
+or a degraded panel that claim would either fail loudly or pass for the wrong
+reason, and the injection has to become real first.
+
+### The inventory's bare `READY` cell
+
+`READY` appears in a table cell on the Runs inventory with no disclosure
+beside it and no room for one. The panel that says what the status does not
+assert exists only on the run detail. Both the T020 packet's
+presentation-honesty assessment and its independent review name this as the
+thinnest point of the slice.
+
+*Safe to carry* because the inventory's explanation panel says what ready and
+blocked describe before the table, the detail is one click away and states it
+in full, and T021's conformance test makes the word correct rather than
+qualified.
+
+*What would change the answer:* the inventory gaining a second signal that
+reads as readiness - a colour, an icon, a sort that puts `READY` first - or
+T021 slipping far enough that the qualified word is read for a long time
+without its qualification.
+
+### The answerer-contradiction property covers one cadence branch
+
+`test_no_row_names_an_answerer_its_own_detail_contradicts` is the guard that
+makes the `PUBLICATION_PROFILE` relabel a shape rather than a count. It
+exercises the branch where a cadence resolves. The not-resolved branch - a
+device signal whose profile declares no cadence - is correct by reading, but
+no run in that state is passed through the property.
+
+*Safe to carry* because the not-resolved branch blocks the run, and a blocked
+run's cadence row is covered by the blocking-reason assertions instead.
+
+*What would change the answer:* any change that lets an unresolved cadence
+reach a `READY` run, or a second answerer becoming able to answer a cadence.
+
+### Packet commit counts are stale two slices running
+
+`.agent/T020-review-packet.md` said seven commits when there were eight, and
+the T019 packet carried the same kind of error. The count is written before
+the last commits land and is never re-read.
+
+*Safe to carry* because it is a number in a document nothing computes from,
+and every packet names its branch, which is authoritative.
+
+*What would change the answer:* nothing. Delete this entry at the milestone
+review; it is here so the pattern is visible rather than because it needs a
+fix.
+
+### The layout tool's action claims cannot see an enabled anchor
+
+`tools/layout-evidence.mjs:245` collects `document.querySelectorAll("main
+button")`, so every action claim built on it - `:947` *the inventory offers no
+button of any kind*, `:1084` *a blocked draft offers no run action at all*,
+`:1089` *the one action on a ready draft is rendered and disabled* - is
+satisfied by an enabled `<a className="action">`. That is an established idiom
+in this codebase, not a hypothetical: the Lab uses anchors as actions
+elsewhere, and T020's F1 finding was exactly that element.
+
+*Safe to carry* because the jsdom suites now close the link set on every run
+surface and they run in CI, where this tool does not. The tool measures
+layout; the affordance claims on it are a second opinion.
+
+*What would change the answer:* the tool becoming the primary affordance
+guard, or a surface whose links the jsdom suites do not close.
+
+### The evidence run's submit race
+
+`SUBMIT_RUN_SETUP` at `tools/layout-evidence.mjs:384` clicks the submit button
+without checking whether it is disabled, and that button is disabled until
+`/api/sites/MG-001` resolves. The action returns `true` either way, so the run
+proceeds to wait for a summary that was never requested. Reproduced three
+times during T020's review; two runs aborted.
+
+*Safe to carry* because it fails honestly. The wait times out and the run
+aborts with the error the script already raises for a page its action did not
+produce; it never yields a false PASS.
+
+*What would change the answer:* anyone treating an aborted run as a flake and
+re-running until green. The fix is to check `disabled` before clicking and to
+wait for the control rather than for a sleep.
 
 ## Tracked elsewhere, listed so the review finds them
 

@@ -313,34 +313,62 @@ class TestAStoredRunMayNotContradictItself:
         YamlRunStore(tmp_path).create_run(a_run())
         return next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
 
-    def test_a_resolved_cadence_with_no_cadence_is_refused(
+    def test_a_cadence_on_an_operator_record_is_refused(
         self, tmp_path: Path
     ) -> None:
+        """Two real fields disagreeing, which is worth checking.
+
+        The pair of tests that used to sit here checked `cadence_resolution`
+        against the fields it restated - a record against itself. T020
+        deleted the field, so those went with it. This one remains because a
+        person writing a value down reports at no rate: a cadence on an
+        operator record is a document saying two things that cannot both be
+        true.
+        """
         document = self._stored(tmp_path)
+        text = document.read_text(encoding="utf-8")
+        # Replaced rather than inserted: a second `cadence_minutes` key in
+        # the same block is a duplicate YAML key, which the loader resolves
+        # to the last one, and the test then proves nothing.
+        assert text.count("cadence_minutes: null") == 1
         document.write_text(
-            document.read_text(encoding="utf-8").replace(
-                "cadence_minutes: 15", "cadence_minutes: null"
-            ),
+            text.replace("cadence_minutes: null", "cadence_minutes: 15"),
             encoding="utf-8",
         )
 
         with pytest.raises(RunConfigurationInvalid):
             YamlRunStore(tmp_path).list_runs()
 
-    def test_an_unresolved_cadence_carrying_one_is_refused(
+    def test_a_document_still_carrying_the_deleted_key_is_read(
         self, tmp_path: Path
     ) -> None:
+        """The Drafts written before T020 stay readable.
+
+        A run document accepts keys it does not know, so the thirty-four runs
+        in the store carrying `cadence_resolution` are read with the key
+        ignored rather than refused. Nothing was cleared, and this is the
+        test that says so rather than a sentence in a packet.
+        """
         document = self._stored(tmp_path)
+        text = document.read_text(encoding="utf-8")
+        assert "    cadence_minutes: 15\n" in text
         document.write_text(
-            document.read_text(encoding="utf-8").replace(
-                "cadence_resolution: MODEL_PROFILE",
-                "cadence_resolution: NOT_RESOLVED",
+            text.replace(
+                "    cadence_minutes: 15\n",
+                "    cadence_minutes: 15\n"
+                "    cadence_resolution: MODEL_PROFILE\n",
             ),
             encoding="utf-8",
         )
 
-        with pytest.raises(RunConfigurationInvalid):
-            YamlRunStore(tmp_path).list_runs()
+        stored = YamlRunStore(tmp_path).list_runs()
+
+        assert len(stored) == 1
+        binding = {
+            item.source_id: item
+            for item in stored[0].deterministic_identity.observation_bindings
+        }["example-device-reading"]
+        assert binding.cadence_minutes == 15
 
     def test_an_unknown_cadence_owner_is_refused(self, tmp_path: Path) -> None:
         """The field the review found being read as free text while every
@@ -366,8 +394,10 @@ class TestAStoredRunMayNotContradictItself:
         text = self._stored(tmp_path).read_text(encoding="utf-8")
 
         assert "cadence_minutes: 15" in text
-        assert "cadence_resolution: MODEL_PROFILE" in text
         assert "cadence_ownership: NOT_DECLARED" in text
+        # And the key T020 deleted is not written any more, which is the
+        # other half of "the document this edits is the one the store writes".
+        assert "cadence_resolution" not in text
 
 
 class TestTheStoreRoot:

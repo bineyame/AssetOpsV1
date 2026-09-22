@@ -233,6 +233,7 @@ describe("workspace entry point: enabled", () => {
       // T017 adds the rail's third destination, for the same reason the first
       // two are on it: the route renders real records.
       ["/simulator-lab/scenarios", "Scenarios"],
+      ["/simulator-lab/runs", "Runs"],
       ["/simulator-lab/site-templates", "Site Templates"],
       // T010 gives the Lab its own entry into the create flow, on the same
       // path and behind the same gate as the operator index's.

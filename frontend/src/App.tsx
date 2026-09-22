@@ -89,6 +89,8 @@ export interface AppProps {
   siteCreation?: SiteCreationClient;
   scenarioCatalog?: ScenarioCatalogClient;
   runSetup?: RunSetupClient;
+  /** Injected so a test can pin the day the run setup defaults derive from. */
+  now?: () => Date;
 }
 
 export function App({
@@ -99,6 +101,7 @@ export function App({
   siteCreation,
   scenarioCatalog,
   runSetup,
+  now,
 }: AppProps) {
   return (
     <Routes>
@@ -142,6 +145,7 @@ export function App({
         scenarioCatalog,
         runSetup,
         siteDetail,
+        now,
       ).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}

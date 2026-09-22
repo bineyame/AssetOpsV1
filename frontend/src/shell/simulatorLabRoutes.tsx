@@ -2,7 +2,9 @@ import type { ReactElement } from "react";
 
 import type { FeatureFlags } from "../config/featureFlags";
 import { CreateSiteFrame } from "./CreateSiteFrame";
+import { RunFrame } from "./RunFrame";
 import { RunSetupFrame } from "./RunSetupFrame";
+import { RunsFrame } from "./RunsFrame";
 import { ScenarioFrame } from "./ScenarioFrame";
 import { ScenariosFrame } from "./ScenariosFrame";
 import { SimulatorLabFrame } from "./SimulatorLabFrame";
@@ -86,6 +88,15 @@ export const SCENARIO_DETAIL_PATH = `${SCENARIOS_PATH}/:scenarioId`;
  *  surface that creates it is the developer workspace's. */
 export const RUN_SETUP_PATH = `${SCENARIO_DETAIL_PATH}/run-setup`;
 
+/** The Drafts run setup has written, and one of them.
+ *
+ *  A run is addressed by `run_id` and by nothing else: not by the site it is
+ *  bound to, not by the scenario it froze, and not by anything a screen
+ *  calls it. The inventory is a place, so it is a rail item; a run is
+ *  reached from a row. */
+export const RUNS_PATH = `${SIMULATOR_LAB_PATH}/runs`;
+export const RUN_DETAIL_PATH = `${RUNS_PATH}/:runId`;
+
 /** The gated template and create APIs, spelled here for the same chokepoint
  *  reason. The operator Sites API is not a simulator path and is not spelled
  *  here: it is never gated. */
@@ -168,6 +179,18 @@ export function runSetupHref(scenarioId: string): string {
 }
 
 /**
+ * The address of one persisted Draft.
+ *
+ * Encoded for the same reason a `scenario_id` is: a `run_id` is charset-
+ * constrained at the backend, so nothing awkward can reach this for a
+ * persisted run, and encoding is what keeps a REQUESTED identity that is not
+ * one from changing the shape of the address it is refused at.
+ */
+export function runHref(runId: string): string {
+  return `${RUNS_PATH}/${encodeURIComponent(runId)}`;
+}
+
+/**
  * The Simulator Lab rail's items.
  *
  * Declared here because this module is the only place a simulator URL may be
@@ -189,6 +212,11 @@ const SIMULATOR_LAB_RAIL_ITEMS = [
   // only what exists - `Devices`, `Ingestion`, `Events`, `Library`,
   // `Documentation` and `Settings` remain absent rather than dead.
   { to: SCENARIOS_PATH, label: "Scenarios", end: false },
+  // T020 adds the fourth, and for the reason the other three are here: the
+  // route renders real run records from the real run store. `Devices`,
+  // `Ingestion`, `Events`, `Library`, `Documentation` and `Settings` remain
+  // absent rather than dead.
+  { to: RUNS_PATH, label: "Runs", end: false },
 ];
 
 export interface GatedRoute {
@@ -209,6 +237,7 @@ export function simulatorLabRoutes(
   scenarios: ScenarioCatalogClient = defaultScenarioCatalog,
   runSetup: RunSetupClient = defaultRunSetup,
   siteDetail: SiteDetailClient = defaultSiteDetail,
+  now?: () => Date,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -293,6 +322,27 @@ export function simulatorLabRoutes(
       ),
     },
     {
+      path: RUNS_PATH,
+      element: inLabShell(
+        <RunsFrame
+          runSetup={runSetup}
+          runHref={runHref}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
+          scenariosPath={SCENARIOS_PATH}
+        />,
+      ),
+    },
+    {
+      path: RUN_DETAIL_PATH,
+      element: inLabShell(
+        <RunFrame
+          runSetup={runSetup}
+          runsPath={RUNS_PATH}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
+        />,
+      ),
+    },
+    {
       path: RUN_SETUP_PATH,
       element: inLabShell(
         <RunSetupFrame
@@ -302,6 +352,7 @@ export function simulatorLabRoutes(
           scenariosPath={SCENARIOS_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
           scenarioHref={scenarioHref}
+          {...(now === undefined ? {} : { now })}
         />,
       ),
     },
