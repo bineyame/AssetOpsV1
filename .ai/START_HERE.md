@@ -17,10 +17,11 @@ resulting operational evidence in the UI.
 
 Planning status:
 
-M1A, T017 and T018 are complete. T019, Draft run setup, is built and in
-review; it carries a user-review checkpoint on run setup language and the
-READY/BLOCKED treatment, which T020 waits on. `.ai/ACTIVE_CONTEXT.md` names
-the task, relevant decision IDs, and feature-map sections to read.
+M1A, T017, T018 and T019 are complete. T019's user-review checkpoint on run
+setup language and the READY/BLOCKED treatment was settled on 2026-09-22, and
+it moved the refusal line. T020, Runs inventory and Draft shell, is next.
+`.ai/ACTIVE_CONTEXT.md` names the task, relevant decision IDs, and feature-map
+sections to read.
 
 ## Current Route
 

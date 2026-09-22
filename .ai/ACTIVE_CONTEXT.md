@@ -14,73 +14,58 @@ resulting operational evidence in the UI.
 
 ## Active Task
 
-Active task: `tasks/T019-draft-run-setup.md`, **built and in review**. It
-carries `USER_REVIEW_REQUIRED: true`, so it needs an independent review and
-then a user decision before T020 starts. Evidence is in
-`.agent/T019-review-packet.md`.
+Active task: none. **T019 is complete, accepted at user review on 2026-09-22,
+and merged.** Its file is `tasks/completed/T019-draft-run-setup.md`; what it
+settled in code is the T019 entry in `.ai/CODE_STATE.md`.
+
+**T020, Runs inventory and Draft shell, is next**:
+`tasks/T020-runs-inventory-and-draft-shell.md`. It presents the Drafts T019
+writes to `var/runs/`, which nothing presents yet.
 
 T019 built the SimulationRun domain: a Draft is created from a scenario and a
 resolved Site, freezes the whole deterministic identity with an answerer for
-every value, persists behind its own port, and executes nothing. The line the
-slice is organised around: a request that cannot be frozen is **refused**,
-allocating no `run_id` and writing nothing; a request that freezes and still
-cannot be executed by the selected profile is **persisted as `BLOCKED`** with
-inspectable reasons. Cadence, simulator source identity and gateway identity
-come from the selected versioned profile or the run blocks - held by a module
-that cannot import a Site record at all.
+every value, persists behind its own port, and executes nothing. Cadence,
+simulator source identity and gateway identity come from the selected
+versioned profile or the run blocks - held by a module that cannot import a
+Site record at all. The shipped Fuel Loss Event blocks on three
+`STATE_NOT_SUPPORTED` reasons and cannot reach `READY` in this build;
+`READY` is proved on fixtures.
 
-T018 closed out 2026-09-21, accepted by review and by the user. The execution
-contract is settled in `D-2026-09-21-scenario-execution-contract`.
+**What the T019 user review carried into T020.** Form defaults are wanted, and
+a default must be **visible and labelled** as a default, never a silent
+pre-pick. `READY` must disclose what it does not assert, on the run record and
+on screen, and T021 retires that disclosure in the slice landing the
+conformance test. The re-review's N3-N6 residual risk in
+`.agent/T019-review-packet.md` should be read before T020 reads the run store.
 
-**The Fuel Loss residual is answered by (f): a scenario does not author what a
-device reads.** The declared causes reach 254 L where the document authors
-readings of 155 L and 150 L. Those readings are hand-simulated, they are
-removed in T022, and the document is corrected during T021 from what the kernel
-computes. **The shipped Fuel Loss Event still cannot reach `READY` in this
-build**, by construction: with (e) landed it blocks on the three forcing
-states the first kernel does not model. `READY` is proved on fixtures.
+**The refusal line moved at that review**, recorded in the 2026-09-22
+extension to `D-2026-09-21-run-setup-outcome-vocabulary`: the scenario's
+declared owner has no answer, refuse, because no profile helps; the selected
+profile cannot answer, block, because a different profile fixes it. Four
+location failures block as `INITIAL_VALUE_NOT_RESOLVED`; the
+Foundation/scenario contradiction refuses as `INITIAL_VALUE_ANSWERS_DISAGREE`,
+because the frozen identity can hold no answer and not two.
+`.ai/ARCHITECTURE.md` now carries the naming rule that keeps the two
+vocabularies legible. **T020A must not collapse the two**: a profile binding
+that cannot locate a Foundation value blocks, a Foundation that declares no
+such property refuses, so a slice adding the property without re-creating
+MG-001 produces a site whose runs are refused.
+
+**Still pending, Architect's:** the amendment to
+`D-2026-09-21-scenario-execution-contract` for the reversed ordering rule.
 
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in
 `Docs/simulator-scenario-authoring-and-runtime.md` and recorded in five
-`.ai/DECISIONS.md` entries. The consequences that change planning: run setup
-stops adjudicating cause-to-observation coupling, so the shipped Draft blocks
-on three reasons rather than five; a scenario stops authoring what a device
-reads; two slices are inserted - **T020A** between T020 and T021 for Foundation
-physical properties and model-rule carriers, and **T021A** between T021 and
-T022 to close `execution_requirement` on reported observations while the
-version-bump window is still free; and the Fuel Loss document is corrected
-during T021 from what the kernel computes. Read
-`.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task file in
-that range.
-
-**T019 has applied (e) and (j) and closed the fourteen review findings.**
-Run setup no longer adjudicates cause-to-observation coupling: the shipped
-Draft blocks on three `STATE_NOT_SUPPORTED` reasons and every blocking kind
-is a statement about the selected profile. The reconciliation is labelled a
-specification reference implementation whose expiry is a condition; the
-panel, the payload and the arithmetic are untouched. L8 is moot under (e),
-L9 names **T020A** for the model-rule carrier, and re-review's N3-N6 are in
-the packet's residual risk, which T020 should read before it reads the run
-store.
-
-**User review settled all four items.** `BLOCKED` stands and the wording is
-accepted. Form defaults are wanted and land in **T020**, where a default must
-be visible and labelled rather than a silent pre-pick. And **the refusal line
-moved**, aligned to T020A: the scenario's declared owner has no answer -
-refuse; the selected profile cannot answer - block, because a different
-profile would fix it. An initial value the profile cannot supply or locate is
-now `INITIAL_VALUE_NOT_RESOLVED` on a persisted Draft, the frozen identity can
-record a value as having no answer, and a `READY` run may not carry one. The
-amendment to `D-2026-09-21-scenario-execution-contract` for the reversed
-ordering rule is Architect's and is pending.
-
-**The final gate accepted it**, four findings fixed: the absent-value
-invariant now requires a reason naming the same state, the record enforces
-the pairing its docstring claims, `runs/refusals.py` is canonical again, and
-one unmodelled state is one blocking row. The user then took the vocabulary
-split: the Foundation contradiction is `INITIAL_VALUE_ANSWERS_DISAGREE`, the
-mirror of the blocking side, because a run can carry no answer and not two.
+`.ai/DECISIONS.md` entries. What changes planning: run setup stops
+adjudicating cause-to-observation coupling; a scenario does not author what a
+device reads, so the Fuel Loss residual is answered by (f) and the document is
+corrected during T021 from what the kernel computes; and two slices are
+inserted - **T020A** between T020 and T021 for Foundation physical properties
+and model-rule carriers, and **T021A** between T021 and T022 to close
+`execution_requirement` while the version-bump window is still free. Read
+`.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task file
+in that range.
 
 Two of T018's four Low findings are closed by T019 and marked settled in
 place in `.ai/CODE_STATE.md`; two remain, the unmeasured second
@@ -89,7 +74,7 @@ initialization layer and two forward constraints living only in comments.
 ## Current State
 
 M1A is complete. T001-T016 are in `tasks/completed/` with Review Outcomes.
-M1B is active: T017 and T018 are complete and T019 is in review.
+M1B is active: T017, T018 and T019 are complete; T020 is next.
 
 Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
 position is evidence, not configuration. The banned list lives in
@@ -109,25 +94,24 @@ nothing in the product can write to it yet. `var/runs/` is the run store T019
 added: gitignored, written by run setup, and holding whatever Drafts this
 machine has created. Nothing presents them yet - that is T020.
 
-## Read For Reviewing T019
+## Read For T020
 
-- `tasks/T019-draft-run-setup.md` and `.agent/T019-review-packet.md`
+- `tasks/T020-runs-inventory-and-draft-shell.md` and, for residual risk,
+  `.agent/T019-review-packet.md`
 - `.ai/DECISIONS.md` decision-index entries:
-  - `D-2026-09-21-scenario-execution-contract` - above all what it says run
-    setup does with an unreached reading
-  - `D-2026-09-21-causal-runtime-before-golden-traces`
-- `.ai/CODE_STATE.md`
-  - T018, T019
+  - `D-2026-09-21-run-setup-outcome-vocabulary` - the refusal line, the
+    `READY` disclosure, and what T020 must show
+  - `D-2026-09-21-scenario-execution-contract`
+- `.ai/CODE_STATE.md` - T018, T019
 - `.ai/FEATURE_MAP.md`
   - `### 4. SimulationRun Runtime And Simulator Lab Shell`
-  - `### Early Feature: Scenario Catalog And Run Setup`
-- `.ai/ARCHITECTURE.md`
-  - Causal Runtime Authority
-- `.ai/WORKFLOW.md`
-  - Review Packet, Closeout, User Review
+  - `### Early Feature: Draft SimulationRun And Causal Runtime`
+- `.ai/ARCHITECTURE.md` - Causal Runtime Authority, Refusal And Blocking
+  Vocabularies, Presentation Honesty
+- `.ai/WORKFLOW.md` - Review Packet, Closeout, User Review
 
-A reviewer who runs the layout tool will create Drafts in `var/runs/`. That is
-expected and gitignored.
+Running the layout tool creates Drafts in `var/runs/`. That is expected and
+gitignored.
 
 ## Settled Direction For M1B
 
@@ -194,6 +178,6 @@ Per-slice details live in `.ai/CODE_STATE.md`.
   vocabularies and the Fuel Loss reconciliation were accepted on 2026-09-21.
 - T019 settled the SimulationRun domain and Draft run setup: the frozen
   deterministic identity with an answerer for every value, the refusal versus
-  `BLOCKED` line, allocated run identity, real IANA membership, profile-only
-  resolution of cadence and the two publication identities, and the run store.
-  It is in review, not accepted.
+  `BLOCKED` line as the user moved it, allocated run identity, real IANA
+  membership, profile-only resolution of cadence and the two publication
+  identities, and the run store. Accepted and merged 2026-09-22.
