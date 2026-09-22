@@ -26,12 +26,10 @@ to answer, and the document now declares the need and no value.
 ## Why This Is Next
 
 T021's kernel cannot move the tank without a consumption coefficient, and the
-shipped Fuel Loss document currently supplies it as `generator-fuel-rate`. A
-physical property of a machine living in a scenario means the story has
-replaced the asset: run the same scenario against a different generator and
-14 L/h would follow the story. The first kernel sets the shape every kernel
-after it copies, so the coefficient has to come from Foundation before the
-kernel exists rather than after.
+shipped Fuel Loss document currently supplies it as `generator-fuel-rate` - a
+machine's physical property living in the story. The first kernel sets the
+shape every kernel after it copies, so the coefficient has to come from
+Foundation before the kernel exists rather than after.
 
 Three carriers are missing and must move together, because any one alone still
 leaves a declarable owner with no answer. Foundation carries one optional
@@ -55,15 +53,13 @@ position an author may fill is one an author will fill.
 ## Decisions Due Before Implementation
 
 The coefficient's canonical unit follows the `dispatched-output` half of the
-`REQUIRED` forcing-state decision: whether generator output is promoted to a
-`FORCING_INPUT` on `generator-output-power`. A runtime-based model rule wants
-`L/h`; an energy-based one wants `L/kWh` and a generator-output forcing to
-multiply it by. It is due **before this slice is implemented**, earlier than
-the rest of that decision, because this slice writes the property into the
-shipped template and into MG-001, and changing it afterwards is a unit
-migration on a Foundation document and on an instance created by copy. The
-carriers are identical either way, so only the shipped value's unit waits. A
-slice that picks a unit to get itself unblocked has taken the user's decision.
+`REQUIRED` forcing-state decision - `L/h` if the model rule is runtime-based,
+`L/kWh` and a generator-output forcing if it is energy-based. It is due
+**before this slice is implemented**, earlier than the rest of that decision,
+because changing it afterwards is a unit migration on a Foundation document
+and on an instance created by copy. The carriers are identical either way, so
+only the shipped value's unit waits. A slice that picks a unit to get itself
+unblocked has taken the user's decision.
 
 ## Acceptance Criteria
 
@@ -99,12 +95,15 @@ slice that picks a unit to get itself unblocked has taken the user's decision.
   becomes Foundation-owned and its 14 L/h goes; `tank-capacity` is already
   Foundation-owned and its 500 L goes with it. Exempting the second would need
   a field invented for the exemption, and it carries the same defect today.
-- The `fuel-tank-volume` upper bound currently comes from `tank-capacity`'s
-  stated 500 L, and `declared_bounds` skips a parameter with no numeric value,
-  so the bound disappears silently unless this slice places it. The slice says
-  where the capacity bound comes from once the scenario states no number, and
-  proves it. A bound that vanished because nobody looked is the failure this
-  sequence exists to stop.
+- The `fuel-tank-volume` upper bound leaves the document with `tank-capacity`'s
+  number, and the `bounds` declaration stays. `declared_bounds` reporting no
+  upper value for that state afterwards is the right answer, not a gap: a
+  projection of the document cannot report a number the document does not
+  carry (`D-2026-09-22-capacity-bound-source`). So the parser must keep
+  accepting a `bounds` block on a parameter that states no value - which world
+  state caps which is a relationship between two states, not the machine's
+  property, and the scenario-detail payload has always published it without a
+  number.
 - `EXECUTION_CONTRACT_VERSION` moves by one here. The shipped document as it
   stands is refused by the new parser, so this narrowing reaches a document
   that already exists. The count for the sequence is stated once, in
@@ -127,18 +126,16 @@ slice that picks a unit to get itself unblocked has taken the user's decision.
   coefficient from Foundation and records its origin. Every way that can fail
   blocks and produces no default: no binding declared, no match, more than one
   match, the wrong unit, and a Foundation that declares no such property at
-  all. The last is a fifth case of the same thing, not a refusal, because
-  after this slice the binding names the property as well as the component
-  type, so a different profile naming a different property may find something
-  this Foundation does declare. Settled in
-  `D-2026-09-22-foundation-property-absent-blocks`.
+  all. The last is a fifth case of the same thing, not a refusal, because the
+  binding now names the property as well as the component type, so a different
+  profile naming a different property may find something this Foundation does
+  declare (`D-2026-09-22-foundation-property-absent-blocks`).
 - MG-001 carries the property, re-created from the updated template or with the
   property added to the instance. Templates instantiate by copy, so editing the
   template alone leaves a demo site whose Drafts block on the missing
-  coefficient - which means the slice's own UI-verifiable outcome, the Key
-  Parameters row and the frozen-inputs row resolving from site foundation,
-  never appears. `mg-002` and `mg-003` remain in `var/sites/` as the fixtures
-  the user asked to keep.
+  coefficient - which means this slice's own UI-verifiable outcome never
+  appears. `mg-002` and `mg-003` remain in `var/sites/` as the fixtures the
+  user asked to keep.
 - The header comment of `config/scenarios/fuel-loss-event.yaml` says its
   numbers are the ones the T017 checkpoint shipped and are unchanged. This is
   the first slice to edit that file, so the header stops being true here and
@@ -181,7 +178,6 @@ slice that picks a unit to get itself unblocked has taken the user's decision.
 - Frozen identity provenance: every frozen value names its Foundation,
   scenario, run, or versioned-profile origin, and the origin shown on screen is
   the origin recorded on the record.
-- Simulator/product boundary: no runtime, no execution, no evidence.
 
 ## Focused Tests And Review Evidence
 
@@ -204,10 +200,16 @@ slice that picks a unit to get itself unblocked has taken the user's decision.
   deliberate violation is the shipped document as it stands today.
 - A test proving `INITIAL_VALUE_ANSWERS_DISAGREE` has no producer left, and
   that the two vocabularies are still disjoint without it.
-- A bound test proving the `fuel-tank-volume` upper bound still exists and
-  still comes from a declared capacity rather than from two state keys sharing
-  a prefix. The existing bound test asserts the scenario's 500 L and has to
-  move with the number rather than be weakened to match it.
+- `test_the_declared_bound_is_declared_rather_than_guessed` may not be updated
+  to match the new return value: both of its halves return `(0.0, None)` after
+  this slice, so a matching assertion leaves a test whose control and whose
+  case are identical. The property splits and both halves are proved - that
+  the bound is *declared* rather than inferred from two state keys sharing a
+  prefix, against the parsed document or the scenario-detail payload, where
+  removing the `bounds` block is still an observable change; and that the
+  capacity *is 500 L, resolved from MG-001's Foundation*, as a new assertion
+  on the frozen identity. New and not moved: both places that assert 500 today
+  are removed by this slice.
 - A contract-version test that checks the move against the declared rule set
   rather than against a literal, and a frozen-identity test that a Draft
   frozen under the previous version keeps it.
@@ -252,9 +254,7 @@ should present a physical property differently from a design rating, and the
 frozen-inputs origin label that shows the coefficient coming from site
 foundation.
 
-Two more the user should see rather than read about. The scenario detail
-screen loses 14 L/h and 500 L, which is the visible half of the seam repair
-and the first time the document asks a question it does not answer. And every
-failure of a Foundation-owned value now blocks where one of them used to
-refuse, so the demo path for a misconfigured Site is a Draft to inspect
-instead of an error.
+Two more the user should see rather than read about: a document that asks a
+question it does not answer, which is the first time this product has one; and
+a misconfigured Site now producing a Draft to inspect where one of these
+failures used to produce an error.
