@@ -1832,7 +1832,11 @@ template change never alters an already-created instance. The demo site must be
 re-created from the updated template, or the property hand-added to the
 instance. Both are cheap, because it is a development fixture, but neither is
 automatic, and a slice that adds the field without doing this produces a site
-that still blocks.
+whose runs are **refused**, not blocked: the coefficient's declared owner is
+Foundation, and an instance carrying no such property leaves that owner with no
+answer. The four failures that block are the ones where the profile's binding
+cannot locate an answer that exists. See
+`D-2026-09-21-run-setup-outcome-vocabulary`.
 
 Reason: the coefficient does not merely belong somewhere tidier. The kernel
 needs it at T021 to move the tank at all, and a first kernel whose physics

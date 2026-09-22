@@ -179,13 +179,21 @@ still leaves an owner that can be declared and not answered.
 
 Then the shipped template declares the generator's specific fuel consumption,
 `generator-fuel-rate` leaves the scenario, and run setup freezes the
-coefficient from Foundation and blocks when it is absent.
+coefficient from Foundation. Two different outcomes when it does not resolve,
+and the slice must not collapse them: a selected profile whose binding cannot
+locate it - no binding declared, no match, more than one match, or the wrong
+unit - persists a Draft that blocks on `INITIAL_VALUE_NOT_RESOLVED`, while a
+Foundation that declares no such property at all is the declared owner having
+no answer and the request is **refused**. See
+`D-2026-09-21-run-setup-outcome-vocabulary`.
 
 **And MG-001 is re-created from the updated template.** Templates instantiate
 by copy and a template change never reaches an existing instance, so adding the
 property to `config/site-templates/hybrid-mini-grid-100kw.yaml` will not give
 it to `var/sites/mg-001.yaml`. A slice that adds the field without doing this
-produces a site that still blocks. `var/sites/` also holds `mg-002` and
+produces a site whose runs are **refused**, not blocked - MG-001's Foundation
+would declare no such property, and that is the declared owner having no
+answer. `var/sites/` also holds `mg-002` and
 `mg-003` as fixtures the user asked to keep; do not clear the directory.
 
 **UI-verifiable outcome, which it must have.** Site Configuration's Key

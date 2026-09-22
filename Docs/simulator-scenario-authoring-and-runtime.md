@@ -29,7 +29,11 @@ T020A carries its own user-review checkpoint. And
 document stated as slice numbers — the reference implementation's removal
 follows its last remaining caller and is gated on Open Question 5, and
 T021 retires the `READY` disclosure because its conformance test is what makes
-the disclosure false.
+the disclosure false. The T019 user review then **moved the refusal line** —
+the scenario's declared owner has no answer, refuse; the selected profile
+cannot answer, block — which corrects two consequence statements below
+that said a site without the T020A property would block. It is refused. See
+the 2026-09-22 extension to `D-2026-09-21-run-setup-outcome-vocabulary`.
 
 No code has been changed to match this document. Task files are the Planner's
 and now exist for T019 through T023; the code changes belong to the slices
@@ -605,7 +609,10 @@ MG-001**, which was created by copy and lives in `var/sites/mg-001.yaml`. The
 demo site must be re-created from the updated template, or the property
 hand-added to the instance. Both are cheap — it is a development fixture —
 but neither is automatic, and a slice that adds the field without saying this
-will produce a site that still blocks.
+will produce a site whose runs are **refused**, not blocked: the declared
+owner, Foundation, would have no answer, and no profile choice reaches a value
+that is not there. (Corrected 2026-09-22; see
+`D-2026-09-21-run-setup-outcome-vocabulary`.)
 
 ### Does `READY` overreach?
 
@@ -1808,7 +1815,9 @@ T020, before T021. Contents:
   **MG-001 is re-created from it**, because templates instantiate by copy and a
   template change never reaches an existing instance.
 - `generator-fuel-rate` leaves the scenario. Run setup freezes the coefficient
-  from Foundation and blocks when it is absent.
+  from Foundation. A selected profile whose binding cannot locate it blocks on
+  `INITIAL_VALUE_NOT_RESOLVED`; a Foundation that declares no such property at
+  all refuses, because that is the declared owner having no answer.
 
 UI-verifiable, which it must be: Site Configuration's Key Parameters panel
 shows the generator's fuel consumption, and run setup's frozen-inputs panel
