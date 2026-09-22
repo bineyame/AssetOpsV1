@@ -193,8 +193,8 @@ property to `config/site-templates/hybrid-mini-grid-100kw.yaml` will not give
 it to `var/sites/mg-001.yaml`. A slice that adds the field without doing this
 produces a site whose runs are **refused**, not blocked - MG-001's Foundation
 would declare no such property, and that is the declared owner having no
-answer. `var/sites/` also holds `mg-002` and
-`mg-003` as fixtures the user asked to keep; do not clear the directory.
+answer. `var/sites/` also holds `mg-002` and `mg-003` as fixtures the user
+asked to keep; do not clear the directory.
 
 **UI-verifiable outcome, which it must have.** Site Configuration's Key
 Parameters panel shows the generator's fuel consumption. Run setup's
