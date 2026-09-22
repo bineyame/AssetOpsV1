@@ -1,22 +1,37 @@
 """Why a run setup request is refused, and the line refusal sits on.
 
 This is the load-bearing distinction in T019 and it is stated once, here.
+Everywhere else points at this file; the last round let a second, sharper
+copy grow in `runs/service.py` while this one went stale, which is the worst
+of both - two statements, and the one calling itself canonical was the wrong
+one.
+
+**The discriminator is who failed to answer**, settled at the T019 user
+review and shared with T020A:
+
+- the scenario's **declared owner** has no answer, so nothing can be frozen
+  and no profile would help: **refuse**;
+- the **selected profile** cannot answer, so a different profile would:
+  persist a **`BLOCKED`** Draft.
 
 **A refusal means the request could not be frozen.** Something it names does
-not exist, does not resolve, is not well formed, or would have to be invented
-for the run to have a complete identity. No `run_id` is allocated, nothing is
-written, and there is nothing afterwards to inspect: the run does not exist,
-so it has no state to be in.
+not exist, is not well formed, or contradicts something else it names. No
+`run_id` is allocated, nothing is written, and there is nothing afterwards to
+inspect: the run does not exist, so it has no state to be in.
 
 **`BLOCKED` means everything was frozen and the run still must not execute.**
 The request was structurally complete, the Draft exists, it is persisted, and
-it carries the reasons the selected profile cannot execute it. Those reasons
-live in `BLOCKING_REASON_KINDS` and are a property of a run that exists.
+it carries the reasons the selected profile cannot execute it - including a
+value the profile could not supply or locate, which the frozen identity
+records as absent. Those reasons live in `BLOCKING_REASON_KINDS` and are a
+property of a run that exists.
 
 The two must not be collapsed in either direction. A refusal that persisted a
 run would put a record in the store that names inputs nobody could resolve; a
 `BLOCKED` run returned as a refusal would lose the frozen inputs a reader has
-to be able to inspect in order to decide what to change.
+to be able to inspect in order to decide what to change - and, since the fix
+for every blocking reason is to choose a different profile, would leave them
+no way to tell which one to try.
 
 The kinds below are the refusal half. Each is a different fact with a
 different fix, which is why they are nine rather than one with a message: a
@@ -45,9 +60,14 @@ from __future__ import annotations
 #:   declares no topology for the scenario's causes to sit in.
 #: - `COMPONENT_OR_SIGNAL_UNRESOLVED`: a declared observation source names a
 #:   device or a signal this Site's Foundation does not configure.
-#: - `INITIALIZATION_INPUT_MISSING`: an initial world value has an owner that
-#:   did not answer, or two answers that disagree. Either way the run would
-#:   have to invent one, which is the thing a frozen identity exists to stop.
+#: - `INITIALIZATION_INPUT_MISSING`: an initial world value whose DECLARED
+#:   OWNER did not answer, or which has two answers that disagree. Today that
+#:   is a `RUN_OVERRIDE` value the request did not supply, and a Foundation
+#:   value that contradicts the value the scenario states the Foundation
+#:   declares. Both would make the run invent a number, which is the thing a
+#:   frozen identity exists to stop. A value the selected PROFILE could not
+#:   supply or locate is not here: that blocks, because a different profile
+#:   would answer.
 #: - `UNIT_INVALID`: a supplied value carries a unit the contract does not
 #:   know, a unit the parameter does not use, or a quantity the `invalid-rate`
 #:   bound case refuses.

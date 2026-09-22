@@ -239,9 +239,12 @@ class FrozenInitializationInput:
     absent exactly when `value` is; the unit is not, because the scenario
     declares it whether or not anything answers.
 
-    A `READY` run may not carry one. `SimulationRun` enforces that: an absent
-    value always has a blocking reason beside it, because the thing that made
-    it absent is the thing that blocked the run.
+    A `READY` run may not carry one, and neither may a `BLOCKED` run whose
+    reasons are about something else. `SimulationRun` enforces both as one
+    rule: every absent value has a blocking reason naming **the same state**,
+    because the thing that made it absent is the thing that blocked the run.
+    It enforces the pairing above as well, so a record cannot hold one of the
+    two numbers without the other.
     """
 
     state_key: str
@@ -388,19 +391,43 @@ class SimulationRun:
                 "them."
             )
 
-        # A frozen identity with a hole in it is not a runnable identity. The
-        # only reason an initial value can be absent is that something
-        # blocked the run, so a `READY` run carrying one would be a run whose
-        # status and whose inputs disagree.
-        unresolved = [
+        # A frozen identity with a hole in it is not a runnable identity, and
+        # the hole has to be EXPLAINED rather than merely accompanied.
+        #
+        # An earlier version of this check asked only whether the run carried
+        # any blocking reason at all, which the docstring above already
+        # claimed more than: a value absent for one state, beside a reason
+        # about an unrelated profile identity, satisfied it. That is a
+        # persisted Draft whose frozen table says "not resolved" for a state
+        # while the blocking table explains nothing about it - exactly the
+        # state this invariant exists to make unreachable. The service cannot
+        # produce it today, which is the reason to assert it here and not
+        # there: a hand-edited document in that shape parses, and this is
+        # what the parser's result has to survive.
+        explained = {reason.subject for reason in self.blocking_reasons}
+        unexplained = sorted(
             item.state_key
             for item in self.deterministic_identity.initialization_inputs
-            if item.value is None
-        ]
-        if unresolved and not self.blocking_reasons:
+            if item.value is None and item.state_key not in explained
+        )
+        if unexplained:
             raise ValueError(
-                f"A run with no blocking reason has no answer for "
-                f"{sorted(unresolved)}. An initial value is absent only "
-                "because something blocked the run, so a READY run cannot "
-                "carry one."
+                f"A run has no answer for {unexplained} and no blocking "
+                "reason about it. An initial value is absent only because "
+                "something blocked the run, so the reason that made it "
+                "absent is on the run beside it, naming the same state."
             )
+
+        # The two number fields are absent together or present together.
+        # Stated on the record because `FrozenInitializationInput` states it
+        # as a property of the record; it was enforced only where documents
+        # are read, so an in-process record could hold one without the other
+        # and half know its own initial state.
+        for item in self.deterministic_identity.initialization_inputs:
+            if (item.value is None) != (item.canonical_value is None):
+                raise ValueError(
+                    f"The initial value of {item.state_key} has one of its "
+                    "two numbers and not the other. A value and its "
+                    "canonical restatement are absent together or present "
+                    "together."
+                )

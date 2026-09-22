@@ -43,6 +43,7 @@ from assetops_backend.runs.models import (
     ANSWERER_BY_INITIALIZATION_OWNER,
     FROZEN_INPUT_ANSWERERS,
     RUN_EXECUTION_STATUSES,
+    BlockingReason,
     DeterministicIdentity,
     SimulationRun,
 )
@@ -690,6 +691,72 @@ class TestBlockedDraftsArePersisted:
         ]
         assert store.written == [record]
 
+    def test_one_unmodelled_state_is_one_row_however_many_roles(self) -> None:
+        """`subject` exists so two reasons of one kind are two facts.
+
+        A Foundation-owned value on a state the profile does not model used
+        to produce three rows for one state: STATE_NOT_SUPPORTED once per
+        execution role, differing only in which role the prose named, plus
+        the unresolved initial value. A reader counting rows counted the
+        same problem twice.
+        """
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
+        scenarios = FakeScenarios(
+            (
+                parse_scenario_document(
+                    document, source="a test", origin="SHIPPED"
+                ),
+            )
+        )
+
+        # The stored volume is used as a cause and as a reading, and this
+        # profile models neither it nor anything else about it.
+        setup, _ = service(
+            scenarios=scenarios,
+            model=model_profile(
+                supported_states=(default_supported_states()[1],)
+            ),
+        )
+        record = setup.create_draft_run(setup_request())
+
+        about_the_state = [
+            reason
+            for reason in record.blocking_reasons
+            if reason.subject == "example-stored-volume"
+        ]
+        assert [reason.kind for reason in about_the_state] == [
+            "STATE_NOT_SUPPORTED",
+            "INITIAL_VALUE_NOT_RESOLVED",
+        ]
+        # Two facts about one state: the profile cannot execute it, and
+        # nothing answered for where it starts. Not the same fact twice.
+        assert len({reason.kind for reason in about_the_state}) == 2
+
+    def test_a_state_unsupported_in_two_roles_names_both(self) -> None:
+        """The complementary half: a role failure really is one per role, so
+        its subject carries the role and the two rows stay two."""
+        narrowed = (
+            SupportedState(
+                state_key="example-stored-volume",
+                supported_roles=frozenset({"FORCING_INPUT"}),
+                foundation_binding=None,
+                statement="Modelled, but in neither role this scenario uses.",
+            ),
+            default_supported_states()[1],
+        )
+        setup, _ = service(model=model_profile(supported_states=narrowed))
+        record = setup.create_draft_run(setup_request())
+
+        assert sorted(
+            reason.subject
+            for reason in record.blocking_reasons
+            if reason.kind == "ROLE_NOT_SUPPORTED"
+        ) == [
+            "example-stored-volume as CAUSAL_INPUT",
+            "example-stored-volume as REPORTED_OBSERVATION",
+        ]
+
     def test_an_optional_unsupported_input_is_recorded_and_does_not_block(
         self,
     ) -> None:
@@ -927,6 +994,121 @@ class TestTheStatusIsComputed:
                 deterministic_identity=holed,
                 blocking_reasons=(),
                 unsupported_optional_inputs=(),
+            )
+
+    def test_an_unanswered_value_needs_a_reason_about_that_state(
+        self,
+    ) -> None:
+        """The gap the final review constructed, closed.
+
+        The first version of this invariant asked only whether the run
+        carried ANY blocking reason, which its own docstring already claimed
+        more than. A value absent for one state, beside a reason about an
+        unrelated profile identity, satisfied it - a persisted Draft whose
+        frozen table says "not resolved" for a state while the blocking table
+        explains nothing about it.
+        """
+        record, _ = create()
+        identity = record.deterministic_identity
+        holed = replace(
+            identity,
+            initialization_inputs=(
+                replace(
+                    identity.initialization_inputs[0],
+                    value=None,
+                    canonical_value=None,
+                ),
+            ),
+        )
+        elsewhere = BlockingReason(
+            kind="GATEWAY_IDENTITY_NOT_RESOLVED",
+            subject="example-publication",
+            statement="Nothing about the state whose value is missing.",
+        )
+
+        with pytest.raises(ValueError) as raised:
+            SimulationRun(
+                run_id=record.run_id,
+                lifecycle_status="DRAFT",
+                execution_status="BLOCKED",
+                created_at=record.created_at,
+                deterministic_identity=holed,
+                blocking_reasons=(elsewhere,),
+                unsupported_optional_inputs=(),
+            )
+
+        assert "example-stored-volume" in str(raised.value)
+
+    def test_a_reason_about_the_same_state_satisfies_it(self) -> None:
+        """The other half, so the rule is not simply refusing everything."""
+        record, _ = create()
+        identity = record.deterministic_identity
+        state_key = identity.initialization_inputs[0].state_key
+        holed = replace(
+            identity,
+            initialization_inputs=(
+                replace(
+                    identity.initialization_inputs[0],
+                    value=None,
+                    canonical_value=None,
+                ),
+            ),
+        )
+
+        blocked = SimulationRun(
+            run_id=record.run_id,
+            lifecycle_status="DRAFT",
+            execution_status="BLOCKED",
+            created_at=record.created_at,
+            deterministic_identity=holed,
+            blocking_reasons=(
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=state_key,
+                    statement="The profile declares no binding for it.",
+                ),
+            ),
+            unsupported_optional_inputs=(),
+        )
+
+        assert blocked.execution_status == "BLOCKED"
+
+    def test_a_record_may_not_hold_half_an_absent_value(self) -> None:
+        """The pairing the record's own docstring states as its property.
+
+        It was enforced only where documents are read, so an in-process
+        record could hold one number without the other.
+        """
+        record, _ = create()
+        identity = record.deterministic_identity
+
+        for absent, present in (("value", "canonical_value"), ("canonical_value", "value")):
+            half = replace(
+                identity,
+                initialization_inputs=(
+                    replace(
+                        identity.initialization_inputs[0], **{absent: None}
+                    ),
+                ),
+            )
+            with pytest.raises(ValueError) as raised:
+                SimulationRun(
+                    run_id=record.run_id,
+                    lifecycle_status="DRAFT",
+                    execution_status="BLOCKED",
+                    created_at=record.created_at,
+                    deterministic_identity=half,
+                    blocking_reasons=(
+                        BlockingReason(
+                            kind="INITIAL_VALUE_NOT_RESOLVED",
+                            subject=identity.initialization_inputs[0].state_key,
+                            statement="A reason about the same state.",
+                        ),
+                    ),
+                    unsupported_optional_inputs=(),
+                )
+            assert present in str(raised.value) or "two numbers" in str(
+                raised.value
             )
 
     def test_the_status_vocabulary_has_no_executing_value(self) -> None:

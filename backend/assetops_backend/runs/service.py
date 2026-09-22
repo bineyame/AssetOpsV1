@@ -23,26 +23,18 @@ that scrolled past.
 
 ## The refusal line, in this module
 
-`runs/refusals.py` states it, and the T019 user review sharpened it to a
-question about WHO failed to answer:
+**`runs/refusals.py` states it. This is what it looks like here.** The rule
+is not restated: a second copy is a second thing to keep true, and the last
+round proved it by letting this module's copy get ahead of the canonical one
+while that one went stale.
 
-- the scenario's **declared owner** has no answer, so nothing can be frozen
-  and no profile would help - **refuse**;
-- the **selected profile** cannot answer, so a different profile would -
-  **persist a `BLOCKED` Draft** with the reason to inspect and the frozen
-  inputs to reason about.
-
-That moved a case. A Foundation-owned initial value the selected profile
-cannot locate used to be a refusal, and the person's fix for it - choose a
-different model profile - is the fix for every blocking reason there is, so
-refusing handed them nothing to inspect and no way to tell which profile to
-try. `_resolve_foundation_value` below now returns a reason instead of
-raising for those, and `_freeze` carries them out.
-
-It is no longer true that the whole of `_freeze` raises. What is true, and
-what the split rests on, is that a refusal means nothing could be frozen at
-all, while a blocked run is frozen in full - including a value marked as
-having no answer, which the record can now represent.
+What the rule costs this module is one shape. `_resolve_foundation_value`
+returns a reason instead of raising when the selected profile cannot supply
+or locate a value, and `_freeze` carries those out, so it is no longer true
+that the whole of `_freeze` raises. What is still true, and what the split
+rests on, is that a refusal means nothing could be frozen at all, while a
+blocked run is frozen in full - including a value marked as having no
+answer, which the record can now represent.
 
 ## What is deliberately not here
 
@@ -761,10 +753,26 @@ class RunSetupService:
 
         - the Foundation's value disagrees with the value the scenario states
           the Foundation declares. Both declared owners answered and they
-          contradict each other. A profile pointing at some other component
-          that happened to match the scenario's number would be resolving a
-          contradiction by shopping for a value, so nothing is frozen and the
-          refusal names both numbers.
+          contradict each other.
+
+        Two reasons for that one, and the structural one is the one that
+        holds. **The four blocking cases leave the value with no answer,
+        which the record can represent as absent; this leaves it with two,
+        which the record cannot represent at all.** A blocked Draft would
+        have to freeze one of the two numbers, and choosing between them is
+        precisely what refusing prevents - so the refusal is not a judgement
+        about how fixable the situation is, it is the only outcome the frozen
+        identity has a shape for.
+
+        The weaker reason, kept because it is the intuition: a profile
+        pointing at some other component that happened to match the
+        scenario's number would be resolving a contradiction by shopping for
+        a value. It is weaker because it has a counterexample - a site
+        declaring a second matching component whose rating equals the
+        scenario's number means a different profile genuinely would resolve
+        it - and under the literal discriminator that argues for blocking.
+        The structural reason survives that counterexample; this one does
+        not.
         """
         foundation_detail = (
             f"site {site.site_id} foundation version "
@@ -912,7 +920,34 @@ class RunSetupService:
         reasons.extend(_cadence_reasons(identity))
         reasons.extend(_publication_reasons(identity))
 
-        return tuple(reasons), tuple(optional)
+        return _deduplicated(reasons), tuple(optional)
+
+
+def _deduplicated(
+    reasons: list[BlockingReason],
+) -> tuple[BlockingReason, ...]:
+    """One row per fact, in the order the facts were found.
+
+    `BlockingReason.subject` exists so that two reasons of the same kind are
+    two facts rather than one repeated, and a run can reach the same fact
+    twice: a state the profile does not model, needed in two roles, was two
+    identical-subject rows differing only in the role their prose mentioned.
+    A reader counting rows would have counted the same problem twice.
+
+    Deduplicating on `(kind, subject)` rather than on the whole reason is
+    deliberate: if two rows agree on both, they are the same fact, and a
+    difference in their wording is a reason to fix the wording rather than to
+    print both.
+    """
+    seen: set[tuple[str, str]] = set()
+    unique: list[BlockingReason] = []
+    for reason in reasons:
+        key = (reason.kind, reason.subject)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(reason)
+    return tuple(unique)
 
 
 def _parameters_by_id(
@@ -1002,10 +1037,15 @@ def _support_for(
         statement = (
             f"Model profile {model.model_profile_id} version "
             f"{model.model_profile_version} does not model "
-            f"{executable.state_key}, which this scenario needs as a "
-            f"{executable.execution_role}."
+            f"{executable.state_key} at all, which this scenario needs it "
+            "to."
         )
         if executable.execution_requirement == "REQUIRED":
+            # The statement no longer names the role, and the reason is
+            # deduplicated on `(kind, subject)` below. A state the profile
+            # does not model is ONE fact however many roles the scenario
+            # uses it in; saying it twice, differing only in which role the
+            # prose mentioned, is the repetition `subject` exists to prevent.
             return (
                 BlockingReason(
                     kind="STATE_NOT_SUPPORTED",
@@ -1031,10 +1071,16 @@ def _support_for(
             f"{executable.execution_role}."
         )
         if executable.execution_requirement == "REQUIRED":
+            # The subject carries the role here, because this IS one fact per
+            # role: a profile can model a state it can cause and cannot
+            # report, and those are two things to fix.
             return (
                 BlockingReason(
                     kind="ROLE_NOT_SUPPORTED",
-                    subject=executable.state_key,
+                    subject=(
+                        f"{executable.state_key} as "
+                        f"{executable.execution_role}"
+                    ),
                     statement=statement,
                 ),
                 None,

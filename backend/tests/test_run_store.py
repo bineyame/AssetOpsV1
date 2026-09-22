@@ -253,6 +253,32 @@ class TestAnUnansweredInitialValueSurvivesTheStore:
         with pytest.raises(RunConfigurationInvalid):
             YamlRunStore(tmp_path).list_runs()
 
+    def test_a_stored_reason_about_another_state_does_not_explain_it(
+        self, tmp_path: Path
+    ) -> None:
+        """A hand-edited document in the shape the final review constructed.
+
+        This is why the rule lives on the record rather than in the service:
+        the service cannot produce this, and a document can.
+        """
+        YamlRunStore(tmp_path).create_run(self._blocked_with_a_hole())
+        document = next(tmp_path.glob(f"*{DOCUMENT_SUFFIX}"))
+        text = document.read_text(encoding="utf-8")
+        assert "subject: example-stored-volume" in text
+        document.write_text(
+            text.replace(
+                "subject: example-stored-volume",
+                "subject: example-publication",
+            ).replace(
+                "kind: INITIAL_VALUE_NOT_RESOLVED",
+                "kind: GATEWAY_IDENTITY_NOT_RESOLVED",
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
     def test_a_stored_ready_run_may_not_carry_one(self, tmp_path: Path) -> None:
         """The record's invariant, met through the parser."""
         YamlRunStore(tmp_path).create_run(self._blocked_with_a_hole())
