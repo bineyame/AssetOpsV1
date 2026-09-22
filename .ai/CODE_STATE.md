@@ -1902,6 +1902,30 @@ What T019 leaves open, for the slice that meets it.
   file name. T020 reads this store and meets the same posture.
 - **The amendment to `D-2026-09-21-scenario-execution-contract`** for the
   reversed ordering rule is Architect's and is pending.
+- **Four small things the re-review logged and left**, in the packet's
+  residual risk with the reasoning: the frozen-table layout claim asserting a
+  floor its wording outruns; the reason-set audit deriving membership from a
+  name-suffix scan with a hand-written count, where the durable fix is
+  exporting a vocabulary `frozenset` the way `BLOCKING_REASON_KINDS` is; a
+  dead duplicate docstring in the execution contract tests; and the
+  stale-vocabulary lockout's 503 saying the store could not be READ when it
+  is readable apart from one document - the same collapse this project
+  polices elsewhere, in copy this slice introduced.
+
+Two lessons from the last two rounds, because both are about tests rather
+than about runs.
+
+**A guard's scope is part of its claim.** `tools/checks/run-setup.ps1`
+described itself as protecting the product while scanning one folder, and a
+reviewer disproved it with a function that passed 789 tests.
+
+**An assertion that holds against a value the product cannot make proves
+nothing about the product.** This slice met that three times: a fixture whose
+loading sentence the screen never says, a fixture whose 503 message the
+endpoint never sends, and a whole client tested only through a stub of its
+own interface - so a duplicated sentence in the copy survived a full review
+round. Stubbing an interface tests the caller; it never tests the thing that
+implements it.
 
 What T019 deliberately does not do: no execution, no step, no trace, no
 staging, no Commit, no ingestion, no Replay, no analytics, no Findings. No run

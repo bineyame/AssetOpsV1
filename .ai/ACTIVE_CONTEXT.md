@@ -61,9 +61,16 @@ is now a statement about the selected profile. The reconciliation is labelled
 as a specification reference implementation whose expiry is a condition, and
 the panel, the payload and the arithmetic are untouched. Twelve findings are
 fixed, L8 is moot under (e), and L9 is a Known Deviation naming **T020A** as
-the slice that adds the model-rule carrier. The branch is ready for
-re-review; the amendment to `D-2026-09-21-scenario-execution-contract` for the
-reversed ordering rule is Architect's and is pending.
+the slice that adds the model-rule carrier.
+
+**Re-review accepted it** with two Low findings, both fixed on the branch: a
+duplicated "Nothing was written." on a run-store failure, and a client with
+no test of its own - every test stubbed the interface, so nothing measured
+what a response becomes. Four more (N3-N6) are recorded in the packet's
+residual risk rather than fixed; T020 reads that store next. The amendment to
+`D-2026-09-21-scenario-execution-contract` for the reversed ordering rule is
+Architect's and is pending. What waits on the user: the refusal line, the
+screen wording, and the prefill friction. The `BLOCKED` question is settled.
 
 Two of T018's four Low findings are closed by T019 and marked settled in place:
 intra-instant ordering became a `DISPATCH_RULES` entry - since reversed by the
