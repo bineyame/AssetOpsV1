@@ -2403,7 +2403,7 @@ across M1C, and it is the only place the count is stated.
 | `main` today | 2 | T019 merged it |
 | T020 | 2 | no contract change; the `READY` disclosure is not one |
 | T020A | 3 | narrowing: a Foundation-owned parameter has no value position, and the shipped document as it stands is refused by the new parser |
-| the four-semantics declaration | 4 | narrowing: four previously unspecified semantics pinned, each one a place two conforming kernels could have disagreed |
+| the contract-alignment step | 4 | two narrowings, one number: the four semantics pinned (`D-2026-09-22-kernel-step-semantics`), and a requirement conflict refused rather than resolved (`D-2026-09-22-forcing-state-requirements`). They share a slice, so nothing ever conformed to the version between them |
 | T021 | 4 | no move: the `TRAJECTORY` oracle widens the document space off every executable path |
 | T021A | 5 | narrowing: no `execution_requirement` position on a reported observation |
 | T022 | 5 | no move: one document's content and a new component, not a change to the space |
@@ -2417,8 +2417,13 @@ unmerged window. It is how versions one and two absorbed two amendments each
 inside T019, and it applies again only if some slice below narrows twice
 internally.
 
-**Where the four-semantics declaration lands is not decided, and the table
-assumes a step of its own.** Whichever slice declares them spends the number.
+**The contract-alignment step is the ledger's one deliberate step of its
+own**, between T020A and T021, and it is where the four semantics and the
+requirement-conflict refusal are declared. Two narrowings in one unmerged
+window spend one number, which is the unreleased-version doctrine doing what
+it is for rather than an exception to it. The document edits that accompany
+them - `dispatched-output` promoted, two forcing states lowered - are content
+rather than contract and spend nothing.
 One variant changes the count: declaring them inside T020A would spend a
 single number for both narrowings and leave T021A at 4. It is not
 recommended - bundling a contract declaration into a Foundation-carrier slice

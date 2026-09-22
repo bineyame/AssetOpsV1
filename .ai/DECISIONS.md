@@ -40,6 +40,10 @@ rationale in the dated entries below.
 | `D-2026-09-21-physical-property-ownership` | 2026-09-21 | Foundation declares what the site is, the model profile how the simulator reasons, the scenario what happens, the publication profile how the reporting installation behaves; two swap tests decide ownership, and a new slice T020A builds the missing carriers. Its template-copy consequence is corrected by `D-2026-09-22-foundation-property-absent-blocks`: a non-re-created MG-001 blocks, it does not refuse. |
 | `D-2026-09-22-expiry-follows-the-condition` | 2026-09-22 | A gap-covering artifact names the condition as its expiry, never a slice number; a claim that has become false goes in the slice that falsifies it, and a thing still honest goes when someone decides to remove it. |
 | `D-2026-09-22-foundation-value-declaration` | 2026-09-22 | A scenario parameter whose declared owner is Site Foundation has no value position at all. The rule is keyed on the owner, so it reaches `tank-capacity` as well as the coefficient, moves the contract version, and retires `INITIAL_VALUE_ANSWERS_DISAGREE` in T020A. Option C is a named follower. |
+| `D-2026-09-22-consumption-coefficient-unit` | 2026-09-22 | The Foundation coefficient is specific fuel consumption in `L/kWh`, and `dispatched-output` is promoted to a `FORCING_INPUT` on `generator-output-power`. `L/h` is a property of machine times operating point and half that pair is the scenario's. Closes open question 4.1. |
+| `D-2026-09-22-forcing-state-requirements` | 2026-09-22 | `site-load-demand` and `plane-of-array-irradiance` drop to `OPTIONAL`; reporting-path authority moves to the publication profile. The shipped Fuel Loss Event becomes able to reach `READY`. Two riders: a requirement conflict is refused rather than resolved, and `FROZEN_INPUT_ANSWERERS` gains `PUBLICATION_PROFILE`. Closes open question 3. |
+| `D-2026-09-22-kernel-step-semantics` | 2026-09-22 | The four semantics the contract left open: linear ramp across a window, observe after the step, a forcing outside its window is unavailable, and a bounded change lets the run continue against the bounded value. Closes open question 1. |
+| `D-2026-09-22-reconciliation-panel-retirement` | 2026-09-22 | The `observation_reconciliation` panel goes with (f) in T022, which completes (j) by taking the reference implementation, `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` out of the product path. Closes open questions 5 and 11. |
 | `D-2026-09-22-capacity-bound-source` | 2026-09-22 | A bound's declaration is the document's and its value is the site's. `declared_bounds` reports no upper value for `fuel-tank-volume` after T020A and that is the correct answer; the number lives in the frozen run and the first thing entitled to hold both halves is T021's kernel. |
 | `D-2026-09-22-foundation-property-absent-blocks` | 2026-09-22 | A Foundation that declares no such property at all blocks with `INITIAL_VALUE_NOT_RESOLVED`. It is a fifth case of the four, not a refusal, because after T020A the binding names the property and a different profile might name another. |
 | `D-2026-09-22-contract-version-scope` | 2026-09-22 | `EXECUTION_CONTRACT_VERSION` moves when a change can alter the outcome for a document that was already valid. A narrowing can; a pure widening off every executable path cannot, so the `TRAJECTORY` oracle kind does not move it. The absolute numbers are unstable and are written relatively. |
@@ -2365,3 +2369,243 @@ the 500 L assertion lands in `backend/tests/test_run_setup.py`,
 the parser rule that must keep accepting it without a value, T020A's criterion
 for the bound, T021's kernel reading the capacity from the frozen identity,
 and Open Question 11.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-consumption-coefficient-unit`. **The Foundation
+coefficient is specific fuel consumption in `L/kWh`**, and `dispatched-output`
+is promoted from `NON_EXECUTABLE_CONDITION` to a `FORCING_INPUT` on
+`generator-output-power`. Accepted by the user on 2026-09-22. Closes open
+question 4.1.
+
+**The deciding argument is the project's own swap test, one notch deeper.**
+*This generator burns 14 L/h at its dispatch point* changes if the dispatch
+point changes, and the dispatch point is the scenario's. So `L/h` is a
+property of machine **times** operating point, and half of that pair belongs
+to the story. `L/kWh` is a property of the machine alone, which is why the
+real engineering quantity is called *specific* fuel consumption. Writing
+`L/h` into Foundation would put a scenario-dependent number into Foundation -
+the same class of error as putting the coefficient in the scenario, mirrored,
+in the slice whose whole purpose is repairing that class of error.
+
+**On the promotion.** The T018 comment forbidding authored generator output
+conflates *computing* it with *forcing* it. Forcing an exogenous condition the
+model does not solve is what `FORCING_INPUT` is for, the same as load and
+irradiance, and the comment's own reasoning - what a generator delivers
+follows from the demand it is covering - argues only against computing it.
+
+**The shipped trajectory does not change, which is what makes this cheap.**
+The generator window is 240 minutes: 14 L/h over 4 h is 56 L, and 45 kW over
+4 h is 180 kWh, which at 0.311 L/kWh is also 56 L. So 430 - 56 - 120 = 254 L
+at offset 1590 still holds and T021's document-correction loop is undisturbed.
+T021 gains one supported state and a forced constant during the declared
+window: a multiplication, not a power-flow model. The kernel carries the
+forced value and does not solve for it.
+
+**What it does to `generator-fuel-rate`, and it is more than a unit change.**
+The parameter leaves the scenario under
+`D-2026-09-22-foundation-value-declaration` regardless. Under `L/kWh` the
+coefficient is not a rate over time, so the dispatch event stops naming a rate
+at all: it declares that the generator runs and at what output, and the model
+rule - *consumption is specific consumption times energy delivered* - owns the
+transition. That is what T020A's `SupportedState` model-rule carrier exists
+for, and it removes the last place a scenario names a consumption rate.
+
+**A consequence for the product that was not part of the argument.** The
+worked example's Path B has the product computing expected consumption from
+generator **run hours** times a Foundation coefficient. Under `L/kWh` it
+computes from **energy delivered**, so the generator controller's `ac-power`
+stops being merely something it gains the ability to publish and becomes
+something the product needs it to publish. The promotion is therefore
+load-bearing for T034-T038 rather than convenient for them, and it adds a
+second error source - energy measurement, beside coefficient spread - to any
+tolerance derived later. See open question 10.
+
+Reason: a coefficient stored in the unit it was measured at is a number that
+is false at every other load. Foundation is where a site says what it *is*,
+and what this generator is does not change when the story dispatches it
+differently.
+
+Affected scope: `config/scenarios/fuel-loss-event.yaml` for
+`generator-fuel-rate`, `dispatched-output` and the dispatch event's
+`state_effect`; the shipped template and `var/sites/mg-001.yaml` for the
+property's unit; `runs/profiles.py` for `generator-output-power` in the
+shipped model profile's supported states; T020A, which carries all of it;
+T021's kernel, which carries the forced state; and open questions 4.2 and 10,
+both of which this sharpens.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-forcing-state-requirements`. **`site-load-demand` and
+`plane-of-array-irradiance` drop to `OPTIONAL`, and reporting-path authority
+for `fuel-level-reporting-availability` moves to the publication profile.**
+Accepted by the user on 2026-09-22, with both riders below. Closes open
+question 3.
+
+**Lowering is a correction, not a dodge.** `REQUIRED` means an executor must
+model this to run this scenario. To produce the Fuel Loss tank trajectory an
+executor does not need irradiance or site demand: the scenario declares the
+dispatch directly, so nothing computes it from load and PV. A kernel that
+modelled them would be computing dispatch, which is a power-flow model and
+already a T021 may-not. They were marked `REQUIRED` by an author being
+careful.
+
+**And lowering hides nothing, because the machinery already exists.**
+`_support_for` in `runs/service.py` says it in one line: required and
+unsupported blocks, optional and unsupported is *recorded*. An `OPTIONAL`
+state the profile does not model becomes an `UnsupportedOptionalInput` on the
+run rather than a blocking reason. The Draft stops being blocked and still
+says what the profile does not model.
+
+**The consequence that made this worth taking now: the shipped Fuel Loss
+Event becomes able to reach `READY`.** With both states lowered, reporting
+authority moved, and `generator-output-power` supported under
+`D-2026-09-22-consumption-coefficient-unit`, nothing is left to block it.
+That matters beyond the reason count. T021 owes *run the kernel against the
+shipped document and report the trajectory*, and `BLOCKED` means everything
+was frozen and the run **must not execute**; running a blocked Draft would
+contradict the status this sequence spent three decisions making honest.
+These three states were what stood between the sequence and its own first
+executable run.
+
+**Rider one: a requirement conflict is refused, not resolved.**
+`_executable_inputs` collapses executable inputs on `(state_key, role)` and,
+where two positions disagree about the requirement, takes `REQUIRED`. That
+rule was invented by T019 rather than settled by T018, and it matters here
+because `site-load-demand` is declared in three positions and
+`plane-of-array-irradiance` in two - under the collapse, lowering one changes
+nothing. **The rule is retired and the conflict is refused instead.** Two
+positions disagreeing about whether one state is required is two answers to
+one question, which is the shape this project already refuses as
+`INITIAL_VALUE_ANSWERS_DISAGREE`; resolving it silently by taking the stricter
+value is how an author's mistake becomes a behaviour. A `(state_key, role)`
+pair must agree on its requirement and a document where it does not is
+refused.
+
+This is a narrowing and therefore contract-version business: a document that
+was valid, because the collapse resolved it, is now refused. It shares its
+version move with the four semantics - see the ledger.
+
+**Rider two: `FROZEN_INPUT_ANSWERERS` gains `PUBLICATION_PROFILE`.** Run setup
+stamps `answered_by="MODEL_PROFILE"` on the cadence row and on both
+publication identity rows, beside detail text naming the publication profile.
+Today that is a mislabel; once the authority moves it is a false statement
+about which profile answered. The fifth answerer and the relabel of those
+three rows land in the slice that moves the authority. The subset assertion in
+`test_the_answerers_correspond_to_the_initialization_owners` permits a fifth
+member, so the cost is the wire value, the screen, and a vocabulary docstring
+that says "the four".
+
+Reason: three states the first kernel has no business modelling were holding
+the shipped scenario in a state that says it must not execute, and one of them
+was not a state of the world at all.
+
+Affected scope: `config/scenarios/fuel-loss-event.yaml` at five positions
+across the two lowered states; `runs/profiles.py` for the publication
+profile's supported-reporting-states concept; `runs/service.py`
+`_executable_inputs`; the scenario parser, which is where a requirement
+conflict is refused; `runs/models.py` `FROZEN_INPUT_ANSWERERS` and
+`runs/provenance.py`'s three rows; T020's fixture-only `READY` criterion,
+which this falsifies; and the version ledger.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-kernel-step-semantics`. The four semantics the
+execution contract left unpinned are declared. Accepted by the user on
+2026-09-22. Closes open question 1.
+
+- **A quantity over a window ramps linearly across the steps** rather than
+  landing at the completion boundary. It is what an author means by 120 L over
+  45 minutes, and it is the only reading under which retiming or resizing a
+  window changes the trajectory proportionally - the metamorphic invariant
+  `D-2026-09-21-causal-runtime-before-golden-traces` requires. It also sits
+  beside `quantity-across-a-window`, which already declares intra-step path
+  independence.
+- **The observation transform samples after the step's due events are
+  applied.** A sensor reads the world at the sample instant and the step has
+  happened by then. It is the same rule as dispatch: a boundary entry is
+  applied by the step that begins there, so a sample there sees it. For the
+  shipped run it makes the 2400 sample 500.0 L rather than 254.0 L.
+- **A forcing outside its declared window is unavailable**, not zero and not
+  held at its last value. A forcing's declared window is the whole of its
+  claim; zero is a fabricated value and holding is an invented persistence
+  rule, and *unavailable* is already this product's vocabulary for a value it
+  does not have.
+- **A bounded change lets the run continue, and later causes apply to the
+  bounded value.** Otherwise a bound is a disguised run failure, and the
+  policy already has a separate case for that - `insufficient-fuel` is
+  `FAIL_RUN`. `BOUNDED_AND_RECORDED` records the quantity refused, and
+  recording a refusal only means something if the run goes on.
+
+Each pins a space two conforming kernels could legitimately have split on,
+which is what `EXECUTION_CONTRACT_VERSION` exists to prevent. The one worth
+carrying: *after* for observation means a boundary sample can never see
+pre-event state, so a scenario that wants that must separate the offsets -
+the same answer simultaneity got, and the same principle, that order is
+expressed as time rather than as position in a document.
+
+Two of these were free to declare and will not stay free. A forcing outside
+its window is unreachable while the shipped profile does not support
+irradiance and becomes reachable the moment it does; the bounded-change rule
+decides everything after offset 2400 in the shipped document.
+
+Declaring them is a narrowing and spends a version number, shared with the
+requirement-conflict refusal under the unreleased-version doctrine. See the
+ledger.
+
+Reason: an unpinned semantic is a place where two implementations can both be
+correct and disagree, which is the one thing a versioned contract may not
+contain.
+
+Affected scope: `backend/assetops_backend/scenarios/execution.py`'s
+`DISPATCH_RULES` and `EXECUTION_CONTRACT_VERSION`, T021's kernel, T022's
+observation transform for the sampling rule, the shipped document's trajectory
+after offset 2400, and the version ledger.
+
+## 2026-09-22
+
+Decision: `D-2026-09-22-reconciliation-panel-retirement`. **The
+`observation_reconciliation` panel and its payload go with (f) in T022.**
+Accepted by the user on 2026-09-22. Closes open question 5, and with it open
+question 11.
+
+The panel is honest while the shipped document still contains two authored
+readings, because that is what it describes. (f) removes them, and a panel
+with nothing to reconcile is a claim that has become false, so
+`D-2026-09-22-expiry-follows-the-condition` puts its removal in the slice that
+falsifies it. T022 already carries a user-review checkpoint, and removing a
+visible panel is a product change belonging to a slice that says so.
+
+**The capacity-bound change does not move this, and it was checked rather than
+assumed.** After T020A `declared_bounds` reports no upper bound for
+`fuel-tank-volume`, which could have made the panel's arithmetic unbounded.
+It does not: the panel publishes one entry per reported observation, the
+shipped document's are at offsets 1590 and 1800, and the only offset where a
+capacity bound could clamp is the 2400 delivery. Both reconciled offsets
+precede it and the running value there is 254 L against a 500 L tank. After
+T020A the panel renders exactly what it renders today; the bound walk's
+upper-bound machinery simply becomes dead code for this document.
+
+**What goes with it, which is the reason this mattered.** The panel is the
+last product-path caller of `reconcile_reported_observations`, so T022
+completes (j): the reference implementation, `declared_bounds` and
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` all leave the product path together, as
+`D-2026-09-21-specification-reference-implementation` said they would when
+their last caller went. That also settles open question 11's *when*: the
+injected volume floor stops being a product claim in T022 and becomes a
+test-suite artifact. Its *where* was already settled by
+`D-2026-09-21-physical-property-ownership` - *volume is non-negative* is a
+model rule and belongs to the model profile, and *this tank cannot be drawn
+below its pickup* is a Foundation property and a follower. What remains is an
+instruction to T021 rather than a question: the kernel takes its floor from
+the model profile, never from the validation layer's constant.
+
+Reason: this is the latest honest moment rather than the earliest possible
+one, and the earliest possible one would have removed a panel that still
+described something true.
+
+Affected scope: `backend/assetops_backend/simulator_lab_api.py`'s
+`observation_reconciliation` payload, `frontend/src/shell/ScenarioFrame.tsx`'s
+panel, `scenarios/execution.py`'s `reconcile_reported_observations`,
+`declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS`, T022's scope and its
+user review, T021's kernel floor, and open questions 5 and 11.
