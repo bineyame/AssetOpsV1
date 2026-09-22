@@ -51,9 +51,6 @@ that cannot locate a Foundation value blocks, a Foundation that declares no
 such property refuses, so a slice adding the property without re-creating
 MG-001 produces a site whose runs are refused.
 
-**Still pending, Architect's:** the amendment to
-`D-2026-09-21-scenario-execution-contract` for the reversed ordering rule.
-
 **The T019 checkpoint proposals are accepted and recorded, 2026-09-21.**
 Twelve of them, (a) through (l), reasoned in
 `Docs/simulator-scenario-authoring-and-runtime.md` and recorded in five
