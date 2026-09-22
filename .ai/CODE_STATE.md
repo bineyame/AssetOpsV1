@@ -1717,8 +1717,11 @@ specification reference implementation
 condition, not a slice number**: it stops being an authority when a kernel
 exists and the two are compared, which is T021's comparison, and it leaves
 the repository when its last product-path caller goes - the
-`observation_reconciliation` payload and the panel that renders it, whose
-removal is Open Question 5 and undecided. No slice before that decision
+`observation_reconciliation` payload and the panel that renders it. That was
+Open Question 5 and undecided; it is now
+`D-2026-09-22-reconciliation-panel-retirement`, which puts the panel, the
+payload, the reference implementation, `declared_bounds` and
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` in **T022**, with (f). No slice before T022
 treats the removal as in scope.
 
 **The refusal line is the slice, and the T019 user review sharpened it into
@@ -1858,8 +1861,13 @@ failures and stay two.
 `frozen_inputs` turns the identity into one row per value with its answerer,
 and a test walks `dataclasses.fields(DeterministicIdentity)`: a field added
 with no answerer fails the build rather than reaching a screen in a column
-with nothing under it. The four answerers correspond one to one with T018's
-`INITIALIZATION_OWNERS`, asserted, so a fifth owner on either side fails.
+with nothing under it. `ANSWERER_BY_INITIALIZATION_OWNER` maps T018's
+`INITIALIZATION_OWNERS` one to one, asserted, so a fifth initialization owner
+with no answerer fails. **The second half of that assertion is a subset, not
+an equality**: `FROZEN_INPUT_ANSWERERS` may hold a member no initialization
+owner maps to, which is what lets T020 add `PUBLICATION_PROFILE` without
+touching the correspondence. The docstring and the test name saying "the four"
+are prose and are T020's to correct.
 
 The persistence guard now registers a third domain. A run is not
 configuration, but the seam is the same one, and the guard proved it by

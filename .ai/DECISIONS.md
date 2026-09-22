@@ -2490,8 +2490,13 @@ version move with the four semantics - see the ledger.
 stamps `answered_by="MODEL_PROFILE"` on the cadence row and on both
 publication identity rows, beside detail text naming the publication profile.
 Today that is a mislabel; once the authority moves it is a false statement
-about which profile answered. The fifth answerer and the relabel of those
-three rows land in the slice that moves the authority. The subset assertion in
+about which profile answered. **The fifth answerer and the relabel land in
+T020, not in the slice that moves the authority** - corrected 2026-09-22,
+after this entry was written and after T020B was named. The justification
+above is that a mislabel must not reach a permanent screen, and T020 is the
+slice that puts the frozen-inputs table on one. So T020 carries the relabel
+and introduces the vocabulary member; T020B moves the authority and relabels
+nothing, which is a scope limit in its task file. The subset assertion in
 `test_the_answerers_correspond_to_the_initialization_owners` permits a fifth
 member, so the cost is the wire value, the screen, and a vocabulary docstring
 that says "the four".
@@ -2500,13 +2505,14 @@ Reason: three states the first kernel has no business modelling were holding
 the shipped scenario in a state that says it must not execute, and one of them
 was not a state of the world at all.
 
-Affected scope: `config/scenarios/fuel-loss-event.yaml` at five positions
-across the two lowered states; `runs/profiles.py` for the publication
-profile's supported-reporting-states concept; `runs/service.py`
-`_executable_inputs`; the scenario parser, which is where a requirement
-conflict is refused; `runs/models.py` `FROZEN_INPUT_ANSWERERS` and
-`runs/provenance.py`'s three rows; T020's fixture-only `READY` criterion,
-which this falsifies; and the version ledger.
+Affected scope: **T020B**, which carries all of this except rider two's
+relabel - `config/scenarios/fuel-loss-event.yaml` at five positions across the
+two lowered states, `runs/profiles.py` for the publication profile's
+supported-reporting-states concept, `runs/service.py` `_executable_inputs`,
+and the scenario parser, which is where a requirement conflict is refused;
+**T020**, which carries `runs/models.py` `FROZEN_INPUT_ANSWERERS` and the
+`runs/provenance.py` rows that name the answerer; T020's fixture-only `READY`
+criterion, which this falsifies; and the version ledger.
 
 ## 2026-09-22
 
@@ -2557,10 +2563,11 @@ Reason: an unpinned semantic is a place where two implementations can both be
 correct and disagree, which is the one thing a versioned contract may not
 contain.
 
-Affected scope: `backend/assetops_backend/scenarios/execution.py`'s
-`DISPATCH_RULES` and `EXECUTION_CONTRACT_VERSION`, T021's kernel, T022's
-observation transform for the sampling rule, the shipped document's trajectory
-after offset 2400, and the version ledger.
+Affected scope: **T020B**, which declares them and spends the version number;
+`backend/assetops_backend/scenarios/execution.py`'s `DISPATCH_RULES` and
+`EXECUTION_CONTRACT_VERSION`; T021's kernel; T022's observation transform for
+the sampling rule; the shipped document's trajectory after offset 2400; and
+the version ledger.
 
 ## 2026-09-22
 

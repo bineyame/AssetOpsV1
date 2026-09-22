@@ -38,6 +38,13 @@ on screen, and T021 retires that disclosure in the slice landing the
 conformance test. The re-review's N3-N6 residual risk in
 `.agent/T019-review-packet.md` should be read before T020 reads the run store.
 
+**T020 also carries the frozen-row relabel.** The cadence and both
+publication-identity rows say `MODEL_PROFILE` answered; the publication
+profile did. T020 corrects them and introduces `PUBLICATION_PROFILE` into
+`FROZEN_INPUT_ANSWERERS`, whose docstring and test name say "the four".
+`D-2026-09-22-forcing-state-requirements` rider two placed this in T020B and
+is corrected; T020B moves the authority and relabels nothing.
+
 **The refusal line moved at that review** - who failed to answer decides it,
 recorded in the 2026-09-22 extension to
 `D-2026-09-21-run-setup-outcome-vocabulary`, with the naming rule that keeps
@@ -71,12 +78,10 @@ Twelve of them, (a) through (l), reasoned in
 `.ai/DECISIONS.md` entries. What changes planning: run setup stops
 adjudicating cause-to-observation coupling; a scenario does not author what a
 device reads, so the Fuel Loss residual is answered by (f) and the document is
-corrected during T021 from what the kernel computes; and two slices are
-inserted - **T020A** between T020 and T021 for Foundation physical properties
-and model-rule carriers, and **T021A** between T021 and T022 to close
-`execution_requirement` while the version-bump window is still free. Read
-`.ai/PLANNING_HANDOFF_T019_T022.md` before writing or revising any task file
-in that range.
+corrected during T021 from what the kernel computes; and **T021A** is inserted
+between T021 and T022 to close `execution_requirement` while the version-bump
+window is still free. Read `.ai/PLANNING_HANDOFF_T019_T022.md` before writing
+or revising any task file in that range.
 
 Two of T018's four Low findings are closed by T019 and marked settled in
 place in `.ai/CODE_STATE.md`; two remain, the unmeasured second
@@ -103,7 +108,7 @@ fixtures when needed and do not clear, replace, or delete that directory.
 `var/scenarios/` is the writable scenario store; it is gitignored, empty, and
 nothing in the product can write to it yet. `var/runs/` is the run store T019
 added: gitignored, written by run setup, and holding whatever Drafts this
-machine has created. Nothing presents them yet - that is T020.
+machine has created, including the ones the layout tool creates.
 
 ## Read For T020
 
@@ -113,6 +118,8 @@ machine has created. Nothing presents them yet - that is T020.
   - `D-2026-09-21-run-setup-outcome-vocabulary` - the refusal line, the
     `READY` disclosure, and what T020 must show
   - `D-2026-09-21-scenario-execution-contract`
+  - `D-2026-09-22-forcing-state-requirements` - rider two only, the frozen-row
+    relabel T020 carries; the rest of that decision is T020B's
 - `.ai/CODE_STATE.md` - T018, T019
 - `.ai/FEATURE_MAP.md`
   - `### 4. SimulationRun Runtime And Simulator Lab Shell`
@@ -120,9 +127,6 @@ machine has created. Nothing presents them yet - that is T020.
 - `.ai/ARCHITECTURE.md` - Causal Runtime Authority, Refusal And Blocking
   Vocabularies, Presentation Honesty
 - `.ai/WORKFLOW.md` - Review Packet, Closeout, User Review
-
-Running the layout tool creates Drafts in `var/runs/`. That is expected and
-gitignored.
 
 ## Settled Direction For M1B
 
