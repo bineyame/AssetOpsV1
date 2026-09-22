@@ -1,6 +1,6 @@
 # T020 - Runs Inventory And Draft Shell
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Intended branch: `task/T020-runs-inventory-and-draft-shell`
@@ -200,3 +200,36 @@ does not measure a cumulative impression. The packet states the assessment with
 the screenshots that support it. If the reviewer or the user judges the whole
 misleading, the remedy returns to planning rather than being chosen inside this
 slice.
+
+## Review Outcome
+
+Independent review, one blocking finding and six carried to
+`.ai/MILESTONE_REVIEW_BACKLOG.md` under
+`D-2026-09-22-milestone-speed-over-purity`.
+
+The finding took three rounds, and the shape is the transferable part. Each
+guard was written over the property of the violation known at the time - first
+a word, then an element type, then a URL - and each next probe varied the
+property nobody had closed. An anchor saying "Execute this run now" passed a
+ban written over what a control says. A button saying "Proceed" then passed a
+closed set of links. What ended it was not a better predicate but coverage:
+the blocked branch became a screen every existing claim visits, and the
+blocked test counts controls rather than naming one.
+
+Both the Implementer and the Reviewer verified an intermediate fix with the
+probe matching their own model of the defect, and both were wrong in the same
+way. The coordinator ran the button probe against the tree and found 112 tests
+green where the report said the hole was closed. A guard over element type is
+only tested by a probe that varies element type.
+
+Checks at acceptance: backend 831 passed, frontend 770 across 24 files,
+typecheck clean, production build clean, both `.ps1` checks, and layout
+evidence `ALL CLAIMS HOLD`, 204 PASS / 0 FAIL from a fresh build with ports
+verified free. The final probe fails two claims by name and the tree is
+byte-identical after revert.
+
+Not a user checkpoint: `USER_REVIEW_REQUIRED: false`. The presentation-honesty
+assessment the task names as a packet item was made against four screenshots
+and independently agreed by the Reviewer, which reads the whole as not
+almost-working, with the inventory's bare `READY` cell as its thinnest point
+and carried as B2.
