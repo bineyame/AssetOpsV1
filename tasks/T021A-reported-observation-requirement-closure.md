@@ -7,7 +7,8 @@ Intended branch: `task/T021A-reported-observation-requirement-closure`
 
 ## Feature
 
-Scenario Catalog And Run Setup.
+Scenario Catalog And Run Setup. It sits in the M1C range because of when it
+has to happen, not because of what it is about.
 
 ## UI-Verifiable Screen Behavior
 
@@ -26,12 +27,14 @@ in the private expectations under `DETECTION` and `TIMING`. Closing it at the
 parser is free while no golden trace exists, and T022 is the slice that first
 produces one.
 
-**Placement is a Planner proposal.** `D-2026-09-21-scenario-execution-contract-amendment-1`
-accepts (g) and leaves it to land here or inside T022. It sits here because it
-keeps T022's user-review checkpoint on runtime control semantics rather than
-mixing an authoring-contract change into it, and because the free window closes
-in T022 rather than after it. If the user prefers, these criteria fold into
-T022 unchanged and this file is deleted.
+**Why this is its own slice, decided by the user on 2026-09-22.** Folding (g)
+into T022 would make that slice's internal ordering load-bearing, because the
+parser change would have to land before trace generation inside one slice, and
+would close the window entirely if T022 were ever split. It also keeps T022's
+user-review checkpoint on runtime control semantics rather than mixing an
+authoring-contract change into it. It sits after T021 rather than before
+because the kernel never reads `execution_requirement` on a reported
+observation, so nothing about the kernel depends on it either way.
 
 ## Dependencies
 
@@ -101,5 +104,5 @@ T022 unchanged and this file is deleted.
 ## User Review
 
 No new user checkpoint. The semantics were accepted in amendment 1 on
-2026-09-21; this slice implements them. The placement of the slice itself is
-the open question and is answered by the user before it starts.
+2026-09-21 and the slice's placement was accepted on 2026-09-22; this slice
+implements both.

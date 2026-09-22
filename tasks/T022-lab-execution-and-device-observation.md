@@ -37,8 +37,9 @@ document consistent with acceptance criteria this slice already carries.
 - T020 run detail shell over persisted Drafts.
 - T021's accepted minimal Fuel Loss kernel, and the trajectory it reported,
   because the document's corrected numbers come out of that loop.
-- T021A's parser closure, if the user keeps it as a separate slice. If it is
-  folded in, its criteria land here and the contract version moves with them.
+- T021A, so the document edited here is already under execution contract
+  version 3 and `execution_requirement` is already gone from its reported
+  observations.
 - The reporting-path authority decision, if it moved the reporting-path forcing
   to the publication profile, because it changes which profile the transform
   asks.
@@ -47,15 +48,17 @@ document consistent with acceptance criteria this slice already carries.
 
 - **When the `observation_reconciliation` panel leaves the scenario detail
   screen.** This is Open Question 5 and it is not decided. The panel and its
-  API payload are merged T018 work and the second product-path caller of
-  `reconcile_reported_observations`; the function cannot leave the product path
-  while it exists. The Architect's read is that it goes with (f), because that
-  is when the authored readings disappear and the panel has nothing left to
-  reconcile, and that until then it is honest. Removing a visible panel from
-  merged work is a product change and belongs to a slice that says it is making
-  it. This slice does not settle it by scope line: the user decides before
-  implementation starts, and if the answer is yes, the removal and its
-  test-suite consequence are added here as acceptance criteria.
+  API payload are merged T018 work and the last remaining product-path caller
+  of `reconcile_reported_observations`; that function cannot leave the
+  repository while the panel exists. The Architect's read is that it goes with
+  (f), because that is when the authored readings disappear and the panel has
+  nothing left to reconcile — a recommendation, not a decision. Until then the
+  panel is honest, and a thing still honest goes when someone decides to remove
+  it rather than because it has become false. This slice does not settle it by
+  scope line. If the user says yes before implementation starts, the removal
+  and its test-suite consequence are added here as acceptance criteria. If the
+  user says no or says nothing, this slice leaves the panel alone and the
+  reference implementation stays.
 - Whether the operator's hand reading carries a declared reading error, from
   T021's document correction.
 
