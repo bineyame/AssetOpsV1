@@ -42,31 +42,25 @@ document has been carrying: what its declared causes actually do to the tank.
 - T020 exposes the run-detail shell and truthful pre-execution state.
 - T020A supplies the Foundation consumption coefficient and the model-rule
   carrier. Without them the first kernel's physics arrive from the scenario.
+- T020B declares the four kernel semantics this kernel obeys, refuses a
+  requirement conflict rather than resolving it, and makes the shipped Fuel
+  Loss Draft reach `READY`. All three are hard: a kernel that chose its own
+  window, sampling, out-of-window or post-bound rule would be deciding contract
+  semantics inside an implementation, and a `BLOCKED` Draft must not execute,
+  so without T020B this slice cannot run against the shipped document at all.
 
-## Decisions Due Before Implementation
+## Decisions Already Taken
 
-These are execution-contract decisions and they return to review. They are not
-choices the Implementer may make inside the kernel, because each would let two
-conforming kernels disagree, which is what `EXECUTION_CONTRACT_VERSION` exists
-to prevent. If any is still open when work starts, the slice stops and asks.
-
-- The `REQUIRED` forcing states the first kernel does not model:
-  `site-load-demand`, `plane-of-array-irradiance`, and
-  `fuel-level-reporting-availability`. Each is lowered in the scenario, modelled
-  by the profile, or reassigned.
-- Whether authority over the reporting path moves from the model profile to the
-  publication profile. If it stays, this kernel must model reporting
-  availability, which is not physics.
-- The four unpinned kernel semantics: window apportionment, whether a sample
-  within a step sees pre-event or post-event state, what a forcing is outside
-  its declared window, and whether a run continues after a bounded change and
-  whether later causes apply to the bounded value.
-
-The `dispatched-output` promotion is the remaining half of that forcing-state
-decision and it is due earlier still, before T020A is implemented, because it
-fixes the coefficient's canonical unit. It is therefore already answered by the
-time this slice runs, and its answer decides whether the consumption law here
-is runtime-based or energy-based.
+The execution-contract questions this task file used to hold open were closed
+by the user on 2026-09-22 and are not the Implementer's to reopen. The four
+kernel semantics are declared in the contract by T020B
+(`D-2026-09-22-kernel-step-semantics`); the three `REQUIRED` forcing states are
+settled by `D-2026-09-22-forcing-state-requirements`; and the coefficient's
+unit and the `dispatched-output` promotion are settled by
+`D-2026-09-22-consumption-coefficient-unit`, which makes the consumption law
+here energy-based - specific consumption times energy delivered - and gives the
+kernel one forced state during the declared window rather than a power-flow
+model.
 
 One decision is taken *during* the slice rather than before it: what the
 shipped Fuel Loss document should author, answered from the trajectory this
@@ -113,6 +107,14 @@ slice produces. See the document-correction criterion.
   slice's document correction something to check the 2400 delivery against.
   Meeting `(0.0, None)` and either inventing 500 or concluding the bound was
   dropped are both wrong.
+- The kernel takes its non-negativity floor from the selected model profile and
+  never from `IMPLICIT_LOWER_BOUND_DIMENSIONS`. *Volume is non-negative* is a
+  model rule; the validation layer only ever injected it, and that layer leaves
+  the product path in T022 (`D-2026-09-22-reconciliation-panel-retirement`). A
+  kernel sourcing its floor from the constant would take a dependency on a
+  component already scheduled to become a test-suite artifact. This tank's
+  minimum usable level is a separate Foundation property and a follower, not
+  this slice's.
 - Identical frozen inputs and seed produce identical ordered states and runtime
   events. No wall-clock time, filesystem ordering, or mutable latest-version
   lookup affects execution.
@@ -127,12 +129,23 @@ slice produces. See the document-correction criterion.
   position; and the slice states that it is a regression guard rather than a
   correctness proof, because an author and a kernel performing the same
   arithmetic and agreeing proves that two implementations agree.
+- Every oracle kind in `EXPECTATION_KINDS` is paired with a test proving it
+  *can* fail: a deliberate mutation of what the oracle asserts against, which
+  the oracle then reports. This is all the kinds and not only `TRAJECTORY`,
+  because an oracle nobody has ever seen fail is indistinguishable from one
+  that cannot, and a tolerance wide enough to admit every answer is
+  circularity wearing an assertion's clothes. It lands here because this is
+  the first slice with a kernel that can make an oracle fail; before it there
+  is nothing to mutate against. Accepted by the user on 2026-09-22 as the
+  T021 half of the `MAGNITUDE` tolerance question; the other half, deriving
+  that tolerance from declared error sources, waits for T034-T038 and is not
+  this slice's.
 - `EXECUTION_CONTRACT_VERSION` does not move in this slice. Adding
   `TRAJECTORY` widens the document space off every executable path, and a
   widening invalidates no frozen run, so it spends no number. Pinning the four
-  unpinned semantics does move it, and that is the declaration's to spend
-  wherever it lands, not this slice's. The count is in `.ai/FEATURE_MAP.md`
-  under *The execution-contract version ledger*.
+  semantics does move it, and T020B spends that number before this slice
+  starts. The count is in `.ai/FEATURE_MAP.md` under *The execution-contract
+  version ledger*.
 - A conformance test asserts that the shipped model profile's
   `supported_states` equals the set of states the kernel actually implements,
   derived from the kernel rather than restated by hand. A test that repeats the
@@ -215,6 +228,12 @@ slice produces. See the document-correction criterion.
 - `TRAJECTORY` tests prove the oracle fails when the kernel disagrees with the
   asserted value, and that it reaches no executable path and no published
   output.
+- A mutation test per oracle kind, each showing the oracle reporting a failure
+  it was previously never observed to be capable of. The packet lists the
+  kinds and the mutation used for each.
+- A test proving the kernel's non-negativity floor comes from the selected
+  model profile, which fails if the floor is sourced from the validation
+  layer's constant.
 - Conformance test proving the shipped profile's supported set is derived from
   the kernel, including a proof that it fails when the profile claims a state
   the kernel does not implement.
@@ -251,7 +270,7 @@ slice produces. See the document-correction criterion.
 ## User Review
 
 No new user checkpoint for the kernel itself; it implements semantics already
-accepted in T018 and amendment 1. Two things inside the slice do return to the
-user rather than being settled in implementation: the contract decisions listed
-above, and the correction to the shipped Fuel Loss document, which is presented
+accepted in T018, in amendment 1, and in the four 2026-09-22 decisions. One
+thing inside the slice returns to the user rather than being settled in
+implementation: the correction to the shipped Fuel Loss document, presented
 with the computed trajectory and decided by the user during the slice.

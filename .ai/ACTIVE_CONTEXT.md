@@ -51,12 +51,13 @@ has no value position at all, which reaches `tank-capacity` as well as the
 coefficient, moves `EXECUTION_CONTRACT_VERSION`, retires
 `INITIAL_VALUE_ANSWERS_DISAGREE` and takes the `fuel-tank-volume` upper bound
 out of the document while keeping the `bounds` declaration. The coefficient is
-`L/kWh` and `dispatched-output` is promoted in the same slice. Then a
-**contract-alignment step** between T020A and T021 declares the four kernel
-semantics, refuses a requirement conflict instead of resolving it, lowers two
-forcing states to `OPTIONAL` and moves reporting authority to the publication
-profile - after which **the shipped Fuel Loss Event can reach `READY`**, and
-that step retires T020's fixture-only `READY` criterion. Decisions
+`L/kWh` and `dispatched-output` is promoted in the same slice. Then
+**T020B**, the contract-alignment step between T020A and T021, declares the
+four kernel semantics, refuses a requirement conflict instead of resolving
+it, lowers two forcing states to `OPTIONAL` and moves reporting authority to
+the publication profile - after which **the shipped Fuel Loss Event can reach
+`READY`**, and that slice retires T020's fixture-only `READY` criterion. Its
+task file is `tasks/T020B-execution-contract-alignment.md`. Decisions
 `D-2026-09-22-foundation-value-declaration`,
 `-capacity-bound-source`, `-consumption-coefficient-unit`,
 `-forcing-state-requirements`, `-kernel-step-semantics`,

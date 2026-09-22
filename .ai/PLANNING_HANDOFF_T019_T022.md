@@ -281,9 +281,10 @@ a separately declared operating assumption that may differ from it. That is a
 T034–T038 question and the worked example shows why it earns its keep. T020A
 supplies the Foundation coefficient; it does not decide who else reads it.
 
-## The contract-alignment step — between T020A and T021
+## T020B — the contract-alignment step, between T020A and T021
 
-**New 2026-09-22, and the Planner names it.** The version ledger already gave
+**New 2026-09-22. The Planner named it T020B** and the task file is at
+`tasks/T020B-execution-contract-alignment.md`. The version ledger already gave
 this a step of its own. Four accepted decisions put work in it, and it exists
 because none of that work belongs in either neighbour: it is contract and
 profile, not Foundation carriers, and not kernel.
@@ -383,10 +384,13 @@ remaining product-path caller, which is the `observation_reconciliation`
 panel, and when that goes is undecided. Comparing is this slice's; removing is
 not.
 
-**Depends on.** T020A's Foundation coefficient and model-rule carrier. The
-second half of the `REQUIRED` forcing-state decision and the four unpinned
-semantics, both before the task file is written. T020's run-detail shell for
-the small visible readiness result.
+**Depends on.** T020A's Foundation coefficient and model-rule carrier. T020B,
+for the declared semantics and for a shipped Draft that reaches `READY` — a
+`BLOCKED` Draft must not execute, so without it this slice has no run to
+execute against the shipped document. T020's run-detail shell for the small
+visible readiness result. The second half of the `REQUIRED` forcing-state
+decision and the four unpinned semantics were both due before this task file
+was written, and both were taken on 2026-09-22.
 
 **The kernel takes its non-negativity floor from the model profile, never
 from `IMPLICIT_LOWER_BOUND_DIMENSIONS`.** *Volume is non-negative* is a model
