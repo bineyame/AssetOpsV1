@@ -251,6 +251,20 @@ The test for an action control is whether the feature map can name the causal
 step that makes it true. If it can, disable it and name that prerequisite. If
 the answer is a decision to defer, do not render it.
 
+A status may be weaker than its name. Where it is, the record and the screen
+say what the status does not assert, and the disclosure is a property of the
+status rather than a note on a screen, so it travels wherever the status
+travels.
+
+Anything that exists only because a condition holds names the condition as its
+expiry, never a slice number, because a slice number is a guess about when the
+condition closes and a guess written down is read later as a commitment. What
+happens when the condition closes depends on whether the thing has become
+false. A claim that has become false goes in the same slice that falsifies it;
+leaving it is not caution, it is shipping a false statement. A thing that is
+still honest but no longer needed goes when someone decides to remove it,
+which is the case the three treatments already cover.
+
 ## Configuration Persistence
 
 Persisted configuration is reached through a port defined by the product domain.
