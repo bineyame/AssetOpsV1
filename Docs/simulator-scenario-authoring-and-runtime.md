@@ -2,9 +2,12 @@
 
 Status: **reviewed and accepted, 2026-09-21.** The user accepted all eight
 proposals, (e) through (l). Read the `[PROPOSED]` tags below as accepted and
-not yet built; the `[OPEN]` tags are still open. This document is now the
-reference the 2026-09-21 decisions cite, and where it disagrees with
-`.ai/DECISIONS.md`, the decision record wins.
+not yet built. **An `[OPEN]` tag in the body is no longer a reliable signal:
+the questions were swept on 2026-09-22 and nine of the thirteen closed, while
+the body tags were left as written.** [Open Questions](#open-questions) carries
+the current state and is the only place to read it. This document is the
+reference the 2026-09-21 and 2026-09-22 decisions cite, and where it disagrees
+with `.ai/DECISIONS.md`, the decision record wins.
 
 What the acceptance produced, all on
 `arch/simulator-authoring-and-runtime-sequence`:
@@ -27,7 +30,8 @@ free only while no golden trace exists and T022 is what first produces one.
 T020A carries its own user-review checkpoint. And
 `D-2026-09-22-expiry-follows-the-condition` corrects two expiries this
 document stated as slice numbers — the reference implementation's removal
-follows its last remaining caller and is gated on Open Question 5, and
+follows its last remaining caller, which Open Question 5 then gated and
+`D-2026-09-22-reconciliation-panel-retirement` has since placed in T022, and
 T021 retires the `READY` disclosure because its conformance test is what makes
 the disclosure false. The T019 user review then **moved the refusal line** —
 the scenario's declared owner has no answer, refuse; the selected profile
@@ -49,12 +53,20 @@ such property blocks rather than refuses, which is
 `D-2026-09-22-foundation-property-absent-blocks`. The section below is kept as
 the reasoning; the decisions are what a slice is held to.
 
-**The three decisions still outstanding are recommended at the end of this
-document**, in
+**Revised a third time 2026-09-22: the three outstanding decisions were all
+taken.** They were recommended at the end of this document, in
 [Three Decisions Outstanding](#three-decisions-outstanding-architect-recommendations):
 the coefficient's unit, the three `REQUIRED` forcing states together with the
-four unpinned kernel semantics, and when the reconciliation panel goes. Those
-are recommendations for review and nothing there is recorded as a decision.
+four unpinned kernel semantics, and when the reconciliation panel goes. The
+user accepted all three recommendations on 2026-09-22 as
+`D-2026-09-22-consumption-coefficient-unit`,
+`D-2026-09-22-forcing-state-requirements`,
+`D-2026-09-22-kernel-step-semantics` and
+`D-2026-09-22-reconciliation-panel-retirement`. That section is kept as the
+argument; the decisions are what a slice is held to. The work they created
+became a new slice, **T020B**, between T020A and T021 -
+`tasks/T020B-execution-contract-alignment.md` - which this document predates
+and does not describe.
 
 No code has been changed to match this document. Task files are the Planner's
 and now exist for T019 through T023; the code changes belong to the slices
@@ -74,8 +86,9 @@ tag, the tag of its section heading applies.
 | --- | --- |
 | `[SHIPPED]` | Built, reviewed, and on `main` or on the reviewed T019 branch. You can run it today. |
 | `[ACCEPTED]` | Decided by you at a checkpoint and recorded in `.ai/DECISIONS.md`, but not yet fully built. |
-| `[PROPOSED]` | My recommendation at the time of writing. **All of (e) through (l) were accepted on 2026-09-21 and are now recorded in `.ai/DECISIONS.md`**; the tag is left in place because the surrounding argument reads as it was written. Some of these amend accepted ground, and each such case says so explicitly. A `[PROPOSED]` item outside (e)–(l) — a `[PROPOSED]` row in a table, a *my read* on an open question — was not part of that acceptance and is still a recommendation. |
-| `[OPEN]` | A real question with no answer yet, listed in the Open Questions section. |
+| `[PROPOSED]` | My recommendation at the time of writing. **All of (e) through (l) were accepted on 2026-09-21 and are now recorded in `.ai/DECISIONS.md`**; the tag is left in place because the surrounding argument reads as it was written. Some of these amend accepted ground, and each such case says so explicitly. A `[PROPOSED]` item outside (e)–(l) — a `[PROPOSED]` row in a table, a *my read* on an open question — was not part of that acceptance. Several were accepted separately on 2026-09-22 and are re-tagged in place; the rest are still recommendations. |
+| `[OPEN]` | A real question with no answer yet, listed in the Open Questions section. **Unreliable in the body since the 2026-09-22 sweep — read [Open Questions](#open-questions) instead.** |
+| `[CLOSED <date>]` | Was `[OPEN]`; re-tagged in place where leaving it open would mislead a planned slice. The reasoning is kept, the verdict is named. |
 
 Where a `[PROPOSED]` item would change something you already accepted, it is
 marked **`[PROPOSED — AMENDS ACCEPTED GROUND]`** and the cost is stated inline.
@@ -1221,7 +1234,7 @@ of those.
 | `level-after-the-gap: 155 L` | `REPORTED_OBSERVATION`, `REQUIRED`, reconciled against causes | Value removed. The entry survives as an `EVIDENCE_CONDITION` asserting *a reading arrives here and is materially below what dispatch accounts for*, backed by a `DETECTION` expectation. The run generates the number. |
 | `hand-recorded-level: 150 L` | `REPORTED_OBSERVATION`, `REQUIRED` | The *act* survives — a person went and looked, at offset 1800, through `operator-hand-record`. The *value* is generated from truth at 1800, optionally perturbed by a declared reading-error forcing. `[OPEN]` whether to model that error. |
 | `execution_requirement` on those entries | `REQUIRED` | Field forbidden on the role. `[PROPOSED (g)]` |
-| `dispatched-output: 45 kW` | `NON_EXECUTABLE_CONDITION` | `[PROPOSED]` promote to `FORCING_INPUT` on `generator-output-power`, so the generator controller has something to publish and the product can derive run hours. See [Open Question 4](#4-where-the-products-expectation-comes-from). |
+| `dispatched-output: 45 kW` | `NON_EXECUTABLE_CONDITION` | `[ACCEPTED 2026-09-22, T020A]` promote to `FORCING_INPUT` on `generator-output-power`, so the generator controller has something to publish and the product can derive run hours. `D-2026-09-22-consumption-coefficient-unit`; the same decision makes the Foundation coefficient `L/kWh`. See [Open Question 4](#4-where-the-products-expectation-comes-from). |
 | Everything else | — | Unchanged. |
 
 ---
@@ -1268,9 +1281,12 @@ persisted) versus **blocks** (persisted Draft, inspectable reasons). See
 `[o, o+Δt)` and by no other. This holds at the run start boundary, at every
 internal step boundary, and at the excluded final boundary.
 
-`[OPEN]` Two within-step ordering questions the contract does not yet answer,
-both of which would let two conforming kernels disagree and therefore both of
-which are `EXECUTION_CONTRACT_VERSION` business:
+`[CLOSED 2026-09-22]` Two within-step ordering questions the contract did not
+answer, both of which would let two conforming kernels disagree and therefore
+both of which are `EXECUTION_CONTRACT_VERSION` business.
+`D-2026-09-22-kernel-step-semantics` declares both, in T020B: **it ramps
+linearly**, and **it observes after**. The questions are kept as written
+because the reasoning is what the kernel slice needs:
 
 1. **Apportionment.** A quantity declared over a window — 120 L over 45
    minutes — does it ramp linearly across the steps in the window, or land at
@@ -1348,8 +1364,9 @@ Scenarios list in `ScreenMockups.png` already has a `Sensor Bias` scenario
 typed `Data Quality — Meter over-reads by 5%`, so this is consistent with the
 product you drew.
 
-`[OPEN]` Which profile owns a reporting-path state — see
-[Open Question 3](#3-model-profile-versus-publication-profile-authority).
+`[CLOSED 2026-09-22]` Which profile owns a reporting-path state — the
+publication profile, by `D-2026-09-22-forcing-state-requirements`, in T020B.
+See [Open Question 3](#3-model-profile-versus-publication-profile-authority).
 
 ### The operator record
 
@@ -1918,10 +1935,12 @@ and in the run's provenance.
 | --- | --- | --- | --- | --- |
 | **T017** Scenario catalog & detail | `[SHIPPED]` | Strict scenario source, composed shipped + writable stores, versioning fields, event taxonomy, public/private boundary as a parsed separation | On-screen provisional markings not yet removed | T018 |
 | **T018** Executable scenario contract | `[SHIPPED]` | The four execution roles, initialization ownership, canonical units, point/window/interval shapes, half-open dispatch, bound policy, `EXECUTION_CONTRACT_VERSION`. Also `reconcile_reported_observations` and the scenario-detail reconciliation panel — the two things (e) and (f) retract | The Fuel Loss residual stated, not resolved | T019, T021, T022 |
-| **T019** Draft run setup | `[REVIEWED, UNMERGED]` | Freeze-or-refuse, decide-never-default, persist. `READY`/`BLOCKED` Drafts with inspectable reasons. Frozen deterministic identity. Model and publication profile resolution | Which of the three ways out to take on the residual | T020, T021 |
+| **T019** Draft run setup | `[SHIPPED]` — accepted and merged 2026-09-22 | Freeze-or-refuse, decide-never-default, persist. `READY`/`BLOCKED` Drafts with inspectable reasons. Frozen deterministic identity. Model and publication profile resolution | Which of the three ways out to take on the residual | T020, T021 |
 | **T020** Runs inventory & Draft shell | `[PLANNED]` | Runs list, run-detail shell over persisted Drafts, disabled actions with named prerequisites, frozen-identity presentation | No runtime state | T021, T022 |
-| **T020A** Foundation properties & carriers | `[PROPOSED — new]` | Named physical properties on components; `FoundationBinding` addressing them; a `SupportedState` carrier for model-rule values (L9). `generator-fuel-rate` moves from the scenario to the generator | Efficiency curves, geometry, battery and PV detail — none of which T021 needs | T021 |
-| **T021** Minimal Fuel Loss kernel | `[PLANNED]` | `initialize` + `step`. Fuel volume, generator state, cumulative consumption. Exactly-once dispatch. Bound behaviour. Determinism. Metamorphic proofs | Apportionment and observe-order rules `[OPEN]` | T022 |
+| **T020A** Foundation properties & carriers | `[ACCEPTED, planned]` | Named physical properties on components; `FoundationBinding` addressing them; a `SupportedState` carrier for model-rule values (L9). `generator-fuel-rate` moves from the scenario to the generator | Efficiency curves, geometry, battery and PV detail — none of which T021 needs | T021 |
+| **T020B** Execution contract alignment | `[ACCEPTED, planned]` — added 2026-09-22, after this table was written | The four kernel semantics declared; a requirement conflict refused rather than resolved; two forcing states lowered to `OPTIONAL`; reporting-path authority to the publication profile. The shipped Fuel Loss Event reaches `READY` | No kernel — declaring a semantic and obeying one are different slices | T021 |
+| **T021** Minimal Fuel Loss kernel | `[PLANNED]` | `initialize` + `step`. Fuel volume, generator state, cumulative consumption. Exactly-once dispatch. Bound behaviour. Determinism. Metamorphic proofs | Nothing on apportionment or observe-order: `D-2026-09-22-kernel-step-semantics` declares both in T020B and T021 obeys them | T022 |
+| **T021A** Reported observations carry no execution requirement | `[ACCEPTED, planned]` — (g) in its own slice, decided 2026-09-22 | The parser gives `execution_requirement` no position on a `REPORTED_OBSERVATION`; the shipped entries lose the field; the contract version moves by one | The authored reading *values*, which are (f)'s and T022's | T022 |
 | **T022** Lab execution & device observation | `[PLANNED]` | Clock and controls, runtime bindings, **the observation transform** — the seam (f) depends on. Generated golden traces through the normal path | Gateway staging | T023 |
 | **T023** Staged source envelopes | `[PLANNED]` | Strict Source Envelope + typed records, `STAGED` publication, the operator record's typed non-device path | Release, Commit, ingestion | T024–T026 |
 | **T024–T026** Commit & ingestion | `[PLANNED]` | Release manifest, overlap blocking, ingestion accept/reject, `received_at`, Ingestion Logs | — | T027–T029 |
@@ -1934,7 +1953,7 @@ and in the run's provenance.
 | --- | --- | --- | --- | --- |
 | **(e)** | Run setup does not adjudicate coupling | **T019, before merge** | Small | Delete `_observation_reasons` and its call in `backend/assetops_backend/runs/service.py`, the `OBSERVATION_NOT_ACCOUNTED_FOR` vocabulary member in `runs/models.py`, and three test assertions. Do **not** touch `execution.py` or the scenario-detail surface in this change. Reviewer re-reads the narrowed diff. |
 | **(f)** | Observations are generated | **T022** | Already in scope | T022's criteria already say the transform "emits ordered run-local observations distinct from private truth" and that authored reported-observation inputs "affect only their defined observation/event presentation." (f) is the document edit that makes the shipped scenario consistent with criteria you have already accepted. |
-| **(g)** | `execution_requirement` forbidden on a reading | **T022, or a small slice before it** | Small | Parser rule + two entries in `config/scenarios/fuel-loss-event.yaml` + `EXECUTION_CONTRACT_VERSION` 2 → 3. Free now; not free once a golden trace exists. |
+| **(g)** | `execution_requirement` forbidden on a reading | **T022, or a small slice before it** | Small | Parser rule + two entries in `config/scenarios/fuel-loss-event.yaml` + `EXECUTION_CONTRACT_VERSION` moves by one — write the move, never the literal, and the count per slice is in `.ai/FEATURE_MAP.md` under *The execution-contract version ledger*. Free now; not free once a golden trace exists. **Now its own slice, T021A**, decided 2026-09-22. |
 | **(h)** | Projection-vs-composition rule | Architect artifact | — | A line in `.ai/ARCHITECTURE.md` under Causal Runtime Authority. No code task. |
 | **(i)** | `TRAJECTORY` oracle kind | **T021** | Small | One vocabulary member in `EXPECTATION_KINDS`, three parsed fields, and the kernel test that checks them. Must land with T021 because T021 is what can check it. Without it, (f) deletes the author's expectation instead of relocating it. |
 | **(j)** | Reconciliation as a test-only conformance oracle | **T019, with (e)** | Small | The arithmetic moves out of the product path rather than out of the repository. Note that `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` have exactly one non-test caller today — `reconcile_reported_observations` — so they move with it. |
@@ -2578,10 +2597,17 @@ where. Task files remain the Planner's and none has been changed.
 
 ## Three Decisions Outstanding: Architect Recommendations
 
-**Written 2026-09-22, for review. Nothing here is recorded as a decision and
-no task file has been touched.** Each one gives the recommendation, the
-reasoning, what it costs and in which slice, what it forecloses, and the
-honest alternative if you disagree.
+**Written 2026-09-22 for review; all three were accepted the same day and are
+now recorded.** Read this section as the argument, not as an open question.
+The decisions are `D-2026-09-22-consumption-coefficient-unit`,
+`D-2026-09-22-forcing-state-requirements` (which carries 2a and 2b's forcing
+states, with two riders this section does not state),
+`D-2026-09-22-kernel-step-semantics` and
+`D-2026-09-22-reconciliation-panel-retirement`. Everything in 1, 2a, 2b and 3
+below except those riders was taken as recommended, and the work became
+`tasks/T020B-execution-contract-alignment.md`. Each one gives the
+recommendation, the reasoning, what it costs and in which slice, what it
+forecloses, and the honest alternative if you disagree.
 
 ### 1. The coefficient's unit: `L/kWh`, and promote `dispatched-output`
 
