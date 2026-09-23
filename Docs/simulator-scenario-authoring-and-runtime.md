@@ -22,7 +22,7 @@ What the acceptance produced, all on
   Runtime Authority, and a new Physical Property Ownership section.
 - `.ai/FEATURE_MAP.md` — the M1C sequencing revision, T020A, the T021 loop, the
   dependency structure, and the three seams this work surfaced.
-- `.ai/PLANNING_HANDOFF_T019_T022.md` — per-slice guidance for the Planner.
+- `.ai/PLANNING_HANDOFF_T020A_T023.md` — per-slice guidance for the Planner.
 
 **Revised 2026-09-22.** The user placed (g) in its own slice, **T021A**,
 between T021 and T022, rather than inside T022: the version-bump window is
@@ -2329,7 +2329,7 @@ failure falls on was settled at the T019 user review and then corrected by
 Foundation-owned value blocks. And the half this section actually asks — what
 is left for T021 to refuse, given T019 has already frozen and validated
 everything it initializes from — is answered in
-`.ai/PLANNING_HANDOFF_T019_T022.md` under T021: defence in depth against a bad
+`.ai/PLANNING_HANDOFF_T020A_T023.md` under T021: defence in depth against a bad
 caller, unreachable through the normal path, and **tested directly**, because
 *unreachable* and *not yet reached* look identical in a test suite and only
 one of them is a guarantee.
@@ -2395,8 +2395,9 @@ Open Question 2 is answered **during** T021 rather than before it, which is a
 change from this document's first draft.
 
 **Closed.** Accepted and built into the sequence: it is T021's third addition
-in `.ai/PLANNING_HANDOFF_T019_T022.md` and the loop drawn in the M1C
-sequencing revision. What it produced — what the document should author —
+in `.ai/PLANNING_HANDOFF_T020A_T023.md` and *The loop inside T021* under
+Near-Term Sequencing in `.ai/FEATURE_MAP.md`. What it produced —
+what the document should author —
 is Open Question 2, which is still open and is answered during T021.
 
 ### 10. The `MAGNITUDE` tolerance is a picked number — open, and it splits

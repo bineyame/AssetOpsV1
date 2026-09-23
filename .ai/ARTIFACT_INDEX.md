@@ -29,11 +29,19 @@
 - `.ai/MILESTONE_REVIEW_BACKLOG.md` — what
   `D-2026-09-22-milestone-speed-over-purity` carries rather than fixes; delete
   when the milestone review has closed it out
-- `.ai/PLANNING_HANDOFF_T019_T022.md` — scoped Architect-to-Planner handoff;
-  delete when its last slice closes out. The expiry is the condition and not a
-  slice number, under `D-2026-09-22-expiry-follows-the-condition`: the file
-  gained a T020B section after this line was written, and a number would have
-  had to be re-checked each time the range grew.
+- `.ai/PLANNING_HANDOFF_T020A_T023.md` — scoped Architect-to-Planner handoff,
+  superseding `PLANNING_HANDOFF_T019_T022.md`; delete when its last slice
+  closes out. The expiry is the condition and not a slice number, under
+  `D-2026-09-22-expiry-follows-the-condition`.
+- `Docs/simulator_design_v4.md` — normative simulator mechanics; the feature
+  map and the Planner handoff cite it by section rather than restating it
+- `Docs/mini-grid-demo-architecture-and-roadmap.md` — the repository-grounded
+  execution companion to v4: delivery slices tied to task identities, the
+  alignment decisions, and the screen-by-screen first landing. Where it and the
+  narrative companion below disagree on sequencing, this one is later and wins.
+- `Docs/mini-grid-demo-architecture-and-roadmap (1).md` — the earlier narrative
+  companion: client walkthrough, portfolio story, and the three finish lines.
+  **Not a duplicate of the file above**; the two share a title and little else.
 - `Docs/simulator-scenario-authoring-and-runtime.md` — the reference the
   2026-09-21 and 2026-09-22 simulator decisions cite
 - `Docs/declared-capability-and-what-checks-it.md` — Architect reflection on
