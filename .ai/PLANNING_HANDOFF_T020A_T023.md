@@ -258,7 +258,8 @@ answerer vocabulary a second time.
 
 ## T021 — Minimal Fuel Loss causal kernel
 
-`tasks/T021-minimal-fuel-loss-causal-kernel.md`. `USER_REVIEW_REQUIRED: false`.
+`tasks/T021-minimal-fuel-loss-causal-kernel.md`. `USER_REVIEW_REQUIRED: true` -
+its criteria reserve the scenario document corrections for the user.
 
 ### The placement call the Planner has to make before the task file
 
@@ -440,7 +441,7 @@ kernel, or the observation transform.
 - **Reporting faults divide, and T022 gets one half.** Sampling, bias, dropout
   and quantisation belong to the observation transform. Buffering, outage,
   retry, delayed release, duplicate publication and publication timing belong
-  to the gateway and are T023's. A cadence-driven sampling gap is sufficient
+  to the gateway half, which neither T022 nor T023 builds. A cadence-driven sampling gap is sufficient
   here; do not build the gateway's half early.
 - **The hand dip is a generated operational observation, not a copied number.**
   It has its own non-device source, its tank, its occurrence time, a value

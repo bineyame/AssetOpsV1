@@ -129,7 +129,7 @@ slice that falsifies it.
 - **Reporting faults divide, and this slice gets one half.** Sampling, bias,
   dropout and quantisation belong to the observation transform. Buffering,
   outage, retry, delayed release, duplicate publication and publication timing
-  belong to the gateway and are T023's. A cadence-driven sampling gap is
+  belong to the gateway half, which neither this slice nor T023 builds. A cadence-driven sampling gap is
   sufficient here; do not build the gateway's half early.
 
 ### The document, and the hand dip
