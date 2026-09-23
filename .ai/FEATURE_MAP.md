@@ -276,10 +276,19 @@ as an asset-health feed.
 
 ### Blocks beyond J
 
-Portfolio roll-up over several independently credible Site stories, then a
-second vertical. Both are followers, and neither starts a generalisation
-project: a new pack reuses the time, observation, gateway and ingestion
-contracts or the seam is wrong.
+Portfolio roll-up over several independently credible Site stories, then the
+cold-chain pack — `Demo Ready v2.5` in `.ai/PRODUCT.md`, which the user moved
+behind the mini-grid conclusion chain on 2026-09-23. Both are followers, and
+neither starts a generalisation project: a new pack reuses the time,
+observation, gateway and ingestion contracts or the seam is wrong.
+
+**How blocks map to the milestone names in `.ai/PRODUCT.md`**, because the
+Planner reads both files and the two vocabularies are not interchangeable.
+Blocks A and B are `M1C`. Blocks C, D and E are `Demo Ready v1`. Block F is
+`Demo Ready v2`. The cold-chain pack is `Demo Ready v2.5`. Blocks G through J
+have no milestone name yet, which is honest rather than an omission: they are
+followers with no task files. A milestone says what may be claimed; a block
+says what can be shown.
 
 ### The three finish lines
 
