@@ -23,21 +23,17 @@ a refactor, follows milestone completion and proper testing.
 
 ## Active Task
 
-**T020 is built and in review**, on branch
-`task/T020-runs-inventory-and-draft-shell`, seven commits over `main` at
-`f7ac1be`, not merged. Its file is `tasks/T020-runs-inventory-and-draft-shell.md`
-at `Status: in_review`; the evidence is `.agent/T020-review-packet.md` with
-screenshots in `.agent/T020-screens/`, and what it settled in code is the T020
-entry in `.ai/CODE_STATE.md`. `USER_REVIEW_REQUIRED: false`; the packet carries
-the cumulative presentation-honesty assessment the task asked for.
+**T020 is complete and merged.** Its task file is in `tasks/completed/` and
+what it settled in code is the T020 entry in `.ai/CODE_STATE.md`: the gated
+Runs inventory and Draft detail shell, the `READY` disclosure on the run
+record, `PUBLICATION_PROFILE` as the fifth answerer, the deletion of
+`cadence_resolution`, and labelled form defaults. **No `READY` run is reachable
+through the product path**; `READY` is proved against one fixture record
+written through the port. T020B is what makes the shipped scenario reach it.
 
-It delivered the gated Runs inventory and the Draft detail shell, the `READY`
-disclosure on the run record, the `PUBLICATION_PROFILE` relabel, the deletion
-of `cadence_resolution`, and labelled form defaults. **No `READY` run is
-reachable through the product path**: `READY` is proved against one fixture
-record written through the port, named in the packet.
-
-**T020A is next**, then T020B.
+**T020A is the next task to activate**, then T020B, T021, T021A, T022, T023.
+Per-slice guidance for that whole range, including the two sizing calls v4
+hands the Planner, is in `.ai/PLANNING_HANDOFF_T020A_T023.md`.
 
 **The refusal line moved at that review** - who failed to answer decides it,
 recorded in the 2026-09-22 extension to
@@ -74,13 +70,13 @@ adjudicating cause-to-observation coupling; a scenario does not author what a
 device reads, so the Fuel Loss residual is answered by (f) and the document is
 corrected during T021 from what the kernel computes; and **T021A** is inserted
 between T021 and T022 to close `execution_requirement` while the version-bump
-window is still free. Read `.ai/PLANNING_HANDOFF_T019_T022.md` before writing
-or revising any task file in that range.
+window is still free.
 
 ## Current State
 
 M1A is complete, T001-T016 are in `tasks/completed/` with Review Outcomes,
-and M1B is active: T017, T018 and T019 complete, T020 in review, T020A next.
+and T017-T020 are complete and merged. Block A of the feature map is active:
+T020A next, then T020B.
 
 Breaker/control vocabulary is settled by `D-2026-09-20-breaker-vocabulary`:
 position is evidence, not configuration. The banned list lives in
@@ -104,8 +100,10 @@ only `READY` Draft, because none is reachable through the product path.
 
 ## Read For T020A
 
-- `tasks/T020A-*.md`, and for residual risk `.agent/T020-review-packet.md`
-  and `.agent/T019-review-packet.md`
+- `tasks/T020A-*.md`, and `.ai/PLANNING_HANDOFF_T020A_T023.md` for the sizing
+  call v4 requires before implementation starts
+- For residual risk, `.agent/T020-review-packet.md` and
+  `.agent/T019-review-packet.md`
 - `.ai/DECISIONS.md` decision-index entries:
   - `D-2026-09-22-foundation-property-absent-blocks`
   - `D-2026-09-22-foundation-value-declaration`, `-capacity-bound-source`,
@@ -113,9 +111,10 @@ only `READY` Draft, because none is reachable through the product path.
   - `D-2026-09-21-run-setup-outcome-vocabulary` - the refusal line
 - `.ai/CODE_STATE.md` - T018, T019, T020
 - `.ai/FEATURE_MAP.md`
+  - `## Delivery Blocks`, Block A and Block B
   - `### 4. SimulationRun Runtime And Simulator Lab Shell`
-  - `### Early Feature: Draft SimulationRun And Causal Runtime`
-  - *The execution-contract version ledger*
+  - `## Near-Term Sequencing`, including
+    *The execution-contract version ledger*
 - `.ai/ARCHITECTURE.md` - Causal Runtime Authority, Refusal And Blocking
   Vocabularies, Presentation Honesty
 - `.ai/WORKFLOW.md` - Review Packet, Closeout, User Review
@@ -185,4 +184,4 @@ Per-slice details live in `.ai/CODE_STATE.md`.
   the `READY` disclosure carried on the record rather than by a screen,
   `PUBLICATION_PROFILE` as the fifth answerer, the deletion of
   `cadence_resolution`, and the rule that a form default is visible, labelled
-  and still changeable. In review.
+  and still changeable. Merged.

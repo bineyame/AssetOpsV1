@@ -139,8 +139,10 @@ is live, and is deleted when its last slice closes out.
 
 Live now:
 
-- `.ai/PLANNING_HANDOFF_T019_T022.md` — the T019 narrowing, T020's `READY`
-  disclosure and its frozen-row relabel, the new T020A, T020B and T021A
-  slices, and the additions to T021 and T022 that the 2026-09-21 proposals and
-  the 2026-09-22 decisions require. Read it before writing or revising any
-  task file in that range. Revised twice on 2026-09-22.
+- `.ai/PLANNING_HANDOFF_T020A_T023.md` — per-slice guidance for T020A through
+  T023, saying for each slice what an Implementer must be told and whether it
+  belongs inline in the task file or as a pointer to a `simulator_design_v4.md`
+  section. It also carries the two sizing calls v4 hands the Planner: how to
+  cut T020A, and where T021's kernel lands. Read it before writing or revising
+  any task file in that range. It supersedes the deleted
+  `PLANNING_HANDOFF_T019_T022.md`.
