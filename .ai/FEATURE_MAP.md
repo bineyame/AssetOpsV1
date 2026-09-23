@@ -307,9 +307,10 @@ says what can be shown.
    evidence loop and the first Findings (T034–T038). Blocks F through H now
    follow Block E directly, and cold-chain follows them. The reason is that
    every finish line that matters commercially is on the mini-grid path, and a
-   second vertical proves an abstraction rather than a proposition. **This is a
-   proposed programme-order change, not a renumbering**, and it is listed in
-   Open Questions because `.ai/PRODUCT.md` still states the old order.
+   second vertical proves an abstraction rather than a proposition. **The user
+   took this on 2026-09-23**: `.ai/PRODUCT.md` now runs Demo Ready v1 → v2 →
+   v2.5 Cold-Chain, renumbered rather than left out of order. Settled, not
+   proposed. Do not reopen it.
 2. **Fuel reconciliation, not avoidable generator runtime, is the first
    Finding.** The earlier narrative companion proposes candidate avoidable
    runtime as the first substantial Finding. The later companion resolves it
