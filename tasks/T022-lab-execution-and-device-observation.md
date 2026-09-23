@@ -63,10 +63,6 @@ still carries two authored readings; (f) below removes them, and a panel with
 nothing left to reconcile is a claim that has become false. It goes in the
 slice that falsifies it.
 
-Whether the operator's hand reading carries a declared reading error comes from
-T021's document correction and is already answered by the time this slice
-starts.
-
 ## Acceptance Criteria
 
 ### Execution and the composition leaf
@@ -281,7 +277,8 @@ starts.
   separate `Sensor Bias` recipe, and keeping Fuel Loss free of bias keeps its
   one lesson clean: a real loss, hidden by a reporting gap.
 - No gateway-half fault behaviour: no buffering, outage, retry, delayed
-  release, duplicate publication or publication timing. Those are T023's.
+  release, duplicate publication or publication timing. These belong to a later
+  slice that owns gateway faults; neither T022 nor T023 builds them.
 - No Source Envelope, gateway staging, Commit, ingestion, accepted evidence,
   source health, analytics, Finding or operator runtime overlay.
 - No arbitrary fast-forward or jump-to, Rerun, Replay, or event injection

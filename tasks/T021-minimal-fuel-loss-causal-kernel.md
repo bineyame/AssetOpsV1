@@ -1,7 +1,7 @@
 # T021 - Minimal Fuel Loss Causal Kernel
 
 Status: planned
-USER_REVIEW_REQUIRED: false
+USER_REVIEW_REQUIRED: true
 
 Intended branch: `task/T021-minimal-fuel-loss-causal-kernel`
 
@@ -146,8 +146,8 @@ slice produces.
   where a later reader can see which arithmetic a run used.
 - The kernel represents simulation time, fuel quantity, generator operating
   state and cumulative generator consumption in canonical units. It carries the
-  accepted load and irradiance forcings as supported runtime inputs without
-  claiming power-flow consequences the model does not calculate.
+  load and irradiance forcings as recorded unsupported optional inputs under
+  T020B; the kernel does not support them.
 - Generator consumption, fuel removal and fuel delivery follow the execution
   roles and point/window semantics accepted in T018 and amended on 2026-09-21,
   including the net-effect treatment of simultaneous causes. Reported
