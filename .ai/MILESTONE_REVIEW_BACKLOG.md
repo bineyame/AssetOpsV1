@@ -196,12 +196,20 @@ wait for the control rather than for a sleep.
 
 ## Tracked elsewhere, listed so the review finds them
 
-- **Four open M1C questions** - `.ai/FEATURE_MAP.md`, *Open Questions Before
-  Task Breakdown*, and `Docs/simulator-scenario-authoring-and-runtime.md`
-  under Open Questions. None blocks a planned slice.
+- **Three open questions** - `.ai/FEATURE_MAP.md`, *Open Questions*, and
+  `Docs/simulator-scenario-authoring-and-runtime.md` under Open Questions.
+  None blocks a planned slice. The two counts differ and neither is stale: the
+  reference document lists four because it keeps the `MAGNITUDE` tolerance
+  separate, while the map folds it into the expectation-basis question that
+  shares its checkpoint. This entry read *four open M1C questions* under *Open
+  Questions Before Task Breakdown*; the section was renamed in the feature-map
+  revamp and one question closed when the user moved cold-chain after the
+  mini-grid conclusion chain.
 - **Option C**, the model profile declaring that it needs a Foundation value.
   Accepted and scheduled by trigger rather than by position; see
   `D-2026-09-22-foundation-value-declaration`.
 - **The observation transform as a component rather than a step** - the one
-  seam of the three that is still open, in `.ai/FEATURE_MAP.md` under *Seams
-  this sequence surfaced*. Lands in T022.
+  seam of the three that is still open. It was in `.ai/FEATURE_MAP.md` under
+  *Seams this sequence surfaced*, which the revamp cut once two of the three
+  were settled; the seam itself now lives in feature area 5, *Simulated World,
+  Environment, Devices, And Event Injection*. Lands in T022.

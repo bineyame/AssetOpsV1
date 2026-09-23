@@ -618,7 +618,7 @@ simulator mechanics. The following sources anchor the interpretations above:
 - [Current multi-vertical build plan](multi-vertical-build-plan.md): useful
   evidence-loop-first programme intent; simulator details are superseded by
   v4 where listed in §2, and slice/calendar estimates are not commitments here.
-- [Planner handoff](../.ai/PLANNING_HANDOFF_T019_T022.md) and
+- [Planner handoff](../.ai/PLANNING_HANDOFF_T020A_T023.md) and
   [Decisions](../.ai/DECISIONS.md): physical-property ownership, coefficient unit,
   forcing semantics, reconciliation retirement and milestone speed guidance.
 - Written queue: [T020A](../tasks/T020A-foundation-physical-properties.md),

@@ -119,7 +119,11 @@ only `READY` Draft, because none is reachable through the product path.
   Vocabularies, Presentation Honesty
 - `.ai/WORKFLOW.md` - Review Packet, Closeout, User Review
 
-## Settled Direction For M1B
+## Settled Direction That Still Binds
+
+M1B is complete; every bullet below outlives it and holds for T020A onward.
+The heading used to name the milestone, which made a live section read as
+spent.
 
 - Scenario catalog is a Simulator Lab surface, not an operator surface, and is
   gated with `simulator_lab.enabled`.
@@ -145,8 +149,9 @@ only `READY` Draft, because none is reachable through the product path.
 - A minimal deterministic causal kernel precedes authoritative golden traces.
   Generated traces are reproducible regression/playback artifacts bound to the
   exact frozen deterministic identity, never an alternate state authority.
-- M1B has Drafts, and no ingestion, accepted evidence, execution or Findings.
-  A screen describes intention, not outcome, until something has run.
+- Nothing executes yet. There are Drafts, and no execution, ingestion,
+  accepted evidence or Findings. A screen describes intention, not outcome,
+  until something has run. T022 is the first slice that changes this.
 - No invented digits: a count, timestamp, duration, seed, volume, confidence, or
   parameter value appears only when the record supplies it.
 

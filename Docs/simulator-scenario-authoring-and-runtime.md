@@ -21,8 +21,15 @@ What the acceptance produced, all on
 - `.ai/ARCHITECTURE.md` — the projection-versus-composition rule under Causal
   Runtime Authority, and a new Physical Property Ownership section.
 - `.ai/FEATURE_MAP.md` — the M1C sequencing revision, T020A, the T021 loop, the
-  dependency structure, and the three seams this work surfaced.
-- `.ai/PLANNING_HANDOFF_T020A_T023.md` — per-slice guidance for the Planner.
+  dependency structure, and the three seams this work surfaced. The map was
+  restructured around delivery blocks on 2026-09-23, so two of those sections
+  no longer exist under those names: the dependency structure and the T021 loop
+  are under *Near-Term Sequencing*, and the one seam still open is in feature
+  area 5.
+- `.ai/PLANNING_HANDOFF_T019_T022.md` — per-slice guidance for the Planner,
+  **superseded 2026-09-23 by `.ai/PLANNING_HANDOFF_T020A_T023.md`** once T019
+  and T020 merged and the old name stopped bounding the range. Read the
+  successor; the original is deleted.
 
 **Revised 2026-09-22.** The user placed (g) in its own slice, **T021A**,
 between T021 and T022, rather than inside T022: the version-bump window is
@@ -38,6 +45,17 @@ the scenario's declared owner has no answer, refuse; the selected profile
 cannot answer, block — which corrects two consequence statements below
 that said a site without the T020A property would block. It is refused. See
 the 2026-09-22 extension to `D-2026-09-21-run-setup-outcome-vocabulary`.
+
+> **That last sentence is itself superseded, and the reversal is the next
+> paragraph.** *It is refused* was true for about a day.
+> `D-2026-09-22-foundation-property-absent-blocks` settled that a Foundation
+> declaring no such property at all **blocks**, on
+> `INITIAL_VALUE_NOT_RESOLVED`, because after T020A the binding names the
+> property as well as the component type and a different profile may name a
+> property the Foundation does declare. **Every failure of a Foundation-owned
+> value blocks and none refuses.** The sentence above is kept because this
+> paragraph is a dated revision note, but it is the one thing in this header a
+> T020A implementer must not act on.
 
 **Revised again 2026-09-22, after a cold read of the whole sequence.** Two
 additions. `D-2026-09-22-contract-version-scope` answers whether the
