@@ -283,6 +283,24 @@ control behaviour and truth visibility. Either way, **the sizing is the
 Planner's and the invariant is not**: no slice in this range weakens
 `tools/checks/dependency-direction.ps1` to wire execution up.
 
+**Under (a) the tests need a home, and this is not a detail.** The kernel's
+conformance test and the kernel-versus-reference comparison both have to import
+`assetops_simulator`. `dependency-direction.ps1` scans **the whole `backend/`
+tree, tests included**, for exactly that import, and it bans `importlib` as a
+way round. `backend/pyproject.toml` sets `testpaths = ["tests"]`, so the only
+configured test root in the repository is inside the scanned tree. Moving the
+contract arithmetic into the neutral module does not fix this: the constraint
+is on where the *test* lives, not on where the arithmetic lives.
+
+So the expected answer has a second half: **those tests live in a simulator-side
+test root, which the slice creates along with the pytest configuration that
+runs it.** That is a small piece of structure and it should be named rather
+than discovered, because an Implementer who puts the test beside the existing
+execution-contract tests hits the guard and has no sanctioned move left. Two
+things stay unavailable and do not change: weakening the guard, and copying the
+reference implementation into the simulator, because a comparison against a
+copy proves nothing.
+
 ### Inline in the task file
 
 - **Exact-rational arithmetic.** World arithmetic uses `Fraction` while the
@@ -404,7 +422,13 @@ kernel, or the observation transform.
 ### Inline in the task file
 
 - **The observation transform is a component, not a step inside execution.**
-  Bindings are keyed by `(StateRef, device_id, signal_id)`. It samples at the
+  Bindings are keyed by an **unflattened triple** — world-state address,
+  `device_id`, `signal_id`. This said `(StateRef, device_id, signal_id)`, which
+  presumed T020A shipped concern B; it does not, so the address is a plain
+  state key here and becomes a `StateRef` at Block I. Keeping the triple
+  unflattened is what makes that a replacement of one element rather than a
+  reshaping of every binding, and it is the same non-splicing rule T020A
+  applies to Foundation bindings. It samples at the
   frozen publication profile's cadence, not at the kernel's timestep, and its
   output objects are distinct from truth rather than copies of it. **Truth
   exists at every step; a reading exists only at a declared sample instant.**

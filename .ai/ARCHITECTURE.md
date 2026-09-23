@@ -214,6 +214,32 @@ things can carry that, and which one applies depends on the subject.
   refuses. Names that differ by degree rather than by shape do not satisfy
   this.
 
+**That second example retires with the kind it names, and what replaces it is
+worth more.** `INITIAL_VALUE_ANSWERS_DISAGREE` is produced by exactly one
+comparison, a scenario-stated value against Foundation's. T020A takes the
+scenario's ability to state that value away
+(`D-2026-09-22-foundation-value-declaration`), so the kind loses its last
+producer and goes in the slice that removes it — a refusal kind nothing can
+raise is the same false claim one layer down that
+`D-2026-09-22-expiry-follows-the-condition` governs everywhere else. **The
+consequence to carry forward is that after T020A every failure of a
+Foundation-owned value blocks and none refuses**, so a reader meeting that does
+not read it as an oversight.
+
+The rule itself is unaffected: it is *why* the pair was split, and the split
+was right for as long as both halves could occur. What changes is the quality
+of the illustration. The same-subject pair that survives is
+`INITIALIZATION_INPUT_MISSING`, which refuses because the declared owner did
+not answer, against `INITIAL_VALUE_NOT_RESOLVED`, which blocks because the
+selected profile could not. `backend/assetops_backend/runs/refusals.py` already
+records that those two sit *one word apart* across the line. That is a live
+case which passes the rule only just, and it is a better thing to review
+against than a clean one: the review question — *from the name alone, which
+side is it on?* — is answered here by the subject the reader supplies, not by
+the names, and a third kind added to this subject would have nothing left to
+differ by. **Any future addition to the initial-value subject has to earn its
+name against that pair, not against the retired one.**
+
 The review question, for any kind added later: **from the name alone, which
 side of the line is it on?** If answering it needs the docstring, the name is
 wrong. A test asserting the two sets of strings are disjoint is the mechanical
