@@ -142,15 +142,11 @@ becomes an extension rather than a rewrite of every frozen binding.
   that already exists. The count for the sequence is stated once, in
   `.ai/FEATURE_MAP.md` under *The execution-contract version ledger*; no task
   file writes the literal.
-- `INITIAL_VALUE_ANSWERS_DISAGREE` is retired, in the slice that removes its
-  last producer: it compared a scenario-stated value against Foundation's, and
-  no document can state one any more. The consequence to state plainly is that
-  **every failure of a Foundation-owned value now blocks and none refuses**, so
-  a reader meeting that does not take it for an oversight. `.ai/ARCHITECTURE.md`
-  illustrates *within one subject, the shape must carry it* with exactly this
-  pair, so re-illustrate the rule from a pair that remains or mark the example
-  historical - a rule illustrated by a vocabulary member nobody can find reads
-  as a rule that was not followed.
+- `INITIAL_VALUE_ANSWERS_DISAGREE` is retired here, in the slice that removes
+  its last producer: it compared a scenario-stated value against Foundation's,
+  and no document can state one any more. `.ai/ARCHITECTURE.md` carries the
+  consequence and the re-illustrated naming rule; this slice removes the kind
+  and proves it has no producer left.
 - The shipped site template declares the coefficient as a named property with
   its canonical unit, and run setup freezes it from Foundation and records its
   origin. All five ways it can fail block and produce no default: no binding
@@ -184,9 +180,6 @@ becomes an extension rather than a rewrite of every frozen binding.
   stating a number is not the same as declaring a need. Something must hold
   what an owner declares, something must be able to address it, and the
   document must be able to ask without answering.
-- Why every one of these blocks: the selected profile could not answer, and a
-  different profile fixes it. After the contradiction kind is retired, no
-  Foundation-owned failure refuses.
 - A Foundation says how large a tank is, never how full. Starting fuel level
   stays a scenario input and keeps its value position.
 

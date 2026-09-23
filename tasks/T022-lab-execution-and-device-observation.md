@@ -84,11 +84,15 @@ starts.
   inspectable reason rather than displaying partial output as complete.
 - **The execution adapter is the composition leaf v4 §3.2 and §3.3 name**, and
   this is the first slice with anything to compose. It may import both the
-  backend and the simulator; nothing imports it. Its shape is the port the Lab
-  drives - start, step, run to end, staged envelopes, commit - with the staging
-  and commit members unimplemented here. `tools/checks/dependency-direction.ps1`
-  is **extended** to assert that nothing imports the leaf, rather than relaxed
-  to let the Lab reach the kernel.
+  backend and the simulator; nothing imports it. Those two are simultaneously
+  true in one shape: **the backend declares the execution port and receives an
+  implementation, and the leaf is what constructs the simulator-backed one and
+  hands it over** - the pattern `backend/assetops_backend/runs/composition.py`
+  already uses for the run stores. Its shape is the port the Lab drives -
+  start, step, run to end, staged envelopes, commit - with the staging and
+  commit members unimplemented here. `tools/checks/dependency-direction.ps1` is
+  **extended** to assert that nothing imports the leaf, rather than relaxed to
+  let the Lab reach the kernel.
 - **The adapter returns a private Lab projection**, and it may carry generated
   device observations. The Lab is gated simulator UI and may render private
   tank level beside reported level; the product receives neither directly

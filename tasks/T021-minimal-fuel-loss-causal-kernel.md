@@ -103,15 +103,26 @@ slice produces.
   `tools/checks/dependency-direction.ps1` is **extended** to assert it - the
   neutral module imports neither side - rather than gaining an exception for
   anything this slice wants to wire up.
-- The conformance test and the kernel-versus-reference comparison both touch
-  the kernel and backend-owned code, so where they live is a real question.
-  Moving the contract arithmetic into the neutral module alongside the rest is
-  the expected answer; any other shape that leaves both guards intact is the
-  Implementer's to choose. Two things are not available: weakening the guard,
-  and copying the reference implementation into the simulator, because a
-  comparison against a copy proves nothing. **If no shape exists that keeps the
-  guards intact, stop and raise `SPEC_AMBIGUITY`** rather than adding an
-  exception.
+- **The conformance test and the kernel-versus-reference comparison need a home,
+  and this slice creates one.** Both have to import `assetops_simulator`.
+  `dependency-direction.ps1` scans the whole `backend/` tree for exactly that
+  import, tests included, and bans `importlib` as a way round;
+  `backend/pyproject.toml` sets `testpaths = ["tests"]`, so the only configured
+  test root in the repository is inside the scanned tree. Moving the contract
+  arithmetic into the neutral module does not fix this, because the constraint
+  is on where the *test* lives and not on where the arithmetic lives.
+  So the expected answer is both halves: the contract arithmetic moves into the
+  neutral module, and **these tests live in a simulator-side test root, which
+  this slice creates along with the pytest configuration that runs it.** That
+  is named rather than left to be discovered, because creating a second test
+  root looks like structural invention an Implementer would not assume they
+  were authorised to make.
+- Two things stay unavailable: weakening the guard, and copying the reference
+  implementation into the simulator, because a comparison against a copy proves
+  nothing. **If some later part of this slice still cannot be expressed without
+  one of them, stop and raise `SPEC_AMBIGUITY`** rather than adding an
+  exception. The stop guards a decision nobody has taken, not a problem that is
+  merely awkward.
 
 ### The kernel
 
