@@ -393,7 +393,11 @@ outcome, or several of those in different records; and the symbol set.
 Component addressing, from v4 §4.2: the semantic state name (`state_key`) and
 the runtime address (`StateRef`) are different concepts and must not be merged
 by encoding a component id into a state-key string. Two same-type loads or
-chargers are normal, not an edge case. This becomes load-bearing at Block I.
+chargers are normal, not an edge case. **`StateRef` itself arrives at Block I**,
+where a Site first carries two components of the same type; T020A ships the
+carrier and the non-splicing rule that makes the later arrival an extension
+rather than a rewrite. Anything before Block I that reads as though `StateRef`
+exists means the world-state address in whatever form it currently has.
 
 ### 3. Scenario Authoring And Scenario Catalog
 
@@ -481,12 +485,22 @@ Deferred: explicit branch or context selection over committed history.
 Visible in: Lab Site View, Environment, Quick Actions, Event Timeline, Devices
 & Sensors. **This is Block B, widened at Block I.**
 
+**A note on `StateRef`, because this area names it before it exists.** v4's
+world-state address is the target shape and it arrives with the
+component-addressing work that T020A deliberately defers to Block I, where a
+Site first carries two components of the same type. Until then the address is
+a plain state key. Every use below means *the world-state address, whatever it
+currently is* — the rule that survives the substitution is that the address
+stays a distinct element of whatever key holds it, never spliced into a
+state-key string, so the later change replaces one element instead of
+reshaping every binding.
+
 Causal prerequisites:
 - Private world state as stocks, flows and typed discrete state, addressed by
-  `StateRef`. Stocks persist across steps; flows prevail over a step and are
-  recomputed; discrete states are declared by the domain pack with allowed
-  values, an initialization owner, transition rules and observable signals, and
-  every transition emits a trace record.
+  the world-state address above. Stocks persist across steps; flows prevail
+  over a step and are recomputed; discrete states are declared by the domain
+  pack with allowed values, an initialization owner, transition rules and
+  observable signals, and every transition emits a trace record.
 - **The boundary cycle** (v4 §6.1): at instant `T`, apply due events and
   configuration changes; the post-event state at `T` now exists; sample stocks
   and discrete state if a sample is due, attaching interval measurements for
@@ -511,7 +525,8 @@ Causal prerequisites:
   would need a new resolver plus an explicit solver and tolerance contract
   rather than an implementer quietly adding one (v4 §7).
 - **The observation transform is a component, not a step inside execution.**
-  Bindings are keyed by `(StateRef, device_id, signal_id)` and may declare
+  Bindings are keyed by an unflattened triple — world-state address,
+  `device_id`, `signal_id` — and may declare
   cadence, noise, bias, quantisation, dropout, delay, stale behaviour,
   duplication, out-of-order behaviour, clock drift and quality semantics. Truth
   exists at every step; a reading exists only at a declared sample instant. A
@@ -681,7 +696,7 @@ restated here.
 | Seam | Invariant | Check | Late failure mode |
 | --- | --- | --- | --- |
 | Stack and module direction | Modular monolith with FastAPI, React/TypeScript and a Python simulator; strict parsers; file-backed repositories until a reviewed slice changes it. | CI architecture check on roots and import direction. | Incompatible layers make vertical slices unreviewable. |
-| Dependency direction | `backend/` imports no simulator package. `simulator/` imports **no `assetops_backend` package at all**. A neutral `host/` composition leaf may import both, and nothing imports `host/`. Shared execution and envelope contracts live in a dependency-neutral module rather than being imported from the backend. | CI import guard, extended when `host/` is created. | Private simulator types become product dependencies and the simulator stops being independently testable. |
+| Dependency direction | `backend/` imports no simulator package. `simulator/` imports **no `assetops_backend` package at all**. A neutral `host/` composition leaf may import both, and nothing imports `host/`. Shared execution and envelope contracts live in a dependency-neutral module rather than being imported from the backend. | CI import guard, **extended twice and relaxed never**: T021 asserts the neutral module imports neither side, T022 asserts nothing imports the composition leaf. The leaf does not exist until something composes execution, so its guard cannot land earlier. | Private simulator types become product dependencies and the simulator stops being independently testable. |
 | Simulator feature gate | With `simulator_lab.enabled=false`, simulator routes, entry points, execution APIs and truth overlays are not served. Operator routes, simulated Sites, accepted evidence and Replay still work. The gate covers surfaces and execution, never objects or stores. | Route, API and navigation tests in both gate states. | Truth or execution stays reachable by direct URL after "disabling" the feature. |
 | The one crossing | The only simulator payload eligible for normal ingestion is a canonical source envelope. `WorldState`, `LabProjection`, private truth, `ControlIntent`, `AcceptedFlowSet`, scenario expectations, trace records and raw `DeviceObservation` are never accepted. | Integration test rebuilds the Site view from serialized envelopes with the simulator absent. | A demo shortcut bypasses validation and breaks against a real source. |
 | Private truth isolation | Change private truth without changing published envelopes and every product conclusion and export is unchanged. | Contract test mutating truth. | Analytics pass by oracle leakage and fail on real sources. |
