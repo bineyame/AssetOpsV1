@@ -23,6 +23,28 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
   acting so they can either run the role or prepare a handoff for the configured
   agent.
 
+## Invoking A Codex-Bound Role
+
+A role bound to Codex is run by invoking Codex, not by dispatching the
+same-named Claude subagent and merging what it returns. Codex is on PATH and
+runs non-interactively:
+
+```
+codex exec "<the role brief>"
+```
+
+**The obligation is the coordinator's, not the subagent's.** On 2026-09-23 the
+Architect correctly flagged three times that it was producing Architect output
+while this file bound the role to Codex. Each time the coordinator relayed the
+flag to the user as a question and merged the output anyway. A subagent noticing
+a binding violation is not a control, because it has already done the work by
+the time it can tell anyone. The control is that the coordinator invokes the
+bound tool in the first place.
+
+So: before dispatching `assetops-architect` or `assetops-planner`, check the
+binding above. If it is Codex, run `codex exec`. The Claude subagents of those
+names refuse Codex-bound work rather than producing it.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record
