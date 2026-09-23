@@ -1,2648 +1,856 @@
 # AssetOps Feature Map
 
-Scope: backend and frontend capabilities needed to support the canonical
-Simulator Lab, Sites, Site Details, Foundation, Scenarios, Devices,
-Gateway and Ingestion screens shown in `Docs/UI Design/Motivation`.
+Scope: the backend, simulator and frontend capabilities needed to reach a
+client-credible mini-grid demo, sequenced by what becomes demonstrable.
 
-This is a feature map, not an implementation task list. Features are sequenced
-by causal dependency: if a screen displays a fact, state, diagram, or claim, the
-product must first have a truthful source for that display.
+This is a feature map, not a task list. Two things organise it. **Delivery
+blocks** say what a person can be shown at the end of each stretch of work.
+**Feature areas** say what must be true before a screen can make a claim. A
+task range is a label on a block, never its purpose.
 
-## Feature Map Index
+**Speed over pedantic purity governs this map.**
+`D-2026-09-22-milestone-speed-over-purity` and the roadmap's own planner notes
+say the same thing: escalate a choice that changes the client story, crosses a
+protected boundary, is expensive to reverse, or blocks the next block. Do not
+escalate naming, internal representation, file placement or API aesthetics.
+This map is meant to make that easy to obey: if a block's *shown at the end*
+does not move, the argument is not worth the round.
 
-Do not read this file end to end by default. Use `.ai/ACTIVE_CONTEXT.md` and the
-active task file to choose only the needed sections.
+## How To Use This Map
+
+Do not read this file end to end. Use `.ai/ACTIVE_CONTEXT.md` and the active
+task file to pick sections.
 
 | Need | Read |
 | --- | --- |
-| M1 ordering and cross-feature causality | Product Spine |
-| Client-demo milestones and post-T013 task slices | Client-Demo Roadmap |
-| Current Site Foundation tasks T005-T013 | Early Feature: Site Foundation And Configuration-Only Site |
-| Architecture and CI seams to preserve | Enforceable Protected Seams |
-| Topology, devices, or single-line diagram planning | Early Feature: Topology, Devices, And SLD |
-| Scenario and run setup planning | Early Feature: Scenario Catalog And Run Setup |
-| SimulationRun runtime planning | Early Feature: Draft SimulationRun And Causal Runtime |
-| Gateway, Commit, or ingestion planning | Early Feature: Gateway Publication, Commit, And Ingestion |
-| Evidence, Replay, or provenance views | Early Feature: AssetOps Evidence Views And Replay |
-| Product conclusion chain or Findings | Early Feature: First Product Conclusion Chain |
-| Unresolved product questions | Open Questions Before Task Breakdown |
-| Scenario authoring, runtime, and injection reasoning behind the M1C sequence | `Docs/simulator-scenario-authoring-and-runtime.md` |
+| What becomes demonstrable, and in what order | Delivery Blocks |
+| What already works | What Is Already True |
+| Causal prerequisites for a screen or claim | Feature Areas |
+| Boundaries a slice must not cross | Protected Seams |
+| Rail, tab, column and viewport rules | Screen And Shell Architecture |
+| T020A–T023 dependencies and the contract version | Near-Term Sequencing |
+| Unresolved product questions | Open Questions |
+| Normative simulator mechanics | `Docs/simulator_design_v4.md` |
+| Demo sequence, slice outcomes, screen-by-screen landing | `Docs/mini-grid-demo-architecture-and-roadmap.md` |
+| Client narrative, portfolio story, finish lines | `Docs/mini-grid-demo-architecture-and-roadmap (1).md` |
+| Per-slice Planner guidance for the live range | `.ai/PLANNING_HANDOFF_T020A_T023.md` |
+| Scenario authoring and runtime reasoning | `Docs/simulator-scenario-authoring-and-runtime.md` |
 
-## Product Spine
+**The two roadmap files are different documents, not duplicates.** The
+638-line one is the later, repository-grounded execution companion: it cites v4
+sections, names task identities, and carries the alignment decisions. The
+1771-line one is the earlier product-narrative companion: it carries the client
+walkthrough, the portfolio story and the three finish lines. Where they differ
+on sequencing, the shorter one is later and wins.
 
-M1 should become real in this order:
+## What Is Already True
 
-1. Ship a Site configuration template archetype, then let a user configure one
-   Site from it with stable identity, time-valid foundation data, configured
-   topology, devices, mappings, ratings, and control assumptions. The template
-   comes first and the Site is created, not shipped: a Sites index is a view
-   over Sites somebody configured, so the configuration capability precedes the
-   index rather than following it. This matches v6.9 §3.5 setup path A, which
-   runs template, then Foundation, then save, then run.
-2. Render that created Site in AssetOps as a normal Site, including simulated
-   provenance when applicable.
-3. Author a scenario against the declared `site_id`; the scenario describes
-   world events, interventions, evidence quality, interval, seed, and private
-   expectations, but not findings or product conclusions.
-4. Execute a SimulationRun in Simulator Lab as a virtual physical site with its
-   own clock, world state, device truth, sensor reporting, event log, and
-   gateway output.
-5. Publish canonical source envelopes through the ingestion boundary; only
-   persisted envelopes, not simulator runtime objects or private truth, feed
-   AssetOps evidence.
-6. Resolve Site Details, Gateway, Logs, and later evidence-backed analytics from
-   Site + selected time window + ingested evidence.
+A ledger, not a plan. Per-slice detail is in `.ai/CODE_STATE.md`; the task
+files are in `tasks/completed/`.
 
-Resolved M1 schema decision:
-- M1 uses a narrowed canonical Site Foundation schema, not the complete future
-  Site schema and not an MG-001-specific fixture schema.
-- A Site conceptually has stable Site identity plus versioned Site Foundation.
-  A practical YAML file may hold both for M1.
-- The M1 Site fields are `site_id`, `display_name`, `site_type`,
-  `lifecycle_status`, location, timezone, source/provenance, optional
-  presentation metadata, created/updated timestamps, and a versioned
-  `foundation`.
-- The versioned foundation includes validity interval, components, topology,
-  devices, signal mappings, ratings, and control assumptions.
-- M1 starts with `site_type` values `MINIGRID` and `COLDCHAIN`, and lifecycle
-  values `PLANNED`, `COMMISSIONED`, `ACTIVE`, `DECOMMISSIONED`, and
-  `ARCHIVED`.
-- `timezone` is mandatory and uses an IANA timezone because it affects
-  scenario timing, source timestamps, Site history, and time-window analytics.
-- `source.mode` and `source.provenance` are provenance, not lifecycle status,
-  gateway health, evidence quality, or asset condition. A valid M1 Site may be
-  `lifecycle_status = ACTIVE` and `source.mode = SIMULATED`.
-- Presentation metadata such as a Site image is optional and must never affect
-  identity, simulation, ingestion, analytics, or evidence interpretation.
+- **A user can configure a mini-grid Site and read it back.** Shipped template
+  catalog through a port, create-from-template into a separate writable store,
+  Sites index, Site Details, read-only Foundation, and the operator/Lab shell
+  split behind `simulator_lab.enabled`. T001–T013.
+- **The configured physical model is real.** Topology, devices, signal
+  mappings, ratings, control assumptions, the hybrid mini-grid SLD archetype
+  and its incompatible-topology state. T014–T016.
+- **A scenario can be inspected and a run can be set up against it.** The
+  ScenarioDefinition domain and its composed stores, the executable scenario
+  contract with its four roles and its timing and bound semantics, Draft run
+  setup with a frozen deterministic identity that has an answerer for every
+  value, and the Runs inventory and Draft detail. T017–T020.
+- **What is not built.** The simulator package is a scaffold. Run execution,
+  the observation transform, gateway envelopes, ingestion, accepted evidence,
+  Replay, Findings, financial and verification objects do not exist. A
+  documented mechanism is not implemented software, and `READY` is not an
+  executed result.
 
-Resolved first execution-mode decision:
-- The first authoritative state producer is a minimal deterministic causal
-  runtime kernel, not a manually authored recorded-run player.
-- Scenario definitions author causes and conditions; initialization and the
-  runtime step contract compute world-state trajectories from frozen run
-  inputs. Event dispatch has explicit half-open boundary semantics and applies
-  each due cause exactly once.
-- Generated golden traces may exercise clock, UI, device, gateway, and
-  downstream contracts, but only as reproducible outputs of a named kernel
-  version and exact deterministic identity. A mismatched trace is refused.
-- Schema validity, internal invariants, and causal correctness are separate
-  proofs. Causality is demonstrated by executable transitions and independent
-  example, boundary, and metamorphic tests, not by authoring a fixture that
-  agrees with the scenario.
-- Later physical realism replaces or deepens the kernel behind the same
-  runtime-facing interfaces without redesigning the Lab UI, device layer,
-  gateway publication, ingestion boundary, or AssetOps downstream path.
+## Delivery Blocks
 
-Resolved M1 source/evidence contract decision:
-- M1 separates the canonical Source Envelope from typed AssetOps evidence
-  records. The envelope carries transport, identity, timing, sequencing, and
-  provenance infrastructure; typed records carry evidence semantics.
-- Every envelope contains `site_id`, source identity, schema/message identity,
-  publication timing, sequencing where applicable, provenance, and exactly one
-  strongly typed source record.
-- `site_id` is the only universal Site identity. `run_id` may appear only as
-  provenance for simulated evidence and must never participate in Site identity.
-- Gateway/device identities are mandatory for gateway/device-originated records,
-  but are not fabricated for operator-entered, imported, or external-system
-  operational records.
-- M1 typed evidence families are Telemetry, Event, Alarm, OperationalRecord, and
-  ControllerRecord. Operational-record subtypes such as `fuel.delivery` and
-  `fuel.manual_dip` use strict typed schemas, not free-form detail maps.
-- Typed families own semantic timestamps: telemetry uses `observed_at`, events,
-  alarms, and operational records use `occurred_at`, and controller records use
-  `decided_at`. The envelope records `published_at`; AssetOps assigns
-  `received_at` only after successful ingestion.
-- Telemetry uses canonical `signal_id`, scalar value, canonical unit, mapping
-  version where source interpretation requires it, and bounded measurement
-  quality. Missing/stale telemetry is an evidence-coverage/source-state
-  condition, not a fabricated measurement; `STALE` is not intrinsic measurement
-  quality.
-- Events are occurrences. Alarms are abnormal conditions with lifecycle/state
-  such as `RAISED`, `ACKNOWLEDGED`, and `CLEARED`.
-- GatewayHealth is derived by AssetOps from heartbeat/arrival evidence,
-  expected signal cadence, missing/stale streams, validation failures, and
-  related source evidence. A raw gateway self-report is not accepted as an
-  authoritative health conclusion.
-- Validation is layered: source-envelope validation, typed-record validation,
-  Foundation semantic validation, and stream/evidence assessment. Late,
-  missing, duplicated, out-of-order, or irregular evidence is generally
-  preserved and classified rather than automatically discarded.
-- Duplicate `message_id` with identical content is idempotent; reuse of the same
-  ID with different content is rejected.
-- Simulator private truth, oracle expectations, scenario causes, and precomputed
-  product findings are prohibited from both Source Envelopes and product-facing
-  evidence contracts.
+Each block names **what a person can be shown at the end of it**. Where the
+honest answer is *nothing a client would care about*, the block says so; a
+block that admits it is scaffolding is more useful than one that pretends.
 
-Resolved M1 Commit decision:
-- Commit is a state transition that releases a completed Draft SimulationRun's
-  staged Source Envelopes for AssetOps ingestion.
-- Staged envelopes are immutable evidence publications. Commit does not copy,
-  regenerate, reinterpret, modify semantic content, or assign new message
-  identities.
-- Publication lifecycle is `STAGED -> RELEASED -> ACCEPTED | REJECTED`.
-  Simulator Lab Commit owns `STAGED -> RELEASED`; AssetOps ingestion owns
-  `RELEASED -> ACCEPTED | REJECTED`.
-- Commit is atomic at SimulationRun release scope and idempotent; all staged
-  output for an eligible run is released together or none is, and repeat Commit
-  does not duplicate publications or regenerate the run.
-- M1 may persist immutable staged envelopes plus a small release/commit manifest
-  instead of copying envelopes into a second committed representation. The
-  manifest records exactly which message IDs were released for audit, replay,
-  and idempotent ingestion.
-- A run may be committed only when execution completed successfully and staged
-  output exists. Failed, blocked, running, or paused runs cannot be committed in
-  M1.
-- Commit does not imply successful ingestion. Released envelopes remain subject
-  to source-envelope, typed-record, and Foundation semantic validation; records
-  may be accepted or rejected individually by AssetOps.
-- `source_time` and `published_at` are fixed before Commit and remain unchanged;
-  `received_at` is assigned only when AssetOps accepts the released envelope.
-- Commit releases source evidence only and never directly creates Site history,
-  health state, findings, incidents, analytics, or other derived product
-  objects.
+Task identities are labels. They are preserved, not renumbered, and a block
+may span a range or be one slice.
 
-Resolved M1 Single-Line Diagram decision:
-- M1 implements the Single-Line Diagram with a reusable archetype template and
-  data bindings, not a fully automatic topology-layout engine.
-- Canonical Site Foundation remains the source of truth for components,
-  topology, connectivity, ratings, devices, and signal availability. The SLD
-  archetype owns only presentation/layout concerns such as visual roles,
-  approximate node positions, symbol placement, and connection routing.
-- The first archetype represents the hybrid mini-grid topology required by the
-  M1 demo and binds components by canonical type/role, not Site-specific
-  identifiers such as MG-001.
-- The template must never create, remove, rename, or reinterpret Site components
-  or connections. Unsupported topology must produce an unavailable/incompatible
-  state instead of silently hiding assets.
-- Foundation and Simulator Lab use the same configured topology and SLD
-  view model. Foundation overlays static names and ratings; Simulator
-  Lab overlays simulator runtime values; later AssetOps operational views
-  overlay only accepted product evidence.
-- M1 does not attempt arbitrary topology auto-layout, drag-and-drop schematic
-  editing, generic electrical CAD behavior, or automatic routing.
-- A small logical SLD view-model layer separates canonical Site topology from
-  rendering/layout. A future graph/layout engine may replace the archetype
-  layout strategy while preserving Site Foundation, topology, component
-  identities, bindings, and runtime/evidence interfaces.
+### Block A — Trust the frozen setup
 
-Resolved M1 provenance visibility decision:
-- M1 uses progressive disclosure for provenance. Primary product screens show
-  decision-relevant provenance; detailed technical provenance remains available
-  through an Evidence/Provenance inspection drawer and dedicated ingestion/log
-  views.
-- Primary screens must make source mode, time window, evidence freshness and
-  completeness, and evidence limitations affecting assessments or Findings
-  immediately clear.
-- Site-level UI visibly distinguishes source provenance such as `SIMULATED` from
-  Site lifecycle state and gateway/source health.
-- Findings and consequential assessments expose stronger provenance than
-  ordinary telemetry: evidence basis, confidence or evidence sufficiency, and
-  material limitations appear on or next to the claim, with View Evidence for
-  deeper inspection.
-- The Evidence/Provenance drawer exposes contributing records, timestamps,
-  source/device identities, quality, Foundation/configuration version, mapping
-  version, and SimulationRun provenance where applicable.
-- Low-level transport metadata belongs primarily in dedicated ingestion/log
-  views rather than normal operator screens.
-- Simulator Lab may expose richer execution provenance for reproducibility;
-  AssetOps product screens collapse it into concise indicators while retaining
-  detailed inspection.
-- Scenario/private-truth causes are never exposed as product evidence
-  provenance.
+**Slices:** T020A, then T020B.
 
-Resolved planned/non-simulated Site behavior decision:
-- M1 allows canonical Sites to exist before they have live integrations or
-  SimulationRun evidence. Such Sites are valid configuration-only Sites and may
-  appear in Sites List, Site Details, and Foundation.
-- Configuration-only Sites may expose identity, lifecycle, location, timezone,
-  Site type, Foundation version, components, topology, SLD, devices, mappings,
-  ratings, control assumptions, and intended source/integration configuration.
-- Operational evidence and conclusions must never be fabricated merely because a
-  Site exists. If no accepted evidence exists, operational panels show explicit
-  No evidence, Unavailable, or equivalent states rather than zero values,
-  offline states, flat charts, or derived conclusions.
-- Source mode, Site lifecycle, integration readiness, evidence availability, and
-  source health are separate concepts. A Site may be `PLANNED`, have
-  `source.mode = LIVE`, be `AWAITING_CONNECTION`, and have no gateway-health
-  state yet.
-- Gateway/source health becomes applicable only once a source has been
-  commissioned or otherwise declared expected to report. A configured but
-  not-yet-connected gateway is not automatically `OFFLINE`.
-- Configuration SLDs may render without operational evidence because they
-  represent declared topology. Runtime values appear only when supported by
-  simulator runtime or accepted AssetOps evidence.
-- Configured devices may appear before they report, but should be labeled as
-  configured/awaiting evidence rather than operationally healthy or unhealthy.
-- Generator-runtime assessment, fuel reconciliation, Findings, and Replay remain
-  unavailable until their required accepted evidence exists.
-- M1 may expose setup/readiness information while configuration editing remains
-  file-backed/YAML.
-- A real/intended-live Site Foundation may be exercised in Simulator Lab later,
-  provided resulting evidence is explicitly marked `SIMULATED` and does not
-  alter the Site's live integration state.
+**Shown at the end:** almost nothing a client would care about. This is
+scaffolding and it is worth saying so. What a developer or the product owner
+can see is two lines moving in tables they already read: the generator's
+specific fuel consumption appears in Foundation's Key Parameters, and run
+setup's frozen-inputs panel shows it resolving from *site foundation* rather
+than from *scenario*. Then the shipped Fuel Loss Draft reaches `READY` through
+the product path for the first time instead of `BLOCKED`, with demand and
+irradiance disclosed as recorded unsupported optional inputs rather than as
+blocking reasons.
 
-Resolved M1 configuration-authoring decision:
-- M1 keeps canonical Site/Foundation configuration file-backed in YAML. YAML is
-  the authoritative source of truth for Site identity, Foundation version,
-  components, topology, devices, mappings, ratings, control assumptions, and
-  related configuration.
-- AssetOps provides a read-only Foundation UI that renders and explains
-  canonical configuration, including configured SLD and device/signal
-  relationships, but does not implement in-product editing or persistence.
-- Edit, Save, Publish, approval, configuration-history management, and similar
-  controls are deferred. Future-oriented edit affordances are absent, not
-  disabled, because they would imply persistence that does not exist in M1.
-- Configuration version and validity semantics remain in the canonical model, so
-  the UI may truthfully show Foundation version and effective dates.
-- YAML configuration must be strictly validated on load. Invalid Site
-  references, topology, device mappings, duplicate identities, invalid ratings,
-  and unsupported values fail explicitly rather than being silently ignored.
-- The migration path preserves the canonical configuration model while replacing
-  YAML-only authoring with persistent versioned configuration APIs and
-  user-editable product workflows later.
+**What it buys:** the physics of the machine stop living in the story, and the
+run the next block has to execute becomes executable. Nothing between here and
+a running simulator is cheaper to do later.
 
-Resolved M1 SimulationRun overlap/branching decision:
-- M1 allows any number of overlapping Draft SimulationRuns for the same Site and
-  simulation interval so Simulator Lab can support experimentation, reruns, and
-  deterministic comparison.
-- The overlap restriction applies at Commit. Until explicit branch/version
-  selection exists, only one committed simulated history may cover a given
-  `site_id` and simulation time interval.
-- A Draft run whose interval overlaps an already committed simulated run for the
-  same Site may execute and be inspected, but its Commit action is blocked.
-- Simulation intervals use half-open semantics `[start_time, end_time)`, allowing
-  adjacent runs while preventing ambiguous overlap.
-- Committed source evidence is immutable and must never be silently overwritten.
-  Re-running the same Site/scenario/time window creates a new Draft `run_id`.
-- Rerun means execute the simulator again as a new run, optionally using previous
-  deterministic inputs as defaults. Replay means inspect already
-  committed/persisted evidence without rerunning the simulator.
-- Once committed, the run's deterministic identity is frozen: Site
-  Foundation/configuration, scenario version, seed, simulator version, mappings,
-  intervention history, and simulation interval.
-- M1 has no normal product Replace committed history operation. Development/demo
-  data may be reset through explicit administrative tooling, but destructive
-  replacement is not part of the domain model.
-- M1 intentionally avoids branches while preserving a future path for live
-  evidence, simulated what-if branches, or alternative committed runs behind an
-  explicit branch/context selector.
+**Deliberately unavailable:** execution, runtime state, any trajectory on
+screen, staging, ingestion.
 
-Resolved M1 technology stack decision:
-- M1 uses the product specification's preferred MVP stack: Python/FastAPI
-  backend, React/TypeScript frontend, Python deterministic simulator, modular
-  monolith, strict source/API parsers, file-backed repositories/artifacts where
-  sufficient, single-host container deployment, and CI-enforced architecture
-  guards.
-- The stack is a durable implementation posture for early slices, not product
-  semantics. A Site, envelope, run, finding, or evidence claim must mean the
-  same thing if infrastructure changes later.
-- Do not introduce Kubernetes, microservices, Kafka, service mesh, complex
-  distributed storage, or dedicated time-series infrastructure unless a reviewed
-  slice proves the need.
+**Review:** T020A carries a user-review checkpoint on the Foundation property
+vocabulary and its units. T020B does not.
 
-Resolved Simulator Lab feature-gating decision:
-- M1 gates Simulator Lab with `simulator_lab.enabled`.
-- The flag is deployment-wide for M1 and shaped so it can become per-tenant
-  later without changing product semantics.
-- When enabled, Simulator Lab, Scenarios, Site Templates, Runs, simulator entry
-  points, execution actions, and truth overlays may be served to allowed users.
-- The Site Templates catalog and creating a simulated Site are on that list, and
-  the line is drawn where v6.9 draws it. v6.9 §3.1 makes `+ Add site` an entry
-  point whose `Create simulated site` and `Clone site into scenario` options
-  "open the Simulator Lab workspace", and §3.9 lists Site Templates in the
-  Simulator Lab shell's own navigation, not the operator's. Authoring a
-  simulated Site is therefore a Simulator Lab capability and is gated with the
-  rest of the Lab.
-- The Sites index, Site Details, and Site Foundation/Configuration presentation
-  are operator capabilities and are never gated. A Site created while the Lab
-  was enabled stays fully visible with the Lab disabled, because it is product
-  Site history and not simulator execution. A gate-off build with an empty Sites
-  index and no way to add one is the correct state, not a defect: v6.9 defers
-  backend Site registration, which is the only non-simulator creation path it
-  describes.
-- Gating direction is deliberate. Moving a surface out from behind the gate
-  later is cheap; retrofitting a gate around a surface that already shipped
-  ungated is the hidden-but-reachable failure this gate exists to prevent. When
-  a Site-authoring surface is ambiguous, it ships gated.
-- When disabled, simulator routes, navigation, entry points, execution actions,
-  and truth overlays are not rendered or served. This is route/API gating, not
-  merely hidden navigation.
-- The gate invariant is runtime reachability and API/action absence, not absence
-  from the frontend bundle. Lab modules may still be present in a built bundle;
-  the protected seam is that a gate-off build serves no Lab route, Lab action,
-  Lab API, simulator URL backdoor, create flow, or operator import path into Lab
-  internals.
-- Existing simulated Sites, SIMULATED provenance, accepted evidence, operator
-  routes, analytics, and Replay remain available because they are product Site
-  history, not simulator execution.
-- The flag gates simulator surfaces and execution only; it never alters
-  evidence, findings, provenance, claim ceilings, or operator object schemas.
+### Block B — Watch a cause become a reading
 
-## Client-Demo Roadmap
+**Slices:** T021, then T021A, then T022.
 
-This roadmap starts after the current Site Foundation fidelity sequence. It
-does not change the current T009-T013 order.
+**Shown at the end:** the first block whose end state is a demo. A person opens
+the shipped Fuel Loss Draft in Simulator Lab, starts it, steps and pauses it,
+and watches the tank level fall because the generator burned fuel and fall
+further because fuel was removed — with the *true* tank level and the
+*device-reported* level side by side, disagreeing across a declared reporting
+gap. Remove the removal cause and the discontinuity disappears; move it and it
+moves. The event timeline explains the situation being tested, not what
+AssetOps knows.
 
-T014+ task files should be created only when their block becomes active. Until
-then, this section is planning guidance, not an active task queue.
+**The claim it makes:** the world is computed, not scripted. This is the
+proposition the whole simulator programme exists to protect, and it is the
+first block where a human can check it by changing one cause.
 
-Detailed slice guidance lives in the relevant Early Feature sections below; this
-section only names milestone order, demo readiness, and review checkpoints.
+**Honest limit, and it is a large one:** the executable world is fuel and
+generator only. PV, battery and loads remain *configured* assets. The demo
+cannot show dispatch, service, unserved load or named energy flows. The
+roadmap's "a simulated mini-grid behaves credibly" is completed by Block I,
+not here.
 
-| Milestone | Task range | Demo status | Review checkpoint |
-| --- | --- | --- | --- |
-| M0: Site Foundation Fidelity | T009-T013 | Prototype walkthrough foundation. Not client-demo-ready. | T006 and T008 checkpoints already cover the product-language decisions; fidelity slices do not add one. |
-| M1A: Topology, Devices, Signals, And SLD | T014-T016 | Configured physical model and SLD become real. Still no operational evidence. | User review for SLD archetype, incompatible-topology treatment, and device/signal wording. |
-| M1B: Scenario Catalog And Run Setup | T017-T019 | Simulation authoring and run setup become real against configured Site anchors. | User review for taxonomy/public-private semantics, executable roles, initialization/timing, and run setup language. |
-| M1C: Prototype Walkthrough: Causal Runtime | T020, T020A, T020B, T021, T021A, T022 | A minimal causal kernel drives the Simulator Lab; generated golden traces support regression/playback, and runtime truth is not product evidence. | User review for Simulator Lab controls, truth visibility, and runtime action language. T020A adds its own checkpoint on the Foundation property vocabulary. |
-| Demo Ready v1: Simulated Evidence Loop | T023-T029 | Earliest honest client-ready mini-grid demo. | User review after T029. |
-| Demo Ready v1.5: Cold-Chain Evidence Loop | T030-T033 | Cold-chain demo after a truthful cold-chain model exists. | User review for cold-chain wording and domain claims. |
-| Demo Ready v2: Evidence-Backed Operational Findings | T034-T038 | First business-outcome demo. | User review after T038. |
+**Deliberately unavailable:** staged envelopes, ingestion, operator evidence,
+any product conclusion. The operator Site is unchanged by a Draft run.
 
-Minimum Demo Ready v1 path: one mini-grid Site, one deterministic scenario, one
-Draft run, staged gateway output, Commit/release, ingestion accepting some
-records and rejecting at least one explainably, operator evidence with
-provenance, and Replay over the same accepted history without simulator truth
-leakage.
+**Review:** T022 carries a user-review checkpoint on control behaviour,
+private-truth visibility, truth-versus-reported labels, and the scenario detail
+screen's new statement that the document declares causes and does not declare
+what the tank holds or what a device reads.
+
+### Block C — Inspect exactly what could be ingested
+
+**Slice:** T023.
+
+**Shown at the end:** the Lab's Gateway panel shows immutable `STAGED`
+publications produced from the previous block's generated observations, with
+source time, publication time, mapping identity, message identity and quality —
+and no receipt time, because nothing has been received. Raw inspection shows
+the same validated content as the summary. The panel says plainly that staged
+output has not crossed into the product.
+
+**Why it is separate from release:** this is the first evidence-boundary
+contract. It is worth reviewing the envelope and record language before a
+Commit action exists to obscure it.
+
+**Deliberately unavailable:** Commit, accepted evidence, Site history, source
+health, Replay.
+
+**Review:** required, on envelope and typed-record language.
+
+### Block D — Release into normal evidence
+
+**Slices:** the T024–T026 range.
+
+**Shown at the end:** a person commits one completed Draft and watches records
+become `ACCEPTED` — and watches at least one become `REJECTED` with a readable
+reason. Committing twice produces no duplicate history. A Draft whose interval
+overlaps already committed simulated history for the same Site cannot commit,
+and says why.
+
+**Deliberately unavailable:** derived Site history beyond accepted evidence,
+conclusions, Findings, replacement of committed history.
+
+**Review:** required, on Commit action language and accepted/rejected evidence
+interpretation.
+
+### Block E — Make the Site history inspectable
+
+**Slices:** the T027–T029 range. **This block completes Demo Ready v1.**
+
+**Shown at the end:** the same fuel story seen twice. Once as private simulator
+truth in the Lab, and once on an operator Site page built only from evidence
+that crossed ingestion — then the Lab is switched off and the Site page still
+works. Changing the time window changes every time-dependent panel
+consistently. A provenance drawer says which records a value came from, under
+which Foundation and mapping version. Replay shows history as of a time, with
+late records absent before their receipt.
+
+**The claim it makes:** the architecture claim, made visible. This is the
+roadmap's *earliest internal demo* and the first genuinely meaningful
+milestone. It is also the earliest honest client-facing walkthrough, scoped
+explicitly to the evidence loop, with no analytical or economic claim.
+
+**Deliberately unavailable:** generator runtime assessment, fuel
+reconciliation, Findings, work, financials, recommendations.
+
+### Block F — Explain one operating problem
+
+**Slices:** the T034–T038 conclusion family. **This is a proposed programme
+reorder; see *What moved and why*.**
+
+**Shown at the end:** a mini-grid practitioner opens one simulated Site, sees
+that fuel movement is not fully explained by the recorded delivery and the
+expected generator use, asks *why are you saying this*, and can follow the
+answer to the tank samples, the hand dip, the generator energy, the delivery
+record and the Foundation coefficient that formed the expectation — including
+the reporting gap that limits it. Removing one required record weakens or
+suppresses the claim rather than changing it silently.
+
+**The claim it makes:** the product infers, and it knows when not to accuse.
+The finding is *unexplained residual*, never theft. This is the roadmap's
+*earliest domain-expert feedback* milestone, and there is little value in
+waiting for a portfolio before getting that feedback.
+
+**It needs one thing added to the source path first:** accepted generator
+energy or runtime observations and a reportable delivery record. Block C
+deliberately ships neither, so the first slices of this block extend the
+allowlist through the same strict contract before any analytic exists.
+
+**It does not need the full electrical world.** Fuel reconciliation needs
+observed generator output and records, not optimised dispatch. Describing
+runtime as *avoidable* does need Block I, and must not be attempted before it.
+
+**Review:** required, on the expectation basis, the uncertainty and materiality
+rule, and Finding promotion.
+
+### Block G — Explain the economic stake
+
+**Slices:** proposed followers; no task files yet.
+
+**Shown at the end:** the same residual, with a bounded currency figure beside
+it and its price assumption named and versioned. Change only the price and the
+money changes while the trajectory, the envelopes and the technical claim do
+not. Remove the technical basis and no money appears at all.
+
+**Deliberately unavailable:** annual extrapolation by default, adding this
+exposure to any overlapping line, and any implication of recoverable savings.
+
+### Block H — Close one intervention loop
+
+**Slices:** proposed followers; no task files yet.
+
+**Shown at the end:** a recommendation with a stated success criterion becomes
+an accepted Action with a target, guardrails and a verification window. Work is
+marked complete and **the Finding stays open**. A later non-overlapping
+committed window supplies new evidence, and only then does the outcome become
+Verified, Ineffective or Inconclusive. An evidence-poor post-window produces
+Inconclusive rather than success.
+
+**The claim it makes:** the difference between AssetOps and a work-order
+system. Sequential before/after windows are enough here; paired experiments are
+not a prerequisite.
+
+### Block I — Show electrical consequences
+
+**Slices:** proposed followers; no task files yet.
+
+**Shown at the end:** what the roadmap's Slice A actually asks for. PV, load,
+battery SOC and power, generator state and named energy flows on one Lab
+screen, with a requested 30 kW battery discharge and an accepted 22 kW visible
+as two different numbers that never collapse into one. Sources and sinks
+balance exactly. On the product side this makes Dispatch and Service views
+derivable, and it is what first permits the word *avoidable*.
+
+**Why it is here and not earlier:** crossing the boundary on a thin world is
+worth more than a wide world that has not crossed. Block E's claim does not get
+better by adding PV, and Block F's claim does not need it. This block is where
+v4's controller contract, physical resolver and component-addressed state
+become load-bearing rather than anticipated.
+
+### Block J — Opportunity and asset pressure
+
+**Slices:** later, independently reviewable followers.
+
+**Shown at the end:** recurring renewable headroom identified after demand,
+reserve, storage and policy constraints, and a paired load-addition experiment
+whose comparison rejects any undeclared difference in resolved effective
+inputs. Separately, battery stress derived from accepted observations, shown as
+state and trajectory rather than a remaining-life date.
+
+**Deliberately unavailable:** any claim about local commercial demand; any
+exact replacement date; any use of the simulator's private stress accumulator
+as an asset-health feed.
+
+### Blocks beyond J
+
+Portfolio roll-up over several independently credible Site stories, then a
+second vertical. Both are followers, and neither starts a generalisation
+project: a new pack reuses the time, observation, gateway and ingestion
+contracts or the seam is wrong.
+
+### The three finish lines
+
+| Finish line | Reached at | What it means |
+| --- | --- | --- |
+| Internal architecture demo ready | End of Block E | Run a mini-grid, inspect truth, inspect device-reported values, inspect staged envelopes, Commit, see Site history through normal ingestion. |
+| Domain-expert feedback ready | End of Block F | A practitioner can open one Site, inspect one bounded Finding, ask why, and challenge the evidence. Do not wait for a portfolio to get this. |
+| Credible client demo ready | End of Block J plus portfolio | Portfolio, one deep Finding, economic translation, one opportunity, one intervention and its verification, and the simulator proof last. |
+
+### What moved and why
+
+**Two changes to the previous ordering, both from the roadmap companions.**
+
+1. **The mini-grid conclusion chain moves ahead of the cold-chain pack.** The
+   previous order put `Demo Ready v1.5: Cold-Chain` (T030–T033) between the
+   evidence loop and the first Findings (T034–T038). Blocks F through H now
+   follow Block E directly, and cold-chain follows them. The reason is that
+   every finish line that matters commercially is on the mini-grid path, and a
+   second vertical proves an abstraction rather than a proposition. **This is a
+   proposed programme-order change, not a renumbering**, and it is listed in
+   Open Questions because `.ai/PRODUCT.md` still states the old order.
+2. **Fuel reconciliation, not avoidable generator runtime, is the first
+   Finding.** The earlier narrative companion proposes candidate avoidable
+   runtime as the first substantial Finding. The later companion resolves it
+   the other way and is right: the fuel world already executes after Block B,
+   whereas avoidability needs feasible alternatives, policy and observations
+   that only Block I supplies. Do not reopen this.
 
 ## Feature Areas
 
+Causal prerequisites, settled semantics, and what is still open — per area.
+These are what makes a screen allowed to say something, independent of when.
+
 ### 1. Site Foundation And Site Index
 
-Visible in: Sites List, Site Details, Foundation, Simulator run setup.
+Visible in: Sites, Site Details, Foundation, run setup. **Built.**
 
-Causal prerequisites:
-- Canonical Site identity (`site_id`) independent of run identity.
-- Narrowed canonical M1 Site schema that supports arbitrary Sites such as
-  MG-001, MG-002, CC-001, and future real customer Sites without code changes.
-- Site type, name, location, mandatory IANA timezone, source mode, provenance,
-  lifecycle status, integration readiness, and created/updated metadata.
-- Time-valid foundation data for components, topology, devices, signal
-  mappings, ratings, control assumptions, and operating obligations.
-- Configuration-only Site state for Sites with no live integrations or
-  SimulationRun evidence yet.
-- Simulated provenance model: `SIMULATED` is provenance, not health or status.
-- Component truth remains distinct from device-reported evidence: Component
-  truth -> Device/sensor behavior -> Reported signal -> Gateway -> Canonical
-  source envelope -> AssetOps.
-- A `SiteRepository` port owned by the product domain, with storage supplied by
-  an adapter chosen in one composition root, so the persistence mechanism can be
-  replaced without changing callers.
-- A shipped canonical configuration catalog that is read-only at runtime and a
-  separate writable store for user-authored configuration, sharing one globally
-  unique `site_id` space with no overlay.
-- A `SiteTemplate` catalog with its own `template_id`/`template_version`
-  identity. A template is not a Site: it has no `site_id`, cannot be listed as a
-  Site, simulated, targeted by a scenario, or receive evidence.
-- Configuration origin (`SHIPPED` or `USER`) plus template provenance on
-  user-created Sites, kept distinct from `source.mode`, lifecycle status,
-  integration readiness, and source health.
-- Untrusted-input handling for user-authored configuration: one strict parser
-  for both stores, whole-document validation before write, constrained
-  `site_id`, and atomic writes.
+Settled and in code: canonical `site_id` independent of run identity; the
+narrowed M1 Site schema with versioned `foundation`; mandatory IANA timezone;
+the `SiteRepository` and `SiteTemplateCatalog` ports behind one composition
+root; shipped read-only catalog and separate writable store with one globally
+unique id space and no overlay; instantiation by copy with template provenance;
+untrusted-input handling for user-authored configuration. See
+`D-2026-09-13-site-foundation-persistence`, `.ai/ARCHITECTURE.md`
+*Configuration Persistence*, and the T005–T013 entries in `.ai/CODE_STATE.md`.
 
-T006 created Site shape:
-- Copied from the selected template: only the template Foundation seed
-  (`foundation.site_type`, `foundation.summary`, `foundation.components`, and
-  component ratings), by deep copy. The created Site never live-references the
-  template.
-- User-supplied at create time: `site_id`, `display_name`, location identity
-  fields, and `timezone`. These live on the Site record because they identify
-  the product Site and make later scenario/evidence timing meaningful.
-- Defaulted by the create service: `origin = USER`, `source.mode = SIMULATED`,
-  lifecycle status (`PLANNED` unless a task explicitly chooses another M1
-  default), selected `template_id`, selected `template_version`, and initial
-  Foundation version/validity fields if the strict Site parser requires them.
-- Not present yet: topology connections, devices, signal mappings, control
-  assumptions, source health, evidence availability, operational status, SLD
-  runtime fields, or simulator/run fields.
-
-Candidate tasks, after review, in causal order:
-- Add a shipped `SiteTemplate` catalog with the `SiteTemplateCatalog` port,
-  domain records, port error vocabulary, a read-only shipped-YAML adapter behind
-  a single composition root, and strict validation. Template inspection is
-  read-only and clearly not a Site.
-- Add a create-Site-from-template flow with the `SiteRepository` port, a write
-  adapter over the user store, identity and whole-document validation,
-  cross-store collision refusal, atomic write, and origin/template provenance on
-  the created Site.
-- Show a Sites index with a genuine first-run empty state and, after creation,
-  the created Site with stable identity. Site Details addressed by `site_id`
-  follows in the next slice.
-- Add read-only Foundation presentation with Foundation version,
-  validity, device/signal relationships, control assumptions, and no edit
-  affordance of any kind.
-- Apply canonical screen fidelity per surface, in the staging set out under
-  Canonical Screen Fidelity below.
-
-M1 ships no canonical Site. The shipped read-only catalog that ships content is
-the template catalog; the Site that appears in the product is one the user
-created. The shipped-Site store remains an architectural concept, exercised by
-the cross-store disjointness tests with a fixture, so that the two-store
-identity seam stays real without a Site nobody configured standing in the index.
-
-UI-verifiable outcomes:
-- User browses shipped configuration templates and sees what a template would
-  produce, without a template appearing anywhere as a Site.
-- On first run the Sites index is genuinely empty and says so, and the only
-  action it offers is the one the product actually supports.
-- User creates a Site from a template, sees it persist across a restart, and
-  sees it in the Sites index with an explicit configuration origin and template
-  provenance.
-- A duplicate, case-variant, or malformed `site_id` is refused with a specific
-  reason and the store is left unchanged.
-- User can inspect a read-only Foundation backed by the document they
-  created, with no implied edit persistence.
-- User can inspect a configuration-only Site without seeing fabricated
-  operational evidence, zero-value charts, source-health state, or analytics.
-- Simulated appears as provenance in its own Mode column and does not replace
-  lifecycle status, evidence state, integration readiness, or source health.
-
-Semantics to decide:
-- None remain open for M1 Site Foundation. Create-from-template is in scope;
-  in-place Foundation editing, Save/Publish over an existing Foundation, rename,
-  duplicate, delete, approval, and configuration-history management are
-  deferred, and `site_id` is immutable after creation.
-- Naming reconciliation, recorded so it is not rediscovered: what this project
-  formerly called Site Configuration is v6.9's `Foundation` tab on a Site, whose
-  subtabs are Definition, Topology, Controls, Changes, Readiness at line 2117.
-  v6.9 has no operator Site screen named Site Configuration or Site Details; its
-  operator Site tabs are `Overview | Foundation | Health | Performance |
-  Findings | Work | Financials | Evidence` at lines 464 and 615. Its
-  `Configuration` tab belongs to an Asset and to a Simulator Lab run, not to the
-  operator Site tab set. Future user-visible screen, breadcrumb, tab, heading,
-  and link text therefore use `Foundation`.
+Still forward-looking: Foundation gains named physical properties beyond the
+single `rating` scalar in Block A, and gains component-addressed binding when a
+Site first carries two components of the same type. Foundation stays read-only
+for every Site for all of M1.
 
 #### Provenance And Status Concepts: the single reference
 
-Cite this block rather than restating it. Six concepts, all independent. None is
-derived from, defaulted from, or rendered as a proxy for another.
+Cite this block rather than restating it. Six concepts, all independent. None
+is derived from, defaulted from, or rendered as a proxy for another.
 
 | Concept | Field | Values | Answers |
 | --- | --- | --- | --- |
-| Configuration origin | `origin` | `SHIPPED`, `USER` | Where did this configuration *document* come from: did we ship it read-only, or did a user author it into the writable store? |
-| Source mode | `source.mode` | `LIVE`, `SIMULATED` | Where does this Site's *evidence* come from? This is the "simulator tag": the `Simulated` badge is the rendering of `SIMULATED`, and it is provenance, never status or health. |
-| Lifecycle status | `lifecycle_status` | Fixed by the M1 Site schema above | Where is this Site in its own life as a site? This project's extension; v6.9 has no site lifecycle enum. |
+| Configuration origin | `origin` | `SHIPPED`, `USER` | Where did this configuration *document* come from? |
+| Source mode | `source.mode` | `LIVE`, `SIMULATED` | Where does this Site's *evidence* come from? The `Simulated` badge is the rendering of `SIMULATED`; it is provenance, never status or health. |
+| Lifecycle status | `lifecycle_status` | `PLANNED`, `COMMISSIONED`, `ACTIVE`, `DECOMMISSIONED`, `ARCHIVED` | Where is this Site in its own life? This project's extension; v6.9 has no site lifecycle enum. |
 | Integration readiness | see M1 schema | see M1 schema | Is the plumbing for evidence in place? |
 | Evidence availability | derived | No evidence, Limited, Available | Is there accepted evidence for the selected window? |
 | Source health | derived | `Online`, `Stale`, `Offline` plus quality | Is the source reporting as expected? Never uses assessment vocabulary. |
 
-There are two provenance concepts, not three. The "simulator tag" the product
-shows on a Lab-produced Site *is* `source.mode = SIMULATED`; it is not a third
-field, and no `created_in_lab`, `is_simulator_site`, or equivalent flag exists.
-Adding one would fork the identity seam by recording which shell created a Site,
-which nothing downstream consumes.
+There are two provenance concepts, not three. The simulator tag *is*
+`source.mode = SIMULATED`; no `created_in_lab` or `is_simulator_site` field
+exists, and adding one would record which shell created a Site, which nothing
+downstream consumes.
 
-The trap the Planner must not fall into: in M1 the only creation path is the
-Lab's, so every `USER`-origin Site also has `source.mode = SIMULATED`. They
-coincide by circumstance, not by definition, and must never be collapsed, mapped
-onto each other, or defaulted from each other. A shipped demo Site could be
-`SHIPPED` + `SIMULATED`; a Site registered for a real integration would be
-`USER` + `LIVE`. Both are meaningful and neither is reachable in M1.
-
-Nothing about "a normal Site with a simulator tag" changes the two-store model.
-Configuration origin describes the document and its store; source mode describes
-the evidence. They are orthogonal, and the shipped/user store split is untouched.
+The trap: in M1 the only creation path is the Lab's, so every `USER`-origin
+Site also has `source.mode = SIMULATED`. They coincide by circumstance, not by
+definition, and must never be collapsed or defaulted from each other.
 
 ### 2. Topology, Components, Devices, And Single Line Diagram
 
-Visible in: Foundation, Simulator Lab Site View, Devices & Sensors.
+Visible in: Foundation, Lab Site View, Devices & Sensors. **Built.**
 
-Causal prerequisites:
-- Component model for PV, inverter/PCS, BESS, generator, AC bus, loads, cold
-  room, meters, breakers, sensors, and gateway.
-- Connection/topology model that can drive the configured SLD and live
-  simulation SLD without making the visual diagram the topology source.
-- Reusable hybrid mini-grid SLD archetype that binds components by canonical
-  type/role and owns only presentation/layout concerns.
-- SLD view-model layer that validates Site topology compatibility with the
-  archetype and produces an unavailable/incompatible state for unsupported
-  topology.
-- Ratings and units: kW, kWh, V, Hz, L, deg C, W/m2, percent, sample cadence.
-- Device-to-signal mapping and protocol metadata.
+Settled: canonical Foundation is the source of truth for components, topology,
+connectivity, ratings, devices and signal availability. The SLD archetype owns
+only presentation — visual roles, node positions, symbol placement, routing —
+binds by canonical type and role rather than by Site-specific identifiers, and
+must never create, remove, rename or reinterpret a component or connection.
+Unsupported topology produces an explicit incompatible state rather than
+silently hiding assets. A future layout engine may replace the archetype
+strategy behind the same view model.
 
-Candidate tasks, after review:
-- Render a configured SLD using the hybrid mini-grid archetype template bound
-  to canonical Site topology.
-- Add topology-to-SLD view-model validation and incompatible-topology UI state.
-- Add Devices & Sensors configuration table from the same component/mapping
-  source.
-- Add read-only device/signal relationship presentation from canonical YAML.
-- Add SLD runtime value slots that can later bind to simulator/evidence values.
+Settled vocabulary: a breaker is topology and, when instrumented, something a
+device may report about — never both in one record. Position is evidence, not
+Foundation configuration. See `D-2026-09-20-breaker-vocabulary`, and
+`Docs/simulator_design_v4.md` §5, which extends the ban past the lexical guard:
+a renamed switching position or controller mode is still the deferred concept.
+Rename a physical state, an authored cause or an operational record; do not
+rename `OPEN/CLOSED/TRIPPED/AUTO/MANUAL` into synonyms to clear CI.
 
-UI-verifiable outcomes:
-- Foundation SLD and Simulator Lab SLD show the same configured assets
-  through the same SLD view model.
-- Device rows and SLD labels agree on names, ratings, and signal availability.
-- A compatible Site can reuse the hybrid mini-grid archetype without code
-  changes, while incompatible topology is explicit rather than hidden.
+Still to decide, at the first slice that renders or stores a breaker state:
+whether topology names breakers as components, connection equipment, connection
+attributes or inline elements; the accepted-evidence vocabulary for positions
+and control modes; whether `tripped` is a position, an event, a protection
+outcome, or several of those in different records; and the symbol set.
 
-Semantics settled:
-- A breaker is both a topology element and, when the site is instrumented for
-  it, something a device may report about - but never both in one record.
-  Position is evidence, not Foundation configuration, so `open`, `closed`,
-  `tripped`, `auto` and `manual` are not Foundation schema vocabulary. M1
-  carries only declared control assumptions. See
-  `D-2026-09-20-breaker-vocabulary`.
-- Cold-room process symbols: a declared cold room draws in the lane its
-  declared topology role puts it in, with its own shape. Accepted at the T016
-  checkpoint; still marked `Proposed treatment` on screen until a slice
-  deliberately removes the marker.
-
-Semantics still to decide, at the first slice that renders or stores a breaker
-state, because that slice will have the evidence contract in front of it:
-- Whether canonical topology names breakers as components, connection
-  equipment, connection attributes, or a distinct inline element.
-- The accepted-evidence vocabulary for positions and control modes.
-- Whether `tripped` is a position, an event, a protection outcome, or several
-  of those in different evidence records.
-- The symbol set for breaker drawings.
+Component addressing, from v4 §4.2: the semantic state name (`state_key`) and
+the runtime address (`StateRef`) are different concepts and must not be merged
+by encoding a component id into a state-key string. Two same-type loads or
+chargers are normal, not an edge case. This becomes load-bearing at Block I.
 
 ### 3. Scenario Authoring And Scenario Catalog
 
-Visible in: Scenarios list, Scenario Details, Simulator Lab run setup.
+Visible in: Scenarios, Scenario Details, run setup. **Built.**
 
-Causal prerequisites:
-- ScenarioDefinition identity, version identity, display metadata, target-site
-  requirement, public timeline, public parameters, and private expectations.
-- Strict scenario parser and `ScenarioDefinitionRepository`-style port over
-  composed shipped read-only definitions under `config/scenarios/` and
-  gitignored writable definitions under `var/scenarios/`.
-- One globally unique `scenario_id` space across shipped and writable stores,
-  with no overlay, no precedence, and duplicate or case-variant conflicts
-  failing loudly.
-- Event timeline model with authored scenario events, authored interventions,
-  evidence conditions, parameters, and stable timeline identities scoped to a
-  scenario version.
-- Private expectations/test assertions kept outside the product evidence path.
-- Scenario target: declared Site or template-derived Site with stable `site_id`.
-- A future ScenarioTemplate catalog remains separate from ScenarioDefinition
-  identity; T017 does not need one because the shipped Fuel Loss Event is a
-  directly selectable ScenarioDefinition.
+Settled: `ScenarioDefinition` is the saved, versioned artifact; timeline events
+are sub-artifacts addressed by `(scenario_id, scenario_version, event_id)`;
+shipped and writable stores share one disjoint id space behind a domain port;
+the three timeline entry kinds and seven categories; the public authoring
+parameter versus private expectation boundary, separated at the parser rather
+than by presentation. See `D-2026-09-20-scenario-definition-model`,
+`-storage`, `-detail-affordances` and `D-2026-09-21-scenario-authoring-semantics`.
 
-Candidate tasks, after review:
-- Add scenario catalog and scenario detail views for the Fuel Loss Event.
-- Support run setup selection of Site, scenario, start, duration, timestep,
-  seed, and execution speed.
-- Represent event parameters such as fuel removal without creating a product
-  finding directly.
+Settled by the execution contract: four execution roles; initialization
+ownership; canonical units; point, window and interval-wide timing with
+half-open dispatch; four bound cases with no silent policy; declared cadence
+ownership; observation-source resolution against Foundation. See
+`D-2026-09-21-scenario-execution-contract` and its amendment.
 
-UI-verifiable outcomes:
-- User can inspect Fuel Loss Event events and parameters before running it.
-- Run setup explains what will happen without claiming an AssetOps conclusion.
-
-Semantics settled:
-- ScenarioDefinition is the saved, versioned scenario artifact. ScenarioEvent,
-  authored Intervention, EvidenceCondition and PrivateExpectation have the
-  meanings recorded in `D-2026-09-20-scenario-definition-model`.
-- Timeline events are saved sub-artifacts inside a scenario version and are
-  addressed by `(scenario_id, scenario_version, event_id)`, not stored as a
-  top-level Event repository in M1B.
-- Storage follows `D-2026-09-20-scenario-definition-storage`: the shipped Fuel
-  Loss Event lives at `config/scenarios/fuel-loss-event.yaml`, user definitions
-  live under `var/scenarios/`, and both are reached only through the scenario
-  domain port.
-- Versioning invariants are settled even though exact fields are not:
-  scenario identity and version are distinct, referenced versions are
-  immutable, timeline identities are stable within a version, and future runs
-  freeze the concrete scenario version they used.
-- Scenario detail affordances follow
-  `D-2026-09-20-scenario-detail-affordances`: native next-step controls may be
-  disabled with a named prerequisite; controls belonging to SimulationRun,
-  ingestion, Replay, or operator evidence surfaces are absent.
-
-Semantics settled at the T017 checkpoint, 2026-09-21, accepted as proposed
-(`D-2026-09-21-scenario-authoring-semantics`):
-- Scenario versioning fields: `scenario_id`, `scenario_version`,
-  `version_valid_from`, `supersedes`.
-- Event taxonomy: three timeline entry kinds - `EVENT`, `INTERVENTION`,
-  `EVIDENCE_CONDITION` - and seven categories: `LOAD`, `WEATHER`, `EQUIPMENT`,
-  `DATA_QUALITY`, `LOSS_OR_FRAUD`, `INTERVENTION`, `MAINTENANCE`. Breaker
-  position and control mode are excluded by construction.
-- Public authoring parameters may inform future run setup and runtime.
-  Private expectations - `DETECTION`, `MAGNITUDE`, `TIMING`,
-  `NO_FALSE_POSITIVE` - are test-oracle metadata only, separated as parsed
-  fields rather than by presentation, and never reach product evidence,
-  source envelopes, operator UI, exports or provenance.
-
-The values are settled; the on-screen provisional marking is not yet removed.
-Removing it is a visible product change and belongs to a slice that says so.
+The load-bearing consequence: **a scenario authors causes, not results.** It
+does not author a computed trajectory, it does not author what a device reads,
+and after Block A it does not state a value for any parameter whose declared
+owner is Site Foundation — it declares the need and states no number. Run-scoped
+injections are SimulationRun intervention history, never written back into a
+scenario version, and each must be materialised as an immutable
+content-addressed artifact before execution so that a bare identifier cannot
+change behind itself (v4 §5.2).
 
 ### 4. SimulationRun Runtime And Simulator Lab Shell
 
-Visible in: Simulator Lab run setup, Simulator Lab Site View, Runs.
+Visible in: run setup, Runs, Lab Site View. **Setup built; runtime is Blocks A
+and B.**
 
 Causal prerequisites:
-- SimulationRun as execution/provenance record with `run_id`, `site_id`,
-  scenario version, seed, simulator version, interval, lifecycle and execution
-  status.
-- Separate lifecycle (`Draft`, `Committed`) and execution (`Ready`, `Running`,
-  `Paused`, `Completed`, `Failed`, `Blocked`).
-- Simulation intervals use half-open semantics `[start_time, end_time)`.
-- Draft SimulationRuns may overlap for experimentation; Commit is blocked when a
+- `SimulationRun` as execution and provenance record, with separate lifecycle
+  (`Draft`, `Committed`) and execution status (`Ready`, `Running`, `Paused`,
+  `Completed`, `Failed`, `Blocked`).
+- Half-open simulation intervals `[start_time, end_time)`.
+- Overlapping Drafts are allowed for experimentation; Commit is blocked when a
   Draft interval overlaps already committed simulated history for the same
-  `site_id`.
-- Simulation clock, timestep, wall elapsed, simulated elapsed, progress,
-  execution speed, pause/resume, step, fast-forward, reset, rerun, replay, and
-  jump-to.
-- Determinism identity includes Site definition/configuration, scenario version
-  and resolved parameters, interval, timestep, seed, simulator/model version,
-  explicit initialization inputs, observation/publication profile,
-  source/gateway identities, mappings/config, and intervention history. Draft
-  creation freezes these execution inputs; Commit makes the resulting history
-  immutable.
-- Runtime event injection is run-scoped intervention history under
-  SimulationRun identity, not authored scenario content and not a top-level
-  scenario artifact. See `D-2026-09-20-run-scoped-event-injection`.
-- Initialization and deterministic step/event-cursor contract that resolves
-  explicit inputs and computes state; later model depth stays behind the same
-  downstream device, gateway, ingestion, and UI contracts.
-- Foundation must be able to describe the generator before the kernel
-  initializes from it. Components carry one optional scalar today and
-  `FoundationBinding` can address only that scalar, so the generator's specific
-  fuel consumption has no carrier and no address. T020A closes that and the
-  matching `SupportedState` gap for model-rule values. See
-  `D-2026-09-21-physical-property-ownership`.
-- An execution status says what was checked, and where it checked less than its
-  name suggests it says so. `READY` means every required executable input
-  resolved and the selected model profile declares it can consume them; it does
-  not mean a kernel can execute them, and it discloses that until a conformance
-  test derives the supported set from the kernel. The disclosure names that
-  condition rather than a slice, and the slice that lands the test retires it,
-  because that is the slice that makes it false. See
-  `D-2026-09-21-run-setup-outcome-vocabulary` and
-  `D-2026-09-22-expiry-follows-the-condition`.
+  `site_id`. Committed evidence is immutable; Rerun creates a new Draft
+  `run_id`, Replay inspects committed history without rerunning. M1 has no
+  product operation that replaces committed history.
+- A frozen deterministic identity with an answerer for every value: Site and
+  Foundation version, scenario version and resolved parameters, interval,
+  timestep, seed, simulator and model-profile versions, execution-contract
+  version, resolved initialization inputs, publication profile and cadence,
+  source and gateway identities, mappings, and ordered intervention artifacts.
+- Initialization ownership (v4 §10): Foundation owns what the asset *is*;
+  scenario or run-initial-condition owns what dynamic condition the world is
+  *in* when the run starts, including SOC, fuel level, physical generator state
+  and accumulated stress; the publication profile owns how observations are
+  reported and never owns physical initial truth. **Unknown stress never
+  silently becomes zero.**
+- A minimal deterministic causal kernel precedes any authoritative trace.
+  Generated golden traces are reproducible regression and playback artifacts
+  bound to an exact frozen identity, never an alternate state authority.
+- An execution status states what it checked. `READY` means every required
+  executable input resolved and the selected model profile declares it can
+  consume them; it does not mean a kernel can execute them, and it discloses
+  that until a conformance test derives the supported set from the kernel. The
+  disclosure names that condition and the slice that lands the test retires it.
 
-Candidate tasks, after review:
-- Build Simulator Lab shell with run header, tabs, controls, and a paused Draft
-  run backed by the minimal causal kernel.
-- Add run-management read model with Draft/Committed status columns and allowed
-  actions.
-- Implement the minimal Fuel Loss causal kernel before producing golden traces;
-  generate reproducible traces from it for regression and playback use.
-- Add Commit eligibility/blocked state for overlapping committed simulated
-  history using half-open interval checks.
-- Add Rerun as new Draft `run_id` with previous deterministic inputs as
-  defaults, and Replay as inspection of committed/persisted evidence.
+Settled, and expensive to get wrong later: **a `READY` run is still a frozen
+intention.** Malformed or unfreezable requests are refused; a resolvable Draft
+with unsupported required inputs or unresolved Foundation answers is persisted
+as `BLOCKED`. `READY` overrides neither boundary. Who failed to answer decides
+which side a case falls on: every failure of a Foundation-owned value blocks.
+See `D-2026-09-21-run-setup-outcome-vocabulary` and its 2026-09-22 extension,
+`D-2026-09-22-foundation-property-absent-blocks`, and `.ai/ARCHITECTURE.md`
+*Refusal And Blocking Vocabularies* for the naming rule.
 
-UI-verifiable outcomes:
-- User can inspect a paused MG-001 run with truthful run metadata and controls.
-- User can run overlapping Drafts for experimentation, but sees Commit blocked
-  when the run would overlap already committed simulated history for the same
-  `site_id`.
-- Draft runs do not offer Open in AssetOps until Commit has released evidence
-  and ingestion has accepted it.
-- User can distinguish Rerun from Replay: rerun creates a new Draft execution;
-  replay inspects committed evidence without rerunning.
+**A third vocabulary arrives with the kernel.** Execution failure is distinct
+from setup refusal and setup blocking, and v4 §23 names its members
+(`ORDER_DEPENDENT_GROUP`, `BALANCE_IDENTITY_VIOLATION`,
+`PHYSICAL_RESOLUTION_FAILURE`, `UNSUPPORTED_MODEL_STATE`,
+`INTEGRATION_BOUND_FAILURE`, `TOPOLOGY_INCONSISTENT`, `NOT_COMPARABLE`). The
+existing naming rule applies unchanged: from the name alone, a reader must be
+able to tell which of the three it is.
 
-Semantics to decide:
-- No remaining M1 SimulationRun overlap/branch semantics are open; explicit
-  branch/context selection and normal product replacement of committed history
-  are deferred.
+Deferred: explicit branch or context selection over committed history.
 
 ### 5. Simulated World, Environment, Devices, And Event Injection
 
-Visible in: Simulator Lab Site View, Environment panel, Quick Actions, Event
-Timeline, Devices & Sensors.
+Visible in: Lab Site View, Environment, Quick Actions, Event Timeline, Devices
+& Sensors. **This is Block B, widened at Block I.**
 
 Causal prerequisites:
-- Private simulator state for irradiance, temperature, cloud cover, wind,
-  generation, load, battery SOC/power, generator state, fuel tank, cold-room
-  temperature, breakers, and injected events.
-- Minimal executable state/event kernel for M1, with explicit initialization,
-  canonical units, deterministic stepping, and exactly-once due-event dispatch.
-- Generated golden state/event traces, when useful, are derived artifacts of
-  that kernel rather than an alternate state authority.
-- Device realism layer translating truth to reported values with bias, cadence,
-  stale/missing samples, failures, delay, duplicate/out-of-order messages, and
-  quality.
-- Event log separating scheduled scenario events, manual interventions, device
-  events, and gateway publication events.
-- Explicit versioned observation rules supply cadence and reporting behavior;
-  current Foundation configuration declares signal availability and mapping but
-  no cadence, so runtime may not infer one from display text or spacing.
-- The observation transform is a component of its own, not a step inside
-  execution. It samples private state at the publication profile's cadence
-  rather than at the kernel's timestep, applies declared reporting-path
-  forcings, and emits objects distinct from truth. A scenario declares no
-  reading; every device value the product will ever see is generated here.
-  Reporting-path forcings need no new execution role: a `FORCING_INPUT` whose
-  `state_key` names a state of the reporting path rather than of the world is
-  the shape, and reporting availability, sensor bias and gateway outage are one
-  family attaching to this component.
+- Private world state as stocks, flows and typed discrete state, addressed by
+  `StateRef`. Stocks persist across steps; flows prevail over a step and are
+  recomputed; discrete states are declared by the domain pack with allowed
+  values, an initialization owner, transition rules and observable signals, and
+  every transition emits a trace record.
+- **The boundary cycle** (v4 §6.1): at instant `T`, apply due events and
+  configuration changes; the post-event state at `T` now exists; sample stocks
+  and discrete state if a sample is due, attaching interval measurements for
+  `[T-dt, T)`; apply the reporting transform and hand the result to staging;
+  build the controller view; emit `ControlIntent`; resolve `AcceptedFlowSet`;
+  integrate over `[T, T+dt)`; check conservation, bounds and invariants; carry
+  state forward. A stock reading at `T` is post-event. An interval or rate
+  reading at `T` summarises the interval that just ended. At the first boundary
+  no preceding interval exists, so interval signals are unavailable unless a
+  profile declares an initial historical window.
+- Exact-rational world arithmetic with a versioned numeric policy. Authored
+  floats are normalised once at the input boundary; per-step denominator
+  limiting is forbidden and would make the policy's name false (v4 §8.3).
+- A deterministic draw identity, if and when randomness is introduced: a draw
+  is a pure function of contract version, seed, stream name, step index and
+  ordinal under a canonical encoding and domain separation, so that adding a
+  stream cannot perturb an existing one (v4 §9).
+- Controller intent and physical acceptance are different objects. A requested
+  30 kW and an accepted 22 kW must never collapse into one number; only
+  accepted flows evolve the world and feed meter observations. The resolver is
+  a declared deterministic cascade, and a genuinely simultaneous coupled system
+  would need a new resolver plus an explicit solver and tolerance contract
+  rather than an implementer quietly adding one (v4 §7).
+- **The observation transform is a component, not a step inside execution.**
+  Bindings are keyed by `(StateRef, device_id, signal_id)` and may declare
+  cadence, noise, bias, quantisation, dropout, delay, stale behaviour,
+  duplication, out-of-order behaviour, clock drift and quality semantics. Truth
+  exists at every step; a reading exists only at a declared sample instant. A
+  scenario declares no reading: every device value the product will ever see is
+  generated here. Reporting-path forcings need no new execution role — a
+  forcing whose state names a state of the reporting path rather than of the
+  world is the shape, and reporting availability, sensor bias and gateway
+  outage are one family attaching here.
+- Reporting faults divide cleanly: sampling, bias and dropout belong to the
+  observation transform; buffering, outage, retry and publication timing belong
+  to the gateway (v4 §11).
 
-Candidate tasks, after review:
-- Add deterministic fuel-tank/generator transitions for the MG-001 run and
-  generate golden state/event traces from the kernel.
-- Bind runtime values to SLD, site state, environment, devices, and timeline.
-- Add run-scoped injection only after scheduled-event causality is proven; it
-  is not part of the initial T020-T022 sequence.
+Settled minimum for the first kernel: resolve the configured tank and
+generator; initialise every state value from an attributable frozen input;
+account for consumption, removal and delivery in canonical units; apply
+scheduled causes exactly once; and define rather than silently clamp or ignore
+a bounds failure. Consume the shipped forcings with their declared timing and
+expose the supported runtime state without claiming a power-flow model. A
+required executable input the profile does not support blocks the run.
+Metamorphic proofs vary removal magnitude and time, or remove the cause, and
+observe the corresponding consequence while the unaffected prefix and unrelated
+state stay fixed.
 
-UI-verifiable outcomes:
-- User sees truth and reported sensor values side by side inside Simulator Lab.
-- Event injection changes the simulated world/evidence path, not downstream
-  product conclusions directly.
-
-Semantics to decide:
-- Which simulator truth values may appear in Simulator Lab versus AssetOps admin
-  overlays.
-- Intervention log persistence and replay rules.
-
-Settled minimum causality for the first kernel:
-- Resolve the configured fuel tank and generator; initialize every state value
-  from an attributable frozen input; account for generator consumption, fuel
-  removal, and delivery in canonical units; apply scheduled events exactly
-  once; and define rather than silently clamp or ignore bounds failures.
-- Consume the shipped load and irradiance forcing inputs with their declared
-  timing shape and expose their supported runtime state without claiming a
-  complete power-flow model. Required executable inputs unsupported by the
-  chosen model profile block the run rather than being ignored.
-- Metamorphic proofs vary removal magnitude and time or remove the event and
-  observe the corresponding state consequence while preserving the unaffected
-  prefix and unrelated state.
+Deferred past Block B: run-scoped injection controls; broad physical realism;
+sensor bias in the Fuel Loss recipe, which stays free of it so its one lesson
+stays clean — a real loss hidden by a reporting gap.
 
 ### 6. Gateway Publication And Ingestion Visibility
 
-Visible in: Gateway & Ingestion, Ingestion Logs, Gateway Output panel, Logs.
+Visible in: Gateway & Ingestion, Ingestion Logs, Logs. **Blocks C and D.**
 
 Causal prerequisites:
-- Canonical Source Envelope contract containing source identity, Site identity,
-  schema/message identity, publication timing, sequencing where applicable,
-  provenance, and exactly one strongly typed source record.
-- Typed AssetOps evidence contracts for Telemetry, Event, Alarm,
-  OperationalRecord, and ControllerRecord; no permissive universal
-  `{type, payload}` evidence model.
-- Family-owned semantic timestamps: telemetry `observed_at`, events/alarms and
-  operational records `occurred_at`, controller records `decided_at`; envelope
-  `published_at`; ingestion-assigned `received_at` only after receipt.
-- Publication lifecycle STAGED -> RELEASED -> ACCEPTED | REJECTED, with
-  Simulator Lab owning release and AssetOps ingestion owning acceptance or
-  rejection.
-- Layered validation for source envelopes, typed records, Foundation semantics,
-  and stream/evidence assessment.
-- Logs for gateway, parser, validator, ingestion storage, and quality issues.
-- Scenario private expectations, authored causes, and runtime private truth do
-  not cross this boundary. Gateway and ingestion consume only released source
-  envelopes and typed evidence records, never ScenarioDefinition private
-  expectation fields or run-scoped injection records as product evidence.
+- A canonical Source Envelope carrying Site identity, source and device
+  identity where applicable, schema and message identity, sequencing,
+  publication timing, mapping and configuration version, quality and transport
+  metadata, allowed simulation provenance, and **exactly one** strictly
+  allowlisted typed record. No permissive `{type, payload}` escape hatch.
+- Typed evidence families — Telemetry, Event, Alarm, OperationalRecord,
+  ControllerRecord — owning their own semantic timestamps: telemetry
+  `observed_at`; events, alarms and operational records `occurred_at`;
+  controller records `decided_at`. The envelope records `published_at`.
+  **`received_at` is assigned by ingestion and by nothing else.**
+- Operational-record subtypes such as `fuel.delivery` and `fuel.manual_dip` use
+  strict typed schemas, not free-form detail maps. A human record is an
+  observation with its own completeness and errors: a physical fuel addition
+  and its delivery report are different events, and the addition can happen
+  while its record is delayed, wrong or absent.
+- Telemetry uses a canonical `signal_id`, a scalar value, a canonical unit, a
+  mapping version where interpretation needs one, and bounded measurement
+  quality. Missing or stale telemetry is an evidence-coverage condition, not a
+  fabricated measurement; `STALE` is not intrinsic measurement quality.
+- Publication lifecycle `STAGED -> RELEASED -> ACCEPTED | REJECTED`, with the
+  Lab owning release and ingestion owning acceptance and rejection.
+- Commit seals eligible staged envelopes, persists an immutable release
+  manifest and releases them through normal ingestion. It does not copy,
+  regenerate, reinterpret, reassign message identities or regenerate the run,
+  and **it never writes Evidence, Site history, source health, analytics,
+  Findings or financial objects**. It is atomic at release scope and
+  idempotent. Committing does not imply acceptance.
+- Layered validation: envelope, typed record, Foundation semantics, then
+  stream and evidence assessment. Late, missing, duplicated, out-of-order or
+  irregular evidence is preserved and classified rather than discarded. A
+  duplicate message identity with identical content is idempotent; the same
+  identity with different content is a conflict.
+- Gateway and source health is derived by AssetOps from heartbeat and arrival
+  evidence, expected cadence, gaps, sequence behaviour and validation outcomes.
+  A raw self-reported health conclusion is never accepted.
 
-Candidate tasks, after review:
-- Show staged gateway output for a Draft run with no `received_at`.
-- Add Commit path that atomically marks a completed Draft run release manifest
-  and exposes released Source Envelopes to the canonical ingestion boundary.
-- Add Ingestion Logs view and Site Gateway overview from ingested envelopes
-  and derived source-health state.
+**Keep the first allowlist small.** Block C publishes fuel-level telemetry and
+the `fuel.manual_dip` operational record and nothing else. Generator energy,
+`fuel.delivery`, command events, maintenance records and policy-change evidence
+each arrive with the product slice that consumes them: a delivery needs a
+reportable delivery observation first, and a private generator flow needs a
+modelled meter first.
 
-UI-verifiable outcomes:
-- User can inspect staged, released, accepted, and rejected publication states
-  without seeing regenerated or remapped message identities.
-- AssetOps Site Details reflects only ingested evidence, never simulator panels.
-
-Semantics to decide:
-- Immutable staged-envelope plus release-manifest persistence layout; network
-  hop remains deferrable.
-- Exact M1 allowlisted typed-record schemas for telemetry, events, alarms,
-  operational records, controller records, and the first fuel record subtypes.
-- Bounded measurement-quality vocabulary, excluding `STALE` as intrinsic
-  measurement quality.
+Still to decide: the persistence layout for immutable staged envelopes plus
+release manifest, and the exact typed schemas for the records past the first
+allowlist. Both are due in the slice that first needs them.
 
 ### 7. AssetOps Site Evidence Views
 
-Visible in: Site Details tabs, Gateway, Ingestion, Events, Logs; later Replay
-and evidence-backed findings.
+Visible in: Site tabs, Gateway, Ingestion, Events, Logs, Replay. **Block E.**
 
 Causal prerequisites:
-- Site + selected time window as the normal historical context.
-- Evidence read models derived from persisted Source Envelopes and typed
-  evidence records, not simulator runtime objects or private truth.
-- Provenance propagation from source mode, scenario, run, mappings, and
-  configuration-at-time, with `run_id` only as simulated-evidence provenance.
-- Gateway/source health derived first from heartbeat/arrival evidence, expected
-  signal cadence, source activity, missing/stale streams, sequence behavior,
-  validation failures, ingestion outcomes, and related source evidence.
-- Evidence-availability states such as `AVAILABLE`, `LIMITED`, and
-  `UNAVAILABLE` for downstream analytics.
-- Explicit unavailable/invalid/limited states when evidence is missing, stale,
-  irregular, or insufficient.
+- Site plus selected time window as the normal historical context.
+- Read models derived from persisted envelopes and typed records, never from
+  simulator runtime objects. **Rebuilding an operator view must require only
+  persisted canonical envelopes, referenced configuration and mapping, and the
+  ingestion pipeline** — with no runtime, no `WorldState`, no `LabProjection`
+  and no raw `DeviceObservation` access.
+- Progressive provenance: primary screens show decision-relevant source mode,
+  window, freshness and completeness, and limitations affecting a claim;
+  technical transport detail stays in an evidence drawer and in ingestion and
+  log views. The drawer exposes contributing records, timestamps, source and
+  device identities, quality, Foundation and mapping version, and run
+  provenance. Consequential claims expose stronger provenance than ordinary
+  telemetry. Scenario causes and private truth are never product provenance.
+- Evidence-availability states — `AVAILABLE`, `LIMITED`, `UNAVAILABLE` — that
+  downstream analytics must honour.
+- **Replay is recorded history as of a time.** Evidence appears no earlier than
+  its ingestion `received_at`; a late record does not appear retroactively at
+  its source time; derived objects honour their own creation times and
+  configuration validity. Replay does not re-simulate and does not recompute
+  old analysis. Accelerated simulation produces many records received together
+  at Commit, and the screen shows that honestly rather than inventing distinct
+  receipt instants.
+- A configuration-only Site shows No evidence, Limited or Unavailable rather
+  than zero values, `OFFLINE` health, flat charts or derived conclusions.
+  Source health becomes applicable only once a source is expected to report.
 
-Candidate tasks, after review:
-- Show Site Details overview, Gateway status, Events, and Logs from ingested
-  demo evidence.
-- Add no-evidence/unavailable operational panel states for configuration-only
-  Sites.
-- Add first derived gateway/source-health summary from accepted evidence and
-  expected cadence.
-- Add concise source mode, time-window, freshness/completeness, and limitation
-  indicators on primary Site evidence screens.
-- Add Evidence/Provenance inspection drawer for claim/evidence chains.
-- Add View Live Data bridge and Open in Simulator Lab bridge with correct shell
-  transitions.
-- Add Replay/read-at-time behavior once committed run history exists.
-
-UI-verifiable outcomes:
-- User can move from Simulator Lab to AssetOps and verify the product view is
-  built from accepted evidence.
-- User sees configuration-only Sites show No evidence or Unavailable instead of
-  zero values, OFFLINE health, flat charts, or derived conclusions.
-- User sees `SIMULATED` provenance separately from lifecycle state and
-  gateway/source health.
-- User sees `ONLINE`, `STALE`, or `OFFLINE` source health as a derived state,
-  separate from asset condition, only when a source is expected to report.
-- User can open an Evidence/Provenance drawer to inspect contributing records,
-  timestamps, source/device identities, quality, Foundation/configuration
-  version, mapping version, and run provenance where applicable.
-- Changing the Site time window changes time-dependent panels consistently.
-
-Semantics to decide:
-- Minimal Site Details tab set for M1 versus the broader canonical operator
-  shell.
-- Whether "Live Data" means latest ingested evidence, replay-as-now, or a
-  separate stream view for simulated sites.
+Still to decide: whether "Live Data" means latest ingested evidence,
+replay-as-now, or a separate stream view for simulated Sites.
 
 ### 8. Evidence-Backed Findings, Incidents, Work, And Financials
 
-Visible in the broader canonical product, not fully in the provided motivation
-screens, but causally downstream of the simulator and ingestion wedge.
+Visible in: Performance, Findings, Work, Financials. **Blocks F, G and H.**
 
-Causal prerequisites:
-- Derived analytics that consume typed evidence/read models, not simulator truth.
-- Product conclusion sequence: Gateway/Source Health, Generator Runtime
-  Assessment, then Fuel Reconciliation/Fuel Discrepancy.
-- Generator Runtime Assessment reconciles generator state, active power, runtime
-  counters, start/stop events, and available controller records to determine
-  operating duration and evidence consistency.
-- Fuel Reconciliation reconciles tank telemetry, fuel-delivery and manual-dip
-  operational records, generator operation, and configured fuel-consumption
-  assumptions.
-- Evidence-availability states such as `AVAILABLE`, `LIMITED`, and
-  `UNAVAILABLE` must weaken or suppress conclusions when evidence is
-  insufficient.
-- Findings are distinct from routine derived states and assessments, and are
-  created only when materiality/confidence criteria warrant operator attention.
-- Claim boundaries, confidence, basis labels, alternatives, recommendations,
-  consequence, and verification criteria.
-- Managed-object identity for findings, actions, incidents, and maintenance
-  without duplicating scoped site indexes.
-- Verification outcomes that resolve only from declared success criteria and
-  guardrails.
+Causal prerequisites, in order — the order is the point:
+1. **Evidence coverage and capability readiness.** A capability is Full,
+   Limited, None or Not-applicable against its required records, coverage and
+   uncertainty. *No record* is never a verified zero.
+2. **Source and gateway health** from accepted evidence and expected cadence.
+3. **Generator runtime and energy** from accepted telemetry, events and
+   controller records. This supports consumption estimation. It cannot infer
+   avoidability from a fuel-only model.
+4. **Fuel reconciliation.** Opening, plus recorded deliveries, minus expected
+   use, minus observed closing, equals an unexplained residual with declared
+   uncertainty. Expected use is accepted energy times a configured
+   specific-consumption coefficient, with the analysis basis and algorithm
+   version frozen on the derived object.
+5. **Finding promotion.** Only a material, sufficiently supported residual
+   becomes a Finding, with a bounded claim, severity, confidence, alternatives,
+   evidence references and a recommendation.
+6. **Financial consequence**, downstream of all of it, from a versioned
+   business context. The economic layer never strengthens the technical claim.
+7. **Verification**, from a comparable post-window, never from work completion.
 
-Candidate tasks, after review:
-- Add Generator Runtime Assessment from accepted evidence once source health is
-  available.
-- Add Fuel Reconciliation from accepted telemetry, operational records,
-  generator operation, and configured fuel-consumption assumptions.
-- Detect one material unexplained fuel variance from ingested evidence and show
-  bounded Finding language.
-- Show evidence basis, confidence/evidence sufficiency, and material limitations
-  on or adjacent to the Finding.
-- Link Finding evidence to the Evidence/Provenance drawer with source envelopes,
-  configuration-at-time, and mapping versions.
-- Create one recommendation/action and later verify its outcome from a post
-  window.
+Load-bearing constraints:
+- **The coefficient the product uses comes from Foundation configuration, never
+  from the simulator's private rate.** Reading the number the simulator used
+  computes the right answer for the wrong reason.
+- Uncertainty is derived from declared measurement and model errors, and
+  materiality is reviewed. Do not pick a threshold that guarantees the recipe
+  triggers.
+- Missing-record behaviour is a feature of the demo, not a gap in it. A missing
+  delivery report suppresses the complete balance or bounds it specifically;
+  insufficient energy coverage makes expected consumption unavailable; a sensor
+  and a hand dip that disagree expose alternatives such as calibration or
+  timing error. **Never consult private truth to choose the explanation.**
+- Fuel language stays bounded as unexplained variance and never asserts theft
+  or hidden cause from a discrepancy alone.
+- Financial lines must not double-count across overlapping findings, and no
+  annual extrapolation appears by default.
 
-UI-verifiable outcomes:
-- User sees source health, generator runtime, and fuel reconciliation as a
-  causal assessment chain.
-- User sees a fuel discrepancy as evidence-backed unexplained fuel variance, not
-  asserted as theft or hidden cause.
-- User sees stronger provenance on Findings and consequential assessments than
-  on ordinary telemetry.
-- Product conclusions remain unchanged when private truth changes without
-  changing published evidence.
+Still to decide, at the Block F checkpoint: whether the product's expectation
+uses the time-valid Foundation coefficient or a separately declared operating
+assumption. The recommendation is the Foundation coefficient for the first
+narrow calculation, visibly labelled modelled, with its suitability and
+uncertainty declared.
 
-Semantics to decide:
-- Materiality/confidence criteria that promote routine assessment results into
-  Findings.
-- Fuel balance uncertainty and whether missing records produce Limited,
-  Unknown, or Indeterminate.
-- Which analytics are allowed in M1 versus deferred P1.
+## Protected Seams
 
-## Protected Architecture Seams
+One table. The first column is the invariant; the last says what enforces it.
+`.ai/ARCHITECTURE.md` holds the durable rules these derive from and is not
+restated here.
 
-- Simulator Lab owns world state, private truth, device realism, event
-  causality, time, and staged gateway publication.
-- AssetOps owns Site history, evidence, analytics, findings, incidents, work,
-  financials, and operator presentation.
-- The only normal simulator-to-product crossing is canonical source envelopes
-  released through ingestion.
-- Source Envelopes and typed evidence records are separate contracts; the
-  envelope must not become a permissive product evidence payload.
-- `site_id` is the only universal Site identity; `run_id` is simulated-evidence
-  provenance only.
-- GatewayHealth is derived by AssetOps and must not be accepted as an
-  authoritative raw health conclusion.
-- Product conclusions must be sequenced from source/evidence coverage to
-  operational assessment to material Finding; Findings are not raw telemetry or
-  routine derived states.
-- Fuel discrepancy language must remain bounded as unexplained fuel variance and
-  must not infer theft or hidden cause from discrepancy alone.
-- Site identity is stable and declared; run identity is provenance, never Site
-  identity.
-- SLD archetypes are presentation strategies over canonical topology; they must
-  not create, remove, rename, or reinterpret components or connections.
-- Scenario labels and run names must not become Site names or Site identity.
-- Draft runs stage immutable Source Envelopes. Commit releases them via a
-  release manifest and does not directly write Site history or derived objects.
-- Overlapping Draft SimulationRuns are allowed, but only one committed simulated
-  history may cover a `site_id` and half-open simulation interval until an
-  explicit branch/context selector exists.
-- Committed source evidence is immutable; rerun creates a new Draft `run_id`,
-  while replay inspects committed/persisted evidence without rerunning.
-- M1 has no normal product Replace committed history operation; destructive demo
-  resets belong only in explicit administrative tooling.
-- Product screens must show missing, invalid, stale, or limited evidence
-  explicitly instead of fabricating values.
-- A screen adopts canonical mockup layout only for content the product can
-  source. Design references are authoritative about information architecture,
-  never about capability inventory, status vocabulary, or navigation.
-- A gated or decided-against capability is not rendered; a canonical tab with no
-  content contract yet is labelled in place; a built but ineligible capability
-  is disabled with its reason stated. These three treatments must not blur.
-- A navigation destination appears only when the route behind it renders a
-  truthful surface. Operator navigation does not grow on the strength of a
-  mockup rail that belongs to the Simulator Lab shell.
-- Authoring a simulated Site is a Simulator Lab capability behind the gate;
-  the Sites index, Site Details, and Foundation are operator
-  capabilities and are never gated. The gate covers surfaces and execution,
-  never objects or stores: a Site the Lab produces is a normal Site in the
-  product store, never published or promoted into the product.
-- Where both shells present a Site they present it from one substrate: one read
-  model, one view model, one set of components. Shells compose and add; neither
-  forks, and no shell/mode/variant discriminant lives inside the shared core.
-- Configuration-only Sites are valid Sites, but they must show No evidence or
-  Unavailable operational states instead of fabricated telemetry, source health,
-  charts, analytics, Findings, or Replay.
-- YAML is the authoritative M1 configuration representation in both the shipped
-  catalog and the user-authored store. The Foundation UI stays read-only
-  for every Site and must not imply in-place edit, Save, Publish, approval,
-  rename, delete, or configuration history, none of which exist.
-- Configuration reaches the product only through the `SiteRepository` and
-  `SiteTemplateCatalog` ports. Storage technology lives in adapters selected in
-  one composition root; ports speak domain records and never expose paths, file
-  handles, YAML text, or store-specific exceptions.
-- Shipped canonical configuration is read-only at runtime and lives outside the
-  writable store. A template is not a Site and holds no `site_id`;
-  `template_id`/`template_version` are origin provenance only.
-- `site_id` is globally unique across the shipped and user-authored stores. There
-  is no overlay and no precedence: the same `site_id` in both stores is a load
-  failure, and creation refuses an id already present in either store.
-- Templates are instantiated by copy with recorded provenance. A later template
-  change never alters an already-created Site.
-- Configuration origin is a fourth separate concept alongside source mode, Site
-  lifecycle, integration readiness, evidence availability, and source health.
-- User-authored configuration is untrusted input. It crosses the same strict
-  parser as shipped configuration with no lenient path, the whole materialized
-  document is validated before any write, and writes are atomic.
-- YAML configuration must be strictly validated on load and fail explicitly for
-  invalid references, topology, mappings, duplicate identities, invalid ratings,
-  or unsupported values.
-- Source mode, Site lifecycle, integration readiness, evidence availability, and
-  source health are separate concepts.
-- Provenance visibility is progressive: primary screens show decision-relevant
-  source mode, time window, freshness/completeness, and limitations; technical
-  transport detail stays in Evidence/Provenance drawers and ingestion/log views.
-- Scenario causes and private truth are never product evidence provenance.
-- Source/gateway health uses Online/Stale/Offline plus quality; asset condition
-  uses assessment vocabulary. These vocabularies must not collapse.
-- A bound's declaration is the document's and its value is the site's. A
-  document says which world state caps which; a Foundation says how big the
-  thing is. Nothing composes the two except a kernel reading a frozen run, and
-  a validator that reported both was a kernel in the validation layer.
-- Projecting a document is validation; composing projections into a
-  value-at-a-time is a kernel. A component that owns a transition rule is a
-  kernel whatever it is called, so no validator, run setup, or authoring
-  surface may reach a verdict that requires composing declared causes.
-- A specification exercised before its implementation exists is exercised in
-  the test suite, labelled a reference implementation and carrying a stated
-  expiry. It is never a product surface.
-- Foundation declares what the site is, the model profile how the simulator
-  reasons, the scenario what happens, and the publication profile how the
-  reporting installation behaves. A physical property of a machine never lives
-  in a scenario, and a declarable owner with no carrier for its values is an
-  incomplete seam, not a working one.
-- A device reading is generated by the observation transform from private state
-  at the publication profile's cadence. No authored artifact declares what a
-  device reads, and no executable path reads an authored reading.
-- The consumption coefficient the product uses to form an expectation comes
-  from Foundation configuration, never from the scenario's private rate.
-- An execution or readiness status states what it checked. Where the check is
-  weaker than the word, the record and the screen say what is not asserted
-  until something verifies it structurally.
-- Anything that exists only because a condition holds names the condition as
-  its expiry, not a slice number. A claim that has become false goes in the
-  slice that falsifies it; a thing still honest goes when someone decides to
-  remove it.
+| Seam | Invariant | Check | Late failure mode |
+| --- | --- | --- | --- |
+| Stack and module direction | Modular monolith with FastAPI, React/TypeScript and a Python simulator; strict parsers; file-backed repositories until a reviewed slice changes it. | CI architecture check on roots and import direction. | Incompatible layers make vertical slices unreviewable. |
+| Dependency direction | `backend/` imports no simulator package. `simulator/` imports **no `assetops_backend` package at all**. A neutral `host/` composition leaf may import both, and nothing imports `host/`. Shared execution and envelope contracts live in a dependency-neutral module rather than being imported from the backend. | CI import guard, extended when `host/` is created. | Private simulator types become product dependencies and the simulator stops being independently testable. |
+| Simulator feature gate | With `simulator_lab.enabled=false`, simulator routes, entry points, execution APIs and truth overlays are not served. Operator routes, simulated Sites, accepted evidence and Replay still work. The gate covers surfaces and execution, never objects or stores. | Route, API and navigation tests in both gate states. | Truth or execution stays reachable by direct URL after "disabling" the feature. |
+| The one crossing | The only simulator payload eligible for normal ingestion is a canonical source envelope. `WorldState`, `LabProjection`, private truth, `ControlIntent`, `AcceptedFlowSet`, scenario expectations, trace records and raw `DeviceObservation` are never accepted. | Integration test rebuilds the Site view from serialized envelopes with the simulator absent. | A demo shortcut bypasses validation and breaks against a real source. |
+| Private truth isolation | Change private truth without changing published envelopes and every product conclusion and export is unchanged. | Contract test mutating truth. | Analytics pass by oracle leakage and fail on real sources. |
+| Envelope versus typed evidence | The envelope carries identity, timing, provenance and transport plus exactly one strictly allowlisted typed record. | Parser tests reject unknown fields, missing or multiple records, and permissive payloads. | Ambiguous payload handling accumulates and schema migration becomes unsafe. |
+| Site identity | `site_id` is the only universal Site identity. `run_id`, scenario labels and run names are provenance only. | Test changes run and scenario identity and asserts Site identity and object roots do not move. | Runs become duplicate Sites or fragment history. |
+| Commit semantics | Commit releases immutable staged envelopes by manifest and writes no Evidence, history, health, analytics, Findings or financial objects. | Storage inspection after Commit and before acceptance: only release state and manifest changed. | Commit becomes an unreviewable product backdoor. |
+| Committed overlap | Overlapping Drafts are allowed; overlapping committed simulated history for the same Site and half-open interval is blocked. | Interval tests for overlap, containment, equality and adjacency, plus a UI blocked reason. | Site history silently merges ambiguous alternative worlds. |
+| Ingestion owns receipt | `received_at` is created by ingestion. Source and publication times are fixed before Commit and never change. | Contract test across the boundary. | Timestamps stop meaning what audit needs them to mean. |
+| Evidence immutability | Committed evidence is immutable. Rerun creates a new Draft `run_id`; Replay reads persisted evidence without executing. | Contract test. | Reproducibility and deterministic comparison collapse. |
+| Projection versus composition | Projecting a document is validation. Composing projections into a value-at-a-time is a kernel, whatever it is called. No validator, run setup or authoring surface reaches a verdict that requires composing declared causes. | Review-time plus the absence of such a call site. | A verdict is reached one layer too early and has to be unwound after it has shipped. |
+| Causal authority before traces | A kernel precedes any authoritative trace. A generated golden trace is a reproducible output of a named kernel version bound to an exact frozen identity, and a mismatch is refused. | Determinism and provenance tests. | An authored fixture becomes simulator truth and every later kernel is fitted to it. |
+| Physical property ownership | Foundation declares what the site *is*; the model profile how the simulator *reasons*; the scenario what *happens*; the publication profile how the reporting installation *behaves*. A machine's physical property never lives in a scenario, and a declarable owner with no carrier for its value is an incomplete seam. | Parser rules keyed on the declared owner. | A scenario run against a different machine carries the first machine's physics with it. |
+| Readings are generated | No authored artifact declares what a device reads, and no executable path reads an authored reading. | Parser role separation plus the observation transform's exclusive ownership. | The document and the transform disagree on the same screen. |
+| The product's coefficient | The coefficient the product uses to form an expectation comes from Foundation, never from the scenario's private rate. | Analytics contract test. | The product gets the right answer for the wrong reason and fails on a real site. |
+| Control vocabulary | Switching position and controller operating mode stay deferred, including as renamed synonyms. Rename a physical state, an authored cause or an operational record only. | The unconditional banned-token scan plus review against v4 §5. | The product asserts control semantics its evidence model cannot substantiate. |
+| Conclusion order | Evidence coverage precedes source health, which precedes runtime, which precedes reconciliation, which precedes Finding promotion. | Analytics tests suppress downstream claims when upstream status is Limited or Unavailable. | Findings overstate certainty and cannot explain what is missing. |
+| Bounded fuel language | Unexplained variance, never theft or hidden cause. | Content checks over Finding titles, summaries, recommendations and exports. | The product makes an accusation it cannot support. |
+| Verification needs evidence | Work completion never resolves a Finding. Only a comparable post-window does. | Contract test: complete the work, assert the Finding is still open. | The product becomes a work-order system with extra steps. |
+| Comparability grain | A paired comparison proves all-else-equal over resolved effective frozen inputs at field grain, never over version identifiers. Any undeclared difference is `NOT_COMPARABLE`. | Pair-builder test with differing versions and identical resolved inputs, and the reverse. | An opaque version bump conceals unrelated changes inside a causal claim. |
+| Shared Site substrate | One read model, one view model, one component set in `frontend/src/sites/`. Shells compose and add through named slots; neither forks; the substrate carries no shell, mode or variant discriminant and imports no shell, simulator or flag code. | Single-definition and leaf-direction CI checks now; render equivalence when the Lab's Site view exists. | Two shells drift into two Site models, and by the time anyone notices neither can be changed alone. |
+| Configuration persistence | Configuration is reached only through domain ports; storage lives in adapters chosen in one composition root; ports speak domain records and never paths, handles, YAML text or store exceptions. | CI check on adapter imports and on store primitives inside the domain. | Replacing the store becomes a rewrite of every caller. |
+| Shipped versus user configuration | Shipped configuration is read-only at runtime and outside the writable store. One globally unique id space, no overlay, no precedence. Templates instantiate by copy and a later template change never alters an existing instance. | Collision, disjointness and copy-provenance tests. | A template release silently rewrites a Foundation that committed history depends on. |
+| Untrusted configuration input | The fully materialised document is validated before any write; unknown keys and oversized documents are rejected; identity is charset-constrained and cannot traverse or collide case-insensitively; writes are atomic. | Parser and adapter tests including a failed write leaving the store byte-identical. | A user document escapes the store directory or forks Site identity. |
+| Read-only Foundation | Foundation renders read-only for every Site. Deferred-by-decision controls are **absent from the DOM**, not disabled. | UI test asserts absence, not `aria-disabled`; API test asserts no update or delete route. | A greyed-out Edit reads as *soon*, which is a promise M1 has declined to make. |
+| Mockup fidelity versus honesty | A screen adopts canonical layout only for content the product can source. No mockup literal appears unless the record supplies it. Three treatments, never blurred: not rendered, labelled in place, disabled with a stated reason. | Per-screen tests for literals, backing capability, absent deferred controls, accessible disabled reasons, and Mode never sharing a column with lifecycle. | The product ships a convincing shell whose columns and controls teach capabilities that do not exist. |
+| Navigation truthfulness | A destination appears only when its route renders a truthful surface. No placeholder destinations, no disabled nav, no coming-soon routes. Operator navigation does not grow on the strength of a mockup rail that is the Lab's own. | Rail inventory guards in both shells. | A rail of ten items where six are dead teaches a product that does not exist. |
+| SLD archetype boundary | The archetype is presentation over canonical topology and never creates, removes, renames or reinterprets a component or connection. | View-model test comparing rendered identities against topology, plus the incompatible state. | The diagram becomes a second topology model. |
+| Vocabulary separation | Source health uses Online/Stale/Offline plus quality. Asset and product assessment uses its own vocabulary. They never collapse. | Surface text checks. | Health, asset condition and evidence readiness blur into misleading status. |
+| Pack neutrality | The shared kernel branches on no `site_kind`, component type or pack identity; the observation and gateway path contains no domain branch. | Structural checks; a second pack introduces no branch. | The seam is wrong and rationalising it makes the second vertical a rewrite. |
+| Status disclosure | A status that checked less than its name suggests says so, on the record and on the screen, and the disclosure travels with the status. Anything existing only because a condition holds names the condition as its expiry, never a slice number. | Review-time, plus the retiring slice recognising the named condition. | A claim that has become false outlives the slice that falsified it. |
 
-## Candidate Vertical Slices
+## Screen And Shell Architecture
 
-These are UI-verifiable outcomes that could become tasks after this map is
-reviewed:
+Settled and enforced in code. `D-2026-09-17-foundation-screen-architecture`
+holds the derivation from v6.9 and the mockups; the guards hold the current
+inventories; `.ai/CODE_STATE.md` says what shipped. Do not re-derive any of it
+from a mockup.
 
-1. Shipped configuration templates are browsable and visibly distinct from
-   Sites, resolved through the `SiteTemplateCatalog` port, while the Sites index
-   is still genuinely empty.
-1b. A user creates a Site from a template through the `SiteRepository` port; it
-   persists across restart, appears in the Sites index with an explicit
-   configuration origin and template provenance. Rows do not open as Site
-   Details until the identified Site Details slice.
-1c. That Site's Foundation is presented as read-only Foundation, with no
-   edit affordance and no operational values.
-1d. Those three surfaces are brought to canonical mockup fidelity, per surface,
-   after each one's content is real.
-2. The configured topology renders as a single line diagram and Devices &
-   Sensors table from the same source.
-3. Fuel Loss Event appears in Scenarios and can be selected in run setup.
-4. A paused Draft SimulationRun opens in Simulator Lab from a minimal causal
-   runtime with clock, controls, supported SLD/environment/device values, and
-   event timeline; gateway staging is explicitly unavailable until the next
-   slice, and any playback trace is generated by that runtime.
-5. Commit releases staged Source Envelopes with typed records; Ingestion Logs
-   and Gateway & Ingestion show released/accepted/rejected state with correct
-   timestamps.
-6. AssetOps Site Details reads accepted evidence for MG-001 and exposes
-   provenance plus unavailable states where evidence is incomplete.
-7. Replay inspects committed/persisted evidence without rerunning, while
-   latest-time navigation proves Site + time-window consistency.
-8. Gateway/source health, Generator Runtime Assessment, and Fuel
-   Reconciliation form the first product conclusion chain; only material
-   unexplained fuel variance becomes a bounded Finding.
+- **Two shells, two rails.** The operator rail's long-run target is v6.9's ten
+  object classes; the Lab rail is the Lab's own developer workspace menu and is
+  gated with the Lab. `ScreenMockups.png` draws the **Lab** shell, not the
+  operator product; read correctly it agrees that Simulator Lab is not an
+  operator navigation item. Each rail has a single definition module consumed
+  by both rendering and tests.
+- **Operator Site tabs** are v6.9's eight: Overview, Foundation, Health,
+  Performance, Findings, Work, Financials, Evidence. Overview and Foundation
+  are destinations; the rest are labelled in place until their content
+  contracts exist. Devices, Gateway, Ingestion, Events and Logs are Lab run
+  tabs or site-scoped future content, never operator Site tab vocabulary.
+- **Foundation subtabs** are Definition, Topology, Controls and Readiness.
+  `Changes` is not rendered until a reviewed configuration-change capability
+  exists, because v6.9 makes it a real intervention capability rather than
+  version history. The row is section navigation, not a tab switcher, and is
+  visually subordinate to the Site tab row above it.
+- **Sites index columns** are the nine the M1 record can source, with Mode and
+  lifecycle as separate columns and `Last analysed` rendered `--`. Assessment,
+  top issue and evidence readiness stay absent until their sources exist.
+- **Viewport commitment.** M1 is a desktop product at `1280px` or wider. It
+  claims no mobile, phone or portrait-tablet form. Below the committed width it
+  degrades truthfully with desktop density and internal scrolling rather than
+  adopting a second information architecture, a reduced Site model, a different
+  rail inventory or a different tab vocabulary. Page-level overflow is not an
+  allowed density mechanism: shell chrome stays anchored and dense content owns
+  its own scroll region. A dense table keeps its milestone columns at every
+  width where it renders; a column hidden by viewport would be a fourth
+  treatment. Breakpoints, if introduced, are tokens in
+  `frontend/src/ui/tokens.css` consumed by both shells and the substrate.
+- **Fidelity follows content.** A surface adopts canonical layout after that
+  surface's content is real. Fidelity applied to the shared substrate is
+  inherited by the Lab's Site view rather than applied twice.
 
-## Causal Sequencing
+Needs user choice only to override: v6.9's Site tab and Foundation subtab
+vocabulary, the accepted T008 naming checkpoint, the nine-column Sites index,
+or the decision not to claim a mobile product form. Each of those would be
+settling a product commitment, not a CSS technique.
 
-Dependency direction: configuration truth -> displayable Site/configuration ->
-scenario/run intent -> gated simulator execution -> staged gateway output ->
-Commit/release -> ingestion/accepted evidence -> product Site evidence views ->
-Replay/time-window consistency -> derived health/assessments -> bounded
-Findings. The direction is testable because later screens must fail unavailable
-when their named input does not exist.
+## Near-Term Sequencing
 
-1. MVP stack and app shell.
-   - Becomes true: the repo has the chosen FastAPI + React/TypeScript + Python
-     simulator modular-monolith shape, strict boundary-parser posture,
-     file-backed repository posture, and CI guard slots.
-   - Depends on: no product step; it is the enabling technical decision for all
-     subsequent slices.
-   - Real dependency: without a stack, the Planner cannot write executable,
-     reviewable tasks or CI checks.
-   - UI-verifiable outcome: operator shell and Simulator Lab-disabled shell can
-     render a route frame from the chosen app stack.
-   - Deliberately unavailable: no real Site data, simulator routes, ingestion,
-     analytics, editing, or findings; the UI shows empty/no-data states.
+The live range is T020A through T023 — Blocks A, B and C. Per-slice Planner
+guidance is in `.ai/PLANNING_HANDOFF_T020A_T023.md`; this section holds only
+what the sequence itself has to guarantee.
 
-2. Simulator Lab feature gate.
-   - Becomes true: `simulator_lab.enabled` controls simulator routes,
-     navigation, entry points, execution actions, and truth overlays at serving
-     boundaries.
-   - Depends on: step 1, because it needs the real routing/config mechanism.
-   - Real dependency: once simulator routes exist, retrofitting route/API gating
-     risks hidden but reachable truth surfaces.
-   - UI-verifiable outcome: with the flag off, operator routes work while
-     Simulator Lab URLs and entry points are unreachable; with it on, the empty
-     Simulator Lab shell can be reached.
-   - Deliberately unavailable: with the flag off, runs cannot be started,
-     inspected, rerun, or compared to truth; the UI has no simulator entry
-     points and direct routes return a served-unavailable/not-found state.
+**Dependency structure.** Every row is a hard dependency, not a preference.
 
-3. Configure a Site: templates, creation, and the configuration-only Site.
-
-   Step 3 splits into three sub-steps. The ordering was revised on 2026-09-13
-   and now runs template catalog, then creation, then configuration
-   presentation. The previous ordering, canonical read path first and creation
-   last, is superseded.
-
-   The correction is causal, not cosmetic. A Sites index is a view over Sites
-   that somebody configured. Shipping the index first over a shipped canonical
-   fixture Site makes the view real before the capability that fills it, and it
-   pushes the milestone's own first clause, "a user can configure one mini-grid
-   site", to the end of the feature. It also produces a first screen whose
-   single row arrived by no product action the user can point at, which is a
-   weak review surface: the user cannot tell a working configuration path from
-   a hardcoded row.
-
-   The constraint that made the previous ordering partly right still holds and
-   now does the ordering work on its own: the template concept must be
-   structural before any write path exists. The template catalog is a complete,
-   truthful, reviewable read surface with no Site in it, so it can carry the
-   port layer, the strict parser, the composition root, and the persistence CI
-   guards without a Site fixture standing in for a capability.
-
-   M1 therefore ships zero canonical Sites. What ships read-only is the
-   template catalog. `MG-001` becomes the Site the user creates from the Hybrid
-   Mini-Grid template, which is also what `SimulatorLab1.png` already shows in
-   its run header as `Template: Hybrid Mini-Grid (100 kW)`. First run has an
-   empty Sites index, and that is the honest state, not a gap to fill.
-
-   3a. Shipped Site configuration template catalog.
-   - Becomes true: a read-only `SiteTemplate` catalog with its own
-     `template_id`/`template_version` identity is inspectable through a
-     `SiteTemplateCatalog` port and a read-only shipped-YAML adapter behind one
-     composition root, with strict validation of the template document. A
-     template is visibly not a Site.
-   - Shell placement: the Simulator Lab shell, behind `simulator_lab.enabled`.
-     v6.9 lists Site Templates in the Lab's own navigation and nowhere in the
-     operator's. Operator navigation does not change.
-   - Depends on: step 2, because this surface is behind the gate and the gate
-     must exist first.
-   - Real dependency: the template/instance distinction has to be structural
-     before anything can be created. If create lands first, its only source is
-     an empty form or a copy of a shipped Site, and precedence, identity, and
-     provenance rules become retrofits over data users already created. This
-     sub-step also proves the port shape and the storage-isolation guards
-     against a real screen, which is why the port is not deferred and is not
-     shipped consumerless.
-   - UI-verifiable outcome: user browses shipped configuration templates and
-     opens one to see the Foundation content it would produce, while the Sites
-     index is still empty and still contains only Sites.
-   - Deliberately unavailable: instantiation, a Create action, any Site, any
-     write path, the writable store, template authoring, template upload,
-     template editing, and every operational surface. The port has no mutator.
-
-   3b. Create a Site from a template.
-   - Becomes true: a user picks a template, supplies `site_id` and the required
-     identity-level fields, and a fully materialized, validated Site document is
-     persisted through a write adapter into the user store. The Site survives
-     restart and appears in the Sites index with explicit configuration origin
-     and template provenance. `SiteRepository` ships here, complete for M1:
-     list, get, create, and no mutator beyond create.
-   - Shell placement: the create flow is a Simulator Lab surface behind the gate,
-     following v6.9 §3.1, where `Create simulated site` "opens the Simulator Lab
-     workspace". The created Site then appears in the ungated operator Sites
-     index as a normal Site with SIMULATED provenance, and stays there when the
-     Lab is disabled, because it is product Site history and not simulator
-     execution. Only one Sites index is needed in this sub-step: the operator
-     one. Operator navigation still does not change.
-   - Depends on: 3a.
-   - Real dependency: this is the first untrusted-input write boundary in the
-     product, and it inherits an already-validated parser and an already
-     separate template namespace instead of inventing both under write
-     pressure. It is also the first moment the Sites index has a truthful
-     reason to contain a row.
-   - UI-verifiable outcome: the Sites index goes from a genuine first-run empty
-     state to a row the user just created. Rows are not links yet; Site Details
-     addressed by `site_id` is the next slice. A duplicate, case-variant, or
-     malformed `site_id` is refused with a specific readable reason and the
-     store stays byte-identical.
-   - Deliberately unavailable: in-place Foundation editing, Save/Publish over an
-     existing Foundation, rename, `site_id` change, delete, duplicate-into-
-     existing-id, Foundation version bump in place, configuration diff, history,
-     rollback, approvals, template authoring, and import of an arbitrary YAML
-     document.
-
-   3c. Read-only Foundation presentation.
-   - Becomes true: Foundation is addressed by `site_id` and presents the
-     Foundation of a Site the user configured: Foundation version, validity,
-     timezone, lifecycle, source mode as provenance, integration readiness,
-     configuration origin and template provenance, components, devices, signal
-     mappings, ratings, and control assumptions. The screen states that
-     configuration is fixed at creation in M1.
-   - Depends on: 3b, because there is no Site to present before it.
-   - Real dependency: configuration presentation carries the product language
-     that fixes what a Site, a Foundation, and a configuration-only Site mean.
-     It deserves its own review surface rather than riding along with a write
-     path.
-   - UI-verifiable outcome: the user reads back, in the product, the
-     configuration they supplied at creation, with no operational values and no
-     edit affordance of any kind.
-   - Deliberately unavailable: the configured Single Line Diagram and its signal
-     selector, which are step 4; every editing and history affordance; source
-     health, charts, analytics, Replay, and Findings.
-
-   Foundation stays read-only for every Site regardless of origin, for
-   the whole of M1, and no Site can be removed through the product.
-
-4. Topology, devices, and configured SLD.
-   - Becomes true: Foundation and Simulator Lab can use the same SLD
-     view model and device/signal relationships from canonical topology.
-   - Depends on: step 3.
-   - Real dependency: the SLD and device table cannot be truthful until
-     component, connection, rating, and signal-mapping truth exists.
-   - UI-verifiable outcome: configured SLD labels, ratings, and Devices &
-     Sensors rows agree; incompatible topology shows an explicit unavailable
-     state.
-   - Deliberately unavailable: runtime values, evidence overlays, topology
-     editing, arbitrary auto-layout, and CAD behavior; value slots are empty or
-     marked Awaiting evidence/runtime.
-   - Canonical screen boundary: the `Single Line Diagram (Configured)` panel on
-     canonical screen 3 and its signal selector belong to this step, not to
-     step 3. Everything else on that screen is configuration fact and is
-     reachable in step 3c: the Summary, Components, Control Logic, and Settings
-     tabs, and the Key Parameters panel, which reads ratings and control mode
-     straight off the Foundation. The signal selector is later still: it
-     chooses which runtime signal to overlay on the diagram, so it is inert
-     until step 6 produces runtime values and step 9 produces evidence. A step 3
-     slice must not render the SLD panel, an empty SLD frame, or the selector.
-
-5. Scenario catalog and run setup.
-   - Becomes true: Fuel Loss Event can be inspected and selected against a
-     declared Site with interval, seed, timestep, duration, and public event
-     parameters.
-   - Depends on: step 3; step 4 is optional for catalog work but needed before
-     run setup can preview topology.
-   - Real dependency: a scenario must target stable Site identity and time
-     semantics before a run can be meaningful.
-   - UI-verifiable outcome: user sees scenario events and setup choices without
-     any claimed AssetOps conclusion.
-   - Deliberately unavailable: execution, Commit, Open in AssetOps, product
-     findings, private expectations as product evidence, source-envelope input,
-     operator UI, or product provenance, and persistence editing; the UI labels
-     the scenario as authoring/setup only.
-
-6. Draft SimulationRun shell and minimal causal runtime.
-   - Becomes true: a Draft run opens in Simulator Lab with clock, controls,
-     run metadata, SLD runtime slots, environment, devices, gateway staging
-     unavailable state, event timeline, and causally computed world state.
-   - Depends on: steps 2, 3, 4, and 5.
-   - Real dependency: simulator execution needs gated routes, Site/Foundation
-     identity, topology/device bindings, and run intent.
-   - UI-verifiable outcome: user can inspect a paused MG-001 run,
-     advance time, and see simulator truth/reported values change only inside
-     Simulator Lab. Unsupported environment, electrical, and SLD values remain
-     explicitly unavailable rather than being inferred.
-   - Deliberately unavailable: product conclusions, Commit if no staged output
-     or ineligible state, Open in AssetOps for Draft evidence, and normal
-     AssetOps updates; controls explain Draft envelopes are not released until
-     Commit.
-   - Split/merge note: Draft identity/shell, Foundation physical properties and
-     owner carriers, the minimal causal kernel, and Lab execution/bindings
-     should remain reviewable slices. Generated golden traces may prove stable
-     UI/contracts after the kernel exists; later model depth must not change
-     downstream contracts.
-   - Insertion note, 2026-09-21: Foundation must be able to describe the
-     generator before the kernel initializes from it, so a properties-and-
-     carriers slice sits between the Draft shell and the kernel. It is an
-     insertion, not a reordering: nothing moves relative to anything else. See
-     `Early Feature: Draft SimulationRun And Causal Runtime`.
-
-7. Gateway staging and strict envelope preview.
-   - Becomes true: Draft runs stage immutable canonical Source Envelopes with
-     typed records and show raw/summary gateway output before ingestion.
-   - Depends on: step 6.
-   - Real dependency: gateway publications are produced from simulator runtime
-     state and device reporting; there is nothing valid to stage before a run.
-   - UI-verifiable outcome: Gateway & Ingestion shows STAGED messages with
-     source/gateway times, identities, quality, and no `received_at`.
-   - Deliberately unavailable: accepted evidence, Site history, source health,
-     analytics, and Replay; the UI says staged output has not crossed ingestion.
-   - Reorder note: strict schema/parser definitions can be started with step 3,
-     but UI staging should follow runtime playback so examples prove the
-     contract under simulator output.
-
-8. Commit, release manifest, and ingestion logs.
-   - Becomes true: eligible completed Drafts atomically release staged
-     immutable envelopes through normal ingestion; ingestion validates and marks
-     records ACCEPTED or REJECTED.
-   - Depends on: step 7.
-   - Real dependency: Commit releases existing staged publications and must not
-     copy, regenerate, or derive product objects directly.
-   - UI-verifiable outcome: user sees STAGED -> RELEASED -> ACCEPTED/REJECTED
-     states, stable message IDs, `received_at` assigned only after acceptance,
-     completed-run Commit eligibility, and overlap-blocked Commit for
-     conflicting intervals.
-   - Deliberately unavailable: derived Site history beyond accepted evidence,
-     conclusions, Findings, replacement of committed history, and product
-     branch selection; the UI marks blocked/ineligible Commit reasons.
-   - Split/merge note: Commit/release and ingestion logs may split if needed,
-     but must land close together so release is immediately observable.
-
-9. AssetOps Site evidence views and provenance.
-   - Becomes true: Site Details, Gateway, Events, Logs, and evidence panels read
-     accepted evidence by Site + selected time window, with progressive
-     provenance and explicit limitation states.
-   - Depends on: step 8.
-   - Real dependency: product evidence views must consume accepted evidence, not
-     simulator staging or runtime objects.
-   - UI-verifiable outcome: Open in AssetOps shows the same `site_id` and only
-     accepted evidence; configuration-only or incomplete windows show No
-     evidence, Limited, or Unavailable.
-   - Deliberately unavailable: generator runtime assessment, fuel
-     reconciliation, Findings, work, financials, and product recommendations;
-     the UI names the missing evidence/assessment prerequisite.
-
-10. Replay and time-window consistency.
-    - Becomes true: user can inspect committed/persisted Site history as-of a
-      time window without rerunning the simulator; changing the Site time window
-      changes time-dependent panels consistently.
-    - Depends on: steps 8 and 9.
-    - Real dependency: Replay is an as-of view over persisted accepted history;
-      it cannot exist from Draft runtime state.
-    - UI-verifiable outcome: Replay uses committed evidence, preserves per-run
-      provenance, and remains available when Simulator Lab is disabled.
-    - Deliberately unavailable: rerun/Reset from Replay, simulator truth
-      comparison when gated off, branch/context selection, and future leakage;
-      the UI distinguishes Replay from Rerun.
-
-11. Gateway/source health.
-    - Becomes true: AssetOps derives source health from heartbeat/arrival
-      evidence, expected cadence, gaps, validation outcomes, and related source
-      evidence.
-    - Depends on: step 9; step 10 is recommended first to prove time-window
-      consistency, but source health can be built earlier for a fixed window.
-    - Real dependency: health is a product assessment over accepted evidence and
-      expected reporting, not a raw simulator or gateway assertion.
-    - UI-verifiable outcome: user sees Online/Stale/Offline source vocabulary,
-      separate from Site lifecycle and asset condition.
-    - Deliberately unavailable: generator runtime, fuel reconciliation, and
-      Findings; the UI shows source health as evidence readiness, not a
-      conclusion about asset condition.
-
-12. Generator Runtime Assessment.
-    - Becomes true: accepted generator telemetry/events/controller records are
-      reconciled into runtime and evidence-consistency assessment.
-    - Depends on: step 11.
-    - Real dependency: generator runtime conclusions need evidence coverage,
-      freshness, validity, and source-health context.
-    - UI-verifiable outcome: user sees measured/derived generator runtime with
-      basis, confidence/evidence sufficiency, and provenance drawer links.
-    - Deliberately unavailable: fuel discrepancy Finding and recommendation;
-      the UI says fuel reconciliation waits for fuel movement and runtime
-      evidence.
-
-13. Fuel Reconciliation and bounded Finding.
-    - Becomes true: AssetOps reconciles tank telemetry, deliveries/manual dips,
-      generator runtime, and fuel-consumption assumptions; only material,
-      sufficiently supported unexplained variance becomes a Finding.
-    - Depends on: step 12.
-    - Real dependency: expected fuel use depends on generator operation and
-      evidence sufficiency; a discrepancy cannot be claimed before that chain.
-    - UI-verifiable outcome: user sees an unexplained fuel variance with
-      bounded language, evidence basis, alternatives/limitations, and View
-      Evidence.
-    - Deliberately unavailable: theft claims, hidden-cause assertions,
-      automatic incident/work closure, financial double-counting, and
-      recommendations without success criteria; the UI keeps claim boundaries
-      adjacent to the Finding.
-    - Split/merge note: reconciliation and Finding promotion may split if the
-      materiality/confidence rule needs user review; do not merge with
-      generator runtime.
-
-## Canonical Screen Fidelity
-
-From 2026-09-13 the canonical mockups are in scope as a fidelity target, not
-only as a source of feature requirements. `ScreenMockups.png` numbers nine
-screens; `SimulatorLab1.png` is the tenth. The rules below say how a screen
-becomes visually canonical without becoming a false claim.
-
-### Which shell the mockups are drawing
-
-`ScreenMockups.png` renders the Simulator Lab developer shell, not the operator
-product. This is the single most consequential thing to get right before
-building to it, and it is well evidenced:
-
-- Its left rail is v6.9 §3.9's Simulator Lab shell navigation, which reads
-  "Home | Sites | Simulator Lab | Scenarios | Site Templates | Library |
-  Documentation | Settings". `SimulatorLab1.png` reproduces that list exactly.
-  `ScreenMockups.png` reproduces it with Devices, Ingestion, and Events
-  inserted, which v6.9 defines as Simulator Lab *run tabs*, not destinations.
-- It is not the operator rail. v6.9 §2 fixes operator navigation at ten object
-  classes in five groups: Portfolio, Sites, Assets; Findings; Actions,
-  Incidents, Maintenance; Evidence; Financials, Reports. Not one of the
-  mockup's Simulator Lab, Scenarios, Site Templates, Devices, Ingestion, Events,
-  Library, or Documentation items is in it.
-- Its screens are not the operator screens. The mockup's Site tabs are Overview,
-  Configuration, Devices, Gateway, Ingestion, Events, Logs; v6.9's canonical
-  Site tabs are Overview, Foundation, Health, Performance, Findings, Work,
-  Financials, Evidence, with Foundation subtabs Definition, Topology, Controls,
-  Changes, Readiness. The mockup's Sites columns are Name, Type, Location,
-  Status, Last Data, Actions; v6.9's Sites index columns are Site, Type, Mode,
-  Assessment, Top issue, Evidence, Last analysed.
-- Site Templates, Devices & Sensors, Gateway & Ingestion, Scenarios, and Runs
-  are all named by v6.9 as Simulator Lab surfaces. Screens 4 through 9 are
-  Simulator Lab screens on their face.
-
-So Simulator Lab appearing in that rail is not the mockup contradicting the
-product; it is the Lab's own shell listing itself. Read correctly, the mockup
-agrees with the settled position that Simulator Lab is not an operator
-navigation item.
-
-What the mockups are authoritative about is information architecture: which
-facts belong on a screen, how they group, what a row or panel is for, and what
-the user should be able to do from each surface. They are not authoritative
-about capability inventory, status vocabulary, or navigation. Where a mockup and
-v6.9 disagree, v6.9 settles it; where a user review has already redirected a
-surface, that decision settles it; where v6.9 is silent, the mockup governs
-layout and this map governs truthfulness.
-
-### Viewport and overflow commitment
-
-M1 is a desktop operator and developer-lab product. Its committed viewport is
-desktop-class browser width: at least `1280px` CSS pixels, with the canonical
-mockup image at `1536px` by `1024px` treated as desktop composition evidence.
-M1 does not claim mobile support, phone support, or portrait-tablet support,
-and neither v6.9 nor `ScreenMockups.png` defines a narrow-width form of these
-screens. That silence is not an external requirement to follow; it is the
-project's responsibility to settle honestly here.
-
-Below the committed width the product must degrade truthfully rather than
-pretend to be a mobile application. The same backed content and the same
-navigation truth rules remain in force, but the build may present a
-desktop-density layout with internal scrolling and, where needed, a clear
-unsupported-viewport state for a screen that cannot be operated honestly at the
-available width. It must not introduce a separate mobile information
-architecture, a reduced Site model, a different rail inventory, or a different
-tab vocabulary in order to fit.
-
-Page-level overflow is not an allowed way to handle density. Shell chrome is
-chrome: the rail and any workspace bar stay anchored to the viewport's
-navigation frame, and overflowing page content scrolls only inside the content
-region that owns it. Horizontal overflow belongs to the specific dense content
-that needs it, such as a table or tab row, never to the whole document. Vertical
-overflow belongs to the page body or the content region, not to a nested
-`100vh` double-count that makes an otherwise empty shell taller than the
-viewport. The one exception is the Simulator Lab shell's standalone use of the
-shared frame: the implementation must preserve a full-height Lab frame without
-making the operator shell count the viewport height twice.
-
-Dense tables keep their milestone columns at every width where the screen
-renders. A column hidden only because the viewport is narrow is not one of the
-three v6.9 states; it would be a fourth treatment and would contradict the
-Sites index column inventory unless a later user-reviewed task explicitly
-replaces the inventory with a stronger responsive inventory. For M1, a table
-that cannot fit horizontally gets an internal horizontal scroll region and
-retains its rendered columns, headers, row semantics, and actions. A stacked
-card presentation is a different screen form and is out of scope for M1 unless
-the user reviews and accepts it as a separate product commitment.
-
-The rail does not collapse to icon-only or become a drawer in M1. Removing rail
-labels would weaken navigation truthfulness unless each item still exposed the
-same destination name with equal clarity, and a drawer would introduce mobile
-chrome this milestone does not claim. The operator and Lab rail inventories
-remain the source of truth; narrow width changes may alter available space, not
-which destinations the product says exist.
-
-The operator Site tab row keeps the full v6.9 operator Site tab vocabulary at
-all widths where it renders. The row may scroll within its own region when it
-does not fit. It must not hide the six labelled-in-place tabs in an overflow
-menu while leaving Overview and Foundation visible, because that would teach
-that the Site has only two primary aspects. It must not collapse to a menu that
-mixes destinations and labelled-in-place tabs without preserving their two
-treatments.
-
-Responsive breakpoints, if introduced in CSS, belong in `frontend/src/ui/tokens.css`
-as part of the shared visual vocabulary protected by T009. The enforceable seam
-is that both shells and the shared Site substrate consume the same breakpoint
-tokens and that page-level overflow is not used to move shell chrome. Exact
-pixel behavior, table scroll mechanics, and browser visual inspection remain
-review-time checks unless and until a guard can assert them without becoming a
-layout snapshot.
-
-### Fidelity to the mockup is not fidelity to its errors
-
-Two concrete corrections that a fidelity slice must make rather than copy:
-
-- Canonical screen 1 puts `Simulated` and `Planned` in one `Status` column.
-  That collapses provenance into status, which v6.9 forbids three separate times
-  ("Mode is provenance, not status"; "SIMULATED is neutral provenance, not an
-  assessment") and which the vocabulary-separation seam below already forbids.
-  Mode and lifecycle are separate columns, never one.
-- The mockup's `Last Data` values are evidence the product does not have. v6.9's
-  equivalent column is `Last analysed`, rendered `--` when there is no data in
-  the window. That rendering, not the mockup's timestamps, is the target.
-
-Where v6.9 is silent the mockup may introduce a concept, but the map must then
-say what makes it true. v6.9 has no `Planned` site status and no site lifecycle
-enum at all, so `lifecycle_status` is this project's extension and its permitted
-values are fixed by the M1 Site schema in this map, not by the mockup.
-
-### Content before chrome
-
-A surface adopts canonical layout only after that surface's content is real.
-Building the shell of a screen first and filling it later is the failure this
-project's evidence posture exists to prevent, moved from data into layout: it
-produces a screen that looks finished and is not, and it is exactly how mockup
-placeholder values such as `2 min ago`, `1.2 M`, or `20 kW` leak into a build
-that cannot source them. No numeric value, timestamp, status, or label may
-appear on a screen because the mockup shows it there.
-
-This is v6.9's own position, stated in its closing paragraph: "The screen
-mockups intentionally do not add unsupported measurements or conclusions merely
-to make a layout look complete. Where the source contracts mark evidence as
-preferred, optional, missing or insufficient for a stronger claim, the UI
-retains that limitation."
-
-### Not rendered, labelled, or disabled: three states, not two
-
-v6.9 uses three distinct treatments and this project adopts them as written.
-Collapsing them is the mistake to avoid.
-
-- **Not rendered at all.** Gated or non-existent capability. v6.9 on the closed
-  simulator gate: routes and entry points are "not rendered or served (not
-  merely hidden)". This is also the treatment for a control whose capability M1
-  has *decided* not to have.
-- **Labelled in place.** A canonical *tab* that is part of the entity's tab set
-  but has no content contract yet. v6.9's worked example is the asset tab
-  rendered as "Warranty (P1)" with the note "deferred - no content contract
-  yet". Tabs describe the aspects of an entity, so a tab that names a real
-  aspect is honest chrome even before its content exists.
-- **Disabled with an explicit reason.** A real capability that is built but not
-  currently eligible. v6.9's worked example is Commit on a Draft run, "disabled
-  with the note 'draft envelopes are not released to ingestion until Commit'".
-
-Applied to the mockup's Site Details and Foundation affordances:
-
-| Mockup affordance | Treatment | Why |
+| Slice | Depends on | What it would produce without it |
 | --- | --- | --- |
-| `Open in Simulator Lab` when the Lab is gated off | Not rendered | Gating removes surfaces and entry points, "not merely hidden". This is the gate rule, not the sequencing rule, and it reuses the existing single gated entry-point module |
-| `Open in Simulator Lab` when the Lab is enabled but step 6 has not landed | Disabled with named prerequisite | The capability is sequenced and the map can name the step |
-| `Start Simulation`, `View Live Data` | Disabled with named prerequisite | Real, sequenced capabilities; the map can name the step that makes each true |
-| Mockup Site tabs `Configuration`, `Devices`, `Gateway`, `Ingestion`, `Events`, `Logs` from `ScreenMockups.png` screen 2 | Replaced for the operator Site shell | v6.9 fixes the operator Site tab set as `Overview | Foundation | Health | Performance | Findings | Work | Financials | Evidence` at lines 464 and 615; the mockup tabs are not operator Site vocabulary |
-| `Edit`, `Edit Configuration` | Not rendered | M1 decided configuration is fixed at creation. A disabled Edit reads as "soon" and promises a capability the product has declined to have |
-| `Version History` from `ScreenMockups.png` screen 3 | Not rendered | No configuration-change model exists. v6.9 lines 2149 and 2225-2228 define the eventual `Foundation > Changes` form as an auditable intervention/change-effect capability, which is different from version history; shipping the mockup's label would name a future capability wrongly |
-| `Duplicate Site` | Not rendered | Duplicate is create-with-an-implied-source and would collapse the template/instance distinction the design rests on |
-| `Delete Site` | Not rendered | Deferred for all of M1 by user decision |
-| Site image `Change` | Not rendered | An edit affordance; and the Foundation carries no image |
-
-The test for an action control: can this map name the causal step that makes it
-true? If yes, disabled with that prerequisite named. If the answer is a decision
-to defer, not rendered.
-
-### Navigation truthfulness
-
-A navigation destination appears only when the route behind it renders a
-truthful surface. No placeholder destinations, no disabled nav items, no
-"coming soon" routes. Navigation is stronger than a button because it is the
-user's model of what the product is; a rail of ten items where six are dead
-teaches a product that does not exist.
-
-Consequences for M1:
-
-- **Operator navigation does not grow at all in step 3.** Every step 3 surface
-  that is new chrome — the template catalog and the create flow — is a Simulator
-  Lab surface behind the gate, in the Lab's own shell, whose navigation already
-  lists Sites and Site Templates. v6.9's "no new operator navigation items" rule
-  and the T004 boundary tests are preserved without exception.
-- The Lab's own navigation exists to serve the Lab's purpose, which is to
-  unblock product development before a real site exists. It is a developer
-  workspace menu, not a second product information architecture, and nothing in
-  it is evidence that the operator product should have a matching destination.
-  The no-dead-destinations rule still applies to it.
-- The current parameterless `Site details` and `Site configuration` operator
-  nav items are step-1 route placeholders from before Site identity existed.
-  Once Sites are addressed by `site_id` they must be removed: a Site Details
-  link that names no Site is not a destination. Those surfaces are reached from
-  a Sites row.
-- Simulator Lab stays out of operator navigation, reached only from workspace
-  chrome. Settled by T003/T004 and confirmed rather than contradicted by the
-  mockups once the shell is read correctly.
-- The operator rail's real long-run target is v6.9 line 442's ten object
-  classes, not the `ScreenMockups.png` screens 1-9 rail. Nothing in the mockup
-  rail should be added to operator navigation on the strength of the mockup
-  alone.
-- Home, Library, Documentation, and Settings stay absent until each has
-  something truthful behind it. v6.9 gives no content contract for any of them.
-- Devices, Ingestion, and Events are site-scoped tabs and Simulator Lab run
-  tabs, not destinations. The mockup's own breadcrumbs say so
-  (`Sites > MG-001 > Devices`). Whether they ever become global destinations is
-  a step 9 question, not a Site Foundation question.
-
-### Fidelity staging
-
-Fidelity is applied per surface, after that surface's content is real, in this
-order. Each stage is a truthful, reviewable screen on its own, not a step toward
-one.
-
-1. **Shared visual vocabulary.** Brand header, left rail as a real component,
-   breadcrumbs, page header pattern, badge and pill vocabulary, table and panel
-   patterns, type and colour tokens. Applied only to surfaces that already have
-   real content. Introduces no content, no control, and no destination. This is
-   the one stage that is chrome-only, and it is safe precisely because it adds
-   nothing a user could mistake for a capability.
-2. **Template catalog to mockup quality.** The first surface with real content,
-   and therefore the first that can carry the vocabulary honestly. Lab shell.
-3. **Create flow.** `+ Add site` as the real entry point, template selection,
-   identity fields, and refusal copy. Lab shell, gated.
-4. **Sites index to canonical screen 1.** Search, type and mode filters, and the
-   column set the product can source, with Mode and lifecycle as separate
-   columns and `Last analysed` rendered `--`. Operator shell, ungated.
-5. **Site Details to canonical screen 2.** Identity header with provenance
-   badge, Site Information panel, tab bar labelled in place, and the Quick
-   Actions panel under the three-state rule. A panel whose content the
-   Foundation cannot supply, such as a site photograph, is omitted rather than
-   framed empty.
-6. **Foundation to canonical screen 3 minus the diagram.**
-   Definition, Topology, Controls, and Readiness subtabs from v6.9 line 2117,
-   with `Changes` excluded until a configuration-change model exists. Key
-   Parameters may render only backed Foundation facts.
-7. **The configured Single Line Diagram**, at causal step 4.
-8. **Canonical screens 4 through 9** as their causal steps land.
-
-Stages 1 through 6 are the "few tasks from T006" the user accepted. Stages 2 and
-3 are fidelity applied to step 3a and 3b surfaces; stages 4 through 6 follow
-step 3b and 3c. Fidelity never runs ahead of the content it dresses.
-
-Stages 5 and 6 dress the shared Site substrate, not an operator-only page, so
-the Lab's Site view inherits that fidelity when it arrives at step 6 rather than
-being brought to fidelity a second time. This is one of the concrete payoffs of
-the substrate rule and a reason not to defer it: fidelity applied to a forked
-page has to be applied twice and then kept in agreement forever.
-
-### Foundational screen architecture for the two shells
-
-This section settles the screen architecture above T011-T013. It is
-specification, not capability: it defines shell vocabulary, navigation, tabs,
-states and guards, and adds no destination, content, data, or route by itself.
-
-Settled source rule: where cited v6.9 lines and a mockup disagree, the cited
-v6.9 lines settle it; where a user review has already redirected a surface, that
-decision settles it; where v6.9 is silent, the mockup governs layout and this
-map governs truthfulness.
-This section applies that rule to the operator Site shell, the Simulator Lab
-developer shell, and the shared Site substrate.
-
-#### State vocabulary used by the tables
-
-Rail items use `present` or `absent`, because a rail item is a navigation
-destination and navigation truthfulness forbids dead destinations, disabled
-nav, and coming-soon routes.
-
-Tabs and subtabs use the three states above: `not rendered`, `labelled in
-place`, or `disabled with explicit reason`. A tab row is chrome for an entity,
-so a canonical tab may be labelled in place before its content exists. A tab is
-a navigation destination only when it is rendered as a link to a route. Until a
-route renders truthful content, the tab label may appear but must not be a link,
-route, disabled button, or inert fake destination.
-
-Index columns use `rendered` or `not rendered`. A rendered column must be backed
-by a record field or a deliberately unavailable value such as `--` for an
-evidence-derived fact with no accepted evidence. A column is not allowed to
-become `not rendered` merely because the viewport is narrow; that is a layout
-condition, not a product state. During M1, narrow-width table pressure is handled
-by internal table scrolling while preserving the rendered milestone inventory.
-
-#### Lab rail
-
-The Lab rail is v6.9's Simulator Lab developer shell, reproduced by
-`SimulatorLab1.png` and visible in `ScreenMockups.png` screens 1-9. v6.9 names
-it `Home | Sites | Simulator Lab | Scenarios | Site Templates | Library |
-Documentation | Settings` at lines 657, 845 and 2379. The Lab rail is gated
-with Simulator Lab surfaces and execution; it is not operator navigation.
-M1 keeps it as a labelled rail at the committed desktop width and does not
-define an icon-only or drawer variant for narrow widths.
-
-| Item | Source | M1 state | What makes it true | When the state changes |
-| --- | --- | --- | --- | --- |
-| Home | v6.9 lines 657, 845, 2379; `SimulatorLab1.png` | absent | A Lab home route with truthful workspace content, not a placeholder | When a Lab home surface is specified and implemented |
-| Sites | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screen 4 | present when the Lab gate is enabled | The Lab create flow and Lab site-selection surfaces render real Site records and Site templates through the gated Lab shell | Present from the create-flow/template slice while the gate is enabled; absent when `simulator_lab.enabled=false` |
-| Simulator Lab | v6.9 lines 657, 845, 2379; `SimulatorLab1.png` | absent until the Lab run workspace exists | A gated run workspace route renders a real run or a truthful run selection/setup surface | When run setup/execution lands; absent while the route would be a placeholder |
-| Scenarios | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screens 5-6 | absent | Scenario records and a scenario catalog/detail route exist | When the scenario catalog slice lands |
-| Site Templates | v6.9 lines 657, 845, 2379; `ScreenMockups.png` screen 4 uses templates for run setup | present when the Lab gate is enabled | The Lab Site Templates catalog and template inspection view render shipped template records | Present from the template catalog slice while the gate is enabled; absent when `simulator_lab.enabled=false` |
-| Library | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Library content contract and route are specified |
-| Documentation | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Documentation content contract and route are specified |
-| Settings | v6.9 lines 657, 845, 2379 | absent | v6.9 names the rail item but gives no M1 content contract | Only after a Settings content contract and route are specified |
-
-Changes to planned tasks: T010 may keep only the Lab rail destinations whose
-routes render truthful content. T011-T013 must not copy `Devices`, `Ingestion`
-or `Events` from `ScreenMockups.png` into either rail; v6.9 line 659 defines
-those as run tabs, and the mockup breadcrumbs show them as site-scoped surfaces.
-
-#### Operator rail
-
-The operator rail target is v6.9 line 442's ten object classes in five groups:
-`Portfolio | Sites | Assets`, `Findings`, `Actions | Incidents | Maintenance`,
-`Evidence`, and `Financials | Reports (P1)` at line 442. The operator shell
-navigation invariant is at line 448. The current M1 operator rail remains small
-because a navigation item appears only when its route renders a truthful
-surface. M1 keeps it as a labelled rail at the committed desktop width and does
-not define an icon-only or drawer variant for narrow widths.
-
-| Item | Source | M1 state | What makes it true | When the state changes |
-| --- | --- | --- | --- | --- |
-| Operator home | Project shell from T004; v6.9 target equivalent is Portfolio at line 442 | present | Existing operator home route renders truthful current product content | Replaced by Portfolio when a truthful Portfolio route exists |
-| Sites | v6.9 lines 442, 454, 462, 613 | present | Sites index route renders real Site records and first-run empty state | Already present |
-| Portfolio | v6.9 lines 442, 605-609 | absent | Portfolio command-center lenses and drilldowns exist over real portfolio data | When Portfolio content exists; it replaces Operator home rather than adding a dead destination |
-| Assets | v6.9 line 442 | absent | Asset records and an Assets index/detail route exist | When asset identity/content exists |
-| Findings | v6.9 lines 442, 556-564 | absent | Evidence-backed Finding records and a global Findings index exist | When findings are derived from accepted evidence |
-| Actions | v6.9 lines 442, 673 | absent | Managed Action records and a global Actions route exist | When action records exist |
-| Incidents | v6.9 lines 442, 673 | absent | Incident records and a global Incidents route exist | When incident records exist |
-| Maintenance | v6.9 lines 442, 673 | absent | Maintenance work-request records and a global Maintenance route exist | When maintenance records exist |
-| Evidence | v6.9 lines 442, 586-594 | absent | Accepted evidence and a global evidence/readiness route exist | When accepted evidence exists and the route renders it truthfully |
-| Financials | v6.9 lines 442, 645-647 | absent | Financial consequence lines/rollups exist | When financial consequence content exists |
-| Reports | v6.9 lines 442, 91 | absent | Reports are marked P1/deferred in v6.9 and have no M1 route/content contract | After a Reports content contract is specified |
-
-Changes to planned tasks: T011's "operator navigation has not grown since T004"
-remains correct for Site Foundation. Future tasks that add an operator rail item
-must replace the frozen-count assertion with an inventory assertion generated
-from a single rail definition: every expected item has a real route and every
-rendered item is in the definition for that milestone.
-
-#### Operator Site tabs
-
-The operator Site tab set is v6.9's Site tab set at lines 464 and 615, not the
-mockup's:
-`Overview | Foundation | Health | Performance | Findings | Work | Financials |
-Evidence` at lines 464 and 615. This resolves the T008/T012 contradiction in
-favor of the accepted T008 checkpoint and v6.9. The mockup's Site tabs in
-`ScreenMockups.png` screen 2 are layout evidence for a tab row, not vocabulary
-authority for the operator product.
-
-| Item | Source | M1 state | What makes it true | When the state changes |
-| --- | --- | --- | --- | --- |
-| Overview | v6.9 lines 464, 615; `ScreenMockups.png` screen 2 layout | rendered as a destination | Site Details overview route renders record-sourced Site identity and Foundation summary facts | Already true after Site Details exists; dressed in T012 |
-| Foundation | v6.9 lines 464, 615; Foundation content at line 2117 | rendered as a destination | Foundation route renders the Site's read-only Foundation record | Inserted rename/tab-inventory slice changes route, link and header vocabulary; T013 dresses it |
-| Health | v6.9 lines 464, 615 | labelled in place | Health is a canonical aspect of a Site, but M1 has no accepted evidence or source-health derivation | Becomes a destination when health derivation from accepted evidence exists |
-| Performance | v6.9 lines 464, 615 | labelled in place | Performance is a canonical Site aspect, but M1 has no performance read model | Becomes a destination when performance content exists |
-| Findings | v6.9 lines 464, 615 and site-scoping rule lines 547-564 | labelled in place | Site-scoped findings are canonical, but M1 has no evidence-backed Finding records | Becomes a destination when site-scoped findings exist |
-| Work | v6.9 lines 464, 615 and line 673 | labelled in place | Site-scoped Work is canonical, but M1 has no Actions, Incidents or Maintenance records | Becomes a destination when at least one Work subarea has real records/content |
-| Financials | v6.9 lines 464, 615 and 645-647 | labelled in place | Site financial context is canonical, but M1 has no financial consequence content | Becomes a destination when site financial content exists |
-| Evidence | v6.9 lines 464, 615 and 586-594 | labelled in place | Site Evidence is canonical, but M1 has no accepted evidence | Becomes a destination when accepted evidence/readiness content exists |
-
-Changes to planned tasks: T012 must replace `Configuration`, `Devices`,
-`Gateway`, `Ingestion`, `Events` and `Logs` with v6.9's operator Site tabs at
-lines 464 and 615.
-`Devices`, `Gateway`, `Ingestion`, `Events` and `Logs` are Lab run tabs or
-site-scoped future content, not operator Site tab vocabulary for M1.
-
-Narrow-width behavior: the row keeps all eight labels and their two treatments.
-It may scroll within the tab-row region if it does not fit, but it must not
-drop labelled-in-place tabs, move only some labels into an overflow menu, or
-turn labels into disabled controls. Hiding tabs for fit would change the Site
-aspect model rather than merely change layout.
-
-#### Foundation name and subtabs
-
-The user-accepted T008 decision says this project's Site Configuration surface
-is v6.9's `Foundation` tab. The operator product name is therefore
-`Foundation`, because v6.9 lines 464 and 615 settle the operator Site tab
-vocabulary and v6.9 line 2117 names the Foundation content row. The served
-route, breadcrumb, tab/link text and page heading use `Foundation` when the
-canonical Site tab row is introduced. T008's accepted body copy that says
-configuration is fixed at creation remains, because "configuration" is the
-domain concept; references that name the screen as `Site Configuration` become
-`Foundation`.
-
-Rename surface area:
-
-- Route path changes from `/sites/:siteId/configuration` to
-  `/sites/:siteId/foundation` in the same slice that introduces the canonical
-  operator Site tab inventory. The existing `/sites/:siteId/configuration`
-  address remains only as a compatibility redirect that preserves the `siteId`;
-  it is not linked, tabbed, counted as a destination, or allowed to render a
-  second surface.
-- Heading, breadcrumb, Site Details link text, and operator Site tab label use
-  `Foundation`.
-- Test names, user-facing guard messages, and guard-script comments that name
-  the surface use `Foundation`, except where a test deliberately asserts the
-  legacy redirect or the ban on parameterless `/site-configuration`.
-- Internal module, component and symbol names under `frontend/src/sites/**` may
-  deliberately lag for the rename slice when changing them would be mechanical
-  churn across the shared substrate. User-visible strings and route constants do
-  not lag. A later cleanup may rename internal symbols only if it stays
-  behavior-neutral and preserves the single-definition and leaf-direction
-  guards.
-- Planned task file names may be renamed by the Planner when a task is
-  structurally rewritten. Completed task file names and dated decision bodies are
-  record and are not renamed.
-
-The Foundation subtab row derives from v6.9's one allowed row at line 2117:
-`Definition | Topology | Controls | Changes | Readiness`. It is then filtered
-by the accepted T008 user decision: `Changes` is not rendered in any state until
-a configuration-change model exists, because v6.9 lines 2149 and 2225-2228 show
-that `Foundation > Changes` is a real intervention/change-effect capability,
-not the mockup's `Version History` and not a placeholder. Rendering `Changes`
-early would be a false claim in the same territory T008 explicitly removed.
-
-Behaviourally this row is Foundation section navigation, not a tab switcher.
-Definition, Topology and Controls point to named sections on the one Foundation
-page; clicking one locates that section and does not swap panels, route to a
-second address, or hide the other Foundation content. Readiness remains labelled
-in place, with no link, tab role, disabled state, route or empty panel until an
-evidence-readiness source contract exists. The row must therefore be visually
-subordinate to, and distinguishable from, the operator Site tab row above it:
-two stacked rows may share vocabulary, but they must not ask the reader to infer
-two different behaviours from the same tab treatment. Section-link targets
-should land with their headings readable below the surrounding chrome; the last
-section should not be accepted as "reached" only because the document clamped at
-the bottom of the page.
-
-| Item | Source | M1 state | What makes it true | When the state changes |
-| --- | --- | --- | --- | --- |
-| Definition | v6.9 line 2117 | rendered | Site Foundation identity, purpose/summary, validity and provenance fields | Dressed in T013 as the Foundation summary/definition content |
-| Topology | v6.9 line 2117 | rendered with current M1 limits | T008 accepted that current Foundation can state topology/devices/signals not declared where the schema does not yet carry them | Becomes richer when T014 adds topology/devices/signal mappings |
-| Controls | v6.9 line 2117 | rendered with current M1 limits | Current Foundation read model can state declared or not-declared control assumptions without inventing a control model | Becomes richer when T014 adds control/device fields |
-| Changes | v6.9 lines 2117, 2149, 2225-2228; T008 user review | not rendered | No configuration-change model exists, and the accepted T008 checkpoint forbids rendering this territory as disabled/history chrome | Only after a reviewed configuration-change capability exists |
-| Readiness | v6.9 line 2117 | labelled in place | Evidence readiness is canonical, but M1 has no accepted evidence/readiness model | Becomes rendered when evidence readiness has a source contract |
-
-Changes to planned tasks: T013 must replace `Summary`, `Components`, `Control
-Logic` and `Settings` with the v6.9-derived Foundation subtabs above, excluding
-`Changes`. The inserted rename/tab-inventory slice has already changed the
-user-visible surface from Site Configuration to Foundation; T013 preserves the
-accepted fixed-at-creation copy while dressing the Foundation content.
-
-#### Sites index columns
-
-v6.9's Sites index behavior is at lines 1336-1339: one row per canonical
-`site_id`, mode as provenance, and archetype, mode, canonical assessment, top
-issue, evidence readiness and last analysis time. `ScreenMockups.png` screen 1
-supplies layout pressure for name/type/location/status/last-data/actions, but
-not false values.
-
-| Item | Source | M1 state | What makes it true | When the state changes |
-| --- | --- | --- | --- | --- |
-| Name with `site_id` | v6.9 lines 1336-1340; `ScreenMockups.png` screen 1 | rendered | Site record identity and display name | Already true |
-| Type / archetype | v6.9 line 1339; `ScreenMockups.png` screen 1 | rendered | Site record `site_kind` / archetype field | Already true |
-| Location | `ScreenMockups.png` screen 1; v6.9 silent for M1 column | rendered only if record-sourced | M1 Site record carries location as configured identity/context, not evidence | Removed if the Site schema no longer carries location |
-| Mode | v6.9 lines 1336 and 1339 | rendered | `source.mode` provenance field | Already true |
-| Lifecycle | Project M1 schema extension; v6.9 has no Site lifecycle enum | rendered | `lifecycle_status` field, separate from mode and origin | Already true while the M1 schema carries it |
-| Configuration origin | T006 user-review checkpoint; M1 Site record | rendered | `origin` field, separate from source mode and lifecycle | Already true while the M1 Site record carries origin |
-| Template provenance | T006 user-review checkpoint; M1 Site record | rendered | `template_id` and `template_version` provenance fields, never Site identity | Already true while Sites are created from templates |
-| Canonical assessment | v6.9 line 1339 | not rendered | No accepted evidence or assessment derivation exists in M1 | When assessment is derived from accepted evidence |
-| Top issue | v6.9 line 1339 | not rendered | No evidence-backed finding/issue exists in M1 | When findings/top issue derivation exists |
-| Evidence readiness | v6.9 line 1339 | not rendered | No readiness model/source contract exists in M1 | When evidence readiness exists |
-| Last analysed | v6.9 line 1339; no-data example lines 1332-1334 | rendered as `--` | Evidence-derived analysis timestamp is unavailable because no evidence has been analysed | Shows a timestamp only after accepted evidence has been analysed in the selected window |
-| Actions | `ScreenMockups.png` screen 1; v6.9 line 1340 primary interaction | rendered with `View` only | Row click or View opens Site Details for the row's `site_id` | Adds actions only when each action has a real capability and route/API behind it |
-
-The earlier seven-column inventory was derived from v6.9 plus the mockup, and
-neither external source carries configuration origin or template provenance.
-Those columns exist because this project's M1 Site record carries them and a
-user review settled that they render separately. An inventory built only from
-external sources will keep losing project-specific facts.
-
-Narrow-width behavior does not reopen the T006 user review. The nine columns
-remain the milestone Sites index definition where the table renders. Keeping
-them and giving the table its own horizontal scroll is a layout policy; dropping
-some of them by viewport would be a product-policy change that needs user
-review and a stronger replacement for the column inventory guard.
-
-Changes to planned tasks: T011 shipped Name, Type/archetype, Location, Mode,
-Lifecycle, Configuration origin, Template provenance, Last analysed and
-Actions, explaining Location, Lifecycle, Configuration origin and Template
-provenance as project-backed M1 fields rather than v6.9 columns. It must
-continue to omit assessment, top issue and evidence readiness until their
-sources exist.
-
-#### Guards that follow from this architecture
-
-`tools/checks/navigation-truthfulness.ps1` and the operator-navigation tests
-should not be weakened. During Site Foundation they may keep asserting that the
-operator rail has not grown since T004. The replacement when operator
-navigation does grow is stronger than a count freeze:
-
-| Guard | Source | M1 state | What makes it true | When the state changes |
-| --- | --- | --- | --- | --- |
-| Operator rail inventory | v6.9 lines 442 and 448; navigation truthfulness | enforce a single operator rail definition for the current milestone | Every rendered operator rail item appears in the definition, has a real route, and is not disabled; no unexpected item renders | Replaces the T004 no-growth assertion in the same slice that first adds a new operator rail item |
-| Lab rail inventory | v6.9 lines 657, 845, 2379 | enforce a single gated Lab rail definition | Every rendered Lab item appears in the definition, is absent when the Lab gate is off, and has a real route when present | Ships with the Lab shell rail work |
-| Operator Site tab inventory | v6.9 lines 464, 615 | enforce one tab definition for the operator Site shell | The tab row renders exactly the v6.9 Site tab labels; destination tabs have routes, labelled-in-place tabs are not links/buttons/routes | Ships with the inserted rename/tab-inventory slice |
-| Foundation subtab inventory | v6.9 line 2117 plus T008 user review | enforce one filtered subtab definition | The row renders Definition, Topology, Controls and Readiness as specified; Changes is absent until the change model exists | Ships with T013 rewrite |
-| Sites index column inventory | v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1, T006 user review and the M1 Site record | enforce one column definition | Rendered columns match the nine-column milestone definition at all widths where the table renders; omitted v6.9 columns stay absent until their sources exist | Ships with T011 rewrite; any viewport-based column dropping needs user review and a stronger replacement inventory |
-| Shell overflow containment | Viewport and overflow commitment above | enforce that shell chrome does not move because dense content overflows | App shells keep rail/workspace chrome out of document-level horizontal scrolling; dense regions own their own overflow; standalone Lab full-height behavior is preserved without operator-shell double-counting | Ships with the correction slice that fixes the current overflow defects |
-| Shared breakpoint vocabulary | T009 shared visual vocabulary plus viewport commitment above | enforce common breakpoint tokens if breakpoints are introduced | Breakpoint values live in `frontend/src/ui/tokens.css` and are consumed through the shared vocabulary by shells and substrate surfaces | Ships only if a task introduces breakpoints; exact visual fit remains review-time/browser verification |
-
-The inventories should be single definitions consumed by rendering and tests,
-mirroring the substrate single-definition guard. The guard strength becomes
-"only the milestone inventory renders, and every rendered item is truthful",
-not "the number is unchanged forever".
-
-#### Shared substrate consequence
-
-The shared Site substrate owns read model, view model, field derivation,
-unavailable states and presentation components for Site facts. It must not own a
-shell's tab row. The operator Site tab row belongs to the operator shell because
-it uses v6.9 operator Site vocabulary at lines 464 and 615. The Lab's Site/run
-tab rows belong to the Lab shell because v6.9 line 659 and `SimulatorLab1.png` define Lab run tabs such
-as `Site View`, `Configuration`, `Events`, `Devices & Sensors`, `Gateway &
-Ingestion` and `Logs`.
-
-The Lab's Site view inherits the dressed shared Site fact presentation from
-stages 5 and 6: identity, provenance, Foundation facts, unavailable states,
-read-only Foundation rendering, and the fixed-at-creation language. It may
-legitimately override surrounding shell chrome, rail, breadcrumbs, run header,
-execution controls, truth-only Lab panels, and Lab run tabs. It may add those
-through shell composition and substrate-declared extension slots only.
-
-The substrate stays a leaf by owning no `tabs` import from either shell, no
-feature flag import, no simulator import, and no `shell`, `variant`, `mode` or
-`isLab` discriminant. Shells import the substrate and pass additions into named
-slots; the substrate never imports what fills a slot.
-
-#### Other settled architecture
-
-Screen numbers 4-9 in `ScreenMockups.png` are not defined here. This section
-defines the Lab rail they hang from and the rule that those rail items remain
-absent until their own causal steps land.
-
-`Open in Simulator Lab` and `Open in AssetOps` are bridge actions, not rail
-items. v6.9 lines 182, 755 and 2381 define those bridges. They obey gate and
-eligibility rules as actions; they do not justify adding Simulator Lab to the
-operator rail.
-
-Settled architecture: the two rails; the operator Site tab set; tab-as-chrome
-versus tab-as-destination; Foundation naming; the filtered Foundation subtab
-row; Sites index column source rules; the M1 desktop viewport commitment;
-content-owned overflow rather than page-level overflow; guard replacement
-strategy; and the substrate ownership rule. Needs user choice only if the user
-wants to override v6.9 lines 464, 615 and 2117, the accepted T008 checkpoint on
-naming or operator Site vocabulary, the T006/T011 nine-column Sites index, or
-the M1 decision not to claim a mobile/tablet product form.
-
-#### Planner settlement for T009-T016
-
-The T009-T016 order no longer holds exactly. T009 remains chrome-only. T010 and
-T011 can stay in order with wording changes. A dedicated slice named
-`Foundation naming and operator Site tab inventory` should be inserted after
-T011 and before the current T012. It carries the user-visible rename, the route
-redirect, the operator Site tab inventory guard, and the tests that prove
-destination tabs have routes while labelled-in-place tabs are not links,
-buttons, or routes. T012 then dresses Site Details against that settled tab row,
-and T013 dresses Foundation against the settled name and subtab row.
-
-T012 should not carry the rename/tab-set work itself. That work touches shared
-Site substrate usage, operator shell chrome, both current Site surfaces, two
-guard scripts, existing tests, and route compatibility. Keeping it separate
-prevents the Site Details canonical-screen task from becoming a cross-surface
-navigation migration.
-
-Guard migration:
-
-- Operator rail inventory: definition module should be the operator rail's
-  single source of rendered items. The guard asserts that every rendered rail
-  item is in the milestone inventory, every inventory item that renders has a
-  real route and is not disabled, no unexpected item renders, and the old
-  frozen-count assertion is removed only in the same slice that first adds a new
-  operator rail item.
-- Lab rail inventory: definition module should be the Lab rail's single gated
-  source. The guard asserts that every rendered Lab item is in the definition,
-  Lab items are absent when `simulator_lab.enabled=false`, and every present
-  Lab item has a real route. This ships with the Lab shell rail work.
-- Operator Site tab inventory: definition module belongs to the operator shell,
-  not the shared Site substrate. The guard asserts the exact v6.9 labels from
-  lines 464 and 615; `Overview` and `Foundation` are destination tabs with real
-  identified routes; `Health`, `Performance`, `Findings`, `Work`, `Financials`
-  and `Evidence` are labelled in place with no link, button or route until their
-  content contracts exist. This ships in the inserted rename/tab-inventory
-  slice.
-- Foundation subtab inventory: definition module belongs with the Foundation
-  surface composition. The guard asserts `Definition`, `Topology`, `Controls`
-  and `Readiness` from v6.9 line 2117 render as specified; `Changes` is absent
-  until a reviewed configuration-change capability exists, because v6.9 lines
-  2149 and 2225-2228 make it a real intervention/change-effect capability.
-  This ships with the T013 rewrite.
-- Sites index column inventory: definition module belongs with the Sites index
-  view model/composition. The guard asserts rendered columns match the milestone
-  nine-column definition sourced from v6.9 lines 1336-1339 plus
-  `ScreenMockups.png` screen 1, T006 user review and the M1 Site record, and
-  omitted v6.9 columns stay absent until their sources exist. This ships with
-  T011.
-- Shell overflow containment: definition belongs to the shared frame and table
-  vocabulary, not to the Sites index alone. A correction slice may go before
-  T012/T013 and independently of product-fidelity work. It should fix the two
-  decision-free defects now observed: document-level horizontal overflow from
-  dense tables, and operator-shell vertical overflow caused by nested full-height
-  frames when the workspace bar is present. The slice must preserve the
-  standalone Simulator Lab frame's full-height behavior, keep the Sites index
-  nine-column inventory intact, and verify in a browser that rail/workspace
-  chrome stays anchored while only the dense content region scrolls.
-- Shared breakpoint vocabulary: if an implementation task introduces
-  breakpoints, they are tokens in `frontend/src/ui/tokens.css`, and both shells
-  and the shared Site substrate use the shared vocabulary. If no breakpoint is
-  needed for the correction slice, do not invent one just to name a policy.
-
-User-review checkpoint: not required for the mechanical overflow correction
-slice if it implements the policy above without changing content, labels,
-columns, tab inventory, rail inventory, or responsive product form. Required if
-a future task proposes any of these changes: supporting mobile/tablet as a
-claimed product form; hiding, reordering, or stacking Sites index columns by
-viewport; collapsing a rail to icon-only or a drawer; moving operator Site tabs
-into an overflow menu; or replacing table rows with cards. The user would be
-settling the narrow-width product commitment itself, not CSS technique.
-
-Per-task verdicts for the Planner:
-
-| Task | Verdict | Criteria at issue |
-| --- | --- | --- |
-| T009 | Needs wording changes | Keep chrome-only: shared visual vocabulary only, no new content/control/destination. Replace user-visible `Site Configuration` references with Foundation where they describe future product vocabulary. |
-| T010 | Needs wording changes | Lab rail wording must use the v6.9 Lab rail sources at lines 657, 845 and 2379 and avoid implying operator navigation growth. |
-| T011 | Needs wording changes | Sites index columns must follow the inventory above: v6.9 lines 1336-1339 plus `ScreenMockups.png` screen 1, with Location/Lifecycle called project-backed M1 fields and assessment/top issue/evidence readiness omitted. |
-| T012 | Structural rewrite | Replace the `ScreenMockups.png` screen 2 tab row with v6.9 operator Site tabs from lines 464 and 615. Do not treat `Configuration`, `Devices`, `Gateway`, `Ingestion`, `Events`, or `Logs` as operator Site tabs. Move rename/tab-inventory/route compatibility into the inserted preceding slice. |
-| T013 | Structural rewrite | Rename the surface to Foundation and replace `Summary`, `Components`, `Control Logic`, and `Settings` with the filtered v6.9 Foundation subtabs from line 2117: render Definition, Topology and Controls with current M1 limits, label Readiness in place, and omit Changes until a change model exists. |
-| T014 | Needs wording changes | Still coherent if it extends the Foundation schema as the source that later enriches the already-rendered Topology and Controls subtabs. It must not add a configuration-change/history model or operational evidence. |
-| T015 | Needs wording changes | SLD view-model work remains coherent, but all references to the destination surface should say Foundation, and compatibility must preserve the shared configured-topology source for Simulator Lab overlays later. |
-| T016 | Structural rewrite | It renders into the renamed Foundation surface and must use the Foundation subtab architecture. Devices & Sensors content may be presented from the same canonical topology/device source, but not as an operator Site tab copied from `ScreenMockups.png` screen 2. |
-
-## Enforceable Protected Seams
-
-Prioritise the first seven seams for immediate guards because they are cheap to
-protect while contracts are small and expensive after data, UI, and analytics
-depend on them.
-
-| Seam | Invariant | Concrete test/check | Late failure mode | Guard |
-| --- | --- | --- | --- | --- |
-| Stack and module direction | M1 is a modular monolith with FastAPI, React/TypeScript, Python simulator, strict parsers, and file-backed repositories unless a reviewed slice changes it. | CI architecture check verifies expected backend/frontend/simulator roots and bans direct UI-to-simulator imports or simulator-to-product writes. | Tasks build incompatible layers or infrastructure that make vertical slices hard to review. | CI guard |
-| Simulator feature gate | `simulator_lab.enabled=false` means simulator routes, entry points, execution APIs, and truth overlays are not served, while operator routes and Replay still work. | Route/API/navigation test runs with flag off and asserts simulator URLs/actions are unreachable and operator simulated Site + Replay still render. | Simulator truth or execution remains reachable through direct URLs after "disabling" the feature. | CI guard |
-| Simulator/product boundary | Simulator Lab owns world/truth/execution/staging; AssetOps owns evidence, analytics, findings, and operator presentation. | Contract/import test forbids AssetOps read models from importing simulator runtime/truth modules; UI test asserts Simulator Lab has no findings/health/reconciliation outputs. | Product conclusions silently depend on privileged simulator state and cannot generalize to live evidence. | CI guard |
-| Source-envelope crossing | The only normal simulator-to-product crossing is released canonical Source Envelopes through ingestion. | Integration test proves Site Details can be rebuilt from serialized envelopes with simulator runtime unavailable. | A demo-only shortcut bypasses validation and later breaks live protocol adapters. | Contract test |
-| Envelope versus typed evidence | Source Envelope carries identity/timing/provenance/transport and exactly one strict typed record; it is not a free-form product payload. | Parser tests reject unknown envelope fields, missing typed record, multiple records, and permissive `{type,payload}` records. | Analytics accumulate ambiguous payload handling and schema migration becomes unsafe. | Unit/contract test |
-| Site identity | `site_id` is universal Site identity; `run_id`, scenario labels, and run names are provenance only. | Test changes `run_id`/scenario name and asserts Sites index row, downstream `site_id`, and object roots do not change. | Runs become duplicate Sites or product history fragments by run. | Contract test |
-| Commit semantics | Commit releases immutable staged envelopes by manifest and never writes Site history, health, analytics, findings, or derived objects directly. | Integration test inspects storage/state after Commit before ingestion acceptance; only release state/manifest changes. | Commit path becomes an unreviewable product backdoor. | Contract test |
-| Committed overlap | Overlapping Drafts are allowed; overlapping committed simulated history for same `site_id` and half-open interval is blocked until branch/context selection exists. | Interval test covers overlap, containment, equality, and adjacent `[start,end)` cases; UI test shows blocked Commit reason. | Site history silently combines ambiguous alternative histories. | Unit/contract test |
-| Evidence immutability and rerun/replay | Committed source evidence is immutable; Rerun creates a new Draft `run_id`, Replay reads persisted evidence without rerunning. | Test Rerun creates a new Draft and Replay performs no simulator execution or envelope regeneration. | Audit, reproducibility, and deterministic comparisons collapse. | Contract test |
-| YAML configuration authority | M1 Site/Foundation YAML is the authoritative representation and is strictly validated on load, in both the shipped catalog and the user-authored store, through one parser with no lenient path. | Schema/semantic validation tests reject invalid references, topology, duplicate IDs, mappings, ratings, units, timezone, and unsupported values, and run the same parser over a user-authored document fixture. | UI and simulator normalize different invalid assumptions, or user-authored documents are trusted more than shipped ones. | Unit/contract test |
-| Read-only Foundation UI | M1 Foundation UI renders every Site read-only regardless of origin and never implies in-place edit, Save, Publish, approval, rename, duplicate, delete, or configuration history. Authoring exists only as create-from-template in a separate flow; `site_id` is immutable after creation. Deferred-by-decision controls are absent from the rendered output, not disabled: disabled means not yet eligible, and none of these is coming. | UI test opens Foundation and Site Details for a user-created Site and asserts that `Edit`, `Edit Configuration`, `Version History`, `Duplicate Site`, `Delete Site`, `Save`, `Publish`, and `Rename` are absent from the DOM entirely, not merely disabled or `aria-disabled`, and that copy states configuration is fixed at creation in M1; API test asserts no update or delete route exists for a Site. | Users infer an editing and version-history workflow the product does not have, or an edit path lands before Foundation re-versioning semantics exist. A greyed-out `Edit` is read as "soon", which is a promise M1 has declined to make. | Review-time + contract test |
-| Configuration persistence port | Site and template configuration is reached only through domain-defined ports; storage technology lives in adapters selected in one composition root. Port signatures and errors use domain records, never paths, file handles, YAML text, or store-specific exceptions. | CI architecture check bans imports of `sites/adapters/**` from anywhere except the single allowlisted composition module, and bans `yaml`, `pathlib`, `sqlite3`, and `open(` inside `sites/` outside `adapters/`; a fake in-memory adapter satisfies the port in service tests without importing an adapter. | Storage assumptions leak into read models, API, and UI, and replacing the store becomes a rewrite of every caller instead of one adapter. | CI guard |
-| Shipped versus user-authored configuration | Shipped canonical configuration is read-only at runtime and lives outside the writable store. Templates are not Sites and hold no `site_id`. `site_id` is globally unique across both stores with no overlay and no precedence; `template_id` is origin provenance and never Site identity. M1 ships zero Sites in the shipped Site store: the shipped content that ships is the template catalog, and every Site in the product is one a user created. | Test asserts the same `site_id` in both stores fails loudly at load, create refuses an id present in either store case-insensitively, no write path resolves inside the shipped catalog, and changing a template does not alter an already-created Site. A further test asserts the shipped Site store is empty on a clean checkout and the Sites index therefore renders its first-run empty state; the disjointness tests use a fixture store, not a product-visible Site. | Shipped and user configuration merge into one ambiguous namespace, a template release silently rewrites Foundations that committed history depends on, or a fixture Site nobody configured makes the Sites index look real before the capability that fills it exists. | CI guard |
-| User-authored configuration input | User-supplied configuration is untrusted input at a strict boundary: the fully materialized document is validated before any write, unknown keys and oversized documents are rejected, `site_id` is charset-constrained and cannot traverse or collide case-insensitively, free text is never identity or a path, and writes are atomic. | Parser/adapter tests cover unknown keys, oversized input, `..` and separator and absolute-looking ids, case-variant collision, and a failed write leaving the store byte-identical. | A user document takes down the Sites index, escapes the store directory, or forks Site identity. | Unit/contract test |
-| Scenario definition source | ScenarioDefinitions are reached through a domain port over composed read-only shipped and writable user stores. The shipped Fuel Loss Event is a ScenarioDefinition, not a template; `scenario_id` is globally unique across both stores with no overlay or precedence; events are addressed only inside a scenario version. | Parser/adapter tests reject unknown keys, unsupported taxonomy values, malformed version fields, duplicate timeline identities, malformed ordering/timestamps, misplaced private expectations, duplicate or case-variant `scenario_id` values within or across stores, and target-site policy violations. Architecture checks keep YAML/path/store exceptions inside adapters and the composition root. | Scenario identity forks by store, the first catalog becomes a fixture literal, template recipes masquerade as run-ready scenarios, or private oracle metadata leaks into product paths. | Unit/contract test + CI guard |
-| Shared Site presentation substrate | Where both shells present a Site they present it from one substrate: one read model, one view model, one set of presentation components, in `frontend/src/sites/`. Neither shell forks any of the three, and neither defines Site presentation of its own. Each shell may only compose and add through named slots the substrate declares: the Lab adds run and execution context, the operator adds a gated way into the Lab. The substrate carries no shell/mode/variant discriminant, is a leaf that imports no shell code, no simulator code, and no feature flag, and never imports what fills a slot. | Three checks, because a call-the-same-function check does not catch drift. (1) **Render equivalence**, the primary guard: render the substrate over one fixture `SiteRecord` in the operator composition and in the Lab composition and assert the shared region's DOM subtrees are identical, so every difference is provably additive; ships with the Lab's Site view at step 6, when a second consumer first exists. (2) **Single definition**, a CI architecture check: Site presentation components, view-model derivation, and Site read-model types resolve in `frontend/src/sites/**` only, and no module under `shell/**` or the Lab feature root declares one; ships with the first Site presentation slice. (3) **Leaf direction**, a CI import check: `frontend/src/sites/**` imports nothing from `shell/**`, the Lab feature root, or `config/featureFlags`, and contains no `simulator`, `lab`, `variant`, or `mode`-discriminant prop; ships with the same slice. | Two shells drift into two Site models. The operator Site page and the Lab Site page begin disagreeing about what a Site is: different labels for the same field, different unavailable states, a field derived one way here and another way there, and eventually two read models with a translation layer between them. By the time anyone notices, both have users and neither can be changed alone. The cheaper variant of the same failure is a `variant="lab"` branch inside the shared core, which looks shared and drifts anyway. | CI guard + contract test |
-| Mockup fidelity versus product honesty | A screen adopts canonical mockup layout only for content the product can source truthfully. Mockup values are never copied as content. Three treatments, never blurred: a gated or decided-against capability is not rendered; a canonical tab with no content contract yet is labelled in place; a built capability that is not currently eligible is disabled with its reason stated. A navigation destination appears only when its route renders a truthful surface, and operator navigation does not grow on the strength of a mockup rail that is in fact the Simulator Lab shell's own navigation. | Per-screen UI test asserts: no mockup literal (`2 min ago`, `1.2 M`, `20 kW`, `Kampala`, `Jan 1, 2026` and the rest of the fixture strings) appears in the DOM unless the record under test supplies it; no enabled control lacks a backing capability; deferred-by-decision controls are absent from the DOM rather than disabled; every disabled control exposes an accessible reason; every rendered nav item resolves to a route that renders real content, and none is disabled; `Mode` and lifecycle never share a column. | The product ships a convincing shell of the mockup whose columns, controls, and navigation teach capabilities that do not exist. The honesty posture is lost exactly where it is most visible and most trusted, and the mockup's own vocabulary errors, such as `Simulated` in a `Status` column, become the product's data model. | CI guard |
-| SLD archetype boundary | SLD archetype owns presentation only and must not create, remove, rename, or reinterpret canonical components or connections. | View-model test compares rendered component/connection IDs against canonical topology and checks incompatible topology state. | Diagram becomes a second topology model and diverges from simulation/evidence. | Unit/contract test |
-| Configuration-only Site states | A valid Site with no accepted evidence shows No evidence/Unavailable rather than fabricated telemetry, charts, source health, analytics, findings, or Replay. | UI test renders a configuration-only Site and asserts no zero-value operational defaults or OFFLINE health. | Demo placeholders become false product claims. | CI guard |
-| Source/gateway health derivation | Gateway/source health is derived by AssetOps from accepted evidence and expected cadence, never accepted as an authoritative raw health conclusion. | Parser rejects raw `GatewayHealth` conclusion records; analytics test derives Online/Stale/Offline from evidence conditions. | Operators trust self-reported or simulator-assigned health. | Contract test |
-| Vocabulary separation | Source health uses Online/Stale/Offline plus quality; asset/product assessment uses Healthy/Watch/Needs attention/Degraded/Unknown. | UI snapshot/accessibility text check scans relevant surfaces for vocabulary misuse. | Health, asset condition, and evidence readiness blur into misleading status. | CI/review check |
-| Provenance disclosure | Primary screens show decision-relevant source mode, window, freshness/completeness, and limitations; technical detail lives in evidence/provenance drawers/logs. | UI test asserts simulated Site headers and findings expose provenance summary plus drawer links to records/config/mapping/run provenance. | Consequential claims become hard to audit or normal screens become transport dumps. | Review-time + UI test |
-| Private truth isolation | Scenario causes, private expectations, and SimulationTruth never enter envelopes, evidence, operator UI, exports, or product provenance. | Contract test mutates private truth without changing envelopes and asserts product conclusions/exports do not change. | Analytics pass demos by oracle leakage and fail on real sources. | CI guard |
-| Product conclusion order | Source/evidence coverage precedes generator runtime, which precedes fuel reconciliation, which precedes material Finding promotion. | Analytics tests block/suppress downstream conclusions when upstream evidence status is Limited/Unavailable. | Findings overstate certainty and cannot explain missing prerequisites. | Contract test |
-| Fuel claim language | Fuel discrepancy is bounded as unexplained variance and never asserts theft or hidden cause from discrepancy alone. | Content/test fixture checks Finding titles, summaries, recommendations, and exports for banned causal assertions. | Product creates legally/operationally risky accusations. | Review-time + test |
-
-## Feature-To-Task Guidance
-
-This is Architect guidance for the Planner's later task writing. The Planner
-still owns slice intent, acceptance criteria, scope limits, and user-review
-placement in task files.
-
-### Early Feature: Stack, Shell, And Gate
-
-Divide into slices:
-- Minimal FastAPI/React/TypeScript/Python simulator skeleton with file-backed
-  repository pattern and CI guard placeholders.
-- Operator shell with Sites/Site Details/Foundation route frames and
-  empty states.
-- `simulator_lab.enabled` route/API/navigation gate, tested both enabled and
-  disabled.
-
-Seams inside the feature: stack/module direction, simulator feature gate,
-operator route stability.
-
-Must not bundle: Site schema, simulator execution, ingestion, analytics, or
-task-file creation.
-
-User-review checkpoint: required for shell information hierarchy and the
-enabled/disabled Simulator Lab surface because it fixes product direction and
-UI/UX expectations.
-
-### Early Feature: Site Foundation And Configuration-Only Site
-
-Architectural direction for this feature is tracked across the 2026-09-13
-entries in `.ai/DECISIONS.md`, the Configuration Persistence section of
-`.ai/ARCHITECTURE.md`, the Canonical Screen Fidelity section and the
-persistence, configuration, and fidelity seam rows above. Those are sufficient
-to implement it.
-
-The slice order below replaces the order given earlier on 2026-09-13, which ran
-read path first and creation last. Configuration comes first because a Sites
-index is a view over Sites somebody configured.
-
-Divide into slices, in this order:
-
-1. Shipped `SiteTemplate` catalog: `SiteTemplateCatalog` port, domain records,
-   port error vocabulary, read-only shipped-YAML adapter, single composition
-   root, strict validation, both persistence CI guards, and template inspection
-   that is read-only, in its own identity space, and visibly not a Site.
-   Simulator Lab shell, behind the gate. No Site exists yet.
-2. Create a Site from a template: `SiteRepository` port with list, get, and
-   create only; write adapter over the user store; identity and whole-document
-   validation; cross-store collision refusal; atomic write; origin and template
-   provenance; specific refusal copy. The operator Sites index goes from a
-   genuine first-run empty state to the created Site; rows are not links yet and
-   Site Details addressed by `site_id` follows in the next slice. Create flow in
-   the Lab shell behind the gate; Sites index in the operator shell, ungated. The
-   created Site is a product object in the product store from the instant it
-   exists: there is no Lab-owned Site store and no publish or promote step.
-3. Read-only Foundation presentation: Foundation version, validity,
-   source mode as provenance, lifecycle, integration readiness, configuration
-   origin, components, devices, signal mappings, ratings, control assumptions,
-   and explicit unavailable operational states. No SLD.
-
-Site presentation built in slices 2 and 3 goes in the shared substrate at
-`frontend/src/sites/`, not in the operator shell, and the operator shell
-composes it. This is a change of location, not of scope: the same screens ship
-in the same order, and no extension-slot machinery is built yet, because nothing
-fills a slot until the Lab's Site view arrives at step 6. What ships now is the
-single definition and the leaf dependency direction, which are cheap now and
-expensive after two shells each grow a Site page. The render-equivalence test
-cannot be written before a second consumer exists and ships at step 6; the two
-structural guards ship with slice 2.
-
-This is deliberately not the same call as rejecting a port with no consumer. A
-port's shape is unknown until a caller proves it, so shipping one early is
-guesswork. The Site substrate's shape is already known, because it is the Site
-read model that slice 2 must build anyway, and the user has stated that a second
-consumer is coming. The only question is which directory the files go in.
-4. Shared visual vocabulary applied to the surfaces built in 1 to 3.
-5. Sites index to canonical screen 1, then Site Details to canonical screen 2,
-   then Foundation to canonical screen 3 minus the diagram. These may be
-   three slices or fewer; each must be a truthful screen on its own.
-
-Slices 1 and 2 may each split further if a review packet is too large, under two
-hard constraints: the port must not be deferred past the first slice that reads
-configuration, and the template concept must not be deferred past the first
-slice that writes a Site.
-
-Seams inside the feature: Site identity, YAML authority, configuration
-persistence port, shipped versus user-authored configuration, user-authored
-configuration input, configuration-only states, read-only configuration UI,
-mockup fidelity versus product honesty, simulator feature gate, source mode
-versus lifecycle versus configuration origin versus source health.
-
-Must not bundle: in-place configuration editing, Save/Publish over an existing
-Foundation, rename, duplicate, delete, configuration history or rollback,
-approvals, template authoring or upload, arbitrary YAML import, the configured
-SLD, simulator run setup, source health, charts, analytics, Replay, or Findings.
-
-Must not do: give the simulator a repository handle; add any item to operator
-navigation; weaken or extend any T003/T004 gate or boundary test; ship a
-canonical Site in the shipped Site store; render a deferred-by-decision control
-as disabled instead of absent; copy a mockup value as content; add
-`update`/`delete`/query-DSL/pagination to the port before a slice needs them; or
-let the create path reach storage without going through the port.
-
-Must not do, substrate edition: define Site presentation inside `shell/` or the
-Lab feature root; give a substrate component a `variant`, `mode`, `shell`, or
-`isLab` prop; import shell code, simulator code, or `featureFlags` from
-`frontend/src/sites/**`; create a Lab-specific Site read model, Site endpoint, or
-Site store; add a `created_in_lab` or `is_simulator_site` field; or derive
-configuration origin from source mode or the reverse.
-
-User-review checkpoint: required twice, and both move. The first now sits on the
-create slice, because creation is where Site, template, instance, identity,
-origin, and refusal language are all fixed at once, and because it is the first
-slice that produces a Site at all. The second sits on the Foundation
-presentation slice, because configuration-only language and the "configuration
-is fixed at creation in M1" statement fix what the product promises about a Site
-it will not let you edit. The fidelity slices need no separate checkpoint of
-their own: they add no capability and no language, and the three-state rule is
-already checked by the fidelity seam.
-
-### Early Feature: Topology, Devices, And SLD
-
-Demo roadmap task range: T014-T016.
-
-Divide into slices:
-- Topology/component/device/mapping validation from the Site Foundation.
-- SLD view model using the hybrid mini-grid archetype.
-- Foundation SLD and Devices & Sensors table from the same source.
-- Runtime/evidence value slots without binding live values yet.
-
-Seams inside the feature: SLD presentation boundary, canonical topology
-authority, device-to-signal mapping, unsupported topology unavailable state.
-
-Must not bundle: arbitrary graph auto-layout, drag/drop schematic editing,
-runtime simulation, evidence overlays, or product health.
-
-User-review checkpoint: required for SLD archetype, incompatible-topology UI,
-and cold-room/electrical symbol treatment because they fix UI/UX and domain
-representation.
-
-### Early Feature: Scenario Catalog And Run Setup
-
-Demo roadmap task range: T017-T019, plus T021A, which belongs to this feature
-by content and lands in the M1C range by sequence.
-
-Divide into slices:
-- Strict scenario source and Fuel Loss Event catalog/detail view over a shipped
-  ScenarioDefinition plus writable user store composition.
-- Public event timeline/parameters and private expectation separation, with
-  parser-level separation rather than presentation-only hiding.
-- Run setup selection of Site, scenario, interval, timestep, seed, duration,
-  and speed defaults.
-- T021A: reported observations carry no execution requirement. Belongs to this
-  feature by content and lands in the M1C range by sequence, because the
-  contract-version move it carries is free only while no golden trace exists
-  and T022 is what first produces one. See the M1C sequencing revision.
-
-M1B planner sequencing:
-- T017 carries the checkpoint on a gated Fuel Loss Event detail screen. It puts
-  provisional proposals on screen for scenario versioning, event taxonomy, and
-  the public/private parameter boundary. It remains one vertical slice because
-  the strict repository/parser work, composed stores, and detail screen produce
-  one observable deliverable: inspecting the shipped Fuel Loss Event from the
-  real scenario source.
-- T018 hardens the accepted scenario detail into an executable scenario
-  contract before run setup. It classifies authored entries as causal inputs,
-  external forcing inputs, reported observation inputs, or non-executable
-  evidence conditions;
-  settles initialization ownership, units, point/window timing, and dispatch
-  semantics; and resolves contradictions rather than letting expected state
-  values silently prescribe private runtime truth.
-- T019 builds run setup only after T018. It freezes and validates the exact
-  Site/Foundation, scenario, initialization, interval, timestep, seed,
-  simulator/model-profile, mapping, and public-override inputs needed by the
-  causal kernel. A resulting Draft may be `READY` or `BLOCKED`; it does not
-  execute or create an authoritative trace.
-- T019 narrows before it merges. Run setup does not adjudicate
-  cause-to-observation coupling, because deciding whether declared causes reach
-  a declared reading requires a transition rule and run setup has no kernel.
-  `OBSERVATION_NOT_ACCOUNTED_FOR` leaves the blocking vocabulary, the shipped
-  Draft blocks on three `STATE_NOT_SUPPORTED` reasons rather than five, and the
-  reconciliation arithmetic moves to the test suite as a labelled reference
-  implementation whose expiry is a condition and not a slice number: it stops
-  being an authority when a kernel exists and the two are compared, and it
-  leaves the repository when its last product-path caller goes, which is
-  undecided. The `BLOCKED` outcome itself is unchanged.
-  See `D-2026-09-21-scenario-execution-contract-amendment-1`,
-  `D-2026-09-21-run-setup-outcome-vocabulary` and
-  `D-2026-09-21-specification-reference-implementation`.
-
-Seams inside the feature: scenario label not Site identity, public scenario
-authoring versus private test oracle, shipped/user scenario-store disjointness,
-scenario port isolation, deterministic run identity inputs.
-
-Must not bundle: simulator execution, product conclusions, Commit, ingestion,
-Finding creation, runtime injection controls, or in-product scenario editing
-persistence beyond the chosen repository.
-
-User-review checkpoint: T017 settled event taxonomy and public/private scenario
-parameters. T018 reviews execution roles, initialization, timing, and bound
-behavior; T019 reviews run setup language and READY/BLOCKED treatment. These
-fix domain semantics and the demo narrative before execution begins.
-
-### Early Feature: Draft SimulationRun And Causal Runtime
-
-Demo roadmap task range: T020, T020A, T020B, T021, T022. T021A sits inside this
-range in the sequence and belongs to Scenario Catalog And Run Setup by
-content; the M1C roadmap row lists it, and this feature does not own it.
-
-Divide into slices:
-- T020: Runs inventory/detail read model and Simulator Lab run header/shell over
-  the persisted Draft created by T019, with controls and the product bridge
-  truthful to its READY/BLOCKED and not-yet-executed state.
-- T020A: Foundation physical properties and model-rule carriers. Named physical
-  properties on components beyond the single `rating` scalar, a
-  `FoundationBinding` that can address one, and a `SupportedState` carrier for
-  model-rule values, so the generator's specific fuel consumption can leave the
-  scenario and describe the machine. Carries its own user-review checkpoint on
-  the property vocabulary and its units.
-- T020B: execution contract alignment. The four kernel semantics are
-  declared in the contract, a requirement conflict is refused rather than
-  resolved, `site-load-demand` and `plane-of-array-irradiance` drop to
-  `OPTIONAL`, and reporting-path authority moves to the publication profile.
-  The shipped Fuel Loss Event reaches `READY` for the first time through the
-  product path, which is what lets T021 run a kernel against it at all, and
-  the slice retires T020's fixture-only `READY` criterion.
-- T021: minimal causal Fuel Loss kernel with explicit initialization,
-  deterministic step/event cursor, and fuel-tank/generator state. Also retires
-  T020's `READY` disclosure, because its conformance test is what makes the
-  disclosure false.
-- T021A: reported observations carry no execution requirement. The strict
-  parser gives `execution_requirement` no position on a `REPORTED_OBSERVATION`,
-  the shipped document's reported-observation entries lose the field, and
-  `EXECUTION_CONTRACT_VERSION` moves by one and reaches the frozen identity of
-  runs set up after it, while a Draft already frozen keeps what it was frozen
-  under. What the number is by then is in the version ledger below. Contributes to the Scenario Catalog And Run Setup
-  feature rather than to this one; it sits in this range because of when it has
-  to happen, not because of what it is about.
-- T022: Lab execution, supported runtime bindings, and the minimal device
-  observation transform needed for truth/reported-value comparison, plus
-  reproducibly generated golden traces for regression/playback. Unsupported
-  environment/electrical/SLD values remain explicitly unavailable; gateway
-  staging remains unavailable until T023.
-- Event injection only after scheduled-event causality is proven; injections
-  append to run-scoped intervention history and are deferred beyond this
-  sequence unless replanned explicitly.
-
-#### The 2026-09-21 sequencing revision
-
-The sequence gains two insertions and one loop. Nothing is reordered, and
-nothing in front of either insertion is blocked.
-
-```
-  T019 ─► T020 ─► T020A ─► T020B ─► T021 ────────► T021A ─► T022 ─► T023 ─► ...
-  narrowed unchngd NEW       NEW      kernel         NEW      (f) lands
-  by (e)   plus(l) (k)       contract + TRAJECTORY   (g)
-  and (j)  disclose Foundation aligned  oracle (i)   contract
-                   properties          + supported_  version
-                   and carriers          states      moves
-                                         conformance (l)
-                                       + retires T020's
-                                         disclosure
-                                       + run against the
-                                         shipped document
-                                             │      ▲
-                                             └──────┘
-                                          document corrected
-                                          from what the kernel
-                                          computed
-
-  T020B declares the four kernel semantics, refuses a requirement conflict
-  rather than resolving it, lowers two forcing states and moves reporting
-  authority - after which the shipped Fuel Loss Event reaches READY and T021
-  has a run it is allowed to execute. It also retires T020's fixture-only
-  READY criterion. Both decision deadlines this diagram used to carry were
-  met on 2026-09-22: the dispatched-output half before T020A, and the rest
-  before T021's task file.
-```
-
-**Why T021A is its own slice.** The version-bump window is free only while no
-golden trace exists, and T022 is the slice that first produces one. Folding
-(g) into T022 would make that slice's internal ordering load-bearing — the
-parser change would have to land before the trace generation inside one
-slice — and would close the window entirely if T022 were ever split. It sits
-after T021 because the kernel never reads `execution_requirement` on a
-reported observation, so nothing about the kernel depends on it either way.
-Decided by the user on 2026-09-22.
-
-**Why T020A is an insertion and not a narrowing.** Two of the three changes in
-this revision withdraw overreach: run setup stops adjudicating cause-to-
-observation coupling, and the scenario stops authoring what a device reads.
-Both remove a claim. T020A adds a field that does not exist. Foundation carries
-one optional scalar per component and `FoundationBinding` can address only that
-scalar, so a generator's specific fuel consumption has nowhere to live and
-nothing that could reach it if it did. You cannot narrow your way into a
-missing capability. Settled in
-`D-2026-09-21-physical-property-ownership`.
-
-**T020A must be UI-verifiable, and it is.** Site Configuration's Key Parameters
-panel shows the generator's fuel consumption, and run setup's frozen-inputs
-panel shows it resolving from *site foundation* rather than from *scenario*.
-That is the seam repair made visible in one line of a table the user already
-reads. The slice also re-creates MG-001 from the updated template, because
-templates instantiate by copy and a template change never reaches an existing
-instance. A slice that adds the field without doing that produces a site
-whose runs never resolve the coefficient, so the slice's own UI-verifiable
-outcome never appears.
-
-**Those runs block**, on `INITIAL_VALUE_NOT_RESOLVED`, and this paragraph
-used to say they are refused. After T020A the binding names the property as
-well as the component type, so a different profile naming a different
-property may find something the Foundation does declare, which under the
-discriminator is a block. See
-`D-2026-09-22-foundation-property-absent-blocks`.
-
-**The loop inside T021.** T021 is no longer only a producer. It runs the kernel
-against the shipped Fuel Loss document, reports the resulting trajectory, and
-that trajectory is the input to correcting the document's authored numbers. The
-document cannot be finalized before the kernel runs against it: the right
-removal magnitude depends on what the kernel computes and on what the product
-can later recover from published evidence, and choosing the number first would
-fit the kernel to an authored expectation. This is an acceptance criterion on
-T021, not a resequencing.
-
-**Dependency structure.**
-
-| Slice | Hard dependency | What it would produce without it |
-| --- | --- | --- |
-| T020 | T019's persisted Drafts | an inventory over nothing |
-| T020A | T020 only for sequencing; independent of the kernel | nothing blocked in front of it |
-| T020A | the `dispatched-output` half of the forcing-state decision, before implementation | a Foundation property in the wrong unit, and a later unit migration on a Foundation document and on MG-001 |
-| T020B | T020A's coefficient and its `dispatched-output` promotion | a lowering that still leaves the shipped Draft blocked, so its outcome never appears |
-| T021 | T020A's Foundation coefficient and model-rule carrier | a first kernel whose physics arrive from the scenario, teaching every later kernel to do the same |
+| T020A | T020's merged Drafts, for sequencing only; independent of the kernel | nothing blocked in front of it |
+| T020B | T020A's Foundation coefficient and its `dispatched-output` promotion | a lowering that still leaves the shipped Draft blocked, so its outcome never appears |
+| T021 | T020A's coefficient and model-rule carrier | a first kernel whose physics arrive from the scenario, teaching every later kernel to do the same |
 | T021 | T020B's declared semantics and its `READY` shipped Draft | a kernel choosing contract semantics inside an implementation, and no run it is allowed to execute |
 | T021A | T019's narrowing, merged | a version move whose free window has closed, or a parser change that alters a run-setup outcome |
 | T022 | T021's kernel and its reported trajectory | an observation transform with no truth to sample, and a document that still authors the readings it is meant to generate |
 | T022 | the corrected Fuel Loss document | a generated reading and an authored reading disagreeing on the same screen |
+| T023 | T022's ordered observations and the frozen publication profile | envelopes whose source timing and identity are invented rather than sampled |
 
-**Where each accepted proposal lands.**
+**Two insertions that must not be folded back in.**
 
-| | Proposal | Slice |
-| --- | --- | --- |
-| (e) | run setup does not adjudicate coupling | T019, before merge |
-| (j) | reconciliation becomes a labelled test-only reference implementation | T019, with (e); its comparison against the kernel in T021; its removal follows its last caller and is undecided |
-| (l) | `READY` disclosure | T020; its conformance test and the disclosure's retirement in T021 |
-| (k) | Foundation properties and owner carriers | T020A |
-| (i) | `TRAJECTORY` oracle kind | T021 |
-| (g) | `execution_requirement` forbidden on a reported observation | T021A |
-| (f) | observations are generated, not authored | T022 |
-| (h) | projection versus composition | `.ai/ARCHITECTURE.md`; no code slice |
+*T020A is an insertion, not a narrowing.* The other changes in this sequence
+withdraw overreach: run setup stopped adjudicating cause-to-observation
+coupling, and the scenario stopped authoring what a device reads. T020A adds a
+field that does not exist — Foundation carries one optional scalar per
+component and the binding can address only that scalar, so a generator's
+specific fuel consumption has nowhere to live. You cannot narrow your way into
+a missing capability. `D-2026-09-21-physical-property-ownership`.
+
+*T021A is its own slice.* The contract-version window is free only while no
+golden trace exists, and T022 is the slice that first produces one. Folding the
+parser narrowing into T022 makes that slice's internal ordering load-bearing
+and closes the window entirely if T022 is ever split. It sits after T021
+because the kernel never reads the field either way.
+
+**The loop inside T021.** T021 runs the kernel against the shipped Fuel Loss
+document and reports the resulting trajectory; the document's authored numbers
+are then corrected from what the kernel computed. The document cannot be
+finalised first, because choosing the number first fits the kernel to an
+authored expectation. This is an acceptance criterion, not a resequencing.
 
 #### The execution-contract version ledger
 
-`EXECUTION_CONTRACT_VERSION` is stamped into every frozen run and a
-provenance mismatch refuses playback, so what the number is after each slice
-is a fact the sequence has to hold rather than a detail a slice picks.
-`D-2026-09-22-contract-version-scope` says when it moves; this is the count
-across M1C, and it is the only place the count is stated.
+`EXECUTION_CONTRACT_VERSION` is stamped into every frozen run and a provenance
+mismatch refuses playback, so what the number is after each slice is a fact the
+sequence holds rather than a detail a slice picks.
+`D-2026-09-22-contract-version-scope` says when it moves; this is the only
+place the count is stated.
 
 | After | Version | Why |
 | --- | --- | --- |
 | `main` today | 2 | T019 merged it |
 | T020 | 2 | no contract change; the `READY` disclosure is not one |
 | T020A | 3 | narrowing: a Foundation-owned parameter has no value position, and the shipped document as it stands is refused by the new parser |
-| T020B | 4 | two narrowings, one number: the four semantics pinned (`D-2026-09-22-kernel-step-semantics`), and a requirement conflict refused rather than resolved (`D-2026-09-22-forcing-state-requirements`). They share a slice, so nothing ever conformed to the version between them |
+| T020B | 4 | two narrowings, one number: the four semantics pinned, and a requirement conflict refused rather than resolved. They share a slice, so nothing ever conformed to the version between them |
 | T021 | 4 | no move: the `TRAJECTORY` oracle widens the document space off every executable path |
 | T021A | 5 | narrowing: no `execution_requirement` position on a reported observation |
 | T022 | 5 | no move: one document's content and a new component, not a change to the space |
+| T023 | 5 | no move: the envelope contract is a new contract, not a change to this one |
 
-**Four narrowings are in flight across three slices, so they spend three
-numbers rather than four.** The unreleased-version doctrine - a narrowing that
-never leaves the branch it was made on does not spend a number, because
-nothing ever conformed to the version it would have replaced - reaches
-narrowings that share an unmerged window. Here that is T020B's pair and only
-that pair; T020A's and T021A's each merge alone and each spends a number. It
-is the same doctrine that let versions one and two absorb two amendments each
-inside T019, and this paragraph counted three merging separately until the
-forcing-state decision put a second narrowing inside T020B.
+**Write the move, never the literal.** Four narrowings are in flight across
+three slices and they spend three numbers, because a narrowing that never
+leaves the branch it was made on does not spend one — nothing conformed to the
+version it would have replaced. Anything that states an absolute version
+number will be wrong by the time it is read. The frontend fixture deliberately
+pins `1` so the payload and the constant cannot be one literal by accident, and
+that is unaffected.
 
-**T020B, the contract-alignment step, is the ledger's one deliberate step of
-its own**, between T020A and T021, and it is where the four semantics and the
-requirement-conflict refusal are declared. Two narrowings in one unmerged
-window spend one number, which is the unreleased-version doctrine doing what
-it is for rather than an exception to it. The document edits that accompany
-them - `dispatched-output` promoted, two forcing states lowered - are content
-rather than contract and spend nothing.
-One variant changes the count: declaring them inside T020A would spend a
-single number for both narrowings and leave T021A at 4. It is not
-recommended - bundling a contract declaration into a Foundation-carrier slice
-makes that slice's internal ordering load-bearing, which is the argument that
-gave (g) a slice of its own.
+## Open Questions
 
-**So write the move, never the literal.** `tasks/T021A-reported-observation-
-requirement-closure.md` says "2 to 3" and T022's guidance says "already under
-version 3"; under this ledger both are wrong, and they were wrong before
-T020A joined the count. T021A moves the number by one and a Draft frozen
-under the previous version keeps what it was frozen under; T022 edits under
-whatever T021A produced. The frontend fixture deliberately pins 1 so the
-payload and the constant cannot be one literal by accident, and that is
-unaffected.
+Four are live. None blocks a planned slice.
 
-#### Seams this sequence surfaced
+- **The programme reorder needs the user's nod.** Blocks F through H now
+  precede cold-chain in this map, for the reason given under *What moved and
+  why*. `.ai/PRODUCT.md` still lists `Demo Ready v1.5: Cold-Chain` before
+  `Demo Ready v2`. **Trigger: before Block E closes out**, which is when the
+  next block's task files would be written. Nothing before then depends on it.
+- **The product's expectation basis.** Whether fuel reconciliation's expected
+  consumption uses the time-valid Foundation coefficient the kernel also used,
+  or a separately declared operating assumption that may differ from it. The
+  recommendation is the Foundation coefficient, visibly labelled modelled, with
+  its suitability and uncertainty declared. **Trigger: the Block F checkpoint.**
+  The same checkpoint owns deriving the uncertainty tolerance from declared
+  error sources rather than a picked number.
+- **The Fuel Loss document's authored numbers.** The removal magnitude, and
+  whether the 300 L delivery that overfills the tank is reduced or kept
+  deliberately as a second evidence puzzle. **Answered during T021**, from what
+  the kernel computes rather than before it.
+- **Whether reset clears intervention history.** **Triggered by the slice that
+  plans injection**, which is deferred past Block B.
 
-Three seams became visible while working the sequence out. This said none was
-settled. **The first and the third were settled on 2026-09-22** and are kept
-below for the reasoning rather than the verdict: reporting-path authority
-moves to the publication profile in T020B
-(`D-2026-09-22-forcing-state-requirements`, with its answerer half corrected
-one slice earlier in T020), and the coefficient is `L/kWh` with
-`dispatched-output` promoted, both in T020A
-(`D-2026-09-22-consumption-coefficient-unit`). The two deadlines the bullets
-state as future - *before T021's task file* and *before T020A is implemented*
-- were met that day. Only the second, the observation transform, is still
-open, and it is named so a slice does not settle it by accident.
+One accepted change is scheduled the same way and is not a question. **Option
+C, the model profile declaring that it needs a Foundation value** rather than
+the scenario declaring the need on its behalf, is where the need belongs,
+because the law is the thing that knows it needs a coefficient. It was not
+taken in T020A because it changes the shape of the frozen deterministic
+identity in the same slice that changes Foundation's schema. **Trigger: the
+first model rule that needs a Foundation value without a scenario asking for
+it.** See `D-2026-09-22-foundation-value-declaration`.
 
-- **Cadence and reporting-path authority, between the model profile and the
-  publication profile.** `runs/profiles.py` gives the model profile sole
-  authority over every forcing state, including
-  `fuel-level-reporting-availability`. That is a state of the reporting path,
-  not of the world. The model profile models physics; the publication profile
-  owns cadence and reporting identity. If the authority stays where it is,
-  T021's first kernel must model reporting availability, which is not physics
-  and widens the kernel for no physical reason. If it moves, the shipped Draft
-  drops from three `STATE_NOT_SUPPORTED` reasons to two — still `BLOCKED` — and
-  the publication profile gains a supported-reporting-states concept it does
-  not have. Reporting availability, sensor bias and gateway outage are one
-  family, and it is the observation transform's family. This was raised at the
-  T019 checkpoint and deliberately not decided; it is more pressing now that
-  the observation transform is a real component. It is part of the
-  forcing-state decision due before T021's task file.
-
-- **The observation transform is a component, not a step.** It was previously
-  a line item inside T022. With authored readings removed it becomes the thing
-  that produces every device value the product will ever see: it samples
-  private state on the publication profile's cadence rather than on the
-  kernel's timestep, it is the only place a reporting-path forcing applies, and
-  its output objects are distinct from truth rather than copies of it. Truth
-  exists at every step; a reading exists only at a sample. The canonical
-  mockup already assumes this — `SimulatorLab1.png` draws `Fuel Level (true)`
-  beside `Fuel Level (sensor)` with different values, and separate `Truth
-  Value` and `Sensor Value` columns. Sensor bias, dropout and failure are
-  later members of the same family and attach here, not to the kernel.
-
-- **The evidence path the product needs to form an expectation.** For Fuel
-  Reconciliation to produce a number from accepted evidence alone, the product
-  needs an observed decrease, recorded deliveries, and expected consumption —
-  and expected consumption is generator run hours from accepted generator
-  telemetry multiplied by a consumption coefficient from Foundation
-  configuration. Neither input exists today. Generator output is typed
-  `NON_EXECUTABLE_CONDITION`, so nothing computes it and the generator
-  controller, which Foundation says can publish `ac-power`, has nothing to
-  publish. The Foundation coefficient arrives with T020A. Promoting generator
-  output to a forcing input has two payoffs — the controller gains something to
-  publish, and an energy-based consumption rule becomes available instead of a
-  runtime-based one — and because the second payoff decides the coefficient's
-  unit, that promotion is due **before T020A is implemented**, earlier than the
-  rest of the forcing-state decision. The seam that holds whichever way it
-  goes: the product's coefficient comes from Foundation, never from the
-  scenario's private rate.
-
-Seams inside the feature: simulator/product boundary, deterministic identity,
-truth versus reported values, projection versus composition, physical-property
-ownership, intervention causality, feature gate.
-
-Must not bundle: broad physical-model realism, accepted ingestion, AssetOps
-conclusions, source health, or Findings. Manual state traces are not a permitted
-substitute for the minimal kernel.
-
-User-review checkpoint: required for Simulator Lab control semantics and truth
-visibility because they fix UI/UX and simulator domain semantics. T020 also
-carries a presentation-honesty check rather than a vocabulary change: a Runs
-inventory, a run detail, a frozen-identity panel and a disabled Run button
-together can read as *almost working* when no execution capability exists at
-all. The feature map can name the causal step (T021, T022), so
-disabled-with-reason is defensible under the three-treatments rule; the risk is
-cumulative rather than local and is worth a deliberate look when T020's screens
-are reviewed.
-
-### Early Feature: Gateway Publication, Commit, And Ingestion
-
-Demo roadmap task range: T023-T026.
-
-Divide into slices:
-- Strict Source Envelope and first typed-record parsers/contracts.
-- Staged gateway output UI for Draft runs.
-- Commit eligibility and release manifest semantics, including overlap blocking.
-- Ingestion Logs and accepted/rejected states from released envelopes.
-
-Seams inside the feature: source-envelope crossing, envelope versus typed
-evidence, Commit semantics, committed overlap, evidence immutability,
-ingestion-assigned `received_at`.
-
-Must not bundle: direct Site history writes from Commit, analytics, Replay,
-findings, live protocol adapters, or replacement of committed history.
-
-User-review checkpoint: required for envelope shape, Commit action language,
-and accepted/rejected evidence interpretation because they fix architecture
-and evidence semantics.
-
-### Early Feature: AssetOps Evidence Views And Replay
-
-Demo roadmap task range: T027-T029.
-
-Divide into slices:
-- Site Details/Gateway/Events/Logs read models from accepted evidence only.
-- Provenance summaries and Evidence/Provenance drawer.
-- No-evidence/Limited/Unavailable states by Site + time window.
-- Replay as as-of view over committed accepted history.
-- Time-window consistency checks across tabs.
-
-Seams inside the feature: accepted evidence only, provenance disclosure,
-private truth isolation, source mode versus health, Replay versus Rerun.
-
-Must not bundle: generator runtime, fuel reconciliation, findings,
-recommendations, work/financial workflows, or simulator truth comparison in
-operator UI.
-
-User-review checkpoint: required for provenance placement, unavailable-state
-language, and Replay behavior because they fix evidence interpretation and
-operator UI semantics.
-
-### Early Feature: First Product Conclusion Chain
-
-Demo roadmap task range: T034-T038.
-
-Divide into slices:
-- Gateway/source health from accepted evidence and expected cadence.
-- Generator Runtime Assessment with evidence sufficiency and basis labels.
-- Fuel Reconciliation with uncertainty and missing-record behavior.
-- Promotion of one material unexplained fuel variance into a bounded Finding.
-- Finding evidence drawer links and claim-boundary language.
-
-Seams inside the feature: source-health derivation, conclusion order, evidence
-availability suppressing claims, bounded fuel language, progressive provenance.
-
-Must not bundle: theft/hidden-cause assertions, automatic incident or work
-closure, financial roll-ups, recommendations without success criteria, or AI as
-sole factual finding generator.
-
-User-review checkpoint: required before fuel-reconciliation materiality and
-Finding promotion because they fix product direction, evidence interpretation,
-and operator consequence.
-
-## Open Questions Before Task Breakdown
-
-- The previous shell question is closed. `ScreenMockups.png` is read as
-  Simulator Lab shell and product-map direction, not as a single merged M1
-  shell. Operator Site surfaces still move toward the first three canonical
-  screens where backed content allows, while preserving T003/T004 navigation and
-  the operator/Lab split. Mockscreen fidelity is an explicit delivery goal:
-  planned fidelity slices should move each real screen as close to the canonical
-  mockscreen's visual and information architecture as current backed content
-  honestly allows. Differences from the mockscreen must be deliberate
-  corrections for product truth, missing evidence, deferred capabilities, or
-  protected seams, not timid styling omissions.
-- Removal of a user-created Site was the previous open question; the user
-  deferred it on 2026-09-13. Removing a user-created Site stays a developer
-  action on the store for M1.
-- The Lab step-6 question of whether the Lab needs its own Sites index or only a
-  Site detail/run context view over the shared substrate is deferred to causal
-  step 6. It does not block Site Foundation fidelity tasks T009-T013.
-- M1C's questions were swept on 2026-09-22 and **four remain open, none of
-  them blocking a planned slice.** The full list with its reasoning is in
-  `Docs/simulator-scenario-authoring-and-runtime.md` under Open Questions,
-  which says what closed each of the other nine.
-  - **Answered during T021:** what the Fuel Loss document should author — the
-    removal magnitude, and whether the 300 L delivery that overfills a 254 L
-    tank against a 500 L capacity is reduced or kept deliberately as a second
-    evidence puzzle. It is answered from what the kernel computes, not before
-    it.
-  - **Accepted for T021 on 2026-09-22 and carried by its task file:** pairing
-    every oracle kind with a mutation test proving it can fail. T021 is the
-    first slice with a kernel that can make an oracle fail; before it there is
-    nothing to mutate against.
-  - **Waiting for T034-T038:** whether the product's expectation uses the same
-    Foundation coefficient the kernel used or a separately declared operating
-    assumption, and deriving the `MAGNITUDE` tolerance from declared error
-    sources rather than a picked number. Both need a calculation that does not
-    exist yet. The unit decision added a second error source to the latter,
-    energy measurement beside coefficient spread.
-  - **Scheduled by trigger, not by position:** whether reset clears
-    intervention history, triggered by the slice that plans injection, which
-    is deferred past T022.
-- One accepted change is scheduled the same way and is not a question: **option
-  C, the model profile declaring that it needs a Foundation value** rather than
-  the scenario declaring the need on its behalf. It is where the need belongs,
-  because the law is the thing that knows it needs a coefficient, and it was
-  not taken in T020A because it changes the shape of the frozen deterministic
-  identity in the same slice that changes Foundation's schema. **Trigger: the
-  first model rule that needs a Foundation value without a scenario asking for
-  it.** See `D-2026-09-22-foundation-value-declaration`. `tank-capacity` is
-  **not** scheduled this way: it carried the same defect and T020A fixes it,
-  because the parser rule keys on the owner and reaches every Foundation-owned
-  parameter.
-- Everything else in the M1 feature map is resolved and ready for task
-  breakdown after user review.
+Closed and not to be reopened: the shell question; removal of a user-created
+Site, which stays a developer action on the store for M1; whether the Lab needs
+its own Sites index, deferred to the slice that builds the Lab's Site view; and
+which Finding comes first, settled as fuel reconciliation under *What moved and
+why*.
