@@ -14,9 +14,9 @@ has to happen, not because of what it is about.
 
 The scenario detail screen for the Fuel Loss Event shows its reported
 observations without an execution-requirement claim, and the execution contract
-version it reports is the one this slice moved it to. An authored document that tries to put an execution
-requirement on a reported observation is refused with an inspectable reason
-rather than parsed and ignored.
+version it reports is the one this slice moved it to. An authored document that
+tries to put an execution requirement on a reported observation is refused with
+an inspectable reason rather than parsed and ignored.
 
 ## Why This Is Next
 
@@ -34,7 +34,9 @@ would close the window entirely if T022 were ever split. It also keeps T022's
 user-review checkpoint on runtime control semantics rather than mixing an
 authoring-contract change into it. It sits after T021 rather than before
 because the kernel never reads `execution_requirement` on a reported
-observation, so nothing about the kernel depends on it either way.
+observation, so nothing about the kernel depends on it either way -
+`Docs/simulator_design_v4.md` §2.1 and §24 confirm the same ordering, and the
+queue position is not the Implementer's to optimise.
 
 ## Dependencies
 
@@ -75,6 +77,12 @@ observation, so nothing about the kernel depends on it either way.
   Playback refuses a provenance mismatch, so a version that moved for prose
   would force regeneration of valid traces.
 
+## Read When You Reach It
+
+`Docs/simulator_design_v4.md` §2.1 and §24, which confirm this slice is not a
+kernel prerequisite and stays after T021 in the queue. The kernel never reads
+the field either way.
+
 ## Protected Seams
 
 - Authoring-contract closure at the parser: a prohibition is structural, not a
@@ -83,6 +91,10 @@ observation, so nothing about the kernel depends on it either way.
   provenance.
 - Expectation position: the meaning `REQUIRED` was carrying is not recreated
   under another name on the executable path.
+- Standing for this range, one line rather than repeated per criterion: no
+  product conclusion in a scenario fixture; no private oracle value turned into
+  evidence; no manufactured default hiding a missing answer; no simulator
+  import of the backend.
 
 ## Focused Tests And Review Evidence
 
@@ -104,8 +116,11 @@ observation, so nothing about the kernel depends on it either way.
 
 - No other execution-contract change, no kernel change, and no observation
   transform.
-- No removal of the authored reading values; T022 owns that.
+- No removal of the authored reading *values*; T022 owns that. This slice
+  removes a field, not a number.
 - No change to the reconciliation panel or its payload.
+- Small, and it stays small. A criterion that does not follow from removing one
+  field position does not belong here.
 
 ## User Review
 
