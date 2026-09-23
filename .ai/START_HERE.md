@@ -17,11 +17,15 @@ resulting operational evidence in the UI.
 
 Planning status:
 
-M1A, T017, T018 and T019 are complete. T019's user-review checkpoint on run
-setup language and the READY/BLOCKED treatment was settled on 2026-09-22, and
-it moved the refusal line. T020, Runs inventory and Draft shell, is next.
-`.ai/ACTIVE_CONTEXT.md` names the task, relevant decision IDs, and feature-map
-sections to read.
+T001-T020 are complete and merged: a user can configure a mini-grid Site, read
+its Foundation back, inspect the shipped Fuel Loss scenario, set up a Draft run
+against it, and read that Draft in the Runs inventory. Nothing executes yet.
+
+Next is Block A of `.ai/FEATURE_MAP.md` — T020A, then T020B — which moves the
+generator's physics out of the scenario and onto the Site, after which the
+shipped scenario can reach `READY`. `.ai/ACTIVE_CONTEXT.md` names the task,
+the relevant decision IDs, and the feature-map sections to read;
+`.ai/PLANNING_HANDOFF_T020A_T023.md` carries the per-slice Planner guidance.
 
 ## Current Route
 
