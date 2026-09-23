@@ -54,15 +54,18 @@ gateway/source envelopes, releasing them through ingestion, accepted/rejected
 ingestion logs, operator evidence views populated from accepted evidence only,
 provenance inspection, and Replay over committed accepted history.
 
-`Demo Ready v1.5: Cold-Chain Evidence Loop` applies the same evidence loop to a
-real cold-chain domain model. Cold-chain is not a label swap over mini-grid; it
-needs cold room assets, temperature sensors, compressor/refrigeration state,
-door events, power dependency, temperature excursions, and careful exposure/risk
-language.
-
 `Demo Ready v2: Evidence-Backed Operational Findings` adds source/gateway
 health, evidence readiness, bounded assessments, and at least one operational
 Finding with confidence, claim boundary, and evidence basis.
+
+`Demo Ready v2.5: Cold-Chain Evidence Loop` applies the same evidence loop to a
+real cold-chain domain model, after the mini-grid conclusion chain rather than
+before it. Every commercially meaningful finish line is on the mini-grid path,
+and a second vertical proves that the operating model transfers rather than
+proving the proposition itself - so it follows the first Finding instead of
+delaying it. Cold-chain is not a label swap over mini-grid; it needs cold room
+assets, temperature sensors, compressor/refrigeration state, door events, power
+dependency, temperature excursions, and careful exposure/risk language.
 
 ## Product Principles
 

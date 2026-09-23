@@ -294,7 +294,7 @@ contracts or the seam is wrong.
 **Two changes to the previous ordering, both from the roadmap companions.**
 
 1. **The mini-grid conclusion chain moves ahead of the cold-chain pack.** The
-   previous order put `Demo Ready v1.5: Cold-Chain` (T030–T033) between the
+   previous order put cold-chain (then `Demo Ready v1.5`, T030–T033) between the
    evidence loop and the first Findings (T034–T038). Blocks F through H now
    follow Block E directly, and cold-chain follows them. The reason is that
    every finish line that matters commercially is on the mini-grid path, and a
@@ -819,13 +819,8 @@ that is unaffected.
 
 ## Open Questions
 
-Four are live. None blocks a planned slice.
+Three are live. None blocks a planned slice.
 
-- **The programme reorder needs the user's nod.** Blocks F through H now
-  precede cold-chain in this map, for the reason given under *What moved and
-  why*. `.ai/PRODUCT.md` still lists `Demo Ready v1.5: Cold-Chain` before
-  `Demo Ready v2`. **Trigger: before Block E closes out**, which is when the
-  next block's task files would be written. Nothing before then depends on it.
 - **The product's expectation basis.** Whether fuel reconciliation's expected
   consumption uses the time-valid Foundation coefficient the kernel also used,
   or a separately declared operating assumption that may differ from it. The
