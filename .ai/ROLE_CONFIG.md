@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Claude (temporary, see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Codex | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent | Reviews work independently from the author. |
@@ -23,21 +23,23 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
   acting so they can either run the role or prepare a handoff for the configured
   agent.
 
-## Architect Is Temporarily Claude
+## Architect Was Temporarily Claude, And Is Codex Again
 
-Set by the user on 2026-09-24 because Codex exhausted its usage limit twice in
-one day, with resets hours out, while the task queue waits on an Architect
-review before implementation can start. This is a capacity decision, not a
-judgement that Claude is the better Architect.
+On 2026-09-24 the user set Architect to Claude because Codex had exhausted its
+usage limit twice in one day while the task queue waited on an Architect
+review. That entry said to revert when capacity allowed. Codex capacity
+returned at 18:21 the same day and the binding was reverted at 18:53, so the
+exception is closed and the rule below applies again without qualification.
 
-Review independence is unaffected, which is the thing bindings exist to
-protect: the Reviewer is a separate role and stays independent of whoever
-authored the work. Architect and Implementer sharing a vendor is not the
-failure mode; Architect and Reviewer sharing one would be.
+Two Architect passes were produced under the exception, both on
+`arch/queue-review-feedback` and both merged: the queue resequencing at
+`2970d74` and the hardening-gate removal at `e02d267`. A later reader checking
+who authored them should know they were Claude by an explicit, recorded
+decision rather than by the coordinator routing around this file.
 
-**Revert to Codex when its capacity allows.** Until that happens the Claude
-`assetops-architect` subagent may produce Architect output directly, because
-this file says so. The Planner binding is unchanged and remains Codex.
+The lesson worth keeping is the one the exception was written to respect: when
+a binding has to change, change it here first and then act. Routing around a
+control is worse than the mistake the control prevents.
 
 ## Invoking A Codex-Bound Role
 
