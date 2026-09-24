@@ -1028,15 +1028,28 @@ describe("a parameter the site's foundation answers for", () => {
     ).toBeInTheDocument();
   });
 
-  it("still renders the bound it declares", async () => {
+  it("still names the state it answers for", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();
 
     const region = tableNamed("Scenario-level authoring parameters");
 
-    // The relationship survives the number's removal: which world state caps
-    // which is a fact about the document, and a screen that dropped it with
-    // the number would leave a reader unable to see what caps what.
+    // Renamed, and the rename is the correction.
+    //
+    // This said it proved the bound survives the number's removal, and it
+    // did not: the text it matched, `fuel-tank-capacity`, comes from the
+    // STATE column, while the bound the scenario declares is UPPER on
+    // `fuel-tank-volume` - a different state. A second independent review
+    // deleted the fixture's bound, rendered the real component, and watched
+    // both assertions still pass. `ScenarioFrame` does not render
+    // `parameter.bounds` in this table at all.
+    //
+    // So this tests what it can see: a parameter with no number still says
+    // which world state it answers for, which is what keeps a declared bound
+    // attributable to it. **The bound's own survival is a backend fact** -
+    // `test_scenario_parsing.py::test_the_bound_declaration_survives_the_value_leaving`
+    // and the execution-contract test pin the parsed document - and AC10
+    // stands on those rather than on anything rendered here.
     const row = within(region)
       .getByText("tank-capacity")
       .closest("tr") as HTMLElement;
@@ -1045,9 +1058,45 @@ describe("a parameter the site's foundation answers for", () => {
     );
 
     expect(cells).toContain("Declared by the site's foundation (L)");
-    // The parameter still names the state it is about, so the bound the
-    // scenario declares stays attributable to it.
-    expect(cells.join(" ")).toContain("fuel-tank-capacity");
+    // The state column, named as the state column: this row is about
+    // `fuel-tank-capacity`, which is not the state the bound caps.
+    expect(cells).toContain("fuel-tank-capacity");
+  });
+
+  it("renders no bound for any parameter, and says so rather than implying one", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    // The honest half of what the test above used to claim. The fixture
+    // declares an UPPER bound on `fuel-tank-volume` and this table shows no
+    // trace of it, so nothing on this screen may be cited as evidence that a
+    // bound survived. Asserted rather than left unsaid, because an absence
+    // nobody has written down is an absence somebody will assume away - and
+    // because it fails the moment a later slice adds a bound column, which is
+    // exactly when this comment needs rereading.
+    const parameter = SCENARIO_DETAIL.public_parameters.find(
+      (item) => item.parameter_id === "tank-capacity",
+    );
+    expect(parameter?.bounds).toEqual({
+      state_key: "fuel-tank-volume",
+      bound_kind: "UPPER",
+    });
+
+    // Scoped to the row that DECLARES the bound, not to the table. The
+    // table mentions `fuel-tank-volume` twice already - it is the state
+    // another parameter answers for - so a table-wide search would fail for
+    // a reason that has nothing to do with bounds, which is the same trap
+    // one level along.
+    const region = tableNamed("Scenario-level authoring parameters");
+    const row = within(region)
+      .getByText("tank-capacity")
+      .closest("tr") as HTMLElement;
+    const text = Array.from(row.querySelectorAll("td"))
+      .map((cell) => cell.textContent ?? "")
+      .join(" ");
+
+    expect(text).not.toContain("fuel-tank-volume");
+    expect(text).not.toContain("UPPER");
   });
 });
 

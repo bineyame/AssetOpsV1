@@ -474,6 +474,46 @@ class TestANumberThatCannotBeStoredOrShown:
         assert "must be a finite number" in str(error.value)
 
     @families
+    def test_an_integer_no_float_can_hold_is_refused_by_position(
+        self, parse, refusal
+    ) -> None:
+        """A 401-digit integer is valid YAML and fits the document limit.
+
+        It surfaced as a raw `OverflowError` with no property position and no
+        document name, because `math.isfinite` converts its argument before
+        testing it and therefore throws rather than returning False. The
+        round-one function had the same hole one line further down, at the
+        `float(value)` that builds the record - so this is an uncovered case
+        being closed rather than one the finiteness check introduced.
+
+        What is asserted is that it is a REFUSAL rather than a crash: the
+        document family's own error type, naming where in the document the
+        number is.
+        """
+        with pytest.raises(refusal) as error:
+            parse([{**generator_properties()[0], "value": 10**400}])
+
+        message = str(error.value)
+        assert "properties[0].value" in message
+        assert "401 digits" in message
+        assert "larger than any number this product can hold" in message
+
+    @families
+    def test_the_largest_integer_a_float_can_hold_still_parses(
+        self, parse, refusal
+    ) -> None:
+        """Non-vacuous, and it pins the boundary at the conversion.
+
+        `2 ** 1023` is a 309-digit integer that converts exactly. A rule
+        written against a digit count or an exponent guess rather than against
+        the conversion itself would refuse it, and this is the case that would
+        notice.
+        """
+        component = parse([{**generator_properties()[0], "value": 2**1023}])
+
+        assert component.properties[0].value == float(2**1023)
+
+    @families
     def test_a_finite_value_still_parses(self, parse, refusal) -> None:
         """Non-vacuous: the rule is about finiteness and not about numbers."""
         component = parse([{**generator_properties()[0], "value": 0.42}])

@@ -592,9 +592,25 @@ class RunSetupService:
         # agree again. Filtering on the frozen collection rather than on the
         # absence of a number is what keeps them agreeing: if a later slice
         # adds a Foundation-owned parameter that is not an initial value, it
-        # arrives here as a `FrozenParameter` with no number rather than as a
-        # row nobody kept, and the run record refuses it loudly instead of
-        # freezing a scenario it partly dropped.
+        # arrives here as a `FrozenParameter` carrying no number rather than
+        # as a row nobody kept.
+        #
+        # **Be precise about what catches it then, because this comment said
+        # the wrong thing and a second review caught that.** It said the run
+        # record refuses such a parameter loudly. It does not:
+        # `FrozenParameter` is annotated and not validated, and
+        # `SimulationRun.__post_init__` checks initialization rows rather than
+        # resolved parameters - so a record built that way is returned as
+        # `READY` with no reasons. The boundary that actually holds is one
+        # layer out, in `YamlRunStore.create_run`, which re-reads the staged
+        # document before committing it and refuses a value the run document
+        # parser will not take, leaving the store directory empty.
+        # `test_run_store.py` keeps that demonstrated rather than asserted
+        # here.
+        #
+        # So the guarantee is: such a row is KEPT rather than dropped, and it
+        # cannot be persisted. It is not that the dataclass rejects it. A
+        # future author must not build on a guard that is not there.
         frozen_states = {item.parameter_id for item in initialization}
         resolved = tuple(
             FrozenParameter(

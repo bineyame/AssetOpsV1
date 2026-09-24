@@ -13,6 +13,7 @@ later read would pick up.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -35,7 +36,7 @@ from assetops_backend.runs.adapters.yaml_run_store import (
     RUN_STORE_ROOT,
     YamlRunStore,
 )
-from assetops_backend.runs.models import SimulationRun
+from assetops_backend.runs.models import FrozenParameter, SimulationRun
 from assetops_backend.runs.ports import (
     RunConfigurationInvalid,
     RunIdentityConflict,
@@ -408,3 +409,93 @@ class TestTheStoreRoot:
 
         assert parts[-2:] == ("var", "runs")
         assert "config" not in parts
+
+
+class TestTheBoundaryThatActuallyStopsAValuelessResolvedParameter:
+    """Where a resolved parameter with no number is stopped, and where it is not.
+
+    `runs/service.py` used to comment that the run record would refuse such a
+    parameter loudly if a future slice reopened the shape the scenario parser
+    now closes. A second independent review showed that is false:
+    `FrozenParameter` is annotated and not validated, and
+    `SimulationRun.__post_init__` checks initialization rows rather than
+    resolved parameters, so a record built that way comes back `READY` with no
+    reasons.
+
+    The protection is real and it is one layer out. `YamlRunStore.create_run`
+    re-reads its own staged document before committing it, and the run
+    document parser will not take a resolved parameter with no number - so the
+    write is refused and the directory is left empty.
+
+    This is here rather than asserted in a comment because a future author
+    will build on whichever of those two statements they read. The record
+    below is constructed directly, bypassing the parser that refuses to
+    produce it, which is the only way such a record can exist at all.
+    """
+
+    def _record_with_a_valueless_resolved_parameter(self) -> SimulationRun:
+        record = a_run()
+        identity = record.deterministic_identity
+        scenario_binding = identity.scenario
+        return replace(
+            record,
+            deterministic_identity=replace(
+                identity,
+                scenario=replace(
+                    scenario_binding,
+                    resolved_parameters=scenario_binding.resolved_parameters
+                    + (
+                        FrozenParameter(
+                            parameter_id="foundation-coefficient",
+                            value=None,  # type: ignore[arg-type]
+                            unit="L/kWh",
+                            answered_by="SCENARIO",
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+    def test_the_run_record_itself_does_not_reject_it(self) -> None:
+        """Stated as a test so the limitation cannot be mistaken again.
+
+        If a later slice makes `FrozenParameter` validate, this fails and
+        whoever changes it gets to delete it and say so - which is the point.
+        A limitation nobody has written down is a limitation somebody assumes
+        away.
+        """
+        record = self._record_with_a_valueless_resolved_parameter()
+
+        assert record.execution_status == "READY"
+        assert record.blocking_reasons == ()
+        assert record.deterministic_identity.scenario.resolved_parameters[
+            -1
+        ].value is None
+
+    def test_the_store_refuses_it_and_leaves_nothing_behind(
+        self, tmp_path: Path
+    ) -> None:
+        store = YamlRunStore(tmp_path)
+
+        with pytest.raises(RunConfigurationInvalid) as error:
+            store.create_run(self._record_with_a_valueless_resolved_parameter())
+
+        assert "resolved_parameter.value" in str(error.value)
+        assert store.list_runs() == ()
+        assert list(tmp_path.iterdir()) == []
+
+    def test_the_same_record_with_a_number_is_written(
+        self, tmp_path: Path
+    ) -> None:
+        """Non-vacuous: the refusal is about the absent number.
+
+        Without this the test above would pass against a store that refused
+        every record, or against a fixture that was malformed for some other
+        reason.
+        """
+        record = a_run()
+        store = YamlRunStore(tmp_path)
+
+        store.create_run(record)
+
+        assert [item.run_id for item in store.list_runs()] == [record.run_id]

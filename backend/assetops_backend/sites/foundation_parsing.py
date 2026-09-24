@@ -132,21 +132,26 @@ MAX_COMPONENT_PROPERTIES = 16
 #: Foundation version - and both are bounded at 10,000 by their own parsers.
 MAX_PROPERTY_SOURCE_VERSION = 10_000
 
-#: The range a UNIT implies, where it implies one.
+#: The range a unit is given HERE, where this vocabulary gives it one.
 #:
-#: Deliberately keyed on the unit rather than on the property, and
-#: deliberately one entry. A percentage of something a component holds is
-#: between nothing and all of it, and that is a fact about the unit rather
-#: than about the four keys that happen to exist today. A per-property range
-#: table is a general validation mechanism this vocabulary has not earned -
-#: four members, one of which has a natural bound - and
+#: **Policy, not physics.** Nothing about the percent sign says a quantity
+#: written in it lies between nought and a hundred - a loading factor of 120 %
+#: is an ordinary engineering number. What is true is narrower and is about
+#: this vocabulary: its only `%` key is a reserve state of charge, which is a
+#: fraction of what a component holds and cannot exceed all of it. An earlier
+#: draft of this comment taught the broader claim as a fact about the unit,
+#: which an independent review was right to object to.
+#:
+#: Keyed on the unit rather than on the property, and deliberately one entry.
+#: A per-property range table is a general validation mechanism this
+#: vocabulary has not earned - four members, one of which has a bound - and
 #: `D-2026-09-22-milestone-speed-over-purity` says not to build one for it.
 #:
-#: The cost of keying on the unit is stated so the next author meets it: a
-#: later property that is a percentage ABOVE one hundred - a loading factor,
-#: say - cannot be added under `%` without deciding this. That decision
-#: belongs with the property that needs it, and being refused at the moment
-#: of adding it is the right place to meet the question.
+#: The cost of that choice is stated so the next author meets it: a property
+#: that is a percentage above one hundred cannot be added under `%` without
+#: revisiting this. That is the right place to meet the question, because the
+#: decision belongs with the property that needs it - and the failure is
+#: visible rather than a silent clamp.
 UNIT_RANGES: dict[str, tuple[float, float]] = {"%": (0.0, 100.0)}
 
 MAX_IDENTIFIER_LENGTH = 64
@@ -932,6 +937,35 @@ def _parse_component_property(
     # exploding at the far end is the opposite of what a strict parser is
     # for: the refusal a person can act on happens here, or it happens as a
     # 500 with a stored document nobody can serve.
+    # An integer no float can hold, refused BY POSITION rather than by
+    # exception. This has to come first, because `math.isfinite` converts its
+    # argument before testing it and therefore THROWS on such an integer
+    # rather than returning False.
+    #
+    # A 401-digit integer is valid YAML and fits inside the document size
+    # limit, so it reaches here through both document families. Until this
+    # check it surfaced as a raw `OverflowError` with no property position and
+    # no document name - the parser failing rather than refusing, which gives
+    # a person nothing to act on. The round-one function had the same hole one
+    # line further down, at the `float(value)` that builds the record: this is
+    # an uncovered case being closed rather than one `math.isfinite`
+    # introduced.
+    #
+    # Asked of the conversion itself rather than of a digit count or an
+    # exponent, because the conversion is the thing that has to succeed and it
+    # is the authority on when it can.
+    if type(value) is int:
+        try:
+            float(value)
+        except OverflowError:
+            invalid(
+                f"'{where}.value' has {len(str(abs(value)))} digits in "
+                f"{source}, which is larger than any number this product can "
+                "hold. A declared property is stored, served and shown as an "
+                "ordinary number; one that cannot be converted to a float has "
+                "nowhere to go after this line."
+            )
+
     if not math.isfinite(value):
         invalid(
             f"'{where}.value' is {value!r} in {source}. A declared property "
@@ -958,18 +992,18 @@ def _parse_component_property(
             "tell apart by reading text."
         )
 
-    # The range the unit implies, where it implies one. A reserve state of
-    # charge of 101 % parsed, persisted and rendered until an independent
-    # review pointed at it: it is not a magnitude the unit can carry, and a
-    # screen showing it would be showing a configured impossibility.
+    # The range this vocabulary gives the unit, where it gives one. A reserve
+    # state of charge of 101 % parsed, persisted and rendered until an
+    # independent review pointed at it.
     bounds = UNIT_RANGES.get(definition.unit)
     if bounds is not None and not bounds[0] <= value <= bounds[1]:
         invalid(
-            f"'{where}.value' is {value} {definition.unit} in {source}, and a "
-            f"quantity in {definition.unit} lies between {bounds[0]:g} and "
-            f"{bounds[1]:g}. The bound is the unit's rather than this "
-            "property's: a percentage of what a component holds cannot be "
-            "more than all of it."
+            f"'{where}.value' is {value} {definition.unit} in {source}, and "
+            f"this vocabulary declares every {definition.unit} property "
+            f"between {bounds[0]:g} and {bounds[1]:g}. That is a rule about "
+            "the properties declared here rather than about the unit: the "
+            f"only {definition.unit} property in it is a fraction of what a "
+            "component holds, which cannot be more than all of it."
         )
 
     declared_source = _require_choice(
