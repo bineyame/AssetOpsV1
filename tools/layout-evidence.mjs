@@ -325,11 +325,30 @@ async function visit(cdp, path, width, height, waitFor, act) {
     // the first version, so a renamed field or button would have produced a
     // page with no summary on it and the measurement below would have
     // reported an empty set of tables as a set that holds.
-    const acted = await cdp.send("Runtime.evaluate", {
-      expression: act.script,
-      returnByValue: true,
-    });
-    if (acted.result.value !== true) {
+    //
+    // Three answers, not two, and the third is a wait rather than a failure.
+    // `not-ready` means the form is there and its submit is still disabled,
+    // which is what the run setup page does until the configured site has
+    // been read. Clicking a disabled button silently does nothing, so the
+    // old two-answer version posted nothing and then reported that the
+    // summary never appeared - a race that reads exactly like a defect.
+    let acted = "not-ready";
+    for (let attempt = 0; attempt < 40 && acted === "not-ready"; attempt += 1) {
+      if (attempt > 0) await sleep(250);
+      const answer = await cdp.send("Runtime.evaluate", {
+        expression: act.script,
+        returnByValue: true,
+      });
+      acted = answer.result.value;
+    }
+    if (acted === "not-ready") {
+      throw new Error(
+        `The page action for ${path} found its submit still disabled after ` +
+          "ten seconds, so nothing was submitted. The page never became " +
+          "ready; it is not that the form is wrong.",
+      );
+    }
+    if (acted !== true) {
       throw new Error(
         `The page action for ${path} did not find the controls it drives, ` +
           "so nothing was submitted and there is nothing to measure. The " +
@@ -409,8 +428,16 @@ const SUBMIT_RUN_SETUP = `(() => {
   const submit = Array.from(document.querySelectorAll("main button")).find(
     (button) => (button.textContent || "").trim() === "Create draft run",
   );
-  if (filled && submit) submit.click();
-  return filled && Boolean(submit);
+  // A disabled submit is NOT-READY, not missing. The form disables it until
+  // the configured site has been read, and clicking it then does nothing at
+  // all: the run is never posted and the summary never renders, which
+  // surfaced here as the summary "never appearing" and looked like a
+  // rendering defect. Reporting it separately lets the caller wait for the
+  // page rather than mistake a race for a broken screen.
+  if (!filled || !submit) return "controls-missing";
+  if (submit.disabled) return "not-ready";
+  submit.click();
+  return true;
 })()`;
 
 function report(title, m, checks) {
