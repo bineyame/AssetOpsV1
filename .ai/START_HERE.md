@@ -1,31 +1,31 @@
 # Start Here
 
-AssetOps helps operators use a simulator lab and site operations screens to
-inspect mini-grid evidence, understand current operating state, and investigate
-evidence-backed operational findings.
-
-This file is a routing document. Keep volatile task state in
-`.ai/ACTIVE_CONTEXT.md`; keep durable product and architecture reasoning in the
-canonical files it points to.
+AssetOps turns mini-grid evidence into bounded operational/economic conclusions
+and verifies whether interventions helped. This file routes work; built state
+lives in `.ai/CODE_STATE.md` and current routing in `.ai/ACTIVE_CONTEXT.md`.
 
 ## Current Focus
 
 Current milestone:
 
-M1 - A user can configure one mini-grid site, simulate it, and inspect the
-resulting operational evidence in the UI.
+Credible mini-grid runtime (feature-map A), then internal architecture demo (B)
+and a dispatch Finding for domain-expert feedback (C).
 
 Planning status:
 
-T001-T020 are complete and merged: a user can configure a mini-grid Site, read
-its Foundation back, inspect the shipped Fuel Loss scenario, set up a Draft run
-against it, and read that Draft in the Runs inventory. Nothing executes yet.
+T001-T020 are complete. Sites, Foundation, scenario inspection and frozen Draft
+setup/readback exist. Nothing executes and the shipped scenario is still blocked.
 
-Next is Block A of `.ai/FEATURE_MAP.md` — T020A, then T020B — which moves the
-generator's physics out of the scenario and onto the Site, after which the
-shipped scenario can reach `READY`. `.ai/ACTIVE_CONTEXT.md` names the task,
-the relevant decision IDs, and the feature-map sections to read;
-`.ai/PLANNING_HANDOFF_T020A_T023.md` carries the per-slice Planner guidance.
+**Next is the Planner's recreation of the unfinished task queue**, starting
+with the property-carrier/addressed-binding sizing around T020A. Existing task
+files were not edited by the Architect replan and must not be activated as
+written. Read `.ai/FEATURE_MAP.md` and `.ai/PLANNING_HANDOFF_T020A_T023.md`.
+
+This replaces the former "Block A, activate T020A then T020B" routing.
+`D-2026-09-24-v4-roadmap-replan` records the new source basis and sequence.
+The only direction sources are `Docs/simulator_design_v4.md` (mechanisms) and
+`Docs/mini-grid-demo-architecture-and-roadmap.md` (demo path). Earlier planning
+reviews and the former second roadmap are not additional authorities.
 
 ## Current Route
 
@@ -34,64 +34,30 @@ Read by default:
 1. `AGENTS.md`
 2. `.ai/START_HERE.md`
 3. `.ai/ACTIVE_CONTEXT.md`
-4. The active task file named in `.ai/ACTIVE_CONTEXT.md`, when one exists.
+4. The active task it names, when one has been recreated and activated.
 
 Read only when relevant:
 
-- `.ai/PROJECT_RULES.md` for authority order, seams, ambiguity, and git rules.
-- `.ai/ROLE_CONFIG.md` when invoking Planner, Architect, Implementer, or
-  Reviewer roles.
-- `.ai/PRODUCT.md` when product semantics, user-visible claims, or acceptance
-  meaning matter.
-- `.ai/ARCHITECTURE.md` when dependency direction, contracts, simulator
-  boundaries, or protected seams matter.
-- `.ai/CODE_STATE.md` only for the slice entries named by the active context:
-  what earlier slices settled in code, and what they left open.
-- `.ai/DECISIONS.md` only for the decision IDs named by the active context or
-  active task.
-- `.ai/FEATURE_MAP.md` only for the feature-map sections named by the active
-  context or active task.
-- Completed task files only when reviewing regression risk or historical
-  acceptance.
-
-Do not load every project document by default.
+- `.ai/ROLE_CONFIG.md` for role bindings.
+- `.ai/PROJECT_RULES.md` and `.ai/WORKFLOW.md` for authority, seams and checks.
+- `.ai/PRODUCT.md` for demo milestones and claim boundaries.
+- `.ai/ARCHITECTURE.md` for dependency, runtime and evidence boundaries.
+- `.ai/FEATURE_MAP.md` for demonstrable outcomes and unowned requirements.
+- `.ai/PLANNING_GUIDANCE.md` and the scoped handoff for task creation.
+- Selected `.ai/CODE_STATE.md` entries, decisions and completed tasks for
+  built-state detail, durable reasoning and regression risk.
 
 ## Working Model
 
-Planned lane:
+Planned lane: Architect -> Planner -> Implementer -> independent Reviewer ->
+User review where required. The Planner turns the reviewed feature map into
+task files. Completed tasks move to `tasks/completed/`.
 
-Architect or Planner -> Implementer -> Reviewer -> User review
+Fast lane: Implementer -> Reviewer for low-risk changes within established
+contracts. New behavior, domain semantics, meaningful UI, data contracts,
+simulator/ingestion boundaries and analytics use the planned lane.
 
-Use for new product behavior, domain semantics, meaningful UI/UX, data/API
-contracts, architecture boundaries, simulator or ingestion semantics, external
-integrations, and user-visible analytics.
-
-Fast lane:
-
-Implementer -> Reviewer
-
-Use only for low-risk work inside existing product and technical contracts:
-documentation cleanup, test clarification, small bug fixes with established
-behavior, internal refactors, tooling cleanup, implementation cleanup, or minor
-styling corrections.
-
-## Task Shape
-
-The primary planning unit is a reviewable vertical slice. Every planned task
-should answer: what can the user observe, inspect, or validate in the UI when
-this is done?
-
-Implementer work should lead directly to a UI-verifiable outcome or materially
-contribute to a clearly named upcoming UI-verifiable slice. Backend-only work is
-allowed only when the active task explains which screen behavior it unlocks and
-how it will be verified.
-
-Task files live in `tasks/` after the Architect creates them. Completed task
-files move to `tasks/completed/`.
-
-Current product truth lives in `.ai/PRODUCT.md`. Durable architecture rules live
-in `.ai/ARCHITECTURE.md`. Lightweight durable governance lives in
-`.ai/PROJECT_RULES.md`.
-
-Normally ignore local-only `.agent/` files, completed task history, and
-unrelated future-slice questions.
+Every task produces or directly unlocks a named UI-verifiable result.
+Protect truth isolation, provenance and honest claims; carry cheap refinements
+under `D-2026-09-22-milestone-speed-over-purity`. Do not load all project
+history by default.

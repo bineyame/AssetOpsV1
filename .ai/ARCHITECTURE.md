@@ -1,5 +1,19 @@
 # Architecture
 
+## Source And Implementation Status
+
+Simulator direction is normative in `Docs/simulator_design_v4.md`; demo
+sequencing is in `Docs/mini-grid-demo-architecture-and-roadmap.md`.
+This file records the protected seams and points to those mechanics, not their
+full implementation specification. `.ai/CODE_STATE.md` records what is built.
+
+2026-09-24 correction: component addressing is immediate work after the typed
+property carrier, not a late electrical extension. The controller/electrical
+world precedes the dispatch Finding. The evidence loop is an internal demo;
+full Replay is not a gate on the first Finding. This supersedes the prior
+feature-map sequencing, not the built history. See
+`D-2026-09-24-v4-roadmap-replan`.
+
 ## Durable Boundaries
 
 Simulator does not equal product.
@@ -47,11 +61,10 @@ evidence/analytics -> user-visible product
 
 ## Evidence Loop Boundaries
 
-The client-demo evidence loop follows this direction:
+The internal architecture demo proves this evidence loop:
 
 simulated runtime -> staged Source Envelopes -> release/commit manifest ->
-ingestion -> accepted/rejected evidence -> operator evidence views -> Replay
-and conclusions
+ingestion -> accepted/rejected records -> accepted Site history and Overview
 
 A Source Envelope carries source identity, timing, sequencing, provenance,
 transport structure, and typed record payloads. It is the boundary object
@@ -70,7 +83,7 @@ Operator Site views, Replay, evidence drawers, source health, and conclusions
 must derive from accepted evidence, not from simulator runtime objects, private
 scenario truth, or staged-but-unreleased output.
 
-Replay inspects committed accepted history for a Site and time window. It is
+Later Replay inspects committed accepted history for a Site and time window. It is
 not a rerun, not a simulator-truth view, and not a way to bypass ingestion.
 
 Private scenario expectations and simulator truth are test-oracle or Lab-only
@@ -79,98 +92,132 @@ views, analytics, exports, or findings.
 
 ## Causal Runtime Authority
 
-`ScenarioDefinition` authors time-bound causes, external conditions,
-interventions, and evidence conditions. It does not author the resulting world
-state trajectory. Site Foundation supplies physical/configuration facts; a
-frozen `SimulationRun` supplies interval, timestep, seed, selected Site and
-Foundation version, selected scenario version, simulator version, resolved
-initialization inputs, and ordered run-scoped interventions. The runtime owns
-initialization and the causal transition from one private world state to the
-next.
+ScenarioDefinition authors causes, conditions, interventions and private test
+expectations; the runtime computes trajectories. Frozen run inputs must
+reconstruct the Site/Foundation, scenario, initialization, profiles, interval,
+timestep, seed and interventions that produced an output. Generated golden
+traces bind to that exact identity and kernel version; authored traces cannot
+establish causality. v4 sections 2, 9-10 and 21.
 
-The first executable Fuel Loss path therefore requires a minimal deterministic
-causal kernel before any trace may be treated as simulator output. Its runtime
-contract must express initialization plus a step operation over current state,
-simulation time, timestep, and events due in that step. Event-boundary
-semantics must make each authored cause apply exactly once. The kernel may be
-deliberately narrow, but changing or removing a supported cause must change or
-remove its consequence while all unrelated frozen inputs remain fixed.
+Static projection reports declarations. Composing them into values at a time
+is kernel work, not validation or run setup. Independent causal, boundary and
+metamorphic tests establish execution behavior; schema validity alone cannot.
+See `D-2026-09-21-projection-versus-composition` and
+`D-2026-09-21-causal-runtime-before-golden-traces`.
 
-A manually authored state trace can prove UI, clock, binding, and downstream
-contract behaviour; it cannot prove that a scenario caused the states it
-contains. Golden traces are permitted only as reproducible outputs of a named
-causal runtime version and frozen deterministic identity. They are regression
-or playback artifacts, not an independent source of simulator truth. Schema
-validation proves shape, invariant validation proves internal consistency, and
-causal correctness requires execution by the kernel plus independent example,
-boundary, and metamorphic tests. These three claims must not be collapsed.
+The first narrow Fuel Loss kernel is a starter proof, not completion of the
+credible mini-grid runtime. Its profile support disclosure expires only when
+kernel conformance proves the advertised set. Documentary capability must never
+silently become a claim of executed support.
 
-Initial conditions must be explicit and attributable. They may come from Site
-Foundation, versioned simulator initialization rules, or declared supported
-scenario/run inputs; a trace may not hide or invent them. Runtime provenance
-binds outputs to the exact Site/Foundation version, scenario version, resolved
-public parameters, interval, timestep, seed, simulator version, initialization
-inputs, and intervention history that produced them.
+## Execution Composition And Truth Barrier
 
-Projecting a document is static validation. Composing projections into a
-value-at-a-time is a kernel. A component that owns a transition rule is a
-kernel regardless of what it is called, how narrow it is, or whether it emits a
-trajectory. Reporting what a document declares is always allowed; deciding what
-those declarations reach is not, until the thing that owns transition rules
-exists. This is the same rule as the golden-trace rule with one word changed: a
-kernel precedes any authoritative trace, and a kernel precedes any verdict that
-depends on composing causes.
+v4 section 3 supplies the target composition, still unbuilt after T020:
 
-The author's side of that line is the same rule seen from the other end. An
-expectation is legitimate when it occupies a position where being wrong causes
-a failure, and circular when it occupies a position where being wrong causes
-agreement. An authored value the system reads as fact is load-bearing; the same
-value compared against an independently computed one is an oracle. A scenario
-may carry oracles and may not carry consequences.
+- `simulator/` owns kernel, packs, observation transforms and gateway.
+- `backend/` owns product ingestion, Evidence, Findings and financials.
+- Neither imports the other's package. In particular, simulator imports no
+  `assetops_backend` module, including a convenient shared data type.
+- A neutral `host/` composition leaf wires an execution port/adapter and may
+  import both; nothing imports host. Move the minimum shared execution and
+  envelope schemas to dependency-neutral contracts.
+- Lab receives a gated `LabProjection`, which may expose private generated
+  observations. `WorldState`, raw `DeviceObservation`, `ControlIntent`,
+  `AcceptedFlowSet`, traces and private expectations are never product input.
 
-**The same test governs configuration and provenance, not only authored
-expectations.** A declaration about who or what will supply something is worth
-storing only where being wrong causes a failure; where nothing can fail, the
-declaration is decoration and drifts. A binding resolved against a real record
-earns its place because it blocks when the record cannot answer. A field
-restating what the values beside it already say does not, because the only
-thing that checks it is the fact it restates. A capability declared in data
-with no falsifier yet is legitimate only while it discloses that, and the
-slice that can falsify it is what retires the disclosure. See
-`Docs/declared-capability-and-what-checks-it.md` for the three instances this
-was extracted from.
+Only canonical source envelopes cross into normal ingestion. The observation
+transform and gateway remain separate components. Sensor sampling/bias/dropout
+affects reports; gateway buffering/outage/retry affects publication. Neither
+changes the underlying world. Operational records are a separate source family
+with their own missing, delayed or contradictory cases (v4 11-12).
 
-## Physical Property Ownership
+## Addressing, Properties And Policy
 
-Four owners, and two swap tests that decide between them.
+`state_key` is the semantic name; `StateRef` adds SITE/COMPONENT scope and
+component identity. Extend profile support, Foundation bindings, scenario
+references and frozen initialization together. Unqualified component bindings
+resolve only one candidate; zero or multiple candidates block.
+This is immediate contract work under v4 4.2 and 24.
 
-Site Foundation declares what the site *is*. The model profile declares how the
-simulator *reasons* about things of that kind. The scenario declares what
-*happens* during one interval. The publication profile declares how the
-reporting installation *behaves*.
+Foundation owns physical properties and baseline time-valid policy.
+The model profile owns physical laws; the scenario owns interval causes and
+dynamic initial conditions; the publication profile owns reporting behavior.
+For example, specific fuel consumption in L/kWh is a generator property;
+consumption = coefficient x delivered energy is a model law; dispatched output
+is forcing. This corrects the former L/h/runtime example, which conflated the
+asset with its operating point. See `D-2026-09-22-consumption-coefficient-unit`.
 
-Swap the asset for another of the same type and the value changes: Foundation.
-Swap the scenario and it changes: scenario. Neither, but a better simulator
-would change it: model profile. Neither, ever: a universal constant, and it
-belongs in code.
+Keep `ControlAssumption` documentary. Typed component control properties use
+the property carrier; typed site-scoped Controls land with the controller that
+uses them. Scenarios may change policy at a time, but do not own the baseline.
+Run-start SOC, fuel level, physical discrete state and accumulated stress resolve
+from explicit scenario/initial-condition inputs. Unknown stress never silently
+becomes zero. v4 sections 5.2 and 10.
 
-A coefficient and the law that consumes it are different objects with different
-owners, and a name that covers both hides the seam. *This generator burns
-14 L/h at its dispatch point* is Foundation. *Consumption is proportional to
-runtime* is a model rule. *The generator ran from this offset for this long* is
-the scenario. A physical property of a machine that lives in a scenario means
-the story has replaced the asset, and the same scenario run against a different
-machine would carry the first machine's physics with it.
+Preserve both the lexical control-vocabulary guard and its semantic purpose.
+Physical state, causes and operator records may be named truthfully; synonyms
+for switching-position or controller-mode enums remain deferred until an
+explicit topology/evidence contract admits them (v4 5.1).
 
-Declaring an owner is not the same as being able to carry its value. A
-vocabulary of owners with no field for one of them produces a correct answerer
-and no answer. Where an owner is declarable, something must be able to hold
-what it declares and something must be able to address it.
+## Timing And Physical Acceptance
 
-The coefficient a product uses to form an expectation comes from Foundation
-configuration, never from the scenario's private rate. A product that reads the
-number the simulator used computes its conclusion from the cause and gets the
-right answer for the wrong reason.
+v4 section 6 replaces the old ambiguous "observe after the step" direction:
+
+At T, apply due events/configuration changes, then sample post-event stock and
+discrete state. Interval/rate measurements describe [T-dt,T), not the coming
+step; the first boundary has none unless initial historical input is declared.
+Then build the controller's local view, emit intent, resolve physically accepted
+flows, evolve over [T,T+dt) and check bounds/conservation.
+
+Controller observation is distinct from gateway-reported observation.
+Controllers do not mutate the world. Only accepted flows evolve it; requested
+30 kW and accepted 22 kW remain inspectably different. Use the deterministic
+cascade of v4 section 7, with exact source/sink conservation. A future iterative
+solver requires an explicit solver/convergence/numeric-policy revision.
+
+Current arithmetic is versioned EXACT_RATIONAL. Authored floats may be
+normalized once at the input boundary; no per-step denominator limiting.
+Stochastic draws follow v4 section 9's BLAKE2b-256 canonical encoding and
+domain-separated stream identity. Adding a stream cannot perturb another.
+Typed discrete states declare initialization, allowed transitions, trace and
+observation mapping (v4 4.3). Unsupported execution produces a typed failure,
+not a silent clamp or successful partial result (v4 8 and 23).
+
+## Interventions, Comparisons And Downstream Claims
+
+A run-scoped intervention is persisted before execution as immutable canonical
+content with a content-addressed reference. Ordered intervention-history strings
+are sufficient only when they resolve that content. Foundation/scenario versions
+plus these artifacts reconstruct effective policy; no extra arbitrary policy
+identity field is needed (v4 5.2).
+
+`PairedExperiment` is immutable comparison metadata outside either run's
+deterministic identity. Compare resolved effective frozen inputs, excluding only
+the exact declared intervention paths/artifact. Any undeclared difference is
+`NOT_COMPARABLE`; removing an opaque Foundation/scenario version from a hash
+does not prove comparability. A wider bundle is labelled multi-change.
+This is a simulated intervention comparison, not proven real-world impact
+(v4 15). The comparison history context must preserve independent histories and
+prevent the two alternatives from being summed into ordinary Site operation.
+
+Product analytics consumes accepted evidence and time-valid public configuration,
+never simulator-private coefficients, truth or scenario labels. Dispatch,
+fuel, stress and service conclusions expose their evidence gaps and claim
+limits. BusinessContext translates bounded operational quantities downstream
+of physics. No money enters the kernel and no monetary translation strengthens
+the technical claim (v4 22; roadmap 3).
+
+Interventions modify the world/configuration/reporting first. Work completion
+never resolves a Finding; subsequent accepted evidence must satisfy a comparable
+verification window with target and guardrails (v4 13; roadmap 3.7).
+
+## Domain Reuse Boundary
+
+Shared time, state, observation and gateway mechanisms do not branch on pack,
+site kind or concrete component type. Mini-grid rules live behind the pack
+boundary. Cold-chain and e-mobility remain architecture tests, not current
+implementation tasks; a generic plugin framework is deferred. v4 16-19 and 28;
+roadmap 8 and 10.
 
 ## Contract Posture
 
@@ -186,70 +233,22 @@ history, not simulator execution.
 
 ## Refusal And Blocking Vocabularies
 
-Where a request can be refused outright or persisted in a state that says it
-must not proceed, the two outcomes have disjoint vocabularies of kinds. The
-line between them is stated once, in
-`backend/assetops_backend/runs/refusals.py`, and is not restated here. What is
-stated here is the rule the names follow, so the line survives the vocabulary
-growing.
+Setup refusal, persisted BLOCKED and execution failure are distinct outcomes;
+comparison can independently fail as NOT_COMPARABLE. Names and ownership must
+make their phase and meaning clear (v4 23). The current setup line is implemented
+in `backend/assetops_backend/runs/refusals.py`.
 
-**A kind's name must make its side derivable without reading a docstring.** A
-kind string reaches a client, a log and a screen with no comment attached, so
-whatever tells a reader which side it is on has to be in the name itself. Two
-things can carry that, and which one applies depends on the subject.
+The built code still permits a Foundation/scenario value contradiction.
+The immediate Foundation-value narrowing removes that duplicate value position
+and retires `INITIAL_VALUE_ANSWERS_DISAGREE`; all failures to locate a
+Foundation-owned value then block. This is planned, not already implemented.
+See `D-2026-09-21-run-setup-outcome-vocabulary`,
+`D-2026-09-22-foundation-value-declaration` and
+`D-2026-09-22-foundation-property-absent-blocks`.
 
-- **Across different subjects, the subject carries it, and a shared verb is
-  not a collision.** `COMPONENT_OR_SIGNAL_UNRESOLVED` refuses while
-  `INITIAL_VALUE_NOT_RESOLVED` blocks. An observation source the Foundation
-  does not configure and an initial world value the selected profile could not
-  locate are different things with different fixes, and a reader who reads the
-  subject is not misled. Reserving words to one side would have cost a good
-  name and prevented neither collision this rule comes from.
-- **Within one subject, the shape must carry it, and shape means what the
-  frozen record can hold.** `INITIAL_VALUE_NOT_RESOLVED` and
-  `INITIAL_VALUE_ANSWERS_DISAGREE` share a subject, so the difference between
-  them has to be legible from the names: no answer is something the record can
-  represent as absent, so the request freezes and blocks; two answers is
-  something the record has no shape for, so nothing can be frozen and it
-  refuses. Names that differ by degree rather than by shape do not satisfy
-  this.
-
-**That second example retires with the kind it names, and what replaces it is
-worth more.** `INITIAL_VALUE_ANSWERS_DISAGREE` is produced by exactly one
-comparison, a scenario-stated value against Foundation's. T020A takes the
-scenario's ability to state that value away
-(`D-2026-09-22-foundation-value-declaration`), so the kind loses its last
-producer and goes in the slice that removes it — a refusal kind nothing can
-raise is the same false claim one layer down that
-`D-2026-09-22-expiry-follows-the-condition` governs everywhere else. **The
-consequence to carry forward is that after T020A every failure of a
-Foundation-owned value blocks and none refuses**, so a reader meeting that does
-not read it as an oversight.
-
-The rule itself is unaffected: it is *why* the pair was split, and the split
-was right for as long as both halves could occur. What changes is the quality
-of the illustration. The same-subject pair that survives is
-`INITIALIZATION_INPUT_MISSING`, which refuses because the declared owner did
-not answer, against `INITIAL_VALUE_NOT_RESOLVED`, which blocks because the
-selected profile could not. `backend/assetops_backend/runs/refusals.py` already
-records that those two sit *one word apart* across the line. That is a live
-case which passes the rule only just, and it is a better thing to review
-against than a clean one: the review question — *from the name alone, which
-side is it on?* — is answered here by the subject the reader supplies, not by
-the names, and a third kind added to this subject would have nothing left to
-differ by. **Any future addition to the initial-value subject has to earn its
-name against that pair, not against the retired one.**
-
-The review question, for any kind added later: **from the name alone, which
-side of the line is it on?** If answering it needs the docstring, the name is
-wrong. A test asserting the two sets of strings are disjoint is the mechanical
-half and does not catch this.
-
-The rule is recorded because the experience repeated rather than because a
-slice required it: one vocabulary produced two near-collisions in a single
-slice, the dangerous one was caught by a reviewer and the surviving one by the
-implementer, and neither was caught by anything durable. See
-`D-2026-09-21-run-setup-outcome-vocabulary`.
+The former extended naming examples are cut here; their rationale remains in
+those decisions. Honest existing names do not require another redesign before
+the demo under `D-2026-09-22-milestone-speed-over-purity`.
 
 ## Shells And Navigation
 

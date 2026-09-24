@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Before implementation tasks are defined, the Architect should create a feature
+Before implementation tasks are defined, the Architect should establish a feature
 map for the first AssetOps product sequence. The feature map should explain how
 visible UI capabilities depend on product, domain, data, and architecture
 capabilities.
@@ -12,11 +12,14 @@ and the causal prerequisites that make them truthful.
 
 ## Source Material
 
-Use these UI references as the initial planning anchor:
+For this replan, direction comes only from `Docs/simulator_design_v4.md`
+(mechanisms) and `Docs/mini-grid-demo-architecture-and-roadmap.md` (demo path).
+This replaces the previous instruction to start sequencing from UI references.
 
-- `Docs/UI Design/Motivation/SimulatorLab1.png`
-- `Docs/UI Design/Motivation/ScreenMockups.png`
-- `Docs/Product/AssetOps_Integrated_Product_Experience_and_Canonical_Screens_v6_9.pdf`
+`.ai/FEATURE_MAP.md` maps the corrected sources onto the built-state record.
+Read `.ai/CODE_STATE.md` and completed tasks for what exists, not earlier
+planning reviews for direction. Existing canonical UI layouts remain useful
+presentation constraints; they cannot invent capability or reorder the demo.
 
 ## Architect Hats
 
@@ -101,8 +104,8 @@ It should include:
 
 ## From Feature Map To Tasks
 
-After the feature map is reviewed, the Architect or Implementer may break
-features into tasks. Each task should:
+After the feature map is reviewed, the Planner breaks features into tasks.
+Each task should:
 
 - Produce or heavily contribute to a UI-verifiable outcome.
 - Identify the feature it contributes to.
@@ -139,10 +142,9 @@ is live, and is deleted when its last slice closes out.
 
 Live now:
 
-- `.ai/PLANNING_HANDOFF_T020A_T023.md` — per-slice guidance for T020A through
-  T023, saying for each slice what an Implementer must be told and whether it
-  belongs inline in the task file or as a pointer to a `simulator_design_v4.md`
-  section. It also carries the two sizing calls v4 hands the Planner: how to
-  cut T020A, and where T021's kernel lands. Read it before writing or revising
-  any task file in that range. It supersedes the deleted
-  `PLANNING_HANDOFF_T019_T022.md`.
+- `.ai/PLANNING_HANDOFF_T020A_T023.md` has been rewritten from v4 and the
+  corrected roadmap. It carries the immediate property/addressed-binding
+  sizing, kernel composition boundary and the retained starter queue.
+- `.ai/FEATURE_MAP.md`, Next Work And Unowned Requirements, names what the
+  Planner must assign beyond that starter path. Existing unfinished task files
+  await recreation; this replaces their previous activation guidance.

@@ -31,20 +31,14 @@ product function that may require several tasks. A task is a reviewable
 implementation slice that delivers or materially advances one UI-verifiable part
 of a feature.
 
-Prefer sequences such as:
+The current sequence comes from the corrected demo roadmap, as mapped in
+`.ai/FEATURE_MAP.md`: credible mini-grid runtime, normal ingested Site history,
+dispatch Finding with Evidence, thin economics, fuel reconciliation,
+productive-use opportunity, lifecycle, verification and portfolio.
 
-- Build the first canonical app shell with Sites, Site Details, and Simulator
-  Lab entry points visible.
-- Load one known demo site and show its current operating state in the Site
-  Details screen.
-- Show one simulator run in the Simulator Lab and expose the same published
-  observations through the Site Details screen.
-- Ingest one simulated telemetry stream and reflect it on the Site Details
-  screen.
-- Detect one meaningful fuel discrepancy and expose the evidence.
-- Show the discrepancy as an actionable finding in the UI.
-- Allow the user to inspect supporting evidence.
-- Run the same capability across multiple sites.
+This replaces the old examples that implied a fuel discrepancy was the first
+Finding. Within each outcome, create reviewable cuts that let the owner run
+and judge progress; do not make each architecture noun a separate task.
 
 Avoid building whole layers before there is useful product behavior.
 
@@ -105,21 +99,15 @@ defensive repetition.
 
 ## Planning Before Tasks
 
-Do not predefine implementation tasks before the Architect has analyzed the
-feature map. The Architect should first inspect the canonical UI references,
-identify causal prerequisites between visible features, and define feature
-boundaries before tasks are created.
-
-For example, `SimulatorLab1.png` shows site information, an operational
-overview, a single-line diagram, devices/sensors, gateway output, events, and
-run state. Those visible details imply prior capabilities: sites must be
-managed, components and devices must be configured, and the single-line diagram
-must be derived from configuration before Simulator Lab can meaningfully display
-them.
+The Architect establishes feature outcomes and causal prerequisites before the
+Planner creates tasks. For the current pass, use only simulator v4 and the
+corrected mini-grid roadmap for direction, plus canonical built-state records.
+This replaces starting the task sequence from the UI mockups. Layout references
+remain presentation guidance after a screen's content and claims are real.
 
 The Architect may wear Product, Architecture, UI/UX, and Domain hats as needed
 to produce a feature map. That feature map can then be broken into reviewable
-tasks by the Architect or later by the Implementer under architectural guidance.
+tasks by the Planner under architectural guidance.
 
 ## Review Packet
 
