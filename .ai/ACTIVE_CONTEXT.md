@@ -15,14 +15,17 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020A is built, reviewed once, corrected, and back with the Reviewer.**
-`tasks/T020A-foundation-physical-properties.md`. An independent Codex review
-returned it with three reproduced correctness defects and one test weakness;
-all four are fixed and the packet's round-one verdicts are corrected.
+**T020A is built, reviewed twice, corrected twice, and back with the Reviewer.**
+`tasks/T020A-foundation-physical-properties.md`. The first independent Codex
+review returned three reproduced correctness defects and one test weakness; the
+second closed those and returned three bounded corrections - an unrepresentable
+integer that threw instead of refusing, a comment promising a guard the run
+record does not have, and a frontend test claiming to prove bound rendering it
+never showed. All are fixed and the packet's stale claims are corrected.
 It still needs user review (`USER_REVIEW_REQUIRED: true`) and independent
-re-review. Packet `.agent/T020A-review-packet.md`, review
-`.agent/T020A-independent-review.md`, probes
-`.agent/T020A-independent-probes.py`.
+re-review. Packet `.agent/T020A-review-packet.md`; reviews
+`.agent/T020A-independent-review.md` and
+`.agent/T020A-second-pass-review.md` with their probes beside them.
 **Next task: T020A1**, then T020B, T021, T021A, T022, T023 and T024 onward per
 that README. None of the resequencing touches the starter path.
 
