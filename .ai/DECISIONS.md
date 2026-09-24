@@ -2824,6 +2824,36 @@ Affected files: `tasks/README.md`, `tasks/T021A`, `T022`, `T023`, `T026` (rename
 `.ai/FEATURE_MAP.md`, `.ai/PRODUCT.md`, `.ai/ACTIVE_CONTEXT.md` and
 `.ai/START_HERE.md`. No implementation code changed.
 
+Decision: `D-2026-09-24-codex-spend-before-the-limit`. **Codex quota is
+account-level and shared across every model, so the only lever is spending
+less per call, before the limit is reached.** Exhausted twice on 2026-09-24,
+the second time mid-review; `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol` and
+`gpt-5.5` each returned the identical limit and reset time, so model choice
+recovers nothing once the limit is hit.
+
+The measured waste was repetition, not verbosity: three reviewer passes on one
+slice started cold, at 145,247 / 145,568 / 25,259 tokens, and the second spent
+its whole budget re-deriving what the first had established. `codex exec
+resume <session-id>` continues a session with its context intact and the
+session id is printed in every run header, so a second pass on the same slice
+should resume rather than restart.
+
+Also recorded: reserve `gpt-6-astra` for architecture and review judgement and
+use `gpt-6-sol` for mechanical passes; never spend a full session on an
+availability probe, since `model_reasoning_effort = "high"` is global while the
+models default to `low`; and state in the brief what has already been run and
+verified, because every such fact is work the session does not repeat.
+
+Mechanics recorded with it, each already having failed once: pass the prompt as
+an argument rather than stdin, which blocked for three hours on 2026-09-23;
+background the call once rather than wrapping `nohup ... &` inside an already
+backgrounded call, which reports a completion that has not happened; and merge
+main into a task branch before reviewing it, because a session reads that
+branch's `.ai/` rather than main's.
+
+Full guidance in `.ai/ROLE_CONFIG.md` under "Using Codex Efficiently".
+
+
 Decision: `D-2026-09-24-hardening-gates-nothing`. **A deferred hardening item
 may not hold a position in the delivery order, and an order that is not
 load-bearing must say so.** Follow-on to

@@ -63,6 +63,76 @@ So: before dispatching `assetops-architect` or `assetops-planner`, check the
 binding above. If it is Codex, run `codex exec`. The Claude subagents of those
 names refuse Codex-bound work rather than producing it.
 
+## Using Codex Efficiently
+
+Codex quota is **account-level and shared across every model**. On 2026-09-24
+it was exhausted twice in one day, the second time mid-review, and switching
+to `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol` and `gpt-5.5` all returned the
+identical limit with the identical reset time. **You cannot route around an
+exhausted limit by changing model.** The only lever is spending less per call,
+before the limit is reached.
+
+What it cost that day, measured from the run logs:
+
+| Pass | Tokens | Shell calls | Started |
+| --- | --- | --- | --- |
+| Reviewer pass 1 | 145,247 | 31 | cold |
+| Reviewer pass 2 | 145,568 | 38 | cold |
+| Reviewer pass 3 | 25,259, then died | 5 | cold |
+
+Pass 2 spent 145k tokens re-deriving what pass 1 had already established.
+
+### Resume instead of restarting
+
+`codex exec resume <session-id> "<follow-up prompt>"` continues an existing
+session with its context intact. `--last` resumes the most recent. The session
+id is printed in the header of every run, so **capture it whenever a Codex
+role may be returned to** - which is every review, because a review that finds
+defects is returned to by definition.
+
+A second pass on the same slice is a follow-up, not a new engagement. Resume
+it and say what changed. Start cold only when the subject is genuinely
+different or the earlier session would mislead.
+
+### Match the model to the work
+
+`-m <model>` selects one. `gpt-6-astra` is the default and the most expensive;
+`gpt-6-sol` is the workhorse coding model; `gpt-6-luna` is the cheap one. Full
+list: `gpt-6-astra`, `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`,
+`gpt-5.6-luna`, `gpt-5.5`.
+
+Reserve Astra for genuine architecture and review judgement. Mechanical passes
+- a fix round against a written list, a routine Planner expansion, a
+consistency sweep - do not need it.
+
+### Never spend a full session on a probe
+
+`~/.codex/config.toml` sets `model_reasoning_effort = "high"` globally, while
+the models' own default is `low`. A one-line availability probe therefore runs
+at high reasoning. If you must probe, use
+`-m gpt-6-luna -c model_reasoning_effort=low`. Better: attempt the real work
+and detect the limit from the error, which costs nothing when the limit is
+already hit.
+
+### Put verification in the brief, not in the session
+
+Every fact the brief states is work the session does not repeat. Say what you
+already ran and what you already verified - test counts, check results,
+confirmed line numbers - and say plainly that repeating it is not wanted.
+Ask Codex for judgement, not for re-running a green suite.
+
+### Invocation mechanics that have already gone wrong
+
+- **Pass the prompt as an argument, never on stdin.** `codex exec ... - < file`
+  blocked for three hours with no output on 2026-09-23. Always redirect
+  `< /dev/null`.
+- **Do not double-background.** `nohup codex ... &` inside an already
+  backgrounded call returns instantly, and the harness reports a completion
+  that has not happened. Background the call once.
+- **A branch carries a snapshot of these rules.** A session started on a task
+  branch reads that branch's `.ai/`, not main's. Merge main into the branch
+  before a review if a rule has changed.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record
