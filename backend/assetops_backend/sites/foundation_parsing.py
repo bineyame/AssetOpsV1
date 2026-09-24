@@ -36,6 +36,7 @@ What is deliberately not here:
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any, Callable, Mapping, NoReturn
 
@@ -130,6 +131,23 @@ MAX_COMPONENT_PROPERTIES = 16
 #: A property source version is a document version - a template version or a
 #: Foundation version - and both are bounded at 10,000 by their own parsers.
 MAX_PROPERTY_SOURCE_VERSION = 10_000
+
+#: The range a UNIT implies, where it implies one.
+#:
+#: Deliberately keyed on the unit rather than on the property, and
+#: deliberately one entry. A percentage of something a component holds is
+#: between nothing and all of it, and that is a fact about the unit rather
+#: than about the four keys that happen to exist today. A per-property range
+#: table is a general validation mechanism this vocabulary has not earned -
+#: four members, one of which has a natural bound - and
+#: `D-2026-09-22-milestone-speed-over-purity` says not to build one for it.
+#:
+#: The cost of keying on the unit is stated so the next author meets it: a
+#: later property that is a percentage ABOVE one hundred - a loading factor,
+#: say - cannot be added under `%` without deciding this. That decision
+#: belongs with the property that needs it, and being refused at the moment
+#: of adding it is the right place to meet the question.
+UNIT_RANGES: dict[str, tuple[float, float]] = {"%": (0.0, 100.0)}
 
 MAX_IDENTIFIER_LENGTH = 64
 MAX_DISPLAY_NAME_LENGTH = 120
@@ -902,6 +920,27 @@ def _parse_component_property(
     # property is a quantity, never a flag.
     if type(value) not in (int, float):
         invalid(f"'{where}.value' must be a number in {source}, got {value!r}")
+
+    # Finiteness, before the comparisons below and for the reason they are not
+    # enough on their own. `nan` and `inf` are both floats, and both
+    # `nan < 0` and `inf < 0` are False, so a range check written as a pair of
+    # comparisons admits them silently.
+    #
+    # An independent review wrote positive infinity into a real Site store
+    # through this parser, read it back, and then watched the JSON response
+    # class raise while serving it. A value accepted at the boundary and
+    # exploding at the far end is the opposite of what a strict parser is
+    # for: the refusal a person can act on happens here, or it happens as a
+    # 500 with a stored document nobody can serve.
+    if not math.isfinite(value):
+        invalid(
+            f"'{where}.value' is {value!r} in {source}. A declared property "
+            "must be a finite number: an infinity or a not-a-number survives "
+            "being written to the store and then cannot be read back out to a "
+            "screen, so nothing downstream could use it and nothing could "
+            "show it."
+        )
+
     if value < 0:
         invalid(
             f"'{where}.value' is {value} in {source}. A declared property is "
@@ -917,6 +956,20 @@ def _parse_component_property(
             "the property rather than to the document: the same quantity "
             "written in two units is two numbers a consumer would have to "
             "tell apart by reading text."
+        )
+
+    # The range the unit implies, where it implies one. A reserve state of
+    # charge of 101 % parsed, persisted and rendered until an independent
+    # review pointed at it: it is not a magnitude the unit can carry, and a
+    # screen showing it would be showing a configured impossibility.
+    bounds = UNIT_RANGES.get(definition.unit)
+    if bounds is not None and not bounds[0] <= value <= bounds[1]:
+        invalid(
+            f"'{where}.value' is {value} {definition.unit} in {source}, and a "
+            f"quantity in {definition.unit} lies between {bounds[0]:g} and "
+            f"{bounds[1]:g}. The bound is the unit's rather than this "
+            "property's: a percentage of what a component holds cannot be "
+            "more than all of it."
         )
 
     declared_source = _require_choice(

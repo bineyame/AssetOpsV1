@@ -808,6 +808,43 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     # capacity as much as the consumption coefficient, and there is no field
     # to write an exemption in.
     if ownership is not None and ownership.owner == "SITE_FOUNDATION":
+        # A Foundation-owned value must be an INITIAL world value in this
+        # build, and the reason is that nothing else can carry one.
+        #
+        # A parameter states no number once its owner is the Foundation, so
+        # the only place its answer can be frozen is a
+        # `FrozenInitializationInput`, which has a shape for an absent value
+        # and a blocking reason beside it. `initialization_inputs` builds
+        # that collection from parameters whose ownership initializes, and
+        # `FrozenParameter` has no shape for an absent value at all - so a
+        # Foundation-owned parameter that does not initialize would be
+        # declared, required, and then present in neither frozen collection.
+        # That is not a value going unanswered, which blocks; it is a
+        # declared need disappearing while the run reports `READY`, which is
+        # a refusal turned into a wrong answer.
+        #
+        # An independent review found this combination accepted and produced
+        # exactly that outcome, for a causal input and a forcing input alike.
+        # It is closed here rather than patched downstream, because a rule
+        # that depends on a later filter noticing is the shape this project
+        # keeps paying for.
+        #
+        # The concept it refuses - a coefficient the Foundation answers for
+        # that is not an initial world value - is legitimate and has no
+        # carrier yet. The slice that needs one adds the carrier and this
+        # refusal together; it is not something an author may reach by
+        # writing `false` here.
+        if not ownership.initializes:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' declares that the site's foundation owns it and "
+                f"that it does not initialize, in {source}. A "
+                "foundation-owned parameter states no number, so the only "
+                "record a run has for its answer is an initial world value - "
+                "and a value that neither initializes nor states a number "
+                "would be declared, required, and frozen nowhere. Declare it "
+                "as an initial world value, or give the number an owner that "
+                "states one."
+            )
         if "value" in raw:
             raise ScenarioConfigurationInvalid(
                 f"'{where}' declares that the site's foundation owns it and "

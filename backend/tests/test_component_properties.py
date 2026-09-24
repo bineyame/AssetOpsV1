@@ -261,8 +261,13 @@ class TestStrictness:
 
         message = str(error.value)
         assert "properties[0].property_key" in message
-        assert "specific-fuel-consumption" in message
-        assert "'invented'" in message
+        # The offending key, quoted as what was got. `specific-fuel-consumption`
+        # on its own is satisfied by the vocabulary listing the message
+        # prints, so it says nothing about whether the refusal identifies the
+        # document's own mistake - the same substring weakness an independent
+        # review proved elsewhere in this slice.
+        assert "got 'invented'" in message
+        assert sorted(COMPONENT_PROPERTY_DEFINITIONS)[0] in message
 
     @families
     def test_a_wrong_unit_is_refused_by_the_property_it_is_on(
@@ -279,8 +284,13 @@ class TestStrictness:
             parse([{**generator_properties()[0], "unit": "L/h"}])
 
         message = str(error.value)
-        assert "'L/kWh'" in message
-        assert "specific-fuel-consumption" in message
+        # The whole phrase: the message lists the vocabulary nowhere here, but
+        # naming the unit and the key separately would still pass against a
+        # refusal that paired them with something else.
+        assert (
+            "must be 'L/kWh' for property 'specific-fuel-consumption'"
+            in message
+        )
 
 
 class TestCompatibility:
@@ -421,3 +431,183 @@ class TestNoControlCapabilityIsImplied:
         }
         assert bound, "the scan would be vacuous"
         assert bound & control_keys == set()
+
+
+class TestANumberThatCannotBeStoredOrShown:
+    """Non-finite values and a percentage above one hundred, refused.
+
+    Both were accepted until an independent review reproduced them. They are
+    kept in a class of their own because they are a different kind of defect
+    from the malformed cases above: those are documents a person got wrong,
+    and these are documents that parse, persist, and then break something far
+    away from the parser that let them in.
+    """
+
+    @pytest.mark.parametrize(
+        "value", [float("nan"), float("inf"), float("-inf")], ids=str
+    )
+    @families
+    def test_a_non_finite_value_is_refused(self, value, parse, refusal) -> None:
+        """`nan < 0` and `inf < 0` are both False.
+
+        So a range written as a pair of comparisons admits them, which is
+        exactly what happened: the negativity check below was the only numeric
+        rule and both slipped past it.
+        """
+        with pytest.raises(refusal) as error:
+            parse([{**generator_properties()[0], "value": value}])
+
+        assert "must be a finite number" in str(error.value)
+
+    @families
+    def test_a_finite_value_still_parses(self, parse, refusal) -> None:
+        """Non-vacuous: the rule is about finiteness and not about numbers."""
+        component = parse([{**generator_properties()[0], "value": 0.42}])
+
+        assert component.properties[0].value == 0.42
+
+    @pytest.mark.parametrize("value", [101, 100.5, -0.5], ids=str)
+    @families
+    def test_a_percentage_outside_its_own_range_is_refused(
+        self, value, parse, refusal
+    ) -> None:
+        """A percentage of what a component holds cannot exceed all of it.
+
+        The bound is the unit's rather than the property's
+        (`UNIT_RANGES`): keying it on `%` states a fact about the quantity,
+        where a per-property range table would be a general validation
+        mechanism a four-member vocabulary has not earned.
+        """
+        with pytest.raises(refusal):
+            parse(
+                [
+                    {
+                        **generator_properties()[0],
+                        "property_key": "reserve-state-of-charge",
+                        "unit": "%",
+                        "value": value,
+                    }
+                ]
+            )
+
+    @pytest.mark.parametrize("value", [0, 25, 100], ids=str)
+    @families
+    def test_a_percentage_inside_it_parses(self, value, parse, refusal) -> None:
+        """Non-vacuous, and the endpoints are included deliberately: an empty
+        reserve and a full one are both declarable."""
+        component = parse(
+            [
+                {
+                    **generator_properties()[0],
+                    "property_key": "reserve-state-of-charge",
+                    "unit": "%",
+                    "value": value,
+                }
+            ]
+        )
+
+        assert component.properties[0].value == float(value)
+
+    @families
+    def test_a_unit_with_no_implied_range_is_left_alone(
+        self, parse, refusal
+    ) -> None:
+        """`L/kWh` has no natural ceiling and does not get an invented one."""
+        component = parse([{**generator_properties()[0], "value": 9_999.0}])
+
+        assert component.properties[0].value == 9_999.0
+
+    def test_an_infinite_value_never_reaches_the_store(self, tmp_path) -> None:
+        """Parse-level refusal is not by itself evidence the store is safe.
+
+        The review got positive infinity into a real writable Site store
+        through the parser, so this goes through the write path rather than
+        the parser alone. The template record is constructed directly rather
+        than parsed, which is the only way such a value can still exist: it
+        stands for a record that reached the creation service from somewhere
+        this test cannot foresee.
+
+        What is proved is the guarantee the creation service actually makes -
+        **the materialized document is validated before anything is written**.
+        The store is left empty, which is the half a parser test cannot show.
+        """
+        from assetops_backend.sites.adapters.yaml_user_site_store import (
+            WritableYamlSiteStore,
+        )
+        from assetops_backend.sites.models import (
+            ComponentProperty,
+            SiteTemplate,
+            TemplateComponent,
+            TemplateFoundation,
+        )
+        from assetops_backend.sites.ports import SiteConfigurationInvalid
+        from assetops_backend.sites.service import SiteCreationService
+        from assetops_backend.sites.site_parsing import CreateSiteRequest
+
+        root = tmp_path / "sites"
+        store = WritableYamlSiteStore(root)
+
+        def template_with_value(value: float) -> SiteTemplate:
+            return SiteTemplate(
+                template_id="test-archetype",
+                template_version=2,
+                display_name="Test Archetype",
+                foundation=TemplateFoundation(
+                    site_type="MINIGRID",
+                    summary="A template used by tests only.",
+                    components=(
+                        TemplateComponent(
+                            component_id="generator",
+                            component_type="GENERATOR",
+                            display_name="Diesel generator",
+                            rating=None,
+                            properties=(
+                                ComponentProperty(
+                                    property_key="specific-fuel-consumption",
+                                    value=value,
+                                    unit="L/kWh",
+                                    kind="PHYSICAL",
+                                    source="TEMPLATE",
+                                    source_version=2,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+
+        class Catalog:
+            def __init__(self, template: SiteTemplate) -> None:
+                self.template = template
+
+            def list_templates(self):
+                return (self.template,)
+
+            def get_template(self, template_id: str) -> SiteTemplate:
+                return self.template
+
+        def create(value: float, site_id: str) -> None:
+            SiteCreationService(
+                store, Catalog(template_with_value(value))
+            ).create_site_from_template(
+                CreateSiteRequest(
+                    template_id="test-archetype",
+                    site_id=site_id,
+                    display_name="A site",
+                    country="Uganda",
+                    locality="Kalangala",
+                    timezone="Africa/Kampala",
+                )
+            )
+
+        with pytest.raises(SiteConfigurationInvalid) as error:
+            create(float("inf"), "MG-900")
+
+        assert "must be a finite number" in str(error.value)
+        assert store.list_sites() == ()
+        assert not list(root.glob("*.yaml")) if root.exists() else True
+
+        # Non-vacuous: the same path with a finite value does write, so the
+        # empty store above is the refusal and not a broken fixture.
+        create(0.311, "MG-901")
+        assert [site.site_id for site in store.list_sites()] == ["MG-901"]

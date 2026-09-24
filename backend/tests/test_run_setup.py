@@ -511,8 +511,14 @@ class TestNothingIsDefaulted:
         assert "foundation version 1" in initial.answered_by_detail
         # The detail names the component and the property, because "the
         # foundation answered" is not the same fact as which declaration did.
-        assert "example-store" in initial.answered_by_detail
-        assert "tank-capacity" in initial.answered_by_detail
+        # The whole phrase, not the two identifiers: the state key here is
+        # `example-stored-volume` and it contains `example-store`, so a
+        # containment check on the name alone would pass against a detail that
+        # named neither.
+        assert (
+            "component example-store property tank-capacity"
+            in initial.answered_by_detail
+        )
 
     def test_changing_one_property_changes_only_its_own_answer(self) -> None:
         """Two sites, one scenario, one profile: the answer follows the site.
@@ -681,9 +687,19 @@ class TestNothingIsDefaulted:
         assert [reason.kind for reason in record.blocking_reasons] == [
             "INITIAL_VALUE_NOT_RESOLVED"
         ]
-        # The scenario declares litres and the property is a percentage, so
-        # the two disagree about what kind of quantity this is.
-        assert "in L" in record.blocking_reasons[0].statement
+        # The scenario declares litres and the binding a percentage, so the
+        # two disagree about what kind of quantity this is. The phrase names
+        # both halves; `"in L"` alone said nothing about the profile's unit,
+        # which is the field `TestTheBindingsOwnUnitIsChecked` covers in
+        # isolation.
+        assert (
+            "declares example-stored-volume in L"
+            in record.blocking_reasons[0].statement
+        )
+        assert (
+            "reserve-state-of-charge property declared in %"
+            in record.blocking_reasons[0].statement
+        )
         assert store.written == [record]
 
     def test_a_component_declaring_no_such_property_blocks(self) -> None:
@@ -1886,3 +1902,251 @@ class TestTheExecutionContractVersionMove:
             == 2
         )
         assert EXECUTION_CONTRACT_VERSION != 2
+
+
+class TestNoDeclaredNeedGoesMissing:
+    """Every declared parameter is in exactly one frozen collection.
+
+    The exclusion in `_freeze_identity` used to filter on `value is not None`,
+    on the assumption that a valueless parameter was represented as a
+    `FrozenInitializationInput`. An independent review showed the two facts
+    are not the same one: a Foundation-owned parameter that did not initialize
+    satisfied the filter and qualified for neither collection, so the row
+    vanished, nothing blocked, and the run reported `READY`.
+
+    The parser now refuses that combination and the filter is keyed on the
+    frozen collection itself rather than on a proxy for it. This asserts the
+    property both changes exist to hold, so a later slice that reopens either
+    one fails here rather than in a run record nobody reads.
+    """
+
+    def declared_parameters(self, definition) -> set[str]:
+        found = {
+            parameter.parameter_id
+            for parameter in definition.public_parameters
+        }
+        for entry in definition.timeline:
+            found |= {
+                parameter.parameter_id for parameter in entry.parameters
+            }
+        return found
+
+    def test_every_parameter_is_frozen_exactly_once(self) -> None:
+        definition = scenario()
+        setup, _ = service(scenarios=FakeScenarios((definition,)))
+        record = setup.create_draft_run(setup_request())
+        identity = record.deterministic_identity
+
+        resolved = [
+            item.parameter_id for item in identity.scenario.resolved_parameters
+        ]
+        initialized = [
+            item.parameter_id for item in identity.initialization_inputs
+        ]
+
+        # No parameter is in both, and none is in neither.
+        assert set(resolved) & set(initialized) == set()
+        assert set(resolved) | set(initialized) == self.declared_parameters(
+            definition
+        )
+        # And nothing is frozen twice inside one collection either.
+        assert len(resolved) == len(set(resolved))
+        assert len(initialized) == len(set(initialized))
+
+    def test_it_holds_for_a_foundation_owned_value_too(self) -> None:
+        """The shape the defect was found in, now representable only one way.
+
+        The Foundation-owned parameter carries no number, so it is absent from
+        `resolved_parameters` - and it is present in `initialization_inputs`,
+        which is the collection that can hold an absent answer beside a
+        blocking reason. Absent from one, never from both.
+        """
+        setup, _ = service(
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        foundation_owned_document(),
+                        source="a test",
+                        origin="SHIPPED",
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+        record = setup.create_draft_run(setup_request())
+        identity = record.deterministic_identity
+
+        assert "starting-level" not in {
+            item.parameter_id for item in identity.scenario.resolved_parameters
+        }
+        assert "starting-level" in {
+            item.parameter_id for item in identity.initialization_inputs
+        }
+
+    def test_a_blocked_run_loses_no_row_either(self) -> None:
+        """The case that matters most: an unanswered value is still a row.
+
+        A run that dropped the row it could not answer would report exactly
+        what the defect reported - nothing missing, nothing blocking - so the
+        completeness property is asserted against a Foundation that answers
+        for nothing rather than only against one that answers.
+        """
+        setup, _ = service(
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        foundation_owned_document(),
+                        source="a test",
+                        origin="SHIPPED",
+                    ),
+                )
+            ),
+            sites=FakeSites(
+                (
+                    site(
+                        components=(
+                            SiteComponent(
+                                component_id="example-store",
+                                component_type="FUEL_TANK",
+                                display_name="Stored volume",
+                                rating=Rating(value=500.0, unit="L"),
+                                properties=None,
+                            ),
+                        )
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+        record = setup.create_draft_run(setup_request())
+        identity = record.deterministic_identity
+
+        frozen = {
+            item.state_key: item for item in identity.initialization_inputs
+        }
+        assert frozen["example-stored-volume"].value is None
+        assert record.execution_status == "BLOCKED"
+        assert [reason.subject for reason in record.blocking_reasons] == [
+            "example-stored-volume"
+        ]
+
+
+class TestTheBindingsOwnUnitIsChecked:
+    """`FoundationBinding.unit` was read by nothing at all.
+
+    Only the found property's unit was compared to the scenario's, so a
+    profile could declare it would answer in `%`, find a property in `L`, and
+    freeze 500 L under `READY`. An independent review reproduced that for two
+    units. A declared unit that nothing checks is worse than no unit, because
+    it reads as a guarantee.
+
+    Three units have to agree - the scenario's, the binding's and the
+    property's - and the two checks below close the triangle the existing
+    wrong-unit test could not reach, because that test changed the component,
+    the property and the binding together.
+    """
+
+    def bound_in(self, unit: str) -> tuple[SupportedState, ...]:
+        """The default binding with its declared unit changed and nothing else.
+
+        The component is untouched, the property is untouched, and the
+        scenario still declares litres. Only the profile's claim moves, which
+        is what makes this an isolated test of the field.
+        """
+        return (
+            SupportedState(
+                state_key="example-stored-volume",
+                supported_roles=frozenset(
+                    {"CAUSAL_INPUT", "REPORTED_OBSERVATION"}
+                ),
+                foundation_binding=FoundationBinding(
+                    component_type="FUEL_TANK",
+                    property_key="tank-capacity",
+                    unit=unit,
+                ),
+                statement="Bound with a declared unit of its own.",
+            ),
+            default_supported_states()[1],
+        )
+
+    def run_with(self, unit: str):
+        setup, store = service(
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        foundation_owned_document(),
+                        source="a test",
+                        origin="SHIPPED",
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=self.bound_in(unit)),
+        )
+        return setup.create_draft_run(setup_request()), store
+
+    def test_the_matching_unit_still_resolves(self) -> None:
+        """Non-vacuous: without this, a resolver that blocked on every binding
+        would satisfy both cases below."""
+        record, _ = self.run_with("L")
+
+        assert record.blocking_reasons == ()
+        assert (
+            record.deterministic_identity.initialization_inputs[0].value
+            == 500.0
+        )
+
+    @pytest.mark.parametrize("unit", ["%", "L/kWh"])
+    def test_a_binding_that_claims_another_unit_blocks(self, unit) -> None:
+        record, store = self.run_with(unit)
+
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        reason = record.blocking_reasons[0]
+        assert reason.subject == "example-stored-volume"
+        # The message names both halves of the disagreement, and neither
+        # phrase is reachable from the state key alone.
+        assert f"binds it to the tank-capacity property declared in {unit}" in (
+            reason.statement
+        )
+        assert "The profile and the scenario disagree" in reason.statement
+
+        # The answer is absent rather than the wrong number, which is what
+        # made this reproducible: it used to freeze 500 L and report READY.
+        assert (
+            record.deterministic_identity.initialization_inputs[0].value is None
+        )
+        assert store.written == [record]
+
+    def test_a_binding_naming_a_unit_its_property_does_not_carry_blocks(
+        self,
+    ) -> None:
+        """The third side of the triangle.
+
+        A property key carries its unit from the closed vocabulary while a
+        binding states one separately, so a profile can agree with the
+        scenario and still name a unit the property it chose is not declared
+        in. The scenario here declares `%`, the binding declares `%`, and
+        `tank-capacity` is litres.
+        """
+        document = foundation_owned_document()
+        document["public_parameters"][2]["unit"] = "%"
+
+        setup, _ = service(
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=self.bound_in("%")),
+        )
+        record = setup.create_draft_run(setup_request())
+
+        reason = record.blocking_reasons[0]
+        assert reason.kind == "INITIAL_VALUE_NOT_RESOLVED"
+        assert "declares that property in L" in reason.statement
+        assert (
+            record.deterministic_identity.initialization_inputs[0].value is None
+        )

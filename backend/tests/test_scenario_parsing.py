@@ -1003,3 +1003,124 @@ class TestAFoundationOwnedValueHasNoValuePosition:
         for parameter in foundation_owned:
             assert "value" not in parameter, parameter["parameter_id"]
             assert parameter["unit"] in PARAMETER_UNITS
+
+
+class TestAFoundationOwnedValueMustBeAnInitialWorldValue:
+    """The combination that had no frozen carrier, closed at the parser.
+
+    A Foundation-owned parameter states no number, so the only record a run
+    has for its answer is a `FrozenInitializationInput` - the one with a shape
+    for an absent value and a blocking reason beside it. That collection is
+    built from parameters whose ownership initializes.
+
+    So a Foundation-owned parameter that does not initialize was declared,
+    required, and then present in neither frozen collection: no answer, no
+    row, no blocking reason, and the run reported `READY`. An independent
+    review reproduced it for a causal input and a forcing input alike.
+
+    That is not a value going unanswered, which blocks. It is a declared need
+    disappearing while `READY` asserts a freeze that did not happen - a
+    refusal turned into a wrong answer, which is the failure class the
+    refuse/block split exists to prevent.
+    """
+
+    def document(self, *, role: str = "CAUSAL_INPUT") -> dict[str, Any]:
+        document = scenario_document()
+        parameter = document["public_parameters"][2]
+        parameter["ownership"]["owner"] = "SITE_FOUNDATION"
+        parameter["ownership"]["initializes"] = False
+        parameter["execution_role"] = role
+        parameter.pop("value")
+        return document
+
+    @pytest.mark.parametrize("role", ["CAUSAL_INPUT", "FORCING_INPUT"])
+    def test_a_non_initializing_foundation_owner_is_refused(
+        self, role: str
+    ) -> None:
+        with pytest.raises(ScenarioConfigurationInvalid) as error:
+            parse(self.document(role=role))
+
+        message = str(error.value)
+        assert "does not initialize" in message
+        assert "frozen nowhere" in message
+
+    def test_an_initializing_one_still_parses(self) -> None:
+        """Non-vacuous: the rule is about the pairing, not about the owner.
+
+        Without this the refusal above would be satisfied by a parser that
+        refused every Foundation-owned parameter, which would take the whole
+        of `D-2026-09-22-foundation-value-declaration` out with the defect.
+        """
+        document = self.document()
+        document["public_parameters"][2]["ownership"]["initializes"] = True
+
+        parameter = next(
+            item
+            for item in parse(document).public_parameters
+            if item.parameter_id == "starting-level"
+        )
+
+        assert parameter.value is None
+        assert parameter.ownership is not None
+        assert parameter.ownership.initializes is True
+
+    def test_another_owner_may_still_decline_to_initialize(self) -> None:
+        """The other half, and the reason the rule is keyed on the owner.
+
+        A scenario-owned coefficient that does not initialize is ordinary -
+        the fixture's own draw rate is one - and it states a number, so it is
+        frozen as a resolved parameter. What has no carrier is the pairing of
+        an absent number with an absent initialization.
+        """
+        document = scenario_document()
+        document["public_parameters"][3]["ownership"]["initializes"] = False
+
+        parameter = next(
+            item
+            for item in parse(document).public_parameters
+            if item.parameter_id == "draw-rate"
+        )
+
+        assert parameter.value == 6.0
+        assert parameter.ownership is not None
+        assert parameter.ownership.initializes is False
+
+    def test_every_valueless_parameter_the_parser_accepts_initializes(
+        self,
+    ) -> None:
+        """The invariant, asserted over the documents this build carries.
+
+        Stated as a property rather than as a list of cases, because the thing
+        that must hold is about the SET: a parameter with no number is
+        representable in exactly one frozen collection, so every one of them
+        must qualify for it. Checked against the fixture and the shipped
+        document together.
+        """
+        from pathlib import Path
+
+        import yaml
+
+        repo_root = Path(__file__).resolve().parents[2]
+        shipped = yaml.safe_load(
+            (
+                repo_root / "config" / "scenarios" / "fuel-loss-event.yaml"
+            ).read_text(encoding="utf-8")
+        )
+
+        checked = 0
+        for document in (scenario_document(), shipped):
+            scenario = parse(document)
+            parameters = list(scenario.public_parameters)
+            for entry in scenario.timeline:
+                parameters.extend(entry.parameters)
+
+            for parameter in parameters:
+                if parameter.value is not None:
+                    continue
+                checked += 1
+                assert parameter.ownership is not None, parameter.parameter_id
+                assert parameter.ownership.initializes, parameter.parameter_id
+
+        # Non-vacuous: the shipped document carries two, so the loop above ran
+        # against real content rather than over an empty set.
+        assert checked == 2

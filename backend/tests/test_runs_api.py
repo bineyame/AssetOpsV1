@@ -557,20 +557,36 @@ class TestTheShippedFuelLossEventCannotReachReady:
             },
         }
 
-        # The unresolved reasons name the property that is missing, which is
-        # what makes a blocked Draft more useful than a refusal: there is
-        # something to read that says what to declare.
+        # The unresolved reasons name the property that is missing AND the
+        # component it is missing from, which is what makes a blocked Draft
+        # more useful than a refusal: there is something to read that says
+        # what to declare and where.
+        #
+        # Asserted as phrases rather than as the two identifiers, and the
+        # difference is not cosmetic. `fuel-tank-capacity` contains both
+        # `fuel-tank` and `tank-capacity` as substrings, so checking for those
+        # names passed against an explanation that carried only the state key:
+        # an independent review replaced every unresolved explanation with
+        # `No answer for <state_key>.` and this test still went green. It
+        # proved the reason set and the absence, not that a reader is told
+        # what to do.
         unresolved = {
             reason.subject: reason.statement
             for reason in record.blocking_reasons
             if reason.kind == "INITIAL_VALUE_NOT_RESOLVED"
         }
-        assert "tank-capacity" in unresolved["fuel-tank-capacity"]
-        assert "fuel-tank" in unresolved["fuel-tank-capacity"]
         assert (
-            "specific-fuel-consumption"
+            "tank-capacity property of component fuel-tank,"
+            in unresolved["fuel-tank-capacity"]
+        )
+        assert (
+            "specific-fuel-consumption property of component generator,"
             in unresolved["generator-specific-fuel-consumption"]
         )
+        for statement in unresolved.values():
+            # What is wrong, and the two repairs that would fix it.
+            assert "declares no such property on it" in statement
+            assert "another component" in statement
 
         # And it froze everything anyway, which is what makes it inspectable.
         assert record.deterministic_identity.site.site_id == "MG-001"
@@ -633,13 +649,22 @@ class TestTheShippedFuelLossEventCannotReachReady:
         assert frozen["fuel-tank-capacity"].value == 500.0
         assert frozen["fuel-tank-capacity"].unit == "L"
         assert frozen["fuel-tank-capacity"].answered_by == "SITE_FOUNDATION"
-        assert "fuel-tank" in frozen["fuel-tank-capacity"].answered_by_detail
+        # The whole phrase, for the reason the blocking statements above use
+        # one: a state key that shares words with the component and the
+        # property it names cannot be what satisfies an assertion about them.
+        assert (
+            "component fuel-tank property tank-capacity"
+            in frozen["fuel-tank-capacity"].answered_by_detail
+        )
 
         coefficient = frozen["generator-specific-fuel-consumption"]
         assert coefficient.value == 0.311
         assert coefficient.unit == "L/kWh"
         assert coefficient.answered_by == "SITE_FOUNDATION"
-        assert "generator" in coefficient.answered_by_detail
+        assert (
+            "component generator property specific-fuel-consumption"
+            in coefficient.answered_by_detail
+        )
 
         # No reason is left about either of them: the absent-value case above
         # and this one are the same code path with a different Foundation.

@@ -579,6 +579,23 @@ class RunSetupService:
         # with the Foundation named - is frozen as a
         # `FrozenInitializationInput`, which is the record that has a shape
         # for an absent value and a reason beside it.
+        # Excluded BY WHAT REPRESENTS THEM, not by a proxy for it.
+        #
+        # This filtered on `value is not None` until an independent review
+        # showed the two facts are not the same one. It assumed every
+        # valueless parameter was represented as a
+        # `FrozenInitializationInput`, and a Foundation-owned parameter that
+        # did not initialize was represented by neither: the row vanished, no
+        # reason was raised, and the run reported `READY`.
+        #
+        # The scenario parser now refuses that combination, so the two sets
+        # agree again. Filtering on the frozen collection rather than on the
+        # absence of a number is what keeps them agreeing: if a later slice
+        # adds a Foundation-owned parameter that is not an initial value, it
+        # arrives here as a `FrozenParameter` with no number rather than as a
+        # row nobody kept, and the run record refuses it loudly instead of
+        # freezing a scenario it partly dropped.
+        frozen_states = {item.parameter_id for item in initialization}
         resolved = tuple(
             FrozenParameter(
                 parameter_id=parameter_id,
@@ -589,7 +606,7 @@ class RunSetupService:
                 ),
             )
             for parameter_id, parameter in parameters.items()
-            if parameter.value is not None
+            if parameter_id not in frozen_states
         )
 
         return DeterministicIdentity(
@@ -801,9 +818,15 @@ class RunSetupService:
           settled: the property name is as much the profile's aim as the
           component type is, so a different profile naming a different
           property may find something this Foundation does declare;
-        - the property's unit is not the unit the scenario declares. That is a
-          disagreement between the profile and the scenario about what kind of
-          quantity this is, and the profile is the changeable half.
+        - **the binding's own declared unit is not the unit the scenario
+          declares.** Decided before the Site is consulted, because it needs
+          no Site: the profile says what quantity it will answer with and the
+          scenario says what it asked for. `binding.unit` was read by nothing
+          at all until an independent review found it, and a declared unit
+          nothing checks reads as a guarantee it is not;
+        - the found property's unit is not the binding's. The three units must
+          agree, and this is the third side of that triangle: a profile naming
+          a unit the property it chose is not declared in.
 
         **There is no sixth case and there is no refusal.**
         `INITIAL_VALUE_ANSWERS_DISAGREE` used to live at the end of this
@@ -852,6 +875,41 @@ class RunSetupService:
                 ),
                 "MODEL_PROFILE",
                 f"{profile_detail}, which declares no binding for it",
+            )
+
+        # The binding's OWN unit, checked before the Site is consulted.
+        #
+        # It was checked against nothing at all until an independent review
+        # pointed at it: only the found property's unit was compared to the
+        # scenario's, and `binding.unit` was a field production code never
+        # read. Changing it from `L` to `%` still produced `READY` with
+        # 500 L. **A declared unit that nothing checks is worse than no unit,
+        # because it reads as a guarantee.**
+        #
+        # Decided here rather than after the lookup because it needs no Site:
+        # the profile says what quantity it will answer with and the scenario
+        # says what quantity it asked for, and if those disagree no
+        # Foundation can reconcile them. It blocks for the reason every other
+        # case here blocks - the profile is the half a person can change on
+        # the setup form.
+        if binding.unit != unit:
+            return (
+                None,
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial_state_key,
+                    statement=(
+                        f"The scenario declares {initial_state_key} in "
+                        f"{unit} and {profile_detail} binds it to the "
+                        f"{binding.property_key} property declared in "
+                        f"{binding.unit}. The profile and the scenario "
+                        "disagree about what kind of quantity this is, so no "
+                        "foundation could answer for both; a profile bound to "
+                        "the unit the scenario uses would resolve it."
+                    ),
+                ),
+                "MODEL_PROFILE",
+                f"{profile_detail}, whose binding names another unit",
             )
 
         matches = [
@@ -935,21 +993,31 @@ class RunSetupService:
                 ),
             )
 
-        if declared_property.unit != unit:
+        # And the found property against the binding. The three units must
+        # agree, and the check above has already established that the binding
+        # agrees with the scenario, so this closes the triangle: a binding
+        # naming a unit the property it names is not declared in.
+        #
+        # Reachable because a property key carries its unit from the closed
+        # vocabulary while a binding states one separately - so a profile can
+        # name `tank-capacity` and claim it is a percentage. The vocabulary
+        # settles which of the two is right; this says the profile is wrong
+        # about the property it chose rather than about the scenario.
+        if declared_property.unit != binding.unit:
             return (
                 None,
                 BlockingReason(
                     kind="INITIAL_VALUE_NOT_RESOLVED",
                     subject=initial_state_key,
                     statement=(
-                        f"The scenario declares {initial_state_key} in "
-                        f"{unit} and {profile_detail} binds it to the "
-                        f"{binding.property_key} property, which component "
-                        f"{component.component_id} declares in "
+                        f"{profile_detail} binds {initial_state_key} to the "
+                        f"{binding.property_key} property declared in "
+                        f"{binding.unit}, and component "
+                        f"{component.component_id} declares that property in "
                         f"{declared_property.unit}. A run freezes the "
-                        "foundation's value, so the two must be the same "
-                        "quantity; a profile bound to the unit the scenario "
-                        "uses would resolve it."
+                        "foundation's value, so the binding and the property "
+                        "must name one quantity; a profile bound to the unit "
+                        "the property carries would resolve it."
                     ),
                 ),
                 "MODEL_PROFILE",
