@@ -335,3 +335,248 @@ Bring intervention verification earlier, and do not require battery-stress work 
 Treat T028/T029 as a legitimate external-feedback/client-learning milestone, with T036 representing the complete polished portfolio demo—not the point at which customer conversations may begin.
 
 Those changes would make the plan better match the principle you stated: real visible product progress first, architectural rigor where it materially protects credibility, and everything else only when the demo or real user feedback earns the complexity.
+
+---
+
+# Round Two — Verbatim
+
+User feedback on the resequenced queue, 2026-09-24, after the Architect
+revision at `2970d74`. Same treatment: reproduced exactly, no summary.
+Two changes requested, one area flagged to watch without changing.
+
+---
+The revisions are materially better aligned with the outcome and with the three principles you set. The plan now feels much more like a product-delivery plan constrained by architecture, rather than an architecture programme that eventually produces a product.
+
+The biggest improvement is that the queue now has explicit progressive demo checkpoints rather than one distant finish line: T027 is the internal architecture demo, T028/T029 is the domain-expert/early-prospect demo, T034 is the strong product demo, and T036 is the polished portfolio demo. That is exactly the framing we wanted.
+
+What changed particularly well
+
+T021A is now correctly treated as cheap contract hygiene rather than product progress. The new execution rule says to implement the narrow parser closure, avoid architectural/vocabulary discussion, and move it out of the critical path if it grows. That is a very good embodiment of “demo delivery speed over pedantic purity.”
+
+T023 also improved in exactly the right way. The canonical source-envelope boundary remains protected, but the inspector is explicitly described as utilitarian and not worth polishing at the expense of the first Finding. That is the right distinction between important boundary and unimportant presentation sophistication.
+
+The T026 change is probably the strongest correction. It now carries only the dispatch evidence the first Finding actually needs—PV/BMS/generator/load/policy evidence, one gap and one delayed publication—and explicitly refuses to re-expand into gateway recovery, buffering, retry, duplicate and noise realism. That directly removes unnecessary work from the path to T028.
+
+The milestone at T028/T029 is now framed correctly. T028 says it is the first valuable Finding and T028+T029 is a legitimate early external demo rather than a rehearsal. T029 then explicitly says the Planner should reassess the rest of the queue after that conversation instead of treating later work as immutable. This is important: real operator feedback now becomes an input to planning before the product is “finished.”
+
+Extracting T029A from T032 was also the right architectural/product trade. The immutable intervention mechanism is now available immediately after the first monetized Finding, without requiring productive-use analytics and a generalized paired-comparison mechanism first. T029A is deliberately restricted to one POLICY_CHANGE mechanism and a utilitarian Lab interaction.
+
+That enables the biggest improvement to the sequence: T034 now comes immediately after T029A and closes the shortest strong AssetOps product story:
+
+detect
+→ explain
+→ monetize
+→ intervene
+→ verify
+
+The task explicitly says it no longer depends on fuel reconciliation, productive-use or lifecycle breadth, and battery stress is no longer a prerequisite guardrail. That is exactly the product priority I was hoping the replan would adopt.
+
+T032 is also substantially better scoped. It says, in effect: build one exact comparison—same site, same window, same forcing, same initial conditions, same policy, plus one added productive load—and implement only enough rigorous comparison machinery to make that scenario trustworthy. It explicitly warns against building a generalized experimentation platform.
+
+And T033 now has the right status: useful, valuable, but explicitly the first major story to defer under schedule pressure. That is consistent with the product priorities.
+
+T035 is now well scoped
+
+The new T035 fills the missing reliability story cleanly. Its leanness rule is strong:
+
+one outage → backup response → unserved-energy chain, without building a generalized incident-management subsystem.
+
+The task also correctly reuses T034's critical-service/unserved-energy basis instead of creating another measurement model.
+
+I would keep that.
+
+Two things I would still change
+
+The first is T026A should not be a hard prerequisite for T036.
+
+T026A is now correctly described as deferred hardening and explicitly “not a gate on C, D or H.” It covers outage buffering, retry, duplicates, out-of-order release, buffer exhaustion and noisy signals.
+
+But T036 currently declares:
+
+Depends on T027–T035, T026A, and completed A.
+
+I don't think that dependency follows from the product goal.
+
+The polished portfolio demo needs:
+
+healthy site
+dispatch loss
+fuel
+productive-use opportunity
+battery trajectory
+reliability
+verification
+
+It does not need a full gateway outage/recovery demonstration.
+
+Even T036's own acceptance criteria do not fundamentally depend on T026A. The Lab proof can demonstrate truth isolation and a claim-limited evidence case using the ordinary gap/delay mechanisms already delivered by T026.
+
+So I would change:
+
+T035
+→ T026A
+→ T036
+
+to something more like:
+
+T035
+→ T036
+
+T026A = optional hardening
+before or after T036 depending on feedback/time
+
+or make T026A conditional:
+
+required before T036 only if the final client demo deliberately includes gateway-outage recovery as a proof story.
+
+Otherwise a deferred architecture-hardening item has quietly become a gate on the polished product demo.
+
+That would undermine the principle we just established.
+
+The second change is smaller: T033 and T035 should remain reorderable.
+
+Current order is:
+
+T032
+T033 battery lifecycle
+T035 reliability
+T026A
+T036
+
+The plan correctly says T033 is the first major story to defer under schedule pressure.
+
+For many mini-grid operators, I suspect the Bahir story:
+
+generator requested
+→ start failure
+→ insufficient supply
+→ critical load affected
+→ unserved energy
+
+may be more immediately operationally compelling than battery replacement exposure.
+
+So I would avoid freezing:
+
+T033 must precede T035
+
+as a strategic sequence.
+
+After T028/T029 feedback, you may find the operator says:
+
+“Backup failures and unserved customers are much more important to me than battery degradation.”
+
+Then the appropriate sequence is:
+
+T034
+→ T035
+→ T030/T031...
+
+and T033 moves later.
+
+The README already gives you permission to do this by saying later tasks should be reassessed after T028/T029. I would make T033/T035 ordering explicitly flexible rather than merely relying on that general statement.
+
+One area to watch, but I would not change yet
+
+T027 still has a fairly substantial acceptance surface for the first Commit/ingestion path: durable manifests, resumable release, conflict semantics, overlapping-record behavior, persistence of rejected records, timestamp distinctions, and evidence inspection.
+
+Unlike T026A, most of this sits on a protected seam. I would therefore not strip it aggressively.
+
+But I would tell the implementer:
+
+Do the minimum robust implementation necessary to prove source-envelope → normal ingestion → persistent Site Overview. Do not turn T027 into a generalized ingestion reliability project.
+
+For example, resumability can be simple and correct rather than production-scale.
+
+So I see T027 as an area to watch for scope growth rather than something currently misplanned.
+
+The revised queue now has the right shape
+
+Conceptually, it has become:
+
+FOUNDATION
+T020A / A1 / B / T021 / T021A
+
+        ↓
+
+VISIBLE SIMULATOR
+T022
+
+        ↓
+
+REAL SOURCE BOUNDARY
+T023
+
+        ↓
+
+CREDIBLE MINI-GRID WORLD
+T024 / T025
+
+        ↓
+
+JUST ENOUGH EVIDENCE
+T026
+
+        ↓
+
+REAL ASSETOPS SITE
+T027
+        ★ INTERNAL DEMO
+
+        ↓
+
+FIRST PRODUCT VALUE
+T028
+        ★ DOMAIN EXPERT
+
+        ↓
+
+BUSINESS RELEVANCE
+T029
+        ★ EARLY PROSPECT DEMO
+
+        ↓
+
+INTERVENTION MECHANISM
+T029A
+
+        ↓
+
+CLOSED LOOP
+T034
+        ★ STRONG PRODUCT DEMO
+
+        ↓
+
+BREADTH, GUIDED BY FEEDBACK
+T030 fuel
+T031 headroom
+T032 productive-use what-if
+T033 lifecycle OR defer
+T035 reliability
+
+        ↓
+
+PORTFOLIO
+T036
+        ★ POLISHED CLIENT DEMO
+
+        ↓ / parallel
+
+T026A
+gateway hardening if/when justified
+
+That is much closer to how I would actually build AssetOps.
+
+My overall comment
+
+I would now be comfortable starting implementation from this plan, subject to the one meaningful change:
+
+remove T026A as an unconditional prerequisite of T036.
+
+Everything else is either well aligned or appropriately flexible.
+
+More importantly, the plan has now internalized the principle that I think matters most for this stage:
+
+architecture exists to make each increasingly valuable product demonstration credible; the project does not have to finish the architecture before it starts learning from users.
+
+That is a substantial improvement over the earlier queue.
