@@ -99,9 +99,11 @@ Include task-specific causal/boundary proofs in addition to these checks.
 - Use roadmap section 8 exclusions: no general optimizer, AC solver, CMMS,
   precise RUL, generic pack framework, second vertical or broad authoring suite.
 
-Specs use the workflow's recommended bands as sizing limits rather than adding
-prose to reach a minimum. References carry durable mechanics; local criteria
-carry delivery obligations. No proposed slice needs an over-band specification.
+Specs sit under the workflow's size ceilings, which have no minimum.
+References carry durable mechanics; local criteria carry delivery obligations.
+Each spec is written to pass the workflow's cold-start test: an implementer with
+the file, its named references and the built state can start without asking, and
+any legitimate stop is named in the file rather than left silent.
 If implementation exposes a further independently reviewable cut, report it
 before dropping a criterion.
 

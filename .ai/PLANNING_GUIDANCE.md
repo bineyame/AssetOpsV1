@@ -116,12 +116,11 @@ Each task should:
 - Mark user-review checkpoints where product direction, UI/UX, domain
   semantics, or evidence interpretation changes.
 
-Task specs should be concise implementation guardrails. A normal UI/content
-slice should usually fit in 100-180 lines, a boundary-changing slice in 180-260
-lines, and a dangerous first such as a write path, evidence contract, ingestion
-boundary, simulator truth boundary, or analytics/finding semantics in 250-400
-lines. If more detail is needed, split the task or move durable reasoning into
-the feature map, decisions, or architecture documents.
+Task specs should be concise implementation guardrails. `.ai/WORKFLOW.md`,
+Task Spec Size, owns the sizing rule and is the only place it is stated: size
+ceilings by slice type, no minimum, and the cold-start test a spec must pass.
+If more detail is needed, split the task or move durable reasoning into the
+feature map, decisions, or architecture documents.
 
 Task specs should not prescribe component factoring, helper names, styling
 mechanics, test structure, or local code organization below established
@@ -146,5 +145,7 @@ Live now:
   corrected roadmap. It carries the immediate property/addressed-binding
   sizing, kernel composition boundary and the retained starter queue.
 - `.ai/FEATURE_MAP.md`, Next Work And Unowned Requirements, names what the
-  Planner must assign beyond that starter path. Existing unfinished task files
-  await recreation; this replaces their previous activation guidance.
+  queue beyond the starter path must own. The Planner recreated that queue and
+  the Architect reviewed it on 2026-09-24; `tasks/README.md` holds the order
+  and the shared requirements, and `.ai/ACTIVE_CONTEXT.md` routes the active
+  task. Later slices may still be redirected by the T028 feedback checkpoint.
