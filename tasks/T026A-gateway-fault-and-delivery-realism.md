@@ -3,10 +3,12 @@
 Status: planned (deferred)
 USER_REVIEW_REQUIRED: false
 
-Map: B hardening; not a gate on C, D or H.
+Map: B hardening; not a gate on any milestone, C through I.
 Depends on: T026 evidence contract and T027 ingestion/receipt semantics.
-Delivery order: after T035, before T036. Pull forward only if T028 feedback
-asks for it, or if it has already shrunk to near nothing inside T026.
+Delivery order: unscheduled. It holds no position in the queue and is a
+prerequisite of nothing. Run it before or after T036 as feedback and time
+decide, pull it forward if T028 feedback asks for it, or drop whatever T026
+already delivered for free.
 Branch: task/T026A-gateway-fault-and-delivery-realism
 Sizing: publication-path hardening over an existing contract.
 
@@ -20,6 +22,16 @@ See `D-2026-09-24-queue-resequenced-for-demo`.
 
 If T026's implementer reported that part of this already exists, drop those
 criteria rather than re-proving them. This task is allowed to end up small.
+
+**It is not a prerequisite of T036.** The polished portfolio demo needs a
+healthy site, dispatch loss, fuel, opportunity, battery trajectory, reliability
+and verification. It does not need a gateway outage demonstration, and T036's
+claim-limited Lab case is served by the gap and delay T026 already delivers.
+Round two of `Docs/queue-review-feedback-verbatim.md` removed that gate: a
+deferred hardening item must not quietly become a gate on the product demo.
+The one case where it does precede T036 is if the client demo deliberately
+includes gateway-outage recovery as a proof story, which is a demo-content
+choice made at the time, not a standing dependency.
 
 ## Outcome
 

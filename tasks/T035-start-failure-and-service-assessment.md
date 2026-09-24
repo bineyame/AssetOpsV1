@@ -6,7 +6,13 @@ USER_REVIEW_REQUIRED: true
 Map: I prerequisite; explicit owner of the service/start-failure gap.
 Depends on: T025 discrete generator world, T027 evidence, C Finding views and
 T034's critical-service/unserved-energy guardrail metric.
-Delivery order: after T033; next T026A, then T036.
+Delivery order: interchangeable with T033, then T036.
+T033 and T035 consume nothing from each other: both depend only on T027's
+evidence, T029's assumptions and T034's rule set, and whichever runs second is
+unaffected by the choice. Which comes first is a product-priority call taken
+from T028/T029 feedback, not a sequencing constraint. If the operator finds
+backup failure and unserved customers more pressing than battery degradation,
+run this one first and move T033 behind it.
 Branch: task/T035-start-failure-and-service-assessment
 Sizing: one reliability story across causal world and product assessment.
 

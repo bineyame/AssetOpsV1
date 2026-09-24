@@ -6,9 +6,13 @@ USER_REVIEW_REQUIRED: true
 Map: G.
 Depends on: A battery model, T027 evidence, T029 assumptions, C Finding views
 and T034's versioned verification rule set.
-Delivery order: after T032; next T035. Under schedule pressure this is the
-first major story to move behind early client feedback - see
-`Docs/queue-review-feedback-verbatim.md` and
+Delivery order: after T032, interchangeable with T035, then T036.
+T033 and T035 consume nothing from each other: both depend only on T027's
+evidence, T029's assumptions and T034's rule set, and whichever runs second is
+unaffected by the choice. Which comes first is a product-priority call taken
+from T028/T029 feedback, not a sequencing constraint.
+Under schedule pressure this is the first major story to move behind early
+client feedback - see `Docs/queue-review-feedback-verbatim.md` and
 `D-2026-09-24-queue-resequenced-for-demo`. Deferring it does not weaken the
 core proposition.
 Branch: task/T033-battery-stress-and-replacement-exposure

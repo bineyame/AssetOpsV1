@@ -4,8 +4,12 @@ Status: planned
 USER_REVIEW_REQUIRED: true
 
 Map: I completion; the full portfolio and polished client demo.
-Depends on: T027-T035, T026A and completed A.
-Delivery order: last.
+Depends on: T027-T035 and completed A.
+Delivery order: last. T026A is deliberately not a dependency: no criterion
+below needs gateway outage or recovery, and criterion 12's claim-limited case
+uses the gap and delay T026 already delivers. Add T026A as a prerequisite only
+if this demo is deliberately built to include gateway-outage recovery as a
+proof story.
 Branch: task/T036-portfolio-and-client-demo
 Sizing: portfolio composition over delivered site stories.
 

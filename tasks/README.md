@@ -10,8 +10,9 @@ The six existing starter files are replacements, not amendments.
 
 ## Order and observable checkpoints
 
-Resequenced on 2026-09-24 from `Docs/queue-review-feedback-verbatim.md`.
-See `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
+Resequenced on 2026-09-24 from `Docs/queue-review-feedback-verbatim.md`, then
+adjusted again from its round-two section. See
+`D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
 
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
@@ -35,13 +36,25 @@ See `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
 | 18 | T032 | F completion | Paired load addition with isolated comparison history |
 | 19 | T033 | G | Battery stress trajectory and replacement exposure |
 | 20 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 21 | T026A | B hardening | Gateway outage, recovery and delivery realism |
-| 22 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 21 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.
 The order above is the intended delivery order; a user checkpoint may redirect
 later tasks. T021A stays after T021 and is not a kernel prerequisite.
 T023 is preparatory B work; A completes before B's internal demo.
+
+**Rows 19 and 20 are an interchangeable pair.** T033 and T035 consume nothing
+from each other; both depend only on T027's evidence, T029's assumptions and
+T034's rule set. Which runs first is a product-priority call taken from
+T028/T029 feedback - backup failure and unserved customers may matter more to
+an operator than battery degradation - and whichever runs second is unaffected.
+Neither order is strategy. Every other row's position is load-bearing.
+
+**T026A has no position and is a prerequisite of nothing**, including T036.
+Run it before or after the portfolio demo as feedback and time decide. It is
+listed here so its ownership of the deferred gateway behavior stays visible,
+not to schedule it.
 
 ## Four demo points, not one
 
@@ -148,9 +161,9 @@ weaken the core proposition.
 These followers have no separate implementation file in this queue:
 
 - Gateway outage, buffering, retry, out-of-order release, buffer exhaustion and
-  numeric bias moved out of T026 into the deferred T026A. If T026's implementer
-  finds part of it already free in the T023 publication path, they include it
-  and report that T026A shrank.
+  numeric bias moved out of T026 into the unscheduled T026A, which gates
+  nothing. If T026's implementer finds part of it already free in the T023
+  publication path, they include it and report that T026A shrank.
 - Full Replay UI and broad source-health dashboard wait until after C feedback
   identifies useful breadth. T027 supplies evidence inspection and reconstructible
   accepted history now; later Replay must read that history, never re-simulate.

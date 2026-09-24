@@ -2823,3 +2823,51 @@ Affected files: `tasks/README.md`, `tasks/T021A`, `T022`, `T023`, `T026` (rename
 `T029`, new `T029A`, `T030`, `T031`, `T032`, `T033`, `T034`, `T035`, `T036`,
 `.ai/FEATURE_MAP.md`, `.ai/PRODUCT.md`, `.ai/ACTIVE_CONTEXT.md` and
 `.ai/START_HERE.md`. No implementation code changed.
+
+Decision: `D-2026-09-24-hardening-gates-nothing`. **A deferred hardening item
+may not hold a position in the delivery order, and an order that is not
+load-bearing must say so.** Follow-on to
+`D-2026-09-24-queue-resequenced-for-demo`, from the "Round Two" section of
+`Docs/queue-review-feedback-verbatim.md`, which accepted the resequenced queue
+as a basis for starting implementation subject to these two changes.
+
+- **T026A is unscheduled and a prerequisite of nothing, including T036.** It
+  held position 21, between T035 and T036, and was named in T036's dependency
+  line and T035's delivery order, so the deferral it was created to express was
+  being undone by its own placement. It now has no position. T036 depends on
+  T027-T035 and completed A. The portfolio demo needs a healthy site, dispatch
+  loss, fuel, opportunity, battery trajectory, reliability and verification; it
+  does not need a gateway outage, and T036's claim-limited Lab case is served by
+  the gap and delay T026 already delivers. The one case where T026A precedes
+  T036 is if that demo is deliberately built to include gateway-outage recovery
+  as a proof story, which is a demo-content choice, not a standing dependency.
+- **T033 and T035 are an interchangeable pair.** Neither consumes the other's
+  artifacts; both depend only on T027's evidence, T029's assumptions and T034's
+  rule set, so whichever runs second is unaffected. Which runs first is a
+  product-priority call taken from T028/T029 feedback - backup failure and
+  unserved customers may matter more to an operator than battery degradation.
+  This is stated at those two rows and in those two files only. Every other
+  position in `tasks/README.md` remains load-bearing; a queue in which every
+  order is negotiable is not a plan.
+
+T027 was flagged as an area to watch rather than one currently misplanned, so
+nothing was removed or restructured there. Its Scope limits gained the
+instruction the user wrote out: do the minimum robust implementation necessary
+to prove source-envelope -> normal ingestion -> persistent Site Overview, do not
+turn it into a generalized ingestion reliability project, and resumability can
+be simple and correct rather than production-scale. The acceptance criteria are
+untouched and none became optional; they sit on a protected seam, which is why
+the slice is watched rather than trimmed.
+
+Worth recording for the next reader: the gate was expressed by position as well
+as by prose. T026A's own header carried "after T035, before T036", which a
+search for the string "T026A" does not find. When a deferral is recorded, check
+the deferred file's own delivery order, not only what other files say about it.
+
+Reason: hardening deferred behind the first Finding had quietly become a gate on
+the polished product demo, which contradicts the principle the previous decision
+established. `D-2026-09-22-milestone-speed-over-purity` governs.
+
+Affected files: `tasks/README.md`, `tasks/T026A`, `T027` (guidance only),
+`T033`, `T035`, `T036`, `.ai/FEATURE_MAP.md` and `.ai/ACTIVE_CONTEXT.md`.
+No implementation code changed. T020A remains active and unaffected.

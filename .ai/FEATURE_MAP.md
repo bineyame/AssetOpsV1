@@ -88,7 +88,8 @@ by one delayed publication rather than a full fault suite.
 Missing readings stay missing; duplicate content is idempotent and conflicting
 message identity is explicit. Gateway outage, buffering, retry, out-of-order
 release, buffer exhaustion and numeric bias are B hardening deferred behind the
-first Finding: they prove architecture, not product value.
+first Finding: they prove architecture, not product value. That hardening gates
+no milestone, including I.
 Operator evidence inspection supplies provenance.
 A full Replay UI and broad source-health dashboard are followers, not gates on
 C. Replay remains accepted history, never re-simulation. v4 sections 3, 11, 21,
@@ -227,7 +228,7 @@ checklist, so a later replan can re-verify coverage rather than assume it.
 | Addressed bindings through scenario/profile/frozen initialization; component control properties using the carrier | A starter: current T020A explicitly excludes StateRef; assign the immediate follow-on cut and control-property coverage |
 | PV/load/battery/generator models, discrete-state contract, Site Controls, controller and accepted flows | A completion: no current task covers the credible electrical world; require repeated-load addressing and healthy/policy-change demonstrations |
 | Dispatch-capable publication profile, mappings and evidence types; Commit and ingestion; Site Overview | B completion beyond initial T023 staging; prove reconstruction and timestamp semantics |
-| Gateway fault, buffering, recovery and delivery realism | B hardening after the first Finding; must not re-prove the envelope contract |
+| Gateway fault, buffering, recovery and delivery realism | B hardening after the first Finding, unscheduled and a prerequisite of nothing; must not re-prove the envelope contract |
 | Dispatch reconstruction/classification, confidence/claim ceilings, indicative fuel quantity, Finding and Evidence | C; include missing-capability and degraded-evidence cases, not only the successful recipe |
 | Versioned business assumptions and bounded consequence | D; retain separate technical and economic bases |
 | Operational delivery/dip records and fuel balance uncertainty | E; distinguish record failure from physical movement |

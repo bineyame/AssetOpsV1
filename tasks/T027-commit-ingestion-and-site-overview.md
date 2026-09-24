@@ -112,6 +112,17 @@ tests, shared checks and layout evidence on populated and empty Overview.
 
 ## Scope limits
 
+**Do the minimum robust implementation necessary to prove source-envelope ->
+normal ingestion -> persistent Site Overview. Do not turn this into a
+generalized ingestion reliability project.** Resumability, for example, can be
+simple and correct rather than production-scale.
+
+The acceptance criteria above are unchanged and none of them is optional: they
+sit on a protected seam, which is why this slice is watched for scope growth
+rather than trimmed. Satisfy each one at the smallest honest implementation
+that holds, and stop there. Round two of
+`Docs/queue-review-feedback-verbatim.md` is the source of this instruction.
+
 No dispatch classification yet; T028 owns it.
 No full Replay UI or broad source-health dashboard is required for C.
 Shared-window paired experiments must wait for T032's separate comparison

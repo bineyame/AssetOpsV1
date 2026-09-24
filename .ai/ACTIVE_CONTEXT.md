@@ -20,12 +20,18 @@ Then T020A1, T020B, T021, T021A, T022, T023 and T024 onward per that README.
 None of the resequencing touches the starter path.
 
 What the resequencing changed, from position 10 onward: T026 is thinned to
-dispatch-essential evidence and the gateway-failure work moved to a new
-deferred T026A; a new T029A extracts the minimal immutable policy-intervention
-mechanism so T034 verification runs right after T029 instead of behind
-T030-T033; T033 no longer gates verification and adds battery stress to T034's
-guardrail rule set afterwards. Delivery order is now A, B, C, D, H, then E, F,
-G, I. Feature-map letters are outcomes, not order.
+dispatch-essential evidence and the gateway-failure work moved to T026A; a new
+T029A extracts the minimal immutable policy-intervention mechanism so T034
+verification runs right after T029 instead of behind T030-T033; T033 no longer
+gates verification and adds battery stress to T034's guardrail rule set
+afterwards. Delivery order is now A, B, C, D, H, then E, F, G, I. Feature-map
+letters are outcomes, not order.
+
+Two ordering facts the queue states deliberately. T026A is unscheduled and a
+prerequisite of nothing, including T036; run it whenever feedback and time
+justify it. T033 and T035 are an interchangeable pair, because neither consumes
+the other's artifacts and the choice is a product-priority call from T028/T029
+feedback. Every other position in `tasks/README.md` is load-bearing.
 
 There are four demo points, not one: T027 internal architecture, T028/T029
 domain-expert and early prospect, T034 strong product, T036 full portfolio.
