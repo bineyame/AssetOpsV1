@@ -5,7 +5,7 @@ USER_REVIEW_REQUIRED: true
 
 Map: F, evidence-backed opportunity before load-addition comparison.
 Depends on: T027-T030 and A's curtailment/dispatch model.
-Next: T032 completes F.
+Delivery order: after T030; next T032 completes F.
 Branch: task/T031-renewable-headroom-opportunity
 Sizing: bounded opportunity analytic and product composition.
 

@@ -18,6 +18,11 @@ mapping, identity, payload, quality and source/publication times.
 This establishes the sole future product crossing. Commit and ingestion remain
 T027, after the electrical world and dispatch-capable gateway are present.
 
+The inspector stays deliberately utilitarian. Its whole value is that an
+engineer can see exactly what is about to cross the boundary. It is not a
+source-envelope debugging application, and polish spent on it is polish taken
+from the first Finding. `Docs/queue-review-feedback-verbatim.md` says so.
+
 ## Read for detail
 
 - v4 sections 3, 6, 11, 21 and 25.

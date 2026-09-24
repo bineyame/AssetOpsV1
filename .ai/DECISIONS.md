@@ -2764,3 +2764,62 @@ Reason: this was the first review of the recreated queue by anything that did
 not write it, and a canonical document recommending an abandoned practice would
 have misled the next Planner. `D-2026-09-22-milestone-speed-over-purity`
 governs: the sizing rule is cheap to revise and expensive to leave wrong.
+
+Decision: `D-2026-09-24-queue-resequenced-for-demo`. **The recreated queue is
+resequenced so that product value is exposed before infrastructure completeness.**
+Source: `Docs/queue-review-feedback-verbatim.md`, the user's review of the queue
+after the Architect review merged at `c625308`. That file is the argument; this
+entry records what changed.
+
+Three headline changes, all made:
+
+- **T026 is thinned to dispatch-essential evidence.** It keeps the PV, BMS,
+  generator, load, policy and operator-commanded-record families, normal
+  cadence, one reporting gap and one delayed publication. Gateway outage,
+  buffering, recovery, retry, duplicate, out-of-order release, buffer
+  exhaustion and numeric bias move to a new deferred `T026A`, placed after
+  T035. If T023's publication path makes any of it nearly free, T026 includes
+  it and reports that T026A shrank; building buffering to demonstrate it is
+  what the thinning refuses. The operator-record family stays in T026: it is
+  in the evidence the user kept, and it is also the forward dependency the
+  `c625308` review fixed, so thinning must not undo it.
+- **Verification moves ahead of analytic breadth.** The minimal immutable
+  policy-intervention mechanism is extracted from T032 into a new `T029A`, and
+  T034 now runs at position 15, directly after it. T034 sheds its T033
+  dependency: its first guardrail set is battery reserve discipline,
+  critical-load service and unserved energy, all available from T026/T027
+  evidence. T033 later adds battery stress to the same versioned rule set as a
+  new rule version, without re-judging earlier results. Delivery order is now
+  A, B, C, D, H, then E, F, G, I. Feature-map letters are outcomes, not order.
+- **T036 stops being the first client-facing milestone.** There are four demo
+  points: T027 internal architecture, T028/T029 domain-expert and
+  early-prospect, T034 strong product (Finding to action to verification), T036
+  full polished portfolio. Roadmap 12.1's financial assumptions are therefore
+  due at T029, which is real external exposure, not at T036.
+
+Also applied from the same source: T021A is time-boxed to the narrow parser
+closure and leaves the critical path if it grows; T023's stage inspector stays
+utilitarian; T032 implements exactly one load-addition comparison and not a
+generalized experimentation platform; T033 is named as the first major story to
+defer under schedule pressure; T035 is held to the one outage -> backup
+response -> unserved-energy chain with no incident-management subsystem.
+
+Two consequences worth naming. Thinning T026 removed the case T027 used to
+prove three distinct timestamps, so T027 now proves it from the delayed
+publication and T026A re-proves it under full recovery. And numeric bias/noise
+went to T026A even though the user asked to keep "one simple gap/delay case",
+because gap and delay already give C a coverage-limited claim and bias does not.
+
+The electrical-before-Finding order from the `c625308` review is untouched: it
+is physically forced, and the user's resequencing request was downstream of it.
+Nothing here changes the active task. T020A is still active and still startable.
+
+Reason: the queue was biased toward proving infrastructure thoroughly before
+exposing product value, and the cost of that bias is paid in feedback not
+received. `D-2026-09-22-milestone-speed-over-purity` governs.
+
+Affected files: `tasks/README.md`, `tasks/T021A`, `T022`, `T023`, `T026` (renamed from
+`T026-dispatch-evidence-and-gateway-recovery.md`), new `T026A`, `T027`, `T028`,
+`T029`, new `T029A`, `T030`, `T031`, `T032`, `T033`, `T034`, `T035`, `T036`,
+`.ai/FEATURE_MAP.md`, `.ai/PRODUCT.md`, `.ai/ACTIVE_CONTEXT.md` and
+`.ai/START_HERE.md`. No implementation code changed.

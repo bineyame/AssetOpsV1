@@ -3,8 +3,9 @@
 Status: planned
 USER_REVIEW_REQUIRED: true
 
-Map: I completion; credible client-demo checkpoint.
-Depends on: T027-T035 and completed A.
+Map: I completion; the full portfolio and polished client demo.
+Depends on: T027-T035, T026A and completed A.
+Delivery order: last.
 Branch: task/T036-portfolio-and-client-demo
 Sizing: portfolio composition over delivered site stories.
 
@@ -17,6 +18,15 @@ productive-use opportunity, battery trajectory and verified intervention.
 Reveal gated Lab truth-versus-inference validation at the end.
 
 This composes individually credible A-H stories, not a scripted scorecard.
+
+## Not the first client-facing milestone
+
+This is the polished portfolio demo, not the point at which customer
+conversations may begin. T027 is the internal architecture demo, T028/T029 is a
+legitimate domain-expert and early-prospect demo, and T034 is the strong
+product demo. A former mini-grid colleague does not need six sites before their
+feedback is worth having. See `Docs/queue-review-feedback-verbatim.md` and
+`D-2026-09-24-queue-resequenced-for-demo`.
 
 ## Read for detail
 
@@ -87,7 +97,9 @@ External publishing/contact is not authorized by implementing this task.
 
 ## Review
 
-The owner walks roadmap 13.3 and judges client-demo readiness.
+The owner walks roadmap 13.3 and judges polished-portfolio readiness.
+Earlier external exposure was already authorized at T028/T029 and T034; this
+review does not retroactively gate it.
 Record actual approval and remaining claim limits; do not infer approval from
 the existence of six populated cards.
 Review outcome: pending.

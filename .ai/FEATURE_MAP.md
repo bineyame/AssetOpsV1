@@ -35,7 +35,12 @@ Configured PV/battery/load components are not functioning electrical models.
 
 ## Delivery Sequence
 
-Letters match roadmap section 7. Every outcome includes the smallest backend,
+Letters match roadmap section 7. **They are outcomes, not delivery order.**
+On 2026-09-24 the user's queue review moved H's first verification story ahead
+of E, F and G, so the built order is A, B, C, D, H, then E, F, G, I.
+`tasks/README.md` holds the authoritative order and
+`D-2026-09-24-queue-resequenced-for-demo` records why.
+Every outcome includes the smallest backend,
 simulator and UI path that makes it inspectable. Sources for screen content and
 claim boundaries are roadmap sections 3-4; mechanism details stay in v4.
 
@@ -78,9 +83,13 @@ Evidence and selected-window Site read model. Carry the PV, BMS, generator,
 meter and policy evidence C needs through this same path. A fuel-only allowlist
 is an initial proof, not B's final evidence contract.
 
-Source, gateway/publication and ingestion receipt times remain distinct.
+Source, gateway/publication and ingestion receipt times remain distinct, proved
+by one delayed publication rather than a full fault suite.
 Missing readings stay missing; duplicate content is idempotent and conflicting
-message identity is explicit. Operator evidence inspection supplies provenance.
+message identity is explicit. Gateway outage, buffering, retry, out-of-order
+release, buffer exhaustion and numeric bias are B hardening deferred behind the
+first Finding: they prove architecture, not product value.
+Operator evidence inspection supplies provenance.
 A full Replay UI and broad source-health dashboard are followers, not gates on
 C. Replay remains accepted history, never re-simulation. v4 sections 3, 11, 21,
 25; roadmap sections 3.2 and 7/B.
@@ -99,8 +108,10 @@ This replaces fuel reconciliation as the first Finding. It requires A's
 electrical/controller world; a generator fuel trace alone cannot establish
 avoidability. Include an indicative bounded fuel quantity with its model basis
 for roadmap section 13.2's feedback checklist; this does not require priced
-Financials. C is the **earliest domain-expert feedback** checkpoint. Seek that
-feedback before building the whole portfolio. Roadmap sections 3.3, 7/C, 13.2.
+Financials. C is the **earliest domain-expert feedback** checkpoint and, with D,
+the first external demo point. Seek that feedback before building the whole
+portfolio, then reassess the remaining outcomes against what was said.
+Roadmap sections 3.3, 7/C, 13.2.
 
 ### D - Translate operations into business consequence
 
@@ -133,8 +144,10 @@ under demand, reserve, storage and service constraints. Evaluate a scheduled
 productive load in a paired run and compare energy use/sales, curtailment and
 diesel from new ingested evidence, with any tariff impact labelled scenario.
 
-This is the first planned owner of load-addition intervention artifacts and
-`PairedExperiment`. Freeze reconstructible intervention content and reject
+Immutable intervention artifacts are no longer introduced here. They are
+extracted ahead of H so verification does not wait on this analytic; F adds
+`LOAD_ADDITION` and `PairedExperiment` over that existing mechanism.
+Freeze reconstructible intervention content and reject
 undeclared differences in resolved effective inputs; comparing opaque version
 identifiers is insufficient. Shared-window experiments must not overwrite or
 double-count a Site's committed history: give the Planner an explicit comparison
@@ -154,15 +167,18 @@ Exact remaining-life dates are deferred. v4 sections 10, 14; roadmap 3.6, 7/G.
 
 ### H - Intervention verification
 
-**Depends on:** C's dispatch Finding, D's consequences and the intervention
-machinery introduced in F. **Demonstrable:** accept a policy/configuration
+**Depends on:** C's dispatch Finding, D's consequences and the minimal immutable
+policy-intervention machinery, which is extracted to sit directly before H.
+H does not wait on E, F or G. **Demonstrable:** accept a policy/configuration
 change, inspect its frozen world input, simulate and ingest the new world, then
 judge a comparable post-action window with target and guardrails together.
 Show Verified, Ineffective or Inconclusive, with reopening when later evidence
 warrants it. Work completion alone leaves the Finding unresolved.
 
-Use runtime/fuel improvement with reserve discipline, critical service and
-battery stress guardrails. Paired simulation comparison and operational
+The first verification story uses runtime/fuel improvement against battery
+reserve discipline, critical-load service and unserved energy. Battery stress
+is a richer guardrail G adds to the same versioned rule set afterwards; it is
+not a prerequisite for verifying. Paired simulation comparison and operational
 verification are distinct claims; the latter needs post-action evidence.
 This brings configuration change and narrow Action/Maintenance Verification
 into the client path, without building a CMMS. v4 sections 5.2, 13, 15;
@@ -179,7 +195,10 @@ Site/run history rolled up normally; recipes never assign Findings.
 
 Walk from portfolio to a deep Finding, evidence, bounded consequence, opportunity
 and verified intervention. Reveal Lab/private-truth validation last. This is the
-**credible client demo** (roadmap sections 5, 7/I and 13.3).
+**full portfolio and polished client demo** (roadmap sections 5, 7/I and 13.3).
+It is the fourth commercial exposure point, not the first: B is the internal
+architecture demo, C/D is a domain-expert and early-prospect demo, and H is the
+strong product demo. Customer conversations start at C/D.
 Bahir's start-failure/service recipe and product assessment need explicit work;
 the other five stories do not automatically supply them.
 
@@ -197,20 +216,23 @@ T021A parser narrowing, T022 Lab wiring/observation, T023 the first envelope
 schema/staging. They do not own the broader demo; T024-T036 do.
 
 Rows name the outcome that must own each gap; they are not a request for one
-task per noun. Every row now has a queue owner, verified row by row in the
-2026-09-24 review: T020A/T020A1, T024/T025, T026/T027, T028, T029, T030, T032,
-T033, T034 and T035/T036 in table order. The table stays as the standing
+task per noun. Every row has a queue owner, verified row by row in the
+2026-09-24 Architect review and re-verified after the user's queue review:
+T020A/T020A1, T024/T025, T026/T027, T026A, T028, T029, T029A, T030, T032, T033,
+T034 and T035/T036 in table order. The table stays as the standing
 checklist, so a later replan can re-verify coverage rather than assume it.
 
 | Gap to assign | First outcome / Planner responsibility |
 | --- | --- |
 | Addressed bindings through scenario/profile/frozen initialization; component control properties using the carrier | A starter: current T020A explicitly excludes StateRef; assign the immediate follow-on cut and control-property coverage |
 | PV/load/battery/generator models, discrete-state contract, Site Controls, controller and accepted flows | A completion: no current task covers the credible electrical world; require repeated-load addressing and healthy/policy-change demonstrations |
-| Dispatch-capable publication profile, mappings and evidence types; gateway fault/recovery, Commit and ingestion; Site Overview | B completion beyond initial T023 staging; prove reconstruction and timestamp semantics |
+| Dispatch-capable publication profile, mappings and evidence types; Commit and ingestion; Site Overview | B completion beyond initial T023 staging; prove reconstruction and timestamp semantics |
+| Gateway fault, buffering, recovery and delivery realism | B hardening after the first Finding; must not re-prove the envelope contract |
 | Dispatch reconstruction/classification, confidence/claim ceilings, indicative fuel quantity, Finding and Evidence | C; include missing-capability and degraded-evidence cases, not only the successful recipe |
 | Versioned business assumptions and bounded consequence | D; retain separate technical and economic bases |
 | Operational delivery/dip records and fuel balance uncertainty | E; distinguish record failure from physical movement |
-| Immutable intervention artifacts, load addition, effective-input pairing and comparison history context | F, reused in H; no arbitrary mutable intervention references |
+| Immutable run-scoped intervention artifacts and the declared-boundary world-input path | H prerequisite, extracted ahead of F; no arbitrary mutable intervention references |
+| Load addition, effective-input pairing and comparison history context | F completion, over the existing artifact mechanism |
 | Battery stress initialization, evidence-derived trajectory and replacement exposure | G |
 | Configuration change, Action/Maintenance link, target/guardrail verification and Finding history | H |
 | Independent portfolio recipes, service/start-failure assessment and Lab truth-versus-inference validation | I; v4 sections 17, 20, 25 |

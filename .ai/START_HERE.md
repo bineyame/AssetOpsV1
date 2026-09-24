@@ -8,18 +8,24 @@ lives in `.ai/CODE_STATE.md` and current routing in `.ai/ACTIVE_CONTEXT.md`.
 
 Current milestone:
 
-Credible mini-grid runtime (feature-map A), then internal architecture demo (B)
-and a dispatch Finding for domain-expert feedback (C).
+Credible mini-grid runtime (feature-map A), then internal architecture demo (B),
+a dispatch Finding for domain-expert feedback (C), its economic translation (D)
+and the verified intervention (H). E, F, G and I follow.
 
 Planning status:
 
 T001-T020 are complete. Sites, Foundation, scenario inspection and frozen Draft
 setup/readback exist. Nothing executes and the shipped scenario is still blocked.
 
-The Planner recreated the task queue and the Architect reviewed it on
-2026-09-24. **T020A is the active task**, followed by the order in
-`tasks/README.md`. Read `.ai/ACTIVE_CONTEXT.md`, then the task file,
-`.ai/FEATURE_MAP.md` and `.ai/PLANNING_HANDOFF_T020A_T023.md`.
+The Planner recreated the task queue, the Architect reviewed it, and the user's
+queue review resequenced it on 2026-09-24 under
+`D-2026-09-24-queue-resequenced-for-demo`: verification moved ahead of analytic
+breadth, T026 was thinned, and T036 is the last of four demo points rather than
+the first client-facing one. **T020A is the active task**, unaffected by that
+resequencing, followed by the order in `tasks/README.md`.
+
+Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
+`.ai/PLANNING_HANDOFF_T020A_T023.md`.
 
 This replaces the former "recreate the queue first" routing.
 `D-2026-09-24-v4-roadmap-replan` records the new source basis and sequence.

@@ -105,7 +105,7 @@ A gate test must first establish that the enabled screen contains controls.
 
 Gateway envelope conversion/staging is T023.
 Electrical operation is T024-T025.
-Interactive event injection/reset is deferred to T032's immutable intervention
+Interactive event injection/reset is deferred to T029A's immutable intervention
 control; current events come only from frozen authored input.
 No operator reconciliation or Findings are delivered here.
 

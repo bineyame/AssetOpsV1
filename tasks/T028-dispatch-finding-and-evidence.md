@@ -3,7 +3,8 @@
 Status: planned
 USER_REVIEW_REQUIRED: true
 
-Map: C; earliest domain-expert feedback checkpoint.
+Map: C; earliest domain-expert feedback checkpoint, and with T029 the first
+external demo point.
 Depends on: T027, T025 healthy/prolonged-runtime recipes and T026 evidence.
 Next: T029 after this checkpoint; reassess later work from feedback.
 Branch: task/T028-dispatch-finding-and-evidence
@@ -18,6 +19,11 @@ claim limits and an indicative bounded fuel quantity.
 
 This is the first valuable Finding. It precedes fuel reconciliation and does
 not require priced Financials or a portfolio.
+
+With T029 this is a legitimate external-feedback and early-prospect demo, not a
+rehearsal for one. One site, one strong Finding, its evidence and its money is
+enough to learn from a real operator. `Docs/queue-review-feedback-verbatim.md`
+is explicit that waiting for the portfolio wastes the feedback.
 
 ## Read for detail
 

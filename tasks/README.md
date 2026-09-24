@@ -10,6 +10,9 @@ The six existing starter files are replacements, not amendments.
 
 ## Order and observable checkpoints
 
+Resequenced on 2026-09-24 from `Docs/queue-review-feedback-verbatim.md`.
+See `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
+
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
 | 1 | T020A | A | Typed component properties in Foundation and frozen Draft |
@@ -21,24 +24,42 @@ The six existing starter files are replacements, not amendments.
 | 7 | T023 | B preparation | Inspect persisted canonical staged envelopes |
 | 8 | T024 | A | Daytime PV/storage serves three addressed loads |
 | 9 | T025 | A completion | Generator/policy change and healthy full-site run |
-| 10 | T026 | B | Dispatch evidence survives gateway outage/recovery |
+| 10 | T026 | B | Dispatch evidence with one gap and one delayed publication |
 | 11 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
 | 12 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
 | 13 | T029 | D | Versioned assumptions translate quantity into money |
-| 14 | T030 | E | Fuel balance with separate delivery/dip records |
-| 15 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 16 | T032 | F completion | Paired load addition with isolated comparison history |
-| 17 | T033 | G | Battery stress trajectory and replacement exposure |
-| 18 | T034 | H | Policy action -> post-action evidence -> verification |
-| 19 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 20 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 14 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 15 | T034 | H | Policy action -> post-action evidence -> verification |
+| 16 | T030 | E | Fuel balance with separate delivery/dip records |
+| 17 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 18 | T032 | F completion | Paired load addition with isolated comparison history |
+| 19 | T033 | G | Battery stress trajectory and replacement exposure |
+| 20 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 21 | T026A | B hardening | Gateway outage, recovery and delivery realism |
+| 22 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 
 Task dependency declarations identify the required artifacts.
 The order above is the intended delivery order; a user checkpoint may redirect
 later tasks. T021A stays after T021 and is not a kernel prerequisite.
 T023 is preparatory B work; A completes before B's internal demo.
-T028 is the expert-feedback checkpoint. Seek that feedback before the portfolio;
-a task does not authorize contacting anyone automatically.
+
+## Four demo points, not one
+
+Commercial and feedback exposure happens in stages. Treating the portfolio as
+the first credible client milestone is the mistake this queue now avoids.
+
+| Point | Task | What it is |
+| --- | --- | --- |
+| 1 | T027 | Internal architecture demo |
+| 2 | T028 / T029 | Domain-expert and early-prospect demo: one site, one strong Finding, its evidence, its money |
+| 3 | T034 | Strong product demo: Finding -> action -> verification |
+| 4 | T036 | Full portfolio and polished client demo |
+
+Seek domain-expert feedback at point 2, before the portfolio exists. A former
+mini-grid operator does not need six sites to tell you whether the Finding is
+useful. **After T028/T029, reassess T030-T036 against what the expert actually
+said rather than treating the remaining order as immutable.**
+A task does not authorize contacting anyone automatically.
 
 ## Shared implementation and review requirements
 
@@ -111,10 +132,25 @@ before dropping a criterion.
 
 Every row in FEATURE_MAP's unowned-requirements table has an implementation
 owner in the queue above, including component controls (T020A), addressed
-bindings (T020A1), comparison history (T032) and Bahir assessment (T035).
+bindings (T020A1), intervention artifacts (T029A), comparison history (T032)
+and Bahir assessment (T035).
+
+The starter contracts T020A, T020A1 and T020B are time-boxed: they are cheap
+enabling work, not product progress, and should not absorb design debate.
+
+Three slices carry explicit restraint rules rather than extra scope. T021A is a
+narrow parser closure to be time-boxed, not a checkpoint. T023's stage inspector
+stays utilitarian. T032 implements exactly one load-addition comparison, not a
+generalized experimentation platform. T033 is the first major story to move
+behind early client feedback if schedule pressure appears; deferring it does not
+weaken the core proposition.
 
 These followers have no separate implementation file in this queue:
 
+- Gateway outage, buffering, retry, out-of-order release, buffer exhaustion and
+  numeric bias moved out of T026 into the deferred T026A. If T026's implementer
+  finds part of it already free in the T023 publication path, they include it
+  and report that T026A shrank.
 - Full Replay UI and broad source-health dashboard wait until after C feedback
   identifies useful breadth. T027 supplies evidence inspection and reconstructible
   accepted history now; later Replay must read that history, never re-simulate.
@@ -124,8 +160,9 @@ These followers have no separate implementation file in this queue:
   in T024, the first new physical laws. If its trigger is absent there, the first
   later law needing an undeclared Foundation input owns it; no speculative
   framework task is required.
-- Reset/injection UI waits for T032's first run-scoped intervention control.
-  T022 has frozen execution only. T032 owns immutable history and reset behavior.
+- Reset/injection UI waits for T029A's first run-scoped intervention control.
+  T022 has frozen execution only. T029A owns immutable artifacts, reset and
+  frozen-history behavior; T032 adds paired comparison over that mechanism.
 
 Fuel authored-number correction is assigned to T021; fuel-model expectation
 basis and uncertainty to T030. These are not unowned waits.
@@ -135,11 +172,13 @@ basis and uncertainty to T030. These are not unowned waits.
 Roadmap 12.1 financial assumptions belong to T029 before external exposure;
 12.2 recognizable productive load belongs to T032 before demo recording;
 12.3 lifecycle monetization belongs to T033 before external exposure.
+Demo point 2 is external exposure, so 12.1 is due at T029, not at T036.
 Use the roadmap defaults internally, visibly labelled, without inventing approval.
 
 Physical balance, causality, evidence coverage and claim ceilings have objective
 proofs in the owning tasks. Practitioner usefulness, physical calibration to a
 real installation and client credibility cannot be certified by automated tests.
 T025 asks the owner to judge physical behavior; T028 collects expert feedback;
-T036 carries the 13.3 walkthrough. These remain human review criteria, not
+T034 asks whether the detect-to-verify path is showable; T036 carries the 13.3
+walkthrough. These remain human review criteria, not
 assertions that passing fixtures establish field validity.

@@ -55,8 +55,9 @@ runtime and coverage. Unsupported/unobserved metrics are unavailable.
    Invalid mapping, unit, identity or content yields an inspectable rejection.
 4. Simulated and equivalent ordinary canonical inputs use one validation/
    normalization path. SIMULATED provenance survives as source provenance.
-5. received_at is assigned by ingestion. Delayed recovery can therefore show
-   distinct source, publication and receipt timestamps.
+5. received_at is assigned by ingestion. T026's delayed publication case
+   therefore shows three distinct source, publication and receipt timestamps.
+   T026A later proves the same under full outage and recovery.
 6. Duplicate identity/content is idempotent across retry and restart.
    Same identity/different content produces a conflict and preserves the
    original accepted content.
@@ -100,7 +101,7 @@ Persist the evidence needed to repeat it without the Lab runtime.
 | Bad mapping or unit in batch | Rejection visible, valid status accurate |
 | Duplicate release after restart | No duplicated metric or history entry |
 | Same id, changed content | Conflict; original preserved |
-| Gateway outage/recovery | Three distinct timestamp meanings |
+| Delayed publication | Three distinct timestamp meanings |
 | Missing capability/report | Coverage gap, no fabricated value |
 | Disable Lab | Operator history and evidence remain |
 | Remove private artifacts and rebuild | Same accepted operating result |
@@ -115,6 +116,8 @@ No dispatch classification yet; T028 owns it.
 No full Replay UI or broad source-health dashboard is required for C.
 Shared-window paired experiments must wait for T032's separate comparison
 history context; ordinary Site history is not a place to merge both sides.
+Gateway outage, buffering, retry and out-of-order recovery are T026A and are
+not prerequisites for this checkpoint.
 
 ## Review
 
