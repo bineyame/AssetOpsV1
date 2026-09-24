@@ -2213,6 +2213,51 @@ detail page rendered with no tables at all, because the client's guard required
 a number for every initialization input and two now carry none. A fixture is not
 a payload.
 
+**What an independent review returned, and what it changed.** Three reproduced
+correctness defects, all closed in the same slice.
+
+A `SITE_FOUNDATION` parameter with `initializes: false` parsed and then
+qualified for neither frozen collection - no answer, no row, no blocking
+reason, and the run reported `READY`. The parser refuses the combination now,
+because a Foundation-owned parameter states no number and the only record for
+its answer is a `FrozenInitializationInput`, which is built from parameters
+whose ownership initializes. **The concept the refusal turns away is
+legitimate and has no carrier: a Foundation-answered coefficient that is not an
+initial value. The slice that needs one adds the carrier and lifts the refusal
+together.** The service exclusion that assumed representation now keys on the
+frozen collection itself rather than on `value is not None`, and the
+completeness property is asserted directly, because a paired-absence invariant
+cannot catch a row that vanished.
+
+The property validator admitted `nan` and `inf` - both are floats and neither
+is less than zero - and the review wrote positive infinity into a real Site
+store, then watched serving it raise. Finiteness is checked at the shared
+boundary and a percentage is bounded by what its unit implies. The bound is
+keyed on the unit rather than on the property: a per-property range table is a
+general mechanism a four-member vocabulary has not earned, and the cost is
+recorded - a later property that is a percentage above one hundred cannot be
+added under `%` without deciding this.
+
+`FoundationBinding.unit` was read by nothing at all. Three units must agree
+now, and the binding-versus-scenario half is decided before the Site is
+consulted, because no Foundation can reconcile a profile and a scenario that
+disagree about the quantity.
+
+**The substring weakness is a pattern, not two incidents.** It was caught once
+during the build and survived two files away, where the review proved it by
+mutation: `fuel-tank-capacity` contains both `fuel-tank` and `tank-capacity`,
+so replacing every explanation with the bare state key still passed. Assertions
+across this slice's tests now pin phrases a state key cannot satisfy.
+
+**And the layout abort had a different cause than the packet guessed.** It was
+attributed to the run store's create cost; the actual cause was the submit
+script clicking a button the form disables until the configured site has been
+read. Clicking a disabled button does nothing, so nothing was posted - which is
+why the local run store did not grow across an aborted run. Both layout runs
+complete now, 204 claims each. The run store's O(n) create is still real, is
+the product's own persistence path rather than a developer-machine cost, and
+wants an owner before T027.
+
 What T020A leaves open, for the slice that meets it.
 
 - **Same-type component addressing is T020A1.** An unqualified binding resolves
@@ -2224,12 +2269,18 @@ What T020A leaves open, for the slice that meets it.
 - **Option C is still a follower.** No profile carries a model-supplied initial
   value; a `MODEL_RULE`-owned value blocks. Its trigger is the first model rule
   needing a Foundation value without a scenario asking for it.
-- **`var/runs` has grown past seventy local Drafts** and `create_run` re-reads
-  and re-parses every one of them twice to refuse a duplicate identity, so a
-  create now costs about seven seconds on this machine. That is T020's recorded
-  behaviour biting: the layout script writes one Draft per visit and nothing
-  clears them. It is a developer-machine cost, not a product one, and it makes
-  the layout script's run-setup step unreliable.
+- **`var/runs` holds 72 local Drafts and `create_run` is O(n) in that count.**
+  It re-reads and re-parses every stored run twice to refuse a duplicate
+  identity; one create measures 3 to 7 seconds here depending on load. That is
+  T020's recorded behaviour biting - the layout script writes one Draft per
+  visit and nothing clears them - and it is the PRODUCT's persistence path, so
+  calling it a developer-machine cost understates it. It needs a bounded fix
+  with an owner before T027's internal demo, preserving the duplicate and
+  atomic-write guarantees.
+- **A Foundation-answered value that is not an initial world value has no
+  carrier**, and the scenario parser refuses the declaration rather than
+  letting it vanish. The first law that needs one adds the carrier and lifts
+  that refusal together; it is the same trigger as option C.
 - **`reconcile_reported_observations` reports a wider gap**, 310 L against the
   readings where it reported 254 L, because the document no longer carries the
   generator's consumption. That is the honest projection of a document that has
