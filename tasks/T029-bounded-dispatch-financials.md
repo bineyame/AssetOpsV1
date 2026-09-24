@@ -3,9 +3,10 @@
 Status: planned
 USER_REVIEW_REQUIRED: true
 
-Map: D.
+Map: D; completes the T028/T029 external demo point.
 Depends on: T028.
-Next: T030.
+Delivery order: next T029A, then T034. T030-T033 follow the first
+verification story.
 Branch: task/T029-bounded-dispatch-financials
 Sizing: thin product composition over C's quantities.
 
@@ -17,6 +18,10 @@ Inspect technical quantity, price/accrual assumptions, basis and confidence
 separately. Change price and watch money change without changing physics.
 
 This translates the first useful Finding before fuel and portfolio breadth.
+
+T028 and T029 together are showable to a domain expert or early prospect. After
+that conversation the Planner reassesses the remaining queue against what was
+actually said, rather than treating T029A-T036 as immutable.
 
 ## Read for detail
 

@@ -18,6 +18,15 @@ refused with an inspectable structural error.
 Keep this after T021 and before T022, as required by v4.
 The kernel does not consume this field and did not need the change to execute.
 
+## Execution rule
+
+This slice is in the queue because it is cheap now and expensive after traces
+freeze, not because it is product progress. Implement the narrow parser closure
+and stop. No architectural discussion, no readiness rework, no vocabulary
+debate. If it grows beyond the narrow closure, stop, say so, and move it out of
+the critical path rather than delaying T022.
+`Docs/queue-review-feedback-verbatim.md` asked for exactly this time-box.
+
 ## Read for detail
 
 - v4 sections 2.1 and 24.

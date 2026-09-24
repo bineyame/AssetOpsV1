@@ -4,8 +4,17 @@ Status: planned
 USER_REVIEW_REQUIRED: true
 
 Map: G.
-Depends on: A battery model, T027 evidence, T029 assumptions and C Finding views.
-Delivery order: after T032; next T034.
+Depends on: A battery model, T027 evidence, T029 assumptions, C Finding views
+and T034's versioned verification rule set.
+Delivery order: after T032, interchangeable with T035, then T036.
+T033 and T035 consume nothing from each other: both depend only on T027's
+evidence, T029's assumptions and T034's rule set, and whichever runs second is
+unaffected by the choice. Which comes first is a product-priority call taken
+from T028/T029 feedback, not a sequencing constraint.
+Under schedule pressure this is the first major story to move behind early
+client feedback - see `Docs/queue-review-feedback-verbatim.md` and
+`D-2026-09-24-queue-resequenced-for-demo`. Deferring it does not weaken the
+core proposition.
 Branch: task/T033-battery-stress-and-replacement-exposure
 Sizing: causal stress and evidence-derived lifecycle interpretation.
 
@@ -16,7 +25,8 @@ stress recurrence/trajectory, a reference band and bounded replacement exposure.
 The owner can distinguish a synthetic aged asset from an asset whose historical
 stress is unknown.
 
-This adds the slow-burn lifecycle story and supplies H's battery-stress guardrail.
+This adds the slow-burn lifecycle story. T034 already verifies without it;
+this slice adds battery stress to H's existing versioned guardrail set.
 
 ## Read for detail
 
@@ -60,6 +70,9 @@ This adds the slow-burn lifecycle story and supplies H's battery-stress guardrai
     exposure; retain an honest technical-only view if not approved.
 15. Arsi-like stress and healthy reference recipes author operation/initial
     conditions only. Their product trajectories survive removal of private data.
+16. Add battery stress to T034's verification guardrail set as a new rule
+    version. Earlier verification results keep their original rule version and
+    outcome and are not retroactively re-judged.
 
 ## Proof
 
@@ -73,6 +86,7 @@ This adds the slow-burn lifecycle story and supplies H's battery-stress guardrai
 | Missing telemetry interval | Coverage limitation, no fabricated exposure |
 | Healthy versus stress recipe | Explainable recurrence/reference difference |
 | Replacement price change | Money changes, technical result fixed |
+| Re-verify an earlier action under the new rule version | Original result preserved |
 
 Use independently calculated throughput and one exposure-window case.
 Check that product queries cannot access private accumulator objects.

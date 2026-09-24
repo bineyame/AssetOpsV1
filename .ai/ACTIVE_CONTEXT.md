@@ -6,22 +6,41 @@ durable rules in `.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md`.
 ## Current Milestone
 
 Credible mini-grid runtime (feature-map A), then internal architecture demo (B),
-then a dispatch Finding for domain-expert feedback (C).
+a dispatch Finding for domain-expert feedback (C), its economic translation (D)
+and the verified intervention (H). E, F, G and I follow.
 
 ## Active Work
 
-The Planner recreated the twenty-task queue; the Architect reviewed it on
-2026-09-24, the first review by anything that did not write it. The queue is
-accepted and its sequence is buildable in the order `tasks/README.md` gives.
+The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
+the user's own review then resequenced it under
+`D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
 **Active task: T020A**, `tasks/T020A-foundation-physical-properties.md`.
 Then T020A1, T020B, T021, T021A, T022, T023 and T024 onward per that README.
-T028 is the domain-expert feedback checkpoint; work after it may be redirected.
+None of the resequencing touches the starter path.
 
-That review changed no sequence. It corrected one forward dependency - T026 now
-introduces the first operational-record family, which T028 needs and T030
-extends - and replaced the workflow's task-spec size bands with ceilings under
-`D-2026-09-24-task-spec-size-ceilings`.
+What the resequencing changed, from position 10 onward: T026 is thinned to
+dispatch-essential evidence and the gateway-failure work moved to T026A; a new
+T029A extracts the minimal immutable policy-intervention mechanism so T034
+verification runs right after T029 instead of behind T030-T033; T033 no longer
+gates verification and adds battery stress to T034's guardrail rule set
+afterwards. Delivery order is now A, B, C, D, H, then E, F, G, I. Feature-map
+letters are outcomes, not order.
+
+Two ordering facts the queue states deliberately. T026A is unscheduled and a
+prerequisite of nothing, including T036; run it whenever feedback and time
+justify it. T033 and T035 are an interchangeable pair, because neither consumes
+the other's artifacts and the choice is a product-priority call from T028/T029
+feedback. Every other position in `tasks/README.md` is load-bearing.
+
+There are four demo points, not one: T027 internal architecture, T028/T029
+domain-expert and early prospect, T034 strong product, T036 full portfolio.
+Seek expert feedback at T028/T029 and reassess T030-T036 from what is said.
+
+The earlier Architect review corrected one forward dependency - T026 introduces
+the first operational-record family, which T028 needs and T030 extends, and the
+thinning preserved it - and replaced the workflow's task-spec size bands with
+ceilings under `D-2026-09-24-task-spec-size-ceilings`.
 
 Direction comes only from:
 - `Docs/simulator_design_v4.md` for simulator mechanisms;

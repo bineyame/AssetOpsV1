@@ -5,7 +5,9 @@ USER_REVIEW_REQUIRED: true
 
 Map: E.
 Depends on: T027-T029 and the existing Fuel Loss causal world.
-Next: T031.
+Delivery order: after T034; next T031. The analytic-breadth group T030-T033
+now follows the first verification story, and the T028 checkpoint may reorder
+it again - see `D-2026-09-24-queue-resequenced-for-demo`.
 Branch: task/T030-fuel-records-and-reconciliation
 Sizing: operational-record evidence and fuel analytic.
 

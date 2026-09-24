@@ -4,8 +4,15 @@ Status: planned
 USER_REVIEW_REQUIRED: true
 
 Map: I prerequisite; explicit owner of the service/start-failure gap.
-Depends on: T025 discrete generator world, T027 evidence and C Finding views.
-Delivery order: after T034; next T036.
+Depends on: T025 discrete generator world, T027 evidence, C Finding views and
+T034's critical-service/unserved-energy guardrail metric.
+Delivery order: interchangeable with T033, then T036.
+T033 and T035 consume nothing from each other: both depend only on T027's
+evidence, T029's assumptions and T034's rule set, and whichever runs second is
+unaffected by the choice. Which comes first is a product-priority call taken
+from T028/T029 feedback, not a sequencing constraint. If the operator finds
+backup failure and unserved customers more pressing than battery degradation,
+run this one first and move T033 behind it.
 Branch: task/T035-start-failure-and-service-assessment
 Sizing: one reliability story across causal world and product assessment.
 
@@ -17,6 +24,13 @@ The operator sees a ServiceWindow, unserved energy and a bounded backup/service
 Finding derived from accepted evidence, with evidence gaps clearly separated.
 
 The other five portfolio stories do not supply this reliability assessment.
+
+## Leanness standard
+
+`Docs/queue-review-feedback-verbatim.md` sets the bar this slice is judged by:
+one credible outage -> backup response -> unserved-energy chain, without
+building a generalized incident-management subsystem. If a criterion below
+cannot be traced to that chain, cut it rather than implement it.
 
 ## Read for detail
 
@@ -37,7 +51,9 @@ The other five portfolio stories do not supply this reliability assessment.
    any supported alarm/command evidence through canonical envelopes.
    Private failure cause and trace stay private.
 5. Reconstruct ServiceWindow from accepted evidence with duration, served/
-   unserved energy, critical-service basis and coverage.
+   unserved energy, critical-service basis and coverage. Extend T034's
+   critical-service/unserved-energy metric rather than introducing a second
+   measurement basis for the same quantity.
 6. State the demand/service measurement basis. Missing demand or served-load
    evidence limits unserved-energy calculation instead of importing private
    requested demand or treating absent telemetry as service failure.
@@ -77,6 +93,8 @@ layout evidence for the service assessment.
 
 ## Scope limits
 
+No generalized incident-management subsystem, alarm inbox, escalation workflow
+or outage-ticket lifecycle. One outage chain, assessed.
 No reliability forecasting, protection/switching enums or detailed engine model.
 No private assertion of starter-relay failure in the operator Finding.
 T036 owns multi-site composition and the client walkthrough.

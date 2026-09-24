@@ -2764,3 +2764,110 @@ Reason: this was the first review of the recreated queue by anything that did
 not write it, and a canonical document recommending an abandoned practice would
 have misled the next Planner. `D-2026-09-22-milestone-speed-over-purity`
 governs: the sizing rule is cheap to revise and expensive to leave wrong.
+
+Decision: `D-2026-09-24-queue-resequenced-for-demo`. **The recreated queue is
+resequenced so that product value is exposed before infrastructure completeness.**
+Source: `Docs/queue-review-feedback-verbatim.md`, the user's review of the queue
+after the Architect review merged at `c625308`. That file is the argument; this
+entry records what changed.
+
+Three headline changes, all made:
+
+- **T026 is thinned to dispatch-essential evidence.** It keeps the PV, BMS,
+  generator, load, policy and operator-commanded-record families, normal
+  cadence, one reporting gap and one delayed publication. Gateway outage,
+  buffering, recovery, retry, duplicate, out-of-order release, buffer
+  exhaustion and numeric bias move to a new deferred `T026A`, placed after
+  T035. If T023's publication path makes any of it nearly free, T026 includes
+  it and reports that T026A shrank; building buffering to demonstrate it is
+  what the thinning refuses. The operator-record family stays in T026: it is
+  in the evidence the user kept, and it is also the forward dependency the
+  `c625308` review fixed, so thinning must not undo it.
+- **Verification moves ahead of analytic breadth.** The minimal immutable
+  policy-intervention mechanism is extracted from T032 into a new `T029A`, and
+  T034 now runs at position 15, directly after it. T034 sheds its T033
+  dependency: its first guardrail set is battery reserve discipline,
+  critical-load service and unserved energy, all available from T026/T027
+  evidence. T033 later adds battery stress to the same versioned rule set as a
+  new rule version, without re-judging earlier results. Delivery order is now
+  A, B, C, D, H, then E, F, G, I. Feature-map letters are outcomes, not order.
+- **T036 stops being the first client-facing milestone.** There are four demo
+  points: T027 internal architecture, T028/T029 domain-expert and
+  early-prospect, T034 strong product (Finding to action to verification), T036
+  full polished portfolio. Roadmap 12.1's financial assumptions are therefore
+  due at T029, which is real external exposure, not at T036.
+
+Also applied from the same source: T021A is time-boxed to the narrow parser
+closure and leaves the critical path if it grows; T023's stage inspector stays
+utilitarian; T032 implements exactly one load-addition comparison and not a
+generalized experimentation platform; T033 is named as the first major story to
+defer under schedule pressure; T035 is held to the one outage -> backup
+response -> unserved-energy chain with no incident-management subsystem.
+
+Two consequences worth naming. Thinning T026 removed the case T027 used to
+prove three distinct timestamps, so T027 now proves it from the delayed
+publication and T026A re-proves it under full recovery. And numeric bias/noise
+went to T026A even though the user asked to keep "one simple gap/delay case",
+because gap and delay already give C a coverage-limited claim and bias does not.
+
+The electrical-before-Finding order from the `c625308` review is untouched: it
+is physically forced, and the user's resequencing request was downstream of it.
+Nothing here changes the active task. T020A is still active and still startable.
+
+Reason: the queue was biased toward proving infrastructure thoroughly before
+exposing product value, and the cost of that bias is paid in feedback not
+received. `D-2026-09-22-milestone-speed-over-purity` governs.
+
+Affected files: `tasks/README.md`, `tasks/T021A`, `T022`, `T023`, `T026` (renamed from
+`T026-dispatch-evidence-and-gateway-recovery.md`), new `T026A`, `T027`, `T028`,
+`T029`, new `T029A`, `T030`, `T031`, `T032`, `T033`, `T034`, `T035`, `T036`,
+`.ai/FEATURE_MAP.md`, `.ai/PRODUCT.md`, `.ai/ACTIVE_CONTEXT.md` and
+`.ai/START_HERE.md`. No implementation code changed.
+
+Decision: `D-2026-09-24-hardening-gates-nothing`. **A deferred hardening item
+may not hold a position in the delivery order, and an order that is not
+load-bearing must say so.** Follow-on to
+`D-2026-09-24-queue-resequenced-for-demo`, from the "Round Two" section of
+`Docs/queue-review-feedback-verbatim.md`, which accepted the resequenced queue
+as a basis for starting implementation subject to these two changes.
+
+- **T026A is unscheduled and a prerequisite of nothing, including T036.** It
+  held position 21, between T035 and T036, and was named in T036's dependency
+  line and T035's delivery order, so the deferral it was created to express was
+  being undone by its own placement. It now has no position. T036 depends on
+  T027-T035 and completed A. The portfolio demo needs a healthy site, dispatch
+  loss, fuel, opportunity, battery trajectory, reliability and verification; it
+  does not need a gateway outage, and T036's claim-limited Lab case is served by
+  the gap and delay T026 already delivers. The one case where T026A precedes
+  T036 is if that demo is deliberately built to include gateway-outage recovery
+  as a proof story, which is a demo-content choice, not a standing dependency.
+- **T033 and T035 are an interchangeable pair.** Neither consumes the other's
+  artifacts; both depend only on T027's evidence, T029's assumptions and T034's
+  rule set, so whichever runs second is unaffected. Which runs first is a
+  product-priority call taken from T028/T029 feedback - backup failure and
+  unserved customers may matter more to an operator than battery degradation.
+  This is stated at those two rows and in those two files only. Every other
+  position in `tasks/README.md` remains load-bearing; a queue in which every
+  order is negotiable is not a plan.
+
+T027 was flagged as an area to watch rather than one currently misplanned, so
+nothing was removed or restructured there. Its Scope limits gained the
+instruction the user wrote out: do the minimum robust implementation necessary
+to prove source-envelope -> normal ingestion -> persistent Site Overview, do not
+turn it into a generalized ingestion reliability project, and resumability can
+be simple and correct rather than production-scale. The acceptance criteria are
+untouched and none became optional; they sit on a protected seam, which is why
+the slice is watched rather than trimmed.
+
+Worth recording for the next reader: the gate was expressed by position as well
+as by prose. T026A's own header carried "after T035, before T036", which a
+search for the string "T026A" does not find. When a deferral is recorded, check
+the deferred file's own delivery order, not only what other files say about it.
+
+Reason: hardening deferred behind the first Finding had quietly become a gate on
+the polished product demo, which contradicts the principle the previous decision
+established. `D-2026-09-22-milestone-speed-over-purity` governs.
+
+Affected files: `tasks/README.md`, `tasks/T026A`, `T027` (guidance only),
+`T033`, `T035`, `T036`, `.ai/FEATURE_MAP.md` and `.ai/ACTIVE_CONTEXT.md`.
+No implementation code changed. T020A remains active and unaffected.
