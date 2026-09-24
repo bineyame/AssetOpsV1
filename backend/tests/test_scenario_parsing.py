@@ -1124,3 +1124,74 @@ class TestAFoundationOwnedValueMustBeAnInitialWorldValue:
         # Non-vacuous: the shipped document carries two, so the loop above ran
         # against real content rather than over an empty set.
         assert checked == 2
+
+
+class TestANumberNoFloatCanHold:
+    """An authored integer larger than any float, refused by position.
+
+    The same hole `sites/foundation_parsing.py` had, one domain along. A
+    401-digit integer is valid YAML, fits inside the document size limit, and
+    reaches the numeric branch as an ordinary parameter value; `float()`
+    raised `OverflowError` and that exception escaped the parser with no
+    parameter position and no document name.
+
+    It is the second confirmed instance of one pattern: a check moved in front
+    of a conversion without the conversion itself being covered carries the
+    hole with it. Closing one position and leaving its neighbour open is how
+    that survived a round of review, and the neighbour was this.
+    """
+
+    def parameter(self, value: Any) -> dict[str, Any]:
+        document = scenario_document()
+        document["public_parameters"][2]["value"] = value
+        return document
+
+    def test_an_integer_no_float_can_hold_is_refused(self) -> None:
+        with pytest.raises(ScenarioConfigurationInvalid) as error:
+            parse(self.parameter(10**400))
+
+        message = str(error.value)
+        assert "public_parameters[2].value" in message
+        assert "401 digits" in message
+        assert "larger than any number this product can hold" in message
+
+    def test_it_is_refused_on_a_timeline_parameter_too(self) -> None:
+        """Both parameter routes cross `_parse_parameter`, and this says so.
+
+        Asserting it rather than reasoning about it, because "they share a
+        function" is the kind of claim that stops being true quietly.
+        """
+        document = scenario_document()
+        document["timeline"][0]["parameters"][0]["value"] = 10**400
+
+        with pytest.raises(ScenarioConfigurationInvalid) as error:
+            parse(document)
+
+        assert "401 digits" in str(error.value)
+
+    def test_the_largest_integer_a_float_can_hold_still_parses(self) -> None:
+        """Non-vacuous, and it pins the boundary at the conversion.
+
+        `2 ** 1023` is a 309-digit integer that converts exactly. A rule
+        written against a digit count or an exponent guess rather than against
+        the conversion itself would refuse it, and this is the case that would
+        notice.
+        """
+        parameter = next(
+            item
+            for item in parse(self.parameter(2**1023)).public_parameters
+            if item.parameter_id == "starting-level"
+        )
+
+        assert parameter.value == float(2**1023)
+
+    def test_an_ordinary_number_is_untouched(self) -> None:
+        """The conversion still happens and still produces a float."""
+        parameter = next(
+            item
+            for item in parse(self.parameter(7)).public_parameters
+            if item.parameter_id == "starting-level"
+        )
+
+        assert parameter.value == 7.0
+        assert isinstance(parameter.value, float)

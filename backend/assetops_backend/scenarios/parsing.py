@@ -884,11 +884,11 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
                 f"{source}, got {unit!r}. A numeric parameter carries a unit, "
                 "because a quantity without one cannot be read."
             )
-        _reject_unusable_quantity(float(value), unit, where=where, source=source)
+        quantity = _usable_quantity(value, unit, where=where, source=source)
         return ScenarioParameter(
             parameter_id=parameter_id,
             display_name=display_name,
-            value=float(value),
+            value=quantity,
             unit=unit,
             execution_role=execution_role,
             state_key=state_key,
@@ -938,16 +938,53 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     )
 
 
-def _reject_unusable_quantity(
-    value: float, unit: str, *, where: str, source: str
-) -> None:
-    """The `invalid-rate` bound case, enforced where it can be enforced.
+def _usable_quantity(
+    raw: int | float, unit: str, *, where: str, source: str
+) -> float:
+    """The authored number as a float, or the refusal saying why it is not.
 
+    The `invalid-rate` bound case, enforced where it can be enforced.
     `scenarios/execution.py` declares four bound cases and this is the only one
     decidable without executing anything, so it is the only one this build
     holds end to end. Refusing here means no run setup and no kernel ever sees
     a rate or a quantity it would have to invent a rule for.
+
+    **It takes the authored number and returns the converted one**, rather
+    than taking a float the caller already converted. That is the whole of the
+    second fix in it: the conversion is the first thing that can fail, so the
+    function that owns the numeric rules has to be the one performing it. The
+    caller used to write `float(value)` in the argument list, which put an
+    unhandled `OverflowError` one character outside every rule below.
     """
+    # An integer no float can hold, refused by position rather than thrown.
+    #
+    # A 401-digit integer is valid YAML, fits inside the document size limit,
+    # and reaches here as an ordinary parameter value. `float()` raises
+    # `OverflowError` on it, and until this check that exception escaped the
+    # parser with no parameter position and no document name - the parser
+    # failing rather than refusing.
+    #
+    # This is the second confirmed instance of one pattern: the identical hole
+    # existed in `sites/foundation_parsing.py`, where a finiteness check had
+    # been MOVED in front of the conversion without the conversion being
+    # covered, so the hole moved with it. Closing one position and leaving its
+    # neighbour open is how that survived a round of review; the neighbour is
+    # this one.
+    #
+    # Asked of the conversion itself rather than of a digit count or an
+    # exponent, because the conversion is the thing that has to succeed and it
+    # is the authority on when it can.
+    try:
+        value = float(raw)
+    except OverflowError:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.value' has {len(str(abs(raw)))} digits in {source}, "
+            "which is larger than any number this product can hold. An "
+            "authored quantity is converted, frozen onto a run and shown on a "
+            "screen; one that cannot become a float has nowhere to go after "
+            "this line."
+        ) from None
+
     if not math.isfinite(value):
         raise ScenarioConfigurationInvalid(
             f"'{where}.value' is {value!r} in {source}. A quantity must be a "
@@ -965,6 +1002,8 @@ def _reject_unusable_quantity(
             "to be clamped or reinterpreted, and this product does neither "
             "silently."
         )
+
+    return value
 
 
 def _parse_private_expectations(
