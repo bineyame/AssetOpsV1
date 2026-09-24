@@ -69,18 +69,21 @@ const SITE: SiteDetailReadModel = {
         component_type: "PV_ARRAY",
         display_name: "PV array",
         rating: { value: 100, unit: "kW" },
+        properties: null,
       },
       {
         component_id: "battery",
         component_type: "BATTERY",
         display_name: "Battery",
         rating: { value: 215, unit: "kWh" },
+        properties: null,
       },
       {
         component_id: "site-meter",
         component_type: "METER",
         display_name: "Site meter",
         rating: null,
+        properties: null,
       },
     ],
     // This site's foundation declares none of the four sections
@@ -175,6 +178,7 @@ const UNRATED_SITE: SiteDetailReadModel = {
         component_type: "METER",
         display_name: "Site meter",
         rating: null,
+        properties: null,
       },
     ],
     // This site's foundation declares none of the four sections
@@ -1134,6 +1138,7 @@ const COLD_ROOM_SITE: SiteDetailReadModel = {
         component_type: "COLD_ROOM",
         display_name: "Cold store",
         rating: { value: 18, unit: "kW" },
+        properties: null,
       },
     ],
     topology: {

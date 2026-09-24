@@ -48,11 +48,20 @@ export interface ScenarioCanonicalQuantity {
   dimension: string;
 }
 
-/** One authored parameter. `unit` is null for a text parameter. */
+/**
+ * One authored parameter.
+ *
+ * `unit` is null for a text parameter. `value` is null for a parameter whose
+ * declared owner is the site's foundation: such a parameter declares the need
+ * - the state, the unit, and that the foundation answers - and states no
+ * number, because a machine's physical property is not the scenario's to
+ * carry. The unit is still present, and a run resolves the number from the
+ * site through the selected model profile.
+ */
 export interface ScenarioParameter {
   parameter_id: string;
   display_name: string;
-  value: number | string;
+  value: number | string | null;
   unit: string | null;
   execution_role: string;
   state_key: string | null;
@@ -302,7 +311,11 @@ function isParameter(value: unknown): value is ScenarioParameter {
     typeof parameter.parameter_id === "string" &&
     typeof parameter.display_name === "string" &&
     (typeof parameter.value === "number" ||
-      typeof parameter.value === "string") &&
+      typeof parameter.value === "string" ||
+      // A foundation-owned parameter carries no number, and `null` is that
+      // statement. It is the only absence accepted: a missing key is a
+      // response that does not carry the field.
+      parameter.value === null) &&
     isNullableString(parameter.unit) &&
     typeof parameter.execution_role === "string" &&
     isNullableString(parameter.state_key) &&

@@ -17,6 +17,7 @@ import {
   FoundationSubtabs,
 } from "./FoundationSubtabs";
 import type {
+  ComponentPropertyView,
   ControlAssumptionView,
   FoundationDeviceView,
   SiteDeclaredSection,
@@ -30,6 +31,7 @@ import type { SiteDetailReadModel } from "./siteReadModel";
 import { SiteSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { useSiteRecord } from "./useSiteRecord";
 import {
+  CONTROL_PROPERTIES_ARE_NOT_CONTROLS,
   FOUNDATION_DEVICE_METADATA_LIMITS,
   deriveSiteConfigurationView,
   type SiteComponentView,
@@ -361,6 +363,15 @@ export function SiteConfigurationFacts({
         heading="Controls"
         headingId={FOUNDATION_CONTROLS_ID}
       >
+        {/*
+          * Two different kinds of fact under one heading, and the order says
+          * which is which. The declared control properties are configured
+          * numbers with units; the control assumptions below are statements
+          * in words about how the site is intended to be operated. Neither is
+          * a control: nothing on this screen issues one, and the note on the
+          * properties table says so where a reader meets the numbers.
+          */}
+        <SiteControlProperties section={view.controlProperties} />
         <SiteControlAssumptions section={view.controlAssumptions} />
       </Panel>
 
@@ -376,6 +387,20 @@ export function SiteConfigurationFacts({
         * top while every other link landed at 24px.
         */}
       <SiteConfigurationComponents components={view.components} />
+
+      {/*
+        * The typed physical properties sit with the components rather than
+        * with Controls, because what a tank holds and what a generator burns
+        * are facts about what those machines ARE. The control properties are
+        * under Controls, beside the assumptions they make concrete.
+        */}
+      <Panel
+        heading="Declared component properties"
+        headingId="site-configuration-physical-properties-heading"
+        flush
+      >
+        <SitePhysicalProperties section={view.physicalProperties} />
+      </Panel>
 
       <Panel
         heading="Not available for this site"
@@ -454,6 +479,86 @@ export function SiteConfigurationComponents({
         </tbody>
       </DataTable>
     </Panel>
+  );
+}
+
+/**
+ * The typed physical properties the foundation declares.
+ *
+ * A rating is the one nameplate magnitude a component was sold with; these are
+ * named facts about what the machine IS, each with its own unit and its own
+ * provenance, and a component may declare several. That is the difference
+ * between a rating column and this table: a profile looking for "the rating in
+ * litres" can only ever find one thing per component, and a profile looking
+ * for `tank-capacity` finds the thing it meant.
+ *
+ * Declared configuration, never evidence. Nothing here states that a
+ * measurement was taken.
+ */
+export function SitePhysicalProperties({
+  section,
+}: {
+  section: SiteDeclaredSection<ComponentPropertyView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Declared physical properties"
+      headingId="foundation-physical-properties-heading"
+      section={section}
+      caption="Typed physical properties this site's foundation declares about its components, each with the unit it is declared in and the document and version that declared it. These are configuration copied at creation, not measurements."
+      columns={["Component", "Property", "Declared quantity", "Declared by"]}
+      row={(property) => ({
+        key: property.key,
+        cells: [
+          property.componentName,
+          property.propertyName,
+          property.value,
+          property.declaredBy,
+        ],
+      })}
+    />
+  );
+}
+
+/**
+ * The typed control properties the foundation declares.
+ *
+ * The same carrier as the physical properties above, and deliberately the same
+ * shape: a control property is a configured number with a unit, not a control
+ * model. There is no setpoint anything writes, no switching position, no
+ * operating mode, and no controller - the first thing that CONSUMES one of
+ * these arrives with a later slice, and this screen implies no capability to
+ * act.
+ *
+ * The note is rendered beside the numbers rather than in a docstring, because
+ * a reader meeting a column of numbers beside the word Controls is exactly the
+ * reader who might take one for a control.
+ */
+export function SiteControlProperties({
+  section,
+}: {
+  section: SiteDeclaredSection<ComponentPropertyView>;
+}) {
+  return (
+    <>
+      <SiteConfigurationSubsection
+        name="Declared control properties"
+        headingId="foundation-control-properties-heading"
+        section={section}
+        caption="Typed control properties this site's foundation declares about its components, each with the unit it is declared in and the document and version that declared it."
+        columns={["Component", "Property", "Declared quantity", "Declared by"]}
+        row={(property) => ({
+          key: property.key,
+          cells: [
+            property.componentName,
+            property.propertyName,
+            property.value,
+            property.declaredBy,
+          ],
+        })}
+      />
+      <p className="note">{CONTROL_PROPERTIES_ARE_NOT_CONTROLS}</p>
+    </>
   );
 }
 

@@ -345,6 +345,74 @@ export const FOUNDATION_DEVICE_METADATA_LIMITS =
   "stated here for any of them. That is a limit of the configuration " +
   "document, not something looked for and missing on these devices.";
 
+/**
+ * One typed property a component declares, as display.
+ *
+ * The value carries the unit the document chose, verbatim: no conversion, no
+ * rounding, no unit this screen picked. A number a screen reformatted is a
+ * number that screen authored.
+ *
+ * `declaredBy` is the property's own provenance - which document declared it
+ * and at which version - rendered per row rather than per component, because
+ * a site may declare one of its own beside one it copied from a template.
+ */
+export interface ComponentPropertyView {
+  key: string;
+  componentName: string;
+  propertyName: string;
+  value: string;
+  declaredBy: string;
+}
+
+/**
+ * What the Foundation says when no component declares a physical property.
+ *
+ * A statement about the document, as every absence on this screen is. A site
+ * created before typed properties existed declares none, and a template that
+ * later gains them does not reach back into it: templates copy at creation.
+ */
+export const PHYSICAL_PROPERTIES_NOT_DECLARED: SiteUnavailableFact = {
+  value: "Not declared",
+  reason:
+    "This site's foundation document declares no typed physical property on " +
+    "any component, so nothing here states how large its tank is or what its " +
+    "generator burns. That is a statement about the document, not a " +
+    "statement that these components have no such properties.",
+};
+
+/**
+ * What the Foundation says when no component declares a control property.
+ *
+ * Deliberately worded as configuration. A declared control property is a
+ * number a component is configured with; it is not a setpoint anything writes,
+ * not a controller, and nothing in this build acts on one.
+ */
+export const CONTROL_PROPERTIES_NOT_DECLARED: SiteUnavailableFact = {
+  value: "Not declared",
+  reason:
+    "This site's foundation document declares no typed control property on " +
+    "any component, so no reserve level or minimum runtime is configured " +
+    "here. That is a statement about the document, and it is not a statement " +
+    "that this site is operated without limits.",
+};
+
+/**
+ * What a declared control property is, said once, beside the table.
+ *
+ * The one thing this screen must not imply. A typed control property is a
+ * configured number a reader can inspect: nothing in this build reads one to
+ * decide anything and nothing writes one to a machine.
+ *
+ * Worded without the banned control vocabulary, deliberately. A denial that
+ * used the word would put the word on the screen, and the ban is on the word
+ * appearing at all - "this is not a X" is exactly the cover the T016
+ * restriction refuses.
+ */
+export const CONTROL_PROPERTIES_ARE_NOT_CONTROLS =
+  "These are declared configuration values, not controls. Nothing on this " +
+  "screen issues a control action, nothing in this build writes one of these " +
+  "values to a machine, and nothing reads one to decide anything.";
+
 export const CONTROL_ASSUMPTIONS_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
   reason:
@@ -486,6 +554,8 @@ export interface SiteConfigurationView extends SiteDetailView {
   configurationFixedAtCreation: string;
   components: SiteComponentView[];
   keyParameters: SiteKeyParameterView[];
+  physicalProperties: SiteDeclaredSection<ComponentPropertyView>;
+  controlProperties: SiteDeclaredSection<ComponentPropertyView>;
   topologyNodes: SiteDeclaredSection<TopologyNodeView>;
   topologyConnections: SiteDeclaredSection<TopologyConnectionView>;
   devices: SiteDeclaredSection<FoundationDeviceView>;
@@ -579,12 +649,29 @@ export function deriveSiteConfigurationView(
     // rating is absent is dropped here rather than rendered as an absence,
     // because a parameters list is a list of what the foundation declares and
     // an entry that declares nothing does not belong in one.
-    keyParameters: site.foundation.components
-      .filter((component) => component.rating !== null)
-      .map((component) => ({
-        label: label(component.component_type, COMPONENT_TYPE_LABELS),
-        value: `${component.rating?.value} ${component.rating?.unit}`,
-      })),
+    keyParameters: [
+      ...site.foundation.components
+        .filter((component) => component.rating !== null)
+        .map((component) => ({
+          label: label(component.component_type, COMPONENT_TYPE_LABELS),
+          value: `${component.rating?.value} ${component.rating?.unit}`,
+        })),
+      // The declared physical properties sit beside the ratings, because
+      // they are the same kind of thing to a reader: a headline number the
+      // foundation states. They are listed after rather than merged into the
+      // ratings, so a rating and a property of the same component stay two
+      // rows and neither has to stand for the other.
+      ...site.foundation.components.flatMap((component) =>
+        (component.properties ?? [])
+          .filter((property) => property.kind === "PHYSICAL")
+          .map((property) => ({
+            label: `${component.display_name} ${property.display_name.toLowerCase()}`,
+            value: `${property.value} ${property.unit}`,
+          })),
+      ),
+    ],
+    physicalProperties: deriveComponentProperties(site, "PHYSICAL"),
+    controlProperties: deriveComponentProperties(site, "CONTROL"),
     topologyNodes: deriveTopologyNodes(site),
     topologyConnections: deriveTopologyConnections(site),
     devices: deriveDevices(site),
@@ -719,6 +806,58 @@ export function deriveSignalMappings(
     }),
   );
 }
+
+/**
+ * The typed properties of one kind, or the statement that none is declared.
+ *
+ * Derived from what the components declare and nothing else. Nothing here
+ * infers a property from a component type, from a rating that happens to
+ * carry the same unit, or from a display name: a property is declared or the
+ * foundation does not have one.
+ *
+ * Split by kind rather than rendered in one table with a kind column. A tank
+ * capacity and a reserve level are different kinds of fact - one is what the
+ * machine IS, the other is how it is configured to be operated - and a shared
+ * table would put the second under whatever heading the first earned.
+ */
+export function deriveComponentProperties(
+  site: SiteDetailReadModel,
+  kind: string,
+): SiteDeclaredSection<ComponentPropertyView> {
+  const names = nameComponents(site.foundation.components);
+
+  const rows = site.foundation.components.flatMap((component) =>
+    (component.properties ?? [])
+      .filter((property) => property.kind === kind)
+      .map((property) => ({
+        key: `${component.component_id}/${property.property_key}`,
+        componentName:
+          names[component.component_id] ?? component.component_id,
+        propertyName: property.display_name,
+        value: `${property.value} ${property.unit}`,
+        declaredBy: `${label(
+          property.source,
+          COMPONENT_PROPERTY_SOURCE_LABELS,
+        )} version ${property.source_version}`,
+      })),
+  );
+
+  if (rows.length === 0) {
+    return notDeclared(
+      kind === "CONTROL"
+        ? CONTROL_PROPERTIES_NOT_DECLARED
+        : PHYSICAL_PROPERTIES_NOT_DECLARED,
+    );
+  }
+
+  return declared(rows);
+}
+
+/** Which document declared a property, as display. */
+export const COMPONENT_PROPERTY_SOURCE_LABELS: Record<string, string> = {
+  TEMPLATE: "Template",
+  SITE: "This site",
+};
 
 export function deriveControlAssumptions(
   site: SiteDetailReadModel,

@@ -59,18 +59,21 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
         component_type: "PV_ARRAY",
         display_name: "PV array",
         rating: { value: 100, unit: "kW" },
+        properties: null,
       },
       {
         component_id: "battery",
         component_type: "BATTERY",
         display_name: "Battery energy storage",
         rating: { value: 215, unit: "kWh" },
+        properties: null,
       },
       {
         component_id: "site-meter",
         component_type: "METER",
         display_name: "Site meter",
         rating: null,
+        properties: null,
       },
     ],
     // This site's foundation declares none of the four sections
@@ -113,6 +116,42 @@ const DECLARED_SITE: SiteDetailReadModel = {
   ...USER_SIMULATED_SITE,
   foundation: {
     ...USER_SIMULATED_SITE.foundation,
+    // A foundation that declares everything this screen can render, so that
+    // the paired absence tests below are about a record that supplies values
+    // rather than about a fixture that happens not to.
+    components: USER_SIMULATED_SITE.foundation.components.map((component) =>
+      component.component_id === "battery"
+        ? {
+            ...component,
+            properties: [
+              {
+                property_key: "reserve-state-of-charge",
+                display_name: "Reserve state of charge",
+                value: 25,
+                unit: "%",
+                kind: "CONTROL",
+                source: "TEMPLATE",
+                source_version: 2,
+              },
+            ],
+          }
+        : component.component_id === "pv-array"
+          ? {
+              ...component,
+              properties: [
+                {
+                  property_key: "tank-capacity",
+                  display_name: "Tank capacity",
+                  value: 500,
+                  unit: "L",
+                  kind: "PHYSICAL",
+                  source: "SITE",
+                  source_version: 1,
+                },
+              ],
+            }
+          : component,
+    ),
     topology: {
       nodes: [
         {
@@ -1312,5 +1351,124 @@ describe("every dense relationship table owns its own overflow", () => {
     for (const table of tables) {
       expect(table.querySelectorAll("tbody tr").length).toBeGreaterThan(0);
     }
+  });
+});
+
+const PHYSICAL_PROPERTIES_ID = "foundation-physical-properties-heading";
+const CONTROL_PROPERTIES_ID = "foundation-control-properties-heading";
+
+describe("typed component properties read back as declared configuration", () => {
+  it("renders one row per declared property, with its unit and provenance", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(tableRows(container, PHYSICAL_PROPERTIES_ID)).toEqual([
+      ["PV array", "Tank capacity", "500 L", "This site version 1"],
+    ]);
+    expect(tableRows(container, CONTROL_PROPERTIES_ID)).toEqual([
+      [
+        "Battery energy storage",
+        "Reserve state of charge",
+        "25 %",
+        "Template version 2",
+      ],
+    ]);
+  });
+
+  it("puts several properties on one component in several rows", async () => {
+    const generator: SiteDetailReadModel = {
+      ...DECLARED_SITE,
+      foundation: {
+        ...DECLARED_SITE.foundation,
+        components: DECLARED_SITE.foundation.components.map((component) =>
+          component.component_id === "battery"
+            ? {
+                ...component,
+                properties: [
+                  {
+                    property_key: "specific-fuel-consumption",
+                    display_name: "Specific fuel consumption",
+                    value: 0.311,
+                    unit: "L/kWh",
+                    kind: "PHYSICAL",
+                    source: "TEMPLATE",
+                    source_version: 2,
+                  },
+                  {
+                    property_key: "minimum-runtime",
+                    display_name: "Minimum runtime",
+                    value: 30,
+                    unit: "min",
+                    kind: "CONTROL",
+                    source: "TEMPLATE",
+                    source_version: 2,
+                  },
+                ],
+              }
+            : component,
+        ),
+      },
+    };
+
+    const { container } = renderConfiguration(generator);
+    await settledScreen();
+
+    // One component, two properties, two kinds, two tables. This is what
+    // makes it a property carrier rather than a second rating field.
+    expect(tableRows(container, PHYSICAL_PROPERTIES_ID)).toContainEqual([
+      "Battery energy storage",
+      "Specific fuel consumption",
+      "0.311 L/kWh",
+      "Template version 2",
+    ]);
+    expect(tableRows(container, CONTROL_PROPERTIES_ID)).toEqual([
+      [
+        "Battery energy storage",
+        "Minimum runtime",
+        "30 min",
+        "Template version 2",
+      ],
+    ]);
+  });
+
+  it("states the absence with its reason when the document declares none", async () => {
+    // The compatibility case on the screen: a site created before typed
+    // properties existed declares none, and the screen says so as a statement
+    // about the document rather than about the site.
+    const { container } = renderConfiguration(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    const text = spacedText(container);
+    expect(text).toMatch(/declares no typed physical property on any component/i);
+    expect(text).toMatch(/declares no typed control property on any component/i);
+    expect(text).toMatch(
+      /not a statement that these components have no such properties/i,
+    );
+  });
+
+  it("says the control properties are not controls, where they are rendered", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(spacedText(container)).toMatch(
+      /These are declared configuration values, not controls\./i,
+    );
+    expect(spacedText(container)).toMatch(
+      /nothing in this build writes one of these values to a machine/i,
+    );
+  });
+
+  it("renders a declared physical property as a key parameter", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const terms = Array.from(container.querySelectorAll("dt")).map(
+      (term) => term.textContent,
+    );
+
+    expect(terms).toContain("PV array tank capacity");
+    // The rating is still its own row: a property and a rating are two facts
+    // about one component and neither stands for the other.
+    expect(terms).toContain("PV array");
   });
 });

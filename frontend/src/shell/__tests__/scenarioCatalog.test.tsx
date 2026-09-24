@@ -252,7 +252,7 @@ describe("the scenario detail screen renders the record", () => {
 
     // Twice, and both are correct: the authored quantity and the same
     // quantity in canonical terms, which happen to read the same for litres.
-    expect(within(region).getAllByText("500 L")).toHaveLength(2);
+    expect(within(region).getAllByText("430 L")).toHaveLength(2);
     expect(
       within(region).getByText(
         "fuel-level, from the fuel level sensor on the fuel tank",
@@ -1003,5 +1003,50 @@ describe("the scenario surfaces do not grow operator navigation", () => {
     const navigation = screen.getAllByRole("navigation");
     expect(navigation).toHaveLength(1);
     expect(navigation[0]).toHaveAccessibleName("Simulator Lab routes");
+  });
+});
+
+
+describe("a parameter the site's foundation answers for", () => {
+  it("says who answers rather than showing a number or a blank", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const region = tableNamed("Scenario-level authoring parameters");
+
+    // Not a dash and not an empty cell. The scenario has not omitted this
+    // value: it declares that the value is not its to state, and the unit
+    // beside it says what kind of quantity a site has to answer with.
+    expect(
+      within(region).getByText("Declared by the site's foundation (L)"),
+    ).toBeInTheDocument();
+
+    // And the canonical column says the same thing in its own terms rather
+    // than claiming this is not a quantity, which is what a phrase gets.
+    expect(
+      within(region).getByText("Resolved when a run freezes it"),
+    ).toBeInTheDocument();
+  });
+
+  it("still renders the bound it declares", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const region = tableNamed("Scenario-level authoring parameters");
+
+    // The relationship survives the number's removal: which world state caps
+    // which is a fact about the document, and a screen that dropped it with
+    // the number would leave a reader unable to see what caps what.
+    const row = within(region)
+      .getByText("tank-capacity")
+      .closest("tr") as HTMLElement;
+    const cells = Array.from(row.querySelectorAll("td")).map(
+      (cell) => cell.textContent ?? "",
+    );
+
+    expect(cells).toContain("Declared by the site's foundation (L)");
+    // The parameter still names the state it is about, so the bound the
+    // scenario declares stays attributable to it.
+    expect(cells.join(" ")).toContain("fuel-tank-capacity");
   });
 });

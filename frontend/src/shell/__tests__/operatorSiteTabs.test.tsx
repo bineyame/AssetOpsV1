@@ -105,6 +105,7 @@ const SITE_DETAIL: SiteDetailReadModel = {
         component_type: "PV_ARRAY",
         display_name: "PV array",
         rating: { value: 100, unit: "kW" },
+        properties: null,
       },
     ],
     // This site's foundation declares none of the four sections

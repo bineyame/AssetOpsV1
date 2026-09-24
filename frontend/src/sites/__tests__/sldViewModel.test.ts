@@ -192,6 +192,7 @@ describe("the archetype introduces no topology of its own", () => {
             component_type: "METER",
             display_name: "Feeder meter",
             rating: null,
+            properties: null,
           },
         ],
       },
@@ -521,6 +522,7 @@ describe("the archetype settles no undecided vocabulary", () => {
             component_type: "COLD_ROOM",
             display_name: "Vaccine cold room",
             rating: { value: 12, unit: "kW" },
+            properties: null,
           },
         ],
         topology: {
@@ -641,6 +643,7 @@ describe("unsupported topology is explicit", () => {
           component_type: "AC_BUS",
           display_name: "Second AC bus",
           rating: { value: 400, unit: "V" },
+          properties: null,
         },
       ],
       topology: {

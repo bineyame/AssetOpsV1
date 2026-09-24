@@ -76,12 +76,48 @@ export interface SiteRatingReadModel {
   unit: string;
 }
 
-/** One component a site's foundation declares. */
+/**
+ * One typed property a component declares.
+ *
+ * A rating is the one nameplate magnitude a component was sold with; a
+ * property is a named, typed, unit-carrying physical or control fact about the
+ * same component, and a component may declare several.
+ *
+ * `kind` comes from the closed vocabulary the backend holds, not from the
+ * document, so a screen may group by it without deciding anything. `source`
+ * and `source_version` say which document declared this number and at which
+ * version - a property copied from a template keeps the template's version, so
+ * a later template change reads as drift rather than as something that reached
+ * back into this site.
+ *
+ * Declared truth, never evidence. That a foundation declares 0.311 L/kWh is
+ * not a claim that any generator has burned anything.
+ */
+export interface ComponentPropertyReadModel {
+  property_key: string;
+  display_name: string;
+  value: number;
+  unit: string;
+  kind: string;
+  source: string;
+  source_version: number;
+}
+
+/**
+ * One component a site's foundation declares.
+ *
+ * `properties` is `null` when the document declares none, which is what every
+ * site created before typed properties existed carries. It is never an empty
+ * array: an empty array is a table with a header and no rows, which states
+ * that this component HAS no properties, and a configuration document does not
+ * make claims about the world.
+ */
 export interface SiteComponentReadModel {
   component_id: string;
   component_type: string;
   display_name: string;
   rating: SiteRatingReadModel | null;
+  properties: ComponentPropertyReadModel[] | null;
 }
 
 /**

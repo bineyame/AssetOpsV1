@@ -1056,13 +1056,26 @@ function executionDetail(entry: ScenarioTimelineEntry): string {
 }
 
 /**
+ * What a parameter the site's foundation answers for shows instead of a number.
+ *
+ * Not a dash and not a blank cell. The scenario has not omitted this value: it
+ * declares that it is not the scenario's to state, and the unit beside it says
+ * what kind of quantity a site has to answer with.
+ */
+export const DECLARED_BY_THE_SITE = "Declared by the site's foundation";
+
+/**
  * How a parameter reads.
  *
  * A number always carries its unit, because a quantity without one cannot be
  * read; a text parameter has no unit and gets none appended, because a unit on
- * a phrase would make the phrase look like a quantity.
+ * a phrase would make the phrase look like a quantity. A parameter with no
+ * number says who answers for it, with the unit it will be answered in.
  */
 function parameterValue(parameter: ScenarioParameter): string {
+  if (parameter.value === null) {
+    return `${DECLARED_BY_THE_SITE} (${parameter.unit})`;
+  }
   return parameter.unit === null
     ? String(parameter.value)
     : `${parameter.value} ${parameter.unit}`;
@@ -1070,9 +1083,16 @@ function parameterValue(parameter: ScenarioParameter): string {
 
 /** The same quantity in canonical terms, or why there is none. */
 function canonicalValue(parameter: ScenarioParameter): string {
-  return parameter.canonical === null
-    ? "Not a quantity"
-    : `${parameter.canonical.value} ${parameter.canonical.unit}`;
+  if (parameter.canonical !== null) {
+    return `${parameter.canonical.value} ${parameter.canonical.unit}`;
+  }
+  // Two different reasons there is no canonical form, and they are not the
+  // same fact. A phrase is not a quantity at all; a foundation-owned value is
+  // a quantity nobody has answered with yet, and saying it was not one would
+  // be wrong about the only thing this row is for.
+  return parameter.value === null
+    ? "Resolved when a run freezes it"
+    : "Not a quantity";
 }
 
 /**

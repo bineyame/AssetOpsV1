@@ -101,6 +101,49 @@ function isSiteRating(value: unknown): boolean {
   return typeof rating.value === "number" && typeof rating.unit === "string";
 }
 
+/**
+ * One typed component property.
+ *
+ * Checked field by field, `kind` included, because a screen groups physical
+ * from control on it. A response missing `kind` would put `undefined` in a
+ * comparison that answers wrongly rather than throwing.
+ */
+function isComponentProperty(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const property = value as Record<string, unknown>;
+  return (
+    typeof property.property_key === "string" &&
+    typeof property.display_name === "string" &&
+    typeof property.value === "number" &&
+    typeof property.unit === "string" &&
+    typeof property.kind === "string" &&
+    typeof property.source === "string" &&
+    typeof property.source_version === "number"
+  );
+}
+
+/**
+ * The properties a component declares, or the statement that it declares none.
+ *
+ * `null` is that statement and it is the only absence accepted - a missing key
+ * is a response that does not carry the field. An empty array is refused for
+ * the reason the four foundation sections refuse one: it renders as a table
+ * saying this component HAS no properties, which is not what the document
+ * said.
+ */
+function isComponentProperties(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every(isComponentProperty)
+  );
+}
+
 function isSiteComponent(value: unknown): boolean {
   if (value === null || typeof value !== "object") {
     return false;
@@ -110,7 +153,8 @@ function isSiteComponent(value: unknown): boolean {
     typeof component.component_id === "string" &&
     typeof component.component_type === "string" &&
     typeof component.display_name === "string" &&
-    isSiteRating(component.rating)
+    isSiteRating(component.rating) &&
+    isComponentProperties(component.properties)
   );
 }
 

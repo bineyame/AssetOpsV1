@@ -100,19 +100,22 @@ function reported(
 export const SCENARIO_DETAIL: ScenarioDetail = {
   ...SCENARIO_SUMMARY,
   public_parameters: [
-    causal(
-      "tank-capacity",
-      "Fuel tank capacity the scenario assumes",
-      500,
-      "L",
-      500,
-      "L",
-      "VOLUME",
-      true,
-      "SITE_FOUNDATION",
-      "fuel-tank-capacity",
-      { state_key: "fuel-tank-volume", bound_kind: "UPPER" },
-    ),
+    // The shipped shape since T020A: a parameter the site's foundation owns
+    // states no number and still states the unit, the state and the bound it
+    // declares. The bound survives the value leaving - which state caps which
+    // is the document's, how large the cap is is the site's.
+    {
+      parameter_id: "tank-capacity",
+      display_name: "Fuel tank capacity",
+      value: null,
+      unit: "L",
+      execution_role: "CAUSAL_INPUT",
+      state_key: "fuel-tank-capacity",
+      execution_requirement: "REQUIRED",
+      ownership: { owner: "SITE_FOUNDATION", initializes: true },
+      bounds: { state_key: "fuel-tank-volume", bound_kind: "UPPER" },
+      canonical: null,
+    },
     causal(
       "starting-fuel-level",
       "Fuel level at the start of the interval",
