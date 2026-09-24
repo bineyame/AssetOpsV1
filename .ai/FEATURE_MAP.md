@@ -185,19 +185,22 @@ the other five stories do not automatically supply them.
 
 ## Next Work And Unowned Requirements
 
-**Next actor: Planner.** Recreate the unimplemented task files from this map and
-`.ai/PLANNING_HANDOFF_T020A_T023.md`; do not activate their existing wording.
-This Architect pass leaves task files untouched. v4 sections 2.1 and 24 retain
-T020A -> T020B -> T021 -> T021A -> T022 -> T023 as the starter dependency order,
-with a sizing/split checkpoint around T020A. T021A is not a kernel prerequisite.
+**Done: the Planner recreated the queue and the Architect reviewed it on
+2026-09-24.** `tasks/README.md` holds the order; `.ai/ACTIVE_CONTEXT.md` routes
+the active task. v4 sections 2.1 and 24's starter order survived the review as
+T020A -> T020A1 -> T020B -> T021 -> T021A -> T022 -> T023, with the sizing
+checkpoint taken as the T020A/T020A1 split. T021A is not a kernel prerequisite.
 
-Existing starter owners need recreation, not duplication: T020A covers the
-property carrier, T020B contract alignment, T021 the narrow kernel/neutral
-contracts/test placement, T021A parser narrowing, T022 Lab wiring/observation,
-and T023 the first envelope schema/staging. They do not own the broader demo.
+Starter owners: T020A the property carrier, T020A1 addressed bindings, T020B
+contract alignment, T021 the narrow kernel/neutral contracts/test placement,
+T021A parser narrowing, T022 Lab wiring/observation, T023 the first envelope
+schema/staging. They do not own the broader demo; T024-T036 do.
 
-The following have no complete implementation-task owner today. Rows name the
-outcome that must own them; they are not a request for one task per noun.
+Rows name the outcome that must own each gap; they are not a request for one
+task per noun. Every row now has a queue owner, verified row by row in the
+2026-09-24 review: T020A/T020A1, T024/T025, T026/T027, T028, T029, T030, T032,
+T033, T034 and T035/T036 in table order. The table stays as the standing
+checklist, so a later replan can re-verify coverage rather than assume it.
 
 | Gap to assign | First outcome / Planner responsibility |
 | --- | --- |
