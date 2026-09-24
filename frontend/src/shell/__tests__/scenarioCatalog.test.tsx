@@ -1050,3 +1050,44 @@ describe("a parameter the site's foundation answers for", () => {
     expect(cells.join(" ")).toContain("fuel-tank-capacity");
   });
 });
+
+describe("an initial world value the foundation answers for", () => {
+  it("is accepted with no number and rendered as who answers", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const region = tableNamed("Initial world values and who owns them");
+    const row = within(region)
+      .getByText("fuel-tank-capacity")
+      .closest("tr") as HTMLElement;
+    const cells = Array.from(row.querySelectorAll("td")).map(
+      (cell) => cell.textContent ?? "",
+    );
+
+    // The guard accepting this shape is what the assertion rests on: a
+    // response the client refused would leave the whole screen unavailable,
+    // which is how this was found - the layout run measured a scenario page
+    // with no tables on it at all.
+    expect(cells).toContain("Declared by the site's foundation (L)");
+    expect(cells).toContain("Resolved when a run freezes it");
+    expect(cells).toContain("SITE_FOUNDATION");
+  });
+
+  it("still renders a number for a value the scenario owns", async () => {
+    // Non-vacuous: without this the test above would pass on a screen that
+    // rendered every row as an absence.
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const region = tableNamed("Initial world values and who owns them");
+    const row = within(region)
+      .getByText("fuel-tank-volume")
+      .closest("tr") as HTMLElement;
+    const cells = Array.from(row.querySelectorAll("td")).map(
+      (cell) => cell.textContent ?? "",
+    );
+
+    expect(cells).toContain("430 L");
+    expect(cells).toContain("SCENARIO_INPUT");
+  });
+});

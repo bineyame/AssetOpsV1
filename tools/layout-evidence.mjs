@@ -36,6 +36,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const BASE = process.argv[2] ?? "http://localhost:5173";
+
+/**
+ * Which configured Site the site and Foundation claims are measured against.
+ *
+ * `MG-001` by default, which is what every earlier run used. It is an argument
+ * because a claim is only about the content the page actually renders: a
+ * Foundation section a site declares nothing for renders as a stated absence
+ * and not as a table, so measuring table containment against that site is
+ * measuring an empty set. A slice that adds a section measures it against a
+ * site whose foundation declares one.
+ */
+const SITE = process.argv[3] ?? process.env.ASSETOPS_LAYOUT_SITE ?? "MG-001";
 const PORT = 9333;
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
@@ -264,8 +276,21 @@ const MEASURE = `(() => {
   };
 })()`;
 
+/**
+ * Wait up to thirty seconds for a selector, not twelve.
+ *
+ * The run setup page is reached by submitting a form, and the create it posts
+ * re-reads and re-parses every Draft in the local store twice to refuse a
+ * duplicate identity. This script writes one Draft per visit and nothing
+ * clears them, so on a developer machine that create is measured in seconds
+ * and grows. At twelve seconds this aborted mid-run with a precondition
+ * failure that looked like a defect and was a stopwatch.
+ *
+ * Raising a timeout weakens nothing: a page that never renders still fails,
+ * and every claim below is still measured against what the browser drew.
+ */
 async function waitForSelector(cdp, selector) {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
+  for (let attempt = 0; attempt < 200; attempt += 1) {
     await sleep(150);
     const probe = await cdp.send("Runtime.evaluate", {
       expression: `document.querySelector(${JSON.stringify(selector)}) !== null`,
@@ -429,7 +454,7 @@ for (const [label, width, height] of [
       ],
     ]) && allPass;
 
-  const site = await visit(cdp, "/sites/MG-001", width, height, ".site-tabs");
+  const site = await visit(cdp, `/sites/${SITE}`, width, height, ".site-tabs");
   allPass =
     report(`Site page at ${label}`, site, [
       [
@@ -481,7 +506,7 @@ for (const [label, width, height] of [
 ]) {
   const foundation = await visit(
     cdp,
-    "/sites/MG-001/foundation",
+    `/sites/${SITE}/foundation`,
     width,
     height,
     ".site-tabs",
@@ -844,8 +869,19 @@ for (const [label, width, height] of [
           : `${frozen.name}: ${frozen.rowCount} rows`,
       ],
       [
+        // Three columns and at least three rows, rather than exactly three
+        // rows. The count of blocking reasons is a joint fact about the
+        // shipped document, the selected profile and the target Site's
+        // foundation, and all three are allowed to move: T020A added two
+        // unresolved foundation values to this Draft, because MG-001 was
+        // created before typed properties existed and a template does not
+        // migrate a Site. The three states the shipped profile cannot model
+        // are the floor, and the claim still fails on a table that has lost
+        // rows or columns.
         "the blocked table names every reason the draft carries",
-        blocked !== undefined && blocked.columnCount === 3 && blocked.rowCount === 3,
+        blocked !== undefined &&
+          blocked.columnCount === 3 &&
+          blocked.rowCount >= 3,
         blocked === undefined
           ? "no region named run-setup-blocked-heading"
           : `${blocked.name}: ${blocked.columnCount} columns, ${blocked.rowCount} rows`,

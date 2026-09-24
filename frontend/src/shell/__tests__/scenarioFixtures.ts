@@ -424,14 +424,17 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       },
     ],
     initialization_inputs: [
+      // A value the site's foundation answers for states no number, and its
+      // canonical form is absent with it. The unit stays: what kind of
+      // quantity a site has to answer with is the scenario's to declare.
       {
         parameter_id: "tank-capacity",
-        display_name: "Fuel tank capacity the scenario assumes",
+        display_name: "Fuel tank capacity",
         state_key: "fuel-tank-capacity",
         owner: "SITE_FOUNDATION",
-        value: 500,
+        value: null,
         unit: "L",
-        canonical_value: 500,
+        canonical_value: null,
         canonical_unit: "L",
       },
       {
@@ -704,8 +707,12 @@ export function recordRenderedStrings(
   for (const input of detail.execution_contract.initialization_inputs) {
     rendered.push(
       input.state_key,
-      `${input.value} ${input.unit}`,
-      `${input.canonical_value} ${input.canonical_unit}`,
+      input.value === null
+        ? `Declared by the site's foundation (${input.unit})`
+        : `${input.value} ${input.unit}`,
+      input.canonical_value === null
+        ? "Resolved when a run freezes it"
+        : `${input.canonical_value} ${input.canonical_unit}`,
       input.owner,
       input.display_name,
     );

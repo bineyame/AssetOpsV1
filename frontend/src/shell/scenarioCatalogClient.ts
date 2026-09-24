@@ -130,14 +130,24 @@ export interface ScenarioBoundCase {
   statement: string;
 }
 
+/**
+ * One initial world value the scenario declares, with the owner that answers.
+ *
+ * `value` and `canonical_value` are null exactly when the owner is the site's
+ * foundation: such a parameter declares the need and states no number, so this
+ * projection of the document has none to report. They are absent together -
+ * a value with no canonical form, or the reverse, would be a record that
+ * disagreed with itself - and the unit is present either way, because what
+ * kind of quantity the state is remains the scenario's to declare.
+ */
 export interface ScenarioInitializationInput {
   parameter_id: string;
   display_name: string;
   state_key: string;
   owner: string;
-  value: number;
+  value: number | null;
   unit: string;
-  canonical_value: number;
+  canonical_value: number | null;
   canonical_unit: string;
 }
 
@@ -437,9 +447,13 @@ function isInitializationInput(
     typeof value.display_name === "string" &&
     typeof value.state_key === "string" &&
     typeof value.owner === "string" &&
-    typeof value.value === "number" &&
+    // Absent together or present together. A number with no canonical form,
+    // or a canonical form with no number, is a record disagreeing with
+    // itself, and accepting one would put `undefined` in a rendered string.
+    ((typeof value.value === "number" &&
+      typeof value.canonical_value === "number") ||
+      (value.value === null && value.canonical_value === null)) &&
     typeof value.unit === "string" &&
-    typeof value.canonical_value === "number" &&
     typeof value.canonical_unit === "string"
   );
 }

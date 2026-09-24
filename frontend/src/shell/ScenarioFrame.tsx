@@ -458,9 +458,22 @@ export function ScenarioFrame({
               {contract.initialization_inputs.map((input) => (
                 <tr key={input.state_key}>
                   <td>{input.state_key}</td>
-                  <td>{`${input.value} ${input.unit}`}</td>
+                  {/*
+                    * A value the site's foundation answers for has no number
+                    * here and the row says who answers instead of showing a
+                    * blank. The unit is still rendered, because what kind of
+                    * quantity the site has to answer with is the scenario's
+                    * to declare and the row would be unreadable without it.
+                    */}
                   <td>
-                    {`${input.canonical_value} ${input.canonical_unit}`}
+                    {input.value === null
+                      ? `${DECLARED_BY_THE_SITE} (${input.unit})`
+                      : `${input.value} ${input.unit}`}
+                  </td>
+                  <td>
+                    {input.canonical_value === null
+                      ? "Resolved when a run freezes it"
+                      : `${input.canonical_value} ${input.canonical_unit}`}
                   </td>
                   <td>{input.owner}</td>
                   <td>{input.display_name}</td>
