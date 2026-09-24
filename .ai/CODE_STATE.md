@@ -2108,3 +2108,129 @@ What T020 leaves open, for the slice that meets it.
 - **`tools/layout-evidence.mjs` creates one Draft per run**, T019 behaviour,
   and nothing clears them. The inventory on a developer machine is dozens of
   near-identical blocked Drafts.
+
+## T020A - Typed component properties and frozen Foundation answers
+
+What this slice settled in code.
+
+**A Foundation declares typed properties beside its ratings.** A `Rating` is
+the one nameplate magnitude a component was sold with; a `ComponentProperty`
+is a named, unit-carrying physical or control fact about the same component,
+and a component may declare several. The vocabulary is closed in
+`sites/models.py` - `COMPONENT_PROPERTY_DEFINITIONS` maps a key to its unit,
+its kind and its display name, and `PROPERTY_UNITS` is derived from it so a
+unit cannot outlive the property that used it. Four members today:
+`tank-capacity`, `specific-fuel-consumption`, `reserve-state-of-charge` and
+`minimum-runtime`. **The unit belongs to the key, not to the document**, so
+`specific-fuel-consumption` in `L/h` is refused rather than stored as a number
+that is true at one operating point.
+
+`kind` is not authored. It is read from the vocabulary, so there is no
+position a document could disagree from. `source` and `source_version` are,
+following the `ControlAssumption.basis` precedent: a property copied from a
+template keeps `TEMPLATE` and the template's version, so a later template edit
+reads as drift rather than as something that reached back into a Site.
+
+`foundation_parsing.parse_component_properties` is one validator for both
+document families, called by the template parser and the Site parser, which is
+the T014 rule applied to the new section rather than a new rule.
+
+**The compatibility path is the absent key.** A Site document written before
+this slice carries no `properties`, which parses to `None` - the document being
+silent, never an empty list - and round-trips to an equal record. Nothing is
+invented for it and nothing migrates it. `var/sites/mg-001.yaml` is untouched
+and is the live proof: the shipped template moved to version 2 and MG-001 still
+says version 1.
+
+**A scenario parameter the Foundation owns has no value position.**
+`D-2026-09-22-foundation-value-declaration`, closed at the structure: the rule
+is keyed on the owner, because the owner is the only thing the document carries
+that identifies these parameters - the binding that addresses a property lives
+in the model profile and the scenario parser sees no profile. It reaches
+`tank-capacity` as much as the coefficient. `ScenarioParameter.value` and
+`InitializationInput.value` are now nullable and the unit is still required:
+what kind of quantity the state is remains the scenario's to declare, and it is
+what run setup checks the Foundation's property against.
+
+**The bound declaration survived the value's removal.** Which state caps which
+is a relationship between two world states and stays in the document; how large
+the cap is is the site's. `declared_bounds` reports `(0.0, None)` for
+`fuel-tank-volume` and that is the correct answer
+(`D-2026-09-22-capacity-bound-source`). The bound test was re-proved where the
+distinction still exists - the relationship in the parsed document, the value in
+the frozen run - because after the change its control and its case both returned
+`(0.0, None)` and it would have passed while proving nothing.
+
+**`FoundationBinding` names the property.** It was a component type and a
+rating unit, which can address exactly one fact per component; a generator
+needing both its specific fuel consumption and its minimum runtime had nothing
+to say which was meant. It is now `(component_type, property_key, unit)`.
+Resolution takes the components of the declared type as the candidate set and
+looks for the property on the single candidate. **It does not narrow candidates
+to components that happen to declare the property**: that would let a second
+tank answer for the one the binding could not address, which is the fallback
+criterion 7 forbids, and a deliberate violation proved three tests catch it.
+
+**Every Foundation-value failure blocks; none refuses.** Five cases, all
+`INITIAL_VALUE_NOT_RESOLVED`: no binding, no component of that type, more than
+one, the component declares no such property
+(`D-2026-09-22-foundation-property-absent-blocks`), and the property's unit is
+not the scenario's. `INITIAL_VALUE_ANSWERS_DISAGREE` was retired with its only
+producer, because no document can state the number it compared against.
+`.ai/ARCHITECTURE.md`'s naming rule is re-illustrated from the pair that
+remains.
+
+**The dispatch window forces an output and causes nothing.** Under `L/kWh` the
+coefficient is not a rate over time, so the entry stops naming one: it declares
+that the generator runs and at what output, `dispatched-output` is promoted from
+`NON_EXECUTABLE_CONDITION` to a `FORCING_INPUT` on `generator-output-power`, and
+the model rule owns the transition
+(`D-2026-09-22-consumption-coefficient-unit`). The shipped profile gains
+`generator-specific-fuel-consumption` and `generator-output-power`.
+
+**`EXECUTION_CONTRACT_VERSION` is 3.** The narrowing reaches a document that was
+already valid, so it moved. Version two has been published - frozen Drafts carry
+it - and a stored run keeps the version it froze.
+
+**A resolved parameter with no value is left out of `resolved_parameters`.**
+`answered_by` there has two cases, `SCENARIO` and `RUN_INPUT`, and neither is
+true of a Foundation-owned value. Its real answer is a
+`FrozenInitializationInput`, which is the record with a shape for an absent
+value and a reason beside it.
+
+**On the screen**, Foundation renders the physical properties with the
+components and the control properties beside the control assumptions, each with
+its unit and the document and version that declared it, plus a note where a
+reader meets the numbers saying nothing writes one to a machine or reads one to
+decide anything. A declared physical property joins Key parameters beside the
+ratings. A scenario parameter with no number says who answers and in what unit.
+
+Two proof lessons, both found by deliberate violation rather than by review.
+The absent-property test asserted `"example-store" in statement` and the state
+key `example-stored-volume` contains it as a substring, so it passed against the
+wrong message. And the layout run caught what no unit test could: the scenario
+detail page rendered with no tables at all, because the client's guard required
+a number for every initialization input and two now carry none. A fixture is not
+a payload.
+
+What T020A leaves open, for the slice that meets it.
+
+- **Same-type component addressing is T020A1.** An unqualified binding resolves
+  exactly one candidate or it blocks. Two tanks block today, with the ambiguity
+  named.
+- **The shipped Fuel Loss Event still cannot reach `READY`**, on any site. The
+  three forcing states the profile does not model remain, and lowering them is
+  **T020B** under `D-2026-09-22-forcing-state-requirements`.
+- **Option C is still a follower.** No profile carries a model-supplied initial
+  value; a `MODEL_RULE`-owned value blocks. Its trigger is the first model rule
+  needing a Foundation value without a scenario asking for it.
+- **`var/runs` has grown past seventy local Drafts** and `create_run` re-reads
+  and re-parses every one of them twice to refuse a duplicate identity, so a
+  create now costs about seven seconds on this machine. That is T020's recorded
+  behaviour biting: the layout script writes one Draft per visit and nothing
+  clears them. It is a developer-machine cost, not a product one, and it makes
+  the layout script's run-setup step unreliable.
+- **`reconcile_reported_observations` reports a wider gap**, 310 L against the
+  readings where it reported 254 L, because the document no longer carries the
+  generator's consumption. That is the honest projection of a document that has
+  stopped carrying a machine's physics, and closing it is T021's kernel.

@@ -15,9 +15,11 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**Active task: T020A**, `tasks/T020A-foundation-physical-properties.md`.
-Then T020A1, T020B, T021, T021A, T022, T023 and T024 onward per that README.
-None of the resequencing touches the starter path.
+**T020A is built and `in_review`**, `tasks/T020A-foundation-physical-properties.md`.
+It needs user review (`USER_REVIEW_REQUIRED: true`) and an independent
+Reviewer; the packet is `.agent/T020A-review-packet.md`.
+**Next task: T020A1**, then T020B, T021, T021A, T022, T023 and T024 onward per
+that README. None of the resequencing touches the starter path.
 
 What the resequencing changed, from position 10 onward: T026 is thinned to
 dispatch-essential evidence and the gateway-failure work moved to T026A; a new
@@ -53,7 +55,8 @@ this work. Do not reconcile the new plan back to them.
 
 ## Read For The Active Task
 
-1. `tasks/T020A-foundation-physical-properties.md` and `tasks/README.md`.
+1. `tasks/T020A1-addressed-foundation-bindings.md` and `tasks/README.md`.
+   T020A's own file and packet are the built state its successor extends.
 2. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Properties and frozen answers;
    Existing property transition; Contract Versions And Retirements.
 3. v4 sections 4.1, 5.2, 10, 24 and 27.2, plus the decisions T020A names.
@@ -74,6 +77,15 @@ Draft setup and Runs inventory/detail. No product-path `READY` for the shipped
 scenario; T020 used a fixture. No execution, generated observations, staging,
 ingestion, accepted history, analytics or Findings.
 
+T020A adds typed component properties to a Foundation and moves two machine
+physics numbers out of the shipped scenario into it. A Foundation-owned
+scenario parameter now states no value; run setup resolves it through the model
+profile's binding, which names the component type, the property and the unit,
+and freezes it. `EXECUTION_CONTRACT_VERSION` is 3,
+`INITIAL_VALUE_ANSWERS_DISAGREE` is retired, and every Foundation-value failure
+blocks. The shipped scenario still cannot reach `READY`: three forcing states
+the profile does not model remain, and that is T020B's.
+
 The shipped scenario lives in `config/scenarios/fuel-loss-event.yaml`.
 Shipped and writable stores have disjoint identities; the scenario store ships
 nonempty because there is no authoring UI.
@@ -85,6 +97,15 @@ and mg-003 (two AC buses), which the user asked to preserve. Do not clear,
 replace or delete that directory. Updated templates do not mutate existing
 Sites: use a new explicit fixture for new property/schema demonstrations and
 leave existing fixtures intact. An isolated checkout does not contain them.
+
+T020A added **mg-004**, instantiated from template version 2 through the
+product's create path, and `var/scenarios/fuel-loss-event-mg004.yaml`, a local
+copy of the shipped scenario pointed at it. A run is bound to the site the
+scenario declares and run setup will not retarget one, so the resolved case
+needs a scenario that names the new fixture; the shipped definition still
+targets MG-001, whose Foundation declares no properties, and the Draft it
+produces is the BLOCKED case the same review looks at. mg-001, mg-002 and
+mg-003 were not touched.
 
 `var/scenarios/` is the writable scenario store; `var/runs/` contains local
 Drafts and may include T020's fixture-only READY run. Neither is shipped proof
@@ -99,4 +120,7 @@ v4 concept into an independent task.
 
 Run `tools/check-agent-workflow.ps1`, `tools/check-architecture.ps1` and checks
 appropriate to the changed behavior. Layout-sensitive implementation requires
-the workflow's browser evidence. This replan changes documentation only.
+the workflow's browser evidence. `node tools/layout-evidence.mjs` now takes the
+Site to measure as its second argument, or `ASSETOPS_LAYOUT_SITE`: a Foundation
+section a site declares nothing for renders as a stated absence and not as a
+table, so measuring containment against such a site measures an empty set.

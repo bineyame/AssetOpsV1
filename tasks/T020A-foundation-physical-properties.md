@@ -1,6 +1,6 @@
 # T020A - Typed component properties and frozen Foundation answers
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
@@ -117,4 +117,4 @@ their owning tasks. No Site migration or general property authoring UI is needed
 
 The owner reviews a new fixture's Foundation and frozen Draft, including the
 missing-property BLOCKED case. The Reviewer checks the ownership/version seam.
-Review outcome: pending.
+Review outcome: pending. Packet: `.agent/T020A-review-packet.md`.

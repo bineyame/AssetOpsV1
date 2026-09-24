@@ -238,13 +238,24 @@ comparison can independently fail as NOT_COMPARABLE. Names and ownership must
 make their phase and meaning clear (v4 23). The current setup line is implemented
 in `backend/assetops_backend/runs/refusals.py`.
 
-The built code still permits a Foundation/scenario value contradiction.
-The immediate Foundation-value narrowing removes that duplicate value position
-and retires `INITIAL_VALUE_ANSWERS_DISAGREE`; all failures to locate a
-Foundation-owned value then block. This is planned, not already implemented.
+A Foundation/scenario value contradiction can no longer be authored. T020A
+removed the duplicate value position - a parameter whose declared owner is the
+Site's Foundation has no value slot - and retired
+`INITIAL_VALUE_ANSWERS_DISAGREE` with its only producer. **Every failure to
+locate a Foundation-owned value now blocks as `INITIAL_VALUE_NOT_RESOLVED` and
+none refuses**, including a Foundation that declares no such property at all.
 See `D-2026-09-21-run-setup-outcome-vocabulary`,
 `D-2026-09-22-foundation-value-declaration` and
 `D-2026-09-22-foundation-property-absent-blocks`.
+
+The naming rule those decisions serve is unchanged: within one subject, the
+shape must carry it. Its worked example used to be
+`INITIAL_VALUE_NOT_RESOLVED` against `INITIAL_VALUE_ANSWERS_DISAGREE`, and one
+half of that pair no longer exists. The surviving pair carries it -
+`INITIAL_VALUE_NOT_RESOLVED` blocks, because a different profile may answer,
+and `INITIALIZATION_INPUT_MISSING` refuses, because a `RUN_OVERRIDE` the
+request did not supply is a value whose declared owner did not answer and no
+profile can put it there.
 
 The former extended naming examples are cut here; their rationale remains in
 those decisions. Honest existing names do not require another redesign before
