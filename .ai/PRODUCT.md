@@ -82,5 +82,5 @@ prerequisites.
 ## Current Milestone
 
 Credible mini-grid runtime (A), followed by the internal architecture demo (B)
-and earliest domain-expert feedback (C). Next is Planner recreation/sizing of
-the unfinished starter queue. `.ai/ACTIVE_CONTEXT.md` routes that work.
+and earliest domain-expert feedback (C). The task queue is recreated and
+reviewed; T020A is active. `.ai/ACTIVE_CONTEXT.md` routes that work.

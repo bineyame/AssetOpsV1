@@ -10,11 +10,18 @@ then a dispatch Finding for domain-expert feedback (C).
 
 ## Active Work
 
-Architect replan from the corrected sources is complete in this branch.
-**Next: Planner recreates the unimplemented task files. No implementation task
-is active through this routing.** The previous instruction to activate T020A
-as written is withdrawn. Task files were deliberately not edited in this pass;
-they are pending recreation, not acceptance of their current scope.
+The Planner recreated the twenty-task queue; the Architect reviewed it on
+2026-09-24, the first review by anything that did not write it. The queue is
+accepted and its sequence is buildable in the order `tasks/README.md` gives.
+
+**Active task: T020A**, `tasks/T020A-foundation-physical-properties.md`.
+Then T020A1, T020B, T021, T021A, T022, T023 and T024 onward per that README.
+T028 is the domain-expert feedback checkpoint; work after it may be redirected.
+
+That review changed no sequence. It corrected one forward dependency - T026 now
+introduces the first operational-record family, which T028 needs and T030
+extends - and replaced the workflow's task-spec size bands with ceilings under
+`D-2026-09-24-task-spec-size-ceilings`.
 
 Direction comes only from:
 - `Docs/simulator_design_v4.md` for simulator mechanisms;
@@ -25,21 +32,20 @@ StateRef plan are superseded by `D-2026-09-24-v4-roadmap-replan`.
 Earlier feature-map revamps, alignment reviews and v3 assessments do not direct
 this work. Do not reconcile the new plan back to them.
 
-## Read For The Planner
+## Read For The Active Task
 
-1. `.ai/FEATURE_MAP.md`: Delivery Sequence; Next Work And Unowned Requirements.
-2. `.ai/PLANNING_HANDOFF_T020A_T023.md`: immediate sizing, boundaries and proofs.
-3. v4 sections 2-11, 24-25; roadmap sections 7-10 and 13.
-4. `.ai/CODE_STATE.md`: T014-T020 as needed for carriers and frozen setup.
+1. `tasks/T020A-foundation-physical-properties.md` and `tasks/README.md`.
+2. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Properties and frozen answers;
+   Existing property transition; Contract Versions And Retirements.
+3. v4 sections 4.1, 5.2, 10, 24 and 27.2, plus the decisions T020A names.
+4. `.ai/CODE_STATE.md`: T014, T018-T020 for existing carriers and frozen setup.
    Completed tasks are regression/history evidence, not future direction.
-5. `.ai/ARCHITECTURE.md`; `.ai/WORKFLOW.md` for task/review shape.
-6. `.ai/ROLE_CONFIG.md` for the unchanged role bindings.
+5. `.ai/ARCHITECTURE.md`; `.ai/WORKFLOW.md` for seams, sizing and review shape.
+6. `.ai/ROLE_CONFIG.md` for role bindings, including the temporary Architect one.
 
-Retain the starter dependency order T020A -> T020B -> T021 -> T021A -> T022 ->
-T023, with an immediate carrier/addressed-binding split as needed.
-Site-scoped Controls land with the first controller. The narrow fuel runtime
-and initial staging do not complete A or B; the Planner must assign electrical
-runtime completion, then dispatch-capable ingestion and the first Finding.
+Site-scoped Controls land with the first controller (T024), not with T020A's
+carrier. The narrow fuel runtime and initial staging do not complete A or B:
+A completes at T025, B at T027 and the first Finding is T028.
 
 ## What Is Built
 

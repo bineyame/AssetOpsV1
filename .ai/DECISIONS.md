@@ -16,6 +16,7 @@ the forecast was removed; relative version guidance is now in
 | ID | Date | Subject |
 | --- | --- | --- |
 | `D-2026-09-24-v4-roadmap-replan` | 2026-09-24 | Corrected two-source basis; roadmap A-I, dispatch first, immediate component addressing; Planner recreates unfinished tasks. |
+| `D-2026-09-24-task-spec-size-ceilings` | 2026-09-24 | Task-spec size bands become ceilings with no minimum, plus a cold-start test. `.ai/WORKFLOW.md` is their only owner. |
 | `D-2026-09-11-stack` | 2026-09-11 | M1 uses the preferred MVP stack from the product specification. |
 | `D-2026-09-11-simulator-gate` | 2026-09-11 | Simulator Lab is gated by `simulator_lab.enabled`. |
 | `D-2026-09-11-workflow` | 2026-09-11 | AssetOps uses Architect/Planner, Implementer, Reviewer, and user-review workflow. |
@@ -2736,3 +2737,30 @@ make progress observable and leave cheap choices to implementation.
 Affected files: FEATURE_MAP, PRODUCT, ARCHITECTURE, ACTIVE_CONTEXT, START_HERE,
 the scoped Planner handoff, PLANNING_GUIDANCE, WORKFLOW, ARTIFACT_INDEX and
 MILESTONE_REVIEW_BACKLOG. CODE_STATE and completed task history are unchanged.
+
+## 2026-09-24
+
+Decision: `D-2026-09-24-task-spec-size-ceilings`. **Task-spec size is a ceiling
+with no minimum, and `.ai/WORKFLOW.md` owns the rule alone.**
+
+The old 100-180 / 180-260 / 250-400 bands were written for specs that restated
+durable mechanics. A reviewer found the six specs written to them repetitive,
+explaining why past arguments were won rather than what to build. The twenty
+recreated specs cite v4, the roadmap, the feature map, ARCHITECTURE and
+DECISIONS instead, and average about 104 lines, below every band. That is the
+bands measuring the wrong thing rather than the specs being thin, because a
+lower bound on a citing spec is a quota for prose.
+
+Ceilings are 120 / 160 / 220 lines by slice type. What replaces the lower bound
+is a test a spec can fail: an implementer holding the file, the references it
+names and the built state can start without asking, and any legitimate stop is
+named in the file rather than left silent.
+
+`.ai/PLANNING_GUIDANCE.md` repeated the bands and now points at WORKFLOW,
+because that duplication is how a superseded rule survived in two canonical
+places at once.
+
+Reason: this was the first review of the recreated queue by anything that did
+not write it, and a canonical document recommending an abandoned practice would
+have misled the next Planner. `D-2026-09-22-milestone-speed-over-purity`
+governs: the sizing rule is cheap to revise and expensive to leave wrong.

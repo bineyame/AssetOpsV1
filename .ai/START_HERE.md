@@ -16,12 +16,12 @@ Planning status:
 T001-T020 are complete. Sites, Foundation, scenario inspection and frozen Draft
 setup/readback exist. Nothing executes and the shipped scenario is still blocked.
 
-**Next is the Planner's recreation of the unfinished task queue**, starting
-with the property-carrier/addressed-binding sizing around T020A. Existing task
-files were not edited by the Architect replan and must not be activated as
-written. Read `.ai/FEATURE_MAP.md` and `.ai/PLANNING_HANDOFF_T020A_T023.md`.
+The Planner recreated the task queue and the Architect reviewed it on
+2026-09-24. **T020A is the active task**, followed by the order in
+`tasks/README.md`. Read `.ai/ACTIVE_CONTEXT.md`, then the task file,
+`.ai/FEATURE_MAP.md` and `.ai/PLANNING_HANDOFF_T020A_T023.md`.
 
-This replaces the former "Block A, activate T020A then T020B" routing.
+This replaces the former "recreate the queue first" routing.
 `D-2026-09-24-v4-roadmap-replan` records the new source basis and sequence.
 The only direction sources are `Docs/simulator_design_v4.md` (mechanisms) and
 `Docs/mini-grid-demo-architecture-and-roadmap.md` (demo path). Earlier planning

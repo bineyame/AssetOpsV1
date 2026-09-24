@@ -110,4 +110,11 @@ Walk roadmap 13.2 with the owner and prepare a compact expert-feedback example:
 one candidate interval, one constraint, one gap and its bounded fuel estimate.
 Record expert feedback when obtained; do not mark practitioner usefulness as
 automatically proven by tests or contact anyone without authorization.
+
+Practitioner usefulness has no automated proof, so the checkpoint needs
+questions it can fail. Ask whether the expert can challenge the classification
+from what the screen shows, whether the evidence they would want before acting
+is either present or named as missing, and whether the claim ceiling is one
+they would repeat to an operator. Three yeses is the pass; anything else is
+feedback that redirects later work rather than a defect list for this slice.
 Review outcome: pending.

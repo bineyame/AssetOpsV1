@@ -48,18 +48,27 @@ Task specs are guardrails for fast implementation, not miniature design
 documents. Keep durable reasoning in `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`,
 or `.ai/ARCHITECTURE.md`; keep task files slice-specific and executable.
 
-Recommended size bands:
+Size is a ceiling, never a target. These are the upper limits:
 
-- Normal UI/content slice: 100-180 lines.
-- Boundary-changing slice: 180-260 lines.
+- Normal UI/content slice: 120 lines.
+- Boundary-changing slice: 160 lines.
 - First write path, evidence contract, ingestion, simulator truth boundary, or
-  analytics/finding semantics: 250-400 lines.
+  analytics/finding semantics: 220 lines.
 
-If a task grows beyond its band, either split the slice or move durable
-reasoning into the canonical planning and architecture files. Early M1 tasks may
-temporarily sit near the upper band only when they settle dangerous firsts such
-as Site identity, YAML authority, storage posture, simulator/operator
-separation, provenance, or no-fabricated-UI rules.
+**There is no minimum.** A spec that carries everything below in fewer lines is
+finished, not thin. Revised 2026-09-24: the earlier 100-180 / 180-260 / 250-400
+bands described specs that restated durable mechanics, and their lower bounds
+were read as a quota. Specs that cite v4, the roadmap, the feature map,
+`.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md` instead of restating them land far
+below those numbers and are better for it. Over a ceiling, split the slice or
+move the reasoning to the document that owns it.
+
+Line count does not measure whether a spec works. This does: **an implementer
+holding the task file, the references it names and the built state can start
+without asking a question.** Where they must legitimately stop - a decision only
+the user can take, or content that does not exist yet - the file names the stop
+rather than leaving the gap silent. A file that passes that test at 70 lines
+passes; a file that fails it at 300 fails.
 
 Every task spec should include:
 

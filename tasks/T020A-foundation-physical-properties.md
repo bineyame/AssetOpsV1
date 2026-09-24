@@ -37,6 +37,12 @@ Extend the current single-rating representation to typed per-component
 properties across template parsing, Site persistence, readback and Foundation.
 Preserve existing ratings and provenance through an explicit compatibility path.
 
+Property keys and their units come from a closed declared vocabulary, matching
+the closed rating and signal vocabularies already in the Site parser. A slice
+that needs a new property adds it to that vocabulary; authored documents cannot
+introduce arbitrary keys. T024's model-owned need declaration extends this
+vocabulary rather than opening it.
+
 The minimum physical proof uses tank capacity and generator specific fuel
 consumption. The coefficient is L/kWh; consumption laws belong to the profile.
 The same carrier holds typed component control values, demonstrated with
