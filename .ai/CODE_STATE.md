@@ -2270,9 +2270,15 @@ position. The conversion is now asked first, and refused by position. The
 round-one function had the same hole one line further down, at the `float()`
 that builds the record - **this slice relocated it rather than introducing
 it**, which is worth remembering the next time a check is moved rather than
-added. The identical hole exists one domain along in `scenarios/parsing.py`,
-was judged out of this round's scope, and is recorded in the packet's residual
-risk rather than silently left.
+added. The identical hole existed one domain along in `scenarios/parsing.py`, where
+`_reject_unusable_quantity(float(value), ...)` put the conversion one character
+outside every numeric rule it was about to apply. It was flagged rather than
+quietly fixed - the round was bounded - and then closed in a round of its own
+once the user approved. **That makes this a pattern with two confirmed
+instances rather than two mistakes: a check moved in front of a conversion,
+without the conversion itself being covered, carries the hole with it.** The
+function there now takes the authored number and returns the converted one, so
+the conversion happens inside the thing that owns the numeric rules.
 
 A comment claimed the run record would refuse a valueless resolved parameter
 loudly. It does not: `FrozenParameter` is annotated and not validated, and
@@ -2325,10 +2331,6 @@ What T020A leaves open, for the slice that meets it.
   that refusal together; it is the same trigger as option C. The refusal
   message tells an author how to fit today's schema and does not name that
   third route - a reviewer's suggested wording improvement, carried.
-- **`scenarios/parsing.py` raises a raw `OverflowError`** on an integer no
-  float can hold, the same hole closed for component properties. One
-  `try`/`except` and a test; left because the round was bounded and it is a
-  T018 surface.
 - **`reconcile_reported_observations` reports a wider gap**, 310 L against the
   readings where it reported 254 L, because the document no longer carries the
   generator's consumption. That is the honest projection of a document that has

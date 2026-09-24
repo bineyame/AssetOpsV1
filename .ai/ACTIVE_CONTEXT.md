@@ -21,7 +21,10 @@ review returned three reproduced correctness defects and one test weakness; the
 second closed those and returned three bounded corrections - an unrepresentable
 integer that threw instead of refusing, a comment promising a guard the run
 record does not have, and a frontend test claiming to prove bound rendering it
-never showed. All are fixed and the packet's stale claims are corrected.
+never showed. All are fixed and the packet's stale claims are corrected. A
+fourth round closed the same unrepresentable-integer hole one domain along in
+the scenario parser, which had been flagged rather than fixed and which the
+user approved closing.
 It still needs user review (`USER_REVIEW_REQUIRED: true`) and independent
 re-review. Packet `.agent/T020A-review-packet.md`; reviews
 `.agent/T020A-independent-review.md` and
