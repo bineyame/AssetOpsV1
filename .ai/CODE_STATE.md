@@ -2280,6 +2280,18 @@ without the conversion itself being covered, carries the hole with it.** The
 function there now takes the authored number and returns the converted one, so
 the conversion happens inside the thing that owns the numeric rules.
 
+**And the pattern is wider than the two that were fixed.** Looking for a third
+instance while closing the second found four more, all reproduced: the run
+setup request parser (`runs/parsing.py` `_quantity`, reachable from a request
+body, so a 500 where a `REQUEST_INVALID` refusal already exists), the run
+document reader (`_real`), and the rating parser in both Site document
+families. None is T020A's surface and none persists a bad value; each is the
+inspectable-error half, and each is one `try`/`except` plus a test. They are
+flagged in the packet's residual risk rather than swept, because the round was
+scoped to one call site - but the honest generalisation is that **this codebase
+validates numbers with `float(value)` written inline, and every place it does
+carries the same hole.**
+
 A comment claimed the run record would refuse a valueless resolved parameter
 loudly. It does not: `FrozenParameter` is annotated and not validated, and
 `SimulationRun.__post_init__` checks initialization rows rather than resolved
