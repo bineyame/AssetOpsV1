@@ -1931,12 +1931,14 @@ class TestNoDeclaredNeedGoesMissing:
             }
         return found
 
-    def test_every_parameter_is_frozen_exactly_once(self) -> None:
-        definition = scenario()
-        setup, _ = service(scenarios=FakeScenarios((definition,)))
-        record = setup.create_draft_run(setup_request())
-        identity = record.deterministic_identity
+    def assert_each_parameter_frozen_once(self, identity, definition) -> None:
+        """Union, disjointness and no duplicates, in one place.
 
+        Shared by the three cases below rather than written out in the first
+        one, because the property is the same property whoever answered: a
+        scenario-owned run, a Foundation that answers, and a Foundation that
+        answers for nothing all have to freeze a row for every parameter.
+        """
         resolved = [
             item.parameter_id for item in identity.scenario.resolved_parameters
         ]
@@ -1952,6 +1954,15 @@ class TestNoDeclaredNeedGoesMissing:
         # And nothing is frozen twice inside one collection either.
         assert len(resolved) == len(set(resolved))
         assert len(initialized) == len(set(initialized))
+
+    def test_every_parameter_is_frozen_exactly_once(self) -> None:
+        definition = scenario()
+        setup, _ = service(scenarios=FakeScenarios((definition,)))
+        record = setup.create_draft_run(setup_request())
+
+        self.assert_each_parameter_frozen_once(
+            record.deterministic_identity, definition
+        )
 
     def test_it_holds_for_a_foundation_owned_value_too(self) -> None:
         """The shape the defect was found in, now representable only one way.
@@ -1982,6 +1993,18 @@ class TestNoDeclaredNeedGoesMissing:
         assert "starting-level" in {
             item.parameter_id for item in identity.initialization_inputs
         }
+
+        # And the whole invariant, not only this parameter. A second review
+        # pointed out that checking one row's presence and absence is not
+        # completeness, and it was the packet that claimed completeness here.
+        self.assert_each_parameter_frozen_once(
+            identity,
+            parse_scenario_document(
+                foundation_owned_document(),
+                source="a test",
+                origin="SHIPPED",
+            ),
+        )
 
     def test_a_blocked_run_loses_no_row_either(self) -> None:
         """The case that matters most: an unanswered value is still a row.
@@ -2029,6 +2052,17 @@ class TestNoDeclaredNeedGoesMissing:
         assert [reason.subject for reason in record.blocking_reasons] == [
             "example-stored-volume"
         ]
+
+        # The completeness half, on the outcome that matters most: a run that
+        # could answer nothing still froze a row for everything it was asked.
+        self.assert_each_parameter_frozen_once(
+            identity,
+            parse_scenario_document(
+                foundation_owned_document(),
+                source="a test",
+                origin="SHIPPED",
+            ),
+        )
 
 
 class TestTheBindingsOwnUnitIsChecked:

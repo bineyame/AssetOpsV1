@@ -2258,6 +2258,48 @@ complete now, 204 claims each. The run store's O(n) create is still real, is
 the product's own persistence path rather than a developer-machine cost, and
 wants an owner before T027.
 
+**And what a second independent pass corrected.** R1 and R3 were confirmed
+closed and the AC6 coverage kept; three bounded items remained, and two of them
+are patterns rather than incidents.
+
+`math.isfinite` converts its argument before testing it, so it **throws** on an
+integer no float can hold rather than returning False. A 401-digit integer is
+valid YAML inside the document size limit, so it reached that line through both
+document families and surfaced as a raw `OverflowError` with no property
+position. The conversion is now asked first, and refused by position. The
+round-one function had the same hole one line further down, at the `float()`
+that builds the record - **this slice relocated it rather than introducing
+it**, which is worth remembering the next time a check is moved rather than
+added. The identical hole exists one domain along in `scenarios/parsing.py`,
+was judged out of this round's scope, and is recorded in the packet's residual
+risk rather than silently left.
+
+A comment claimed the run record would refuse a valueless resolved parameter
+loudly. It does not: `FrozenParameter` is annotated and not validated, and
+`SimulationRun.__post_init__` checks initialization rows rather than resolved
+parameters. The boundary that holds is `YamlRunStore.create_run` re-reading its
+staged document. **The comment is corrected and `test_run_store.py` now pins
+both halves**, including the dataclass limitation, so a later slice that makes
+`FrozenParameter` validate has to delete a test that says it does not. A guard
+promised in a comment and absent in code is worse than no guard, because the
+next author builds on it.
+
+**The assertion-satisfied-by-adjacent-text pattern reached three instances in
+one slice.** After the backend sweep, a frontend test still claimed to prove a
+bound survives rendering while matching text from the state column - and
+`ScenarioFrame` renders `parameter.bounds` nowhere. It is renamed to what it
+tests, and a second test asserts the bound is genuinely absent from the
+declaring row, scoped to that row because the state name appears elsewhere in
+the same table. Three instances is not three mistakes; it is a habit of
+asserting on identifiers that appear near the thing being claimed, and the
+fix that generalises is to assert phrases and to scope absence claims to the
+element that would carry the thing.
+
+The percent range is recorded as this vocabulary's policy rather than as a
+property of the unit: a loading factor of 120 % is an ordinary number, and what
+is true is only that the single `%` key here is a fraction of what a component
+holds.
+
 What T020A leaves open, for the slice that meets it.
 
 - **Same-type component addressing is T020A1.** An unqualified binding resolves
@@ -2280,7 +2322,13 @@ What T020A leaves open, for the slice that meets it.
 - **A Foundation-answered value that is not an initial world value has no
   carrier**, and the scenario parser refuses the declaration rather than
   letting it vanish. The first law that needs one adds the carrier and lifts
-  that refusal together; it is the same trigger as option C.
+  that refusal together; it is the same trigger as option C. The refusal
+  message tells an author how to fit today's schema and does not name that
+  third route - a reviewer's suggested wording improvement, carried.
+- **`scenarios/parsing.py` raises a raw `OverflowError`** on an integer no
+  float can hold, the same hole closed for component properties. One
+  `try`/`except` and a test; left because the round was bounded and it is a
+  T018 surface.
 - **`reconcile_reported_observations` reports a wider gap**, 310 L against the
   readings where it reported 254 L, because the document no longer carries the
   generator's consumption. That is the honest projection of a document that has

@@ -183,21 +183,25 @@ layout; the affordance claims on it are a second opinion.
 *What would change the answer:* the tool becoming the primary affordance
 guard, or a surface whose links the jsdom suites do not close.
 
-### The evidence run's submit race
+### ~~The evidence run's submit race~~ - RESOLVED in T020A, 2026-09-24
 
-`SUBMIT_RUN_SETUP` at `tools/layout-evidence.mjs:384` clicks the submit button
-without checking whether it is disabled, and that button is disabled until
-`/api/sites/MG-001` resolves. The action returns `true` either way, so the run
-proceeds to wait for a summary that was never requested. Reproduced three
-times during T020's review; two runs aborted.
+`SUBMIT_RUN_SETUP` clicked the submit button without checking whether it is
+disabled, and that button is disabled until the configured Site resolves. The
+action returned `true` either way, so the run waited for a summary that was
+never requested. Recorded during T020's review after three reproductions.
 
-*Safe to carry* because it fails honestly. The wait times out and the run
-aborts with the error the script already raises for a page its action did not
-produce; it never yields a false PASS.
+**Fixed.** The action now returns `not-ready` for a disabled submit and the
+caller waits for the page rather than clicking through it. T020A hit the same
+symptom, mis-attributed it to the run store's create cost, and a second
+independent review isolated the real cause on the mounted component: with the
+Site promise held pending the old action returned `true` with zero create
+calls; resolving the promise enabled the button and produced exactly one.
 
-*What would change the answer:* anyone treating an aborted run as a flake and
-re-running until green. The fix is to check `disabled` before clicking and to
-wait for the control rather than for a sleep.
+Kept here rather than deleted because the entry is the record that the
+deferral was honest - and because the carry note was right for the wrong
+reason. It said this fails honestly and never yields a false PASS, which held;
+what it did not anticipate is that an abort with no false PASS can still
+produce a false EXPLANATION, which is what T020A's first packet published.
 
 ## Tracked elsewhere, listed so the review finds them
 

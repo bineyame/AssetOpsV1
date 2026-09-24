@@ -896,22 +896,27 @@ for (const [label, width, height] of [
           : `${frozen.name}: ${frozen.rowCount} rows`,
       ],
       [
-        // Three columns and at least three rows, and the claim is named for
-        // what that measures rather than for what it would be nice to know.
+        // A lower bound on the table's shape, named as one.
         //
         // It said "names every reason the draft carries" while asserting a
         // floor, which an independent review called what it is: with five
-        // reasons rendered the table could lose two and still pass. This
-        // script cannot see the response, so it cannot compare identities;
-        // what it can say is that the table is still a table and still has
-        // at least the three states the shipped profile cannot model.
+        // reasons rendered the table could lose two and still pass. Renaming
+        // it to mention the three unmodelled states was still a half-measure,
+        // because this script never checks WHICH rows are there - the second
+        // pass asked for the plain thing, so the claim now says row count and
+        // column count and nothing about identity.
+        //
+        // Comparing identities would need the response this script does not
+        // fetch. Until something does, the identities are covered by
+        // `test_runs_api.py`, which asserts the exact reason set on the same
+        // shipped scenario.
         //
         // The count itself is a joint fact about the shipped document, the
         // selected profile and the target Site's foundation, and all three
         // are allowed to move: T020A added two unresolved foundation values
         // to this Draft, because MG-001 was created before typed properties
         // existed and a template does not migrate a Site.
-        "the blocked table renders at least the three unmodelled-state rows",
+        "the blocked table is at least three rows in three columns",
         blocked !== undefined &&
           blocked.columnCount === 3 &&
           blocked.rowCount >= 3,
