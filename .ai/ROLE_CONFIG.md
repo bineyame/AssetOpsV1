@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Claude (temporary, see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent | Reviews work independently from the author. |
@@ -22,6 +22,22 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 - Claude Code commands in `.claude/commands/` should read this file before
   acting so they can either run the role or prepare a handoff for the configured
   agent.
+
+## Architect Is Temporarily Claude
+
+Set by the user on 2026-09-24 because Codex exhausted its usage limit twice in
+one day, with resets hours out, while the task queue waits on an Architect
+review before implementation can start. This is a capacity decision, not a
+judgement that Claude is the better Architect.
+
+Review independence is unaffected, which is the thing bindings exist to
+protect: the Reviewer is a separate role and stays independent of whoever
+authored the work. Architect and Implementer sharing a vendor is not the
+failure mode; Architect and Reviewer sharing one would be.
+
+**Revert to Codex when its capacity allows.** Until that happens the Claude
+`assetops-architect` subagent may produce Architect output directly, because
+this file says so. The Planner binding is unchanged and remains Codex.
 
 ## Invoking A Codex-Bound Role
 
