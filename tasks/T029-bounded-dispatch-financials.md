@@ -22,6 +22,8 @@ This translates the first useful Finding before fuel and portfolio breadth.
 
 - v4 section 22.
 - Roadmap sections 3.3, 7/D and 12.1.
+- .ai/ARCHITECTURE.md: Configuration Persistence. BusinessContext is persisted
+  configuration and obeys its port, store separation and strict-parser rules.
 - Shared checks and exclusions: tasks/README.md.
 
 ## Acceptance criteria

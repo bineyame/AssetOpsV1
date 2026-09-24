@@ -35,6 +35,9 @@ non-simulator sources. Commit itself writes no Evidence or read model.
 Ingestion validates/normalizes accepted records, persists rejections and assigns
 received_at. Product evidence/read models use accepted content only.
 Retain source_time and gateway/publication time independently.
+Telemetry and T026's operational override/command records cross this one path;
+an operational record's occurrence and effective time stay distinct from its
+publication and receipt times.
 
 Build the minimum selected-window Site Overview and evidence inspector:
 served energy where measured, renewable contribution, battery state, generator

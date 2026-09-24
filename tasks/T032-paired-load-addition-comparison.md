@@ -22,6 +22,8 @@ separate from ordinary Site history and from each other.
 
 - v4 sections 5.2, 13 and 15.
 - Roadmap sections 3.5, 4, 7/F and 12.2.
+- .ai/ARCHITECTURE.md: Evidence Loop Boundaries. The comparison contexts are
+  accepted evidence reached through normal ingestion, not a parallel store.
 - FEATURE_MAP F's comparison-history requirement.
 - Shared checks and exclusions: tasks/README.md.
 

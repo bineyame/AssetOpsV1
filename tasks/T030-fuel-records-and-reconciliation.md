@@ -30,9 +30,10 @@ remains an unexplained residual rather than an accusation.
 
 1. Model a physical fuel delivery/movement independently from the operational
    delivery record. Author record conditions without changing the physical event.
-2. Add delivery and operator-hand-dip records as distinct canonical source
-   families with identity, units, occurrence/effective time, source provenance
-   and publication/receipt semantics through normal ingestion.
+2. Extend T026's operational-record family with delivery and operator-hand-dip
+   records: identity, units, occurrence/effective time, source provenance and
+   publication/receipt semantics through normal ingestion. Reuse that family's
+   contract rather than defining a second one.
 3. Demonstrate present, delayed, missing, partial and contradictory records.
    Preserve what was reported; conflicts remain inspectable.
 4. Reconstruct FuelBalanceWindow only from accepted opening/closing tank
