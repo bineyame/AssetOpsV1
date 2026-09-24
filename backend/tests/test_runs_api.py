@@ -35,6 +35,7 @@ from assetops_backend.main import health_router
 from assetops_backend.scenarios.parsing import parse_scenario_document
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
 from assetops_backend.runs.ports import RunStoreUnavailable
+from assetops_backend.sites.models import SiteRecord
 from assetops_backend.sites.ports import SiteStoreUnavailable
 from assetops_backend.sites_api import build_sites_router
 
@@ -773,6 +774,169 @@ class TestTheShippedFuelLossEventCannotReachReady:
                 "run_inputs": [],
             }
         )
+
+    def test_only_the_changed_property_changes_its_own_frozen_answer(
+        self,
+    ) -> None:
+        """The whole frozen set, not one scalar.
+
+        The packet backed this criterion with a test comparing a single
+        capacity value and a structural argument about dispatch. An
+        independent review pointed out that a metamorphic comparison of the
+        whole set is what the criterion asks for, and ran one; this keeps
+        that coverage in the suite rather than in a review that has finished.
+
+        Two changes, one at a time, against the shipped scenario and a Site
+        built from the shipped template. Changing the generator's coefficient
+        must move exactly one frozen row. Changing what the scenario
+        dispatches must move none of them, because an output the story forces
+        is not something a machine's physical property follows.
+        """
+        baseline = self._frozen_answers()
+
+        by_coefficient = self._frozen_answers(coefficient=0.42)
+        moved = {
+            key
+            for key in baseline
+            if baseline[key] != by_coefficient.get(key)
+        }
+        assert moved == {"generator-specific-fuel-consumption"}
+        assert (
+            by_coefficient["generator-specific-fuel-consumption"].value == 0.42
+        )
+
+        # And nothing drifted between two runs of the unchanged pair, so the
+        # comparison above is about the edit and not about run-to-run noise.
+        assert self._frozen_answers() == baseline
+
+        by_dispatch = self._frozen_answers(dispatched_output=30)
+        assert by_dispatch == baseline
+
+    def _frozen_answers(
+        self,
+        *,
+        coefficient: float | None = None,
+        dispatched_output: float | None = None,
+    ) -> dict:
+        """The frozen initial values, for one edit to the site or the story.
+
+        Both documents are copied in memory. The local `var/` fixtures are
+        read and never written.
+        """
+        import copy
+        from pathlib import Path
+
+        import yaml
+
+        from assetops_backend.runs.profiles import (
+            LAB_PUBLICATION_PROFILE,
+            MINIMAL_FUEL_TANK_MODEL,
+        )
+        from assetops_backend.runs.service import RunSetupService
+        from assetops_backend.sites.parsing import parse_site_template
+        from assetops_backend.sites.service import SiteCreationService
+        from assetops_backend.sites.site_parsing import CreateSiteRequest
+
+        repo_root = Path(__file__).resolve().parents[2]
+        template_document = yaml.safe_load(
+            (
+                repo_root
+                / "config"
+                / "site-templates"
+                / "hybrid-mini-grid-100kw.yaml"
+            ).read_text(encoding="utf-8")
+        )
+        scenario_document = yaml.safe_load(
+            (
+                repo_root / "config" / "scenarios" / "fuel-loss-event.yaml"
+            ).read_text(encoding="utf-8")
+        )
+
+        if coefficient is not None:
+            template_document = copy.deepcopy(template_document)
+            for component in template_document["foundation"]["components"]:
+                for item in component.get("properties") or ():
+                    if item["property_key"] == "specific-fuel-consumption":
+                        item["value"] = coefficient
+
+        if dispatched_output is not None:
+            scenario_document = copy.deepcopy(scenario_document)
+            for entry in scenario_document["timeline"]:
+                for parameter in entry.get("parameters") or ():
+                    if parameter["parameter_id"] == "dispatched-output":
+                        parameter["value"] = dispatched_output
+
+        template = parse_site_template(
+            template_document, source="the shipped template"
+        )
+        created: list[SiteRecord] = []
+
+        class Recording:
+            def create_site(self, record: SiteRecord) -> SiteRecord:
+                created.append(record)
+                return record
+
+        class Catalog:
+            def list_templates(self) -> tuple:
+                return (template,)
+
+            def get_template(self, template_id: str):
+                return template
+
+        SiteCreationService(Recording(), Catalog()).create_site_from_template(
+            CreateSiteRequest(
+                template_id="hybrid-mini-grid-100kw",
+                site_id="MG-001",
+                display_name="Kalangala mini-grid",
+                country="Uganda",
+                locality="Kalangala",
+                timezone="Africa/Kampala",
+            )
+        )
+
+        record = RunSetupService(
+            FakeRuns(),
+            FakeSites((created[0],)),
+            FakeScenarios(
+                (
+                    parse_scenario_document(
+                        scenario_document,
+                        source="the shipped definition",
+                        origin="SHIPPED",
+                    ),
+                )
+            ),
+            model_profiles=(MINIMAL_FUEL_TANK_MODEL,),
+            publication_profiles=(LAB_PUBLICATION_PROFILE,),
+            now=lambda: "2026-09-21T09:00:00Z",
+        ).create_draft_run(
+            {
+                "site_id": "MG-001",
+                "foundation_version": 1,
+                "scenario_id": "fuel-loss-event",
+                "scenario_version": 1,
+                "interval": {
+                    "start_time": "2026-09-21T00:00:00Z",
+                    "end_time": "2026-09-22T17:00:00Z",
+                },
+                "timestep_minutes": 15,
+                "seed": 20260921,
+                "model_profile": {
+                    "profile_id": "minimal-fuel-tank",
+                    "profile_version": 1,
+                },
+                "publication_profile": {
+                    "profile_id": "simulator-lab-publication",
+                    "profile_version": 1,
+                },
+                "run_inputs": [],
+            }
+        )
+
+        return {
+            item.state_key: item
+            for item in record.deterministic_identity.initialization_inputs
+        }
 
     def test_the_frozen_answers_survive_a_round_trip(self, tmp_path) -> None:
         """A reload agrees with what was frozen, values, units and absence.

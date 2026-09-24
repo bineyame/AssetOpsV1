@@ -359,6 +359,14 @@ class TestCompatibility:
         Proved as the property rather than as a story: a Site record parsed
         from its own stored document is a function of that document alone, so
         a template that gains properties and a version cannot change it.
+
+        What this does NOT do, and an independent review was right to name
+        it: it parses an updated template between two reads of the same
+        document rather than driving a repository or a service. There is no
+        migration path to drive - no code in the product reads a template
+        while reading a Site - and source inspection is what establishes
+        that. This pins the half a test can pin: the read is a pure function
+        of the stored document.
         """
         stored = valid_site_document()
         for component in stored["foundation"]["components"]:
@@ -405,14 +413,20 @@ class TestNoControlCapabilityIsImplied:
                 f"property vocabulary as {offenders}."
             )
 
-    def test_nothing_in_the_product_consumes_a_control_property(self) -> None:
-        """The capability this screen must not imply, asserted as an absence.
+    def test_no_shipped_profile_binds_a_control_property(self) -> None:
+        """The one consumer this build could have, asserted as an absence.
 
-        A `CONTROL` property is parsed, stored, served and rendered. Nothing
-        reads one to decide anything: the first controller that consumes one
-        is T024's, and a resolver that reached for one here would be a
-        Site-scoped Controls capability arriving without the slice that owns
-        it.
+        Narrower than "nothing in the product consumes one", which is what
+        this used to be called, and an independent review was right that the
+        name overstated the scan: it reads the shipped model profiles and
+        nothing else. What makes the wider claim true today is that a model
+        profile's binding is the only mechanism that reads a declared
+        property at all - source inspection establishes that, and this
+        establishes that no profile uses it on a control key.
+
+        The first controller that consumes one is T024's, and a binding that
+        reached for one here would be a Site-scoped Controls capability
+        arriving without the slice that owns it.
         """
         from assetops_backend.runs.profiles import MODEL_PROFILES
 
