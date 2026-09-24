@@ -5,12 +5,27 @@
 # document that does. Nothing in this directory is a Site, and M1 ships zero
 # Sites: every Site in the product is one a user created.
 #
-# The values below are the archetype's declared design ratings. They are
-# component truth about the template, never evidence: nothing here claims that
-# a device exists, is commissioned, or has ever reported a measurement.
+# The values below are the archetype's declared design ratings and its typed
+# component properties. They are component truth about the template, never
+# evidence: nothing here claims that a device exists, is commissioned, or has
+# ever reported a measurement.
+#
+# Version 2 adds `properties`. A rating is the one nameplate magnitude a
+# component was sold with; a property is a named, typed, unit-carrying physical
+# or control fact about the same component, and a component may declare
+# several. The property keys and their units come from the closed vocabulary in
+# `assetops_backend/sites/models.py`: this document may not coin one, because a
+# model profile binds to a property by name and a key nothing declares is a
+# value no run could find.
+#
+# `source` and `source_version` are provenance about the property. Everything
+# here is `TEMPLATE` at version 2, and a Site created from this template keeps
+# both - so if this template later moves to version 3, the Sites created before
+# it still say where their numbers came from. Templates copy; they never
+# migrate an existing Site.
 
 template_id: hybrid-mini-grid-100kw
-template_version: 1
+template_version: 2
 display_name: Hybrid Mini-Grid (100 kW)
 
 foundation:
@@ -40,6 +55,16 @@ foundation:
       rating:
         value: 215
         unit: kWh
+      properties:
+        # A typed control property, and nothing more. It is the number the
+        # `battery-reserve` control assumption below declines to state, now
+        # stated as an inspectable value with a unit. It is not a setpoint, no
+        # controller reads it, and nothing in this build acts on it.
+        - property_key: reserve-state-of-charge
+          value: 25
+          unit: "%"
+          source: TEMPLATE
+          source_version: 2
     - component_id: battery-pcs
       component_type: POWER_CONVERSION_SYSTEM
       display_name: Battery power conversion system
@@ -52,12 +77,43 @@ foundation:
       rating:
         value: 60
         unit: kW
+      properties:
+        # Specific fuel consumption: litres per kilowatt-hour delivered.
+        # `L/kWh` rather than `L/h` because litres per hour is a property of
+        # the machine TIMES its operating point, and the operating point
+        # belongs to whatever dispatches it
+        # (`D-2026-09-22-consumption-coefficient-unit`).
+        - property_key: specific-fuel-consumption
+          value: 0.311
+          unit: L/kWh
+          source: TEMPLATE
+          source_version: 2
+        # A typed CONTROL property beside the physical one above, on the same
+        # component. Two properties of different kinds on one component is
+        # what makes this a property carrier rather than one more
+        # single-value field. Nothing in this build reads it.
+        - property_key: minimum-runtime
+          value: 30
+          unit: min
+          source: TEMPLATE
+          source_version: 2
     - component_id: fuel-tank
       component_type: FUEL_TANK
       display_name: Generator fuel tank
       rating:
         value: 500
         unit: L
+      properties:
+        # The same magnitude as the rating above, and deliberately not the
+        # same fact. The rating is the nameplate the tank was sold with; the
+        # property is the named, addressable `tank-capacity` a model profile
+        # binds to. A profile that had to look for "the rating in litres"
+        # could only ever find one property per unit per component type.
+        - property_key: tank-capacity
+          value: 500
+          unit: L
+          source: TEMPLATE
+          source_version: 2
     - component_id: ac-bus
       component_type: AC_BUS
       display_name: AC bus

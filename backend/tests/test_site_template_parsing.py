@@ -226,6 +226,7 @@ class TestStrictness:
         # could accept a topology the Site store refuses, and the Site it
         # seeded would then be unreadable in the store it was written to.
         assert [name for name in public if name.startswith("parse")] == [
+            "parse_component_properties",
             "parse_foundation_content",
             "parse_site_template",
         ]
@@ -238,6 +239,10 @@ class TestStrictness:
 
         assert (
             parsing.parse_foundation_content is site_parsing.parse_foundation_content
+        )
+        assert (
+            parsing.parse_component_properties
+            is site_parsing.parse_component_properties
         )
 
     @pytest.mark.parametrize(

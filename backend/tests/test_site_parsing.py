@@ -285,11 +285,13 @@ class TestStrictness:
 
         public = [name for name in dir(site_parsing) if not name.startswith("_")]
 
-        # Three, and the third is the point: the Foundation content below the
-        # component list is validated by `foundation_parsing`, which the
-        # template parser calls too, so a user-authored document and a shipped
-        # one are checked by exactly the same code.
+        # Four, and two of them are the point: the Foundation content below
+        # the component list AND the typed properties on a component are
+        # validated by `foundation_parsing`, which the template parser calls
+        # too, so a user-authored document and a shipped one are checked by
+        # exactly the same code.
         assert [name for name in public if name.startswith("parse")] == [
+            "parse_component_properties",
             "parse_create_site_request",
             "parse_foundation_content",
             "parse_site_document",

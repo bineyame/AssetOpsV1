@@ -571,6 +571,14 @@ class RunSetupService:
             scenario=scenario, site=site, model=model, supplied=supplied
         )
 
+        # A Foundation-owned parameter states no value
+        # (`D-2026-09-22-foundation-value-declaration`), so there is nothing
+        # for this record to resolve. It is left out rather than frozen as a
+        # `SCENARIO` answer of `None`: `answered_by` here has two cases and
+        # neither is true of it, and its real answer - the Site's property,
+        # with the Foundation named - is frozen as a
+        # `FrozenInitializationInput`, which is the record that has a shape
+        # for an absent value and a reason beside it.
         resolved = tuple(
             FrozenParameter(
                 parameter_id=parameter_id,
@@ -581,6 +589,7 @@ class RunSetupService:
                 ),
             )
             for parameter_id, parameter in parameters.items()
+            if parameter.value is not None
         )
 
         return DeterministicIdentity(
@@ -684,11 +693,14 @@ class RunSetupService:
                 value = supplied[initial.parameter_id]
                 detail = "supplied by this run setup request"
             elif owner == "SITE_FOUNDATION":
+                # No `declared` argument any more. A Foundation-owned
+                # parameter states no number
+                # (`D-2026-09-22-foundation-value-declaration`), so there is
+                # nothing for the Foundation's own answer to be checked
+                # against and no way for a run to meet two answers.
                 value, reason, answered_by, detail = (
                     self._resolve_foundation_value(
                         initial_state_key=initial.state_key,
-                        parameter_id=initial.parameter_id,
-                        declared=initial.value,
                         unit=initial.unit,
                         site=site,
                         model=model,
@@ -697,9 +709,14 @@ class RunSetupService:
             else:
                 # A versioned model rule owns it, and no profile in this build
                 # carries one: `SupportedState` has no field a model-supplied
-                # initial value could live in. That carrier is T020A's to add,
-                # and until it exists this is the profile failing to answer -
-                # the same fact as a missing binding, so the same reason.
+                # initial value could live in. T020A did not add it either.
+                # That is option C of `D-2026-09-22-foundation-value-declaration`
+                # - the model profile declaring the need rather than the
+                # scenario - and it is a follower with a trigger rather than a
+                # slice: the first model rule that needs a Foundation value
+                # without a scenario asking for it, which T024 is the candidate
+                # for. Until then this is the profile failing to answer - the
+                # same fact as a missing binding, so the same reason.
                 value = None
                 detail = (
                     f"model profile {model.model_profile_id} version "
@@ -749,8 +766,6 @@ class RunSetupService:
         self,
         *,
         initial_state_key: str,
-        parameter_id: str,
-        declared: float,
         unit: str,
         site: SiteRecord,
         model: ModelProfile,
@@ -763,7 +778,7 @@ class RunSetupService:
         other, which is the same reason T018's review made a bound a
         declaration rather than a shared prefix.
 
-        ## Four of the five failures here block, and one refuses
+        ## Every failure here blocks, and none refuses
 
         The T019 user review settled the discriminator: **would a different
         model profile fix this?** The Foundation's answer is only locatable
@@ -771,49 +786,41 @@ class RunSetupService:
         fact about the pair - and the profile is the half a person can change
         on the setup form.
 
-        Blocks, because a different profile may answer:
+        Five cases, all blocking, all `INITIAL_VALUE_NOT_RESOLVED`:
 
         - the profile declares no binding, so nothing was even asked of the
           Foundation;
-        - the binding matches nothing this Foundation declares. A binding on
-          another component type or another rating unit might match something
-          it does declare;
-        - the binding matches more than one thing, which is two answers to one
-          value. A more specific binding is a profile's to carry;
-        - the binding's unit is not the unit the scenario declares. That is a
+        - the binding's component type matches nothing this Foundation
+          declares;
+        - it matches more than one component, which is two answers to one
+          value. Telling same-type components apart is **T020A1's** addressed
+          resolution; until it lands, an unqualified binding resolves exactly
+          one candidate or it blocks;
+        - the one matching component declares no such property. This is the
+          fifth case and it is the one `D-2026-09-22-foundation-property-absent-blocks`
+          settled: the property name is as much the profile's aim as the
+          component type is, so a different profile naming a different
+          property may find something this Foundation does declare;
+        - the property's unit is not the unit the scenario declares. That is a
           disagreement between the profile and the scenario about what kind of
-          quantity this is, and the profile is the changeable half. It was a
-          `UNIT_INVALID` refusal until this round, and leaving it there while
-          the two cases either side of it moved would have been the same rule
-          applied at one position - the failure shape this project keeps
-          paying for.
+          quantity this is, and the profile is the changeable half.
 
-        Refuses, as `INITIAL_VALUE_ANSWERS_DISAGREE`:
+        **There is no sixth case and there is no refusal.**
+        `INITIAL_VALUE_ANSWERS_DISAGREE` used to live at the end of this
+        function, comparing the Foundation's number against a number the
+        scenario stated the Foundation declares. After
+        `D-2026-09-22-foundation-value-declaration` no document can state that
+        number, so nothing can produce the kind, and it was retired with its
+        only producer under `D-2026-09-22-expiry-follows-the-condition`. A
+        refusal kind nothing can produce is a vocabulary claiming a failure
+        mode that cannot occur.
 
-        - the Foundation's value disagrees with the value the scenario states
-          the Foundation declares. Both answered and they contradict each
-          other. It has a kind of its own rather than sharing the one for a
-          value nobody supplied, because an absence and a contradiction are
-          not the same shape and only one of them can be carried on a run.
-
-        Two reasons for that one, and the structural one is the one that
-        holds. **The four blocking cases leave the value with no answer,
-        which the record can represent as absent; this leaves it with two,
-        which the record cannot represent at all.** A blocked Draft would
-        have to freeze one of the two numbers, and choosing between them is
-        precisely what refusing prevents - so the refusal is not a judgement
-        about how fixable the situation is, it is the only outcome the frozen
-        identity has a shape for.
-
-        The weaker reason, kept because it is the intuition: a profile
-        pointing at some other component that happened to match the
-        scenario's number would be resolving a contradiction by shopping for
-        a value. It is weaker because it has a counterexample - a site
-        declaring a second matching component whose rating equals the
-        scenario's number means a different profile genuinely would resolve
-        it - and under the literal discriminator that argues for blocking.
-        The structural reason survives that counterexample; this one does
-        not.
+        **And nothing searches for a convenient value.** The candidate set is
+        the components of the declared type, and the property is looked for on
+        the single candidate. Narrowing candidates to *components that happen
+        to declare this property* would let a second tank answer for the one
+        the binding could not address - a fallback that would turn the
+        ambiguity this build blocks on into a silent choice.
         """
         foundation_detail = (
             f"site {site.site_id} foundation version "
@@ -851,8 +858,6 @@ class RunSetupService:
             component
             for component in site.foundation.components
             if component.component_type == binding.component_type
-            and component.rating is not None
-            and component.rating.unit == binding.rating_unit
         ]
 
         if not matches:
@@ -863,11 +868,12 @@ class RunSetupService:
                     subject=initial_state_key,
                     statement=(
                         f"{profile_detail} looks for the initial value of "
-                        f"{initial_state_key} in a {binding.component_type} "
-                        f"component rated in {binding.rating_unit}, and the "
-                        f"foundation of site {site.site_id} declares none. A "
-                        "profile whose binding names something this site "
-                        "declares would resolve it."
+                        f"{initial_state_key} in the "
+                        f"{binding.property_key} property of a "
+                        f"{binding.component_type} component, and the "
+                        f"foundation of site {site.site_id} declares no such "
+                        "component. A profile whose binding names something "
+                        "this site declares would resolve it."
                     ),
                 ),
                 "SITE_FOUNDATION",
@@ -883,22 +889,53 @@ class RunSetupService:
                     subject=initial_state_key,
                     statement=(
                         f"{profile_detail} looks for the initial value of "
-                        f"{initial_state_key} in a {binding.component_type} "
-                        f"component rated in {binding.rating_unit}, and the "
+                        f"{initial_state_key} in the "
+                        f"{binding.property_key} property of a "
+                        f"{binding.component_type} component, and the "
                         f"foundation of site {site.site_id} declares more "
                         f"than one: {named}. Two answers to one initial value "
                         "is not something a run may choose between, so this "
-                        "needs a profile whose binding tells them apart."
+                        "needs a binding that names which component it means."
                     ),
                 ),
                 "SITE_FOUNDATION",
                 f"{foundation_detail}, which declares more than one match",
             )
 
-        rating = matches[0].rating
-        assert rating is not None  # filtered above
+        component = matches[0]
+        declared_property = None
+        for item in component.properties or ():
+            if item.property_key == binding.property_key:
+                declared_property = item
+                break
 
-        if rating.unit != unit:
+        if declared_property is None:
+            return (
+                None,
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=initial_state_key,
+                    statement=(
+                        f"{profile_detail} looks for the initial value of "
+                        f"{initial_state_key} in the "
+                        f"{binding.property_key} property of component "
+                        f"{component.component_id}, and the foundation of "
+                        f"site {site.site_id} declares no such property on "
+                        "it. Nothing looks for that value on another "
+                        "component, so this needs either a foundation that "
+                        "declares the property or a profile that names one it "
+                        "does declare."
+                    ),
+                ),
+                "SITE_FOUNDATION",
+                (
+                    f"{foundation_detail}, whose component "
+                    f"{component.component_id} declares no "
+                    f"{binding.property_key}"
+                ),
+            )
+
+        if declared_property.unit != unit:
             return (
                 None,
                 BlockingReason(
@@ -906,32 +943,29 @@ class RunSetupService:
                     subject=initial_state_key,
                     statement=(
                         f"The scenario declares {initial_state_key} in "
-                        f"{unit} and {profile_detail} binds it to a rating in "
-                        f"{rating.unit}. A run freezes the foundation's "
-                        "value, so the two must be the same quantity; a "
-                        "profile bound to the unit the scenario uses would "
-                        "resolve it."
+                        f"{unit} and {profile_detail} binds it to the "
+                        f"{binding.property_key} property, which component "
+                        f"{component.component_id} declares in "
+                        f"{declared_property.unit}. A run freezes the "
+                        "foundation's value, so the two must be the same "
+                        "quantity; a profile bound to the unit the scenario "
+                        "uses would resolve it."
                     ),
                 ),
                 "MODEL_PROFILE",
                 f"{profile_detail}, whose binding names another unit",
             )
 
-        if rating.value != declared:
-            raise refuse(
-                "INITIAL_VALUE_ANSWERS_DISAGREE",
-                f"Parameter {parameter_id} states that the site's foundation "
-                f"declares {declared} {unit} for {initial_state_key}, and the "
-                f"foundation of site {site.site_id} declares "
-                f"{rating.value} {rating.unit}. The scenario names the "
-                "foundation as the authority, so its own value is the "
-                "requirement to check; a run that froze one and discarded the "
-                "other would be choosing which is true. This value has two "
-                "answers rather than none, and a run has no way to carry two, "
-                "which is why it is refused rather than blocked.",
-            )
-
-        return rating.value, None, "SITE_FOUNDATION", foundation_detail
+        return (
+            declared_property.value,
+            None,
+            "SITE_FOUNDATION",
+            (
+                f"{foundation_detail}, component "
+                f"{component.component_id} property "
+                f"{declared_property.property_key}"
+            ),
+        )
 
     # --- Deciding -----------------------------------------------------------
 

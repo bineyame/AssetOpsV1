@@ -768,14 +768,99 @@ class TestSiteConfigurationReadPath:
                 "component_type": "PV_ARRAY",
                 "display_name": "PV array",
                 "rating": {"value": 100, "unit": "kW"},
+                # This template declares no typed properties, so the Site
+                # copied from it declares none. `null` rather than `[]`: the
+                # document is silent, which is not the same as stating that
+                # this component has none.
+                "properties": None,
             },
             {
                 "component_id": "site-meter",
                 "component_type": "METER",
                 "display_name": "Site meter",
                 "rating": None,
+                "properties": None,
             },
         ]
+
+    def test_typed_properties_are_copied_with_their_provenance(
+        self, repository: CompositeSiteRepository
+    ) -> None:
+        """A component may declare several, each with its unit and its source.
+
+        The two the generator carries are one physical and one control fact,
+        which is what makes this a property carrier rather than a second
+        rating field. `kind` is served from the closed vocabulary rather than
+        from the document, so a document cannot disagree with it, and
+        `source`/`source_version` say which document declared the number and
+        at which version - so a later template edit is visible as drift
+        rather than reaching back into this Site.
+        """
+        document = valid_template_document()
+        document["foundation"]["components"].append(
+            {
+                "component_id": "generator",
+                "component_type": "GENERATOR",
+                "display_name": "Diesel generator",
+                "rating": {"value": 60, "unit": "kW"},
+                "properties": [
+                    {
+                        "property_key": "specific-fuel-consumption",
+                        "value": 0.311,
+                        "unit": "L/kWh",
+                        "source": "TEMPLATE",
+                        "source_version": 2,
+                    },
+                    {
+                        "property_key": "minimum-runtime",
+                        "value": 30,
+                        "unit": "min",
+                        "source": "TEMPLATE",
+                        "source_version": 2,
+                    },
+                ],
+            }
+        )
+        served = TestClient(
+            create_app(
+                ENABLED,
+                site_repository=repository,
+                site_template_catalog=FakeCatalog((parse_template(document),)),
+            )
+        )
+        assert served.post(
+            CREATE_SITE_PATH, json=request_body()
+        ).status_code == 201
+
+        foundation = served.get(f"{SITES_PATH}/MG-002").json()["foundation"]
+        generator = next(
+            component
+            for component in foundation["components"]
+            if component["component_id"] == "generator"
+        )
+
+        assert generator["properties"] == [
+            {
+                "property_key": "specific-fuel-consumption",
+                "display_name": "Specific fuel consumption",
+                "value": 0.311,
+                "unit": "L/kWh",
+                "kind": "PHYSICAL",
+                "source": "TEMPLATE",
+                "source_version": 2,
+            },
+            {
+                "property_key": "minimum-runtime",
+                "display_name": "Minimum runtime",
+                "value": 30.0,
+                "unit": "min",
+                "kind": "CONTROL",
+                "source": "TEMPLATE",
+                "source_version": 2,
+            },
+        ]
+        # The rating is a different fact and survives beside them.
+        assert generator["rating"] == {"value": 60, "unit": "kW"}
 
     def test_a_component_with_no_declared_rating_carries_null_not_zero(
         self, created: TestClient

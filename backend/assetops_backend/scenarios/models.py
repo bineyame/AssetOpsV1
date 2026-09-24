@@ -278,8 +278,14 @@ CADENCE_OWNERSHIP = frozenset({"NOT_DECLARED", "NOT_APPLICABLE"})
 # `h` here would have left a position at every parameter in the document for
 # one to arrive in, which is the hole the T018 review found when the rule
 # against it was written for one position only.
+#
+# `L/kWh` arrives with T020A. Specific fuel consumption is a property of the
+# machine alone, where `L/h` is a property of the machine times its operating
+# point (`D-2026-09-22-consumption-coefficient-unit`). `L/h` stays in the
+# vocabulary: it is a legitimate authored rate for a cause that genuinely
+# declares one, and nothing in the shipped document uses it any more.
 PARAMETER_UNITS = frozenset(
-    {"L", "L/h", "kW", "kWh", "V", "Hz", "degC", "W/m2", "%"}
+    {"L", "L/h", "L/kWh", "kW", "kWh", "V", "Hz", "degC", "W/m2", "%"}
 )
 
 # What a private expectation asserts. Test-oracle vocabulary: each value names
@@ -367,9 +373,19 @@ class ScenarioParameter:
     what the simulated world will be told to do, not about any fuel that ever
     moved.
 
-    `unit` is present exactly when `value` is a number. A quantity without a
-    unit is unreadable and a unit on a piece of text is meaningless, so the
-    parser refuses both rather than letting a screen guess.
+    `unit` is present exactly when `value` is a number OR when the Site's
+    Foundation is the declared owner. A quantity without a unit is unreadable
+    and a unit on a piece of text is meaningless, so the parser refuses both
+    rather than letting a screen guess.
+
+    **`value` is `None` exactly when `ownership.owner` is `SITE_FOUNDATION`**,
+    and that is a structure rather than a rule to remember
+    (`D-2026-09-22-foundation-value-declaration`). A Foundation-owned
+    parameter declares the NEED - the state, the unit, and that the Foundation
+    answers - and states no number, because a machine's physical property is
+    not the story's to carry. There is no position in the document for the
+    number, so an author cannot put one there and a run cannot be told to
+    check the Foundation against it.
 
     `state_key`, `execution_requirement` and `ownership` are present exactly
     when the role calls for them, and the parser refuses every other
@@ -384,7 +400,7 @@ class ScenarioParameter:
 
     parameter_id: str
     display_name: str
-    value: float | str
+    value: float | str | None
     unit: str | None
     execution_role: str
     state_key: str | None

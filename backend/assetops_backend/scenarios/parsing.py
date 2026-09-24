@@ -794,6 +794,50 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
         source=source,
     )
 
+    # A Foundation-owned value has no value position at all
+    # (`D-2026-09-22-foundation-value-declaration`). Checked before the
+    # quantity branches below rather than inside them, because the point is
+    # that no branch may accept one: a parameter the Site's Foundation
+    # answers for declares the state, the unit and the owner, and states no
+    # number.
+    #
+    # The rule is keyed on the OWNER, which is the only thing this document
+    # carries that identifies these parameters - the binding that addresses a
+    # Foundation property lives in the model profile, and this parser sees no
+    # profile. So it reaches every `SITE_FOUNDATION` parameter, the tank
+    # capacity as much as the consumption coefficient, and there is no field
+    # to write an exemption in.
+    if ownership is not None and ownership.owner == "SITE_FOUNDATION":
+        if "value" in raw:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' declares that the site's foundation owns it and "
+                f"also states a value, in {source}. A foundation-owned "
+                "parameter declares the need - the state, the unit, and that "
+                "the foundation answers - and states no number. A number here "
+                "would be a machine's physical property written into the "
+                "story: run the same scenario against a different generator "
+                "and it would still follow the story, now as a requirement "
+                "that fails the run."
+            )
+        if unit not in PARAMETER_UNITS:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}.unit' must be one of {sorted(PARAMETER_UNITS)} in "
+                f"{source}, got {unit!r}. A foundation-owned parameter states "
+                "no number and must still state the unit, because the unit is "
+                "what run setup checks the foundation's own property against."
+            )
+        return ScenarioParameter(
+            parameter_id=parameter_id,
+            display_name=display_name,
+            value=None,
+            unit=unit,
+            execution_role=execution_role,
+            state_key=state_key,
+            execution_requirement=execution_requirement,
+            ownership=ownership,
+            bounds=bounds,
+        )
+
     # `isinstance(True, int)` is True, so booleans are excluded by type: a
     # scenario parameter is a quantity or a phrase, never a flag.
     if type(value) in (int, float):

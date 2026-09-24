@@ -40,11 +40,14 @@ import re
 from typing import Any, Callable, Mapping, NoReturn
 
 from assetops_backend.sites.models import (
+    COMPONENT_PROPERTY_DEFINITIONS,
+    COMPONENT_PROPERTY_SOURCES,
     CONNECTION_MEDIA,
     CONTROL_ASSUMPTION_BASES,
     DEVICE_TYPES,
     SIGNAL_UNITS,
     TOPOLOGY_NODE_ROLES,
+    ComponentProperty,
     ControlAssumption,
     DeviceSignal,
     FoundationContent,
@@ -75,6 +78,12 @@ SIGNAL_MAPPING_KEYS = frozenset(
 )
 CONTROL_ASSUMPTION_KEYS = frozenset(
     {"assumption_id", "display_name", "component_id", "basis", "statement"}
+)
+#: The keys one typed component property may declare. `kind` is absent by
+#: design: it is the vocabulary's answer, not the document's, so there is no
+#: position a document can write a second one in.
+COMPONENT_PROPERTY_KEYS = frozenset(
+    {"property_key", "value", "unit", "source", "source_version"}
 )
 
 # Cardinality bounds. A document that declares ten thousand connections is
@@ -113,6 +122,14 @@ MAX_SIGNALS_PER_DEVICE = 32
 # answers. A cap above the ceiling is not a limit, it is a comment.
 MAX_SIGNAL_MAPPINGS = 160
 MAX_CONTROL_ASSUMPTIONS = 32
+#: One component may declare at most this many typed properties. Small on
+#: purpose: the vocabulary itself is closed and has four members today, so a
+#: component declaring more entries than the vocabulary has keys is declaring
+#: duplicates, which the duplicate rule refuses first.
+MAX_COMPONENT_PROPERTIES = 16
+#: A property source version is a document version - a template version or a
+#: Foundation version - and both are bounded at 10,000 by their own parsers.
+MAX_PROPERTY_SOURCE_VERSION = 10_000
 
 MAX_IDENTIFIER_LENGTH = 64
 MAX_DISPLAY_NAME_LENGTH = 120
@@ -799,6 +816,163 @@ def _parse_control_assumption(
         basis=basis,
         statement=statement,
     )
+
+
+# --- Typed component properties ---------------------------------------------
+#
+# Validated here, once, for both document families, for the reason the whole
+# module exists: a template declaring a property the Site store would refuse
+# is a template that seeds an unreadable Site. The component parsers in
+# `parsing.py` and `site_parsing.py` each call this one function.
+
+
+def parse_component_properties(
+    raw: Any, *, where: str, source: str, invalid: Invalid
+) -> tuple[ComponentProperty, ...] | None:
+    """Validate the typed properties one component declares.
+
+    `None` is the document declaring none, and it is the compatibility path a
+    Site written before T020A takes: the key is absent, nothing is invented,
+    and the Site stays readable exactly as it was. An empty list is refused
+    for the reason every other empty collection in this module is - a table
+    with a header and no rows states that this component HAS no properties,
+    which is a claim about the world a configuration document may not make.
+
+    The unit is checked against the vocabulary rather than against a set of
+    spellings. `specific-fuel-consumption` is `L/kWh` and nothing else, so a
+    document declaring it in `L/h` is refused here rather than storing a
+    number that is true only at one operating point.
+    """
+    if raw is None:
+        return None
+
+    entries = _require_non_empty_list(
+        raw,
+        where=where,
+        source=source,
+        limit=MAX_COMPONENT_PROPERTIES,
+        invalid=invalid,
+    )
+    properties = tuple(
+        _parse_component_property(
+            entry, where=f"{where}[{index}]", source=source, invalid=invalid
+        )
+        for index, entry in enumerate(entries)
+    )
+    _reject_duplicates(
+        [item.property_key for item in properties],
+        kind="property_key",
+        where=where,
+        source=source,
+        invalid=invalid,
+    )
+
+    return properties
+
+
+def _parse_component_property(
+    raw: Any, *, where: str, source: str, invalid: Invalid
+) -> ComponentProperty:
+    mapping = _require_mapping(raw, where=where, source=source, invalid=invalid)
+    _reject_unknown_keys(
+        mapping,
+        COMPONENT_PROPERTY_KEYS,
+        where=where,
+        source=source,
+        invalid=invalid,
+    )
+
+    property_key = mapping.get("property_key")
+    if (
+        not isinstance(property_key, str)
+        or property_key not in COMPONENT_PROPERTY_DEFINITIONS
+    ):
+        invalid(
+            f"'{where}.property_key' must be one of "
+            f"{sorted(COMPONENT_PROPERTY_DEFINITIONS)} in {source}, got "
+            f"{property_key!r}. The property vocabulary is closed: a model "
+            "profile binds to a property by name, so a key nothing declares "
+            "is a value no run could ever find."
+        )
+
+    definition = COMPONENT_PROPERTY_DEFINITIONS[property_key]
+
+    value = mapping.get("value")
+    # `isinstance(True, int)` is True, so booleans are excluded by type: a
+    # property is a quantity, never a flag.
+    if type(value) not in (int, float):
+        invalid(f"'{where}.value' must be a number in {source}, got {value!r}")
+    if value < 0:
+        invalid(
+            f"'{where}.value' is {value} in {source}. A declared property is "
+            "a magnitude; a direction is stated by whatever uses it, never by "
+            "the sign of a configured value."
+        )
+
+    unit = mapping.get("unit")
+    if unit != definition.unit:
+        invalid(
+            f"'{where}.unit' must be {definition.unit!r} for property "
+            f"{property_key!r} in {source}, got {unit!r}. The unit belongs to "
+            "the property rather than to the document: the same quantity "
+            "written in two units is two numbers a consumer would have to "
+            "tell apart by reading text."
+        )
+
+    declared_source = _require_choice(
+        mapping,
+        "source",
+        COMPONENT_PROPERTY_SOURCES,
+        where=where,
+        source=source,
+        invalid=invalid,
+    )
+
+    source_version = mapping.get("source_version")
+    if (
+        type(source_version) is not int
+        or not 1 <= source_version <= MAX_PROPERTY_SOURCE_VERSION
+    ):
+        invalid(
+            f"'{where}.source_version' must be an integer between 1 and "
+            f"{MAX_PROPERTY_SOURCE_VERSION} in {source}, got "
+            f"{source_version!r}. A property carries the version of the "
+            "document that declared it, so drift between a template and the "
+            "Sites copied from it stays inspectable."
+        )
+
+    return ComponentProperty(
+        property_key=property_key,
+        value=float(value),
+        unit=definition.unit,
+        kind=definition.kind,
+        source=declared_source,
+        source_version=source_version,
+    )
+
+
+def render_component_properties(
+    properties: "tuple[ComponentProperty, ...] | None",
+) -> "list[dict[str, Any]] | None":
+    """Render typed properties back into the document shape.
+
+    `kind` is not written, because it is not read: it is the vocabulary's
+    answer, and a document carrying it would be a second place for it to be
+    wrong.
+    """
+    if properties is None:
+        return None
+
+    return [
+        {
+            "property_key": item.property_key,
+            "value": item.value,
+            "unit": item.unit,
+            "source": item.source,
+            "source_version": item.source_version,
+        }
+        for item in properties
+    ]
 
 
 # --- Shared field rules -----------------------------------------------------

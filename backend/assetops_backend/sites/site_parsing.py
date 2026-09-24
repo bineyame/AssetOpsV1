@@ -26,7 +26,9 @@ from typing import Any, Mapping, NoReturn
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.sites.foundation_parsing import (
     FOUNDATION_CONTENT_KEYS,
+    parse_component_properties,
     parse_foundation_content,
+    render_component_properties,
     render_foundation_content,
 )
 from assetops_backend.sites.identity import validate_site_id
@@ -73,7 +75,16 @@ FOUNDATION_KEYS = (
     frozenset({"version", "valid_from", "summary", "components"})
     | FOUNDATION_CONTENT_KEYS
 )
-COMPONENT_KEYS = frozenset({"component_id", "component_type", "display_name", "rating"})
+# `properties` is the T020A addition, allowed from the same place the template
+# parser allows it. **A Site document written before T020A declares no
+# `properties` key at all, and that is the whole compatibility path**: the key
+# is optional, absent parses to `None`, nothing is invented for it, and such a
+# Site reads back byte-identically to what was stored. A template that gains
+# properties does not reach a Site created before it, because a template copies
+# at creation and never migrates.
+COMPONENT_KEYS = frozenset(
+    {"component_id", "component_type", "display_name", "rating", "properties"}
+)
 RATING_KEYS = frozenset({"value", "unit"})
 
 # Bounds. Without these one document can exhaust memory or fill the Sites
@@ -240,6 +251,14 @@ def render_site_document(record: SiteRecord) -> dict[str, Any]:
                             "value": component.rating.value,
                             "unit": component.rating.unit,
                         }
+                    ),
+                    # Written unconditionally, `None` where the component
+                    # declares none, for the reason the four Foundation
+                    # sections are: a total render is what makes a round trip
+                    # return an equal record whether the document declared the
+                    # key or not.
+                    "properties": render_component_properties(
+                        component.properties
                     ),
                 }
                 for component in record.foundation.components
@@ -492,11 +511,19 @@ def _parse_component(raw: Any, *, index: int, source: str) -> SiteComponent:
     if raw.get("rating") is not None:
         rating = _parse_rating(raw["rating"], where=where, source=source)
 
+    properties = parse_component_properties(
+        raw.get("properties"),
+        where=f"{where}.properties",
+        source=source,
+        invalid=_invalid,
+    )
+
     return SiteComponent(
         component_id=component_id,
         component_type=component_type,
         display_name=display_name,
         rating=rating,
+        properties=properties,
     )
 
 

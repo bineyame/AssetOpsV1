@@ -35,6 +35,7 @@ from assetops_backend.scenarios.models import ScenarioDefinition
 from assetops_backend.scenarios.parsing import parse_scenario_document
 from assetops_backend.scenarios.ports import ScenarioNotFound
 from assetops_backend.sites.models import (
+    ComponentProperty,
     DeviceSignal,
     FoundationDevice,
     FoundationTopology,
@@ -108,6 +109,26 @@ def site(
     )
 
 
+def component_property(
+    *,
+    property_key: str = "tank-capacity",
+    value: float = 500.0,
+    unit: str = "L",
+    kind: str = "PHYSICAL",
+    source: str = "SITE",
+    source_version: int = 1,
+) -> ComponentProperty:
+    """One typed property on a fixture component."""
+    return ComponentProperty(
+        property_key=property_key,
+        value=value,
+        unit=unit,
+        kind=kind,
+        source=source,
+        source_version=source_version,
+    )
+
+
 def default_components() -> tuple[SiteComponent, ...]:
     return (
         SiteComponent(
@@ -115,6 +136,7 @@ def default_components() -> tuple[SiteComponent, ...]:
             component_type="FUEL_TANK",
             display_name="Stored volume",
             rating=Rating(value=500.0, unit="L"),
+            properties=(component_property(),),
         ),
     )
 
@@ -204,15 +226,17 @@ def default_supported_states() -> tuple[SupportedState, ...]:
 
 
 def foundation_bound_states() -> tuple[SupportedState, ...]:
-    """The same states, with the stored volume bound to a Foundation rating."""
+    """The same states, with the stored volume bound to a typed property."""
     return (
         SupportedState(
             state_key="example-stored-volume",
             supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}),
             foundation_binding=FoundationBinding(
-                component_type="FUEL_TANK", rating_unit="L"
+                component_type="FUEL_TANK",
+                property_key="tank-capacity",
+                unit="L",
             ),
-            statement="The stored volume is bounded by a declared rating.",
+            statement="The stored volume is bounded by a declared property.",
         ),
         SupportedState(
             state_key="example-demand",

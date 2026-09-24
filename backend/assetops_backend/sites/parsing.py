@@ -27,6 +27,7 @@ from typing import Any, Mapping, NoReturn
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.sites.foundation_parsing import (
     FOUNDATION_CONTENT_KEYS,
+    parse_component_properties,
     parse_foundation_content,
 )
 from assetops_backend.sites.models import (
@@ -54,7 +55,13 @@ TEMPLATE_KEYS = frozenset(
 FOUNDATION_KEYS = (
     frozenset({"site_type", "summary", "components"}) | FOUNDATION_CONTENT_KEYS
 )
-COMPONENT_KEYS = frozenset({"component_id", "component_type", "display_name", "rating"})
+# `properties` is the T020A addition. A component keeps its single nameplate
+# `rating` and gains a list of typed, unit-carrying physical and control
+# properties; the two are different kinds of fact and neither derives from the
+# other.
+COMPONENT_KEYS = frozenset(
+    {"component_id", "component_type", "display_name", "rating", "properties"}
+)
 RATING_KEYS = frozenset({"value", "unit"})
 
 # Bounds. A pathological document is refused rather than accepted: without
@@ -219,11 +226,19 @@ def _parse_component(raw: Any, *, index: int, source: str) -> TemplateComponent:
     if component.get("rating") is not None:
         rating = _parse_rating(component["rating"], where=where, source=source)
 
+    properties = parse_component_properties(
+        component.get("properties"),
+        where=f"{where}.properties",
+        source=source,
+        invalid=_invalid,
+    )
+
     return TemplateComponent(
         component_id=component_id,
         component_type=component_type,
         display_name=display_name,
         rating=rating,
+        properties=properties,
     )
 
 

@@ -38,13 +38,14 @@ different fix, which is why they are ten rather than one with a message: a
 malformed interval and a Site that is not configured are not the same problem
 and do not lead a reader to the same place.
 
-Two of them are about an initial world value and they are deliberately not
-one kind. **An absence and a contradiction are not the same shape**, and the
-difference is the whole of why one side of the line can persist a Draft and
-the other cannot: a value with no answer is something the frozen identity can
-record as absent, and a value with two answers is something it has no shape
-for at all. Naming both `INITIALIZATION_INPUT_MISSING` made the kind wrong
-about the case it mostly covered and put it one word from the blocking
+One of them is about an initial world value: `INITIALIZATION_INPUT_MISSING`,
+the `RUN_OVERRIDE` a request did not supply. It is one rather than two since
+T020A, because the contradiction that was the second - two different answers
+for one value - can no longer be authored. What the pair established survives
+the retirement: **an absence and a contradiction are not the same shape**, and
+that is why one side of the line can persist a Draft and the other cannot.
+Naming both `INITIALIZATION_INPUT_MISSING` made the kind wrong about the case
+it mostly covered and put it one word from the blocking
 `INITIAL_VALUE_NOT_RESOLVED`, on the other side of a line this file exists to
 keep visible.
 """
@@ -77,12 +78,20 @@ from __future__ import annotations
 #:   identity exists to stop. A value the selected PROFILE could not supply
 #:   or locate is NOT here: that blocks, because a different profile would
 #:   answer.
-#: - `INITIAL_VALUE_ANSWERS_DISAGREE`: an initial world value that has TWO
-#:   answers and they are not the same number. Today that is a Foundation
-#:   rating against the value the scenario states the Foundation declares.
-#:   Nothing is missing here, which is why it left the kind above: a run
-#:   cannot be frozen with two answers because the frozen identity has no
-#:   shape for two, and choosing one is the thing refusing prevents.
+#:
+#: `INITIAL_VALUE_ANSWERS_DISAGREE` was here and is retired. It named an
+#: initial world value with TWO answers - a Foundation rating against the
+#: number the scenario stated the Foundation declares - and it had exactly one
+#: producer. After `D-2026-09-22-foundation-value-declaration` no document can
+#: state that number, so nothing can produce the kind, and it went with its
+#: producer under `D-2026-09-22-expiry-follows-the-condition`. A vocabulary
+#: member nothing can produce claims a failure mode that cannot occur.
+#:
+#: Its structural argument survives it and is worth keeping: an absence and a
+#: contradiction are different shapes, and only one of them is something a
+#: frozen identity can hold. What changed is that the contradiction can no
+#: longer arise, so **every failure of a Foundation-owned value now blocks and
+#: none refuses**. A reader meeting that should not take it for an oversight.
 #: - `UNIT_INVALID`: a supplied value carries a unit the contract does not
 #:   know, a unit the parameter does not use, or a quantity the `invalid-rate`
 #:   bound case refuses.
@@ -96,7 +105,6 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         "TARGET_TOPOLOGY_UNSUPPORTED",
         "COMPONENT_OR_SIGNAL_UNRESOLVED",
         "INITIALIZATION_INPUT_MISSING",
-        "INITIAL_VALUE_ANSWERS_DISAGREE",
         "UNIT_INVALID",
     }
 )

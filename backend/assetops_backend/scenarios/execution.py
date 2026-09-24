@@ -101,7 +101,16 @@ from assetops_backend.scenarios.models import (
 #: has ever conformed to it, and bumping would invent a version no consumer
 #: ever saw while spending the golden-trace regeneration the policy exists to
 #: avoid. Once this merges, the next narrowing is a three.
-EXECUTION_CONTRACT_VERSION = 2
+#:
+#: Three since T020A, and it is the narrowing
+#: `D-2026-09-22-foundation-value-declaration` describes: a parameter whose
+#: declared owner is the Site's Foundation may no longer state a value. That
+#: reaches a document which already exists and was already valid - the shipped
+#: Fuel Loss Event as version two accepted it is refused by this parser - so
+#: under `D-2026-09-22-contract-version-scope` it moves the number. Version two
+#: HAS been published: frozen Drafts in the run store carry it, and they keep
+#: it. Nothing reinterprets an earlier frozen run under this version.
+EXECUTION_CONTRACT_VERSION = 3
 
 
 @dataclass(frozen=True)
@@ -132,6 +141,12 @@ class CanonicalUnit:
 CANONICAL_UNITS: dict[str, CanonicalUnit] = {
     "L": CanonicalUnit("VOLUME", "L", 1, 1),
     "L/h": CanonicalUnit("VOLUME_RATE", "L/min", 1, 60),
+    # Specific fuel consumption. A volume per unit of energy delivered, which
+    # is a different dimension from a volume per unit of TIME: it is not a
+    # rate, it cannot be integrated across a window, and `RATE_INTEGRALS`
+    # therefore does not list it. That is what stops it being authored as the
+    # magnitude of a windowed state effect.
+    "L/kWh": CanonicalUnit("VOLUME_PER_ENERGY", "L/kWh", 1, 1),
     "kW": CanonicalUnit("POWER", "kW", 1, 1),
     "kWh": CanonicalUnit("ENERGY", "kWh", 1, 1),
     "V": CanonicalUnit("VOLTAGE", "V", 1, 1),
@@ -404,15 +419,27 @@ BOUND_CASES: tuple[BoundCase, ...] = (
 
 @dataclass(frozen=True)
 class InitializationInput:
-    """One initial world value, with the owner that answers for it."""
+    """One initial world value, with the owner that answers for it.
+
+    `value` and `canonical_value` are `None` exactly when the declared owner
+    is `SITE_FOUNDATION`, because such a parameter states no number
+    (`D-2026-09-22-foundation-value-declaration`). This record is a projection
+    of the document and the document genuinely does not know the number: the
+    Site does, and run setup is the component entitled to hold a document and
+    a resolved Site together.
+
+    `unit` and `dimension` are present either way. What kind of quantity the
+    state is remains the scenario's to declare, and it is what run setup
+    checks the Foundation's own property against.
+    """
 
     parameter_id: str
     display_name: str
     state_key: str
     owner: str
-    value: float
+    value: float | None
     unit: str
-    canonical_value: float
+    canonical_value: float | None
     canonical_unit: str
     dimension: str
 
@@ -485,19 +512,36 @@ def initialization_inputs(
             continue
         if parameter.state_key is None or parameter.unit is None:
             continue
-        if not isinstance(parameter.value, float):
+        # A Foundation-owned parameter states no number, by construction
+        # (`D-2026-09-22-foundation-value-declaration`), and it still declares
+        # an initial world value: the need is what it declares, and run setup
+        # resolves the answer from the Site through the profile's binding.
+        # Skipping it here on the old float filter would have made the
+        # decision's own parameters vanish from initialization, which is the
+        # opposite of what it settles.
+        if parameter.value is None:
+            if ownership.owner != "SITE_FOUNDATION":
+                continue
+            canonical_value = None
+            _, canonical_unit, dimension = canonical_quantity(
+                0.0, parameter.unit
+            )
+            value: float | None = None
+        elif isinstance(parameter.value, float):
+            value = parameter.value
+            canonical_value, canonical_unit, dimension = canonical_quantity(
+                parameter.value, parameter.unit
+            )
+        else:
             continue
 
-        canonical_value, canonical_unit, dimension = canonical_quantity(
-            parameter.value, parameter.unit
-        )
         inputs.append(
             InitializationInput(
                 parameter_id=parameter.parameter_id,
                 display_name=parameter.display_name,
                 state_key=parameter.state_key,
                 owner=ownership.owner,
-                value=parameter.value,
+                value=value,
                 unit=parameter.unit,
                 canonical_value=canonical_value,
                 canonical_unit=canonical_unit,

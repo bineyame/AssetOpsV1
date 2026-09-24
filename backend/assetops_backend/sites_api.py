@@ -42,7 +42,12 @@ from fastapi import APIRouter, HTTPException
 
 from assetops_backend.sites.foundation_parsing import render_foundation_content
 from assetops_backend.sites.identity import SITE_ID_RULE, validate_site_id
-from assetops_backend.sites.models import FoundationContent, SiteComponent, SiteRecord
+from assetops_backend.sites.models import (
+    COMPONENT_PROPERTY_DEFINITIONS,
+    FoundationContent,
+    SiteComponent,
+    SiteRecord,
+)
 from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
     SiteIdentityConflict,
@@ -105,6 +110,29 @@ def site_component(component: SiteComponent) -> dict[str, object]:
             None
             if component.rating is None
             else {"value": component.rating.value, "unit": component.rating.unit}
+        ),
+        # The typed properties this component declares, each with its unit and
+        # the document and version that declared it. `null` is the Foundation
+        # declaring none - which is what a Site created before T020A carries -
+        # and it is never an empty list, because an empty list would say this
+        # component HAS no properties.
+        "properties": (
+            None
+            if component.properties is None
+            else [
+                {
+                    "property_key": item.property_key,
+                    "display_name": COMPONENT_PROPERTY_DEFINITIONS[
+                        item.property_key
+                    ].display_name,
+                    "value": item.value,
+                    "unit": item.unit,
+                    "kind": item.kind,
+                    "source": item.source,
+                    "source_version": item.source_version,
+                }
+                for item in component.properties
+            ]
         ),
     }
 

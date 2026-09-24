@@ -49,6 +49,115 @@ COMPONENT_TYPES = frozenset(
 # against.
 RATING_UNITS = frozenset({"kW", "kWh", "kVA", "V", "A", "Hz", "L"})
 
+# --- Typed component properties ---------------------------------------------
+#
+# T020A adds the second thing a Foundation may say about a component. A
+# `Rating` is the one nameplate magnitude a component was sold with; a
+# property is one named, typed, unit-carrying physical or control fact about
+# that same component, and a component may declare several.
+#
+# The vocabulary below is CLOSED, in the same way `RATING_UNITS` and
+# `SIGNAL_UNITS` are closed and for the same reason: a model profile binds to
+# a property by name, so a document that could coin its own property keys
+# could coin a key no profile will ever look for, and a run would block on a
+# value that looks declared. A slice that needs a new property adds it here.
+#
+# The unit is the vocabulary's, not the author's. Specific fuel consumption is
+# `L/kWh` because that is the machine's own property
+# (`D-2026-09-22-consumption-coefficient-unit`); a document declaring it in
+# `L/h` is declaring a number that is only true at one operating point, and
+# the parser refuses it rather than storing it and letting a later consumer
+# find out.
+
+#: What kind of fact a property is. `PHYSICAL` is something the machine is;
+#: `CONTROL` is a configured control value about it.
+#:
+#: `CONTROL` here is an inspectable typed property and nothing more. It is not
+#: a controller, not a setpoint a run may write, and not a Site-scoped
+#: Controls capability: the first controller that CONSUMES one of these
+#: arrives with T024, and the T016 restriction on control-state vocabulary is
+#: untouched - no switching position, no breaker state, no operating mode.
+COMPONENT_PROPERTY_KINDS = frozenset({"PHYSICAL", "CONTROL"})
+
+#: Where a declared property came from. Same two values, and the same meaning,
+#: as `CONTROL_ASSUMPTION_BASES`: `TEMPLATE` is a property the archetype
+#: declared and the Site copied, `SITE` is one declared for this Site.
+COMPONENT_PROPERTY_SOURCES = frozenset({"TEMPLATE", "SITE"})
+
+
+@dataclass(frozen=True)
+class PropertyDefinition:
+    """One member of the closed property vocabulary.
+
+    The unit belongs to the definition rather than to the document: a property
+    key names a quantity, and a quantity has one canonical unit here for the
+    same reason a scenario parameter does.
+    """
+
+    unit: str
+    kind: str
+    display_name: str
+
+
+#: The closed property vocabulary. Four members, which is what this slice's
+#: minimum physical proof and its component-control demonstration need.
+#:
+#: `tank-capacity` and `specific-fuel-consumption` are the physical pair the
+#: first causal kernel reads out of a frozen run. `reserve-state-of-charge`
+#: and `minimum-runtime` are the control pair: typed, inspectable, and
+#: consumed by nothing in this build.
+COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
+    "tank-capacity": PropertyDefinition(
+        unit="L", kind="PHYSICAL", display_name="Tank capacity"
+    ),
+    "specific-fuel-consumption": PropertyDefinition(
+        unit="L/kWh",
+        kind="PHYSICAL",
+        display_name="Specific fuel consumption",
+    ),
+    "reserve-state-of-charge": PropertyDefinition(
+        unit="%", kind="CONTROL", display_name="Reserve state of charge"
+    ),
+    "minimum-runtime": PropertyDefinition(
+        unit="min", kind="CONTROL", display_name="Minimum runtime"
+    ),
+}
+
+#: Every unit a declared property may carry, derived from the vocabulary so a
+#: property added above cannot introduce a unit nothing knows about and a unit
+#: listed here cannot outlive the property that used it.
+PROPERTY_UNITS = frozenset(
+    definition.unit for definition in COMPONENT_PROPERTY_DEFINITIONS.values()
+)
+
+
+@dataclass(frozen=True)
+class ComponentProperty:
+    """One typed physical or control property a Foundation declares.
+
+    `property_key` is a member of `COMPONENT_PROPERTY_DEFINITIONS` and carries
+    that definition's unit; `kind` is read from the definition rather than
+    authored, because a document choosing whether its own value is physical or
+    control would be a second answer to a question the vocabulary settles.
+
+    `source` and `source_version` are provenance about this property: which
+    document declared it and at which version. A property copied from a
+    template keeps `TEMPLATE` and the template version it was copied at, so a
+    later template change stays visible as drift rather than reaching back
+    into the Site.
+
+    Declared truth, never evidence. That a Foundation declares 0.31 L/kWh is
+    not a claim that any generator has burned anything.
+    """
+
+    property_key: str
+    value: float
+    unit: str
+    kind: str
+    source: str
+    source_version: int
+
+
 # --- Foundation content below the component list ----------------------------
 #
 # T014 adds topology, devices, signal availability, device-to-signal mappings,
@@ -268,6 +377,7 @@ class TemplateComponent:
     component_type: str
     display_name: str
     rating: Rating | None
+    properties: tuple[ComponentProperty, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -375,6 +485,7 @@ class SiteComponent:
     component_type: str
     display_name: str
     rating: Rating | None
+    properties: tuple[ComponentProperty, ...] | None = None
 
 
 @dataclass(frozen=True)

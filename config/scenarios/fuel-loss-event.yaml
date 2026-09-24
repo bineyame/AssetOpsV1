@@ -17,12 +17,20 @@
 # `assetops_backend/scenarios/execution.py`, because they are the same for
 # every scenario and are versioned simulator semantics rather than authoring.
 #
-# The numbers here are the ones the T017 checkpoint shipped and are unchanged.
-# They do not agree with each other: the causal inputs declared below reach a
-# different tank level than the two readings do. That disagreement is now
-# stated by the contract rather than hidden by it - see the reconciliation the
-# detail screen renders - and resolving it is a product decision the T018
-# review carries.
+# T020A takes two numbers out of this document and does not replace them. The
+# tank's capacity and the generator's specific fuel consumption are properties
+# of those machines, so the site's foundation declares them and this document
+# declares only the need: the state, the unit, and that the foundation answers
+# (`D-2026-09-22-foundation-value-declaration`). Run setup resolves them
+# through the selected model profile's binding and freezes them on the run.
+#
+# What that costs the reconciliation the detail screen renders is real and
+# intended. The dispatch window used to declare its own consumption rate, so
+# the declared causes reached a tank level; it now declares an output and the
+# model rule owns the consumption, so the causes this DOCUMENT declares no
+# longer account for the readings. That is the honest projection of a document
+# that has stopped carrying a machine's physics, and the component entitled to
+# compose the two halves is T021's kernel.
 
 scenario_id: fuel-loss-event
 display_name: Fuel Loss Event
@@ -80,23 +88,27 @@ observation_sources:
 
 public_parameters:
   - parameter_id: tank-capacity
-    display_name: Fuel tank capacity the scenario assumes
-    value: 500
+    display_name: Fuel tank capacity
     unit: L
     execution_role: CAUSAL_INPUT
     state_key: fuel-tank-capacity
     execution_requirement: REQUIRED
     ownership:
-      # The foundation is the authority: MG-001 declares a fuel-storage
-      # component with a rating. The value here is the requirement run setup
-      # checks against that rating, not the value a run would use.
+      # No value, and there is no position here to write one in
+      # (`D-2026-09-22-foundation-value-declaration`). How large the tank is
+      # is a property of the tank, so the site's foundation declares it and
+      # this document declares only that the foundation answers, for which
+      # state, and in which unit. The number reaches a run through the model
+      # profile's binding and is frozen there.
       owner: SITE_FOUNDATION
       initializes: true
     bounds:
-      # Capacity and volume are two world states, and nothing about their
-      # names says one limits the other. Declaring it is what lets the
-      # contract notice that a declared cause would take the tank past its
-      # capacity, and decline to report a level the same definition refuses.
+      # The declaration survives the number's removal, and the split is the
+      # point (`D-2026-09-22-capacity-bound-source`). WHICH state caps which
+      # is a relationship between two world states and stays in the document;
+      # HOW LARGE the cap is belongs to the site. Nothing about the spellings
+      # `fuel-tank-capacity` and `fuel-tank-volume` says one limits the other,
+      # so a kernel has this declaration or it has nothing.
       state_key: fuel-tank-volume
       bound_kind: UPPER
 
@@ -115,16 +127,27 @@ public_parameters:
       owner: SCENARIO_INPUT
       initializes: true
 
-  - parameter_id: generator-fuel-rate
-    display_name: Generator fuel consumption while dispatched
-    value: 14
-    unit: L/h
+  - parameter_id: generator-specific-consumption
+    display_name: Generator specific fuel consumption
+    unit: L/kWh
     execution_role: CAUSAL_INPUT
-    state_key: fuel-tank-volume
+    state_key: generator-specific-fuel-consumption
     execution_requirement: REQUIRED
     ownership:
-      owner: SCENARIO_INPUT
-      initializes: false
+      # This replaces the 14 L/h the scenario used to state, and the unit
+      # change is the substance of it
+      # (`D-2026-09-22-consumption-coefficient-unit`). Litres per hour is a
+      # property of the machine TIMES its operating point, and the operating
+      # point is the story's - so `L/h` in a foundation would be a
+      # scenario-dependent number in the place a site says what it is. Litres
+      # per kilowatt-hour delivered is a property of the machine alone.
+      #
+      # It is an initial world value rather than a transition: the
+      # coefficient is what the interval starts holding for this generator,
+      # and the model rule - consumption is specific consumption times energy
+      # delivered - is what turns it into a change in the tank.
+      owner: SITE_FOUNDATION
+      initializes: true
 
 timeline:
   - event_id: baseline-load-profile
@@ -198,28 +221,39 @@ timeline:
     entry_kind: EVENT
     category: EQUIPMENT
     description: >-
-      The generator is dispatched to cover the evening peak and consumes fuel
-      at the declared rate for the length of the window. This is the only
-      legitimate fuel consumption in the interval.
-    execution_role: CAUSAL_INPUT
-    state_key: fuel-tank-volume
+      The generator is dispatched to cover the evening peak, delivering the
+      declared output for the length of the window. The fuel this consumes is
+      not stated here: it follows from the generator's own specific
+      consumption, which the site's foundation declares.
+    # A forcing rather than a cause, and it no longer names a rate at all.
+    # The entry declares that the generator runs and at what output; the model
+    # rule - consumption is specific consumption times energy delivered - owns
+    # the transition in the tank. That is the last place a scenario could name
+    # a consumption rate, and it is gone
+    # (`D-2026-09-22-consumption-coefficient-unit`).
+    execution_role: FORCING_INPUT
+    state_key: generator-output-power
     execution_requirement: REQUIRED
     timing:
       shape: WINDOW
       duration_minutes: 240
-    state_effect:
-      direction: DECREASE
-      rate_parameter_id: generator-fuel-rate
     parameters:
       - parameter_id: dispatched-output
         display_name: Generator output while dispatched
         value: 45
         unit: kW
-        # Description, not an input. What a generator delivers electrically
-        # follows from the demand it is covering; authoring it as a cause
-        # would be authoring a state trajectory, which is the thing
-        # D-2026-09-21-causal-runtime-before-golden-traces forbids.
-        execution_role: NON_EXECUTABLE_CONDITION
+        # Promoted from NON_EXECUTABLE_CONDITION. The old comment forbidding
+        # an authored generator output conflated COMPUTING it with FORCING
+        # it: forcing an exogenous condition the model does not solve is what
+        # FORCING_INPUT is for, exactly as for load and irradiance. Nothing
+        # here solves a power flow, and the kernel carries the forced value
+        # rather than deriving it.
+        execution_role: FORCING_INPUT
+        state_key: generator-output-power
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
 
   - event_id: unaccounted-fuel-removal
     sequence: 4

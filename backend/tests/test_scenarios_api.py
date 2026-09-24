@@ -839,10 +839,18 @@ class TestObservationSourceResolution:
 
 
 class TestTheShippedReconciliation:
-    """The 254 L against 155 L and 150 L conflict, on the payload.
+    """The declared-versus-reported conflict, on the payload.
 
     Run through the real composition, because the claim is about the shipped
     definition rather than about a fixture built to make it true.
+
+    The declared level is 310 L since T020A, where it was 254 L: the dispatch
+    window no longer declares the fuel it consumes, because the generator's
+    specific fuel consumption is a property of the machine and the
+    Foundation declares it
+    (`D-2026-09-22-consumption-coefficient-unit`). This payload is a
+    projection of the document, so consumption it cannot see is consumption
+    it does not report.
     """
 
     def contract(self) -> dict:
@@ -868,26 +876,93 @@ class TestTheShippedReconciliation:
 
         after_the_gap = results["fuel-level-after-the-gap"]
         assert after_the_gap["reported_value"] == 155.0
-        assert after_the_gap["declared_value"] == 254.0
-        assert after_the_gap["difference"] == -99.0
+        assert after_the_gap["declared_value"] == 310.0
+        assert after_the_gap["difference"] == -155.0
         assert after_the_gap["state"] == "NOT_ACCOUNTED_FOR"
         assert after_the_gap["source_id"] == "fuel-level-sensor-reading"
 
         inspection = results["operator-tank-inspection"]
         assert inspection["reported_value"] == 150.0
-        assert inspection["difference"] == -104.0
+        assert inspection["difference"] == -160.0
         assert inspection["source_id"] == "operator-hand-record"
 
-    def test_the_rate_is_accumulated_to_a_readable_quantity(self) -> None:
-        transitions = {
-            item["event_id"]: item
-            for item in self.contract()["state_transition_inputs"]
+    def test_a_foundation_owned_parameter_reaches_the_payload_with_no_value(
+        self,
+    ) -> None:
+        """The screen has to be able to render a declared need.
+
+        Two parameters carry a unit, a state, an owner and no number, and the
+        payload says so rather than sending a zero. `canonical` is null for
+        the same reason: there is no quantity to convert.
+        """
+        served = TestClient(
+            create_app(ENABLED, site_repository=FakeSites((site("MG-001"),)))
+        )
+        scenario = served.get(f"{SCENARIOS_PATH}/fuel-loss-event").json()[
+            "scenario"
+        ]
+        parameters = {
+            item["parameter_id"]: item
+            for item in scenario["public_parameters"]
         }
 
-        assert transitions["generator-run-window"]["applied_value"] == 56.0
-        assert transitions["generator-run-window"]["applied_unit"] == "L"
-        assert transitions["generator-run-window"]["starts_at_offset"] == 1080
-        assert transitions["generator-run-window"]["complete_at_offset"] == 1320
+        for parameter_id, unit in (
+            ("tank-capacity", "L"),
+            ("generator-specific-consumption", "L/kWh"),
+        ):
+            parameter = parameters[parameter_id]
+            assert parameter["value"] is None, parameter_id
+            assert parameter["unit"] == unit, parameter_id
+            assert parameter["canonical"] is None, parameter_id
+            assert parameter["ownership"]["owner"] == "SITE_FOUNDATION"
+
+        # Non-vacuous: a parameter that does state a number still carries it.
+        assert parameters["starting-fuel-level"]["value"] == 430.0
+
+    def test_the_dispatch_window_forces_an_output_and_causes_nothing(
+        self,
+    ) -> None:
+        """The promotion, on the payload a screen reads.
+
+        `dispatched-output` used to be description an executor ignored and
+        the entry used to name a consumption rate. It now forces
+        `generator-output-power`, and the entry carries no state effect at
+        all: the model rule owns what that costs the tank.
+        """
+        contract = self.contract()
+        transitions = {
+            item["event_id"] for item in contract["state_transition_inputs"]
+        }
+
+        assert "generator-run-window" not in transitions
+        # Non-vacuous: the removal and the delivery are still transitions.
+        assert transitions == {
+            "unaccounted-fuel-removal",
+            "scheduled-refuelling",
+        }
+
+        entry = next(
+            item
+            for item in self.scenario()["timeline"]
+            if item["event_id"] == "generator-run-window"
+        )
+        assert entry["execution_role"] == "FORCING_INPUT"
+        assert entry["state_key"] == "generator-output-power"
+        assert entry["state_effect"] is None
+        assert [
+            (item["parameter_id"], item["execution_role"], item["state_key"])
+            for item in entry["parameters"]
+        ] == [
+            ("dispatched-output", "FORCING_INPUT", "generator-output-power")
+        ]
+
+    def scenario(self) -> dict:
+        served = TestClient(
+            create_app(ENABLED, site_repository=FakeSites((site("MG-001"),)))
+        )
+        return served.get(f"{SCENARIOS_PATH}/fuel-loss-event").json()[
+            "scenario"
+        ]
 
     def test_no_reported_value_appears_among_the_transition_inputs(
         self,

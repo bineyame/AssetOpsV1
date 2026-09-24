@@ -140,6 +140,15 @@ class TestCanonicalUnits:
         Computed through binary floats it is fifty-six point zero zero zero
         zero zero zero zero zero zero zero one, and a screen showing that
         would state a precision the scenario does not have.
+
+        The worked example is measured against the FIXTURE document rather
+        than the shipped one since T020A. The shipped dispatch window no
+        longer declares a consumption rate at all: the generator's specific
+        fuel consumption is a property of the machine, so the Foundation
+        declares it and the model rule turns it into a change in the tank
+        (`D-2026-09-22-consumption-coefficient-unit`). A rate effect is still
+        a thing this contract integrates, so it is still proved - against a
+        document that still declares one.
         """
         rate, unit, dimension = canonical_quantity(14.0, "L/h")
 
@@ -149,11 +158,25 @@ class TestCanonicalUnits:
 
         transitions = {
             transition.event_id: transition
-            for transition in state_transition_inputs(shipped_scenario())
+            for transition in state_transition_inputs(fixture_scenario())
         }
-        assert "generator-run-window" in transitions
-        assert transitions["generator-run-window"].applied_value == 56.0
-        assert transitions["generator-run-window"].applied_unit == "L"
+        # Six litres an hour across a sixty-minute window is six litres.
+        assert "draw-window" in transitions
+        assert transitions["draw-window"].applied_value == 6.0
+        assert transitions["draw-window"].applied_unit == "L"
+
+    def test_the_specific_consumption_unit_is_not_a_rate(self) -> None:
+        """`L/kWh` is a property of the machine, not a quantity per unit time.
+
+        It is deliberately outside `RATE_INTEGRALS`, which is what stops it
+        being authored as the magnitude of a windowed state effect: a
+        coefficient accumulated across a window would be a number nobody
+        could name.
+        """
+        assert "L/kWh" in PARAMETER_UNITS
+        canonical = CANONICAL_UNITS["L/kWh"]
+        assert canonical.dimension == "VOLUME_PER_ENERGY"
+        assert canonical.dimension not in RATE_INTEGRALS
 
     def test_every_rate_dimension_can_be_accumulated(self) -> None:
         assert RATE_INTEGRALS
@@ -222,13 +245,29 @@ class TestEveryPublicValueIsAccountedFor:
             "read as a cause and as its own expected result at the same time."
         )
 
-    def test_the_shipped_definition_exercises_every_execution_role(
+    def test_the_shipped_definition_exercises_every_executable_role(
         self,
     ) -> None:
-        """Otherwise a role could be dead vocabulary nothing has ever used."""
+        """Otherwise a role could be dead vocabulary nothing has ever used.
+
+        Narrowed to the executable roles by T020A, and the narrowing is a
+        consequence rather than a concession. `dispatched-output` was the
+        shipped document's only `NON_EXECUTABLE_CONDITION` and it was
+        promoted to a `FORCING_INPUT` on `generator-output-power`
+        (`D-2026-09-22-consumption-coefficient-unit`), so the shipped
+        document now declares nothing an executor ignores. Widening it back
+        by authoring a decorative value would be inventing content to satisfy
+        a test.
+
+        The role is not dead vocabulary: the parser suite exercises it in
+        both directions - a text parameter carries it, and an executable role
+        on a phrase is refused - and the assertion below keeps the shipped
+        document honest about the roles it does use.
+        """
         used = {value["execution_role"] for _, value in self.public_values()}
 
-        assert used == EXECUTION_ROLES
+        assert used == EXECUTABLE_ROLES
+        assert "NON_EXECUTABLE_CONDITION" not in used
 
 
 class TestNoObservationReachesPrivateState:
@@ -400,7 +439,22 @@ class TestNoObservationReachesPrivateState:
         assert owners == {
             "fuel-tank-capacity": "SITE_FOUNDATION",
             "fuel-tank-volume": "SCENARIO_INPUT",
+            "generator-specific-fuel-consumption": "SITE_FOUNDATION",
         }
+
+        # The two the Foundation owns carry no number and still carry the
+        # unit, which is the shape
+        # `D-2026-09-22-foundation-value-declaration` settles: the document
+        # declares the need and the site answers it.
+        by_state = {item.state_key: item for item in inputs}
+        for state_key in (
+            "fuel-tank-capacity",
+            "generator-specific-fuel-consumption",
+        ):
+            assert by_state[state_key].value is None, state_key
+            assert by_state[state_key].canonical_value is None, state_key
+            assert by_state[state_key].unit is not None, state_key
+        assert by_state["fuel-tank-volume"].value == 430.0
 
 
 class TestObservationSourcesAndCadence:
@@ -884,20 +938,39 @@ class TestBoundCases:
             assert "IGNORE" not in policy
             assert "DISCARD" not in policy
 
-    def test_the_declared_causes_reach_the_capacity_bound(self) -> None:
-        """The capacity case is not hypothetical for this scenario.
+    def test_the_capacity_the_causes_run_against_is_no_longer_in_the_document(
+        self,
+    ) -> None:
+        """The bound case is still real; the number to check it against left.
 
-        Starting level, less the dispatch window's consumption, less the
-        removal, plus the scheduled delivery, is above the capacity the
-        scenario assumes. That is why a policy for it has to exist before a
-        kernel does, and why "clamp quietly" is not one of the options.
+        This asserted that the declared causes overfill the capacity the
+        scenario assumes, which needed the document to state the capacity.
+        After `D-2026-09-22-foundation-value-declaration` it does not: how
+        large the tank is is the site's, and
+        `D-2026-09-22-capacity-bound-source` prices exactly this - nothing
+        can notice the delivery overfilling the tank from the document alone
+        any more, because knowing the level at an offset requires composing
+        the declared causes, which is a kernel.
+
+        So what is asserted here is the half that is still a property of the
+        document: it declares the capacity as a world value the Foundation
+        owns, it states no number for it, and the causes it does declare
+        still compose to a level. Walking that level against the frozen
+        capacity is T021's, and `BOUND_CASES["fuel-tank-capacity"]` is the
+        policy it applies - a policy this suite still asserts has no silent
+        option in it.
         """
         scenario = shipped_scenario()
         initial = {
-            item.state_key: item.canonical_value
-            for item in initialization_inputs(scenario)
+            item.state_key: item for item in initialization_inputs(scenario)
         }
-        level = initial["fuel-tank-volume"]
+
+        capacity = initial["fuel-tank-capacity"]
+        assert capacity.owner == "SITE_FOUNDATION"
+        assert capacity.canonical_value is None
+
+        level = initial["fuel-tank-volume"].canonical_value
+        assert level is not None
         for transition in state_transition_inputs(scenario):
             if transition.state_key != "fuel-tank-volume":
                 continue
@@ -907,7 +980,32 @@ class TestBoundCases:
                 else -transition.applied_value
             )
 
-        assert level > initial["fuel-tank-capacity"]
+        # 430 less the 120 removed plus the 300 delivered. The dispatch
+        # window is no longer one of these: it forces an output and the model
+        # rule owns the fuel it costs.
+        assert level == 610.0
+        assert "fuel-tank-capacity" in {
+            case.case_id for case in BOUND_CASES
+        }
+
+
+def _shipped_document_with_a_scenario_owned_capacity() -> dict:
+    """The shipped document with the capacity moved back into the scenario.
+
+    Not a proposal to author one: it is the only way left to exercise the
+    bound machinery, because a value the Foundation owns states no number and
+    a bound with no number is a bound nothing can be walked against. The
+    scenario-owned form is still a legal document - `bounds` is allowed on any
+    declared initial world value - so this stays a test of the contract rather
+    than of a shape the parser would refuse.
+    """
+    document = shipped_document()
+    for parameter in document["public_parameters"]:
+        if parameter["parameter_id"] != "tank-capacity":
+            continue
+        parameter["value"] = 500
+        parameter["ownership"]["owner"] = "SCENARIO_INPUT"
+    return document
 
 
 class TestReconciliation:
@@ -943,7 +1041,7 @@ class TestReconciliation:
     def test_the_shipped_readings_are_not_reached_by_the_declared_causes(
         self,
     ) -> None:
-        """The 254 L against 155 L and 150 L conflict, stated rather than hidden.
+        """The conflict, stated rather than hidden, and it widened at T020A.
 
         Neither reading prescribes private tank state: both are reported
         observations from a named source and neither appears in the
@@ -952,6 +1050,16 @@ class TestReconciliation:
         that the causes it declares do not reach either reading - and it says
         it with the quantity and the sign rather than leaving a reader to
         subtract.
+
+        The declared level was 254 L until T020A and is now 310 L, because
+        the dispatch window no longer declares the 56 L it consumes: the
+        generator's specific fuel consumption is a property of the machine,
+        the Foundation declares it, and the model rule owns the transition
+        (`D-2026-09-22-consumption-coefficient-unit`). This projection reads
+        the document and only the document, so the consumption it can no
+        longer see is consumption it does not report. That is the honest
+        answer for a document that has stopped carrying a machine's physics,
+        and closing the gap is the kernel's.
         """
         results = {
             result.event_id: result
@@ -964,19 +1072,16 @@ class TestReconciliation:
         }
 
         after_the_gap = results["fuel-level-after-the-gap"]
-        assert after_the_gap.declared_value == 254.0
+        assert after_the_gap.declared_value == 310.0
         assert after_the_gap.reported_value == 155.0
-        assert after_the_gap.difference == -99.0
+        assert after_the_gap.difference == -155.0
         assert after_the_gap.state == "NOT_ACCOUNTED_FOR"
-        assert after_the_gap.accounted_by == (
-            "generator-run-window",
-            "unaccounted-fuel-removal",
-        )
+        assert after_the_gap.accounted_by == ("unaccounted-fuel-removal",)
 
         inspection = results["operator-tank-inspection"]
-        assert inspection.declared_value == 254.0
+        assert inspection.declared_value == 310.0
         assert inspection.reported_value == 150.0
-        assert inspection.difference == -104.0
+        assert inspection.difference == -160.0
         assert inspection.state == "NOT_ACCOUNTED_FOR"
 
     def test_a_reading_after_a_bound_is_reached_is_not_reported_at_all(
@@ -990,7 +1095,7 @@ class TestReconciliation:
         the contract refuses elsewhere. Applying the bound would be the
         kernel; declining to answer is the contract.
         """
-        document = shipped_document()
+        document = _shipped_document_with_a_scenario_owned_capacity()
         for entry in document["timeline"]:
             if entry["event_id"] == "scheduled-refuelling":
                 entry["offset_minutes"] = 1550
@@ -1013,31 +1118,91 @@ class TestReconciliation:
 
         # Non-vacuous: without the delivery moved, the same two readings are
         # answered, so the assertion above is about the bound and not about
-        # the readings being unanswerable in general.
+        # the readings being unanswerable in general. The control is the same
+        # document with the delivery where the scenario puts it, not the
+        # shipped one - otherwise the control and the case would differ in
+        # two ways and neither would be the bound.
         unmoved = {
             result.event_id: result
-            for result in reconcile_reported_observations(shipped_scenario())
+            for result in reconcile_reported_observations(
+                parse_scenario_document(
+                    _shipped_document_with_a_scenario_owned_capacity(),
+                    source="a test",
+                    origin="SHIPPED",
+                )
+            )
         }
         assert set(unmoved) == set(results)
         for result in unmoved.values():
             assert result.state == "NOT_ACCOUNTED_FOR"
 
     def test_the_declared_bound_is_declared_rather_than_guessed(self) -> None:
-        """Nothing infers that a capacity limits a volume from their names."""
-        bounds = declared_bounds(shipped_scenario())
+        """Nothing infers that a capacity limits a volume from their names.
 
-        assert bounds["fuel-tank-volume"] == (0.0, 500.0)
+        Re-proved where the distinction still exists, which is not where it
+        was. `declared_bounds` reports no upper value for the SHIPPED
+        document any more: the capacity is the site's and the document does
+        not know it, so the control and the case would both be `(0.0, None)`
+        and the test would pass while proving nothing - the exact failure
+        `D-2026-09-22-capacity-bound-source` warns the cheap fix produces.
 
-        # Remove the declaration and the upper bound is gone: it came from the
-        # document, not from the two state keys sharing a prefix.
+        So the relationship is proved against the parsed document, where
+        removing the `bounds` block is still an observable change, and the
+        value is proved in `test_run_setup.py`, where run setup resolves it
+        from the site's own declared property.
+        """
+        scenario = shipped_scenario()
+        capacity = next(
+            parameter
+            for parameter in scenario.public_parameters
+            if parameter.parameter_id == "tank-capacity"
+        )
+
+        # The relationship, declared and carrying no number.
+        assert capacity.value is None
+        assert capacity.bounds is not None
+        assert capacity.bounds.state_key == "fuel-tank-volume"
+        assert capacity.bounds.bound_kind == "UPPER"
+
+        # Remove the declaration and it is gone: it came from the document,
+        # not from the two state keys sharing a prefix.
         document = shipped_document()
         for parameter in document["public_parameters"]:
             parameter.pop("bounds", None)
 
-        without = declared_bounds(
-            parse_scenario_document(document, source="a test", origin="SHIPPED")
+        without = next(
+            parameter
+            for parameter in parse_scenario_document(
+                document, source="a test", origin="SHIPPED"
+            ).public_parameters
+            if parameter.parameter_id == "tank-capacity"
         )
-        assert without["fuel-tank-volume"] == (0.0, None)
+        assert without.bounds is None
+
+    def test_the_bound_value_left_the_document_with_the_capacity(self) -> None:
+        """`declared_bounds` reports no upper value, and that is the answer.
+
+        A projection of a document cannot report a number the document does
+        not carry. The lower bound that remains is this module's own
+        `IMPLICIT_LOWER_BOUND_DIMENSIONS` rule rather than anything authored,
+        which is stated here so a reader does not take the `0.0` for a
+        surviving document fact.
+        """
+        assert declared_bounds(shipped_scenario())["fuel-tank-volume"] == (
+            0.0,
+            None,
+        )
+
+        # And a document that DOES own its capacity still reports the value,
+        # so the function is not simply broken.
+        with_value = declared_bounds(
+            parse_scenario_document(
+                _shipped_document_with_a_scenario_owned_capacity(),
+                source="a test",
+                origin="SHIPPED",
+            )
+        )
+        assert with_value["fuel-tank-volume"] == (0.0, 500.0)
 
     def test_every_answer_says_which_one_it_is(self) -> None:
         """A `NOT_RECONCILABLE` with no reason is several facts wearing one

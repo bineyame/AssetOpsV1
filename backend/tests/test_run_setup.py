@@ -29,6 +29,7 @@ from run_fixtures import (
     FakeRuns,
     FakeScenarios,
     FakeSites,
+    component_property,
     default_supported_states,
     foundation_bound_states,
     model_profile,
@@ -66,6 +67,7 @@ from assetops_backend.runs.timezones import (
 from assetops_backend.scenarios.execution import EXECUTION_CONTRACT_VERSION
 from assetops_backend.scenarios.models import INITIALIZATION_OWNERS
 from assetops_backend.scenarios.parsing import parse_scenario_document
+from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
 from assetops_backend.sites.models import Rating, SiteComponent
 
 
@@ -356,6 +358,22 @@ class TestRefusalsAllocateNoRun:
         assert store.written == []
 
 
+def foundation_owned_document() -> dict:
+    """The example scenario with its initial value owned by the Foundation.
+
+    Two edits, not one, and the second is the T020A narrowing: a parameter
+    whose declared owner is the Site's Foundation states no value at all
+    (`D-2026-09-22-foundation-value-declaration`), so the number comes out
+    with the owner change. A document that kept it is refused by the parser,
+    which is what every test below would otherwise trip over.
+    """
+    document = scenario_document()
+    parameter = document["public_parameters"][2]
+    parameter["ownership"]["owner"] = "SITE_FOUNDATION"
+    parameter.pop("value")
+    return document
+
+
 class TestNothingIsDefaulted:
     def test_a_value_the_run_owns_must_be_supplied(self) -> None:
         """`RUN_OVERRIDE` means the run supplies it. Falling back to the
@@ -425,8 +443,7 @@ class TestNothingIsDefaulted:
         is the fix for every blocking reason there is, and refusing would
         hand the person nothing to inspect.
         """
-        document = scenario_document()
-        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
+        document = foundation_owned_document()
 
         setup, store = service(
             scenarios=FakeScenarios(
@@ -454,21 +471,19 @@ class TestNothingIsDefaulted:
         assert initial.unit == "L"
         assert initial.answered_by == "MODEL_PROFILE"
 
-    def test_a_foundation_that_agrees_is_frozen_from_the_foundation(
-        self,
-    ) -> None:
-        document = scenario_document()
-        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
-        scenarios = FakeScenarios(
-            (
-                parse_scenario_document(
-                    document, source="a test", origin="SHIPPED"
-                ),
-            )
-        )
+    def test_the_declared_property_is_what_a_run_freezes(self) -> None:
+        """The whole point of the carrier, end to end.
 
+        The scenario declares the need and no number; the profile's binding
+        names the component type, the property and the unit; the Foundation
+        declares the property; and what the run freezes is the Foundation's
+        value with the Foundation named as its answerer. The component here
+        is rated 500 L and declares a 200 L capacity property deliberately:
+        if the resolution still read the rating, the frozen value would be
+        500 and this would fail.
+        """
         setup, _ = service(
-            scenarios=scenarios,
+            scenarios=self._foundation_owned(),
             sites=FakeSites(
                 (
                     site(
@@ -477,7 +492,10 @@ class TestNothingIsDefaulted:
                                 component_id="example-store",
                                 component_type="FUEL_TANK",
                                 display_name="Stored volume",
-                                rating=Rating(value=200.0, unit="L"),
+                                rating=Rating(value=500.0, unit="L"),
+                                properties=(
+                                    component_property(value=200.0),
+                                ),
                             ),
                         )
                     ),
@@ -491,14 +509,58 @@ class TestNothingIsDefaulted:
         assert initial.value == 200.0
         assert initial.answered_by == "SITE_FOUNDATION"
         assert "foundation version 1" in initial.answered_by_detail
+        # The detail names the component and the property, because "the
+        # foundation answered" is not the same fact as which declaration did.
+        assert "example-store" in initial.answered_by_detail
+        assert "tank-capacity" in initial.answered_by_detail
+
+    def test_changing_one_property_changes_only_its_own_answer(self) -> None:
+        """Two sites, one scenario, one profile: the answer follows the site.
+
+        This is the property the carrier exists for. Nothing about the
+        scenario or the profile changes between the two runs, so a frozen
+        value that moved with the site's own declaration is the site being
+        the authority - and a frozen value that did not would mean the number
+        was still coming from somewhere else.
+        """
+
+        def frozen_for(capacity: float) -> float | None:
+            setup, _ = service(
+                scenarios=self._foundation_owned(),
+                sites=FakeSites(
+                    (
+                        site(
+                            components=(
+                                SiteComponent(
+                                    component_id="example-store",
+                                    component_type="FUEL_TANK",
+                                    display_name="Stored volume",
+                                    rating=Rating(value=500.0, unit="L"),
+                                    properties=(
+                                        component_property(value=capacity),
+                                    ),
+                                ),
+                            )
+                        ),
+                    )
+                ),
+                model=model_profile(
+                    supported_states=foundation_bound_states()
+                ),
+            )
+            record = setup.create_draft_run(setup_request())
+            return record.deterministic_identity.initialization_inputs[0].value
+
+        assert frozen_for(200.0) == 200.0
+        assert frozen_for(320.0) == 320.0
 
     def _foundation_owned(self) -> FakeScenarios:
-        document = scenario_document()
-        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
         return FakeScenarios(
             (
                 parse_scenario_document(
-                    document, source="a test", origin="SHIPPED"
+                    foundation_owned_document(),
+                    source="a test",
+                    origin="SHIPPED",
                 ),
             )
         )
@@ -561,7 +623,7 @@ class TestNothingIsDefaulted:
         assert [reason.kind for reason in record.blocking_reasons] == [
             "INITIAL_VALUE_NOT_RESOLVED"
         ]
-        assert "declares none" in record.blocking_reasons[0].statement
+        assert "declares no such component" in record.blocking_reasons[0].statement
         assert store.written == [record]
 
     def test_a_binding_in_another_unit_blocks(self) -> None:
@@ -572,16 +634,18 @@ class TestNothingIsDefaulted:
         profile is the changeable half. Leaving it a refusal while the cases
         either side of it moved would be one rule applied at one position.
         """
-        bound_in_kwh = (
+        bound_to_a_percentage = (
             SupportedState(
                 state_key="example-stored-volume",
                 supported_roles=frozenset(
                     {"CAUSAL_INPUT", "REPORTED_OBSERVATION"}
                 ),
                 foundation_binding=FoundationBinding(
-                    component_type="BATTERY", rating_unit="kWh"
+                    component_type="BATTERY",
+                    property_key="reserve-state-of-charge",
+                    unit="%",
                 ),
-                statement="Bound to a rating in the wrong quantity.",
+                statement="Bound to a property in the wrong quantity.",
             ),
             default_supported_states()[1],
         )
@@ -597,65 +661,167 @@ class TestNothingIsDefaulted:
                                 component_type="BATTERY",
                                 display_name="A battery",
                                 rating=Rating(value=200.0, unit="kWh"),
+                                properties=(
+                                    component_property(
+                                        property_key="reserve-state-of-charge",
+                                        value=25.0,
+                                        unit="%",
+                                        kind="CONTROL",
+                                    ),
+                                ),
                             ),
                         )
                     ),
                 )
             ),
-            model=model_profile(supported_states=bound_in_kwh),
+            model=model_profile(supported_states=bound_to_a_percentage),
         )
         record = setup.create_draft_run(setup_request())
 
         assert [reason.kind for reason in record.blocking_reasons] == [
             "INITIAL_VALUE_NOT_RESOLVED"
         ]
+        # The scenario declares litres and the property is a percentage, so
+        # the two disagree about what kind of quantity this is.
+        assert "in L" in record.blocking_reasons[0].statement
         assert store.written == [record]
 
-    def test_a_foundation_that_disagrees_is_refused_as_its_own_kind(
+    def test_a_component_declaring_no_such_property_blocks(self) -> None:
+        """The fifth case, and the one the record spent a decision on.
+
+        The component the binding names is there; the property is not. It
+        blocks rather than refusing
+        (`D-2026-09-22-foundation-property-absent-blocks`): after T020A the
+        binding names the property as much as the component type, so a
+        different profile naming a different property may well find something
+        this Foundation does declare - which is the discriminator, and the
+        profile is the half a person can change on the setup form.
+
+        This is also the case a Site created before T020A lands in: its
+        components carry ratings and no properties at all, so its Drafts
+        block here with the property named rather than failing to be created.
+        """
+        setup, store = service(
+            scenarios=self._foundation_owned(),
+            sites=FakeSites(
+                (
+                    site(
+                        components=(
+                            SiteComponent(
+                                component_id="example-store",
+                                component_type="FUEL_TANK",
+                                display_name="Stored volume",
+                                rating=Rating(value=500.0, unit="L"),
+                                properties=None,
+                            ),
+                        )
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+        record = setup.create_draft_run(setup_request())
+
+        assert record.execution_status == "BLOCKED"
+        assert [reason.kind for reason in record.blocking_reasons] == [
+            "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        reason = record.blocking_reasons[0]
+        assert reason.subject == "example-stored-volume"
+        assert "tank-capacity" in reason.statement
+        assert "example-store" in reason.statement
+        # The Draft is persisted and inspectable, which is the difference
+        # between a blocking reason and a refusal.
+        assert store.written == [record]
+
+    def test_no_other_component_is_searched_for_a_convenient_value(
         self,
     ) -> None:
-        """The case that stays a refusal, and the reason the split holds.
+        """The absent-property case may not be rescued by a second asset.
 
-        Both answered and they contradict each other, so the value has two
-        answers rather than none. Every blocking case leaves it with none,
-        which the frozen identity can record as absent; two is a shape the
-        identity does not have, so a blocked Draft would have to choose one
-        of the numbers - which is what refusing prevents.
-
-        It has a kind of its own since the T019 user review, because sharing
-        `INITIALIZATION_INPUT_MISSING` named it for an absence it is not, and
-        left it one word from the blocking `INITIAL_VALUE_NOT_RESOLVED` with
-        nothing in either name saying which side of the line it was on.
+        The binding names a FUEL_TANK and there are two, one of which does
+        declare the property. Narrowing the candidate set to components that
+        happen to declare it would resolve this to 320 L and call it an
+        answer. It blocks instead, on the ambiguity, because which tank the
+        binding means is a question only an addressed binding answers - and
+        that is T020A1.
         """
-        error, store = refuse(
-            setup_request(),
+        setup, _ = service(
             scenarios=self._foundation_owned(),
+            sites=FakeSites(
+                (
+                    site(
+                        components=(
+                            SiteComponent(
+                                component_id="example-store",
+                                component_type="FUEL_TANK",
+                                display_name="The tank the binding means",
+                                rating=Rating(value=500.0, unit="L"),
+                                properties=None,
+                            ),
+                            SiteComponent(
+                                component_id="second-store",
+                                component_type="FUEL_TANK",
+                                display_name="A tank that does declare one",
+                                rating=Rating(value=320.0, unit="L"),
+                                properties=(component_property(value=320.0),),
+                            ),
+                        )
+                    ),
+                )
+            ),
             model=model_profile(supported_states=foundation_bound_states()),
         )
+        record = setup.create_draft_run(setup_request())
 
-        assert error.kind == "INITIAL_VALUE_ANSWERS_DISAGREE"
-        assert "200" in error.message and "500" in error.message
-        assert "two answers" in error.message
-        assert store.written == []
+        reason = record.blocking_reasons[0]
+        assert reason.kind == "INITIAL_VALUE_NOT_RESOLVED"
+        assert "more than one" in reason.statement
+        assert (
+            record.deterministic_identity.initialization_inputs[0].value is None
+        )
 
-    def test_the_two_initial_value_kinds_are_two_different_facts(self) -> None:
-        """One request produces each, so the split is not a rename.
+    def test_the_retired_contradiction_kind_is_gone_with_its_producer(
+        self,
+    ) -> None:
+        """A refusal kind nothing can produce is a claim the product cannot make.
 
-        The absence refuses under `INITIALIZATION_INPUT_MISSING`; the
-        contradiction refuses under `INITIAL_VALUE_ANSWERS_DISAGREE`. If a
-        later change collapsed them, this fails rather than the vocabulary
-        quietly growing a synonym.
+        `INITIAL_VALUE_ANSWERS_DISAGREE` had exactly one producer: a
+        Foundation value compared against the number the scenario stated the
+        Foundation declares. After
+        `D-2026-09-22-foundation-value-declaration` there is no position in
+        any document for that number, so the kind and its producer were
+        retired together under
+        `D-2026-09-22-expiry-follows-the-condition`.
+
+        Both halves are asserted. The vocabulary no longer carries the name,
+        and the parser refuses the document that was the only way to reach
+        it - so a later change that re-added the kind would have to re-add
+        the authoring position too, and this test would say so.
+        """
+        assert "INITIAL_VALUE_ANSWERS_DISAGREE" not in RUN_SETUP_REFUSAL_KINDS
+        with pytest.raises(ValueError):
+            RunSetupRefused("INITIAL_VALUE_ANSWERS_DISAGREE", "anything")
+
+        document = scenario_document()
+        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
+        with pytest.raises(ScenarioConfigurationInvalid) as raised:
+            parse_scenario_document(document, source="a test", origin="SHIPPED")
+        assert "states no number" in str(raised.value)
+
+    def test_the_missing_run_override_keeps_its_own_refusal_line(self) -> None:
+        """The kind that stays, and stays on the other side of the line.
+
+        `INITIALIZATION_INPUT_MISSING` is a value whose DECLARED OWNER did
+        not answer - a run override the request did not supply - and no
+        profile can put it there, so it refuses rather than blocking. The
+        retirement above took the contradiction out of the refusal
+        vocabulary; it did not touch this.
         """
         missing = self._missing_run_override()
-        contradicted, _ = refuse(
-            setup_request(),
-            scenarios=self._foundation_owned(),
-            model=model_profile(supported_states=foundation_bound_states()),
-        )
 
         assert missing.kind == "INITIALIZATION_INPUT_MISSING"
-        assert contradicted.kind == "INITIAL_VALUE_ANSWERS_DISAGREE"
-        assert missing.kind != contradicted.kind
+        assert missing.kind in RUN_SETUP_REFUSAL_KINDS
 
     def _missing_run_override(self) -> RunSetupRefused:
         document = scenario_document()
@@ -674,8 +840,14 @@ class TestNothingIsDefaulted:
         return error
 
     def test_a_model_rule_value_with_no_rule_blocks(self) -> None:
-        """T020A adds the carrier; until it does, this is the profile failing
-        to answer, which is the same fact as a missing binding."""
+        """No profile in this build carries a model-supplied initial value.
+
+        T020A did not add that carrier either: a model profile declaring the
+        need is option C of
+        `D-2026-09-22-foundation-value-declaration`, a follower with a
+        trigger rather than a slice. Until something carries it this is the
+        profile failing to answer, which is the same fact as a missing
+        binding."""
         document = scenario_document()
         document["public_parameters"][2]["ownership"]["owner"] = "MODEL_RULE"
 
@@ -744,8 +916,7 @@ class TestBlockedDraftsArePersisted:
         the unresolved initial value. A reader counting rows counted the
         same problem twice.
         """
-        document = scenario_document()
-        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
+        document = foundation_owned_document()
         scenarios = FakeScenarios(
             (
                 parse_scenario_document(
@@ -1476,7 +1647,36 @@ class TestTheShippedProfiles:
         """
         assert {
             state.state_key for state in MINIMAL_FUEL_TANK_MODEL.supported_states
-        } == {"fuel-tank-volume", "fuel-tank-capacity"}
+        } == {
+            "fuel-tank-volume",
+            "fuel-tank-capacity",
+            "generator-specific-fuel-consumption",
+            "generator-output-power",
+        }
+
+        # Two of the four are the site's to answer, and each names the
+        # property it means rather than a unit a component happens to be
+        # rated in.
+        bound = {
+            state.state_key: state.foundation_binding
+            for state in MINIMAL_FUEL_TANK_MODEL.supported_states
+            if state.foundation_binding is not None
+        }
+        assert {
+            key: (
+                binding.component_type,
+                binding.property_key,
+                binding.unit,
+            )
+            for key, binding in bound.items()
+        } == {
+            "fuel-tank-capacity": ("FUEL_TANK", "tank-capacity", "L"),
+            "generator-specific-fuel-consumption": (
+                "GENERATOR",
+                "specific-fuel-consumption",
+                "L/kWh",
+            ),
+        }
 
     def test_the_shipped_publication_profile_declares_all_three(self) -> None:
         assert LAB_PUBLICATION_PROFILE.device_signal_cadence_minutes is not None
@@ -1556,7 +1756,6 @@ class TestEveryRefusalKindIsReachable:
                 )
             )[0].kind,
             self._missing_initialization_input().kind,
-            self._contradicted_initial_value().kind,
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
@@ -1577,23 +1776,6 @@ class TestEveryRefusalKindIsReachable:
         assert store.written == []
         return error
 
-    def _contradicted_initial_value(self) -> RunSetupRefused:
-        document = scenario_document()
-        document["public_parameters"][2]["ownership"]["owner"] = "SITE_FOUNDATION"
-        error, store = refuse(
-            setup_request(),
-            scenarios=FakeScenarios(
-                (
-                    parse_scenario_document(
-                        document, source="a test", origin="SHIPPED"
-                    ),
-                )
-            ),
-            model=model_profile(supported_states=foundation_bound_states()),
-        )
-        assert store.written == []
-        return error
-
     def test_the_two_vocabularies_share_no_name(self) -> None:
         """A refusal kind and a blocking kind are opposite sides of the line
         this slice is organised around, so no string may be both. Asserted
@@ -1603,7 +1785,7 @@ class TestEveryRefusalKindIsReachable:
         from assetops_backend.runs.models import BLOCKING_REASON_KINDS
 
         assert RUN_SETUP_REFUSAL_KINDS & BLOCKING_REASON_KINDS == set()
-        assert "INITIAL_VALUE_ANSWERS_DISAGREE" in RUN_SETUP_REFUSAL_KINDS
+        assert "INITIALIZATION_INPUT_MISSING" in RUN_SETUP_REFUSAL_KINDS
         assert "INITIAL_VALUE_NOT_RESOLVED" in BLOCKING_REASON_KINDS
 
     def test_an_unreadable_zone_database_is_not_an_unreal_zone(self) -> None:
@@ -1644,3 +1826,56 @@ class TestEveryRefusalKindIsReachable:
         # And a real database that does not hold the name is the other fact.
         with pytest.raises(TimeZoneNotFound):
             validate_iana_timezone("Africa/Atlantis", where="a test")
+
+
+class TestTheExecutionContractVersionMove:
+    """The Foundation-value narrowing moves the number, and only forward.
+
+    `D-2026-09-22-contract-version-scope`: the version moves when a change can
+    alter the outcome for a document that was already valid. The shipped Fuel
+    Loss Event as version two accepted it is refused by this parser, so it
+    moved - from the two this slice found to a three.
+
+    The absolute numbers are written relatively where they can be. Here they
+    cannot: the point of the test is that the number CHANGED and that an
+    earlier frozen run kept its own, and a relative assertion would pass on a
+    build where nothing moved.
+    """
+
+    def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
+        assert EXECUTION_CONTRACT_VERSION == 3
+
+    def test_a_new_draft_is_stamped_with_it(self) -> None:
+        record, _ = create()
+
+        assert (
+            record.deterministic_identity.profiles.execution_contract_version
+            == EXECUTION_CONTRACT_VERSION
+        )
+
+    def test_an_earlier_frozen_run_keeps_the_version_it_froze(self) -> None:
+        """Never reinterpret an earlier frozen run under a new contract.
+
+        A run document written under version two is read back as version two.
+        It is not upgraded, not re-stamped, and not refused: a frozen run is a
+        record of what this installation did, and the version is part of what
+        it did.
+        """
+        from assetops_backend.runs.parsing import (
+            parse_run_document,
+            render_run_document,
+        )
+
+        record, _ = create()
+        document = render_run_document(record)
+        document["deterministic_identity"]["profiles"][
+            "execution_contract_version"
+        ] = 2
+
+        reloaded = parse_run_document(document, source="an earlier run")
+
+        assert (
+            reloaded.deterministic_identity.profiles.execution_contract_version
+            == 2
+        )
+        assert EXECUTION_CONTRACT_VERSION != 2

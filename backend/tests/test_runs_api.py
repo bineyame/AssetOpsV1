@@ -456,7 +456,16 @@ class TestTheShippedFuelLossEventCannotReachReady:
     causes do not reach either reading and said what run setup does about it
     until one of the three ways out is chosen. This is that, end to end: the
     shipped scenario against the shipped model profile is a persisted Draft
-    that is `BLOCKED`, with the unreached readings named among the reasons.
+    that is `BLOCKED`, with the reasons named.
+
+    T020A adds a second group of reasons to it, and they are the template-copy
+    consequence made visible. `MG-001` was created from template version 1 and
+    a template does not migrate a Site that already exists, so its components
+    carry ratings and no typed properties. The shipped scenario now declares
+    two Foundation-owned values, the profile binds each to a named property,
+    and this Foundation declares neither - so the Draft blocks with the
+    property named, and is persisted and inspectable rather than refused
+    (`D-2026-09-22-foundation-property-absent-blocks`).
     """
 
     def test_the_shipped_scenario_blocks_on_its_unreached_readings(
@@ -529,26 +538,246 @@ class TestTheShippedFuelLossEventCannotReachReady:
         assert record.execution_status == "BLOCKED"
         assert store.written == [record]
 
-        # Three reasons and all three are the same kind: states the first
-        # model profile does not model. Named, so that widening the profile
-        # is visible here rather than silent.
-        #
-        # It was five before Amendment 1's proposal (e), and the other two
-        # were the readings the scenario's declared causes do not reach. Run
-        # setup has no kernel, so it never had standing to judge that; the
-        # outcome is unchanged and the reasons are sounder.
-        assert {reason.kind for reason in record.blocking_reasons} == {
-            "STATE_NOT_SUPPORTED"
+        # Two groups of reasons, and they are two different facts about the
+        # selected profile. Three states it does not model, and two initial
+        # values it could not locate in this Site's Foundation.
+        by_kind: dict[str, set[str]] = {}
+        for reason in record.blocking_reasons:
+            by_kind.setdefault(reason.kind, set()).add(reason.subject)
+
+        assert by_kind == {
+            "STATE_NOT_SUPPORTED": {
+                "site-load-demand",
+                "plane-of-array-irradiance",
+                "fuel-level-reporting-availability",
+            },
+            "INITIAL_VALUE_NOT_RESOLVED": {
+                "fuel-tank-capacity",
+                "generator-specific-fuel-consumption",
+            },
         }
-        assert {reason.subject for reason in record.blocking_reasons} == {
-            "site-load-demand",
-            "plane-of-array-irradiance",
-            "fuel-level-reporting-availability",
+
+        # The unresolved reasons name the property that is missing, which is
+        # what makes a blocked Draft more useful than a refusal: there is
+        # something to read that says what to declare.
+        unresolved = {
+            reason.subject: reason.statement
+            for reason in record.blocking_reasons
+            if reason.kind == "INITIAL_VALUE_NOT_RESOLVED"
         }
+        assert "tank-capacity" in unresolved["fuel-tank-capacity"]
+        assert "fuel-tank" in unresolved["fuel-tank-capacity"]
+        assert (
+            "specific-fuel-consumption"
+            in unresolved["generator-specific-fuel-consumption"]
+        )
 
         # And it froze everything anyway, which is what makes it inspectable.
         assert record.deterministic_identity.site.site_id == "MG-001"
-        assert [
-            item.state_key
+        frozen = {
+            item.state_key: item
             for item in record.deterministic_identity.initialization_inputs
-        ] == ["fuel-tank-capacity", "fuel-tank-volume"]
+        }
+        assert set(frozen) == {
+            "fuel-tank-capacity",
+            "fuel-tank-volume",
+            "generator-specific-fuel-consumption",
+        }
+
+        # Every absent value has a blocking reason naming the same state, and
+        # the value and its canonical form are absent together. Both are
+        # invariants `SimulationRun` enforces; asserted here because this is
+        # the first shipped document that exercises them.
+        for state_key in (
+            "fuel-tank-capacity",
+            "generator-specific-fuel-consumption",
+        ):
+            assert frozen[state_key].value is None, state_key
+            assert frozen[state_key].canonical_value is None, state_key
+        assert frozen["fuel-tank-volume"].value == 430.0
+        assert frozen["fuel-tank-volume"].canonical_value == 430.0
+
+        # MG-001 itself is untouched by the template that moved to version 2.
+        assert mg_001.template is not None
+        assert mg_001.template.template_version == 1
+        assert mg_001.foundation.version == 1
+        assert all(
+            component.properties is None
+            for component in mg_001.foundation.components
+        )
+
+    def test_a_site_created_from_the_updated_template_resolves_both_values(
+        self,
+    ) -> None:
+        """The same scenario, the same profile, a Site with the properties.
+
+        This is the slice end to end. A Site instantiated from the shipped
+        template through the product's own create path declares the two typed
+        properties; the profile's bindings name them; and the Draft freezes
+        500 L and 0.311 L/kWh with the Foundation named as the answerer.
+
+        It also fixes the number this suite would otherwise have lost.
+        Nothing asserted that the shipped tank holds 500 L once
+        `tank-capacity` stopped stating it in the scenario document
+        (`D-2026-09-22-capacity-bound-source`), and this is where the 500
+        lives now: in a frozen run, resolved from a site.
+        """
+        store = FakeRuns()
+        record = self._draft_from_the_updated_template(store)
+
+        frozen = {
+            item.state_key: item
+            for item in record.deterministic_identity.initialization_inputs
+        }
+
+        assert frozen["fuel-tank-capacity"].value == 500.0
+        assert frozen["fuel-tank-capacity"].unit == "L"
+        assert frozen["fuel-tank-capacity"].answered_by == "SITE_FOUNDATION"
+        assert "fuel-tank" in frozen["fuel-tank-capacity"].answered_by_detail
+
+        coefficient = frozen["generator-specific-fuel-consumption"]
+        assert coefficient.value == 0.311
+        assert coefficient.unit == "L/kWh"
+        assert coefficient.answered_by == "SITE_FOUNDATION"
+        assert "generator" in coefficient.answered_by_detail
+
+        # No reason is left about either of them: the absent-value case above
+        # and this one are the same code path with a different Foundation.
+        assert not [
+            reason
+            for reason in record.blocking_reasons
+            if reason.kind == "INITIAL_VALUE_NOT_RESOLVED"
+        ]
+        assert store.written == [record]
+
+    def _draft_from_the_updated_template(self, store):
+        """One Draft, for a Site instantiated from the shipped template v2."""
+        from pathlib import Path
+
+        import yaml
+
+        from assetops_backend.runs.profiles import (
+            LAB_PUBLICATION_PROFILE,
+            MINIMAL_FUEL_TANK_MODEL,
+        )
+        from assetops_backend.runs.service import RunSetupService
+        from assetops_backend.sites.parsing import parse_site_template
+        from assetops_backend.sites.service import SiteCreationService
+        from assetops_backend.sites.site_parsing import CreateSiteRequest
+
+        repo_root = Path(__file__).resolve().parents[2]
+        shipped_scenario = parse_scenario_document(
+            yaml.safe_load(
+                (
+                    repo_root / "config" / "scenarios" / "fuel-loss-event.yaml"
+                ).read_text(encoding="utf-8")
+            ),
+            source="the shipped definition",
+            origin="SHIPPED",
+        )
+        template = parse_site_template(
+            yaml.safe_load(
+                (
+                    repo_root
+                    / "config"
+                    / "site-templates"
+                    / "hybrid-mini-grid-100kw.yaml"
+                ).read_text(encoding="utf-8")
+            ),
+            source="the shipped template",
+        )
+
+        created: list[SiteRecord] = []
+
+        class Recording:
+            def create_site(self, record: SiteRecord) -> SiteRecord:
+                created.append(record)
+                return record
+
+        class Catalog:
+            def list_templates(self) -> tuple:
+                return (template,)
+
+            def get_template(self, template_id: str):
+                return template
+
+        # The scenario declares that it targets MG-001, and a run is not the
+        # place to retarget a scenario - so the new fixture carries that
+        # identity here. It is an in-memory Site built from the updated
+        # template, not the MG-001 in `var/`, which the test above reads
+        # unchanged.
+        SiteCreationService(Recording(), Catalog()).create_site_from_template(
+            CreateSiteRequest(
+                template_id="hybrid-mini-grid-100kw",
+                site_id="MG-001",
+                display_name="Kalangala mini-grid",
+                country="Uganda",
+                locality="Kalangala",
+                timezone="Africa/Kampala",
+            )
+        )
+        instantiated = created[0]
+
+        return RunSetupService(
+            store,
+            FakeSites((instantiated,)),
+            FakeScenarios((shipped_scenario,)),
+            model_profiles=(MINIMAL_FUEL_TANK_MODEL,),
+            publication_profiles=(LAB_PUBLICATION_PROFILE,),
+            now=lambda: "2026-09-21T09:00:00Z",
+        ).create_draft_run(
+            {
+                "site_id": "MG-001",
+                "foundation_version": 1,
+                "scenario_id": "fuel-loss-event",
+                "scenario_version": 1,
+                "interval": {
+                    "start_time": "2026-09-21T00:00:00Z",
+                    "end_time": "2026-09-22T17:00:00Z",
+                },
+                "timestep_minutes": 15,
+                "seed": 20260921,
+                "model_profile": {
+                    "profile_id": "minimal-fuel-tank",
+                    "profile_version": 1,
+                },
+                "publication_profile": {
+                    "profile_id": "simulator-lab-publication",
+                    "profile_version": 1,
+                },
+                "run_inputs": [],
+            }
+        )
+
+    def test_the_frozen_answers_survive_a_round_trip(self, tmp_path) -> None:
+        """A reload agrees with what was frozen, values, units and absence.
+
+        The store is the real YAML adapter rather than a fake, because the
+        claim is that the answers persist rather than that a record holds
+        them in memory.
+        """
+        from assetops_backend.runs.adapters.yaml_run_store import YamlRunStore
+
+        store = YamlRunStore(tmp_path)
+        record = self._draft_from_the_updated_template(store)
+
+        reloaded = store.get_run(record.run_id)
+
+        assert (
+            reloaded.deterministic_identity.initialization_inputs
+            == record.deterministic_identity.initialization_inputs
+        )
+        frozen = {
+            item.state_key: item
+            for item in reloaded.deterministic_identity.initialization_inputs
+        }
+        assert frozen["fuel-tank-capacity"].value == 500.0
+        assert frozen["generator-specific-fuel-consumption"].value == 0.311
+        assert (
+            frozen["generator-specific-fuel-consumption"].answered_by
+            == "SITE_FOUNDATION"
+        )
+        assert (
+            reloaded.deterministic_identity.profiles.execution_contract_version
+            == record.deterministic_identity.profiles.execution_contract_version
+        )

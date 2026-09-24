@@ -858,3 +858,148 @@ class TestTheExecutionContractIsRefusedWhenItMeansTwoThings:
         change the case makes.
         """
         parse(scenario_document())
+
+
+class TestAFoundationOwnedValueHasNoValuePosition:
+    """`D-2026-09-22-foundation-value-declaration`, at the parser.
+
+    A parameter whose declared owner is the Site's Foundation declares the
+    need - the state, the unit, and that the Foundation answers - and states
+    no number. Closed at the structure rather than as a rule somebody has to
+    remember: there is no position the number can occupy.
+
+    The rule is keyed on the OWNER, because the owner is the only thing the
+    document carries that identifies these parameters. The binding that
+    addresses a Foundation property lives in the model profile and this parser
+    sees no profile at all, so exempting one parameter would need a field
+    invented for the exemption - a rule with an exception, which is the shape
+    this project has already paid for twice.
+    """
+
+    def foundation_owned(self, **overrides: Any) -> dict[str, Any]:
+        document = scenario_document()
+        parameter = document["public_parameters"][2]
+        parameter["ownership"]["owner"] = "SITE_FOUNDATION"
+        parameter.pop("value")
+        parameter.update(overrides)
+        return document
+
+    def test_it_parses_with_a_unit_and_no_value(self) -> None:
+        parameter = next(
+            item
+            for item in parse(self.foundation_owned()).public_parameters
+            if item.parameter_id == "starting-level"
+        )
+
+        assert parameter.value is None
+        assert parameter.unit == "L"
+        assert parameter.state_key == "example-stored-volume"
+        assert parameter.ownership is not None
+        assert parameter.ownership.owner == "SITE_FOUNDATION"
+        assert parameter.ownership.initializes is True
+
+    def test_a_value_beside_the_owner_is_refused(self) -> None:
+        with pytest.raises(ScenarioConfigurationInvalid) as error:
+            parse(self.foundation_owned(value=200))
+
+        message = str(error.value)
+        assert "states no number" in message
+        assert "public_parameters[2]" in message
+
+    def test_a_null_value_is_refused_as_well(self) -> None:
+        """Writing the key and leaving it empty is still writing the key.
+
+        Otherwise the position exists and an author who meant to fill it has
+        somewhere to come back to.
+        """
+        with pytest.raises(ScenarioConfigurationInvalid):
+            parse(self.foundation_owned(value=None))
+
+    def test_the_unit_is_still_required(self) -> None:
+        """The unit is what run setup checks the Foundation's property against,
+        so a declaration without one names a need nothing could answer."""
+        with pytest.raises(ScenarioConfigurationInvalid) as error:
+            parse(self.foundation_owned(unit=None))
+
+        assert "must still state the unit" in str(error.value)
+
+    def test_the_bound_declaration_survives_the_value_leaving(self) -> None:
+        """A bound is a relationship between two states, not a magnitude.
+
+        `state_key` and `bound_kind` say which world state caps which, which
+        is a fact about the document. How large the cap is belongs to the site
+        (`D-2026-09-22-capacity-bound-source`). A parser that refused `bounds`
+        on a parameter stating no value would take the relationship out with
+        the number and leave a kernel nothing saying what caps what.
+        """
+        document = self.foundation_owned()
+        document["public_parameters"][2]["bounds"] = {
+            "state_key": "example-demand",
+            "bound_kind": "UPPER",
+        }
+
+        parameter = next(
+            item
+            for item in parse(document).public_parameters
+            if item.parameter_id == "starting-level"
+        )
+
+        assert parameter.value is None
+        assert parameter.bounds is not None
+        assert parameter.bounds.state_key == "example-demand"
+        assert parameter.bounds.bound_kind == "UPPER"
+
+    def test_every_other_owner_still_states_its_number(self) -> None:
+        """Non-vacuous: the rule is about this owner and not about values.
+
+        If it had been written against the wrong condition - say, against
+        `initializes` - these three would fail here rather than in some later
+        slice's document.
+        """
+        for owner in ("SCENARIO_INPUT", "RUN_OVERRIDE", "MODEL_RULE"):
+            document = scenario_document()
+            document["public_parameters"][2]["ownership"]["owner"] = owner
+            parameter = next(
+                item
+                for item in parse(document).public_parameters
+                if item.parameter_id == "starting-level"
+            )
+            assert parameter.value == 200.0, owner
+
+    def test_the_shipped_document_uses_the_new_shape_everywhere(self) -> None:
+        """Every `SITE_FOUNDATION` parameter in the shipped Fuel Loss Event.
+
+        Read off the document rather than listed here: a list would need
+        keeping in agreement with a file that is allowed to grow, and a
+        parameter added with a value would then be outside the assertion.
+        """
+        from pathlib import Path
+
+        import yaml
+
+        repo_root = Path(__file__).resolve().parents[2]
+        document = yaml.safe_load(
+            (
+                repo_root / "config" / "scenarios" / "fuel-loss-event.yaml"
+            ).read_text(encoding="utf-8")
+        )
+
+        def every_parameter():
+            yield from document["public_parameters"]
+            for entry in document["timeline"]:
+                yield from entry.get("parameters") or ()
+
+        foundation_owned = [
+            parameter
+            for parameter in every_parameter()
+            if (parameter.get("ownership") or {}).get("owner")
+            == "SITE_FOUNDATION"
+        ]
+
+        assert {item["parameter_id"] for item in foundation_owned} == {
+            "tank-capacity",
+            "generator-specific-consumption",
+        }
+        for parameter in foundation_owned:
+            assert "value" not in parameter, parameter["parameter_id"]
+            assert parameter["unit"] in PARAMETER_UNITS

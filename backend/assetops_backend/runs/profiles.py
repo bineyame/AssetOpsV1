@@ -35,13 +35,14 @@ nothing outside it may build the record a cadence lives in.
 ## What the shipped profiles say, and what they deliberately do not
 
 `MINIMAL_FUEL_TANK_MODEL` is the profile the first causal kernel will
-implement. It models the fuel tank and nothing else, which is the truth about
-this build: the shipped Fuel Loss Event also declares site demand, plane-of-
-array irradiance and reporting availability as required forcing inputs, and
-this profile supports none of them. A run of that scenario against this
-profile is therefore `BLOCKED`, with a reason naming each - which is the
-honest answer and not a defect. Widening the profile is T021's work, and it
-widens by modelling a state rather than by declaring that it does.
+implement. It models the fuel tank, the generator's own consumption
+coefficient and the output the scenario forces on it, and nothing else - which
+is the truth about this build: the shipped Fuel Loss Event also declares site
+demand, plane-of-array irradiance and reporting availability as required
+forcing inputs, and this profile supports none of them. A run of that scenario
+against this profile is therefore `BLOCKED`, with a reason naming each - which
+is the honest answer and not a defect. Widening the profile is T021's work,
+and it widens by modelling a state rather than by declaring that it does.
 """
 
 from __future__ import annotations
@@ -64,13 +65,29 @@ class FoundationBinding:
     key against a component identity by spelling, for the same reason T018's
     review made a bound a declaration rather than a shared prefix.
 
-    This module names the component type and the unit and reads no Foundation.
-    Resolving the binding against a Site is the run setup service's job, which
-    is the same parser/service split the target-site declaration uses.
+    Three fields since T020A, and the middle one is the slice. It used to name
+    a component type and a RATING unit, which can address exactly one fact per
+    component: a generator has one rating, so a profile needing both its
+    specific fuel consumption and its minimum runtime had nothing to say which
+    it meant. `property_key` names the typed property, so the binding aims at a
+    named fact rather than at whatever the component happened to be rated in.
+
+    That is also why a Foundation declaring no such property BLOCKS rather than
+    refusing (`D-2026-09-22-foundation-property-absent-blocks`): the property
+    name is as much this profile's aim as the component type is, and a
+    different profile naming a different property may well find something the
+    same Foundation does declare.
+
+    This module names three strings and reads no Foundation. Resolving the
+    binding against a Site is the run setup service's job, which is the same
+    parser/service split the target-site declaration uses - and it is enforced,
+    because `tools/checks/run-setup.ps1` forbids this module from importing the
+    Site record family at all.
     """
 
     component_type: str
-    rating_unit: str
+    property_key: str
+    unit: str
 
 
 @dataclass(frozen=True)
@@ -182,18 +199,23 @@ def resolve_publication_identity(
 
 #: The model the first causal kernel will implement.
 #:
-#: Two states, both about the generator fuel tank. The capacity is bounded by
-#: what the Site's Foundation declares for its fuel-storage component, so the
-#: binding names the component type and the unit and the service resolves it;
-#: the volume has no Foundation answer, because a Foundation says how large a
-#: tank is and never how full it is.
+#: Four states since T020A. Two are about the generator fuel tank, one is the
+#: generator's own physical coefficient, and one is the exogenous output the
+#: scenario forces on it.
+#:
+#: Two of the four are answered by the Site's Foundation and say so with a
+#: binding naming the component type, the property and the unit. The stored
+#: volume has no Foundation answer, because a Foundation says how large a tank
+#: is and never how full it is; the forced output has none either, because it
+#: is the story's, not the machine's.
 MINIMAL_FUEL_TANK_MODEL = ModelProfile(
     model_profile_id="minimal-fuel-tank",
     model_profile_version=1,
     display_name="Minimal fuel tank model",
     statement=(
-        "Models the stored volume in a generator fuel tank and the capacity "
-        "that bounds it, and nothing else. Demand, irradiance and the "
+        "Models the stored volume in a generator fuel tank, the capacity that "
+        "bounds it, the generator's specific fuel consumption and the output "
+        "it is dispatched at, and nothing else. Demand, irradiance and the "
         "availability of the reporting path are not modelled, so a scenario "
         "that requires any of them cannot execute against this profile."
     ),
@@ -211,12 +233,43 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
             state_key="fuel-tank-capacity",
             supported_roles=frozenset({"CAUSAL_INPUT"}),
             foundation_binding=FoundationBinding(
-                component_type="FUEL_TANK", rating_unit="L"
+                component_type="FUEL_TANK",
+                property_key="tank-capacity",
+                unit="L",
             ),
             statement=(
                 "The capacity is a bound on the stored volume, and the site's "
-                "foundation is the authority for it: the declared rating of "
-                "the fuel-storage component is the value a run freezes."
+                "foundation is the authority for it: the tank-capacity "
+                "property of the fuel-storage component is the value a run "
+                "freezes."
+            ),
+        ),
+        SupportedState(
+            state_key="generator-specific-fuel-consumption",
+            supported_roles=frozenset({"CAUSAL_INPUT"}),
+            foundation_binding=FoundationBinding(
+                component_type="GENERATOR",
+                property_key="specific-fuel-consumption",
+                unit="L/kWh",
+            ),
+            statement=(
+                "How much fuel this generator burns per kilowatt-hour "
+                "delivered is a property of the machine, so the site's "
+                "foundation answers for it. The model rule that consumes it - "
+                "consumption is specific consumption times energy delivered - "
+                "belongs to the kernel, not to this declaration."
+            ),
+        ),
+        SupportedState(
+            state_key="generator-output-power",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            foundation_binding=None,
+            statement=(
+                "The output the generator is dispatched at is forced by the "
+                "scenario across a declared window; this profile carries the "
+                "forced value and solves no power flow for it. It has no "
+                "foundation answer, because what a generator is asked to "
+                "deliver is the story's and not the machine's."
             ),
         ),
     ),

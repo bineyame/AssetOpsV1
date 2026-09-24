@@ -16,7 +16,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Callable
 
-from assetops_backend.sites.foundation_parsing import render_foundation_content
+from assetops_backend.sites.foundation_parsing import (
+    render_component_properties,
+    render_foundation_content,
+)
 from assetops_backend.sites.models import FoundationContent, SiteRecord, SiteTemplate
 from assetops_backend.sites.ports import SiteRepository, SiteTemplateCatalog
 from assetops_backend.sites.site_parsing import CreateSiteRequest, parse_site_document
@@ -183,6 +186,14 @@ class SiteCreationService:
                                 "value": component.rating.value,
                                 "unit": component.rating.unit,
                             }
+                        ),
+                        # The typed properties, copied the same way and with
+                        # their provenance intact: a property the template
+                        # declared stays `TEMPLATE` at the template's version,
+                        # so a later template edit is visible as drift rather
+                        # than reaching back into this Site.
+                        "properties": render_component_properties(
+                            component.properties
                         ),
                     }
                     for component in template.foundation.components
