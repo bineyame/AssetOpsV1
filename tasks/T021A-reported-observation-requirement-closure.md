@@ -1,129 +1,69 @@
-# T021A - Reported Observations Carry No Execution Requirement
+# T021A - Narrow reported-observation declarations
 
 Status: planned
 USER_REVIEW_REQUIRED: false
 
-Intended branch: `task/T021A-reported-observation-requirement-closure`
+Map: A starter.
+Depends on: T021 in queue order; existing strict scenario parser.
+Next: T022.
+Branch: task/T021A-reported-observation-requirement-closure
+Sizing: small boundary narrowing, independently reviewable.
 
-## Feature
+## Outcome
 
-Scenario Catalog And Run Setup. It sits in the M1C range because of when it
-has to happen, not because of what it is about.
+Scenario detail shows reported-observation declarations without an execution
+requirement claim. An authored observation carrying execution_requirement is
+refused with an inspectable structural error.
 
-## UI-Verifiable Screen Behavior
+Keep this after T021 and before T022, as required by v4.
+The kernel does not consume this field and did not need the change to execute.
 
-The scenario detail screen for the Fuel Loss Event shows its reported
-observations without an execution-requirement claim, and the execution contract
-version it reports is the one this slice moved it to. An authored document that
-tries to put an execution requirement on a reported observation is refused with
-an inspectable reason rather than parsed and ignored.
+## Read for detail
 
-## Why This Is Next
+- v4 sections 2.1 and 24.
+- Starter handoff: T021A row and Contract Versions.
+- DECISIONS: D-2026-09-22-contract-version-scope.
+- Shared checks and exclusions: tasks/README.md.
 
-With run setup no longer adjudicating cause-to-observation coupling, `REQUIRED`
-on a value no executor reads is either vacuous or a category error. The meaning
-it was carrying — *this run must produce such a reading* — already has a home
-in the private expectations under `DETECTION` and `TIMING`. Closing it at the
-parser is free while no golden trace exists, and T022 is the slice that first
-produces one.
+## Acceptance criteria
 
-**Why this is its own slice, decided by the user on 2026-09-22.** Folding this
-into T022 would make that slice's internal ordering load-bearing, because the
-parser change would have to land before trace generation inside one slice, and
-would close the window entirely if T022 were ever split. It also keeps T022's
-user-review checkpoint on runtime control semantics rather than mixing an
-authoring-contract change into it. It sits after T021 rather than before
-because the kernel never reads `execution_requirement` on a reported
-observation, so nothing about the kernel depends on it either way -
-`Docs/simulator_design_v4.md` §2.1 and §24 confirm the same ordering, and the
-queue position is not the Implementer's to optimise.
+1. REPORTED_OBSERVATION has no execution_requirement field in the strict
+   authored-document structure. Presence is rejected rather than ignored.
+2. Shipped Fuel Loss observations use the narrowed structure and still render
+   as declarations in scenario inspection.
+3. Executable causes retain their requirement fields and existing validation.
+4. Advance EXECUTION_CONTRACT_VERSION from the version found after T021.
+   Newly frozen runs carry the new version; existing runs retain their identity.
+5. Older frozen content remains inspectable under the existing readback policy.
+   Unsupported execution is refused rather than reinterpreted.
+6. Reported observations do not become setup support/blocking requirements.
+   Publication behavior is still answered by the publication profile.
+7. Generated trace, observation values and reconciliation-panel retirement
+   remain T022; this task changes only the requirement position and its claims.
 
-## Dependencies
+## Proof
 
-- T018's execution contract and its strict parser.
-- T019's narrowing, merged: the observation blocking reasons are already gone,
-  so removing the field changes no run-setup outcome.
-- The version ledger, for what the number is when this slice starts. It is not
-  2 by the time this runs and no criterion here assumes a value.
+Use a valid shipped document and a mutation adding execution_requirement to
+one reported observation. The valid document parses; the mutation fails at the
+strict boundary and identifies the invalid position.
 
-## Acceptance Criteria
+Exercise REQUIRED and OPTIONAL on executable inputs to show that their
+contract still works. A previously supported executable cause must not lose
+its requirement because the observation field was removed.
 
-- The strict parser gives `execution_requirement` no position on a
-  `REPORTED_OBSERVATION`. Its presence refuses the document, closed at the
-  structure the way duration units were closed at the unit vocabulary rather
-  than as a rule applied after parsing.
-- The shipped Fuel Loss document's reported-observation entries lose the field.
-  Nothing else in that document changes in this slice; the authored values and
-  their removal belong to T022.
-- `EXECUTION_CONTRACT_VERSION` moves by one from whatever this slice finds,
-  under the policy that the number moves when the space of conforming
-  behaviours changes, including when it narrows, and never for wording. The
-  literal is not written here: the count for the sequence is stated once, in
-  `.ai/FEATURE_MAP.md` under *The execution-contract version ledger*, and
-  T020A and the four-semantics declaration both move it before this slice.
-- The new version reaches the frozen identity of runs set up after it. A Draft
-  already frozen under the previous version keeps what it was frozen under;
-  nothing rewrites a persisted identity.
-- The scenario detail screen reports the new contract version and shows no
-  execution-requirement claim on a reported observation.
+Inspect scenario detail and newly frozen run version.
+Reload an old frozen run and verify its stored identity remains unchanged.
+Run scenario/parser/run regression tests, relevant frontend tests and shared
+repository checks. Browser evidence is required only if layout changes.
 
-## Required Product And Domain Semantics
+## Scope limits
 
-- The `REPORTED_OBSERVATION` role is unchanged and becomes more necessary, not
-  less: it is precisely what stops an authored reading reaching a transition.
-  Its meaning is an expectation about what a run should produce, which no
-  executable path may read.
-- A contract version identifies a space of conforming behaviours, not a text.
-  Playback refuses a provenance mismatch, so a version that moved for prose
-  would force regeneration of valid traces.
+This is not another readiness or runtime task.
+Do not migrate old runs in place, change executable causes, regenerate the
+kernel trajectory or change authored observation values as part of narrowing.
 
-## Read When You Reach It
+## Review
 
-`Docs/simulator_design_v4.md` §2.1 and §24, which confirm this slice is not a
-kernel prerequisite and stays after T021 in the queue. The kernel never reads
-the field either way.
-
-## Protected Seams
-
-- Authoring-contract closure at the parser: a prohibition is structural, not a
-  rule someone has to remember.
-- Contract-version identity: the number moves with the space and reaches frozen
-  provenance.
-- Expectation position: the meaning `REQUIRED` was carrying is not recreated
-  under another name on the executable path.
-- Standing for this range, one line rather than repeated per criterion: no
-  product conclusion in a scenario fixture; no private oracle value turned into
-  evidence; no manufactured default hiding a missing answer; no simulator
-  import of the backend.
-
-## Focused Tests And Review Evidence
-
-- Parser refusal test whose deliberate violation is one the rest of the system
-  would otherwise accept, so it measures the new prohibition rather than an
-  existing guard.
-- A test proving the field remains accepted where it is still legitimate.
-- A contract-version test that checks the move against the declared rule set
-  rather than against a literal, which is also the T018 round-two finding
-  about a weak version test.
-- Frozen-identity test: a new Draft freezes the moved version and an existing
-  persisted Draft is unchanged, asserted against the constant rather than
-  against a literal.
-- UI test for the scenario detail screen's reported-observation rows and
-  version display.
-- Run architecture/workflow checks, relevant suites, typecheck, and build.
-
-## Scope Limits
-
-- No other execution-contract change, no kernel change, and no observation
-  transform.
-- No removal of the authored reading *values*; T022 owns that. This slice
-  removes a field, not a number.
-- No change to the reconciliation panel or its payload.
-- Small, and it stays small. A criterion that does not follow from removing one
-  field position does not belong here.
-
-## User Review
-
-No new user checkpoint. The semantics were accepted in amendment 1 on
-2026-09-21 and the slice's placement was accepted on 2026-09-22; this slice
-implements both.
+Independent review is required; no new user checkpoint is needed for this
+already-directed parser closure.
+Review outcome: pending.
