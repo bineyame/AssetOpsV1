@@ -375,9 +375,10 @@ export const PHYSICAL_PROPERTIES_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
   reason:
     "This site's foundation document declares no typed physical property on " +
-    "any component, so nothing here states how large its tank is or what its " +
-    "generator burns. That is a statement about the document, not a " +
-    "statement that these components have no such properties.",
+    "any component. A component may still carry a nameplate rating above: a " +
+    "rating and a typed property are different facts, and this says only " +
+    "that no property is declared. It is a statement about the document, not " +
+    "a statement that these components have no such properties.",
 };
 
 /**

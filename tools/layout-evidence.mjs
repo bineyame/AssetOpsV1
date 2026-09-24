@@ -869,16 +869,22 @@ for (const [label, width, height] of [
           : `${frozen.name}: ${frozen.rowCount} rows`,
       ],
       [
-        // Three columns and at least three rows, rather than exactly three
-        // rows. The count of blocking reasons is a joint fact about the
-        // shipped document, the selected profile and the target Site's
-        // foundation, and all three are allowed to move: T020A added two
-        // unresolved foundation values to this Draft, because MG-001 was
-        // created before typed properties existed and a template does not
-        // migrate a Site. The three states the shipped profile cannot model
-        // are the floor, and the claim still fails on a table that has lost
-        // rows or columns.
-        "the blocked table names every reason the draft carries",
+        // Three columns and at least three rows, and the claim is named for
+        // what that measures rather than for what it would be nice to know.
+        //
+        // It said "names every reason the draft carries" while asserting a
+        // floor, which an independent review called what it is: with five
+        // reasons rendered the table could lose two and still pass. This
+        // script cannot see the response, so it cannot compare identities;
+        // what it can say is that the table is still a table and still has
+        // at least the three states the shipped profile cannot model.
+        //
+        // The count itself is a joint fact about the shipped document, the
+        // selected profile and the target Site's foundation, and all three
+        // are allowed to move: T020A added two unresolved foundation values
+        // to this Draft, because MG-001 was created before typed properties
+        // existed and a template does not migrate a Site.
+        "the blocked table renders at least the three unmodelled-state rows",
         blocked !== undefined &&
           blocked.columnCount === 3 &&
           blocked.rowCount >= 3,

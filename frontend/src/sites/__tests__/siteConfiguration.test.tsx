@@ -1444,6 +1444,13 @@ describe("typed component properties read back as declared configuration", () =>
     expect(text).toMatch(
       /not a statement that these components have no such properties/i,
     );
+    // And it does not claim the site says nothing about how large its tank
+    // is: this fixture's components still carry nameplate ratings, and a
+    // rating and a typed property are different facts. An independent review
+    // caught the earlier wording overstating the absence.
+    expect(text).toMatch(
+      /a rating and a typed property are different facts/i,
+    );
   });
 
   it("says the control properties are not controls, where they are rendered", async () => {
