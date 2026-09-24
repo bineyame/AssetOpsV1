@@ -2,101 +2,85 @@
 
 ## Purpose
 
-AssetOps helps operators use simulator and site operations screens to inspect
-distributed energy site evidence, understand site operating state, and
-investigate evidence-backed operational findings.
+AssetOps reconstructs site operation from ordinary evidence, explains bounded
+operational and economic consequences, and verifies whether an intervention
+improved the outcome. Initial users are mini-grid operators, asset managers and
+technical reviewers.
 
-## Target Users
+## Planning Basis
 
-Initial users are operators, asset managers, and technical reviewers responsible
-for understanding mini-grid site performance and reliability.
-
-## Current Product Walkthrough Wedge
-
-The first product walkthrough wedge should be planned from the canonical
-screens in `Docs/UI Design/Motivation`, especially `SimulatorLab1.png` and
-`ScreenMockups.png`. The sequence should follow causal product dependencies:
-site information, components, devices, configured single-line diagrams, and
-related setup must exist before Simulator Lab can truthfully show those details.
-
-Client-demo readiness is defined separately under Demo Readiness Milestones.
-
-Initial implementation slices should make these screens incrementally real, with
-backend work tied to behavior the user can verify in the UI. The Architect must
-create the feature map and task sequence before Implementer work begins.
+The intended demo path is `Docs/mini-grid-demo-architecture-and-roadmap.md`;
+simulator mechanisms come from `Docs/simulator_design_v4.md`. The feature map
+translates those sources into buildable outcomes from the recorded code state.
+UI references guide presentation when content exists; they no longer determine
+the delivery sequence. `D-2026-09-24-v4-roadmap-replan` records this change.
 
 ## Demo Readiness Milestones
 
-AssetOps distinguishes product walkthroughs from client-ready demos.
+These names replace the previous M1C / Demo Ready v1 / v2 / v2.5 ladder.
 
-`M0: Site Foundation Fidelity` covers faithful Site Foundation screens and
-configuration-only Site views. It may be shown as a prototype walkthrough
-foundation, but it must not claim operational evidence, health, analytics,
-Replay, or findings.
+| Milestone | Observable completion | Feature map |
+| --- | --- | --- |
+| Credible mini-grid runtime | Lab shows PV, loads, battery, generator, named flows and a coherent response to a forcing/policy change | A |
+| Internal architecture demo | Inspect private truth, reported observations and staging; Commit; open Site history populated through normal ingestion | B |
+| Domain-expert feedback | One Candidate Avoidable generator-runtime Finding with electrical context, inspectable evidence, claim boundary and indicative bounded fuel consequence | C |
+| Economically legible Finding | Thin versioned BusinessContext translates the bounded quantity into fuel/maintenance consequence | D |
+| Credible client demo | Portfolio, dispatch and fuel Findings, bounded money, productive-use opportunity, battery trajectory, verified intervention and Lab proof | E-I complete the story |
 
-`M1A: Topology, Devices, Signals, And SLD` makes the configured physical model
-real: topology, devices, signals, ratings, control assumptions, and the
-configured Single Line Diagram.
+The historical M0 / M1A / M1B labels describe completed configuration, topology
+and scenario/setup work, not new work to repeat. T001-T020 are complete, but the
+shipped scenario remains blocked and nothing executes.
 
-`M1B: Scenario Catalog And Run Setup` makes simulation selection and setup real
-against configured Site anchors.
+**What moved:** the former Simulated Evidence Loop / Demo Ready v1 is now the
+internal architecture finish line, not a client-ready promise. The first
+Finding is dispatch, not fuel reconciliation. Fuel follows thin financial
+translation. Cold-chain's former Demo Ready v2.5 slot is retired: cold-chain
+and e-mobility test future reuse and are deferred from the mini-grid demo.
+This supersedes the readiness naming in
+`D-2026-09-17-client-demo-readiness`; its evidence-isolation rule remains.
 
-`M1C: Prototype Walkthrough: Causal Runtime` makes Simulator Lab resemble the
-canonical runtime mockscreen with run state, controls, runtime panels, timeline,
-and overlays driven by a minimal deterministic causal kernel. Reproducible
-golden traces may support regression and playback, but are not the authority
-for world-state causality. Runtime truth is still simulator behavior, not
-AssetOps product evidence.
+Roadmap section 7/C permits feedback immediately after the dispatch Finding.
+Its section 13.2 checklist also asks for an indicative fuel consequence:
+include a bounded modelled quantity in C; priced Financials is D.
+Do not wait for six Sites before seeking expert feedback. A prospective client
+may be approached at C-D, but that does not claim the full I finish line.
 
-`Demo Ready v1: Simulated Evidence Loop` is the earliest honest client-ready
-mini-grid demo. The product can show a simulated Site producing staged
-gateway/source envelopes, releasing them through ingestion, accepted/rejected
-ingestion logs, operator evidence views populated from accepted evidence only,
-provenance inspection, and Replay over committed accepted history.
+## Product Walkthrough
 
-`Demo Ready v2: Evidence-Backed Operational Findings` adds source/gateway
-health, evidence readiness, bounded assessments, and at least one operational
-Finding with confidence, claim boundary, and evidence basis.
+Build in feature-map A-I order. The final client presentation opens with
+Portfolio Value & Operations, then Kobo's dispatch context and Finding/Evidence,
+bounded Financials, productive-use opportunity, battery trajectory and
+intervention verification. Simulator Lab/private truth is the validation reveal
+at the end. Roadmap sections 3-5 and 13 own the detailed story.
 
-`Demo Ready v2.5: Cold-Chain Evidence Loop` applies the same evidence loop to a
-real cold-chain domain model, after the mini-grid conclusion chain rather than
-before it. Every commercially meaningful finish line is on the mini-grid path,
-and a second vertical proves that the operating model transfers rather than
-proving the proposition itself - so it follows the first Finding instead of
-delaying it. Cold-chain is not a label swap over mini-grid; it needs cold room
-assets, temperature sensors, compressor/refrigeration state, door events, power
-dependency, temperature excursions, and careful exposure/risk language.
+Use canonical product screens. Portfolio Value & Operations and productive-use
+comparison are thin compositions over existing evidence, runs and assumptions,
+not new truth stores. Broad maintenance, authoring and reporting suites are not
+prerequisites.
 
-## Product Principles
+## Product Principles And Claim Boundaries
 
-- User-visible claims must be backed by evidence.
-- Missing evidence should be explicit, not silently fabricated.
-- Demo behavior should teach product and architecture assumptions quickly.
-- Product slices should be inspectable by the user in the UI after each
-  meaningful step.
-- The system should explain what is known, what is inferred, and what is
-  unavailable.
-
-## Prohibited Demo Claims
-
-Before accepted evidence exists, do not claim source health, operational status,
-charts, `Last analysed` timestamps, Replay history, analytics, findings, asset
-condition, recommendations, fuel variance, spoilage risk, or business impact.
-
-Before the conclusion chain exists, do not claim generator runtime assessment,
-fuel reconciliation, theft, compressor failure, spoilage, asset degradation, or
-operational recommendations.
-
-Private simulator truth may appear inside Simulator Lab for development and
-testing context, but it must not be presented as AssetOps product evidence.
-
-## Evidence Philosophy
-
-AssetOps should present site and device observations as product evidence.
-Private simulator truth may support testing and evaluation, but it must not
-become product-visible evidence.
+- Every slice produces or directly unlocks a coherent UI-verifiable outcome.
+  Demo speed governs under `D-2026-09-22-milestone-speed-over-purity`.
+- Before accepted evidence, operator views cannot claim operational health,
+  history, analytics or money. Lab may show clearly labelled private runtime
+  truth; it cannot supply product conclusions.
+- Dispatch distinguishes Necessary, Candidate Avoidable and Indeterminate.
+  Missing capability or override evidence limits the conclusion.
+- Fuel reconciliation establishes an unexplained residual with uncertainty;
+  it does not establish theft.
+- Renewable headroom establishes physical opportunity, not market demand or
+  commercial viability. Battery trajectory does not imply an exact failure date.
+- Versioned business assumptions translate the technical claim without making
+  it stronger. Do not aggregate overlapping cost, revenue and asset exposure
+  into fictitious total savings.
+- Work completion is not resolution. Verification requires comparable
+  post-action evidence with target and guardrails.
+- A simulated intervention comparison establishes a result in the model, not
+  proven real-world causal impact.
 
 ## Current Milestone
 
-M1 - A user can configure one mini-grid site, simulate it, and inspect the
-resulting operational evidence in the UI.
+Credible mini-grid runtime (A), followed by the internal architecture demo (B)
+and earliest domain-expert feedback (C). Next is Planner recreation/sizing of
+the unfinished starter queue. `.ai/ACTIVE_CONTEXT.md` routes that work.

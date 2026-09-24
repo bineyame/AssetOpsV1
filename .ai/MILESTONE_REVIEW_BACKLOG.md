@@ -5,6 +5,11 @@ Things deliberately carried rather than fixed, under
 the simulator milestone is complete and the thing has been tested properly,
 and this list is what that review reads first.
 
+With the 2026-09-24 milestone renaming, the former M1 configure/simulate/inspect
+evidence finish line maps to the internal architecture demo (feature-map B).
+The review backstop stays there after proper testing; it is not postponed to
+the full client portfolio milestone.
+
 **This list is what makes the deferral honest.** A thing carried without being
 written here is dropped. Anyone - Architect, Planner, Implementer, Reviewer -
 adds an entry rather than stopping a slice, and the entry says *what it is*,
@@ -196,20 +201,18 @@ wait for the control rather than for a sleep.
 
 ## Tracked elsewhere, listed so the review finds them
 
-- **Three open questions** - `.ai/FEATURE_MAP.md`, *Open Questions*, and
-  `Docs/simulator-scenario-authoring-and-runtime.md` under Open Questions.
-  None blocks a planned slice. The two counts differ and neither is stale: the
-  reference document lists four because it keeps the `MAGNITUDE` tolerance
-  separate, while the map folds it into the expectation-basis question that
-  shares its checkpoint. This entry read *four open M1C questions* under *Open
-  Questions Before Task Breakdown*; the section was renamed in the feature-map
-  revamp and one question closed when the user moved cold-chain after the
-  mini-grid conclusion chain.
-- **Option C**, the model profile declaring that it needs a Foundation value.
-  Accepted and scheduled by trigger rather than by position; see
-  `D-2026-09-22-foundation-value-declaration`.
-- **The observation transform as a component rather than a step** - the one
-  seam of the three that is still open. It was in `.ai/FEATURE_MAP.md` under
-  *Seams this sequence surfaced*, which the revamp cut once two of the three
-  were settled; the seam itself now lives in feature area 5, *Simulated World,
-  Environment, Devices, And Event Injection*. Lands in T022.
+2026-09-24 routing correction: the old three-question count, Block F deadline
+and feature-area-5 pointer were superseded by the source-based replan.
+The carried review findings above are unchanged.
+
+- `.ai/FEATURE_MAP.md`, Decisions At Their Point Of Use, carries unresolved
+  Fuel Loss corrections, fuel expectation/uncertainty and injection/reset
+  behavior alongside the roadmap's financial, productive-load and lifecycle
+  choices. Do not infer implementation blockers from the old question count.
+- Option C (the model declaring its Foundation need) remains triggered by its
+  first consuming law: `D-2026-09-22-foundation-value-declaration`.
+- The separate observation transform is owned by the recreated T022 starter
+  work; see `.ai/PLANNING_HANDOFF_T020A_T023.md` and architecture's Execution
+  Composition And Truth Barrier.
+- The unassigned delivery requirements are in the feature map's Next Work And
+  Unowned Requirements table. They are planned capability, not review debt.

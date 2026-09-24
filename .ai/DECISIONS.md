@@ -6,8 +6,16 @@ Use this index to find only the decisions relevant to the active task. Keep
 newest task-routing state in `.ai/ACTIVE_CONTEXT.md`; keep full decision
 rationale in the dated entries below.
 
+Current direction correction: `D-2026-09-24-v4-roadmap-replan` supersedes the
+old demo readiness/sequence and ambiguous sampling shorthand identified below.
+Earlier dated entries remain history; `.ai/CODE_STATE.md` records what shipped.
+Old pointers below to the feature-map execution-version ledger are historical:
+the forecast was removed; relative version guidance is now in
+`.ai/PLANNING_HANDOFF_T020A_T023.md`, Contract Versions And Retirements.
+
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-09-24-v4-roadmap-replan` | 2026-09-24 | Corrected two-source basis; roadmap A-I, dispatch first, immediate component addressing; Planner recreates unfinished tasks. |
 | `D-2026-09-11-stack` | 2026-09-11 | M1 uses the preferred MVP stack from the product specification. |
 | `D-2026-09-11-simulator-gate` | 2026-09-11 | Simulator Lab is gated by `simulator_lab.enabled`. |
 | `D-2026-09-11-workflow` | 2026-09-11 | AssetOps uses Architect/Planner, Implementer, Reviewer, and user-review workflow. |
@@ -21,7 +29,7 @@ rationale in the dated entries below.
 | `D-2026-09-17-timezone-validation-timing` | 2026-09-17 | Real IANA timezone membership validation is required before timezone becomes executable behavior. |
 | `D-2026-09-17-source-health-backing` | 2026-09-17 | Gateway/source health is backed by source observations, not Site lifecycle or simulator provenance. |
 | `D-2026-09-17-site-foundation-fetch-seam` | 2026-09-17 | The Site Foundation frontend/backend fetch seam needs a focused integration test before expansion. |
-| `D-2026-09-17-client-demo-readiness` | 2026-09-17 | Client demo readiness begins at the Simulated Evidence Loop; business-outcome demo readiness begins at Evidence-Backed Operational Findings. |
+| `D-2026-09-17-client-demo-readiness` | 2026-09-17 | Historical readiness ladder; superseded by D-2026-09-24-v4-roadmap-replan. |
 | `D-2026-09-17-foundation-screen-architecture` | 2026-09-17 | The operator Site surface formerly called Site Configuration becomes Foundation, with line-cited Site tabs, filtered Foundation subtabs, route compatibility, and inventory guards. |
 | `D-2026-09-20-layout-evidence-standing` | 2026-09-20 | Browser layout evidence is standing closeout evidence for layout-sensitive slices, kept outside the portable architecture runner. |
 | `D-2026-09-20-no-merged-task-status-guard` | 2026-09-20 | No guard ties a merged slice's task status to branch state; closeout discipline stays manual until the drift recurs. |
@@ -42,7 +50,7 @@ rationale in the dated entries below.
 | `D-2026-09-22-foundation-value-declaration` | 2026-09-22 | A scenario parameter whose declared owner is Site Foundation has no value position at all. The rule is keyed on the owner, so it reaches `tank-capacity` as well as the coefficient, moves the contract version, and retires `INITIAL_VALUE_ANSWERS_DISAGREE` in T020A. Option C is a named follower. |
 | `D-2026-09-22-consumption-coefficient-unit` | 2026-09-22 | The Foundation coefficient is specific fuel consumption in `L/kWh`, and `dispatched-output` is promoted to a `FORCING_INPUT` on `generator-output-power`. `L/h` is a property of machine times operating point and half that pair is the scenario's. Closes open question 4.1. |
 | `D-2026-09-22-forcing-state-requirements` | 2026-09-22 | `site-load-demand` and `plane-of-array-irradiance` drop to `OPTIONAL`; reporting-path authority moves to the publication profile. The shipped Fuel Loss Event becomes able to reach `READY`. Two riders: a requirement conflict is refused rather than resolved, and `FROZEN_INPUT_ANSWERERS` gains `PUBLICATION_PROFILE`. Closes open question 3. |
-| `D-2026-09-22-kernel-step-semantics` | 2026-09-22 | The four semantics the contract left open: linear ramp across a window, observe after the step, a forcing outside its window is unavailable, and a bounded change lets the run continue against the bounded value. Closes open question 1. |
+| `D-2026-09-22-kernel-step-semantics` | 2026-09-22 | The four semantics the contract left open: linear ramp across a window, sampling (clarified by v4 section 6 and D-2026-09-24-v4-roadmap-replan), a forcing outside its window is unavailable, and a bounded change lets the run continue against the bounded value. Closes open question 1. |
 | `D-2026-09-22-reconciliation-panel-retirement` | 2026-09-22 | The `observation_reconciliation` panel goes with (f) in T022, which completes (j) by taking the reference implementation, `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` out of the product path. Closes open questions 5 and 11. |
 | `D-2026-09-22-capacity-bound-source` | 2026-09-22 | A bound's declaration is the document's and its value is the site's. `declared_bounds` reports no upper value for `fuel-tank-volume` after T020A and that is the correct answer; the number lives in the frozen run and the first thing entitled to hold both halves is T021's kernel. |
 | `D-2026-09-22-foundation-property-absent-blocks` | 2026-09-22 | A Foundation that declares no such property at all blocks with `INITIAL_VALUE_NOT_RESOLVED`. It is a fifth case of the four, not a refusal, because after T020A the binding names the property and a different profile might name another. |
@@ -780,9 +788,11 @@ and the reason recorded for the gating decision.
 ## 2026-09-13
 
 Decision: The product has exactly two provenance concepts, not three, and six
-independent provenance-and-status concepts in total. The single reference is the
-table under "Provenance And Status Concepts" in `.ai/FEATURE_MAP.md` Feature
-Area 1; cite it rather than restating it.
+independent provenance-and-status concepts in total.
+
+2026-09-24 routing update: the duplicated feature-map table is retired.
+This entry retains the conceptual separation; the Site model and CODE_STATE
+retain the built fields. Cite this decision instead of the removed Feature Area 1.
 
 The "simulator tag" the product shows on a Lab-produced Site *is*
 `source.mode = SIMULATED`. It is not a third field. No `created_in_lab`,
@@ -918,6 +928,11 @@ contracts, Site Foundation regression tests, review packets, and any future
 slice that changes the shared Site Foundation frontend/backend contract.
 
 ## 2026-09-17
+
+2026-09-24 supersession: the readiness names and sequencing in this entry are
+historical. D-2026-09-24-v4-roadmap-replan and PRODUCT now distinguish internal
+architecture, dispatch feedback and the full client demo; evidence isolation
+still applies.
 
 Decision: Client demo readiness begins at `Demo Ready v1: Simulated Evidence
 Loop`, after a simulated Site can produce staged gateway/source envelopes,
@@ -2668,3 +2683,56 @@ can wait for it, and a question that can wait should.
 Affected scope: `.ai/ACTIVE_CONTEXT.md`, `.ai/WORKFLOW.md` for what a Reviewer
 raises, the new `.ai/MILESTONE_REVIEW_BACKLOG.md`, and every slice, planning
 pass and review for the rest of M1.
+
+## 2026-09-24
+
+Decision: `D-2026-09-24-v4-roadmap-replan`.
+
+Directed by the user: re-derive planning from `Docs/simulator_design_v4.md`
+and the corrected `Docs/mini-grid-demo-architecture-and-roadmap.md`, plus
+canonical evidence of what is built. Do not reconcile with the superseded
+roadmap, prior feature-map revamp, alignment reviews or v3 assessment.
+v4 is normative for simulator mechanisms; the roadmap governs demo sequencing.
+
+The feature map now follows roadmap section 7's A-I: credible electrical
+mini-grid, source boundary/ingestion, dispatch Finding, thin economics, fuel
+reconciliation, productive use, lifecycle, intervention verification, portfolio.
+T001-T020 remain built. v4 sections 2.1/24 retain the unfinished starter queue,
+with a carrier/addressed-binding sizing or split before implementation.
+Component addressing belongs there; Site Controls wait for their controller.
+
+Explicit supersessions:
+
+- `D-2026-09-17-client-demo-readiness` called the evidence loop client-ready.
+  It is now the internal architecture demo. The first feedback milestone is
+  the dispatch Finding; the full client milestone is the portfolio/intervention
+  story in roadmap section 13. Historical M0/M1A/M1B remain completed records.
+  The old M1C/v1/v2/v2.5 labels no longer schedule future work.
+- The former feature map's fuel-first Finding, late electrical world and late
+  StateRef recommendation are withdrawn. Fuel is roadmap E, electrical runtime
+  is A, and addressed binding belongs in immediate contract work.
+- `D-2026-09-22-kernel-step-semantics` used "observe after the step".
+  v4 section 6 supplies the precise replacement: due events, post-event sample
+  at T with preceding-interval measurements, then controller/physical evolution
+  for the coming interval. No initial interval measurement without declared
+  historical input. Other compatible bound/window semantics remain.
+- Cold-chain's scheduled Demo Ready v2.5 slot is retired. Cold-chain/e-mobility
+  remain later architecture tests under roadmap sections 8/10.
+- The previous handoff's backend-side kernel alternative is replaced by v4
+  section 3's simulator/neutral-contract/host separation. The existing import
+  guard already bans both cross-import directions.
+
+These are planning changes, not claims that code has changed. Unimplemented
+task files are deliberately untouched and await Planner recreation. No new
+implementation task is activated by this record. All current runtime/evidence
+gaps are named in the feature map's ownership table.
+
+Reason: the corrected roadmap requires the first useful dispatch conclusion
+from credible electrical operation through ordinary evidence; the old fuel-first
+sequence could not deliver that demonstration. Protect expensive boundaries,
+make progress observable and leave cheap choices to implementation.
+`D-2026-09-22-milestone-speed-over-purity` continues to govern.
+
+Affected files: FEATURE_MAP, PRODUCT, ARCHITECTURE, ACTIVE_CONTEXT, START_HERE,
+the scoped Planner handoff, PLANNING_GUIDANCE, WORKFLOW, ARTIFACT_INDEX and
+MILESTONE_REVIEW_BACKLOG. CODE_STATE and completed task history are unchanged.
