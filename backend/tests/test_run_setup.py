@@ -729,7 +729,14 @@ class TestNothingIsDefaulted:
         reason = record.blocking_reasons[0]
         assert reason.subject == "example-stored-volume"
         assert "tank-capacity" in reason.statement
-        assert "example-store" in reason.statement
+        # The phrase, not the component id on its own. The state key here is
+        # `example-stored-volume`, which CONTAINS `example-store` as a
+        # substring, so a naive containment check passes against the
+        # no-such-component message too - and a deliberate violation proved
+        # exactly that before this line was written.
+        assert "property of component example-store," in reason.statement
+        assert "declares no such property on it" in reason.statement
+        assert "another component" in reason.statement
         # The Draft is persisted and inspectable, which is the difference
         # between a blocking reason and a refusal.
         assert store.written == [record]

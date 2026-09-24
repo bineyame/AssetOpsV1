@@ -400,6 +400,74 @@ describe("a malformed detail response is unavailable, never half a site", () => 
     expect(result.status).toBe("loaded");
   });
 
+  it("refuses a component whose properties key is missing", async () => {
+    // A missing key is not the document declaring none: it is a response that
+    // does not carry the field, and letting it through puts `undefined` where
+    // a view model asks whether this component declares any properties.
+    const body = bodyWithComponents([
+      {
+        component_id: "pv-array",
+        component_type: "PV_ARRAY",
+        display_name: "PV array",
+        rating: { value: 100, unit: "kW" },
+      },
+    ]);
+
+    expect(isSiteDetail(body)).toBe(false);
+  });
+
+  it("refuses an empty properties list and accepts null", async () => {
+    // The same pair as the four foundation sections, for the same reason. An
+    // empty array renders as a table saying this component HAS no properties,
+    // which is a claim the document never made; `null` is the document being
+    // silent, and the screen states that with its reason.
+    const componentWith = (properties: unknown) =>
+      bodyWithComponents([
+        {
+          component_id: "pv-array",
+          component_type: "PV_ARRAY",
+          display_name: "PV array",
+          rating: { value: 100, unit: "kW" },
+          properties,
+        },
+      ]);
+
+    expect(isSiteDetail(componentWith([]))).toBe(false);
+    expect(isSiteDetail(componentWith(null))).toBe(true);
+  });
+
+  it("refuses a property missing any field the screen reads", async () => {
+    const whole = {
+      property_key: "tank-capacity",
+      display_name: "Tank capacity",
+      value: 500,
+      unit: "L",
+      kind: "PHYSICAL",
+      source: "TEMPLATE",
+      source_version: 2,
+    };
+    const componentWith = (properties: unknown) =>
+      bodyWithComponents([
+        {
+          component_id: "pv-array",
+          component_type: "PV_ARRAY",
+          display_name: "PV array",
+          rating: { value: 100, unit: "kW" },
+          properties,
+        },
+      ]);
+
+    // Non-vacuous: the whole property is accepted, so each refusal below is
+    // about the field it removes and not about the shape in general.
+    expect(isSiteDetail(componentWith([whole]))).toBe(true);
+
+    for (const field of Object.keys(whole)) {
+      const partial: Record<string, unknown> = { ...whole };
+      delete partial[field];
+      expect(isSiteDetail(componentWith([partial])), field).toBe(false);
+    }
+  });
+
   it("refuses a body whose site fields are wrong under a good foundation", async () => {
     respondWith({ ...SITE_DETAIL_BODY, site_id: 2 });
 
