@@ -471,3 +471,133 @@ describe("one draft run", () => {
     expect(screen.queryByRole("heading", { name: "No such run" })).toBeNull();
   });
 });
+
+describe("two components of one type on one run", () => {
+  // Two tanks, one semantic state, two addresses, and only one of them
+  // resolved. Every string here differs from its sibling by a component id,
+  // which is what the assertions below have to survive.
+  const TWIN_RUN: RunSummary = {
+    ...READY_RUN,
+    run_id: BLOCKED_ID,
+    execution_status: "BLOCKED",
+    readiness_disclosure: null,
+    frozen_inputs: [
+      {
+        identity_field: "initialization_inputs",
+        field: "Initial fuel-tank-capacity@north-tank",
+        value: "500 L",
+        answered_by: "SITE_FOUNDATION",
+        answered_by_detail:
+          "site MG-005 foundation version 1, component north-tank property " +
+          "tank-capacity",
+        blocking_statement: null,
+      },
+      {
+        identity_field: "initialization_inputs",
+        field: "Initial fuel-tank-capacity@south-tank",
+        value: "not resolved",
+        answered_by: "SITE_FOUNDATION",
+        answered_by_detail:
+          "site MG-005 foundation version 1, whose component south-tank " +
+          "declares no tank-capacity",
+        blocking_statement:
+          "The foundation of site MG-005 declares no tank-capacity property " +
+          "on component south-tank.",
+      },
+    ],
+    blocking_reasons: [
+      {
+        kind: "INITIAL_VALUE_NOT_RESOLVED",
+        subject: "fuel-tank-capacity@south-tank",
+        statement:
+          "The foundation of site MG-005 declares no tank-capacity property " +
+          "on component south-tank.",
+      },
+    ],
+  };
+
+  function twinScreen() {
+    renderAt(
+      `/simulator-lab/runs/${BLOCKED_ID}`,
+      runClient(undefined, { status: "loaded", run: TWIN_RUN }),
+    );
+    return settledScreen();
+  }
+
+  it("gives each asset its own row, named by its address", async () => {
+    await twinScreen();
+
+    const table = screen.getByRole("table", { name: "The frozen inputs" });
+    const headers = within(table)
+      .getAllByRole("rowheader")
+      .map((cell) => cell.textContent);
+
+    // Exact strings, not substrings. `Initial fuel-tank-capacity` is a
+    // prefix of both, so a `toMatch` here would pass against a screen that
+    // rendered the same row twice.
+    expect(headers).toEqual([
+      "Initial fuel-tank-capacity@north-tank",
+      "Initial fuel-tank-capacity@south-tank",
+    ]);
+  });
+
+  it("shows which asset supplied the value that resolved", async () => {
+    await twinScreen();
+
+    const table = screen.getByRole("table", { name: "The frozen inputs" });
+    const resolved = within(table)
+      .getByRole("rowheader", {
+        name: "Initial fuel-tank-capacity@north-tank",
+      })
+      .closest("tr");
+
+    expect(resolved).not.toBeNull();
+    expect(within(resolved as HTMLElement).getByText("500 L")).toBeInTheDocument();
+    expect(
+      within(resolved as HTMLElement).getByText(/component north-tank property/),
+    ).toBeInTheDocument();
+  });
+
+  it("puts the reason in the row whose value is missing, and only there", async () => {
+    await twinScreen();
+
+    const table = screen.getByRole("table", { name: "The frozen inputs" });
+    const unresolved = within(table)
+      .getByRole("rowheader", {
+        name: "Initial fuel-tank-capacity@south-tank",
+      })
+      .closest("tr") as HTMLElement;
+    const resolved = within(table)
+      .getByRole("rowheader", {
+        name: "Initial fuel-tank-capacity@north-tank",
+      })
+      .closest("tr") as HTMLElement;
+
+    expect(within(unresolved).getByText("not resolved")).toBeInTheDocument();
+    expect(
+      within(unresolved).getByText(
+        /declares no tank-capacity property on component south-tank/,
+      ),
+    ).toBeInTheDocument();
+
+    // The resolved row carries no reason at all. Without this the test would
+    // pass against a screen that printed the same explanation on every row.
+    expect(
+      within(resolved).queryByText(/declares no tank-capacity property/),
+    ).toBeNull();
+  });
+
+  it("still lists the reason in the blocked table", async () => {
+    await twinScreen();
+
+    const reasons = screen.getByRole("table", {
+      name: "Why this draft cannot be executed",
+    });
+
+    // The subject names the asset, so a reader of the reasons table can tell
+    // which of the two tanks it is about without reading the sentence.
+    expect(
+      within(reasons).getByText("fuel-tank-capacity@south-tank"),
+    ).toBeInTheDocument();
+  });
+});

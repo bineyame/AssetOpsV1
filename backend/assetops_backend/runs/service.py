@@ -1513,6 +1513,51 @@ def _support_for(
             ),
         )
 
+    if supported.scope != executable.state_ref.scope:
+        # A scope disagreement is per DECLARATION, so its subject is the
+        # address rather than the state key: a scenario may legitimately
+        # address one state correctly and another wrongly, and collapsing
+        # both onto the key would report one and hide the other.
+        #
+        # This is checked here as well as in the Foundation resolver because
+        # the two reach different declarations. The resolver sees only the
+        # initial values a Foundation owns; a forcing input the scenario owns
+        # never goes near it, and without this an entry forcing demand at one
+        # feeder against a profile that models one site-wide demand would be
+        # reported as supported with the address quietly ignored.
+        claimed = (
+            "as a fact about the whole installation"
+            if executable.state_ref.scope == "SITE"
+            else "as a fact about one component"
+        )
+        modelled = (
+            "a fact about the whole installation"
+            if supported.scope == "SITE"
+            else "a fact about one component"
+        )
+        statement = (
+            f"The scenario declares {executable.state_key} {claimed} and "
+            f"model profile {model.model_profile_id} version "
+            f"{model.model_profile_version} models it as {modelled}."
+        )
+        if executable.execution_requirement == "REQUIRED":
+            return (
+                BlockingReason(
+                    kind="STATE_NOT_SUPPORTED",
+                    subject=executable.addressed_key,
+                    statement=statement,
+                ),
+                None,
+            )
+        return (
+            None,
+            UnsupportedOptionalInput(
+                state_key=executable.addressed_key,
+                execution_role=executable.execution_role,
+                statement=statement,
+            ),
+        )
+
     if executable.execution_role not in supported.supported_roles:
         statement = (
             f"Model profile {model.model_profile_id} version "
