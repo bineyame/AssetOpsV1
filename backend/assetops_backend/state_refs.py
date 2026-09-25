@@ -38,13 +38,20 @@ One string, three forms:
     site:site-load-demand             a site-wide claim
     component:fuel-tank-volume        the unqualified form, said out loud
 
-The bare form means COMPONENT and not SITE, and the direction of that default
-is the whole of why it is safe. An unqualified component reference is the
-WEAKER claim: it must still find exactly one candidate before a run is READY,
-so a bare key that should have been site-wide fails visibly at resolution. The
-other direction would not: a bare key silently meaning "the site's" would let
-a statement about one machine become a statement about the installation, with
-nothing left to catch it.
+The bare form means COMPONENT and not SITE. That is a default, and what makes
+the direction safe is a property `runs/service.py` enforces rather than one
+this spelling implies: every component-scoped reference must identify one
+component of the bound Site before a run is READY, whoever answers for its
+number and whether or not it has one. So a bare key that should have been
+site-wide blocks, with its address named.
+
+This paragraph claimed that as a guarantee of the spelling for two rounds
+while the enforcement had holes, and a reader acted on it. It is recorded
+here as a property of the check, which is where it lives.
+
+The other direction would be unsafe and unfixable: a bare key silently
+meaning "the site's" would let a statement about one machine become a
+statement about the installation, and no later check could notice.
 
 `component:` exists so an author who wants the scope written down can write it.
 It is the same reference as the bare form and renders back as the bare form.

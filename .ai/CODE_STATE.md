@@ -2362,12 +2362,14 @@ the Site record family at all.
 component-scoped and unqualified, `fuel-tank-volume@north-tank` names the
 component, and `site:site-load-demand` is a fact about the installation.
 `component:` is accepted as the bare form said out loud and renders back as the
-bare form. A bare key means COMPONENT and never SITE, and the direction of that
-default is the safety property: an unqualified component reference is the
-WEAKER claim, because it must still find exactly one candidate before a run is
-READY, so a bare key that should have been site-wide fails visibly at
-resolution. The other direction would have turned a statement about one machine
-into a statement about the installation with nothing left to catch it.
+bare form. A bare key means COMPONENT and never SITE. **What makes that direction safe is
+enforcement in `runs/service.py`, not the spelling** - every component-scoped
+reference must identify one component of the bound Site before a run is READY -
+and this paragraph asserted it as a property of the default for two rounds
+while that enforcement had holes. Read the correction section below before
+relying on any universal statement here. The other direction would have turned
+a statement about one machine into a statement about the installation with
+nothing that could notice.
 
 One parser serves both document families, which is what makes a frozen record
 reconstruct to the address it was written from. `addressed_key` is the
@@ -2485,9 +2487,12 @@ lookup consuming its answer instead of doing the choosing. The obligation
 cannot be attached to one owner again because it is not reached through one.
 
 **`STATE_ADDRESS_NOT_RESOLVED` is a seventh blocking kind**, not the sixth
-reused, and the distinction is the reason it exists: `INITIAL_VALUE_NOT_RESOLVED`
-means the reference found its asset and no number came off it, while this one
-means there is no asset yet. A forcing input has no initial value to be
+reused, because an initial value is not the only thing an address is needed
+for. The two do not partition cleanly and a later reader must not act as
+though they did: a missing binding and a scope disagreement both report
+`INITIAL_VALUE_NOT_RESOLVED` before any asset has been looked for, so all that
+kind means is a failure to obtain the initial value. Both carry an addressed
+subject, which is what holds a reader's diagnosis together across them. A forcing input has no initial value to be
 unresolved and still has to say which machine it forces, so naming this after
 initial values would have been a kind unable to describe half the references it
 reports on. The cases that moved to it: a named component the Foundation does
@@ -2558,6 +2563,83 @@ Also carried out of the review, named rather than swept: the second shipped
 archetype's Foundation and SLD have not been measured at any viewport, and the
 run-detail browser evidence is not evidence about the diagram it draws.
 
+### T020A1 second correction round: visiting is not resolving
+
+A second independent review closed five of six returned items and found three
+more, all of them one sentence: **do not equate visiting a reference with
+having resolved it.** The common pass was exhaustive as an ENUMERATION - every
+reference was collected and looked at - and the round-two entry above read as
+though that settled the matter. It did not.
+
+**A reference now leaves `resolve_state_addresses` in one of three states**,
+and naming the third is the fix. Two branches used to record a reference as
+settled while checking nothing, on the assumption that `_support_for` would
+report it; `_support_for` is asked about EXECUTABLE declarations, so a
+reference written only as a bound target reached neither check and
+`unmodelled-volume@ghost-tank` came back READY with no reasons and persisted.
+The states are RESOLVED (it names one component, checked here), REFUSED (it
+carries a reason), and DEFERRED - and `deferred_to_support` is set only when
+the address really does appear among the executable inputs `_support_for` is
+driven from, read from `_declared_requirements` rather than assumed.
+`ResolvedAddress.is_resolved` was "no reason", which reported precisely the
+unchecked cases as resolved; it now means what its name means.
+
+**Existence is checked before the profile is consulted at all.** Whether this
+Foundation declares a component with that identity needs no state vocabulary,
+so asking it first means an explicitly addressed reference is checked even
+when it names a state this profile does not model. That is what closes the
+bound-only route without inventing a bounds mechanism.
+
+**The binding's component type moved into the pass** with the rest of
+selection. It had stayed in the Foundation's number lookup, so naming a
+generator for a tank state blocked under `SITE_FOUNDATION` and froze 100 L
+against that generator under `SCENARIO_INPUT` - the same ownership-dependent
+obligation the previous round removed, one position further in. It is not
+duplicated: by the time `_resolve_foundation_value` runs, the component is of
+the bound type or there is none.
+
+**A regression the previous round introduced, and the rule that prevents the
+class.** Every owner's row moved onto the resolved address while the
+MODEL_RULE branch still emitted its reason against the authored one. On a
+one-tank Site a bare model-owned reference resolves to `@north-tank`, its
+number is absent because no profile carries a model rule for it, and the
+mismatch made `SimulationRun.__post_init__` raise - so a Draft that should
+have been BLOCKED and inspectable was no Draft at all. **The missing value,
+the reference frozen beside it and the explanation for it are kept at one
+grain**, here and in `_resolve_foundation_value`.
+
+**An unresolvable row is frozen ABSENT for every owner**, which reverses a
+round-two decision. That round kept the scenario's number on such a row,
+arguing the document really does state it. Two things were wrong: a frozen
+initial value is the initial value OF a world state and an unresolvable
+address names none, so the screen showed a quantity beside an asset that
+cannot carry it; and it made the record behave one way for a scenario-owned
+or run-owned value and another for a Foundation-owned one, which is the
+ownership-dependent treatment these rounds exist to remove. My own new test
+caught it.
+
+**What the tests learned, which is the part worth carrying.** The round-two
+test asserted that the pass VISITED every reference - the assertion that was
+already passing while the defect was live.
+`test_nothing_is_deferred_to_a_check_that_never_sees_it` asserts the property
+that was missing instead: for every reference the pass declines to answer
+itself, its address must appear among the executable inputs `_support_for` is
+driven from. It counts the deferrals it saw and fails if there were none, so
+it cannot pass because the branch was never taken. An enumeration assertion
+survives the mutation that makes a deferral blind; this one does not.
+
+Two prose claims were corrected at the places they were made rather than only
+in a later section: the blanket safe-default guarantee about a bare key, in
+`state_refs.py` and in the authored-spelling paragraph above, which is a
+property of the enforcement in `runs/service.py` and not of the spelling; and
+the claim that the two blocking kinds partition cleanly, in `models.py` and
+above, which they do not - a missing binding and a scope disagreement both
+report `INITIAL_VALUE_NOT_RESOLVED` before any asset has been looked for, so
+that kind means only a failure to obtain the initial value.
+
+`EXECUTION_CONTRACT_VERSION` did not move. Version 4 remains unpublished
+outside this branch.
+
 What this leaves open.
 
 - **T020B still owns readiness.** The three unmodelled forcing states are
@@ -2575,9 +2657,9 @@ What this leaves open.
 - **The twin-tank archetype's Foundation and SLD are unmeasured** at any
   viewport. The browser evidence is about MG-005's run detail and says nothing
   about the diagram that archetype draws.
-- **`var/runs` now holds 92 local Drafts and `create_run` is still O(n)** in
+- **`var/runs` now holds 97 local Drafts and `create_run` is still O(n)** in
   that count, unchanged from T020A and still wanting a bounded owner before
-  T027. This slice added eleven Drafts to it, most of them written by two
+  T027. This slice added sixteen Drafts to it, most of them written by three
   layout evidence runs.
 - **The five inline `float(value)` overflow sites in
   `.ai/MILESTONE_REVIEW_BACKLOG.md` are untouched and no sixth was added.**

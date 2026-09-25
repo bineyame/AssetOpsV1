@@ -168,17 +168,22 @@ ANSWERER_BY_INITIALIZATION_OWNER = {
 #:   a different profile may.
 #:
 #: - `STATE_ADDRESS_NOT_RESOLVED`: a component-scoped reference that does not
-#:   identify exactly one component of this Site. Added by T020A1's review
-#:   round, and a DIFFERENT fact from the one above it, which is why it is a
-#:   seventh kind rather than the sixth reused. `INITIAL_VALUE_NOT_RESOLVED`
-#:   means the reference found its asset and the profile could not get a
-#:   number off it. This one means there is no asset yet: the author named a
-#:   component the Foundation does not declare, or named none and nothing
-#:   could choose between the candidates. An initial value is not the only
-#:   thing an address is needed for - a forcing input carries no initial
-#:   value at all and still has to say which machine it forces - so naming
-#:   this after initial values would have been a kind unable to describe half
-#:   the references it has to report on.
+#:   identify exactly one component of this Site: a named component the
+#:   Foundation does not declare, a named component of a type the binding
+#:   does not carry, no candidate of that type, or more than one. Added by
+#:   T020A1's review round, and a seventh kind rather than the sixth reused
+#:   because an initial value is not the only thing an address is needed
+#:   for. A forcing input carries no initial value at all and still has to
+#:   say which machine it forces, so naming this after initial values would
+#:   have been a kind unable to describe half the references it reports on.
+#:
+#:   **The two do not partition cleanly, and a reader must not be told they
+#:   do.** A first draft of this comment said `INITIAL_VALUE_NOT_RESOLVED`
+#:   means the reference found its asset. It does not: a missing binding and
+#:   a scope disagreement both report it before any asset has been looked
+#:   for. What it means, and all it means, is a failure to obtain the
+#:   initial value this run needs. Both kinds carry an addressed subject,
+#:   which is what keeps a reader's diagnosis together across them.
 #:
 #: Every one of the seven is a statement about the SELECTED PROFILE AND SITE:
 #: something the scenario requires that the profile does not model, does not

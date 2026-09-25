@@ -15,22 +15,26 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020A1 is built, reviewed once, corrected, and back in review**, on branch
-`task/T020A1-addressed-foundation-bindings`, seven commits on `b004f58`. An
-independent Codex review returned it with four defects and two overclaiming
-tests; all six are closed and a fifth finding is carried by that review's own
-judgement. `.agent/T020A1-review.md` is the review, `T020A1-fix-probes.py`
+**T020A1 is built, reviewed twice, corrected twice, and back in review**, on
+branch `task/T020A1-addressed-foundation-bindings`, nine commits on `b004f58`.
+The first independent Codex review returned four defects and two overclaiming
+tests; the second closed five of those six and returned three more plus two
+untrue claims. All are now closed, and one finding is carried by the reviews'
+own judgement. `.agent/T020A1-review.md` is the review, `T020A1-fix-probes.py`
 re-runs its reproductions and asserts the opposite of each, and the packet
 `.agent/T020A1-review-packet.md` maps every criterion to its evidence and
 corrects three claims round one made falsely. It goes back to the Reviewer,
 and the user's own review of the two Drafts is still outstanding.
 
-The headline defect is worth carrying forward as a shape rather than as a
-fix: address resolution was written inside the Foundation value lookup, so a
-reference was only resolved when the Foundation answered for its number, and
-every scenario-owned, run-owned and forcing reference froze as authored and
-reported READY. Who supplies a number and which asset it is about are two
-questions. Resolution is now one pass over every declared reference.
+Two shapes worth carrying forward rather than the fixes. **Who supplies a
+number and which asset the number is about are two questions**: resolution
+was written inside the Foundation value lookup, so every scenario-owned,
+run-owned and forcing reference froze as authored and reported READY. And
+**visiting a reference is not resolving it**: the pass that replaced it was
+exhaustive as an enumeration while two of its branches marked a reference
+settled and checked nothing, so a reference written only as a bound target
+reached neither check. The test that missed the second asserted the pass had
+VISITED everything - the assertion already passing while the defect was live.
 
 A world state is now named by an ADDRESS - a semantic key plus the component it
 is claimed on, or `site:` for a fact about the installation - carried by one
