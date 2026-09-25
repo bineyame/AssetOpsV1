@@ -203,6 +203,39 @@ reason. It said this fails honestly and never yields a false PASS, which held;
 what it did not anticipate is that an abort with no false PASS can still
 produce a false EXPLANATION, which is what T020A's first packet published.
 
+## Inline `float(value)` overflow, five open sites
+
+Transferred from the T020A third-pass review, 2026-09-25, which named the
+inventory rather than expanding the Implementer's assignment. Seven sites are
+known, two were closed in T020A, five remain. This is a minimum established
+count from reproduced cases, **not a certified audit** of every numeric
+operation - do not read it as one, and do not infer that any unlisted numeric
+path is safe.
+
+Each is the inspectable-error half: an unrepresentable integer raises a raw
+`OverflowError` where that surface already has a designed refusal. None
+persists an invalid value, which is why the review carried them rather than
+blocking the merge under `D-2026-09-22-milestone-speed-over-purity`.
+
+| Site | Surface | Current failure | Closure evidence required |
+| --- | --- | --- | --- |
+| `runs/parsing.py:517` `_quantity` **first priority** | T019, an HTTP run-setup request body | 500 instead of the designed `REQUEST_INVALID`/422 | HTTP test asserting the refusal, no persisted run, and a finite large-number control |
+| `runs/parsing.py:740` `_real` | T019, a stored run document read back | escapes run-document refusal | actual run-document read with the domain error and a valid-number control |
+| `runs/parsing.py:966` `_parse_parameter` | T019, a stored resolved parameter; does **not** route through `_real` | throws during record construction | full stored-document read refusing this exact field, plus its finite control |
+| `sites/parsing.py:269` | T005, a template component `rating` | escapes template refusal | template parser domain error with component position and a valid control |
+| `sites/site_parsing.py:549` | T008, a Site component `rating` | escapes Site refusal | Site parser domain error with component position and a valid control |
+
+`_quantity` is first because it is the only one reachable without authoring a
+document, so it is a live product defect on an existing request path.
+
+These are error-boundary corrections. They are explicitly **not** a request
+for a generic numerical-validation framework, and the reviewer said so.
+
+The generalisation worth keeping: this codebase validates numbers with
+`float(value)` written inline, and every place it does carries this hole. A
+check moved in front of such a conversion carries the hole with it rather than
+closing it - that is how T020A relocated one before closing it.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

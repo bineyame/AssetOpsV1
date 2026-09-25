@@ -15,20 +15,26 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020A is built, reviewed twice, corrected twice, and back with the Reviewer.**
-`tasks/T020A-foundation-physical-properties.md`. The first independent Codex
-review returned three reproduced correctness defects and one test weakness; the
-second closed those and returned three bounded corrections - an unrepresentable
-integer that threw instead of refusing, a comment promising a guard the run
-record does not have, and a frontend test claiming to prove bound rendering it
-never showed. All are fixed and the packet's stale claims are corrected. A
-fourth round closed the same unrepresentable-integer hole one domain along in
-the scenario parser, which had been flagged rather than fixed and which the
-user approved closing.
-It still needs user review (`USER_REVIEW_REQUIRED: true`) and independent
-re-review. Packet `.agent/T020A-review-packet.md`; reviews
-`.agent/T020A-independent-review.md` and
-`.agent/T020A-second-pass-review.md` with their probes beside them.
+**T020A is complete and merged.** `tasks/completed/T020A-foundation-physical-properties.md`.
+Three independent Codex review passes: the first returned three reproduced
+correctness defects and one test weakness; the second closed those and returned
+three bounded corrections; the third approved the merge with named follow-ups.
+A fourth implementation round closed the same unrepresentable-integer hole one
+domain along in the scenario parser, flagged rather than swept, and closed on
+user authorisation. The user reviewed the Foundation and both Draft cases and
+approved.
+
+A Foundation now declares typed unit-carrying physical and control properties
+from a closed vocabulary; the shipped scenario stops carrying two machine
+numbers and run setup resolves them through the model profile's binding.
+`EXECUTION_CONTRACT_VERSION` moved 2 to 3; stored runs keep theirs. Packet
+`.agent/T020A-review-packet.md`; the three reviews and their probes sit beside
+it in `.agent/`.
+
+Carried out of it, not lost: five open inline-`float(value)` overflow sites in
+`.ai/MILESTONE_REVIEW_BACKLOG.md`, the HTTP-reachable one first. The run store's
+O(n) create wants a bounded fix with an owner before T027.
+
 **Next task: T020A1**, then T020B, T021, T021A, T022, T023 and T024 onward per
 that README. None of the resequencing touches the starter path.
 
