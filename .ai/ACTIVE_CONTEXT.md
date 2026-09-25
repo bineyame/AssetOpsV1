@@ -16,7 +16,7 @@ the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
 **T020A1 is built, reviewed twice, corrected twice, and back in review**, on
-branch `task/T020A1-addressed-foundation-bindings`, ten commits on `b004f58`.
+branch `task/T020A1-addressed-foundation-bindings`, on `b004f58`.
 The first independent Codex review returned four defects and two overclaiming
 tests; the second closed five of those six and returned three more plus two
 untrue claims. All are now closed, and one finding is carried by the reviews'
