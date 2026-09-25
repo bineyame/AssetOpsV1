@@ -1,6 +1,6 @@
 # T020A - Typed component properties and frozen Foundation answers
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
