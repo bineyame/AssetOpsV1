@@ -246,6 +246,18 @@ The carried review findings above are unchanged.
   Fuel Loss corrections, fuel expectation/uncertainty and injection/reset
   behavior alongside the roadmap's financial, productive-load and lifecycle
   choices. Do not infer implementation blockers from the old question count.
+- A technical walkthrough document, `Docs/life-of-a-finding.md`, was proposed
+  on 2026-09-24 and **parked by the user on 2026-09-25**, not declined. It
+  would trace one value from authored cause to a claim on screen - world
+  state, observation, envelope, gateway, Commit, ingestion, accepted evidence,
+  read model, Finding, financial bridge - naming what owns each step and
+  marking each as built, specified in a task file, or planned only. The gap it
+  fills: `Docs/simulator_design_v4.md` covers the simulator through to the
+  gateway and the roadmap covers the demo path, and nothing joins them in one
+  technical register. Commission from the Architect when the queue allows.
+  A user-authored `Docs/AssetOps_MiniGrid_Technical_Walkthrough.md` covers part
+  of this ground and cites the pre-resequencing T024-T029 order; reconcile
+  before or during that work.
 - Option C (the model declaring its Foundation need) remains triggered by its
   first consuming law: `D-2026-09-22-foundation-value-declaration`.
 - The separate observation transform is owned by the recreated T022 starter
