@@ -60,6 +60,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from assetops_backend.state_refs import StateRef
+
 # --- The accepted scenario versioning fields --------------------------------
 #
 # Accepted at the T017 checkpoint (`D-2026-09-21-scenario-authoring-semantics`).
@@ -357,10 +359,21 @@ class ParameterBound:
     Declared, never inferred. `fuel-tank-capacity` and `fuel-tank-volume` are
     two state keys, and nothing about their spellings says one limits the
     other; a contract that guessed from a shared prefix would be guessing.
+
+    Addressed since T020A1, and on a site with two tanks the address is the
+    substance of it. The north tank's capacity bounds the north tank's volume
+    and says nothing about the south tank's, so the bound names an address
+    rather than a bare key - a bare key here would have let one tank's capacity
+    cap the other tank's level.
     """
 
-    state_key: str
+    state_ref: StateRef
     bound_kind: str
+
+    @property
+    def state_key(self) -> str:
+        """The semantic state this bounds, without its selector."""
+        return self.state_ref.state_key
 
 
 @dataclass(frozen=True)
@@ -387,7 +400,7 @@ class ScenarioParameter:
     number, so an author cannot put one there and a run cannot be told to
     check the Foundation against it.
 
-    `state_key`, `execution_requirement` and `ownership` are present exactly
+    `state_ref`, `execution_requirement` and `ownership` are present exactly
     when the role calls for them, and the parser refuses every other
     combination:
 
@@ -403,10 +416,33 @@ class ScenarioParameter:
     value: float | str | None
     unit: str | None
     execution_role: str
-    state_key: str | None
+    #: Which world state this concerns, and whose. Since T020A1 an executable
+    #: value names an ADDRESS rather than a bare key: two generators on one
+    #: site both have a specific fuel consumption, and the scenario is where
+    #: an author says which one a declaration is about.
+    state_ref: StateRef | None
     execution_requirement: str | None
     ownership: ParameterOwnership | None
     bounds: ParameterBound | None
+
+    @property
+    def state_key(self) -> str | None:
+        """The semantic state, without its selector.
+
+        Kept as a property rather than as a second field. The semantic key is
+        what a model profile answers about - a profile models stored fuel
+        volume, not the north tank's - while the address is what a run
+        resolves and freezes. One field and one derivation cannot disagree;
+        two fields could.
+        """
+        return None if self.state_ref is None else self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str | None:
+        """The canonical spelling of the address, or nothing."""
+        return (
+            None if self.state_ref is None else self.state_ref.addressed_key
+        )
 
 
 @dataclass(frozen=True)
@@ -506,8 +542,9 @@ class TimelineEntry:
     have an authored order, and a screen must render the order the document
     declares rather than whatever order a store returned.
 
-    `state_key` is the one place an executable entry names what it concerns,
-    whether it causes it, forces it, or reports it.
+    `state_ref` is the one place an executable entry names what it concerns,
+    whether it causes it, forces it, or reports it - and, since T020A1, whose
+    it is. A removal from the north tank is not a removal from the south one.
 
     `state_effect` is present exactly when the role is `CAUSAL_INPUT`;
     `observation` exactly when it is `REPORTED_OBSERVATION`. They are mutually
@@ -523,11 +560,23 @@ class TimelineEntry:
     description: str
     parameters: tuple[ScenarioParameter, ...]
     execution_role: str
-    state_key: str | None
+    state_ref: StateRef | None
     execution_requirement: str | None
     timing: EntryTiming
     state_effect: StateEffect | None
     observation: ObservationBinding | None
+
+    @property
+    def state_key(self) -> str | None:
+        """The semantic state, without its selector."""
+        return None if self.state_ref is None else self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str | None:
+        """The canonical spelling of the address, or nothing."""
+        return (
+            None if self.state_ref is None else self.state_ref.addressed_key
+        )
 
 
 @dataclass(frozen=True)

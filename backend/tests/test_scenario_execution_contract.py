@@ -1188,10 +1188,13 @@ class TestReconciliation:
         which is stated here so a reader does not take the `0.0` for a
         surviving document fact.
         """
-        assert declared_bounds(shipped_scenario())["fuel-tank-volume"] == (
-            0.0,
-            None,
-        )
+        # Keyed on the ADDRESS since T020A1. The shipped document names the
+        # tank, so the bound it declares is about that tank and the map says
+        # so; a key of `fuel-tank-volume` raises here rather than quietly
+        # returning the default, which is the assertion.
+        assert declared_bounds(shipped_scenario())[
+            "fuel-tank-volume@fuel-tank"
+        ] == (0.0, None)
 
         # And a document that DOES own its capacity still reports the value,
         # so the function is not simply broken.
@@ -1202,7 +1205,7 @@ class TestReconciliation:
                 origin="SHIPPED",
             )
         )
-        assert with_value["fuel-tank-volume"] == (0.0, 500.0)
+        assert with_value["fuel-tank-volume@fuel-tank"] == (0.0, 500.0)
 
     def test_every_answer_says_which_one_it_is(self) -> None:
         """A `NOT_RECONCILABLE` with no reason is several facts wearing one

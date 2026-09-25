@@ -54,6 +54,7 @@ from assetops_backend.runs.models import (
     FrozenPublicationIdentity,
 )
 from assetops_backend.scenarios.models import ObservationSource
+from assetops_backend.state_refs import STATE_SCOPES
 
 
 @dataclass(frozen=True)
@@ -83,6 +84,17 @@ class FoundationBinding:
     parser/service split the target-site declaration uses - and it is enforced,
     because `tools/checks/run-setup.ps1` forbids this module from importing the
     Site record family at all.
+
+    ## Still three strings after T020A1, and deliberately no fourth
+
+    Addressing did not add a component id here. A binding says WHAT KIND of
+    declared fact answers - a `FUEL_TANK`'s `tank-capacity`, in litres - and
+    the scenario says WHICH ONE, because the scenario is the thing that knows
+    the installation it targets. A component id in a profile would make the
+    profile a fixture: the same simulator build could not be selected for a
+    second Site without being edited, which is what acceptance criterion 3
+    asks not to happen. What addressing did add is one field on
+    `SupportedState`, at the same grain: a kind of claim, never an instance.
     """
 
     component_type: str
@@ -98,12 +110,52 @@ class SupportedState:
     for this state. A state it can cause but not report is a real and common
     case - a kernel can move a tank level long before anything publishes a
     reading of it - so the two are separate rather than one flag.
+
+    ## `scope` is a fourth field since T020A1, and it names no fixture
+
+    It says whether this state is a fact about ONE COMPONENT or about the
+    installation. Stored fuel volume is a component's; plane-of-array
+    irradiance is the site's. That is a property of the state the simulator
+    models, not of any installation, which is why it is declared here and why
+    it can be declared without naming a single component id - the point of
+    acceptance criterion 3. Select this same profile for a different Site and
+    it addresses that Site's components.
+
+    A scenario declares the scope too, on each reference, and run setup blocks
+    when they disagree. Two declarations of one fact sounds like a place for
+    them to drift, and the disagreement is the substance: the scenario says
+    which instance it means and the profile says whether instances are a thing
+    this state has. A scenario addressing site-wide irradiance at one PV array
+    has asked for something the model does not carry, and saying so is more
+    use than quietly answering the question it did not ask.
+
+    A `SITE` state has no `foundation_binding`, refused below rather than
+    remembered. A binding names a component type and a property on it, which
+    is a component-scoped answer by construction; hanging one on a site-wide
+    state would be a declaration that could never resolve.
     """
 
     state_key: str
+    scope: str
     supported_roles: frozenset[str]
     foundation_binding: FoundationBinding | None
     statement: str
+
+    def __post_init__(self) -> None:
+        if self.scope not in STATE_SCOPES:
+            raise ValueError(
+                f"Model profile state {self.state_key!r} is claimed at "
+                f"{self.scope!r}, and a world state is claimed at one of "
+                f"{sorted(STATE_SCOPES)}."
+            )
+        if self.scope == "SITE" and self.foundation_binding is not None:
+            raise ValueError(
+                f"Model profile state {self.state_key!r} is site-wide and "
+                "carries a foundation binding, which names a component type "
+                "and a property on it. A site-wide state has no component for "
+                "such a binding to find, so the declaration could never "
+                "resolve."
+            )
 
 
 @dataclass(frozen=True)
@@ -222,6 +274,7 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
     supported_states=(
         SupportedState(
             state_key="fuel-tank-volume",
+            scope="COMPONENT",
             supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}),
             foundation_binding=None,
             statement=(
@@ -231,6 +284,7 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
         ),
         SupportedState(
             state_key="fuel-tank-capacity",
+            scope="COMPONENT",
             supported_roles=frozenset({"CAUSAL_INPUT"}),
             foundation_binding=FoundationBinding(
                 component_type="FUEL_TANK",
@@ -246,6 +300,7 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
         ),
         SupportedState(
             state_key="generator-specific-fuel-consumption",
+            scope="COMPONENT",
             supported_roles=frozenset({"CAUSAL_INPUT"}),
             foundation_binding=FoundationBinding(
                 component_type="GENERATOR",
@@ -262,6 +317,7 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
         ),
         SupportedState(
             state_key="generator-output-power",
+            scope="COMPONENT",
             supported_roles=frozenset({"FORCING_INPUT"}),
             foundation_binding=None,
             statement=(

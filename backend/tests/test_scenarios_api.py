@@ -947,13 +947,17 @@ class TestTheShippedReconciliation:
             if item["event_id"] == "generator-run-window"
         )
         assert entry["execution_role"] == "FORCING_INPUT"
-        assert entry["state_key"] == "generator-output-power"
+        assert entry["state_key"] == "generator-output-power@generator"
         assert entry["state_effect"] is None
         assert [
             (item["parameter_id"], item["execution_role"], item["state_key"])
             for item in entry["parameters"]
         ] == [
-            ("dispatched-output", "FORCING_INPUT", "generator-output-power")
+            (
+                "dispatched-output",
+                "FORCING_INPUT",
+                "generator-output-power@generator",
+            )
         ]
 
     def scenario(self) -> dict:

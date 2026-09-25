@@ -246,7 +246,10 @@ def scenario_parameter(parameter: ScenarioParameter) -> dict[str, object]:
         "value": parameter.value,
         "unit": parameter.unit,
         "execution_role": parameter.execution_role,
-        "state_key": parameter.state_key,
+        # The ADDRESS since T020A1. A reader of a scenario with two tanks
+        # needs to see which tank a row is about, and the semantic key alone
+        # renders two different declarations as the same text.
+        "state_key": parameter.addressed_key,
         "execution_requirement": parameter.execution_requirement,
         "ownership": (
             None
@@ -260,7 +263,7 @@ def scenario_parameter(parameter: ScenarioParameter) -> dict[str, object]:
             None
             if parameter.bounds is None
             else {
-                "state_key": parameter.bounds.state_key,
+                "state_key": parameter.bounds.state_ref.addressed_key,
                 "bound_kind": parameter.bounds.bound_kind,
             }
         ),
@@ -300,7 +303,7 @@ def scenario_timeline_entry(entry: TimelineEntry) -> dict[str, object]:
         "category": entry.category,
         "description": entry.description,
         "execution_role": entry.execution_role,
-        "state_key": entry.state_key,
+        "state_key": entry.addressed_key,
         "execution_requirement": entry.execution_requirement,
         "timing": {
             "shape": entry.timing.shape,
@@ -415,7 +418,7 @@ def scenario_execution_contract(
             {
                 "parameter_id": item.parameter_id,
                 "display_name": item.display_name,
-                "state_key": item.state_key,
+                "state_key": item.addressed_key,
                 "owner": item.owner,
                 "value": item.value,
                 "unit": item.unit,
@@ -427,7 +430,7 @@ def scenario_execution_contract(
         "state_transition_inputs": [
             {
                 "event_id": item.event_id,
-                "state_key": item.state_key,
+                "state_key": item.addressed_key,
                 "direction": item.direction,
                 "parameter_id": item.parameter_id,
                 "applied_value": item.applied_value,
@@ -442,7 +445,7 @@ def scenario_execution_contract(
                 "event_id": item.event_id,
                 "source_id": item.source_id,
                 "parameter_id": item.parameter_id,
-                "state_key": item.state_key,
+                "state_key": item.addressed_key,
                 "offset_minutes": item.offset_minutes,
                 "reported_value": item.reported_value,
                 "declared_value": item.declared_value,
@@ -564,6 +567,10 @@ def run_profile_summary(profile: ModelProfile) -> dict[str, object]:
         "supported_states": [
             {
                 "state_key": state.state_key,
+                # The semantic key and the scope, never a component id. What
+                # a profile can model is a kind of claim; which asset a run
+                # resolves it on is the scenario's and the site's.
+                "scope": state.scope,
                 "supported_roles": sorted(state.supported_roles),
                 "statement": state.statement,
             }
@@ -691,7 +698,7 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
             },
             "initialization_inputs": [
                 {
-                    "state_key": item.state_key,
+                    "state_key": item.addressed_key,
                     "parameter_id": item.parameter_id,
                     "value": item.value,
                     "unit": item.unit,
@@ -735,8 +742,9 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
                 "value": row.value,
                 "answered_by": row.answered_by,
                 "answered_by_detail": row.answered_by_detail,
+                "blocking_statement": row.blocking_statement,
             }
-            for row in frozen_inputs(identity)
+            for row in frozen_inputs(identity, record.blocking_reasons)
         ],
         "blocking_reasons": [
             {

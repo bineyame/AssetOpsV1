@@ -212,12 +212,14 @@ def default_supported_states() -> tuple[SupportedState, ...]:
     return (
         SupportedState(
             state_key="example-stored-volume",
+            scope="COMPONENT",
             supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}),
             foundation_binding=None,
             statement="The stored volume can be caused and reported.",
         ),
         SupportedState(
             state_key="example-demand",
+            scope="COMPONENT",
             supported_roles=frozenset({"FORCING_INPUT"}),
             foundation_binding=None,
             statement="Demand can be forced on the run.",
@@ -230,6 +232,7 @@ def foundation_bound_states() -> tuple[SupportedState, ...]:
     return (
         SupportedState(
             state_key="example-stored-volume",
+            scope="COMPONENT",
             supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}),
             foundation_binding=FoundationBinding(
                 component_type="FUEL_TANK",
@@ -240,6 +243,7 @@ def foundation_bound_states() -> tuple[SupportedState, ...]:
         ),
         SupportedState(
             state_key="example-demand",
+            scope="COMPONENT",
             supported_roles=frozenset({"FORCING_INPUT"}),
             foundation_binding=None,
             statement="Demand can be forced on the run.",

@@ -643,6 +643,7 @@ class TestNothingIsDefaulted:
         bound_to_a_percentage = (
             SupportedState(
                 state_key="example-stored-volume",
+                scope="COMPONENT",
                 supported_roles=frozenset(
                     {"CAUSAL_INPUT", "REPORTED_OBSERVATION"}
                 ),
@@ -916,6 +917,7 @@ class TestBlockedDraftsArePersisted:
         narrowed = (
             SupportedState(
                 state_key="example-stored-volume",
+                scope="COMPONENT",
                 supported_roles=frozenset({"CAUSAL_INPUT"}),
                 foundation_binding=None,
                 statement="Caused but never reported.",
@@ -977,6 +979,7 @@ class TestBlockedDraftsArePersisted:
         narrowed = (
             SupportedState(
                 state_key="example-stored-volume",
+                scope="COMPONENT",
                 supported_roles=frozenset({"FORCING_INPUT"}),
                 foundation_binding=None,
                 statement="Modelled, but in neither role this scenario uses.",
@@ -1409,7 +1412,14 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenProfileBinding", "publication_profile_id"),
             ("FrozenProfileBinding", "publication_profile_version"),
             ("FrozenProfileBinding", "execution_contract_version"),
-            ("FrozenInitializationInput", "state_key"),
+            ("FrozenInitializationInput", "state_ref"),
+            # The three fields of the address, all three of which
+            # the rendered row shows: the row reads "Initial
+            # fuel-tank-capacity@fuel-tank", which is the state key,
+            # the scope and the component the run resolved.
+            ("StateRef", "state_key"),
+            ("StateRef", "scope"),
+            ("StateRef", "component_id"),
             ("FrozenInitializationInput", "value"),
             ("FrozenInitializationInput", "unit"),
             ("FrozenInitializationInput", "answered_by"),
@@ -1866,7 +1876,7 @@ class TestTheExecutionContractVersionMove:
     """
 
     def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
-        assert EXECUTION_CONTRACT_VERSION == 3
+        assert EXECUTION_CONTRACT_VERSION == 4
 
     def test_a_new_draft_is_stamped_with_it(self) -> None:
         record, _ = create()
@@ -2090,6 +2100,7 @@ class TestTheBindingsOwnUnitIsChecked:
         return (
             SupportedState(
                 state_key="example-stored-volume",
+                scope="COMPONENT",
                 supported_roles=frozenset(
                     {"CAUSAL_INPUT", "REPORTED_OBSERVATION"}
                 ),

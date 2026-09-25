@@ -152,6 +152,7 @@ from assetops_backend.scenarios.models import (
     TimelineEntry,
 )
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
+from assetops_backend.state_refs import StateRef, parse_state_ref
 from assetops_backend.sites.identity import validate_site_id
 from assetops_backend.sites.ports import SiteConfigurationInvalid
 
@@ -639,7 +640,7 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
             "its own expected result."
         )
 
-    state_key, execution_requirement = _parse_execution_placement(
+    state_ref, execution_requirement = _parse_execution_placement(
         raw, execution_role, where=where, source=source
     )
 
@@ -683,7 +684,7 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
         description=description,
         parameters=parameters,
         execution_role=execution_role,
-        state_key=state_key,
+        state_ref=state_ref,
         execution_requirement=execution_requirement,
         timing=timing,
         state_effect=state_effect,
@@ -777,7 +778,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     execution_role = _require_choice(
         raw, "execution_role", EXECUTION_ROLES, where=where, source=source
     )
-    state_key, execution_requirement = _parse_execution_placement(
+    state_ref, execution_requirement = _parse_execution_placement(
         raw, execution_role, where=where, source=source
     )
     ownership = _parse_ownership(
@@ -789,7 +790,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
     bounds = _parse_parameter_bound(
         raw.get("bounds"),
         ownership=ownership,
-        state_key=state_key,
+        state_ref=state_ref,
         where=where,
         source=source,
     )
@@ -869,7 +870,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             value=None,
             unit=unit,
             execution_role=execution_role,
-            state_key=state_key,
+            state_ref=state_ref,
             execution_requirement=execution_requirement,
             ownership=ownership,
             bounds=bounds,
@@ -891,7 +892,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             value=quantity,
             unit=unit,
             execution_role=execution_role,
-            state_key=state_key,
+            state_ref=state_ref,
             execution_requirement=execution_requirement,
             ownership=ownership,
             bounds=bounds,
@@ -926,7 +927,7 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             value=text,
             unit=None,
             execution_role=execution_role,
-            state_key=state_key,
+            state_ref=state_ref,
             execution_requirement=execution_requirement,
             ownership=ownership,
             bounds=bounds,
@@ -1089,13 +1090,19 @@ def _parse_private_expectations(
 
 def _parse_execution_placement(
     raw: Mapping[str, Any], execution_role: str, *, where: str, source: str
-) -> tuple[str | None, str | None]:
+) -> tuple[StateRef | None, str | None]:
     """The two fields an executable value must carry, and must not otherwise.
 
     An executable value names the state it concerns and says whether later run
     setup may proceed without support for it. A non-executable condition names
     neither, because nothing consumes it and a state key on a value nothing
     consumes would read as a claim about the world.
+
+    Since T020A1 the state it names is an ADDRESS. `state_key` holds the whole
+    reference - the semantic key, optionally scoped `site:` or addressed to
+    one component - because the two halves are one declaration and splitting
+    them across two document fields would let an author write a selector
+    beside a site-wide scope and have both survive parsing separately.
     """
     state_key = raw.get("state_key")
     requirement = raw.get("execution_requirement")
@@ -1119,7 +1126,7 @@ def _parse_execution_placement(
             "decide whether the chosen model profile supports it."
         )
 
-    resolved_state_key = _require_identifier(
+    resolved_state_ref = _require_state_ref(
         raw, "state_key", where=where, source=source
     )
     resolved_requirement = _require_choice(
@@ -1129,7 +1136,7 @@ def _parse_execution_placement(
         where=where,
         source=source,
     )
-    return resolved_state_key, resolved_requirement
+    return resolved_state_ref, resolved_requirement
 
 
 def _parse_ownership(
@@ -1218,7 +1225,7 @@ def _parse_parameter_bound(
     raw: Any,
     *,
     ownership: ParameterOwnership | None,
-    state_key: str | None,
+    state_ref: StateRef | None,
     where: str,
     source: str,
 ) -> ParameterBound | None:
@@ -1253,21 +1260,23 @@ def _parse_parameter_bound(
         raw, BOUND_KEYS, where=f"{where}.bounds", source=source
     )
 
-    bounded = _require_identifier(
+    bounded = _require_state_ref(
         raw, "state_key", where=f"{where}.bounds", source=source
     )
-    if bounded == state_key:
+    if state_ref is not None and (
+        bounded.addressed_key == state_ref.addressed_key
+    ):
         raise ScenarioConfigurationInvalid(
-            f"'{where}.bounds' bounds {bounded!r}, which is the state this "
-            f"value already is, in {source}. A bound limits another state; a "
-            "value that bounded itself would say nothing."
+            f"'{where}.bounds' bounds {bounded.addressed_key!r}, which is the "
+            f"state this value already is, in {source}. A bound limits "
+            "another state; a value that bounded itself would say nothing."
         )
 
     bound_kind = _require_choice(
         raw, "bound_kind", BOUND_KINDS, where=f"{where}.bounds", source=source
     )
 
-    return ParameterBound(state_key=bounded, bound_kind=bound_kind)
+    return ParameterBound(state_ref=bounded, bound_kind=bound_kind)
 
 
 def _parse_timing(
@@ -1664,24 +1673,72 @@ def _validate_execution_contract(
 def _validate_initial_world_values(
     parameters: Mapping[str, ScenarioParameter], *, source: str
 ) -> None:
-    """One attributable answer per initial world value, and never two."""
+    """One attributable answer per initial world value, and never two.
+
+    ## Per ADDRESS since T020A1, and that is the substance of the change
+
+    Two generators on one site each have a specific fuel consumption. Keyed on
+    the semantic state key, the second declaration was a duplicate and the
+    document was refused - so a site with two of anything could not state its
+    initial conditions at all. Keyed on the address they are two independent
+    requirements, which is what they are.
+
+    The hole that opens when you do that is the one below it. `x` and
+    `x@north-tank` are two different addresses and may still be one value: an
+    unqualified reference resolves to whichever component of the bound type
+    the site declares, and on a site with one tank that IS the north tank. A
+    document declaring both would have two answers for one initial value
+    again, with the duplicate rule above unable to see it and run setup unable
+    to tell them apart either - the unqualified one freezes AS
+    `x@north-tank` and lands on top of the row already there.
+
+    So mixing the two forms for one state key is refused. It is an authoring
+    mistake with a plausible-looking document, and the author knows which
+    component they meant; neither the parser nor a run does.
+    """
     initializers: dict[str, str] = {}
+    unqualified: dict[str, str] = {}
+    addressed: dict[str, str] = {}
+
     for parameter in parameters.values():
         ownership = parameter.ownership
         if ownership is None or not ownership.initializes:
             continue
-        state_key = parameter.state_key
-        if state_key is None:
+        ref = parameter.state_ref
+        if ref is None:
             continue
-        if state_key in initializers:
+
+        address = ref.addressed_key
+        if address in initializers:
             raise ScenarioConfigurationInvalid(
-                f"Both {initializers[state_key]!r} and "
+                f"Both {initializers[address]!r} and "
                 f"{parameter.parameter_id!r} initialize the state "
-                f"{state_key!r} in {source}. An initial world value has one "
+                f"{address!r} in {source}. An initial world value has one "
                 "attributable owner: two would let a run start from whichever "
                 "the code happened to read first."
             )
-        initializers[state_key] = parameter.parameter_id
+        initializers[address] = parameter.parameter_id
+
+        if ref.scope != "COMPONENT":
+            continue
+        side = addressed if ref.component_id is not None else unqualified
+        other = unqualified if ref.component_id is not None else addressed
+        side.setdefault(ref.state_key, parameter.parameter_id)
+        clash = other.get(ref.state_key)
+        if clash is not None:
+            loose = clash if ref.component_id is not None else (
+                parameter.parameter_id
+            )
+            tight = parameter.parameter_id if ref.component_id is not None else clash
+            raise ScenarioConfigurationInvalid(
+                f"{loose!r} initializes {ref.state_key!r} without naming a "
+                f"component while {tight!r} initializes it on a named one, in "
+                f"{source}. An unqualified reference resolves to whichever "
+                "component of the bound type this site declares, which may be "
+                "the very one already named - so the two would be one initial "
+                "value with two owners. Name the component on both, or on "
+                "neither."
+            )
 
 
 def _validate_entry_parameters(entry: TimelineEntry, *, source: str) -> None:
@@ -1700,11 +1757,15 @@ def _validate_entry_parameters(entry: TimelineEntry, *, source: str) -> None:
                 "executable value hide inside an entry nothing executes it "
                 "with."
             )
-        if parameter.state_key != entry.state_key:
+        # Compared at the ADDRESS. Two tanks share one semantic state key, so
+        # a parameter on the north tank's entry naming the south tank's
+        # volume agrees on `state_key` and disagrees about the world.
+        if parameter.addressed_key != entry.addressed_key:
             raise ScenarioConfigurationInvalid(
                 f"Parameter {parameter.parameter_id!r} on entry "
-                f"{entry.event_id!r} names state {parameter.state_key!r} "
-                f"while the entry names {entry.state_key!r}, in {source}."
+                f"{entry.event_id!r} names state "
+                f"{parameter.addressed_key!r} while the entry names "
+                f"{entry.addressed_key!r}, in {source}."
             )
 
     # The cadence prohibition used to live here, as a TIME-dimension check on
@@ -1746,11 +1807,11 @@ def _validate_entry_state_effect(
             "causal input may be the magnitude of a private-state transition."
         )
 
-    if parameter.state_key != entry.state_key:
+    if parameter.addressed_key != entry.addressed_key:
         raise ScenarioConfigurationInvalid(
-            f"Entry {entry.event_id!r} changes state {entry.state_key!r} "
-            f"using parameter {named!r}, which names state "
-            f"{parameter.state_key!r}, in {source}."
+            f"Entry {entry.event_id!r} changes state "
+            f"{entry.addressed_key!r} using parameter {named!r}, which names "
+            f"state {parameter.addressed_key!r}, in {source}."
         )
 
     if parameter.unit is None:
@@ -1822,6 +1883,42 @@ def _validate_entry_observation(
         )
 
     return {binding.source_id}
+
+
+def _require_state_ref(
+    mapping: Mapping[str, Any], key: str, *, where: str, source: str
+) -> StateRef:
+    """Validate one addressed state reference, shape and vocabulary.
+
+    The grammar is `state_refs.parse_state_ref`, shared with the run document
+    parser so a frozen address reconstructs to the address it was written
+    from. What this adds is the half the shared module cannot know: the
+    scenario domain owns how a world state is NAMED, so the semantic key is
+    scanned for control-state vocabulary exactly as `_require_identifier`
+    scans one - a world state called `breaker-position` is the thing that scan
+    exists for and an address is where it would now arrive.
+
+    The component selector is deliberately NOT scanned, for the reason
+    `_require_foundation_reference` states about devices and signals: a
+    component identity is the target Site's Foundation to coin, this domain
+    does not own that naming, and refusing a token there would refuse a
+    legitimately-named component rather than protect scenario vocabulary.
+    """
+    ref = parse_state_ref(
+        mapping.get(key),
+        where=f"{where}.{key}",
+        source=source,
+        invalid=_invalid,
+    )
+
+    banned = banned_tokens_in(ref.state_key)
+    if banned:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.{key}' {ref.state_key!r} is built from control-state "
+            f"vocabulary {banned} in {source}. {CONTROL_VOCABULARY_RULE}"
+        )
+
+    return ref
 
 
 def _require_identifier(

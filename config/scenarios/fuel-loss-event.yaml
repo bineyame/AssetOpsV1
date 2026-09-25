@@ -31,6 +31,24 @@
 # longer account for the readings. That is the honest projection of a document
 # that has stopped carrying a machine's physics, and the component entitled to
 # compose the two halves is T021's kernel.
+#
+# T020A1 addresses every state this document names. A `state_key` is now a
+# semantic key plus the thing it is about: `fuel-tank-volume@fuel-tank` is the
+# stored volume IN THAT TANK, and `site:site-load-demand` is a fact about the
+# installation that no single component owns. The component identities come
+# from MG-001's own foundation, which this document already declares it
+# targets; a scenario naming no concrete site would have nothing to address.
+#
+# Nothing here uses the unqualified form, and that is a choice rather than a
+# requirement. `fuel-tank-volume` alone would resolve on a site with one tank
+# - and would stop resolving, visibly, the day somebody added a second. Naming
+# the tank says what this scenario is about once, in the document, and keeps
+# saying it.
+#
+# This is addressing, not readiness. A run of this document is still BLOCKED:
+# the first model profile does not model site demand, plane-of-array
+# irradiance or the availability of the reporting path, all three of which
+# this scenario requires, and widening it is T020B's work.
 
 scenario_id: fuel-loss-event
 display_name: Fuel Loss Event
@@ -91,7 +109,7 @@ public_parameters:
     display_name: Fuel tank capacity
     unit: L
     execution_role: CAUSAL_INPUT
-    state_key: fuel-tank-capacity
+    state_key: fuel-tank-capacity@fuel-tank
     execution_requirement: REQUIRED
     ownership:
       # No value, and there is no position here to write one in
@@ -109,7 +127,7 @@ public_parameters:
       # HOW LARGE the cap is belongs to the site. Nothing about the spellings
       # `fuel-tank-capacity` and `fuel-tank-volume` says one limits the other,
       # so a kernel has this declaration or it has nothing.
-      state_key: fuel-tank-volume
+      state_key: fuel-tank-volume@fuel-tank
       bound_kind: UPPER
 
   - parameter_id: starting-fuel-level
@@ -117,7 +135,7 @@ public_parameters:
     value: 430
     unit: L
     execution_role: CAUSAL_INPUT
-    state_key: fuel-tank-volume
+    state_key: fuel-tank-volume@fuel-tank
     execution_requirement: REQUIRED
     ownership:
       # A foundation says how large the tank is, never how full it is, so the
@@ -131,7 +149,7 @@ public_parameters:
     display_name: Generator specific fuel consumption
     unit: L/kWh
     execution_role: CAUSAL_INPUT
-    state_key: generator-specific-fuel-consumption
+    state_key: generator-specific-fuel-consumption@generator
     execution_requirement: REQUIRED
     ownership:
       # This replaces the 14 L/h the scenario used to state, and the unit
@@ -160,7 +178,7 @@ timeline:
       whole interval, so nothing later in the timeline is explained by demand
       being unusual.
     execution_role: FORCING_INPUT
-    state_key: site-load-demand
+    state_key: site:site-load-demand
     execution_requirement: REQUIRED
     timing:
       shape: INTERVAL_WIDE
@@ -170,7 +188,7 @@ timeline:
         value: 72
         unit: kW
         execution_role: FORCING_INPUT
-        state_key: site-load-demand
+        state_key: site:site-load-demand
         execution_requirement: REQUIRED
         ownership:
           owner: SCENARIO_INPUT
@@ -180,7 +198,7 @@ timeline:
         value: 18
         unit: kW
         execution_role: FORCING_INPUT
-        state_key: site-load-demand
+        state_key: site:site-load-demand
         execution_requirement: REQUIRED
         ownership:
           owner: SCENARIO_INPUT
@@ -195,7 +213,7 @@ timeline:
       Irradiance stays well below a clear-sky day, so the battery reaches the
       evening with less stored energy than usual and the generator is needed.
     execution_role: FORCING_INPUT
-    state_key: plane-of-array-irradiance
+    state_key: site:plane-of-array-irradiance
     execution_requirement: REQUIRED
     timing:
       # The overcast daylight period runs from this offset up to the start of
@@ -209,7 +227,7 @@ timeline:
         value: 310
         unit: W/m2
         execution_role: FORCING_INPUT
-        state_key: plane-of-array-irradiance
+        state_key: site:plane-of-array-irradiance
         execution_requirement: REQUIRED
         ownership:
           owner: SCENARIO_INPUT
@@ -232,7 +250,7 @@ timeline:
     # a consumption rate, and it is gone
     # (`D-2026-09-22-consumption-coefficient-unit`).
     execution_role: FORCING_INPUT
-    state_key: generator-output-power
+    state_key: generator-output-power@generator
     execution_requirement: REQUIRED
     timing:
       shape: WINDOW
@@ -249,7 +267,7 @@ timeline:
         # here solves a power flow, and the kernel carries the forced value
         # rather than deriving it.
         execution_role: FORCING_INPUT
-        state_key: generator-output-power
+        state_key: generator-output-power@generator
         execution_requirement: REQUIRED
         ownership:
           owner: SCENARIO_INPUT
@@ -265,7 +283,7 @@ timeline:
       the authored cause the scenario exists for; it is what the simulated
       world is told to do, not a finding about any site.
     execution_role: CAUSAL_INPUT
-    state_key: fuel-tank-volume
+    state_key: fuel-tank-volume@fuel-tank
     execution_requirement: REQUIRED
     timing:
       shape: WINDOW
@@ -279,7 +297,7 @@ timeline:
         value: 120
         unit: L
         execution_role: CAUSAL_INPUT
-        state_key: fuel-tank-volume
+        state_key: fuel-tank-volume@fuel-tank
         execution_requirement: REQUIRED
         ownership:
           owner: SCENARIO_INPUT
@@ -297,7 +315,7 @@ timeline:
     # A condition forced on the reporting path, not on the tank. It changes
     # nothing about how much fuel is present and carries no state effect.
     execution_role: FORCING_INPUT
-    state_key: fuel-level-reporting-availability
+    state_key: fuel-level-reporting-availability@fuel-tank
     execution_requirement: REQUIRED
     timing:
       shape: WINDOW
@@ -313,7 +331,7 @@ timeline:
       window alone accounts for. This is a reading from the configured fuel
       level sensor, not a level the simulated world is told to hold.
     execution_role: REPORTED_OBSERVATION
-    state_key: fuel-tank-volume
+    state_key: fuel-tank-volume@fuel-tank
     execution_requirement: REQUIRED
     timing:
       shape: POINT
@@ -326,7 +344,7 @@ timeline:
         value: 155
         unit: L
         execution_role: REPORTED_OBSERVATION
-        state_key: fuel-tank-volume
+        state_key: fuel-tank-volume@fuel-tank
         execution_requirement: REQUIRED
 
   - event_id: operator-tank-inspection
@@ -338,7 +356,7 @@ timeline:
       A site operator inspects the tank and records the level by hand, giving
       the interval a second, independent account of the same quantity.
     execution_role: REPORTED_OBSERVATION
-    state_key: fuel-tank-volume
+    state_key: fuel-tank-volume@fuel-tank
     execution_requirement: REQUIRED
     timing:
       shape: POINT
@@ -351,7 +369,7 @@ timeline:
         value: 150
         unit: L
         execution_role: REPORTED_OBSERVATION
-        state_key: fuel-tank-volume
+        state_key: fuel-tank-volume@fuel-tank
         execution_requirement: REQUIRED
 
   - event_id: scheduled-refuelling
@@ -363,7 +381,7 @@ timeline:
       The scheduled fuel delivery tops the tank up. A later analysis must not
       read this rise as anything other than the delivery it is.
     execution_role: CAUSAL_INPUT
-    state_key: fuel-tank-volume
+    state_key: fuel-tank-volume@fuel-tank
     execution_requirement: REQUIRED
     timing:
       shape: POINT
@@ -376,7 +394,7 @@ timeline:
         value: 300
         unit: L
         execution_role: CAUSAL_INPUT
-        state_key: fuel-tank-volume
+        state_key: fuel-tank-volume@fuel-tank
         execution_requirement: REQUIRED
         ownership:
           owner: SCENARIO_INPUT

@@ -64,6 +64,7 @@ from assetops_backend.scenarios.models import (
     ScenarioParameter,
     TimelineEntry,
 )
+from assetops_backend.state_refs import StateRef
 
 #: The contract this module implements, named so a later run, trace, or payload
 #: can say which version of these semantics it was built against. It is not the
@@ -110,7 +111,62 @@ from assetops_backend.scenarios.models import (
 #: under `D-2026-09-22-contract-version-scope` it moves the number. Version two
 #: HAS been published: frozen Drafts in the run store carry it, and they keep
 #: it. Nothing reinterprets an earlier frozen run under this version.
-EXECUTION_CONTRACT_VERSION = 3
+#:
+#: Four since T020A1, and the narrowing is addressing. A world state is now
+#: named by an ADDRESS - a semantic key plus the component it is claimed on -
+#: and the change reaches documents that were already valid under three. The
+#: same Fuel Loss Event, unedited, against the same single-tank Foundation,
+#: freezes `fuel-tank-capacity@fuel-tank` where version three froze
+#: `fuel-tank-capacity`: the resolved identity of a run of an unchanged
+#: document is different, which is exactly the test
+#: `D-2026-09-22-contract-version-scope` sets. The bound a scenario declares,
+#: the duplicate-initialization rule and the state a reconciliation compares
+#: against all move to the same grain, so two conforming kernels reading one
+#: document no longer agree about which tank a reading is about unless they
+#: agree about this.
+#:
+#: Version three HAS been published - the Drafts in the run store carry it -
+#: and they keep it. `refuse_incompatible_execution` below is what says so at
+#: the moment it would matter: a frozen run stays readable at whatever version
+#: it froze, and is refused execution rather than reinterpreted under this one.
+EXECUTION_CONTRACT_VERSION = 4
+
+
+class ExecutionContractIncompatible(Exception):
+    """A frozen run was stated against a contract this build cannot execute."""
+
+
+def refuse_incompatible_execution(frozen_contract_version: int) -> None:
+    """Refuse to execute a run frozen against a different contract.
+
+    The half of `D-2026-09-22-contract-version-scope` that is about runs
+    rather than about documents. A Draft freezes the contract version its
+    inputs were resolved under; when this build's version has moved past it,
+    the meanings behind those frozen inputs have changed and executing them
+    here would be reinterpretation wearing the old run's identity - the frozen
+    address `fuel-tank-capacity` under version three means "whichever tank",
+    and under four it would mean a tank called nothing.
+
+    Reading is not execution and is never refused. `runs/parsing.py` accepts
+    any version a document carries, the run store serves it, and the detail
+    screen renders it, because a run that cannot be executed is still a run
+    somebody needs to inspect in order to find out why.
+
+    Nothing in this build executes anything, so the one caller today is
+    `runs/provenance.py`, which uses it to say on the run's own frozen-inputs
+    table whether this build could execute it. T021's kernel is the second and
+    it calls this before it initializes anything.
+    """
+    if frozen_contract_version != EXECUTION_CONTRACT_VERSION:
+        raise ExecutionContractIncompatible(
+            f"This run froze its inputs against execution contract version "
+            f"{frozen_contract_version} and this build implements version "
+            f"{EXECUTION_CONTRACT_VERSION}. The run is preserved exactly as "
+            "it was frozen and stays readable; it is not executed, because "
+            "executing it here would apply these rules to inputs resolved "
+            "under different ones. Set a new run up to execute this scenario "
+            "under this build."
+        )
 
 
 @dataclass(frozen=True)
@@ -435,7 +491,7 @@ class InitializationInput:
 
     parameter_id: str
     display_name: str
-    state_key: str
+    state_ref: StateRef
     owner: str
     value: float | None
     unit: str
@@ -443,13 +499,23 @@ class InitializationInput:
     canonical_unit: str
     dimension: str
 
+    @property
+    def state_key(self) -> str:
+        """The semantic state, without its selector."""
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        """The canonical spelling of the address this concerns."""
+        return self.state_ref.addressed_key
+
 
 @dataclass(frozen=True)
 class StateTransitionInput:
     """One declared change to private world state, and where it came from."""
 
     event_id: str
-    state_key: str
+    state_ref: StateRef
     direction: str
     parameter_id: str
     canonical_value: float
@@ -467,6 +533,16 @@ class StateTransitionInput:
     #: point, the end of its window otherwise. `None` for an interval-wide
     #: entry, which never completes inside the scenario.
     complete_at_offset: int | None
+
+    @property
+    def state_key(self) -> str:
+        """The semantic state, without its selector."""
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        """The canonical spelling of the address this concerns."""
+        return self.state_ref.addressed_key
 
 
 def _all_parameters(scenario: ScenarioDefinition) -> dict[str, ScenarioParameter]:
@@ -510,7 +586,7 @@ def initialization_inputs(
             continue
         if parameter.execution_role not in STATE_CHANGING_ROLES:
             continue
-        if parameter.state_key is None or parameter.unit is None:
+        if parameter.state_ref is None or parameter.unit is None:
             continue
         # A Foundation-owned parameter states no number, by construction
         # (`D-2026-09-22-foundation-value-declaration`), and it still declares
@@ -539,7 +615,7 @@ def initialization_inputs(
             InitializationInput(
                 parameter_id=parameter.parameter_id,
                 display_name=parameter.display_name,
-                state_key=parameter.state_key,
+                state_ref=parameter.state_ref,
                 owner=ownership.owner,
                 value=value,
                 unit=parameter.unit,
@@ -549,7 +625,9 @@ def initialization_inputs(
             )
         )
 
-    return tuple(sorted(inputs, key=lambda entry: entry.state_key))
+    # Sorted by ADDRESS, so two components of one type hold a stable and
+    # distinguishable order rather than colliding on one semantic key.
+    return tuple(sorted(inputs, key=lambda entry: entry.addressed_key))
 
 
 def state_transition_inputs(
@@ -566,7 +644,7 @@ def state_transition_inputs(
 
     for entry in scenario.timeline:
         effect = entry.state_effect
-        if effect is None or entry.state_key is None:
+        if effect is None or entry.state_ref is None:
             continue
 
         source_id = effect.quantity_parameter_id or effect.rate_parameter_id
@@ -601,7 +679,7 @@ def state_transition_inputs(
         transitions.append(
             StateTransitionInput(
                 event_id=entry.event_id,
-                state_key=entry.state_key,
+                state_ref=entry.state_ref,
                 direction=effect.direction,
                 parameter_id=parameter.parameter_id,
                 canonical_value=canonical_value,
@@ -718,7 +796,12 @@ IMPLICIT_LOWER_BOUND_DIMENSIONS: dict[str, float] = {"VOLUME": 0.0}
 def declared_bounds(
     scenario: ScenarioDefinition,
 ) -> dict[str, tuple[float | None, float | None]]:
-    """The `(lower, upper)` a document declares for each world state.
+    """The `(lower, upper)` a document declares for each addressed state.
+
+    Keyed on the ADDRESS since T020A1, and on a site with two tanks that is
+    the substance of it: the capacity bounding the north tank's volume is the
+    north tank's, and a map keyed on `fuel-tank-volume` would have let
+    whichever capacity was read last cap both of them.
 
     Upper bounds come from a `bounds` declaration on an initial world value;
     nothing is inferred from two state keys that happen to share a prefix. The
@@ -740,26 +823,23 @@ def declared_bounds(
             parameter.value, parameter.unit
         )
 
-        if (
-            parameter.state_key is not None
-            and dimension in IMPLICIT_LOWER_BOUND_DIMENSIONS
-        ):
+        address = parameter.addressed_key
+        if address is not None and dimension in IMPLICIT_LOWER_BOUND_DIMENSIONS:
             lower.setdefault(
-                parameter.state_key,
-                IMPLICIT_LOWER_BOUND_DIMENSIONS[dimension],
+                address, IMPLICIT_LOWER_BOUND_DIMENSIONS[dimension]
             )
 
         bound = parameter.bounds
         if bound is None:
             continue
         if bound.bound_kind == "UPPER":
-            upper[bound.state_key] = canonical_value
+            upper[bound.state_ref.addressed_key] = canonical_value
         else:
-            lower[bound.state_key] = canonical_value
+            lower[bound.state_ref.addressed_key] = canonical_value
 
     return {
-        state_key: (lower.get(state_key), upper.get(state_key))
-        for state_key in set(lower) | set(upper)
+        address: (lower.get(address), upper.get(address))
+        for address in set(lower) | set(upper)
     }
 
 
@@ -770,7 +850,7 @@ class ObservationReconciliation:
     event_id: str
     source_id: str
     parameter_id: str
-    state_key: str
+    state_ref: StateRef
     offset_minutes: int
     reported_value: float
     declared_value: float | None
@@ -786,6 +866,16 @@ class ObservationReconciliation:
     #: this count did not follow it until the review said so.
     reason: str
     accounted_by: tuple[str, ...]
+
+    @property
+    def state_key(self) -> str:
+        """The semantic state, without its selector."""
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        """The canonical spelling of the address this concerns."""
+        return self.state_ref.addressed_key
 
 
 def reconcile_reported_observations(
@@ -804,8 +894,13 @@ def reconcile_reported_observations(
     a transition rule, and transition rules belong to the kernel.
     """
     parameters = _all_parameters(scenario)
+    # Every lookup below is by ADDRESS. Two tanks share one semantic state
+    # key, so a map keyed on the key would reconcile the north tank's reading
+    # against the south tank's initial value and its causes, and report a
+    # discrepancy about a tank nobody touched.
     initial_by_state = {
-        entry.state_key: entry for entry in initialization_inputs(scenario)
+        entry.addressed_key: entry
+        for entry in initialization_inputs(scenario)
     }
     transitions = state_transition_inputs(scenario)
     bounds_by_state = declared_bounds(scenario)
@@ -819,23 +914,24 @@ def reconcile_reported_observations(
         parameter = parameters.get(binding.reported_parameter_id)
         if (
             parameter is None
-            or parameter.state_key is None
+            or parameter.state_ref is None
             or parameter.unit is None
             or not isinstance(parameter.value, float)
         ):
             continue
 
-        state_key = parameter.state_key
+        state_ref = parameter.state_ref
+        address = state_ref.addressed_key
         reported_value, reported_unit, _ = canonical_quantity(
             parameter.value, parameter.unit
         )
 
-        initial = initial_by_state.get(state_key)
-        bounds = bounds_by_state.get(state_key, (None, None))
+        initial = initial_by_state.get(address)
+        bounds = bounds_by_state.get(address, (None, None))
         relevant = [
             transition
             for transition in transitions
-            if transition.state_key == state_key
+            if transition.addressed_key == address
         ]
         straddling = [
             transition
@@ -852,7 +948,7 @@ def reconcile_reported_observations(
                 event_id=entry.event_id,
                 source_id=binding.source_id,
                 parameter_id=parameter.parameter_id,
-                state_key=state_key,
+                state_ref=state_ref,
                 offset_minutes=entry.offset_minutes,
                 reported_value=reported_value,
                 declared_value=None,
@@ -959,7 +1055,7 @@ def reconcile_reported_observations(
                 event_id=entry.event_id,
                 source_id=binding.source_id,
                 parameter_id=parameter.parameter_id,
-                state_key=state_key,
+                state_ref=state_ref,
                 offset_minutes=entry.offset_minutes,
                 reported_value=reported_value,
                 declared_value=float(declared),
