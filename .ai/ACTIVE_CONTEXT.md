@@ -15,11 +15,22 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020A1 is built and `in_review`**, on branch
-`task/T020A1-addressed-foundation-bindings`, four commits on `b004f58`.
-Packet `.agent/T020A1-review-packet.md`; the code-state entry carries the
-detail. It needs an independent Reviewer and then the user, who reviews two
-resolved same-type inputs and the ambiguous BLOCKED case in the product.
+**T020A1 is built, reviewed once, corrected, and back in review**, on branch
+`task/T020A1-addressed-foundation-bindings`, seven commits on `b004f58`. An
+independent Codex review returned it with four defects and two overclaiming
+tests; all six are closed and a fifth finding is carried by that review's own
+judgement. `.agent/T020A1-review.md` is the review, `T020A1-fix-probes.py`
+re-runs its reproductions and asserts the opposite of each, and the packet
+`.agent/T020A1-review-packet.md` maps every criterion to its evidence and
+corrects three claims round one made falsely. It goes back to the Reviewer,
+and the user's own review of the two Drafts is still outstanding.
+
+The headline defect is worth carrying forward as a shape rather than as a
+fix: address resolution was written inside the Foundation value lookup, so a
+reference was only resolved when the Foundation answered for its number, and
+every scenario-owned, run-owned and forcing reference froze as authored and
+reported READY. Who supplies a number and which asset it is about are two
+questions. Resolution is now one pass over every declared reference.
 
 A world state is now named by an ADDRESS - a semantic key plus the component it
 is claimed on, or `site:` for a fact about the installation - carried by one
