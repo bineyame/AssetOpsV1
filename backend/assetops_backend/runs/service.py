@@ -201,6 +201,56 @@ class FoundationAnswer:
     state_ref: StateRef
 
 
+@dataclass(frozen=True)
+class ResolvedAddress:
+    """Which component one declared reference means, or why none was found.
+
+    ## Why this exists at all, and why it is not part of the Foundation answer
+
+    T020A1 first put address resolution inside `_resolve_foundation_value`,
+    which meant a reference was only ever resolved when the Site's Foundation
+    was the thing answering for it. An independent review found what that
+    leaves open, and it is not a corner: a `SCENARIO_INPUT` or `RUN_OVERRIDE`
+    initial value, and every forcing input and reported observation, carried
+    its authored reference straight into the frozen run. So
+    `example-stored-level` with no selector, and even
+    `example-stored-level@ghost-tank` naming a component the Foundation does
+    not declare, were both frozen and called READY - a number, persisted,
+    with no asset behind it.
+
+    The rows were there, so this was not the old disappearance defect. What
+    was missing is the ADDRESS OBLIGATION: a component-scoped reference has to
+    identify one component of this Site before the run is ready, whoever
+    supplies its number and whether or not it has one. Making that a separate
+    step, run over every reference the document declares, is what stops the
+    obligation from being attached to one owner again.
+
+    ## What it does not do
+
+    It resolves by DECLARED rules and nothing else. An explicit selector is
+    looked up by identity; an omitted one is resolved through the component
+    type the selected profile's `FoundationBinding` names for that state, and
+    blocks when the profile declares no binding to name one. Nothing infers a
+    component type from the spelling of a state key, and nothing narrows
+    candidates by which of them happens to carry a useful property - the two
+    rules the resolver has refused since T020A.
+    """
+
+    authored: StateRef
+    resolved: StateRef | None
+    component: SiteComponent | None
+    reason: BlockingReason | None
+    #: Whose declaration a reader should look at when it failed. The profile
+    #: when it declares no way to choose, the Foundation when the Site does
+    #: not declare what was named.
+    answered_by: str
+    detail: str
+
+    @property
+    def is_resolved(self) -> bool:
+        return self.reason is None
+
+
 def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -628,9 +678,29 @@ class RunSetupService:
         The reasons come back rather than being raised, because a value the
         selected profile cannot supply blocks the run instead of refusing it,
         and a blocked run is frozen in full.
+
+        Addresses are resolved ONCE here, over the whole document, before any
+        value is looked up. Resolving them inside the Foundation lookup is
+        what left every scenario-owned and run-owned reference unresolved, so
+        the pass runs first and the value lookup consumes its answer.
         """
+        addresses = resolve_state_addresses(scenario, site, model)
+
         initialization, unresolved = self._freeze_initialization(
-            scenario=scenario, site=site, model=model, supplied=supplied
+            scenario=scenario,
+            site=site,
+            model=model,
+            supplied=supplied,
+            addresses=addresses,
+        )
+
+        # Every reference the document declares, not only the ones that
+        # initialize something. A forcing input carries no initial value and
+        # still has to say which machine it forces.
+        unresolved = unresolved + tuple(
+            address.reason
+            for address in addresses.values()
+            if address.reason is not None
         )
 
         # A Foundation-owned parameter states no value
@@ -744,6 +814,7 @@ class RunSetupService:
         site: SiteRecord,
         model: ModelProfile,
         supplied: dict[str, float],
+        addresses: dict[str, ResolvedAddress],
     ) -> tuple[
         tuple[FrozenInitializationInput, ...], tuple[BlockingReason, ...]
     ]:
@@ -777,12 +848,19 @@ class RunSetupService:
             answered_by = ANSWERER_BY_INITIALIZATION_OWNER[owner]
             value: float | None
             reason: BlockingReason | None = None
-            # The address this row is frozen at. It stays the authored one for
-            # every owner but the Foundation, because only a Foundation answer
-            # involves choosing a component: a scenario-owned initial value is
-            # already as addressed as it is going to be, and a run input names
-            # a parameter rather than an asset.
-            frozen_ref = initial.state_ref
+            # The address this row is frozen at, for EVERY owner.
+            #
+            # This used to stay the authored reference for every owner but
+            # the Foundation, on the reasoning that only a Foundation answer
+            # involves choosing a component. That reasoning was wrong and an
+            # independent review proved it: a scenario-owned or run-owned
+            # initial value is a claim about one asset too, and leaving its
+            # reference alone let `example-stored-level` with no selector -
+            # and `@ghost-tank`, naming a component the Foundation does not
+            # declare - freeze and report READY. Who supplies the NUMBER and
+            # which asset the number is ABOUT are two different questions.
+            address = addresses[initial.addressed_key]
+            frozen_ref = address.resolved or address.authored
 
             if owner == "SCENARIO_INPUT":
                 value = initial.value
@@ -801,6 +879,7 @@ class RunSetupService:
                 # against and no way for a run to meet two answers.
                 answer = self._resolve_foundation_value(
                     state_ref=initial.state_ref,
+                    address=address,
                     unit=initial.unit,
                     site=site,
                     model=model,
@@ -873,22 +952,26 @@ class RunSetupService:
         self,
         *,
         state_ref: StateRef,
+        address: ResolvedAddress,
         unit: str,
         site: SiteRecord,
         model: ModelProfile,
     ) -> FoundationAnswer:
-        """The Foundation's answer for one addressed initial value, or a reason.
+        """The Foundation's number for one resolved address, or a reason.
 
-        Which declared fact answers is a binding the model profile carries,
-        never a match by spelling: `fuel-tank-capacity` and a component called
-        `fuel-tank` look related and nothing about their names says one is the
-        other, which is the same reason T018's review made a bound a
-        declaration rather than a shared prefix.
+        It no longer chooses the component. `resolve_state_addresses` did
+        that, over every reference the document declares and before anything
+        was frozen, and this consumes the answer - which is the whole of the
+        correction an independent review asked for. While selection lived
+        here, a reference was only ever resolved when the Foundation happened
+        to be the thing answering for its number, so every scenario-owned and
+        run-owned reference went into the frozen run exactly as authored.
 
-        WHICH component answers is the scenario's address, also never a match
-        by spelling. An explicit selector picks that component and nothing
-        else; an omitted one is a question the Foundation must answer with
-        exactly one candidate or not at all.
+        Which declared fact answers is still a binding the model profile
+        carries, never a match by spelling: `fuel-tank-capacity` and a
+        component called `fuel-tank` look related and nothing about their
+        names says one is the other, which is the same reason T018's review
+        made a bound a declaration rather than a shared prefix.
 
         ## Every failure here blocks, and none refuses
 
@@ -896,62 +979,48 @@ class RunSetupService:
         model profile fix this?** The Foundation's answer is only locatable
         THROUGH the profile's binding, so a failure to locate it is a joint
         fact about the pair - and the profile is the half a person can change
-        on the setup form. T020A1 adds a third half a person can change, the
-        address the scenario declares, and it blocks for the same reason: it
-        is a declaration, and a declaration can be corrected.
+        on the setup form. The address is a third half a person can change,
+        and it blocks for the same reason: it is a declaration.
 
-        Eight cases, all blocking, all `INITIAL_VALUE_NOT_RESOLVED`:
+        Five cases here, all blocking, all `INITIAL_VALUE_NOT_RESOLVED`, and
+        each of them is about a value rather than about an asset:
 
-        - the scenario claims the state at one scope and the profile models it
-          at the other. A site-wide fact and a fact about one machine are two
-          different claims and no Foundation reconciles them;
+        - the scenario claims the state at one scope and the profile models
+          it at the other. A site-wide fact and a fact about one machine are
+          two different claims and no Foundation reconciles them;
         - the profile declares no binding, so nothing was even asked of the
           Foundation;
         - **the binding's own declared unit is not the unit the scenario
-          declares.** Decided before the Site is consulted, because it needs
-          no Site: the profile says what quantity it will answer with and the
-          scenario says what it asked for. `binding.unit` was read by nothing
-          at all until an independent review found it, and a declared unit
-          nothing checks reads as a guarantee it is not;
-        - the address names a component this Foundation does not declare;
-        - the address names a component this Foundation declares and it is not
-          of the type the binding needs. **Nothing falls back to a component
-          that is**, which is acceptance criterion 4: an author who named the
-          wrong asset gets a refusal naming the asset they named, not the
-          value off a different one;
-        - the binding's component type matches nothing this Foundation
-          declares, for an unqualified address;
-        - it matches more than one and the address chose none of them, which
-          is two answers to one value. This is the case T020A left open and
-          this slice closes: the way to resolve it is to say which, and the
-          reason names both candidates so the author can;
-        - the one selected component declares no such property. This is the
-          case `D-2026-09-22-foundation-property-absent-blocks` settled: the
-          property name is as much the profile's aim as the component type is,
-          so a different profile naming a different property may find
+          declares.** Decided before the Site's answer is read, because it
+          needs no Site: the profile says what quantity it will answer with
+          and the scenario says what it asked for. `binding.unit` was read by
+          nothing at all until an independent review found it, and a declared
+          unit nothing checks reads as a guarantee it is not;
+        - the component the address resolved to is not of the type the
+          binding needs. **Nothing falls back to a component that is**, which
+          is acceptance criterion 4: an author who named the wrong asset gets
+          a refusal naming the asset they named;
+        - the resolved component declares no such property. The case
+          `D-2026-09-22-foundation-property-absent-blocks` settled: the
+          property name is as much the profile's aim as the component type
+          is, so a different profile naming a different property may find
           something this Foundation does declare;
-        - the found property's unit is not the binding's. The three units must
-          agree, and this is the third side of that triangle: a profile naming
-          a unit the property it chose is not declared in.
+        - the found property's unit is not the binding's. The three units
+          must agree, and this closes the triangle: a profile naming a unit
+          the property it chose is not declared in.
 
-        **There is no refusal.** `INITIAL_VALUE_ANSWERS_DISAGREE` used to live
-        at the end of this function, comparing the Foundation's number against
-        a number the scenario stated the Foundation declares. After
+        The cases that used to be here and are now the address pass's - no
+        component with that identity, no candidate of the bound type, more
+        than one candidate - report `STATE_ADDRESS_NOT_RESOLVED` instead,
+        because they are the same fact for a forcing input that has no
+        initial value to be unresolved.
+
+        **There is no refusal.** `INITIAL_VALUE_ANSWERS_DISAGREE` used to
+        live at the end of this function, comparing the Foundation's number
+        against a number the scenario stated the Foundation declares. After
         `D-2026-09-22-foundation-value-declaration` no document can state that
         number, so nothing can produce the kind, and it was retired with its
         only producer under `D-2026-09-22-expiry-follows-the-condition`.
-
-        **And nothing searches for a convenient value.** The candidate set is
-        the components of the declared type - not the components that happen
-        to declare the property - so a second tank cannot answer for the one
-        the address could not reach. Narrowing by property would turn both the
-        ambiguity and the wrong-selector case into a silent choice, which is
-        the one outcome addressing exists to prevent.
-
-        **Every returned reason names the address, not the state key.** Two
-        tanks are two rows on a blocked run, and a reason keyed on
-        `fuel-tank-volume` would be deduplicated down to one - leaving the
-        second absent value with nothing explaining it.
         """
         foundation_detail = (
             f"site {site.site_id} foundation version "
@@ -961,7 +1030,7 @@ class RunSetupService:
             f"model profile {model.model_profile_id} version "
             f"{model.model_profile_version}"
         )
-        address = state_ref.addressed_key
+        addressed = state_ref.addressed_key
 
         def blocked(
             statement: str, answered_by: str, detail: str
@@ -970,7 +1039,7 @@ class RunSetupService:
                 value=None,
                 reason=BlockingReason(
                     kind="INITIAL_VALUE_NOT_RESOLVED",
-                    subject=address,
+                    subject=addressed,
                     statement=statement,
                 ),
                 answered_by=answered_by,
@@ -1012,16 +1081,17 @@ class RunSetupService:
 
         if binding is None:
             return blocked(
-                f"The initial value of {address} is declared as owned by the "
-                f"site's foundation, and {profile_detail} declares no binding "
-                "saying which declared fact answers for it. Nothing here "
-                "matches a state to a component by the look of its name, so a "
-                "profile that declares the binding is what this run needs.",
+                f"The initial value of {addressed} is declared as owned by "
+                "the site's foundation, and "
+                f"{profile_detail} declares no binding saying which declared "
+                "fact answers for it. Nothing here matches a state to a "
+                "component by the look of its name, so a profile that "
+                "declares the binding is what this run needs.",
                 "MODEL_PROFILE",
                 f"{profile_detail}, which declares no binding for it",
             )
 
-        # The binding's OWN unit, checked before the Site is consulted.
+        # The binding's OWN unit, checked before the Site's answer is read.
         #
         # It was checked against nothing at all until an independent review
         # pointed at it: only the found property's unit was compared to the
@@ -1031,7 +1101,7 @@ class RunSetupService:
         # because it reads as a guarantee.**
         if binding.unit != unit:
             return blocked(
-                f"The scenario declares {address} in {unit} and "
+                f"The scenario declares {addressed} in {unit} and "
                 f"{profile_detail} binds it to the {binding.property_key} "
                 f"property declared in {binding.unit}. The profile and the "
                 "scenario disagree about what kind of quantity this is, so no "
@@ -1041,28 +1111,37 @@ class RunSetupService:
                 f"{profile_detail}, whose binding names another unit",
             )
 
-        # A site-wide reference cannot reach here: the scope check above
-        # refuses the disagreement, and a SITE-scoped supported state may not
-        # carry a binding at all (`SupportedState.__post_init__`). So by this
-        # point the claim is component-scoped and the only question left is
-        # which component.
-        component, reason = self._select_component(
-            state_ref=state_ref,
-            binding=binding,
-            site=site,
-            address=address,
-            foundation_detail=foundation_detail,
-            profile_detail=profile_detail,
-        )
-        if reason is not None:
+        # The address pass already said this reference names no asset, and
+        # said it in a reason of its own. Repeating it here as a second
+        # reason would report one fact twice, so the row is frozen absent and
+        # carries the address pass's attribution.
+        component = address.component
+        if component is None:
             return FoundationAnswer(
                 value=None,
-                reason=reason[0],
-                answered_by=reason[1],
-                detail=reason[2],
-                state_ref=state_ref,
+                reason=None,
+                answered_by=address.answered_by,
+                detail=address.detail,
+                state_ref=address.authored,
             )
-        assert component is not None
+
+        if component.component_type != binding.component_type:
+            return blocked(
+                f"The scenario resolves the initial value of "
+                f"{state_ref.state_key} on component "
+                f"{component.component_id}, which the foundation of site "
+                f"{site.site_id} declares as a {component.component_type}, "
+                f"and {profile_detail} answers for this state from a "
+                f"{binding.component_type}. The named component is the one "
+                "this run would freeze from, so nothing looks for a "
+                f"{binding.component_type} elsewhere on the site.",
+                "SITE_FOUNDATION",
+                (
+                    f"{foundation_detail}, whose component "
+                    f"{component.component_id} is a "
+                    f"{component.component_type}"
+                ),
+            )
 
         declared_property = None
         for item in component.properties or ():
@@ -1072,7 +1151,7 @@ class RunSetupService:
 
         if declared_property is None:
             return blocked(
-                f"{profile_detail} looks for the initial value of {address} "
+                f"{profile_detail} looks for the initial value of {addressed} "
                 f"in the {binding.property_key} property of component "
                 f"{component.component_id}, and the foundation of site "
                 f"{site.site_id} declares no such property on it. Nothing "
@@ -1099,7 +1178,7 @@ class RunSetupService:
         # about the property it chose rather than about the scenario.
         if declared_property.unit != binding.unit:
             return blocked(
-                f"{profile_detail} binds {address} to the "
+                f"{profile_detail} binds {addressed} to the "
                 f"{binding.property_key} property declared in {binding.unit}, "
                 f"and component {component.component_id} declares that "
                 f"property in {declared_property.unit}. A run freezes the "
@@ -1123,144 +1202,8 @@ class RunSetupService:
             # recorded here, so a reader of the frozen run - and T021's kernel
             # - knows whose number this is without re-running the resolution
             # against a Foundation that may have been reordered since.
-            state_ref=state_ref.resolved_to(component.component_id),
+            state_ref=address.resolved or state_ref,
         )
-
-    def _select_component(
-        self,
-        *,
-        state_ref: StateRef,
-        binding: FoundationBinding,
-        site: SiteRecord,
-        address: str,
-        foundation_detail: str,
-        profile_detail: str,
-    ) -> tuple[SiteComponent | None, tuple[BlockingReason, str, str] | None]:
-        """Which component this address means, or why none was chosen.
-
-        Two questions, and which one is asked depends on whether the author
-        named a component.
-
-        **Named.** That component and no other. It must exist and it must be
-        of the type the binding needs; a second component that WOULD fit is
-        not consulted, because then naming the wrong asset would silently
-        become naming the right one and the selector would be advisory.
-
-        **Not named.** Exactly one candidate of the bound type, or nothing.
-        Zero and two are different facts with different fixes - declare the
-        component, or say which one - so they are two reasons rather than one.
-
-        The candidate set is the components OF THE DECLARED TYPE, not the
-        components that declare the property. Narrowing it by property would
-        let a second tank answer for the one the address could not reach,
-        which is the fallback the whole module refuses.
-        """
-        components = site.foundation.components
-
-        if state_ref.component_id is not None:
-            named = [
-                component
-                for component in components
-                if component.component_id == state_ref.component_id
-            ]
-            if not named:
-                return None, (
-                    BlockingReason(
-                        kind="INITIAL_VALUE_NOT_RESOLVED",
-                        subject=address,
-                        statement=(
-                            f"The scenario resolves the initial value of "
-                            f"{state_ref.state_key} on component "
-                            f"{state_ref.component_id}, and the foundation of "
-                            f"site {site.site_id} declares no component with "
-                            "that identity. Nothing answers from a different "
-                            "component: a named asset is the one the run "
-                            "freezes from, or the run does not freeze."
-                        ),
-                    ),
-                    "SITE_FOUNDATION",
-                    (
-                        f"{foundation_detail}, which declares no component "
-                        f"{state_ref.component_id}"
-                    ),
-                )
-
-            component = named[0]
-            if component.component_type != binding.component_type:
-                return None, (
-                    BlockingReason(
-                        kind="INITIAL_VALUE_NOT_RESOLVED",
-                        subject=address,
-                        statement=(
-                            f"The scenario resolves the initial value of "
-                            f"{state_ref.state_key} on component "
-                            f"{component.component_id}, which the foundation "
-                            f"of site {site.site_id} declares as a "
-                            f"{component.component_type}, and "
-                            f"{profile_detail} answers for this state from a "
-                            f"{binding.component_type}. The named component "
-                            "is the one this run would freeze from, so "
-                            "nothing looks for a "
-                            f"{binding.component_type} elsewhere on the site."
-                        ),
-                    ),
-                    "SITE_FOUNDATION",
-                    (
-                        f"{foundation_detail}, whose component "
-                        f"{component.component_id} is a "
-                        f"{component.component_type}"
-                    ),
-                )
-            return component, None
-
-        matches = [
-            component
-            for component in components
-            if component.component_type == binding.component_type
-        ]
-
-        if not matches:
-            return None, (
-                BlockingReason(
-                    kind="INITIAL_VALUE_NOT_RESOLVED",
-                    subject=address,
-                    statement=(
-                        f"{profile_detail} looks for the initial value of "
-                        f"{address} in the {binding.property_key} property of "
-                        f"a {binding.component_type} component, and the "
-                        f"foundation of site {site.site_id} declares no such "
-                        "component. A profile whose binding names something "
-                        "this site declares would resolve it."
-                    ),
-                ),
-                "SITE_FOUNDATION",
-                f"{foundation_detail}, which declares nothing the binding fits",
-            )
-
-        if len(matches) > 1:
-            named_ids = ", ".join(sorted(item.component_id for item in matches))
-            return None, (
-                BlockingReason(
-                    kind="INITIAL_VALUE_NOT_RESOLVED",
-                    subject=address,
-                    statement=(
-                        f"The scenario asks for the initial value of "
-                        f"{state_ref.state_key} without saying which "
-                        f"component it is about, {profile_detail} answers for "
-                        f"it from a {binding.component_type}, and the "
-                        f"foundation of site {site.site_id} declares more "
-                        f"than one: {named_ids}. Two answers to one initial "
-                        "value is not something a run may choose between, so "
-                        "the scenario has to name the component it means - "
-                        f"for example {state_ref.state_key}@"
-                        f"{sorted(item.component_id for item in matches)[0]}."
-                    ),
-                ),
-                "SITE_FOUNDATION",
-                f"{foundation_detail}, which declares more than one match",
-            )
-
-        return matches[0], None
 
 
     # --- Deciding -----------------------------------------------------------
@@ -1371,6 +1314,224 @@ def _executable_inputs(
     )
 
 
+def declared_state_refs(
+    scenario: ScenarioDefinition,
+) -> tuple[tuple[StateRef, str], ...]:
+    """Every state reference the document declares, and where it was written.
+
+    Four positions, because a reference can be written in four places and a
+    rule applied at three of them is a rule with the fourth left over - the
+    shape of the hole T018's review found in the cadence prohibition and of
+    the one T020A1's review found in address resolution. A timeline entry
+    names a state; a parameter on that entry names one; a public parameter
+    names one; and a bound names the OTHER state it limits, which is a
+    reference to a world state like any other and can be just as wrong.
+
+    Deduplicated on the canonical address, because the same address written
+    four times is one thing to resolve. `where` keeps the first position it
+    was seen at, for the message.
+    """
+    found: dict[str, tuple[StateRef, str]] = {}
+
+    def record(ref: StateRef | None, where: str) -> None:
+        if ref is None:
+            return
+        found.setdefault(ref.addressed_key, (ref, where))
+
+    for entry in scenario.timeline:
+        record(entry.state_ref, f"entry {entry.event_id!r}")
+        for parameter in entry.parameters:
+            record(
+                parameter.state_ref, f"parameter {parameter.parameter_id!r}"
+            )
+            if parameter.bounds is not None:
+                record(
+                    parameter.bounds.state_ref,
+                    f"the bound declared by {parameter.parameter_id!r}",
+                )
+    for parameter in scenario.public_parameters:
+        record(parameter.state_ref, f"parameter {parameter.parameter_id!r}")
+        if parameter.bounds is not None:
+            record(
+                parameter.bounds.state_ref,
+                f"the bound declared by {parameter.parameter_id!r}",
+            )
+
+    return tuple(found.values())
+
+
+def resolve_state_addresses(
+    scenario: ScenarioDefinition, site: SiteRecord, model: ModelProfile
+) -> dict[str, ResolvedAddress]:
+    """Which component each declared reference means, by address.
+
+    One pass over the whole document, before anything is frozen, because the
+    obligation is about the REFERENCE and not about who answers for its
+    number. Run it per owner and it comes back attached to an owner, which is
+    exactly the defect this replaces.
+
+    Two references are deliberately left alone, and both are reported by
+    somebody else rather than silently accepted:
+
+    - a SITE-scoped reference, which names the installation and has no
+      component to find;
+    - a reference to a state this profile does not model, or models at the
+      other scope. `_support_for` already blocks on both, and asking "which
+      component" about a state the model does not carry would report a
+      consequence as though it were a second problem. A state the profile
+      does not model has no declared component type either, and guessing one
+      from the spelling of the key is the thing this module refuses to do.
+    """
+    by_id = {
+        component.component_id: component
+        for component in site.foundation.components
+    }
+    foundation_detail = (
+        f"site {site.site_id} foundation version {site.foundation.version}"
+    )
+    profile_detail = (
+        f"model profile {model.model_profile_id} version "
+        f"{model.model_profile_version}"
+    )
+
+    def unresolved(
+        ref: StateRef, statement: str, answered_by: str, detail: str
+    ) -> ResolvedAddress:
+        return ResolvedAddress(
+            authored=ref,
+            resolved=None,
+            component=None,
+            reason=BlockingReason(
+                kind="STATE_ADDRESS_NOT_RESOLVED",
+                subject=ref.addressed_key,
+                statement=statement,
+            ),
+            answered_by=answered_by,
+            detail=detail,
+        )
+
+    def settled(
+        ref: StateRef,
+        resolved: StateRef,
+        component: SiteComponent | None,
+        detail: str,
+    ) -> ResolvedAddress:
+        return ResolvedAddress(
+            authored=ref,
+            resolved=resolved,
+            component=component,
+            reason=None,
+            answered_by="SITE_FOUNDATION",
+            detail=detail,
+        )
+
+    resolutions: dict[str, ResolvedAddress] = {}
+
+    for ref, where in declared_state_refs(scenario):
+        if ref.scope == "SITE":
+            resolutions[ref.addressed_key] = settled(
+                ref, ref, None, foundation_detail
+            )
+            continue
+
+        supported = model.supported(ref.state_key)
+        if supported is None or supported.scope != ref.scope:
+            # Reported by `_support_for`, which says the more useful thing.
+            resolutions[ref.addressed_key] = settled(
+                ref, ref, None, profile_detail
+            )
+            continue
+
+        binding = supported.foundation_binding
+
+        if ref.component_id is not None:
+            component = by_id.get(ref.component_id)
+            if component is None:
+                resolutions[ref.addressed_key] = unresolved(
+                    ref,
+                    f"{where.capitalize()} concerns {ref.state_key} on "
+                    f"component {ref.component_id}, and the foundation of "
+                    f"site {site.site_id} declares no component with that "
+                    "identity. A named asset is the one this run would act "
+                    "on, so nothing falls back to a different component.",
+                    "SITE_FOUNDATION",
+                    (
+                        f"{foundation_detail}, which declares no component "
+                        f"{ref.component_id}"
+                    ),
+                )
+                continue
+            resolutions[ref.addressed_key] = settled(
+                ref,
+                ref,
+                component,
+                f"{foundation_detail}, component {component.component_id}",
+            )
+            continue
+
+        if binding is None:
+            resolutions[ref.addressed_key] = unresolved(
+                ref,
+                f"{where.capitalize()} concerns {ref.state_key} on a "
+                "component and names none, and "
+                f"{profile_detail} declares no binding saying which kind of "
+                f"component carries {ref.state_key}. Nothing reads a "
+                "component type out of the state's name, so this needs "
+                "either an address in the scenario or a profile that "
+                "declares the binding.",
+                "MODEL_PROFILE",
+                f"{profile_detail}, which declares no binding for it",
+            )
+            continue
+
+        matches = [
+            component
+            for component in site.foundation.components
+            if component.component_type == binding.component_type
+        ]
+
+        if not matches:
+            resolutions[ref.addressed_key] = unresolved(
+                ref,
+                f"{where.capitalize()} concerns {ref.state_key} on a "
+                f"{binding.component_type} component and names none, and the "
+                f"foundation of site {site.site_id} declares no such "
+                "component. A scenario addressing something this site "
+                "declares would resolve it.",
+                "SITE_FOUNDATION",
+                f"{foundation_detail}, which declares nothing of that type",
+            )
+            continue
+
+        if len(matches) > 1:
+            named_ids = sorted(item.component_id for item in matches)
+            resolutions[ref.addressed_key] = unresolved(
+                ref,
+                f"{where.capitalize()} concerns {ref.state_key} without "
+                "saying which component it is about, "
+                f"{profile_detail} carries that state on a "
+                f"{binding.component_type}, and the foundation of site "
+                f"{site.site_id} declares more than one: "
+                f"{', '.join(named_ids)}. Two assets for one reference is "
+                "not something a run may choose between, so the scenario has "
+                f"to name the one it means - for example "
+                f"{ref.state_key}@{named_ids[0]}.",
+                "SITE_FOUNDATION",
+                f"{foundation_detail}, which declares more than one match",
+            )
+            continue
+
+        component = matches[0]
+        resolutions[ref.addressed_key] = settled(
+            ref,
+            ref.resolved_to(component.component_id),
+            component,
+            f"{foundation_detail}, component {component.component_id}",
+        )
+
+    return resolutions
+
+
 def _declared_requirements(
     scenario: ScenarioDefinition,
 ) -> dict[tuple[str, str], tuple[StateRef, str]]:
@@ -1412,21 +1573,42 @@ def _declared_requirements(
 
 def requirement_conflicts(
     scenario: ScenarioDefinition,
+    site: SiteRecord,
+    model: ModelProfile,
 ) -> tuple[RequirementConflict, ...]:
-    """Every address and role one document states two requirements for.
+    """Every RESOLVED address and role one document states two requirements for.
 
-    Detectable at the resolved address and role grain, which is acceptance
-    criterion 8. What the product finally DOES about a conflict - refuse the
-    document, block the run, or keep taking the stricter answer - is T020B's,
-    and this reports rather than decides so that decision has something to act
-    on. `_executable_inputs` keeps taking `REQUIRED` meanwhile, which can only
+    Detection at the grain acceptance criterion 8 names. What the product
+    finally DOES about a conflict - refuse the document, block the run, or
+    keep taking the stricter answer - is T020B's, and this reports rather
+    than decides so that decision has something to act on.
+    `_executable_inputs` keeps taking `REQUIRED` meanwhile, which can only
     block a run that would otherwise have run and never the reverse.
+
+    ## Why it takes a Site and a profile
+
+    It took only the scenario and grouped by the AUTHORED address, and an
+    independent review showed what that misses. On a site with one tank,
+    `example-stored-volume` REQUIRED and `example-stored-volume@north-tank`
+    OPTIONAL are two different authored spellings of one asset: setup
+    resolves the first to the second, and the two requirements land on the
+    same address. Grouped by spelling, the function returned nothing and
+    claimed detection at the resolved grain while missing exactly the alias
+    that makes resolution necessary. The parser's qualified/unqualified
+    refusal does not cover it either - that rule inspects initializing
+    parameters, and one of these two does not initialize.
+
+    So it resolves first, through the same pass run setup uses, and groups by
+    the address the run would actually act on. A reference that does not
+    resolve is grouped by what the author wrote, because there is nothing
+    else to group it by and the run is blocked for that reason anyway.
 
     Two components of one type declared at different requirements are NOT a
     conflict. They are two independent requirements, which is the whole of the
     slice, and reporting them as a disagreement would be the collapse this
     module has just stopped doing.
     """
+    addresses = resolve_state_addresses(scenario, site, model)
     stated: dict[tuple[str, str], tuple[StateRef, list[str]]] = {}
 
     def record(
@@ -1436,8 +1618,14 @@ def requirement_conflicts(
             return
         if requirement is None:
             return
+        address = addresses.get(state_ref.addressed_key)
+        resolved = (
+            state_ref
+            if address is None or address.resolved is None
+            else address.resolved
+        )
         entry = stated.setdefault(
-            (state_ref.addressed_key, role), (state_ref, [])
+            (resolved.addressed_key, role), (resolved, [])
         )
         if requirement not in entry[1]:
             entry[1].append(requirement)
@@ -1491,15 +1679,25 @@ def _support_for(
             "to."
         )
         if executable.execution_requirement == "REQUIRED":
-            # The statement no longer names the role, and the reason is
+            # The statement does not name the role, and the reason is
             # deduplicated on `(kind, subject)` below. A state the profile
             # does not model is ONE fact however many roles the scenario
             # uses it in; saying it twice, differing only in which role the
             # prose mentioned, is the repetition `subject` exists to prevent.
+            #
+            # **The subject is the ADDRESS, not the key.** It was the key
+            # until an independent review showed what that costs: two
+            # required declarations about two different tanks deduplicated
+            # into one row, because their addresses had already been thrown
+            # away before `_deduplicated` compared them. One fact per role is
+            # the rule; one fact for two assets is a lost declaration. The
+            # profile is still ASKED about the semantic key - it models a
+            # kind of state and knows nothing about how many a site has -
+            # and that is the line: semantic lookup, addressed report.
             return (
                 BlockingReason(
                     kind="STATE_NOT_SUPPORTED",
-                    subject=executable.state_key,
+                    subject=executable.addressed_key,
                     statement=statement,
                 ),
                 None,
@@ -1507,7 +1705,7 @@ def _support_for(
         return (
             None,
             UnsupportedOptionalInput(
-                state_key=executable.state_key,
+                state_ref=executable.state_ref,
                 execution_role=executable.execution_role,
                 statement=statement,
             ),
@@ -1552,7 +1750,7 @@ def _support_for(
         return (
             None,
             UnsupportedOptionalInput(
-                state_key=executable.addressed_key,
+                state_ref=executable.state_ref,
                 execution_role=executable.execution_role,
                 statement=statement,
             ),
@@ -1568,12 +1766,14 @@ def _support_for(
         if executable.execution_requirement == "REQUIRED":
             # The subject carries the role here, because this IS one fact per
             # role: a profile can model a state it can cause and cannot
-            # report, and those are two things to fix.
+            # report, and those are two things to fix. It carries the address
+            # as well, for the reason the case above does: two assets at one
+            # unsupported role are two declarations, not one.
             return (
                 BlockingReason(
                     kind="ROLE_NOT_SUPPORTED",
                     subject=(
-                        f"{executable.state_key} as "
+                        f"{executable.addressed_key} as "
                         f"{executable.execution_role}"
                     ),
                     statement=statement,
@@ -1583,7 +1783,7 @@ def _support_for(
         return (
             None,
             UnsupportedOptionalInput(
-                state_key=executable.state_key,
+                state_ref=executable.state_ref,
                 execution_role=executable.execution_role,
                 statement=statement,
             ),

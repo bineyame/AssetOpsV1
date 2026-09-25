@@ -223,6 +223,8 @@ def twin_document(
     south_volume: str | None = f"example-stored-volume@{SOUTH_TANK}",
     north_level: float = 200.0,
     south_level: float = 350.0,
+    north_level_ref: str = f"example-stored-level@{NORTH_TANK}",
+    south_level_ref: str | None = f"example-stored-level@{SOUTH_TANK}",
     demand: str = "site:example-demand",
 ) -> dict[str, Any]:
     """A scenario that addresses two tanks and two loads.
@@ -235,6 +237,14 @@ def twin_document(
     each tank's starting level, answered by the scenario. The second pair is
     acceptance criterion 9 - a component's own initial level is addressed too,
     so one tank's 200 L cannot start the other tank at 200 L.
+
+    The level addresses are arguments for a reason an independent review
+    made plain. A test that puts this document on a site with different
+    components has to move those references too: a scenario-owned initial
+    value names an asset like any other reference, and leaving it pointing at
+    `north-tank` on a site that declares `alpha-tank` is not a harmless
+    detail in the fixture - it is the very defect that review found, written
+    into the test that was supposed to establish the opposite.
     """
     parameters: list[dict[str, Any]] = [
         {
@@ -252,21 +262,28 @@ def twin_document(
             "value": north_level,
             "unit": "L",
             "execution_role": "CAUSAL_INPUT",
-            "state_key": f"example-stored-level@{NORTH_TANK}",
-            "execution_requirement": "REQUIRED",
-            "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
-        },
-        {
-            "parameter_id": "south-start",
-            "display_name": "South tank level at the start",
-            "value": south_level,
-            "unit": "L",
-            "execution_role": "CAUSAL_INPUT",
-            "state_key": f"example-stored-level@{SOUTH_TANK}",
+            "state_key": north_level_ref,
             "execution_requirement": "REQUIRED",
             "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
         },
     ]
+
+    if south_level_ref is not None:
+        parameters.append(
+            {
+                "parameter_id": "south-start",
+                "display_name": "South tank level at the start",
+                "value": south_level,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": south_level_ref,
+                "execution_requirement": "REQUIRED",
+                "ownership": {
+                    "owner": "SCENARIO_INPUT",
+                    "initializes": True,
+                },
+            }
+        )
 
     if south_volume is not None:
         parameters.insert(
@@ -342,7 +359,7 @@ def twin_document(
                 "category": "MAINTENANCE",
                 "description": "A technician records the north tank by hand.",
                 "execution_role": "REPORTED_OBSERVATION",
-                "state_key": f"example-stored-level@{NORTH_TANK}",
+                "state_key": north_level_ref,
                 "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
@@ -356,7 +373,7 @@ def twin_document(
                         "value": north_level,
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
-                        "state_key": f"example-stored-level@{NORTH_TANK}",
+                        "state_key": north_level_ref,
                         "execution_requirement": "REQUIRED",
                     }
                 ],

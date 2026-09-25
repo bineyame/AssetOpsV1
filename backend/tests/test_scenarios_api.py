@@ -303,7 +303,7 @@ class TestTheDetailRoute:
             "value": 64.0,
             "unit": "kW",
             "execution_role": "FORCING_INPUT",
-            "state_key": "example-demand",
+            "state_key": "site:example-demand",
             "execution_requirement": "REQUIRED",
             "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
             "bounds": None,
@@ -739,7 +739,7 @@ class TestTheExecutionContractOnThePayload:
             {
                 "parameter_id": "starting-level",
                 "display_name": "Stored level at the start of the interval",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "owner": "SCENARIO_INPUT",
                 "value": 200.0,
                 "unit": "L",

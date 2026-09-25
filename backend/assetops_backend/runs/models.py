@@ -167,19 +167,33 @@ ANSWERER_BY_INITIALIZATION_OWNER = {
 #:   the same name for all of them: this run has no answer for that value and
 #:   a different profile may.
 #:
-#: Every one of the six is a statement about the SELECTED PROFILE: something
-#: the scenario requires that the profile does not model, does not resolve, or
-#: cannot locate. That is the whole of what run setup can decide, and a
-#: seventh member was removed to make it so. `OBSERVATION_NOT_ACCOUNTED_FOR`
-#: blocked a run when the causes a scenario declares did not reach a reading
-#: the same scenario declares, and Amendment 1's proposal (e) took it out: run
-#: setup has no kernel, so it cannot settle a comparison only an execution can
-#: settle. A kind added here that is not about the profile's ability to
-#: execute an input is the same mistake returning.
+#: - `STATE_ADDRESS_NOT_RESOLVED`: a component-scoped reference that does not
+#:   identify exactly one component of this Site. Added by T020A1's review
+#:   round, and a DIFFERENT fact from the one above it, which is why it is a
+#:   seventh kind rather than the sixth reused. `INITIAL_VALUE_NOT_RESOLVED`
+#:   means the reference found its asset and the profile could not get a
+#:   number off it. This one means there is no asset yet: the author named a
+#:   component the Foundation does not declare, or named none and nothing
+#:   could choose between the candidates. An initial value is not the only
+#:   thing an address is needed for - a forcing input carries no initial
+#:   value at all and still has to say which machine it forces - so naming
+#:   this after initial values would have been a kind unable to describe half
+#:   the references it has to report on.
+#:
+#: Every one of the seven is a statement about the SELECTED PROFILE AND SITE:
+#: something the scenario requires that the profile does not model, does not
+#: resolve, or cannot locate on the Site this run is bound to. That is the
+#: whole of what run setup can decide, and a member was removed to make it so.
+#: `OBSERVATION_NOT_ACCOUNTED_FOR` blocked a run when the causes a scenario
+#: declares did not reach a reading the same scenario declares, and Amendment
+#: 1's proposal (e) took it out: run setup has no kernel, so it cannot settle
+#: a comparison only an execution can settle. A kind added here that is not
+#: about executing an input against that pair is the same mistake returning.
 BLOCKING_REASON_KINDS = frozenset(
     {
         "STATE_NOT_SUPPORTED",
         "ROLE_NOT_SUPPORTED",
+        "STATE_ADDRESS_NOT_RESOLVED",
         "CADENCE_NOT_RESOLVED",
         "SOURCE_IDENTITY_NOT_RESOLVED",
         "GATEWAY_IDENTITY_NOT_RESOLVED",
@@ -397,11 +411,27 @@ class UnsupportedOptionalInput:
     required - and blocks when unsupported - or optional, and is recorded here
     instead. Recorded rather than dropped: a run that quietly ignored part of a
     scenario would claim to have executed something it partly skipped.
+
+    **Addressed since T020A1's review round.** It carried a bare state key, so
+    two optional declarations about two different tanks were two rows a reader
+    could not tell apart - identical in every field. Recording an input that
+    was skipped, without saying which asset it was about, is most of the way
+    back to dropping it.
     """
 
-    state_key: str
+    state_ref: StateRef
     execution_role: str
     statement: str
+
+    @property
+    def state_key(self) -> str:
+        """The semantic state a model profile answered about."""
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        """The address the scenario declared this at."""
+        return self.state_ref.addressed_key
 
 
 @dataclass(frozen=True)

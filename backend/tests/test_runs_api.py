@@ -546,16 +546,19 @@ class TestTheShippedFuelLossEventCannotReachReady:
         for reason in record.blocking_reasons:
             by_kind.setdefault(reason.kind, set()).add(reason.subject)
 
-        # The two kinds are subjected at two different grains, deliberately.
-        # A state the profile does not model at all is ONE fact however many
-        # assets carry it - the profile models kinds of state, not instances -
-        # so its subject is the semantic key. An initial value that could not
-        # be located is a fact about one asset, so its subject is the address.
+        # Every subject is an ADDRESS, and the earlier draft of this test
+        # said otherwise. It claimed that an unmodelled state is one fact
+        # however many assets carry it, so its subject could stay the
+        # semantic key - which an independent review disproved: keyed on the
+        # key, two required declarations about two different tanks
+        # deduplicate into one row, and the second declaration is gone. The
+        # profile is still ASKED about the semantic key; what it reports is
+        # addressed.
         assert by_kind == {
             "STATE_NOT_SUPPORTED": {
-                "site-load-demand",
-                "plane-of-array-irradiance",
-                "fuel-level-reporting-availability",
+                "site:site-load-demand",
+                "site:plane-of-array-irradiance",
+                "fuel-level-reporting-availability@fuel-tank",
             },
             "INITIAL_VALUE_NOT_RESOLVED": {
                 "fuel-tank-capacity@fuel-tank",

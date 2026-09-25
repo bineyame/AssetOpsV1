@@ -219,7 +219,9 @@ def default_supported_states() -> tuple[SupportedState, ...]:
         ),
         SupportedState(
             state_key="example-demand",
-            scope="COMPONENT",
+            # Site-wide: the example scenario's demand is a fact about the
+            # installation, not about its one fuel tank.
+            scope="SITE",
             supported_roles=frozenset({"FORCING_INPUT"}),
             foundation_binding=None,
             statement="Demand can be forced on the run.",
@@ -243,7 +245,9 @@ def foundation_bound_states() -> tuple[SupportedState, ...]:
         ),
         SupportedState(
             state_key="example-demand",
-            scope="COMPONENT",
+            # Site-wide: the example scenario's demand is a fact about the
+            # installation, not about its one fuel tank.
+            scope="SITE",
             supported_roles=frozenset({"FORCING_INPUT"}),
             foundation_binding=None,
             statement="Demand can be forced on the run.",

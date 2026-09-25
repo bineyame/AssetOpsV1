@@ -670,7 +670,7 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
         ],
         "unsupported_optional_inputs": [
             {
-                "state_key": item.state_key,
+                "state_key": item.addressed_key,
                 "execution_role": item.execution_role,
                 "statement": item.statement,
             }
@@ -853,7 +853,16 @@ def _parse_blocking_reason(entry: Any) -> BlockingReason:
 def _parse_unsupported_optional_input(entry: Any) -> UnsupportedOptionalInput:
     raw = _mapping(entry, where="unsupported_optional_input")
     return UnsupportedOptionalInput(
-        state_key=_text(raw, "state_key", where="unsupported_optional_input"),
+        # The address, in the field that used to hold a bare key, exactly as
+        # the initialization row does it. A record written before T020A1
+        # carries a bare key and reads back as the unqualified component
+        # reference it was.
+        state_ref=parse_state_ref(
+            raw.get("state_key"),
+            where="unsupported_optional_input.state_key",
+            source="a run document",
+            invalid=_raise_invalid,
+        ),
         execution_role=_text(
             raw, "execution_role", where="unsupported_optional_input"
         ),

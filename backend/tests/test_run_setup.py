@@ -137,9 +137,9 @@ class TestWhatAReadyDraftFreezes:
             identity.profiles.execution_contract_version
             == EXECUTION_CONTRACT_VERSION
         )
-        assert [item.state_key for item in identity.initialization_inputs] == [
-            "example-stored-volume"
-        ]
+        assert [
+            item.addressed_key for item in identity.initialization_inputs
+        ] == ["example-stored-volume@example-store"]
         assert [item.source_id for item in identity.observation_bindings] == [
             "example-device-reading",
             "example-hand-record",
@@ -358,6 +358,35 @@ class TestRefusalsAllocateNoRun:
         assert store.written == []
 
 
+ADDRESSED_VOLUME = "example-stored-volume@example-store"
+BARE_VOLUME = "example-stored-volume"
+
+
+def readdress(document: dict, old: str, new: str) -> dict:
+    """Rewrite every reference to one state, wherever it is written.
+
+    A component-selection test needs the WHOLE document to agree about how it
+    addresses a state: the shared fixture names `example-store` explicitly,
+    and a test that made only the initializing parameter unqualified would
+    leave the entry beside it addressed, so a two-tank site would produce two
+    reasons and the test would be about two things at once.
+    """
+
+    def walk(node: object) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "state_key" and value == old:
+                    node[key] = new
+                else:
+                    walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(document)
+    return document
+
+
 def foundation_owned_document() -> dict:
     """The example scenario with its initial value owned by the Foundation.
 
@@ -460,7 +489,10 @@ class TestNothingIsDefaulted:
         assert [reason.kind for reason in record.blocking_reasons] == [
             "INITIAL_VALUE_NOT_RESOLVED"
         ]
-        assert record.blocking_reasons[0].subject == "example-stored-volume"
+        assert (
+            record.blocking_reasons[0].subject
+            == "example-stored-volume@example-store"
+        )
         assert "binding" in record.blocking_reasons[0].statement
         assert store.written == [record]
 
@@ -560,13 +592,25 @@ class TestNothingIsDefaulted:
         assert frozen_for(200.0) == 200.0
         assert frozen_for(320.0) == 320.0
 
-    def _foundation_owned(self) -> FakeScenarios:
+    def _foundation_owned(
+        self, *, unaddressed: bool = False, state_key: str | None = None
+    ) -> FakeScenarios:
+        """The Foundation-owned document, addressed however the test needs.
+
+        `unaddressed` makes every reference to the stored volume unqualified,
+        which is what a candidate-selection test needs: the whole document has
+        to agree, or two spellings of one state produce two reasons and the
+        test is about two things.
+        """
+        document = foundation_owned_document()
+        if unaddressed:
+            readdress(document, ADDRESSED_VOLUME, BARE_VOLUME)
+        elif state_key is not None:
+            readdress(document, ADDRESSED_VOLUME, state_key)
         return FakeScenarios(
             (
                 parse_scenario_document(
-                    foundation_owned_document(),
-                    source="a test",
-                    origin="SHIPPED",
+                    document, source="a test", origin="SHIPPED"
                 ),
             )
         )
@@ -579,7 +623,7 @@ class TestNothingIsDefaulted:
         different profile would resolve it.
         """
         setup, store = service(
-            scenarios=self._foundation_owned(),
+            scenarios=self._foundation_owned(unaddressed=True),
             sites=FakeSites(
                 (
                     site(
@@ -604,8 +648,13 @@ class TestNothingIsDefaulted:
         )
         record = setup.create_draft_run(setup_request())
 
+        # `STATE_ADDRESS_NOT_RESOLVED` since T020A1's review round, and the
+        # kind is the point: two candidates is a failure to identify an
+        # ASSET, which is the same failure for a forcing input that has no
+        # initial value to be unresolved. `INITIAL_VALUE_NOT_RESOLVED` now
+        # means the asset was found and no number came off it.
         assert [reason.kind for reason in record.blocking_reasons] == [
-            "INITIAL_VALUE_NOT_RESOLVED"
+            "STATE_ADDRESS_NOT_RESOLVED"
         ]
         assert "more than one" in record.blocking_reasons[0].statement
         assert store.written == [record]
@@ -620,14 +669,14 @@ class TestNothingIsDefaulted:
         site does declare.
         """
         setup, store = service(
-            scenarios=self._foundation_owned(),
+            scenarios=self._foundation_owned(unaddressed=True),
             sites=FakeSites((site(components=()),)),
             model=model_profile(supported_states=foundation_bound_states()),
         )
         record = setup.create_draft_run(setup_request())
 
         assert [reason.kind for reason in record.blocking_reasons] == [
-            "INITIAL_VALUE_NOT_RESOLVED"
+            "STATE_ADDRESS_NOT_RESOLVED"
         ]
         assert "declares no such component" in record.blocking_reasons[0].statement
         assert store.written == [record]
@@ -658,7 +707,12 @@ class TestNothingIsDefaulted:
         )
 
         setup, store = service(
-            scenarios=self._foundation_owned(),
+            # Addressed at the component this site actually declares, so the
+            # only thing left to fail is the unit. An unresolvable address
+            # would block first and this would be a test of two things.
+            scenarios=self._foundation_owned(
+                state_key="example-stored-volume@example-battery"
+            ),
             sites=FakeSites(
                 (
                     site(
@@ -694,7 +748,7 @@ class TestNothingIsDefaulted:
         # which is the field `TestTheBindingsOwnUnitIsChecked` covers in
         # isolation.
         assert (
-            "declares example-stored-volume in L"
+            "declares example-stored-volume@example-battery in L"
             in record.blocking_reasons[0].statement
         )
         assert (
@@ -744,7 +798,7 @@ class TestNothingIsDefaulted:
             "INITIAL_VALUE_NOT_RESOLVED"
         ]
         reason = record.blocking_reasons[0]
-        assert reason.subject == "example-stored-volume"
+        assert reason.subject == "example-stored-volume@example-store"
         assert "tank-capacity" in reason.statement
         # The phrase, not the component id on its own. The state key here is
         # `example-stored-volume`, which CONTAINS `example-store` as a
@@ -798,9 +852,17 @@ class TestNothingIsDefaulted:
         )
         record = setup.create_draft_run(setup_request())
 
+        # The named tank and no other. Addressing made this claim stronger
+        # than it was: the document names `example-store`, that component
+        # declares no `tank-capacity`, and the sibling beside it DOES - so a
+        # resolver that searched for a convenient value would have frozen
+        # 320 L here. The kind is the value one rather than the address one,
+        # because the address resolved perfectly well; what failed is getting
+        # a number off the asset it named.
         reason = record.blocking_reasons[0]
         assert reason.kind == "INITIAL_VALUE_NOT_RESOLVED"
-        assert "more than one" in reason.statement
+        assert "declares no such property on it" in reason.statement
+        assert "second-store" not in reason.statement
         assert (
             record.deterministic_identity.initialization_inputs[0].value is None
         )
@@ -910,7 +972,7 @@ class TestBlockedDraftsArePersisted:
         assert [reason.kind for reason in record.blocking_reasons] == [
             "STATE_NOT_SUPPORTED"
         ]
-        assert record.blocking_reasons[0].subject == "example-demand"
+        assert record.blocking_reasons[0].subject == "site:example-demand"
         assert store.written == [record]
 
     def test_an_unsupported_role_on_a_supported_state_blocks(self) -> None:
@@ -963,7 +1025,7 @@ class TestBlockedDraftsArePersisted:
         about_the_state = [
             reason
             for reason in record.blocking_reasons
-            if reason.subject == "example-stored-volume"
+            if reason.subject == "example-stored-volume@example-store"
         ]
         assert [reason.kind for reason in about_the_state] == [
             "STATE_NOT_SUPPORTED",
@@ -994,8 +1056,8 @@ class TestBlockedDraftsArePersisted:
             for reason in record.blocking_reasons
             if reason.kind == "ROLE_NOT_SUPPORTED"
         ) == [
-            "example-stored-volume as CAUSAL_INPUT",
-            "example-stored-volume as REPORTED_OBSERVATION",
+            "example-stored-volume@example-store as CAUSAL_INPUT",
+            "example-stored-volume@example-store as REPORTED_OBSERVATION",
         ]
 
     def test_an_optional_unsupported_input_is_recorded_and_does_not_block(
@@ -1023,9 +1085,12 @@ class TestBlockedDraftsArePersisted:
         record = setup.create_draft_run(setup_request())
 
         assert record.execution_status == "READY"
+        # The ADDRESS, since an optional row that said only which kind of
+        # state was skipped would be two identical rows on a site with two
+        # of the asset - which is most of the way back to dropping one.
         assert [
-            item.state_key for item in record.unsupported_optional_inputs
-        ] == ["example-demand"]
+            item.addressed_key for item in record.unsupported_optional_inputs
+        ] == ["site:example-demand"]
 
     def test_an_unresolved_cadence_blocks(self) -> None:
         setup, store = service(
@@ -1104,16 +1169,24 @@ class TestBlockedDraftsArePersisted:
     ) -> None:
         """The vocabulary, not one code path.
 
-        Every blocking kind says something about the selected profile: an
-        input it does not model, or a value it does not resolve. A kind that
-        judged the scenario's own arithmetic would be (e) returning, and
-        deleting one call site would not stop it.
+        Every blocking kind says something about the selected profile and the
+        Site this run is bound to: an input the profile does not model, a
+        value it does not resolve, or a reference that names no asset of this
+        Site. A kind that judged the scenario's own arithmetic would be (e)
+        returning, and deleting one call site would not stop it.
+
+        `STATE_ADDRESS_NOT_RESOLVED` joined the set in T020A1's review round
+        and belongs to it: "this site declares no component with that
+        identity" is a fact about the pair, and the repair is to correct the
+        address or select a site that declares it. It does not compare the
+        scenario against itself.
         """
         from assetops_backend.runs.models import BLOCKING_REASON_KINDS
 
         assert BLOCKING_REASON_KINDS == {
             "STATE_NOT_SUPPORTED",
             "ROLE_NOT_SUPPORTED",
+            "STATE_ADDRESS_NOT_RESOLVED",
             "CADENCE_NOT_RESOLVED",
             "SOURCE_IDENTITY_NOT_RESOLVED",
             "GATEWAY_IDENTITY_NOT_RESOLVED",
@@ -1278,13 +1351,16 @@ class TestTheStatusIsComputed:
                 unsupported_optional_inputs=(),
             )
 
-        assert "example-stored-volume" in str(raised.value)
+        assert "example-stored-volume@example-store" in str(raised.value)
 
     def test_a_reason_about_the_same_state_satisfies_it(self) -> None:
         """The other half, so the rule is not simply refusing everything."""
         record, _ = create()
         identity = record.deterministic_identity
-        state_key = identity.initialization_inputs[0].state_key
+        # The ADDRESS, because that is what the invariant matches on: a
+        # reason naming only the semantic key does not explain a hole in
+        # one of two same-type assets.
+        address = identity.initialization_inputs[0].addressed_key
         holed = replace(
             identity,
             initialization_inputs=(
@@ -1305,7 +1381,7 @@ class TestTheStatusIsComputed:
             blocking_reasons=(
                 BlockingReason(
                     kind="INITIAL_VALUE_NOT_RESOLVED",
-                    subject=state_key,
+                    subject=address,
                     statement="The profile declares no binding for it.",
                 ),
             ),
@@ -1342,7 +1418,9 @@ class TestTheStatusIsComputed:
                     blocking_reasons=(
                         BlockingReason(
                             kind="INITIAL_VALUE_NOT_RESOLVED",
-                            subject=identity.initialization_inputs[0].state_key,
+                            subject=identity.initialization_inputs[
+                                0
+                            ].addressed_key,
                             statement="A reason about the same state.",
                         ),
                     ),
@@ -1600,7 +1678,7 @@ class TestEveryFrozenValueNamesAnAnswerer:
             for row in frozen_inputs(record.deterministic_identity)
         }
 
-        assert rows["Initial example-stored-volume"] == "200 L"
+        assert rows["Initial example-stored-volume@example-store"] == "200 L"
 
 
 class TestTimeZoneMembershipIsReal:
@@ -2055,12 +2133,13 @@ class TestNoDeclaredNeedGoesMissing:
         identity = record.deterministic_identity
 
         frozen = {
-            item.state_key: item for item in identity.initialization_inputs
+            item.addressed_key: item
+            for item in identity.initialization_inputs
         }
-        assert frozen["example-stored-volume"].value is None
+        assert frozen["example-stored-volume@example-store"].value is None
         assert record.execution_status == "BLOCKED"
         assert [reason.subject for reason in record.blocking_reasons] == [
-            "example-stored-volume"
+            "example-stored-volume@example-store"
         ]
 
         # The completeness half, on the outcome that matters most: a run that
@@ -2148,7 +2227,7 @@ class TestTheBindingsOwnUnitIsChecked:
             "INITIAL_VALUE_NOT_RESOLVED"
         ]
         reason = record.blocking_reasons[0]
-        assert reason.subject == "example-stored-volume"
+        assert reason.subject == "example-stored-volume@example-store"
         # The message names both halves of the disagreement, and neither
         # phrase is reachable from the state key alone.
         assert f"binds it to the tank-capacity property declared in {unit}" in (

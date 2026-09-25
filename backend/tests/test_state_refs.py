@@ -173,6 +173,52 @@ class TestWhatItRefuses:
 
         assert "selects component" in str(raised.value)
 
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "fuel-tank-volume\n",
+            "site:example-demand\n",
+            "fuel-tank-volume@north-tank\n",
+            "\nfuel-tank-volume",
+            "fuel-tank-volume\r",
+            "fuel-tank-volume\n@north-tank",
+        ],
+    )
+    def test_a_line_feed_does_not_slip_into_an_identity(
+        self, value: str
+    ) -> None:
+        """The hole an independent review found in this grammar.
+
+        The token was anchored with `^` and `$` and matched with `.match`,
+        and Python's `$` also matches just before a FINAL newline - so
+        `north-tank` followed by a line feed satisfied it and kept that
+        character inside the canonical identity. The result looks like
+        `north-tank` in every message, is not equal to it in any comparison,
+        and a YAML block scalar produces one without an author doing anything
+        unusual.
+
+        Refused rather than stripped. Trimming it would silently turn one
+        authored identity into a different one, which is the same class of
+        quiet substitution the selector rules exist to prevent.
+        """
+        with pytest.raises(Refused):
+            parse(value)
+
+    def test_the_record_refuses_a_line_feed_as_well(self) -> None:
+        """Both entry paths, because a service composes references in code.
+
+        A rule enforced only at the document boundary is a rule an in-process
+        caller walks around.
+        """
+        with pytest.raises(ValueError):
+            StateRef(state_key="north-tank\n", scope="COMPONENT")
+        with pytest.raises(ValueError):
+            StateRef(
+                state_key="fuel-tank-volume",
+                scope="COMPONENT",
+                component_id="north-tank\n",
+            )
+
     @pytest.mark.parametrize("value", [None, 17, "", ["fuel-tank-volume"]])
     def test_a_reference_that_is_not_text_is_refused(
         self, value: object

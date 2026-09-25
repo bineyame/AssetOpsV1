@@ -756,7 +756,7 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
         ],
         "unsupported_optional_inputs": [
             {
-                "state_key": item.state_key,
+                "state_key": item.addressed_key,
                 "execution_role": item.execution_role,
                 "statement": item.statement,
             }

@@ -641,7 +641,7 @@ def _with_simultaneous_transitions(
             "category": "MAINTENANCE",
             "description": "A quantity moves at the same instant as another.",
             "execution_role": "CAUSAL_INPUT",
-            "state_key": "example-stored-volume",
+            "state_key": "example-stored-volume@example-store",
             "execution_requirement": "REQUIRED",
             "timing": {"shape": "POINT"},
             "state_effect": {
@@ -655,7 +655,7 @@ def _with_simultaneous_transitions(
                     "value": value,
                     "unit": "L",
                     "execution_role": "CAUSAL_INPUT",
-                    "state_key": "example-stored-volume",
+                    "state_key": "example-stored-volume@example-store",
                     "execution_requirement": "REQUIRED",
                     "ownership": {
                         "owner": "SCENARIO_INPUT",
@@ -677,7 +677,7 @@ def _with_simultaneous_transitions(
                 "execution_requirement": "REQUIRED",
                 "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
                 "bounds": {
-                    "state_key": "example-stored-volume",
+                    "state_key": "example-stored-volume@example-store",
                     "bound_kind": "UPPER",
                 },
             }
@@ -866,7 +866,7 @@ class TestIntraInstantOrder:
                 "category": "MAINTENANCE",
                 "description": "A delivery larger than the store holds.",
                 "execution_role": "CAUSAL_INPUT",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "state_effect": {
@@ -880,7 +880,7 @@ class TestIntraInstantOrder:
                         "value": 400,
                         "unit": "L",
                         "execution_role": "CAUSAL_INPUT",
-                        "state_key": "example-stored-volume",
+                        "state_key": "example-stored-volume@example-store",
                         "execution_requirement": "REQUIRED",
                         "ownership": {
                             "owner": "SCENARIO_INPUT",
@@ -901,7 +901,7 @@ class TestIntraInstantOrder:
                 "execution_requirement": "REQUIRED",
                 "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
                 "bounds": {
-                    "state_key": "example-stored-volume",
+                    "state_key": "example-stored-volume@example-store",
                     "bound_kind": "UPPER",
                 },
             }

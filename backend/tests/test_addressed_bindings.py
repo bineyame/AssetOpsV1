@@ -52,7 +52,11 @@ from assetops_backend.runs.parsing import (
     parse_run_document,
     render_run_document,
 )
-from assetops_backend.runs.profiles import FoundationBinding
+from assetops_backend.runs.profiles import (
+    FoundationBinding,
+    ModelProfile,
+    SupportedState,
+)
 from assetops_backend.runs.provenance import frozen_inputs
 from assetops_backend.runs.service import (
     RunSetupService,
@@ -106,10 +110,31 @@ def run(
 
 
 def frozen_by_address(record: SimulationRun) -> dict:
-    return {
-        item.addressed_key: item
-        for item in record.deterministic_identity.initialization_inputs
-    }
+    """The frozen initialization rows, keyed by address, with no absorption.
+
+    A plain dict comprehension is what an independent review used to show
+    that the whole-set assertions below prove less than they claim: prepend a
+    conflicting copy of an existing row and the extra row disappears into the
+    mapping, leaving `test_each_tank_freezes_its_own_capacity` and
+    `test_every_declared_initial_value_has_a_row` green while the record
+    holds two different answers for one address.
+
+    So multiplicity is asserted on the ORIGINAL collection, before anything
+    is keyed. Every caller gets the check, which is the point: the weakness
+    was in the shared helper and fixing it only where it was found would
+    leave every other whole-set assertion in this file making the same
+    unearned claim.
+    """
+    rows = record.deterministic_identity.initialization_inputs
+    addresses = [item.addressed_key for item in rows]
+    duplicates = sorted(
+        {address for address in addresses if addresses.count(address) > 1}
+    )
+    assert not duplicates, (
+        f"the run carries more than one frozen row for {duplicates}. A "
+        "mapping would keep whichever was read last and hide the other."
+    )
+    return {item.addressed_key: item for item in rows}
 
 
 def reasons_by_subject(record: SimulationRun) -> dict[str, str]:
@@ -129,8 +154,23 @@ class TestTwoSameTypeComponentsResolveIndependently:
         assert record.blocking_reasons == ()
         assert store.written == [record]
 
+        rows = record.deterministic_identity.initialization_inputs
+        # Cardinality and parameter identity FIRST, on the tuple, because a
+        # set of addresses cannot see a second row for an address it already
+        # holds - which is how an extra conflicting row used to survive this
+        # assertion. The parameter ids are checked as well because two
+        # authored addresses can resolve into one frozen spelling, so the
+        # addresses alone do not establish that four declarations produced
+        # four rows.
+        assert len(rows) == 4
+        assert sorted(item.parameter_id for item in rows) == [
+            "north-capacity",
+            "north-start",
+            "south-capacity",
+            "south-start",
+        ]
+
         frozen = frozen_by_address(record)
-        # The whole set, so a third row or a missing one fails here.
         assert set(frozen) == {
             NORTH_VOLUME,
             SOUTH_VOLUME,
@@ -209,12 +249,18 @@ class TestTheProfileNamesNoFixture:
         choose a component is the Foundation being asked. A profile that had
         pinned an id would resolve one of these and block the other.
         """
-        document = twin_document(
-            north_volume="example-stored-volume", south_volume=None
-        )
-
         answers = {}
         for component_id in ("alpha-tank", "beta-tank"):
+            # Every reference moves with the site, not only the one under
+            # test. A scenario-owned level left pointing at `north-tank` on a
+            # site that declares `alpha-tank` would block on its own account,
+            # and this test would be measuring the wrong failure.
+            document = twin_document(
+                north_volume="example-stored-volume",
+                south_volume=None,
+                north_level_ref=f"example-stored-level@{component_id}",
+                south_level_ref=None,
+            )
             record, _ = run(
                 document=document,
                 site_record=site(
@@ -354,16 +400,27 @@ class TestAnExplicitSelectorSelectsThatComponentAndNoOther:
 class TestAnUnqualifiedBindingResolvesOneCandidateOrBlocks:
     """Acceptance criterion 5, the case T020A tested as this slice's."""
 
-    def unqualified(self, **kwargs):
+    def unqualified(self, *, south_level_ref: str | None = None, **kwargs):
+        """The twin document with the capacity reference unqualified.
+
+        `south_level_ref` defaults to absent because two of these cases put
+        the document on a site with one tank, where a level addressed at
+        `south-tank` would block for its own reason and make the test about
+        two things.
+        """
         return run(
             document=twin_document(
-                north_volume="example-stored-volume", south_volume=None
+                north_volume="example-stored-volume",
+                south_volume=None,
+                south_level_ref=south_level_ref,
             ),
             **kwargs,
         )
 
     def test_two_candidates_leave_it_unanswered_and_blocked(self) -> None:
-        record, store = self.unqualified()
+        record, store = self.unqualified(
+            south_level_ref=f"example-stored-level@{SOUTH_TANK}"
+        )
 
         assert record.execution_status == "BLOCKED"
         subjects = reasons_by_subject(record)
@@ -426,9 +483,10 @@ class TestAnUnqualifiedBindingResolvesOneCandidateOrBlocks:
         module refuses.
         """
         record, _ = self.unqualified(
+            south_level_ref=f"example-stored-level@{SOUTH_TANK}",
             site_record=twin_site(
                 components=twin_components(south_properties=None)
-            )
+            ),
         )
 
         assert record.execution_status == "BLOCKED"
@@ -461,20 +519,45 @@ class TestUnitMismatchIsStillABlockingCondition:
             assert "disagree about what kind of quantity" in subjects[address]
 
     def test_a_property_in_another_unit_than_the_binding_blocks(self) -> None:
-        components = twin_components(
-            south_properties=(
-                component_property(
-                    property_key="reserve-state-of-charge",
-                    value=25.0,
-                    unit="%",
-                ),
-            )
-        )
-        record, _ = run(site_record=twin_site(components=components))
+        """The third side of the triangle, actually exercised.
 
+        This test replaced `tank-capacity` with a different property key, so
+        the resolver reported a MISSING PROPERTY and returned before it ever
+        compared the property's unit with the binding's - both unit tests
+        here passed with that final guard deleted, which an independent
+        review demonstrated by deleting it.
+
+        The real mismatch needs all three units in play and only the last
+        pair disagreeing: the scenario asks in `%`, the binding answers in
+        `%`, so they agree and the run reaches the property - which the
+        component declares in litres. That is the case the guard is for.
+        """
+        document = twin_document()
+        for parameter in document["public_parameters"]:
+            if parameter["parameter_id"].endswith("-capacity"):
+                parameter["unit"] = "%"
+
+        record, _ = run(
+            document=document,
+            model=twin_profile(
+                binding=FoundationBinding(
+                    component_type="FUEL_TANK",
+                    property_key="tank-capacity",
+                    unit="%",
+                )
+            ),
+        )
+
+        assert record.execution_status == "BLOCKED"
         subjects = reasons_by_subject(record)
-        assert SOUTH_VOLUME in subjects
-        assert "declares no such property on it" in subjects[SOUTH_VOLUME]
+
+        # Both tanks, and the phrase names the two units that disagree. The
+        # property is present and found - "declares no such property" would
+        # mean this test had slipped back into the earlier case.
+        for address in (NORTH_VOLUME, SOUTH_VOLUME):
+            assert address in subjects
+            assert "declares that property in L" in subjects[address]
+            assert "declares no such property" not in subjects[address]
 
 
 class TestTwoComponentIdsAreNotOneDuplicate:
@@ -530,8 +613,15 @@ class TestTwoComponentIdsAreNotOneDuplicate:
 class TestRequirementConflictsAreDetectableAtTheAddress:
     """Acceptance criterion 8. T020B owns the final refusal behaviour."""
 
+    def conflicts(self, document=None, *, site_record=None, model=None):
+        return requirement_conflicts(
+            scenario(document),
+            twin_site() if site_record is None else site_record,
+            twin_profile() if model is None else model,
+        )
+
     def test_a_clean_document_reports_none(self) -> None:
-        assert requirement_conflicts(scenario()) == ()
+        assert self.conflicts() == ()
 
     def test_two_requirements_for_one_address_and_role_are_reported(
         self,
@@ -541,7 +631,7 @@ class TestRequirementConflictsAreDetectableAtTheAddress:
             "execution_requirement"
         ] = "OPTIONAL"
 
-        conflicts = requirement_conflicts(scenario(document))
+        conflicts = self.conflicts(document)
 
         assert [conflict.addressed_key for conflict in conflicts] == [
             "site:example-demand"
@@ -563,8 +653,465 @@ class TestRequirementConflictsAreDetectableAtTheAddress:
             "execution_requirement"
         ] = "OPTIONAL"
 
-        assert requirement_conflicts(scenario(document)) == ()
+        assert (
+            self.conflicts(
+                document, model=twin_profile(demand_scope="COMPONENT")
+            )
+            == ()
+        )
 
+    def test_an_unqualified_reference_conflicting_with_its_own_resolution(
+        self,
+    ) -> None:
+        """Two spellings of one asset are one requirement, not two.
+
+        The case an independent review found this function blind to. On a
+        site with one tank, `example-stored-volume` REQUIRED and
+        `example-stored-volume@north-tank` OPTIONAL are the same address: run
+        setup resolves the first into the second. Grouped by what the author
+        wrote, they are two entries and nothing is reported - detection at
+        the resolved grain, advertised and missing exactly the alias that
+        makes resolution necessary.
+
+        The parser's qualified/unqualified refusal does not reach it either:
+        that rule inspects parameters that INITIALIZE, and the second
+        declaration here does not.
+        """
+        document = twin_document(
+            north_volume="example-stored-volume",
+            south_volume=None,
+            south_level_ref=None,
+        )
+        document["public_parameters"].append(
+            {
+                "parameter_id": "capacity-draw",
+                "display_name": "A draw against the capacity",
+                "value": 12,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": f"example-stored-volume@{NORTH_TANK}",
+                "execution_requirement": "OPTIONAL",
+                "ownership": {
+                    "owner": "SCENARIO_INPUT",
+                    "initializes": False,
+                },
+            }
+        )
+        one_tank = twin_site(components=twin_components(south=None))
+
+        # The control: the document parses and the run resolves the
+        # unqualified reference to that very component, so the two really are
+        # one address rather than two things that merely look alike.
+        record, _ = run(document=document, site_record=one_tank)
+        assert record.execution_status == "READY"
+        assert f"example-stored-volume@{NORTH_TANK}" in frozen_by_address(
+            record
+        )
+
+        conflicts = self.conflicts(document, site_record=one_tank)
+
+        assert [conflict.addressed_key for conflict in conflicts] == [
+            f"example-stored-volume@{NORTH_TANK}"
+        ]
+        assert conflicts[0].execution_role == "CAUSAL_INPUT"
+        assert conflicts[0].requirements == ("OPTIONAL", "REQUIRED")
+
+    def test_an_unresolved_reference_is_grouped_by_what_was_written(
+        self,
+    ) -> None:
+        """There is nothing else to group it by, and the run blocks anyway."""
+        document = twin_document(
+            north_volume="example-stored-volume@ghost-tank",
+            south_volume=None,
+            south_level_ref=None,
+        )
+
+        assert self.conflicts(
+            document, site_record=twin_site(components=twin_components(south=None))
+        ) == ()
+
+
+class TestEveryComponentReferenceResolvesBeforeReady:
+    """The address obligation, for every owner and every position.
+
+    T020A1 first resolved a reference only when the Site's Foundation was the
+    thing answering for its number. An independent review showed what that
+    left open, and it is the defect this class exists to keep closed: a
+    `SCENARIO_INPUT` or `RUN_OVERRIDE` initial value, and any forcing input or
+    reported observation, carried its authored reference straight into the
+    frozen run. `example-stored-level` with no selector, and
+    `example-stored-level@ghost-tank` naming a component the Foundation does
+    not declare, were both frozen and called READY - a number, persisted, with
+    no asset behind it.
+
+    Those rows were present, so this is not the disappearance defect T020A
+    closed. It is the obligation beside it: WHO supplies the number and WHICH
+    asset the number is about are two different questions, and only the first
+    was being asked.
+
+    The matrix is the point. One case would have been closed by another
+    Foundation check, which is exactly the repair the review said would not
+    work.
+    """
+
+    GHOST = "example-stored-level@ghost-tank"
+    BARE = "example-stored-level"
+
+    def document(self, reference: str, *, route: str, owner: str) -> dict:
+        """The twin document with the north level moved and readdressed.
+
+        `route` decides whether the declaration is a public parameter or one
+        on a timeline entry, because a rule applied at one of the two is a
+        rule with the other left over. `owner` decides who answers for its
+        number, which is the axis the original defect was attached to.
+        """
+        document = twin_document(
+            north_level_ref=reference, south_level_ref=None
+        )
+        start = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "north-start"
+        )
+        start["ownership"]["owner"] = owner
+
+        if route == "timeline":
+            document["public_parameters"].remove(start)
+            document["timeline"].append(
+                {
+                    "event_id": "a-draw-on-the-level",
+                    "sequence": 3,
+                    "offset_minutes": 60,
+                    "entry_kind": "EVENT",
+                    "category": "EQUIPMENT",
+                    "description": "A draw, with the level declared beside it.",
+                    "execution_role": "CAUSAL_INPUT",
+                    "state_key": reference,
+                    "execution_requirement": "REQUIRED",
+                    "timing": {"shape": "POINT"},
+                    "state_effect": {
+                        "direction": "DECREASE",
+                        "quantity_parameter_id": "drawn-volume",
+                    },
+                    "parameters": [
+                        start,
+                        {
+                            "parameter_id": "drawn-volume",
+                            "display_name": "Volume drawn",
+                            "value": 10,
+                            "unit": "L",
+                            "execution_role": "CAUSAL_INPUT",
+                            "state_key": reference,
+                            "execution_requirement": "REQUIRED",
+                            "ownership": {
+                                "owner": "SCENARIO_INPUT",
+                                "initializes": False,
+                            },
+                        },
+                    ],
+                }
+            )
+
+        return document
+
+    def set_up(self, document: dict, owner: str):
+        """One Draft, supplying the run's value when the run owns it."""
+        store = FakeRuns()
+        setup = RunSetupService(
+            store,
+            FakeSites((twin_site(),)),
+            FakeScenarios((scenario(document),)),
+            model_profiles=(twin_profile(),),
+            publication_profiles=(publication_profile(),),
+            now=lambda: "2026-09-21T09:00:00Z",
+        )
+        return setup.create_draft_run(
+            setup_request(
+                scenario_id="twin-asset-scenario",
+                scenario_version=1,
+                model_profile={
+                    "profile_id": "twin-asset-model",
+                    "profile_version": 1,
+                },
+                run_inputs=(
+                    [
+                        {
+                            "parameter_id": "north-start",
+                            "value": 123,
+                            "unit": "L",
+                        }
+                    ]
+                    if owner == "RUN_OVERRIDE"
+                    else []
+                ),
+            )
+        ), store
+
+    @pytest.mark.parametrize("route", ["public", "timeline"])
+    @pytest.mark.parametrize("owner", ["SCENARIO_INPUT", "RUN_OVERRIDE"])
+    @pytest.mark.parametrize("reference", [BARE, GHOST])
+    def test_an_unresolved_reference_blocks_whoever_answers_for_it(
+        self, route: str, owner: str, reference: str
+    ) -> None:
+        record, store = self.set_up(
+            self.document(reference, route=route, owner=owner), owner
+        )
+
+        assert record.execution_status == "BLOCKED", (route, owner, reference)
+        assert store.written == [record]
+
+        subjects = reasons_by_subject(record)
+        assert reference in subjects
+        kinds = {
+            reason.kind
+            for reason in record.blocking_reasons
+            if reason.subject == reference
+        }
+        assert kinds == {"STATE_ADDRESS_NOT_RESOLVED"}
+
+        # And the row is still there, carrying the address as AUTHORED. The
+        # run has to be inspectable, and naming a component here would put an
+        # asset's identity beside a value it did not supply.
+        frozen = frozen_by_address(record)
+        assert reference in frozen
+        assert frozen[reference].state_ref.component_id in (None, "ghost-tank")
+
+    @pytest.mark.parametrize("reference", [BARE, GHOST])
+    def test_the_number_the_document_states_is_still_frozen(
+        self, reference: str
+    ) -> None:
+        """Blocked on the address, not on the value.
+
+        The scenario did state 200 L and the record says so. What it does not
+        say is whose 200 L it is, which is the whole of the block. Dropping
+        the number would lose a fact the document carries and would make the
+        row indistinguishable from one nobody answered for.
+        """
+        record, _ = self.set_up(
+            self.document(reference, route="public", owner="SCENARIO_INPUT"),
+            "SCENARIO_INPUT",
+        )
+
+        frozen = frozen_by_address(record)[reference]
+        assert frozen.value == 200.0
+        assert frozen.answered_by == "SCENARIO"
+
+    @pytest.mark.parametrize("reference", [BARE, GHOST])
+    def test_an_executable_reference_that_initializes_nothing_blocks_too(
+        self, reference: str
+    ) -> None:
+        """The half another Foundation check could never have reached.
+
+        A forcing input carries no initial value at all, so it never goes
+        near initialization or the Foundation resolver - and it still has to
+        say which machine it forces. This is the case the review named
+        explicitly when it said adding one more Foundation check would not
+        close the finding.
+        """
+        document = twin_document(demand=reference)
+        record, store = self.set_up(document, "SCENARIO_INPUT")
+
+        assert record.execution_status == "BLOCKED"
+        assert store.written == [record]
+
+        # It initializes nothing, so it has no frozen initialization row at
+        # all - which is why the reason is the only thing that can carry it.
+        assert reference not in frozen_by_address(record)
+        assert reference in reasons_by_subject(record)
+        assert any(
+            reason.kind == "STATE_ADDRESS_NOT_RESOLVED"
+            and reason.subject == reference
+            for reason in record.blocking_reasons
+        )
+
+    def test_a_bound_naming_an_absent_component_blocks(self) -> None:
+        """A bound is a reference to a world state like any other.
+
+        It names the OTHER state it limits, and that state lives on an asset
+        too. A bound pointing at a tank the Foundation does not declare is a
+        limit on nothing.
+        """
+        document = twin_document(south_volume=None, south_level_ref=None)
+        capacity = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "north-capacity"
+        )
+        capacity["bounds"] = {
+            "state_key": "example-stored-level@ghost-tank",
+            "bound_kind": "UPPER",
+        }
+
+        record, _ = self.set_up(document, "SCENARIO_INPUT")
+
+        assert record.execution_status == "BLOCKED"
+        assert "example-stored-level@ghost-tank" in reasons_by_subject(record)
+
+    def test_the_same_document_on_the_site_it_names_is_ready(self) -> None:
+        """The control, so none of the above passes for being strict.
+
+        Every reference in this document names a component MG-900's twin
+        foundation declares, and the run is READY with all four values.
+        """
+        record, _ = self.set_up(twin_document(), "SCENARIO_INPUT")
+
+        assert record.execution_status == "READY"
+        assert len(frozen_by_address(record)) == 4
+
+class TestUnsupportedInputsKeepTheirComponentIdentity:
+    """Acceptance criterion 2's other half: the diagnostics are addressed too.
+
+    `_support_for` reported missing-state and unsupported-role facts under the
+    bare semantic key while the scope-mismatch branch beside it used the
+    address. An independent review showed the cost: two required declarations
+    about two different tanks deduplicated into ONE row, because their
+    addresses had been thrown away before `_deduplicated` compared them, and
+    two optional declarations became two rows identical in every field.
+
+    The line this draws is worth stating, because both halves are load
+    bearing. The profile is ASKED about the semantic key - it models a kind of
+    state and knows nothing about how many of them a site has, so asking it
+    per asset would be asking the same question twice. What it REPORTS is
+    addressed, because the thing being reported on is a declaration, and there
+    were two.
+    """
+
+    def unsupported_level(self, *, requirement: str = "REQUIRED"):
+        """The twin profile with the per-tank level removed from it."""
+        document = twin_document()
+        for parameter in document["public_parameters"]:
+            if parameter["parameter_id"] in ("north-start", "south-start"):
+                parameter["execution_requirement"] = requirement
+        # The reading reports the same state, and a REPORTED_OBSERVATION
+        # carries no requirement of its own to lower, so it goes.
+        document["timeline"] = document["timeline"][:1]
+        document["observation_sources"] = []
+
+        narrowed = ModelProfile(
+            model_profile_id="twin-asset-model",
+            model_profile_version=1,
+            display_name="Twin asset model",
+            statement="Models the capacity and the demand, and no level.",
+            supported_states=tuple(
+                state
+                for state in twin_profile().supported_states
+                if state.state_key != "example-stored-level"
+            ),
+        )
+        return run(document=document, model=narrowed)
+
+    def test_two_assets_are_two_unsupported_reasons(self) -> None:
+        record, _ = self.unsupported_level()
+
+        assert record.execution_status == "BLOCKED"
+        missing = {
+            reason.subject
+            for reason in record.blocking_reasons
+            if reason.kind == "STATE_NOT_SUPPORTED"
+        }
+
+        # Both, and by address. Keyed on the semantic key this set had one
+        # member and the south tank's declaration was gone.
+        assert missing == {NORTH_LEVEL, SOUTH_LEVEL}
+
+    def test_two_assets_are_two_distinguishable_optional_rows(self) -> None:
+        record, _ = self.unsupported_level(requirement="OPTIONAL")
+
+        rows = {
+            (item.addressed_key, item.execution_role)
+            for item in record.unsupported_optional_inputs
+        }
+
+        assert rows == {
+            (NORTH_LEVEL, "CAUSAL_INPUT"),
+            (SOUTH_LEVEL, "CAUSAL_INPUT"),
+        }
+        # Two rows, not one repeated: a reader can say which feeder or tank
+        # the run skipped.
+        assert len(record.unsupported_optional_inputs) == 2
+
+    def test_an_unsupported_role_names_the_asset_and_the_role(self) -> None:
+        """One fact per role AND per asset, which are two different axes."""
+        document = twin_document()
+        narrowed = ModelProfile(
+            model_profile_id="twin-asset-model",
+            model_profile_version=1,
+            display_name="Twin asset model",
+            statement="Models the level, but never as a cause.",
+            supported_states=tuple(
+                SupportedState(
+                    state_key=state.state_key,
+                    scope=state.scope,
+                    supported_roles=(
+                        frozenset({"REPORTED_OBSERVATION"})
+                        if state.state_key == "example-stored-level"
+                        else state.supported_roles
+                    ),
+                    foundation_binding=state.foundation_binding,
+                    statement=state.statement,
+                )
+                for state in twin_profile().supported_states
+            ),
+        )
+        record, _ = run(document=document, model=narrowed)
+
+        roles = {
+            reason.subject
+            for reason in record.blocking_reasons
+            if reason.kind == "ROLE_NOT_SUPPORTED"
+        }
+
+        assert roles == {
+            f"{NORTH_LEVEL} as CAUSAL_INPUT",
+            f"{SOUTH_LEVEL} as CAUSAL_INPUT",
+        }
+
+    def test_one_asset_in_two_roles_is_still_one_missing_state_row(
+        self,
+    ) -> None:
+        """The deduplication that was right and stays right.
+
+        A state the profile does not model at all is one fact however many
+        roles one declaration uses it in. Addressing did not change that: the
+        address is the same, so `(kind, subject)` is the same. What changed is
+        that two ADDRESSES are no longer the same subject.
+        """
+        document = twin_document(south_volume=None, south_level_ref=None)
+        narrowed = ModelProfile(
+            model_profile_id="twin-asset-model",
+            model_profile_version=1,
+            display_name="Twin asset model",
+            statement="Models no level at all.",
+            supported_states=tuple(
+                state
+                for state in twin_profile().supported_states
+                if state.state_key != "example-stored-level"
+            ),
+        )
+        record, _ = run(document=document, model=narrowed)
+
+        missing = [
+            reason.subject
+            for reason in record.blocking_reasons
+            if reason.kind == "STATE_NOT_SUPPORTED"
+        ]
+
+        # The north level is declared as a cause AND reported through the
+        # operator record, which is two roles and one row.
+        assert missing == [NORTH_LEVEL]
+
+    def test_an_optional_row_survives_the_document_it_is_written_to(
+        self,
+    ) -> None:
+        """The address reaches the stored run, not just the in-process record."""
+        record, _ = self.unsupported_level(requirement="OPTIONAL")
+        reloaded = parse_run_document(
+            render_run_document(record), source="a test"
+        )
+
+        assert {
+            item.addressed_key for item in reloaded.unsupported_optional_inputs
+        } == {NORTH_LEVEL, SOUTH_LEVEL}
 
 class TestDynamicInitializationIsAddressedToo:
     """Acceptance criterion 9: one tank's level cannot start its sibling."""
@@ -785,15 +1332,26 @@ class TestNoDeclaredNeedGoesSilentlyAbsentAtTheAddress:
             record, _ = run(document=document, site_record=site_record)
             definition = scenario(document)
 
-            declared = {
-                parameter.addressed_key
+            declared = [
+                parameter.parameter_id
                 for parameter in definition.public_parameters
                 if parameter.ownership is not None
                 and parameter.ownership.initializes
-            }
-            frozen = set(frozen_by_address(record))
+            ]
+            rows = record.deterministic_identity.initialization_inputs
 
-            assert declared == frozen, document["scenario_id"]
+            # One row per DECLARATION, counted on the tuple and matched by
+            # parameter identity. Comparing sets of addresses could not see
+            # an extra row, and could not see two declarations collapsing
+            # into one address either.
+            assert sorted(item.parameter_id for item in rows) == sorted(
+                declared
+            ), document["scenario_id"]
+            assert len(rows) == len(declared), document["scenario_id"]
+
+            # And the addresses are still whole and distinct, which is what
+            # `frozen_by_address` now asserts on the way past.
+            assert len(frozen_by_address(record)) == len(declared)
 
     def test_one_tanks_reason_does_not_explain_the_others_hole(self) -> None:
         """The record refuses the shape, not just the service.

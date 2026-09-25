@@ -87,7 +87,16 @@ SCOPE_MARK = ":"
 #: neither `@` nor `:` matches it, which is what makes the two selector
 #: characters unambiguous separators rather than characters a key might
 #: legitimately contain.
-STATE_REF_TOKEN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+#:
+#: **Unanchored, and matched with `fullmatch` at every use.** It carried `^`
+#: and `$` and was matched with `.match`, which an independent review showed
+#: accepts a trailing line feed: Python's `$` matches just before a final
+#: newline, so a selector spelled `north-tank` followed by a line feed
+#: satisfied the grammar and kept that character inside the canonical
+#: identity - an identity that looks like `north-tank`, is not equal to it,
+#: and which a YAML block scalar supplies without an author noticing.
+#: `fullmatch` has no such exception and no anchor to get wrong.
+STATE_REF_TOKEN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 
 #: An address longer than this is refused before it is split. A state key and a
 #: component id are both short identities; a kilobyte of them is a document
@@ -125,7 +134,7 @@ class StateRef:
                 f"A state reference is claimed at one of "
                 f"{sorted(STATE_SCOPES)}, not {self.scope!r}."
             )
-        if not STATE_REF_TOKEN.match(self.state_key):
+        if not STATE_REF_TOKEN.fullmatch(self.state_key):
             raise ValueError(
                 f"A state key is lowercase alphanumeric words separated by a "
                 f"hyphen, not {self.state_key!r}. Component identity lives in "
@@ -138,7 +147,7 @@ class StateRef:
                 f"{self.component_id!r}. A fact about the installation and a "
                 "fact about one machine are two different claims."
             )
-        if self.component_id is not None and not STATE_REF_TOKEN.match(
+        if self.component_id is not None and not STATE_REF_TOKEN.fullmatch(
             self.component_id
         ):
             raise ValueError(
@@ -302,13 +311,13 @@ def parse_state_ref(
             "whose it is and cannot stand on its own."
         )
 
-    if not STATE_REF_TOKEN.match(state_key):
+    if not STATE_REF_TOKEN.fullmatch(state_key):
         invalid(
             f"'{where}' must name a world state as lowercase alphanumeric "
             f"words separated by a hyphen in {source}, got {state_key!r}."
         )
 
-    if component_id is not None and not STATE_REF_TOKEN.match(component_id):
+    if component_id is not None and not STATE_REF_TOKEN.fullmatch(component_id):
         invalid(
             f"'{where}' selects component {component_id!r} in {source}, and a "
             "component selector names a component the target site's "
