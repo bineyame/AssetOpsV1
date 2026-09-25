@@ -60,7 +60,9 @@ from assetops_backend.runs.profiles import (
 from assetops_backend.runs.provenance import frozen_inputs
 from assetops_backend.runs.service import (
     RunSetupService,
+    executable_inputs,
     requirement_conflicts,
+    resolve_state_addresses,
 )
 from assetops_backend.scenarios.parsing import parse_scenario_document
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
@@ -877,15 +879,24 @@ class TestEveryComponentReferenceResolvesBeforeReady:
         assert frozen[reference].state_ref.component_id in (None, "ghost-tank")
 
     @pytest.mark.parametrize("reference", [BARE, GHOST])
-    def test_the_number_the_document_states_is_still_frozen(
+    def test_an_unresolvable_row_is_frozen_absent_for_every_owner(
         self, reference: str
     ) -> None:
-        """Blocked on the address, not on the value.
+        """Reversed under the second review, and the reversal is the rule.
 
-        The scenario did state 200 L and the record says so. What it does not
-        say is whose 200 L it is, which is the whole of the block. Dropping
-        the number would lose a fact the document carries and would make the
-        row indistinguishable from one nobody answered for.
+        This test used to assert the opposite: that the scenario's 200 L is
+        kept on the row because the document really does state it, and only
+        the address is missing. Two things were wrong with that. A frozen
+        initial value is the initial value OF a world state, and an
+        unresolvable address names no world state - so the detail screen
+        showed a number beside an asset that cannot carry it. And it made
+        the record behave one way for a scenario-owned or run-owned value
+        and another for a Foundation-owned one, which is the
+        ownership-dependent treatment this whole round exists to remove.
+
+        The row is frozen absent, attributed to whatever could not be
+        resolved, with the address reason beside it - identically for all
+        four owners.
         """
         record, _ = self.set_up(
             self.document(reference, route="public", owner="SCENARIO_INPUT"),
@@ -893,8 +904,10 @@ class TestEveryComponentReferenceResolvesBeforeReady:
         )
 
         frozen = frozen_by_address(record)[reference]
-        assert frozen.value == 200.0
-        assert frozen.answered_by == "SCENARIO"
+        assert frozen.value is None
+        assert frozen.canonical_value is None
+        assert frozen.answered_by in {"SITE_FOUNDATION", "MODEL_PROFILE"}
+        assert reference in reasons_by_subject(record)
 
     @pytest.mark.parametrize("reference", [BARE, GHOST])
     def test_an_executable_reference_that_initializes_nothing_blocks_too(
@@ -1112,6 +1125,276 @@ class TestUnsupportedInputsKeepTheirComponentIdentity:
         assert {
             item.addressed_key for item in reloaded.unsupported_optional_inputs
         } == {NORTH_LEVEL, SOUTH_LEVEL}
+
+class TestADeferredReferenceReachesTheCheckItWasHandedTo:
+    """Visiting a reference is not the same as resolving it.
+
+    The first correction round made the common pass exhaustive as an
+    ENUMERATION - all four source positions are collected - and a second
+    review showed that is not the same as enforcement. Two branches recorded
+    a reference as settled while checking nothing, on the assumption that
+    `_support_for` would report the problem, and `_support_for` is asked
+    about EXECUTABLE declarations. A reference occurring only as a bound
+    target reached neither check: `unmodelled-volume@ghost-tank` came back
+    READY with no reasons at all and persisted.
+
+    The test below is written to catch that class of mistake rather than the
+    one instance of it. Asserting that the pass VISITED every reference is
+    the assertion that already passed while the defect was live; what has to
+    be asserted is that nothing leaves the pass claiming to be somebody
+    else's job unless that somebody is really asked about it.
+    """
+
+    def bound_document(self, target: str) -> dict:
+        """The accepted twin fixture with a bound added to its north capacity.
+
+        The bound is the only place `target` appears, which is the whole
+        point: a reference written nowhere else is the one that used to fall
+        between the two checks.
+        """
+        document = twin_document()
+        capacity = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "north-capacity"
+        )
+        capacity["bounds"] = {"state_key": target, "bound_kind": "UPPER"}
+        return document
+
+    def test_nothing_is_deferred_to_a_check_that_never_sees_it(self) -> None:
+        """The enforcement assertion, over several documents.
+
+        For every reference the pass declines to answer itself, its address
+        must appear among the executable inputs `_support_for` is driven
+        from. A deferral to a caller that is never asked is the defect.
+        """
+        documents = [
+            twin_document(),
+            self.bound_document("unmodelled-volume@ghost-tank"),
+            self.bound_document("example-demand@north-tank"),
+            self.bound_document(f"example-stored-level@{SOUTH_TANK}"),
+            repeated_load_document(),
+            twin_document(
+                north_volume="example-stored-volume", south_volume=None
+            ),
+        ]
+
+        deferrals = 0
+        for document in documents:
+            definition = scenario(document)
+            addresses = resolve_state_addresses(
+                definition, twin_site(), twin_profile()
+            )
+            asked_about = {
+                item.addressed_key
+                for item in executable_inputs(definition)
+            }
+
+            assert addresses, document["scenario_id"]
+            for key, address in addresses.items():
+                if address.reason is not None:
+                    continue
+                if address.deferred_to_support:
+                    deferrals += 1
+                    assert key in asked_about, (
+                        f"{key} was deferred to a check that is never asked "
+                        "about it"
+                    )
+                    continue
+                # Anything else claims to have been settled here, so it has
+                # to name something: a component, or the installation.
+                assert address.is_resolved, key
+                assert (
+                    address.component is not None
+                    or address.authored.scope == "SITE"
+                ), key
+
+        # Non-vacuous: at least one document really does defer something, so
+        # the loop above is not passing because the branch is never taken.
+        assert deferrals > 0
+
+    @pytest.mark.parametrize(
+        "target,expected",
+        [
+            # A component this foundation does not declare. Existence needs
+            # no profile, so it is checked whatever the state is.
+            ("unmodelled-volume@ghost-tank", "STATE_ADDRESS_NOT_RESOLVED"),
+            ("example-demand@ghost-tank", "STATE_ADDRESS_NOT_RESOLVED"),
+            (f"example-stored-level@{NORTH_TANK}", None),
+            # A state this profile models at the other scope, written only
+            # as a bound target, so `_support_for` never sees it.
+            (f"example-demand@{NORTH_TANK}", "STATE_NOT_SUPPORTED"),
+            # A state this profile does not model at all, same position.
+            (f"unmodelled-volume@{NORTH_TANK}", "STATE_NOT_SUPPORTED"),
+        ],
+    )
+    def test_a_bound_only_reference_is_checked(
+        self, target: str, expected: str | None
+    ) -> None:
+        record, store = run(document=self.bound_document(target))
+
+        if expected is None:
+            # The control. A bound naming a real component of a state this
+            # profile models at that scope is fine, so the four cases above
+            # are about the reference and not about bounds having appeared.
+            assert record.execution_status == "READY"
+            return
+
+        assert record.execution_status == "BLOCKED", target
+        assert store.written == [record]
+        assert any(
+            reason.kind == expected and reason.subject == target
+            for reason in record.blocking_reasons
+        ), [(r.kind, r.subject) for r in record.blocking_reasons]
+
+
+class TestAModelOwnedValueStillProducesADraft:
+    """A Draft that should block and instead raises is worse than the defect.
+
+    The first correction round moved every owner's frozen row onto the
+    resolved address and left the MODEL_RULE branch naming the authored one.
+    On a one-tank site a bare model-owned reference resolves to
+    `@north-tank`, its number is absent because no profile carries a model
+    rule for it, and the reason still said `example-stored-volume` - so the
+    record invariant fired and `create_draft_run` raised a bare `ValueError`
+    instead of returning a BLOCKED Draft somebody could read.
+
+    The rule that prevents the class: the missing value, the reference frozen
+    beside it and the explanation for it are kept at ONE grain.
+    """
+
+    def model_owned(self, reference: str):
+        document = twin_document(
+            north_volume=reference, south_volume=None, south_level_ref=None
+        )
+        capacity = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "north-capacity"
+        )
+        capacity["ownership"]["owner"] = "MODEL_RULE"
+        capacity["value"] = 500
+        return run(
+            document=document,
+            site_record=twin_site(components=twin_components(south=None)),
+        )
+
+    @pytest.mark.parametrize(
+        "reference",
+        ["example-stored-volume", f"example-stored-volume@{NORTH_TANK}"],
+    )
+    def test_it_blocks_rather_than_raising(self, reference: str) -> None:
+        record, store = self.model_owned(reference)
+
+        assert record.execution_status == "BLOCKED"
+        assert store.written == [record]
+
+    @pytest.mark.parametrize(
+        "reference",
+        ["example-stored-volume", f"example-stored-volume@{NORTH_TANK}"],
+    )
+    def test_the_row_and_its_reason_name_the_same_address(
+        self, reference: str
+    ) -> None:
+        """Whichever address is chosen, both halves use it.
+
+        An unqualified model-owned reference resolves, so both carry the
+        resolved address; the explicit one was already resolved, so both
+        carry that. What is forbidden is one of each.
+        """
+        record, _ = self.model_owned(reference)
+
+        frozen = frozen_by_address(record)
+        unanswered = [
+            address
+            for address, item in frozen.items()
+            if item.value is None
+        ]
+        explained = {reason.subject for reason in record.blocking_reasons}
+
+        assert unanswered == [f"example-stored-volume@{NORTH_TANK}"]
+        assert set(unanswered) <= explained
+
+    def test_the_reason_still_says_what_is_missing(self) -> None:
+        """Blocked for the right reason, not merely blocked."""
+        record, _ = self.model_owned("example-stored-volume")
+
+        statement = reasons_by_subject(record)[
+            f"example-stored-volume@{NORTH_TANK}"
+        ]
+        assert "versioned model rule" in statement
+        assert "declares no rule for it" in statement
+
+
+class TestTheBindingsTypeIsCheckedWhoeverSuppliesTheNumber:
+    """The last place an obligation was attached to an owner.
+
+    The explicit-selector branch checked that a component EXISTS and left the
+    binding's declared component type behind in the Foundation's number
+    lookup - so naming a generator for a tank state blocked under
+    `SITE_FOUNDATION` and froze 100 L against that generator under
+    `SCENARIO_INPUT`. The same disease as R1, one position further in, and
+    the reason the check moved rather than being duplicated.
+    """
+
+    def wrong_type(self, owner: str):
+        document = twin_document(
+            north_volume="example-stored-volume@site-generator"
+        )
+        capacity = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "north-capacity"
+        )
+        capacity["ownership"]["owner"] = owner
+        if owner != "SITE_FOUNDATION":
+            capacity["value"] = 100
+        return run(document=document)
+
+    @pytest.mark.parametrize(
+        "owner", ["SITE_FOUNDATION", "SCENARIO_INPUT", "MODEL_RULE"]
+    )
+    def test_a_component_of_the_wrong_type_blocks_for_every_owner(
+        self, owner: str
+    ) -> None:
+        record, store = self.wrong_type(owner)
+
+        assert record.execution_status == "BLOCKED", owner
+        assert store.written == [record]
+        assert any(
+            reason.kind == "STATE_ADDRESS_NOT_RESOLVED"
+            and reason.subject == "example-stored-volume@site-generator"
+            for reason in record.blocking_reasons
+        ), [(r.kind, r.subject) for r in record.blocking_reasons]
+
+    def test_a_scenario_owned_number_is_not_frozen_against_it(self) -> None:
+        """The value is the evidence.
+
+        A run that reported BLOCKED and still froze 100 L against the
+        generator would satisfy the status assertion above while doing the
+        thing this forbids.
+        """
+        record, _ = self.wrong_type("SCENARIO_INPUT")
+
+        frozen = frozen_by_address(record)
+        assert frozen["example-stored-volume@site-generator"].value is None
+        assert all(item.value != 100.0 for item in frozen.values())
+
+    def test_the_statement_names_both_types(self) -> None:
+        record, _ = self.wrong_type("SCENARIO_INPUT")
+
+        statement = reasons_by_subject(record)[
+            "example-stored-volume@site-generator"
+        ]
+        assert "declares as a GENERATOR" in statement
+        assert "carries that state on a FUEL_TANK" in statement
+
+    def test_the_right_type_still_resolves(self) -> None:
+        """So the four cases above are about the type and not about the id."""
+        record, _ = run()
+
+        assert record.execution_status == "READY"
+        assert frozen_by_address(record)[NORTH_VOLUME].value == NORTH_CAPACITY
 
 class TestDynamicInitializationIsAddressedToo:
     """Acceptance criterion 9: one tank's level cannot start its sibling."""

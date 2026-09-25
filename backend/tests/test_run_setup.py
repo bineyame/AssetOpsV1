@@ -817,12 +817,21 @@ class TestNothingIsDefaulted:
     ) -> None:
         """The absent-property case may not be rescued by a second asset.
 
-        The binding names a FUEL_TANK and there are two, one of which does
-        declare the property. Narrowing the candidate set to components that
-        happen to declare it would resolve this to 320 L and call it an
-        answer. It blocks instead, on the ambiguity, because which tank the
-        binding means is a question only an addressed binding answers - and
-        that is T020A1.
+        The document names `example-store` and that tank declares no
+        `tank-capacity`; `second-store` beside it declares 320 L. Narrowing
+        the candidate set to components that happen to declare the property
+        would resolve this to 320 L and call it an answer. It blocks
+        instead, naming the tank the author named.
+
+        The docstring said something else until a second review caught it:
+        that the run blocks on the AMBIGUITY between two tanks, and that
+        telling them apart was future work called T020A1. Both were true of
+        the version before addressing existed. With an explicit address the
+        test proves the no-fallback rule more directly than it used to -
+        there is no ambiguity left to hide behind, the named asset simply
+        cannot answer, and a sibling that can is not consulted. The reviewer
+        asked for the prose to be corrected rather than the test reverted to
+        match it.
         """
         setup, _ = service(
             scenarios=self._foundation_owned(),
