@@ -1,6 +1,6 @@
 # T020A1 - Addressed bindings from scenario to frozen initialization
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
@@ -101,4 +101,4 @@ Do not introduce a general topology editor or repeated-component authoring UI.
 
 The owner reviews two resolved same-type inputs and the ambiguous BLOCKED case.
 The Reviewer checks every frozen identity/readback path, not just the setup form.
-Review outcome: pending.
+Review outcome: pending. Packet: `.agent/T020A1-review-packet.md`.

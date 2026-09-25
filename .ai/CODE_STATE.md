@@ -2347,3 +2347,133 @@ What T020A leaves open, for the slice that meets it.
   readings where it reported 254 L, because the document no longer carries the
   generator's consumption. That is the honest projection of a document that has
   stopped carrying a machine's physics, and closing it is T021's kernel.
+
+## T020A1 - Addressed bindings from scenario to frozen initialization
+
+A world state is now named by an ADDRESS rather than by a semantic key alone.
+`StateRef` in `backend/assetops_backend/state_refs.py` carries three things: the
+semantic key, the scope it is claimed at (`SITE` or `COMPONENT`), and, for a
+component-scoped claim, which component. It sits at the package root beside
+`document_bounds.py` and for the same reason - the rule is about addressing,
+not about scenarios, profiles or runs, and `runs/profiles.py` may not import
+the Site record family at all.
+
+**The authored spelling is one string with three forms.** `fuel-tank-volume` is
+component-scoped and unqualified, `fuel-tank-volume@north-tank` names the
+component, and `site:site-load-demand` is a fact about the installation.
+`component:` is accepted as the bare form said out loud and renders back as the
+bare form. A bare key means COMPONENT and never SITE, and the direction of that
+default is the safety property: an unqualified component reference is the
+WEAKER claim, because it must still find exactly one candidate before a run is
+READY, so a bare key that should have been site-wide fails visibly at
+resolution. The other direction would have turned a statement about one machine
+into a statement about the installation with nothing left to catch it.
+
+One parser serves both document families, which is what makes a frozen record
+reconstruct to the address it was written from. `addressed_key` is the
+canonical spelling and the identity everything keys on: duplicate detection,
+blocking-reason subjects, dedup, the frozen row on the screen, and the run
+document's `state_key` field. A run frozen before this slice carries a bare key
+there and reads back as what it was - an unqualified component reference - so
+the old Drafts stay inspectable.
+
+**The address is stated in the document, the scope is stated twice on purpose.**
+`SupportedState` gains a `scope` and still no component id: a profile says what
+KIND of claim a state is, the scenario says which instance, and selecting the
+same profile for a second Site addresses that Site's components. When the two
+disagree the run blocks rather than guessing, and the disagreement is checked in
+two places because they reach different declarations - the Foundation resolver
+sees only the initial values a Foundation owns, and a scenario-owned forcing
+input never goes near it. A `SITE`-scoped supported state may not carry a
+`FoundationBinding` at all, refused in `__post_init__`, because such a binding
+names a component type and could never resolve.
+
+**Resolution has eight blocking cases and no refusal.** Scope disagreement;
+no binding; the binding's unit against the scenario's; a named component the
+Foundation does not declare; a named component of the wrong type; no candidate
+of the bound type; more than one candidate and no selector; the property absent;
+the property's unit against the binding's. The candidate set is the components
+OF THE DECLARED TYPE and never the components that happen to declare the
+property - narrowing it would let a second tank answer for the one the address
+could not reach, which is the fallback addressing exists to prevent. Every
+reason's subject is the ADDRESS, so two tanks are two rows rather than one
+deduplicated row with a hole behind it.
+
+**A resolved input freezes the component that answered, even when the author
+named none.** An unqualified `fuel-tank-capacity` against a one-tank site
+freezes as `fuel-tank-capacity@fuel-tank`, so a later reader does not have to
+re-run the resolution against a Foundation that may have been reordered since.
+An unresolved input keeps the address exactly as authored, because nothing chose
+a component and naming one would put an asset's identity beside a value it did
+not supply - and that is also what lines it up with its blocking reason.
+
+**The parser gained one rule that addressing made necessary.** A document may
+not declare both `x` and `x@north-tank` as initial values: an unqualified
+reference may resolve to the very component already named, so the two would be
+one initial value with two owners, which the duplicate rule can no longer see
+and run setup can no longer tell apart. Mixing the forms for one state key is
+refused with the repair named.
+
+**What moved to the addressed grain, all of it:** duplicate initialization
+detection, the entry-versus-parameter state agreement, the state-effect
+agreement, `declared_bounds`, `reconcile_reported_observations`,
+`initialization_inputs` ordering, executable-input gathering, and
+`SimulationRun.__post_init__`'s never-absent invariant. That last one is the
+T020A defect at this slice's grain: keyed on the semantic key, the north tank's
+blocking reason would explain the south tank's absent value - one reason, two
+holes, and the second hole invisible.
+
+`requirement_conflicts` reports an address and role a document states two
+requirements for. Detection, not refusal: `_executable_inputs` keeps taking
+`REQUIRED`, which can only block a run that would otherwise have run, and
+T020B owns what the product finally does. Two components at different
+requirements are NOT a conflict - they are two independent requirements, which
+is the whole slice.
+
+`EXECUTION_CONTRACT_VERSION` moved three to four. The same unedited Fuel Loss
+Event against the same single-tank Foundation freezes
+`fuel-tank-capacity@fuel-tank` where version three froze
+`fuel-tank-capacity`, so the resolved identity of a run of an unchanged
+document is different - the test `D-2026-09-22-contract-version-scope` sets.
+`refuse_incompatible_execution` is the run half: a Draft frozen under another
+contract stays readable and is refused execution rather than reinterpreted.
+Nothing executes yet, so its one caller today is `runs/provenance.py`, which
+puts the refusal on the run's own Execution contract row - a guard with no
+caller would be the declaration-nothing-checks defect T020A's review found in
+`FoundationBinding.unit`.
+
+Run detail names the address on each frozen row and carries the reason an
+unresolved value is missing IN the row it is missing from, matched on the
+address. The blocked table still lists every reason; pairing two of them to two
+rows that differ by a component id was the work this removes.
+
+`config/site-templates/twin-tank-mini-grid-150kw.yaml` is a second shipped
+archetype: two fuel tanks at 500 L and 800 L, two generators at 0.311 and
+0.285 L/kWh, `load-res` and `load-mill`, and two fuel level sensors reporting a
+signal spelled identically on both tanks - which only the declared mappings tell
+apart. The differing values are load-bearing: two equal capacities would let a
+resolver pick either component and still look right.
+
+The shipped Fuel Loss Event is migrated. Every executable declaration names
+what it is about - the tank, the generator, or the site - and it is STILL
+BLOCKED on the three states the first profile does not model. Addressing is not
+readiness and T020B owns the difference.
+
+What this leaves open.
+
+- **T020B still owns readiness.** The three unmodelled forcing states are
+  unchanged, and so is `D-2026-09-22-forcing-state-requirements`. It also owns
+  what a requirement conflict finally does; `requirement_conflicts` reports them
+  and nothing acts on one.
+- **Nothing executes, so `refuse_incompatible_execution` has one caller.**
+  T021's kernel is the second and calls it before it initializes anything.
+- **The scope a state is claimed at is declared twice**, once per scenario
+  reference and once per profile state. That is deliberate and the
+  disagreement blocks, but it is two places a future slice must keep true.
+- **`var/runs` now holds 87 local Drafts and `create_run` is still O(n)** in
+  that count, unchanged from T020A and still wanting a bounded owner before
+  T027. This slice added six Drafts to it, three of them from the layout
+  script.
+- **The five inline `float(value)` overflow sites in
+  `.ai/MILESTONE_REVIEW_BACKLOG.md` are untouched and no sixth was added.**
+  `state_refs.py` converts no numbers.
