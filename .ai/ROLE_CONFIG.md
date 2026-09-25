@@ -94,6 +94,30 @@ A second pass on the same slice is a follow-up, not a new engagement. Resume
 it and say what changed. Start cold only when the subject is genuinely
 different or the earlier session would mislead.
 
+**`resume` does not take the same flags as `exec`, and this cost two failed
+invocations on 2026-09-25 before it was pinned down.** Two rules:
+
+- Options go **before** the session id: `codex exec resume [OPTIONS]
+  <session-id> "<prompt>"`. After it they are parsed as the prompt.
+- **`--sandbox` does not exist on `resume`.** Pass it as config instead:
+  `-c sandbox_mode="workspace-write"`. `resume` accepts `-c`, `--last`,
+  `--all`, `-m`, `--skip-git-repo-check`, `--json`, `-o` and a few others;
+  run `codex exec resume --help` rather than assuming a flag carries over.
+
+The working form, verified:
+
+```
+codex exec resume -c sandbox_mode="workspace-write" --skip-git-repo-check   <session-id> "<follow-up prompt>" < /dev/null
+```
+
+Both failures were argument parsing, rejected before any model call, so they
+cost seconds and no quota. The point of recording them is that guidance which
+fails on first use is worse than none.
+
+A session resumes across a quota interruption: the third-pass review that died
+mid-run at its usage limit was resumed the next day into the same session id
+with its context intact.
+
 ### Match the model to the work
 
 `-m <model>` selects one. `gpt-6-astra` is the default and the most expensive;
