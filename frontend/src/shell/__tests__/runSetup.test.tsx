@@ -92,6 +92,7 @@ const PROFILES: RunProfilesResult = {
       supported_states: [
         {
           state_key: "fuel-tank-volume",
+          scope: "COMPONENT",
           supported_roles: ["CAUSAL_INPUT", "REPORTED_OBSERVATION"],
           statement: "The stored volume can be caused and reported.",
         },
@@ -118,6 +119,7 @@ const FROZEN_INPUTS = [
     value: "MG-001",
     answered_by: "SITE_FOUNDATION",
     answered_by_detail: "site MG-001 foundation version 1",
+    blocking_statement: null,
   },
   {
     identity_field: "interval",
@@ -125,6 +127,7 @@ const FROZEN_INPUTS = [
     value: "15 minutes",
     answered_by: "RUN_INPUT",
     answered_by_detail: "supplied by this run setup request",
+    blocking_statement: null,
   },
   {
     identity_field: "observation_bindings",
@@ -132,6 +135,7 @@ const FROZEN_INPUTS = [
     value: "15 minutes",
     answered_by: "MODEL_PROFILE",
     answered_by_detail: "publication profile simulator-lab-publication version 1",
+    blocking_statement: null,
   },
   {
     identity_field: "intervention_history",
@@ -139,6 +143,7 @@ const FROZEN_INPUTS = [
     value: "empty",
     answered_by: "RUN_INPUT",
     answered_by_detail: "supplied by this run setup request",
+    blocking_statement: null,
   },
 ];
 

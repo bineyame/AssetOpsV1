@@ -585,6 +585,21 @@ button:focus-visible {
 }
 
 /*
+ * Why a cell has no value, carried in the cell the value is missing from.
+ *
+ * Its own block so it wraps under the attribution rather than running on from
+ * it: the two are different kinds of statement - which record answered, and
+ * why nothing did - and a reader scanning a column of attributions needs the
+ * second to be visibly a second thing. Not nowrap: it is a sentence.
+ */
+.cell-note {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/*
  * A list of values inside one table cell.
  *
  * A device declares several signals and each is a separate fact, so they are a

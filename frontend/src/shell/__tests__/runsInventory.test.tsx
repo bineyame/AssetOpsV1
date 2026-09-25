@@ -82,6 +82,7 @@ const FROZEN_INPUTS = [
     value: "MG-001",
     answered_by: "SITE_FOUNDATION",
     answered_by_detail: "site MG-001 foundation version 1",
+    blocking_statement: null,
   },
   {
     identity_field: "observation_bindings",
@@ -90,6 +91,7 @@ const FROZEN_INPUTS = [
     answered_by: "PUBLICATION_PROFILE",
     answered_by_detail:
       "publication profile simulator-lab-publication version 1",
+    blocking_statement: null,
   },
   {
     identity_field: "profiles",
@@ -97,6 +99,7 @@ const FROZEN_INPUTS = [
     value: "minimal-fuel-tank v1",
     answered_by: "RUN_INPUT",
     answered_by_detail: "supplied by this run setup request",
+    blocking_statement: null,
   },
 ];
 
