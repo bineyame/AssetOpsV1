@@ -58,6 +58,7 @@ removal.
 from __future__ import annotations
 
 from dataclasses import fields
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
@@ -1757,9 +1758,16 @@ class TestAWindowThatMissesTheTimestepGrid:
         rule = self._by_id()["window-overlap"]
 
         assert "max(s, o) < min(s+dt, o+length)" in rule.statement
-        assert "shorter than one step lies inside exactly one step" in (
-            rule.statement
-        )
+        # The assertion that used to sit here required the sentence "shorter
+        # than one step lies inside exactly one step and concerns that one" as
+        # contract text. That sentence is FALSE - [1499,1501) at dt=15 is two
+        # minutes long and concerns two steps - so the test was requiring a
+        # falsehood. Deleted rather than reworded around the same claim, and
+        # what replaces it is the rule that makes such a claim unnecessary.
+        assert (
+            "found by evaluating the predicate, never by reasoning from the "
+            "window's length"
+        ) in rule.statement
         # And that it changes nothing for an aligned window, which is what
         # makes it an extension rather than a replacement.
         assert "an aligned window behaves as it always has" in rule.statement
@@ -1884,3 +1892,220 @@ class TestAWindowThatMissesTheTimestepGrid:
         steps = self._steps(15, offset, length, 2460)
         assert steps[0] == 1485 and steps[-1] == 1575
         assert steps == list(range(1485, 1590, 15))
+
+
+class TestTheWindowRulesFollowFromThePredicate:
+    """The class of defect rather than the instance, after four rounds of it.
+
+    F6 settled the aligned case. R1 settled the unaligned case. R1a and R1b were
+    a short window straddling a boundary and two adjacent windows sharing a
+    step. Each round the formula grew more general and the prose stayed one case
+    behind, because each sentence restated a SUBSET of what the predicate does
+    and the next reader found a member of the predicate's domain the subset
+    excluded.
+
+    So these assert properties over a grid of windows and timesteps rather than
+    supplying more examples. A statement contradicting the predicate on any
+    member of the grid fails here whether or not anybody thought of that member.
+    The example tests stay beside them: those say what the rule MEANS, and these
+    say nothing said elsewhere contradicts it.
+    """
+
+    #: Offsets and lengths covering, against each timestep: aligned at both
+    #: ends, aligned at one, aligned at neither, shorter than a step, shorter
+    #: than a step and straddling a boundary, and exactly one step long but
+    #: offset. The four shipped windows are among them.
+    WINDOWS = [
+        (720, 360), (1080, 240), (1500, 45), (1490, 90),
+        (1081, 1), (1499, 2), (1485, 15), (1, 15), (7, 3), (0, 1),
+        (1439, 122), (600, 600), (13, 47),
+    ]
+    TIMESTEPS = [10, 15, 60]
+    HORIZON = 2460
+
+    @staticmethod
+    def concerns(step_start: int, dt: int, offset: int, length: int) -> bool:
+        return max(step_start, offset) < min(step_start + dt, offset + length)
+
+    def steps_for(self, dt: int, offset: int, length: int) -> list:
+        return [
+            s
+            for s in range(0, self.HORIZON, dt)
+            if self.concerns(s, dt, offset, length)
+        ]
+
+    def share_for(self, s: int, dt: int, offset: int, length: int) -> Fraction:
+        overlap = min(s + dt, offset + length) - max(s, offset)
+        return Fraction(overlap, length)
+
+    def test_every_window_concerns_at_least_one_step(self) -> None:
+        """The property R1's second reproduction violated.
+
+        Under the old step-start rule a REQUIRED forcing could be declared
+        available across a span that concerned no step at all.
+        """
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                assert self.steps_for(dt, offset, length), (dt, offset, length)
+
+    def test_the_shares_sum_to_exactly_one_for_every_window(self) -> None:
+        """Exact rational arithmetic, because this is a conservation claim.
+
+        `Fraction` rather than float: T021's criterion is exact quantity
+        conservation, and a property asserted in binary floating point would
+        assert something weaker than the contract states.
+        """
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                total = sum(
+                    (
+                        self.share_for(s, dt, offset, length)
+                        for s in self.steps_for(dt, offset, length)
+                    ),
+                    Fraction(0),
+                )
+                assert total == Fraction(1), (dt, offset, length, total)
+
+    def test_no_share_is_zero_or_negative_or_above_one(self) -> None:
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                for s in self.steps_for(dt, offset, length):
+                    share = self.share_for(s, dt, offset, length)
+                    assert Fraction(0) < share <= Fraction(1), (dt, offset, s)
+
+    def test_the_selected_steps_are_contiguous(self) -> None:
+        """A window is one span, so the steps it concerns are one run.
+
+        A gap would mean the window vanished for part of its own duration, and
+        nothing in the prose would have said so.
+        """
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                steps = self.steps_for(dt, offset, length)
+                assert steps == list(range(steps[0], steps[-1] + dt, dt)), (
+                    dt,
+                    offset,
+                    length,
+                )
+
+    def test_an_aligned_window_matches_the_step_start_reading(self) -> None:
+        """The compatibility property over the grid, not one control example.
+
+        Where both edges fall on step boundaries, overlap membership and the
+        older step-start membership agree exactly. That is what makes the
+        overlap rule an extension of the settled case rather than a change to
+        it.
+        """
+        checked = 0
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                if offset % dt or (offset + length) % dt:
+                    continue
+                by_step_start = [
+                    s
+                    for s in range(0, self.HORIZON, dt)
+                    if offset <= s < offset + length
+                ]
+                assert self.steps_for(dt, offset, length) == by_step_start
+                checked += 1
+
+        assert checked >= 6, checked
+
+    def test_a_window_shorter_than_a_step_concerns_one_step_or_two(
+        self,
+    ) -> None:
+        """R1a as a property rather than a single counterexample.
+
+        The deleted prose said such a window "lies inside exactly one step".
+        Both answers occur and which one is the predicate's business: one when
+        the window lies inside a step, two when a step boundary falls inside
+        it. Both must appear in the grid or this is half a test.
+        """
+        ones = twos = 0
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                if length >= dt:
+                    continue
+                count = len(self.steps_for(dt, offset, length))
+                assert count in (1, 2), (dt, offset, length, count)
+                straddles = (offset // dt) != ((offset + length - 1) // dt)
+                assert count == (2 if straddles else 1), (dt, offset, length)
+                if count == 1:
+                    ones += 1
+                else:
+                    twos += 1
+
+        assert ones and twos, (ones, twos)
+
+    def test_the_straddling_counterexample_splits_one_half_each(self) -> None:
+        """The reviewer's own case, with its exact shares.
+
+        `[1499, 1501)` at a fifteen-minute timestep: two minutes long, two
+        steps, one minute in each. A declared 120 L removal moves 60 L in each,
+        which is what the contract now says and the deleted sentence denied.
+        """
+        steps = self.steps_for(15, 1499, 2)
+        assert steps == [1485, 1500]
+
+        shares = [self.share_for(s, 15, 1499, 2) for s in steps]
+        assert shares == [Fraction(1, 2), Fraction(1, 2)]
+        assert [share * 120 for share in shares] == [Fraction(60), Fraction(60)]
+
+    def test_adjacent_windows_share_no_instant_and_may_share_one_step(
+        self,
+    ) -> None:
+        """R1b as a property. Disjoint in time is not disjoint in steps.
+
+        The deleted claim was that two windows meeting end to start "never
+        overlap by one step". Their spans never share an instant - that part
+        was true and is what adjacency means - but their step sets intersect in
+        exactly the step containing the joining instant, and not at all when
+        that instant is itself a step boundary.
+        """
+        joins_inside = joins_on_boundary = 0
+        for dt in self.TIMESTEPS:
+            for join in range(1, 200):
+                shared = set(self.steps_for(dt, join - 1, 1)) & set(
+                    self.steps_for(dt, join, 1)
+                )
+                if join % dt == 0:
+                    assert shared == set(), (dt, join, shared)
+                    joins_on_boundary += 1
+                else:
+                    assert shared == {(join // dt) * dt}, (dt, join, shared)
+                    joins_inside += 1
+
+        assert joins_inside and joins_on_boundary
+
+    def test_the_reviewers_adjacent_dispatch_case(self) -> None:
+        """`[1081,1082)` and `[1082,1083)` at dt=15, exactly as reported."""
+        first = self.steps_for(15, 1081, 1)
+        second = self.steps_for(15, 1082, 1)
+
+        assert first == [1080] and second == [1080]
+        # Disjoint in time: no instant lies in both.
+        assert set(range(1081, 1082)) & set(range(1082, 1083)) == set()
+        # Each is exposed over its own minute of that step, which is the
+        # partial-exposure rule rather than an exception to it.
+        assert self.share_for(1080, 15, 1081, 1) == Fraction(1)
+        assert self.share_for(1080, 15, 1082, 1) == Fraction(1)
+
+    def test_no_published_rule_claims_a_window_concerns_exactly_one_step(
+        self,
+    ) -> None:
+        """The prose guard, aimed at the class rather than today's sentences.
+
+        Four rounds produced four length-based generalisations, each true of a
+        subset and false of the predicate's domain. This fails if a dispatch
+        rule reintroduces one in the shapes those claims took.
+        """
+        forbidden = (
+            "shorter than one step lies inside exactly one step",
+            "shorter than a timestep moves its whole",
+            "never overlap by one step",
+            "in the one step containing it",
+            "in the one step that contains it",
+        )
+        for rule in DISPATCH_RULES:
+            for phrase in forbidden:
+                assert phrase not in rule.statement, (rule.rule_id, phrase)
