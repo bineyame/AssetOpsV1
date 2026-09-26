@@ -1,6 +1,6 @@
 # T020B - Reachable Fuel Loss readiness and boundary contract
 
-Status: complete
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
@@ -101,31 +101,4 @@ Built on branch `task/T020B-execution-contract-alignment`. Packet:
 `.agent/T020B-review-packet.md`. The owner's Draft is
 `run-9f74603b06384126a627a5339fc78fbe`, on `MG-006`, from
 `var/scenarios/fuel-loss-event-mg006.yaml`.
-
-**Review outcome: accepted, 2026-09-26.**
-
-Independent review by a fresh Claude `assetops-reviewer`, at the user's
-instruction not to wait for Codex quota, which `.ai/ROLE_CONFIG.md` permits
-without permission. `.agent/T020B-claude-review.md`. Verdict ACCEPT, twelve of
-twelve criteria met, every Proof-table row evidenced. It re-ran the suites, both
-repository checks, the guard probes and the layout evidence itself rather than
-taking the packet's numbers, and wrote its own parser probe for criterion 4 - the
-criterion this file singles out for the Reviewer. A Claude review of a Claude
-implementation is the weaker of the two independent readings and the file says so.
-
-Two findings, both dispositioned carry. One was fixed anyway: a statement shared
-by the blocking and the recorded-optional answers closed with "which this scenario
-needs it to", false of an OPTIONAL input and on the screen this slice argues from.
-A false claim is on the findings side of `.ai/WORKFLOW.md`'s own line, the fix was
-one branch, and the reviewer had said it would fix it too. The second is carried
-in `.ai/MILESTONE_REVIEW_BACKLOG.md`: the window ramp is silent on a window
-declaring two values, which the shipped `baseline-load-profile` does. Closing it
-needs a decision about what two parameters on one window mean, the alternative
-reading is real, and **T021 is its first consumer**.
-
-**User review: the owner reviewed the UI on 2026-09-26 and approved it.** What
-that covers is the delivered screens. It does not close the carried backlog entry
-about the Runs inventory's unqualified `READY` cell, whose trigger is the
-inventory gaining a second signal that reads as readiness.
-
-Not merged by the Implementer: `main` is untouched.
+Review outcome: pending.

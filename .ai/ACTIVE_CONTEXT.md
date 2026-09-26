@@ -15,13 +15,9 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020B is complete and accepted, awaiting merge.**
-`tasks/completed/T020B-execution-contract-alignment.md`, branch
-`task/T020B-execution-contract-alignment`, packet
-`.agent/T020B-review-packet.md`, review `.agent/T020B-claude-review.md`.
-Independent review verdict ACCEPT on all twelve criteria, from a fresh Claude
-reviewer standing in for Codex at the user's instruction; the owner reviewed the
-UI and approved it. `main` is untouched: the Implementer did not merge.
+**T020B is built and in review.** `tasks/T020B-execution-contract-alignment.md`,
+branch `task/T020B-execution-contract-alignment`, packet
+`.agent/T020B-review-packet.md`. USER_REVIEW_REQUIRED is true.
 
 The shipped Fuel Loss Event now reaches `READY` through the form and API path.
 The three states that blocked it were three different problems. Site demand and
@@ -48,9 +44,10 @@ reviews.
 **T020A1 and T020A before it are complete and merged**; full records in
 `.ai/CODE_STATE.md`, packets and reviews in `.agent/`. A world state is named by
 an ADDRESS - a semantic key plus the component it is claimed on, or `site:` for a
-fact about the installation - carried by one `StateRef` from the document to the
-frozen run; a Foundation declares typed unit-carrying properties that run setup
-resolves through the profile's binding.
+fact about the installation - carried by one `StateRef` from the document through
+the profile's scope declaration, run setup and the frozen run; a Foundation
+declares typed unit-carrying properties that run setup resolves through the
+profile's binding.
 
 Four lessons those three slices paid for, worth more than their fixes. **Who
 supplies a number and which asset it is about are two questions.** **Visiting a
@@ -68,9 +65,7 @@ added. The run store's O(n) create wants a bounded fix with an owner before
 T027; `var/runs` now holds 127 Drafts.
 
 **Next task: T021**, then T021A, T022, T023 and T024 onward per that README.
-None of the resequencing touches the starter path. A user-review checkpoint has
-just passed, so `.ai/WORKFLOW.md` applies: do not assume the next planned slice
-is still correct without the user confirming it.
+None of the resequencing touches the starter path.
 
 What the resequencing changed, from position 10 onward: T026 is thinned to
 dispatch-essential evidence and the gateway-failure work moved to T026A; a new
@@ -106,9 +101,12 @@ this work. Do not reconcile the new plan back to them.
 
 ## Read For The Active Task
 
-1. `tasks/T021-minimal-fuel-loss-causal-kernel.md` and `tasks/README.md`. T020B
-   DECLARES the executable contract and T021 proves a kernel conforms to it;
-   its packet and review are the built state T021 extends.
+1. **While T020B is `in_review` its own file is the active one**:
+   `tasks/T020B-execution-contract-alignment.md`, with
+   `.agent/T020B-review-packet.md` and `.agent/T020B-claude-review.md`. Once it
+   moves to `tasks/completed/`, read `tasks/T021-*.md` and `tasks/README.md`
+   instead: T020B DECLARES the executable contract, T021 proves a kernel
+   conforms to it.
 2. `.ai/CODE_STATE.md`: the T020B entry first - it names the boundary cycle, the
    reading conventions, the bound policies and the three things T021 must know -
    then T020A1, T020A and T018-T020 for the carriers and frozen setup.
