@@ -673,6 +673,67 @@ export function ScenarioFrame({
         </FactList>
 
         <div className="subsection">
+          <h3 className="subsection__heading" id="scenario-cycle-heading">
+            What a run does at each instant, in order
+          </h3>
+          <p>
+            The order is the contract, not an implementation detail. A reading
+            timestamped at an instant can never show the state before an event
+            due at that instant, because the sample is taken after it, and a
+            controller sees the same post-event state for the same reason.
+          </p>
+          <DataTable labelledBy="scenario-cycle-heading">
+            <thead>
+              <tr>
+                <th scope="col">Step</th>
+                <th scope="col">Phase</th>
+                <th scope="col">What happens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contract.boundary_cycle.map((phase) => (
+                <tr key={phase.phase_id}>
+                  {/* The declared ordinal, not the row's position. */}
+                  <td>{phase.sequence}</td>
+                  <th scope="row">{phase.display_name}</th>
+                  <td className="cell-secondary">{phase.statement}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </div>
+
+        <div className="subsection">
+          <h3 className="subsection__heading" id="scenario-readings-heading">
+            What a reading timestamped at an instant describes
+          </h3>
+          <p>
+            A stored level and an average power carried at the same timestamp do
+            not describe the same span, and real instrumentation has exactly
+            that asymmetry. Which class a rule is about is stated so the two
+            conventions cannot be read as one.
+          </p>
+          <DataTable labelledBy="scenario-readings-heading">
+            <thead>
+              <tr>
+                <th scope="col">Rule</th>
+                <th scope="col">Reading class</th>
+                <th scope="col">What it says</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contract.observation_rules.map((rule) => (
+                <tr key={rule.rule_id}>
+                  <th scope="row">{rule.display_name}</th>
+                  <td>{rule.reading_class}</td>
+                  <td className="cell-secondary">{rule.statement}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </div>
+
+        <div className="subsection">
           <h3 className="subsection__heading" id="scenario-bounds-heading">
             What a later run does at a bound
           </h3>
@@ -689,7 +750,19 @@ export function ScenarioFrame({
                 <tr key={boundCase.case_id}>
                   <td>{boundCase.display_name}</td>
                   <td>{boundCase.policy}</td>
-                  <td>{boundCase.statement}</td>
+                  <td>
+                    {boundCase.statement}
+                    {/*
+                      And what the policy itself commits a run to, beside the
+                      case that carries it. Reading that tank capacity is
+                      BOUNDED_AND_RECORDED said nothing about whether the run
+                      goes on afterwards, which is the part that decides every
+                      later cause.
+                    */}
+                    <span className="cell-note">
+                      {boundCase.policy_statement}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

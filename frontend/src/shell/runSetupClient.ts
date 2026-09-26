@@ -63,6 +63,13 @@ export interface RunPublicationProfile {
   device_signal_cadence_minutes: number | null;
   simulator_source_id: string | null;
   gateway_id: string | null;
+  /**
+   * The reporting-path conditions this profile can model - whether a signal is
+   * carrying readings, and the like. Same grain as a model profile's states: a
+   * kind of claim, never a component identity. An empty list is a real answer
+   * and is what blocks a scenario that requires one of them.
+   */
+  supported_reporting_states: RunSupportedState[];
 }
 
 /** One frozen value, and who answered for it. */
@@ -262,7 +269,9 @@ function isPublicationProfile(value: unknown): value is RunPublicationProfile {
     typeof value.statement === "string" &&
     isNullableNumber(value.device_signal_cadence_minutes) &&
     isNullableString(value.simulator_source_id) &&
-    isNullableString(value.gateway_id)
+    isNullableString(value.gateway_id) &&
+    Array.isArray(value.supported_reporting_states) &&
+    value.supported_reporting_states.every(isSupportedState)
   );
 }
 

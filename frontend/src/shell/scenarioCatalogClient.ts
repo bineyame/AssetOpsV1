@@ -127,6 +127,29 @@ export interface ScenarioBoundCase {
   case_id: string;
   display_name: string;
   policy: string;
+  /**
+   * What the policy itself commits a kernel to, as distinct from which bound
+   * carries it. A reader could see BOUNDED_AND_RECORDED with nothing on the
+   * row saying whether the run continues afterwards.
+   */
+  policy_statement: string;
+  statement: string;
+}
+
+/** One phase of the cycle a conforming kernel runs at each instant. */
+export interface ScenarioBoundaryPhase {
+  phase_id: string;
+  /** The declared ordinal. The contract is the order, not the array index. */
+  sequence: number;
+  display_name: string;
+  statement: string;
+}
+
+/** What a reading timestamped T describes, per class of reading. */
+export interface ScenarioObservationRule {
+  rule_id: string;
+  reading_class: string;
+  display_name: string;
   statement: string;
 }
 
@@ -178,6 +201,8 @@ export interface ScenarioObservationReconciliation {
 export interface ScenarioExecutionContract {
   contract_version: number;
   dispatch_rules: ScenarioDispatchRule[];
+  boundary_cycle: ScenarioBoundaryPhase[];
+  observation_rules: ScenarioObservationRule[];
   bound_cases: ScenarioBoundCase[];
   initialization_inputs: ScenarioInitializationInput[];
   observation_reconciliation: ScenarioObservationReconciliation[];
@@ -413,6 +438,30 @@ function isObservationSource(
   );
 }
 
+function isBoundaryPhase(value: unknown): value is ScenarioBoundaryPhase {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.phase_id === "string" &&
+    typeof value.sequence === "number" &&
+    typeof value.display_name === "string" &&
+    typeof value.statement === "string"
+  );
+}
+
+function isObservationRule(value: unknown): value is ScenarioObservationRule {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.rule_id === "string" &&
+    typeof value.reading_class === "string" &&
+    typeof value.display_name === "string" &&
+    typeof value.statement === "string"
+  );
+}
+
 function isDispatchRule(value: unknown): value is ScenarioDispatchRule {
   if (!isRecord(value)) {
     return false;
@@ -432,6 +481,7 @@ function isBoundCase(value: unknown): value is ScenarioBoundCase {
     typeof value.case_id === "string" &&
     typeof value.display_name === "string" &&
     typeof value.policy === "string" &&
+    typeof value.policy_statement === "string" &&
     typeof value.statement === "string"
   );
 }
@@ -492,6 +542,10 @@ function isExecutionContract(
     typeof value.contract_version === "number" &&
     Array.isArray(value.dispatch_rules) &&
     value.dispatch_rules.every(isDispatchRule) &&
+    Array.isArray(value.boundary_cycle) &&
+    value.boundary_cycle.every(isBoundaryPhase) &&
+    Array.isArray(value.observation_rules) &&
+    value.observation_rules.every(isObservationRule) &&
     Array.isArray(value.bound_cases) &&
     value.bound_cases.every(isBoundCase) &&
     Array.isArray(value.initialization_inputs) &&
