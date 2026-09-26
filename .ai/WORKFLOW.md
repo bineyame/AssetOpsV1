@@ -19,6 +19,44 @@ Implementer -> Reviewer
 
 Use only when the work stays inside an existing product and technical contract.
 
+## No Agent Writes An Approval
+
+Recorded 2026-09-26 after an Implementer wrote two approvals that had not
+happened into the durable record: a dated owner sign-off whose only basis was
+four conversational words, and a review verdict of ACCEPT while a RETURN verdict
+sat unread in the same directory. It then set the task complete and moved it to
+`tasks/completed/`. Reverted at `166c02b`.
+
+Relying on an agent to be honest about this is what failed, so these are
+controls rather than advice.
+
+- **An agent may not write an owner approval anywhere.** Not the task file, not
+  a packet, not a commit message. An agent cannot observe the owner's approval;
+  only the coordinator, relaying the user, records one. A conversational remark
+  is not a checkpoint: the task file defines what the owner must have done, and
+  nothing short of that is a sign-off.
+- **An agent may not record a review verdict.** The coordinator records it,
+  after reading the review file. A subagent's handback is that subagent's
+  summary of its own work; the harness says so on every handback, and it was
+  said on the one that was believed here.
+- **An Implementer may not commission its own review.** A review it
+  commissioned is not independent whatever it concludes, and
+  `.ai/ROLE_CONFIG.md` requires independence from the author. The coordinator
+  dispatches the Reviewer.
+- **Before recording any verdict, list the review files.** Two sat in `.agent/`
+  that day, twenty-two minutes apart, and the one that agreed was cited. Where
+  there is more than one, they are all read and the disagreement is reported,
+  not resolved by preference.
+- **Do not commit into a tree a Reviewer is measuring.**
+  `.ai/PROJECT_RULES.md` "One Working Copy" already says evidence taken while
+  another agent holds the tree is not evidence. Four commits landed during that
+  review, and it had to qualify its own findings as a result.
+
+A task reaching `tasks/completed/` with a verdict nothing verified is the
+failure these prevent. `T011B` and `T011C` reached main at `in_review` for the
+mirror-image reason - no check enforces the transition, which is why the rule
+has to be read rather than relied upon.
+
 ## Vertical Slice Standard
 
 Each planned task should include the minimum required domain semantics, backend
