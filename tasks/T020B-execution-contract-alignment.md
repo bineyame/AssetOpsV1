@@ -1,6 +1,6 @@
 # T020B - Reachable Fuel Loss readiness and boundary contract
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
@@ -96,4 +96,9 @@ contract versions.
 
 The owner creates and opens a READY Draft and can see what the fuel profile
 does not model. The Reviewer checks conflict refusal and timing declarations.
+
+Built on branch `task/T020B-execution-contract-alignment`. Packet:
+`.agent/T020B-review-packet.md`. The owner's Draft is
+`run-80c45f818de543c3bbdc3db79e5e6f1f`, on `MG-006`, from
+`var/scenarios/fuel-loss-event-mg006.yaml`.
 Review outcome: pending.

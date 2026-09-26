@@ -2753,3 +2753,150 @@ What this leaves open.
 - **The five inline `float(value)` overflow sites in
   `.ai/MILESTONE_REVIEW_BACKLOG.md` are untouched and no sixth was added.**
   `state_refs.py` converts no numbers.
+
+## T020B - Reachable Fuel Loss readiness and boundary contract
+
+What this slice settled in code.
+
+**The shipped Fuel Loss Event reaches `READY` through the form and API path.**
+Three states blocked every run of it, and they turned out to be three different
+problems rather than one missing capability
+(`D-2026-09-22-forcing-state-requirements`).
+
+`site:site-load-demand` and `site:plane-of-array-irradiance` are now `OPTIONAL`
+at all five positions in `config/scenarios/fuel-loss-event.yaml`. `REQUIRED`
+means an executor must MODEL this to run this scenario, and producing the fuel
+trajectory needs neither: the document declares the generator's dispatch
+directly, so nothing computes it from load and PV, and a kernel that modelled
+them would be computing dispatch. Both stay declared and reach the run as
+`UnsupportedOptionalInput` rows, named on the run's own screen. What consumes
+them electrically is T024.
+
+`fuel-level-reporting-availability@fuel-tank` was never the model profile's to
+answer, and that is the structural half of the slice. `runs/profiles.py` gains
+`REPORTING_PATH_STATES`, a closed vocabulary of states that are facts about the
+reporting PATH rather than about the world, and `SupportedReportingState`, which
+a `PublicationProfile` declares them with. A `ModelProfile` that declares one is
+refused at construction and a `SupportedReportingState` naming a world state is
+refused the same way, so exactly one profile answers for each state.
+
+**The authority is read from the state, never from whichever profile replied.**
+`state_authority(state_key, model, publication)` returns a `StateAuthority` -
+who answers, its detail text, and what it said - and the routing is by
+vocabulary membership rather than by asking the model profile first and falling
+back. That distinction is the whole value: "ask one and then the other" makes a
+world state the model profile has not got round to look like a reporting-path
+state, and sends the reader to the wrong profile. So a run whose publication
+profile declares no reporting capability blocks with a reason naming THAT
+profile and saying a model profile cannot answer for it.
+
+**F5 is settled, and it was two functions ordering two facts oppositely.** An
+unqualified reference to a state the profile models site-wide reached the
+no-binding refusal, because a binding is only read when the scopes agree and a
+site-wide state has no binding by construction. The statement told the author to
+add an address or find a profile that declares the binding; the repair is to
+write `site:` in front of the key. `_resolve_foundation_value` ordered scope
+before binding and said so in its docstring, so one function contradicted the
+other's stated rule.
+
+Three things fix it and the third is the durable one. The scope check runs first
+in `resolve_state_addresses` too. `scope_repair` computes the one string an
+author types, from the two scopes, and `scope_disagreement_statement` is the
+single wording all three sites use - the message was duplicated three times with
+its own hedges in each. And all three ask `state_authority`, so an ordering
+mistake is now one mistake rather than a disagreement between functions that
+never read each other.
+
+**One blocking row per address.** `_decide` takes the address resolutions and
+skips the support question for an address the resolution pass already refused.
+The obligations stay independent and a declaration can fail both, but a
+reference that names no asset has nothing for a profile to be asked about, and
+the second row added no repair the first did not state. Nothing is traded: the
+address obligation is not requirement-sensitive, so such a run is `BLOCKED`
+either way.
+
+**A requirement conflict refuses, at the earliest layer that can decide it.**
+The `REQUIRED`-wins collapse T019 invented is gone rather than kept as a
+fallback, because the fallback is what made this lowering unobservable - demand
+is declared at three positions, so raising one kept the state required. Two
+levels on one AUTHORED address need only the document, so
+`_validate_execution_requirements` in the scenario parser refuses it. Two
+spellings that resolve to one address need a Foundation, so
+`_refuse_requirement_conflicts` does, as `EXECUTION_REQUIREMENT_CONFLICT` with
+no `run_id` allocated. `_declared_requirements` raises
+`UnresolvedRequirementConflict` if one reaches it, so there is nothing silent
+left to restore the old behaviour.
+
+**The execution contract publishes what a kernel actually has to do.**
+`scenarios/execution.py` gains `BOUNDARY_CYCLE`, the nine phases of v4 section
+6.1 with declared ordinals - it replaces "observe after the step", which said
+which side of a step a sample falls on and nothing about where a controller, a
+resolver or an invariant check sits. `OBSERVATION_RULES` with `READING_CLASSES`
+states what a reading timestamped `T` describes, per class: a stock is sampled
+at `T` after that instant's events, a rate summarises `[T-dt, T)`, an interval
+reading is UNAVAILABLE at the run's first boundary absent a declared historical
+window, and a controller's view is not the published observation and no
+reporting cadence becomes a control cadence. Two new `DISPATCH_RULES` declare
+the linear window ramp between a window's own two endpoints and that a forcing
+outside its window is UNAVAILABLE rather than zero or held.
+`BOUND_POLICY_STATEMENTS` says what each policy commits a kernel to, which is
+where `BOUNDED_AND_RECORDED` finally says the run CONTINUES and later causes
+apply to the bounded value.
+
+`quantity-across-a-window` was amended in the same pass, because it said the end
+state is the same "whether a kernel applies it in one step or spreads it across
+the window" and the ramp rule forbids that for every instant inside. Two rules
+of one contract saying opposite things is what the amendment prevents.
+
+**All of it is on a screen.** The contract payload carries `boundary_cycle`,
+`observation_rules` and a `policy_statement` per bound case, and
+`ScenarioFrame.tsx` renders two new tables and a note per policy. A contract
+that reaches a kernel author only through a design document is not published.
+
+**`EXECUTION_CONTRACT_VERSION` moved 4 to 5.** Version 4 is on `main` and local
+Drafts carry it, so the unreleased-version doctrine that let three amendments
+share version two does not apply. Three of this slice's changes reach a document
+version 4 accepted: the conflict refusal refuses one that was valid, the
+authority move changes the outcome of the shipped document against the same pair
+of profiles, and the four declared semantics narrow what a conforming kernel may
+do. The `OPTIONAL` lowering is authored content in one document and moves
+nothing by itself.
+
+**The fixture-only `READY` proof is retired as the demonstration.**
+`backend/tests/test_execution_contract_alignment.py` reaches `READY` with the
+shipped document against a Site instantiated from the shipped template through
+`SiteCreationService`, and asserts the frozen answers, the two recorded optional
+inputs, the disclosure and the contract version on that run. `MG-006` in
+`var/sites/` is the same case through the real HTTP path, with
+`var/scenarios/fuel-loss-event-mg006.yaml` naming it, and
+`run-80c45f818de543c3bbdc3db79e5e6f1f` is the `READY` Draft the owner reviews.
+T020's fixture run record was left in `var/runs` as user data.
+
+What T020B leaves open, for the slice that meets it.
+
+- **`supported_reporting_states` has no falsifier either.**
+  `LAB_PUBLICATION_PROFILE` declares it can model the reporting path being
+  unavailable, and nothing in this build can suppress a reading. It is the same
+  shape as the `supported_states` entry already in
+  `.ai/MILESTONE_REVIEW_BACKLOG.md` and T021/T022 is its falsifier: the
+  observation transform is what makes the declaration true or false. The
+  readiness disclosure covers both, which is why it stays.
+- **Two blocking rows can still share a subject across two kinds.** An
+  addressed reference whose scope disagrees with the profile produces
+  `INITIAL_VALUE_NOT_RESOLVED` from the Foundation lookup and
+  `STATE_NOT_SUPPORTED` from the support question, both about one address. The
+  F5 item this slice owned was the address-versus-support pair and that one is
+  closed; this pair predates T020A1 and has the same fix on both rows. Recorded
+  in the backlog rather than fixed.
+- **The reporting-path vocabulary has one member**, which is the honest size of
+  it, and the routing is unreachable if it ever has none - asserted, so it
+  fails rather than passing over an empty set. A second reporting-path state
+  arrives with T022's observation transform.
+- **`var/runs` now holds 127 local Drafts and `create_run` is still O(n)** in
+  that count, unchanged from T020A1 and still wanting a bounded owner before
+  T027. This slice added twenty-five: one is the `READY` MG-006 Draft the owner
+  reviews, and twenty-four are `BLOCKED` Drafts of the shipped document that
+  the layout evidence tool creates, one per run-setup visit across five runs of
+  it. The tool has created a Draft per run since T019 and nothing clears them.
+- **The five inline `float(value)` overflow sites are untouched and no sixth was
+  added.** Nothing in this slice converts a number.

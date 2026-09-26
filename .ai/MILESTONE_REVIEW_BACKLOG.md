@@ -243,20 +243,34 @@ the backup Reviewer recommended merge with all fourteen criteria met. None
 meets the stopping rule: none is expensive to reverse, none misleads an
 Implementer about what the code does, none needs a user decision.
 
-**F5 - one diagnosis is inverted, and two functions order the same two facts
-oppositely.** An unqualified reference to a state the profile models site-wide
-now gets the no-binding refusal, because the address obligation runs first and
-`binding` is `None` whenever the scopes disagree. The statement tells the author
-to add an address or a binding; the actual repair is to write `site:` before the
-key, which it never says. The explicit spelling is diagnosed correctly and
-alone, so this is ordering rather than a missing check.
-`_resolve_foundation_value`'s own docstring forbids this ordering - "Scope
-before binding, because a scope disagreement explains a missing binding rather
-than the other way round" - so one function now contradicts the other's stated
-rule. Related and also new: because the two passes run independently, an
-executable REQUIRED declaration failing both yields two blocking reasons with
-the same subject. Both true and actionable; a reader meets two.
-**T020B owns readiness and is the natural home.**
+**~~F5 - one diagnosis is inverted, and two functions order the same two facts
+oppositely~~ - RESOLVED in T020B, 2026-09-26.** An unqualified reference to a
+state the profile models site-wide got the no-binding refusal, because the
+address obligation ran first and `binding` is `None` whenever the scopes
+disagree. The statement told the author to add an address or a binding; the
+actual repair is to write `site:` before the key, which it never said.
+`_resolve_foundation_value`'s own docstring forbade that ordering - "Scope before
+binding, because a scope disagreement explains a missing binding rather than the
+other way round" - so one function contradicted the other's stated rule.
+Related: because the two passes ran independently, an executable REQUIRED
+declaration failing both yielded two blocking reasons with the same subject.
+
+**Fixed in three parts, and the third is why it should not recur.** The scope
+check runs first in `resolve_state_addresses` too. `scope_repair` computes the
+one string an author types and `scope_disagreement_statement` is the single
+wording all three sites share - the message had been duplicated three times with
+its own hedges in each, which is how two of them drifted. And all three now ask
+one `state_authority` record instead of each doing its own profile lookup, so an
+ordering mistake is one mistake rather than a disagreement between functions that
+never read each other. `_decide` skips the support question for an address the
+resolution pass refused, closing the two-rows-one-subject half.
+
+Kept rather than deleted because the diagnosis is the record: **the defect was
+not a missing check, it was two checks that could not see each other**, each
+individually correct about the facts it held. Deduplicating the wording without
+deduplicating the lookup would have hidden the next instance rather than
+preventing it. `.agent/T020B-guard-probes.py` re-runs both halves as violations
+and asserts the tests fail.
 
 **F6 - the packet's stated reason for re-measuring the layout is false.** It
 says the ambiguity statement's wording changed again so nothing was inherited.
@@ -298,6 +312,42 @@ rounds and three review passes, two of which returned low-severity claim and
 docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
+
+## Carried out of T020B
+
+Carried under `D-2026-09-22-milestone-speed-over-purity` on 2026-09-26. Neither
+is expensive to reverse, neither misleads an Implementer about what the code
+does, neither needs a user decision.
+
+### `supported_reporting_states` has no falsifier either
+
+`LAB_PUBLICATION_PROFILE` declares it can model the fuel level reporting path
+being unavailable, and nothing in this build can suppress a reading. It is the
+same shape as the `supported_states` entry at the top of this file, one profile
+along.
+
+*Safe to carry* for the same reason and with the same disclosure: the readiness
+disclosure on a `READY` run names the condition, and it now covers two
+declarations rather than one. The falsifier is T022's observation transform,
+which is the component that either suppresses a reading across the declared
+window or does not.
+
+*What would change the answer:* descoping that transform, or a second
+reporting-path state arriving with no consumer.
+
+### Two blocking rows can still share a subject across two kinds
+
+An addressed reference whose scope disagrees with the answering profile yields
+`INITIAL_VALUE_NOT_RESOLVED` from the Foundation lookup and
+`STATE_NOT_SUPPORTED` from the support question, both about one address.
+
+*Safe to carry* because the F5 half T020B owned was the address-versus-support
+pair and that one is closed, this pair predates T020A1, both rows are true, and
+both carry the same repair - so a reader who acts on either is right. It is a
+tidiness cost rather than a wrong statement.
+
+*What would change the answer:* the two rows starting to suggest different
+repairs, which would make the pair a contradiction rather than a repetition.
 
 ## Tracked elsewhere, listed so the review finds them
 
