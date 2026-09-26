@@ -95,6 +95,18 @@ from __future__ import annotations
 #: - `UNIT_INVALID`: a supplied value carries a unit the contract does not
 #:   know, a unit the parameter does not use, or a quantity the `invalid-rate`
 #:   bound case refuses.
+#: - `EXECUTION_REQUIREMENT_CONFLICT`: the scenario declares one RESOLVED
+#:   address and role at two requirement levels, so it states two answers to
+#:   whether that input must be modelled. A CONTRADICTION and not an absence,
+#:   which is what puts it on this side of the line: whichever level were
+#:   frozen would be one the product chose rather than one the document
+#:   states. Until T020B the stricter level won silently, which turned an
+#:   author's mistake into the product's behaviour and made a lowered
+#:   requirement unobservable wherever a second position still said `REQUIRED`
+#:   (`D-2026-09-22-forcing-state-requirements`, rider one). Two levels on one
+#:   AUTHORED address are refused earlier still, by the scenario parser, and
+#:   never reach a run; what reaches here is two spellings that resolve to one
+#:   address, which cannot be seen without the Site that resolves them.
 RUN_SETUP_REFUSAL_KINDS = frozenset(
     {
         "REQUEST_INVALID",
@@ -106,6 +118,7 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         "COMPONENT_OR_SIGNAL_UNRESOLVED",
         "INITIALIZATION_INPUT_MISSING",
         "UNIT_INVALID",
+        "EXECUTION_REQUIREMENT_CONFLICT",
     }
 )
 

@@ -58,6 +58,7 @@ from assetops_backend.runs.profiles import (
     SupportedState,
 )
 from assetops_backend.runs.provenance import frozen_inputs
+from assetops_backend.runs.refusals import RunSetupRefused
 from assetops_backend.runs.service import (
     RunSetupService,
     executable_inputs,
@@ -613,33 +614,56 @@ class TestTwoComponentIdsAreNotOneDuplicate:
 
 
 class TestRequirementConflictsAreDetectableAtTheAddress:
-    """Acceptance criterion 8. T020B owns the final refusal behaviour."""
+    """T020A1 criterion 8, with T020B criterion 4's refusal behind it.
+
+    T020A1 detected a conflict at the resolved grain and deliberately did
+    nothing about it. T020B decides: the same-authored-address case is refused
+    by the scenario parser, and the ALIAS case - two spellings that resolve to
+    one address on this Site - is refused by run setup, because that one cannot
+    be decided without a Foundation.
+
+    The detection assertions stay, because that function is still what run
+    setup asks, and its grain is still the thing that was wrong twice.
+    """
 
     def conflicts(self, document=None, *, site_record=None, model=None):
         return requirement_conflicts(
             scenario(document),
             twin_site() if site_record is None else site_record,
             twin_profile() if model is None else model,
+            publication_profile(),
         )
 
     def test_a_clean_document_reports_none(self) -> None:
         assert self.conflicts() == ()
 
-    def test_two_requirements_for_one_address_and_role_are_reported(
+    def test_two_requirements_for_one_authored_address_are_refused_at_parse(
         self,
     ) -> None:
+        """The document alone decides this one, so the parser does.
+
+        The entry and its own parameter name one address in one role, and the
+        two disagree. Nothing about a Site is needed to see that, so it is
+        refused when the document is read and no run of it can exist. That is
+        why `self.conflicts` cannot even be called here: the document does not
+        parse.
+        """
         document = twin_document()
         document["timeline"][0]["parameters"][0][
             "execution_requirement"
         ] = "OPTIONAL"
 
-        conflicts = self.conflicts(document)
+        with pytest.raises(ScenarioConfigurationInvalid) as raised:
+            scenario(document)
 
-        assert [conflict.addressed_key for conflict in conflicts] == [
-            "site:example-demand"
-        ]
-        assert conflicts[0].execution_role == "FORCING_INPUT"
-        assert conflicts[0].requirements == ("OPTIONAL", "REQUIRED")
+        message = str(raised.value)
+        assert "'site:example-demand' as a FORCING_INPUT at REQUIRED" in message
+        assert "at OPTIONAL" in message
+        assert "two answers to whether an executor must model this input" in (
+            message
+        )
+        # The repair, and the reason nothing resolves it for the author.
+        assert "would make the other declaration have no effect" in message
 
     def test_two_components_at_different_requirements_are_not_a_conflict(
         self,
@@ -701,15 +725,6 @@ class TestRequirementConflictsAreDetectableAtTheAddress:
         )
         one_tank = twin_site(components=twin_components(south=None))
 
-        # The control: the document parses and the run resolves the
-        # unqualified reference to that very component, so the two really are
-        # one address rather than two things that merely look alike.
-        record, _ = run(document=document, site_record=one_tank)
-        assert record.execution_status == "READY"
-        assert f"example-stored-volume@{NORTH_TANK}" in frozen_by_address(
-            record
-        )
-
         conflicts = self.conflicts(document, site_record=one_tank)
 
         assert [conflict.addressed_key for conflict in conflicts] == [
@@ -717,6 +732,37 @@ class TestRequirementConflictsAreDetectableAtTheAddress:
         ]
         assert conflicts[0].execution_role == "CAUSAL_INPUT"
         assert conflicts[0].requirements == ("OPTIONAL", "REQUIRED")
+
+        # And T020B's half: run setup refuses it, nothing is written, and no
+        # run id is allocated. The document parses - there is nothing wrong
+        # with it until a Foundation resolves the unqualified spelling - which
+        # is why this layer is the one that can decide it.
+        store = FakeRuns()
+        setup = RunSetupService(
+            store,
+            FakeSites((one_tank,)),
+            FakeScenarios((scenario(document),)),
+            model_profiles=(twin_profile(),),
+            publication_profiles=(publication_profile(),),
+            now=lambda: "2026-09-21T09:00:00Z",
+        )
+
+        with pytest.raises(RunSetupRefused) as raised:
+            setup.create_draft_run(
+                setup_request(
+                    scenario_id="twin-asset-scenario",
+                    scenario_version=1,
+                    model_profile={
+                        "profile_id": "twin-asset-model",
+                        "profile_version": 1,
+                    },
+                )
+            )
+
+        assert raised.value.kind == "EXECUTION_REQUIREMENT_CONFLICT"
+        assert f"example-stored-volume@{NORTH_TANK}" in raised.value.message
+        assert "resolve to one address" in raised.value.message
+        assert store.written == []
 
     def test_an_unresolved_reference_is_grouped_by_what_was_written(
         self,
@@ -1183,7 +1229,7 @@ class TestADeferredReferenceReachesTheCheckItWasHandedTo:
         for document in documents:
             definition = scenario(document)
             addresses = resolve_state_addresses(
-                definition, twin_site(), twin_profile()
+                definition, twin_site(), twin_profile(), publication_profile()
             )
             asked_about = {
                 item.addressed_key
@@ -1617,7 +1663,10 @@ class TestASiteWideClaimIsStillChecked:
         to delete a test that says why it should not.
         """
         addresses = resolve_state_addresses(
-            scenario(twin_document()), twin_site(), twin_profile()
+            scenario(twin_document()),
+            twin_site(),
+            twin_profile(),
+            publication_profile(),
         )
         site_wide = addresses["site:example-demand"]
 

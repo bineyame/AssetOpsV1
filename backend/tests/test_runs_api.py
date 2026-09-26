@@ -450,26 +450,32 @@ class TestARefusal:
         assert store.written == []
 
 
-class TestTheShippedFuelLossEventCannotReachReady:
-    """The accepted residual, as a run setup outcome.
+class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
+    """What is left blocking the shipped document, and what no longer is.
 
-    `D-2026-09-21-scenario-execution-contract` accepted that the declared
-    causes do not reach either reading and said what run setup does about it
-    until one of the three ways out is chosen. This is that, end to end: the
-    shipped scenario against the shipped model profile is a persisted Draft
-    that is `BLOCKED`, with the reasons named.
+    This class was called `...CannotReachReady`, and the name was the claim.
+    T020B falsifies it: the shipped document against the shipped pair of
+    profiles reaches `READY` on a Site whose Foundation declares the two typed
+    properties, which the next test proves through the product's create path.
 
-    T020A adds a second group of reasons to it, and they are the template-copy
-    consequence made visible. `MG-001` was created from template version 1 and
-    a template does not migrate a Site that already exists, so its components
-    carry ratings and no typed properties. The shipped scenario now declares
-    two Foundation-owned values, the profile binds each to a named property,
-    and this Foundation declares neither - so the Draft blocks with the
-    property named, and is persisted and inspectable rather than refused
+    What is `BLOCKED` here is one SITE rather than the document, and that is the
+    template-copy consequence made visible. `MG-001` was created from template
+    version 1 and a template does not migrate a Site that already exists, so its
+    components carry ratings and no typed properties. The shipped scenario
+    declares two Foundation-owned values, the profile binds each to a named
+    property, and this Foundation declares neither - so the Draft blocks with
+    the property named, and is persisted and inspectable rather than refused
     (`D-2026-09-22-foundation-property-absent-blocks`).
+
+    The three states that used to block it as well are gone, and the three went
+    three different ways (`D-2026-09-22-forcing-state-requirements`): site
+    demand and irradiance are `OPTIONAL`, so they are RECORDED as unsupported
+    optional inputs and block nothing, and the reporting path's availability is
+    the publication profile's to answer rather than the model profile's - and it
+    declares it, so there is no reason about it at all.
     """
 
-    def test_the_shipped_scenario_blocks_on_its_unreached_readings(
+    def test_the_shipped_scenario_blocks_only_on_the_values_this_site_lacks(
         self,
     ) -> None:
         from pathlib import Path
@@ -539,9 +545,10 @@ class TestTheShippedFuelLossEventCannotReachReady:
         assert record.execution_status == "BLOCKED"
         assert store.written == [record]
 
-        # Two groups of reasons, and they are two different facts about the
-        # selected profile. Three states it does not model, and two initial
-        # values it could not locate in this Site's Foundation.
+        # ONE group of reasons now, where there were two. The unmodelled-state
+        # group is gone: the two lowered states are recorded rather than
+        # blocking, and the reporting-path state is answered by the publication
+        # profile, which declares it.
         by_kind: dict[str, set[str]] = {}
         for reason in record.blocking_reasons:
             by_kind.setdefault(reason.kind, set()).add(reason.subject)
@@ -555,15 +562,39 @@ class TestTheShippedFuelLossEventCannotReachReady:
         # profile is still ASKED about the semantic key; what it reports is
         # addressed.
         assert by_kind == {
-            "STATE_NOT_SUPPORTED": {
-                "site:site-load-demand",
-                "site:plane-of-array-irradiance",
-                "fuel-level-reporting-availability@fuel-tank",
-            },
             "INITIAL_VALUE_NOT_RESOLVED": {
                 "fuel-tank-capacity@fuel-tank",
                 "generator-specific-fuel-consumption@generator",
             },
+        }
+
+        # The two lowered states are RECORDED, with the role each was declared
+        # in, and they are not hidden by having stopped blocking. Asserted as
+        # the exact pairs because both are FORCING_INPUTs of the same profile
+        # and a one-sided assertion would pass on either alone.
+        assert {
+            (item.addressed_key, item.execution_role)
+            for item in record.unsupported_optional_inputs
+        } == {
+            ("site:site-load-demand", "FORCING_INPUT"),
+            ("site:plane-of-array-irradiance", "FORCING_INPUT"),
+        }
+        for item in record.unsupported_optional_inputs:
+            # It names the profile that does not model it, so the row says what
+            # would have to change rather than only that something is missing.
+            assert "minimal-fuel-tank" in item.statement
+
+        # And the reporting-path state is in NEITHER collection. It is not
+        # blocking and it is not an unsupported optional input: the publication
+        # profile declares it, so it is simply supported. Asserted against both
+        # collections, because "not blocking" alone would also be true if it had
+        # quietly become an unsupported optional the model profile disowned.
+        reporting = "fuel-level-reporting-availability@fuel-tank"
+        assert reporting not in {
+            reason.subject for reason in record.blocking_reasons
+        }
+        assert reporting not in {
+            item.addressed_key for item in record.unsupported_optional_inputs
         }
 
         # The unresolved reasons name the property that is missing AND the

@@ -9,6 +9,10 @@ simulator rules rather than authored content:
   without parsing the text a screen shows;
 - how a point entry and a window entry are dispatched against the run's
   half-open time model, and what "exactly once" means at a boundary;
+- what a conforming kernel does at each instant, in order, and where a sample,
+  a controller and the physics sit relative to the events due there;
+- what a reading timestamped `T` describes, which is not the same answer for a
+  stock as for a rate;
 - what a kernel must do when a bound is reached, stated as a policy with no
   silent option in it;
 - whether each reported observation is accounted for by the causal inputs the
@@ -129,7 +133,36 @@ from assetops_backend.state_refs import StateRef
 #: and they keep it. `refuse_incompatible_execution` below is what says so at
 #: the moment it would matter: a frozen run stays readable at whatever version
 #: it froze, and is refused execution rather than reinterpreted under this one.
-EXECUTION_CONTRACT_VERSION = 4
+#:
+#: Five since T020B, and it is three narrowings that arrive together because
+#: they are one alignment. Version four IS published - it is on `main`, and
+#: local Drafts carry it - so the unreleased-version doctrine that let three
+#: amendments share version two does not apply here. This is a move.
+#:
+#: 1. **A requirement conflict is refused rather than resolved.** One
+#:    `(address, role)` declared at two requirement levels used to resolve to
+#:    `REQUIRED` by a rule T019 invented. A document that was valid because
+#:    the collapse resolved it is now refused, which is exactly the test
+#:    `D-2026-09-22-contract-version-scope` sets
+#:    (`D-2026-09-22-forcing-state-requirements`, rider one).
+#: 2. **Reporting-path support is the publication profile's to declare.** A
+#:    state about the reporting path is no longer a state the model profile
+#:    answers for, so one document against one pair of profiles reaches a
+#:    different outcome. The shipped Fuel Loss Event is the case: under four
+#:    its reporting-availability forcing is a state nothing models, and under
+#:    five the publication profile answers for it.
+#: 3. **The four semantics `D-2026-09-22-kernel-step-semantics` left open are
+#:    declared** - the linear window ramp, the boundary cycle's sampling
+#:    order, a forcing outside its window being unavailable, and a bounded
+#:    change continuing from the bounded value. Each pins a space two
+#:    conforming version-four kernels could legitimately have split on, and
+#:    narrowing that space is what this number identifies.
+#:
+#: The lowering of demand and irradiance to `OPTIONAL` is authored content in
+#: one document rather than a rule, and moves nothing by itself. It is the
+#: other half of the same decision and is why the shipped scenario can now
+#: reach `READY`, but a version identifies the rules a document is read under.
+EXECUTION_CONTRACT_VERSION = 5
 
 
 class ExecutionContractIncompatible(Exception):
@@ -348,9 +381,45 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
         statement=(
             "A window entry that declares a quantity rather than a rate moves "
             "exactly that quantity, and the state at the end of the window is "
-            "the same whether a kernel applies it in one step or spreads it "
-            "across the window. A rate, by contrast, may only be declared over "
-            "a window, because a rate at an instant moves nothing."
+            "that quantity applied in full however many steps the window "
+            "covers. A rate, by contrast, may only be declared over a window, "
+            "because a rate at an instant moves nothing. How much of the "
+            "quantity has been applied part way through is not free: the ramp "
+            "rule below says."
+        ),
+    ),
+    DispatchRule(
+        rule_id="window-ramp",
+        display_name="A window ramps linearly",
+        statement=(
+            "A value a window declares is read at an instant inside it by "
+            "linear interpolation between the window's two declared "
+            "endpoints, which are its own offset and its offset plus its "
+            "length. For a declared quantity that means the fraction applied "
+            "at an instant is that instant's fraction of the window: nothing "
+            "at the start, all of it by the end, and proportionally in "
+            "between, rather than the whole quantity landing at the "
+            "completion boundary. For a level a window forces, whose two "
+            "endpoints are the same declared number, it means the level holds "
+            "for the whole window. This is what an author means by 120 litres "
+            "over 45 minutes, and it is the only reading under which retiming "
+            "or resizing a window changes the trajectory proportionally."
+        ),
+    ),
+    DispatchRule(
+        rule_id="forcing-outside-its-window",
+        display_name="A forcing outside its window",
+        statement=(
+            "A forcing input is UNAVAILABLE at every instant outside its "
+            "declared window. It is not zero and it is not held at the last "
+            "value inside the window: zero is a fabricated number and holding "
+            "is an invented persistence rule, while unavailable is already "
+            "this product's word for a value it does not have. The window's "
+            "membership is the half-open one every rule above uses, so the "
+            "forcing is available from the step that begins at its offset up "
+            "to but not including the step that begins at its end - the "
+            "instant it stops being available is exactly the instant its own "
+            "span excludes."
         ),
     ),
     DispatchRule(
@@ -397,6 +466,260 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
 )
 
 
+# --- The boundary cycle -----------------------------------------------------
+#
+# v4 section 6.1, published here as part of the execution contract rather than
+# left in a design document. It replaces the single semantic an earlier draft
+# carried - "observe after the step" - which said which side of a step a
+# sample falls on and said nothing about where a controller, a physical
+# resolver or an invariant check sits relative to it.
+#
+# The collision it resolves is real and is not a preference. A sample
+# timestamped T must never show the pre-event stock state for an event due at
+# T, and telemetry is more useful when a rate measurement summarises the
+# physical interval that just completed. Both are satisfiable at once, and
+# only in one order: events, then the state at T, then the sample - which
+# reads the post-event stocks AND attaches an interval measurement for the
+# span that has ended - then the controller, then the physics, then the
+# evolution of the next span.
+
+
+@dataclass(frozen=True)
+class BoundaryPhase:
+    """One phase of the cycle a conforming kernel runs at each instant.
+
+    `sequence` is the contract, not the tuple order. A kernel may not reorder
+    two phases and call itself conforming, and a reader comparing an
+    implementation against this list needs the ordinal to be a declared fact
+    rather than an index somebody counted.
+    """
+
+    phase_id: str
+    sequence: int
+    display_name: str
+    statement: str
+
+
+#: What happens at instant T, in order. Nine phases, and the whole point is
+#: that the order is declared: phases C and D both read the world at T and
+#: they read it AFTER A, so neither a published reading nor a controller view
+#: can see pre-event state. A scenario that needs something seen before an
+#: event says so in time, by separating the offsets - the same answer
+#: simultaneity got.
+BOUNDARY_CYCLE: tuple[BoundaryPhase, ...] = (
+    BoundaryPhase(
+        phase_id="apply-events",
+        sequence=1,
+        display_name="Apply what is due at T",
+        statement=(
+            "Every event and configuration change due exactly at T is applied "
+            "first. An entry on a boundary belongs to the step that begins "
+            "there, so this is the one phase that decides it, and nothing "
+            "later in the cycle sees the world as it was before."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="state-at-t",
+        sequence=2,
+        display_name="The state at T exists",
+        statement=(
+            "The post-event stocks and discrete state at T now exist. Every "
+            "phase below reads this state, which is what makes 'the state at "
+            "T' one thing rather than a question about who is asking."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="sample-and-publish",
+        sequence=3,
+        display_name="Sample and publish, if either is due at T",
+        statement=(
+            "If a sample or a publication is due at T, the stock and discrete "
+            "state are sampled at T, an interval-rate or interval-energy "
+            "measurement for the span [T-dt, T) is attached, the device and "
+            "reporting transform is applied, and the result is handed to "
+            "gateway staging. The two measurement classes describe different "
+            "spans at one timestamp, which the reading rules below state."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="controller-view",
+        sequence=4,
+        display_name="Build the controller view at T",
+        statement=(
+            "The controller's view is built at T from the local inputs it "
+            "declares, after the due events. It is not the published "
+            "observation and is not derived from one."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="controller-intent",
+        sequence=5,
+        display_name="The controller emits intent for [T, T+dt)",
+        statement=(
+            "The controller emits intent for the span about to be evolved and "
+            "mutates no world state. Intent is a request; what the world does "
+            "with it is the next phase's answer."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="physical-acceptance",
+        sequence=6,
+        display_name="Physical acceptance is resolved",
+        statement=(
+            "The physical resolver returns the flows the world actually "
+            "accepts. Intent and acceptance are two records, because a "
+            "controller asking for something the installation cannot deliver "
+            "is an ordinary and interesting case rather than an error."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="evolve",
+        sequence=7,
+        display_name="Evolve the world over [T, T+dt)",
+        statement=(
+            "The accepted flows are integrated over the half-open span "
+            "[T, T+dt). This is the only phase that advances the clock, so an "
+            "instant is evolved once and by one phase."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="check-invariants",
+        sequence=8,
+        display_name="Check conservation, bounds and invariants",
+        statement=(
+            "Conservation, declared bounds and model invariants are checked "
+            "after the evolution and before anything is carried forward. What "
+            "a reached bound then does is the bound policy's answer and never "
+            "a silent clamp."
+        ),
+    ),
+    BoundaryPhase(
+        phase_id="carry-forward",
+        sequence=9,
+        display_name="Carry the result to T+dt",
+        statement=(
+            "The resulting stocks and discrete state become the state the "
+            "next boundary starts from. There is no second copy of the world "
+            "and no state that survives outside this hand-off."
+        ),
+    ),
+)
+
+
+# --- What a timestamped reading means ---------------------------------------
+
+
+#: The classes of reading this contract distinguishes, and there is no fourth.
+#:
+#: The pair that matters is the first two: a stock sampled AT T and a rate
+#: measured OVER [T-dt, T) are two different timing conventions at one
+#: timestamp, and real instrumentation has exactly that asymmetry. It looks
+#: wrong only if the two are assumed to mean the same thing, which is why the
+#: rules below state each of them rather than leaving the difference to be
+#: discovered by whoever first plots them together.
+#:
+#: The third is not a reading AssetOps ever sees. It is what a controller is
+#: permitted to look at, and it is in this vocabulary so that the rule keeping
+#: the two apart has somewhere to hang.
+READING_CLASSES = frozenset(
+    {"STATE_SIGNAL", "INTERVAL_SIGNAL", "CONTROLLER_INPUT"}
+)
+
+
+@dataclass(frozen=True)
+class ObservationRule:
+    """One rule about what a reading at an instant describes.
+
+    `reading_class` is a member of `READING_CLASSES`, and a test asserts every
+    member is named by at least one rule. That is what stops a class from
+    sharing an undocumented convention with another: a class nothing states a
+    rule for fails the build rather than being read as "presumably the same as
+    the other one".
+    """
+
+    rule_id: str
+    reading_class: str
+    display_name: str
+    statement: str
+
+    def __post_init__(self) -> None:
+        if self.reading_class not in READING_CLASSES:
+            raise ValueError(
+                f"Observation rule {self.rule_id!r} is about "
+                f"{self.reading_class!r}, and a reading is one of "
+                f"{sorted(READING_CLASSES)}."
+            )
+
+
+OBSERVATION_RULES: tuple[ObservationRule, ...] = (
+    ObservationRule(
+        rule_id="state-signal-sampled-after-events",
+        reading_class="STATE_SIGNAL",
+        display_name="A state reading at T is the state after T's events",
+        statement=(
+            "A stock or discrete reading timestamped T - a fuel level, a state "
+            "of charge, a room temperature, a door position - is sampled after "
+            "the events due at T have been applied. It never shows the "
+            "pre-event state, so a scenario that wants a reading taken before "
+            "a change separates the two offsets."
+        ),
+    ),
+    ObservationRule(
+        rule_id="interval-signal-describes-the-preceding-interval",
+        reading_class="INTERVAL_SIGNAL",
+        display_name="An interval reading at T describes [T-dt, T)",
+        statement=(
+            "A rate or energy reading timestamped T - average power ending at "
+            "T, energy delivered, cooling energy, charger energy - summarises "
+            "the half-open span [T-dt, T) that has just ended. So at one "
+            "timestamp a stock reading describes that instant and an interval "
+            "reading describes the interval before it. That is declared here "
+            "rather than left implicit, because the two conventions are "
+            "genuinely different and a consumer that assumed one applied to "
+            "both would misplace every rate it read."
+        ),
+    ),
+    ObservationRule(
+        rule_id="no-interval-signal-at-the-first-boundary",
+        reading_class="INTERVAL_SIGNAL",
+        display_name="An interval reading is unavailable at the run's start",
+        statement=(
+            "At the run's first boundary no interval has completed, so every "
+            "interval reading there is UNAVAILABLE unless the selected profile "
+            "explicitly declares an initial historical window to measure over. "
+            "It is not zero and it is not the first step's own value: both "
+            "would be a number attributed to a span the run never covered."
+        ),
+    ),
+    ObservationRule(
+        rule_id="controller-view-is-not-the-published-observation",
+        reading_class="CONTROLLER_INPUT",
+        display_name="What a controller sees is not what is published",
+        statement=(
+            "A controller's view is built at T from the local inputs it "
+            "declares. What the gateway publishes to AssetOps is a separate "
+            "path that may be sparse, noisy, delayed or missing entirely, and "
+            "the two are never the same record. Keeping them apart is what "
+            "lets a run simulate realistic control and independently test what "
+            "the evidence path could have concluded from it."
+        ),
+    ),
+    ObservationRule(
+        rule_id="no-cadence-becomes-a-controller-cadence",
+        reading_class="CONTROLLER_INPUT",
+        display_name="A reporting cadence is not a control cadence",
+        statement=(
+            "The cadence a publication profile declares is a property of the "
+            "reporting path. Nothing turns it into the rate at which a "
+            "controller is asked for intent, and nothing turns a control "
+            "cadence into a reporting rate. A controller that could only act "
+            "as often as a remote sensor published would be an artifact of the "
+            "instrumentation rather than of the installation."
+        ),
+    ),
+)
+
+
 # --- Bound semantics --------------------------------------------------------
 
 
@@ -418,6 +741,45 @@ class BoundCase:
 #: path could account for, and a later analysis would be right to be confused
 #: by it.
 BOUND_POLICIES = frozenset({"REFUSED_AT_PARSE", "FAIL_RUN", "BOUNDED_AND_RECORDED"})
+
+#: What each policy commits a kernel to, stated per policy rather than only per
+#: case. The cases below say WHICH bound behaves which way; this says what the
+#: behaviour is, and the two were not separable before: a reader could see that
+#: tank capacity is `BOUNDED_AND_RECORDED` without anything telling them
+#: whether the run then continues.
+#:
+#: `BOUNDED_AND_RECORDED` is the one this slice had to pin. A bound that ended
+#: the run would be a disguised run failure, and the policy set already has a
+#: separate member for that - `insufficient-fuel` is `FAIL_RUN`. Recording the
+#: quantity a transition could not accept only means something if there is a
+#: rest of the run for it to be recorded in
+#: (`D-2026-09-22-kernel-step-semantics`).
+#:
+#: A test asserts this covers `BOUND_POLICIES` exactly, so a fourth policy
+#: cannot arrive without saying what it does.
+BOUND_POLICY_STATEMENTS: dict[str, str] = {
+    "REFUSED_AT_PARSE": (
+        "The definition is refused when it is read, so no run setup and no "
+        "kernel ever sees the value. No run exists, which is why this is the "
+        "only one of the three that can be decided without executing "
+        "anything."
+    ),
+    "FAIL_RUN": (
+        "The run fails and names the entry that reached the bound. It does not "
+        "continue against an adjusted value, because the authored causes and "
+        "the world they produced have contradicted each other and continuing "
+        "would mean inventing the missing quantity."
+    ),
+    "BOUNDED_AND_RECORDED": (
+        "The transition is applied up to the bound, the run CONTINUES, and "
+        "every later cause applies to the bounded value rather than to the "
+        "unbounded one it would have reached. The quantity that could not be "
+        "accepted is recorded as a bounded transition of its own, carrying "
+        "that quantity, so a later analysis can see both what was asked for "
+        "and what the world took. There is no silent clamp and no dropped "
+        "remainder: those are the same thing without the record."
+    ),
+}
 
 BOUND_CASES: tuple[BoundCase, ...] = (
     BoundCase(
