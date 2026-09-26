@@ -162,6 +162,35 @@ from assetops_backend.state_refs import StateRef
 #: one document rather than a rule, and moves nothing by itself. It is the
 #: other half of the same decision and is why the shipped scenario can now
 #: reach `READY`, but a version identifies the rules a document is read under.
+#:
+#: ## Five was amended in place after its review, and that is recorded here
+#:
+#: T020B's independent review returned three narrowings that were missing rather
+#: than wrong, and they landed on five rather than spending a six:
+#:
+#: - the sampling phase now says it attaches no interval measurement at the
+#:   run's first boundary, where it previously read as attaching one
+#:   unconditionally and contradicted the first-boundary reading rule;
+#: - that reading rule's exception for a declared historical window is stated as
+#:   unreachable in this build, where it previously read as a live branch;
+#: - the window ramp now says which step carries a window's final fraction, and
+#:   uses "span" for the times it interpolates across rather than "endpoints"
+#:   for both the times and the values.
+#:
+#: Each narrows a space two conforming kernels could have split on, so each
+#: would move a number under the policy above. They ride on five because five
+#: has never left this branch: `main` is at four, no run outside this branch
+#: carries five, and nothing has ever conformed to the version as first written.
+#: That is the same doctrine version two's three amendments used.
+#:
+#: **It is recorded rather than done quietly, because the backlog warned about
+#: exactly this.** Version four carried three intra-version semantics while
+#: unpublished, and the note carrying that fact says it is "not a licence to do
+#: it again". The distinction being relied on: four was on a branch and then
+#: published, so its amendments became invisible once it merged. Five is being
+#: amended before it has ever been published, and this paragraph is what stops
+#: the amendment being invisible afterwards. Once this merges, the next
+#: narrowing is a six.
 EXECUTION_CONTRACT_VERSION = 5
 
 
@@ -393,17 +422,22 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
         display_name="A window ramps linearly",
         statement=(
             "A value a window declares is read at an instant inside it by "
-            "linear interpolation between the window's two declared "
-            "endpoints, which are its own offset and its offset plus its "
-            "length. For a declared quantity that means the fraction applied "
-            "at an instant is that instant's fraction of the window: nothing "
-            "at the start, all of it by the end, and proportionally in "
-            "between, rather than the whole quantity landing at the "
-            "completion boundary. For a level a window forces, whose two "
-            "endpoints are the same declared number, it means the level holds "
-            "for the whole window. This is what an author means by 120 litres "
-            "over 45 minutes, and it is the only reading under which retiming "
-            "or resizing a window changes the trajectory proportionally."
+            "linear interpolation across the window's own span, whose two ENDS "
+            "are its offset and its offset plus its length. For a declared "
+            "quantity the fraction applied by an instant is that instant's "
+            "fraction of the span: nothing applied at the offset, all of it "
+            "applied by the far end, and proportionally between, rather than "
+            "the whole quantity landing at the completion boundary. For a level "
+            "a window forces, one declared number applies unchanged across the "
+            "span, because interpolating between one value and itself is that "
+            "value. This is what an author means by 120 litres over 45 minutes, "
+            "and it is the only reading under which retiming or resizing a "
+            "window changes the trajectory proportionally. **Which step carries "
+            "the last fraction**: the span's far end is the first instant the "
+            "window no longer covers, by the active-span rule, so the step "
+            "ending there is the step that applies it. The state AT the far end "
+            "is the full quantity applied and the forcing UNAVAILABLE - the "
+            "value is complete, and the window is over, at the same instant."
         ),
     ),
     DispatchRule(
@@ -538,7 +572,12 @@ BOUNDARY_CYCLE: tuple[BoundaryPhase, ...] = (
             "measurement for the span [T-dt, T) is attached, the device and "
             "reporting transform is applied, and the result is handed to "
             "gateway staging. The two measurement classes describe different "
-            "spans at one timestamp, which the reading rules below state."
+            "spans at one timestamp, which the reading rules below state - and "
+            "those rules also decide WHETHER an interval measurement exists to "
+            "attach. At the run's first boundary no span precedes T, so this "
+            "phase attaches none there and the stock sample is unaffected. Read "
+            "this phase as what is attached when there is something to attach, "
+            "never as every sample carrying an interval measurement."
         ),
     ),
     BoundaryPhase(
@@ -685,10 +724,15 @@ OBSERVATION_RULES: tuple[ObservationRule, ...] = (
         display_name="An interval reading is unavailable at the run's start",
         statement=(
             "At the run's first boundary no interval has completed, so every "
-            "interval reading there is UNAVAILABLE unless the selected profile "
-            "explicitly declares an initial historical window to measure over. "
-            "It is not zero and it is not the first step's own value: both "
-            "would be a number attributed to a span the run never covered."
+            "interval reading there is UNAVAILABLE. It is not zero and it is "
+            "not the first step's own value: both would be a number attributed "
+            "to a span the run never covered. The sampling phase attaches no "
+            "interval measurement there, and says so. **No profile in this "
+            "build can declare an initial historical window to measure over "
+            "instead** - no profile record carries such a field and nothing "
+            "parses one - so at present the rule has no exception. A build that "
+            "adds one reopens this rule deliberately, rather than an author "
+            "discovering a gap in it."
         ),
     ),
     ObservationRule(
@@ -1124,10 +1168,20 @@ NO_DECLARED_INITIAL_VALUE = (
     "no initial value is declared for this state, so there is nothing for the "
     "declared causes to start from"
 )
+#: Reworded in T020B's correction round, because it had become false.
+#:
+#: It read "apportioning part of a window would be a transition rule rather
+#: than a contract", and `window-ramp` is now exactly a contract statement of
+#: how a window apportions - so this string denied what the same module
+#: declares two hundred lines up. The reconciler still abstains, and still
+#: should: it has no clock and no state, so it cannot evaluate a ramp even
+#: though the contract now defines one. What changed is that its reason has to
+#: be its own inability rather than a gap in the contract.
 OPEN_CAUSAL_WINDOW = (
-    "a declared cause is still running when this reading is taken, and "
-    "apportioning part of a window would be a transition rule rather than a "
-    "contract"
+    "a declared cause is still running when this reading is taken. The contract "
+    "states how a window apportions - see the window ramp rule - but this "
+    "comparison has no clock and no state to evaluate it with, so it reports "
+    "that it cannot answer rather than guessing at the fraction"
 )
 BOUND_REACHED_UPPER = (
     "a declared cause would take this state above a bound the same definition "

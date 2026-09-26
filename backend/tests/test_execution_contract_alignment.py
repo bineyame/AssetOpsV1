@@ -344,6 +344,73 @@ class TestARequirementConflictIsRefusedAndNeverResolved:
             ("example-stored-volume@example-store", "REPORTED_OBSERVATION")
         ] == "OPTIONAL"
 
+    def test_the_refusal_names_every_conflict_not_only_the_first(self) -> None:
+        """F7 from the review: it reported `conflicts[0]`.
+
+        An author with two alias conflicts fixed one, resubmitted and met the
+        next - a round trip per problem, when the refusal already knew both.
+
+        Two conflicts on ONE state in two ROLES, rather than two states: the
+        alias only exists where the profile declares a binding for the bare
+        reference to resolve through, and this fixture's profile binds one state.
+        The document already declares that state addressed as both a
+        `CAUSAL_INPUT` and a `REPORTED_OBSERVATION` at `REQUIRED`, so a bare
+        `OPTIONAL` declaration in each role produces exactly two conflicting
+        `(address, role)` pairs.
+        """
+        document = scenario_document()
+        document["public_parameters"].append(
+            {
+                "parameter_id": "unqualified-draw",
+                "display_name": "A draw named without its component",
+                "value": 3,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": "example-stored-volume",
+                "execution_requirement": "OPTIONAL",
+                "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
+            }
+        )
+        document["public_parameters"].append(
+            {
+                # No ownership: a reported value carrying one could be named as
+                # the source of an initial world state, which the parser refuses.
+                "parameter_id": "unqualified-reading",
+                "display_name": "A reading named without its component",
+                "value": 188,
+                "unit": "L",
+                "execution_role": "REPORTED_OBSERVATION",
+                "state_key": "example-stored-volume",
+                "execution_requirement": "OPTIONAL",
+            }
+        )
+
+        store = FakeRuns()
+        setup = RunSetupService(
+            store,
+            FakeSites((site(),)),
+            FakeScenarios((scenario(document),)),
+            model_profiles=(
+                model_profile(supported_states=foundation_bound_states()),
+            ),
+            publication_profiles=(publication_profile(),),
+            now=lambda: "2026-09-21T09:00:00Z",
+        )
+
+        with pytest.raises(RunSetupRefused) as raised:
+            setup.create_draft_run(setup_request())
+
+        message = raised.value.message
+        assert raised.value.kind == "EXECUTION_REQUIREMENT_CONFLICT"
+        assert "2 addresses and roles" in message
+        # Both roles named, so the author sees the whole job rather than half.
+        assert "example-stored-volume@example-store as a CAUSAL_INPUT" in message
+        assert (
+            "example-stored-volume@example-store as a REPORTED_OBSERVATION"
+            in message
+        )
+        assert store.written == []
+
     def test_nothing_resolves_a_conflict_that_bypasses_the_parser(
         self,
     ) -> None:

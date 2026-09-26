@@ -1306,7 +1306,17 @@ class TestTheBoundaryCycle:
     def test_the_phases_the_criterion_names_are_declared(self) -> None:
         declared = self._by_id()
 
-        for phase_id in (
+        # Set EQUALITY, not membership, and T020B's review is why. This
+        # iterated nine hard-coded ids asserting `phase_id in declared`, so it
+        # could not see a TENTH phase at all: one appended with an empty
+        # display name and an empty statement passed every test in this class.
+        # Criterion 6's whole content is that the cycle is PUBLISHED as the
+        # contract, and a published phase that says nothing is not that.
+        #
+        # Both halves are needed. Equality alone would accept a renamed phase
+        # carrying no text; the loop alone would accept an extra phase that
+        # happened to carry some.
+        assert set(declared) == {
             "apply-events",
             "state-at-t",
             "sample-and-publish",
@@ -1316,9 +1326,12 @@ class TestTheBoundaryCycle:
             "evolve",
             "check-invariants",
             "carry-forward",
-        ):
-            assert phase_id in declared, phase_id
-            assert declared[phase_id].statement.strip(), phase_id
+        }
+        assert len(BOUNDARY_CYCLE) == len(declared)
+
+        for phase in BOUNDARY_CYCLE:
+            assert phase.display_name.strip(), phase.phase_id
+            assert phase.statement.strip(), phase.phase_id
 
     def test_the_declared_ordinals_are_a_total_order_from_one(self) -> None:
         """The sequence is the contract, not the tuple's index.
@@ -1396,6 +1409,29 @@ class TestWhatATimestampedReadingDescribes:
         assert covered == READING_CLASSES
         assert {"STATE_SIGNAL", "INTERVAL_SIGNAL"} <= READING_CLASSES
 
+        # The class side was closed; the RULE side was not, which T020B's review
+        # proved by appending a sixth rule with an empty statement and watching
+        # all 82 tests in both contract suites pass. Criterion 7's content is
+        # that the conventions are STATED, so a rule with no statement is a
+        # published convention that says nothing - the same hole the boundary
+        # cycle had, in the collection next door.
+        assert {rule.rule_id for rule in OBSERVATION_RULES} == {
+            "state-signal-sampled-after-events",
+            "interval-signal-describes-the-preceding-interval",
+            "no-interval-signal-at-the-first-boundary",
+            "controller-view-is-not-the-published-observation",
+            "no-cadence-becomes-a-controller-cadence",
+        }
+        for rule in OBSERVATION_RULES:
+            assert rule.display_name.strip(), rule.rule_id
+            assert rule.statement.strip(), rule.rule_id
+
+        # `DISPATCH_RULES` had the same gap, pre-existing and noted by the same
+        # review. Closed here rather than left as the next instance.
+        for dispatch in DISPATCH_RULES:
+            assert dispatch.display_name.strip(), dispatch.rule_id
+            assert dispatch.statement.strip(), dispatch.rule_id
+
     def test_the_two_measurement_classes_describe_different_spans(
         self,
     ) -> None:
@@ -1429,9 +1465,50 @@ class TestWhatATimestampedReadingDescribes:
 
         assert rule.reading_class == "INTERVAL_SIGNAL"
         assert "UNAVAILABLE" in rule.statement
-        assert "declares an initial historical window" in rule.statement
         assert "not zero" in rule.statement
         assert "not the first step's own value" in rule.statement
+
+        # The exception named a capability nothing can declare. T020B's review
+        # grepped the whole backend and config for "historical" and found one
+        # match: this rule's own text. An unreachable exception is a branch T021
+        # would look for an input for and not find, so the rule now says plainly
+        # that no profile here can declare one.
+        assert "No profile in this build can declare an initial historical" in (
+            rule.statement
+        )
+        assert "at present the rule has no exception" in rule.statement
+
+    def test_the_sampling_phase_and_the_first_boundary_rule_agree(self) -> None:
+        """F3: they gave opposite answers for the run's first instant.
+
+        Phase 3 said an interval measurement for [T-dt, T) is attached whenever
+        a sample is due; this rule says every interval reading at the first
+        boundary is unavailable. Both were faithful to their own criterion and
+        neither mentioned the other, which is precisely the undocumented shared
+        convention criterion 7's third clause forbids.
+
+        Asserted as a cross-reference in both directions, because one of the two
+        texts being right is what made this hard to see.
+        """
+        phase = {p.phase_id: p for p in BOUNDARY_CYCLE}["sample-and-publish"]
+        rule = self._by_id()["no-interval-signal-at-the-first-boundary"]
+
+        # The phase defers rather than asserting unconditionally, and says what
+        # is NOT attached at the first boundary.
+        assert "those rules also decide WHETHER an interval measurement" in (
+            phase.statement
+        )
+        assert "no span precedes T, so this phase attaches none there" in (
+            phase.statement
+        )
+        assert "never as every sample carrying an interval measurement" in (
+            phase.statement
+        )
+        # And the rule points back at the phase, so a reader arriving from
+        # either end meets the other.
+        assert "The sampling phase attaches no interval measurement there" in (
+            rule.statement
+        )
 
     def test_a_controller_input_is_not_a_published_observation(self) -> None:
         """Criterion 9, both halves.
@@ -1468,13 +1545,25 @@ class TestTheWindowRampAndForcingAvailability:
     ) -> None:
         rule = self._by_id()["window-ramp"]
 
-        assert "linear interpolation between the window's two declared" in (
+        # Both substrings used to stop just before the load-bearing noun -
+        # "...two declared" before "endpoints", and "...offset plus its" before
+        # "length" - so the rule could have named a different second end and
+        # these would still have passed. That is exactly the disputed part, so
+        # the assertions now run past it.
+        assert "linear interpolation across the window's own span" in (
             rule.statement
         )
-        # What the endpoints ARE, because "between the endpoints" is not a rule
-        # until they are named.
-        assert "its own offset and its offset plus its" in rule.statement
-        assert "nothing at the start, all of it by the end" in rule.statement
+        assert "its offset and its offset plus its length" in rule.statement
+        assert "nothing applied at the offset, all of it applied by the far end" in (
+            rule.statement
+        )
+        # And which step carries the final fraction, which the review found
+        # unstated while `window-active-span` excludes the instant the ramp
+        # completes at.
+        assert "the step ending there is the step that applies it" in (
+            rule.statement
+        )
+        assert "the value is complete, and the window is over" in rule.statement
 
     def test_the_quantity_rule_no_longer_permits_landing_in_one_step(
         self,
@@ -1486,11 +1575,24 @@ class TestTheWindowRampAndForcingAvailability:
         window", which the ramp rule forbids for every instant inside. Two
         rules of one contract saying opposite things is what this asserts
         against.
+
+        The absence check is kept and is no longer the whole test. T020B's review
+        pointed out that a pure absence of one phrase passes against a reworded
+        reintroduction of the same permission, while the docstring claimed the
+        two rules were asserted not to contradict. So the positive half is here
+        too: the rule must DEFER, and the rule it defers to must exist and say
+        the deferred thing.
         """
-        statement = self._by_id()["quantity-across-a-window"].statement
+        rules = self._by_id()
+        statement = rules["quantity-across-a-window"].statement
 
         assert "applies it in one step" not in statement
         assert "the ramp rule below says" in statement
+        # The deferral has a target, and the target answers the question. A
+        # deferral to a rule that did not settle the fraction would leave the
+        # contract silent while reading as though it were not.
+        assert "window-ramp" in rules
+        assert "fraction applied by an instant" in rules["window-ramp"].statement
 
     def test_a_forcing_outside_its_window_is_unavailable(self) -> None:
         rule = self._by_id()["forcing-outside-its-window"]

@@ -761,7 +761,7 @@ class TestRequirementConflictsAreDetectableAtTheAddress:
 
         assert raised.value.kind == "EXECUTION_REQUIREMENT_CONFLICT"
         assert f"example-stored-volume@{NORTH_TANK}" in raised.value.message
-        assert "resolve to one address" in raised.value.message
+        assert "the declarations resolve" in raised.value.message
         assert store.written == []
 
     def test_an_unresolved_reference_is_grouped_by_what_was_written(

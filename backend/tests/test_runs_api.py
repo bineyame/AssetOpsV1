@@ -341,8 +341,21 @@ class TestWhatReadyDoesNotAssert:
         assert created["execution_status"] == "READY"
         disclosure = created["readiness_disclosure"]
         assert disclosure
-        assert "does not mean the model can" in disclosure
+        assert "It does not mean they can" in disclosure
         assert "no causal runtime exists" in disclosure
+
+        # BOTH unverified declarations, since T020B's review found this string
+        # naming only the model profile's while the product advertises two. A
+        # disclosure covering one of two advertised supported sets is what let a
+        # false "it now covers two" claim sit in the durable backlog.
+        assert "model profile's supported states" in disclosure
+        assert "publication profile's supported reporting-path states" in (
+            disclosure
+        )
+        assert "suppress a reading or deliver one" in disclosure
+        # And that neither half alone retires it - the clause that stops the
+        # kernel slice retiring the whole statement while the other claim stands.
+        assert "Neither alone retires it" in disclosure
 
     def test_it_survives_the_store_rather_than_being_added_by_one_route(
         self,
@@ -372,6 +385,10 @@ class TestWhatReadyDoesNotAssert:
 
         assert "conformance test" in disclosure
         assert "kernel" in disclosure
+        # The second condition names its own trigger too, rather than borrowing
+        # the first one's. Their dates differ, which is why naming one was
+        # dangerous and not merely incomplete.
+        assert "the transform that produces readings" in disclosure
         for slice_number in ("T021", "T022", "T020"):
             assert slice_number not in disclosure
 

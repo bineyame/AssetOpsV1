@@ -1934,7 +1934,7 @@ class TestEveryRefusalKindIsReachable:
             error.message
         )
         assert "OPTIONAL and REQUIRED" in error.message
-        assert "resolve to one address" in error.message
+        assert "the declarations resolve" in error.message
         # Not resolved for the author, and the message says why not.
         assert "would make the other declaration have no effect" in (
             error.message

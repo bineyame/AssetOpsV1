@@ -567,14 +567,26 @@ class RunSetupService:
         if not conflicts:
             return
 
-        conflict = conflicts[0]
+        # EVERY conflict, not the first. It reported `conflicts[0]`, so an author
+        # with two alias conflicts fixed one, resubmitted and met the next. A
+        # refusal that knows about three problems and names one charges a round
+        # trip per problem, and knowing them all costs nothing here.
+        described = "; ".join(
+            f"{conflict.addressed_key} as a {conflict.execution_role} at "
+            f"{' and '.join(conflict.requirements)}"
+            for conflict in conflicts
+        )
+        counted = (
+            "one address and role"
+            if len(conflicts) == 1
+            else f"{len(conflicts)} addresses and roles"
+        )
         raise refuse(
             "EXECUTION_REQUIREMENT_CONFLICT",
-            f"Scenario {scenario.scenario_id} declares "
-            f"{conflict.addressed_key} as a {conflict.execution_role} at "
-            f"{' and '.join(conflict.requirements)}. Against the foundation of "
-            f"site {site.site_id} those declarations resolve to one address, so "
-            "the document states two answers to whether this input must be "
+            f"Scenario {scenario.scenario_id} states two requirement levels for "
+            f"{counted}, against the foundation of site {site.site_id}: "
+            f"{described}. Each of those is one address the declarations resolve "
+            "to, so the document gives two answers to whether that input must be "
             "modelled. Nothing here picks one: the stricter reading would make "
             "the other declaration have no effect, and the author is the only "
             "one who knows which was meant.",

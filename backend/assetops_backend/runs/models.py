@@ -71,29 +71,52 @@ RUN_EXECUTION_STATUSES = frozenset({"READY", "BLOCKED"})
 #: What `READY` does not assert, and why it says so.
 #:
 #: `READY` is the one status in this build that makes a claim about being
-#: executable, and what it actually checked is that two DECLARATIONS agree:
-#: the scenario says which states it needs executed, and the selected model
-#: profile says which states it supports. Nothing has run either against a
-#: kernel, because no kernel exists.
+#: executable, and what it actually checked is that DECLARATIONS agree: the
+#: scenario says which states it needs executed, and the selected profiles say
+#: which states they support. Nothing has run any of it against a kernel,
+#: because no kernel exists.
 #:
 #: The disclosure names **the condition it exists for** rather than a slice
-#: number, so the slice that closes the condition can recognise what to
-#: retire: `D-2026-09-22-expiry-follows-the-condition` is the rule, and the
-#: condition here is that nothing verifies a profile's supported set against
-#: an executable model. A conformance test deriving `supported_states` from a
-#: kernel ends it, and this becomes false in the slice that lands one.
+#: number, so the slice that closes the condition can recognise what to retire:
+#: `D-2026-09-22-expiry-follows-the-condition` is the rule.
+#:
+#: ## Two unverified declarations since T020B, not one
+#:
+#: T020B's independent review found this string claiming less than the product
+#: does, while two documents asserted it had been widened when it had not. The
+#: hole is specific. T020B moved reporting-path authority to the publication
+#: profile, which now declares `fuel-level-reporting-availability` supported -
+#: and that declaration is what turned the shipped document's third blocking
+#: state into a supported one. It has no falsifier either, and on a `READY` run
+#: it is invisible: the state is in neither `blocking_reasons` nor
+#: `unsupported_optional_inputs`, precisely because it is claimed as supported.
+#:
+#: **The two halves retire on different conditions**, which is what made naming
+#: only one dangerous rather than merely incomplete. A conformance test deriving
+#: `supported_states` from a kernel ends the model profile's half. The
+#: publication profile's half ends when something can actually suppress a
+#: reading or deliver one, which is the observation transform and a later slice.
+#: Naming only the first would let the kernel slice read the condition as met
+#: and retire the whole statement while the second claim stood unfalsified with
+#: nothing covering it. So the text names both and says neither alone retires it.
 #:
 #: It is a property of the status, not of a run, so it is computed on the way
-#: out rather than stored. Every Draft written before this slice gets it on
-#: read, and a `BLOCKED` run gets nothing: `BLOCKED` claims a run may not
-#: execute, which needs no disclaimer about execution.
+#: out rather than stored. Every Draft written before this slice gets it on read
+#: - including this correction, which is why no Draft needed regenerating for it
+#: - and a `BLOCKED` run gets nothing: `BLOCKED` claims a run may not execute,
+#: which needs no disclaimer about execution.
 READY_DISCLOSURE = (
-    "READY means every required executable input resolved and the selected "
-    "model profile declares it can consume them. It does not mean the model "
-    "can: nothing has verified that profile's supported states against an "
-    "executable model, because no causal runtime exists in this build. This "
-    "statement is retired by the slice that adds a conformance test deriving "
-    "the supported states from a kernel."
+    "READY means every required executable input resolved and the profiles this "
+    "run selected declare they can consume them. It does not mean they can, and "
+    "two separate declarations are unverified. The model profile's supported "
+    "states have not been compared against an executable model, because no "
+    "causal runtime exists in this build. The publication profile's supported "
+    "reporting-path states have not been compared against anything either, "
+    "because nothing here can yet suppress a reading or deliver one. This "
+    "statement is retired only when both are derived from something executable: "
+    "a conformance test deriving the supported states from a kernel, and the "
+    "transform that produces readings deriving the reporting-path states. "
+    "Neither alone retires it."
 )
 
 

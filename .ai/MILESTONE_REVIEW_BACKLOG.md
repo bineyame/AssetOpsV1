@@ -326,14 +326,29 @@ being unavailable, and nothing in this build can suppress a reading. It is the
 same shape as the `supported_states` entry at the top of this file, one profile
 along.
 
-*Safe to carry* for the same reason and with the same disclosure: the readiness
-disclosure on a `READY` run names the condition, and it now covers two
-declarations rather than one. The falsifier is T022's observation transform,
-which is the component that either suppresses a reading across the declared
-window or does not.
+**This entry's original justification was false, and correcting it in place is
+the point of keeping it.** It said the readiness disclosure "now covers two
+declarations rather than one". It did not: `READY_DISCLOSURE` named only the
+model profile and was not touched by T020B at all - `models.py` was not in the
+slice's diff. The carry therefore rested on coverage that did not exist, and
+T020B's independent review caught it. The disclosure now genuinely names both
+profiles and both supported sets and says neither half alone retires it, which is
+what makes the rest of this entry true.
+
+*Safe to carry* now that the disclosure says so: a `READY` run states that this
+declaration is unverified and names its own retirement condition. The falsifier
+is the observation transform, the component that either suppresses a reading
+across the declared window or does not.
 
 *What would change the answer:* descoping that transform, or a second
 reporting-path state arriving with no consumer.
+
+*The generalisation worth keeping:* this was dangerous rather than untidy because
+the two halves retire on **different conditions** - the model profile's with a
+kernel, the reporting path's with the transform. A disclosure naming only the
+first would have been retired by the kernel slice while the second claim stood.
+A coverage claim that names fewer conditions than it covers is not a wording
+slip; it is a false statement with a date on it.
 
 ### The window ramp is silent on a window that declares two values
 
