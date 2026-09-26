@@ -28,6 +28,13 @@
 /** One state a model profile can model, and in which execution roles. */
 export interface RunSupportedState {
   state_key: string;
+  /**
+   * Whether this state is a fact about one component or about the whole
+   * installation. `COMPONENT` or `SITE`, and never a component identity: a
+   * profile says what kind of claim a state is, and which asset a run
+   * resolves it on comes from the scenario and the site.
+   */
+  scope: string;
   supported_roles: string[];
   statement: string;
 }
@@ -65,6 +72,15 @@ export interface RunFrozenInput {
   value: string;
   answered_by: string;
   answered_by_detail: string;
+  /**
+   * Why this value has no answer, or `null` when it has one.
+   *
+   * The blocked run lists its reasons in their own table as well. This is
+   * the one reason that explains THIS row, matched on the address the run
+   * resolved, so a reader looking at two same-type assets sees which of the
+   * two is unresolved and why without pairing the tables by eye.
+   */
+  blocking_statement: string | null;
 }
 
 /** Why a frozen Draft may not execute, and what the reason is about. */
@@ -214,6 +230,7 @@ function isSupportedState(value: unknown): value is RunSupportedState {
   }
   return (
     typeof value.state_key === "string" &&
+    typeof value.scope === "string" &&
     Array.isArray(value.supported_roles) &&
     value.supported_roles.every((role) => typeof role === "string") &&
     typeof value.statement === "string"
@@ -258,7 +275,8 @@ function isFrozenInput(value: unknown): value is RunFrozenInput {
     typeof value.field === "string" &&
     typeof value.value === "string" &&
     typeof value.answered_by === "string" &&
-    typeof value.answered_by_detail === "string"
+    typeof value.answered_by_detail === "string" &&
+    isNullableString(value.blocking_statement)
   );
 }
 

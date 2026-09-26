@@ -236,6 +236,69 @@ The generalisation worth keeping: this codebase validates numbers with
 check moved in front of such a conversion carries the hole with it rather than
 closing it - that is how T020A relocated one before closing it.
 
+## Carried out of T020A1
+
+Carried under `D-2026-09-22-milestone-speed-over-purity` on 2026-09-26, after
+the backup Reviewer recommended merge with all fourteen criteria met. None
+meets the stopping rule: none is expensive to reverse, none misleads an
+Implementer about what the code does, none needs a user decision.
+
+**F5 - one diagnosis is inverted, and two functions order the same two facts
+oppositely.** An unqualified reference to a state the profile models site-wide
+now gets the no-binding refusal, because the address obligation runs first and
+`binding` is `None` whenever the scopes disagree. The statement tells the author
+to add an address or a binding; the actual repair is to write `site:` before the
+key, which it never says. The explicit spelling is diagnosed correctly and
+alone, so this is ordering rather than a missing check.
+`_resolve_foundation_value`'s own docstring forbids this ordering - "Scope
+before binding, because a scope disagreement explains a missing binding rather
+than the other way round" - so one function now contradicts the other's stated
+rule. Related and also new: because the two passes run independently, an
+executable REQUIRED declaration failing both yields two blocking reasons with
+the same subject. Both true and actionable; a reader meets two.
+**T020B owns readiness and is the natural home.**
+
+**F6 - the packet's stated reason for re-measuring the layout is false.** It
+says the ambiguity statement's wording changed again so nothing was inherited.
+It did not change: `afbd1da..ba35778` only reflows that message across
+different line breaks, and the reported 430 chars / 425x137 / 153x371 are
+identical to round three's. The Drafts were genuinely regenerated and
+re-measured and both run ids exist with the claimed shape, so the substance is
+sound and only the justification is wrong. That section also layers round four
+onto round three with a duplicated sentence and a trailing "They were measured
+after round two." Correct the section, do not re-measure.
+
+**Three residuals for the T021 handoff, raised by the same pass:**
+
+- `refuse_incompatible_execution` is an equality test on an integer, and
+  version 4 has carried **three different intra-version semantics** on the
+  T020A1 branch. Twenty of the local Drafts are at version 4 and the guard
+  cannot tell them apart. Correct under
+  `D-2026-09-22-contract-version-scope`, since 4 was unpublished outside that
+  branch, and harmless while nothing executes. **T021 should regenerate rather
+  than execute any Draft frozen before its own build.**
+- A READY run's `initialization_inputs` can hold a row for a state this build
+  does not model at that scope, with nothing on the row saying so - the
+  disqualification lives in `unsupported_optional_inputs`. A documented
+  carve-out rather than a hole, but **a kernel reading initialization inputs
+  without cross-referencing will initialize from it.**
+- The shipped Fuel Loss scenario's only upper bound is **inert**.
+  `declared_bounds(fuel-loss-event)` returns `{'fuel-tank-volume@fuel-tank':
+  (0.0, None)}` because `scenarios/execution.py` skips any parameter whose
+  value is not a float, and a Foundation-owned parameter states no value by
+  design under `D-2026-09-22-foundation-value-declaration`. Inherited, present
+  at `b004f58`. The declaration survives addressed to the right tank; its value
+  now lives on the frozen run. **T021 is the first consumer of bounds** and
+  must take the capacity from the frozen initialization input, or teach
+  `declared_bounds` to read frozen answers. Where a bound's number comes from
+  is the kernel's design decision, which is why it was not settled here.
+
+One thing this slice cost that is worth not repeating: five implementation
+rounds and three review passes, two of which returned low-severity claim and
+docstring corrections that this decision says to carry rather than fix. The
+reviewers cited the decision; the coordinator forwarded every finding as work.
+See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

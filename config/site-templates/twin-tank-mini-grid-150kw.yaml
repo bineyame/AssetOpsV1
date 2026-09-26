@@ -1,0 +1,312 @@
+# Shipped Site configuration template. Read-only at runtime.
+#
+# The archetype with two of things. Two fuel tanks of different sizes, two
+# generators with different specific fuel consumptions, and two metered
+# feeders - a residential one and a grain mill.
+#
+# It exists because the 100 kW hybrid archetype cannot demonstrate addressing.
+# With one tank, an unqualified reference and an addressed one resolve to the
+# same component, so a site built from that template cannot tell a working
+# component selector from an ignored one. This one can: the two capacities
+# differ, so which number a run freezes is the evidence for which tank
+# answered.
+#
+# It is a real archetype and not a test fixture. Mini-grids with a second
+# generator for redundancy and separate feeders for households and a
+# productive load are ordinary, which is why this is shipped configuration a
+# user can instantiate rather than something hidden in a test.
+#
+# Everything here is component truth about the template and never evidence.
+# Nothing claims that a device exists, is commissioned, or has ever reported.
+# Templates copy; they never migrate an existing Site.
+
+template_id: twin-tank-mini-grid-150kw
+template_version: 1
+display_name: Twin-Tank Mini-Grid (150 kW)
+
+foundation:
+  site_type: MINIGRID
+  summary: >-
+    Solar mini-grid with two diesel generators, each drawing from its own fuel
+    tank, serving a residential feeder and a grain mill through a single
+    metering point. Declares design ratings, typed physical properties, the
+    electrical topology, the configured devices and the signals they can
+    report, the device-to-signal mappings, and the operating assumptions the
+    archetype makes.
+  components:
+    - component_id: pv-array
+      component_type: PV_ARRAY
+      display_name: PV array
+      rating:
+        value: 150
+        unit: kW
+    - component_id: pv-inverter
+      component_type: INVERTER
+      display_name: PV inverter
+      rating:
+        value: 140
+        unit: kW
+    - component_id: north-generator
+      component_type: GENERATOR
+      display_name: North diesel generator
+      rating:
+        value: 80
+        unit: kW
+      properties:
+        # The two generators burn at different rates, so a run that froze the
+        # wrong one would freeze a visibly wrong number rather than the same
+        # number by luck.
+        - property_key: specific-fuel-consumption
+          value: 0.311
+          unit: L/kWh
+          source: TEMPLATE
+          source_version: 1
+        - property_key: minimum-runtime
+          value: 30
+          unit: min
+          source: TEMPLATE
+          source_version: 1
+    - component_id: south-generator
+      component_type: GENERATOR
+      display_name: South diesel generator
+      rating:
+        value: 60
+        unit: kW
+      properties:
+        - property_key: specific-fuel-consumption
+          value: 0.285
+          unit: L/kWh
+          source: TEMPLATE
+          source_version: 1
+        - property_key: minimum-runtime
+          value: 20
+          unit: min
+          source: TEMPLATE
+          source_version: 1
+    - component_id: north-tank
+      component_type: FUEL_TANK
+      display_name: North generator fuel tank
+      rating:
+        value: 500
+        unit: L
+      properties:
+        - property_key: tank-capacity
+          value: 500
+          unit: L
+          source: TEMPLATE
+          source_version: 1
+    - component_id: south-tank
+      component_type: FUEL_TANK
+      display_name: South generator fuel tank
+      rating:
+        value: 800
+        unit: L
+      properties:
+        # 800 against the north tank's 500, and the difference is the whole
+        # point of this archetype.
+        - property_key: tank-capacity
+          value: 800
+          unit: L
+          source: TEMPLATE
+          source_version: 1
+    - component_id: ac-bus
+      component_type: AC_BUS
+      display_name: AC bus
+      rating:
+        value: 400
+        unit: V
+    - component_id: site-meter
+      component_type: METER
+      display_name: Site meter
+      rating: null
+    - component_id: load-res
+      component_type: LOAD
+      display_name: Residential feeder
+      rating:
+        value: 60
+        unit: kW
+    - component_id: load-mill
+      component_type: LOAD
+      display_name: Grain mill feeder
+      rating:
+        value: 45
+        unit: kW
+
+  # --- Topology -----------------------------------------------------------
+  #
+  # Two fuel runs and two feeders, declared separately. Each tank feeds its own
+  # generator and each feeder hangs off the metering point: nothing here says
+  # which tank supplies which generator by name or by position, it says so by
+  # declaring the connection.
+  topology:
+    nodes:
+      - node_id: pv-array
+        component_id: pv-array
+        node_role: GENERATION
+      - node_id: pv-inverter
+        component_id: pv-inverter
+        node_role: CONVERSION
+      - node_id: north-generator
+        component_id: north-generator
+        node_role: GENERATION
+      - node_id: south-generator
+        component_id: south-generator
+        node_role: GENERATION
+      - node_id: north-tank
+        component_id: north-tank
+        node_role: FUEL_STORAGE
+      - node_id: south-tank
+        component_id: south-tank
+        node_role: FUEL_STORAGE
+      - node_id: ac-bus
+        component_id: ac-bus
+        node_role: BUS
+      - node_id: site-meter
+        component_id: site-meter
+        node_role: METERING
+      - node_id: load-res
+        component_id: load-res
+        node_role: LOAD
+      - node_id: load-mill
+        component_id: load-mill
+        node_role: LOAD
+    connections:
+      - connection_id: pv-array-to-inverter
+        from_node: pv-array
+        to_node: pv-inverter
+        medium: DC
+      - connection_id: pv-inverter-to-bus
+        from_node: pv-inverter
+        to_node: ac-bus
+        medium: AC
+      - connection_id: north-tank-to-generator
+        from_node: north-tank
+        to_node: north-generator
+        medium: FUEL
+      - connection_id: south-tank-to-generator
+        from_node: south-tank
+        to_node: south-generator
+        medium: FUEL
+      - connection_id: north-generator-to-bus
+        from_node: north-generator
+        to_node: ac-bus
+        medium: AC
+      - connection_id: south-generator-to-bus
+        from_node: south-generator
+        to_node: ac-bus
+        medium: AC
+      - connection_id: bus-to-meter
+        from_node: ac-bus
+        to_node: site-meter
+        medium: AC
+      - connection_id: meter-to-residential
+        from_node: site-meter
+        to_node: load-res
+        medium: AC
+      - connection_id: meter-to-mill
+        from_node: site-meter
+        to_node: load-mill
+        medium: AC
+
+  # --- Devices ------------------------------------------------------------
+  #
+  # Two fuel level sensors, one per tank, because a level is a fact about one
+  # tank. A single sensor reporting "the fuel level" on a site with two tanks
+  # would be a reading nobody could attribute.
+  devices:
+    - device_id: pv-inverter-controller
+      device_type: CONTROLLER
+      display_name: PV inverter controller
+      component_id: pv-inverter
+      signals:
+        - signal_id: ac-power
+          display_name: AC output power
+          unit: kW
+    - device_id: north-fuel-sensor
+      device_type: SENSOR
+      display_name: North tank fuel level sensor
+      component_id: north-tank
+      signals:
+        - signal_id: fuel-level
+          display_name: Fuel level
+          unit: L
+    - device_id: south-fuel-sensor
+      device_type: SENSOR
+      display_name: South tank fuel level sensor
+      component_id: south-tank
+      signals:
+        - signal_id: fuel-level
+          display_name: Fuel level
+          unit: L
+    - device_id: site-meter-unit
+      device_type: METER
+      display_name: Site meter
+      component_id: site-meter
+      signals:
+        - signal_id: active-power
+          display_name: Active power through the meter
+          unit: kW
+        - signal_id: bus-voltage
+          display_name: Bus voltage
+          unit: V
+
+  # --- Device-to-signal mappings ------------------------------------------
+  #
+  # Which component each declared device signal describes. Declared, never
+  # inferred - and on this archetype that matters twice over, because two
+  # sensors report a signal with the same identity and only these declarations
+  # say which tank each one is about.
+  signal_mappings:
+    - mapping_id: pv-inverter-ac-power
+      device_id: pv-inverter-controller
+      signal_id: ac-power
+      component_id: pv-inverter
+    - mapping_id: north-tank-level
+      device_id: north-fuel-sensor
+      signal_id: fuel-level
+      component_id: north-tank
+    - mapping_id: south-tank-level
+      device_id: south-fuel-sensor
+      signal_id: fuel-level
+      component_id: south-tank
+    - mapping_id: metered-active-power
+      device_id: site-meter-unit
+      signal_id: active-power
+      component_id: site-meter
+    - mapping_id: ac-bus-voltage
+      device_id: site-meter-unit
+      signal_id: bus-voltage
+      component_id: ac-bus
+
+  # --- Control assumptions ------------------------------------------------
+  #
+  # Declared assumptions about intended operation, in words. Not a control
+  # model: no setpoint, no mode, and no breaker position.
+  control_assumptions:
+    - assumption_id: solar-first-dispatch
+      display_name: Solar is dispatched before either generator
+      component_id: null
+      basis: TEMPLATE
+      statement: >-
+        The archetype assumes photovoltaic output is consumed before either
+        diesel generator is called on. This is a declared assumption about
+        intended operation; it is not a control action and not a record of how
+        any site has run.
+    - assumption_id: lead-generator
+      display_name: The larger generator leads
+      component_id: north-generator
+      basis: TEMPLATE
+      statement: >-
+        The archetype assumes the north generator is called on first and the
+        south generator joins it only when demand exceeds what the north unit
+        can serve. Which unit actually ran on any interval is not declared
+        here and could only come from evidence.
+    - assumption_id: separate-fuel-runs
+      display_name: Each generator draws from its own tank
+      component_id: null
+      basis: TEMPLATE
+      statement: >-
+        The archetype assumes the two fuel runs are separate: neither tank
+        feeds the other generator and there is no transfer between them. The
+        topology above is what declares this; this statement says why it is
+        drawn that way.

@@ -546,15 +546,23 @@ class TestTheShippedFuelLossEventCannotReachReady:
         for reason in record.blocking_reasons:
             by_kind.setdefault(reason.kind, set()).add(reason.subject)
 
+        # Every subject is an ADDRESS, and the earlier draft of this test
+        # said otherwise. It claimed that an unmodelled state is one fact
+        # however many assets carry it, so its subject could stay the
+        # semantic key - which an independent review disproved: keyed on the
+        # key, two required declarations about two different tanks
+        # deduplicate into one row, and the second declaration is gone. The
+        # profile is still ASKED about the semantic key; what it reports is
+        # addressed.
         assert by_kind == {
             "STATE_NOT_SUPPORTED": {
-                "site-load-demand",
-                "plane-of-array-irradiance",
-                "fuel-level-reporting-availability",
+                "site:site-load-demand",
+                "site:plane-of-array-irradiance",
+                "fuel-level-reporting-availability@fuel-tank",
             },
             "INITIAL_VALUE_NOT_RESOLVED": {
-                "fuel-tank-capacity",
-                "generator-specific-fuel-consumption",
+                "fuel-tank-capacity@fuel-tank",
+                "generator-specific-fuel-consumption@generator",
             },
         }
 
@@ -578,11 +586,11 @@ class TestTheShippedFuelLossEventCannotReachReady:
         }
         assert (
             "tank-capacity property of component fuel-tank,"
-            in unresolved["fuel-tank-capacity"]
+            in unresolved["fuel-tank-capacity@fuel-tank"]
         )
         assert (
             "specific-fuel-consumption property of component generator,"
-            in unresolved["generator-specific-fuel-consumption"]
+            in unresolved["generator-specific-fuel-consumption@generator"]
         )
         for statement in unresolved.values():
             # What is wrong, and the two repairs that would fix it.
@@ -592,27 +600,27 @@ class TestTheShippedFuelLossEventCannotReachReady:
         # And it froze everything anyway, which is what makes it inspectable.
         assert record.deterministic_identity.site.site_id == "MG-001"
         frozen = {
-            item.state_key: item
+            item.addressed_key: item
             for item in record.deterministic_identity.initialization_inputs
         }
         assert set(frozen) == {
-            "fuel-tank-capacity",
-            "fuel-tank-volume",
-            "generator-specific-fuel-consumption",
+            "fuel-tank-capacity@fuel-tank",
+            "fuel-tank-volume@fuel-tank",
+            "generator-specific-fuel-consumption@generator",
         }
 
         # Every absent value has a blocking reason naming the same state, and
         # the value and its canonical form are absent together. Both are
         # invariants `SimulationRun` enforces; asserted here because this is
         # the first shipped document that exercises them.
-        for state_key in (
-            "fuel-tank-capacity",
-            "generator-specific-fuel-consumption",
+        for address in (
+            "fuel-tank-capacity@fuel-tank",
+            "generator-specific-fuel-consumption@generator",
         ):
-            assert frozen[state_key].value is None, state_key
-            assert frozen[state_key].canonical_value is None, state_key
-        assert frozen["fuel-tank-volume"].value == 430.0
-        assert frozen["fuel-tank-volume"].canonical_value == 430.0
+            assert frozen[address].value is None, address
+            assert frozen[address].canonical_value is None, address
+        assert frozen["fuel-tank-volume@fuel-tank"].value == 430.0
+        assert frozen["fuel-tank-volume@fuel-tank"].canonical_value == 430.0
 
         # MG-001 itself is untouched by the template that moved to version 2.
         assert mg_001.template is not None

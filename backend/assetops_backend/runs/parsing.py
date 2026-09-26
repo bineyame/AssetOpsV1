@@ -84,6 +84,7 @@ from assetops_backend.scenarios.models import (
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
 from assetops_backend.sites.identity import validate_site_id
 from assetops_backend.sites.ports import SiteConfigurationInvalid
+from assetops_backend.state_refs import parse_state_ref
 
 REQUEST_KEYS = frozenset(
     {
@@ -613,7 +614,15 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
             },
             "initialization_inputs": [
                 {
-                    "state_key": item.state_key,
+                    # The ADDRESS, in the field that used to hold a bare key.
+                    # One field rather than three because the address is one
+                    # declaration: a scope and a selector in separate fields
+                    # could be written to contradict each other, and a
+                    # document that says two things has to be adjudicated by
+                    # whoever reads it next. A run frozen before T020A1
+                    # carries a bare key here and still reads back, as an
+                    # unqualified component reference, which is what it was.
+                    "state_key": item.addressed_key,
                     "parameter_id": item.parameter_id,
                     "value": item.value,
                     "unit": item.unit,
@@ -661,7 +670,7 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
         ],
         "unsupported_optional_inputs": [
             {
-                "state_key": item.state_key,
+                "state_key": item.addressed_key,
                 "execution_role": item.execution_role,
                 "statement": item.statement,
             }
@@ -844,7 +853,16 @@ def _parse_blocking_reason(entry: Any) -> BlockingReason:
 def _parse_unsupported_optional_input(entry: Any) -> UnsupportedOptionalInput:
     raw = _mapping(entry, where="unsupported_optional_input")
     return UnsupportedOptionalInput(
-        state_key=_text(raw, "state_key", where="unsupported_optional_input"),
+        # The address, in the field that used to hold a bare key, exactly as
+        # the initialization row does it. A record written before T020A1
+        # carries a bare key and reads back as the unqualified component
+        # reference it was.
+        state_ref=parse_state_ref(
+            raw.get("state_key"),
+            where="unsupported_optional_input.state_key",
+            source="a run document",
+            invalid=_raise_invalid,
+        ),
         execution_role=_text(
             raw, "execution_role", where="unsupported_optional_input"
         ),
@@ -1003,7 +1021,12 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
         )
 
     return FrozenInitializationInput(
-        state_key=_text(raw, "state_key", where="initialization_input"),
+        state_ref=parse_state_ref(
+            raw.get("state_key"),
+            where="initialization_input.state_key",
+            source="a run document",
+            invalid=_raise_invalid,
+        ),
         parameter_id=_text(raw, "parameter_id", where="initialization_input"),
         value=value,
         unit=unit,

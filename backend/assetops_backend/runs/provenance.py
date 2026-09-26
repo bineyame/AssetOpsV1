@@ -30,8 +30,13 @@ ratios for.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Sequence
 
-from assetops_backend.runs.models import DeterministicIdentity
+from assetops_backend.runs.models import BlockingReason, DeterministicIdentity
+from assetops_backend.scenarios.execution import (
+    ExecutionContractIncompatible,
+    refuse_incompatible_execution,
+)
 
 
 @dataclass(frozen=True)
@@ -46,6 +51,21 @@ class FrozenInput:
     `answered_by_detail` says which Foundation version, which scenario
     version, which run input or which profile version answered, so two rows
     with the same answerer are still two attributions.
+
+    `blocking_statement` is why THIS row stands in the way, rather than a
+    general remark about the run. A blocked run already lists its reasons in
+    their own table; this puts the one that explains this row next to it,
+    which is what a reader looking at two same-type assets needs - the two
+    rows differ by a component id, and so do the two reasons.
+
+    It appears on rows of two kinds, and this docstring said "only on a row
+    whose value is missing" until a backup review checked it against the code
+    below. That is the usual case: an initial value with no answer carries
+    the reason it has none. The other is the execution-contract row, which
+    has a value - the version the run froze - and carries the statement that
+    this build will not execute a run frozen against it. Both are "why this
+    row stops the run", which is what the field means; a missing value is one
+    way for a row to do that and not the only one.
     """
 
     identity_field: str
@@ -53,6 +73,7 @@ class FrozenInput:
     value: str
     answered_by: str
     answered_by_detail: str
+    blocking_statement: str | None = None
 
 
 def _number(value: float) -> str:
@@ -66,10 +87,37 @@ def _quantity(value: float, unit: str) -> str:
     return f"{_number(value)} {unit}"
 
 
+def _contract_incompatibility(frozen_version: int) -> str | None:
+    """Why this build will not execute this run, or nothing.
+
+    The rule lives in `scenarios/execution.py`, which owns the contract, and
+    is ASKED here rather than restated. A second copy of "the versions must
+    match" is a second thing to keep true, and the last two rounds of this
+    slice's predecessor both lost time to exactly that.
+    """
+    try:
+        refuse_incompatible_execution(frozen_version)
+    except ExecutionContractIncompatible as error:
+        return str(error)
+    return None
+
+
 def frozen_inputs(
     identity: DeterministicIdentity,
+    blocking_reasons: Sequence[BlockingReason] = (),
 ) -> tuple[FrozenInput, ...]:
-    """Every frozen value on one run, with the answerer for each."""
+    """Every frozen value on one run, with the answerer for each.
+
+    `blocking_reasons` is optional and the rows are complete without it. When
+    it is supplied, the reason an unresolved value is missing is carried on
+    the row it is missing from, matched on the ADDRESS - which is what makes
+    acceptance criterion 11 work at all. A run with two tanks has two "not
+    resolved" rows and two reasons, and pairing them on the semantic state key
+    would put one reason on both rows and the other on none.
+    """
+    explanations = {
+        reason.subject: reason.statement for reason in blocking_reasons
+    }
     site = identity.site
     scenario = identity.scenario
     interval = identity.interval
@@ -227,6 +275,18 @@ def frozen_inputs(
                     "the execution contract these versioned rules are stated "
                     "against"
                 ),
+                # A run frozen under an earlier contract stays readable and
+                # says here that this build will not execute it. That is the
+                # run half of `D-2026-09-22-contract-version-scope`: an
+                # incompatible run is refused execution rather than
+                # reinterpreted, and the refusal is a fact on the run rather
+                # than something the first executor will have to remember.
+                # Asked of the function that owns the rule, so the screen and
+                # a future kernel cannot disagree about which runs are
+                # executable.
+                blocking_statement=_contract_incompatibility(
+                    profiles.execution_contract_version
+                ),
             ),
         ]
     )
@@ -236,7 +296,11 @@ def frozen_inputs(
             rows.append(
                 FrozenInput(
                     identity_field="initialization_inputs",
-                    field=f"Initial {initial.state_key}",
+                    # The ADDRESS, so two components of one type are two
+                    # distinguishable rows on this table rather than two rows
+                    # a reader has to tell apart by the detail column. On a
+                    # resolved row the address names the asset that answered.
+                    field=f"Initial {initial.addressed_key}",
                     # "not resolved" rather than a blank or a zero, the same
                     # words an unresolved cadence uses. A value nobody
                     # answered for is a fact about the run, and the row that
@@ -248,6 +312,11 @@ def frozen_inputs(
                     ),
                     answered_by=initial.answered_by,
                     answered_by_detail=initial.answered_by_detail,
+                    blocking_statement=(
+                        None
+                        if initial.value is not None
+                        else explanations.get(initial.addressed_key)
+                    ),
                 )
             )
     else:

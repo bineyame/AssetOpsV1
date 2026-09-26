@@ -15,28 +15,75 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020A is complete and merged.** `tasks/completed/T020A-foundation-physical-properties.md`.
-Three independent Codex review passes: the first returned three reproduced
-correctness defects and one test weakness; the second closed those and returned
-three bounded corrections; the third approved the merge with named follow-ups.
-A fourth implementation round closed the same unrepresentable-integer hole one
-domain along in the scenario parser, flagged rather than swept, and closed on
-user authorisation. The user reviewed the Foundation and both Draft cases and
-approved.
+**T020A1 is complete and merged.** `tasks/completed/T020A1-addressed-foundation-bindings.md`.
+A world state is named by an address, not a semantic key alone: `StateRef` with
+scope and selector, one strict parser both document families use, and a
+resolver that asks two independent questions of every reference - does it name
+one component of this Site, and can this build model the state at that scope.
+`EXECUTION_CONTRACT_VERSION` moved 3 to 4.
 
-A Foundation now declares typed unit-carrying physical and control properties
-from a closed vocabulary; the shipped scenario stops carrying two machine
-numbers and run setup resolves them through the model profile's binding.
-`EXECUTION_CONTRACT_VERSION` moved 2 to 3; stored runs keep theirs. Packet
-`.agent/T020A-review-packet.md`; the three reviews and their probes sit beside
-it in `.agent/`.
+Four review passes: two Codex, then two by the **Claude backup Reviewer** after
+Codex ran out of quota. Between them they returned four defects, two
+overclaiming tests, three more items, and then two the Codex passes had missed
+one spelling and one requirement level further in. All closed across five
+implementation rounds. The final verdict was merge with all fourteen criteria
+met. `.agent/` holds all four reviews, the packet, and `T020A1-fix-probes.py`,
+which re-runs every reproduction from every round and asserts the opposite.
 
-Carried out of it, not lost: five open inline-`float(value)` overflow sites in
-`.ai/MILESTONE_REVIEW_BACKLOG.md`, the HTTP-reachable one first. The run store's
-O(n) create wants a bounded fix with an owner before T027.
+Carried rather than fixed, in `.ai/MILESTONE_REVIEW_BACKLOG.md`: F5, an
+inverted diagnosis that T020B owns, and F6, a false justification in the
+packet's layout section. **Three things T021 must know** are recorded with
+them - regenerate rather than execute a Draft frozen before its own build, do
+not initialize from an `initialization_inputs` row without cross-referencing
+`unsupported_optional_inputs`, and the shipped scenario's only upper bound is
+inert so its value must come from the frozen input.
 
-**Next task: T020A1**, then T020B, T021, T021A, T022, T023 and T024 onward per
-that README. None of the resequencing touches the starter path.
+Three shapes worth carrying forward rather than the fixes, and they are the
+same mistake at widening radius. **Who supplies a number and which asset the
+number is about are two questions**: resolution lived inside the Foundation
+value lookup, so every scenario-owned, run-owned and forcing reference froze
+as authored and reported READY. **Visiting a reference is not resolving it**:
+the pass that replaced it was exhaustive as an enumeration while two branches
+marked a reference settled and checked nothing. And **a check that answers a
+different question is not an answer**: those branches handed the address
+question to `_support_for`, which only ever answered the support question, and
+only blockingly at REQUIRED.
+
+The tests failed the same way each time. The one that missed the second
+asserted the pass had VISITED everything; the one that missed the third
+whitelisted the `site:` spelling the code also exempted. **A test written to
+prove enforcement must not exempt what the code exempts** - it cannot fail
+where the code is wrong.
+
+A world state is now named by an ADDRESS - a semantic key plus the component it
+is claimed on, or `site:` for a fact about the installation - carried by one
+`StateRef` through the scenario document, the model profile's scope
+declaration, run setup and the frozen run. An explicit selector picks that
+component and never another; an omitted one resolves a unique candidate of the
+bound type or blocks naming both. Every frozen-input comparison moved with it,
+including the invariant that no declared need goes silently absent.
+`EXECUTION_CONTRACT_VERSION` moved 3 to 4 and stored runs keep theirs;
+`refuse_incompatible_execution` says so on the run's own contract row.
+A second shipped archetype, `twin-tank-mini-grid-150kw`, is what makes any of
+this demonstrable: an archetype with one fuel tank cannot tell a working
+selector from an ignored one.
+
+T020A before it is complete and merged. Three independent Codex review passes
+plus a fourth implementation round; the user reviewed the Foundation and both
+Draft cases and approved. A Foundation declares typed unit-carrying physical
+and control properties from a closed vocabulary, and run setup resolves them
+through the model profile's binding. Packet `.agent/T020A-review-packet.md`;
+the three reviews and their probes sit beside it in `.agent/`.
+
+Carried out of both, not lost: five open inline-`float(value)` overflow sites in
+`.ai/MILESTONE_REVIEW_BACKLOG.md`, the HTTP-reachable one first, and no sixth
+was added. The run store's O(n) create wants a bounded fix with an owner before
+T027; `var/runs` now holds 87 Drafts.
+
+**Next task: T020B**, which still owns readiness - the three forcing states the
+first profile does not model are unchanged and the shipped scenario is still
+BLOCKED - then T021, T021A, T022, T023 and T024 onward per that README. None of
+the resequencing touches the starter path.
 
 What the resequencing changed, from position 10 onward: T026 is thinned to
 dispatch-essential evidence and the gateway-failure work moved to T026A; a new
@@ -72,8 +119,10 @@ this work. Do not reconcile the new plan back to them.
 
 ## Read For The Active Task
 
-1. `tasks/T020A1-addressed-foundation-bindings.md` and `tasks/README.md`.
-   T020A's own file and packet are the built state its successor extends.
+1. `tasks/T020B-*.md` and `tasks/README.md`. T020A1's own file and packet are
+   the built state its successor extends, and the T020A1 code-state entry
+   names what it left open - readiness, requirement-conflict behaviour, and the
+   two places a state's scope is declared.
 2. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Properties and frozen answers;
    Existing property transition; Contract Versions And Retirements.
 3. v4 sections 4.1, 5.2, 10, 24 and 27.2, plus the decisions T020A names.
@@ -114,6 +163,11 @@ and mg-003 (two AC buses), which the user asked to preserve. Do not clear,
 replace or delete that directory. Updated templates do not mutate existing
 Sites: use a new explicit fixture for new property/schema demonstrations and
 leave existing fixtures intact. An isolated checkout does not contain them.
+
+T020A1 added **mg-005**, instantiated from the new twin-tank archetype through
+the product's create path, plus `var/scenarios/twin-tank-addressed-mg005.yaml`
+and `twin-tank-ambiguous-mg005.yaml` - the two Drafts the owner reviews. The
+local mg-004 scenario was migrated to the addressed form with the shipped one.
 
 T020A added **mg-004**, instantiated from template version 2 through the
 product's create path, and `var/scenarios/fuel-loss-event-mg004.yaml`, a local

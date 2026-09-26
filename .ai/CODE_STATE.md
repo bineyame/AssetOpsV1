@@ -2347,3 +2347,409 @@ What T020A leaves open, for the slice that meets it.
   readings where it reported 254 L, because the document no longer carries the
   generator's consumption. That is the honest projection of a document that has
   stopped carrying a machine's physics, and closing it is T021's kernel.
+
+## T020A1 - Addressed bindings from scenario to frozen initialization
+
+A world state is now named by an ADDRESS rather than by a semantic key alone.
+`StateRef` in `backend/assetops_backend/state_refs.py` carries three things: the
+semantic key, the scope it is claimed at (`SITE` or `COMPONENT`), and, for a
+component-scoped claim, which component. It sits at the package root beside
+`document_bounds.py` and for the same reason - the rule is about addressing,
+not about scenarios, profiles or runs, and `runs/profiles.py` may not import
+the Site record family at all.
+
+**The authored spelling is one string with three forms.** `fuel-tank-volume` is
+component-scoped and unqualified, `fuel-tank-volume@north-tank` names the
+component, and `site:site-load-demand` is a fact about the installation.
+`component:` is accepted as the bare form said out loud and renders back as the
+bare form. A bare key means COMPONENT and never SITE. **What makes that direction safe is
+enforcement in `runs/service.py`, not the spelling**, and the property has
+edges that have to be stated with it or the statement goes false again - it did
+three times. A COMPONENT-scoped reference must identify one component of the
+bound Site before that run is READY, whoever answers for its number, whether or
+not it has one, and at either requirement level. A `site:` reference poses no
+component question and is never asked one, though the profile must still model
+the state at that scope. And whether this build can MODEL a state is a separate
+obligation that stays requirement-sensitive: unsupported and REQUIRED blocks,
+unsupported and OPTIONAL is recorded and proceeds. The other direction of the
+default would have turned a statement about one machine into a statement about
+the installation with nothing that could notice.
+
+One parser serves both document families, which is what makes a frozen record
+reconstruct to the address it was written from. `addressed_key` is the
+canonical spelling and the identity everything keys on: duplicate detection,
+blocking-reason subjects, dedup, the frozen row on the screen, and the run
+document's `state_key` field. A run frozen before this slice carries a bare key
+there and reads back as what it was - an unqualified component reference - so
+the old Drafts stay inspectable.
+
+**The address is stated in the document, the scope is stated twice on purpose.**
+`SupportedState` gains a `scope` and still no component id: a profile says what
+KIND of claim a state is, the scenario says which instance, and selecting the
+same profile for a second Site addresses that Site's components. When the two
+disagree the run blocks rather than guessing, and the disagreement is checked in
+two places because they reach different declarations - the Foundation resolver
+sees only the initial values a Foundation owns, and a scenario-owned forcing
+input never goes near it. A `SITE`-scoped supported state may not carry a
+`FoundationBinding` at all, refused in `__post_init__`, because such a binding
+names a component type and could never resolve.
+
+**Resolution has nine blocking cases and no refusal** - this said eight and
+listed nine, and a backup review counted them; the nine are split across the
+two functions as the later correction sections describe. Scope disagreement;
+no binding; the binding's unit against the scenario's; a named component the
+Foundation does not declare; a named component of the wrong type; no candidate
+of the bound type; more than one candidate and no selector; the property
+absent; the property's unit against the binding's. The candidate set is the components
+OF THE DECLARED TYPE and never the components that happen to declare the
+property - narrowing it would let a second tank answer for the one the address
+could not reach, which is the fallback addressing exists to prevent. Every
+reason's subject is the ADDRESS, so two tanks are two rows rather than one
+deduplicated row with a hole behind it.
+
+**A resolved input freezes the component that answered, even when the author
+named none.** An unqualified `fuel-tank-capacity` against a one-tank site
+freezes as `fuel-tank-capacity@fuel-tank`, so a later reader does not have to
+re-run the resolution against a Foundation that may have been reordered since.
+An unresolved input keeps the address exactly as authored, because nothing chose
+a component and naming one would put an asset's identity beside a value it did
+not supply - and that is also what lines it up with its blocking reason.
+
+**The parser gained one rule that addressing made necessary.** A document may
+not declare both `x` and `x@north-tank` as initial values: an unqualified
+reference may resolve to the very component already named, so the two would be
+one initial value with two owners, which the duplicate rule can no longer see
+and run setup can no longer tell apart. Mixing the forms for one state key is
+refused with the repair named.
+
+**What moved to the addressed grain, all of it:** duplicate initialization
+detection, the entry-versus-parameter state agreement, the state-effect
+agreement, `declared_bounds`, `reconcile_reported_observations`,
+`initialization_inputs` ordering, executable-input gathering, and
+`SimulationRun.__post_init__`'s never-absent invariant. That last one is the
+T020A defect at this slice's grain: keyed on the semantic key, the north tank's
+blocking reason would explain the south tank's absent value - one reason, two
+holes, and the second hole invisible.
+
+`requirement_conflicts` reports an address and role a document states two
+requirements for. Detection, not refusal: `_executable_inputs` keeps taking
+`REQUIRED`, which can only block a run that would otherwise have run, and
+T020B owns what the product finally does. Two components at different
+requirements are NOT a conflict - they are two independent requirements, which
+is the whole slice.
+
+`EXECUTION_CONTRACT_VERSION` moved three to four. The same unedited Fuel Loss
+Event against the same single-tank Foundation freezes
+`fuel-tank-capacity@fuel-tank` where version three froze
+`fuel-tank-capacity`, so the resolved identity of a run of an unchanged
+document is different - the test `D-2026-09-22-contract-version-scope` sets.
+`refuse_incompatible_execution` is the run half: a Draft frozen under another
+contract stays readable and is refused execution rather than reinterpreted.
+Nothing executes yet, so its one caller today is `runs/provenance.py`, which
+puts the refusal on the run's own Execution contract row - a guard with no
+caller would be the declaration-nothing-checks defect T020A's review found in
+`FoundationBinding.unit`.
+
+Run detail names the address on each frozen row and carries the reason an
+unresolved value is missing IN the row it is missing from, matched on the
+address. The blocked table still lists every reason; pairing two of them to two
+rows that differ by a component id was the work this removes.
+
+`config/site-templates/twin-tank-mini-grid-150kw.yaml` is a second shipped
+archetype: two fuel tanks at 500 L and 800 L, two generators at 0.311 and
+0.285 L/kWh, `load-res` and `load-mill`, and two fuel level sensors reporting a
+signal spelled identically on both tanks - which only the declared mappings tell
+apart. The differing values are load-bearing: two equal capacities would let a
+resolver pick either component and still look right.
+
+The shipped Fuel Loss Event is migrated. Every executable declaration names
+what it is about - the tank, the generator, or the site - and it is STILL
+BLOCKED on the three states the first profile does not model. Addressing is not
+readiness and T020B owns the difference.
+
+### T020A1 correction round: the address obligation belongs to the reference
+
+An independent Codex review returned the slice with four defects and two
+overclaiming tests. All six are closed; a fifth finding is carried by the
+reviewer's own judgement. What follows is what changed and, where it matters,
+what the first attempt got wrong - because three of the four are one mistake
+wearing different clothes.
+
+**The mistake.** Address resolution was written inside the Foundation value
+lookup, so a reference was only ever resolved when the Site's Foundation was
+the thing answering for its number. Everything else - a `SCENARIO_INPUT` or
+`RUN_OVERRIDE` initial value, every forcing input, every reported observation
+- carried its authored reference straight into the frozen run. So
+`example-stored-level` with no selector, and `example-stored-level@ghost-tank`
+naming a component the Foundation does not declare, both froze and reported
+READY. The rows were present, so this was not T020A's disappearance defect: it
+is the obligation beside it. **Who supplies the number and which asset the
+number is about are two different questions, and only the first was asked.**
+
+`resolve_state_addresses` is now one pass over every reference the document
+declares - timeline entries, parameters on them, public parameters and the
+state a bound names - run before anything is frozen, with the Foundation
+lookup consuming its answer instead of doing the choosing. The obligation
+cannot be attached to one owner again because it is not reached through one.
+
+**`STATE_ADDRESS_NOT_RESOLVED` is a seventh blocking kind**, not the sixth
+reused, because an initial value is not the only thing an address is needed
+for. The two do not partition cleanly and a later reader must not act as
+though they did: a missing binding and a scope disagreement both report
+`INITIAL_VALUE_NOT_RESOLVED` before any asset has been looked for, so all that
+kind means is a failure to obtain the initial value. Both carry an addressed
+subject, which is what holds a reader's diagnosis together across them. A forcing input has no initial value to be
+unresolved and still has to say which machine it forces, so naming this after
+initial values would have been a kind unable to describe half the references it
+reports on. The cases that moved to it: a named component the Foundation does
+not declare, no candidate of the bound type, more than one candidate. What
+stayed: no binding, the binding's unit against the scenario's, a named
+component of the wrong type, the property absent, the property's unit.
+
+An unqualified reference resolves only through the component type the selected
+profile's `FoundationBinding` names for that state, and blocks when the profile
+declares no binding to name one. Nothing reads a component type out of the
+spelling of a state key.
+
+**Unsupported-input diagnostics carry the address too.** Missing-state and
+unsupported-role subjects and the optional record used the bare semantic key,
+so two required declarations about two tanks deduplicated into ONE row and two
+optional ones were identical in every field. The line now drawn, and both
+halves are load-bearing: the profile is ASKED about the semantic key, because
+it models a kind of state and knows nothing about how many a site has; what it
+REPORTS is addressed, because the thing reported on is a declaration and there
+were two. One address in two roles is still one missing-state row.
+
+**`requirement_conflicts` resolves before it groups**, and so takes the Site
+and the profile. On a one-tank site, `x` REQUIRED and `x@north-tank` OPTIONAL
+are two authored spellings of one asset; grouped by spelling the function
+returned nothing while advertising detection at the resolved grain. The
+parser's qualified/unqualified refusal does not reach it either - that rule
+inspects parameters that initialize, and one of the two does not.
+
+**The state-reference grammar is matched with `fullmatch`.** It was anchored
+with `^` and `$` and matched with `.match`, and Python's `$` also matches just
+before a final newline - so a selector spelled `north-tank` followed by a line
+feed satisfied it and kept that character inside the canonical identity. An
+identity that looks like `north-tank`, is not equal to it, and which a YAML
+block scalar supplies without an author noticing. Refused rather than
+stripped, at both entry paths: trimming would turn one authored identity into
+a different one silently.
+
+**The shared scenario fixture is addressed.** It named bare `example-stored-volume`
+and `example-demand` and passed only because the obligation was missing; it now
+names `@example-store` and `site:example-demand`. A candidate-selection test
+readdresses the whole document rather than one parameter, because two spellings
+of one state produce two reasons and make a test about two things.
+
+**Two proof overclaims, both found by the reviewer's mutations.**
+`test_a_property_in_another_unit_than_the_binding_blocks` swapped the property
+key, so the resolver reported a missing property and returned before comparing
+the property's unit with the binding's - both unit tests passed with that guard
+deleted. And `frozen_by_address` keyed rows into a dict before the whole-set
+assertions ran, so a conflicting extra row disappeared into the mapping and
+left two tests green. The helper now asserts multiplicity on the tuple before
+keying, so every caller gets the check, and the two named tests count rows and
+match parameter identities as well as addresses.
+
+**Carried, not fixed: a hand-authored frozen document may hold two rows for one
+address.** `runs/parsing.py` reconstructs the initialization tuple without a
+uniqueness check and `SimulationRun.__post_init__` checks absence and status
+but not uniqueness. The reviewer judged it inherited rather than introduced and
+carried it under `D-2026-09-22-milestone-speed-over-purity`; the supported
+setup path cannot produce one. **T021 must not reconstruct with
+last-write-wins**, and the guard, when built, must keep reading valid older
+documents.
+
+`EXECUTION_CONTRACT_VERSION` did not move again. Version 4 has not been
+published outside this branch, and the reviewer confirmed corrections inside
+an unpublished version do not require another increment.
+
+Also carried out of the review, named rather than swept: the second shipped
+archetype's Foundation and SLD have not been measured at any viewport, and the
+run-detail browser evidence is not evidence about the diagram it draws.
+
+### T020A1 second correction round: visiting is not resolving
+
+A second independent review closed five of six returned items and found three
+more, all of them one sentence: **do not equate visiting a reference with
+having resolved it.** The common pass was exhaustive as an ENUMERATION - every
+reference was collected and looked at - and the round-two entry above read as
+though that settled the matter. It did not.
+
+**A reference now leaves `resolve_state_addresses` in one of three states**,
+and naming the third is the fix. Two branches used to record a reference as
+settled while checking nothing, on the assumption that `_support_for` would
+report it; `_support_for` is asked about EXECUTABLE declarations, so a
+reference written only as a bound target reached neither check and
+`unmodelled-volume@ghost-tank` came back READY with no reasons and persisted.
+The states are RESOLVED (it names one component, checked here), REFUSED (it
+carries a reason), and DEFERRED - and `deferred_to_support` is set only when
+the address really does appear among the executable inputs `_support_for` is
+driven from, read from `_declared_requirements` rather than assumed.
+`ResolvedAddress.is_resolved` was "no reason", which reported precisely the
+unchecked cases as resolved; it now means what its name means.
+
+**Existence is checked before the profile is consulted at all.** Whether this
+Foundation declares a component with that identity needs no state vocabulary,
+so asking it first means an explicitly addressed reference is checked even
+when it names a state this profile does not model. That is what closes the
+bound-only route without inventing a bounds mechanism.
+
+**The binding's component type moved into the pass** with the rest of
+selection. It had stayed in the Foundation's number lookup, so naming a
+generator for a tank state blocked under `SITE_FOUNDATION` and froze 100 L
+against that generator under `SCENARIO_INPUT` - the same ownership-dependent
+obligation the previous round removed, one position further in. It is not
+duplicated: by the time `_resolve_foundation_value` runs, the component is of
+the bound type or there is none.
+
+**A regression the previous round introduced, and the rule that prevents the
+class.** Every owner's row moved onto the resolved address while the
+MODEL_RULE branch still emitted its reason against the authored one. On a
+one-tank Site a bare model-owned reference resolves to `@north-tank`, its
+number is absent because no profile carries a model rule for it, and the
+mismatch made `SimulationRun.__post_init__` raise - so a Draft that should
+have been BLOCKED and inspectable was no Draft at all. **The missing value,
+the reference frozen beside it and the explanation for it are kept at one
+grain**, here and in `_resolve_foundation_value`.
+
+**An unresolvable row is frozen ABSENT for every owner**, which reverses a
+round-two decision. That round kept the scenario's number on such a row,
+arguing the document really does state it. Two things were wrong: a frozen
+initial value is the initial value OF a world state and an unresolvable
+address names none, so the screen showed a quantity beside an asset that
+cannot carry it; and it made the record behave one way for a scenario-owned
+or run-owned value and another for a Foundation-owned one, which is the
+ownership-dependent treatment these rounds exist to remove. My own new test
+caught it.
+
+**What the tests learned, which is the part worth carrying.** The round-two
+test asserted that the pass VISITED every reference - the assertion that was
+already passing while the defect was live.
+`test_nothing_is_deferred_to_a_check_that_never_sees_it` asserts the property
+that was missing instead: for every reference the pass declines to answer
+itself, its address must appear among the executable inputs `_support_for` is
+driven from. It counts the deferrals it saw and fails if there were none, so
+it cannot pass because the branch was never taken. An enumeration assertion
+survives the mutation that makes a deferral blind; this one does not.
+
+Two prose claims were corrected at the places they were made rather than only
+in a later section: the blanket safe-default guarantee about a bare key, in
+`state_refs.py` and in the authored-spelling paragraph above, which is a
+property of the enforcement in `runs/service.py` and not of the spelling; and
+the claim that the two blocking kinds partition cleanly, in `models.py` and
+above, which they do not - a missing binding and a scope disagreement both
+report `INITIAL_VALUE_NOT_RESOLVED` before any asset has been looked for, so
+that kind means only a failure to obtain the initial value.
+
+`EXECUTION_CONTRACT_VERSION` did not move. Version 4 remains unpublished
+outside this branch.
+
+### T020A1 third correction round: two obligations, asked of every spelling
+
+The Codex Reviewer was out of quota and `.ai/ROLE_CONFIG.md`'s backup rule put
+a Claude reviewer on the slice. It found two things three Codex passes had not,
+both the same mistake as the previous two rounds, one spelling and one
+requirement level further in.
+
+**The SITE branch returned before the profile was consulted.** So the check
+round three added to close bound-only references never ran for a `site:`
+spelling: `site:unmodelled-volume` as a bound target came back READY with zero
+reasons and persisted, and so did `site:example-stored-volume`, a site-wide
+claim on a state the profile carries per component.
+
+**The deferral handed the whole reference to `_support_for`, which blocks only
+on REQUIRED.** So an unqualified `unmodelled-level` marked OPTIONAL froze 200 L
+against no asset and reported READY. Neither party enforced the address
+obligation: the resolver had delegated it, and the delegate answers a different
+question.
+
+**The structure that came out of it is the durable part.** Two independent
+obligations, asked of every reference:
+
+- **does it name one component of this Site?** Component-scoped only, never
+  deferred, never requirement-sensitive - because `_support_for` does not
+  answer address questions at any requirement level. A `site:` reference poses
+  no component question and is never asked one.
+- **can this build model the state, at that scope?** Every scope. Deferred to
+  `_support_for` when it is really asked, reported here when it is not, and
+  requirement-sensitive as it always was: unsupported and REQUIRED blocks,
+  unsupported and OPTIONAL is recorded and proceeds.
+
+Conflating them produced both findings. Keeping them apart is what makes the
+universal claim about component references finally true, because the things
+that used to falsify it are now visibly the other obligation's business.
+
+**The F2 decision was mine and I enforced rather than exempted.** An exemption
+by requirement level would have reintroduced what the absent-row rule removed a
+round earlier - a record that behaves one way here and another there - and the
+requirement level was never the cause: it only decides whether a SUPPORT
+failure blocks. The cost is one narrow case, an unqualified reference to an
+unmodelled state marked OPTIONAL, which now blocks with the repair named.
+`test_optional_still_means_the_run_may_proceed_without_support` pins the half
+that stays requirement-sensitive, so OPTIONAL was not quietly promoted.
+
+**The test had a hole the same shape as the code's, and that is the lesson.**
+The enforcement assertion whitelisted `address.authored.scope == "SITE"` and
+the parametrized bound test had five component-spelled targets and no `site:`
+one. **A test written to prove enforcement must not exempt what the code
+exempts**: it cannot fail where the code is wrong. Both holes are closed, and
+the proof is an experiment rather than an assertion - the corrected assertion
+fails against the old code, and with the escape restored it goes blind again
+while only the new parametrized cases fire.
+
+Two prose corrections. `_resolve_foundation_value` said "Five cases" over a
+list of six, one of which its own later comment says moved out; the count and
+the list are now stated together with the five `return blocked(...)` calls they
+describe, and the four that moved are named as the address pass's.
+`blocking_statement` was documented as appearing "only on a row whose value is
+missing" while the execution-contract row, which has a value, carries one; the
+docstring now says what the field means - why THIS row stops the run - and
+names both kinds of row.
+
+`EXECUTION_CONTRACT_VERSION` did not move. Version 4 remains unpublished
+outside this branch.
+
+What this leaves open.
+
+- **T020B still owns readiness.** The three unmodelled forcing states are
+  unchanged, and so is `D-2026-09-22-forcing-state-requirements`. It also owns
+  what a requirement conflict finally does; `requirement_conflicts` reports them
+  and nothing acts on one.
+- **Nothing executes, so `refuse_incompatible_execution` has one caller.**
+  T021's kernel is the second and calls it before it initializes anything.
+- **The scope a state is claimed at is declared twice**, once per scenario
+  reference and once per profile state. That is deliberate and the
+  disagreement blocks, but it is two places a future slice must keep true.
+- **The shipped Fuel Loss scenario's upper bound is INERT, and T021 is the
+  first thing that will meet it.** `declared_bounds(fuel-loss-event)` returns
+  `{'fuel-tank-volume@fuel-tank': (0.0, None)}`: the upper value is missing
+  because `scenarios/execution.py` skips any parameter whose value is not a
+  float, and a Foundation-owned parameter states no value by design under
+  `D-2026-09-22-foundation-value-declaration`. So the tank capacity that
+  bounds the stored volume never reaches the bounds map, and the only
+  authored upper bound in the shipped document is absent from the projection
+  of it.
+  The identical guard is at `b004f58`, so this is inherited rather than
+  T020A1's, and AC12's evidence remains true about the authored DOCUMENT -
+  the declaration survives, addressed to the right tank. What does not
+  survive is its VALUE, which now lives on the frozen run instead.
+  **T021 is the first consumer of bounds** and must read the capacity from
+  the frozen initialization input rather than from `declared_bounds`, or
+  teach `declared_bounds` to take the frozen answers. A backup review found
+  this; it is recorded rather than fixed because fixing it is the kernel's
+  design decision about where a bound's number comes from.
+- **A hand-authored frozen document may hold two rows for one address**, and
+  T021 must not reconstruct with last-write-wins. Carried by the review, with
+  the acceptance suite no longer claiming otherwise.
+- **The twin-tank archetype's Foundation and SLD are unmeasured** at any
+  viewport. The browser evidence is about MG-005's run detail and says nothing
+  about the diagram that archetype draws.
+- **`var/runs` now holds 102 local Drafts and `create_run` is still O(n)** in
+  that count, unchanged from T020A and still wanting a bounded owner before
+  T027. This slice added twenty-one Drafts to it, most of them written by four
+  layout evidence runs.
+- **The five inline `float(value)` overflow sites in
+  `.ai/MILESTONE_REVIEW_BACKLOG.md` are untouched and no sixth was added.**
+  `state_refs.py` converts no numbers.

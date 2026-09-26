@@ -21,8 +21,8 @@ The Planner recreated the task queue, the Architect reviewed it, and the user's
 queue review resequenced it on 2026-09-24 under
 `D-2026-09-24-queue-resequenced-for-demo`: verification moved ahead of analytic
 breadth, T026 was thinned, and T036 is the last of four demo points rather than
-the first client-facing one. **T020A is the active task**, unaffected by that
-resequencing, followed by the order in `tasks/README.md`.
+the first client-facing one. **T020A1 is built and in review**, unaffected by
+that resequencing, followed by the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
 `.ai/PLANNING_HANDOFF_T020A_T023.md`.

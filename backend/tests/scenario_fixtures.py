@@ -18,6 +18,13 @@ of the shipped content, and the shipped content would then be unable to change
 without the parser suite changing with it. This is a small, generic scenario
 that exercises the same shapes.
 
+T020A1's review round addressed it. Every state it names is either a fact
+about the site's one declared component, `example-store`, or a fact about the
+installation - because a component-scoped reference has to identify one
+component before a run is READY, and a bare key against a profile that
+declares no binding for it identifies nothing. It was written with bare keys
+and passed only because that obligation was missing.
+
 T018 gives it one more job. It exercises every execution role, every timing
 shape, both observation source kinds, and both kinds of state effect, so a
 parser test can break exactly one of those and nothing else. Its numbers are
@@ -87,7 +94,7 @@ def scenario_document() -> dict[str, Any]:
                 "value": 200,
                 "unit": "L",
                 "execution_role": "CAUSAL_INPUT",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "execution_requirement": "REQUIRED",
                 "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
             },
@@ -97,7 +104,7 @@ def scenario_document() -> dict[str, Any]:
                 "value": 6,
                 "unit": "L/h",
                 "execution_role": "CAUSAL_INPUT",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "execution_requirement": "REQUIRED",
                 "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
             },
@@ -111,7 +118,7 @@ def scenario_document() -> dict[str, Any]:
                 "category": "LOAD",
                 "description": "Demand follows the site's ordinary shape.",
                 "execution_role": "FORCING_INPUT",
-                "state_key": "example-demand",
+                "state_key": "site:example-demand",
                 "execution_requirement": "REQUIRED",
                 "timing": {"shape": "INTERVAL_WIDE"},
                 "parameters": [
@@ -121,7 +128,7 @@ def scenario_document() -> dict[str, Any]:
                         "value": 64,
                         "unit": "kW",
                         "execution_role": "FORCING_INPUT",
-                        "state_key": "example-demand",
+                        "state_key": "site:example-demand",
                         "execution_requirement": "REQUIRED",
                         "ownership": {
                             "owner": "SCENARIO_INPUT",
@@ -138,7 +145,7 @@ def scenario_document() -> dict[str, Any]:
                 "category": "EQUIPMENT",
                 "description": "The equipment runs and draws at the declared rate.",
                 "execution_role": "CAUSAL_INPUT",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "execution_requirement": "REQUIRED",
                 "timing": {"shape": "WINDOW", "duration_minutes": 60},
                 "state_effect": {
@@ -155,7 +162,7 @@ def scenario_document() -> dict[str, Any]:
                 "category": "MAINTENANCE",
                 "description": "A technician records a reading by hand.",
                 "execution_role": "REPORTED_OBSERVATION",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
@@ -172,7 +179,7 @@ def scenario_document() -> dict[str, Any]:
                         "value": 194,
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
-                        "state_key": "example-stored-volume",
+                        "state_key": "example-stored-volume@example-store",
                         "execution_requirement": "REQUIRED",
                     }
                 ],
@@ -185,7 +192,7 @@ def scenario_document() -> dict[str, Any]:
                 "category": "DATA_QUALITY",
                 "description": "Reported values resume after a gap.",
                 "execution_role": "REPORTED_OBSERVATION",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
@@ -199,7 +206,7 @@ def scenario_document() -> dict[str, Any]:
                         "value": 194,
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
-                        "state_key": "example-stored-volume",
+                        "state_key": "example-stored-volume@example-store",
                         "execution_requirement": "REQUIRED",
                     }
                 ],

@@ -164,7 +164,14 @@ class TestShippedCatalog:
         catalog = build_site_template_catalog()
         templates = SiteTemplateCatalogService(catalog).list_templates()
 
-        assert [t.template_id for t in templates] == ["hybrid-mini-grid-100kw"]
+        # Two archetypes since T020A1. The second is the one with two of
+        # things: an archetype with a single fuel tank cannot demonstrate a
+        # component selector, because an unqualified reference and an
+        # addressed one resolve to the same component on it.
+        assert [t.template_id for t in templates] == [
+            "hybrid-mini-grid-100kw",
+            "twin-tank-mini-grid-150kw",
+        ]
 
     def test_the_shipped_hybrid_mini_grid_archetype_parses(self) -> None:
         template = build_site_template_catalog().get_template(
@@ -175,6 +182,51 @@ class TestShippedCatalog:
         assert template.template_version >= 1
         assert template.foundation.site_type == "MINIGRID"
         assert len(template.foundation.components) > 0
+
+    def test_the_twin_tank_archetype_declares_two_of_the_things_that_matter(
+        self,
+    ) -> None:
+        """An archetype whose second tank went missing would still parse.
+
+        This is what the template is FOR: with one fuel tank, an unqualified
+        state reference and an addressed one resolve to the same component
+        and nothing downstream can tell a working selector from an ignored
+        one. The differing capacities are load-bearing too - two 500 L tanks
+        would let a resolver pick either and still look right.
+        """
+        template = build_site_template_catalog().get_template(
+            "twin-tank-mini-grid-150kw"
+        )
+
+        by_type: dict[str, list] = {}
+        for component in template.foundation.components:
+            by_type.setdefault(component.component_type, []).append(component)
+
+        tanks = by_type["FUEL_TANK"]
+        assert [component.component_id for component in tanks] == [
+            "north-tank",
+            "south-tank",
+        ]
+        capacities = [
+            item.value
+            for component in tanks
+            for item in component.properties or ()
+            if item.property_key == "tank-capacity"
+        ]
+        assert capacities == [500.0, 800.0]
+
+        consumptions = [
+            item.value
+            for component in by_type["GENERATOR"]
+            for item in component.properties or ()
+            if item.property_key == "specific-fuel-consumption"
+        ]
+        assert len(consumptions) == 2
+        assert len(set(consumptions)) == 2
+
+        assert [
+            component.component_id for component in by_type["LOAD"]
+        ] == ["load-res", "load-mill"]
 
     def test_the_shipped_catalog_root_holds_no_site_identity(self) -> None:
         """M1 ships zero Sites: no shipped document may declare Site identity.

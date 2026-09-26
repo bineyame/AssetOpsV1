@@ -303,7 +303,7 @@ class TestTheDetailRoute:
             "value": 64.0,
             "unit": "kW",
             "execution_role": "FORCING_INPUT",
-            "state_key": "example-demand",
+            "state_key": "site:example-demand",
             "execution_requirement": "REQUIRED",
             "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
             "bounds": None,
@@ -739,7 +739,7 @@ class TestTheExecutionContractOnThePayload:
             {
                 "parameter_id": "starting-level",
                 "display_name": "Stored level at the start of the interval",
-                "state_key": "example-stored-volume",
+                "state_key": "example-stored-volume@example-store",
                 "owner": "SCENARIO_INPUT",
                 "value": 200.0,
                 "unit": "L",
@@ -947,13 +947,17 @@ class TestTheShippedReconciliation:
             if item["event_id"] == "generator-run-window"
         )
         assert entry["execution_role"] == "FORCING_INPUT"
-        assert entry["state_key"] == "generator-output-power"
+        assert entry["state_key"] == "generator-output-power@generator"
         assert entry["state_effect"] is None
         assert [
             (item["parameter_id"], item["execution_role"], item["state_key"])
             for item in entry["parameters"]
         ] == [
-            ("dispatched-output", "FORCING_INPUT", "generator-output-power")
+            (
+                "dispatched-output",
+                "FORCING_INPUT",
+                "generator-output-power@generator",
+            )
         ]
 
     def scenario(self) -> dict:

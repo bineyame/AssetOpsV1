@@ -162,7 +162,19 @@ export function RunFrame({
                 <th scope="row">{row.field}</th>
                 <td>{row.value}</td>
                 <td>{row.answered_by}</td>
-                <td className="cell-secondary">{row.answered_by_detail}</td>
+                <td className="cell-secondary">
+                  {row.answered_by_detail}
+                  {/*
+                    Beside the value it is about, not only in the table
+                    below. Two same-type assets make two rows that differ by
+                    a component id and two reasons that differ the same way,
+                    and pairing them by eye across two tables is the work
+                    this saves.
+                  */}
+                  {row.blocking_statement === null ? null : (
+                    <span className="cell-note">{row.blocking_statement}</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

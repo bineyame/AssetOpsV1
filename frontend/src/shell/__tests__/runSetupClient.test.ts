@@ -46,6 +46,7 @@ const RUN: RunSummary = {
       value: "MG-001",
       answered_by: "SITE_FOUNDATION",
       answered_by_detail: "site MG-001 foundation version 1",
+      blocking_statement: null,
     },
   ],
   blocking_reasons: [
@@ -128,6 +129,7 @@ describe("the versioned profiles are read", () => {
         supported_states: [
           {
             state_key: "fuel-tank-volume",
+            scope: "COMPONENT",
             supported_roles: ["CAUSAL_INPUT"],
             statement: "The stored volume can be caused.",
           },

@@ -48,6 +48,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from assetops_backend.state_refs import StateRef
+
 #: Where a run is in its own life. One value today: T019 creates Drafts and
 #: nothing in this build can commit one. `COMMITTED` arrives with the slice
 #: that can release evidence, and adding it here first would put a lifecycle
@@ -165,19 +167,38 @@ ANSWERER_BY_INITIALIZATION_OWNER = {
 #:   the same name for all of them: this run has no answer for that value and
 #:   a different profile may.
 #:
-#: Every one of the six is a statement about the SELECTED PROFILE: something
-#: the scenario requires that the profile does not model, does not resolve, or
-#: cannot locate. That is the whole of what run setup can decide, and a
-#: seventh member was removed to make it so. `OBSERVATION_NOT_ACCOUNTED_FOR`
-#: blocked a run when the causes a scenario declares did not reach a reading
-#: the same scenario declares, and Amendment 1's proposal (e) took it out: run
-#: setup has no kernel, so it cannot settle a comparison only an execution can
-#: settle. A kind added here that is not about the profile's ability to
-#: execute an input is the same mistake returning.
+#: - `STATE_ADDRESS_NOT_RESOLVED`: a component-scoped reference that does not
+#:   identify exactly one component of this Site: a named component the
+#:   Foundation does not declare, a named component of a type the binding
+#:   does not carry, no candidate of that type, or more than one. Added by
+#:   T020A1's review round, and a seventh kind rather than the sixth reused
+#:   because an initial value is not the only thing an address is needed
+#:   for. A forcing input carries no initial value at all and still has to
+#:   say which machine it forces, so naming this after initial values would
+#:   have been a kind unable to describe half the references it reports on.
+#:
+#:   **The two do not partition cleanly, and a reader must not be told they
+#:   do.** A first draft of this comment said `INITIAL_VALUE_NOT_RESOLVED`
+#:   means the reference found its asset. It does not: a missing binding and
+#:   a scope disagreement both report it before any asset has been looked
+#:   for. What it means, and all it means, is a failure to obtain the
+#:   initial value this run needs. Both kinds carry an addressed subject,
+#:   which is what keeps a reader's diagnosis together across them.
+#:
+#: Every one of the seven is a statement about the SELECTED PROFILE AND SITE:
+#: something the scenario requires that the profile does not model, does not
+#: resolve, or cannot locate on the Site this run is bound to. That is the
+#: whole of what run setup can decide, and a member was removed to make it so.
+#: `OBSERVATION_NOT_ACCOUNTED_FOR` blocked a run when the causes a scenario
+#: declares did not reach a reading the same scenario declares, and Amendment
+#: 1's proposal (e) took it out: run setup has no kernel, so it cannot settle
+#: a comparison only an execution can settle. A kind added here that is not
+#: about executing an input against that pair is the same mistake returning.
 BLOCKING_REASON_KINDS = frozenset(
     {
         "STATE_NOT_SUPPORTED",
         "ROLE_NOT_SUPPORTED",
+        "STATE_ADDRESS_NOT_RESOLVED",
         "CADENCE_NOT_RESOLVED",
         "SOURCE_IDENTITY_NOT_RESOLVED",
         "GATEWAY_IDENTITY_NOT_RESOLVED",
@@ -282,9 +303,28 @@ class FrozenInitializationInput:
     because the thing that made it absent is the thing that blocked the run.
     It enforces the pairing above as well, so a record cannot hold one of the
     two numbers without the other.
+
+    ## `state_ref` is the resolved address, not the question that was asked
+
+    Since T020A1 this record carries an address rather than a bare key, and
+    which address it carries depends on whether the run got an answer.
+
+    A RESOLVED input carries the component that answered, even when the
+    scenario named none: an author who wrote `fuel-tank-capacity` against a
+    site with one tank is frozen as `fuel-tank-capacity@fuel-tank`, because
+    what the run froze is that tank's number and a later reader must not have
+    to re-run the resolution to find out whose. That is also what makes
+    reordering the site's components harmless - the answer is recorded, not
+    recomputed.
+
+    An UNRESOLVED input carries the address exactly as authored, because there
+    is no resolved one: nothing chose a component, and naming one here would
+    put an asset's identity beside a value it did not supply. Its blocking
+    reason names that same authored address, which is how the two line up in
+    `SimulationRun` below and beside each other on the screen.
     """
 
-    state_key: str
+    state_ref: StateRef
     parameter_id: str
     value: float | None
     unit: str
@@ -293,6 +333,16 @@ class FrozenInitializationInput:
     dimension: str
     answered_by: str
     answered_by_detail: str
+
+    @property
+    def state_key(self) -> str:
+        """The semantic state, without its selector."""
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        """The canonical spelling of the address this run froze."""
+        return self.state_ref.addressed_key
 
 
 @dataclass(frozen=True)
@@ -366,11 +416,27 @@ class UnsupportedOptionalInput:
     required - and blocks when unsupported - or optional, and is recorded here
     instead. Recorded rather than dropped: a run that quietly ignored part of a
     scenario would claim to have executed something it partly skipped.
+
+    **Addressed since T020A1's review round.** It carried a bare state key, so
+    two optional declarations about two different tanks were two rows a reader
+    could not tell apart - identical in every field. Recording an input that
+    was skipped, without saying which asset it was about, is most of the way
+    back to dropping it.
     """
 
-    state_key: str
+    state_ref: StateRef
     execution_role: str
     statement: str
+
+    @property
+    def state_key(self) -> str:
+        """The semantic state a model profile answered about."""
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        """The address the scenario declared this at."""
+        return self.state_ref.addressed_key
 
 
 @dataclass(frozen=True)
@@ -455,18 +521,26 @@ class SimulationRun:
         # produce it today, which is the reason to assert it here and not
         # there: a hand-edited document in that shape parses, and this is
         # what the parser's result has to survive.
+        #
+        # Matched on the ADDRESS since T020A1, and that is not a refinement.
+        # Two tanks share one semantic state key, so keying on the key would
+        # let the north tank's blocking reason explain the south tank's absent
+        # value: one reason, two holes, and the second hole invisible. The
+        # thing this invariant exists to prevent is a declared need going
+        # silently absent, and on a site with two of anything the key grain is
+        # exactly where it would go silent.
         explained = {reason.subject for reason in self.blocking_reasons}
         unexplained = sorted(
-            item.state_key
+            item.addressed_key
             for item in self.deterministic_identity.initialization_inputs
-            if item.value is None and item.state_key not in explained
+            if item.value is None and item.addressed_key not in explained
         )
         if unexplained:
             raise ValueError(
                 f"A run has no answer for {unexplained} and no blocking "
                 "reason about it. An initial value is absent only because "
                 "something blocked the run, so the reason that made it "
-                "absent is on the run beside it, naming the same state."
+                "absent is on the run beside it, naming the same address."
             )
 
         # The two number fields are absent together or present together.

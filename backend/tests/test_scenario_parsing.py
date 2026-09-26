@@ -599,7 +599,7 @@ class TestTheExecutionContractIsRefusedWhenItMeansTwoThings:
                     "value": 15,
                     "unit": "min",
                     "execution_role": "REPORTED_OBSERVATION",
-                    "state_key": "example-stored-volume",
+                    "state_key": "example-stored-volume@example-store",
                     "execution_requirement": "REQUIRED",
                 }
             ),
@@ -636,7 +636,7 @@ class TestTheExecutionContractIsRefusedWhenItMeansTwoThings:
                     "value": 15,
                     "unit": "min",
                     "execution_role": "FORCING_INPUT",
-                    "state_key": "example-demand",
+                    "state_key": "site:example-demand",
                     "execution_requirement": "REQUIRED",
                     "ownership": {
                         "owner": "SCENARIO_INPUT",
@@ -740,7 +740,7 @@ class TestTheExecutionContractIsRefusedWhenItMeansTwoThings:
                     "value": 5,
                     "unit": "kW",
                     "execution_role": "CAUSAL_INPUT",
-                    "state_key": "example-stored-volume",
+                    "state_key": "example-stored-volume@example-store",
                     "execution_requirement": "REQUIRED",
                     "ownership": {
                         "owner": "SCENARIO_INPUT",
@@ -934,7 +934,7 @@ class TestAFoundationOwnedValueHasNoValuePosition:
         """
         document = self.foundation_owned()
         document["public_parameters"][2]["bounds"] = {
-            "state_key": "example-demand",
+            "state_key": "site:example-demand",
             "bound_kind": "UPPER",
         }
 

@@ -89,6 +89,7 @@ const RUN_SETUP: RunSetupClient = {
             value: "MG-001",
             answered_by: "SITE_FOUNDATION",
             answered_by_detail: "site MG-001 foundation version 1",
+            blocking_statement: null,
           },
         ],
         blocking_reasons:
