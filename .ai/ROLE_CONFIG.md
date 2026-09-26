@@ -83,6 +83,43 @@ they are reading. Where the substitution happened because of quota, say so and
 say what was left unjudged, so the question can go back to Codex if it matters
 enough to wait for.
 
+## Which Reviewer For Which Round
+
+Set by the user on 2026-09-26 to conserve Codex quota, which has been the
+binding constraint on this milestone three times. This is not the same as the
+backup rule above: it applies whether or not Codex is available.
+
+**Codex reviews discovery.** The first review of any slice, a contract version
+move, a new mechanism or a restructure, and any round where the Implementer had
+to choose between legitimate treatments. T020B's R1 was that round - state a
+rule for unaligned windows or refuse them at setup - and it needed the stronger
+reader.
+
+**A fresh Claude `assetops-reviewer` reviews verification.** A correction round
+where an independent reviewer has already named the defects and the fix needs
+no design choice: prose, docstrings, claim corrections, test assertions,
+deletions. The job is confirming the named items closed and nothing else moved.
+Fresh rather than resumed, because there is no context worth preserving for
+checking named sentences and a clean reader is worth more.
+
+The honest risk, recorded so it is not discovered later: this relies on the
+previous review having found everything discoverable in that area. Four
+consecutive rounds on T020B each found something the last missed, which is the
+argument against cheap re-reviews. **So a Claude verification pass that finds
+something unexpected is a signal to escalate that round back to Codex, not a
+cheap verdict to accept.** Finding an unnamed defect means the round was
+discovery after all and was misclassified.
+
+Two classification traps worth naming, both seen on T020B:
+
+- **A correction round can widen under the Implementer's hand.** The R1a/R1b
+  round was three sentences and a deletion when dispatched; it came back having
+  also corrected an unnamed fourth sentence and added a property-based guard
+  over thirteen windows. Classify on what came back, not on what was sent.
+- **"Small" will drift to "everything" if it is not tested against the two
+  lists above.** The question is not how many lines changed. It is whether a
+  reader had to decide anything.
+
 ## Do Not Write The Review In The Brief
 
 Recorded on 2026-09-26 at the user's instruction, because this project had
