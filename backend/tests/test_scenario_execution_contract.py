@@ -1345,6 +1345,41 @@ class TestTheBoundaryCycle:
         assert sequences == sorted(sequences)
         assert sequences == list(range(1, len(BOUNDARY_CYCLE) + 1))
 
+    def test_the_whole_ordering_is_the_contract_not_selected_pairs(
+        self,
+    ) -> None:
+        """C1 from the Codex review: the guard proved less than was claimed.
+
+        The inequalities below this one are each true and, together, still
+        admit orderings the contract forbids. The reviewer demonstrated it by
+        exchanging the sequence numbers of `sample-and-publish` and
+        `controller-view` and reordering by them: a controller view built
+        BEFORE the sample is taken, and all nine tests across this class and
+        the reading class passed. The phase list was right; the test was the
+        gap, and the packet cited those tests as proof of every ordering
+        relationship.
+
+        So the whole required sequence is asserted, by name and in order. Any
+        transposition of any two phases fails here, including the reviewer's.
+        """
+        assert [phase.phase_id for phase in BOUNDARY_CYCLE] == [
+            "apply-events",
+            "state-at-t",
+            "sample-and-publish",
+            "controller-view",
+            "controller-intent",
+            "physical-acceptance",
+            "evolve",
+            "check-invariants",
+            "carry-forward",
+        ]
+        # Ordered by the DECLARED ordinal rather than by tuple position, since
+        # the ordinal is what the contract publishes and what a consumer reads.
+        assert [
+            phase.phase_id
+            for phase in sorted(BOUNDARY_CYCLE, key=lambda p: p.sequence)
+        ] == [phase.phase_id for phase in BOUNDARY_CYCLE]
+
     def test_nothing_observes_or_controls_before_the_events_are_applied(
         self,
     ) -> None:
@@ -1354,6 +1389,10 @@ class TestTheBoundaryCycle:
         must a controller view. Both follow from one fact - the two phases come
         after `apply-events` - so the fact is asserted rather than each
         statement's prose.
+
+        Kept beside the whole-sequence assertion above rather than replaced by
+        it: these say WHY the order is what it is, and a future reordering
+        should have to delete a stated reason rather than only edit a list.
         """
         phases = self._by_id()
         applied = phases["apply-events"].sequence
@@ -1560,7 +1599,12 @@ class TestTheWindowRampAndForcingAvailability:
         # And which step carries the final fraction, which the review found
         # unstated while `window-active-span` excludes the instant the ramp
         # completes at.
-        assert "the step ending there is the step that applies it" in (
+        # Superseded by the overlap formulation in the R1 round: "the step
+        # ending there" names no step when the window's far end falls inside a
+        # step, which the shipped removal does at a legal sixty-minute
+        # timestep. The aligned claim it was protecting survives as the last
+        # clause of the general rule.
+        assert "the last step covering the window applies the last share" in (
             rule.statement
         )
         assert "the value is complete, and the window is over" in rule.statement
@@ -1615,9 +1659,12 @@ class TestTheWindowRampAndForcingAvailability:
         rule = self._by_id()["forcing-outside-its-window"]
 
         assert "half-open" in rule.statement
-        assert "up to but not including the step that begins at its end" in (
-            rule.statement
-        )
+        # Same supersession: availability is stated by overlap, and the
+        # aligned run of steps is named as the special case it is.
+        assert (
+            "from the one beginning at its offset up to but not including the "
+            "one beginning at its end"
+        ) in rule.statement
         # The run's and each step's own membership, in the same words, so the
         # three intervals are one convention rather than three statements a
         # reader has to reconcile.
@@ -1670,3 +1717,170 @@ class TestWhatEachBoundPolicyCommitsAKernelTo:
     def test_every_declared_case_carries_a_policy_that_is_stated(self) -> None:
         for case in BOUND_CASES:
             assert case.policy in BOUND_POLICY_STATEMENTS, case.case_id
+
+
+class TestAWindowThatMissesTheTimestepGrid:
+    """R1 from the Codex review: the accepted domain, not just the tidy case.
+
+    The previous round settled an ALIGNED window's right endpoint. It said
+    nothing about a window whose edges are not multiples of the run's timestep,
+    and run setup accepts those: the unedited shipped document is `READY` at a
+    legal sixty-minute timestep with a removal over `[1500, 1545)`, and its
+    reporting gap `[1490, 1580)` is off the grid at the fifteen-minute timestep
+    the demonstration itself uses. A contract that answers only for aligned
+    windows leaves its next implementer to invent the rest.
+
+    The treatment chosen is OVERLAP, stated rather than refused. Refusing
+    unaligned windows was the alternative and would have rejected the shipped
+    document on the path criterion 11 requires - see
+    `test_the_shipped_document_is_itself_off_grid_at_the_demo_timestep`.
+    """
+
+    def _by_id(self) -> dict:
+        return {rule.rule_id: rule for rule in DISPATCH_RULES}
+
+    @staticmethod
+    def _concerns(step_start: int, dt: int, offset: int, length: int) -> bool:
+        """The published overlap predicate, transcribed."""
+        return max(step_start, offset) < min(step_start + dt, offset + length)
+
+    def _steps(self, dt: int, offset: int, length: int, horizon: int) -> list:
+        return [
+            s
+            for s in range(0, horizon, dt)
+            if self._concerns(s, dt, offset, length)
+        ]
+
+    def test_the_overlap_rule_is_declared_and_states_its_predicate(
+        self,
+    ) -> None:
+        rule = self._by_id()["window-overlap"]
+
+        assert "max(s, o) < min(s+dt, o+length)" in rule.statement
+        assert "shorter than one step lies inside exactly one step" in (
+            rule.statement
+        )
+        # And that it changes nothing for an aligned window, which is what
+        # makes it an extension rather than a replacement.
+        assert "an aligned window behaves as it always has" in rule.statement
+
+    def test_the_three_window_rules_all_defer_to_the_overlap_rule(self) -> None:
+        """They disagreed only where a window happened to line up.
+
+        The active span selected step STARTS inside the window, the ramp named
+        "the step ending there", and the forcing rule described availability
+        from one step start to another. On an unaligned window those are three
+        different answers; on a window shorter than a step the first is empty.
+        """
+        rules = self._by_id()
+
+        assert "concerns it under the overlap rule" in (
+            rules["window-active-span"].statement
+        )
+        assert "(min(s+dt, o+length) - max(s, o)) / length" in (
+            rules["window-ramp"].statement
+        )
+        assert "Which steps it is available to" in (
+            rules["forcing-outside-its-window"].statement
+        )
+
+    def test_an_aligned_window_selects_what_it_always_did(self) -> None:
+        """The control. The new rule must not move the settled case.
+
+        `[1080, 1320)` at a fifteen-minute timestep is the shipped dispatch
+        window, aligned. Step starts inside it and steps overlapping it are the
+        same sixteen steps.
+        """
+        by_overlap = self._steps(15, 1080, 240, 2460)
+        by_step_start = [
+            s for s in range(0, 2460, 15) if 1080 <= s < 1080 + 240
+        ]
+
+        assert by_overlap == by_step_start
+        assert len(by_overlap) == 16
+
+    def test_a_window_shorter_than_a_timestep_concerns_exactly_one_step(
+        self,
+    ) -> None:
+        """The reviewer's second reproduction, which the old rule lost entirely.
+
+        A REQUIRED, supported forcing over `[1081, 1082)` at a fifteen-minute
+        timestep: the set of step starts satisfying `1081 <= start < 1082` is
+        EMPTY, so the rule as it stood declared the forcing available across a
+        span concerning no step. Overlap puts it in the step that contains it.
+        """
+        by_step_start = [s for s in range(0, 2460, 15) if 1081 <= s < 1082]
+        assert by_step_start == []
+
+        by_overlap = self._steps(15, 1081, 1, 2460)
+        assert by_overlap == [1080]
+
+    def test_an_off_grid_window_apportions_its_whole_quantity(self) -> None:
+        """The reviewer's first reproduction: the shipped removal at dt=60.
+
+        `[1500, 1545)` on a sixty-minute grid ends inside the step that begins
+        at 1500, so "the step ending there" names no step. The shares are what
+        the published formula gives, and they sum to one - the property that
+        makes the declared 120 L move in full at any timestep, which is what
+        T021's exact-conservation criterion will rest on.
+        """
+        offset, length, dt = 1500, 45, 60
+        steps = self._steps(dt, offset, length, 2460)
+        assert steps == [1500]
+
+        shares = [
+            (min(s + dt, offset + length) - max(s, offset)) / length
+            for s in steps
+        ]
+        assert sum(shares) == 1.0
+
+        # And at the demonstration's own timestep the same window is aligned
+        # and spread across three steps, still summing to one.
+        fine = self._steps(15, offset, length, 2460)
+        assert fine == [1500, 1515, 1530]
+        fine_shares = [
+            (min(s + 15, offset + length) - max(s, offset)) / length
+            for s in fine
+        ]
+        assert sum(fine_shares) == 1.0
+
+    def test_the_shipped_document_is_itself_off_grid_at_the_demo_timestep(
+        self,
+    ) -> None:
+        """Why the rule was stated rather than the window refused.
+
+        Refusing unaligned windows at setup was the other legitimate answer and
+        would have been tidier to reason about. It would also have rejected the
+        shipped Fuel Loss Event at the fifteen-minute timestep the demonstration
+        uses - not merely at an unusual one - because the reporting gap starts
+        at 1490. Criterion 11 requires that document to reach `READY` by the
+        normal path, so refusal would have traded a criterion for a
+        simplification, and the authored offsets carry the story: the gap
+        straddles the removal.
+        """
+        import yaml
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[2]
+        document = yaml.safe_load(
+            (root / "config" / "scenarios" / "fuel-loss-event.yaml").read_text(
+                encoding="utf-8"
+            )
+        )
+        windows = {
+            entry["event_id"]: (
+                entry["offset_minutes"],
+                entry["timing"]["duration_minutes"],
+            )
+            for entry in document["timeline"]
+            if entry["timing"]["shape"] == "WINDOW"
+        }
+
+        offset, length = windows["fuel-level-reporting-gap"]
+        assert (offset, length) == (1490, 90)
+        assert offset % 15 != 0, "the gap would be aligned and the point moot"
+
+        # It still concerns a contiguous run of steps, which is the whole claim.
+        steps = self._steps(15, offset, length, 2460)
+        assert steps[0] == 1485 and steps[-1] == 1575
+        assert steps == list(range(1485, 1590, 15))

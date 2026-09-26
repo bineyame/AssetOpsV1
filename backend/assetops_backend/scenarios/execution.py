@@ -177,6 +177,17 @@ from assetops_backend.state_refs import StateRef
 #:   uses "span" for the times it interpolates across rather than "endpoints"
 #:   for both the times and the values.
 #:
+#: A fourth followed from the Codex review, and it is the largest of them: the
+#: rules said which steps an ALIGNED window concerns and were silent on every
+#: other window, while run setup accepted those documents as `READY`. The
+#: shipped Fuel Loss Event is one - its reporting gap `[1490, 1580)` is off the
+#: grid at the fifteen-minute timestep the demonstration itself uses, and its
+#: removal `[1500, 1545)` is off a legal sixty-minute one. `window-overlap` now
+#: states which steps any window concerns at any alignment, the ramp states the
+#: share each step applies, and the forcing rule states which steps it is
+#: available to. The three agreed before only where a window happened to line
+#: up.
+#:
 #: Each narrows a space two conforming kernels could have split on, so each
 #: would move a number under the policy above. They ride on five because five
 #: has never left this branch: `main` is at four, no run outside this branch
@@ -398,10 +409,29 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
         rule_id="window-active-span",
         display_name="A window's active span",
         statement=(
-            "A window entry is active for every step whose start lies at or "
-            "after its offset and before its offset plus its length. The step "
-            "beginning exactly at the end of the window is outside it, so two "
-            "windows that meet end to start never overlap by one step."
+            "A window entry is active for every step that concerns it under "
+            "the overlap rule below. The step beginning exactly at the end of "
+            "the window is outside it - the stretch they share has zero length "
+            "- so two windows that meet end to start never overlap by one step."
+        ),
+    ),
+    DispatchRule(
+        rule_id="window-overlap",
+        display_name="Which steps a window concerns, at any alignment",
+        statement=(
+            "A step and a window meet when their spans share a stretch of "
+            "non-zero length: the step [s, s+dt) concerns the window "
+            "[o, o+length) exactly when max(s, o) < min(s+dt, o+length). That "
+            "is the whole of which steps a window concerns, and it asks nothing "
+            "of alignment - neither a window's edges nor its length need be a "
+            "multiple of the timestep a run chooses. Where the edges DO fall on "
+            "step boundaries it selects exactly the steps whose starts lie "
+            "inside the window, so an aligned window behaves as it always has. "
+            "Where they do not it still selects a non-empty set, and a window "
+            "shorter than one step lies inside exactly one step and concerns "
+            "that one. A timestep is a resolution chosen after the document was "
+            "written, so what it decides is how finely a window is resolved, "
+            "never whether the window happened."
         ),
     ),
     DispatchRule(
@@ -432,12 +462,20 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "span, because interpolating between one value and itself is that "
             "value. This is what an author means by 120 litres over 45 minutes, "
             "and it is the only reading under which retiming or resizing a "
-            "window changes the trajectory proportionally. **Which step carries "
-            "the last fraction**: the span's far end is the first instant the "
-            "window no longer covers, by the active-span rule, so the step "
-            "ending there is the step that applies it. The state AT the far end "
-            "is the full quantity applied and the forcing UNAVAILABLE - the "
-            "value is complete, and the window is over, at the same instant."
+            "window changes the trajectory proportionally. **Which share each "
+            "step applies**, at every alignment: the share of the window's span "
+            "that the step covers, which is "
+            "(min(s+dt, o+length) - max(s, o)) / length for a step [s, s+dt). "
+            "Those shares sum to exactly one over the steps the window "
+            "concerns, so the declared quantity moves in full whatever the "
+            "timestep, and no step is credited with a part of a window it does "
+            "not cover. A window shorter than a timestep moves its whole "
+            "quantity in the one step containing it. Where a window's edges "
+            "fall on step boundaries this is the rule as it already stood, and "
+            "the last step covering the window applies the last share: the "
+            "state AT the far end is the full quantity applied and the forcing "
+            "UNAVAILABLE - the value is complete, and the window is over, at "
+            "the same instant."
         ),
     ),
     DispatchRule(
@@ -450,10 +488,18 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "is an invented persistence rule, while unavailable is already "
             "this product's word for a value it does not have. The window's "
             "membership is the half-open one every rule above uses, so the "
-            "forcing is available from the step that begins at its offset up "
-            "to but not including the step that begins at its end - the "
             "instant it stops being available is exactly the instant its own "
-            "span excludes."
+            "span excludes. **Which steps it is available to** is the overlap "
+            "rule and nothing else: every step that concerns the window, which "
+            "for an aligned window is every step from the one beginning at its "
+            "offset up to but not including the one beginning at its end. A "
+            "step the window covers only in part is exposed to the forcing for "
+            "that part of the step and no longer: nothing stretches the forcing "
+            "across the rest of that step, and nothing blends it with a value "
+            "the window does not declare. So a REQUIRED forcing whose window "
+            "opens and closes between two step starts is available - in the one "
+            "step that contains it - rather than silently concerning no step "
+            "at all."
         ),
     ),
     DispatchRule(
