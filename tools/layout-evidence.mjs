@@ -228,6 +228,29 @@ const MEASURE = `(() => {
           length: (disclosurePanel.textContent || "").trim().length,
           visible: disclosureBox.width > 0 && disclosureBox.height > 0,
         };
+  // The unsupported optional inputs, on the same terms as the disclosure.
+  //
+  // T020B lowers two forcing states to OPTIONAL so the shipped scenario can
+  // reach READY, and the decision that permits it requires them to stay
+  // VISIBLE. A READY run that recorded them and drew nothing would satisfy
+  // "recorded" and defeat the point, because the whole argument for lowering
+  // is that the run still says what the profile does not model. So the item
+  // count is measured rather than the panel's existence.
+  const optionalHeading = document.getElementById("run-optional-heading");
+  const optionalPanel = optionalHeading
+    ? optionalHeading.closest("section") || optionalHeading.parentElement
+    : null;
+  const optionalBox = optionalPanel
+    ? optionalPanel.getBoundingClientRect()
+    : null;
+  const unsupportedOptional =
+    optionalPanel === null
+      ? null
+      : {
+          itemCount: optionalPanel.querySelectorAll("li").length,
+          length: (optionalPanel.textContent || "").trim().length,
+          visible: optionalBox.width > 0 && optionalBox.height > 0,
+        };
   const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
     scrollers,
@@ -240,6 +263,7 @@ const MEASURE = `(() => {
     slots,
     runRows,
     disclosure,
+    unsupportedOptional,
     railLeftAfterAll,
     pageScrollsHorizontally: doc.scrollWidth > doc.clientWidth,
     pageScrollWidth: doc.scrollWidth,
@@ -916,10 +940,20 @@ for (const [label, width, height] of [
         // are allowed to move: T020A added two unresolved foundation values
         // to this Draft, because MG-001 was created before typed properties
         // existed and a template does not migrate a Site.
-        "the blocked table is at least three rows in three columns",
+        //
+        // T020B moved it the other way, from three to two, and this floor is
+        // the thing that noticed. The three unmodelled-state reasons are gone:
+        // two of those states are now declared OPTIONAL and are recorded
+        // rather than blocking, and the third is the publication profile's to
+        // answer and it answers. What is left is the two values MG-001's
+        // Foundation does not declare, so two is the true count and not a
+        // weakened floor. `test_runs_api.py` asserts that exact pair; the
+        // measured number is printed below, so a later drift is visible in the
+        // output rather than absorbed by the inequality.
+        "the blocked table is at least two rows in three columns",
         blocked !== undefined &&
           blocked.columnCount === 3 &&
-          blocked.rowCount >= 3,
+          blocked.rowCount >= 2,
         blocked === undefined
           ? "no region named run-setup-blocked-heading"
           : `${blocked.name}: ${blocked.columnCount} columns, ${blocked.rowCount} rows`,
@@ -1165,6 +1199,25 @@ for (const [state, href, expectBlockedTable] of [
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
                 .join(", ") || "no button rendered",
             ],
+        ...(expectBlockedTable
+          ? []
+          : [
+              [
+                // The floor is two because the shipped Fuel Loss Event
+                // declares exactly two states this profile does not model, and
+                // a READY run of it has to keep saying so. A panel drawn with
+                // no items would pass "the panel exists" and assert nothing.
+                "a ready draft still lists what the profile does not model",
+                run.unsupportedOptional !== null &&
+                  run.unsupportedOptional.visible &&
+                  run.unsupportedOptional.itemCount >= 2,
+                run.unsupportedOptional === null
+                  ? "no optional-inputs panel"
+                  : `${run.unsupportedOptional.itemCount} items, ` +
+                    `${run.unsupportedOptional.length} characters, visible ` +
+                    `${run.unsupportedOptional.visible}`,
+              ],
+            ]),
         ...(width <= 640
           ? [
               [
