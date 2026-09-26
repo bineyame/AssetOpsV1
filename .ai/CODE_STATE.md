@@ -2878,9 +2878,18 @@ What T020B leaves open, for the slice that meets it.
   `LAB_PUBLICATION_PROFILE` declares it can model the reporting path being
   unavailable, and nothing in this build can suppress a reading. It is the same
   shape as the `supported_states` entry already in
-  `.ai/MILESTONE_REVIEW_BACKLOG.md` and T021/T022 is its falsifier: the
-  observation transform is what makes the declaration true or false. The
-  readiness disclosure covers both, which is why it stays.
+  `.ai/MILESTONE_REVIEW_BACKLOG.md`, and the observation transform is its
+  falsifier: it is what makes the declaration true or false. The readiness
+  disclosure covers both, which is why it stays - **but it did not when this
+  entry was first written, and the entry said it did.** T020B's independent
+  review caught it: `READY_DISCLOSURE` named only the model profile's supported
+  states, `models.py` was not in the slice's diff at all, and three documents
+  asserted a coverage that did not exist. The correction round widened the
+  disclosure to name both profiles, both supported sets and both retirement
+  conditions. It was dangerous rather than untidy because those two conditions
+  fall on different slices - a kernel for one, the transform for the other - so a
+  disclosure naming only the first would have been retired by the kernel slice
+  while the second claim stood unfalsified.
 - **Two blocking rows can still share a subject across two kinds.** An
   addressed reference whose scope disagrees with the profile produces
   `INITIAL_VALUE_NOT_RESOLVED` from the Foundation lookup and
