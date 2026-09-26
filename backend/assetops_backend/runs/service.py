@@ -1028,38 +1028,39 @@ class RunSetupService:
         on the setup form. The address is a third half a person can change,
         and it blocks for the same reason: it is a declaration.
 
-        Five cases here, all blocking, all `INITIAL_VALUE_NOT_RESOLVED`, and
-        each of them is about a value rather than about an asset:
+        **Five cases, which is five `return blocked(...)` calls below** - the
+        count and the list drifted apart once and a backup review counted
+        them, so they are stated together. All blocking, all
+        `INITIAL_VALUE_NOT_RESOLVED`, and each about a VALUE rather than an
+        asset:
 
-        - the scenario claims the state at one scope and the profile models
-          it at the other. A site-wide fact and a fact about one machine are
-          two different claims and no Foundation reconciles them;
-        - the profile declares no binding, so nothing was even asked of the
-          Foundation;
-        - **the binding's own declared unit is not the unit the scenario
-          declares.** Decided before the Site's answer is read, because it
-          needs no Site: the profile says what quantity it will answer with
-          and the scenario says what it asked for. `binding.unit` was read by
-          nothing at all until an independent review found it, and a declared
-          unit nothing checks reads as a guarantee it is not;
-        - the component the address resolved to is not of the type the
-          binding needs. **Nothing falls back to a component that is**, which
-          is acceptance criterion 4: an author who named the wrong asset gets
-          a refusal naming the asset they named;
-        - the resolved component declares no such property. The case
-          `D-2026-09-22-foundation-property-absent-blocks` settled: the
-          property name is as much the profile's aim as the component type
-          is, so a different profile naming a different property may find
-          something this Foundation does declare;
-        - the found property's unit is not the binding's. The three units
-          must agree, and this closes the triangle: a profile naming a unit
-          the property it chose is not declared in.
+        1. the scenario claims the state at one scope and the profile models
+           it at the other. A site-wide fact and a fact about one machine are
+           two different claims and no Foundation reconciles them;
+        2. the profile declares no binding, so nothing was even asked of the
+           Foundation;
+        3. **the binding's own declared unit is not the unit the scenario
+           declares.** Decided before the Site's answer is read, because it
+           needs no Site: the profile says what quantity it will answer with
+           and the scenario says what it asked for. `binding.unit` was read
+           by nothing at all until an independent review found it, and a
+           declared unit nothing checks reads as a guarantee it is not;
+        4. the resolved component declares no such property. The case
+           `D-2026-09-22-foundation-property-absent-blocks` settled: the
+           property name is as much the profile's aim as the component type
+           is, so a different profile naming a different property may find
+           something this Foundation does declare;
+        5. the found property's unit is not the binding's. The three units
+           must agree, and this closes the triangle: a profile naming a unit
+           the property it chose is not declared in.
 
-        The cases that used to be here and are now the address pass's - no
-        component with that identity, no candidate of the bound type, more
-        than one candidate - report `STATE_ADDRESS_NOT_RESOLVED` instead,
-        because they are the same fact for a forcing input that has no
-        initial value to be unresolved.
+        The cases that were here and are now the address pass's report
+        `STATE_ADDRESS_NOT_RESOLVED` instead, because they are the same fact
+        for a forcing input that has no initial value to be unresolved: no
+        component with that identity, a component of the wrong type, no
+        candidate of the bound type, and more than one candidate. The
+        wrong-type case was still listed here after it moved, which is how
+        the list came to have six entries under a heading that said five.
 
         **There is no refusal.** `INITIAL_VALUE_ANSWERS_DISAGREE` used to
         live at the end of this function, comparing the Foundation's number
@@ -1539,150 +1540,182 @@ def resolve_state_addresses(
 
     resolutions: dict[str, ResolvedAddress] = {}
 
-    for ref, where in declared_state_refs(scenario):
+    for authored, where in declared_state_refs(scenario):
+        ref = authored
+        supported = model.supported(ref.state_key)
+        # The binding applies only when the profile models this state AT THE
+        # SCOPE the reference claims it at. A binding read off a state the
+        # profile models the other way round would be a component type
+        # borrowed from a different claim.
+        binding = (
+            supported.foundation_binding
+            if supported is not None and supported.scope == ref.scope
+            else None
+        )
         component: SiteComponent | None = None
 
-        # --- Existence, which needs no profile ---------------------------
-        if ref.component_id is not None:
-            component = by_id.get(ref.component_id)
-            if component is None:
-                resolutions[ref.addressed_key] = refused(
-                    ref,
-                    f"{where.capitalize()} concerns {ref.state_key} on "
-                    f"component {ref.component_id}, and the foundation of "
-                    f"site {site.site_id} declares no component with that "
-                    "identity. A named asset is the one this run would act "
-                    "on, so nothing falls back to a different component.",
-                    "SITE_FOUNDATION",
-                    (
-                        f"{foundation_detail}, which declares no component "
-                        f"{ref.component_id}"
-                    ),
+        # --- Obligation one: the address ---------------------------------
+        #
+        # A component-scoped reference has to identify one component of this
+        # Site. This is NEVER deferred, and that is the correction a backup
+        # review produced: the branch below used to hand an unmodelled or
+        # differently scoped reference to `_support_for` entire, and
+        # `_support_for` does not answer address questions at any requirement
+        # level - it blocks on REQUIRED and records on OPTIONAL, both about
+        # SUPPORT. So `unmodelled-level` with no selector came back READY
+        # with 200 L frozen against no asset whenever it was marked OPTIONAL.
+        #
+        # A SITE reference makes no component claim, so it has no address
+        # obligation to meet - the record refuses it a selector outright.
+        if ref.scope == "COMPONENT":
+            if ref.component_id is not None:
+                component = by_id.get(ref.component_id)
+                if component is None:
+                    resolutions[authored.addressed_key] = refused(
+                        authored,
+                        f"{where.capitalize()} concerns {ref.state_key} on "
+                        f"component {ref.component_id}, and the foundation "
+                        f"of site {site.site_id} declares no component with "
+                        "that identity. A named asset is the one this run "
+                        "would act on, so nothing falls back to a different "
+                        "component.",
+                        "SITE_FOUNDATION",
+                        (
+                            f"{foundation_detail}, which declares no "
+                            f"component {ref.component_id}"
+                        ),
+                    )
+                    continue
+                if (
+                    binding is not None
+                    and component.component_type != binding.component_type
+                ):
+                    resolutions[authored.addressed_key] = refused(
+                        authored,
+                        f"{where.capitalize()} concerns {ref.state_key} on "
+                        f"component {component.component_id}, which the "
+                        f"foundation of site {site.site_id} declares as a "
+                        f"{component.component_type}, and {profile_detail} "
+                        f"carries that state on a {binding.component_type}. "
+                        "The named component is the one this run would act "
+                        f"on, so nothing looks for a "
+                        f"{binding.component_type} elsewhere on the site.",
+                        "SITE_FOUNDATION",
+                        (
+                            f"{foundation_detail}, whose component "
+                            f"{component.component_id} is a "
+                            f"{component.component_type}"
+                        ),
+                    )
+                    continue
+            elif binding is None:
+                # Nothing can choose. The profile declares no binding for
+                # this state at this scope - because it models it another
+                # way, or does not model it at all - so there is no component
+                # type to select candidates from, and reading one out of the
+                # spelling of a state key is the thing this module refuses.
+                resolutions[authored.addressed_key] = refused(
+                    authored,
+                    f"{where.capitalize()} concerns {ref.state_key} on a "
+                    "component and names none, and "
+                    f"{profile_detail} declares no binding saying which kind "
+                    f"of component carries {ref.state_key} as "
+                    "a fact about one component. Nothing reads a component "
+                    "type out of the state's name, so this needs either an "
+                    "address in the scenario or a profile that declares the "
+                    "binding.",
+                    "MODEL_PROFILE",
+                    f"{profile_detail}, which declares no binding for it",
                 )
                 continue
+            else:
+                matches = [
+                    candidate
+                    for candidate in site.foundation.components
+                    if candidate.component_type == binding.component_type
+                ]
 
-        if ref.scope == "SITE":
-            # A site-wide reference names the installation, and the record
-            # above has already refused it a component selector.
-            resolutions[ref.addressed_key] = settled(
-                ref, ref, None, foundation_detail
-            )
-            continue
+                if not matches:
+                    resolutions[authored.addressed_key] = refused(
+                        authored,
+                        f"{where.capitalize()} concerns {ref.state_key} on a "
+                        f"{binding.component_type} component and names none, "
+                        f"and the foundation of site {site.site_id} declares "
+                        "no such component. A scenario addressing something "
+                        "this site declares would resolve it.",
+                        "SITE_FOUNDATION",
+                        (
+                            f"{foundation_detail}, which declares nothing of "
+                            "that type"
+                        ),
+                    )
+                    continue
 
-        supported = model.supported(ref.state_key)
+                if len(matches) > 1:
+                    named_ids = sorted(item.component_id for item in matches)
+                    resolutions[authored.addressed_key] = refused(
+                        authored,
+                        f"{where.capitalize()} concerns {ref.state_key} "
+                        "without saying which component it is about, "
+                        f"{profile_detail} carries that state on a "
+                        f"{binding.component_type}, and the foundation of "
+                        f"site {site.site_id} declares more than one: "
+                        f"{', '.join(named_ids)}. Two assets for one "
+                        "reference is not something a run may choose between, "
+                        "so the scenario has to name the one it means - for "
+                        f"example {ref.state_key}@{named_ids[0]}.",
+                        "SITE_FOUNDATION",
+                        (
+                            f"{foundation_detail}, which declares more than "
+                            "one match"
+                        ),
+                    )
+                    continue
 
-        if supported is None or supported.scope != ref.scope:
-            # `_support_for` says this better than a resolver can - but only
-            # if it is ever asked. A bound target it never sees is reported
-            # here instead, in the same vocabulary, so a reader meets one
-            # kind of statement wherever the reference was written.
-            if ref.addressed_key in executable:
-                resolutions[ref.addressed_key] = settled(
-                    ref, ref, component, profile_detail, deferred=True
+                component = matches[0]
+                # The resolved reference. The dict stays keyed on the
+                # AUTHORED address, because that is what every caller looks
+                # a row up by; the resolved one is what the row freezes.
+                ref = authored.resolved_to(component.component_id)
+
+        # --- Obligation two: can this build model the state at all? -------
+        #
+        # Every scope, which is the other half of the same review's finding.
+        # The SITE branch used to return before this lookup, so the check
+        # added to close bound-only references never ran for a `site:`
+        # spelling: `site:unmodelled-volume` as a bound target came back
+        # READY with nothing recorded about it.
+        #
+        # This one IS deferred, and legitimately - `_support_for` says it
+        # better, with the requirement level taken into account - but only
+        # when `_support_for` is actually asked, which `executable` decides.
+        # A bound target it never sees is reported here, in the same
+        # vocabulary, so a reader meets one kind of statement wherever the
+        # reference was written.
+        if supported is None or supported.scope != authored.scope:
+            if authored.addressed_key in executable:
+                resolutions[authored.addressed_key] = settled(
+                    authored, ref, component, profile_detail, deferred=True
                 )
             else:
-                resolutions[ref.addressed_key] = refused(
-                    ref,
-                    unmodelled(ref, where, supported),
+                resolutions[authored.addressed_key] = refused(
+                    authored,
+                    unmodelled(authored, where, supported),
                     "MODEL_PROFILE",
                     f"{profile_detail}, which does not model it that way",
                     kind="STATE_NOT_SUPPORTED",
                 )
             continue
 
-        binding = supported.foundation_binding
-
-        # --- Compatibility, for a component this Site does declare --------
-        if component is not None:
-            if (
-                binding is not None
-                and component.component_type != binding.component_type
-            ):
-                resolutions[ref.addressed_key] = refused(
-                    ref,
-                    f"{where.capitalize()} concerns {ref.state_key} on "
-                    f"component {component.component_id}, which the "
-                    f"foundation of site {site.site_id} declares as a "
-                    f"{component.component_type}, and {profile_detail} "
-                    f"carries that state on a {binding.component_type}. The "
-                    "named component is the one this run would act on, so "
-                    f"nothing looks for a {binding.component_type} elsewhere "
-                    "on the site.",
-                    "SITE_FOUNDATION",
-                    (
-                        f"{foundation_detail}, whose component "
-                        f"{component.component_id} is a "
-                        f"{component.component_type}"
-                    ),
-                )
-                continue
-            resolutions[ref.addressed_key] = settled(
-                ref,
-                ref,
-                component,
-                f"{foundation_detail}, component {component.component_id}",
-            )
-            continue
-
-        # --- No selector: the binding's type is the only way to choose ----
-        if binding is None:
-            resolutions[ref.addressed_key] = refused(
-                ref,
-                f"{where.capitalize()} concerns {ref.state_key} on a "
-                "component and names none, and "
-                f"{profile_detail} declares no binding saying which kind of "
-                f"component carries {ref.state_key}. Nothing reads a "
-                "component type out of the state's name, so this needs "
-                "either an address in the scenario or a profile that "
-                "declares the binding.",
-                "MODEL_PROFILE",
-                f"{profile_detail}, which declares no binding for it",
-            )
-            continue
-
-        matches = [
-            candidate
-            for candidate in site.foundation.components
-            if candidate.component_type == binding.component_type
-        ]
-
-        if not matches:
-            resolutions[ref.addressed_key] = refused(
-                ref,
-                f"{where.capitalize()} concerns {ref.state_key} on a "
-                f"{binding.component_type} component and names none, and the "
-                f"foundation of site {site.site_id} declares no such "
-                "component. A scenario addressing something this site "
-                "declares would resolve it.",
-                "SITE_FOUNDATION",
-                f"{foundation_detail}, which declares nothing of that type",
-            )
-            continue
-
-        if len(matches) > 1:
-            named_ids = sorted(item.component_id for item in matches)
-            resolutions[ref.addressed_key] = refused(
-                ref,
-                f"{where.capitalize()} concerns {ref.state_key} without "
-                "saying which component it is about, "
-                f"{profile_detail} carries that state on a "
-                f"{binding.component_type}, and the foundation of site "
-                f"{site.site_id} declares more than one: "
-                f"{', '.join(named_ids)}. Two assets for one reference is "
-                "not something a run may choose between, so the scenario has "
-                f"to name the one it means - for example "
-                f"{ref.state_key}@{named_ids[0]}.",
-                "SITE_FOUNDATION",
-                f"{foundation_detail}, which declares more than one match",
-            )
-            continue
-
-        chosen = matches[0]
-        resolutions[ref.addressed_key] = settled(
+        resolutions[authored.addressed_key] = settled(
+            authored,
             ref,
-            ref.resolved_to(chosen.component_id),
-            chosen,
-            f"{foundation_detail}, component {chosen.component_id}",
+            component,
+            (
+                foundation_detail
+                if component is None
+                else f"{foundation_detail}, component {component.component_id}"
+            ),
         )
 
     return resolutions

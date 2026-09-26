@@ -2363,13 +2363,17 @@ component-scoped and unqualified, `fuel-tank-volume@north-tank` names the
 component, and `site:site-load-demand` is a fact about the installation.
 `component:` is accepted as the bare form said out loud and renders back as the
 bare form. A bare key means COMPONENT and never SITE. **What makes that direction safe is
-enforcement in `runs/service.py`, not the spelling** - every component-scoped
-reference must identify one component of the bound Site before a run is READY -
-and this paragraph asserted it as a property of the default for two rounds
-while that enforcement had holes. Read the correction section below before
-relying on any universal statement here. The other direction would have turned
-a statement about one machine into a statement about the installation with
-nothing that could notice.
+enforcement in `runs/service.py`, not the spelling**, and the property has
+edges that have to be stated with it or the statement goes false again - it did
+three times. A COMPONENT-scoped reference must identify one component of the
+bound Site before that run is READY, whoever answers for its number, whether or
+not it has one, and at either requirement level. A `site:` reference poses no
+component question and is never asked one, though the profile must still model
+the state at that scope. And whether this build can MODEL a state is a separate
+obligation that stays requirement-sensitive: unsupported and REQUIRED blocks,
+unsupported and OPTIONAL is recorded and proceeds. The other direction of the
+default would have turned a statement about one machine into a statement about
+the installation with nothing that could notice.
 
 One parser serves both document families, which is what makes a frozen record
 reconstruct to the address it was written from. `addressed_key` is the
@@ -2390,11 +2394,13 @@ input never goes near it. A `SITE`-scoped supported state may not carry a
 `FoundationBinding` at all, refused in `__post_init__`, because such a binding
 names a component type and could never resolve.
 
-**Resolution has eight blocking cases and no refusal.** Scope disagreement;
+**Resolution has nine blocking cases and no refusal** - this said eight and
+listed nine, and a backup review counted them; the nine are split across the
+two functions as the later correction sections describe. Scope disagreement;
 no binding; the binding's unit against the scenario's; a named component the
 Foundation does not declare; a named component of the wrong type; no candidate
-of the bound type; more than one candidate and no selector; the property absent;
-the property's unit against the binding's. The candidate set is the components
+of the bound type; more than one candidate and no selector; the property
+absent; the property's unit against the binding's. The candidate set is the components
 OF THE DECLARED TYPE and never the components that happen to declare the
 property - narrowing it would let a second tank answer for the one the address
 could not reach, which is the fallback addressing exists to prevent. Every

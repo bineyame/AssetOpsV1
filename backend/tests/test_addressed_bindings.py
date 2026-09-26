@@ -1202,12 +1202,34 @@ class TestADeferredReferenceReachesTheCheckItWasHandedTo:
                     )
                     continue
                 # Anything else claims to have been settled here, so it has
-                # to name something: a component, or the installation.
+                # to name something.
+                #
+                # The escape hatch that used to be on the line below - "or
+                # its scope is SITE" - is gone, and removing it is half of
+                # what a backup review returned. The code had a matching
+                # hole: the SITE branch returned before the support lookup,
+                # so `site:unmodelled-volume` as a bound target came back
+                # READY with nothing recorded about it, and this assertion
+                # waved every `site:` reference through without asking
+                # anything. **A test written to prove enforcement must not
+                # exempt the spelling the code exempts.**
+                #
+                # What is asserted instead is the honest thing about a
+                # site-wide reference: it names the installation, so it has
+                # no component to find, and the profile must still model the
+                # state at that scope for it to be settled here. A scope
+                # disagreement or an unmodelled state leaves through the
+                # deferral branch above or through `reason`, never here.
                 assert address.is_resolved, key
-                assert (
-                    address.component is not None
-                    or address.authored.scope == "SITE"
-                ), key
+                supported = twin_profile().supported(
+                    address.authored.state_key
+                )
+                assert supported is not None, key
+                assert supported.scope == address.authored.scope, key
+                if address.authored.scope == "COMPONENT":
+                    assert address.component is not None, key
+                else:
+                    assert address.component is None, key
 
         # Non-vacuous: at least one document really does defer something, so
         # the loop above is not passing because the branch is never taken.
@@ -1226,6 +1248,16 @@ class TestADeferredReferenceReachesTheCheckItWasHandedTo:
             (f"example-demand@{NORTH_TANK}", "STATE_NOT_SUPPORTED"),
             # A state this profile does not model at all, same position.
             (f"unmodelled-volume@{NORTH_TANK}", "STATE_NOT_SUPPORTED"),
+            # And the same two facts written `site:`, which is the spelling
+            # this parametrization had no case for while the code had no
+            # check. A site-wide claim on a state the profile carries per
+            # component, and a state it does not carry at all.
+            ("site:example-stored-volume", "STATE_NOT_SUPPORTED"),
+            ("site:unmodelled-volume", "STATE_NOT_SUPPORTED"),
+            # The site-wide control: a state the profile really does model
+            # at SITE scope is settled, so the two above are about the
+            # reference and not about `site:` being refused on sight.
+            ("site:example-demand", None),
         ],
     )
     def test_a_bound_only_reference_is_checked(
@@ -1395,6 +1427,204 @@ class TestTheBindingsTypeIsCheckedWhoeverSuppliesTheNumber:
 
         assert record.execution_status == "READY"
         assert frozen_by_address(record)[NORTH_VOLUME].value == NORTH_CAPACITY
+
+class TestTheAddressObligationIgnoresTheRequirementLevel:
+    """Acceptance criteria 5 and 9, at the level a backup review found open.
+
+    ## The decision, and why
+
+    `_support_for` blocks on REQUIRED and records an
+    `UnsupportedOptionalInput` on OPTIONAL. Both of those are about SUPPORT.
+    Neither is about the address - so handing a reference to `_support_for`
+    and calling the address question answered was wrong at both requirement
+    levels, and merely invisible at one of them: a bare `unmodelled-level`
+    marked OPTIONAL came back READY with 200 L frozen against no asset.
+
+    So the address obligation is enforced regardless of requirement, and the
+    reason it is not an exemption is that the two questions are independent:
+
+    - **can this build model the state at all?** Requirement-sensitive, and
+      `_support_for`'s, exactly as before. OPTIONAL means a run may proceed
+      without support for it, which is what the setting exists for, and
+      T020B's plan to record demand and irradiance as unsupported optional
+      inputs still works.
+    - **does the reference name one component of this Site?** Never deferred,
+      never requirement-sensitive. A reference the run cannot place is a
+      reference nothing can be said about, whether or not this build could
+      have modelled it.
+
+    Exempting OPTIONAL would have reintroduced exactly what the previous
+    round removed with the absent-row rule: a record that behaves one way
+    here and another there. A SITE reference has no component obligation to
+    meet - it names the installation - and `TestASiteWideClaimIsStillChecked`
+    below is the part of that which is deliberate rather than overlooked.
+    """
+
+    def declared(self, reference: str, requirement: str):
+        """The twin document with its north level retargeted and re-levelled."""
+        document = twin_document(
+            north_level_ref=reference, south_level_ref=None
+        )
+        for parameter in document["public_parameters"]:
+            if parameter["parameter_id"] == "north-start":
+                parameter["execution_requirement"] = requirement
+        for entry in document["timeline"]:
+            if entry.get("state_key") == reference:
+                entry["execution_requirement"] = requirement
+                for parameter in entry.get("parameters", []):
+                    parameter["execution_requirement"] = requirement
+        return run(document=document)
+
+    @pytest.mark.parametrize("requirement", ["REQUIRED", "OPTIONAL"])
+    @pytest.mark.parametrize(
+        "reference",
+        [
+            # Unqualified, and a state no binding names, so nothing could
+            # choose a component even in principle.
+            "unmodelled-level",
+            # Explicitly addressed at a component this foundation does not
+            # declare.
+            "example-stored-level@ghost-tank",
+        ],
+    )
+    def test_an_unplaceable_reference_blocks_at_either_level(
+        self, reference: str, requirement: str
+    ) -> None:
+        record, store = self.declared(reference, requirement)
+
+        assert record.execution_status == "BLOCKED", (reference, requirement)
+        assert store.written == [record]
+        assert any(
+            reason.kind == "STATE_ADDRESS_NOT_RESOLVED"
+            and reason.subject == reference
+            for reason in record.blocking_reasons
+        ), [(r.kind, r.subject) for r in record.blocking_reasons]
+
+    @pytest.mark.parametrize("requirement", ["REQUIRED", "OPTIONAL"])
+    def test_its_number_is_not_frozen_at_either_level(
+        self, requirement: str
+    ) -> None:
+        """The value is the evidence, as it was for the wrong-type case.
+
+        A run that reported BLOCKED and still froze 200 L at a reference
+        naming no asset would satisfy the status assertion above while doing
+        the thing the absent-row rule forbids - and on OPTIONAL it was
+        exactly that, at READY.
+        """
+        record, _ = self.declared("unmodelled-level", requirement)
+
+        frozen = frozen_by_address(record)["unmodelled-level"]
+        assert frozen.value is None
+        assert frozen.canonical_value is None
+        assert frozen.state_ref.component_id is None
+
+    def test_optional_still_means_the_run_may_proceed_without_support(
+        self,
+    ) -> None:
+        """The half that stays requirement-sensitive, so the fix is bounded.
+
+        An unsupported state that CAN be placed is recorded and does not
+        block, which is what OPTIONAL is for. Without this the change above
+        would have made OPTIONAL indistinguishable from REQUIRED.
+        """
+        record, _ = self.declared(
+            f"unmodelled-level@{NORTH_TANK}", "OPTIONAL"
+        )
+
+        assert record.execution_status == "READY"
+        # Two records for one address, because the fixture declares that
+        # level as a cause and reports it through the operator record - and a
+        # profile may be able to do one and not the other, so they are two
+        # skipped things rather than one.
+        assert {
+            (item.addressed_key, item.execution_role)
+            for item in record.unsupported_optional_inputs
+        } == {
+            (f"unmodelled-level@{NORTH_TANK}", "CAUSAL_INPUT"),
+            (f"unmodelled-level@{NORTH_TANK}", "REPORTED_OBSERVATION"),
+        }
+
+    def test_the_same_reference_required_blocks_instead(self) -> None:
+        """The control for the line above: the level is what differs."""
+        record, _ = self.declared(
+            f"unmodelled-level@{NORTH_TANK}", "REQUIRED"
+        )
+
+        assert record.execution_status == "BLOCKED"
+        assert any(
+            reason.kind == "STATE_NOT_SUPPORTED"
+            for reason in record.blocking_reasons
+        )
+
+
+class TestASiteWideClaimIsStillChecked:
+    """A `site:` reference has no component to find, and is not exempt.
+
+    The exemption a backup review found: the SITE branch returned before the
+    profile was consulted, so the check added to close bound-only references
+    never ran for this spelling. `site:unmodelled-volume` as a bound target
+    came back READY with zero reasons and persisted.
+
+    What a site-wide reference is exempt from is the COMPONENT obligation -
+    it names the installation, and asking which component it means would be
+    asking a question it does not pose. What it is not exempt from is whether
+    this build models that state, at that scope.
+    """
+
+    def bound_document(self, target: str) -> dict:
+        document = twin_document()
+        capacity = next(
+            parameter
+            for parameter in document["public_parameters"]
+            if parameter["parameter_id"] == "north-capacity"
+        )
+        capacity["bounds"] = {"state_key": target, "bound_kind": "UPPER"}
+        return document
+
+    @pytest.mark.parametrize(
+        "target",
+        [
+            # The profile carries this state per component, so a site-wide
+            # claim on it is a different quantity.
+            "site:example-stored-volume",
+            # And this one it does not carry at all.
+            "site:unmodelled-volume",
+        ],
+    )
+    def test_a_site_wide_bound_target_is_reported(self, target: str) -> None:
+        record, store = run(document=self.bound_document(target))
+
+        assert record.execution_status == "BLOCKED", target
+        assert store.written == [record]
+        assert any(
+            reason.kind == "STATE_NOT_SUPPORTED" and reason.subject == target
+            for reason in record.blocking_reasons
+        ), [(r.kind, r.subject) for r in record.blocking_reasons]
+
+    def test_a_site_wide_reference_the_profile_models_is_settled(self) -> None:
+        """The control, so the two above are not `site:` being refused."""
+        record, _ = run(document=self.bound_document("site:example-demand"))
+
+        assert record.execution_status == "READY"
+
+    def test_a_site_wide_reference_is_never_asked_for_a_component(
+        self,
+    ) -> None:
+        """The exemption that IS deliberate, asserted rather than implied.
+
+        A site-wide claim resolves with no component and that is correct.
+        Asserting it here means a later slice that starts demanding one has
+        to delete a test that says why it should not.
+        """
+        addresses = resolve_state_addresses(
+            scenario(twin_document()), twin_site(), twin_profile()
+        )
+        site_wide = addresses["site:example-demand"]
+
+        assert site_wide.is_resolved
+        assert site_wide.component is None
+        assert site_wide.resolved is not None
+        assert site_wide.resolved.scope == "SITE"
 
 class TestDynamicInitializationIsAddressedToo:
     """Acceptance criterion 9: one tank's level cannot start its sibling."""

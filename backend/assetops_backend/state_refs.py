@@ -40,14 +40,31 @@ One string, three forms:
 
 The bare form means COMPONENT and not SITE. That is a default, and what makes
 the direction safe is a property `runs/service.py` enforces rather than one
-this spelling implies: every component-scoped reference must identify one
-component of the bound Site before a run is READY, whoever answers for its
-number and whether or not it has one. So a bare key that should have been
-site-wide blocks, with its address named.
+this spelling implies.
 
-This paragraph claimed that as a guarantee of the spelling for two rounds
-while the enforcement had holes, and a reader acted on it. It is recorded
-here as a property of the check, which is where it lives.
+**The property, stated once and stated exactly.** A component-scoped
+reference must identify one component of the bound Site before that run is
+READY. Not conditional on who answers for its number, not conditional on
+whether it has one, and not conditional on whether the declaration is
+REQUIRED or OPTIONAL. So a bare key that should have been site-wide blocks,
+with its address named.
+
+The two things it is NOT a claim about, because leaving them implied is how
+this paragraph came to be false three times running:
+
+- a `site:` reference, which names the installation and poses no question
+  about components. It is still checked - the profile has to model the state
+  at that scope - but never asked which component it means;
+- whether this build can MODEL the state. That is a separate obligation with
+  its own answer, requirement-sensitive by design: unsupported and REQUIRED
+  blocks, unsupported and OPTIONAL is recorded and proceeds. A reference can
+  therefore be perfectly addressed and still unexecutable, and the run says
+  both things.
+
+This paragraph asserted the property as a guarantee of the SPELLING for three
+rounds, and each time a reader acted on it the enforcement turned out to have
+a hole one spelling or one requirement level further in. It is recorded here
+as a property of the check, which is where it lives, and with its edges named.
 
 The other direction would be unsafe and unfixable: a bare key silently
 meaning "the site's" would let a statement about one machine become a

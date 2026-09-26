@@ -52,12 +52,20 @@ class FrozenInput:
     version, which run input or which profile version answered, so two rows
     with the same answerer are still two attributions.
 
-    `blocking_statement` is present only on a row whose value is missing, and
-    it is the reason that row is missing rather than a general remark about
-    the run. A blocked run already lists its reasons in their own table; this
-    puts the one that explains THIS value next to the hole it explains, which
-    is what a reader looking at two same-type assets actually needs - the two
+    `blocking_statement` is why THIS row stands in the way, rather than a
+    general remark about the run. A blocked run already lists its reasons in
+    their own table; this puts the one that explains this row next to it,
+    which is what a reader looking at two same-type assets needs - the two
     rows differ by a component id, and so do the two reasons.
+
+    It appears on rows of two kinds, and this docstring said "only on a row
+    whose value is missing" until a backup review checked it against the code
+    below. That is the usual case: an initial value with no answer carries
+    the reason it has none. The other is the execution-contract row, which
+    has a value - the version the run froze - and carries the statement that
+    this build will not execute a run frozen against it. Both are "why this
+    row stops the run", which is what the field means; a missing value is one
+    way for a row to do that and not the only one.
     """
 
     identity_field: str
