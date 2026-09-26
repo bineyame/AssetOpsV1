@@ -15,18 +15,28 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020A1 is built, reviewed three times, corrected three times, and back in
-review**, on branch `task/T020A1-addressed-foundation-bindings`, which now
-carries a merge of `origin/main` at `0accbea` for the Reviewer backup rule.
-Two Codex passes returned four defects, two overclaiming tests, then three
-more items; a third pass by the **Claude backup Reviewer** - Codex was out of
-quota - found two the Codex passes had missed, in the same place one spelling
-and one requirement level further in. All are closed. Two findings are carried
-by the reviews' own judgement. `.agent/T020A1-review.md` is the review, `T020A1-fix-probes.py`
-re-runs its reproductions and asserts the opposite of each, and the packet
-`.agent/T020A1-review-packet.md` maps every criterion to its evidence and
-corrects three claims round one made falsely. It goes back to the Reviewer,
-and the user's own review of the two Drafts is still outstanding.
+**T020A1 is complete and merged.** `tasks/completed/T020A1-addressed-foundation-bindings.md`.
+A world state is named by an address, not a semantic key alone: `StateRef` with
+scope and selector, one strict parser both document families use, and a
+resolver that asks two independent questions of every reference - does it name
+one component of this Site, and can this build model the state at that scope.
+`EXECUTION_CONTRACT_VERSION` moved 3 to 4.
+
+Four review passes: two Codex, then two by the **Claude backup Reviewer** after
+Codex ran out of quota. Between them they returned four defects, two
+overclaiming tests, three more items, and then two the Codex passes had missed
+one spelling and one requirement level further in. All closed across five
+implementation rounds. The final verdict was merge with all fourteen criteria
+met. `.agent/` holds all four reviews, the packet, and `T020A1-fix-probes.py`,
+which re-runs every reproduction from every round and asserts the opposite.
+
+Carried rather than fixed, in `.ai/MILESTONE_REVIEW_BACKLOG.md`: F5, an
+inverted diagnosis that T020B owns, and F6, a false justification in the
+packet's layout section. **Three things T021 must know** are recorded with
+them - regenerate rather than execute a Draft frozen before its own build, do
+not initialize from an `initialization_inputs` row without cross-referencing
+`unsupported_optional_inputs`, and the shipped scenario's only upper bound is
+inert so its value must come from the frozen input.
 
 Three shapes worth carrying forward rather than the fixes, and they are the
 same mistake at widening radius. **Who supplies a number and which asset the

@@ -117,6 +117,29 @@ The Implementer's packet already states its own uncertainties and residual
 risks. That is the right channel for "look at this": the author declaring what
 it is unsure of, in a document the Reviewer reads anyway.
 
+## Sort Findings Before Forwarding Them
+
+Recorded on 2026-09-26 after the user asked whether the Reviewer was applying
+`D-2026-09-22-milestone-speed-over-purity`. It was; all three T020A1 reviews
+cited it, and Codex used it to carry an HTTP-reachable 500, five overflow
+sites and several residuals rather than block on them. **The coordinator was
+the leak.**
+
+That decision's stopping rule is narrow. Stop only for a defect expensive to
+reverse, a claim that would mislead an Implementer, or a decision only the user
+can take. **Everything else is recorded and carried.** A Reviewer that rates a
+finding low and does not demand it has already applied the rule; forwarding it
+as fix work overrides the Reviewer in the direction the decision forbids.
+
+So when a review returns, the coordinator sorts every finding into block or
+carry against those three conditions before putting any of it to the user, and
+says which is which. A finding that is carried goes to
+`.ai/MILESTONE_REVIEW_BACKLOG.md` with the reason, not into the next round.
+
+T020A1 is the case to remember: five implementation rounds and three review
+passes, of which two rounds closed comment counts, a docstring and a Draft
+count that had drifted. Each was real. None was a reason to reopen a slice.
+
 ## Using Codex Efficiently
 
 Codex quota is **account-level and shared across every model**. On 2026-09-24
