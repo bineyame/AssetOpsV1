@@ -2869,7 +2869,7 @@ shipped document against a Site instantiated from the shipped template through
 inputs, the disclosure and the contract version on that run. `MG-006` in
 `var/sites/` is the same case through the real HTTP path, with
 `var/scenarios/fuel-loss-event-mg006.yaml` naming it, and
-`run-80c45f818de543c3bbdc3db79e5e6f1f` is the `READY` Draft the owner reviews.
+`run-9f74603b06384126a627a5339fc78fbe` is the `READY` Draft the owner reviews.
 T020's fixture run record was left in `var/runs` as user data.
 
 What T020B leaves open, for the slice that meets it.
@@ -2898,5 +2898,14 @@ What T020B leaves open, for the slice that meets it.
   reviews, and twenty-four are `BLOCKED` Drafts of the shipped document that
   the layout evidence tool creates, one per run-setup visit across five runs of
   it. The tool has created a Draft per run since T019 and nothing clears them.
+- **An `UnsupportedOptionalInput`'s statement is PERSISTED on the frozen run**,
+  not computed when the run is read. That is correct - a frozen run records what
+  it said at setup - and it has a consequence worth knowing: the review round
+  that corrected this copy could not be seen by reloading an existing Draft, so
+  the demo Draft was regenerated as
+  `run-9f74603b06384126a627a5339fc78fbe`. It is the same shape as the
+  instruction that T021 regenerates rather than executes a Draft frozen before
+  its own build, one layer down: any slice that changes a persisted statement
+  changes it for new runs only.
 - **The five inline `float(value)` overflow sites are untouched and no sixth was
   added.** Nothing in this slice converts a number.

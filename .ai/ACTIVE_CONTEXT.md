@@ -34,12 +34,12 @@ forcing outside its window being unavailable, and what each bound policy commits
 a kernel to; all of it renders on the scenario detail screen.
 `EXECUTION_CONTRACT_VERSION` moved 4 to 5 and stored runs keep theirs.
 
-F5 carried out of T020A1 is closed; the backlog records why it happened - not a
-missing check but two checks that could not see each other, so all three sites
-now ask one authority record and share one statement.
-`.agent/T020B-guard-probes.py` breaks each of the ten guards and asserts the
-tests notice. `run-80c45f818de543c3bbdc3db79e5e6f1f` on `mg-006` is the READY
-Draft the owner reviews.
+F5 carried out of T020A1 is closed; the backlog records why - not a missing check
+but two checks that could not see each other, so all three sites now ask one
+authority record and share one statement. `.agent/T020B-guard-probes.py` breaks
+each guard and asserts the tests notice.
+`run-9f74603b06384126a627a5339fc78fbe` on `mg-006` is the READY Draft the owner
+reviews.
 
 **T020A1 and T020A before it are complete and merged**; full records in
 `.ai/CODE_STATE.md`, packets and reviews in `.agent/`. A world state is named by
@@ -50,18 +50,14 @@ declares typed unit-carrying properties that run setup resolves through the
 profile's binding.
 
 Four lessons those three slices paid for, worth more than their fixes. **Who
-supplies a number and which asset the number is about are two questions.**
-**Visiting a reference is not resolving it.** **A check that answers a different
-question is not an answer.** **Two checks that cannot see each other will
-disagree** - T020B's F5. And the test shape that let each survive: a test written
-to prove enforcement must not exempt what the code exempts, because then it
-cannot fail where the code is wrong.
+supplies a number and which asset it is about are two questions.** **Visiting a
+reference is not resolving it.** **A check that answers a different question is
+not an answer.** **Two checks that cannot see each other will disagree** -
+T020B's F5. Plus the test shape that let each survive: a test written to prove
+enforcement must not exempt what the code exempts.
 
-**Three things T021 must know**, recorded in the backlog with the carried items:
-regenerate rather than execute a Draft frozen before its own build, do not
-initialize from an `initialization_inputs` row without cross-referencing
-`unsupported_optional_inputs`, and the shipped scenario's only upper bound is
-inert so its value must come from the frozen input.
+**Three things T021 must know** are in the backlog beside the carried items, and
+the T020B code-state entry adds a fourth.
 
 Carried, not lost: five open inline-`float(value)` overflow sites in
 `.ai/MILESTONE_REVIEW_BACKLOG.md`, the HTTP-reachable one first, and no sixth was
@@ -107,10 +103,10 @@ this work. Do not reconcile the new plan back to them.
 
 1. **While T020B is `in_review` its own file is the active one**:
    `tasks/T020B-execution-contract-alignment.md`, with
-   `.agent/T020B-review-packet.md` and `.agent/T020B-claude-review.md`. Once its
-   outcome is recorded and it moves to `tasks/completed/`, read `tasks/T021-*.md`
-   and `tasks/README.md` instead: T020B DECLARES the executable contract and
-   T021 proves a kernel conforms to it.
+   `.agent/T020B-review-packet.md` and `.agent/T020B-claude-review.md`. Once it
+   moves to `tasks/completed/`, read `tasks/T021-*.md` and `tasks/README.md`
+   instead: T020B DECLARES the executable contract, T021 proves a kernel
+   conforms to it.
 2. `.ai/CODE_STATE.md`: the T020B entry first - it names the boundary cycle, the
    reading conventions, the bound policies and the three things T021 must know -
    then T020A1, T020A and T018-T020 for the carriers and frozen setup.

@@ -99,6 +99,6 @@ does not model. The Reviewer checks conflict refusal and timing declarations.
 
 Built on branch `task/T020B-execution-contract-alignment`. Packet:
 `.agent/T020B-review-packet.md`. The owner's Draft is
-`run-80c45f818de543c3bbdc3db79e5e6f1f`, on `MG-006`, from
+`run-9f74603b06384126a627a5339fc78fbe`, on `MG-006`, from
 `var/scenarios/fuel-loss-event-mg006.yaml`.
 Review outcome: pending.
