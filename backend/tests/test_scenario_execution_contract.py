@@ -66,8 +66,12 @@ from scenario_fixtures import scenario_document
 
 from assetops_backend.scenarios.execution import (
     ACCOUNTED_FOR_REASON,
+    BOUNDARY_CYCLE,
     BOUND_CASES,
     BOUND_POLICIES,
+    BOUND_POLICY_STATEMENTS,
+    OBSERVATION_RULES,
+    READING_CLASSES,
     BOUND_REACHED_LOWER,
     BOUND_REACHED_UPPER,
     NOT_ACCOUNTED_FOR_REASON,
@@ -1286,3 +1290,281 @@ def _every_key(node):
                 pending.append(child)
         elif isinstance(current, list):
             pending.extend(current)
+
+
+class TestTheBoundaryCycle:
+    """T020B criterion 6: the v4 boundary cycle IS the execution contract.
+
+    It replaces one declared semantic - "observe after the step" - which said
+    which side of a step a sample falls on and said nothing about where a
+    controller, a resolver or an invariant check sits relative to it.
+    """
+
+    def _by_id(self) -> dict:
+        return {phase.phase_id: phase for phase in BOUNDARY_CYCLE}
+
+    def test_the_phases_the_criterion_names_are_declared(self) -> None:
+        declared = self._by_id()
+
+        for phase_id in (
+            "apply-events",
+            "state-at-t",
+            "sample-and-publish",
+            "controller-view",
+            "controller-intent",
+            "physical-acceptance",
+            "evolve",
+            "check-invariants",
+            "carry-forward",
+        ):
+            assert phase_id in declared, phase_id
+            assert declared[phase_id].statement.strip(), phase_id
+
+    def test_the_declared_ordinals_are_a_total_order_from_one(self) -> None:
+        """The sequence is the contract, not the tuple's index.
+
+        Asserted as a property of the numbers rather than read off the tuple: a
+        phase whose declared ordinal disagreed with its position would publish
+        one order and be read in another, and consumers read the number.
+        """
+        sequences = [phase.sequence for phase in BOUNDARY_CYCLE]
+
+        assert sequences == sorted(sequences)
+        assert sequences == list(range(1, len(BOUNDARY_CYCLE) + 1))
+
+    def test_nothing_observes_or_controls_before_the_events_are_applied(
+        self,
+    ) -> None:
+        """The collision v4 section 6 resolves, as an ordering assertion.
+
+        A sample at an instant must not show the pre-event state, and neither
+        must a controller view. Both follow from one fact - the two phases come
+        after `apply-events` - so the fact is asserted rather than each
+        statement's prose.
+        """
+        phases = self._by_id()
+        applied = phases["apply-events"].sequence
+
+        assert phases["state-at-t"].sequence > applied
+        assert phases["sample-and-publish"].sequence > applied
+        assert phases["controller-view"].sequence > applied
+        # Acceptance sits between intent and evolution: what the world takes is
+        # resolved from what was asked, and the world moves on what it took.
+        assert (
+            phases["controller-intent"].sequence
+            < phases["physical-acceptance"].sequence
+            < phases["evolve"].sequence
+        )
+        # Invariants are checked after the evolution and before the hand-off,
+        # so a step cannot carry a violating state forward unchecked.
+        assert (
+            phases["evolve"].sequence
+            < phases["check-invariants"].sequence
+            < phases["carry-forward"].sequence
+        )
+
+    def test_the_sample_phase_carries_both_measurement_classes(self) -> None:
+        """The reconciled rule, in the phase that has to do both at once.
+
+        This is what made the two conventions look asymmetric: one phase reads
+        the stock AT the instant and attaches a rate FOR the span before it.
+        """
+        statement = self._by_id()["sample-and-publish"].statement
+
+        assert "sampled at T" in statement
+        assert "[T-dt, T)" in statement
+
+
+class TestWhatATimestampedReadingDescribes:
+    """T020B criteria 7 and 9: two conventions, declared as two."""
+
+    def _by_id(self) -> dict:
+        return {rule.rule_id: rule for rule in OBSERVATION_RULES}
+
+    def test_every_reading_class_has_a_rule_stating_its_convention(
+        self,
+    ) -> None:
+        """The guard that stops a class sharing an undocumented convention.
+
+        Criterion 7's last sentence: state and interval signals cannot share an
+        undocumented timing convention. A class nothing states a rule for is
+        exactly that sharing, so it fails here rather than being read as
+        "presumably the same as the other one".
+        """
+        covered = {rule.reading_class for rule in OBSERVATION_RULES}
+
+        assert covered == READING_CLASSES
+        assert {"STATE_SIGNAL", "INTERVAL_SIGNAL"} <= READING_CLASSES
+
+    def test_the_two_measurement_classes_describe_different_spans(
+        self,
+    ) -> None:
+        """The asymmetry, asserted on the two statements that carry it.
+
+        Pinned on identifying phrases rather than on a shared fragment: both
+        rules talk about an instant T and a reading, so a substring either one
+        contains would be satisfied by the other.
+        """
+        rules = self._by_id()
+
+        state = rules["state-signal-sampled-after-events"]
+        assert state.reading_class == "STATE_SIGNAL"
+        assert "after the events due at T have been applied" in state.statement
+        assert "never shows the pre-event state" in state.statement
+
+        interval = rules["interval-signal-describes-the-preceding-interval"]
+        assert interval.reading_class == "INTERVAL_SIGNAL"
+        assert "[T-dt, T) that has just ended" in interval.statement
+
+    def test_an_interval_reading_is_unavailable_at_the_first_boundary(
+        self,
+    ) -> None:
+        """Unavailable, and unavailable rather than zero or the first step.
+
+        Both alternatives are named in the statement because both are the
+        plausible mistake: a zero reads as a measurement, and the first step's
+        own value reads as a measurement of a span the run never covered.
+        """
+        rule = self._by_id()["no-interval-signal-at-the-first-boundary"]
+
+        assert rule.reading_class == "INTERVAL_SIGNAL"
+        assert "UNAVAILABLE" in rule.statement
+        assert "declares an initial historical window" in rule.statement
+        assert "not zero" in rule.statement
+        assert "not the first step's own value" in rule.statement
+
+    def test_a_controller_input_is_not_a_published_observation(self) -> None:
+        """Criterion 9, both halves.
+
+        The controller's view is its own, and no reporting cadence becomes a
+        control cadence. Two rules rather than one, because they are two things
+        a later slice could get wrong independently.
+        """
+        rules = self._by_id()
+
+        view = rules["controller-view-is-not-the-published-observation"]
+        assert view.reading_class == "CONTROLLER_INPUT"
+        assert "local inputs it" in view.statement
+        assert "sparse, noisy, delayed or missing" in view.statement
+
+        cadence = rules["no-cadence-becomes-a-controller-cadence"]
+        assert cadence.reading_class == "CONTROLLER_INPUT"
+        assert "Nothing turns it into the rate at which a" in cadence.statement
+        # And the other direction, which is the one an implementation would
+        # reach for first.
+        assert "nothing turns a control cadence into a reporting rate" in (
+            cadence.statement
+        )
+
+
+class TestTheWindowRampAndForcingAvailability:
+    """T020B criterion 5, as declared dispatch rules."""
+
+    def _by_id(self) -> dict:
+        return {rule.rule_id: rule for rule in DISPATCH_RULES}
+
+    def test_a_window_interpolates_between_its_declared_endpoints(
+        self,
+    ) -> None:
+        rule = self._by_id()["window-ramp"]
+
+        assert "linear interpolation between the window's two declared" in (
+            rule.statement
+        )
+        # What the endpoints ARE, because "between the endpoints" is not a rule
+        # until they are named.
+        assert "its own offset and its offset plus its" in rule.statement
+        assert "nothing at the start, all of it by the end" in rule.statement
+
+    def test_the_quantity_rule_no_longer_permits_landing_in_one_step(
+        self,
+    ) -> None:
+        """The narrowing, asserted where it would otherwise contradict.
+
+        `quantity-across-a-window` used to say the end state is the same
+        "whether a kernel applies it in one step or spreads it across the
+        window", which the ramp rule forbids for every instant inside. Two
+        rules of one contract saying opposite things is what this asserts
+        against.
+        """
+        statement = self._by_id()["quantity-across-a-window"].statement
+
+        assert "applies it in one step" not in statement
+        assert "the ramp rule below says" in statement
+
+    def test_a_forcing_outside_its_window_is_unavailable(self) -> None:
+        rule = self._by_id()["forcing-outside-its-window"]
+
+        assert "UNAVAILABLE at every instant outside its" in rule.statement
+        # Neither of the two fabrications, named so that either would be a
+        # visible change to this rule rather than a quiet choice in a kernel.
+        assert "not zero" in rule.statement
+        assert "not held at the last" in rule.statement
+
+    def test_the_forcing_interval_declares_its_boundary_membership(
+        self,
+    ) -> None:
+        """Half-open, and said in the forcing rule rather than inferred.
+
+        The run and step intervals already declare it. A forcing window that
+        left it implicit would be a third interval whose membership a reader
+        had to assume matched.
+        """
+        rule = self._by_id()["forcing-outside-its-window"]
+
+        assert "half-open" in rule.statement
+        assert "up to but not including the step that begins at its end" in (
+            rule.statement
+        )
+        # The run's and each step's own membership, in the same words, so the
+        # three intervals are one convention rather than three statements a
+        # reader has to reconcile.
+        run_interval = self._by_id()["half-open-interval"]
+        assert "up to but not including its end instant" in (
+            run_interval.statement
+        )
+        assert "up to but not including the next" in run_interval.statement
+
+
+class TestWhatEachBoundPolicyCommitsAKernelTo:
+    """T020B criterion 8: the policies, and what BOUNDED_AND_RECORDED means."""
+
+    def test_every_policy_states_what_it_does(self) -> None:
+        """Exactly, so a fourth policy cannot arrive without saying."""
+        assert set(BOUND_POLICY_STATEMENTS) == BOUND_POLICIES
+        for policy, statement in BOUND_POLICY_STATEMENTS.items():
+            assert statement.strip(), policy
+
+    def test_a_bounded_change_continues_from_the_bounded_value(self) -> None:
+        """The one this slice had to pin, and its two consequences.
+
+        The run continues, and later causes apply to the bounded value. Either
+        alone would leave the other undecided: a run that continued from the
+        unbounded value would have recorded a refusal that changed nothing.
+        """
+        statement = BOUND_POLICY_STATEMENTS["BOUNDED_AND_RECORDED"]
+
+        assert "the run CONTINUES" in statement
+        assert "every later cause applies to the bounded value" in statement
+        assert "recorded as a bounded transition of its own" in statement
+        assert "no silent clamp and no dropped" in statement
+
+    def test_the_other_two_policies_keep_their_distinctions(self) -> None:
+        """Preserved, which criterion 8 asks for by name.
+
+        A bound that ended the run would be `FAIL_RUN` wearing another name,
+        and a bound decided before a run exists is neither of the other two.
+        """
+        fail_run = BOUND_POLICY_STATEMENTS["FAIL_RUN"]
+        assert "does not continue" in fail_run
+
+        refused = BOUND_POLICY_STATEMENTS["REFUSED_AT_PARSE"]
+        assert "No run exists" in refused
+
+        # And the three are still three different commitments rather than one
+        # sentence repeated.
+        assert len(set(BOUND_POLICY_STATEMENTS.values())) == 3
+
+    def test_every_declared_case_carries_a_policy_that_is_stated(self) -> None:
+        for case in BOUND_CASES:
+            assert case.policy in BOUND_POLICY_STATEMENTS, case.case_id
