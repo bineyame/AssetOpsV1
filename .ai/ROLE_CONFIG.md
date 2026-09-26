@@ -63,6 +63,60 @@ So: before dispatching `assetops-architect` or `assetops-planner`, check the
 binding above. If it is Codex, run `codex exec`. The Claude subagents of those
 names refuse Codex-bound work rather than producing it.
 
+## The Reviewer Binding, And Its Backup
+
+The Reviewer is **Codex by default**. When Codex is unavailable - usage limit,
+outage, or a reset hours away - the backup is a **fresh Claude
+`assetops-reviewer` subagent**, and the substitution needs no permission. A
+slice waiting a day for quota is worse than a slice reviewed by the weaker of
+two independent readers.
+
+**Independence is the rule the backup must not break.** The backup is a NEW
+agent instance. It is never the agent that implemented the slice, and never
+that agent resumed with a different instruction. An implementer asked to
+review its own work will confirm it, which is why the binding exists.
+
+State in the report which reviewer produced it. A Claude review of Claude
+implementation is genuinely weaker than a Codex one on the same slice, and a
+later reader deciding how much weight to give a verdict needs to know which
+they are reading. Where the substitution happened because of quota, say so and
+say what was left unjudged, so the question can go back to Codex if it matters
+enough to wait for.
+
+## Do Not Write The Review In The Brief
+
+Recorded on 2026-09-26 at the user's instruction, because this project had
+been doing the opposite. Reviewer briefs had grown to eight numbered questions,
+each naming the thing to judge and supplying the arguments on both sides. That
+is not a brief; it is a draft verdict with blanks. A reviewer steered to eight
+questions inspects eight things, and the ninth - the one nobody thought to ask
+about - is the one that reaches production.
+
+A brief gives the Reviewer:
+
+- the target: branch, commit, spec, packet, and where prior reviews live;
+- the standing criteria it is reviewing against, which live in the task file
+  and this project's records, not in the brief;
+- **what has already been run and verified**, with results, so quota is not
+  spent re-running a green suite. This is factual and does not steer;
+- the constraints: do not merge, do not fix, where to write, what not to touch.
+
+A brief does **not** give the Reviewer:
+
+- an enumerated list of what to judge;
+- the arguments for or against a conclusion;
+- which findings the coordinator considers important;
+- a named preferred outcome, or a hint of one.
+
+Pointing at an artifact is not steering; summarising what that artifact says is.
+Where a genuine question must be asked - a decision only the user can take, a
+constraint the Reviewer cannot infer - ask it plainly and separately, and do not
+dress an opinion as a question.
+
+The Implementer's packet already states its own uncertainties and residual
+risks. That is the right channel for "look at this": the author declaring what
+it is unsure of, in a document the Reviewer reads anyway.
+
 ## Using Codex Efficiently
 
 Codex quota is **account-level and shared across every model**. On 2026-09-24
