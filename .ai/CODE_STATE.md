@@ -2646,6 +2646,71 @@ that kind means only a failure to obtain the initial value.
 `EXECUTION_CONTRACT_VERSION` did not move. Version 4 remains unpublished
 outside this branch.
 
+### T020A1 third correction round: two obligations, asked of every spelling
+
+The Codex Reviewer was out of quota and `.ai/ROLE_CONFIG.md`'s backup rule put
+a Claude reviewer on the slice. It found two things three Codex passes had not,
+both the same mistake as the previous two rounds, one spelling and one
+requirement level further in.
+
+**The SITE branch returned before the profile was consulted.** So the check
+round three added to close bound-only references never ran for a `site:`
+spelling: `site:unmodelled-volume` as a bound target came back READY with zero
+reasons and persisted, and so did `site:example-stored-volume`, a site-wide
+claim on a state the profile carries per component.
+
+**The deferral handed the whole reference to `_support_for`, which blocks only
+on REQUIRED.** So an unqualified `unmodelled-level` marked OPTIONAL froze 200 L
+against no asset and reported READY. Neither party enforced the address
+obligation: the resolver had delegated it, and the delegate answers a different
+question.
+
+**The structure that came out of it is the durable part.** Two independent
+obligations, asked of every reference:
+
+- **does it name one component of this Site?** Component-scoped only, never
+  deferred, never requirement-sensitive - because `_support_for` does not
+  answer address questions at any requirement level. A `site:` reference poses
+  no component question and is never asked one.
+- **can this build model the state, at that scope?** Every scope. Deferred to
+  `_support_for` when it is really asked, reported here when it is not, and
+  requirement-sensitive as it always was: unsupported and REQUIRED blocks,
+  unsupported and OPTIONAL is recorded and proceeds.
+
+Conflating them produced both findings. Keeping them apart is what makes the
+universal claim about component references finally true, because the things
+that used to falsify it are now visibly the other obligation's business.
+
+**The F2 decision was mine and I enforced rather than exempted.** An exemption
+by requirement level would have reintroduced what the absent-row rule removed a
+round earlier - a record that behaves one way here and another there - and the
+requirement level was never the cause: it only decides whether a SUPPORT
+failure blocks. The cost is one narrow case, an unqualified reference to an
+unmodelled state marked OPTIONAL, which now blocks with the repair named.
+`test_optional_still_means_the_run_may_proceed_without_support` pins the half
+that stays requirement-sensitive, so OPTIONAL was not quietly promoted.
+
+**The test had a hole the same shape as the code's, and that is the lesson.**
+The enforcement assertion whitelisted `address.authored.scope == "SITE"` and
+the parametrized bound test had five component-spelled targets and no `site:`
+one. **A test written to prove enforcement must not exempt what the code
+exempts**: it cannot fail where the code is wrong. Both holes are closed, and
+the proof is an experiment rather than an assertion - the corrected assertion
+fails against the old code, and with the escape restored it goes blind again
+while only the new parametrized cases fire.
+
+Two prose corrections. `_resolve_foundation_value` said "Five cases" over a
+list of six, one of which its own later comment says moved out; the count and
+the list are now stated together with the five `return blocked(...)` calls they
+describe, and the four that moved are named as the address pass's.
+`blocking_statement` was documented as appearing "only on a row whose value is
+missing" while the execution-contract row, which has a value, carries one; the
+docstring now says what the field means - why THIS row stops the run - and
+names both kinds of row.
+
+`EXECUTION_CONTRACT_VERSION` did not move. Version 4 remains unpublished
+outside this branch.
+
 What this leaves open.
 
 - **T020B still owns readiness.** The three unmodelled forcing states are
@@ -2657,15 +2722,33 @@ What this leaves open.
 - **The scope a state is claimed at is declared twice**, once per scenario
   reference and once per profile state. That is deliberate and the
   disagreement blocks, but it is two places a future slice must keep true.
+- **The shipped Fuel Loss scenario's upper bound is INERT, and T021 is the
+  first thing that will meet it.** `declared_bounds(fuel-loss-event)` returns
+  `{'fuel-tank-volume@fuel-tank': (0.0, None)}`: the upper value is missing
+  because `scenarios/execution.py` skips any parameter whose value is not a
+  float, and a Foundation-owned parameter states no value by design under
+  `D-2026-09-22-foundation-value-declaration`. So the tank capacity that
+  bounds the stored volume never reaches the bounds map, and the only
+  authored upper bound in the shipped document is absent from the projection
+  of it.
+  The identical guard is at `b004f58`, so this is inherited rather than
+  T020A1's, and AC12's evidence remains true about the authored DOCUMENT -
+  the declaration survives, addressed to the right tank. What does not
+  survive is its VALUE, which now lives on the frozen run instead.
+  **T021 is the first consumer of bounds** and must read the capacity from
+  the frozen initialization input rather than from `declared_bounds`, or
+  teach `declared_bounds` to take the frozen answers. A backup review found
+  this; it is recorded rather than fixed because fixing it is the kernel's
+  design decision about where a bound's number comes from.
 - **A hand-authored frozen document may hold two rows for one address**, and
   T021 must not reconstruct with last-write-wins. Carried by the review, with
   the acceptance suite no longer claiming otherwise.
 - **The twin-tank archetype's Foundation and SLD are unmeasured** at any
   viewport. The browser evidence is about MG-005's run detail and says nothing
   about the diagram that archetype draws.
-- **`var/runs` now holds 97 local Drafts and `create_run` is still O(n)** in
+- **`var/runs` now holds 102 local Drafts and `create_run` is still O(n)** in
   that count, unchanged from T020A and still wanting a bounded owner before
-  T027. This slice added sixteen Drafts to it, most of them written by three
+  T027. This slice added twenty-one Drafts to it, most of them written by four
   layout evidence runs.
 - **The five inline `float(value)` overflow sites in
   `.ai/MILESTONE_REVIEW_BACKLOG.md` are untouched and no sixth was added.**
