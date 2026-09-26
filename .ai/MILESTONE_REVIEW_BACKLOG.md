@@ -335,6 +335,34 @@ window or does not.
 *What would change the answer:* descoping that transform, or a second
 reporting-path state arriving with no consumer.
 
+### The window ramp is silent on a window that declares two values
+
+Raised by T020B's independent review, and it is about the shipped document rather
+than a hypothetical. `window-ramp` in `scenarios/execution.py` settles two cases:
+a declared quantity ramps from nothing to all of it, and a single declared level
+holds for the window. `baseline-load-profile` is a third. It is `INTERVAL_WIDE`
+and declares **two** parameters for one address and one role -
+`evening-peak-load` at 72 kW and `overnight-base-load` at 18 kW, both
+`site:site-load-demand` as a `FORCING_INPUT`. Nothing says which value sits at
+which endpoint, or whether two parameters compose as endpoints at all. Read
+literally the rule interpolates 72 kW down to 18 kW across the whole interval,
+which is not the "ordinary weekday shape" the entry's own description means.
+
+*Safe to carry* because nothing consumes the text yet: `site-load-demand` is
+`OPTIONAL` and unmodelled, T024 owns its electrical consumption, and no kernel
+exists to read the rule either way. Closing it needs a decision about what two
+parameters on one window MEAN - endpoints of a ramp, or two named levels a shape
+selects between - and inventing that here would be the narrow semantics
+`D-2026-09-22-milestone-speed-over-purity` says not to spend a slice on. The
+alternative reading is real, so the choice is not obvious enough to make
+silently.
+
+*What would change the answer:* **T021 writes its conformance tests from this
+text**, so it is the first consumer and should meet this entry rather than
+discover the gap. If T024 models demand before the decision is taken it becomes
+urgent, because a forcing with two declared values would reach a kernel with no
+rule for composing them.
+
 ### Two blocking rows can still share a subject across two kinds
 
 An addressed reference whose scope disagrees with the answering profile yields

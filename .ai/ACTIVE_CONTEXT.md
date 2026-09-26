@@ -105,9 +105,12 @@ this work. Do not reconcile the new plan back to them.
 
 ## Read For The Active Task
 
-1. `tasks/T021-*.md` and `tasks/README.md`. T020B's own file and packet are the
-   built state its successor implements: T020B DECLARES the executable
-   contract and T021 proves a kernel conforms to it.
+1. **While T020B is `in_review` its own file is the active one**:
+   `tasks/T020B-execution-contract-alignment.md`, with
+   `.agent/T020B-review-packet.md` and `.agent/T020B-claude-review.md`. Once its
+   outcome is recorded and it moves to `tasks/completed/`, read `tasks/T021-*.md`
+   and `tasks/README.md` instead: T020B DECLARES the executable contract and
+   T021 proves a kernel conforms to it.
 2. `.ai/CODE_STATE.md`: the T020B entry first - it names the boundary cycle, the
    reading conventions, the bound policies and the three things T021 must know -
    then T020A1, T020A and T018-T020 for the carriers and frozen setup.

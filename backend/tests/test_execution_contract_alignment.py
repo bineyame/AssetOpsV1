@@ -655,6 +655,64 @@ class TestTheShippedFuelLossEventReachesReadyThroughTheProductPath:
             ("site:plane-of-array-irradiance", "FORCING_INPUT"),
         }
 
+    def test_a_recorded_optional_input_does_not_claim_the_scenario_needs_it(
+        self,
+    ) -> None:
+        """The review's finding 1, kept as a guard rather than only corrected.
+
+        One sentence served both of `_support_for`'s answers and ended "which
+        this scenario needs it to" - true of a REQUIRED input, false of an
+        OPTIONAL one. So a READY run's own disclosure panel said the scenario
+        needed something it had just declared it could do without, which
+        contradicts the argument the lowering rests on.
+
+        Asserted from both sides, because a one-sided version passes on the
+        wrong fix: the optional row must not claim a need AND must say what
+        being optional actually means for this run.
+        """
+        record, _ = self._draft()
+
+        assert record.execution_status == "READY"
+        assert record.unsupported_optional_inputs
+        for item in record.unsupported_optional_inputs:
+            # The false clause, in either spelling it could come back as.
+            assert "needs it to" not in item.statement, item.addressed_key
+            assert "requires it" not in item.statement, item.addressed_key
+            # And the consequence that is actually true, which is the whole
+            # reason lowering these two hides nothing.
+            assert "declares it optional" in item.statement, item.addressed_key
+            assert "recorded here rather than blocking" in item.statement
+            assert "Nothing about this run models it" in item.statement
+
+    def test_a_required_unmodelled_input_still_says_the_run_is_blocked(
+        self,
+    ) -> None:
+        """The other side of the same statement, so the fix is a branch.
+
+        Had the consequence clause simply been deleted, the test above would
+        pass and a reader of a BLOCKED run would lose the sentence telling them
+        why the run cannot proceed.
+        """
+        document = scenario_document()
+        document["public_parameters"].append(
+            {
+                "parameter_id": "required-unmodelled",
+                "display_name": "A required state nothing models",
+                "value": 7,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": "site:never-modelled-state",
+                "execution_requirement": "REQUIRED",
+                "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
+            }
+        )
+
+        record, _ = run(document=document)
+        statement = reasons_by_subject(record)["site:never-modelled-state"]
+
+        assert "does not model that state at all" in statement
+        assert "This scenario requires it, so the run is blocked" in statement
+
     def test_the_dispatched_output_is_a_forcing_the_profile_supports(
         self,
     ) -> None:

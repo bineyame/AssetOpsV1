@@ -1545,7 +1545,11 @@ def scope_disagreement_statement(
 
 
 def state_not_modelled_statement(
-    ref: StateRef, authority: StateAuthority, *, subject: str
+    ref: StateRef,
+    authority: StateAuthority,
+    *,
+    subject: str,
+    requirement: str | None = None,
 ) -> str:
     """One statement for a state the answering profile does not model at all.
 
@@ -1554,9 +1558,29 @@ def state_not_modelled_statement(
     forcing the reporting path against a publication profile that does not
     declare that capability used to be told the MODEL profile did not model it,
     and a reader following that was widening the wrong profile.
+
+    ## Why the consequence is a separate clause
+
+    T020B's independent review found the closing clause false on the screen this
+    slice exists to make honest. One sentence served both of `_support_for`'s
+    answers, and it ended "which this scenario needs it to" - true of a REQUIRED
+    input, and false of an OPTIONAL one. So a READY run's "Optional inputs this
+    profile does not support" panel said the scenario needed something it had
+    just declared it could do without, which contradicts the argument the
+    lowering rests on.
+
+    The fact and its consequence are two things, so they are two clauses. The
+    fact is the same however the input is declared: this profile does not model
+    this state. What follows from it is exactly what the requirement level
+    decides, which is why the level is an argument here rather than something
+    the caller pastes on afterwards.
+
+    `requirement` is `None` for the address pass, which is deliberately
+    requirement-INSENSITIVE - a reference that names no asset blocks whatever
+    its level - and which appends its own closing sentence.
     """
     if authority.is_reporting_path:
-        return (
+        fact = (
             f"{subject} forces {ref.state_key}, which is a condition on the "
             f"reporting path rather than on the world, and {authority.detail} "
             "does not declare that it can model the reporting path being in "
@@ -1564,10 +1588,21 @@ def state_not_modelled_statement(
             "signal is carrying readings is a property of the path, so the "
             "publication profile is the one to change or to reselect."
         )
-    return (
-        f"{subject} concerns {ref.state_key}, and {authority.detail} does not "
-        "model that state at all, which this scenario needs it to."
-    )
+    else:
+        fact = (
+            f"{subject} concerns {ref.state_key}, and {authority.detail} does "
+            "not model that state at all."
+        )
+
+    if requirement == "REQUIRED":
+        return f"{fact} This scenario requires it, so the run is blocked."
+    if requirement == "OPTIONAL":
+        return (
+            f"{fact} This scenario declares it optional, so the run proceeds "
+            "without it and the gap is recorded here rather than blocking. "
+            "Nothing about this run models it."
+        )
+    return fact
 
 
 def resolve_state_addresses(
@@ -2134,8 +2169,16 @@ def _support_for(
     supported = authority.supported
 
     if supported is None:
+        # The requirement level is passed, not pasted on by the caller. This
+        # function answers for BOTH of the two outcomes below, so a statement
+        # that did not know the level could only be right about one of them -
+        # and it was wrong about the optional one, on the screen that argues
+        # the lowering is honest.
         statement = state_not_modelled_statement(
-            executable.state_ref, authority, subject="The scenario"
+            executable.state_ref,
+            authority,
+            subject="The scenario",
+            requirement=executable.execution_requirement,
         )
         if executable.execution_requirement == "REQUIRED":
             # The statement does not name the role, and the reason is

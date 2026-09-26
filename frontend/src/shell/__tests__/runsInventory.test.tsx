@@ -133,8 +133,9 @@ const BLOCKED_RUN: RunSummary = {
       kind: "STATE_NOT_SUPPORTED",
       subject: "site-load-demand",
       statement:
-        "Model profile minimal-fuel-tank version 1 does not model " +
-        "site-load-demand at all, which this scenario needs it to.",
+        "The scenario concerns site-load-demand, and model profile " +
+        "minimal-fuel-tank version 1 does not model that state at all. " +
+        "This scenario requires it, so the run is blocked.",
     },
   ],
 };
