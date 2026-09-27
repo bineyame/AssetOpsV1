@@ -1905,10 +1905,39 @@ class TestTheWindowRulesFollowFromThePredicate:
     excluded.
 
     So these assert properties over a grid of windows and timesteps rather than
-    supplying more examples. A statement contradicting the predicate on any
-    member of the grid fails here whether or not anybody thought of that member.
-    The example tests stay beside them: those say what the rule MEANS, and these
-    say nothing said elsewhere contradicts it.
+    supplying more examples.
+
+    ## What is and is not guarded here, stated exactly
+
+    An earlier version of this docstring said a statement contradicting the
+    predicate on any member of the grid fails here whether or not anybody thought
+    of that member. **That is not true, and the verification review was right to
+    call it out** - it is the shape of overclaim this project keeps repeating, a
+    guard described by the problem it was written for rather than by what it
+    reads.
+
+    Nine of the ten tests below read only this class's own transcription of the
+    predicate: `concerns`, `steps_for` and `share_for`. They establish that the
+    predicate is internally coherent - a non-empty contiguous run of steps, exact
+    shares summing to one, agreement with the older step-start reading wherever a
+    window is aligned, and the straddling and adjacent cases coming out as the
+    review computed them. **Every one of them would pass if every published
+    statement in `DISPATCH_RULES` were false**, because none of them reads a
+    published statement.
+
+    One test reads production: the blacklist in
+    `test_no_published_rule_claims_a_window_concerns_exactly_one_step`. It
+    catches known shapes by phrase match - what was wrong in F6, R1, R1a, R1b and
+    F-V1 - and it cannot catch a phrasing nobody has written yet. F-V1 is the
+    proof of that limit rather than a hypothetical: it entered in the same commit
+    as this class and the blacklist did not see it, because "too short to contain
+    a step start" was not a phrase it knew.
+
+    So, exactly: the properties guard the predicate, the blacklist guards five
+    phrasings, and the example tests beside this class say what the rules MEAN.
+    **Nothing here guards the prose as a class.** Doing that would need the
+    statements generated from the predicate rather than written alongside it,
+    which is a larger change than any of these rounds.
     """
 
     #: Offsets and lengths covering, against each timestep: aligned at both
@@ -2093,11 +2122,18 @@ class TestTheWindowRulesFollowFromThePredicate:
     def test_no_published_rule_claims_a_window_concerns_exactly_one_step(
         self,
     ) -> None:
-        """The prose guard, aimed at the class rather than today's sentences.
+        """The prose guard, and it is a phrase match rather than a class check.
 
-        Four rounds produced four length-based generalisations, each true of a
-        subset and false of the predicate's domain. This fails if a dispatch
-        rule reintroduces one in the shapes those claims took.
+        Five rounds produced five length-based generalisations, each true of a
+        subset and false of the predicate's domain. This fails if a dispatch rule
+        reintroduces one of those phrasings.
+
+        **It is not a guarantee about prose in general**, and the class docstring
+        now says so. F-V1 is why the distinction is worth writing down: it
+        entered in the same commit as this test, phrased as an antecedent - "too
+        short to contain a step start" - that no listed phrase matched, and a
+        human reader found it rather than this. Its phrasing is listed now, which
+        closes that one shape and not the next.
         """
         forbidden = (
             "shorter than one step lies inside exactly one step",
@@ -2105,6 +2141,10 @@ class TestTheWindowRulesFollowFromThePredicate:
             "never overlap by one step",
             "in the one step containing it",
             "in the one step that contains it",
+            # F-V1: a length-based ANTECEDENT rather than a length-based
+            # consequent, which is why the earlier five did not match it.
+            "too short to contain a step start",
+            "too short to contain a step",
         )
         for rule in DISPATCH_RULES:
             for phrase in forbidden:
