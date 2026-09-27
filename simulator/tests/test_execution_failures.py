@@ -225,6 +225,48 @@ class TestAStateThisModelDoesNotModel:
         )
 
 
+class TestAStateClaimedAtAnotherScope:
+    """A site-wide declaration is not the component-scoped state of the same name.
+
+    The kernel's own input boundary, reached by construction. Through the product
+    path such a declaration is either blocked at setup or recorded as an
+    unsupported optional input and excluded, so the exclusion normally answers
+    first; this is the layer under it, and a hand-edited run document is what gets
+    here. `site:fuel-tank-volume` is not the state `fuel-tank-volume@fuel-tank`
+    is, and a model claiming the second claims nothing about the first.
+    """
+
+    def test_a_site_wide_address_does_not_match_a_component_handler(
+        self,
+    ) -> None:
+        inputs = world_inputs()
+        smuggled = replace(
+            inputs,
+            initial_values=inputs.initial_values
+            + (
+                initial_value(
+                    "site:fuel-tank-volume",
+                    "fuel-tank-volume",
+                    "a-site-wide-volume",
+                    Fraction(20),
+                    "L",
+                    "VOLUME",
+                    scope="SITE",
+                ),
+            ),
+        )
+        run = _failed(smuggled)
+        assert run.failure.kind == "UNSUPPORTED_MODEL_STATE"
+        assert run.failure.subject == "site:fuel-tank-volume"
+
+    def test_the_same_state_at_the_claimed_scope_is_modelled(self) -> None:
+        """The control. Without it the test above would pass against a kernel
+        that had stopped modelling the semantic key altogether."""
+        run = execute(world_inputs())
+        assert run.outcome == "COMPLETED", run.failure
+        assert TANK in dict(run.final.stocks)
+
+
 class TestAnUnansweredInitialCondition:
     def test_a_stock_the_model_moves_with_no_initial_value_stops_the_run(
         self,
