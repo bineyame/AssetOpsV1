@@ -172,9 +172,10 @@ class TestTheForcingOutsideItsWindow:
         run = trajectory()
         after = run.boundary_at(1320)
         assert after.forcing(GENERATOR) is None
-        assert GENERATOR not in dict(after.forcings_available)
-        assert dict(after.forcings_available) == {}
+        assert after.exposures_of(GENERATOR) == ()
+        assert after.forcing_exposures == ()
         assert run.boundary_at(1065).forcing(GENERATOR) is None
+        assert run.boundary_at(1065).exposures_of(GENERATOR) == ()
 
     def test_no_consumption_is_computed_where_the_forcing_is_unavailable(
         self,

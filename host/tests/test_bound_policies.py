@@ -104,7 +104,7 @@ class TestFailRun:
                 parameter["value"] = 100
         definition = scenario(document)
 
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
 
         assert executed.trajectory.outcome == "FAILED"
         assert executed.trajectory.failure.kind == "INTEGRATION_BOUND_FAILURE"
@@ -131,7 +131,7 @@ class TestFailRun:
             if parameter["parameter_id"] == "starting-fuel-level":
                 parameter["value"] = 100
         definition = scenario(document)
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
 
         assert executed.trajectory.boundaries
         assert executed.trajectory.is_complete is False
@@ -153,7 +153,7 @@ class TestBoundedAndRecorded:
         `FAIL_RUN` wearing another name.
         """
         definition = scenario()
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
 
         assert executed.trajectory.outcome == "COMPLETED"
         assert executed.trajectory.final.offset_minutes == 2460
@@ -215,7 +215,7 @@ class TestBoundedAndRecorded:
             }
         )
         definition = scenario(document)
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
 
         assert executed.trajectory.outcome == "COMPLETED"
         assert executed.trajectory.boundary_at(2400).stock(TANK) == Fraction(500)

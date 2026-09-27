@@ -42,6 +42,24 @@ fails the build rather than arriving on a screen with no origin.
 up from identical inputs are two runs of the same experiment, which is what
 makes overlapping Drafts useful; if the identity carried the run's own name,
 every run would be trivially unique and the identity would answer nothing.
+
+## The causal projection is frozen too, since T021's review
+
+The identity used to carry the resolved VALUES a scenario declared and nothing
+about when they act. An independent review reproduced what that allows: the same
+persisted run, executed against the same document version with one offset moved,
+produces a different trajectory. So `causes`, `forcings`, `declared_bounds` and
+`reporting_path_conditions` freeze the whole causal projection - what changes, by
+how much, in which direction, at which resolved address, over which span - and
+the component that executes a run takes the run and nothing else.
+
+That is a wider frozen identity, so it moves `EXECUTION_CONTRACT_VERSION`: a run
+of an unchanged document freezes differently under the new number than under the
+old one, which is exactly the test `D-2026-09-22-contract-version-scope` sets. An
+earlier run keeps its own version, stays readable, and is refused execution
+rather than reinterpreted - the four collections default to empty on read so a
+document written before them still parses, and the version guard is what stops an
+empty projection ever being mistaken for a run with no causes.
 """
 
 from __future__ import annotations
@@ -487,6 +505,144 @@ class UnsupportedOptionalInput:
 
 
 @dataclass(frozen=True)
+class FrozenCause:
+    """One declared change to world state, frozen with its timing.
+
+    ## Why timing is frozen and was not
+
+    Until T021's independent review a run froze the VALUES a scenario declared
+    and left their timing in the document, and the reviewer reproduced what that
+    allows: move `unaccounted-fuel-removal` from offset 1500 to 1515 on the live
+    document, execute the SAME persisted run, and the tank at 1515 changes from
+    334.02 L to 374.02 L. Nothing in the persisted run changed.
+    A comparison of parameter identities cannot see that, and an offset is a
+    causally effective number exactly as a quantity is.
+
+    So a run now freezes the whole causal projection: what changes, by how much,
+    in which direction, at which address, over which span. `frozen_world_inputs`
+    in the host leaf takes only the run, and there is no argument through which a
+    different experiment can arrive.
+
+    `canonical_value` is the TOTAL this entry moves, in canonical units, with a
+    rate already integrated across its window. How much of it has moved part way
+    through is the execution contract's window ramp and the kernel's to apply;
+    freezing a partial answer here would put a transition rule in a record.
+
+    `state_ref` is the RESOLVED address, like every other frozen row: what the
+    run executes is a change to one asset, and a later reader must not have to
+    re-run the resolution to find out whose.
+    """
+
+    event_id: str
+    state_ref: StateRef
+    direction: str
+    parameter_id: str
+    canonical_value: float
+    canonical_unit: str
+    dimension: str
+    timing_shape: str
+    offset_minutes: int
+    duration_minutes: int | None
+
+    @property
+    def state_key(self) -> str:
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenForcing:
+    """One exogenous condition the run forces, frozen with its window.
+
+    The same reason as `FrozenCause` and the same grain. A forcing moves no stock
+    by itself; what reads it is a model law, and outside its window it is
+    unavailable rather than zero or held. Which steps that window concerns is the
+    contract's overlap predicate and not this record's.
+
+    `execution_requirement` travels because it is what the document said about
+    this position, and a kernel deciding whether a missing operand is fatal is
+    entitled to know whether the scenario required it.
+    """
+
+    event_id: str
+    state_ref: StateRef
+    parameter_id: str
+    canonical_value: float
+    canonical_unit: str
+    dimension: str
+    timing_shape: str
+    offset_minutes: int
+    duration_minutes: int | None
+    execution_requirement: str
+
+    @property
+    def state_key(self) -> str:
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenDeclaredBound:
+    """Which state a declared bound limits, and whose frozen value supplies it.
+
+    `D-2026-09-22-capacity-bound-source` split in two records: the RELATIONSHIP
+    is the document's and is frozen here, and the NUMBER is the site's and is
+    frozen as the initialization input this row points at. Two spellings sharing
+    a prefix say nothing about one bounding the other, so a run carries the
+    declaration or a kernel has nothing.
+
+    There is no value field, deliberately. A number here would be a second copy
+    of the initialization input's, free to drift from it.
+    """
+
+    state_ref: StateRef
+    bound_kind: str
+    source_state_ref: StateRef
+    source_parameter_id: str
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+    @property
+    def source_addressed_key(self) -> str:
+        return self.source_state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenReportingPathCondition:
+    """One condition the run forces on the path a reading travels.
+
+    Not a world state, which is the whole of why it is a separate collection
+    rather than a `FrozenForcing`. Whether the fuel level sensor is reporting
+    changes nothing about the fuel, the publication profile answers for it, and a
+    kernel that models a tank is no nearer to modelling it.
+
+    Its window is frozen even though nothing consumes one yet. That is not a
+    speculative field: it is the same projection pass, and the defect this whole
+    collection exists to close is precisely a declared span being read from a
+    mutable document at execution time. Leaving this one behind would reopen it
+    for the observation transform.
+    """
+
+    event_id: str
+    state_ref: StateRef
+    timing_shape: str
+    offset_minutes: int
+    duration_minutes: int | None
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
 class DeterministicIdentity:
     """Everything a rerun would have to reproduce to be the same run.
 
@@ -502,6 +658,10 @@ class DeterministicIdentity:
     seed: int
     profiles: FrozenProfileBinding
     initialization_inputs: tuple[FrozenInitializationInput, ...]
+    causes: tuple[FrozenCause, ...]
+    forcings: tuple[FrozenForcing, ...]
+    declared_bounds: tuple[FrozenDeclaredBound, ...]
+    reporting_path_conditions: tuple[FrozenReportingPathCondition, ...]
     observation_bindings: tuple[FrozenObservationBinding, ...]
     publication: FrozenPublicationIdentity
     signal_mappings: tuple[FrozenSignalMapping, ...]

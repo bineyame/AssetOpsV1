@@ -895,7 +895,7 @@ class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
         frozen = reloaded.deterministic_identity.profiles
 
         assert frozen.execution_contract_version == 4
-        assert EXECUTION_CONTRACT_VERSION == 5
+        assert EXECUTION_CONTRACT_VERSION == 6
 
         with pytest.raises(ExecutionContractIncompatible) as raised:
             refuse_incompatible_execution(frozen.execution_contract_version)

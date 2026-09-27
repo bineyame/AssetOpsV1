@@ -140,6 +140,46 @@ class BoundedTransition:
 
 
 @dataclass(frozen=True)
+class ForcingExposure:
+    """One forcing, over the part of one step its window actually covers.
+
+    A step can be exposed to two forcings without either being ambiguous. The
+    execution contract's `window-active-span` rule says so in as many words: two
+    windows meeting end to start share no INSTANT and may still concern one
+    STEP, each applying over its own portion of it, with nothing stretched across
+    the rest and nothing blended. A boundary that recorded one value per address
+    could not say that, and a kernel that refused it would contradict the rule -
+    which is what T021's independent review found.
+
+    `from_offset` and `to_offset` are the exposure's own half-open span inside
+    the step, so two exposures of one address are distinguishable rather than
+    two rows that look alike. `exposed_minutes` is their length, and it is what
+    the forcing handler integrates over.
+    """
+
+    address: str
+    event_id: str
+    parameter_id: str
+    value: Fraction
+    from_offset: int
+    to_offset: int
+
+    @property
+    def exposed_minutes(self) -> int:
+        return self.to_offset - self.from_offset
+
+    def as_fields(self) -> tuple[object, ...]:
+        return (
+            self.address,
+            self.event_id,
+            self.parameter_id,
+            self.value,
+            self.from_offset,
+            self.to_offset,
+        )
+
+
+@dataclass(frozen=True)
 class BoundaryState:
     """The world at one boundary, after that instant's events.
 
@@ -159,17 +199,19 @@ class BoundaryState:
     nothing this model measures happened in it"; a false flag means "no interval
     ended here at all".
 
-    `forcings_available` holds only the forcings whose window concerns the step
-    beginning here. A forcing outside its window has no entry at all, which is
-    this product's spelling of unavailable: a zero would be a fabricated number
-    and a held value would be an invented persistence rule.
+    `forcing_exposures` holds one entry per forcing per portion of the step it
+    covers. A forcing outside its window has no entry at all, which is this
+    product's spelling of unavailable: a zero would be a fabricated number and a
+    held value would be an invented persistence rule. Two entries for one address
+    are two disjoint exposures, which the contract permits and which a record of
+    one value per address could not have expressed.
     """
 
     step_index: int
     offset_minutes: int
     simulation_time: str
     stocks: tuple[tuple[str, Fraction], ...]
-    forcings_available: tuple[tuple[str, Fraction], ...]
+    forcing_exposures: tuple[ForcingExposure, ...]
     state_samples: tuple[tuple[str, Fraction], ...]
     interval_measurements: tuple[tuple[str, Fraction], ...]
     has_preceding_interval: bool
@@ -180,11 +222,40 @@ class BoundaryState:
                 return value
         return None
 
+    def exposures_of(self, address: str) -> tuple[ForcingExposure, ...]:
+        """Every exposure this step has to one address, in span order."""
+        return tuple(
+            sorted(
+                (
+                    exposure
+                    for exposure in self.forcing_exposures
+                    if exposure.address == address
+                ),
+                key=lambda item: item.from_offset,
+            )
+        )
+
     def forcing(self, address: str) -> Fraction | None:
-        for key, value in self.forcings_available:
-            if key == address:
-                return value
-        return None
+        """The one value forced at an address in this step, or nothing.
+
+        Raises when the step has SEVERAL exposures to that address, because
+        there is no single value and returning one of them would be a lie -
+        and returning `None` would be indistinguishable from the forcing being
+        unavailable, which is the one thing this record must not blur. A caller
+        that wants the whole picture asks `exposures_of`.
+        """
+        exposures = self.exposures_of(address)
+        if not exposures:
+            return None
+        values = {exposure.value for exposure in exposures}
+        if len(exposures) > 1:
+            raise ValueError(
+                f"{address} is forced over {len(exposures)} disjoint portions "
+                f"of the step beginning at {self.offset_minutes}, declaring "
+                f"{sorted(str(value) for value in values)}. There is no single "
+                "value to return; ask exposures_of for the portions."
+            )
+        return exposures[0].value
 
     def interval_measurement(self, address: str) -> Fraction | None:
         for key, value in self.interval_measurements:
@@ -198,7 +269,9 @@ class BoundaryState:
             self.offset_minutes,
             self.simulation_time,
             tuple((key, value) for key, value in self.stocks),
-            tuple((key, value) for key, value in self.forcings_available),
+            tuple(
+                exposure.as_fields() for exposure in self.forcing_exposures
+            ),
             tuple((key, value) for key, value in self.state_samples),
             tuple((key, value) for key, value in self.interval_measurements),
             self.has_preceding_interval,

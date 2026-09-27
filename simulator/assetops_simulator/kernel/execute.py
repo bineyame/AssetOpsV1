@@ -62,6 +62,7 @@ from assetops_contracts.trajectory import (
     AppliedEvent,
     BoundaryState,
     BoundedTransition,
+    ForcingExposure,
     PrivateTrajectory,
     frozen_inputs_identity,
 )
@@ -76,11 +77,12 @@ from assetops_simulator.kernel.model import (
     ModelSpec,
     StateHandler,
 )
+# The default model, and the one exception a model's own code may raise. No fuel
+# STATE KEY is imported any more: T021's independent review found four of them
+# here, choosing the one-generator/one-tank pairing and locating a specific
+# consumption coefficient inside the shared kernel. Those are the pack's, and
+# they now arrive through `ModelSpec.component_relations` and `ModelLaw.reads`.
 from assetops_simulator.packs.fuel import (
-    FUEL_TANK_CAPACITY,
-    FUEL_TANK_VOLUME,
-    GENERATOR_OUTPUT_POWER,
-    GENERATOR_SPECIFIC_CONSUMPTION,
     MINIMAL_FUEL_MODEL,
     PhysicallyUnacceptable,
 )
@@ -108,6 +110,24 @@ class _Bound:
     source_address: str
 
 
+@dataclass(frozen=True)
+class _LawBinding:
+    """Which addresses one law's operands and outputs occupy in this run.
+
+    Resolved once, before the first boundary, from the model's own relations.
+    Before T021's review the fuel law found its coefficient by scanning for a
+    state key and wrote to a tank the kernel had picked, so a missing coefficient
+    silently disabled the law and a missing stock escaped as a `KeyError` from a
+    dictionary lookup. Both are now decided here, where the answer is a
+    classified failure and the run has not started.
+    """
+
+    law_id: str
+    forcings: tuple[tuple[str, str], ...]
+    coefficients: tuple[tuple[str, str], ...]
+    writes: tuple[tuple[str, str], ...]
+
+
 @dataclass
 class _Contribution:
     """One change one instant or one step asks of one stock."""
@@ -130,8 +150,14 @@ class _World:
     coefficients: dict[str, Fraction] = field(default_factory=dict)
     upper: dict[str, _Bound] = field(default_factory=dict)
     lower: dict[str, _Bound] = field(default_factory=dict)
-    tank_address: str = ""
-    generator_address: str = ""
+    #: Which component carries each machine the MODEL relates, by relation id.
+    #: It replaces two fields that named a tank and a generator, which is how
+    #: fuel-specific pairing came to live in the shared kernel.
+    components: dict[str, str] = field(default_factory=dict)
+    #: One binding per law, resolved before the first boundary. A law that
+    #: cannot be bound stops the run there rather than at a dictionary lookup
+    #: mid-step.
+    law_bindings: dict[str, "_LawBinding"] = field(default_factory=dict)
     boundaries: list[BoundaryState] = field(default_factory=list)
     applied: list[AppliedEvent] = field(default_factory=list)
     bounded: list[BoundedTransition] = field(default_factory=list)
@@ -142,7 +168,7 @@ class _World:
     step_index: int = 0
     step_length: int = 0
     begins_a_step: bool = False
-    forcings_now: dict[str, Fraction] = field(default_factory=dict)
+    exposures_now: list[ForcingExposure] = field(default_factory=list)
     delivered_energy_now: dict[str, Fraction] = field(default_factory=dict)
     previous_delivered_energy: dict[str, Fraction] = field(
         default_factory=dict
@@ -208,57 +234,6 @@ def _refuse_entries_outside_the_interval(world: _World) -> None:
             )
 
 
-def _resolve_topology(world: _World) -> None:
-    """Pair the one generator with the one tank, or say why it cannot.
-
-    The model relates one of each and has no declared topology for two, so more
-    than one of either is named rather than guessed at.
-    """
-    inputs = world.inputs
-    tanks = sorted(
-        set(inputs.addresses_of_state(FUEL_TANK_VOLUME))
-        | set(inputs.addresses_of_state(FUEL_TANK_CAPACITY))
-    )
-    tank_components = sorted({_component_of(address) for address in tanks})
-    generators = sorted(
-        set(inputs.addresses_of_state(GENERATOR_OUTPUT_POWER))
-        | set(inputs.addresses_of_state(GENERATOR_SPECIFIC_CONSUMPTION))
-    )
-    generator_components = sorted(
-        {_component_of(address) for address in generators}
-    )
-
-    if len(tank_components) != 1:
-        raise _Stop(
-            failure(
-                "TOPOLOGY_INCONSISTENT",
-                ", ".join(tank_components) or "no fuel tank",
-                detail=(
-                    "this model relates one generator to one fuel tank and has "
-                    "no declared topology telling it which tank each generator "
-                    "burns from",
-                ),
-            )
-        )
-    if len(generator_components) != 1:
-        raise _Stop(
-            failure(
-                "TOPOLOGY_INCONSISTENT",
-                ", ".join(generator_components) or "no generator",
-                detail=(
-                    "this model relates one generator to one fuel tank and has "
-                    "no declared topology telling it which tank each generator "
-                    "burns from",
-                ),
-            )
-        )
-
-    world.tank_address = f"{FUEL_TANK_VOLUME}@{tank_components[0]}"
-    world.generator_address = (
-        f"{GENERATOR_OUTPUT_POWER}@{generator_components[0]}"
-    )
-
-
 def _component_of(address: str) -> str:
     """The component an address selects, or the site marker for a site fact."""
     if address.startswith("site:"):
@@ -267,29 +242,135 @@ def _component_of(address: str) -> str:
     return selector or "(unaddressed)"
 
 
+def _scope_of(address: str) -> str:
+    """Whether an address claims a fact about the installation or a component.
+
+    Read from the canonical spelling, which is the only thing that carries it
+    across the barrier: `site:` means SITE and anything else means COMPONENT.
+    Not consulting it is what let a site-wide declaration match a
+    component-scoped handler and invent a machine out of a state the run had
+    already recorded as unsupported at that scope.
+    """
+    return "SITE" if address.startswith("site:") else "COMPONENT"
+
+
+def _excluded(world: _World, address: str) -> bool:
+    """Whether the run records that nothing in this build models this address.
+
+    Consulted BEFORE topology, initialization and every dependency resolution,
+    which is the order T021's independent review found reversed. The run's record
+    is authoritative: run setup wrote it against the profile this model is proved
+    to conform to, so an address it excludes is one nothing models, whatever
+    handler a semantic key alone might have matched.
+    """
+    return address in world.inputs.unmodelled_addresses
+
+
+def _note_not_modelled(world: _World, address: str, why: str) -> None:
+    note = f"{address} {why}"
+    if note not in world.notes:
+        world.notes.append(note)
+
+
+def _addresses_of(world: _World, state_key: str, scope: str) -> tuple[str, ...]:
+    """Every address in the frozen inputs for one state at one scope.
+
+    Excluded addresses are left out here rather than by each caller, because "the
+    run says nothing models this" has to mean the same thing to topology, to
+    initialization and to a law's operand resolution. A caller that has to
+    remember is a caller that forgets one of the three.
+    """
+    return tuple(
+        address
+        for address in world.inputs.addresses_of_state(state_key)
+        if _scope_of(address) == scope and not _excluded(world, address)
+    )
+
+
+def _resolve_relations(world: _World) -> None:
+    """Which component carries each machine this model relates, or none.
+
+    The relations are the MODEL's, declared in the pack, so the kernel resolves a
+    law's operands without naming a fuel state key. It named several here until
+    T021's review recorded the separation as only partly met.
+
+    A relation resolving to more than one component is `TOPOLOGY_INCONSISTENT`: a
+    relation says which facts belong to one machine and not which machine feeds
+    which, so two tanks leave nothing to say which one a generator burns from. A
+    relation resolving to none is left unresolved, and whether that matters is the
+    law-binding pass's answer.
+    """
+    for relation in world.model.component_relations:
+        components = sorted(
+            {
+                _component_of(address)
+                for state_key in sorted(relation.state_keys)
+                for address in _addresses_of(world, state_key, "COMPONENT")
+            }
+        )
+        if len(components) > 1:
+            raise _Stop(
+                failure(
+                    "TOPOLOGY_INCONSISTENT",
+                    ", ".join(components),
+                    detail=(
+                        f"the frozen run names {len(components)} components "
+                        f"carrying {relation.display_name} states",
+                        relation.statement,
+                        "this model relates the states of one machine and has "
+                        "no declared connection telling it which machine "
+                        "another one is attached to",
+                    ),
+                )
+            )
+        if components:
+            world.components[relation.relation_id] = components[0]
+
+
+def _address_for(world: _World, handler: StateHandler) -> str | None:
+    """The address a handler's state occupies in this run, or nothing.
+
+    A site-wide state has one address by construction. A component-scoped one
+    takes the component its relation resolved to, so two facts about one machine
+    resolve to the same machine even when only one of them appears in the frozen
+    inputs - which is how a capacity with no stored volume still identifies the
+    tank whose volume is missing.
+    """
+    if handler.scope == "SITE":
+        return f"site:{handler.state_key}"
+    relation = world.model.relation_of(handler.state_key)
+    if relation is None:  # pragma: no cover - refused at model construction
+        return None
+    component = world.components.get(relation.relation_id)
+    return None if component is None else f"{handler.state_key}@{component}"
+
+
 def _handler_or_stop(
     world: _World, state_key: str, role: str, address: str
 ) -> StateHandler | None:
-    """The handler for a state and role, or a failure naming the address.
+    """The handler for a state, a role and a SCOPE, or a failure naming it.
 
-    The cross-reference the backlog asks for. An address the run recorded as an
-    unsupported optional input may legitimately have no handler, and returns
-    `None`; anything else with no handler stops the run, because a kernel that
-    quietly skipped a declared state would have executed part of a scenario and
-    reported a complete result.
+    The cross-reference the backlog asks for, in the order T021's review found
+    reversed. The exclusion is consulted FIRST: an address the run records as an
+    unsupported optional input is one nothing models, and asking the model about
+    it before reading that record is how a site-wide declaration came back
+    matching a component-scoped handler.
+
+    Scope is part of the lookup for the same reason. `site:fuel-tank-volume` is
+    not the state `fuel-tank-volume@fuel-tank` is, and a model claiming the
+    second claims nothing at all about the first.
     """
-    handler = world.model.handler(state_key, role)
+    if _excluded(world, address):
+        _note_not_modelled(
+            world,
+            address,
+            "is recorded on the run as an unsupported optional input, so "
+            "nothing about this run models it",
+        )
+        return None
+    handler = world.model.handler(state_key, role, _scope_of(address))
     if handler is not None:
         return handler
-    if address in world.inputs.unmodelled_addresses:
-        note = (
-            f"{address} is recorded on the run as an unsupported optional "
-            f"input and this model has no {role} handler for it, so nothing "
-            "about this run models it"
-        )
-        if note not in world.notes:
-            world.notes.append(note)
-        return None
     raise _Stop(
         failure(
             "UNSUPPORTED_MODEL_STATE",
@@ -353,6 +434,7 @@ def _initialize(world: _World) -> None:
     _resolve_declared_bounds(world)
     _require_handlers_for_every_entry(world)
     _require_an_initial_value_for_every_stock_a_cause_moves(world)
+    _bind_laws(world)
 
 
 def _resolve_declared_bounds(world: _World) -> None:
@@ -401,6 +483,7 @@ def _resolve_declared_bounds(world: _World) -> None:
 
 
 def _require_handlers_for_every_entry(world: _World) -> None:
+    """Every declared entry is modelled, recorded as unmodelled, or refused."""
     for forcing in world.inputs.forcings:
         _handler_or_stop(
             world, forcing.state_key, "FORCING_INPUT", forcing.address
@@ -410,37 +493,133 @@ def _require_handlers_for_every_entry(world: _World) -> None:
             world, cause.state_key, "CAUSAL_INPUT", cause.address
         )
 
-    # A forcing the law requires, declared nowhere. Not held at a previous
-    # value and not taken as zero: both would be a number nobody supplied.
+
+def _bind_laws(world: _World) -> None:
+    """Resolve every law's operands and outputs, or say exactly what is missing.
+
+    The pass T021's independent review asked for, and the reason it is a pass
+    rather than a lookup inside the law. Three things can be wrong with a law in
+    a frozen run, and each has its own answer:
+
+    - the machine a law's operand sits on is not in the run at all, so there is
+      nothing for the operand to be an address of. `TOPOLOGY_INCONSISTENT`,
+      naming the relation that resolved to nothing;
+    - the address resolves and the run carries no initial value for it, so the
+      law would multiply a number nobody supplied. `INITIAL_STATE_UNANSWERED`,
+      which is also the answer for a stock the law writes to;
+    - a forcing the law reads is declared nowhere, so no window makes it
+      available at any instant. `FORCING_NOT_AVAILABLE`.
+
+    A forcing that IS declared and is simply outside its window in a given step
+    is none of these: the law does not run that step, and that is the contract's
+    own answer rather than a missing operand.
+
+    Nothing here is fuel-specific. The operands come from `law.reads` and
+    `law.writes`, their addresses from the model's declared relations, and their
+    kinds from the handlers themselves.
+    """
     for law in world.model.laws:
-        for handler_id in law.reads:
+        forcings: list[tuple[str, str]] = []
+        coefficients: list[tuple[str, str]] = []
+        writes: list[tuple[str, str]] = []
+
+        for handler_id in law.reads + law.writes:
             handler = world.model.handler_by_id(handler_id)
-            if handler.kind != "FORCING":
-                continue
-            declared = [
-                forcing
-                for forcing in world.inputs.forcings
-                if forcing.state_key == handler.state_key
-            ]
-            if declared:
-                continue
+            address = _address_for(world, handler)
+            if address is None:
+                relation = world.model.relation_of(handler.state_key)
+                name = (
+                    relation.display_name
+                    if relation is not None
+                    else handler.state_key
+                )
+                raise _Stop(
+                    failure(
+                        "TOPOLOGY_INCONSISTENT",
+                        f"no {name}",
+                        detail=(
+                            f"law {law.law_id} needs {handler.state_key} and "
+                            f"the frozen run names no component carrying a "
+                            f"{name}",
+                        ),
+                    )
+                )
+
+            if handler_id in law.writes:
+                writes.append((handler_id, address))
+            if handler.kind == "FORCING":
+                forcings.append((handler_id, address))
+                if not [
+                    forcing
+                    for forcing in world.inputs.forcings
+                    if forcing.address == address
+                    and not _excluded(world, forcing.address)
+                ]:
+                    raise _Stop(
+                        failure(
+                            "FORCING_NOT_AVAILABLE",
+                            address,
+                            detail=(
+                                f"law {law.law_id} reads {handler.state_key} "
+                                "and the frozen run declares no window for it",
+                            ),
+                        )
+                    )
+            elif handler.kind == "COEFFICIENT":
+                coefficients.append((handler_id, address))
+                if address not in world.coefficients:
+                    raise _Stop(
+                        failure(
+                            "INITIAL_STATE_UNANSWERED",
+                            address,
+                            detail=(
+                                f"law {law.law_id} multiplies by "
+                                f"{handler.state_key} and the frozen run "
+                                "carries no initial value for it",
+                            ),
+                        )
+                    )
+            elif handler.kind == "STOCK" and handler_id in law.writes:
+                if address not in world.stocks:
+                    raise _Stop(
+                        failure(
+                            "INITIAL_STATE_UNANSWERED",
+                            address,
+                            detail=(
+                                f"law {law.law_id} moves that stock and the "
+                                "frozen run carries no initial value for it",
+                            ),
+                        )
+                    )
+
+        if not writes:  # pragma: no cover - refused at model construction
             raise _Stop(
                 failure(
-                    "FORCING_NOT_AVAILABLE",
-                    handler.state_key,
-                    detail=(
-                        f"law {law.law_id} reads {handler.state_key} and the "
-                        "frozen run declares no window for it",
-                    ),
+                    "UNSUPPORTED_MODEL_STATE",
+                    law.law_id,
+                    detail=("a law that writes nothing changes nothing",),
                 )
             )
+
+        world.law_bindings[law.law_id] = _LawBinding(
+            law_id=law.law_id,
+            forcings=tuple(forcings),
+            coefficients=tuple(coefficients),
+            writes=tuple(writes),
+        )
 
 
 def _require_an_initial_value_for_every_stock_a_cause_moves(
     world: _World,
 ) -> None:
+    """A declared cause on a stock the run never initialized stops the run.
+
+    Unknown never silently becomes zero. The law's own output stock is checked
+    in `_bind_laws`; this is the other route to the same state, and it is a
+    separate check because a cause can move a stock no law writes.
+    """
     for cause in world.inputs.causes:
-        if cause.address in world.inputs.unmodelled_addresses:
+        if _excluded(world, cause.address):
             continue
         if cause.address in world.stocks:
             continue
@@ -455,32 +634,14 @@ def _require_an_initial_value_for_every_stock_a_cause_moves(
                 ),
             )
         )
-    for law in world.model.laws:
-        for handler_id in law.writes:
-            handler = world.model.handler_by_id(handler_id)
-            if handler.kind != "STOCK":
-                continue
-            for address in world.inputs.addresses_of_state(handler.state_key):
-                if address in world.stocks:
-                    continue
-                raise _Stop(
-                    failure(
-                        "INITIAL_STATE_UNANSWERED",
-                        address,
-                        detail=(
-                            f"law {law.law_id} moves that stock and the frozen "
-                            "run carries no initial value for it",
-                        ),
-                    )
-                )
 
 
 def _note_reporting_path_conditions(world: _World) -> None:
     """Say that a reporting-path condition was withheld rather than dropped.
 
     A scenario forcing the fuel level sensor to report nothing is a condition on
-    the path a reading travels. It moves no stock, carries no state effect and
-    is not a world state, so it never reaches this kernel as a forcing - the
+    the path a reading travels. It moves no stock, carries no state effect and is
+    not a world state, so it never reaches this kernel as a forcing - the
     publication profile answers for it and the observation transform is what
     makes the declaration true or false. The note is here because "this kernel
     did not model that" and "nothing modelled that" are different facts, and a
@@ -516,7 +677,7 @@ def _apply_contributions(
         return
 
     handler = world.model.handler(
-        _state_key_of(address), "CAUSAL_INPUT"
+        _state_key_of(address), "CAUSAL_INPUT", _scope_of(address)
     )
     if handler is None:  # pragma: no cover - guarded during initialization
         raise _Stop(
@@ -750,66 +911,100 @@ def _phase_physical_acceptance(world: _World) -> None:
     """F. Resolve what the world accepts over the step about to be evolved.
 
     In this world the accepted flow is the dispatch the scenario forces, read
-    only in the steps its window concerns. A forcing outside its window gets no
-    entry at all, which is unavailable: not zero, and not held at the value
-    inside the window.
+    only over the parts of the step its windows actually cover. A forcing outside
+    its window gets no entry at all, which is unavailable: not zero, and not held
+    at the value inside the window.
+
+    **Two forcings may share a step without being ambiguous, and until T021's
+    review this refused them.** `window-active-span` settles it: two windows
+    meeting end to start share no instant, may still concern one step, and each
+    applies over its own portion of it with nothing stretched across the rest and
+    nothing blended. So each disjoint exposure is accounted for separately and
+    their delivered energies add.
+
+    What stays refused is the case nothing settles: two declarations whose
+    exposures genuinely OVERLAP, sharing a stretch of the step of non-zero
+    length. Nothing says whether those are the two ends of a ramp or two named
+    levels a shape selects between, so `FORCING_VALUE_AMBIGUOUS` still declines
+    to pick - which is the T020B carry this kernel is the first consumer of.
     """
-    world.forcings_now = {}
+    world.exposures_now = []
     world.delivered_energy_now = {}
     if not world.begins_a_step:
         return
 
     interval = world.inputs.interval.duration_minutes
-    by_address: dict[str, list[ForcingInput]] = {}
-    for forcing in world.inputs.forcings:
-        if forcing.address in world.inputs.unmodelled_addresses:
-            continue
-        handler = world.model.handler(forcing.state_key, "FORCING_INPUT")
-        if handler is None:
-            continue
-        start, end = _entry_span(forcing, interval)
-        exposed = overlap_minutes(
-            world.offset, world.step_length, start, end - start
-        )
-        if exposed == 0:
-            continue
-        by_address.setdefault(forcing.address, []).append(forcing)
+    step_end = world.offset + world.step_length
+    exposed_by_address: dict[str, list[tuple[ForcingInput, int, int]]] = {}
 
-    for address, declared in sorted(by_address.items()):
-        if len(declared) > 1:
-            raise _Stop(
-                failure(
-                    "FORCING_VALUE_AMBIGUOUS",
-                    address,
-                    at_offset_minutes=world.offset,
-                    detail=tuple(
-                        f"{forcing.event_id}/{forcing.parameter_id} = "
-                        f"{forcing.value} {forcing.canonical_unit}"
-                        for forcing in declared
-                    ),
-                )
-            )
-        forcing = declared[0]
-        handler = world.model.handler(forcing.state_key, "FORCING_INPUT")
+    for forcing in world.inputs.forcings:
+        if _excluded(world, forcing.address):
+            continue
+        if world.model.handler(
+            forcing.state_key, "FORCING_INPUT", _scope_of(forcing.address)
+        ) is None:
+            continue
         start, end = _entry_span(forcing, interval)
-        exposed = overlap_minutes(
+        if overlap_minutes(
             world.offset, world.step_length, start, end - start
+        ) == 0:
+            continue
+        exposed_by_address.setdefault(forcing.address, []).append(
+            (forcing, max(world.offset, start), min(step_end, end))
         )
-        try:
-            world.delivered_energy_now[address] = handler.consume(
-                forcing.value, exposed
-            )
-        except PhysicallyUnacceptable as unacceptable:
-            raise _Stop(
-                failure(
-                    "PHYSICAL_RESOLUTION_FAILURE",
-                    address,
-                    at_offset_minutes=world.offset,
-                    detail=(str(unacceptable),),
+
+    for address, exposures in sorted(exposed_by_address.items()):
+        exposures.sort(key=lambda item: (item[1], item[2]))
+        for (first, first_from, first_to), (second, second_from, _) in zip(
+            exposures, exposures[1:]
+        ):
+            if second_from < first_to:
+                raise _Stop(
+                    failure(
+                        "FORCING_VALUE_AMBIGUOUS",
+                        address,
+                        at_offset_minutes=world.offset,
+                        detail=(
+                            f"{first.event_id}/{first.parameter_id} = "
+                            f"{first.value} {first.canonical_unit} over "
+                            f"[{first_from}, {first_to})",
+                            f"{second.event_id}/{second.parameter_id} = "
+                            f"{second.value} {second.canonical_unit} from "
+                            f"{second_from}, which is inside the first",
+                        ),
+                    )
                 )
-            ) from unacceptable
-        world.ledger.record_handler(handler)
-        world.forcings_now[address] = forcing.value
+
+        handler = world.model.handler(
+            exposures[0][0].state_key, "FORCING_INPUT", _scope_of(address)
+        )
+        delivered = Fraction(0)
+        for forcing, exposed_from, exposed_to in exposures:
+            try:
+                delivered += handler.consume(
+                    forcing.value, exposed_to - exposed_from
+                )
+            except PhysicallyUnacceptable as unacceptable:
+                raise _Stop(
+                    failure(
+                        "PHYSICAL_RESOLUTION_FAILURE",
+                        address,
+                        at_offset_minutes=world.offset,
+                        detail=(str(unacceptable),),
+                    )
+                ) from unacceptable
+            world.ledger.record_handler(handler)
+            world.exposures_now.append(
+                ForcingExposure(
+                    address=address,
+                    event_id=forcing.event_id,
+                    parameter_id=forcing.parameter_id,
+                    value=forcing.value,
+                    from_offset=exposed_from,
+                    to_offset=exposed_to,
+                )
+            )
+        world.delivered_energy_now[address] = delivered
 
 
 def _phase_evolve(world: _World) -> None:
@@ -852,27 +1047,32 @@ def _phase_evolve(world: _World) -> None:
         _apply_contributions(world, address, grouped[address], "evolve")
 
 
-def _run_law(
-    world: _World, law
-) -> tuple[str, _Contribution] | None:
-    """One law over the current step, or nothing when its inputs are absent."""
-    energy = world.delivered_energy_now.get(world.generator_address)
-    if energy is None:
-        return None
-    coefficient = None
-    for address, value in world.coefficients.items():
-        if _state_key_of(address) == GENERATOR_SPECIFIC_CONSUMPTION:
-            coefficient = value
-            break
-    if coefficient is None:
-        return None
+def _run_law(world: _World, law) -> tuple[str, _Contribution] | None:
+    """One law over the current step, or nothing when its forcing is unavailable.
+
+    Every address comes from the binding resolved before the first boundary, so
+    this can no longer disable itself by failing to find an operand: a missing
+    operand is a classified failure at setup, and the only thing that legitimately
+    stops the law here is a forcing whose window does not cover this step.
+    """
+    binding = world.law_bindings[law.law_id]
+    energies = []
+    for _, address in binding.forcings:
+        energy = world.delivered_energy_now.get(address)
+        if energy is None:
+            return None
+        energies.append(energy)
+    coefficients = [
+        world.coefficients[address] for _, address in binding.coefficients
+    ]
     world.ledger.record_law(law)
+    _, target = binding.writes[0]
     return (
-        world.tank_address,
+        target,
         _Contribution(
             event_id=law.law_id,
             direction=law.direction,
-            quantity=law.compute(coefficient, energy),
+            quantity=law.compute(*coefficients, *energies),
             share=Fraction(1),
             origin="MODEL_LAW",
         ),
@@ -1018,7 +1218,7 @@ def execute(
 
     try:
         _refuse_entries_outside_the_interval(world)
-        _resolve_topology(world)
+        _resolve_relations(world)
         _initialize(world)
         _note_reporting_path_conditions(world)
 
@@ -1092,7 +1292,12 @@ def _record_boundary(world: _World) -> None:
                 world.inputs.interval.start_time, world.offset
             ),
             stocks=tuple(sorted(world.stocks.items())),
-            forcings_available=tuple(sorted(world.forcings_now.items())),
+            forcing_exposures=tuple(
+                sorted(
+                    world.exposures_now,
+                    key=lambda item: (item.address, item.from_offset),
+                )
+            ),
             state_samples=tuple(sorted(world.samples_now.items())),
             interval_measurements=measurements,
             has_preceding_interval=interval_available,

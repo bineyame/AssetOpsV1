@@ -69,6 +69,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from fractions import Fraction
 from typing import Callable, Iterable, Sequence
 
 from assetops_backend.runs.identity import allocate_run_id
@@ -76,7 +77,11 @@ from assetops_backend.runs.models import (
     ANSWERER_BY_INITIALIZATION_OWNER,
     BlockingReason,
     DeterministicIdentity,
+    FrozenCause,
+    FrozenDeclaredBound,
+    FrozenForcing,
     FrozenInitializationInput,
+    FrozenReportingPathCondition,
     FrozenInterval,
     FrozenParameter,
     FrozenProfileBinding,
@@ -93,6 +98,7 @@ from assetops_backend.runs.parsing import (
 )
 from assetops_backend.runs.ports import SimulationRunRepository
 from assetops_backend.runs.profiles import (
+    REPORTING_PATH_STATES,
     FoundationBinding,
     ModelProfile,
     PublicationProfile,
@@ -110,9 +116,12 @@ from assetops_backend.runs.timezones import (
     validate_iana_timezone,
 )
 from assetops_backend.scenarios.execution import (
+    CANONICAL_UNITS,
     EXECUTION_CONTRACT_VERSION,
+    RATE_INTEGRALS,
     canonical_quantity,
     initialization_inputs,
+    normalize_authored_float,
 )
 from assetops_backend.scenarios.models import (
     EXECUTABLE_ROLES,
@@ -844,6 +853,14 @@ class RunSetupService:
             if parameter_id not in frozen_states
         )
 
+        causes, forcings, declared, reporting = _freeze_causal_projection(
+            scenario=scenario,
+            parameters=parameters,
+            supplied=supplied,
+            addresses=addresses,
+            initialization=initialization,
+        )
+
         return DeterministicIdentity(
             site=FrozenSiteBinding(
                 site_id=site.site_id,
@@ -874,6 +891,10 @@ class RunSetupService:
                 execution_contract_version=EXECUTION_CONTRACT_VERSION,
             ),
             initialization_inputs=initialization,
+            causes=causes,
+            forcings=forcings,
+            declared_bounds=declared,
+            reporting_path_conditions=reporting,
             observation_bindings=tuple(
                 resolve_observation_binding(source, publication)
                 for source in scenario.observation_sources
@@ -1369,6 +1390,207 @@ class RunSetupService:
         reasons.extend(_publication_reasons(identity))
 
         return _deduplicated(reasons), tuple(optional)
+
+
+def _freeze_causal_projection(
+    *,
+    scenario: ScenarioDefinition,
+    parameters: dict[str, ScenarioParameter],
+    supplied: dict[str, float],
+    addresses: dict[str, ResolvedAddress],
+    initialization: tuple[FrozenInitializationInput, ...],
+) -> tuple[
+    tuple[FrozenCause, ...],
+    tuple[FrozenForcing, ...],
+    tuple[FrozenDeclaredBound, ...],
+    tuple[FrozenReportingPathCondition, ...],
+]:
+    """Freeze what the document says happens, when, and to which asset.
+
+    Run setup is the component entitled to hold a document and a resolved Site
+    together, so it is the component that can freeze a causal projection. Before
+    T021's independent review this projection was built by the host adapter from
+    whatever definition a caller handed it, and the reviewer reproduced what that
+    allows: the same persisted run, the same scenario version, one offset moved on
+    the live document, and a different trajectory.
+
+    Three things this deliberately does NOT do.
+
+    It does not apportion. A window's quantity is frozen whole and how much of it
+    has moved part way through is the execution contract's ramp - a partial answer
+    frozen here would put a transition rule in a record.
+
+    It does not decide what is executable. A reference that did not resolve is
+    frozen at its authored address, exactly as `_freeze_initialization` freezes an
+    absent value, because the blocking reason beside it is what says the run may
+    not run. Freezing nothing would make a blocked Draft unable to show what it
+    was going to do.
+
+    It does not read a profile. Which states a build can model is the support
+    question and it is asked elsewhere; this records the document's declarations
+    against the Site's components, and the kernel cross-references the run's own
+    unsupported-optional rows.
+    """
+    initial_by_parameter = {item.parameter_id: item for item in initialization}
+
+    def frozen_ref(reference: StateRef) -> StateRef:
+        resolution = addresses.get(reference.addressed_key)
+        if resolution is None:
+            return reference
+        return resolution.resolved or resolution.authored
+
+    def authored_number(parameter: ScenarioParameter) -> float | None:
+        """The number this run froze for a parameter, from either carrier.
+
+        A parameter that initializes a state is frozen as an initialization
+        input; every other one is frozen as a resolved parameter. Reading only
+        one of the two is R4: a timeline entry whose effect names a parameter
+        that also initializes lost its cause entirely, and the removal simply
+        stopped happening.
+        """
+        frozen_initial = initial_by_parameter.get(parameter.parameter_id)
+        if frozen_initial is not None:
+            return frozen_initial.value
+        if parameter.parameter_id in supplied:
+            return supplied[parameter.parameter_id]
+        return parameter.value if isinstance(parameter.value, float) else None
+
+    causes: list[FrozenCause] = []
+    forcings: list[FrozenForcing] = []
+    declared: list[FrozenDeclaredBound] = []
+    reporting: list[FrozenReportingPathCondition] = []
+
+    for entry in scenario.timeline:
+        if entry.state_ref is None:
+            continue
+
+        if entry.state_ref.state_key in REPORTING_PATH_STATES:
+            reporting.append(
+                FrozenReportingPathCondition(
+                    event_id=entry.event_id,
+                    state_ref=frozen_ref(entry.state_ref),
+                    timing_shape=entry.timing.shape,
+                    offset_minutes=entry.offset_minutes,
+                    duration_minutes=entry.timing.duration_minutes,
+                )
+            )
+            continue
+
+        effect = entry.state_effect
+        if effect is not None:
+            source_id = (
+                effect.quantity_parameter_id or effect.rate_parameter_id
+            )
+            parameter = (
+                parameters.get(source_id) if source_id is not None else None
+            )
+            if parameter is None or parameter.unit is None:
+                raise UnresolvedCausalProjection(
+                    f"timeline entry {entry.event_id!r} declares a state "
+                    f"effect naming {source_id!r}, which is not a parameter "
+                    "this document declares with a unit. A declared effect "
+                    "whose magnitude cannot be found is refused rather than "
+                    "frozen as silence."
+                )
+            number = authored_number(parameter)
+            if number is None:
+                raise UnresolvedCausalProjection(
+                    f"timeline entry {entry.event_id!r} declares a state "
+                    f"effect whose magnitude {parameter.parameter_id!r} has no "
+                    "frozen number in either carrier. A declared effect is "
+                    "never converted into silence."
+                )
+            canonical_value, canonical_unit, dimension = canonical_quantity(
+                number, parameter.unit
+            )
+            if effect.rate_parameter_id is not None:
+                minutes = entry.timing.duration_minutes or 0
+                canonical_value = float(
+                    normalize_authored_float(canonical_value) * Fraction(minutes)
+                )
+                dimension = RATE_INTEGRALS[dimension]
+                canonical_unit = CANONICAL_UNITS[
+                    _canonical_unit_for(dimension)
+                ].canonical_unit
+            causes.append(
+                FrozenCause(
+                    event_id=entry.event_id,
+                    state_ref=frozen_ref(entry.state_ref),
+                    direction=effect.direction,
+                    parameter_id=parameter.parameter_id,
+                    canonical_value=canonical_value,
+                    canonical_unit=canonical_unit,
+                    dimension=dimension,
+                    timing_shape=entry.timing.shape,
+                    offset_minutes=entry.offset_minutes,
+                    duration_minutes=entry.timing.duration_minutes,
+                )
+            )
+
+        if entry.execution_role != "FORCING_INPUT":
+            continue
+        for parameter in entry.parameters:
+            if parameter.execution_role != "FORCING_INPUT":
+                continue
+            if parameter.state_ref is None or parameter.unit is None:
+                continue
+            number = authored_number(parameter)
+            if number is None:
+                raise UnresolvedCausalProjection(
+                    f"forcing {parameter.parameter_id!r} on timeline entry "
+                    f"{entry.event_id!r} has no frozen number. A declared "
+                    "forcing is never frozen as silence."
+                )
+            canonical_value, canonical_unit, dimension = canonical_quantity(
+                number, parameter.unit
+            )
+            forcings.append(
+                FrozenForcing(
+                    event_id=entry.event_id,
+                    state_ref=frozen_ref(parameter.state_ref),
+                    parameter_id=parameter.parameter_id,
+                    canonical_value=canonical_value,
+                    canonical_unit=canonical_unit,
+                    dimension=dimension,
+                    timing_shape=entry.timing.shape,
+                    offset_minutes=entry.offset_minutes,
+                    duration_minutes=entry.timing.duration_minutes,
+                    execution_requirement=parameter.execution_requirement,
+                )
+            )
+
+    for parameter in parameters.values():
+        bound = parameter.bounds
+        if bound is None or parameter.state_ref is None:
+            continue
+        declared.append(
+            FrozenDeclaredBound(
+                state_ref=frozen_ref(bound.state_ref),
+                bound_kind=bound.bound_kind,
+                source_state_ref=frozen_ref(parameter.state_ref),
+                source_parameter_id=parameter.parameter_id,
+            )
+        )
+
+    return tuple(causes), tuple(forcings), tuple(declared), tuple(reporting)
+
+
+def _canonical_unit_for(dimension: str) -> str:
+    """The authored unit whose canonical form represents a dimension."""
+    for unit, canonical in CANONICAL_UNITS.items():
+        if canonical.dimension == dimension and canonical.numerator == 1:
+            return unit
+    raise KeyError(dimension)
+
+
+class UnresolvedCausalProjection(Exception):
+    """A declared cause or forcing could not be frozen with a number.
+
+    Raised rather than dropped. The defect this replaces was a `continue`: a
+    timeline entry whose effect named a parameter frozen in the other collection
+    lost its cause, the run reported READY, and the removal simply did not
+    happen. A declared effect is either frozen or refused.
+    """
 
 
 def _deduplicated(

@@ -77,7 +77,7 @@ class TestAReadyDraftExecutes:
         run = draft(definition=definition)
         assert run.execution_status == "READY"
 
-        executed = run_to_end(run, definition)
+        executed = run_to_end(run)
 
         assert executed.trajectory.outcome == "COMPLETED"
         assert executed.trajectory.is_complete
@@ -93,7 +93,7 @@ class TestAReadyDraftExecutes:
         reached from a real Draft.
         """
         definition = scenario()
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
         trajectory = executed.trajectory
 
         assert trajectory.boundary_at(0).stock(TANK) == Fraction(430)
@@ -119,7 +119,7 @@ class TestAReadyDraftExecutes:
 
         definition = scenario()
         run = draft(definition=definition)
-        executed = run_to_end(run, definition)
+        executed = run_to_end(run)
 
         assert declared_bounds(definition)[TANK] == (0.0, None)
         frozen = {
@@ -153,7 +153,7 @@ class TestABlockedDraftCannotBeCoercedIntoExecution:
         }
 
         with pytest.raises(RunNotExecutable) as raised:
-            run_to_end(run, definition)
+            run_to_end(run)
         assert "BLOCKED" in str(raised.value)
         assert "STATE_NOT_SUPPORTED" in str(raised.value)
         assert "no mode in which they do" in str(raised.value)
@@ -166,21 +166,21 @@ class TestABlockedDraftCannotBeCoercedIntoExecution:
         """
         definition = scenario(_requires_demand(shipped_document()))
         with pytest.raises(RunNotExecutable):
-            frozen_world_inputs(draft(definition=definition), definition)
+            frozen_world_inputs(draft(definition=definition))
 
     def test_there_is_no_argument_that_makes_it_run(self) -> None:
-        """The refusal has no override, and the signatures are what say so."""
+        """The refusal has no override, and the signatures are what say so.
+
+        They also say the other thing T021's review asked for. There is no
+        `scenario` parameter: the run is the only input, so there is no argument
+        through which a different experiment can arrive. That is a stronger
+        statement than any comparison this leaf could have made against a
+        supplied definition, and it is checked here rather than described.
+        """
         import inspect
 
-        assert set(inspect.signature(run_to_end).parameters) == {
-            "run",
-            "scenario",
-            "model",
-        }
-        assert set(inspect.signature(frozen_world_inputs).parameters) == {
-            "run",
-            "scenario",
-        }
+        assert set(inspect.signature(run_to_end).parameters) == {"run", "model"}
+        assert set(inspect.signature(frozen_world_inputs).parameters) == {"run"}
 
 
 class TestAnIncompatibleContractVersionCannotBeCoercedEither:
@@ -205,7 +205,7 @@ class TestAnIncompatibleContractVersionCannotBeCoercedEither:
         assert earlier.execution_status == "READY"
 
         with pytest.raises(ExecutionContractIncompatible) as raised:
-            run_to_end(earlier, definition)
+            run_to_end(earlier)
         assert "stays readable" in str(raised.value)
         assert "it is not executed" in str(raised.value)
 
@@ -232,7 +232,7 @@ class TestAnIncompatibleContractVersionCannotBeCoercedEither:
         ] = EXECUTION_CONTRACT_VERSION + 1
         later = parse_run_document(document, source="a later run")
         with pytest.raises(ExecutionContractIncompatible):
-            run_to_end(later, definition)
+            run_to_end(later)
 
 
 class TestReconstructingFromFrozenContent:
@@ -248,14 +248,14 @@ class TestReconstructingFromFrozenContent:
         """
         definition = scenario()
         run = draft(definition=definition)
-        before = run_to_end(run, definition)
+        before = run_to_end(run)
 
         changed_site = _with_tank_capacity(
             site_from_template(HYBRID_TEMPLATE, site_id="MG-001"), 900.0
         )
         assert _tank_capacity_of(changed_site) == 900.0
 
-        after = run_to_end(run, definition)
+        after = run_to_end(run)
         assert after.inputs.bound(TANK, "UPPER").value == Fraction(500)
         assert after.trajectory.boundaries == before.trajectory.boundaries
         assert after.trajectory.inputs_identity == (
@@ -278,9 +278,7 @@ class TestReconstructingFromFrozenContent:
         changed_site = _with_tank_capacity(
             site_from_template(HYBRID_TEMPLATE, site_id="MG-001"), 900.0
         )
-        executed = run_to_end(
-            draft(definition=definition, site=changed_site), definition
-        )
+        executed = run_to_end(draft(definition=definition, site=changed_site))
         assert executed.inputs.bound(TANK, "UPPER").value == Fraction(900)
         assert executed.trajectory.bounded_transitions == ()
         assert executed.trajectory.final.stock(TANK) == Fraction("554.02")
@@ -290,8 +288,8 @@ class TestReconstructingFromFrozenContent:
     ) -> None:
         definition = scenario()
         run = draft(definition=definition)
-        first = run_to_end(run, definition)
-        second = run_to_end(run, definition)
+        first = run_to_end(run)
+        second = run_to_end(run)
         assert first.inputs == second.inputs
         assert (
             first.trajectory.inputs_identity
@@ -301,89 +299,173 @@ class TestReconstructingFromFrozenContent:
             first.trajectory.content_digest == second.trajectory.content_digest
         )
 
-    def test_a_changed_authored_value_cannot_reach_the_trajectory(self) -> None:
-        """The values a run froze are the values it executes.
+    def test_editing_the_document_cannot_reach_the_same_run(self) -> None:
+        """R1's reproduction, and the test that fails without the fix.
 
-        The definition's starting level is edited to 999 L at the same scenario
-        version, which is the worst case: nothing about the parameter SET changed,
-        so the drift check has nothing to catch. It changes no trajectory anyway,
-        because every number the adapter produces comes from the frozen run.
+        Freeze the ordinary shipped Draft. Then edit the LIVE document at the
+        same scenario version - move the removal's offset from 1500 to 1515, and
+        change the starting level to 999 L and the removed volume to 5 L for good
+        measure - and execute the same persisted run again.
+
+        Before the causal projection was frozen, the offset edit alone changed
+        the tank at 1515 from 334.02 L to 374.02 L, because the adapter projected
+        causes out of whatever definition it was handed. Now the run carries its
+        own projection and there is no parameter to hand a definition through, so
+        the trajectory, the inputs and both digests are identical.
         """
         definition = scenario()
         run = draft(definition=definition)
-        original = run_to_end(run, definition)
+        original = run_to_end(run)
 
         edited = shipped_document()
         for parameter in edited["public_parameters"]:
             if parameter["parameter_id"] == "starting-fuel-level":
                 parameter["value"] = 999
         for entry in edited["timeline"]:
-            for parameter in entry.get("parameters", []):
-                if parameter["parameter_id"] == "volume-removed":
-                    parameter["value"] = 5
+            if entry["event_id"] == "unaccounted-fuel-removal":
+                entry["offset_minutes"] = 1515
+                entry["parameters"][0]["value"] = 5
+        # Parsed and accepted, so the edit really is one the product would serve.
+        assert scenario(edited).timeline[3].offset_minutes == 1515
 
-        executed = run_to_end(run, scenario(edited))
-        assert executed.inputs.initial_value(TANK).value == Fraction(430)
-        assert executed.trajectory.boundaries == original.trajectory.boundaries
-        assert executed.trajectory.content_digest == (
+        again = run_to_end(run)
+        assert again.inputs == original.inputs
+        assert again.trajectory.boundaries == original.trajectory.boundaries
+        assert again.trajectory.inputs_identity == (
+            original.trajectory.inputs_identity
+        )
+        assert again.trajectory.content_digest == (
             original.trajectory.content_digest
         )
-
-    def test_a_definition_that_has_gained_an_entry_is_refused(self) -> None:
-        """The half of structural drift a frozen run can see."""
-        definition = scenario()
-        run = draft(definition=definition)
-
-        widened = shipped_document()
-        widened["timeline"].append(
-            {
-                "event_id": "a-second-refuelling",
-                "sequence": 9,
-                "offset_minutes": 2430,
-                "entry_kind": "EVENT",
-                "category": "MAINTENANCE",
-                "description": "A delivery this run never froze.",
-                "execution_role": "CAUSAL_INPUT",
-                "state_key": TANK,
-                "execution_requirement": "REQUIRED",
-                "timing": {"shape": "POINT"},
-                "state_effect": {
-                    "direction": "INCREASE",
-                    "quantity_parameter_id": "second-volume-delivered",
-                },
-                "parameters": [
-                    {
-                        "parameter_id": "second-volume-delivered",
-                        "display_name": "Volume delivered again",
-                        "value": 50,
-                        "unit": "L",
-                        "execution_role": "CAUSAL_INPUT",
-                        "state_key": TANK,
-                        "execution_requirement": "REQUIRED",
-                        "ownership": {
-                            "owner": "SCENARIO_INPUT",
-                            "initializes": False,
-                        },
-                    }
-                ],
-            }
+        assert again.trajectory.boundary_at(1515).stock(TANK) == (
+            AFTER_DISPATCH - Fraction(40)
         )
 
-        with pytest.raises(FrozenRunNotReconstructible) as raised:
-            run_to_end(run, scenario(widened))
-        assert "second-volume-delivered" in str(raised.value)
-        assert "gained or lost an entry" in str(raised.value)
+    def test_the_run_carries_the_timing_and_not_only_the_values(self) -> None:
+        """What makes the test above structural rather than lucky.
 
-    def test_a_definition_at_another_version_is_refused(self) -> None:
-        definition = scenario()
-        run = draft(definition=definition)
-        later = shipped_document()
-        later["version"]["scenario_version"] = 2
-        later["version"]["supersedes"] = 1
+        The frozen run has to hold the offsets, the spans and the directions, or
+        an adapter would have nowhere to get them but a document. Asserted on the
+        persisted record, and on the neutral inputs built from it.
+        """
+        run = draft()
+        frozen = {
+            cause.event_id: cause
+            for cause in run.deterministic_identity.causes
+        }
+        assert set(frozen) == {
+            "unaccounted-fuel-removal",
+            "scheduled-refuelling",
+        }
+        removal = frozen["unaccounted-fuel-removal"]
+        assert removal.offset_minutes == 1500
+        assert removal.duration_minutes == 45
+        assert removal.timing_shape == "WINDOW"
+        assert removal.direction == "DECREASE"
+        assert removal.canonical_value == 120.0
+        assert removal.addressed_key == TANK
+
+        delivery = frozen["scheduled-refuelling"]
+        assert delivery.timing_shape == "POINT"
+        assert delivery.duration_minutes is None
+        assert delivery.direction == "INCREASE"
+
+        dispatch = next(
+            forcing
+            for forcing in run.deterministic_identity.forcings
+            if forcing.parameter_id == "dispatched-output"
+        )
+        assert (dispatch.offset_minutes, dispatch.duration_minutes) == (1080, 240)
+        assert dispatch.canonical_value == 45.0
+        assert dispatch.execution_requirement == "REQUIRED"
+
+        bound = run.deterministic_identity.declared_bounds[0]
+        assert bound.addressed_key == TANK
+        assert bound.bound_kind == "UPPER"
+        assert bound.source_addressed_key == CAPACITY
+
+        condition = run.deterministic_identity.reporting_path_conditions[0]
+        assert condition.addressed_key == (
+            "fuel-level-reporting-availability@fuel-tank"
+        )
+        assert (condition.offset_minutes, condition.duration_minutes) == (
+            1490,
+            90,
+        )
+
+    def test_it_survives_the_store_it_is_persisted_in(self) -> None:
+        """A projection that did not round-trip would be a projection in memory.
+
+        Rendered to a document, parsed back, and executed: same trajectory. The
+        whole point of freezing it is that it is on the persisted run, so the
+        store is part of the claim.
+        """
+        run = draft()
+        reloaded = parse_run_document(
+            render_run_document(run), source="a stored run"
+        )
+        assert reloaded.deterministic_identity == run.deterministic_identity
+        assert (
+            run_to_end(reloaded).trajectory.content_digest
+            == run_to_end(run).trajectory.content_digest
+        )
+
+    def test_a_run_frozen_before_the_projection_existed_still_reads(
+        self,
+    ) -> None:
+        """Compatibility, and what makes an empty projection safe.
+
+        A run frozen before the four collections existed carries none of them, so
+        they parse as empty. That is only safe because such a run is at an earlier
+        contract version and is refused execution: an empty projection can never
+        be mistaken for a run that declared no causes.
+        """
+        document = render_run_document(draft())
+        identity = document["deterministic_identity"]
+        for collection in (
+            "causes",
+            "forcings",
+            "declared_bounds",
+            "reporting_path_conditions",
+        ):
+            del identity[collection]
+        identity["profiles"]["execution_contract_version"] = (
+            EXECUTION_CONTRACT_VERSION - 1
+        )
+
+        earlier = parse_run_document(document, source="an earlier run")
+        assert earlier.deterministic_identity.causes == ()
+        assert earlier.deterministic_identity.forcings == ()
+        assert earlier.execution_status == "READY"
+
+        with pytest.raises(ExecutionContractIncompatible):
+            run_to_end(earlier)
+
+    def test_a_run_that_answers_one_address_twice_is_refused(self) -> None:
+        """C1 from the review, closed rather than carried.
+
+        A stored document can carry two initialization rows for one address.
+        Building a map from it made the last row silently authoritative - the
+        review's probe got a run that started at 400 L instead of 430 - and a
+        kernel cannot notice, because by the time it looks there is one answer.
+        """
+        document = render_run_document(draft())
+        rows = document["deterministic_identity"]["initialization_inputs"]
+        extra = dict(
+            next(
+                row
+                for row in rows
+                if row["parameter_id"] == "starting-fuel-level"
+            )
+        )
+        extra["value"] = extra["canonical_value"] = 400.0
+        rows.append(extra)
+
+        duplicated = parse_run_document(document, source="a hand-edited run")
         with pytest.raises(FrozenRunNotReconstructible) as raised:
-            run_to_end(run, scenario(later))
-        assert "froze version 1" in str(raised.value)
-        assert "reinterpretation" in str(raised.value)
+            run_to_end(duplicated)
+        assert "more than one frozen initial value" in str(raised.value)
+        assert "which row was read last" in str(raised.value)
 
 
 class TestTheTruthBarrierIsTheShapeOfTheInput:
@@ -442,7 +524,7 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
 
     def test_no_authored_reading_reaches_the_inputs(self) -> None:
         definition = scenario()
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
         parameter_ids = (
             {item.parameter_id for item in executed.inputs.initial_values}
             | {item.parameter_id for item in executed.inputs.forcings}
@@ -472,7 +554,7 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
         and the oracles never enter it.
         """
         definition = scenario()
-        baseline = run_to_end(draft(definition=definition), definition)
+        baseline = run_to_end(draft(definition=definition))
 
         edited = shipped_document()
         for entry in edited["timeline"]:
@@ -489,7 +571,7 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
             )
 
         changed = scenario(edited)
-        executed = run_to_end(draft(definition=changed), changed)
+        executed = run_to_end(draft(definition=changed))
 
         assert executed.inputs == replace(
             baseline.inputs, run_id=executed.inputs.run_id
@@ -577,7 +659,7 @@ class TestARateDeclaredOverAWindow:
 
     def test_the_rate_becomes_the_exact_quantity_the_author_meant(self) -> None:
         definition = scenario(self._rate_document())
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
 
         cause = next(
             item
@@ -591,7 +673,7 @@ class TestARateDeclaredOverAWindow:
 
     def test_the_trajectory_moves_that_quantity_in_full(self) -> None:
         definition = scenario(self._rate_document())
-        executed = run_to_end(draft(definition=definition), definition)
+        executed = run_to_end(draft(definition=definition))
         trajectory = executed.trajectory
 
         assert trajectory.outcome == "COMPLETED", trajectory.failure

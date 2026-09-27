@@ -26,6 +26,13 @@ scenario said nothing.
 
 ## Why one generator and one tank
 
+`COMPONENT_RELATIONS` below is where that is declared, and declaring it is what
+took the fuel-specific pairing out of the shared kernel. A tank's stored volume
+and the capacity that bounds it are two facts about one machine; a generator's
+forced output and its specific fuel consumption are two facts about another. The
+kernel resolves a law's operands through those relations without knowing which
+pack declared them.
+
 The model relates one generator to one fuel tank because it has no topology to
 relate two. A frozen run naming two tanks or two generators fails as
 `TOPOLOGY_INCONSISTENT` rather than pairing whichever was read first, which is
@@ -49,7 +56,12 @@ from __future__ import annotations
 
 from fractions import Fraction
 
-from assetops_simulator.kernel.model import ModelLaw, ModelSpec, StateHandler
+from assetops_simulator.kernel.model import (
+    ComponentRelation,
+    ModelLaw,
+    ModelSpec,
+    StateHandler,
+)
 
 #: The address of a stored volume, as this pack names the semantic state.
 FUEL_TANK_VOLUME = "fuel-tank-volume"
@@ -262,6 +274,35 @@ DISPATCH_FORCING_HANDLER = StateHandler(
     consume=_delivered_energy,
 )
 
+#: Which facts belong to one machine. A relation is not a topology: it says that
+#: a volume and a capacity are one tank's, not which tank a generator burns from.
+#: The second needs a declared connection and this model has none, which is why a
+#: frozen run naming two of either is refused rather than paired.
+COMPONENT_RELATIONS: tuple[ComponentRelation, ...] = (
+    ComponentRelation(
+        relation_id="fuel-tank",
+        display_name="fuel tank",
+        state_keys=frozenset({FUEL_TANK_VOLUME, FUEL_TANK_CAPACITY}),
+        statement=(
+            "A stored volume and the capacity that bounds it are two facts "
+            "about one tank. Nothing about the two spellings says so, which is "
+            "why the relation is declared rather than inferred."
+        ),
+    ),
+    ComponentRelation(
+        relation_id="generator",
+        display_name="generator",
+        state_keys=frozenset(
+            {GENERATOR_OUTPUT_POWER, GENERATOR_SPECIFIC_CONSUMPTION}
+        ),
+        statement=(
+            "The output a generator is dispatched at and the fuel it burns per "
+            "kilowatt-hour delivered are two facts about one machine: one the "
+            "story's and one the machine's own."
+        ),
+    ),
+)
+
 FUEL_CONSUMPTION_LAW = ModelLaw(
     law_id="fuel-consumption-follows-delivered-energy",
     statement=(
@@ -302,4 +343,5 @@ MINIMAL_FUEL_MODEL = ModelSpec(
         DISPATCH_FORCING_HANDLER,
     ),
     laws=(FUEL_CONSUMPTION_LAW,),
+    component_relations=COMPONENT_RELATIONS,
 )

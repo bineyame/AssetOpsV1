@@ -242,7 +242,11 @@ class TestAForcingThisModelRequires:
     ) -> None:
         run = _failed(replace(world_inputs(), forcings=()))
         assert run.failure.kind == "FORCING_NOT_AVAILABLE"
-        assert run.failure.subject == "generator-output-power"
+        # The ADDRESS since the law-binding pass, not the bare semantic key: the
+        # law's operand is resolved to the machine the model's relation selected,
+        # so the failure can say which generator declared no window rather than
+        # which kind of state one would have been about.
+        assert run.failure.subject == GENERATOR
 
     def test_two_declared_values_for_one_address_are_refused_not_composed(
         self,

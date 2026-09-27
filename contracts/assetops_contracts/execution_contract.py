@@ -170,7 +170,35 @@ from fractions import Fraction
 #: amended before it has ever been published, and this paragraph is what stops
 #: the amendment being invisible afterwards. Once this merges, the next
 #: narrowing is a six.
-EXECUTION_CONTRACT_VERSION = 5
+#: ## Six since T021, and it is the frozen run's shape rather than a rule
+#:
+#: Version five said what a conforming kernel must do. T021 built the first one,
+#: and its independent review found that the run it executed did not determine
+#: the experiment: a Draft froze the resolved VALUES a scenario declared and left
+#: their TIMING in a mutable document, so the same persisted run, at the same
+#: scenario version, with one offset moved from 1500 to 1515, produced a tank of
+#: 374.02 L where it had produced 334.02 L. Nothing in the run had changed.
+#:
+#: The fix is that a run now freezes the whole causal projection - what changes,
+#: by how much, in which direction, at which resolved address, over which span -
+#: and the component that executes one takes the run and nothing else. That is
+#: `D-2026-09-21-causal-runtime-before-golden-traces`' requirement that frozen
+#: inputs reconstruct the run, applied to the numbers that decide WHEN.
+#:
+#: It moves the number under `D-2026-09-22-contract-version-scope`'s own test: a
+#: run of an unchanged document freezes differently under six than under five, so
+#: the resolved identity of the same experiment is different. Version five HAS
+#: been published - it is on `main` and local Drafts carry it - so the
+#: unreleased-version doctrine does not apply and this is a move rather than an
+#: amendment. Every earlier frozen run keeps its own version, stays readable, and
+#: is refused execution rather than reinterpreted.
+#:
+#: Two things in the same slice deliberately did NOT move it, and saying so is
+#: part of applying the policy rather than reciting it. The `TRAJECTORY`
+#: expectation kind is a pure widening off every executable path. And this
+#: module's relocation from `assetops_backend.scenarios.execution` carries
+#: identical objects, which the backend re-exports: `is` holds.
+EXECUTION_CONTRACT_VERSION = 6
 
 
 class ExecutionContractIncompatible(Exception):

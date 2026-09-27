@@ -102,6 +102,21 @@ def _contract_incompatibility(frozen_version: int) -> str | None:
     return None
 
 
+def _span(shape: str, offset_minutes: int, duration_minutes: int | None) -> str:
+    """When a frozen entry acts, as a reader would say it.
+
+    Half-open, because every rule in the execution contract is: an entry that
+    ends at 1545 does not act at 1545. Writing it as `[1500, 1545)` on the screen
+    rather than as an offset and a length says which instant belongs to which
+    entry without a reader having to add the two together.
+    """
+    if shape == "POINT":
+        return f"at {offset_minutes} min"
+    if shape == "WINDOW":
+        return f"over [{offset_minutes}, {offset_minutes + (duration_minutes or 0)}) min"
+    return "across the whole interval"
+
+
 def frozen_inputs(
     identity: DeterministicIdentity,
     blocking_reasons: Sequence[BlockingReason] = (),
@@ -404,6 +419,120 @@ def frozen_inputs(
             ),
         ]
     )
+
+    # The causal projection. One row per declaration rather than a count,
+    # because what a reader needs from a frozen run is what it is going to do:
+    # the offset and the span are as much a part of that as the quantity, and
+    # they were not frozen at all until T021's review found the same run
+    # executing differently against an edited document.
+    #
+    # The scenario answers for all four. A cause, a forcing, a bound
+    # relationship and a reporting-path condition are the document's
+    # declarations resolved against this Site's components; the NUMBER a bound
+    # applies is the Foundation's and has its own row above.
+    if identity.causes:
+        for cause in identity.causes:
+            rows.append(
+                FrozenInput(
+                    identity_field="causes",
+                    field=f"Cause {cause.event_id}",
+                    value=(
+                        f"{cause.direction.lower()} "
+                        f"{cause.addressed_key} by "
+                        f"{cause.canonical_value} {cause.canonical_unit} "
+                        f"{_span(cause.timing_shape, cause.offset_minutes, cause.duration_minutes)}"
+                    ),
+                    answered_by="SCENARIO",
+                    answered_by_detail=scenario_detail,
+                )
+            )
+    else:
+        rows.append(
+            FrozenInput(
+                identity_field="causes",
+                field="Declared causes",
+                value="none declared",
+                answered_by="SCENARIO",
+                answered_by_detail=scenario_detail,
+            )
+        )
+
+    if identity.forcings:
+        for forcing in identity.forcings:
+            rows.append(
+                FrozenInput(
+                    identity_field="forcings",
+                    field=f"Forcing {forcing.parameter_id}",
+                    value=(
+                        f"{forcing.addressed_key} forced at "
+                        f"{forcing.canonical_value} {forcing.canonical_unit} "
+                        f"{_span(forcing.timing_shape, forcing.offset_minutes, forcing.duration_minutes)}"
+                        f", {forcing.execution_requirement.lower()}"
+                    ),
+                    answered_by="SCENARIO",
+                    answered_by_detail=scenario_detail,
+                )
+            )
+    else:
+        rows.append(
+            FrozenInput(
+                identity_field="forcings",
+                field="Declared forcings",
+                value="none declared",
+                answered_by="SCENARIO",
+                answered_by_detail=scenario_detail,
+            )
+        )
+
+    if identity.declared_bounds:
+        for bound in identity.declared_bounds:
+            rows.append(
+                FrozenInput(
+                    identity_field="declared_bounds",
+                    field=f"Bound on {bound.addressed_key}",
+                    value=(
+                        f"{bound.bound_kind.lower()} bound, from "
+                        f"{bound.source_addressed_key}"
+                    ),
+                    answered_by="SCENARIO",
+                    answered_by_detail=scenario_detail,
+                )
+            )
+    else:
+        rows.append(
+            FrozenInput(
+                identity_field="declared_bounds",
+                field="Declared bounds",
+                value="none declared",
+                answered_by="SCENARIO",
+                answered_by_detail=scenario_detail,
+            )
+        )
+
+    if identity.reporting_path_conditions:
+        for condition in identity.reporting_path_conditions:
+            rows.append(
+                FrozenInput(
+                    identity_field="reporting_path_conditions",
+                    field=f"Reporting path {condition.event_id}",
+                    value=(
+                        f"{condition.addressed_key} "
+                        f"{_span(condition.timing_shape, condition.offset_minutes, condition.duration_minutes)}"
+                    ),
+                    answered_by="SCENARIO",
+                    answered_by_detail=scenario_detail,
+                )
+            )
+    else:
+        rows.append(
+            FrozenInput(
+                identity_field="reporting_path_conditions",
+                field="Reporting path conditions",
+                value="none declared",
+                answered_by="SCENARIO",
+                answered_by_detail=scenario_detail,
+            )
+        )
 
     if identity.signal_mappings:
         for mapping in identity.signal_mappings:

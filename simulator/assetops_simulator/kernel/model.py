@@ -129,6 +129,36 @@ class ModelLaw:
 
 
 @dataclass(frozen=True)
+class ComponentRelation:
+    """One machine this model relates several state keys on.
+
+    A stored volume and the capacity that bounds it are two facts about ONE
+    tank; a forced output and a specific fuel consumption are two facts about
+    ONE generator. Saying so here is what lets the kernel resolve a law's
+    operands without knowing which pack produced the law, and it is what moved
+    the fuel-specific pairing out of `kernel/execute.py`, where T021's
+    independent review found it.
+
+    `display_name` is how a failure names the relation when the frozen run
+    declares none of its states or more than one component carrying them - "no
+    fuel tank", or two component ids. A relation with no `display_name` would
+    make that failure say a state key instead, which is not what a reader needs
+    to know.
+
+    **This is a relation and not a topology.** It says which facts belong to one
+    machine, not which machine feeds which. A model that needs the second - which
+    tank a given generator burns from - needs a declared connection, and this
+    model has none, which is why it relates exactly one of each and fails when a
+    frozen run names two.
+    """
+
+    relation_id: str
+    display_name: str
+    state_keys: frozenset[str]
+    statement: str
+
+
+@dataclass(frozen=True)
 class AdvertisedState:
     """One state this model advertises, and the roles it advertises it in.
 
@@ -151,6 +181,7 @@ class ModelSpec:
     statement: str
     handlers: tuple[StateHandler, ...]
     laws: tuple[ModelLaw, ...]
+    component_relations: tuple[ComponentRelation, ...] = ()
 
     def __post_init__(self) -> None:
         seen: set[str] = set()
@@ -199,6 +230,32 @@ class ModelSpec:
                         "the model actually does."
                     )
 
+        # Every component-scoped state belongs to exactly one relation, and a
+        # site-wide one to none. Checked here rather than remembered, because a
+        # state in no relation is a state the kernel cannot address a law's
+        # operand at, and a state in two is a machine the model cannot identify.
+        for handler in self.handlers:
+            owning = [
+                relation
+                for relation in self.component_relations
+                if handler.state_key in relation.state_keys
+            ]
+            if handler.scope == "COMPONENT" and len(owning) != 1:
+                raise ValueError(
+                    f"Model {self.model_profile_id!r} claims "
+                    f"{handler.state_key!r} on a component and "
+                    f"{len(owning)} component relation(s) name it. A "
+                    "component-scoped state belongs to exactly one machine, "
+                    "or nothing can say which asset a law's operand is on."
+                )
+            if handler.scope == "SITE" and owning:
+                raise ValueError(
+                    f"Model {self.model_profile_id!r} claims "
+                    f"{handler.state_key!r} site-wide and a component relation "
+                    "names it. A fact about the installation is not a fact "
+                    "about one machine."
+                )
+
     def advertised_supported_states(self) -> tuple[AdvertisedState, ...]:
         """What this model can model, derived from the handler table.
 
@@ -225,10 +282,34 @@ class ModelSpec:
             (handler.state_key, handler.role) for handler in self.handlers
         )
 
-    def handler(self, state_key: str, role: str) -> StateHandler | None:
+    def handler(
+        self, state_key: str, role: str, scope: str
+    ) -> StateHandler | None:
+        """The handler for one state, one role and one SCOPE, or nothing.
+
+        `scope` is not optional and was not a parameter until T021's independent
+        review found what its absence did. A reference to
+        `site:generator-specific-fuel-consumption` matched the handler for the
+        COMPONENT-scoped state of the same name, so a declaration the run had
+        explicitly recorded as unsupported at that scope was treated as
+        something this model carries - and it invented a second machine out of
+        it. Whether a state is a fact about one component or about the
+        installation is part of what a handler claims, so it is part of the
+        lookup.
+        """
         for handler in self.handlers:
-            if handler.state_key == state_key and handler.role == role:
+            if (
+                handler.state_key == state_key
+                and handler.role == role
+                and handler.scope == scope
+            ):
                 return handler
+        return None
+
+    def relation_of(self, state_key: str) -> ComponentRelation | None:
+        for relation in self.component_relations:
+            if state_key in relation.state_keys:
+                return relation
         return None
 
     def handlers_of_kind(self, kind: str) -> tuple[StateHandler, ...]:
@@ -242,9 +323,12 @@ class ModelSpec:
                 return handler
         raise KeyError(handler_id)
 
-    def models_state(self, state_key: str) -> bool:
+    def models_state(self, state_key: str, scope: str | None = None) -> bool:
+        """Whether this model claims a state, optionally at one scope only."""
         return any(
-            handler.state_key == state_key for handler in self.handlers
+            handler.state_key == state_key
+            and (scope is None or handler.scope == scope)
+            for handler in self.handlers
         )
 
 

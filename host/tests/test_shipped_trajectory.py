@@ -57,7 +57,7 @@ REFUSED_AT_CAPACITY = Fraction(2701, 50)
 
 def _shipped_trajectory():
     definition = scenario()
-    return definition, run_to_end(draft(definition=definition), definition)
+    return definition, run_to_end(draft(definition=definition))
 
 
 class TestTheAuthoredExpectationsAgainstTheComputedWorld:
@@ -296,7 +296,7 @@ class TestASecondSiteWithADifferentCapacity:
             timestep_minutes=15,
         )
         assert run.execution_status == "READY", run.blocking_reasons
-        return definition, run, run_to_end(run, definition)
+        return definition, run, run_to_end(run)
 
     def test_the_frozen_answers_are_this_site_s_and_not_the_other_one_s(
         self,

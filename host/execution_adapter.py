@@ -4,14 +4,29 @@
 and 4). Nothing imports it, which is what lets it know about a `SimulationRun`
 and about `assetops_simulator` at once without either learning about the other.
 
-What it does is narrow on purpose. It holds a frozen Draft and the versioned
-definition that Draft names, and it produces the neutral `FrozenWorldInputs` a
-kernel executes. It computes no physics, applies no bound and decides no
-trajectory: every number it produces came from the frozen run, and the only
-arithmetic it does is the one-time authored-float normalization the numeric
-policy allows at the input boundary.
+## It takes the run and nothing else, and that is the whole of R1's fix
 
-## What it refuses, and why each refusal is not a kernel failure
+This module used to take a `ScenarioDefinition` beside the run and project the
+causes, the forcings and the bounds out of it. T021's independent review
+reproduced what that allows: execute the ordinary shipped Draft, then execute the
+SAME persisted run against the same document version with one offset moved from
+1500 to 1515, and the tank at 1515 goes from 334.02 L to 374.02 L. Both complete.
+Nothing in the run has changed.
+
+Comparing parameter identities, which is what this did, cannot see that - and an
+offset is a causally effective number exactly as a quantity is. So run setup now
+freezes the whole causal projection on the run (`FrozenCause`, `FrozenForcing`,
+`FrozenDeclaredBound`, `FrozenReportingPathCondition`), and `frozen_world_inputs`
+takes one argument. There is no parameter through which a different experiment
+can arrive, which is a stronger statement than any comparison this module could
+have made.
+
+What is left here is a mapping: frozen product records to neutral ones, with the
+one-time authored-float normalization the numeric policy allows at the input
+boundary and no other arithmetic. It computes no physics, applies no bound and
+decides no trajectory.
+
+## What it refuses, and why each refusal is not an execution failure
 
 A `BLOCKED` Draft is not executed. There is no flag, no override and no partial
 mode: `BLOCKED` is run setup's answer that these frozen inputs may not execute,
@@ -21,30 +36,16 @@ is a refusal here rather than an execution failure, because nothing executed.
 A Draft frozen against a different execution contract is refused by
 `refuse_incompatible_execution`, called before anything is built. The kernel
 calls it again as its own first act, because a caller can hand a kernel inputs
-this adapter never saw, and a guard that only one of two entrances has is a
-guard with an entrance.
+this adapter never saw, and a guard that only one of two entrances has is a guard
+with an entrance. It is also what makes the frozen projection safe to default to
+empty on readback: a run without one is a run at an earlier version, and such a
+run is never executed.
 
-A Draft whose definition has drifted is refused as not reconstructible. The
-values a run froze are the values it executes, so a changed parameter cannot
-reach a trajectory; what a changed DOCUMENT can still change is structure, and
-the adapter compares the two halves it can compare - the scenario version, and
-the exact set of parameters the document declares against the set the run froze.
-An entry added or removed since the freeze is caught. **An in-place edit that
-moves an existing entry's offset or window length, at an unchanged scenario
-version, is not**, because a Draft freezes resolved values and profile answers
-rather than a copy of the timeline. That residual is recorded in
-`.ai/MILESTONE_REVIEW_BACKLOG.md` rather than described as covered.
-
-## Where a bound's number comes from
-
-`D-2026-09-22-capacity-bound-source`: the declaration is the document's and the
-value is the site's. `declared_bounds` is therefore right to report no upper
-number for the tank volume, and this is the component entitled to hold both
-halves - it reads the `bounds` block for WHICH state caps which, and the frozen
-initialization input for HOW LARGE. `BOUND_CASE_BY_DECLARED_BOUND` names which
-contract bound case a declared bound falls under, explicitly, and an unmapped
-one is refused: deriving the case from a state key's spelling is the rule a
-later author moves by renaming something.
+Two answers for one address are refused rather than resolved. A stored document
+can carry two initialization rows for one state, and building a map from it made
+the last row silently authoritative - which T021's review found and carried. A
+frozen run that answers one address twice is not a run whose experiment is
+determined, so it is refused here, where both rows are still visible.
 """
 
 from __future__ import annotations
@@ -53,12 +54,8 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 from assetops_backend.runs.models import SimulationRun
-from assetops_backend.runs.profiles import REPORTING_PATH_STATES
-from assetops_backend.scenarios.models import ScenarioDefinition
 from assetops_contracts.execution_contract import (
     BOUND_CASES,
-    CANONICAL_UNITS,
-    RATE_INTEGRALS,
     normalize_authored_float,
     refuse_incompatible_execution,
 )
@@ -100,7 +97,7 @@ class RunNotExecutable(Exception):
 
 
 class FrozenRunNotReconstructible(Exception):
-    """The run and the definition it names no longer describe one experiment."""
+    """The frozen run does not determine one experiment."""
 
 
 @dataclass(frozen=True)
@@ -108,8 +105,8 @@ class HostExecution:
     """One execution, with the inputs it was built from beside its result.
 
     Both halves, because criterion 2 is a claim about the pair: the same frozen
-    inputs must produce the same canonical trajectory, and a caller that only
-    got the trajectory back could not re-execute the inputs to check.
+    inputs must produce the same canonical trajectory, and a caller that only got
+    the trajectory back could not re-execute the inputs to check.
     """
 
     inputs: FrozenWorldInputs
@@ -126,20 +123,8 @@ def _fraction(value: float | None, where: str) -> Fraction:
     return normalize_authored_float(float(value))
 
 
-def _canonical(value: float, unit: str) -> tuple[Fraction, str, str]:
-    canonical = CANONICAL_UNITS[unit]
-    return (
-        normalize_authored_float(value)
-        * Fraction(canonical.numerator, canonical.denominator),
-        canonical.canonical_unit,
-        canonical.dimension,
-    )
-
-
-def frozen_world_inputs(
-    run: SimulationRun, scenario: ScenarioDefinition
-) -> FrozenWorldInputs:
-    """Project one frozen Draft and its definition into kernel input."""
+def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
+    """Project one frozen Draft into kernel input, from the run alone."""
     if run.execution_status != "READY":
         raise RunNotExecutable(
             f"Run {run.run_id} is {run.execution_status} and carries "
@@ -155,34 +140,7 @@ def frozen_world_inputs(
     identity = run.deterministic_identity
     refuse_incompatible_execution(identity.profiles.execution_contract_version)
 
-    if scenario.scenario_id != identity.scenario.scenario_id:
-        raise FrozenRunNotReconstructible(
-            f"Run {run.run_id} froze scenario "
-            f"{identity.scenario.scenario_id!r} and was handed "
-            f"{scenario.scenario_id!r}."
-        )
-    if scenario.version.scenario_version != identity.scenario.scenario_version:
-        raise FrozenRunNotReconstructible(
-            f"Run {run.run_id} froze version "
-            f"{identity.scenario.scenario_version} of "
-            f"{scenario.scenario_id} and was handed version "
-            f"{scenario.version.scenario_version}. A run executes the version "
-            "it froze; reading a later one here would be reinterpretation "
-            "wearing the old run's identity."
-        )
-
-    parameters = _parameters_by_id(scenario)
-    frozen_values = {
-        item.parameter_id: item.value
-        for item in identity.scenario.resolved_parameters
-    }
-    frozen_initial = {
-        item.parameter_id: item for item in identity.initialization_inputs
-    }
-    _refuse_drifted_parameter_sets(
-        run, scenario, parameters, frozen_values, frozen_initial
-    )
-
+    initial_values = _initial_values(run)
     unmodelled = tuple(
         sorted(item.addressed_key for item in run.unsupported_optional_inputs)
     )
@@ -209,58 +167,52 @@ def frozen_world_inputs(
             timestep_minutes=identity.interval.timestep_minutes,
         ),
         seed=identity.seed,
-        initial_values=_initial_values(identity),
-        bounds=_bounds(scenario, frozen_initial),
-        forcings=_forcings(scenario, frozen_values),
-        causes=_causes(scenario, parameters, frozen_values),
+        initial_values=initial_values,
+        bounds=_bounds(run, initial_values),
+        forcings=_forcings(run),
+        causes=_causes(run),
         unmodelled_addresses=unmodelled,
-        reporting_path_addresses=_reporting_path_addresses(scenario),
+        reporting_path_addresses=tuple(
+            sorted(
+                {
+                    condition.addressed_key
+                    for condition in identity.reporting_path_conditions
+                }
+            )
+        ),
         intervention_history=identity.intervention_history,
     )
 
 
-def _parameters_by_id(scenario: ScenarioDefinition) -> dict[str, object]:
-    found: dict[str, object] = {
-        parameter.parameter_id: parameter
-        for parameter in scenario.public_parameters
-    }
-    for entry in scenario.timeline:
-        for parameter in entry.parameters:
-            found[parameter.parameter_id] = parameter
-    return found
+def _refuse_two_answers(run: SimulationRun, kind: str, keys: list[str]) -> None:
+    """Refuse a frozen run that answers one address twice.
 
-
-def _refuse_drifted_parameter_sets(
-    run: SimulationRun,
-    scenario: ScenarioDefinition,
-    parameters: dict[str, object],
-    frozen_values: dict[str, float | str],
-    frozen_initial: dict[str, object],
-) -> None:
-    """Refuse a definition whose parameter set is not the one the run froze.
-
-    The half of definition drift a frozen run can see. A run freezes every
-    parameter exactly once - as an initialization input or as a resolved
-    parameter - so an entry added or removed since the freeze changes this set,
-    and an edited VALUE cannot reach a trajectory at all because the frozen
-    number is the one that executes.
+    A map built from such a run makes the last row authoritative, silently. That
+    is not a defect a kernel can notice, because by then there is one answer; it
+    has to be caught where both rows are still visible. Ordinary setup cannot
+    produce one - the scenario parser refuses duplicate initializers - so what
+    this catches is a stored document somebody wrote or edited by hand, which is
+    the same boundary every other check in `runs/parsing.py` exists for.
     """
-    declared = set(parameters)
-    froze = set(frozen_values) | set(frozen_initial)
-    added = sorted(declared - froze)
-    removed = sorted(froze - declared)
-    if added or removed:
+    seen: set[str] = set()
+    duplicated: set[str] = set()
+    for key in keys:
+        if key in seen:
+            duplicated.add(key)
+        seen.add(key)
+    if duplicated:
         raise FrozenRunNotReconstructible(
-            f"Run {run.run_id} froze {len(froze)} parameters of "
-            f"{scenario.scenario_id} and the definition now declares "
-            f"{len(declared)}. Added since the freeze: {added or 'none'}. "
-            f"Gone since the freeze: {removed or 'none'}. A run executes the "
-            "content it froze, so a definition that has gained or lost an "
-            "entry is a different experiment under the same version."
+            f"Run {run.run_id} carries more than one frozen {kind} for "
+            f"{sorted(duplicated)}. One address has one answer, or the "
+            "experiment being executed depends on which row was read last."
         )
 
 
-def _initial_values(identity: object) -> tuple[InitialValue, ...]:
+def _initial_values(run: SimulationRun) -> tuple[InitialValue, ...]:
+    frozen = run.deterministic_identity.initialization_inputs
+    _refuse_two_answers(
+        run, "initial value", [item.addressed_key for item in frozen]
+    )
     return tuple(
         InitialValue(
             address=item.addressed_key,
@@ -275,56 +227,50 @@ def _initial_values(identity: object) -> tuple[InitialValue, ...]:
             dimension=item.dimension,
             answered_by=item.answered_by,
         )
-        for item in identity.initialization_inputs
+        for item in frozen
     )
 
 
 def _bounds(
-    scenario: ScenarioDefinition, frozen_initial: dict[str, object]
+    run: SimulationRun, initial_values: tuple[InitialValue, ...]
 ) -> tuple[DeclaredBound, ...]:
+    """Each frozen bound relationship, with the number the run froze for it.
+
+    `D-2026-09-22-capacity-bound-source`: the declaration is the document's and
+    the value is the site's. Both halves are frozen now - the relationship as a
+    `FrozenDeclaredBound` and the number as the initialization input it points at
+    - so this pairs two frozen records rather than a frozen record and a live
+    document.
+    """
+    by_address = {item.address: item for item in initial_values}
     bounds: list[DeclaredBound] = []
-    for parameter in _parameters_by_id(scenario).values():
-        declaration = parameter.bounds
-        if declaration is None:
-            continue
-        key = (parameter.state_ref.state_key, declaration.bound_kind)
+    for declaration in run.deterministic_identity.declared_bounds:
+        key = (declaration.source_state_ref.state_key, declaration.bound_kind)
         case_id = BOUND_CASE_BY_DECLARED_BOUND.get(key)
         if case_id is None:
             raise FrozenRunNotReconstructible(
-                f"{scenario.scenario_id} declares a {declaration.bound_kind} "
-                f"bound whose value comes from "
-                f"{parameter.state_ref.state_key!r}, and no bound case says "
-                "what a kernel does when it is reached. A bound with no policy "
-                "is a silent clamp waiting to be written, so this is refused "
-                "rather than defaulted."
+                f"Run {run.run_id} froze a {declaration.bound_kind} bound whose "
+                f"value comes from {declaration.source_state_ref.state_key!r}, "
+                "and no bound case says what a kernel does when it is reached. "
+                "A bound with no policy is a silent clamp waiting to be "
+                "written, so this is refused rather than defaulted."
             )
-
-        frozen = frozen_initial.get(parameter.parameter_id)
-        if frozen is None or frozen.canonical_value is None:
-            if parameter.value is None or parameter.unit is None:
-                raise FrozenRunNotReconstructible(
-                    f"{scenario.scenario_id} declares a bound on "
-                    f"{declaration.state_ref.addressed_key} and neither the "
-                    f"definition nor the frozen run supplies a number for "
-                    f"{parameter.parameter_id}."
-                )
-            value, unit, _ = _canonical(parameter.value, parameter.unit)
-            source = parameter.addressed_key
-        else:
-            value = _fraction(
-                frozen.canonical_value,
-                f"the bound value for {declaration.state_ref.addressed_key}",
+        source = by_address.get(declaration.source_addressed_key)
+        if source is None:
+            raise FrozenRunNotReconstructible(
+                f"Run {run.run_id} froze a bound on "
+                f"{declaration.addressed_key} sourced from "
+                f"{declaration.source_addressed_key}, and froze no initial "
+                "value for that address. A bound relationship with no number "
+                "behind it is a limit nobody stated."
             )
-            unit = frozen.canonical_unit
-            source = frozen.addressed_key
-
         bounds.append(
             DeclaredBound(
-                address=declaration.state_ref.addressed_key,
+                address=declaration.addressed_key,
                 kind=declaration.bound_kind,
-                value=value,
-                canonical_unit=unit,
-                source_address=source,
+                value=source.value,
+                canonical_unit=source.canonical_unit,
+                source_address=declaration.source_addressed_key,
                 bound_case_id=case_id,
                 policy=_POLICY_BY_CASE[case_id],
             )
@@ -332,132 +278,57 @@ def _bounds(
     return tuple(bounds)
 
 
-def _forcings(
-    scenario: ScenarioDefinition, frozen_values: dict[str, float | str]
-) -> tuple[ForcingInput, ...]:
-    forcings: list[ForcingInput] = []
-    for entry in scenario.timeline:
-        if entry.execution_role != "FORCING_INPUT":
-            continue
-        if entry.state_ref is not None and (
-            entry.state_ref.state_key in REPORTING_PATH_STATES
-        ):
-            continue
-        for parameter in entry.parameters:
-            if parameter.execution_role != "FORCING_INPUT":
-                continue
-            if parameter.state_ref is None or parameter.unit is None:
-                continue
-            frozen = frozen_values.get(parameter.parameter_id)
-            if not isinstance(frozen, (int, float)):
-                continue
-            value, unit, dimension = _canonical(float(frozen), parameter.unit)
-            forcings.append(
-                ForcingInput(
-                    event_id=entry.event_id,
-                    address=parameter.state_ref.addressed_key,
-                    state_key=parameter.state_ref.state_key,
-                    parameter_id=parameter.parameter_id,
-                    value=value,
-                    canonical_unit=unit,
-                    dimension=dimension,
-                    shape=entry.timing.shape,
-                    offset_minutes=entry.offset_minutes,
-                    duration_minutes=entry.timing.duration_minutes,
-                    requirement=parameter.execution_requirement,
-                )
-            )
-    return tuple(forcings)
-
-
-def _causes(
-    scenario: ScenarioDefinition,
-    parameters: dict[str, object],
-    frozen_values: dict[str, float | str],
-) -> tuple[DeclaredCause, ...]:
-    """Every declared change to a stock, with the quantity a run froze.
-
-    A rate declared over a window is integrated here, at the input boundary and
-    once, exactly as the document projection does it - the difference being that
-    the number comes from the frozen run. How much of the result has moved part
-    way through the window is the contract's ramp and the kernel's to apply.
-    """
-    causes: list[DeclaredCause] = []
-    for entry in scenario.timeline:
-        effect = entry.state_effect
-        if effect is None or entry.state_ref is None:
-            continue
-        source_id = effect.quantity_parameter_id or effect.rate_parameter_id
-        if source_id is None:
-            continue
-        parameter = parameters.get(source_id)
-        if parameter is None or parameter.unit is None:
-            continue
-        frozen = frozen_values.get(source_id)
-        if not isinstance(frozen, (int, float)):
-            continue
-
-        value, unit, dimension = _canonical(float(frozen), parameter.unit)
-        if effect.rate_parameter_id is not None:
-            # A rate declared over a window is integrated here, once, at the
-            # input boundary: 14 L/h is 14/60 L/min and over 240 minutes that is
-            # exactly 56 L, which is the number an author would write down. What
-            # the kernel receives is the total, because how much of it has moved
-            # part way through is the window ramp's answer and not a cause's.
-            minutes = entry.timing.duration_minutes or 0
-            value = value * Fraction(minutes)
-            dimension = RATE_INTEGRALS[dimension]
-            unit = _canonical_unit_of(dimension)
-
-        causes.append(
-            DeclaredCause(
-                event_id=entry.event_id,
-                address=entry.state_ref.addressed_key,
-                state_key=entry.state_ref.state_key,
-                direction=effect.direction,
-                parameter_id=source_id,
-                quantity=value,
-                canonical_unit=unit,
-                dimension=dimension,
-                shape=entry.timing.shape,
-                offset_minutes=entry.offset_minutes,
-                duration_minutes=entry.timing.duration_minutes,
-            )
+def _forcings(run: SimulationRun) -> tuple[ForcingInput, ...]:
+    return tuple(
+        ForcingInput(
+            event_id=item.event_id,
+            address=item.addressed_key,
+            state_key=item.state_key,
+            parameter_id=item.parameter_id,
+            value=_fraction(
+                item.canonical_value, f"the forcing {item.parameter_id}"
+            ),
+            canonical_unit=item.canonical_unit,
+            dimension=item.dimension,
+            shape=item.timing_shape,
+            offset_minutes=item.offset_minutes,
+            duration_minutes=item.duration_minutes,
+            requirement=item.execution_requirement,
         )
-    return tuple(causes)
-
-
-def _canonical_unit_of(dimension: str) -> str:
-    """The canonical unit a dimension is measured in.
-
-    Read from the conversion table rather than spelled here, so a dimension whose
-    canonical unit changes changes in one place.
-    """
-    return next(
-        canonical.canonical_unit
-        for canonical in CANONICAL_UNITS.values()
-        if canonical.dimension == dimension and canonical.numerator == 1
+        for item in run.deterministic_identity.forcings
     )
 
 
-def _reporting_path_addresses(scenario: ScenarioDefinition) -> tuple[str, ...]:
+def _causes(run: SimulationRun) -> tuple[DeclaredCause, ...]:
+    """Every frozen change to a stock, with the quantity the run froze.
+
+    A rate declared over a window was integrated once, at the input boundary, by
+    run setup. How much of the result has moved part way through is the
+    contract's ramp and the kernel's to apply.
+    """
     return tuple(
-        sorted(
-            {
-                entry.state_ref.addressed_key
-                for entry in scenario.timeline
-                if entry.state_ref is not None
-                and entry.state_ref.state_key in REPORTING_PATH_STATES
-            }
+        DeclaredCause(
+            event_id=item.event_id,
+            address=item.addressed_key,
+            state_key=item.state_key,
+            direction=item.direction,
+            parameter_id=item.parameter_id,
+            quantity=_fraction(
+                item.canonical_value, f"the cause {item.event_id}"
+            ),
+            canonical_unit=item.canonical_unit,
+            dimension=item.dimension,
+            shape=item.timing_shape,
+            offset_minutes=item.offset_minutes,
+            duration_minutes=item.duration_minutes,
         )
+        for item in run.deterministic_identity.causes
     )
 
 
 def run_to_end(
-    run: SimulationRun,
-    scenario: ScenarioDefinition,
-    model: ModelSpec = MINIMAL_FUEL_MODEL,
+    run: SimulationRun, model: ModelSpec = MINIMAL_FUEL_MODEL
 ) -> HostExecution:
     """Execute a Draft to the end of its interval and return both halves."""
-    inputs = frozen_world_inputs(run, scenario)
+    inputs = frozen_world_inputs(run)
     return HostExecution(inputs=inputs, trajectory=execute(inputs, model))

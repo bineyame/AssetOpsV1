@@ -1519,6 +1519,36 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenSignalMapping", "device_id"),
             ("FrozenSignalMapping", "signal_id"),
             ("FrozenSignalMapping", "component_id"),
+            # The causal projection, frozen since T021's review. Every field of
+            # all four records reaches a row, because what a reader needs from a
+            # frozen run is what it is going to do and the timing is as much part
+            # of that as the quantity. Their `state_ref` fields resolve through
+            # the `StateRef` entries already classified above.
+            ("FrozenCause", "event_id"),
+            ("FrozenCause", "state_ref"),
+            ("FrozenCause", "direction"),
+            ("FrozenCause", "canonical_value"),
+            ("FrozenCause", "canonical_unit"),
+            ("FrozenCause", "timing_shape"),
+            ("FrozenCause", "offset_minutes"),
+            ("FrozenCause", "duration_minutes"),
+            ("FrozenForcing", "event_id"),
+            ("FrozenForcing", "state_ref"),
+            ("FrozenForcing", "parameter_id"),
+            ("FrozenForcing", "canonical_value"),
+            ("FrozenForcing", "canonical_unit"),
+            ("FrozenForcing", "timing_shape"),
+            ("FrozenForcing", "offset_minutes"),
+            ("FrozenForcing", "duration_minutes"),
+            ("FrozenForcing", "execution_requirement"),
+            ("FrozenDeclaredBound", "state_ref"),
+            ("FrozenDeclaredBound", "bound_kind"),
+            ("FrozenDeclaredBound", "source_state_ref"),
+            ("FrozenReportingPathCondition", "event_id"),
+            ("FrozenReportingPathCondition", "state_ref"),
+            ("FrozenReportingPathCondition", "timing_shape"),
+            ("FrozenReportingPathCondition", "offset_minutes"),
+            ("FrozenReportingPathCondition", "duration_minutes"),
         }
 
         # Frozen and inspectable through the structured identity, and
@@ -1540,6 +1570,18 @@ class TestEveryFrozenValueNamesAnAnswerer:
             # Who owns the cadence is the scenario's statement, and the row
             # carries what this run froze rather than restating it.
             ("FrozenObservationBinding", "cadence_ownership"),
+            # The parameter identity a cause's magnitude came from. The row
+            # names the EVENT, which is what a reader recognises; which
+            # parameter carried the number is the document's business.
+            ("FrozenCause", "parameter_id"),
+            # The dimension is implied by the canonical unit the row shows, and
+            # a second statement of it is a second thing to disagree.
+            ("FrozenCause", "dimension"),
+            ("FrozenForcing", "dimension"),
+            # The bound's row names the address its number comes from, which is
+            # how a reader finds the initialization row that carries it. The
+            # parameter identity on that row is the same one.
+            ("FrozenDeclaredBound", "source_parameter_id"),
         }
 
         from dataclasses import is_dataclass
@@ -2014,9 +2056,10 @@ class TestTheExecutionContractVersionMove:
     `D-2026-09-22-contract-version-scope`: the version moves when a change can
     alter the outcome for a document that was already valid. T020A's
     Foundation-value narrowing took it to three, T020A1's addressing to four,
-    and T020B's requirement-conflict refusal, reporting-path authority move and
-    four declared kernel semantics take it to five - each of the three reaches a
-    document that version four accepted.
+    T020B's requirement-conflict refusal, reporting-path authority move and four
+    declared kernel semantics to five, and T021 to six - a run now freezes the
+    causal projection, so a run of an unchanged document freezes differently than
+    it did, which is exactly the test that decision sets.
 
     The absolute numbers are written relatively where they can be. Here they
     cannot: the point of the test is that the number CHANGED and that an
@@ -2025,7 +2068,7 @@ class TestTheExecutionContractVersionMove:
     """
 
     def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
-        assert EXECUTION_CONTRACT_VERSION == 5
+        assert EXECUTION_CONTRACT_VERSION == 6
 
     def test_a_new_draft_is_stamped_with_it(self) -> None:
         record, _ = create()

@@ -63,7 +63,7 @@ def _declared_pairs(profile: ModelProfile) -> set[tuple[str, str]]:
 
 def _executed():
     definition = scenario()
-    return run_to_end(draft(definition=definition), definition)
+    return run_to_end(draft(definition=definition))
 
 
 class TestTheAdvertisedSetIsDerivedFromExecutableHandlers:
@@ -157,10 +157,15 @@ class TestTheAdvertisedSetIsDerivedFromExecutableHandlers:
 
         from assetops_simulator.kernel.model import StateHandler
 
+        # Site-scoped, because a component-scoped state now has to belong to a
+        # declared component relation and the model refuses one that does not.
+        # That refusal is a second guard and not the one under test here: what
+        # this measures is the LEDGER, so the handler has to be constructible and
+        # simply never reached.
         never_called = StateHandler(
             handler_id="a-state-nothing-reaches",
-            state_key="room-temperature",
-            scope="COMPONENT",
+            state_key="ambient-temperature",
+            scope="SITE",
             role="CAUSAL_INPUT",
             kind="COEFFICIENT",
             statement="declared and never consumed by any law or any input",
@@ -171,7 +176,7 @@ class TestTheAdvertisedSetIsDerivedFromExecutableHandlers:
             handlers=MINIMAL_FUEL_MODEL.handlers + (never_called,),
         )
         definition = scenario()
-        executed = run_to_end(draft(definition=definition), definition, wider)
+        executed = run_to_end(draft(definition=definition), wider)
         reached = {
             (
                 wider.handler_by_id(handler_id).state_key,
@@ -179,10 +184,10 @@ class TestTheAdvertisedSetIsDerivedFromExecutableHandlers:
             )
             for handler_id in executed.trajectory.handlers_exercised
         }
-        assert ("room-temperature", "CAUSAL_INPUT") in wider.advertised_pairs()
-        assert ("room-temperature", "CAUSAL_INPUT") not in reached
+        assert ("ambient-temperature", "CAUSAL_INPUT") in wider.advertised_pairs()
+        assert ("ambient-temperature", "CAUSAL_INPUT") not in reached
         assert wider.advertised_pairs() - reached == {
-            ("room-temperature", "CAUSAL_INPUT")
+            ("ambient-temperature", "CAUSAL_INPUT")
         }
 
     def test_the_law_that_makes_two_of_the_roles_mean_something_also_ran(
