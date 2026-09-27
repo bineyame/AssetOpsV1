@@ -60,6 +60,10 @@ TRACE_RECORD_KINDS = frozenset(
     {"STEP", "EVENT_APPLIED", "BOUNDED_TRANSITION", "FAILURE"}
 )
 
+#: Where a change to a stock came from. Two, and no third: a change is
+#: something the document declared or something a model law computed.
+CHANGE_ORIGINS = frozenset({"DECLARED_CAUSE", "MODEL_LAW"})
+
 
 @dataclass(frozen=True)
 class AppliedEvent:
@@ -67,9 +71,17 @@ class AppliedEvent:
 
     `share` is the portion of the entry this record accounts for: exactly one
     for a point, and the window ramp's share of the span for a step of a
-    window. `accepted` is what the stock took and `refused` is what a bound
-    would not let in, so `accepted + refused == declared` holds exactly and the
-    conservation check has both halves to compare.
+    window. `declared` is what this contribution asks the stock for; what the
+    stock actually took is the difference between two boundary states, and a
+    bound that would not let all of it in is a `BoundedTransition` beside this
+    record. The conservation check compares the two, which is the only reason
+    both exist.
+
+    `origin` separates a change the document declared from one a model law
+    computed. Both move the same stock and they are not the same fact: the
+    120 litres a scenario removes is authored, and the 55.98 litres a generator
+    burns follows from a coefficient and a forced output. A trajectory that
+    called them both "the scenario said so" would be unreadable as evidence.
     """
 
     event_id: str
@@ -78,8 +90,7 @@ class AppliedEvent:
     at_offset_minutes: int
     share: Fraction
     declared: Fraction
-    accepted: Fraction
-    refused: Fraction
+    origin: str
     phase_id: str
 
     def as_fields(self) -> tuple[object, ...]:
@@ -90,8 +101,7 @@ class AppliedEvent:
             self.at_offset_minutes,
             self.share,
             self.declared,
-            self.accepted,
-            self.refused,
+            self.origin,
             self.phase_id,
         )
 
@@ -410,5 +420,15 @@ IDENTITY_FIELDS_READ = frozenset(
     }
 )
 
-#: The one field deliberately outside the identity.
-IDENTITY_FIELDS_EXCLUDED = frozenset({"run_id"})
+#: The two fields deliberately outside the identity, each for a stated reason.
+#:
+#: `run_id` because two Drafts set up identically are two runs of one
+#: experiment, and an identity carrying the run's own name would answer nothing.
+#:
+#: `reporting_path_addresses` because this is the identity of the WORLD a kernel
+#: evolves, and a condition on the reporting path changes no world quantity -
+#: that is the whole reason the authority for it moved to the publication
+#: profile. Two runs differing only in whether a sensor reports produce the same
+#: world, so they get the same world identity, and what differs between them is
+#: the observation transform's business.
+IDENTITY_FIELDS_EXCLUDED = frozenset({"run_id", "reporting_path_addresses"})

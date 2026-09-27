@@ -1,0 +1,13 @@
+# `host/` is the neutral composition leaf. It has no package to install and no
+# distribution name, because nothing imports it: v4 section 3.2 rule 4, and the
+# reason it may import both sides at once. This file exists so the composing test
+# root is runnable with the same command shape as the other two, from `host/`:
+#
+#     ..\.venv\Scripts\python.exe -m pytest
+#
+# Tests that compose the backend and the simulator live here rather than in
+# `backend/tests`, because `tools/checks/dependency-direction.ps1` scans the
+# whole backend tree including its tests. That is deliberate and a composing test
+# is not an exception to it.
+[tool.pytest.ini_options]
+testpaths = ["tests"]

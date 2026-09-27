@@ -216,6 +216,13 @@ class FrozenWorldInputs:
     addresses the run recorded as unsupported travel with the inputs, and the
     kernel treats an initial value for a state it has no handler for as an
     error unless it is named here.
+
+    `reporting_path_addresses` is the second thing a kernel must be told rather
+    than left to infer. A scenario can force a condition on the reporting path -
+    whether the fuel level sensor is carrying readings - and that is the
+    publication profile's to model, not a world state at all. It is therefore
+    not a forcing here, and it is named so a kernel can say it was withheld
+    deliberately rather than report a declared entry it silently dropped.
     """
 
     run_id: str
@@ -235,6 +242,7 @@ class FrozenWorldInputs:
     forcings: tuple[ForcingInput, ...]
     causes: tuple[DeclaredCause, ...]
     unmodelled_addresses: tuple[str, ...]
+    reporting_path_addresses: tuple[str, ...]
     intervention_history: tuple[str, ...]
 
     def initial_value(self, address: str) -> InitialValue | None:
