@@ -23,20 +23,33 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
-### `supported_states` has no falsifier until T021
+### ~~`supported_states` has no falsifier until T021~~ - RESOLVED in T021, 2026-09-27
 
 `MINIMAL_FUEL_TANK_MODEL` declares that `fuel-tank-volume` supports
-`CAUSAL_INPUT` and `REPORTED_OBSERVATION`. Nothing in this build can cause or
-report anything, so the declaration is a promise about a kernel that does not
-exist, and `READY` is computed from it.
+`CAUSAL_INPUT` and `REPORTED_OBSERVATION`. Nothing in this build could cause or
+report anything, so the declaration was a promise about a kernel that did not
+exist, and `READY` was computed from it.
 
-*Safe to carry* because it discloses exactly that: T020's `READY` disclosure
-names the condition, and T021's conformance test deriving `supported_states`
-from the kernel is the falsifier that makes the declaration legitimate.
+**Closed.** `ModelSpec.advertised_supported_states` in the simulator DERIVES the
+advertised set by grouping a table of executable handlers - there is no field in
+which to write a role no handler implements - and
+`host/tests/test_kernel_conformance.py` compares that set against this profile's
+declaration in both directions AND asserts every advertised `(state, role)` pair
+was reached by executing a Draft created through `RunSetupService` from the shipped
+document. Two probes keep it from being two agreeing tables: one removes a handler
+and watches the derived set narrow, one adds a handler nothing calls and watches
+the execution ledger report it missing.
 
-*What would change the answer:* descoping that conformance test. It is not a
-quality measure. Without it `supported_states` goes back to being a promise
-and `READY` goes back to overreaching.
+Kept rather than deleted because the carry note's own warning was the right one
+and is worth reading beside what closed it. It said the conformance test "is not a
+quality measure", and the thing that made it a falsifier rather than a second
+declaration is precisely the leg that could have been left out: DERIVING the set
+from handlers, and requiring each one to have RUN. A conformance test comparing
+two hand-written tables would have satisfied the sentence and established nothing.
+
+`REPORTED_OBSERVATION` is verified at the model's grain - the world can answer what
+a stock is at an instant, after that instant's events - and no further. Nothing
+publishes that answer, which is the other entry below.
 
 ### The refusal/blocking naming rule's scope
 
@@ -133,6 +146,11 @@ thinnest point of the slice.
 blocked describe before the table, the detail is one click away and states it
 in full, and T021's conformance test makes the word correct rather than
 qualified.
+
+*Narrowed, not closed, by T021.* The model profile's half of the disclosure is
+retired because a kernel now derives its supported set; the publication profile's
+half stays, so a `READY` cell with no disclosure beside it still hides one
+unverified declaration rather than two.
 
 *What would change the answer:* the inventory gaining a second signal that
 reads as readiness - a colour, an icon, a sort that puts `READY` first - or
@@ -357,6 +375,13 @@ does, neither needs a user decision.
 
 ### `supported_reporting_states` has no falsifier either
 
+*Still open after T021, and now the only half of the disclosure that is.* The
+kernel closed the model profile's half and the disclosure was narrowed to name
+only this one, with the observation transform as its stated retirement condition.
+The generalisation below - that the two halves retire on different conditions - is
+what made narrowing rather than removing the right move, and it is now the record
+of a prediction that held.
+
 `LAB_PUBLICATION_PROFILE` declares it can model the fuel level reporting path
 being unavailable, and nothing in this build can suppress a reading. It is the
 same shape as the `supported_states` entry at the top of this file, one profile
@@ -414,6 +439,21 @@ discover the gap. If T024 models demand before the decision is taken it becomes
 urgent, because a forcing with two declared values would reach a kernel with no
 rule for composing them.
 
+**T021 met it, by refusing.** The kernel raises `FORCING_VALUE_AMBIGUOUS` when two
+declared values force one address in one step, and the statement says why: nothing
+says whether they are the two ends of a ramp or two named levels a shape selects
+between, so it will not pick. That leaves the semantic decision exactly where this
+entry put it - with whoever models demand - rather than having a kernel quietly
+choose one reading and a later slice inherit it as built behaviour. The refusal is
+this kernel's rather than a contract statement, so it narrows no declared space and
+moved no contract version.
+
+It is not reachable on the shipped document today, because nothing models site
+demand and an unmodelled address never reaches the step where two values would
+collide. It is reached in `simulator/tests/test_execution_failures.py` by giving a
+MODELLED address the same shape. So this entry stays open as the decision it always
+was, and what closed is the risk of a kernel answering it by accident.
+
 ### Two blocking rows can still share a subject across two kinds
 
 An addressed reference whose scope disagrees with the answering profile yields
@@ -427,6 +467,89 @@ tidiness cost rather than a wrong statement.
 
 *What would change the answer:* the two rows starting to suggest different
 repairs, which would make the pair a contradiction rather than a repetition.
+
+## Carried out of T021
+
+Added 2026-09-27 at implementation, under
+`D-2026-09-22-milestone-speed-over-purity`. None meets its stopping rule: none is
+expensive to reverse, none misleads an implementer about what the code does, none
+needs a user decision. Three of the four are named in the code that carries them.
+
+### A definition edited in place, at an unchanged version, can still move an entry
+
+The host adapter compares two things between a frozen run and the definition it
+names: the scenario version, and the exact set of parameters the document declares
+against the set the run froze. That catches a version bump and catches an entry
+added or removed. It does **not** catch an edit that moves an existing entry's
+offset or window length while leaving its parameter in place, because a Draft
+freezes resolved VALUES and profile answers rather than a copy of the timeline, so
+there is nothing frozen for a structural comparison to be made against.
+
+*Safe to carry* because an edited value cannot reach a trajectory at all - every
+number the adapter produces comes from the frozen run, asserted - so the exposure
+is structure only, and the two shipped scenario stores are a tracked read-only
+document and a writable store a developer edits deliberately. Nothing in the
+product can move an offset.
+
+*What would change the answer:* a scenario authoring UI, or any slice that makes a
+frozen run's trajectory an artifact somebody relies on across an edit. Closing it
+means either freezing the timeline's structural content on the run - which changes
+the frozen identity and therefore the contract version - or adding a content
+digest of the projected structure to the run. Both are real changes and neither
+belonged in the kernel slice.
+
+### The shipped scenario's content changed without a `scenario_version` move
+
+T021 corrected two authored reading VALUES in
+`config/scenarios/fuel-loss-event.yaml` and left `scenario_version` at 1. T020B
+set the precedent by lowering five `execution_requirement` positions in the same
+document at the same version, and this is one step further: a value rather than a
+requirement level.
+
+*Safe to carry* because no frozen run is reinterpreted - every existing Draft
+carries its own frozen copy of the value it resolved, and the adapter refuses a
+definition whose version does not match the one a run froze - and because T022
+removes both authored readings entirely under
+`D-2026-09-22-reconciliation-panel-retirement`. Nothing has ever executed this
+document, so no artifact was frozen against a trajectory.
+
+*What would change the answer:* the shipped store gaining a second consumer that
+resolves `(scenario_id, scenario_version)` to content rather than reading a
+document, or any slice after T022 editing a value in a document whose runs matter.
+The honest general rule, not yet written anywhere durable, is that a shipped
+document's version should move when a VALUE changes even if a milestone convention
+has been tolerating it.
+
+### The kernel requires its one forcing to be declared
+
+`FORCING_NOT_AVAILABLE` fires when a law reads a forcing input the frozen run
+declares nowhere, so a fuel run with a removal and a refuelling and no generator
+dispatch at all fails rather than running a tank that sits still. For a world
+whose only law is driven by dispatch that is the honest answer - the alternative
+is a law that silently does not run - and the failure statement says exactly that.
+
+*Safe to carry* because every document that reaches this kernel declares the
+dispatch, and because the statement is true about what happens rather than a
+guess. It is recorded because a reader might reasonably expect such a run to
+execute.
+
+*What would change the answer:* a second law, or a scenario that legitimately
+exercises fuel movement with no dispatch. The fix is per-law rather than global: a
+law would declare whether its forcing is required for the run or only for the
+steps the forcing covers.
+
+### `reporting_path_addresses` carries addresses and not windows
+
+A reporting-path forcing reaches the neutral frozen inputs as an address so the
+kernel can say it was withheld deliberately, and its WINDOW is dropped, because
+this kernel has nothing to do with it.
+
+*Safe to carry* because the kernel genuinely cannot use the window and because the
+field's docstring says what it is for. T022's observation transform is the first
+consumer that needs it, and widening a field is cheap.
+
+*What would change the answer:* nothing before T022. It is listed so that slice
+widens the field rather than discovering it missing.
 
 ## Tracked elsewhere, listed so the review finds them
 

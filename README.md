@@ -15,7 +15,9 @@ Start with `AGENTS.md` and `.ai/START_HERE.md`.
 | `var/` | Writable store for user-authored configuration. Gitignored, created at runtime |
 | `backend/` | FastAPI backend (`assetops_backend`) |
 | `frontend/` | React + TypeScript UI (Vite) |
-| `simulator/` | Deterministic Python simulator (`assetops_simulator`) |
+| `simulator/` | Deterministic Python simulator (`assetops_simulator`): causal kernel and domain packs |
+| `contracts/` | Dependency-neutral contracts (`assetops_contracts`) both sides of the truth barrier speak |
+| `host/` | Composition leaf. May import both sides; nothing imports it |
 | `tools/` | Repository guard scripts |
 | `.ai/` | Product, architecture, workflow and planning documents |
 | `tasks/` | Task definitions; completed tasks move to `tasks/completed/` |
@@ -150,6 +152,19 @@ policy. If your policy is `Bypass` or `Unrestricted`, `npm test` and
 Python is not on `PATH` on the current development machine — only a Microsoft
 Store alias. The repository-root `.venv` is the working interpreter.
 
+### First-time Python setup
+
+Three editable installs, because three Python trees are importable and the
+backend imports the neutral contracts:
+
+```
+.venv\Scripts\python.exe -m pip install -e backend -e contracts -e simulator
+```
+
+`host/` is deliberately not installed. Nothing imports it, which is the rule that
+keeps the crossing between the product and the simulator in one place; its tests
+reach it through `host/conftest.py`.
+
 ### Backend
 
 ```
@@ -175,6 +190,24 @@ npm.cmd run dev
 alongside it. The proxy is dev-server configuration only: the built app and the
 backend are served from one origin and request the same paths either way.
 
+### Simulator
+
+```
+cd simulator
+..\.venv\Scripts\python.exe -m pytest
+```
+
+### Composed backend and simulator
+
+```
+cd host
+..\.venv\Scripts\python.exe -m pytest
+```
+
+A test that composes both sides lives here and nowhere else. The dependency guard
+scans the whole backend tree including `backend/tests`, and a composing test is
+not an exception to it.
+
 ### Guards
 
 ```
@@ -184,7 +217,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-agent-workflow.p
 
 `check-architecture.ps1` enforces the stack and module-direction,
 simulator/product, and simulator feature gate seams: it fails on
-UI-to-simulator, simulator-to-product, and product-to-simulator imports, on a
+UI-to-simulator, simulator-to-product, and product-to-simulator imports, on any
+import of the `host/` composition leaf from any of the other four trees, on an
+import of either side from the neutral `contracts/`, on a
 missing or non-boolean `simulator_lab.enabled`, and on a simulator URL declared
 outside the gated route modules (`backend/assetops_backend/simulator_lab_api.py`
 and `frontend/src/shell/simulatorLabRoutes.tsx`). Everything else must import

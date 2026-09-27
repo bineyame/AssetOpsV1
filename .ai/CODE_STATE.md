@@ -2918,3 +2918,219 @@ What T020B leaves open, for the slice that meets it.
   changes it for new runs only.
 - **The five inline `float(value)` overflow sites are untouched and no sixth was
   added.** Nothing in this slice converts a number.
+
+## T021 - The independent causal Fuel Loss kernel
+
+What this slice settled in code. **A frozen READY Draft of the shipped Fuel Loss
+Event now executes**, in a simulator that cannot see the product, and produces a
+private trajectory whose tank movement follows dispatch, consumption and events.
+
+### Where things live, and the rules that keep it that way
+
+Three Python trees are importable and a fourth is not.
+`contracts/assetops_contracts` holds what both sides of the truth barrier must
+agree about: the versioned execution semantics (moved unchanged from
+`scenarios/execution.py`), the frozen-input schema a kernel consumes, the private
+trajectory, the execution-failure vocabulary and the BLAKE2b-256 identity domain.
+`simulator/assetops_simulator` holds the kernel and the fuel pack.
+`host/execution_adapter.py` is the composition leaf, and nothing imports it.
+
+The backend re-exports every moved name, so a product caller still reads one
+module and the scenario detail screen renders the contract's own objects rather
+than copies: `is` holds, asserted. What stayed in `scenarios/execution.py` is
+everything that reads a `ScenarioDefinition`.
+
+`tools/checks/dependency-direction.ps1` gains two rules: nothing imports `host/`,
+and the neutral contracts import neither side. Both patterns are anchored at the
+start of a line, because these modules discuss both sides at length in prose and
+a sentence naming a package is not an import of it - proven narrow by a probe that
+inserts an INDENTED import and watches it caught.
+
+**One thing was deliberately not moved.** `StateRef` stayed in the backend and the
+neutral boundary carries canonical address TEXT - `fuel-tank-volume@fuel-tank`,
+`site:site-load-demand` - which is what a frozen run document persists and what
+every comparison in the product already keys on. Moving the record would have
+relocated a validator with twenty callers and bought this slice no behaviour.
+
+### The contract is conformed to, not resembled
+
+Three mechanisms, each because the alternative is a claim nobody checks.
+
+**The phase order is read from `BOUNDARY_CYCLE`.** `_PHASES` maps each declared
+`phase_id` to the function that runs it and the loop visits them in the contract's
+`sequence`. A phase added to the contract stops this kernel until it is
+implemented rather than being skipped, which is what `BoundaryPhase.sequence`
+being "the contract, not the tuple order" looks like when something consumes it.
+
+**The two dispatch formulas are executable, in the module that publishes the
+sentences describing them.** `step_concerns_window` is `window-overlap`'s
+predicate and `window_share_of_step` is `window-ramp`'s share. The kernel calls
+them rather than deriving overlap itself. Four T020B review rounds were spent on
+sentences that each restated a subset of what the formula does; a kernel with its
+own copy of the arithmetic would have been the next instance.
+
+**The advertised supported set is derived from a table of executable handlers.**
+`ModelSpec.advertised_supported_states` groups the handler table, and there is no
+field in which to write a role no handler implements. That closes the backlog's
+first entry: `supported_states` had no falsifier, so `READY` was computed from a
+promise about a kernel that did not exist.
+
+### The conformance test has three legs, and the third is the one that bites
+
+Deriving a set and comparing it against another declaration would be two tables
+somebody keeps in step by hand - the same defect one layer deeper. So: the set is
+derived by grouping handlers; every advertised `(state, role)` pair must be
+REACHED by executing a Draft created through `RunSetupService` from the shipped
+document, recorded by an execution ledger; and the derived set and
+`MINIMAL_FUEL_TANK_MODEL`'s declaration must be equal in both directions. A probe
+removes a handler and watches the derived set narrow; another adds a handler
+nothing calls and watches the ledger report it missing.
+
+**`REPORTED_OBSERVATION` is verified at the model's grain and no further, and the
+record has to say so.** The handler answers what a stock is at an instant, after
+that instant's events, and refuses to answer in any other phase. Nothing here
+publishes that answer: no device, no cadence, no sampling error, no dropout, no
+envelope. That is why only half the readiness disclosure retired.
+
+### The trajectory, and the numbers derived before the code ran
+
+Against the shipped template's Foundation - a 500 L tank and a 0.311 L/kWh
+generator - the stored volume is 430 L to offset 1080; loses 2799/800 L in each of
+the sixteen dispatch steps, reaching 18701/50 = 374.02 L at 1320; holds that to
+1500; loses 40 L in each of the three removal steps, reaching 12701/50 = 254.02 L
+at 1545; and at 2400 the 300 L delivery fills the tank to 500 L with 2701/50 =
+54.02 L recorded refused, after which the run continues and ends at 500 L.
+
+Every number is a `Fraction`. `test_no_kernel_module_limits_a_denominator` scans
+the package for `limit_denominator` and for `float(`, so `EXACT_RATIONAL` is
+measured rather than intended; the one authored-float normalization is the
+contract's own input boundary.
+
+A bound is applied where the transition happens - phase 1 for a due event, phase 7
+for the evolution - and phase 8 verifies. That pair reads two ways until one is
+ruled out: a bound applied only at phase 8 would let phase 3 sample a volume above
+the tank's capacity, which `fuel-tank-capacity` forbids at every step.
+
+### Where a bound's number comes from, which was this slice's to decide
+
+`D-2026-09-22-capacity-bound-source` settles the principle - the declaration is
+the document's and the value is the site's - and left the mechanism to the kernel.
+The mechanism is the host adapter: it reads the `bounds` block for WHICH state
+caps which and the frozen initialization input for HOW LARGE, and
+`BOUND_CASE_BY_DECLARED_BOUND` names which contract bound case a declared bound
+falls under explicitly. An unmapped bound is refused rather than defaulted,
+because deriving the case from a state key's spelling is a rule a later author
+moves by renaming something. `declared_bounds` was NOT taught to read frozen
+answers: it stays a projection of the document, and it is on its way to the test
+suite with the reconciliation panel.
+
+The floor comes from the model, never from `IMPLICIT_LOWER_BOUND_DIMENSIONS` -
+`D-2026-09-22-reconciliation-panel-retirement`'s instruction to this slice. The
+stock handler declares it with the bound case that says what happens when it is
+reached, and the simulator cannot reach that constant anyway.
+
+### The three backlog items addressed to this slice
+
+**Regenerate rather than execute.** Every Draft in both new suites is created in
+process by the real setup service. No local Draft is read, and the version-guard
+test lowers the version on a rendered document so what is refused is a run whose
+provenance is known.
+
+**Cross-reference before initializing.** The adapter carries the run's
+`unsupported_optional_inputs` addresses into the neutral inputs, and an initial
+value for a state with no handler that is NOT recorded there stops the run as
+`UNSUPPORTED_MODEL_STATE`. Recorded, it is skipped with a note saying nothing
+about this run models it. The difference between the two is the cross-reference
+and nothing else, and both halves are tested.
+
+**The inert upper bound.** Answered above. The capacity reaching the kernel is the
+frozen Foundation answer, proved on two Sites: 500 L on the shipped template and
+800 L on the twin-tank archetype's south run, whose delivery refuses 65.8 L.
+Neither number appears anywhere in the kernel.
+
+### What the kernel refuses, and why each refusal is not the others
+
+Ten execution failure kinds, disjoint from run setup's refusals and a Draft's
+blocking reasons - asserted in `host/tests`, the only place that comparison can be
+made. `contracts/assetops_contracts/failures.py` records every kind constructed in
+a process and the simulator suite fails the session if any member was never
+produced, so the vocabulary is reachable rather than decorative. Two are reached
+by breaking a handler on purpose: `BALANCE_IDENTITY_VIOLATION` is a contradiction
+inside a kernel and cannot be provoked from outside one.
+
+`FORCING_VALUE_AMBIGUOUS` is how this slice **meets** the T020B carry about a
+window declaring two values. `baseline-load-profile` declares two parameters for
+one address and one role, and nothing says whether they are the ends of a ramp or
+two named levels. The kernel refuses to compose them rather than inventing one of
+two legitimate readings. It does not reach that refusal on the shipped document
+only because nothing models site demand - so the semantic decision still belongs
+to whoever models it, and the kernel will not have quietly chosen for them.
+
+A reporting-path forcing never reaches the kernel as a forcing at all. It is the
+publication profile's, it moves no stock, and it travels on
+`reporting_path_addresses` so the kernel can say it was withheld deliberately
+rather than report a declared entry it silently dropped. It is excluded from the
+trajectory identity for the same reason: this is the identity of the WORLD, and
+two runs differing only in whether a sensor reports produce the same world.
+
+### The shipped document's numbers, corrected from the computed world
+
+Two authored readings were 155 L and 150 L where the trajectory this document's
+own declarations produce holds 254.02 L. They predate the consumption coefficient
+moving from the document to the machine, and they are corrected to 254.02 with no
+reporting error, because nothing in this build models one.
+
+What the reconciliation panel shows afterwards is the honest residual: the
+declared causes still reach 310 L, and the 55.98 L difference at BOTH readings is
+exactly the fuel the model law burns and the document deliberately does not carry.
+It was 155 L of unexplained difference and it is now one identified quantity.
+
+`refuelling-is-not-a-loss` was the one private expectation the trajectory made
+inconsistent. It assumed a clean 300 L rise; the tank fills at its capacity, so
+54.02 L never arrive and an analysis reconciling the delivery record against the
+level would find them. It now names both halves. The computed trajectory is
+recorded as a private `TRAJECTORY` expectation - `EXPECTATION_KINDS`' fifth
+member - so the corrections can be checked rather than taken. Five expectation
+rows now render on the scenario detail, measured at 640px.
+
+**`EXECUTION_CONTRACT_VERSION` did not move, and stays 5.** The `TRAJECTORY`
+widening sits off every executable path, which
+`D-2026-09-22-contract-version-scope` settles directly. The contract's relocation
+moves identical objects. The two new formula functions are the arithmetic the
+existing statements already published, tested against those statements' own worked
+examples. The disclosure narrowing is about a run status, not about how a document
+is read. And the kernel's refusal to compose two forcing values is this kernel's
+behaviour rather than a contract statement, so it narrows no declared space.
+
+The scenario document's own `scenario_version` did NOT move either, and that is a
+carried deviation rather than a clean answer - see the backlog.
+
+### What T021 leaves open, for the slice that meets it
+
+- **A definition edited in place, at an unchanged scenario version, that MOVES an
+  existing entry's offset or window length, is not detected.** A Draft freezes
+  resolved values and profile answers rather than a copy of the timeline, so the
+  adapter compares what it can - the scenario version, and the exact set of
+  parameters the document declares against the set the run froze, which catches an
+  entry added or removed. A moved offset changes structure without changing either.
+  Recorded in the backlog rather than described as covered.
+- **`reporting_path_addresses` carries addresses and not windows.** T022's
+  observation transform needs the window to suppress a reading across it, and will
+  widen that field rather than discover it missing.
+- **The fuel model relates one generator to one fuel tank** and fails as
+  `TOPOLOGY_INCONSISTENT` on a second of either. Addressing is not the missing
+  piece - T020A1 built that - the missing piece is the declared relationship, and
+  it arrives with the electrical world.
+- **The law requires its dispatch forcing to be declared somewhere.** A fuel run
+  with no generator dispatch at all fails as `FORCING_NOT_AVAILABLE` rather than
+  running a tank that sits still. Honest for a world whose only law is driven by
+  dispatch, and worth revisiting when a second law arrives.
+- **`var/runs` holds 149 local Drafts.** The layout evidence tool added six across
+  two runs, one per run-setup visit, which is what it has done since T019.
+  `create_run` is still O(n) in that count and still wants a bounded owner before
+  T027. The backend suite took 44 minutes in this slice, against 19 seconds in a
+  quiet tree; the difference is contention with parallel work rather than a new
+  cost, and the O(n) create is what makes it sensitive to it.
+- **The three-suite setup needs three editable installs**, recorded in
+  `README.md`. The backend imports the neutral contracts, so `assetops-contracts`
+  is a real runtime dependency of the product and not only of the tests.

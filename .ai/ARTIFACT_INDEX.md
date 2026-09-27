@@ -48,6 +48,10 @@
 - Unimplemented task files await Planner recreation; no implementation task is
   activated by this replan. See `.ai/ACTIVE_CONTEXT.md`.
 
+- `.agent/T021-review-packet.md` and `.agent/T021-guard-probes.py` — the
+  kernel slice's evidence and the script that breaks each guard it adds. Local
+  only, like every other `.agent/` file.
+
 ## Historical
 
 - `tasks/completed/*`

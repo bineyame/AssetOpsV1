@@ -104,8 +104,18 @@ npm.cmd run typecheck
 npm.cmd run build
 ```
 
-T021 establishes runnable simulator and neutral host test roots and records
-their exact commands; subsequent runtime tasks run those relevant suites.
+T021 established the simulator and neutral host test roots. Run them from their
+own directories:
+
+```powershell
+cd simulator; ..\.venv\Scripts\python.exe -m pytest
+cd host;      ..\.venv\Scripts\python.exe -m pytest
+```
+
+A test that composes the backend and the simulator lives in `host/tests` and
+nowhere else: the dependency guard scans the whole backend tree including
+`backend/tests`, and a composing test is not an exception to it. The three
+editable installs the setup needs are in `README.md`.
 Layout-sensitive work also runs, from the root:
 
 ```powershell
