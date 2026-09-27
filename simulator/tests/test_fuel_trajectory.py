@@ -193,10 +193,10 @@ class TestTheFirstBoundaryHasNoPrecedingInterval:
     def test_the_first_boundary_carries_no_interval_measurement(self) -> None:
         run = trajectory()
         first = run.boundary_at(0)
-        assert first.interval_measurements_available is False
+        assert first.has_preceding_interval is False
         assert first.interval_measurements == ()
 
-    def test_every_later_boundary_has_one_to_attach(self) -> None:
+    def test_every_later_boundary_has_an_interval_behind_it(self) -> None:
         run = trajectory()
         later = [
             boundary
@@ -204,9 +204,26 @@ class TestTheFirstBoundaryHasNoPrecedingInterval:
             if boundary.offset_minutes > 0
         ]
         assert len(later) == 164
-        assert all(
-            boundary.interval_measurements_available for boundary in later
-        )
+        assert all(boundary.has_preceding_interval for boundary in later)
+
+    def test_a_preceding_interval_is_not_the_same_as_a_measurement_in_it(
+        self,
+    ) -> None:
+        """Two facts, and the field names keep them apart.
+
+        At offset 1080 an interval has ended and the generator was not dispatched
+        over it, so there is an interval and no measurement. At 1095 there is
+        both. A field called "measurements available" would have made the first
+        case unsayable, and the honest answer there is an absent measurement
+        rather than a zero.
+        """
+        run = trajectory()
+        at_start_of_dispatch = run.boundary_at(1080)
+        assert at_start_of_dispatch.has_preceding_interval is True
+        assert at_start_of_dispatch.interval_measurements == ()
+        after_one_step = run.boundary_at(1095)
+        assert after_one_step.has_preceding_interval is True
+        assert after_one_step.interval_measurement(GENERATOR) == PER_STEP_ENERGY
 
     def test_the_stock_sample_at_the_first_boundary_is_unaffected(self) -> None:
         """The rule is about interval readings, and only about those."""
@@ -230,7 +247,7 @@ class TestTheFirstBoundaryHasNoPrecedingInterval:
         run = trajectory(
             interval=world_inputs().interval,
         )
-        assert run.boundary_at(0).interval_measurements_available is False
+        assert run.boundary_at(0).has_preceding_interval is False
 
 
 class TestSamplingHappensAfterTheEventsDueAtThatInstant:

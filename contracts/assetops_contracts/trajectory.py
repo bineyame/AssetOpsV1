@@ -150,6 +150,15 @@ class BoundaryState:
     interval readings for the span `[T - dt, T)` and are absent at the first
     boundary, where no span precedes T.
 
+    `has_preceding_interval` says whether a span ended at this instant, which at
+    the run's first boundary it did not. It is deliberately NOT called
+    "measurements available": a boundary can have a preceding interval and still
+    carry no measurement for a given address, because the generator was not
+    dispatched over that span, and the two facts are different. An empty
+    `interval_measurements` beside a true flag means "an interval ended here and
+    nothing this model measures happened in it"; a false flag means "no interval
+    ended here at all".
+
     `forcings_available` holds only the forcings whose window concerns the step
     beginning here. A forcing outside its window has no entry at all, which is
     this product's spelling of unavailable: a zero would be a fabricated number
@@ -163,7 +172,7 @@ class BoundaryState:
     forcings_available: tuple[tuple[str, Fraction], ...]
     state_samples: tuple[tuple[str, Fraction], ...]
     interval_measurements: tuple[tuple[str, Fraction], ...]
-    interval_measurements_available: bool
+    has_preceding_interval: bool
 
     def stock(self, address: str) -> Fraction | None:
         for key, value in self.stocks:
@@ -192,7 +201,7 @@ class BoundaryState:
             tuple((key, value) for key, value in self.forcings_available),
             tuple((key, value) for key, value in self.state_samples),
             tuple((key, value) for key, value in self.interval_measurements),
-            self.interval_measurements_available,
+            self.has_preceding_interval,
         )
 
 

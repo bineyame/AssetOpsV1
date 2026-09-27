@@ -1095,6 +1095,6 @@ def _record_boundary(world: _World) -> None:
             forcings_available=tuple(sorted(world.forcings_now.items())),
             state_samples=tuple(sorted(world.samples_now.items())),
             interval_measurements=measurements,
-            interval_measurements_available=interval_available,
+            has_preceding_interval=interval_available,
         )
     )
