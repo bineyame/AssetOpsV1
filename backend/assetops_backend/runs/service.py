@@ -1065,10 +1065,16 @@ class RunSetupService:
             if reason is not None:
                 reasons.append(reason)
 
+            # Through the same checked boundary as the causal projection. The
+            # reported defect was a rate normalized twice; the same conversion
+            # was here unchecked, so an initial value in a unit with a non-unit
+            # factor could freeze a number the frozen float cannot carry. Fixing
+            # the reported instance and not the class is how the class comes
+            # back somewhere else.
             canonical_value = (
                 None
                 if value is None
-                else canonical_quantity(value, initial.unit)[0]
+                else frozen_canonical_value(value, initial.unit)[0]
             )
             _, canonical_unit, dimension = canonical_quantity(0.0, initial.unit)
 

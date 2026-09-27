@@ -146,6 +146,29 @@ class TestARateIsNormalizedOnceAndOnlyOnce:
             raised.value
         )
 
+    def test_an_initial_value_crosses_the_same_checked_boundary(self) -> None:
+        """The class, not only the reported instance.
+
+        The projection was the reported site. `_freeze_initialization` ran the same
+        conversion unchecked, so an initial value in a unit with a non-unit factor
+        could freeze a number the frozen float cannot carry. It goes through the
+        same boundary now, and a value that cannot survive it is refused rather
+        than frozen approximately.
+        """
+        document = shipped_document()
+        for parameter in document["public_parameters"]:
+            if parameter["parameter_id"] == "starting-fuel-level":
+                parameter["value"] = 430.000001
+        # 430.000001 L is exactly representable, so this still freezes.
+        executed = run_to_end(draft(definition=scenario(document)))
+        assert executed.inputs.initial_value(TANK).value == Fraction(
+            "430.000001"
+        )
+
+        # And the refusal is the helper's, which every frozen number now crosses.
+        with pytest.raises(CanonicalValueNotRepresentable):
+            frozen_canonical_value(0.000001, "L/h")
+
     def test_a_quantity_effect_is_unaffected(self) -> None:
         """The control: the ordinary shipped removal still moves 120 L."""
         executed = run_to_end(draft())
