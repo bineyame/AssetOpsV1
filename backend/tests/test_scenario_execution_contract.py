@@ -1062,9 +1062,16 @@ class TestReconciliation:
         the Foundation declares it, and the model rule owns the transition
         (`D-2026-09-22-consumption-coefficient-unit`). This projection reads
         the document and only the document, so the consumption it can no
-        longer see is consumption it does not report. That is the honest
-        answer for a document that has stopped carrying a machine's physics,
-        and closing the gap is the kernel's.
+        longer see is consumption it does not report.
+
+        T021 closed the gap and corrected the two readings to 254.02 L, the
+        value its kernel independently computes against MG-001's own
+        Foundation. The difference this projection reports is therefore no
+        longer arbitrary: it is 55.98 L at both readings, which is exactly the
+        fuel the model law burns over the dispatch window and exactly the
+        quantity this document deliberately does not carry. The reconciler is
+        still right about the narrower question it asks, and it has stopped
+        being the authority on the wider one.
         """
         results = {
             result.event_id: result
@@ -1078,16 +1085,23 @@ class TestReconciliation:
 
         after_the_gap = results["fuel-level-after-the-gap"]
         assert after_the_gap.declared_value == 310.0
-        assert after_the_gap.reported_value == 155.0
-        assert after_the_gap.difference == -155.0
+        assert after_the_gap.reported_value == 254.02
+        assert after_the_gap.difference == -55.98
         assert after_the_gap.state == "NOT_ACCOUNTED_FOR"
         assert after_the_gap.accounted_by == ("unaccounted-fuel-removal",)
 
         inspection = results["operator-tank-inspection"]
         assert inspection.declared_value == 310.0
-        assert inspection.reported_value == 150.0
-        assert inspection.difference == -160.0
+        assert inspection.reported_value == 254.02
+        assert inspection.difference == -55.98
         assert inspection.state == "NOT_ACCOUNTED_FOR"
+
+        # The difference is the same at both readings, and it is the
+        # consumption the model law owns. Nothing moves the tank between
+        # offset 1590 and offset 1800, so two readings of one world are the
+        # same number, and the residual a document-only projection reports is
+        # the one quantity the document no longer declares.
+        assert after_the_gap.difference == inspection.difference
 
     def test_a_reading_after_a_bound_is_reached_is_not_reported_at_all(
         self,

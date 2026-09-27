@@ -566,7 +566,19 @@ class TestTheShippedDefinitionThroughTheRealComposition:
         assert body["scenario"]["display_name"] == "Fuel Loss Event"
         assert body["target_resolution"]["state"] == "RESOLVED"
         assert len(body["scenario"]["timeline"]) == 8
-        assert len(body["private_expectations"]) == 4
+        # Five since T021 added the computed trajectory as a private oracle.
+        # Asserted by kind rather than only by count, because a count is the one
+        # thing that stays right while the content changes underneath it.
+        assert len(body["private_expectations"]) == 5
+        assert {
+            item["oracle_kind"] for item in body["private_expectations"]
+        } == {
+            "DETECTION",
+            "MAGNITUDE",
+            "NO_FALSE_POSITIVE",
+            "TIMING",
+            "TRAJECTORY",
+        }
 
     def test_the_shipped_timeline_exercises_the_whole_proposed_taxonomy(
         self,
@@ -851,6 +863,11 @@ class TestTheShippedReconciliation:
     (`D-2026-09-22-consumption-coefficient-unit`). This payload is a
     projection of the document, so consumption it cannot see is consumption
     it does not report.
+
+    T021 corrected the two readings to 254.02 L from the trajectory its kernel
+    computes, so the difference this panel shows is now 55.98 L at both - the
+    fuel the model law burns, which is the one quantity the document does not
+    declare.
     """
 
     def contract(self) -> dict:
@@ -875,15 +892,15 @@ class TestTheShippedReconciliation:
         }
 
         after_the_gap = results["fuel-level-after-the-gap"]
-        assert after_the_gap["reported_value"] == 155.0
+        assert after_the_gap["reported_value"] == 254.02
         assert after_the_gap["declared_value"] == 310.0
-        assert after_the_gap["difference"] == -155.0
+        assert after_the_gap["difference"] == -55.98
         assert after_the_gap["state"] == "NOT_ACCOUNTED_FOR"
         assert after_the_gap["source_id"] == "fuel-level-sensor-reading"
 
         inspection = results["operator-tank-inspection"]
-        assert inspection["reported_value"] == 150.0
-        assert inspection["difference"] == -160.0
+        assert inspection["reported_value"] == 254.02
+        assert inspection["difference"] == -55.98
         assert inspection["source_id"] == "operator-hand-record"
 
     def test_a_foundation_owned_parameter_reaches_the_payload_with_no_value(

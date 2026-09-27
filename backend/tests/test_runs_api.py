@@ -341,21 +341,28 @@ class TestWhatReadyDoesNotAssert:
         assert created["execution_status"] == "READY"
         disclosure = created["readiness_disclosure"]
         assert disclosure
-        assert "It does not mean they can" in disclosure
-        assert "no causal runtime exists" in disclosure
 
-        # BOTH unverified declarations, since T020B's review found this string
-        # naming only the model profile's while the product advertises two. A
-        # disclosure covering one of two advertised supported sets is what let a
-        # false "it now covers two" claim sit in the durable backlog.
-        assert "model profile's supported states" in disclosure
+        # ONE of the two advertised declarations is verified since T021, and the
+        # text says which. The model profile's supported states now come from a
+        # kernel whose advertised set is derived from executable handlers and
+        # every pair of which was reached by an execution
+        # (`host/tests/test_kernel_conformance.py`), so the claim that nothing
+        # had compared them is gone - a claim that has become false goes in the
+        # slice that falsifies it.
+        assert "no causal runtime exists" not in disclosure
+        assert "supported states have not been compared" not in disclosure
+        assert (
+            "model profile's supported states have been derived from an "
+            "executable kernel" in disclosure
+        )
+
+        # The other half stays, because nothing in this build can suppress a
+        # reading or deliver one, and it keeps its own retirement condition.
         assert "publication profile's supported reporting-path states" in (
             disclosure
         )
         assert "suppress a reading or deliver one" in disclosure
-        # And that neither half alone retires it - the clause that stops the
-        # kernel slice retiring the whole statement while the other claim stands.
-        assert "Neither alone retires it" in disclosure
+        assert "One of those two declarations" in disclosure
 
     def test_it_survives_the_store_rather_than_being_added_by_one_route(
         self,
@@ -383,12 +390,12 @@ class TestWhatReadyDoesNotAssert:
             "run"
         ]["readiness_disclosure"]
 
-        assert "conformance test" in disclosure
-        assert "kernel" in disclosure
-        # The second condition names its own trigger too, rather than borrowing
-        # the first one's. Their dates differ, which is why naming one was
+        # The one remaining condition names its own trigger. The condition the
+        # kernel closed is not restated as pending, and the transform's is not
+        # borrowed from it: their dates differ, which is why naming one was
         # dangerous and not merely incomplete.
         assert "the transform that produces readings" in disclosure
+        assert "retired when" in disclosure
         for slice_number in ("T021", "T022", "T020"):
             assert slice_number not in disclosure
 

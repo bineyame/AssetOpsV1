@@ -98,25 +98,49 @@ RUN_EXECUTION_STATUSES = frozenset({"READY", "BLOCKED"})
 #: reading or deliver one, which is the observation transform and a later slice.
 #: Naming only the first would let the kernel slice read the condition as met
 #: and retire the whole statement while the second claim stood unfalsified with
-#: nothing covering it. So the text names both and says neither alone retires it.
+#: nothing covering it. So the text named both and said neither alone retires it.
+#:
+#: ## One of the two conditions has now closed, and half the statement went
+#:
+#: T021's kernel conformance derives the model profile's advertised set by
+#: grouping a table of executable handlers, executes a Draft created through the
+#: normal setup service, and asserts every advertised `(state, role)` pair was
+#: reached by that execution. That is the condition the first half named, so the
+#: first half is no longer true and `D-2026-09-22-expiry-follows-the-condition`
+#: puts its removal in the slice that falsified it: a claim that has become false
+#: goes now, and leaving it would be shipping a false statement rather than being
+#: cautious. `host/tests/test_kernel_conformance.py` is where the condition is
+#: established, and it is what would fail if this paragraph became untrue again.
+#:
+#: The second half stays, unchanged in substance, because nothing in this build
+#: can suppress a reading or deliver one. What the text gains instead is a
+#: sentence saying which half HAS been verified. Going silent about the model
+#: profile would leave a reader unable to tell a claim that was checked from a
+#: claim nobody ever made, and the whole point of a disclosure travelling with a
+#: status is that the status cannot be read without it.
+#:
+#: What this must not become is a statement that the reporting path is verified
+#: because a kernel is. The two are different components answering different
+#: questions, and the observation transform is what makes the second true or
+#: false.
 #:
 #: It is a property of the status, not of a run, so it is computed on the way
 #: out rather than stored. Every Draft written before this slice gets it on read
-#: - including this correction, which is why no Draft needed regenerating for it
+#: - including this narrowing, which is why no Draft needed regenerating for it
 #: - and a `BLOCKED` run gets nothing: `BLOCKED` claims a run may not execute,
 #: which needs no disclaimer about execution.
 READY_DISCLOSURE = (
     "READY means every required executable input resolved and the profiles this "
-    "run selected declare they can consume them. It does not mean they can, and "
-    "two separate declarations are unverified. The model profile's supported "
-    "states have not been compared against an executable model, because no "
-    "causal runtime exists in this build. The publication profile's supported "
-    "reporting-path states have not been compared against anything either, "
-    "because nothing here can yet suppress a reading or deliver one. This "
-    "statement is retired only when both are derived from something executable: "
-    "a conformance test deriving the supported states from a kernel, and the "
-    "transform that produces readings deriving the reporting-path states. "
-    "Neither alone retires it."
+    "run selected declare they can consume them. One of those two declarations "
+    "is now verified and one is not. The model profile's supported states have "
+    "been derived from an executable kernel and every state and role it "
+    "advertises was reached by executing a run, which is what kernel conformance "
+    "establishes. The publication profile's supported reporting-path states have "
+    "not been compared against anything, because nothing in this build can yet "
+    "suppress a reading or deliver one, so a run that declares a reporting gap "
+    "is stating a capability nothing has exercised. This statement is retired "
+    "when the transform that produces readings derives those reporting-path "
+    "states from something executable."
 )
 
 
