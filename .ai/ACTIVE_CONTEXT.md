@@ -15,9 +15,9 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 is complete and merged**, and **T021A is built and in review**.
-`.agent/T021-review-packet.md` and `.agent/T021A-review-packet.md`; full records
-for both in `.ai/CODE_STATE.md`.
+**T021 and T021A are complete and merged**; packets in `.agent/`, full records
+in `.ai/CODE_STATE.md`. `EXECUTION_CONTRACT_VERSION` is 7 and **no stored Draft
+is executable under it**, so T022 creates a fresh one. **T022 is active.**
 
 **Something executes.** A frozen READY Draft of the shipped Fuel Loss Event runs
 in `assetops_simulator` and produces a private trajectory: 430 L, 374.02 L when

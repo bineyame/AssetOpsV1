@@ -3470,8 +3470,13 @@ Two consequences, and the second is open.
 The Execution rule said implement the narrow closure and stop. What was NOT done,
 so a reviewer does not have to infer it: no readiness rework, no vocabulary
 decision about what an author should write instead, no reconciliation-panel
-retirement, no trace, no authored value change, no backlog entry written, and no
-fix for the catalog fragility above. Two tests changed the role they prove the
+retirement, no trace, no authored value change, and no fix for the catalog
+fragility above. The Implementer wrote no backlog entry, correctly, because
+writing one is a planning act the time-box excluded; **the coordinator then
+wrote it at the owner's direction after the packet was closed** -
+`.ai/MILESTONE_REVIEW_BACKLOG.md`, "One invalid scenario document takes the
+whole catalog down". Do not read the sentence above as saying the item is
+unrecorded. Two tests changed the role they prove the
 role-support rule with - `FORCING_INPUT` in place of the observation role - and
 that was forced by the closure rather than chosen: the case they used no longer
 exists.

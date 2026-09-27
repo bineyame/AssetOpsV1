@@ -331,6 +331,33 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## T022 cannot start from an existing Draft
+
+Found by the T021A review, 2026-09-27, as a consequence nobody had drawn. It is
+not a defect; it is a fact T022's dispatch needs.
+
+The reviewer read **all 165 run documents** in `var/runs` under build 7:
+`165 readable, 0 failed; frozen versions {2:49, 3:33, 4:20, 5:47, 6:16};
+refused execution 165, executable 0`.
+
+Every stored Draft is now refused execution, **including the sixteen at version
+6 that were executable before T021A narrowed the contract to 7**. Readback is
+intact across all five versions, which is criterion 5 holding across the whole
+store rather than a sample - but nothing on this machine can be executed as it
+stands.
+
+T022's outcome is to create a READY Draft in the gated Lab, start it, step it
+and run it to completion. It must **create a fresh Draft** rather than reach for
+one of these, and its dispatch brief should say so. An implementer that picks a
+version-6 Draft out of `var/runs` to save a setup step will meet
+`ExecutionContractIncompatible` and may read it as a defect in its own work.
+
+This is the fourth time the integer-equality version guard has decided
+something consequential, and the first time the consequence is entirely correct:
+a Draft frozen under a contract that has since narrowed genuinely cannot be
+re-derived, so refusing it is right. Recorded beside the other three because the
+pattern is the same mechanism.
+
 ## One invalid scenario document takes the whole catalog down
 
 Recorded 2026-09-27 at T021A's closeout, on the owner's decision. Found because
@@ -374,11 +401,22 @@ touched. Pre-edit copies were taken but live only in a session scratchpad, and
 `var/` is gitignored, so there is no durable copy; the edit is four hand-edits
 to reverse if that is ever wanted.
 
-**A boundary worth stating for the next dispatch brief:** the Implementer was
-told not to clear or replace `var/sites/` and `var/runs/` and `var/scenarios/`
-was not named, so it edited the third and flagged both judgements rather than
-settling them. That was the right handling of an incomplete instruction. The
-instruction is what was incomplete.
+**The lesson, corrected by the T021A review.** The coordinator's first account
+of this said the dispatch brief had named `var/sites/` and `var/runs/` without
+naming `var/scenarios/`, and that an incomplete instruction was the lesson. That
+was wrong. `tasks/README.md:134`, under "Shared scope and protected seams",
+says **"Keep the existing mg-001/mg-002/mg-003 and var/ data intact"** - all of
+`var/`, not two named subdirectories - and the task file cites that README by
+name for its shared checks and exclusions. It is the only statement on the
+subject in the standing records.
+
+So a standing scope limit covered this and was **overridden** by necessity and
+then ratified by the owner, rather than being absent. The lesson for a future
+dispatch is not "name the subdirectories"; it is that a standing exclusion can
+become impossible to honour when a contract narrowing invalidates data the
+exclusion protects, and that the honest move then is what the Implementer did -
+edit minimally, back the originals up, and hand both judgements to somebody who
+can take them.
 
 **One consequence of T021's R1 fix worth recording, because it is the first
 place it paid off:** a frozen run carries its whole causal projection and never
