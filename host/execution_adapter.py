@@ -26,6 +26,20 @@ one-time authored-float normalization the numeric policy allows at the input
 boundary and no other arithmetic. It computes no physics, applies no bound and
 decides no trajectory.
 
+**One parameter survives and it is checked rather than trusted.** A caller may
+supply the `ModelSpec` to execute against, because a model is code rather than
+frozen content and there is no catalog of them here. A model is part of the
+experiment, so `run_to_end` refuses one whose identity is not the profile identity
+the run froze: executing a run against a model it did not select would be the same
+defect as executing it against a document it did not freeze, one noun along.
+
+What the check cannot see, stated rather than implied: a model carrying the frozen
+identity and different BEHAVIOUR is still injectable. That is deliberate and it is
+what the conformance test and the guard probes rely on - both substitute a model at
+the same identity on purpose. A product caller resolves the model from a catalog
+keyed on the frozen identity, which is T022's, and this refusal is what makes that
+resolution checkable rather than assumed.
+
 ## What it refuses, and why each refusal is not an execution failure
 
 A `BLOCKED` Draft is not executed. There is no flag, no override and no partial
@@ -326,9 +340,39 @@ def _causes(run: SimulationRun) -> tuple[DeclaredCause, ...]:
     )
 
 
+def refuse_a_model_the_run_did_not_select(
+    run: SimulationRun, model: ModelSpec
+) -> None:
+    """Refuse a model whose identity is not the one the run froze.
+
+    A run freezes WHICH model profile answered and at which version, precisely so
+    that the same run is reproducible without the profile catalog being frozen with
+    it. Executing it against a model of another identity would discard that, and it
+    is the same defect as executing it against a document it did not freeze.
+
+    It checks the identity and cannot check the behaviour. A model carrying the
+    frozen identity and different code is still injectable, which the conformance
+    test and the guard probes both do deliberately.
+    """
+    frozen = run.deterministic_identity.profiles
+    if (
+        model.model_profile_id == frozen.model_profile_id
+        and model.model_profile_version == frozen.model_profile_version
+    ):
+        return
+    raise FrozenRunNotReconstructible(
+        f"Run {run.run_id} froze model profile {frozen.model_profile_id} version "
+        f"{frozen.model_profile_version} and was handed "
+        f"{model.model_profile_id} version {model.model_profile_version}. A run "
+        "executes the model it selected; executing it against another is "
+        "reinterpretation wearing the old run's identity."
+    )
+
+
 def run_to_end(
     run: SimulationRun, model: ModelSpec = MINIMAL_FUEL_MODEL
 ) -> HostExecution:
     """Execute a Draft to the end of its interval and return both halves."""
+    refuse_a_model_the_run_did_not_select(run, model)
     inputs = frozen_world_inputs(run)
     return HostExecution(inputs=inputs, trajectory=execute(inputs, model))

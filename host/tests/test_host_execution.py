@@ -168,6 +168,42 @@ class TestABlockedDraftCannotBeCoercedIntoExecution:
         with pytest.raises(RunNotExecutable):
             frozen_world_inputs(draft(definition=definition))
 
+    def test_a_model_the_run_did_not_select_is_refused(self) -> None:
+        """The one parameter that survives R1's fix, checked rather than trusted.
+
+        A model is code rather than frozen content, so the leaf takes one. A model
+        is also part of the experiment, so a run executes the identity it froze:
+        handing it another is the same defect as handing it another document, one
+        noun along.
+
+        What the refusal cannot see is stated in the adapter and exercised
+        elsewhere: a model carrying the frozen identity and different behaviour is
+        still injectable, which the conformance test and two guard probes rely on.
+        """
+        from dataclasses import replace as replace_record
+
+        from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
+
+        run = draft()
+        another = replace_record(
+            MINIMAL_FUEL_MODEL, model_profile_id="some-other-model"
+        )
+        with pytest.raises(FrozenRunNotReconstructible) as raised:
+            run_to_end(run, another)
+        assert "froze model profile minimal-fuel-tank" in str(raised.value)
+        assert "reinterpretation" in str(raised.value)
+
+        # And a later version of the same identity, because a version is half of
+        # what a run freezes about a profile.
+        newer = replace_record(MINIMAL_FUEL_MODEL, model_profile_version=2)
+        with pytest.raises(FrozenRunNotReconstructible):
+            run_to_end(run, newer)
+
+        # The control: the model the run did select executes.
+        assert run_to_end(run, MINIMAL_FUEL_MODEL).trajectory.outcome == (
+            "COMPLETED"
+        )
+
     def test_there_is_no_argument_that_makes_it_run(self) -> None:
         """The refusal has no override, and the signatures are what say so.
 
