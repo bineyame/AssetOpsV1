@@ -1,6 +1,6 @@
 # T021A - Narrow reported-observation declarations
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Map: A starter.
