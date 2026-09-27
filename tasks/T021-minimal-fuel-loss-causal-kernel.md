@@ -1,6 +1,6 @@
 # T021 - Independent causal Fuel Loss kernel
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A starter; directly unlocks T022's visible execution.
