@@ -254,16 +254,37 @@ def _scope_of(address: str) -> str:
     return "SITE" if address.startswith("site:") else "COMPONENT"
 
 
-def _excluded(world: _World, address: str) -> bool:
-    """Whether the run records that nothing in this build models this address.
+def _excluded(world: _World, address: str, role: str) -> bool:
+    """Whether the run records that nothing models this address in this ROLE.
 
     Consulted BEFORE topology, initialization and every dependency resolution,
-    which is the order T021's independent review found reversed. The run's record
-    is authoritative: run setup wrote it against the profile this model is proved
-    to conform to, so an address it excludes is one nothing models, whatever
-    handler a semantic key alone might have matched.
+    which is the order T021's first review found reversed. The run's record is
+    authoritative: run setup wrote it against the profile this model is proved to
+    conform to.
+
+    **The role is part of the question, and leaving it out was too wide.** The
+    second review found it: this model moves a tank's stored volume and cannot
+    have one FORCED, so a scenario forcing `fuel-tank-volume@fuel-tank` is
+    correctly recorded unsupported at that role - and excluding the ADDRESS then
+    suppressed the `CAUSAL_INPUT` role the model does support, so execution failed
+    for a stock the run genuinely carried.
     """
-    return address in world.inputs.unmodelled_addresses
+    return world.inputs.excludes(address, role)
+
+
+def _excluded_in_every_role(world: _World, address: str) -> bool:
+    """Whether nothing the run mentions this address for is modelled.
+
+    The question topology asks, and it is not the same question. An address the
+    run mentions in two roles, one supported and one not, is still a machine this
+    model works with - so it contributes a component. One excluded in every role
+    it appears in contributes nothing, because there is nothing about it this
+    model can consume.
+    """
+    mentioned = world.inputs.roles_mentioning(address)
+    if not mentioned:
+        return False
+    return mentioned <= world.inputs.excluded_roles_of(address)
 
 
 def _note_not_modelled(world: _World, address: str, why: str) -> None:
@@ -283,7 +304,8 @@ def _addresses_of(world: _World, state_key: str, scope: str) -> tuple[str, ...]:
     return tuple(
         address
         for address in world.inputs.addresses_of_state(state_key)
-        if _scope_of(address) == scope and not _excluded(world, address)
+        if _scope_of(address) == scope
+        and not _excluded_in_every_role(world, address)
     )
 
 
@@ -360,12 +382,12 @@ def _handler_or_stop(
     not the state `fuel-tank-volume@fuel-tank` is, and a model claiming the
     second claims nothing at all about the first.
     """
-    if _excluded(world, address):
+    if _excluded(world, address, role):
         _note_not_modelled(
             world,
             address,
-            "is recorded on the run as an unsupported optional input, so "
-            "nothing about this run models it",
+            f"is recorded on the run as an unsupported optional input in the "
+            f"{role} role, so nothing about this run models it in that role",
         )
         return None
     handler = world.model.handler(state_key, role, _scope_of(address))
@@ -553,7 +575,7 @@ def _bind_laws(world: _World) -> None:
                     forcing
                     for forcing in world.inputs.forcings
                     if forcing.address == address
-                    and not _excluded(world, forcing.address)
+                    and not _excluded(world, forcing.address, "FORCING_INPUT")
                 ]:
                     raise _Stop(
                         failure(
@@ -619,7 +641,7 @@ def _require_an_initial_value_for_every_stock_a_cause_moves(
     separate check because a cause can move a stock no law writes.
     """
     for cause in world.inputs.causes:
-        if _excluded(world, cause.address):
+        if _excluded(world, cause.address, "CAUSAL_INPUT"):
             continue
         if cause.address in world.stocks:
             continue
@@ -835,7 +857,7 @@ def _phase_apply_events(world: _World) -> None:
         )
         if due != world.offset:
             continue
-        if cause.address in world.inputs.unmodelled_addresses:
+        if _excluded(world, cause.address, "CAUSAL_INPUT"):
             continue
         grouped.setdefault(cause.address, []).append(
             _Contribution(
@@ -938,7 +960,7 @@ def _phase_physical_acceptance(world: _World) -> None:
     exposed_by_address: dict[str, list[tuple[ForcingInput, int, int]]] = {}
 
     for forcing in world.inputs.forcings:
-        if _excluded(world, forcing.address):
+        if _excluded(world, forcing.address, "FORCING_INPUT"):
             continue
         if world.model.handler(
             forcing.state_key, "FORCING_INPUT", _scope_of(forcing.address)
@@ -1018,7 +1040,7 @@ def _phase_evolve(world: _World) -> None:
     for cause in world.inputs.causes:
         if cause.shape == "POINT":
             continue
-        if cause.address in world.inputs.unmodelled_addresses:
+        if _excluded(world, cause.address, "CAUSAL_INPUT"):
             continue
         start, end = _entry_span(cause, interval)
         share = window_share_of_step(

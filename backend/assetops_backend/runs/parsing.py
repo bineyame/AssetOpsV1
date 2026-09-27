@@ -77,6 +77,7 @@ from assetops_backend.runs.ports import RunConfigurationInvalid
 from assetops_backend.runs.refusals import refuse
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
+    EXECUTION_CONTRACT_VERSION,
     NON_NEGATIVE_DIMENSIONS,
 )
 from assetops_backend.scenarios.identity import validate_scenario_id
@@ -940,6 +941,13 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
         raw.get("publication"), where="deterministic_identity"
     )
 
+    # Read before the projection collections, because whether they are required
+    # depends on it. A malformed version is refused here rather than defaulting,
+    # which is what would decide the question by accident.
+    contract_version = _whole(
+        profiles, "execution_contract_version", where="profiles"
+    )
+
     history = _entries(raw, "intervention_history", where="deterministic_identity")
     for entry in history:
         if not isinstance(entry, str) or not entry:
@@ -992,9 +1000,7 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
             publication_profile_version=_whole(
                 profiles, "publication_profile_version", where="profiles"
             ),
-            execution_contract_version=_whole(
-                profiles, "execution_contract_version", where="profiles"
-            ),
+            execution_contract_version=contract_version,
         ),
         initialization_inputs=tuple(
             _parse_initialization_input(entry)
@@ -1009,19 +1015,29 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
         # mistaken for a run that declared no causes.
         causes=tuple(
             _parse_frozen_cause(entry)
-            for entry in _optional_entries(raw, "causes")
+            for entry in _projection_entries(
+                raw, "causes", contract_version=contract_version
+            )
         ),
         forcings=tuple(
             _parse_frozen_forcing(entry)
-            for entry in _optional_entries(raw, "forcings")
+            for entry in _projection_entries(
+                raw, "forcings", contract_version=contract_version
+            )
         ),
         declared_bounds=tuple(
             _parse_frozen_declared_bound(entry)
-            for entry in _optional_entries(raw, "declared_bounds")
+            for entry in _projection_entries(
+                raw, "declared_bounds", contract_version=contract_version
+            )
         ),
         reporting_path_conditions=tuple(
             _parse_frozen_reporting_path_condition(entry)
-            for entry in _optional_entries(raw, "reporting_path_conditions")
+            for entry in _projection_entries(
+                raw,
+                "reporting_path_conditions",
+                contract_version=contract_version,
+            )
         ),
         observation_bindings=tuple(
             _parse_observation_binding(entry)
@@ -1129,15 +1145,41 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
     )
 
 
-def _optional_entries(raw: Mapping[str, Any], key: str) -> list[Any]:
-    """A collection that a run frozen before it existed does not carry.
+def _projection_entries(
+    raw: Mapping[str, Any], key: str, *, contract_version: int
+) -> list[Any]:
+    """One projection collection, required at this build's contract version.
 
-    Absent means empty; present means it is parsed strictly like every other.
-    The only reason absence is tolerable is the contract version guard: a run
-    without the causal projection is a run at an earlier version, and such a run
-    is refused execution rather than executed against an empty one.
+    ## Absence is tolerable only below the current version, and only there
+
+    The first version of this said "absent means empty" for every run, on the
+    reasoning that the contract version guard refuses to execute an earlier run
+    anyway. T021's second review showed what that misses: a run frozen AT the
+    current version with `causes` deleted parses, is READY, and executes - and the
+    removal never happens while the trajectory reports COMPLETED. Deleting
+    `declared_bounds` overfills the tank past its capacity. The version guard
+    cannot help, because the version is the current one.
+
+    So the rule is the one the version move actually asserts: a run at this
+    build's version carries the projection, because that is what freezing
+    differently MEANS. Below it, absence is what an earlier run legitimately has,
+    and such a run is refused execution.
+
+    An empty list is a real answer and stays one: a document with no state effects
+    declares no causes. What is refused is the KEY being missing or null, which is
+    a record that does not say.
     """
-    if key not in raw or raw[key] is None:
+    if contract_version == EXECUTION_CONTRACT_VERSION:
+        if raw.get(key) is None:
+            raise _bad(
+                f"'deterministic_identity.{key}' is required in a run frozen "
+                f"against execution contract version {EXECUTION_CONTRACT_VERSION}"
+                ", which freezes the causal projection. A record at this version "
+                "carrying none of it would execute an experiment it does not "
+                "describe: declare an empty list if the definition declares none."
+            )
+        return _entries(raw, key, where="deterministic_identity")
+    if raw.get(key) is None:
         return []
     return _entries(raw, key, where="deterministic_identity")
 
@@ -1157,6 +1199,17 @@ def _frozen_timing(raw: Mapping[str, Any], *, where: str) -> tuple[str, int, int
         raise _bad(
             f"'{where}' is a WINDOW and declares no duration_minutes. A window "
             "with no length is not a window."
+        )
+    if shape == "WINDOW" and duration is not None and duration <= 0:
+        # Refused here rather than reaching a kernel. The contract's own span
+        # helper raises on a zero-length window, correctly - `point-applied-once`
+        # is the rule for something that happens at an instant - and an
+        # unclassified `ValueError` escaping mid-execution is not how this product
+        # says no to a document.
+        raise _bad(
+            f"'{where}' is a WINDOW covering {duration} minutes. A window with "
+            "zero or negative length is not a window; an entry that happens at "
+            "an instant is a POINT."
         )
     if shape != "WINDOW" and duration is not None:
         raise _bad(
@@ -1187,7 +1240,11 @@ def _parse_frozen_cause(entry: Any) -> FrozenCause:
             raw, "direction", where="frozen_cause", allowed=STATE_EFFECT_DIRECTIONS
         ),
         parameter_id=_text(raw, "parameter_id", where="frozen_cause"),
-        canonical_value=_real(raw, "canonical_value", where="frozen_cause"),
+        # Absent when nobody answered for the magnitude, which blocks the run.
+        # `SimulationRun` refuses an absent one with no reason beside it.
+        canonical_value=_optional_real(
+            raw, "canonical_value", where="frozen_cause"
+        ),
         canonical_unit=_text(raw, "canonical_unit", where="frozen_cause"),
         dimension=_text(raw, "dimension", where="frozen_cause"),
         timing_shape=shape,
@@ -1204,7 +1261,9 @@ def _parse_frozen_forcing(entry: Any) -> FrozenForcing:
         event_id=_text(raw, "event_id", where="frozen_forcing"),
         state_ref=_frozen_address(raw, "state_key", where="frozen_forcing"),
         parameter_id=_text(raw, "parameter_id", where="frozen_forcing"),
-        canonical_value=_real(raw, "canonical_value", where="frozen_forcing"),
+        canonical_value=_optional_real(
+            raw, "canonical_value", where="frozen_forcing"
+        ),
         canonical_unit=_text(raw, "canonical_unit", where="frozen_forcing"),
         dimension=_text(raw, "dimension", where="frozen_forcing"),
         timing_shape=shape,

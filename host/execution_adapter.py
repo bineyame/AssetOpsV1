@@ -81,6 +81,7 @@ from assetops_contracts.world_inputs import (
     FrozenInterval,
     FrozenWorldInputs,
     InitialValue,
+    UnmodelledInput,
 )
 from assetops_simulator.kernel.execute import execute
 from assetops_simulator.kernel.model import ModelSpec
@@ -155,8 +156,19 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
     refuse_incompatible_execution(identity.profiles.execution_contract_version)
 
     initial_values = _initial_values(run)
+    # The ROLE travels with the address. `UnsupportedOptionalInput` has carried
+    # both since T020A1, and dropping the role here made the exclusion suppress
+    # roles the model does support.
     unmodelled = tuple(
-        sorted(item.addressed_key for item in run.unsupported_optional_inputs)
+        sorted(
+            (
+                UnmodelledInput(
+                    address=item.addressed_key, role=item.execution_role
+                )
+                for item in run.unsupported_optional_inputs
+            ),
+            key=lambda item: (item.address, item.role),
+        )
     )
 
     return FrozenWorldInputs(
@@ -185,7 +197,7 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
         bounds=_bounds(run, initial_values),
         forcings=_forcings(run),
         causes=_causes(run),
-        unmodelled_addresses=unmodelled,
+        unmodelled_inputs=unmodelled,
         reporting_path_addresses=tuple(
             sorted(
                 {

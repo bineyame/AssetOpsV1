@@ -205,17 +205,41 @@ class DeclaredCause:
 
 
 @dataclass(frozen=True)
+class UnmodelledInput:
+    """One `(address, role)` the run records that nothing in this build models.
+
+    **The role is half of it, and leaving it out was too wide.** A model can model
+    a state and not model it in every role: the minimal fuel model moves a tank's
+    stored volume and cannot have one FORCED, so a scenario forcing
+    `fuel-tank-volume@fuel-tank` is correctly recorded unsupported at that role
+    while the same address stays the stock the run initializes. Recording only the
+    address made the exclusion suppress the role the model does support, and
+    execution failed for a stock the run genuinely carried.
+
+    `UnsupportedOptionalInput` on the product side has carried both since T020A1's
+    review round. This is the same pair, crossing the barrier.
+    """
+
+    address: str
+    role: str
+
+
+@dataclass(frozen=True)
 class FrozenWorldInputs:
     """Everything one execution of one frozen Draft consumes.
 
-    `unmodelled_addresses` is the cross-reference a kernel cannot do without.
+    `unmodelled_inputs` is the cross-reference a kernel cannot do without.
     A `READY` run can carry an initialization input for a state this build does
     not model at that scope, and nothing on the row says so - the
     disqualification lives in the run's unsupported optional inputs. A kernel
-    reading initialization inputs alone would initialize from it. So the
-    addresses the run recorded as unsupported travel with the inputs, and the
-    kernel treats an initial value for a state it has no handler for as an
-    error unless it is named here.
+    reading initialization inputs alone would initialize from it. So what the run
+    recorded as unsupported travels with the inputs, and the kernel treats an
+    input it has no handler for as an error unless it is named here.
+
+    It carries `(address, role)` pairs and not addresses, because a model can
+    model a state without modelling every role of it. Excluding the address
+    suppressed the role the model DOES support, which is the shape of defect this
+    field exists to prevent, one notch too wide.
 
     `reporting_path_addresses` is the second thing a kernel must be told rather
     than left to infer. A scenario can force a condition on the reporting path -
@@ -241,7 +265,7 @@ class FrozenWorldInputs:
     bounds: tuple[DeclaredBound, ...]
     forcings: tuple[ForcingInput, ...]
     causes: tuple[DeclaredCause, ...]
-    unmodelled_addresses: tuple[str, ...]
+    unmodelled_inputs: tuple[UnmodelledInput, ...]
     reporting_path_addresses: tuple[str, ...]
     intervention_history: tuple[str, ...]
 
@@ -256,6 +280,37 @@ class FrozenWorldInputs:
             if entry.address == address and entry.kind == kind:
                 return entry
         return None
+
+    def excludes(self, address: str, role: str) -> bool:
+        """Whether the run records that nothing models this address in this role."""
+        return any(
+            item.address == address and item.role == role
+            for item in self.unmodelled_inputs
+        )
+
+    def excluded_roles_of(self, address: str) -> frozenset[str]:
+        return frozenset(
+            item.role
+            for item in self.unmodelled_inputs
+            if item.address == address
+        )
+
+    def roles_mentioning(self, address: str) -> frozenset[str]:
+        """Every role this run mentions an address in.
+
+        An initial value is a `CAUSAL_INPUT` position and so is a declared cause;
+        a forcing is a `FORCING_INPUT` one. Used to decide whether an address is
+        excluded in EVERY role it appears in, which is the only case where it
+        should contribute nothing at all.
+        """
+        roles: set[str] = set()
+        if any(entry.address == address for entry in self.initial_values):
+            roles.add("CAUSAL_INPUT")
+        if any(entry.address == address for entry in self.causes):
+            roles.add("CAUSAL_INPUT")
+        if any(entry.address == address for entry in self.forcings):
+            roles.add("FORCING_INPUT")
+        return frozenset(roles)
 
     def addresses_of_state(self, state_key: str) -> tuple[str, ...]:
         """Every address in these inputs claiming one semantic state.

@@ -41,6 +41,7 @@ from assetops_contracts.world_inputs import (
     FrozenInterval,
     FrozenWorldInputs,
     InitialValue,
+    UnmodelledInput,
 )
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -223,9 +224,12 @@ def world_inputs(**overrides: Any) -> FrozenWorldInputs:
                 duration_minutes=None,
             ),
         ),
-        unmodelled_addresses=(
-            "site:plane-of-array-irradiance",
-            "site:site-load-demand",
+        # `(address, role)` pairs since the second review: a model can model a
+        # state without modelling every role of it, and excluding the address
+        # suppressed a role this model does support.
+        unmodelled_inputs=(
+            UnmodelledInput("site:plane-of-array-irradiance", "FORCING_INPUT"),
+            UnmodelledInput("site:site-load-demand", "FORCING_INPUT"),
         ),
         reporting_path_addresses=("fuel-level-reporting-availability@fuel-tank",),
         intervention_history=(),

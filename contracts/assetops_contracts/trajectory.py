@@ -464,7 +464,9 @@ def frozen_inputs_identity(
                 )
                 for entry in inputs.causes
             ),
-            tuple(inputs.unmodelled_addresses),
+            tuple(
+                (item.address, item.role) for item in inputs.unmodelled_inputs
+            ),
             tuple(inputs.intervention_history),
             kernel_version,
             model_profile_id,
@@ -497,7 +499,7 @@ IDENTITY_FIELDS_READ = frozenset(
         "bounds",
         "forcings",
         "causes",
-        "unmodelled_addresses",
+        "unmodelled_inputs",
         "intervention_history",
     }
 )

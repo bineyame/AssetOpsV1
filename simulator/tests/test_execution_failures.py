@@ -39,6 +39,7 @@ from assetops_contracts.failures import (
 )
 from assetops_contracts.trajectory import PrivateTrajectory
 from assetops_contracts.world_inputs import DeclaredCause, ForcingInput
+from assetops_contracts.world_inputs import UnmodelledInput
 from assetops_simulator.kernel.execute import execute
 from assetops_simulator.packs.fuel import (
     MINIMAL_FUEL_MODEL,
@@ -215,8 +216,12 @@ class TestAStateThisModelDoesNotModel:
                     "FRACTION",
                 ),
             ),
-            unmodelled_addresses=inputs.unmodelled_addresses
-            + ("battery-state-of-charge@battery",),
+            unmodelled_inputs=inputs.unmodelled_inputs
+            + (
+                UnmodelledInput(
+                    "battery-state-of-charge@battery", "CAUSAL_INPUT"
+                ),
+            ),
         )
         run = execute(recorded)
         assert run.outcome == "COMPLETED", run.failure

@@ -28,6 +28,7 @@ from conftest import (
     world_inputs,
 )
 
+from assetops_contracts.world_inputs import UnmodelledInput
 from assetops_simulator.kernel.execute import execute
 
 AFTER_DISPATCH = Fraction(18701, 50)
@@ -248,8 +249,12 @@ class TestThingsThatAreNotCauses:
                     "FRACTION",
                 ),
             ),
-            unmodelled_addresses=inputs.unmodelled_addresses
-            + ("battery-state-of-charge@battery",),
+            unmodelled_inputs=inputs.unmodelled_inputs
+            + (
+                UnmodelledInput(
+                    "battery-state-of-charge@battery", "CAUSAL_INPUT"
+                ),
+            ),
         )
         original = execute(inputs)
         wider = execute(widened)

@@ -531,7 +531,7 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
             "bounds",
             "forcings",
             "causes",
-            "unmodelled_addresses",
+            "unmodelled_inputs",
             "reporting_path_addresses",
             "intervention_history",
         }

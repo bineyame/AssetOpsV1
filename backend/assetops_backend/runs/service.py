@@ -120,8 +120,8 @@ from assetops_backend.scenarios.execution import (
     EXECUTION_CONTRACT_VERSION,
     RATE_INTEGRALS,
     canonical_quantity,
+    frozen_canonical_value,
     initialization_inputs,
-    normalize_authored_float,
 )
 from assetops_backend.scenarios.models import (
     EXECUTABLE_ROLES,
@@ -1493,25 +1493,38 @@ def _freeze_causal_projection(
                     "frozen as silence."
                 )
             number = authored_number(parameter)
+            # Absent, not raised. The reachable case is a `MODEL_RULE` magnitude
+            # the selected profile declares no rule for, and the product has
+            # always BLOCKED such a run - a different profile may answer. Raising
+            # here turned that into an HTTP 500 with nothing written.
             if number is None:
-                raise UnresolvedCausalProjection(
-                    f"timeline entry {entry.event_id!r} declares a state "
-                    f"effect whose magnitude {parameter.parameter_id!r} has no "
-                    "frozen number in either carrier. A declared effect is "
-                    "never converted into silence."
+                canonical_value = None
+                _, canonical_unit, dimension = canonical_quantity(
+                    0.0, parameter.unit
                 )
-            canonical_value, canonical_unit, dimension = canonical_quantity(
-                number, parameter.unit
-            )
-            if effect.rate_parameter_id is not None:
-                minutes = entry.timing.duration_minutes or 0
-                canonical_value = float(
-                    normalize_authored_float(canonical_value) * Fraction(minutes)
+                if effect.rate_parameter_id is not None:
+                    dimension = RATE_INTEGRALS[dimension]
+                    canonical_unit = CANONICAL_UNITS[
+                        _canonical_unit_for(dimension)
+                    ].canonical_unit
+            else:
+                # One conversion and one normalization, in exact arithmetic, with
+                # the rate's integration done INSIDE it. Doing the multiplication
+                # after a float round trip normalized twice and turned a
+                # millionth of a litre an hour into zero.
+                across = (
+                    Fraction(entry.timing.duration_minutes or 0)
+                    if effect.rate_parameter_id is not None
+                    else Fraction(1)
                 )
-                dimension = RATE_INTEGRALS[dimension]
-                canonical_unit = CANONICAL_UNITS[
-                    _canonical_unit_for(dimension)
-                ].canonical_unit
+                canonical_value, canonical_unit, dimension = (
+                    frozen_canonical_value(number, parameter.unit, times=across)
+                )
+                if effect.rate_parameter_id is not None:
+                    dimension = RATE_INTEGRALS[dimension]
+                    canonical_unit = CANONICAL_UNITS[
+                        _canonical_unit_for(dimension)
+                    ].canonical_unit
             causes.append(
                 FrozenCause(
                     event_id=entry.event_id,
@@ -1536,14 +1549,14 @@ def _freeze_causal_projection(
                 continue
             number = authored_number(parameter)
             if number is None:
-                raise UnresolvedCausalProjection(
-                    f"forcing {parameter.parameter_id!r} on timeline entry "
-                    f"{entry.event_id!r} has no frozen number. A declared "
-                    "forcing is never frozen as silence."
+                canonical_value = None
+                _, canonical_unit, dimension = canonical_quantity(
+                    0.0, parameter.unit
                 )
-            canonical_value, canonical_unit, dimension = canonical_quantity(
-                number, parameter.unit
-            )
+            else:
+                canonical_value, canonical_unit, dimension = (
+                    frozen_canonical_value(number, parameter.unit)
+                )
             forcings.append(
                 FrozenForcing(
                     event_id=entry.event_id,
@@ -1584,12 +1597,18 @@ def _canonical_unit_for(dimension: str) -> str:
 
 
 class UnresolvedCausalProjection(Exception):
-    """A declared cause or forcing could not be frozen with a number.
+    """A state effect names something that is not a parameter with a unit.
 
-    Raised rather than dropped. The defect this replaces was a `continue`: a
-    timeline entry whose effect named a parameter frozen in the other collection
-    lost its cause, the run reported READY, and the removal simply did not
-    happen. A declared effect is either frozen or refused.
+    Defensive, and unreachable through the scenario parser:
+    `_validate_entry_state_effect` already refuses an effect naming no declared
+    parameter, one whose role is not `CAUSAL_INPUT`, one addressing another state,
+    and one with no unit. It is kept because this projection is the first thing to
+    consume that guarantee, and a projection that assumed it silently would be a
+    projection with nothing to say when the assumption stopped holding.
+
+    A magnitude nobody ANSWERED is not this: that is frozen absent with the
+    blocking reason beside it, which is what the product has always done with an
+    unanswered value and what `SimulationRun` enforces.
     """
 
 

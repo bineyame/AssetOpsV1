@@ -531,13 +531,23 @@ class FrozenCause:
     `state_ref` is the RESOLVED address, like every other frozen row: what the
     run executes is a change to one asset, and a later reader must not have to
     re-run the resolution to find out whose.
+
+    **`canonical_value` has an absent case**, the way `FrozenInitializationInput`
+    does, and for the same reason. A magnitude whose declared owner did not answer
+    - a `MODEL_RULE` parameter no profile supplies a rule for - has no number, and
+    the run is BLOCKED rather than refused because a different profile may answer.
+    The first version of this record raised instead, which turned a run the product
+    had always blocked into an HTTP 500. `SimulationRun` enforces the same pairing
+    it enforces for an absent initial value: an absent magnitude has a blocking
+    reason naming the same address, because the thing that made it absent is the
+    thing that blocked the run.
     """
 
     event_id: str
     state_ref: StateRef
     direction: str
     parameter_id: str
-    canonical_value: float
+    canonical_value: float | None
     canonical_unit: str
     dimension: str
     timing_shape: str
@@ -565,12 +575,15 @@ class FrozenForcing:
     `execution_requirement` travels because it is what the document said about
     this position, and a kernel deciding whether a missing operand is fatal is
     entitled to know whether the scenario required it.
+
+    `canonical_value` has the same absent case as `FrozenCause`, for the same
+    reason and under the same invariant.
     """
 
     event_id: str
     state_ref: StateRef
     parameter_id: str
-    canonical_value: float
+    canonical_value: float | None
     canonical_unit: str
     dimension: str
     timing_shape: str
@@ -748,6 +761,32 @@ class SimulationRun:
                 "reason about it. An initial value is absent only because "
                 "something blocked the run, so the reason that made it "
                 "absent is on the run beside it, naming the same address."
+            )
+
+        # The same rule for the causal projection, since T021's second review.
+        # A cause or a forcing whose magnitude nobody answered is a hole in the
+        # frozen identity exactly as an absent initial value is, and it is
+        # reachable through the same route: a `MODEL_RULE` magnitude the selected
+        # profile declares no rule for. Freezing it absent is right and freezing
+        # it absent with nothing explaining it is the state this prevents.
+        unexplained_magnitudes = sorted(
+            {
+                item.addressed_key
+                for item in (
+                    self.deterministic_identity.causes
+                    + self.deterministic_identity.forcings
+                )
+                if item.canonical_value is None
+                and item.addressed_key not in explained
+            }
+        )
+        if unexplained_magnitudes:
+            raise ValueError(
+                f"A run froze a declared cause or forcing on "
+                f"{unexplained_magnitudes} with no magnitude and no blocking "
+                "reason about it. A declared effect is never converted into "
+                "silence: it carries its number, or it carries the reason "
+                "nobody supplied one."
             )
 
         # The two number fields are absent together or present together.

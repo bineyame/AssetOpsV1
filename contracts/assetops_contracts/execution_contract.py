@@ -1092,6 +1092,63 @@ def canonical_fraction(value: float, unit: str) -> tuple[Fraction, str, str]:
     return converted, canonical.canonical_unit, canonical.dimension
 
 
+class CanonicalValueNotRepresentable(Exception):
+    """An exact value cannot survive the float a frozen record carries.
+
+    The numeric policy allows exactly one approximation: an authored decimal
+    becomes the rational the author wrote, once, at the input boundary. A frozen
+    record then stores that rational as a `float`, and for every number this
+    product has ever frozen the round trip back through
+    `normalize_authored_float` recovers it - because `limit_denominator`
+    recovers any rational whose denominator is within its limit.
+
+    It does not recover one whose denominator is outside it, and that is what
+    this exists for. A rate of a millionth of a litre an hour is 1/60000000 of a
+    litre a minute; the float is fine and normalizing it back gives ZERO. The
+    alternative to refusing is a frozen run carrying a number that is not the
+    number the document declared, which is the one thing `EXACT_RATIONAL` is
+    supposed to rule out.
+    """
+
+
+def frozen_canonical_value(
+    value: float, unit: str, *, times: Fraction = Fraction(1)
+) -> tuple[float, str, str]:
+    """An authored quantity as the `float` a frozen record may carry.
+
+    One conversion, one normalization, and a checked round trip.
+
+    `times` multiplies the canonical value before it is frozen, which is how a
+    rate declared over a window becomes the quantity it moves: 14 L/h over four
+    hours is exactly 56 L. It is a parameter rather than something a caller does
+    afterwards because **doing it afterwards is the defect this replaces.** The
+    projection used to call `canonical_quantity`, which normalizes and returns a
+    float, and then normalize that float again before multiplying - so a
+    millionth of a litre an hour became a float of 1.67e-08, was normalized to
+    zero, and a valid removal reported COMPLETED having moved nothing. One-time
+    normalization was the rule and something normalized twice.
+
+    Raises:
+        CanonicalValueNotRepresentable: the exact value does not survive the
+            float. Refusing is the only honest answer: the record has one number
+            field and the true value is not among the numbers it can hold.
+    """
+    exact, canonical_unit, dimension = canonical_fraction(value, unit)
+    exact = exact * times
+    frozen = float(exact)
+    if normalize_authored_float(frozen) != exact:
+        raise CanonicalValueNotRepresentable(
+            f"{value} {unit} is exactly {exact.numerator}/{exact.denominator} "
+            f"in canonical terms, and the {frozen} a frozen record would carry "
+            f"reads back as "
+            f"{normalize_authored_float(frozen).numerator}/"
+            f"{normalize_authored_float(frozen).denominator}. A frozen run may "
+            "not carry a number that is not the number the definition "
+            "declared, so this is refused rather than frozen approximately."
+        )
+    return frozen, canonical_unit, dimension
+
+
 #: The arithmetic every step of a conforming kernel is done in, named so a
 #: trajectory can say which policy produced it. v4 section 8.3.
 NUMERIC_POLICY = "EXACT_RATIONAL"
