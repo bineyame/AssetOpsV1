@@ -114,10 +114,14 @@ alter an already-valid document's outcome. A private TRAJECTORY oracle widening
 alone does not move the execution contract. Envelope schema versioning is its
 own boundary. Never reinterpret earlier frozen runs under a new contract.
 
-**Reported-observation narrowing (T021A) is the one still outstanding.** Local
-Drafts exist at several versions and `refuse_incompatible_execution` is an
-equality test on the integer, so every Draft below the current number is refused
-execution and stays readable. T021 regenerates rather than executes any Draft it
+**Reported-observation narrowing (T021A) is done, and took the number to 7.**
+A `REPORTED_OBSERVATION` carries no `execution_requirement` and a document that
+declares one is refused; nothing executes differently, and the move is the
+narrowing DIRECTION rather than an executor change - a document valid at 6 is
+refused at 7. Local Drafts exist at several versions and
+`refuse_incompatible_execution` is an equality test on the integer, so every
+Draft below the current number is refused execution and stays readable; the
+version-6 and version-5 Drafts in `var/runs` were read back to confirm it. T021 regenerates rather than executes any Draft it
 did not freeze itself, and did: every Draft in both new test roots is created in
 process by the real setup service.
 
