@@ -15,11 +15,10 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 is built, reviewed twice and corrected twice.**
-`tasks/T021-minimal-fuel-loss-causal-kernel.md`, packet
-`.agent/T021-review-packet.md`, review `.agent/T021-codex-review.md`, probes
-`.agent/T021-guard-probes.py` (33, all CAUGHT on a checked green baseline) and two
-rerun harnesses for the reviewer's own probe files.
+**T021 is complete and merged.** `tasks/completed/T021-minimal-fuel-loss-causal-kernel.md`,
+packet `.agent/T021-review-packet.md`, three reviews and five probe files in
+`.agent/`. Seventeen of seventeen criteria, eight of eight mutation rows, the
+owner's review on 2026-09-27. **T021A is the active task.**
 **Something executes.** A frozen READY Draft of the shipped Fuel Loss Event runs
 in `assetops_simulator` and produces a private trajectory: 430 L, 374.02 L when
 the dispatch window closes, 254.02 L after the removal, and 500 L at the delivery

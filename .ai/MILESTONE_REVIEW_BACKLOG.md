@@ -331,6 +331,50 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## T030 owes the refused delivery quantity a home
+
+Recorded 2026-09-27 from the owner's operational reading at T021's closeout,
+which is domain judgement no test supplies.
+
+T021's shipped run ends with a `BoundedTransition`: 300 L delivered into a tank
+holding 254.02 L with a 500 L capacity, 245.98 L accepted and **54.02 L
+refused**. `contracts/assetops_contracts/trajectory.py:110` already carries
+`requested`, `accepted`, `refused` and `event_ids` as exact first-class values,
+so the quantity is attributable rather than merely clamped. **The kernel is
+correct and must not change**: nothing physically failed and the world evolved
+as declared. Treating a bounded transition as an execution failure would be
+wrong.
+
+**What operational reality adds.** A diesel tank cannot be overfilled; it
+overflows. So a 300 L delivery into 245.98 L of headroom never happens as
+declared. What happens instead is a partial delivery with the balance still on
+the truck, the residual drummed or jerrycanned on site, a second tank taking
+it, or a spill. **The quantity is conserved in every case and is somewhere
+nobody recorded.** Site buffer drums are common where deliveries are
+infrequent, and that residual is typically untracked - which is one of the main
+reasons fuel reconciliation is hard in practice.
+
+The scenario's own reporting gap supplies the reason such a delivery was
+ordered at all: nobody knew the true level when it was scheduled.
+
+**So a bounded transition at a fuel tank is a reconciliation exception - neither
+a clean completion nor a failure.** Fuel was paid for, did not enter the tank,
+and is unaccounted for.
+
+**T030 owes this a home.** Its subject is fuel balance with separate delivery
+and dip records, and a tank rising less than the delivery note claims is
+exactly that. It must treat `BoundedTransition.refused` as a **first-class
+unexplained delivery residual** rather than recomputing it or passing over it.
+Do not infer the residual's destination: the product's honest claim is that the
+quantity left the invoice and did not reach the tank.
+
+**One question for the domain expert at the T028 checkpoint**, because it
+changes how much this is worth: do operators in practice notice and record a
+drummed residual, or does it leave the books entirely? If it leaves the books,
+this is a **stronger wedge than the 120 L removal story** - it recurs every
+delivery cycle rather than being exceptional, and recurring unexplained
+quantity is a better product argument than an occasional theft.
+
 ## Carried out of T021
 
 Added 2026-09-27 after two Codex passes and a backup Claude review that
