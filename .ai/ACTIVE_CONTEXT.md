@@ -15,9 +15,10 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T020B is built and in review.** `tasks/T020B-execution-contract-alignment.md`,
-branch `task/T020B-execution-contract-alignment`, packet
-`.agent/T020B-review-packet.md`. USER_REVIEW_REQUIRED is true.
+**T020B is complete and merged.** `tasks/completed/T020B-execution-contract-alignment.md`,
+packet `.agent/T020B-review-packet.md`. Two Codex review passes, three Claude
+passes, and the owner's screen review on 2026-09-27. **T021 is the active
+task.**
 
 The shipped Fuel Loss Event now reaches `READY` through the form and API path.
 The three states that blocked it were three different problems. Site demand and

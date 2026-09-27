@@ -313,6 +313,42 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## Carried out of T020B's review rounds
+
+Added 2026-09-27 at closeout, after two Codex passes, three Claude passes and
+the owner's screen review. None meets `D-2026-09-22-milestone-speed-over-purity`'s
+stopping rule.
+
+- **Three rule statements carry literal `**` markers that render as plain
+  asterisks.** `window-overlap`, `window-ramp` (two pairs) and
+  `no-interval-signal-at-the-first-boundary`, all introduced during these
+  rounds. `Fact` renders prose verbatim. They were on screen during the owner's
+  review and were not objected to, which is not the same as being approved.
+  One line of text whenever wanted.
+- **The phrase blacklist can collide with a true statement.** Two forbidden
+  phrases are legitimately true of a *point* rather than a window, so a
+  reworded `point-applied-once` could be failed for saying something correct.
+  No collision today.
+- **The prose is not guarded as a class, and the record now says so.** Nine of
+  the property class's ten tests read only its own transcription of the
+  predicate and would pass if every published statement were false; one test is
+  the phrase blacklist. Guarding the class would mean generating the statements
+  from the predicate rather than writing them beside it. F-V1 is the evidence:
+  it entered in the same commit that claimed to close the class, matched none of
+  the five existing phrases because it was an antecedent rather than a
+  consequent, and a human reader found it rather than a test.
+- **Layout evidence is unmeasured since the round before last.**
+  `ScenarioFrame.tsx:668` renders `dispatch_rules`, so every rule statement
+  edited in the last three rounds is on-screen text that no measurement has
+  covered. The harness stopped the dev servers for memory pressure and they
+  were not restarted.
+
+The pattern worth carrying forward, because it cost four rounds: **every failing
+sentence restated a subset of what the predicate does.** F6 fixed the aligned
+case, R1 the unaligned case, R1a the short-and-straddling case, R1b the
+adjacent case, F-V1 the forcing rule's copy of the same shape. The formula was
+correct throughout and ahead of its own description every time.
+
 ## Carried out of T020B
 
 Carried under `D-2026-09-22-milestone-speed-over-purity` on 2026-09-26. Neither
