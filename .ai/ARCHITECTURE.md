@@ -257,6 +257,21 @@ and `INITIALIZATION_INPUT_MISSING` refuses, because a `RUN_OVERRIDE` the
 request did not supply is a value whose declared owner did not answer and no
 profile can put it there.
 
+T020B adds one member, `EXECUTION_REQUIREMENT_CONFLICT`, on the refusal side. It
+passes the naming rule's own review question - a conflict is a contradiction, and
+this file's line puts a contradiction on the refusal side - and it pairs with the
+blocking `STATE_NOT_SUPPORTED`: whether a profile can model an input is a fact
+about the selected profile, and a document stating two answers to whether that
+input must be modelled is a fact about the document.
+
+The same slice settles **which profile answers** that question. A state named in
+`runs/profiles.py`'s `REPORTING_PATH_STATES` is the publication profile's to
+answer, and a model profile declaring one is refused at construction; every other
+state is the model profile's. The authority is read from the state and never from
+whichever profile happens to have declared it, so an unanswered question is
+reported against the profile whose job it was
+(`D-2026-09-22-forcing-state-requirements`).
+
 The former extended naming examples are cut here; their rationale remains in
 those decisions. Honest existing names do not require another redesign before
 the demo under `D-2026-09-22-milestone-speed-over-purity`.

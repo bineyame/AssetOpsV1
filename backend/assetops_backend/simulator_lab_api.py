@@ -78,10 +78,13 @@ from assetops_backend.runs.provenance import frozen_inputs
 from assetops_backend.runs.refusals import RunSetupRefused
 from assetops_backend.runs.service import RunInventoryService, RunSetupService
 from assetops_backend.scenarios.execution import (
+    BOUNDARY_CYCLE,
     BOUND_CASES,
+    BOUND_POLICY_STATEMENTS,
     CANONICAL_UNITS,
     DISPATCH_RULES,
     EXECUTION_CONTRACT_VERSION,
+    OBSERVATION_RULES,
     canonical_quantity,
     initialization_inputs,
     reconcile_reported_observations,
@@ -405,11 +408,37 @@ def scenario_execution_contract(
             }
             for rule in DISPATCH_RULES
         ],
+        # The cycle a conforming kernel runs at each instant, in order. Carried
+        # on the wire rather than drawn on a screen from a local copy, because
+        # the order is the contract and a second copy of it is a second thing
+        # that can be wrong.
+        "boundary_cycle": [
+            {
+                "phase_id": phase.phase_id,
+                "sequence": phase.sequence,
+                "display_name": phase.display_name,
+                "statement": phase.statement,
+            }
+            for phase in BOUNDARY_CYCLE
+        ],
+        "observation_rules": [
+            {
+                "rule_id": rule.rule_id,
+                "reading_class": rule.reading_class,
+                "display_name": rule.display_name,
+                "statement": rule.statement,
+            }
+            for rule in OBSERVATION_RULES
+        ],
         "bound_cases": [
             {
                 "case_id": case.case_id,
                 "display_name": case.display_name,
                 "policy": case.policy,
+                # What the policy itself commits a kernel to, beside the case
+                # that carries it. A reader could see `BOUNDED_AND_RECORDED`
+                # with nothing saying whether the run then continues.
+                "policy_statement": BOUND_POLICY_STATEMENTS[case.policy],
                 "statement": case.statement,
             }
             for case in BOUND_CASES
@@ -596,6 +625,19 @@ def publication_profile_summary(
         "device_signal_cadence_minutes": profile.device_signal_cadence_minutes,
         "simulator_source_id": profile.simulator_source_id,
         "gateway_id": profile.gateway_id,
+        # The reporting-path conditions this profile can model, at the same
+        # grain a model profile's states are published at: a kind of claim and
+        # never a component id. An empty list is a real answer and blocks a
+        # scenario that requires one.
+        "supported_reporting_states": [
+            {
+                "state_key": state.state_key,
+                "scope": state.scope,
+                "supported_roles": sorted(state.supported_roles),
+                "statement": state.statement,
+            }
+            for state in profile.supported_reporting_states
+        ],
     }
 
 

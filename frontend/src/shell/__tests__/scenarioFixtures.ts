@@ -374,7 +374,10 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
     },
   ],
   execution_contract: {
-    contract_version: 1,
+    // Not 1. The boundary-cycle rows below render their declared ordinals in
+    // the same panel, so a version of 1 made "the panel shows the version" an
+    // ambiguous lookup against a phase number.
+    contract_version: 5,
     dispatch_rules: [
       {
         rule_id: "half-open-interval",
@@ -397,11 +400,61 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
           "The step beginning exactly at the end of a window is outside it.",
       },
     ],
+    // Three phases, not the nine the contract publishes. A fixture that
+    // mirrored the real vocabulary would make every screen test a test of the
+    // contract's wording; what the screen owes is a row per phase, the
+    // declared ordinal rather than the array index, and the statement.
+    boundary_cycle: [
+      {
+        phase_id: "apply-events",
+        sequence: 1,
+        display_name: "Apply what is due at T",
+        statement: "Events due exactly at the instant are applied first.",
+      },
+      {
+        phase_id: "sample-and-publish",
+        sequence: 3,
+        display_name: "Sample and publish, if either is due",
+        statement:
+          "The sample sees the post-event state and carries an interval " +
+          "measurement for the span that has ended.",
+      },
+      {
+        phase_id: "evolve",
+        sequence: 7,
+        display_name: "Evolve the world",
+        statement: "The accepted flows are integrated over the next span.",
+      },
+    ],
+    observation_rules: [
+      {
+        rule_id: "state-signal-sampled-after-events",
+        reading_class: "STATE_SIGNAL",
+        display_name: "A state reading is the state after the events",
+        statement: "It never shows the state before a change due at it.",
+      },
+      {
+        rule_id: "interval-signal-describes-the-preceding-interval",
+        reading_class: "INTERVAL_SIGNAL",
+        display_name: "An interval reading describes the span before it",
+        statement: "A rate carried at an instant summarises the span ending.",
+      },
+      {
+        rule_id: "controller-view-is-not-the-published-observation",
+        reading_class: "CONTROLLER_INPUT",
+        display_name: "What a controller sees is not what is published",
+        statement:
+          "The published path may be sparse, noisy, delayed or missing.",
+      },
+    ],
     bound_cases: [
       {
         case_id: "fuel-tank-capacity",
         display_name: "Tank capacity",
         policy: "BOUNDED_AND_RECORDED",
+        policy_statement:
+          "The change is applied up to the bound, the run continues, and " +
+          "later causes apply to the bounded value.",
         statement:
           "A change that would take the stored volume above capacity fills " +
           "to capacity and records the volume it could not accept.",
@@ -410,6 +463,9 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
         case_id: "insufficient-fuel",
         display_name: "Insufficient fuel",
         policy: "FAIL_RUN",
+        policy_statement:
+          "The run fails and names the entry, and does not continue against " +
+          "an adjusted value.",
         statement:
           "The run stops and names the entry rather than emptying the tank " +
           "quietly.",
@@ -418,6 +474,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
         case_id: "invalid-rate",
         display_name: "Invalid rate or quantity",
         policy: "REFUSED_AT_PARSE",
+        policy_statement: "No run exists, so there is nothing to continue.",
         statement:
           "Refused when the definition is read, so no run setup and no " +
           "kernel ever sees one.",
@@ -724,10 +781,23 @@ export function recordRenderedStrings(
     rendered.push(rule.display_name, rule.statement);
   }
 
+  for (const phase of detail.execution_contract.boundary_cycle) {
+    rendered.push(
+      String(phase.sequence),
+      phase.display_name,
+      phase.statement,
+    );
+  }
+
+  for (const rule of detail.execution_contract.observation_rules) {
+    rendered.push(rule.display_name, rule.reading_class, rule.statement);
+  }
+
   for (const boundCase of detail.execution_contract.bound_cases) {
     rendered.push(
       boundCase.display_name,
       boundCase.policy,
+      boundCase.policy_statement,
       boundCase.statement,
     );
   }

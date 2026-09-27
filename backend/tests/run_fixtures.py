@@ -29,6 +29,7 @@ from assetops_backend.runs.profiles import (
     FoundationBinding,
     ModelProfile,
     PublicationProfile,
+    SupportedReportingState,
     SupportedState,
 )
 from assetops_backend.scenarios.models import ScenarioDefinition
@@ -262,8 +263,16 @@ def publication_profile(
     cadence_minutes: int | None = 15,
     simulator_source_id: str | None = "example-simulator-source",
     gateway_id: str | None = "example-gateway",
+    reporting_states: tuple[SupportedReportingState, ...] = (),
 ) -> PublicationProfile:
-    """A profile that resolves all three of the inputs nothing else may."""
+    """A profile that resolves all three of the inputs nothing else may.
+
+    `reporting_states` defaults to NOTHING declared, unlike every other field
+    here, and the default is deliberate. The example scenario forces no
+    reporting-path condition, so a default capability would be one no test
+    exercises - and a test that wants the absent case is asking for the
+    interesting answer rather than for a broken fixture.
+    """
     return PublicationProfile(
         publication_profile_id=profile_id,
         publication_profile_version=version,
@@ -272,6 +281,7 @@ def publication_profile(
         device_signal_cadence_minutes=cadence_minutes,
         simulator_source_id=simulator_source_id,
         gateway_id=gateway_id,
+        supported_reporting_states=reporting_states,
     )
 
 

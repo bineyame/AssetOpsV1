@@ -1876,9 +1876,69 @@ class TestEveryRefusalKindIsReachable:
                 )
             )[0].kind,
             self._missing_initialization_input().kind,
+            self._requirement_conflict().kind,
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
+
+    def _requirement_conflict(self) -> RunSetupRefused:
+        """Two spellings of one asset, declared at two requirement levels.
+
+        The profile has to be the Foundation-bound one, because the alias only
+        exists once an unqualified reference can resolve: with no binding the
+        bare key resolves to nothing, the two stay two addresses, and the run
+        blocks on the address instead. That is a different fact and would have
+        made this helper produce the wrong kind.
+        """
+        document = scenario_document()
+        document["public_parameters"].append(
+            {
+                "parameter_id": "unqualified-draw",
+                "display_name": "A draw named without its component",
+                "value": 3,
+                "unit": "L",
+                "execution_role": "CAUSAL_INPUT",
+                "state_key": "example-stored-volume",
+                "execution_requirement": "OPTIONAL",
+                "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
+            }
+        )
+        error, store = refuse(
+            setup_request(),
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=foundation_bound_states()),
+        )
+        assert store.written == []
+        return error
+
+    def test_a_requirement_conflict_refuses_and_names_the_resolved_address(
+        self,
+    ) -> None:
+        """T020B criterion 4, at the layer only a Foundation can decide.
+
+        `example-stored-volume` and `example-stored-volume@example-store` are
+        two spellings of one asset on this Site, declared REQUIRED and
+        OPTIONAL. The refusal names the address they resolve to, so a reader is
+        not left comparing two spellings to work out that they are one thing.
+        """
+        error = self._requirement_conflict()
+
+        assert error.kind == "EXECUTION_REQUIREMENT_CONFLICT"
+        assert "example-stored-volume@example-store as a CAUSAL_INPUT" in (
+            error.message
+        )
+        assert "OPTIONAL and REQUIRED" in error.message
+        assert "the declarations resolve" in error.message
+        # Not resolved for the author, and the message says why not.
+        assert "would make the other declaration have no effect" in (
+            error.message
+        )
 
     def _missing_initialization_input(self) -> RunSetupRefused:
         document = scenario_document()
@@ -1949,12 +2009,14 @@ class TestEveryRefusalKindIsReachable:
 
 
 class TestTheExecutionContractVersionMove:
-    """The Foundation-value narrowing moves the number, and only forward.
+    """Each narrowing moves the number, and only forward.
 
     `D-2026-09-22-contract-version-scope`: the version moves when a change can
-    alter the outcome for a document that was already valid. The shipped Fuel
-    Loss Event as version two accepted it is refused by this parser, so it
-    moved - from the two this slice found to a three.
+    alter the outcome for a document that was already valid. T020A's
+    Foundation-value narrowing took it to three, T020A1's addressing to four,
+    and T020B's requirement-conflict refusal, reporting-path authority move and
+    four declared kernel semantics take it to five - each of the three reaches a
+    document that version four accepted.
 
     The absolute numbers are written relatively where they can be. Here they
     cannot: the point of the test is that the number CHANGED and that an
@@ -1963,7 +2025,7 @@ class TestTheExecutionContractVersionMove:
     """
 
     def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
-        assert EXECUTION_CONTRACT_VERSION == 4
+        assert EXECUTION_CONTRACT_VERSION == 5
 
     def test_a_new_draft_is_stamped_with_it(self) -> None:
         record, _ = create()

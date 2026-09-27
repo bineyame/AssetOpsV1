@@ -108,6 +108,16 @@ const PROFILES: RunProfilesResult = {
       device_signal_cadence_minutes: 15,
       simulator_source_id: "simulator-lab-source",
       gateway_id: "simulator-lab-gateway",
+      supported_reporting_states: [
+        {
+          state_key: "fuel-level-reporting-availability",
+          scope: "COMPONENT",
+          supported_roles: ["FORCING_INPUT"],
+          statement:
+            "Whether the fuel level reporting path is carrying readings can " +
+            "be forced across a declared window.",
+        },
+      ],
     },
   ],
 };

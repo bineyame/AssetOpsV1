@@ -145,6 +145,14 @@ describe("the versioned profiles are read", () => {
         device_signal_cadence_minutes: 15,
         simulator_source_id: "simulator-lab-source",
         gateway_id: "simulator-lab-gateway",
+        supported_reporting_states: [
+          {
+            state_key: "fuel-level-reporting-availability",
+            scope: "COMPONENT",
+            supported_roles: ["FORCING_INPUT"],
+            statement: "The reporting path can be forced unavailable.",
+          },
+        ],
       },
     ],
   };

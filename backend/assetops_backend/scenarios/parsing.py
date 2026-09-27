@@ -1650,6 +1650,7 @@ def _validate_execution_contract(
             parameters[parameter.parameter_id] = parameter
 
     _validate_initial_world_values(parameters, source=source)
+    _validate_execution_requirements(scenario, source=source)
 
     sources = {item.source_id: item for item in scenario.observation_sources}
     referenced: set[str] = set()
@@ -1667,6 +1668,83 @@ def _validate_execution_contract(
             f"Observation sources {unreferenced} are declared in {source} and "
             "no entry reports through them. A declared source nothing uses is "
             "a device identity on a screen with nothing behind it."
+        )
+
+
+def _validate_execution_requirements(
+    scenario: ScenarioDefinition, *, source: str
+) -> None:
+    """One requirement level per authored address and role, and never two.
+
+    A document that declares one state as a `FORCING_INPUT` both `REQUIRED` and
+    `OPTIONAL` states two answers to whether an executor must model it. Refused
+    here, when the document is read, because it needs nothing but the document:
+    every position is in front of us and no Site resolves anything about it.
+
+    **What this replaces is a silent resolution, and that is the point.** Run
+    setup used to collapse the two and take `REQUIRED` - a rule T019 invented,
+    retired by `D-2026-09-22-forcing-state-requirements`. It reads as caution
+    and is not: a state declared at three positions keeps whichever position is
+    still strict, so lowering one of them changes nothing, and an author who
+    lowered one would reasonably conclude the product had ignored them. The
+    author knows which level they meant; neither the parser nor a run does.
+
+    **The authored grain, not the resolved one.** `x` and `x@north-tank` are two
+    addresses here and may be one asset on a one-tank Site - that is the alias
+    case, it needs a Foundation to see, and run setup refuses it as
+    `EXECUTION_REQUIREMENT_CONFLICT` once it has one. Two declarations about two
+    genuinely different components are NOT a conflict at either grain: they are
+    two independent requirements, which is what addressing exists for.
+    """
+    stated: dict[tuple[str, str], tuple[str, str]] = {}
+
+    def record(
+        parameter_or_entry: str,
+        state_ref: StateRef | None,
+        role: str,
+        requirement: str | None,
+    ) -> None:
+        if state_ref is None or requirement is None:
+            return
+        key = (state_ref.addressed_key, role)
+        seen = stated.get(key)
+        if seen is None:
+            stated[key] = (requirement, parameter_or_entry)
+            return
+        if seen[0] == requirement:
+            return
+        raise ScenarioConfigurationInvalid(
+            f"{seen[1]} declares {state_ref.addressed_key!r} as a {role} at "
+            f"{seen[0]} and {parameter_or_entry} declares the same address and "
+            f"role at {requirement}, in {source}. That is two answers to "
+            "whether an executor must model this input, and nothing resolves "
+            "it: taking the stricter one would make the other declaration have "
+            "no effect, and taking the looser one would let a required input "
+            "through unmodelled. Declare one level for the address and role, or "
+            "address the two declarations to the components they are each "
+            "about."
+        )
+
+    for entry in scenario.timeline:
+        record(
+            f"Entry {entry.event_id!r}",
+            entry.state_ref,
+            entry.execution_role,
+            entry.execution_requirement,
+        )
+        for parameter in entry.parameters:
+            record(
+                f"Parameter {parameter.parameter_id!r}",
+                parameter.state_ref,
+                parameter.execution_role,
+                parameter.execution_requirement,
+            )
+    for parameter in scenario.public_parameters:
+        record(
+            f"Parameter {parameter.parameter_id!r}",
+            parameter.state_ref,
+            parameter.execution_role,
+            parameter.execution_requirement,
         )
 
 

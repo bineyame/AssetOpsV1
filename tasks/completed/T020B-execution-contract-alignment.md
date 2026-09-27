@@ -1,6 +1,6 @@
 # T020B - Reachable Fuel Loss readiness and boundary contract
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
@@ -96,4 +96,24 @@ contract versions.
 
 The owner creates and opens a READY Draft and can see what the fuel profile
 does not model. The Reviewer checks conflict refusal and timing declarations.
-Review outcome: pending.
+
+Built on branch `task/T020B-execution-contract-alignment`. Packet:
+`.agent/T020B-review-packet.md`. The owner's Draft is
+`run-9f74603b06384126a627a5339fc78fbe`, on `MG-006`, from
+`var/scenarios/fuel-loss-event-mg006.yaml`.
+Review outcome: accepted.
+
+**Independent review.** Two Codex passes and three Claude passes. Codex's first
+pass returned criterion 5 unmet and one test-coverage gap; its second confirmed
+C1 closed against all 36 phase transpositions and returned two prose
+contradictions. A fresh Claude verification reviewer confirmed those closed and
+raised four low findings; three were fixed and one, the phrase blacklist's
+potential collision with a true statement about a point, is carried.
+
+**Owner review, 2026-09-27.** The owner opened the READY Draft and the scenario
+detail screens and approved them. That covers the delivered screens only. It is
+**not** a closure of the carried item about the inventory's unqualified READY
+cell, whose trigger is that table gaining a second signal reading as readiness.
+Three rule statements carry literal `**` markers that render as plain
+asterisks; they were on screen at the time of the review, were not objected to,
+and are carried rather than treated as approved design.

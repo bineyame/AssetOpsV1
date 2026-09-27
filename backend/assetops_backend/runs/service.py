@@ -96,10 +96,12 @@ from assetops_backend.runs.profiles import (
     FoundationBinding,
     ModelProfile,
     PublicationProfile,
+    StateAuthority,
     find_model_profile,
     find_publication_profile,
     resolve_observation_binding,
     resolve_publication_identity,
+    state_authority,
 )
 from assetops_backend.runs.refusals import refuse
 from assetops_backend.runs.timezones import (
@@ -359,11 +361,12 @@ class RunSetupService:
         self._refuse_unsupported_target(request, scenario, site)
         self._refuse_entries_outside_the_interval(request, scenario)
         self._refuse_unresolved_sources(scenario, site)
+        self._refuse_requirement_conflicts(scenario, site, model, publication)
 
         parameters = _parameters_by_id(scenario)
         supplied = self._resolve_run_inputs(request, parameters)
 
-        identity, frozen_reasons = self._freeze(
+        identity, frozen_reasons, addresses = self._freeze(
             request=request,
             site=site,
             scenario=scenario,
@@ -376,7 +379,9 @@ class RunSetupService:
         reasons, optional = self._decide(
             scenario=scenario,
             model=model,
+            publication=publication,
             identity=identity,
+            addresses=addresses,
             frozen_reasons=frozen_reasons,
         )
 
@@ -529,6 +534,63 @@ class RunSetupService:
                 "so there is nowhere for this scenario's causes to act. The "
                 "topology is what places a component in the site.",
             )
+
+    def _refuse_requirement_conflicts(
+        self,
+        scenario: ScenarioDefinition,
+        site: SiteRecord,
+        model: ModelProfile,
+        publication: PublicationProfile,
+    ) -> None:
+        """Two requirement levels for one resolved address and role refuse.
+
+        On the refusal side of the line, and it is the line's own wording that
+        puts it there: a refusal means the request names something that
+        "contradicts something else it names". Two answers to whether an input
+        must be modelled is exactly that, and it is the shape this project
+        already refused as `INITIAL_VALUE_ANSWERS_DISAGREE` before that kind
+        lost its producer.
+
+        **The alternative was taking the stricter one, and that is what this
+        replaces.** `REQUIRED` won, which sounds conservative and is not: it
+        makes an author's mistake into the product's behaviour, and it made the
+        lowering this slice exists to do invisible, because a state declared at
+        three positions kept whichever position was still `REQUIRED`
+        (`D-2026-09-22-forcing-state-requirements`, rider one).
+
+        The same-authored-address case is refused by the scenario parser when
+        the document is read, so what reaches here is the alias: two spellings
+        that resolve to one address on this Site. That one needs the Site, which
+        is why it is decided here and not there.
+        """
+        conflicts = requirement_conflicts(scenario, site, model, publication)
+        if not conflicts:
+            return
+
+        # EVERY conflict, not the first. It reported `conflicts[0]`, so an author
+        # with two alias conflicts fixed one, resubmitted and met the next. A
+        # refusal that knows about three problems and names one charges a round
+        # trip per problem, and knowing them all costs nothing here.
+        described = "; ".join(
+            f"{conflict.addressed_key} as a {conflict.execution_role} at "
+            f"{' and '.join(conflict.requirements)}"
+            for conflict in conflicts
+        )
+        counted = (
+            "one address and role"
+            if len(conflicts) == 1
+            else f"{len(conflicts)} addresses and roles"
+        )
+        raise refuse(
+            "EXECUTION_REQUIREMENT_CONFLICT",
+            f"Scenario {scenario.scenario_id} states two requirement levels for "
+            f"{counted}, against the foundation of site {site.site_id}: "
+            f"{described}. Each of those is one address the declarations resolve "
+            "to, so the document gives two answers to whether that input must be "
+            "modelled. Nothing here picks one: the stricter reading would make "
+            "the other declaration have no effect, and the author is the only "
+            "one who knows which was meant.",
+        )
 
     def _refuse_entries_outside_the_interval(
         self, request: RunSetupRequest, scenario: ScenarioDefinition
@@ -688,7 +750,11 @@ class RunSetupService:
         publication: PublicationProfile,
         parameters: dict[str, ScenarioParameter],
         supplied: dict[str, float],
-    ) -> tuple[DeterministicIdentity, tuple[BlockingReason, ...]]:
+    ) -> tuple[
+        DeterministicIdentity,
+        tuple[BlockingReason, ...],
+        dict[str, ResolvedAddress],
+    ]:
         """Freeze everything, and say which values had no answer.
 
         The reasons come back rather than being raised, because a value the
@@ -699,13 +765,18 @@ class RunSetupService:
         value is looked up. Resolving them inside the Foundation lookup is
         what left every scenario-owned and run-owned reference unresolved, so
         the pass runs first and the value lookup consumes its answer.
+
+        The resolutions come back out as well as the identity, because
+        `_decide` needs them: an address this pass refused is not asked the
+        support question a second time.
         """
-        addresses = resolve_state_addresses(scenario, site, model)
+        addresses = resolve_state_addresses(scenario, site, model, publication)
 
         initialization, unresolved = self._freeze_initialization(
             scenario=scenario,
             site=site,
             model=model,
+            publication=publication,
             supplied=supplied,
             addresses=addresses,
         )
@@ -821,7 +892,7 @@ class RunSetupService:
             # event, and `D-2026-09-20-run-scoped-event-injection` puts one
             # here rather than in the scenario when something can.
             intervention_history=(),
-        ), unresolved
+        ), unresolved, addresses
 
     def _freeze_initialization(
         self,
@@ -829,6 +900,7 @@ class RunSetupService:
         scenario: ScenarioDefinition,
         site: SiteRecord,
         model: ModelProfile,
+        publication: PublicationProfile,
         supplied: dict[str, float],
         addresses: dict[str, ResolvedAddress],
     ) -> tuple[
@@ -918,6 +990,7 @@ class RunSetupService:
                     unit=initial.unit,
                     site=site,
                     model=model,
+                    publication=publication,
                 )
                 value = answer.value
                 reason = answer.reason
@@ -1002,6 +1075,7 @@ class RunSetupService:
         unit: str,
         site: SiteRecord,
         model: ModelProfile,
+        publication: PublicationProfile,
     ) -> FoundationAnswer:
         """The Foundation's number for one resolved address, or a reason.
 
@@ -1073,10 +1147,13 @@ class RunSetupService:
             f"site {site.site_id} foundation version "
             f"{site.foundation.version}"
         )
-        profile_detail = (
-            f"model profile {model.model_profile_id} version "
-            f"{model.model_profile_version}"
-        )
+        # The same authority the address pass and `_support_for` ask. This
+        # function's docstring stated the scope-before-binding order first and
+        # was the only one of the three that followed it; asking through one
+        # record is what stops that being a fact about which function a reader
+        # happened to open.
+        authority = state_authority(state_ref.state_key, model, publication)
+        profile_detail = authority.detail
         # The address the row will carry: the resolved one when the
         # reference resolved, the authored one when it did not. Every reason
         # below names THIS, so the missing value, the reference frozen beside
@@ -1101,30 +1178,18 @@ class RunSetupService:
                 state_ref=frozen_ref,
             )
 
-        supported = model.supported(state_ref.state_key)
+        supported = authority.supported
 
         # Scope before binding, because a scope disagreement explains a
         # missing binding rather than the other way round: a site-wide state
         # has no binding BY CONSTRUCTION, so reporting "no binding declared"
         # for it would name the symptom and hide the cause.
         if supported is not None and supported.scope != state_ref.scope:
-            claimed = (
-                "as a fact about the whole installation"
-                if state_ref.scope == "SITE"
-                else "as a fact about one component"
-            )
-            modelled = (
-                "a fact about the whole installation"
-                if supported.scope == "SITE"
-                else "a fact about one component"
-            )
             return blocked(
-                f"The scenario claims {state_ref.state_key} {claimed} and "
-                f"{profile_detail} models it as {modelled}. Those are two "
-                "different quantities, so no foundation answers for both; "
-                "address the state the way the profile models it, or select a "
-                "profile that models it the way the scenario claims it.",
-                "MODEL_PROFILE",
+                scope_disagreement_statement(
+                    state_ref, authority, subject="The scenario"
+                ),
+                authority.answerer,
                 f"{profile_detail}, which models this state at another scope",
             )
 
@@ -1137,8 +1202,15 @@ class RunSetupService:
                 f"{profile_detail} declares no binding saying which declared "
                 "fact answers for it. Nothing here matches a state to a "
                 "component by the look of its name, so a profile that "
-                "declares the binding is what this run needs.",
-                "MODEL_PROFILE",
+                "declares the binding is what this run needs."
+                + (
+                    " A publication profile never declares one: it cannot see "
+                    "a foundation, so a reporting-path state has no "
+                    "foundation-owned initial value at all."
+                    if authority.is_reporting_path
+                    else ""
+                ),
+                authority.answerer,
                 f"{profile_detail}, which declares no binding for it",
             )
 
@@ -1255,14 +1327,34 @@ class RunSetupService:
         *,
         scenario: ScenarioDefinition,
         model: ModelProfile,
+        publication: PublicationProfile,
         identity: DeterministicIdentity,
+        addresses: dict[str, ResolvedAddress],
         frozen_reasons: tuple[BlockingReason, ...] = (),
     ) -> tuple[tuple[BlockingReason, ...], tuple[UnsupportedOptionalInput, ...]]:
         reasons: list[BlockingReason] = []
         optional: list[UnsupportedOptionalInput] = []
 
         for executable in _executable_inputs(scenario):
-            reason, unsupported = _support_for(executable, model)
+            # An address the resolution pass already refused is not asked the
+            # support question, and this is the second half of F5. The two
+            # obligations are genuinely independent and a declaration can fail
+            # both - but a reference that names no asset has nothing for a
+            # profile to be asked ABOUT, and a reader met two blocking rows
+            # with the same subject where the second added no repair the first
+            # did not already state. The address reason is the one that has to
+            # be fixed first: nothing about resolving it depends on the
+            # requirement level, while the support answer does.
+            #
+            # Nothing is lost by the run's outcome either way. The address
+            # obligation is not requirement-sensitive, so such a run is
+            # BLOCKED on the address reason whether or not a support reason
+            # sits beside it.
+            address = addresses.get(executable.addressed_key)
+            if address is not None and address.reason is not None:
+                continue
+
+            reason, unsupported = _support_for(executable, model, publication)
             if reason is not None:
                 reasons.append(reason)
             if unsupported is not None:
@@ -1341,8 +1433,13 @@ def _executable_inputs(
     into the first. They are two requirements, and `requirement_conflicts`
     below reports it when one document states both about one of them.
 
-    Where the two positions disagree about the requirement, `REQUIRED` wins. A
-    state that is required anywhere is required.
+    **Nothing here resolves a disagreement about the requirement.** `REQUIRED`
+    used to win, and that rule is retired: it made lowering a requirement
+    unobservable wherever a state was declared in more than one position, which
+    is every state this slice had to lower
+    (`D-2026-09-22-forcing-state-requirements`). A document that disagrees with
+    itself is refused before this runs, and `_declared_requirements` raises
+    rather than choosing if one ever reaches it.
     """
     return tuple(
         ExecutableInput(
@@ -1402,8 +1499,129 @@ def declared_state_refs(
     return tuple(found.values())
 
 
+def _claim_words(scope: str) -> str:
+    return (
+        "a fact about the whole installation"
+        if scope == "SITE"
+        else "a fact about one component"
+    )
+
+
+def scope_repair(ref: StateRef, authority: StateAuthority) -> str:
+    """The one thing an author types to settle a scope disagreement.
+
+    Two possible strings, decided by the two scopes, and it exists because
+    every message this project had for a scope disagreement offered "address
+    the state the way the profile models it" - a restatement of the diagnosis
+    rather than a repair. F5 is that gap: the author who met it was told to add
+    a binding or an address, and the fix was four characters of prefix.
+    """
+    assert authority.scope is not None
+    if authority.scope == "SITE":
+        return f"write site:{ref.state_key} to claim it site-wide"
+    return (
+        f"write {ref.state_key}@<component-id> to claim it on the component "
+        "that carries it"
+    )
+
+
+def scope_disagreement_statement(
+    ref: StateRef, authority: StateAuthority, *, subject: str
+) -> str:
+    """One statement for a scope disagreement, and the repair it needs.
+
+    Written once, for two reasons, and F5 is both of them.
+
+    **The wording was duplicated three times** - in the address pass, in
+    `_support_for` and in `_resolve_foundation_value` - and each copy had its
+    own hedges. A reader who met two of them met two accounts of one fact.
+
+    **None of the three said what to do about it.** They said the scenario
+    claims the state one way and the profile models it the other, which is the
+    diagnosis, and then offered "address the state the way the profile models
+    it" - true, and not a repair anybody can type. The repair is one of exactly
+    two strings, and which one is decided by the two scopes, so it is computed
+    here rather than left to the author to infer.
+
+    `subject` is how the declaration is introduced, so the same statement works
+    for "Entry 'overcast-day'" and for "The scenario".
+    """
+    repair = scope_repair(ref, authority)
+    return (
+        f"{subject} claims {ref.state_key} as {_claim_words(ref.scope)} and "
+        f"{authority.detail} models it as {_claim_words(authority.scope)}. "
+        f"Those are two different quantities, so nothing answers for both: "
+        f"{repair}, or select a profile that models it the way the scenario "
+        "claims it."
+    )
+
+
+def state_not_modelled_statement(
+    ref: StateRef,
+    authority: StateAuthority,
+    *,
+    subject: str,
+    requirement: str | None = None,
+) -> str:
+    """One statement for a state the answering profile does not model at all.
+
+    It names the profile whose job it was, which is the whole value of deciding
+    the authority by the state rather than by who answers first. A scenario
+    forcing the reporting path against a publication profile that does not
+    declare that capability used to be told the MODEL profile did not model it,
+    and a reader following that was widening the wrong profile.
+
+    ## Why the consequence is a separate clause
+
+    T020B's independent review found the closing clause false on the screen this
+    slice exists to make honest. One sentence served both of `_support_for`'s
+    answers, and it ended "which this scenario needs it to" - true of a REQUIRED
+    input, and false of an OPTIONAL one. So a READY run's "Optional inputs this
+    profile does not support" panel said the scenario needed something it had
+    just declared it could do without, which contradicts the argument the
+    lowering rests on.
+
+    The fact and its consequence are two things, so they are two clauses. The
+    fact is the same however the input is declared: this profile does not model
+    this state. What follows from it is exactly what the requirement level
+    decides, which is why the level is an argument here rather than something
+    the caller pastes on afterwards.
+
+    `requirement` is `None` for the address pass, which is deliberately
+    requirement-INSENSITIVE - a reference that names no asset blocks whatever
+    its level - and which appends its own closing sentence.
+    """
+    if authority.is_reporting_path:
+        fact = (
+            f"{subject} forces {ref.state_key}, which is a condition on the "
+            f"reporting path rather than on the world, and {authority.detail} "
+            "does not declare that it can model the reporting path being in "
+            "that condition. A model profile cannot answer for this: whether a "
+            "signal is carrying readings is a property of the path, so the "
+            "publication profile is the one to change or to reselect."
+        )
+    else:
+        fact = (
+            f"{subject} concerns {ref.state_key}, and {authority.detail} does "
+            "not model that state at all."
+        )
+
+    if requirement == "REQUIRED":
+        return f"{fact} This scenario requires it, so the run is blocked."
+    if requirement == "OPTIONAL":
+        return (
+            f"{fact} This scenario declares it optional, so the run proceeds "
+            "without it and the gap is recorded here rather than blocking. "
+            "Nothing about this run models it."
+        )
+    return fact
+
+
 def resolve_state_addresses(
-    scenario: ScenarioDefinition, site: SiteRecord, model: ModelProfile
+    scenario: ScenarioDefinition,
+    site: SiteRecord,
+    model: ModelProfile,
+    publication: PublicationProfile,
 ) -> dict[str, ResolvedAddress]:
     """Which component each declared reference means, by address.
 
@@ -1452,6 +1670,17 @@ def resolve_state_addresses(
     100 L under `SCENARIO_INPUT`. Same obligation, same disease as R1, one
     position further in.
 
+    **And scope before "no binding", which is F5.** An unqualified reference to
+    a state the answering profile models SITE-WIDE used to reach the no-binding
+    refusal, because a binding is only read when the scopes agree and a
+    site-wide state has no binding by construction. The statement told the
+    author to add an address or select a profile that declares the binding, and
+    the actual repair is to write `site:` in front of the key, which it never
+    said. `_resolve_foundation_value` already ordered these two correctly and
+    said so in its docstring, so the two functions contradicted each other.
+    The scope check now runs first here too, and the statement both share names
+    the repair.
+
     Nothing infers a component type from the spelling of a state key, and
     nothing narrows candidates by which of them happens to carry a useful
     property - the two rules the resolver has refused since T020A.
@@ -1468,10 +1697,6 @@ def resolve_state_addresses(
     }
     foundation_detail = (
         f"site {site.site_id} foundation version {site.foundation.version}"
-    )
-    profile_detail = (
-        f"model profile {model.model_profile_id} version "
-        f"{model.model_profile_version}"
     )
 
     def refused(
@@ -1511,45 +1736,37 @@ def resolve_state_addresses(
         )
 
     def unmodelled(
-        ref: StateRef, where: str, supported: SupportedState | None
+        ref: StateRef, where: str, authority: StateAuthority
     ) -> str:
-        if supported is None:
+        if not authority.models_it:
             return (
-                f"{where.capitalize()} concerns {ref.state_key}, and "
-                f"{profile_detail} does not model that state at all. A "
-                "reference this build cannot execute is not something a run "
-                "may carry as though it were resolved."
+                state_not_modelled_statement(
+                    ref, authority, subject=where.capitalize()
+                )
+                + " A reference this build cannot execute is not something a "
+                "run may carry as though it were resolved."
             )
-        claimed = (
-            "as a fact about the whole installation"
-            if ref.scope == "SITE"
-            else "as a fact about one component"
-        )
-        modelled = (
-            "a fact about the whole installation"
-            if supported.scope == "SITE"
-            else "a fact about one component"
-        )
-        return (
-            f"{where.capitalize()} claims {ref.state_key} {claimed} and "
-            f"{profile_detail} models it as {modelled}. Those are two "
-            "different quantities; address the state the way the profile "
-            "models it, or select a profile that models it the way the "
-            "scenario claims it."
+        return scope_disagreement_statement(
+            ref, authority, subject=where.capitalize()
         )
 
     resolutions: dict[str, ResolvedAddress] = {}
 
     for authored, where in declared_state_refs(scenario):
         ref = authored
-        supported = model.supported(ref.state_key)
+        # Asked of whichever profile answers for this state, which the state
+        # decides. `_support_for` asks the same function, so the two cannot
+        # consult different profiles or order the same two facts differently.
+        authority = state_authority(ref.state_key, model, publication)
+        profile_detail = authority.detail
+        supported = authority.supported
         # The binding applies only when the profile models this state AT THE
         # SCOPE the reference claims it at. A binding read off a state the
         # profile models the other way round would be a component type
         # borrowed from a different claim.
         binding = (
-            supported.foundation_binding
-            if supported is not None and supported.scope == ref.scope
+            authority.foundation_binding
+            if authority.scope == ref.scope
             else None
         )
         component: SiteComponent | None = None
@@ -1608,23 +1825,63 @@ def resolve_state_addresses(
                         ),
                     )
                     continue
+            elif authority.models_it and authority.scope != ref.scope:
+                # F5. The scopes disagree, so `binding` is None for a reason
+                # that has nothing to do with the profile being incomplete:
+                # the profile models this state site-wide and a site-wide
+                # state has no binding BY CONSTRUCTION. Reporting "no binding
+                # declared" here names the symptom and hides the cause, and
+                # the repair it offered - add an address, or find a profile
+                # that declares the binding - is not the repair. The repair is
+                # to write `site:` in front of the key, and the shared
+                # statement says so.
+                #
+                # Ordered this way in `_resolve_foundation_value` since T020A1
+                # and stated in its docstring; this is the function that
+                # contradicted it.
+                resolutions[authored.addressed_key] = refused(
+                    authored,
+                    f"{where.capitalize()} concerns {ref.state_key} on a "
+                    f"component and names none, and {profile_detail} models "
+                    f"{ref.state_key} as {_claim_words(authority.scope)}. "
+                    "There is no kind of component for a selector to be "
+                    "resolved against, so this reference names no asset: "
+                    f"{scope_repair(ref, authority)}, or select a profile that "
+                    "models it the way the scenario claims it and name the "
+                    "component you mean.",
+                    authority.answerer,
+                    f"{profile_detail}, which models this state at another "
+                    "scope",
+                )
+                continue
             elif binding is None:
-                # Nothing can choose. The profile declares no binding for
-                # this state at this scope - because it models it another
-                # way, or does not model it at all - so there is no component
-                # type to select candidates from, and reading one out of the
-                # spelling of a state key is the thing this module refuses.
+                # Nothing can choose, and now this branch means one thing: the
+                # answering profile does not model this state at all, so there
+                # is no component type to select candidates from. Reading one
+                # out of the spelling of a state key is what this module
+                # refuses.
+                #
+                # A reporting-path state reaches here too, and legitimately: a
+                # publication profile can never declare a binding, because it
+                # cannot see a Foundation. So the repair for one of those is
+                # always to name the component in the scenario.
+                repair = (
+                    "so the scenario has to name the component it means"
+                    if authority.is_reporting_path
+                    else (
+                        "so this needs either an address in the scenario or a "
+                        "profile that declares the binding"
+                    )
+                )
                 resolutions[authored.addressed_key] = refused(
                     authored,
                     f"{where.capitalize()} concerns {ref.state_key} on a "
                     "component and names none, and "
                     f"{profile_detail} declares no binding saying which kind "
                     f"of component carries {ref.state_key} as "
-                    "a fact about one component. Nothing reads a component "
-                    "type out of the state's name, so this needs either an "
-                    "address in the scenario or a profile that declares the "
-                    "binding.",
-                    "MODEL_PROFILE",
+                    f"a fact about one component. Nothing reads a component "
+                    f"type out of the state's name, {repair}.",
+                    authority.answerer,
                     f"{profile_detail}, which declares no binding for it",
                 )
                 continue
@@ -1700,8 +1957,8 @@ def resolve_state_addresses(
             else:
                 resolutions[authored.addressed_key] = refused(
                     authored,
-                    unmodelled(authored, where, supported),
-                    "MODEL_PROFILE",
+                    unmodelled(authored, where, authority),
+                    authority.answerer,
                     f"{profile_detail}, which does not model it that way",
                     kind="STATE_NOT_SUPPORTED",
                 )
@@ -1721,10 +1978,35 @@ def resolve_state_addresses(
     return resolutions
 
 
+class UnresolvedRequirementConflict(Exception):
+    """Two requirement levels for one authored `(address, role)` reached setup.
+
+    Not a refusal and not a blocking reason, because it is neither: it is the
+    scenario parser's rule having failed to hold. A document with two
+    requirement levels for one authored address and role is refused when it is
+    read (`_validate_execution_requirements`), so by the time run setup gathers
+    executable inputs the disagreement cannot exist.
+
+    It is an exception rather than a comment saying so. The rule this replaces
+    was `REQUIRED` wins - invented by T019, retired by
+    `D-2026-09-22-forcing-state-requirements` - and the reason it had to be
+    retired rather than left as a harmless fallback is that it was the thing
+    making the lowering unobservable: `site-load-demand` is declared at three
+    positions, and under the collapse lowering one of them changed nothing.
+    A silent resolution here would restore exactly that, so there is nothing
+    silent here to restore it.
+    """
+
+
 def _declared_requirements(
     scenario: ScenarioDefinition,
 ) -> dict[tuple[str, str], tuple[StateRef, str]]:
-    """Every `(address, role)` the scenario declares, and its requirement."""
+    """Every `(address, role)` the scenario declares, and its requirement.
+
+    One requirement per pair, never a resolution of two. See
+    `UnresolvedRequirementConflict` for why the collapse that used to be here
+    is gone rather than kept as a fallback.
+    """
     found: dict[tuple[str, str], tuple[StateRef, str]] = {}
 
     def record(
@@ -1733,14 +2015,29 @@ def _declared_requirements(
         if state_ref is None or role not in EXECUTABLE_ROLES:
             return
         key = (state_ref.addressed_key, role)
+        # An executable declaration always carries a requirement: the scenario
+        # parser requires one for every executable role and refuses one on a
+        # non-executable condition. `or "REQUIRED"` used to stand here and was
+        # a default for a case that cannot arise, which is the shape that hides
+        # the next one.
+        if requirement is None:
+            raise UnresolvedRequirementConflict(
+                f"{state_ref.addressed_key} is declared as a {role} with no "
+                "execution requirement. An executable declaration carries one "
+                "or the scenario parser refuses the document, so nothing here "
+                "supplies a level on its behalf."
+            )
         current = found.get(key)
-        resolved = requirement or "REQUIRED"
-        if current is not None and (
-            current[1] == "REQUIRED" or resolved == "REQUIRED"
-        ):
-            found[key] = (state_ref, "REQUIRED")
-        else:
-            found[key] = (state_ref, resolved)
+        if current is not None and current[1] != requirement:
+            raise UnresolvedRequirementConflict(
+                f"{state_ref.addressed_key} is declared as a {role} at both "
+                f"{current[1]} and {requirement}. The scenario parser refuses "
+                "a document that does this, so reaching run setup means that "
+                "rule did not run. Nothing here picks the stricter level: "
+                "picking one is how an author's mistake becomes the product's "
+                "behaviour."
+            )
+        found[key] = (state_ref, requirement)
 
     for entry in scenario.timeline:
         record(entry.state_ref, entry.execution_role, entry.execution_requirement)
@@ -1764,15 +2061,26 @@ def requirement_conflicts(
     scenario: ScenarioDefinition,
     site: SiteRecord,
     model: ModelProfile,
+    publication: PublicationProfile,
 ) -> tuple[RequirementConflict, ...]:
     """Every RESOLVED address and role one document states two requirements for.
 
-    Detection at the grain acceptance criterion 8 names. What the product
-    finally DOES about a conflict - refuse the document, block the run, or
-    keep taking the stricter answer - is T020B's, and this reports rather
-    than decides so that decision has something to act on.
-    `_executable_inputs` keeps taking `REQUIRED` meanwhile, which can only
-    block a run that would otherwise have run and never the reverse.
+    ## What happens to what it finds, since T020B
+
+    It is refused. `create_draft_run` calls this before it freezes anything and
+    raises `EXECUTION_REQUIREMENT_CONFLICT` if it returns a row, so no `run_id`
+    is allocated and nothing is written
+    (`D-2026-09-22-forcing-state-requirements`, rider one). T020A1 left this
+    function reporting rather than deciding and said T020B owned the decision;
+    this is the decision.
+
+    **Two layers, because there are two grains and only one of them needs a
+    Site.** Two requirement levels on ONE AUTHORED address are a property of
+    the document alone, so the scenario parser refuses that when it reads it,
+    and such a document never reaches a run. What is left for this function is
+    the ALIAS: two different authored spellings that resolve to one address,
+    which cannot be seen without the Site that resolves them. Both refuse; they
+    refuse at the earliest moment each becomes decidable.
 
     ## Why it takes a Site and a profile
 
@@ -1797,7 +2105,7 @@ def requirement_conflicts(
     slice, and reporting them as a disagreement would be the collapse this
     module has just stopped doing.
     """
-    addresses = resolve_state_addresses(scenario, site, model)
+    addresses = resolve_state_addresses(scenario, site, model, publication)
     stated: dict[tuple[str, str], tuple[StateRef, list[str]]] = {}
 
     def record(
@@ -1850,22 +2158,39 @@ def requirement_conflicts(
 
 
 def _support_for(
-    executable: ExecutableInput, model: ModelProfile
+    executable: ExecutableInput,
+    model: ModelProfile,
+    publication: PublicationProfile,
 ) -> tuple[BlockingReason | None, UnsupportedOptionalInput | None]:
-    """Ask one profile about one executable input.
+    """Ask the answering profile about one executable input.
 
     Required and unsupported blocks; optional and unsupported is recorded.
     There is no third answer, because `EXECUTION_REQUIREMENTS` has no third
     value and "supported if convenient" is how an input gets ignored.
+
+    **Which profile is asked is decided by the state**, through
+    `state_authority`, and the two profiles' state sets cannot overlap. So a
+    reporting-path condition is answered by the publication profile whether or
+    not that profile declares it, and the reason a reader is sent to names the
+    profile whose job it was. Before T020B the model profile answered for
+    everything, and a scenario forcing the reporting path was told the model
+    profile did not model it - sending a reader to widen a kernel over
+    something no kernel does.
     """
-    supported = model.supported(executable.state_key)
+    authority = state_authority(executable.state_key, model, publication)
+    supported = authority.supported
 
     if supported is None:
-        statement = (
-            f"Model profile {model.model_profile_id} version "
-            f"{model.model_profile_version} does not model "
-            f"{executable.state_key} at all, which this scenario needs it "
-            "to."
+        # The requirement level is passed, not pasted on by the caller. This
+        # function answers for BOTH of the two outcomes below, so a statement
+        # that did not know the level could only be right about one of them -
+        # and it was wrong about the optional one, on the screen that argues
+        # the lowering is honest.
+        statement = state_not_modelled_statement(
+            executable.state_ref,
+            authority,
+            subject="The scenario",
+            requirement=executable.execution_requirement,
         )
         if executable.execution_requirement == "REQUIRED":
             # The statement does not name the role, and the reason is
@@ -1912,20 +2237,8 @@ def _support_for(
         # never goes near it, and without this an entry forcing demand at one
         # feeder against a profile that models one site-wide demand would be
         # reported as supported with the address quietly ignored.
-        claimed = (
-            "as a fact about the whole installation"
-            if executable.state_ref.scope == "SITE"
-            else "as a fact about one component"
-        )
-        modelled = (
-            "a fact about the whole installation"
-            if supported.scope == "SITE"
-            else "a fact about one component"
-        )
-        statement = (
-            f"The scenario declares {executable.state_key} {claimed} and "
-            f"model profile {model.model_profile_id} version "
-            f"{model.model_profile_version} models it as {modelled}."
+        statement = scope_disagreement_statement(
+            executable.state_ref, authority, subject="The scenario"
         )
         if executable.execution_requirement == "REQUIRED":
             return (
@@ -1947,8 +2260,7 @@ def _support_for(
 
     if executable.execution_role not in supported.supported_roles:
         statement = (
-            f"Model profile {model.model_profile_id} version "
-            f"{model.model_profile_version} models "
+            f"{authority.detail.capitalize()} models "
             f"{executable.state_key}, but not as a "
             f"{executable.execution_role}."
         )

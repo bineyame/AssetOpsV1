@@ -243,20 +243,34 @@ the backup Reviewer recommended merge with all fourteen criteria met. None
 meets the stopping rule: none is expensive to reverse, none misleads an
 Implementer about what the code does, none needs a user decision.
 
-**F5 - one diagnosis is inverted, and two functions order the same two facts
-oppositely.** An unqualified reference to a state the profile models site-wide
-now gets the no-binding refusal, because the address obligation runs first and
-`binding` is `None` whenever the scopes disagree. The statement tells the author
-to add an address or a binding; the actual repair is to write `site:` before the
-key, which it never says. The explicit spelling is diagnosed correctly and
-alone, so this is ordering rather than a missing check.
-`_resolve_foundation_value`'s own docstring forbids this ordering - "Scope
-before binding, because a scope disagreement explains a missing binding rather
-than the other way round" - so one function now contradicts the other's stated
-rule. Related and also new: because the two passes run independently, an
-executable REQUIRED declaration failing both yields two blocking reasons with
-the same subject. Both true and actionable; a reader meets two.
-**T020B owns readiness and is the natural home.**
+**~~F5 - one diagnosis is inverted, and two functions order the same two facts
+oppositely~~ - RESOLVED in T020B, 2026-09-26.** An unqualified reference to a
+state the profile models site-wide got the no-binding refusal, because the
+address obligation ran first and `binding` is `None` whenever the scopes
+disagree. The statement told the author to add an address or a binding; the
+actual repair is to write `site:` before the key, which it never said.
+`_resolve_foundation_value`'s own docstring forbade that ordering - "Scope before
+binding, because a scope disagreement explains a missing binding rather than the
+other way round" - so one function contradicted the other's stated rule.
+Related: because the two passes ran independently, an executable REQUIRED
+declaration failing both yielded two blocking reasons with the same subject.
+
+**Fixed in three parts, and the third is why it should not recur.** The scope
+check runs first in `resolve_state_addresses` too. `scope_repair` computes the
+one string an author types and `scope_disagreement_statement` is the single
+wording all three sites share - the message had been duplicated three times with
+its own hedges in each, which is how two of them drifted. And all three now ask
+one `state_authority` record instead of each doing its own profile lookup, so an
+ordering mistake is one mistake rather than a disagreement between functions that
+never read each other. `_decide` skips the support question for an address the
+resolution pass refused, closing the two-rows-one-subject half.
+
+Kept rather than deleted because the diagnosis is the record: **the defect was
+not a missing check, it was two checks that could not see each other**, each
+individually correct about the facts it held. Deduplicating the wording without
+deduplicating the lookup would have hidden the next instance rather than
+preventing it. `.agent/T020B-guard-probes.py` re-runs both halves as violations
+and asserts the tests fail.
 
 **F6 - the packet's stated reason for re-measuring the layout is false.** It
 says the ambiguity statement's wording changed again so nothing was inherited.
@@ -298,6 +312,121 @@ rounds and three review passes, two of which returned low-severity claim and
 docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
+
+## Carried out of T020B's review rounds
+
+Added 2026-09-27 at closeout, after two Codex passes, three Claude passes and
+the owner's screen review. None meets `D-2026-09-22-milestone-speed-over-purity`'s
+stopping rule.
+
+- **Three rule statements carry literal `**` markers that render as plain
+  asterisks.** `window-overlap`, `window-ramp` (two pairs) and
+  `no-interval-signal-at-the-first-boundary`, all introduced during these
+  rounds. `Fact` renders prose verbatim. They were on screen during the owner's
+  review and were not objected to, which is not the same as being approved.
+  One line of text whenever wanted.
+- **The phrase blacklist can collide with a true statement.** Two forbidden
+  phrases are legitimately true of a *point* rather than a window, so a
+  reworded `point-applied-once` could be failed for saying something correct.
+  No collision today.
+- **The prose is not guarded as a class, and the record now says so.** Nine of
+  the property class's ten tests read only its own transcription of the
+  predicate and would pass if every published statement were false; one test is
+  the phrase blacklist. Guarding the class would mean generating the statements
+  from the predicate rather than writing them beside it. F-V1 is the evidence:
+  it entered in the same commit that claimed to close the class, matched none of
+  the five existing phrases because it was an antecedent rather than a
+  consequent, and a human reader found it rather than a test.
+- **Layout evidence is unmeasured since the round before last.**
+  `ScenarioFrame.tsx:668` renders `dispatch_rules`, so every rule statement
+  edited in the last three rounds is on-screen text that no measurement has
+  covered. The harness stopped the dev servers for memory pressure and they
+  were not restarted.
+
+The pattern worth carrying forward, because it cost four rounds: **every failing
+sentence restated a subset of what the predicate does.** F6 fixed the aligned
+case, R1 the unaligned case, R1a the short-and-straddling case, R1b the
+adjacent case, F-V1 the forcing rule's copy of the same shape. The formula was
+correct throughout and ahead of its own description every time.
+
+## Carried out of T020B
+
+Carried under `D-2026-09-22-milestone-speed-over-purity` on 2026-09-26. Neither
+is expensive to reverse, neither misleads an Implementer about what the code
+does, neither needs a user decision.
+
+### `supported_reporting_states` has no falsifier either
+
+`LAB_PUBLICATION_PROFILE` declares it can model the fuel level reporting path
+being unavailable, and nothing in this build can suppress a reading. It is the
+same shape as the `supported_states` entry at the top of this file, one profile
+along.
+
+**This entry's original justification was false, and correcting it in place is
+the point of keeping it.** It said the readiness disclosure "now covers two
+declarations rather than one". It did not: `READY_DISCLOSURE` named only the
+model profile and was not touched by T020B at all - `models.py` was not in the
+slice's diff. The carry therefore rested on coverage that did not exist, and
+T020B's independent review caught it. The disclosure now genuinely names both
+profiles and both supported sets and says neither half alone retires it, which is
+what makes the rest of this entry true.
+
+*Safe to carry* now that the disclosure says so: a `READY` run states that this
+declaration is unverified and names its own retirement condition. The falsifier
+is the observation transform, the component that either suppresses a reading
+across the declared window or does not.
+
+*What would change the answer:* descoping that transform, or a second
+reporting-path state arriving with no consumer.
+
+*The generalisation worth keeping:* this was dangerous rather than untidy because
+the two halves retire on **different conditions** - the model profile's with a
+kernel, the reporting path's with the transform. A disclosure naming only the
+first would have been retired by the kernel slice while the second claim stood.
+A coverage claim that names fewer conditions than it covers is not a wording
+slip; it is a false statement with a date on it.
+
+### The window ramp is silent on a window that declares two values
+
+Raised by T020B's independent review, and it is about the shipped document rather
+than a hypothetical. `window-ramp` in `scenarios/execution.py` settles two cases:
+a declared quantity ramps from nothing to all of it, and a single declared level
+holds for the window. `baseline-load-profile` is a third. It is `INTERVAL_WIDE`
+and declares **two** parameters for one address and one role -
+`evening-peak-load` at 72 kW and `overnight-base-load` at 18 kW, both
+`site:site-load-demand` as a `FORCING_INPUT`. Nothing says which value sits at
+which endpoint, or whether two parameters compose as endpoints at all. Read
+literally the rule interpolates 72 kW down to 18 kW across the whole interval,
+which is not the "ordinary weekday shape" the entry's own description means.
+
+*Safe to carry* because nothing consumes the text yet: `site-load-demand` is
+`OPTIONAL` and unmodelled, T024 owns its electrical consumption, and no kernel
+exists to read the rule either way. Closing it needs a decision about what two
+parameters on one window MEAN - endpoints of a ramp, or two named levels a shape
+selects between - and inventing that here would be the narrow semantics
+`D-2026-09-22-milestone-speed-over-purity` says not to spend a slice on. The
+alternative reading is real, so the choice is not obvious enough to make
+silently.
+
+*What would change the answer:* **T021 writes its conformance tests from this
+text**, so it is the first consumer and should meet this entry rather than
+discover the gap. If T024 models demand before the decision is taken it becomes
+urgent, because a forcing with two declared values would reach a kernel with no
+rule for composing them.
+
+### Two blocking rows can still share a subject across two kinds
+
+An addressed reference whose scope disagrees with the answering profile yields
+`INITIAL_VALUE_NOT_RESOLVED` from the Foundation lookup and
+`STATE_NOT_SUPPORTED` from the support question, both about one address.
+
+*Safe to carry* because the F5 half T020B owned was the address-versus-support
+pair and that one is closed, this pair predates T020A1, both rows are true, and
+both carry the same repair - so a reader who acts on either is right. It is a
+tidiness cost rather than a wrong statement.
+
+*What would change the answer:* the two rows starting to suggest different
+repairs, which would make the pair a contradiction rather than a repetition.
 
 ## Tracked elsewhere, listed so the review finds them
 

@@ -45,10 +45,29 @@
 # the tank says what this scenario is about once, in the document, and keeps
 # saying it.
 #
-# This is addressing, not readiness. A run of this document is still BLOCKED:
-# the first model profile does not model site demand, plane-of-array
-# irradiance or the availability of the reporting path, all three of which
-# this scenario requires, and widening it is T020B's work.
+# T020B settles the three states that used to make every run of this document
+# BLOCKED, and they turned out to be three different problems rather than one
+# missing capability (`D-2026-09-22-forcing-state-requirements`).
+#
+# Site demand and plane-of-array irradiance are now OPTIONAL, at five
+# positions across the two entries below. They were marked REQUIRED by an
+# author being careful, and REQUIRED means an executor must MODEL this to run
+# this scenario - which is not true of either: this document declares the
+# generator's dispatch directly, so nothing computes it from load and PV, and
+# a kernel that modelled them would be computing dispatch. They remain
+# declared, they remain visible, and a profile that does not model them
+# records them on the run as unsupported optional inputs rather than blocking
+# it. What consumes them electrically is T024.
+#
+# The availability of the reporting path was never the model profile's to
+# answer. Whether the fuel level sensor is reporting changes nothing about the
+# fuel, so the publication profile - which owns the path - declares whether it
+# can be modelled, and it does.
+#
+# So a run of this document against a compatible site now reaches READY. What
+# READY does not yet assert is on the run's own screen: no kernel has been
+# proved to implement the states the profile advertises, and T021's conformance
+# test is what makes that word unqualified.
 
 scenario_id: fuel-loss-event
 display_name: Fuel Loss Event
@@ -179,7 +198,14 @@ timeline:
       being unusual.
     execution_role: FORCING_INPUT
     state_key: site:site-load-demand
-    execution_requirement: REQUIRED
+    # OPTIONAL, and every position that names this state says the same - the
+    # entry and both parameters below. It has to be all three: a requirement
+    # is a property of the address and the role, so two positions disagreeing
+    # about it is two answers to one question and the document is refused.
+    # That refusal is what makes this lowering mean something. Under the old
+    # rule the strictest position won, so lowering one of three changed
+    # nothing at all (`D-2026-09-22-forcing-state-requirements`).
+    execution_requirement: OPTIONAL
     timing:
       shape: INTERVAL_WIDE
     parameters:
@@ -189,7 +215,7 @@ timeline:
         unit: kW
         execution_role: FORCING_INPUT
         state_key: site:site-load-demand
-        execution_requirement: REQUIRED
+        execution_requirement: OPTIONAL
         ownership:
           owner: SCENARIO_INPUT
           initializes: false
@@ -199,7 +225,7 @@ timeline:
         unit: kW
         execution_role: FORCING_INPUT
         state_key: site:site-load-demand
-        execution_requirement: REQUIRED
+        execution_requirement: OPTIONAL
         ownership:
           owner: SCENARIO_INPUT
           initializes: false
@@ -214,7 +240,7 @@ timeline:
       evening with less stored energy than usual and the generator is needed.
     execution_role: FORCING_INPUT
     state_key: site:plane-of-array-irradiance
-    execution_requirement: REQUIRED
+    execution_requirement: OPTIONAL
     timing:
       # The overcast daylight period runs from this offset up to the start of
       # the dispatch window below. The length is the distance between two
@@ -228,7 +254,7 @@ timeline:
         unit: W/m2
         execution_role: FORCING_INPUT
         state_key: site:plane-of-array-irradiance
-        execution_requirement: REQUIRED
+        execution_requirement: OPTIONAL
         ownership:
           owner: SCENARIO_INPUT
           initializes: false
@@ -314,6 +340,17 @@ timeline:
       levels on either side of the gap.
     # A condition forced on the reporting path, not on the tank. It changes
     # nothing about how much fuel is present and carries no state effect.
+    #
+    # Which is why this one stays REQUIRED, and why it no longer blocks. The
+    # gap is not decoration here - it is the reason a later analysis has to
+    # infer the removal from the levels either side of it, and the scenario
+    # exists for that. So an executor really must model it. What changed in
+    # T020B is WHO is asked: `REPORTING_PATH_STATES` in `runs/profiles.py`
+    # names this a fact about the path, so the PUBLICATION profile declares
+    # whether it can be modelled and the model profile may not claim it. A
+    # publication profile that declares no such capability blocks the run with
+    # a reason naming itself, which is the profile a reader would have to
+    # change (`D-2026-09-22-forcing-state-requirements`).
     execution_role: FORCING_INPUT
     state_key: fuel-level-reporting-availability@fuel-tank
     execution_requirement: REQUIRED

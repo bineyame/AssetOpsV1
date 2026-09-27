@@ -58,6 +58,7 @@ removal.
 from __future__ import annotations
 
 from dataclasses import fields
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
@@ -66,8 +67,12 @@ from scenario_fixtures import scenario_document
 
 from assetops_backend.scenarios.execution import (
     ACCOUNTED_FOR_REASON,
+    BOUNDARY_CYCLE,
     BOUND_CASES,
     BOUND_POLICIES,
+    BOUND_POLICY_STATEMENTS,
+    OBSERVATION_RULES,
+    READING_CLASSES,
     BOUND_REACHED_LOWER,
     BOUND_REACHED_UPPER,
     NOT_ACCOUNTED_FOR_REASON,
@@ -1286,3 +1291,861 @@ def _every_key(node):
                 pending.append(child)
         elif isinstance(current, list):
             pending.extend(current)
+
+
+class TestTheBoundaryCycle:
+    """T020B criterion 6: the v4 boundary cycle IS the execution contract.
+
+    It replaces one declared semantic - "observe after the step" - which said
+    which side of a step a sample falls on and said nothing about where a
+    controller, a resolver or an invariant check sits relative to it.
+    """
+
+    def _by_id(self) -> dict:
+        return {phase.phase_id: phase for phase in BOUNDARY_CYCLE}
+
+    def test_the_phases_the_criterion_names_are_declared(self) -> None:
+        declared = self._by_id()
+
+        # Set EQUALITY, not membership, and T020B's review is why. This
+        # iterated nine hard-coded ids asserting `phase_id in declared`, so it
+        # could not see a TENTH phase at all: one appended with an empty
+        # display name and an empty statement passed every test in this class.
+        # Criterion 6's whole content is that the cycle is PUBLISHED as the
+        # contract, and a published phase that says nothing is not that.
+        #
+        # Both halves are needed. Equality alone would accept a renamed phase
+        # carrying no text; the loop alone would accept an extra phase that
+        # happened to carry some.
+        assert set(declared) == {
+            "apply-events",
+            "state-at-t",
+            "sample-and-publish",
+            "controller-view",
+            "controller-intent",
+            "physical-acceptance",
+            "evolve",
+            "check-invariants",
+            "carry-forward",
+        }
+        assert len(BOUNDARY_CYCLE) == len(declared)
+
+        for phase in BOUNDARY_CYCLE:
+            assert phase.display_name.strip(), phase.phase_id
+            assert phase.statement.strip(), phase.phase_id
+
+    def test_the_declared_ordinals_are_a_total_order_from_one(self) -> None:
+        """The sequence is the contract, not the tuple's index.
+
+        Asserted as a property of the numbers rather than read off the tuple: a
+        phase whose declared ordinal disagreed with its position would publish
+        one order and be read in another, and consumers read the number.
+        """
+        sequences = [phase.sequence for phase in BOUNDARY_CYCLE]
+
+        assert sequences == sorted(sequences)
+        assert sequences == list(range(1, len(BOUNDARY_CYCLE) + 1))
+
+    def test_the_whole_ordering_is_the_contract_not_selected_pairs(
+        self,
+    ) -> None:
+        """C1 from the Codex review: the guard proved less than was claimed.
+
+        The inequalities below this one are each true and, together, still
+        admit orderings the contract forbids. The reviewer demonstrated it by
+        exchanging the sequence numbers of `sample-and-publish` and
+        `controller-view` and reordering by them: a controller view built
+        BEFORE the sample is taken, and all nine tests across this class and
+        the reading class passed. The phase list was right; the test was the
+        gap, and the packet cited those tests as proof of every ordering
+        relationship.
+
+        So the whole required sequence is asserted, by name and in order. Any
+        transposition of any two phases fails here, including the reviewer's.
+        """
+        assert [phase.phase_id for phase in BOUNDARY_CYCLE] == [
+            "apply-events",
+            "state-at-t",
+            "sample-and-publish",
+            "controller-view",
+            "controller-intent",
+            "physical-acceptance",
+            "evolve",
+            "check-invariants",
+            "carry-forward",
+        ]
+        # Ordered by the DECLARED ordinal rather than by tuple position, since
+        # the ordinal is what the contract publishes and what a consumer reads.
+        assert [
+            phase.phase_id
+            for phase in sorted(BOUNDARY_CYCLE, key=lambda p: p.sequence)
+        ] == [phase.phase_id for phase in BOUNDARY_CYCLE]
+
+    def test_nothing_observes_or_controls_before_the_events_are_applied(
+        self,
+    ) -> None:
+        """The collision v4 section 6 resolves, as an ordering assertion.
+
+        A sample at an instant must not show the pre-event state, and neither
+        must a controller view. Both follow from one fact - the two phases come
+        after `apply-events` - so the fact is asserted rather than each
+        statement's prose.
+
+        Kept beside the whole-sequence assertion above rather than replaced by
+        it: these say WHY the order is what it is, and a future reordering
+        should have to delete a stated reason rather than only edit a list.
+        """
+        phases = self._by_id()
+        applied = phases["apply-events"].sequence
+
+        assert phases["state-at-t"].sequence > applied
+        assert phases["sample-and-publish"].sequence > applied
+        assert phases["controller-view"].sequence > applied
+        # Acceptance sits between intent and evolution: what the world takes is
+        # resolved from what was asked, and the world moves on what it took.
+        assert (
+            phases["controller-intent"].sequence
+            < phases["physical-acceptance"].sequence
+            < phases["evolve"].sequence
+        )
+        # Invariants are checked after the evolution and before the hand-off,
+        # so a step cannot carry a violating state forward unchecked.
+        assert (
+            phases["evolve"].sequence
+            < phases["check-invariants"].sequence
+            < phases["carry-forward"].sequence
+        )
+
+    def test_the_sample_phase_carries_both_measurement_classes(self) -> None:
+        """The reconciled rule, in the phase that has to do both at once.
+
+        This is what made the two conventions look asymmetric: one phase reads
+        the stock AT the instant and attaches a rate FOR the span before it.
+        """
+        statement = self._by_id()["sample-and-publish"].statement
+
+        assert "sampled at T" in statement
+        assert "[T-dt, T)" in statement
+
+
+class TestWhatATimestampedReadingDescribes:
+    """T020B criteria 7 and 9: two conventions, declared as two."""
+
+    def _by_id(self) -> dict:
+        return {rule.rule_id: rule for rule in OBSERVATION_RULES}
+
+    def test_every_reading_class_has_a_rule_stating_its_convention(
+        self,
+    ) -> None:
+        """The guard that stops a class sharing an undocumented convention.
+
+        Criterion 7's last sentence: state and interval signals cannot share an
+        undocumented timing convention. A class nothing states a rule for is
+        exactly that sharing, so it fails here rather than being read as
+        "presumably the same as the other one".
+        """
+        covered = {rule.reading_class for rule in OBSERVATION_RULES}
+
+        assert covered == READING_CLASSES
+        assert {"STATE_SIGNAL", "INTERVAL_SIGNAL"} <= READING_CLASSES
+
+        # The class side was closed; the RULE side was not, which T020B's review
+        # proved by appending a sixth rule with an empty statement and watching
+        # all 82 tests in both contract suites pass. Criterion 7's content is
+        # that the conventions are STATED, so a rule with no statement is a
+        # published convention that says nothing - the same hole the boundary
+        # cycle had, in the collection next door.
+        assert {rule.rule_id for rule in OBSERVATION_RULES} == {
+            "state-signal-sampled-after-events",
+            "interval-signal-describes-the-preceding-interval",
+            "no-interval-signal-at-the-first-boundary",
+            "controller-view-is-not-the-published-observation",
+            "no-cadence-becomes-a-controller-cadence",
+        }
+        for rule in OBSERVATION_RULES:
+            assert rule.display_name.strip(), rule.rule_id
+            assert rule.statement.strip(), rule.rule_id
+
+        # `DISPATCH_RULES` had the same gap, pre-existing and noted by the same
+        # review. Closed here rather than left as the next instance.
+        for dispatch in DISPATCH_RULES:
+            assert dispatch.display_name.strip(), dispatch.rule_id
+            assert dispatch.statement.strip(), dispatch.rule_id
+
+    def test_the_two_measurement_classes_describe_different_spans(
+        self,
+    ) -> None:
+        """The asymmetry, asserted on the two statements that carry it.
+
+        Pinned on identifying phrases rather than on a shared fragment: both
+        rules talk about an instant T and a reading, so a substring either one
+        contains would be satisfied by the other.
+        """
+        rules = self._by_id()
+
+        state = rules["state-signal-sampled-after-events"]
+        assert state.reading_class == "STATE_SIGNAL"
+        assert "after the events due at T have been applied" in state.statement
+        assert "never shows the pre-event state" in state.statement
+
+        interval = rules["interval-signal-describes-the-preceding-interval"]
+        assert interval.reading_class == "INTERVAL_SIGNAL"
+        assert "[T-dt, T) that has just ended" in interval.statement
+
+    def test_an_interval_reading_is_unavailable_at_the_first_boundary(
+        self,
+    ) -> None:
+        """Unavailable, and unavailable rather than zero or the first step.
+
+        Both alternatives are named in the statement because both are the
+        plausible mistake: a zero reads as a measurement, and the first step's
+        own value reads as a measurement of a span the run never covered.
+        """
+        rule = self._by_id()["no-interval-signal-at-the-first-boundary"]
+
+        assert rule.reading_class == "INTERVAL_SIGNAL"
+        assert "UNAVAILABLE" in rule.statement
+        assert "not zero" in rule.statement
+        assert "not the first step's own value" in rule.statement
+
+        # The exception named a capability nothing can declare. T020B's review
+        # grepped the whole backend and config for "historical" and found one
+        # match: this rule's own text. An unreachable exception is a branch T021
+        # would look for an input for and not find, so the rule now says plainly
+        # that no profile here can declare one.
+        assert "No profile in this build can declare an initial historical" in (
+            rule.statement
+        )
+        assert "at present the rule has no exception" in rule.statement
+
+    def test_the_sampling_phase_and_the_first_boundary_rule_agree(self) -> None:
+        """F3: they gave opposite answers for the run's first instant.
+
+        Phase 3 said an interval measurement for [T-dt, T) is attached whenever
+        a sample is due; this rule says every interval reading at the first
+        boundary is unavailable. Both were faithful to their own criterion and
+        neither mentioned the other, which is precisely the undocumented shared
+        convention criterion 7's third clause forbids.
+
+        Asserted as a cross-reference in both directions, because one of the two
+        texts being right is what made this hard to see.
+        """
+        phase = {p.phase_id: p for p in BOUNDARY_CYCLE}["sample-and-publish"]
+        rule = self._by_id()["no-interval-signal-at-the-first-boundary"]
+
+        # The phase defers rather than asserting unconditionally, and says what
+        # is NOT attached at the first boundary.
+        assert "those rules also decide WHETHER an interval measurement" in (
+            phase.statement
+        )
+        assert "no span precedes T, so this phase attaches none there" in (
+            phase.statement
+        )
+        assert "never as every sample carrying an interval measurement" in (
+            phase.statement
+        )
+        # And the rule points back at the phase, so a reader arriving from
+        # either end meets the other.
+        assert "The sampling phase attaches no interval measurement there" in (
+            rule.statement
+        )
+
+    def test_a_controller_input_is_not_a_published_observation(self) -> None:
+        """Criterion 9, both halves.
+
+        The controller's view is its own, and no reporting cadence becomes a
+        control cadence. Two rules rather than one, because they are two things
+        a later slice could get wrong independently.
+        """
+        rules = self._by_id()
+
+        view = rules["controller-view-is-not-the-published-observation"]
+        assert view.reading_class == "CONTROLLER_INPUT"
+        assert "local inputs it" in view.statement
+        assert "sparse, noisy, delayed or missing" in view.statement
+
+        cadence = rules["no-cadence-becomes-a-controller-cadence"]
+        assert cadence.reading_class == "CONTROLLER_INPUT"
+        assert "Nothing turns it into the rate at which a" in cadence.statement
+        # And the other direction, which is the one an implementation would
+        # reach for first.
+        assert "nothing turns a control cadence into a reporting rate" in (
+            cadence.statement
+        )
+
+
+class TestTheWindowRampAndForcingAvailability:
+    """T020B criterion 5, as declared dispatch rules."""
+
+    def _by_id(self) -> dict:
+        return {rule.rule_id: rule for rule in DISPATCH_RULES}
+
+    def test_a_window_interpolates_between_its_declared_endpoints(
+        self,
+    ) -> None:
+        rule = self._by_id()["window-ramp"]
+
+        # Both substrings used to stop just before the load-bearing noun -
+        # "...two declared" before "endpoints", and "...offset plus its" before
+        # "length" - so the rule could have named a different second end and
+        # these would still have passed. That is exactly the disputed part, so
+        # the assertions now run past it.
+        assert "linear interpolation across the window's own span" in (
+            rule.statement
+        )
+        assert "its offset and its offset plus its length" in rule.statement
+        assert "nothing applied at the offset, all of it applied by the far end" in (
+            rule.statement
+        )
+        # And which step carries the final fraction, which the review found
+        # unstated while `window-active-span` excludes the instant the ramp
+        # completes at.
+        # Superseded by the overlap formulation in the R1 round: "the step
+        # ending there" names no step when the window's far end falls inside a
+        # step, which the shipped removal does at a legal sixty-minute
+        # timestep. The aligned claim it was protecting survives as the last
+        # clause of the general rule.
+        assert "the last step covering the window applies the last share" in (
+            rule.statement
+        )
+        assert "the value is complete, and the window is over" in rule.statement
+
+    def test_the_quantity_rule_no_longer_permits_landing_in_one_step(
+        self,
+    ) -> None:
+        """The narrowing, asserted where it would otherwise contradict.
+
+        `quantity-across-a-window` used to say the end state is the same
+        "whether a kernel applies it in one step or spreads it across the
+        window", which the ramp rule forbids for every instant inside. Two
+        rules of one contract saying opposite things is what this asserts
+        against.
+
+        The absence check is kept and is no longer the whole test. T020B's review
+        pointed out that a pure absence of one phrase passes against a reworded
+        reintroduction of the same permission, while the docstring claimed the
+        two rules were asserted not to contradict. So the positive half is here
+        too: the rule must DEFER, and the rule it defers to must exist and say
+        the deferred thing.
+        """
+        rules = self._by_id()
+        statement = rules["quantity-across-a-window"].statement
+
+        assert "applies it in one step" not in statement
+        assert "the ramp rule below says" in statement
+        # The deferral has a target, and the target answers the question. A
+        # deferral to a rule that did not settle the fraction would leave the
+        # contract silent while reading as though it were not.
+        assert "window-ramp" in rules
+        assert "fraction applied by an instant" in rules["window-ramp"].statement
+
+    def test_a_forcing_outside_its_window_is_unavailable(self) -> None:
+        rule = self._by_id()["forcing-outside-its-window"]
+
+        assert "UNAVAILABLE at every instant outside its" in rule.statement
+        # Neither of the two fabrications, named so that either would be a
+        # visible change to this rule rather than a quiet choice in a kernel.
+        assert "not zero" in rule.statement
+        assert "not held at the last" in rule.statement
+
+    def test_the_forcing_interval_declares_its_boundary_membership(
+        self,
+    ) -> None:
+        """Half-open, and said in the forcing rule rather than inferred.
+
+        The run and step intervals already declare it. A forcing window that
+        left it implicit would be a third interval whose membership a reader
+        had to assume matched.
+        """
+        rule = self._by_id()["forcing-outside-its-window"]
+
+        assert "half-open" in rule.statement
+        # Same supersession: availability is stated by overlap, and the
+        # aligned run of steps is named as the special case it is.
+        assert (
+            "from the one beginning at its offset up to but not including the "
+            "one beginning at its end"
+        ) in rule.statement
+        # The run's and each step's own membership, in the same words, so the
+        # three intervals are one convention rather than three statements a
+        # reader has to reconcile.
+        run_interval = self._by_id()["half-open-interval"]
+        assert "up to but not including its end instant" in (
+            run_interval.statement
+        )
+        assert "up to but not including the next" in run_interval.statement
+
+
+class TestWhatEachBoundPolicyCommitsAKernelTo:
+    """T020B criterion 8: the policies, and what BOUNDED_AND_RECORDED means."""
+
+    def test_every_policy_states_what_it_does(self) -> None:
+        """Exactly, so a fourth policy cannot arrive without saying."""
+        assert set(BOUND_POLICY_STATEMENTS) == BOUND_POLICIES
+        for policy, statement in BOUND_POLICY_STATEMENTS.items():
+            assert statement.strip(), policy
+
+    def test_a_bounded_change_continues_from_the_bounded_value(self) -> None:
+        """The one this slice had to pin, and its two consequences.
+
+        The run continues, and later causes apply to the bounded value. Either
+        alone would leave the other undecided: a run that continued from the
+        unbounded value would have recorded a refusal that changed nothing.
+        """
+        statement = BOUND_POLICY_STATEMENTS["BOUNDED_AND_RECORDED"]
+
+        assert "the run CONTINUES" in statement
+        assert "every later cause applies to the bounded value" in statement
+        assert "recorded as a bounded transition of its own" in statement
+        assert "no silent clamp and no dropped" in statement
+
+    def test_the_other_two_policies_keep_their_distinctions(self) -> None:
+        """Preserved, which criterion 8 asks for by name.
+
+        A bound that ended the run would be `FAIL_RUN` wearing another name,
+        and a bound decided before a run exists is neither of the other two.
+        """
+        fail_run = BOUND_POLICY_STATEMENTS["FAIL_RUN"]
+        assert "does not continue" in fail_run
+
+        refused = BOUND_POLICY_STATEMENTS["REFUSED_AT_PARSE"]
+        assert "No run exists" in refused
+
+        # And the three are still three different commitments rather than one
+        # sentence repeated.
+        assert len(set(BOUND_POLICY_STATEMENTS.values())) == 3
+
+    def test_every_declared_case_carries_a_policy_that_is_stated(self) -> None:
+        for case in BOUND_CASES:
+            assert case.policy in BOUND_POLICY_STATEMENTS, case.case_id
+
+
+class TestAWindowThatMissesTheTimestepGrid:
+    """R1 from the Codex review: the accepted domain, not just the tidy case.
+
+    The previous round settled an ALIGNED window's right endpoint. It said
+    nothing about a window whose edges are not multiples of the run's timestep,
+    and run setup accepts those: the unedited shipped document is `READY` at a
+    legal sixty-minute timestep with a removal over `[1500, 1545)`, and its
+    reporting gap `[1490, 1580)` is off the grid at the fifteen-minute timestep
+    the demonstration itself uses. A contract that answers only for aligned
+    windows leaves its next implementer to invent the rest.
+
+    The treatment chosen is OVERLAP, stated rather than refused. Refusing
+    unaligned windows was the alternative and would have rejected the shipped
+    document on the path criterion 11 requires - see
+    `test_the_shipped_document_is_itself_off_grid_at_the_demo_timestep`.
+    """
+
+    def _by_id(self) -> dict:
+        return {rule.rule_id: rule for rule in DISPATCH_RULES}
+
+    @staticmethod
+    def _concerns(step_start: int, dt: int, offset: int, length: int) -> bool:
+        """The published overlap predicate, transcribed."""
+        return max(step_start, offset) < min(step_start + dt, offset + length)
+
+    def _steps(self, dt: int, offset: int, length: int, horizon: int) -> list:
+        return [
+            s
+            for s in range(0, horizon, dt)
+            if self._concerns(s, dt, offset, length)
+        ]
+
+    def test_the_overlap_rule_is_declared_and_states_its_predicate(
+        self,
+    ) -> None:
+        rule = self._by_id()["window-overlap"]
+
+        assert "max(s, o) < min(s+dt, o+length)" in rule.statement
+        # The assertion that used to sit here required the sentence "shorter
+        # than one step lies inside exactly one step and concerns that one" as
+        # contract text. That sentence is FALSE - [1499,1501) at dt=15 is two
+        # minutes long and concerns two steps - so the test was requiring a
+        # falsehood. Deleted rather than reworded around the same claim, and
+        # what replaces it is the rule that makes such a claim unnecessary.
+        assert (
+            "found by evaluating the predicate, never by reasoning from the "
+            "window's length"
+        ) in rule.statement
+        # And that it changes nothing for an aligned window, which is what
+        # makes it an extension rather than a replacement.
+        assert "an aligned window behaves as it always has" in rule.statement
+
+    def test_the_three_window_rules_all_defer_to_the_overlap_rule(self) -> None:
+        """They disagreed only where a window happened to line up.
+
+        The active span selected step STARTS inside the window, the ramp named
+        "the step ending there", and the forcing rule described availability
+        from one step start to another. On an unaligned window those are three
+        different answers; on a window shorter than a step the first is empty.
+        """
+        rules = self._by_id()
+
+        assert "concerns it under the overlap rule" in (
+            rules["window-active-span"].statement
+        )
+        assert "(min(s+dt, o+length) - max(s, o)) / length" in (
+            rules["window-ramp"].statement
+        )
+        assert "Which steps it is available to" in (
+            rules["forcing-outside-its-window"].statement
+        )
+
+    def test_an_aligned_window_selects_what_it_always_did(self) -> None:
+        """The control. The new rule must not move the settled case.
+
+        `[1080, 1320)` at a fifteen-minute timestep is the shipped dispatch
+        window, aligned. Step starts inside it and steps overlapping it are the
+        same sixteen steps.
+        """
+        by_overlap = self._steps(15, 1080, 240, 2460)
+        by_step_start = [
+            s for s in range(0, 2460, 15) if 1080 <= s < 1080 + 240
+        ]
+
+        assert by_overlap == by_step_start
+        assert len(by_overlap) == 16
+
+    def test_a_window_shorter_than_a_timestep_concerns_exactly_one_step(
+        self,
+    ) -> None:
+        """The reviewer's second reproduction, which the old rule lost entirely.
+
+        A REQUIRED, supported forcing over `[1081, 1082)` at a fifteen-minute
+        timestep: the set of step starts satisfying `1081 <= start < 1082` is
+        EMPTY, so the rule as it stood declared the forcing available across a
+        span concerning no step. Overlap puts it in the step that contains it.
+        """
+        by_step_start = [s for s in range(0, 2460, 15) if 1081 <= s < 1082]
+        assert by_step_start == []
+
+        by_overlap = self._steps(15, 1081, 1, 2460)
+        assert by_overlap == [1080]
+
+    def test_an_off_grid_window_apportions_its_whole_quantity(self) -> None:
+        """The reviewer's first reproduction: the shipped removal at dt=60.
+
+        `[1500, 1545)` on a sixty-minute grid ends inside the step that begins
+        at 1500, so "the step ending there" names no step. The shares are what
+        the published formula gives, and they sum to one - the property that
+        makes the declared 120 L move in full at any timestep, which is what
+        T021's exact-conservation criterion will rest on.
+        """
+        offset, length, dt = 1500, 45, 60
+        steps = self._steps(dt, offset, length, 2460)
+        assert steps == [1500]
+
+        shares = [
+            (min(s + dt, offset + length) - max(s, offset)) / length
+            for s in steps
+        ]
+        assert sum(shares) == 1.0
+
+        # And at the demonstration's own timestep the same window is aligned
+        # and spread across three steps, still summing to one.
+        fine = self._steps(15, offset, length, 2460)
+        assert fine == [1500, 1515, 1530]
+        fine_shares = [
+            (min(s + 15, offset + length) - max(s, offset)) / length
+            for s in fine
+        ]
+        assert sum(fine_shares) == 1.0
+
+    def test_the_shipped_document_is_itself_off_grid_at_the_demo_timestep(
+        self,
+    ) -> None:
+        """Why the rule was stated rather than the window refused.
+
+        Refusing unaligned windows at setup was the other legitimate answer and
+        would have been tidier to reason about. It would also have rejected the
+        shipped Fuel Loss Event at the fifteen-minute timestep the demonstration
+        uses - not merely at an unusual one - because the reporting gap starts
+        at 1490. Criterion 11 requires that document to reach `READY` by the
+        normal path, so refusal would have traded a criterion for a
+        simplification, and the authored offsets carry the story: the gap
+        straddles the removal.
+        """
+        import yaml
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[2]
+        document = yaml.safe_load(
+            (root / "config" / "scenarios" / "fuel-loss-event.yaml").read_text(
+                encoding="utf-8"
+            )
+        )
+        windows = {
+            entry["event_id"]: (
+                entry["offset_minutes"],
+                entry["timing"]["duration_minutes"],
+            )
+            for entry in document["timeline"]
+            if entry["timing"]["shape"] == "WINDOW"
+        }
+
+        offset, length = windows["fuel-level-reporting-gap"]
+        assert (offset, length) == (1490, 90)
+        assert offset % 15 != 0, "the gap would be aligned and the point moot"
+
+        # It still concerns a contiguous run of steps, which is the whole claim.
+        steps = self._steps(15, offset, length, 2460)
+        assert steps[0] == 1485 and steps[-1] == 1575
+        assert steps == list(range(1485, 1590, 15))
+
+
+class TestTheWindowRulesFollowFromThePredicate:
+    """The class of defect rather than the instance, after four rounds of it.
+
+    F6 settled the aligned case. R1 settled the unaligned case. R1a and R1b were
+    a short window straddling a boundary and two adjacent windows sharing a
+    step. Each round the formula grew more general and the prose stayed one case
+    behind, because each sentence restated a SUBSET of what the predicate does
+    and the next reader found a member of the predicate's domain the subset
+    excluded.
+
+    So these assert properties over a grid of windows and timesteps rather than
+    supplying more examples.
+
+    ## What is and is not guarded here, stated exactly
+
+    An earlier version of this docstring said a statement contradicting the
+    predicate on any member of the grid fails here whether or not anybody thought
+    of that member. **That is not true, and the verification review was right to
+    call it out** - it is the shape of overclaim this project keeps repeating, a
+    guard described by the problem it was written for rather than by what it
+    reads.
+
+    Nine of the ten tests below read only this class's own transcription of the
+    predicate: `concerns`, `steps_for` and `share_for`. They establish that the
+    predicate is internally coherent - a non-empty contiguous run of steps, exact
+    shares summing to one, agreement with the older step-start reading wherever a
+    window is aligned, and the straddling and adjacent cases coming out as the
+    review computed them. **Every one of them would pass if every published
+    statement in `DISPATCH_RULES` were false**, because none of them reads a
+    published statement.
+
+    One test reads production: the blacklist in
+    `test_no_published_rule_claims_a_window_concerns_exactly_one_step`. It
+    catches known shapes by phrase match - what was wrong in F6, R1, R1a, R1b and
+    F-V1 - and it cannot catch a phrasing nobody has written yet. F-V1 is the
+    proof of that limit rather than a hypothetical: it entered in the same commit
+    as this class and the blacklist did not see it, because "too short to contain
+    a step start" was not a phrase it knew.
+
+    So, exactly: the properties guard the predicate, the blacklist guards five
+    phrasings, and the example tests beside this class say what the rules MEAN.
+    **Nothing here guards the prose as a class.** Doing that would need the
+    statements generated from the predicate rather than written alongside it,
+    which is a larger change than any of these rounds.
+    """
+
+    #: Offsets and lengths covering, against each timestep: aligned at both
+    #: ends, aligned at one, aligned at neither, shorter than a step, shorter
+    #: than a step and straddling a boundary, and exactly one step long but
+    #: offset. The four shipped windows are among them.
+    WINDOWS = [
+        (720, 360), (1080, 240), (1500, 45), (1490, 90),
+        (1081, 1), (1499, 2), (1485, 15), (1, 15), (7, 3), (0, 1),
+        (1439, 122), (600, 600), (13, 47),
+    ]
+    TIMESTEPS = [10, 15, 60]
+    HORIZON = 2460
+
+    @staticmethod
+    def concerns(step_start: int, dt: int, offset: int, length: int) -> bool:
+        return max(step_start, offset) < min(step_start + dt, offset + length)
+
+    def steps_for(self, dt: int, offset: int, length: int) -> list:
+        return [
+            s
+            for s in range(0, self.HORIZON, dt)
+            if self.concerns(s, dt, offset, length)
+        ]
+
+    def share_for(self, s: int, dt: int, offset: int, length: int) -> Fraction:
+        overlap = min(s + dt, offset + length) - max(s, offset)
+        return Fraction(overlap, length)
+
+    def test_every_window_concerns_at_least_one_step(self) -> None:
+        """The property R1's second reproduction violated.
+
+        Under the old step-start rule a REQUIRED forcing could be declared
+        available across a span that concerned no step at all.
+        """
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                assert self.steps_for(dt, offset, length), (dt, offset, length)
+
+    def test_the_shares_sum_to_exactly_one_for_every_window(self) -> None:
+        """Exact rational arithmetic, because this is a conservation claim.
+
+        `Fraction` rather than float: T021's criterion is exact quantity
+        conservation, and a property asserted in binary floating point would
+        assert something weaker than the contract states.
+        """
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                total = sum(
+                    (
+                        self.share_for(s, dt, offset, length)
+                        for s in self.steps_for(dt, offset, length)
+                    ),
+                    Fraction(0),
+                )
+                assert total == Fraction(1), (dt, offset, length, total)
+
+    def test_no_share_is_zero_or_negative_or_above_one(self) -> None:
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                for s in self.steps_for(dt, offset, length):
+                    share = self.share_for(s, dt, offset, length)
+                    assert Fraction(0) < share <= Fraction(1), (dt, offset, s)
+
+    def test_the_selected_steps_are_contiguous(self) -> None:
+        """A window is one span, so the steps it concerns are one run.
+
+        A gap would mean the window vanished for part of its own duration, and
+        nothing in the prose would have said so.
+        """
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                steps = self.steps_for(dt, offset, length)
+                assert steps == list(range(steps[0], steps[-1] + dt, dt)), (
+                    dt,
+                    offset,
+                    length,
+                )
+
+    def test_an_aligned_window_matches_the_step_start_reading(self) -> None:
+        """The compatibility property over the grid, not one control example.
+
+        Where both edges fall on step boundaries, overlap membership and the
+        older step-start membership agree exactly. That is what makes the
+        overlap rule an extension of the settled case rather than a change to
+        it.
+        """
+        checked = 0
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                if offset % dt or (offset + length) % dt:
+                    continue
+                by_step_start = [
+                    s
+                    for s in range(0, self.HORIZON, dt)
+                    if offset <= s < offset + length
+                ]
+                assert self.steps_for(dt, offset, length) == by_step_start
+                checked += 1
+
+        assert checked >= 6, checked
+
+    def test_a_window_shorter_than_a_step_concerns_one_step_or_two(
+        self,
+    ) -> None:
+        """R1a as a property rather than a single counterexample.
+
+        The deleted prose said such a window "lies inside exactly one step".
+        Both answers occur and which one is the predicate's business: one when
+        the window lies inside a step, two when a step boundary falls inside
+        it. Both must appear in the grid or this is half a test.
+        """
+        ones = twos = 0
+        for dt in self.TIMESTEPS:
+            for offset, length in self.WINDOWS:
+                if length >= dt:
+                    continue
+                count = len(self.steps_for(dt, offset, length))
+                assert count in (1, 2), (dt, offset, length, count)
+                straddles = (offset // dt) != ((offset + length - 1) // dt)
+                assert count == (2 if straddles else 1), (dt, offset, length)
+                if count == 1:
+                    ones += 1
+                else:
+                    twos += 1
+
+        assert ones and twos, (ones, twos)
+
+    def test_the_straddling_counterexample_splits_one_half_each(self) -> None:
+        """The reviewer's own case, with its exact shares.
+
+        `[1499, 1501)` at a fifteen-minute timestep: two minutes long, two
+        steps, one minute in each. A declared 120 L removal moves 60 L in each,
+        which is what the contract now says and the deleted sentence denied.
+        """
+        steps = self.steps_for(15, 1499, 2)
+        assert steps == [1485, 1500]
+
+        shares = [self.share_for(s, 15, 1499, 2) for s in steps]
+        assert shares == [Fraction(1, 2), Fraction(1, 2)]
+        assert [share * 120 for share in shares] == [Fraction(60), Fraction(60)]
+
+    def test_adjacent_windows_share_no_instant_and_may_share_one_step(
+        self,
+    ) -> None:
+        """R1b as a property. Disjoint in time is not disjoint in steps.
+
+        The deleted claim was that two windows meeting end to start "never
+        overlap by one step". Their spans never share an instant - that part
+        was true and is what adjacency means - but their step sets intersect in
+        exactly the step containing the joining instant, and not at all when
+        that instant is itself a step boundary.
+        """
+        joins_inside = joins_on_boundary = 0
+        for dt in self.TIMESTEPS:
+            for join in range(1, 200):
+                shared = set(self.steps_for(dt, join - 1, 1)) & set(
+                    self.steps_for(dt, join, 1)
+                )
+                if join % dt == 0:
+                    assert shared == set(), (dt, join, shared)
+                    joins_on_boundary += 1
+                else:
+                    assert shared == {(join // dt) * dt}, (dt, join, shared)
+                    joins_inside += 1
+
+        assert joins_inside and joins_on_boundary
+
+    def test_the_reviewers_adjacent_dispatch_case(self) -> None:
+        """`[1081,1082)` and `[1082,1083)` at dt=15, exactly as reported."""
+        first = self.steps_for(15, 1081, 1)
+        second = self.steps_for(15, 1082, 1)
+
+        assert first == [1080] and second == [1080]
+        # Disjoint in time: no instant lies in both.
+        assert set(range(1081, 1082)) & set(range(1082, 1083)) == set()
+        # Each is exposed over its own minute of that step, which is the
+        # partial-exposure rule rather than an exception to it.
+        assert self.share_for(1080, 15, 1081, 1) == Fraction(1)
+        assert self.share_for(1080, 15, 1082, 1) == Fraction(1)
+
+    def test_no_published_rule_claims_a_window_concerns_exactly_one_step(
+        self,
+    ) -> None:
+        """The prose guard, and it is a phrase match rather than a class check.
+
+        Five rounds produced five length-based generalisations, each true of a
+        subset and false of the predicate's domain. This fails if a dispatch rule
+        reintroduces one of those phrasings.
+
+        **It is not a guarantee about prose in general**, and the class docstring
+        now says so. F-V1 is why the distinction is worth writing down: it
+        entered in the same commit as this test, phrased as an antecedent - "too
+        short to contain a step start" - that no listed phrase matched, and a
+        human reader found it rather than this. Its phrasing is listed now, which
+        closes that one shape and not the next.
+        """
+        forbidden = (
+            "shorter than one step lies inside exactly one step",
+            "shorter than a timestep moves its whole",
+            "never overlap by one step",
+            "in the one step containing it",
+            "in the one step that contains it",
+            # F-V1: a length-based ANTECEDENT rather than a length-based
+            # consequent, which is why the earlier five did not match it.
+            "too short to contain a step start",
+            "too short to contain a step",
+        )
+        for rule in DISPATCH_RULES:
+            for phrase in forbidden:
+                assert phrase not in rule.statement, (rule.rule_id, phrase)

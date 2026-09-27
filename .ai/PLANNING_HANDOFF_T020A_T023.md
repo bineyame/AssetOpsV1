@@ -95,10 +95,13 @@ Renamed switching-position or controller-mode enums are not a workaround.
 
 ## Contract Versions And Retirements
 
-The built `EXECUTION_CONTRACT_VERSION` is 2. The old forecast of absolute
-versions 3/4/5 is removed: the Planner's split and addressed-binding changes
-may change the number of published transitions. Follow
-`D-2026-09-22-contract-version-scope` and inspect the resulting contracts.
+The built `EXECUTION_CONTRACT_VERSION` is **5** after T020B. Three forecast
+transitions happened and they landed as 3, 4 and 5: T020A's Foundation-value
+narrowing, T020A1's addressing, and T020B's requirement-conflict refusal plus
+reporting-path authority move plus the four declared kernel semantics. The old
+forecast of absolute versions stays removed - read the number from
+`scenarios/execution.py`, which carries a paragraph per transition, rather than
+from any forecast. Follow `D-2026-09-22-contract-version-scope`.
 
 Name version moves for Foundation-value narrowing, addressed frozen bindings,
 boundary/requirement alignment and reported-observation narrowing wherever they
@@ -106,10 +109,21 @@ alter an already-valid document's outcome. A private TRAJECTORY oracle widening
 alone does not move the execution contract. Envelope schema versioning is its
 own boundary. Never reinterpret earlier frozen runs under a new contract.
 
-Retire T020's fixture-only READY proof when the shipped scenario is reachable;
-retire its readiness disclosure only when kernel conformance actually proves
-the advertised supported set. Correct authored Fuel Loss expectations against
-the independent kernel, never tune the kernel to the old asserted numbers.
+**Reported-observation narrowing (T021A) is the one still outstanding.** Local
+Drafts exist at several versions and `refuse_incompatible_execution` is an
+equality test on the integer, so every Draft below the current number is refused
+execution and stays readable. T021 regenerates rather than executes any Draft it
+did not freeze itself.
+
+T020's fixture-only READY proof is **retired as the primary demonstration**: the
+shipped document reaches `READY` through the form/API path against a Site
+instantiated from the shipped template, and
+`backend/tests/test_execution_contract_alignment.py` is where that is proved.
+The fixture run record in `var/runs` was left in place as user data rather than
+deleted. The readiness disclosure **stays** - retire it only when kernel
+conformance actually proves the advertised supported set. Correct authored Fuel
+Loss expectations against the independent kernel, never tune the kernel to the
+old asserted numbers.
 
 ## Proof And Review
 
