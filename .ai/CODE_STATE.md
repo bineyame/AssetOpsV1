@@ -2918,3 +2918,464 @@ What T020B leaves open, for the slice that meets it.
   changes it for new runs only.
 - **The five inline `float(value)` overflow sites are untouched and no sixth was
   added.** Nothing in this slice converts a number.
+
+## T021 - The independent causal Fuel Loss kernel
+
+What this slice settled in code. **A frozen READY Draft of the shipped Fuel Loss
+Event now executes**, in a simulator that cannot see the product, and produces a
+private trajectory whose tank movement follows dispatch, consumption and events.
+
+### Where things live, and the rules that keep it that way
+
+Three Python trees are importable and a fourth is not.
+`contracts/assetops_contracts` holds what both sides of the truth barrier must
+agree about: the versioned execution semantics (moved unchanged from
+`scenarios/execution.py`), the frozen-input schema a kernel consumes, the private
+trajectory, the execution-failure vocabulary and the BLAKE2b-256 identity domain.
+`simulator/assetops_simulator` holds the kernel and the fuel pack.
+`host/execution_adapter.py` is the composition leaf, and nothing imports it.
+
+The backend re-exports every moved name, so a product caller still reads one
+module and the scenario detail screen renders the contract's own objects rather
+than copies: `is` holds, asserted. What stayed in `scenarios/execution.py` is
+everything that reads a `ScenarioDefinition`.
+
+`tools/checks/dependency-direction.ps1` gains two rules: nothing imports `host/`,
+and the neutral contracts import neither side. Both patterns are anchored at the
+start of a line, because these modules discuss both sides at length in prose and
+a sentence naming a package is not an import of it - proven narrow by a probe that
+inserts an INDENTED import and watches it caught.
+
+**One thing was deliberately not moved.** `StateRef` stayed in the backend and the
+neutral boundary carries canonical address TEXT - `fuel-tank-volume@fuel-tank`,
+`site:site-load-demand` - which is what a frozen run document persists and what
+every comparison in the product already keys on. Moving the record would have
+relocated a validator with twenty callers and bought this slice no behaviour.
+
+### The contract is conformed to, not resembled
+
+Three mechanisms, each because the alternative is a claim nobody checks.
+
+**The phase order is read from `BOUNDARY_CYCLE`.** `_PHASES` maps each declared
+`phase_id` to the function that runs it and the loop visits them in the contract's
+`sequence`. A phase added to the contract stops this kernel until it is
+implemented rather than being skipped, which is what `BoundaryPhase.sequence`
+being "the contract, not the tuple order" looks like when something consumes it.
+
+**The two dispatch formulas are executable, in the module that publishes the
+sentences describing them.** `step_concerns_window` is `window-overlap`'s
+predicate and `window_share_of_step` is `window-ramp`'s share. The kernel calls
+them rather than deriving overlap itself. Four T020B review rounds were spent on
+sentences that each restated a subset of what the formula does; a kernel with its
+own copy of the arithmetic would have been the next instance.
+
+**The advertised supported set is derived from a table of executable handlers.**
+`ModelSpec.advertised_supported_states` groups the handler table, and there is no
+field in which to write a role no handler implements. That closes the backlog's
+first entry: `supported_states` had no falsifier, so `READY` was computed from a
+promise about a kernel that did not exist.
+
+### The conformance test has three legs, and the third is the one that bites
+
+Deriving a set and comparing it against another declaration would be two tables
+somebody keeps in step by hand - the same defect one layer deeper. So: the set is
+derived by grouping handlers; every advertised `(state, role)` pair must be
+REACHED by executing a Draft created through `RunSetupService` from the shipped
+document, recorded by an execution ledger; and the derived set and
+`MINIMAL_FUEL_TANK_MODEL`'s declaration must be equal in both directions. A probe
+removes a handler and watches the derived set narrow; another adds a handler
+nothing calls and watches the ledger report it missing.
+
+**`REPORTED_OBSERVATION` is verified at the model's grain and no further, and the
+record has to say so.** The handler answers what a stock is at an instant, after
+that instant's events, and refuses to answer in any other phase. Nothing here
+publishes that answer: no device, no cadence, no sampling error, no dropout, no
+envelope. That is why only half the readiness disclosure retired.
+
+### The trajectory, and the numbers derived before the code ran
+
+Against the shipped template's Foundation - a 500 L tank and a 0.311 L/kWh
+generator - the stored volume is 430 L to offset 1080; loses 2799/800 L in each of
+the sixteen dispatch steps, reaching 18701/50 = 374.02 L at 1320; holds that to
+1500; loses 40 L in each of the three removal steps, reaching 12701/50 = 254.02 L
+at 1545; and at 2400 the 300 L delivery fills the tank to 500 L with 2701/50 =
+54.02 L recorded refused, after which the run continues and ends at 500 L.
+
+Every number is a `Fraction`. `test_no_kernel_module_limits_a_denominator` scans
+the package for `limit_denominator` and for `float(`, so `EXACT_RATIONAL` is
+measured rather than intended; the one authored-float normalization is the
+contract's own input boundary.
+
+A bound is applied where the transition happens - phase 1 for a due event, phase 7
+for the evolution - and phase 8 verifies. That pair reads two ways until one is
+ruled out: a bound applied only at phase 8 would let phase 3 sample a volume above
+the tank's capacity, which `fuel-tank-capacity` forbids at every step.
+
+### Where a bound's number comes from, which was this slice's to decide
+
+`D-2026-09-22-capacity-bound-source` settles the principle - the declaration is
+the document's and the value is the site's - and left the mechanism to the kernel.
+The mechanism is the host adapter: it reads the `bounds` block for WHICH state
+caps which and the frozen initialization input for HOW LARGE, and
+`BOUND_CASE_BY_DECLARED_BOUND` names which contract bound case a declared bound
+falls under explicitly. An unmapped bound is refused rather than defaulted,
+because deriving the case from a state key's spelling is a rule a later author
+moves by renaming something. `declared_bounds` was NOT taught to read frozen
+answers: it stays a projection of the document, and it is on its way to the test
+suite with the reconciliation panel.
+
+The floor comes from the model, never from `IMPLICIT_LOWER_BOUND_DIMENSIONS` -
+`D-2026-09-22-reconciliation-panel-retirement`'s instruction to this slice. The
+stock handler declares it with the bound case that says what happens when it is
+reached, and the simulator cannot reach that constant anyway.
+
+### The three backlog items addressed to this slice
+
+**Regenerate rather than execute.** Every Draft in both new suites is created in
+process by the real setup service. No local Draft is read, and the version-guard
+test lowers the version on a rendered document so what is refused is a run whose
+provenance is known.
+
+**Cross-reference before initializing.** The adapter carries the run's
+`unsupported_optional_inputs` addresses into the neutral inputs, and an initial
+value for a state with no handler that is NOT recorded there stops the run as
+`UNSUPPORTED_MODEL_STATE`. Recorded, it is skipped with a note saying nothing
+about this run models it. The difference between the two is the cross-reference
+and nothing else, and both halves are tested.
+
+**The inert upper bound.** Answered above. The capacity reaching the kernel is the
+frozen Foundation answer, proved on two Sites: 500 L on the shipped template and
+800 L on the twin-tank archetype's south run, whose delivery refuses 65.8 L.
+Neither number appears anywhere in the kernel.
+
+### What the kernel refuses, and why each refusal is not the others
+
+Ten execution failure kinds, disjoint from run setup's refusals and a Draft's
+blocking reasons - asserted in `host/tests`, the only place that comparison can be
+made. `contracts/assetops_contracts/failures.py` records every kind constructed in
+a process and the simulator suite fails the session if any member was never
+produced, so the vocabulary is reachable rather than decorative. Two are reached
+by breaking a handler on purpose: `BALANCE_IDENTITY_VIOLATION` is a contradiction
+inside a kernel and cannot be provoked from outside one.
+
+`FORCING_VALUE_AMBIGUOUS` is how this slice **meets** the T020B carry about a
+window declaring two values. `baseline-load-profile` declares two parameters for
+one address and one role, and nothing says whether they are the ends of a ramp or
+two named levels. The kernel refuses to compose them rather than inventing one of
+two legitimate readings. It does not reach that refusal on the shipped document
+only because nothing models site demand - so the semantic decision still belongs
+to whoever models it, and the kernel will not have quietly chosen for them.
+
+A reporting-path forcing never reaches the kernel as a forcing at all. It is the
+publication profile's, it moves no stock, and it travels on
+`reporting_path_addresses` so the kernel can say it was withheld deliberately
+rather than report a declared entry it silently dropped. It is excluded from the
+trajectory identity for the same reason: this is the identity of the WORLD, and
+two runs differing only in whether a sensor reports produce the same world.
+
+### The shipped document's numbers, corrected from the computed world
+
+Two authored readings were 155 L and 150 L where the trajectory this document's
+own declarations produce holds 254.02 L. They predate the consumption coefficient
+moving from the document to the machine, and they are corrected to 254.02 with no
+reporting error, because nothing in this build models one.
+
+What the reconciliation panel shows afterwards is the honest residual: the
+declared causes still reach 310 L, and the 55.98 L difference at BOTH readings is
+exactly the fuel the model law burns and the document deliberately does not carry.
+It was 155 L of unexplained difference and it is now one identified quantity.
+
+`refuelling-is-not-a-loss` was the one private expectation the trajectory made
+inconsistent. It assumed a clean 300 L rise; the tank fills at its capacity, so
+54.02 L never arrive and an analysis reconciling the delivery record against the
+level would find them. It now names both halves. The computed trajectory is
+recorded as a private `TRAJECTORY` expectation - `EXPECTATION_KINDS`' fifth
+member - so the corrections can be checked rather than taken. Five expectation
+rows now render on the scenario detail, measured at 640px.
+
+**`EXECUTION_CONTRACT_VERSION` did not move, and stays 5.** The `TRAJECTORY`
+widening sits off every executable path, which
+`D-2026-09-22-contract-version-scope` settles directly. The contract's relocation
+moves identical objects. The two new formula functions are the arithmetic the
+existing statements already published, tested against those statements' own worked
+examples. The disclosure narrowing is about a run status, not about how a document
+is read. And the kernel's refusal to compose two forcing values is this kernel's
+behaviour rather than a contract statement, so it narrows no declared space.
+
+The scenario document's own `scenario_version` did NOT move either, and that is a
+carried deviation rather than a clean answer - see the backlog.
+
+### What T021 leaves open, for the slice that meets it
+
+- **A definition edited in place, at an unchanged scenario version, that MOVES an
+  existing entry's offset or window length, is not detected.** A Draft freezes
+  resolved values and profile answers rather than a copy of the timeline, so the
+  adapter compares what it can - the scenario version, and the exact set of
+  parameters the document declares against the set the run froze, which catches an
+  entry added or removed. A moved offset changes structure without changing either.
+  Recorded in the backlog rather than described as covered.
+- **`reporting_path_addresses` carries addresses and not windows.** T022's
+  observation transform needs the window to suppress a reading across it, and will
+  widen that field rather than discover it missing.
+- **The fuel model relates one generator to one fuel tank** and fails as
+  `TOPOLOGY_INCONSISTENT` on a second of either. Addressing is not the missing
+  piece - T020A1 built that - the missing piece is the declared relationship, and
+  it arrives with the electrical world.
+- **The law requires its dispatch forcing to be declared somewhere.** A fuel run
+  with no generator dispatch at all fails as `FORCING_NOT_AVAILABLE` rather than
+  running a tank that sits still. Honest for a world whose only law is driven by
+  dispatch, and worth revisiting when a second law arrives.
+- **`var/runs` holds 149 local Drafts.** The layout evidence tool added six across
+  two runs, one per run-setup visit, which is what it has done since T019.
+  `create_run` is still O(n) in that count and still wants a bounded owner before
+  T027. The backend suite took 44 minutes in this slice, against 19 seconds in a
+  quiet tree; the difference is contention with parallel work rather than a new
+  cost, and the O(n) create is what makes it sensitive to it.
+- **The three-suite setup needs three editable installs**, recorded in
+  `README.md`. The backend imports the neutral contracts, so `assetops-contracts`
+  is a real runtime dependency of the product and not only of the tests.
+
+### T021 correction round: the run did not determine the experiment
+
+The independent Codex review returned five defects, four High and one Medium, and
+the user asked for all five. It confirmed the shipped arithmetic, all eight
+mutation relationships, all fourteen guard probes and the four-tree dependency
+direction, and closed the packet's own R0 by widening the product profile in
+memory and watching the equality assertion fail. What it found is that the first
+executor reinterpreted frozen runs, refused a case the contract had been
+corrected to permit, and could report completion after omitting a physical law.
+
+**R1 is the one worth carrying forward, and it was a design change rather than a
+repair.** A Draft froze the resolved VALUES a scenario declared and left their
+TIMING in a mutable document. So: execute the ordinary shipped Draft, move
+`unaccounted-fuel-removal` from offset 1500 to 1515 on the live document at the
+same scenario version, execute the SAME persisted run again, and the tank at 1515
+goes from 334.02 L to 374.02 L. Both complete. Nothing in the run changed.
+
+The fix is that run setup now freezes the whole causal projection -
+`FrozenCause`, `FrozenForcing`, `FrozenDeclaredBound`,
+`FrozenReportingPathCondition`, each with its resolved address, direction,
+canonical magnitude, shape, offset and span - and `frozen_world_inputs` takes one
+argument. **There is no parameter through which a different experiment can
+arrive**, which is a stronger statement than any comparison the leaf could have
+made. The packet had carried this as "a definition edited in place can still move
+an entry's offset undetected", and the reviewer was right that the rationale was
+insufficient: T021 owes this boundary and now produces the trajectory later slices
+rely on, so "structure only" was not a reason to leave it.
+
+A digest was the cheaper option and was rejected on the reviewer's own argument: a
+digest detects drift and then refuses, and criterion 2 asks for RECONSTRUCTION.
+Detection is not reconstruction.
+
+**`EXECUTION_CONTRACT_VERSION` moved 5 to 6**, which is the first move this slice
+made. A run of an unchanged document freezes differently than it did, which is
+exactly `D-2026-09-22-contract-version-scope`'s test. Version 5 is published, so
+this is a move rather than an amendment. Earlier runs keep their version, still
+read - the four collections default to empty on parse - and are refused execution,
+which is what makes an empty projection safe: it can never be mistaken for a run
+that declared no causes. The frozen-inputs table grew from 44 rows to 52 and every
+one of the four collections reaches a row, because what a reader needs from a
+frozen run is what it is going to do.
+
+**R2 was the sharpest irony in the slice.** The kernel rejected any two forcings
+concerning one step without asking whether their exposures overlap - the case
+`window-active-span` was corrected over four T020B rounds to settle, which R1b and
+F-V1 exist to state. It read the phase order from `BOUNDARY_CYCLE.sequence` and
+called the contract's own overlap predicate, and then contradicted the sentence
+beside them. Each disjoint exposure is now accounted for over its own portion and
+their energies add; a `ForcingExposure` per portion replaces one value per address,
+so the trajectory can say what happened. Splitting the shipped dispatch at 1085,
+inside a step, produces the identical trajectory to the undivided window. A
+genuine overlap is still `FORCING_VALUE_AMBIGUOUS`.
+
+**R3: a missing law operand was silence or a `KeyError`.** Remove only the
+consumption coefficient and the run reported COMPLETED with zero law events and
+430 L at 1320 - missing consumption treated as zero. Remove the starting level and
+the stock-moving entries and it raised a raw `KeyError` with no trajectory at all.
+`_bind_laws` now resolves every operand and output from `ModelLaw.reads`/`writes`
+through the model's own declared component relations, before the first boundary,
+and each absence is a classified failure.
+
+**R4: a declared cause disappeared at the adapter.** A parameter that initializes
+a state is frozen in `initialization_inputs` and the projection read only
+`resolved_parameters`, so a `continue` dropped the cause and the removal stopped
+happening. The projection reads both carriers and raises
+`UnresolvedCausalProjection` rather than dropping: a declared effect is frozen or
+refused, never converted into silence.
+
+**R5: an excluded input manufactured a machine.** `_resolve_topology` collected
+addresses before consulting `unmodelled_addresses`, and handler lookup ignored
+scope, so an OPTIONAL `site:generator-specific-fuel-consumption` the run had
+explicitly recorded as unsupported produced `TOPOLOGY_INCONSISTENT` about
+"generator, site". `_excluded` is consulted before topology, initialization and
+operand resolution, and `ModelSpec.handler` takes a scope.
+
+**C1 is closed rather than carried.** A stored run carrying two initialization
+rows for one address made the last row silently authoritative - the reviewer's
+probe got a run starting at 400 L instead of 430. Refused now, in the leaf, where
+both rows are still visible.
+
+**C2 shrank.** `COMPONENT_RELATIONS` in the fuel pack declares which state keys
+belong to one machine, and `kernel/execute.py` imports no fuel state key at all.
+What remains of C2 is that `ModelSpec` is still not a general law executor, which
+is the next physical-law slice's to know.
+
+### What this round cost, and the lesson that is not about the kernel
+
+**A fixture pinned a contract version it did not own.**
+`simulator/tests/conftest.py` wrote `execution_contract_version=5` as a literal.
+The contract moved to 6, the whole simulator suite went red, and nothing said so
+until a guard probe reported CAUGHT against an already-failing suite - which is
+that probe measuring nothing. Two probes were affected.
+
+So the probe harness now **establishes a green baseline and refuses to probe if
+any suite it reads a verdict from is red**. A probe asserts that a test FAILS
+after a violation; unless that test passes before one, CAUGHT is a coincidence.
+That is the durable half of this round: the fourteen probes were the right idea
+and the harness was missing the precondition that makes them mean anything.
+
+Two probes also needed retargeting for honest reasons rather than convenient ones.
+The conformance probe added a component-scoped handler that `ModelSpec` now
+refuses at construction, so it failed before the test it was about could run; it
+uses a site-scoped one. And scope-awareness in `handler()` turned out to be the
+layer UNDER the exclusion - the product path never reaches it while the exclusion
+holds - so its guard is a kernel-boundary test reached by construction, with a
+control, and the probe says why.
+
+**One pre-existing flake was found and fixed rather than swept.**
+`test_the_order_is_newest_first_and_total` said its fixture clock was fixed and
+asserted the list was sorted by `run_id` descending. `client()` injects no clock,
+so that held only while three runs landed in the same second; freezing the
+projection made `create_run` do enough more work to straddle a boundary. It now
+asserts what `list_runs` guarantees - a total order, stable between reads, sorted
+by `(created_at, run_id)` descending.
+
+### What the correction round leaves open
+
+- **`ModelSpec` is not a general law executor**, and the next slice adding a
+  physical law must not mistake it for one. A law's operands resolve through
+  declared component relations and one write target; two writes, or a law needing
+  a relationship between machines rather than within one, need more.
+- **`reporting_path_conditions` carries windows now and nothing reads them.** That
+  closes the carry that said T022 would have to widen the field, and it leaves a
+  frozen collection with one consumer for its address and none for its span.
+- **C3 from the review is carried**: several proof descriptions are stronger than
+  their assertions. The TRAJECTORY oracle test checks that number strings occur in
+  a free-text statement rather than parsing and attributing each to its boundary,
+  and the identity field-list guard compares a maintained list against dataclass
+  fields rather than mutating each field to prove the digest reads it. Both were
+  read and are correct today.
+- **`var/runs` holds 159 local Drafts.** Ten more than before this round: the
+  layout tool creates one per run-setup visit and was run three times, plus one
+  manual POST against the live backend to confirm it served the new projection.
+
+### T021 second correction round: the boundary a run is frozen at
+
+Codex's second pass confirmed the first round's five closed - ten CAUGHT lines,
+plus it verified the new red-baseline control by feeding the harness a deliberately
+red suite and watching it refuse to probe, and confirmed the adjacent-window fix
+works with two DIFFERENT levels (first step energy 75/4, not just the identical
+case the tests used). It then found four more and hit its usage limit before
+writing a report, so `.agent/T021-codex-second-pass-probes.py` is the review.
+
+Where the first four defects were a kernel reinterpreting or omitting things, these
+four are about the **boundary a run is frozen at**.
+
+**1. A rate was normalized twice, and a valid removal became zero.** The worst of
+the four, because it was a silent wrong number in the one property this kernel
+exists to provide. The projection called a conversion that normalizes and returns a
+float, then normalized THAT float again before multiplying by the window's length.
+A millionth of a litre an hour is 1/60000000 of a litre a minute; the float is
+1.67e-08; normalizing it again gives ZERO, and the run reported COMPLETED having
+moved nothing. 1.000001 L/h froze as 999960/999959.
+
+`frozen_canonical_value` in the contract does the whole conversion in exact
+arithmetic **with the integration inside it**, converts to float once, and asserts
+the round trip. Where the exact value cannot survive the float a frozen record
+carries it refuses: `limit_denominator` recovers any denominator within its limit
+and none outside it, and a run carrying a number the document did not declare is
+what `EXACT_RATIONAL` exists to rule out. Every number a run freezes crosses it,
+including initial values - the reported site was the projection and the same
+unchecked conversion was one function away, which is how a class comes back.
+
+**2. A version-6 record could omit the fields version 6 exists to carry.** Deleting
+`causes` parsed, was READY, executed, and reported COMPLETED with the removal never
+happening. Deleting `declared_bounds` overfilled the tank past its capacity. The
+version guard cannot help when the version is the current one - and **this was my
+own argument for the version move applied to a layer I had not applied it to.** A
+run AT this build's version now carries the projection; an empty list is still a
+real answer and a missing or null key is not; a run below it may carry none of it,
+which is what preserves earlier readback. Both directions are probed, because a
+guard that required the fields at every version would pass the first probe and lose
+every earlier run.
+
+**3. An unanswered magnitude raised where the product blocks.** A `MODEL_RULE`
+magnitude no profile supplies a rule for has no number, and the product has always
+BLOCKED such a run because a different profile may answer - the reviewer's own
+control proved it by disabling the projection and getting
+`INITIAL_VALUE_NOT_RESOLVED`. Raising turned that into HTTP 500 with nothing
+written. `FrozenCause.canonical_value` and `FrozenForcing`'s have an absent case
+now, and `SimulationRun` enforces for them the invariant it already enforced for an
+absent initial value: the thing that made it absent is on the run beside it, naming
+the same address. `UnresolvedCausalProjection` survives only for what the scenario
+parser already guarantees cannot happen, and its docstring says so.
+
+**4. The exclusion was one notch too wide.** A model may model a state without
+modelling every role of it: this one moves a tank's stored volume and cannot have
+one FORCED, so a scenario forcing `fuel-tank-volume@fuel-tank` is correctly
+recorded unsupported at that role. Excluding the ADDRESS then suppressed the
+`CAUSAL_INPUT` role it does support, and execution failed `INITIAL_STATE_UNANSWERED`
+for a stock the run genuinely carried. The neutral boundary carries `(address,
+role)` pairs - `UnsupportedOptionalInput` has carried both since T020A1 - and
+topology asks the different question it should have been asking: an address
+excluded in EVERY role it appears in contributes no machine, which is what keeps
+R5 fixed.
+
+Also, the same class as 3: a zero-length window reached the kernel and escaped as
+an unclassified `ValueError`. It is refused where a document is read.
+
+### The contract version did not move again, and why
+
+**It stays 6, and the four fixes ride on it.** Version 6 has never left this
+branch - `main` is at 5 - so the unreleased-version doctrine that let version 2
+carry three amendments and version 5 carry four applies, and this paragraph is what
+stops the amendment being invisible afterwards.
+
+Judged per change even so, because two of them would otherwise look like moves.
+Fix 1 changes what a run freezes for an unchanged document, which is the policy's
+test - but the contract already said one-time normalization at the input boundary,
+so a conforming implementation always produced 1/1000000 and this is conformance
+rather than a rule change. Fix 2 narrows what a version-6 RECORD may be, which is a
+rule, and it lands on 6 before 6 is published. Fixes 3 and 4 change what a
+non-conforming implementation did.
+
+**One thing to know about `var/runs`.** It holds 165 Drafts and contains version-6
+ones frozen by the pre-fix code, created by the layout tool against the live
+backend. They are
+indistinguishable from post-fix ones by version - the same trap the backlog named
+for version 5 - so any Draft there could carry a wrongly normalized rate. Nothing
+executes a local Draft and every test regenerates, so it is a note rather than a
+defect, and it is the third time this integer-equality guard has been the thing
+that cannot tell two builds apart.
+
+### What this round cost, and what the probes caught that I did not
+
+Three probe results were mine rather than the code's, and each is worth keeping.
+
+**A test was satisfied by an adjacent mechanism.**
+`test_an_address_excluded_in_every_role_contributes_no_machine` used a `site:`
+address, which the scope filter removes before the exclusion is consulted - so it
+passed with the exclusion deleted from topology and proved nothing. The probe
+written for it found that. It now names a second COMPONENT-scoped tank on the
+twin-tank Site, mentioned only in a role the run records as unsupported.
+
+**Two probe anchors went stale** when the exclusion gained a role, and the harness
+reported SKIPPED rather than passing. That is the harness working: a probe whose
+anchor has moved says so. Both anchors follow the new signature.
+
+**A patch script wrote newline escapes into Python source through a script where
+they were already newlines**, and broke every multi-line anchor in the block it
+inserted. `.agent/` is gitignored, so there was no committed copy to restore from;
+the block was rebuilt with a `lines()` helper so no probe body contains an escape
+sequence at all. The instance was cheap and the class is not: a repair that removes
+the possibility is worth more than one that removes the symptom.

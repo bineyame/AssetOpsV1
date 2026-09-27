@@ -1,0 +1,16 @@
+[project]
+name = "assetops-contracts"
+version = "0.0.0"
+description = "Dependency-neutral execution and schema contracts shared across the AssetOps truth barrier."
+requires-python = ">=3.12"
+# No dependencies, and that is the point. This package holds versioned rules and
+# record shapes; anything that reads a document, opens a store or serves a
+# request belongs on one side of the barrier or the other.
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["assetops_contracts*"]

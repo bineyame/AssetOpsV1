@@ -1,6 +1,6 @@
 # T021 - Independent causal Fuel Loss kernel
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A starter; directly unlocks T022's visible execution.
@@ -138,4 +138,32 @@ The reconciliation panel can still inspect declarations until T022 replaces it.
 The owner reviews the independent calculation and causal mutations as evidence
 for the forthcoming Lab screen. The Reviewer checks composition and numeric
 policy before accepting generated trace fixtures.
-Review outcome: pending.
+Review outcome: accepted.
+
+**Independent review.** Two Codex passes and a fresh Claude backup pass. The
+first Codex pass returned five defects - a frozen run reinterpreted by the
+mutable document, adjacent windows refused though the contract permits them, a
+missing law operand producing COMPLETED with zero law events, a declared cause
+dropped at the adapter, and an exclusion admitting excluded inputs into
+topology. Its second pass confirmed those closed and found four more: a rate
+normalized twice so a millionth froze as zero, a version-6 record omitting the
+projection it exists to carry, an unanswered magnitude raising where the product
+blocks, and an exclusion drawn one notch too wide. It reached its usage limit
+before writing that report, so the backup pass covered both the four gaps and
+the per-criterion verdicts. **Seventeen of seventeen criteria and eight of eight
+mutation rows pass.** Two findings carried rather than demanded, in
+`.ai/MILESTONE_REVIEW_BACKLOG.md`.
+
+**Owner review, 2026-09-27.** The owner examined the declared world, the
+trajectory's derivation and the corrected authored values, and raised the
+operational question the arithmetic could not: what a bounded transition at a
+fuel tank means on the ground. The conclusion is recorded as a T030 obligation -
+`BoundedTransition.refused` is an unexplained delivery residual, and the kernel
+is correct to complete rather than fail. **The kernel's causal proof was not
+submitted for owner audit**; it is machine-verified by mutation and was
+confirmed independently three times.
+
+Carried out of that conversation: whether operators record a drummed residual or
+it leaves the books is a question for the T028 domain-expert checkpoint, and the
+answer decides whether a recurring delivery residual is a stronger wedge than
+the removal story.

@@ -106,13 +106,17 @@ See `D-2026-09-21-projection-versus-composition` and
 `D-2026-09-21-causal-runtime-before-golden-traces`.
 
 The first narrow Fuel Loss kernel is a starter proof, not completion of the
-credible mini-grid runtime. Its profile support disclosure expires only when
-kernel conformance proves the advertised set. Documentary capability must never
-silently become a claim of executed support.
+credible mini-grid runtime. Documentary capability must never silently become a
+claim of executed support, and what makes that a check rather than a hope is that
+a model's advertised set is DERIVED from its executable handlers: the grouping of
+the handler table is the advertised set, and every advertised pair must be reached
+by a real execution before conformance passes. T021 established that and retired
+the half of the readiness disclosure it falsified; the publication profile's
+reporting-path half waits for the observation transform.
 
 ## Execution Composition And Truth Barrier
 
-v4 section 3 supplies the target composition, still unbuilt after T020:
+v4 section 3 supplies the composition, and T021 built it:
 
 - `simulator/` owns kernel, packs, observation transforms and gateway.
 - `backend/` owns product ingestion, Evidence, Findings and financials.
@@ -124,6 +128,20 @@ v4 section 3 supplies the target composition, still unbuilt after T020:
 - Lab receives a gated `LabProjection`, which may expose private generated
   observations. `WorldState`, raw `DeviceObservation`, `ControlIntent`,
   `AcceptedFlowSet`, traces and private expectations are never product input.
+
+The trees exist: `contracts/assetops_contracts` holds the versioned execution
+semantics, the frozen-input schema, the private trajectory and the execution
+failure vocabulary; `host/execution_adapter.py` is the leaf. All four dependency
+rules are enforced - UI to simulator, simulator to product, product to simulator,
+and anything to host - plus a fifth the new roots need: the neutral contracts
+import neither side, or the simulator would reach the backend transitively.
+
+**The truth barrier is the shape of the kernel's input, not a rule beside it.**
+`FrozenWorldInputs` has no field a scenario expectation, an authored reading, a
+reconciliation result, a Site name or a device could arrive in. A rule saying "do
+not read the oracles" is a rule an adapter can forget; a record with no field for
+them cannot be passed one, and `simulator/` cannot reach the product records that
+hold them by any spelling.
 
 Only canonical source envelopes cross into normal ingestion. The observation
 transform and gateway remain separate components. Sensor sampling/bias/dropout

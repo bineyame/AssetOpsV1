@@ -15,7 +15,16 @@ function Invoke-ModuleRootsCheck {
         "frontend",
         "frontend/src",
         "simulator",
-        "simulator/assetops_simulator"
+        "simulator/assetops_simulator",
+        # The two roots v4 section 3.2 requires beside the other three. The
+        # neutral contracts hold the schemas both sides of the truth barrier
+        # speak; the composition leaf is the one place that may import both.
+        # Required rather than optional, because the dependency rules about them
+        # - nothing imports host, contracts import neither side - are rules about
+        # trees that have to exist for the rules to mean anything.
+        "contracts",
+        "contracts/assetops_contracts",
+        "host"
     )
 
     foreach ($directory in $requiredDirectories) {
@@ -31,7 +40,11 @@ function Invoke-ModuleRootsCheck {
         "frontend/package.json",
         "frontend/tsconfig.json",
         "frontend/src/main.tsx",
-        "simulator/assetops_simulator/__init__.py"
+        "simulator/assetops_simulator/__init__.py",
+        "contracts/pyproject.toml",
+        "contracts/assetops_contracts/__init__.py",
+        "simulator/pyproject.toml",
+        "host/execution_adapter.py"
     )
 
     foreach ($file in $requiredFiles) {

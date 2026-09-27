@@ -1,0 +1,23 @@
+[project]
+name = "assetops-simulator"
+version = "0.0.0"
+description = "AssetOps deterministic simulator: causal kernel, packs, transforms and gateway."
+requires-python = ">=3.12"
+# The neutral contracts and nothing else. `assetops_backend` is deliberately
+# absent and `tools/check-architecture.ps1` fails the build if an import of it
+# appears: v4 section 3.2 rule 2 is stronger than "no product analytics", and it
+# is what keeps the simulator independently testable.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["assetops_simulator*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

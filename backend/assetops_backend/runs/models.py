@@ -42,6 +42,24 @@ fails the build rather than arriving on a screen with no origin.
 up from identical inputs are two runs of the same experiment, which is what
 makes overlapping Drafts useful; if the identity carried the run's own name,
 every run would be trivially unique and the identity would answer nothing.
+
+## The causal projection is frozen too, since T021's review
+
+The identity used to carry the resolved VALUES a scenario declared and nothing
+about when they act. An independent review reproduced what that allows: the same
+persisted run, executed against the same document version with one offset moved,
+produces a different trajectory. So `causes`, `forcings`, `declared_bounds` and
+`reporting_path_conditions` freeze the whole causal projection - what changes, by
+how much, in which direction, at which resolved address, over which span - and
+the component that executes a run takes the run and nothing else.
+
+That is a wider frozen identity, so it moves `EXECUTION_CONTRACT_VERSION`: a run
+of an unchanged document freezes differently under the new number than under the
+old one, which is exactly the test `D-2026-09-22-contract-version-scope` sets. An
+earlier run keeps its own version, stays readable, and is refused execution
+rather than reinterpreted - the four collections default to empty on read so a
+document written before them still parses, and the version guard is what stops an
+empty projection ever being mistaken for a run with no causes.
 """
 
 from __future__ import annotations
@@ -98,25 +116,49 @@ RUN_EXECUTION_STATUSES = frozenset({"READY", "BLOCKED"})
 #: reading or deliver one, which is the observation transform and a later slice.
 #: Naming only the first would let the kernel slice read the condition as met
 #: and retire the whole statement while the second claim stood unfalsified with
-#: nothing covering it. So the text names both and says neither alone retires it.
+#: nothing covering it. So the text named both and said neither alone retires it.
+#:
+#: ## One of the two conditions has now closed, and half the statement went
+#:
+#: T021's kernel conformance derives the model profile's advertised set by
+#: grouping a table of executable handlers, executes a Draft created through the
+#: normal setup service, and asserts every advertised `(state, role)` pair was
+#: reached by that execution. That is the condition the first half named, so the
+#: first half is no longer true and `D-2026-09-22-expiry-follows-the-condition`
+#: puts its removal in the slice that falsified it: a claim that has become false
+#: goes now, and leaving it would be shipping a false statement rather than being
+#: cautious. `host/tests/test_kernel_conformance.py` is where the condition is
+#: established, and it is what would fail if this paragraph became untrue again.
+#:
+#: The second half stays, unchanged in substance, because nothing in this build
+#: can suppress a reading or deliver one. What the text gains instead is a
+#: sentence saying which half HAS been verified. Going silent about the model
+#: profile would leave a reader unable to tell a claim that was checked from a
+#: claim nobody ever made, and the whole point of a disclosure travelling with a
+#: status is that the status cannot be read without it.
+#:
+#: What this must not become is a statement that the reporting path is verified
+#: because a kernel is. The two are different components answering different
+#: questions, and the observation transform is what makes the second true or
+#: false.
 #:
 #: It is a property of the status, not of a run, so it is computed on the way
 #: out rather than stored. Every Draft written before this slice gets it on read
-#: - including this correction, which is why no Draft needed regenerating for it
+#: - including this narrowing, which is why no Draft needed regenerating for it
 #: - and a `BLOCKED` run gets nothing: `BLOCKED` claims a run may not execute,
 #: which needs no disclaimer about execution.
 READY_DISCLOSURE = (
     "READY means every required executable input resolved and the profiles this "
-    "run selected declare they can consume them. It does not mean they can, and "
-    "two separate declarations are unverified. The model profile's supported "
-    "states have not been compared against an executable model, because no "
-    "causal runtime exists in this build. The publication profile's supported "
-    "reporting-path states have not been compared against anything either, "
-    "because nothing here can yet suppress a reading or deliver one. This "
-    "statement is retired only when both are derived from something executable: "
-    "a conformance test deriving the supported states from a kernel, and the "
-    "transform that produces readings deriving the reporting-path states. "
-    "Neither alone retires it."
+    "run selected declare they can consume them. One of those two declarations "
+    "is now verified and one is not. The model profile's supported states have "
+    "been derived from an executable kernel and every state and role it "
+    "advertises was reached by executing a run, which is what kernel conformance "
+    "establishes. The publication profile's supported reporting-path states have "
+    "not been compared against anything, because nothing in this build can yet "
+    "suppress a reading or deliver one, so a run that declares a reporting gap "
+    "is stating a capability nothing has exercised. This statement is retired "
+    "when the transform that produces readings derives those reporting-path "
+    "states from something executable."
 )
 
 
@@ -463,6 +505,157 @@ class UnsupportedOptionalInput:
 
 
 @dataclass(frozen=True)
+class FrozenCause:
+    """One declared change to world state, frozen with its timing.
+
+    ## Why timing is frozen and was not
+
+    Until T021's independent review a run froze the VALUES a scenario declared
+    and left their timing in the document, and the reviewer reproduced what that
+    allows: move `unaccounted-fuel-removal` from offset 1500 to 1515 on the live
+    document, execute the SAME persisted run, and the tank at 1515 changes from
+    334.02 L to 374.02 L. Nothing in the persisted run changed.
+    A comparison of parameter identities cannot see that, and an offset is a
+    causally effective number exactly as a quantity is.
+
+    So a run now freezes the whole causal projection: what changes, by how much,
+    in which direction, at which address, over which span. `frozen_world_inputs`
+    in the host leaf takes only the run, and there is no argument through which a
+    different experiment can arrive.
+
+    `canonical_value` is the TOTAL this entry moves, in canonical units, with a
+    rate already integrated across its window. How much of it has moved part way
+    through is the execution contract's window ramp and the kernel's to apply;
+    freezing a partial answer here would put a transition rule in a record.
+
+    `state_ref` is the RESOLVED address, like every other frozen row: what the
+    run executes is a change to one asset, and a later reader must not have to
+    re-run the resolution to find out whose.
+
+    **`canonical_value` has an absent case**, the way `FrozenInitializationInput`
+    does, and for the same reason. A magnitude whose declared owner did not answer
+    - a `MODEL_RULE` parameter no profile supplies a rule for - has no number, and
+    the run is BLOCKED rather than refused because a different profile may answer.
+    The first version of this record raised instead, which turned a run the product
+    had always blocked into an HTTP 500. `SimulationRun` enforces the same pairing
+    it enforces for an absent initial value: an absent magnitude has a blocking
+    reason naming the same address, because the thing that made it absent is the
+    thing that blocked the run.
+    """
+
+    event_id: str
+    state_ref: StateRef
+    direction: str
+    parameter_id: str
+    canonical_value: float | None
+    canonical_unit: str
+    dimension: str
+    timing_shape: str
+    offset_minutes: int
+    duration_minutes: int | None
+
+    @property
+    def state_key(self) -> str:
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenForcing:
+    """One exogenous condition the run forces, frozen with its window.
+
+    The same reason as `FrozenCause` and the same grain. A forcing moves no stock
+    by itself; what reads it is a model law, and outside its window it is
+    unavailable rather than zero or held. Which steps that window concerns is the
+    contract's overlap predicate and not this record's.
+
+    `execution_requirement` travels because it is what the document said about
+    this position, and a kernel deciding whether a missing operand is fatal is
+    entitled to know whether the scenario required it.
+
+    `canonical_value` has the same absent case as `FrozenCause`, for the same
+    reason and under the same invariant.
+    """
+
+    event_id: str
+    state_ref: StateRef
+    parameter_id: str
+    canonical_value: float | None
+    canonical_unit: str
+    dimension: str
+    timing_shape: str
+    offset_minutes: int
+    duration_minutes: int | None
+    execution_requirement: str
+
+    @property
+    def state_key(self) -> str:
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenDeclaredBound:
+    """Which state a declared bound limits, and whose frozen value supplies it.
+
+    `D-2026-09-22-capacity-bound-source` split in two records: the RELATIONSHIP
+    is the document's and is frozen here, and the NUMBER is the site's and is
+    frozen as the initialization input this row points at. Two spellings sharing
+    a prefix say nothing about one bounding the other, so a run carries the
+    declaration or a kernel has nothing.
+
+    There is no value field, deliberately. A number here would be a second copy
+    of the initialization input's, free to drift from it.
+    """
+
+    state_ref: StateRef
+    bound_kind: str
+    source_state_ref: StateRef
+    source_parameter_id: str
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+    @property
+    def source_addressed_key(self) -> str:
+        return self.source_state_ref.addressed_key
+
+
+@dataclass(frozen=True)
+class FrozenReportingPathCondition:
+    """One condition the run forces on the path a reading travels.
+
+    Not a world state, which is the whole of why it is a separate collection
+    rather than a `FrozenForcing`. Whether the fuel level sensor is reporting
+    changes nothing about the fuel, the publication profile answers for it, and a
+    kernel that models a tank is no nearer to modelling it.
+
+    Its window is frozen even though nothing consumes one yet. That is not a
+    speculative field: it is the same projection pass, and the defect this whole
+    collection exists to close is precisely a declared span being read from a
+    mutable document at execution time. Leaving this one behind would reopen it
+    for the observation transform.
+    """
+
+    event_id: str
+    state_ref: StateRef
+    timing_shape: str
+    offset_minutes: int
+    duration_minutes: int | None
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+@dataclass(frozen=True)
 class DeterministicIdentity:
     """Everything a rerun would have to reproduce to be the same run.
 
@@ -478,6 +671,10 @@ class DeterministicIdentity:
     seed: int
     profiles: FrozenProfileBinding
     initialization_inputs: tuple[FrozenInitializationInput, ...]
+    causes: tuple[FrozenCause, ...]
+    forcings: tuple[FrozenForcing, ...]
+    declared_bounds: tuple[FrozenDeclaredBound, ...]
+    reporting_path_conditions: tuple[FrozenReportingPathCondition, ...]
     observation_bindings: tuple[FrozenObservationBinding, ...]
     publication: FrozenPublicationIdentity
     signal_mappings: tuple[FrozenSignalMapping, ...]
@@ -564,6 +761,32 @@ class SimulationRun:
                 "reason about it. An initial value is absent only because "
                 "something blocked the run, so the reason that made it "
                 "absent is on the run beside it, naming the same address."
+            )
+
+        # The same rule for the causal projection, since T021's second review.
+        # A cause or a forcing whose magnitude nobody answered is a hole in the
+        # frozen identity exactly as an absent initial value is, and it is
+        # reachable through the same route: a `MODEL_RULE` magnitude the selected
+        # profile declares no rule for. Freezing it absent is right and freezing
+        # it absent with nothing explaining it is the state this prevents.
+        unexplained_magnitudes = sorted(
+            {
+                item.addressed_key
+                for item in (
+                    self.deterministic_identity.causes
+                    + self.deterministic_identity.forcings
+                )
+                if item.canonical_value is None
+                and item.addressed_key not in explained
+            }
+        )
+        if unexplained_magnitudes:
+            raise ValueError(
+                f"A run froze a declared cause or forcing on "
+                f"{unexplained_magnitudes} with no magnitude and no blocking "
+                "reason about it. A declared effect is never converted into "
+                "silence: it carries its number, or it carries the reason "
+                "nobody supplied one."
             )
 
         # The two number fields are absent together or present together.

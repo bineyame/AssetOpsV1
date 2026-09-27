@@ -57,7 +57,11 @@ from assetops_backend.runs.models import (
     RUN_LIFECYCLE_STATUSES,
     BlockingReason,
     DeterministicIdentity,
+    FrozenCause,
+    FrozenDeclaredBound,
+    FrozenForcing,
     FrozenInitializationInput,
+    FrozenReportingPathCondition,
     FrozenInterval,
     FrozenObservationBinding,
     FrozenParameter,
@@ -73,13 +77,18 @@ from assetops_backend.runs.ports import RunConfigurationInvalid
 from assetops_backend.runs.refusals import refuse
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
+    EXECUTION_CONTRACT_VERSION,
     NON_NEGATIVE_DIMENSIONS,
 )
 from assetops_backend.scenarios.identity import validate_scenario_id
 from assetops_backend.scenarios.models import (
+    BOUND_KINDS,
     CADENCE_OWNERSHIP,
+    EXECUTION_REQUIREMENTS,
     OBSERVATION_SOURCE_KINDS,
     PARAMETER_UNITS,
+    STATE_EFFECT_DIRECTIONS,
+    TIMING_SHAPES,
 )
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
 from assetops_backend.sites.identity import validate_site_id
@@ -634,6 +643,59 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 }
                 for item in identity.initialization_inputs
             ],
+            # The causal projection, frozen since T021's review. A run used to
+            # carry the values a scenario declared and nothing about when they
+            # act, so the same persisted run executed against the same document
+            # version with one offset moved produced a different trajectory.
+            "causes": [
+                {
+                    "state_key": item.addressed_key,
+                    "event_id": item.event_id,
+                    "direction": item.direction,
+                    "parameter_id": item.parameter_id,
+                    "canonical_value": item.canonical_value,
+                    "canonical_unit": item.canonical_unit,
+                    "dimension": item.dimension,
+                    "timing_shape": item.timing_shape,
+                    "offset_minutes": item.offset_minutes,
+                    "duration_minutes": item.duration_minutes,
+                }
+                for item in identity.causes
+            ],
+            "forcings": [
+                {
+                    "state_key": item.addressed_key,
+                    "event_id": item.event_id,
+                    "parameter_id": item.parameter_id,
+                    "canonical_value": item.canonical_value,
+                    "canonical_unit": item.canonical_unit,
+                    "dimension": item.dimension,
+                    "timing_shape": item.timing_shape,
+                    "offset_minutes": item.offset_minutes,
+                    "duration_minutes": item.duration_minutes,
+                    "execution_requirement": item.execution_requirement,
+                }
+                for item in identity.forcings
+            ],
+            "declared_bounds": [
+                {
+                    "state_key": item.addressed_key,
+                    "bound_kind": item.bound_kind,
+                    "source_state_key": item.source_addressed_key,
+                    "source_parameter_id": item.source_parameter_id,
+                }
+                for item in identity.declared_bounds
+            ],
+            "reporting_path_conditions": [
+                {
+                    "state_key": item.addressed_key,
+                    "event_id": item.event_id,
+                    "timing_shape": item.timing_shape,
+                    "offset_minutes": item.offset_minutes,
+                    "duration_minutes": item.duration_minutes,
+                }
+                for item in identity.reporting_path_conditions
+            ],
             "observation_bindings": [
                 {
                     "source_id": item.source_id,
@@ -879,6 +941,13 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
         raw.get("publication"), where="deterministic_identity"
     )
 
+    # Read before the projection collections, because whether they are required
+    # depends on it. A malformed version is refused here rather than defaulting,
+    # which is what would decide the question by accident.
+    contract_version = _whole(
+        profiles, "execution_contract_version", where="profiles"
+    )
+
     history = _entries(raw, "intervention_history", where="deterministic_identity")
     for entry in history:
         if not isinstance(entry, str) or not entry:
@@ -931,14 +1000,43 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
             publication_profile_version=_whole(
                 profiles, "publication_profile_version", where="profiles"
             ),
-            execution_contract_version=_whole(
-                profiles, "execution_contract_version", where="profiles"
-            ),
+            execution_contract_version=contract_version,
         ),
         initialization_inputs=tuple(
             _parse_initialization_input(entry)
             for entry in _entries(
                 raw, "initialization_inputs", where="deterministic_identity"
+            )
+        ),
+        # Defaulting to empty when absent is what preserves readback of a run
+        # frozen before the projection existed. It is safe only because
+        # `refuse_incompatible_execution` refuses to execute a run frozen at
+        # another contract version, so an empty projection can never be
+        # mistaken for a run that declared no causes.
+        causes=tuple(
+            _parse_frozen_cause(entry)
+            for entry in _projection_entries(
+                raw, "causes", contract_version=contract_version
+            )
+        ),
+        forcings=tuple(
+            _parse_frozen_forcing(entry)
+            for entry in _projection_entries(
+                raw, "forcings", contract_version=contract_version
+            )
+        ),
+        declared_bounds=tuple(
+            _parse_frozen_declared_bound(entry)
+            for entry in _projection_entries(
+                raw, "declared_bounds", contract_version=contract_version
+            )
+        ),
+        reporting_path_conditions=tuple(
+            _parse_frozen_reporting_path_condition(entry)
+            for entry in _projection_entries(
+                raw,
+                "reporting_path_conditions",
+                contract_version=contract_version,
             )
         ),
         observation_bindings=tuple(
@@ -1044,6 +1142,179 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
         answered_by_detail=_text(
             raw, "answered_by_detail", where="initialization_input"
         ),
+    )
+
+
+def _projection_entries(
+    raw: Mapping[str, Any], key: str, *, contract_version: int
+) -> list[Any]:
+    """One projection collection, required at this build's contract version.
+
+    ## Absence is tolerable only below the current version, and only there
+
+    The first version of this said "absent means empty" for every run, on the
+    reasoning that the contract version guard refuses to execute an earlier run
+    anyway. T021's second review showed what that misses: a run frozen AT the
+    current version with `causes` deleted parses, is READY, and executes - and the
+    removal never happens while the trajectory reports COMPLETED. Deleting
+    `declared_bounds` overfills the tank past its capacity. The version guard
+    cannot help, because the version is the current one.
+
+    So the rule is the one the version move actually asserts: a run at this
+    build's version carries the projection, because that is what freezing
+    differently MEANS. Below it, absence is what an earlier run legitimately has,
+    and such a run is refused execution.
+
+    An empty list is a real answer and stays one: a document with no state effects
+    declares no causes. What is refused is the KEY being missing or null, which is
+    a record that does not say.
+    """
+    if contract_version == EXECUTION_CONTRACT_VERSION:
+        if raw.get(key) is None:
+            raise _bad(
+                f"'deterministic_identity.{key}' is required in a run frozen "
+                f"against execution contract version {EXECUTION_CONTRACT_VERSION}"
+                ", which freezes the causal projection. A record at this version "
+                "carrying none of it would execute an experiment it does not "
+                "describe: declare an empty list if the definition declares none."
+            )
+        return _entries(raw, key, where="deterministic_identity")
+    if raw.get(key) is None:
+        return []
+    return _entries(raw, key, where="deterministic_identity")
+
+
+def _frozen_timing(raw: Mapping[str, Any], *, where: str) -> tuple[str, int, int | None]:
+    """A frozen entry's shape, offset and length, checked as a set.
+
+    A POINT with a length and a WINDOW without one are both documents saying two
+    things, so they are refused here rather than resolved by whoever reads them
+    next. An INTERVAL_WIDE entry declares no length because the length is the
+    run's.
+    """
+    shape = _choice(raw, "timing_shape", where=where, allowed=TIMING_SHAPES)
+    offset = _whole(raw, "offset_minutes", where=where)
+    duration = _optional_whole(raw, "duration_minutes", where=where)
+    if shape == "WINDOW" and duration is None:
+        raise _bad(
+            f"'{where}' is a WINDOW and declares no duration_minutes. A window "
+            "with no length is not a window."
+        )
+    if shape == "WINDOW" and duration is not None and duration <= 0:
+        # Refused here rather than reaching a kernel. The contract's own span
+        # helper raises on a zero-length window, correctly - `point-applied-once`
+        # is the rule for something that happens at an instant - and an
+        # unclassified `ValueError` escaping mid-execution is not how this product
+        # says no to a document.
+        raise _bad(
+            f"'{where}' is a WINDOW covering {duration} minutes. A window with "
+            "zero or negative length is not a window; an entry that happens at "
+            "an instant is a POINT."
+        )
+    if shape != "WINDOW" and duration is not None:
+        raise _bad(
+            f"'{where}' is a {shape} and declares duration_minutes. Only a "
+            "window has a length of its own: a point happens at an instant and "
+            "an interval-wide entry takes the run's."
+        )
+    return shape, offset, duration
+
+
+def _frozen_address(raw: Mapping[str, Any], key: str, *, where: str):
+    return parse_state_ref(
+        raw.get(key),
+        where=f"{where}.{key}",
+        source="a run document",
+        invalid=_raise_invalid,
+    )
+
+
+def _parse_frozen_cause(entry: Any) -> FrozenCause:
+    """One frozen change to world state, with its direction and its span."""
+    raw = _mapping(entry, where="frozen_cause")
+    shape, offset, duration = _frozen_timing(raw, where="frozen_cause")
+    return FrozenCause(
+        event_id=_text(raw, "event_id", where="frozen_cause"),
+        state_ref=_frozen_address(raw, "state_key", where="frozen_cause"),
+        direction=_choice(
+            raw, "direction", where="frozen_cause", allowed=STATE_EFFECT_DIRECTIONS
+        ),
+        parameter_id=_text(raw, "parameter_id", where="frozen_cause"),
+        # Absent when nobody answered for the magnitude, which blocks the run.
+        # `SimulationRun` refuses an absent one with no reason beside it.
+        canonical_value=_optional_real(
+            raw, "canonical_value", where="frozen_cause"
+        ),
+        canonical_unit=_text(raw, "canonical_unit", where="frozen_cause"),
+        dimension=_text(raw, "dimension", where="frozen_cause"),
+        timing_shape=shape,
+        offset_minutes=offset,
+        duration_minutes=duration,
+    )
+
+
+def _parse_frozen_forcing(entry: Any) -> FrozenForcing:
+    """One frozen exogenous condition, with the window it is declared over."""
+    raw = _mapping(entry, where="frozen_forcing")
+    shape, offset, duration = _frozen_timing(raw, where="frozen_forcing")
+    return FrozenForcing(
+        event_id=_text(raw, "event_id", where="frozen_forcing"),
+        state_ref=_frozen_address(raw, "state_key", where="frozen_forcing"),
+        parameter_id=_text(raw, "parameter_id", where="frozen_forcing"),
+        canonical_value=_optional_real(
+            raw, "canonical_value", where="frozen_forcing"
+        ),
+        canonical_unit=_text(raw, "canonical_unit", where="frozen_forcing"),
+        dimension=_text(raw, "dimension", where="frozen_forcing"),
+        timing_shape=shape,
+        offset_minutes=offset,
+        duration_minutes=duration,
+        execution_requirement=_choice(
+            raw,
+            "execution_requirement",
+            where="frozen_forcing",
+            allowed=EXECUTION_REQUIREMENTS,
+        ),
+    )
+
+
+def _parse_frozen_declared_bound(entry: Any) -> FrozenDeclaredBound:
+    """One frozen bound relationship: which state, and whose value bounds it."""
+    raw = _mapping(entry, where="frozen_declared_bound")
+    return FrozenDeclaredBound(
+        state_ref=_frozen_address(
+            raw, "state_key", where="frozen_declared_bound"
+        ),
+        bound_kind=_choice(
+            raw, "bound_kind", where="frozen_declared_bound", allowed=BOUND_KINDS
+        ),
+        source_state_ref=_frozen_address(
+            raw, "source_state_key", where="frozen_declared_bound"
+        ),
+        source_parameter_id=_text(
+            raw, "source_parameter_id", where="frozen_declared_bound"
+        ),
+    )
+
+
+def _parse_frozen_reporting_path_condition(
+    entry: Any,
+) -> FrozenReportingPathCondition:
+    """One frozen condition on the path a reading travels."""
+    raw = _mapping(entry, where="frozen_reporting_path_condition")
+    shape, offset, duration = _frozen_timing(
+        raw, where="frozen_reporting_path_condition"
+    )
+    return FrozenReportingPathCondition(
+        event_id=_text(
+            raw, "event_id", where="frozen_reporting_path_condition"
+        ),
+        state_ref=_frozen_address(
+            raw, "state_key", where="frozen_reporting_path_condition"
+        ),
+        timing_shape=shape,
+        offset_minutes=offset,
+        duration_minutes=duration,
     )
 
 

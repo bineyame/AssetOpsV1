@@ -23,20 +23,33 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
-### `supported_states` has no falsifier until T021
+### ~~`supported_states` has no falsifier until T021~~ - RESOLVED in T021, 2026-09-27
 
 `MINIMAL_FUEL_TANK_MODEL` declares that `fuel-tank-volume` supports
-`CAUSAL_INPUT` and `REPORTED_OBSERVATION`. Nothing in this build can cause or
-report anything, so the declaration is a promise about a kernel that does not
-exist, and `READY` is computed from it.
+`CAUSAL_INPUT` and `REPORTED_OBSERVATION`. Nothing in this build could cause or
+report anything, so the declaration was a promise about a kernel that did not
+exist, and `READY` was computed from it.
 
-*Safe to carry* because it discloses exactly that: T020's `READY` disclosure
-names the condition, and T021's conformance test deriving `supported_states`
-from the kernel is the falsifier that makes the declaration legitimate.
+**Closed.** `ModelSpec.advertised_supported_states` in the simulator DERIVES the
+advertised set by grouping a table of executable handlers - there is no field in
+which to write a role no handler implements - and
+`host/tests/test_kernel_conformance.py` compares that set against this profile's
+declaration in both directions AND asserts every advertised `(state, role)` pair
+was reached by executing a Draft created through `RunSetupService` from the shipped
+document. Two probes keep it from being two agreeing tables: one removes a handler
+and watches the derived set narrow, one adds a handler nothing calls and watches
+the execution ledger report it missing.
 
-*What would change the answer:* descoping that conformance test. It is not a
-quality measure. Without it `supported_states` goes back to being a promise
-and `READY` goes back to overreaching.
+Kept rather than deleted because the carry note's own warning was the right one
+and is worth reading beside what closed it. It said the conformance test "is not a
+quality measure", and the thing that made it a falsifier rather than a second
+declaration is precisely the leg that could have been left out: DERIVING the set
+from handlers, and requiring each one to have RUN. A conformance test comparing
+two hand-written tables would have satisfied the sentence and established nothing.
+
+`REPORTED_OBSERVATION` is verified at the model's grain - the world can answer what
+a stock is at an instant, after that instant's events - and no further. Nothing
+publishes that answer, which is the other entry below.
 
 ### The refusal/blocking naming rule's scope
 
@@ -133,6 +146,11 @@ thinnest point of the slice.
 blocked describe before the table, the detail is one click away and states it
 in full, and T021's conformance test makes the word correct rather than
 qualified.
+
+*Narrowed, not closed, by T021.* The model profile's half of the disclosure is
+retired because a kernel now derives its supported set; the publication profile's
+half stays, so a `READY` cell with no disclosure beside it still hides one
+unverified declaration rather than two.
 
 *What would change the answer:* the inventory gaining a second signal that
 reads as readiness - a colour, an icon, a sort that puts `READY` first - or
@@ -313,6 +331,107 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## T030 owes the refused delivery quantity a home
+
+Recorded 2026-09-27 from the owner's operational reading at T021's closeout,
+which is domain judgement no test supplies.
+
+T021's shipped run ends with a `BoundedTransition`: 300 L delivered into a tank
+holding 254.02 L with a 500 L capacity, 245.98 L accepted and **54.02 L
+refused**. `contracts/assetops_contracts/trajectory.py:110` already carries
+`requested`, `accepted`, `refused` and `event_ids` as exact first-class values,
+so the quantity is attributable rather than merely clamped. **The kernel is
+correct and must not change**: nothing physically failed and the world evolved
+as declared. Treating a bounded transition as an execution failure would be
+wrong.
+
+**What operational reality adds.** A diesel tank cannot be overfilled; it
+overflows. So a 300 L delivery into 245.98 L of headroom never happens as
+declared. What happens instead is a partial delivery with the balance still on
+the truck, the residual drummed or jerrycanned on site, a second tank taking
+it, or a spill. **The quantity is conserved in every case and is somewhere
+nobody recorded.** Site buffer drums are common where deliveries are
+infrequent, and that residual is typically untracked - which is one of the main
+reasons fuel reconciliation is hard in practice.
+
+The scenario's own reporting gap supplies the reason such a delivery was
+ordered at all: nobody knew the true level when it was scheduled.
+
+**So a bounded transition at a fuel tank is a reconciliation exception - neither
+a clean completion nor a failure.** Fuel was paid for, did not enter the tank,
+and is unaccounted for.
+
+**T030 owes this a home.** Its subject is fuel balance with separate delivery
+and dip records, and a tank rising less than the delivery note claims is
+exactly that. It must treat `BoundedTransition.refused` as a **first-class
+unexplained delivery residual** rather than recomputing it or passing over it.
+Do not infer the residual's destination: the product's honest claim is that the
+quantity left the invoice and did not reach the tank.
+
+**One question for the domain expert at the T028 checkpoint**, because it
+changes how much this is worth: do operators in practice notice and record a
+drummed residual, or does it leave the books entirely? If it leaves the books,
+this is a **stronger wedge than the 120 L removal story** - it recurs every
+delivery cycle rather than being exceptional, and recurring unexplained
+quantity is a better product argument than an occasional theft.
+
+## Carried out of T021
+
+Added 2026-09-27 after two Codex passes and a backup Claude review that
+accepted the slice at 17 of 17 criteria and 8 of 8 mutation rows. Neither item
+meets `D-2026-09-22-milestone-speed-over-purity`'s stopping rule: neither is
+expensive to reverse, neither misleads T022 about the trajectory it consumes,
+and the reviewer measured that no record in `var/runs` carries a value of
+either shape.
+
+**F1 - a correct refusal reaches the HTTP route as a 500.**
+`CanonicalValueNotRepresentable` is raised at
+`contracts/assetops_contracts/execution_contract.py:1139` and called from
+`backend/assetops_backend/runs/service.py:1077`, `:1527` and `:1564`, all
+inside run setup, with nothing catching it. Measured with a `1e-06 L/h` rate
+over a 30-minute window: the helper refuses correctly, run setup raises out of
+`create_draft_run`, and `POST /api/simulator-lab/runs` returns **500 with zero
+records written**. This is the shape of the second pass's gap 3 - a refusal
+that is right about the world, raised where this product has always blocked -
+and gap 3's fix gave `UnresolvedCausalProjection` a blocking reason and a
+persisted BLOCKED run. The refusal introduced in the same round did not get
+that treatment. Reachability is narrow: `L/h` is the only canonical unit with
+a non-unit factor. Fix by giving it gap 3's treatment, or by refusing at the
+scenario parser where the unit and the window length are both in hand.
+
+**F2 - a magnitude below the normalization resolution freezes as zero and the
+run COMPLETES.** `_exact` is `Fraction(value).limit_denominator(1_000_000)` at
+`execution_contract.py:387`, and it runs at the input boundary **before**
+`frozen_canonical_value`, so that helper's round-trip guard compares against an
+already-normalized value and structurally cannot see a magnitude lost there.
+Measured, and not rate-specific: authored `1e-07 L` on the removal freezes as
+exactly 0 and the run COMPLETES with three applied events moving nothing;
+authored `1e-09 L/h` over 60 minutes does the same with four. `_exact` is on
+`main` and is the declared one-time normalization, so this is not a regression
+- but T021 is what made it causally consequential. Fix by refusing or blocking
+when a non-zero authored magnitude normalizes to exactly zero, which is one
+condition at the same boundary F1 sits on, so price them together.
+
+**One question is open for Codex**, which wrote the gap-3 fix and is the right
+reader for what it was meant to cover: did that fix intend to close the class
+or the instance, and does either of these belong in T021 or here? A different
+answer moves F1 from carry to fix. Not a gate - recorded so the question is not
+lost rather than because the slice waits on it.
+
+**A claim corrected rather than carried.** The packet's second correction round
+said "A rate whose integral needs a denominator above a million cannot be
+frozen at all. The refusal is loud." That is true only *above* the
+normalization resolution; below it the same class of value is silently zero.
+The sentence would tell a later reader that no magnitude can be lost silently,
+and one can.
+
+**Third occurrence of the version guard's blind spot.** `var/runs` holds
+version-6 Drafts frozen by pre-fix code, indistinguishable from post-fix ones
+because `refuse_incompatible_execution` compares an integer. Nothing executes a
+local Draft and every test regenerates, so this instance is harmless. The
+pattern is what carries: an equality test on a version number cannot separate
+two builds that shared it.
+
 ## Carried out of T020B's review rounds
 
 Added 2026-09-27 at closeout, after two Codex passes, three Claude passes and
@@ -356,6 +475,13 @@ is expensive to reverse, neither misleads an Implementer about what the code
 does, neither needs a user decision.
 
 ### `supported_reporting_states` has no falsifier either
+
+*Still open after T021, and now the only half of the disclosure that is.* The
+kernel closed the model profile's half and the disclosure was narrowed to name
+only this one, with the observation transform as its stated retirement condition.
+The generalisation below - that the two halves retire on different conditions - is
+what made narrowing rather than removing the right move, and it is now the record
+of a prediction that held.
 
 `LAB_PUBLICATION_PROFILE` declares it can model the fuel level reporting path
 being unavailable, and nothing in this build can suppress a reading. It is the
@@ -414,6 +540,21 @@ discover the gap. If T024 models demand before the decision is taken it becomes
 urgent, because a forcing with two declared values would reach a kernel with no
 rule for composing them.
 
+**T021 met it, by refusing.** The kernel raises `FORCING_VALUE_AMBIGUOUS` when two
+declared values force one address in one step, and the statement says why: nothing
+says whether they are the two ends of a ramp or two named levels a shape selects
+between, so it will not pick. That leaves the semantic decision exactly where this
+entry put it - with whoever models demand - rather than having a kernel quietly
+choose one reading and a later slice inherit it as built behaviour. The refusal is
+this kernel's rather than a contract statement, so it narrows no declared space and
+moved no contract version.
+
+It is not reachable on the shipped document today, because nothing models site
+demand and an unmodelled address never reaches the step where two values would
+collide. It is reached in `simulator/tests/test_execution_failures.py` by giving a
+MODELLED address the same shape. So this entry stays open as the decision it always
+was, and what closed is the risk of a kernel answering it by accident.
+
 ### Two blocking rows can still share a subject across two kinds
 
 An addressed reference whose scope disagrees with the answering profile yields
@@ -427,6 +568,236 @@ tidiness cost rather than a wrong statement.
 
 *What would change the answer:* the two rows starting to suggest different
 repairs, which would make the pair a contradiction rather than a repetition.
+
+## Carried out of T021
+
+Added 2026-09-27 at implementation, under
+`D-2026-09-22-milestone-speed-over-purity`. None meets its stopping rule: none is
+expensive to reverse, none misleads an implementer about what the code does, none
+needs a user decision. Three of the four are named in the code that carries them.
+
+### ~~A definition edited in place, at an unchanged version, can still move an entry~~ - RESOLVED in T021's correction round, 2026-09-27
+
+The host adapter compares two things between a frozen run and the definition it
+names: the scenario version, and the exact set of parameters the document declares
+against the set the run froze. That catches a version bump and catches an entry
+added or removed. It does **not** catch an edit that moves an existing entry's
+offset or window length while leaving its parameter in place, because a Draft
+freezes resolved VALUES and profile answers rather than a copy of the timeline, so
+there is nothing frozen for a structural comparison to be made against.
+
+*Safe to carry* because an edited value cannot reach a trajectory at all - every
+number the adapter produces comes from the frozen run, asserted - so the exposure
+is structure only, and the two shipped scenario stores are a tracked read-only
+document and a writable store a developer edits deliberately. Nothing in the
+product can move an offset.
+
+*What would change the answer:* a scenario authoring UI, or any slice that makes a
+frozen run's trajectory an artifact somebody relies on across an edit. Closing it
+means either freezing the timeline's structural content on the run - which changes
+the frozen identity and therefore the contract version - or adding a content
+digest of the projected structure to the run. Both are real changes and neither
+belonged in the kernel slice.
+
+**Closed, by the first of those two, and the carry rationale above was wrong.**
+T021's independent review reproduced the exposure rather than reasoning about it -
+the same persisted run, one offset moved from 1500 to 1515, 334.02 L becoming
+374.02 L - and said the rationale was insufficient because T021 owes this boundary
+and now produces the trajectory later slices rely on. It was right: an offset is a
+causally effective number, and calling the exposure "structure only" did not make
+it harmless. Run setup freezes the causal projection, the executing component
+takes the run alone, and `EXECUTION_CONTRACT_VERSION` moved 5 to 6.
+
+The second option - a content digest - was rejected on the reviewer's own
+argument, and it is the sentence worth keeping: **a digest detects drift and then
+refuses, and the criterion asks for reconstruction.** Detection is not
+reconstruction.
+
+Kept rather than deleted because the entry is the record that a carry can be
+honest in form and still wrong in substance. It named the exposure accurately and
+priced both closures, and then reached the wrong conclusion about whose slice it
+was - which is the failure mode the backlog's own preamble exists to prevent and
+did not.
+
+### The shipped scenario's content changed without a `scenario_version` move
+
+T021 corrected two authored reading VALUES in
+`config/scenarios/fuel-loss-event.yaml` and left `scenario_version` at 1. T020B
+set the precedent by lowering five `execution_requirement` positions in the same
+document at the same version, and this is one step further: a value rather than a
+requirement level.
+
+*Safe to carry* because no frozen run is reinterpreted - every existing Draft
+carries its own frozen copy of the value it resolved, and the adapter refuses a
+definition whose version does not match the one a run froze - and because T022
+removes both authored readings entirely under
+`D-2026-09-22-reconciliation-panel-retirement`. Nothing has ever executed this
+document, so no artifact was frozen against a trajectory.
+
+*What would change the answer:* the shipped store gaining a second consumer that
+resolves `(scenario_id, scenario_version)` to content rather than reading a
+document, or any slice after T022 editing a value in a document whose runs matter.
+The honest general rule, not yet written anywhere durable, is that a shipped
+document's version should move when a VALUE changes even if a milestone convention
+has been tolerating it.
+
+### The kernel requires its one forcing to be declared
+
+`FORCING_NOT_AVAILABLE` fires when a law reads a forcing input the frozen run
+declares nowhere, so a fuel run with a removal and a refuelling and no generator
+dispatch at all fails rather than running a tank that sits still. For a world
+whose only law is driven by dispatch that is the honest answer - the alternative
+is a law that silently does not run - and the failure statement says exactly that.
+
+*Safe to carry* because every document that reaches this kernel declares the
+dispatch, and because the statement is true about what happens rather than a
+guess. It is recorded because a reader might reasonably expect such a run to
+execute.
+
+*What would change the answer:* a second law, or a scenario that legitimately
+exercises fuel movement with no dispatch. The fix is per-law rather than global: a
+law would declare whether its forcing is required for the run or only for the
+steps the forcing covers.
+
+### ~~`reporting_path_addresses` carries addresses and not windows~~ - RESOLVED in T021's correction round
+
+A reporting-path forcing reaches the neutral frozen inputs as an address so the
+kernel can say it was withheld deliberately, and its WINDOW is dropped, because
+this kernel has nothing to do with it.
+
+*Safe to carry* because the kernel genuinely cannot use the window and because the
+field's docstring says what it is for. T022's observation transform is the first
+consumer that needs it, and widening a field is cheap.
+
+*What would change the answer:* nothing before T022. It is listed so that slice
+widens the field rather than discovering it missing.
+
+**Closed as a side effect of R1.** `FrozenReportingPathCondition` carries the
+window, because the defect R1 closed is precisely a declared span being read from
+a mutable document at execution time, and leaving this one behind would have
+reopened it for the observation transform. The neutral `reporting_path_addresses`
+still carries addresses only, which is all the kernel consumes; T022 reads the
+span off the frozen run.
+
+## Carried out of T021's correction round
+
+Added 2026-09-27 after the Codex review returned R1-R5 and the user asked for all
+five. R1-R5 and the reviewer's C1 are fixed and C2 shrank. These are what remains,
+and none meets `D-2026-09-22-milestone-speed-over-purity`'s stopping rule.
+
+### Several proof descriptions are stronger than their assertions
+
+The reviewer's C3, carried as it recommended. The `TRAJECTORY` oracle test checks
+that number strings occur somewhere in a free-text statement, and a separate test
+checks the physics; it does not parse each number and attribute it to the
+statement's own boundary, so swapped labels would retain every token. The identity
+field-list guard compares a maintained list against the dataclass's fields rather
+than mutating each field to prove the digest reads it.
+
+*Safe to carry* because both were read and both are correct today: the oracle's
+attribution is right, and the identity serialization does read every listed field.
+The guard probe for the field list mutates the RECORD and watches the guard notice,
+which is the half that matters most.
+
+*What would change the answer:* a second `TRAJECTORY` oracle, or a frozen-input
+field the digest reads through something other than the listed name.
+
+### `ModelSpec` is not a general law executor
+
+A law's operands resolve through the model's declared component relations to
+exactly one address each, and a law writes one stock. That is enough for one law
+about one machine acting on another, and it is not a general mechanism: a law
+needing two write targets, or a relationship BETWEEN machines rather than within
+one, needs a declared connection this model does not have.
+
+*Safe to carry* because the fuel model is the only model and the constraint is
+declared rather than assumed - `_bind_laws` fails as `TOPOLOGY_INCONSISTENT`
+rather than pairing whatever it found first. This is the remainder of the
+reviewer's C2 after the fuel state keys left the shared kernel.
+
+*What would change the answer:* T024's electrical laws. The next implementation
+must not mistake `ModelSpec` for a general law executor, and the reviewer said so
+in as many words.
+
+### A frozen collection whose span nothing reads
+
+`FrozenReportingPathCondition` carries a window and only its address is consumed.
+
+*Safe to carry* because it is one field on a record that had to exist anyway, and
+leaving it out would have reopened for the next consumer the exposure R1 closed.
+
+*What would change the answer:* nothing. T022's observation transform is the
+consumer, and it reads the span off the frozen run rather than off a document.
+
+### A guard harness needs a green baseline, and did not have one
+
+Not a finding of the review: found while fixing it.
+`simulator/tests/conftest.py` pinned `execution_contract_version=5` as a literal,
+the contract moved to 6, the suite went red, and two guard probes reported CAUGHT
+against an already-failing suite - which is those probes measuring nothing. The
+fixture reads the constant now and the harness establishes a baseline and refuses
+to probe if any suite it reads a verdict from is red.
+
+*Safe to carry* as a RECORD rather than as work: both halves are fixed. It is here
+because the generalisation is worth more than the fix. **A probe asserts that a
+test fails after a violation, so it says nothing at all unless that test passes
+before one** - and fourteen probes had been reported as evidence without that
+precondition ever being checked.
+
+*What would change the answer:* nothing. Delete at the milestone review.
+
+## Carried out of T021's second correction round
+
+Added 2026-09-27 after a second Codex pass found four gaps at the boundary a run is
+frozen at. All four are fixed, and so is the same defect one site further on. These
+are what remains, and none meets
+`D-2026-09-22-milestone-speed-over-purity`'s stopping rule.
+
+### A frozen record carries a `float`, and the guard is a refusal
+
+Every number a run freezes crosses `frozen_canonical_value`, which converts once in
+exact arithmetic and then checks that the `float` a frozen record holds reads back
+as the same rational. Where it does not, the run is refused. That is honest and it
+is not the same as being able to freeze the number: a rate whose integral needs a
+denominator above a million cannot be frozen at all.
+
+*Safe to carry* because the refusal is loud, the reachable units are narrow - only
+`L/h` among the canonical units has a non-unit factor - and no shipped or local
+document approaches it. The alternative is an exact representation on every frozen
+record, which changes the run document's shape and therefore the contract version.
+
+*What would change the answer:* a unit with a large factor, a scenario authored in
+very small rates, or any slice that wants a frozen run to carry an exact rational
+rather than a float. That last one is the real fix and it is a deliberate change,
+not a repair.
+
+### Version-6 Drafts in `var/runs` were frozen by pre-fix code
+
+The layout tool creates a Draft per run-setup visit against the live backend, and
+it ran while version 6 was being amended. Those Drafts are version 6 and are
+indistinguishable from post-fix ones, so one could carry a wrongly normalized rate
+or, before the parser guard, a record the parser now refuses.
+
+*Safe to carry* because nothing executes a local Draft, every test regenerates in
+process, and the shipped document declares no rate at all. It is the third time the
+integer-equality version guard has been the thing that cannot tell two builds
+apart, which is the part worth carrying forward rather than this instance.
+
+*What would change the answer:* anything that executes a Draft read out of `var/`.
+The standing instruction is to regenerate, and it has held for three rounds.
+
+### `.agent/` is gitignored, so a broken tool there cannot be restored
+
+A patch script wrote newline escapes into `.agent/T021-guard-probes.py` through a
+script where they were already newlines and broke the block it inserted. There was
+no committed copy to restore from. It was rebuilt with a helper that removes the
+possibility rather than the symptom.
+
+*Safe to carry* because the probe script is evidence rather than product code, it is
+rebuilt from the tests it points at, and the packet records what it measured.
+
+*What would change the answer:* a guard probe script becoming something a later
+slice has to re-run rather than re-derive. If it does, it stops being local-only.
 
 ## Tracked elsewhere, listed so the review finds them
 

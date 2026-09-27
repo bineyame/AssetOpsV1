@@ -251,17 +251,40 @@ class TestTheInventory:
             assert absent not in row, absent
 
     def test_the_order_is_newest_first_and_total(self) -> None:
-        """Two runs made in the same second do not swap between reads."""
+        """Two runs made in the same second do not swap between reads.
+
+        ## This test asserted a tie-break that only holds by luck
+
+        It said "the fixture clock is fixed, so identity is what breaks the tie"
+        and then asserted the whole list was sorted by `run_id` descending. The
+        clock here is NOT fixed - `client()` injects none, so run setup uses the
+        real one - so that assertion held only while all three runs landed in the
+        same second. It failed once during T021's correction round, where freezing
+        the causal projection made `create_run` do enough more work to straddle a
+        second boundary, and passed on every rerun.
+
+        So it now asserts the property the service actually guarantees: the order
+        is total, stable between reads, and sorted by `(created_at, run_id)`
+        descending - which is the sort key `list_runs` declares. The tie-break by
+        identity is still exercised whenever the seconds do coincide, and is no
+        longer the thing the assertion depends on.
+        """
         store = FakeRuns()
         served, _ = client(runs=store)
         for _ in range(3):
             served.post(RUNS_PATH, json=setup_request())
 
-        first = [row["run_id"] for row in served.get(RUNS_PATH).json()["runs"]]
-        second = [row["run_id"] for row in served.get(RUNS_PATH).json()["runs"]]
+        def keys() -> list[tuple[str, str]]:
+            return [
+                (row["created_at"], row["run_id"])
+                for row in served.get(RUNS_PATH).json()["runs"]
+            ]
 
+        first = keys()
+        second = keys()
+
+        assert len(first) == 3
         assert first == second
-        # The fixture clock is fixed, so identity is what breaks the tie.
         assert first == sorted(first, reverse=True)
 
     def test_an_unreadable_store_is_not_an_empty_inventory(self) -> None:
@@ -341,21 +364,28 @@ class TestWhatReadyDoesNotAssert:
         assert created["execution_status"] == "READY"
         disclosure = created["readiness_disclosure"]
         assert disclosure
-        assert "It does not mean they can" in disclosure
-        assert "no causal runtime exists" in disclosure
 
-        # BOTH unverified declarations, since T020B's review found this string
-        # naming only the model profile's while the product advertises two. A
-        # disclosure covering one of two advertised supported sets is what let a
-        # false "it now covers two" claim sit in the durable backlog.
-        assert "model profile's supported states" in disclosure
+        # ONE of the two advertised declarations is verified since T021, and the
+        # text says which. The model profile's supported states now come from a
+        # kernel whose advertised set is derived from executable handlers and
+        # every pair of which was reached by an execution
+        # (`host/tests/test_kernel_conformance.py`), so the claim that nothing
+        # had compared them is gone - a claim that has become false goes in the
+        # slice that falsifies it.
+        assert "no causal runtime exists" not in disclosure
+        assert "supported states have not been compared" not in disclosure
+        assert (
+            "model profile's supported states have been derived from an "
+            "executable kernel" in disclosure
+        )
+
+        # The other half stays, because nothing in this build can suppress a
+        # reading or deliver one, and it keeps its own retirement condition.
         assert "publication profile's supported reporting-path states" in (
             disclosure
         )
         assert "suppress a reading or deliver one" in disclosure
-        # And that neither half alone retires it - the clause that stops the
-        # kernel slice retiring the whole statement while the other claim stands.
-        assert "Neither alone retires it" in disclosure
+        assert "One of those two declarations" in disclosure
 
     def test_it_survives_the_store_rather_than_being_added_by_one_route(
         self,
@@ -383,12 +413,12 @@ class TestWhatReadyDoesNotAssert:
             "run"
         ]["readiness_disclosure"]
 
-        assert "conformance test" in disclosure
-        assert "kernel" in disclosure
-        # The second condition names its own trigger too, rather than borrowing
-        # the first one's. Their dates differ, which is why naming one was
+        # The one remaining condition names its own trigger. The condition the
+        # kernel closed is not restated as pending, and the transform's is not
+        # borrowed from it: their dates differ, which is why naming one was
         # dangerous and not merely incomplete.
         assert "the transform that produces readings" in disclosure
+        assert "retired when" in disclosure
         for slice_number in ("T021", "T022", "T020"):
             assert slice_number not in disclosure
 

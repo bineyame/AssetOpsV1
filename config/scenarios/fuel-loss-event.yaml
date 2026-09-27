@@ -64,10 +64,23 @@
 # fuel, so the publication profile - which owns the path - declares whether it
 # can be modelled, and it does.
 #
-# So a run of this document against a compatible site now reaches READY. What
-# READY does not yet assert is on the run's own screen: no kernel has been
-# proved to implement the states the profile advertises, and T021's conformance
-# test is what makes that word unqualified.
+# So a run of this document against a compatible site now reaches READY.
+#
+# T021 executes it. Two authored readings and one private expectation are
+# corrected below, each against the trajectory the kernel independently computes
+# rather than against an author's second opinion, and the computed trajectory is
+# recorded as a private TRAJECTORY expectation so the corrections can be checked.
+# The readings were 155 L and 150 L where the world this document's own
+# declarations produce holds 254.02 L, which is a number that predates the
+# consumption coefficient moving from this document to the machine.
+#
+# What the reconciliation panel shows for those readings after the correction is
+# the honest residual and worth knowing before reading it. The declared causes
+# still reach 310 L, because this document no longer declares what the generator
+# burns; the reported value is now 254.02 L; and the 55.98 L between them is
+# exactly the consumption the model law owns. It was 155 L of unexplained
+# difference and it is now the one quantity the document deliberately does not
+# carry.
 
 scenario_id: fuel-loss-event
 display_name: Fuel Loss Event
@@ -378,7 +391,20 @@ timeline:
     parameters:
       - parameter_id: level-after-the-gap
         display_name: Fuel level when reporting resumes
-        value: 155
+        # Corrected by T021 from 155 L, and the correction is the kernel's
+        # rather than an author's second guess. Against MG-001's own Foundation
+        # the independently computed world holds 254.02 L here: 430 L at the
+        # start, 55.98 L burnt by the dispatch window (0.311 L/kWh times the
+        # 180 kWh it delivers), and 120 L removed. 155 L was 99.02 L away from a
+        # world this document's own declarations produce, and it predates the
+        # consumption coefficient moving to the machine.
+        #
+        # It is exactly the truth, with no reporting error, because nothing in
+        # this build models one. A sensor's error and the uncertainty around it
+        # belong to the slice that owns the fuel model's expectation basis, and
+        # inventing a plausible discrepancy here would be authoring the very
+        # kind of number this correction removes.
+        value: 254.02
         unit: L
         execution_role: REPORTED_OBSERVATION
         state_key: fuel-tank-volume@fuel-tank
@@ -403,7 +429,11 @@ timeline:
     parameters:
       - parameter_id: hand-recorded-level
         display_name: Level the operator records
-        value: 150
+        # Corrected by T021 from 150 L, for the same reason and to the same
+        # number: nothing moves the tank between offset 1590 and offset 1800, so
+        # the computed world holds 254.02 L at both. The two accounts agreeing
+        # exactly is what a build with no reporting-error model should say.
+        value: 254.02
         unit: L
         execution_role: REPORTED_OBSERVATION
         state_key: fuel-tank-volume@fuel-tank
@@ -444,6 +474,10 @@ timeline:
 # parsed field and rendered by its own payload builder. It never enters source
 # envelopes, accepted evidence, operator screens, product provenance, exports,
 # analytics, or Findings.
+#
+# T021 compared all four against the trajectory its kernel independently computes
+# for this document, and one of them was inconsistent with it. The record of that
+# comparison, and the computed trajectory itself, are the two entries at the end.
 private_expectations:
   - expectation_id: removal-is-separable-from-consumption
     display_name: The removal is separable from ordinary consumption
@@ -460,12 +494,27 @@ private_expectations:
       Any volume a later analysis attributes to the removal must be within
       10 litres of the 120 litres this scenario removes.
 
+  # Corrected by T021, and this is the expectation the computed trajectory made
+  # inconsistent. It assumed the delivery is a clean 300 litre rise that must
+  # simply not be confused with the removal. It is not: the tank holds 254.02 L
+  # at offset 2400 and MG-001's Foundation declares a 500 L capacity, so 245.98 L
+  # of the delivery enters and 54.02 L is recorded as refused against the
+  # capacity. An analysis reconciling a 300 litre delivery record
+  # against the level therefore finds 54.02 L that never appears in the tank, at
+  # the delivery instant, and that quantity is a bounded transition rather than a
+  # loss. The old wording did not forbid attributing it to the removal because it
+  # did not know it existed.
   - expectation_id: refuelling-is-not-a-loss
     display_name: The scheduled delivery is not read as a loss
     oracle_kind: NO_FALSE_POSITIVE
     statement: >-
       The scheduled refuelling must not be attributed to the removal, in either
-      direction, by any later analysis of this interval.
+      direction, by any later analysis of this interval. That covers both halves
+      of it: the volume the tank accepts, and the volume that did not fit because
+      the tank reached the capacity its foundation declares. The second is a
+      bounded delivery and not a loss, and an analysis that read the difference
+      between the delivery record and the level rise as unaccounted fuel would be
+      reporting a false positive about this interval.
 
   - expectation_id: gap-does-not-hide-the-removal
     display_name: The reporting gap does not hide the removal
@@ -473,3 +522,27 @@ private_expectations:
     statement: >-
       The reporting gap must not prevent a later analysis from placing the
       removal within the interval it happened in.
+
+  # The independently computed world, recorded so a reader can check the numbers
+  # above against it rather than take them. It is a private validation input like
+  # every other expectation here: no executable path reads an oracle, which is why
+  # adding this kind moves no contract version
+  # (`D-2026-09-22-contract-version-scope`).
+  #
+  # It is stated against MG-001's own Foundation, because two of the numbers are
+  # the site's rather than this document's - the 500 L capacity and the 0.311
+  # L/kWh coefficient - and the same document against a different installation
+  # produces a different trajectory. That is the point of the split
+  # (`D-2026-09-22-capacity-bound-source`), not a caveat on it.
+  - expectation_id: private-trajectory-against-mg-001
+    display_name: The tank trajectory this document produces
+    oracle_kind: TRAJECTORY
+    statement: >-
+      Against a foundation declaring a 500 litre tank and a generator burning
+      0.311 litres per kilowatt-hour, the stored volume holds 430 litres to
+      offset 1080; loses 3.49875 litres in each of the sixteen steps of the
+      dispatch window, reaching 374.02 at 1320; holds that to 1500; loses 40
+      litres in each of the three steps the removal covers, reaching 254.02 at
+      1545; holds that to 2400, where the 300 litre delivery fills the tank to
+      500 and 54.02 litres are recorded refused; and holds 500 to the end. The
+      dispatch burns 55.98 litres in total and no step is rounded.

@@ -293,8 +293,22 @@ PARAMETER_UNITS = frozenset(
 # What a private expectation asserts. Test-oracle vocabulary: each value names
 # the kind of claim a future test would make about a run of this scenario, and
 # none of them is a product claim, a Finding, a severity, or a confidence.
+#
+# `TRAJECTORY` is the fifth, added by T021, and it is the kind that records what
+# the private WORLD is expected to do rather than what a later analysis should
+# conclude from the evidence. The other four are about the evidence path; a
+# kernel's independently computed result has to be written down somewhere a
+# reader can check it, and that is a different kind of claim.
+#
+# It stays private validation input, like every other kind: no executable path
+# reads any oracle. That is why adding it does not move
+# `EXECUTION_CONTRACT_VERSION` - every document valid before is valid now and
+# means the same thing, and every artifact frozen before regenerates
+# identically. `D-2026-09-22-contract-version-scope` settles this exact case: a
+# pure widening off every executable path cannot alter the outcome for a document
+# that was already valid.
 EXPECTATION_KINDS = frozenset(
-    {"DETECTION", "MAGNITUDE", "TIMING", "NO_FALSE_POSITIVE"}
+    {"DETECTION", "MAGNITUDE", "TIMING", "NO_FALSE_POSITIVE", "TRAJECTORY"}
 )
 
 # How a scenario declares which Site it needs.

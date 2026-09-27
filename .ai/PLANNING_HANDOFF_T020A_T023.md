@@ -71,12 +71,13 @@ Use short task-local requirements plus these pointers, not a copy of v4.
   BLAKE2b-256 deterministic streams and distinct execution failures. Normalize
   authored floats only at the input boundary. No per-step approximation.
   Introduce stochastic mechanisms when the demonstration consumes them.
-- **Placement:** kernel in `simulator/`, shared execution/schema contracts in a
-  dependency-neutral module, wiring in a neutral `host/` leaf. The backend and
-  simulator cannot import each other. Tests that compose both belong outside
-  the backend's scanned tree; establish a runnable simulator/host test root.
-  Current code has no host or execution adapter. v4 3 is the boundary, not a
-  choice to weaken the dependency guard.
+- **Placement:** built by T021. `contracts/assetops_contracts` holds the shared
+  execution and schema contracts, `simulator/assetops_simulator` the kernel and
+  packs, `host/execution_adapter.py` the wiring, and the composing tests live in
+  `host/tests`. Two dependency rules were added with them: nothing imports host,
+  and the contracts import neither side. Both new test roots run with
+  `..\.venv\Scripts\python.exe -m pytest` from their own directory, and the
+  three editable installs the setup needs are in `README.md`.
 - **Observation:** separate transform keyed by
   `(StateRef, device_id, signal_id)`; raw observations stay private and reach
   the Lab through `LabProjection`. Replace authored device readings with
@@ -95,7 +96,11 @@ Renamed switching-position or controller-mode enums are not a workaround.
 
 ## Contract Versions And Retirements
 
-The built `EXECUTION_CONTRACT_VERSION` is **5** after T020B. Three forecast
+The built `EXECUTION_CONTRACT_VERSION` is **6** after T021's correction rounds.
+Version 6 has never left the T021 branch, so its later amendments ride on it under
+the same unreleased-version doctrine versions 2 and 5 used; the ledger paragraph in
+`contracts/assetops_contracts/execution_contract.py` records them rather than
+leaving them invisible after a merge. Three forecast
 transitions happened and they landed as 3, 4 and 5: T020A's Foundation-value
 narrowing, T020A1's addressing, and T020B's requirement-conflict refusal plus
 reporting-path authority move plus the four declared kernel semantics. The old
@@ -113,7 +118,32 @@ own boundary. Never reinterpret earlier frozen runs under a new contract.
 Drafts exist at several versions and `refuse_incompatible_execution` is an
 equality test on the integer, so every Draft below the current number is refused
 execution and stays readable. T021 regenerates rather than executes any Draft it
-did not freeze itself.
+did not freeze itself, and did: every Draft in both new test roots is created in
+process by the real setup service.
+
+**T021 moved the number to 6, and only in its correction round.** The independent
+review found that a frozen run did not determine the experiment it executed - the
+same persisted run, one offset moved on the live document, a different trajectory -
+so run setup now freezes the whole causal projection and a run of an unchanged
+document freezes differently than it did. That is exactly the test
+`D-2026-09-22-contract-version-scope` sets.
+
+Everything else the slice did moves nothing, and it is worth recording because the
+slice touched the contract module more than any since T018. The `TRAJECTORY`
+oracle kind is a pure widening off every executable path, as forecast. The
+contract's relocation to `assetops_contracts` moves identical objects - `is` holds
+between the backend's re-export and the contract's own. The two new formula
+functions are the arithmetic `window-overlap` and `window-ramp` already published,
+tested against those statements' own worked examples. And the kernel's refusal to
+compose two forcing values for one address is that kernel's behaviour rather than
+a contract statement, so it narrows no space a conforming kernel may occupy.
+
+The readiness disclosure's model-profile half is **retired by T021**, whose
+conformance test derives the advertised supported set from executable handlers and
+requires every advertised pair to have run. The publication profile's
+reporting-path half stays, with the observation transform as its condition. Half a
+disclosure retiring is the outcome the T020B correction round was written to make
+possible; naming only one condition would have retired the whole statement here.
 
 T020's fixture-only READY proof is **retired as the primary demonstration**: the
 shipped document reaches `READY` through the form/API path against a Site
