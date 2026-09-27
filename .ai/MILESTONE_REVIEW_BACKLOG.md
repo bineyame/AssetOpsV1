@@ -331,6 +331,60 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## One invalid scenario document takes the whole catalog down
+
+Recorded 2026-09-27 at T021A's closeout, on the owner's decision. Found because
+T021A's narrowing made four user-authored documents invalid, not because anyone
+was looking for it.
+
+`read_scenario_records` in
+`backend/assetops_backend/scenarios/adapters/yaml_scenario_documents.py:48`
+strictly validates every document under its root and **raises
+`ScenarioConfigurationInvalid` on the first invalid one**. There is no
+skip-and-continue. `CompositeScenarioRepository.list_scenarios` calls it for
+both stores, so a single unparseable document in `var/scenarios/` takes the
+entire catalog down - **the shipped scenarios with it**. The screen reports an
+error instead of a list.
+
+Its docstring already distinguishes the case it does tolerate: a missing root is
+an empty store rather than a failure, "and that is not a reason to refuse to
+render the catalog". One bad document is treated as a reason, and the same
+argument applies to it.
+
+**Why this is a product defect rather than a strictness decision.** Strict
+validation on read is right - a document that cannot be parsed must not be
+silently half-loaded. What is wrong is the blast radius. Any future narrowing of
+the authored-document contract invalidates whatever a user already wrote, and
+the consequence is not "that document is unavailable" but "the catalog is
+unavailable". T021A is the second contract narrowing in three slices, so this
+recurs by construction rather than by accident.
+
+**What would close it:** list the documents that parse, and surface each
+invalid one as an inspectable entry naming its file and its validation error,
+rather than replacing the list with an exception. The refusal stays loud; it
+stops being fatal. That is a change to the store's read path and its screen, and
+it wants a slice rather than a patch inside one.
+
+**What the owner decided here:** the four edited documents stay edited. The
+edits were mechanically identical to the shipped change - only the string
+`execution_requirement: REQUIRED` removed, at the two positions a
+`REPORTED_OBSERVATION` carries it, four lines in each Fuel Loss variant and two
+in each twin-tank one, with no value, address, source, timing or identity
+touched. Pre-edit copies were taken but live only in a session scratchpad, and
+`var/` is gitignored, so there is no durable copy; the edit is four hand-edits
+to reverse if that is ever wanted.
+
+**A boundary worth stating for the next dispatch brief:** the Implementer was
+told not to clear or replace `var/sites/` and `var/runs/` and `var/scenarios/`
+was not named, so it edited the third and flagged both judgements rather than
+settling them. That was the right handling of an incomplete instruction. The
+instruction is what was incomplete.
+
+**One consequence of T021's R1 fix worth recording, because it is the first
+place it paid off:** a frozen run carries its whole causal projection and never
+re-reads the document, so editing these files cannot change any existing
+Draft's trajectory or identity. The 165 runs in `var/runs` were unaffected.
+
 ## T030 owes the refused delivery quantity a home
 
 Recorded 2026-09-27 from the owner's operational reading at T021's closeout,
