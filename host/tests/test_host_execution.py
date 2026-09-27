@@ -533,3 +533,82 @@ def _with_tank_capacity(site, capacity: float):
             ),
         ),
     )
+
+
+class TestARateDeclaredOverAWindow:
+    """A rate state effect, integrated once at the input boundary.
+
+    The shipped document no longer declares one - the dispatch window stopped
+    naming a consumption rate when the coefficient moved to the machine - so this
+    branch of the adapter had no document to exercise it. An untested branch that
+    turns a rate into a quantity is a hole in the one place the numeric policy
+    allows an approximation, so it gets a document of its own.
+
+    The example is the contract's own: fourteen litres an hour over four hours is
+    fifty-six litres, and through a binary float it is 56.00000000000001.
+    """
+
+    def _rate_document(self) -> dict:
+        document = shipped_document()
+        for entry in document["timeline"]:
+            if entry["event_id"] != "unaccounted-fuel-removal":
+                continue
+            entry["timing"]["duration_minutes"] = 240
+            entry["state_effect"] = {
+                "direction": "DECREASE",
+                "rate_parameter_id": "removal-rate",
+            }
+            entry["parameters"] = [
+                {
+                    "parameter_id": "removal-rate",
+                    "display_name": "Rate fuel leaves the tank",
+                    "value": 14,
+                    "unit": "L/h",
+                    "execution_role": "CAUSAL_INPUT",
+                    "state_key": TANK,
+                    "execution_requirement": "REQUIRED",
+                    "ownership": {
+                        "owner": "SCENARIO_INPUT",
+                        "initializes": False,
+                    },
+                }
+            ]
+        return document
+
+    def test_the_rate_becomes_the_exact_quantity_the_author_meant(self) -> None:
+        definition = scenario(self._rate_document())
+        executed = run_to_end(draft(definition=definition), definition)
+
+        cause = next(
+            item
+            for item in executed.inputs.causes
+            if item.event_id == "unaccounted-fuel-removal"
+        )
+        assert cause.quantity == Fraction(56)
+        assert cause.canonical_unit == "L"
+        assert cause.dimension == "VOLUME"
+        assert cause.duration_minutes == 240
+
+    def test_the_trajectory_moves_that_quantity_in_full(self) -> None:
+        definition = scenario(self._rate_document())
+        executed = run_to_end(draft(definition=definition), definition)
+        trajectory = executed.trajectory
+
+        assert trajectory.outcome == "COMPLETED", trajectory.failure
+        # 374.02 after the dispatch, then 56 L over sixteen steps of 3.5 L.
+        assert trajectory.boundary_at(1500).stock(TANK) == AFTER_DISPATCH
+        assert trajectory.boundary_at(1515).stock(TANK) == (
+            AFTER_DISPATCH - Fraction(7, 2)
+        )
+        assert trajectory.boundary_at(1740).stock(TANK) == (
+            AFTER_DISPATCH - Fraction(56)
+        )
+        moved = sum(
+            (
+                event.declared
+                for event in trajectory.applied_events
+                if event.event_id == "unaccounted-fuel-removal"
+            ),
+            Fraction(0),
+        )
+        assert moved == Fraction(56)

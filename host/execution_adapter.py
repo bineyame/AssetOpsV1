@@ -58,6 +58,7 @@ from assetops_backend.scenarios.models import ScenarioDefinition
 from assetops_contracts.execution_contract import (
     BOUND_CASES,
     CANONICAL_UNITS,
+    RATE_INTEGRALS,
     normalize_authored_float,
     refuse_incompatible_execution,
 )
@@ -398,19 +399,15 @@ def _causes(
 
         value, unit, dimension = _canonical(float(frozen), parameter.unit)
         if effect.rate_parameter_id is not None:
+            # A rate declared over a window is integrated here, once, at the
+            # input boundary: 14 L/h is 14/60 L/min and over 240 minutes that is
+            # exactly 56 L, which is the number an author would write down. What
+            # the kernel receives is the total, because how much of it has moved
+            # part way through is the window ramp's answer and not a cause's.
             minutes = entry.timing.duration_minutes or 0
             value = value * Fraction(minutes)
-            from assetops_contracts.execution_contract import (
-                CANONICAL_UNITS as _UNITS,
-                RATE_INTEGRALS,
-            )
-
             dimension = RATE_INTEGRALS[dimension]
-            unit = next(
-                canonical.canonical_unit
-                for canonical in _UNITS.values()
-                if canonical.dimension == dimension and canonical.numerator == 1
-            )
+            unit = _canonical_unit_of(dimension)
 
         causes.append(
             DeclaredCause(
@@ -428,6 +425,19 @@ def _causes(
             )
         )
     return tuple(causes)
+
+
+def _canonical_unit_of(dimension: str) -> str:
+    """The canonical unit a dimension is measured in.
+
+    Read from the conversion table rather than spelled here, so a dimension whose
+    canonical unit changes changes in one place.
+    """
+    return next(
+        canonical.canonical_unit
+        for canonical in CANONICAL_UNITS.values()
+        if canonical.dimension == dimension and canonical.numerator == 1
+    )
 
 
 def _reporting_path_addresses(scenario: ScenarioDefinition) -> tuple[str, ...]:
