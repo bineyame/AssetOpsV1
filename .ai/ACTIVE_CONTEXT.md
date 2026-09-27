@@ -15,13 +15,30 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 is built and in review.** `tasks/T021-minimal-fuel-loss-causal-kernel.md`,
-packet `.agent/T021-review-packet.md`, probes `.agent/T021-guard-probes.py`.
+**T021 is built, reviewed once and corrected.**
+`tasks/T021-minimal-fuel-loss-causal-kernel.md`, packet
+`.agent/T021-review-packet.md`, review `.agent/T021-codex-review.md`, probes
+`.agent/T021-guard-probes.py` and `.agent/T021-codex-probes-rerun.py`.
 **Something executes.** A frozen READY Draft of the shipped Fuel Loss Event runs
 in `assetops_simulator` and produces a private trajectory: 430 L, 374.02 L when
 the dispatch window closes, 254.02 L after the removal, and 500 L at the delivery
 with 54.02 L recorded refused. Exact rationals throughout, derived by hand before
 the code ran.
+
+The Codex review returned five defects and the user asked for all five. The one to
+know: **a frozen run did not determine the experiment it executed.** A Draft froze
+the values a scenario declared and left their timing in a mutable document, so the
+same persisted run with one offset moved on the live document produced a different
+trajectory. Run setup now freezes the whole causal projection - causes, forcings,
+bound relationships and reporting-path conditions, each with its resolved address
+and its span - and the executing component takes the run alone. There is no
+parameter through which a different experiment can arrive.
+**`EXECUTION_CONTRACT_VERSION` moved 5 to 6 for that**, and for nothing else the
+slice did. The other four: adjacent windows sharing a step are no longer mistaken
+for ambiguous simultaneous values; a law's operands are resolved before the first
+boundary so a missing coefficient is a classified failure rather than silence; a
+declared cause survives whichever frozen carrier holds its magnitude; and an
+address the run records as unsupported neither acts nor invents a machine.
 
 Five trees now, three of them Python-importable. `contracts/assetops_contracts`
 holds what both sides of the truth barrier agree about, including the versioned
@@ -42,8 +59,7 @@ have been reached by a real execution.
 **`supported_states` has a falsifier**, which closes the backlog's oldest entry,
 and half the readiness disclosure retired with it. The publication profile's
 reporting-path half stays: nothing here can suppress a reading or deliver one, and
-the observation transform is its condition. `EXECUTION_CONTRACT_VERSION` did NOT
-move and stays 5; the code-state entry says why for each change that might have.
+the observation transform is its condition.
 
 Two authored readings in the shipped document were corrected from 155 L and 150 L
 to the computed 254.02 L, and `refuelling-is-not-a-loss` was corrected because the
@@ -53,48 +69,35 @@ The reconciliation reference implementation has lost its authority and stays unt
 its last product-path caller goes, which is T022's.
 
 **T020B, T020A1 and T020A before it are complete and merged**; full records in
-`.ai/CODE_STATE.md`, packets and reviews in `.agent/`. The shipped Fuel Loss Event
-reaches `READY` through the form and API path. A world state is named by an ADDRESS
-- a semantic key plus the component it is claimed on, or `site:` for a fact about
-the installation - carried by one `StateRef`; a Foundation declares typed
-unit-carrying properties that run setup resolves through the profile's binding;
-exactly one profile answers for each state, decided by the state.
+`.ai/CODE_STATE.md`, packets and reviews in `.agent/`. What they settled - the
+addressed world state, typed Foundation properties, and exactly one profile
+answering for each state - is in those entries and is not restated here.
 
-Five lessons those four slices paid for, worth more than their fixes. **Who
-supplies a number and which asset it is about are two questions.** **Visiting a
-reference is not resolving it.** **A check that answers a different question is
-not an answer.** **Two checks that cannot see each other will disagree.** And
-T021's: **a derived set is only a falsifier if the derivation has run** - two
-tables kept in step by hand would have satisfied the same sentence.
+Six lessons those slices paid for are in `.ai/CODE_STATE.md` beside the slice that
+paid for each. The two newest: **a derived set is only a falsifier if the
+derivation has run**, and **a probe says nothing unless the test it breaks passed
+first** - two of fourteen reported CAUGHT against an already-red suite, because a
+fixture pinned a contract version it did not own.
 
-Carried, not lost: `.ai/MILESTONE_REVIEW_BACKLOG.md` has four new entries out of
-T021, of which the one to know is that a definition edited IN PLACE at an unchanged
-scenario version can still move an entry's offset undetected. Five inline
-`float(value)` overflow sites are still open, the HTTP-reachable one first. The run
-store's O(n) create wants a bounded fix with an owner before T027; `var/runs` now
-holds 149 Drafts.
+Carried, not lost. Two of T021's own four carries are now closed by its correction
+round, including the one that mattered; `.ai/MILESTONE_REVIEW_BACKLOG.md` keeps
+both entries with what the carry rationale got wrong, because **a carry can be
+honest in form and still wrong about whose slice it is.** Four entries out of the
+correction round, of which the one to know is that `ModelSpec` is not a general law
+executor and T024 must not mistake it for one. Five inline `float(value)` overflow
+sites are still open, the HTTP-reachable one first. The run store's O(n) create
+wants a bounded fix with an owner before T027; `var/runs` now holds 159 Drafts.
 
 **Next task: T021A**, then T022, T023 and T024 onward per `tasks/README.md`. None
 of the resequencing touches the starter path. T021A is a narrow parser closure to
 be time-boxed and is not a checkpoint.
 
-What the resequencing changed, from position 10 onward: T026 is thinned to
-dispatch-essential evidence and the gateway-failure work moved to T026A; a new
-T029A extracts the minimal immutable policy-intervention mechanism so T034
-verification runs right after T029 instead of behind T030-T033; T033 no longer
-gates verification and adds battery stress to T034's guardrail rule set
-afterwards. Delivery order is now A, B, C, D, H, then E, F, G, I. Feature-map
-letters are outcomes, not order.
-
-Two ordering facts the queue states deliberately. T026A is unscheduled and a
-prerequisite of nothing, including T036; run it whenever feedback and time
-justify it. T033 and T035 are an interchangeable pair, because neither consumes
-the other's artifacts and the choice is a product-priority call from T028/T029
-feedback. Every other position in `tasks/README.md` is load-bearing.
-
-There are four demo points, not one: T027 internal architecture, T028/T029
-domain-expert and early prospect, T034 strong product, T036 full portfolio.
-Seek expert feedback at T028/T029 and reassess T030-T036 from what is said.
+What the resequencing changed from position 10 onward, the two positions that are
+deliberately not load-bearing (T026A unscheduled, T033 and T035 interchangeable)
+and the four demo points are all in `tasks/README.md`, which is authoritative for
+the queue. They were restated here and the restatement is what the line cap is
+for. Delivery order is A, B, C, D, H, then E, F, G, I; feature-map letters are
+outcomes, not order.
 
 Direction comes only from:
 - `Docs/simulator_design_v4.md` for simulator mechanisms;
@@ -121,24 +124,22 @@ this work. Do not reconcile the new plan back to them.
 4. `contracts/assetops_contracts/execution_contract.py` in full for what a kernel
    must do, and `simulator/assetops_simulator/kernel/execute.py` for what one that
    conforms looks like. `backend/assetops_backend/scenarios/execution.py` now holds
-   only the projections of a document.
+   only the projections of a document. `runs/models.py`'s four frozen projection
+   records are what makes a run determine its own experiment.
 5. v4 sections 3, 6, 7, 8, 9 and 23, plus the decisions those name.
 6. `.ai/ARCHITECTURE.md`; `.ai/WORKFLOW.md` for seams, sizing and review shape.
 7. `.ai/ROLE_CONFIG.md` for role bindings.
 
 Site-scoped Controls land with the first controller (T024), not with T020A's
 carrier. The narrow fuel runtime does not complete A or B: A completes at T025,
-B at T027 and the first Finding is T028. T021 is the first slice that makes a
-declaration true rather than declared; what it does not have is a controller, a
-generated observation, a gateway, staging, ingestion, accepted history, analytics
-or a Finding.
+B at T027 and the first Finding is T028.
 
 ## What Is Built
 
-T001-T020 are complete and merged in the base: Site creation/readback, Foundation
-topology/devices/mappings/SLD, Fuel Loss scenario inspection, frozen Draft setup
-and Runs inventory/detail. T020A, T020A1 and T020B add typed component properties,
-addressing, reachable readiness and the declared boundary contract.
+T001-T020B are complete and merged: Site creation/readback, Foundation
+topology/devices/mappings/SLD, Fuel Loss scenario inspection, frozen Draft setup,
+Runs inventory/detail, typed component properties, addressing, reachable readiness
+and the declared boundary contract.
 
 **After T021 a Draft executes, privately.** There is a kernel, a clock, a boundary
 cycle, a private trajectory and a trajectory identity. There is still no generated
@@ -166,17 +167,20 @@ test, and its second scenario document lives in `host/tests/second_site.py` rath
 than in the writable store, because a document that exists to prove a kernel
 property would appear on the scenario catalog screen.
 
-`var/runs/` holds 149 local Drafts. Six were added by two runs of
-`tools/layout-evidence.mjs`, one per run-setup visit, which is what that tool has
-done since T019; nothing clears them. A local Draft is not shipped proof of
+`var/runs/` holds 159 local Drafts. Sixteen were added across this slice by runs
+of `tools/layout-evidence.mjs`, one per run-setup visit, which is what that tool
+has done since T019, plus one manual POST against the live backend; nothing clears
+them. A local Draft is not shipped proof of
 anything: the reachable path is proved by
 `backend/tests/test_execution_contract_alignment.py` and the executable path by
 `host/tests/`, both of which build the Site from the shipped template.
 
 `run-9f74603b06384126a627a5339fc78fbe` on `mg-006` is T020B's READY Draft. It is
-at contract version 5 and T021 did not execute it: the version guard is an
-equality test on an integer and cannot tell a Draft frozen before this build from
-one frozen by it, so every executed Draft is regenerated in process.
+at contract version 5, the build is at 6, and T021 did not execute it: the version
+guard is an equality test on an integer and cannot tell a Draft frozen before a
+build from one frozen by it, so every executed Draft is regenerated in process.
+Every Draft below 6 now carries no causal projection at all and is refused
+execution, which is what makes an empty projection safe to read back.
 
 ## Standing Direction And Checks
 

@@ -96,7 +96,7 @@ Renamed switching-position or controller-mode enums are not a workaround.
 
 ## Contract Versions And Retirements
 
-The built `EXECUTION_CONTRACT_VERSION` is **5** after T020B. Three forecast
+The built `EXECUTION_CONTRACT_VERSION` is **6** after T021's correction round. Three forecast
 transitions happened and they landed as 3, 4 and 5: T020A's Foundation-value
 narrowing, T020A1's addressing, and T020B's requirement-conflict refusal plus
 reporting-path authority move plus the four declared kernel semantics. The old
@@ -117,8 +117,15 @@ execution and stays readable. T021 regenerates rather than executes any Draft it
 did not freeze itself, and did: every Draft in both new test roots is created in
 process by the real setup service.
 
-**T021 did not move the number and it stays 5**, which is worth recording because
-the slice touched the contract module more than any since T018. The `TRAJECTORY`
+**T021 moved the number to 6, and only in its correction round.** The independent
+review found that a frozen run did not determine the experiment it executed - the
+same persisted run, one offset moved on the live document, a different trajectory -
+so run setup now freezes the whole causal projection and a run of an unchanged
+document freezes differently than it did. That is exactly the test
+`D-2026-09-22-contract-version-scope` sets.
+
+Everything else the slice did moves nothing, and it is worth recording because the
+slice touched the contract module more than any since T018. The `TRAJECTORY`
 oracle kind is a pure widening off every executable path, as forecast. The
 contract's relocation to `assetops_contracts` moves identical objects - `is` holds
 between the backend's re-export and the contract's own. The two new formula

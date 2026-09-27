@@ -475,7 +475,7 @@ Added 2026-09-27 at implementation, under
 expensive to reverse, none misleads an implementer about what the code does, none
 needs a user decision. Three of the four are named in the code that carries them.
 
-### A definition edited in place, at an unchanged version, can still move an entry
+### ~~A definition edited in place, at an unchanged version, can still move an entry~~ - RESOLVED in T021's correction round, 2026-09-27
 
 The host adapter compares two things between a frozen run and the definition it
 names: the scenario version, and the exact set of parameters the document declares
@@ -497,6 +497,26 @@ means either freezing the timeline's structural content on the run - which chang
 the frozen identity and therefore the contract version - or adding a content
 digest of the projected structure to the run. Both are real changes and neither
 belonged in the kernel slice.
+
+**Closed, by the first of those two, and the carry rationale above was wrong.**
+T021's independent review reproduced the exposure rather than reasoning about it -
+the same persisted run, one offset moved from 1500 to 1515, 334.02 L becoming
+374.02 L - and said the rationale was insufficient because T021 owes this boundary
+and now produces the trajectory later slices rely on. It was right: an offset is a
+causally effective number, and calling the exposure "structure only" did not make
+it harmless. Run setup freezes the causal projection, the executing component
+takes the run alone, and `EXECUTION_CONTRACT_VERSION` moved 5 to 6.
+
+The second option - a content digest - was rejected on the reviewer's own
+argument, and it is the sentence worth keeping: **a digest detects drift and then
+refuses, and the criterion asks for reconstruction.** Detection is not
+reconstruction.
+
+Kept rather than deleted because the entry is the record that a carry can be
+honest in form and still wrong in substance. It named the exposure accurately and
+priced both closures, and then reached the wrong conclusion about whose slice it
+was - which is the failure mode the backlog's own preamble exists to prevent and
+did not.
 
 ### The shipped scenario's content changed without a `scenario_version` move
 
@@ -538,7 +558,7 @@ exercises fuel movement with no dispatch. The fix is per-law rather than global:
 law would declare whether its forcing is required for the run or only for the
 steps the forcing covers.
 
-### `reporting_path_addresses` carries addresses and not windows
+### ~~`reporting_path_addresses` carries addresses and not windows~~ - RESOLVED in T021's correction round
 
 A reporting-path forcing reaches the neutral frozen inputs as an address so the
 kernel can say it was withheld deliberately, and its WINDOW is dropped, because
@@ -550,6 +570,80 @@ consumer that needs it, and widening a field is cheap.
 
 *What would change the answer:* nothing before T022. It is listed so that slice
 widens the field rather than discovering it missing.
+
+**Closed as a side effect of R1.** `FrozenReportingPathCondition` carries the
+window, because the defect R1 closed is precisely a declared span being read from
+a mutable document at execution time, and leaving this one behind would have
+reopened it for the observation transform. The neutral `reporting_path_addresses`
+still carries addresses only, which is all the kernel consumes; T022 reads the
+span off the frozen run.
+
+## Carried out of T021's correction round
+
+Added 2026-09-27 after the Codex review returned R1-R5 and the user asked for all
+five. R1-R5 and the reviewer's C1 are fixed and C2 shrank. These are what remains,
+and none meets `D-2026-09-22-milestone-speed-over-purity`'s stopping rule.
+
+### Several proof descriptions are stronger than their assertions
+
+The reviewer's C3, carried as it recommended. The `TRAJECTORY` oracle test checks
+that number strings occur somewhere in a free-text statement, and a separate test
+checks the physics; it does not parse each number and attribute it to the
+statement's own boundary, so swapped labels would retain every token. The identity
+field-list guard compares a maintained list against the dataclass's fields rather
+than mutating each field to prove the digest reads it.
+
+*Safe to carry* because both were read and both are correct today: the oracle's
+attribution is right, and the identity serialization does read every listed field.
+The guard probe for the field list mutates the RECORD and watches the guard notice,
+which is the half that matters most.
+
+*What would change the answer:* a second `TRAJECTORY` oracle, or a frozen-input
+field the digest reads through something other than the listed name.
+
+### `ModelSpec` is not a general law executor
+
+A law's operands resolve through the model's declared component relations to
+exactly one address each, and a law writes one stock. That is enough for one law
+about one machine acting on another, and it is not a general mechanism: a law
+needing two write targets, or a relationship BETWEEN machines rather than within
+one, needs a declared connection this model does not have.
+
+*Safe to carry* because the fuel model is the only model and the constraint is
+declared rather than assumed - `_bind_laws` fails as `TOPOLOGY_INCONSISTENT`
+rather than pairing whatever it found first. This is the remainder of the
+reviewer's C2 after the fuel state keys left the shared kernel.
+
+*What would change the answer:* T024's electrical laws. The next implementation
+must not mistake `ModelSpec` for a general law executor, and the reviewer said so
+in as many words.
+
+### A frozen collection whose span nothing reads
+
+`FrozenReportingPathCondition` carries a window and only its address is consumed.
+
+*Safe to carry* because it is one field on a record that had to exist anyway, and
+leaving it out would have reopened for the next consumer the exposure R1 closed.
+
+*What would change the answer:* nothing. T022's observation transform is the
+consumer, and it reads the span off the frozen run rather than off a document.
+
+### A guard harness needs a green baseline, and did not have one
+
+Not a finding of the review: found while fixing it.
+`simulator/tests/conftest.py` pinned `execution_contract_version=5` as a literal,
+the contract moved to 6, the suite went red, and two guard probes reported CAUGHT
+against an already-failing suite - which is those probes measuring nothing. The
+fixture reads the constant now and the harness establishes a baseline and refuses
+to probe if any suite it reads a verdict from is red.
+
+*Safe to carry* as a RECORD rather than as work: both halves are fixed. It is here
+because the generalisation is worth more than the fix. **A probe asserts that a
+test fails after a violation, so it says nothing at all unless that test passes
+before one** - and fourteen probes had been reported as evidence without that
+precondition ever being checked.
+
+*What would change the answer:* nothing. Delete at the milestone review.
 
 ## Tracked elsewhere, listed so the review finds them
 
