@@ -331,6 +331,63 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## Carried out of T021
+
+Added 2026-09-27 after two Codex passes and a backup Claude review that
+accepted the slice at 17 of 17 criteria and 8 of 8 mutation rows. Neither item
+meets `D-2026-09-22-milestone-speed-over-purity`'s stopping rule: neither is
+expensive to reverse, neither misleads T022 about the trajectory it consumes,
+and the reviewer measured that no record in `var/runs` carries a value of
+either shape.
+
+**F1 - a correct refusal reaches the HTTP route as a 500.**
+`CanonicalValueNotRepresentable` is raised at
+`contracts/assetops_contracts/execution_contract.py:1139` and called from
+`backend/assetops_backend/runs/service.py:1077`, `:1527` and `:1564`, all
+inside run setup, with nothing catching it. Measured with a `1e-06 L/h` rate
+over a 30-minute window: the helper refuses correctly, run setup raises out of
+`create_draft_run`, and `POST /api/simulator-lab/runs` returns **500 with zero
+records written**. This is the shape of the second pass's gap 3 - a refusal
+that is right about the world, raised where this product has always blocked -
+and gap 3's fix gave `UnresolvedCausalProjection` a blocking reason and a
+persisted BLOCKED run. The refusal introduced in the same round did not get
+that treatment. Reachability is narrow: `L/h` is the only canonical unit with
+a non-unit factor. Fix by giving it gap 3's treatment, or by refusing at the
+scenario parser where the unit and the window length are both in hand.
+
+**F2 - a magnitude below the normalization resolution freezes as zero and the
+run COMPLETES.** `_exact` is `Fraction(value).limit_denominator(1_000_000)` at
+`execution_contract.py:387`, and it runs at the input boundary **before**
+`frozen_canonical_value`, so that helper's round-trip guard compares against an
+already-normalized value and structurally cannot see a magnitude lost there.
+Measured, and not rate-specific: authored `1e-07 L` on the removal freezes as
+exactly 0 and the run COMPLETES with three applied events moving nothing;
+authored `1e-09 L/h` over 60 minutes does the same with four. `_exact` is on
+`main` and is the declared one-time normalization, so this is not a regression
+- but T021 is what made it causally consequential. Fix by refusing or blocking
+when a non-zero authored magnitude normalizes to exactly zero, which is one
+condition at the same boundary F1 sits on, so price them together.
+
+**One question is open for Codex**, which wrote the gap-3 fix and is the right
+reader for what it was meant to cover: did that fix intend to close the class
+or the instance, and does either of these belong in T021 or here? A different
+answer moves F1 from carry to fix. Not a gate - recorded so the question is not
+lost rather than because the slice waits on it.
+
+**A claim corrected rather than carried.** The packet's second correction round
+said "A rate whose integral needs a denominator above a million cannot be
+frozen at all. The refusal is loud." That is true only *above* the
+normalization resolution; below it the same class of value is silently zero.
+The sentence would tell a later reader that no magnitude can be lost silently,
+and one can.
+
+**Third occurrence of the version guard's blind spot.** `var/runs` holds
+version-6 Drafts frozen by pre-fix code, indistinguishable from post-fix ones
+because `refuse_incompatible_execution` compares an integer. Nothing executes a
+local Draft and every test regenerates, so this instance is harmless. The
+pattern is what carries: an equality test on a version number cannot separate
+two builds that shared it.
+
 ## Carried out of T020B's review rounds
 
 Added 2026-09-27 at closeout, after two Codex passes, three Claude passes and
