@@ -29,6 +29,7 @@ from conftest import (
 )
 
 from assetops_contracts.execution_contract import (
+    EXECUTION_CONTRACT_VERSION,
     ExecutionContractIncompatible,
 )
 from assetops_contracts.failures import (
@@ -73,9 +74,10 @@ class TestTheVocabularyItself:
 
 class TestAnIncompatibleContractIsRefusedBeforeAnythingIsInitialized:
     def test_a_run_frozen_against_another_version_is_not_executed(self) -> None:
+        earlier = EXECUTION_CONTRACT_VERSION - 1
         with pytest.raises(ExecutionContractIncompatible) as raised:
-            execute(world_inputs(execution_contract_version=4))
-        assert "version 4" in str(raised.value)
+            execute(world_inputs(execution_contract_version=earlier))
+        assert f"version {earlier}" in str(raised.value)
         assert "stays readable" in str(raised.value)
 
     def test_it_is_refused_rather_than_failing_as_an_execution(self) -> None:
@@ -86,7 +88,11 @@ class TestAnIncompatibleContractIsRefusedBeforeAnythingIsInitialized:
         that started.
         """
         with pytest.raises(ExecutionContractIncompatible):
-            execute(world_inputs(execution_contract_version=6))
+            execute(
+                world_inputs(
+                    execution_contract_version=EXECUTION_CONTRACT_VERSION + 1
+                )
+            )
 
 
 class TestAnEntryOutsideTheInterval:

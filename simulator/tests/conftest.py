@@ -32,6 +32,7 @@ from typing import Any
 
 import pytest
 
+from assetops_contracts.execution_contract import EXECUTION_CONTRACT_VERSION
 from assetops_contracts.failures import EXECUTION_FAILURE_KINDS, OBSERVED_KINDS
 from assetops_contracts.world_inputs import (
     DeclaredBound,
@@ -119,7 +120,12 @@ def world_inputs(**overrides: Any) -> FrozenWorldInputs:
     """The shipped Fuel Loss Event's frozen content, or a variation of it."""
     base: dict[str, Any] = dict(
         run_id="run-" + "0" * 32,
-        execution_contract_version=5,
+        # Read from the contract rather than written as a literal. It was a 5,
+        # the contract moved to 6 while fixing the returned defects, and the whole
+        # suite went red without anybody noticing until a guard probe reported
+        # CAUGHT against an already-failing suite. A fixture that pins a version
+        # it does not own is a fixture that goes stale silently.
+        execution_contract_version=EXECUTION_CONTRACT_VERSION,
         site_id="MG-001",
         foundation_version=1,
         scenario_id="fuel-loss-event",
