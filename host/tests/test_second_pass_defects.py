@@ -449,24 +449,78 @@ class TestExclusionIsAtTheAddressAndRoleGrain:
     ) -> None:
         """Topology asks a different question, and this is it.
 
-        An address excluded in every role it appears in is not a machine this model
-        works with, so it must not resolve a component. A site-scoped optional
-        input is the case, and it is the R5 reproduction - it stays fixed.
+        An address excluded in every role it appears in is not a machine this
+        model works with, so it must not resolve a component.
+
+        **It has to be a COMPONENT-scoped address, and the first version of this
+        test was not.** It used a `site:` one, which the scope filter removes
+        before the exclusion is consulted - so the test passed with the exclusion
+        removed from topology and proved nothing. A guard probe found that.
+
+        So: a second tank, named ONLY by an optional forcing of a state this model
+        can cause but not force. Its only mention is in a role the run records as
+        unsupported, so it is a machine this model can do nothing with. Counted, it
+        is a second tank and the run fails `TOPOLOGY_INCONSISTENT`.
         """
-        document = shipped_document()
-        document["public_parameters"].append(
+        from second_site import SECOND_SITE_ID, second_site_document
+        from fixtures import TWIN_TANK_TEMPLATE
+
+        document = second_site_document()
+        document["timeline"].append(
             {
-                "parameter_id": "an-optional-site-wide-value",
-                "display_name": "An optional site-wide value",
-                "value": 0.9,
-                "unit": "L/kWh",
-                "execution_role": "CAUSAL_INPUT",
-                "state_key": "site:generator-specific-fuel-consumption",
+                "event_id": "north-tank-optional-forcing",
+                "sequence": 9,
+                "offset_minutes": 0,
+                "entry_kind": "EVENT",
+                "category": "EQUIPMENT",
+                "description": "An optional forcing of the other tank's volume.",
+                "execution_role": "FORCING_INPUT",
+                "state_key": "fuel-tank-volume@north-tank",
                 "execution_requirement": "OPTIONAL",
-                "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
+                "timing": {"shape": "INTERVAL_WIDE"},
+                "parameters": [
+                    {
+                        "parameter_id": "north-tank-forced-volume",
+                        "display_name": "Forced north tank volume",
+                        "value": 300,
+                        "unit": "L",
+                        "execution_role": "FORCING_INPUT",
+                        "state_key": "fuel-tank-volume@north-tank",
+                        "execution_requirement": "OPTIONAL",
+                        "ownership": {
+                            "owner": "SCENARIO_INPUT",
+                            "initializes": False,
+                        },
+                    }
+                ],
             }
         )
-        executed = run_to_end(draft(definition=scenario(document)))
-        assert executed.trajectory.outcome == "COMPLETED", (
-            executed.trajectory.failure
+        document["timeline"].sort(key=lambda entry: entry["offset_minutes"])
+        for index, entry in enumerate(document["timeline"], 1):
+            entry["sequence"] = index
+
+        definition = scenario(document)
+        site = site_from_template(
+            TWIN_TANK_TEMPLATE,
+            site_id=SECOND_SITE_ID,
+            display_name="Twin-tank mini-grid",
         )
+        record = draft(
+            definition=definition,
+            site=site,
+            end_time="2026-09-22T01:00:00Z",
+        )
+        assert record.execution_status == "READY", record.blocking_reasons
+        # The non-empty control: the north tank IS named, and only in a role the
+        # run records as unsupported.
+        assert ("fuel-tank-volume@north-tank", "FORCING_INPUT") in [
+            (item.addressed_key, item.execution_role)
+            for item in record.unsupported_optional_inputs
+        ]
+
+        trajectory = run_to_end(record).trajectory
+
+        assert trajectory.outcome == "COMPLETED", trajectory.failure
+        assert {address for address, _ in trajectory.final.stocks} == {
+            "fuel-tank-volume@south-tank"
+        }
