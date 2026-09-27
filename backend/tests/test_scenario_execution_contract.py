@@ -2163,3 +2163,178 @@ class TestTheWindowRulesFollowFromThePredicate:
         for rule in DISPATCH_RULES:
             for phrase in forbidden:
                 assert phrase not in rule.statement, (rule.rule_id, phrase)
+
+
+class TestAReadingDeclaresNoExecutionRequirement:
+    """T021A: the position is closed, and its absence is enforced.
+
+    `execution_requirement` decides whether run setup may proceed without
+    support for an input a kernel CONSUMES. Nothing consumes a reading, so a
+    level on one was read by nothing while reading as a claim that a profile had
+    to model reporting the state. The field is gone from the reported-observation
+    structure and its presence is refused.
+
+    Every scan below asserts its own input is non-empty first, and the refusals
+    are measured by MUTATING a document that parses rather than by handing the
+    parser something that was never valid. A test that passes because the field
+    was never there proves nothing about whether it would be refused.
+    """
+
+    def observation_positions(self, document: dict) -> list[tuple[str, dict]]:
+        """Every position in a raw document that declares a reading.
+
+        Both positions, because a rule applied at one of the two is a rule with
+        the other left over - the shape of the hole the T018 review found in the
+        cadence prohibition, and the one T020A1 found in address resolution.
+        """
+        found: list[tuple[str, dict]] = []
+        for index, entry in enumerate(document["timeline"]):
+            if entry["execution_role"] == "REPORTED_OBSERVATION":
+                found.append((f"scenario.timeline[{index}]", entry))
+            for position, parameter in enumerate(entry.get("parameters", ())):
+                if parameter["execution_role"] == "REPORTED_OBSERVATION":
+                    found.append(
+                        (
+                            f"scenario.timeline[{index}]."
+                            f"parameters[{position}]",
+                            parameter,
+                        )
+                    )
+        for position, parameter in enumerate(document["public_parameters"]):
+            if parameter["execution_role"] == "REPORTED_OBSERVATION":
+                found.append(
+                    (f"scenario.public_parameters[{position}]", parameter)
+                )
+        return found
+
+    def test_no_shipped_reading_declares_one(self) -> None:
+        """Criteria 1 and 2 over the document the product ships."""
+        document = shipped_document()
+        positions = self.observation_positions(document)
+
+        assert len(positions) == 4, [where for where, _ in positions]
+        for where, raw in positions:
+            assert "execution_requirement" not in raw, where
+
+        scenario = shipped_scenario()
+        readings = [
+            entry
+            for entry in scenario.timeline
+            if entry.execution_role == "REPORTED_OBSERVATION"
+        ]
+        assert [entry.event_id for entry in readings] == [
+            "fuel-level-after-the-gap",
+            "operator-tank-inspection",
+        ]
+        for entry in readings:
+            assert entry.execution_requirement is None, entry.event_id
+            # The state it is about survives. The narrowing is the requirement
+            # and not the address: a reading nobody can place is still a
+            # reference nothing can be said about.
+            assert entry.state_ref is not None, entry.event_id
+            assert entry.observation is not None, entry.event_id
+            assert entry.parameters
+            for parameter in entry.parameters:
+                assert parameter.execution_requirement is None
+                assert parameter.state_ref is not None
+
+    def test_the_shipped_causes_and_forcings_still_declare_one(self) -> None:
+        """Criterion 3: the narrowing reaches one role and no other.
+
+        The control for the scan above. Without it, a build that dropped the
+        field everywhere - or stopped parsing it at all - would satisfy every
+        other assertion in this class.
+        """
+        scenario = shipped_scenario()
+        levels: dict[str, set[str | None]] = {}
+
+        def record(role: str, requirement: str | None) -> None:
+            levels.setdefault(role, set()).add(requirement)
+
+        for entry in scenario.timeline:
+            record(entry.execution_role, entry.execution_requirement)
+            for parameter in entry.parameters:
+                record(
+                    parameter.execution_role, parameter.execution_requirement
+                )
+        for parameter in scenario.public_parameters:
+            record(parameter.execution_role, parameter.execution_requirement)
+
+        # Three roles, which is what the shipped document uses: it declares no
+        # NON_EXECUTABLE_CONDITION, and asserting a level for one would be
+        # asserting over an empty set.
+        assert set(levels) == {
+            "CAUSAL_INPUT",
+            "FORCING_INPUT",
+            "REPORTED_OBSERVATION",
+        }
+        assert levels["CAUSAL_INPUT"] == {"REQUIRED"}
+        # Both levels are exercised by the shipped document, so REQUIRED and
+        # OPTIONAL are both still parsed rather than one of them surviving.
+        assert levels["FORCING_INPUT"] == {"REQUIRED", "OPTIONAL"}
+        assert levels["REPORTED_OBSERVATION"] == {None}
+
+    @pytest.mark.parametrize("requirement", ["REQUIRED", "OPTIONAL"])
+    def test_adding_one_to_a_shipped_reading_is_refused_at_every_position(
+        self, requirement: str
+    ) -> None:
+        """The Proof section's mutation, at every position that could carry it.
+
+        Both levels, because the refusal is about the POSITION and not about
+        which value arrived there: a rule that only caught `REQUIRED` would let
+        an author write `OPTIONAL` on a reading and be told nothing.
+        """
+        # The baseline first. A mutation test that never established the
+        # document parses says nothing about what the mutation caused.
+        assert parse_scenario_document(
+            shipped_document(),
+            source="the shipped definition",
+            origin="SHIPPED",
+        )
+
+        positions = self.observation_positions(shipped_document())
+        assert len(positions) == 4
+
+        for where, _ in positions:
+            document = shipped_document()
+            for target, raw in self.observation_positions(document):
+                if target == where:
+                    raw["execution_requirement"] = requirement
+
+            with pytest.raises(ScenarioConfigurationInvalid) as raised:
+                parse_scenario_document(
+                    document,
+                    source="the shipped definition",
+                    origin="SHIPPED",
+                )
+
+            message = str(raised.value)
+            # The position, so an author is told which row to fix rather than
+            # that the document is wrong somewhere.
+            assert f"'{where}.execution_requirement'" in message, message
+            assert requirement in message
+            assert "REPORTED_OBSERVATION" in message
+
+    def test_a_reading_in_the_fixture_document_is_refused_the_same_way(
+        self,
+    ) -> None:
+        """The rule is the parser's, not a property of one document.
+
+        The fixture is a different document, with different states and both
+        observation source kinds, and it crosses the same function - which is
+        what "there is no lenient path and no second parser" has to mean.
+        """
+        assert parse_scenario_document(
+            scenario_document(), source="a test", origin="SHIPPED"
+        )
+
+        mutated = scenario_document()
+        positions = self.observation_positions(mutated)
+        assert len(positions) == 4
+        where, raw = positions[0]
+        raw["execution_requirement"] = "REQUIRED"
+
+        with pytest.raises(ScenarioConfigurationInvalid) as raised:
+            parse_scenario_document(mutated, source="a test", origin="SHIPPED")
+
+        assert f"'{where}.execution_requirement'" in str(raised.value)

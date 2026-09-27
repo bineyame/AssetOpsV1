@@ -90,7 +90,7 @@ function reported(
     unit: "L",
     execution_role: "REPORTED_OBSERVATION",
     state_key: "fuel-tank-volume",
-    execution_requirement: "REQUIRED",
+    execution_requirement: null,
     ownership: null,
     bounds: null,
     canonical: { value, unit: "L", dimension: "VOLUME" },
@@ -307,7 +307,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       description: "Reporting resumes far below what dispatch accounts for.",
       execution_role: "REPORTED_OBSERVATION",
       state_key: "fuel-tank-volume",
-      execution_requirement: "REQUIRED",
+      execution_requirement: null,
       timing: { shape: "POINT", duration_minutes: null },
       state_effect: null,
       observation: {
@@ -331,7 +331,7 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
       description: "An operator records the level by hand.",
       execution_role: "REPORTED_OBSERVATION",
       state_key: "fuel-tank-volume",
-      execution_requirement: "REQUIRED",
+      execution_requirement: null,
       timing: { shape: "POINT", duration_minutes: null },
       state_effect: null,
       observation: {

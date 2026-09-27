@@ -223,7 +223,35 @@ from fractions import Fraction
 #: run outside this branch carries six. That is the doctrine versions two and five
 #: used, and this paragraph is what stops the amendment being invisible after the
 #: merge. Once this merges, the next narrowing is a seven.
-EXECUTION_CONTRACT_VERSION = 6
+#:
+#: ## Seven since T021A, and it is the narrowest move this ledger records
+#:
+#: A `REPORTED_OBSERVATION` carries no `execution_requirement`, and a document
+#: that declares one is refused. Nothing reads that field on a reading - which is
+#: the whole argument for closing the position - so no kernel behaves differently
+#: under seven than under six.
+#:
+#: It moves the number anyway, and the reason is the one
+#: `D-2026-09-22-contract-version-scope` settles: the test is DIRECTION against
+#: the documents that already exist, not whether an executor's behaviour changes.
+#: This NARROWS. The shipped Fuel Loss Event was valid at six with two readings
+#: declared `REQUIRED`, and at seven that same document is refused. Runs were
+#: frozen against it, and the artifact can no longer be re-derived from a
+#: document that parses - which is exactly the situation the number exists to
+#: signal at readback.
+#:
+#: Six IS published: T021 merged to `main` and the local run store carries
+#: Drafts at six. So the unreleased-version doctrine that let five's four
+#: amendments and two's three ride in place does not apply, and this spends a
+#: number rather than amending one. The paragraph above said as much before the
+#: merge: "once this merges, the next narrowing is a seven."
+#:
+#: One thing it deliberately does NOT change, because the narrowing could be
+#: mistaken for it: a reading's ADDRESS is still resolved against the Site and
+#: still blocks a run it cannot be placed on. What is gone is the support
+#: question - whether a profile must model reporting that state - which was
+#: asked on behalf of nothing.
+EXECUTION_CONTRACT_VERSION = 7
 
 
 class ExecutionContractIncompatible(Exception):

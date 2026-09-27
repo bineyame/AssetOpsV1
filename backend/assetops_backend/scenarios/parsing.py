@@ -28,6 +28,11 @@ value to mean two things at once:
   There is no field on a reported value that could name it as the source of an
   initial state or a transition, and that is the structural form of "an
   observation never prescribes private world state";
+- a reported observation that declares an execution requirement, since T021A.
+  A requirement level decides whether run setup may proceed without support for
+  an input a kernel CONSUMES, and nothing consumes a reading - so the position
+  is closed rather than left carrying a level nothing reads. The shipped
+  document declared two readings `REQUIRED` and no run ever asked for them;
 - a timing shape whose fields do not match it: a point with a length, a window
   without one, a rate applied at an instant;
 - two answers to one initial world value, or none;
@@ -131,6 +136,7 @@ from assetops_backend.scenarios.models import (
     INITIALIZATION_OWNERS,
     OBSERVATION_SOURCE_KINDS,
     PARAMETER_UNITS,
+    REQUIREMENT_BEARING_ROLES,
     ROLES_BY_ENTRY_KIND,
     SCENARIO_ORIGINS,
     STATE_CHANGING_ROLES,
@@ -1091,12 +1097,20 @@ def _parse_private_expectations(
 def _parse_execution_placement(
     raw: Mapping[str, Any], execution_role: str, *, where: str, source: str
 ) -> tuple[StateRef | None, str | None]:
-    """The two fields an executable value must carry, and must not otherwise.
+    """The two fields an executable value may carry, and must not otherwise.
 
-    An executable value names the state it concerns and says whether later run
-    setup may proceed without support for it. A non-executable condition names
-    neither, because nothing consumes it and a state key on a value nothing
+    An executable value names the state it concerns. A non-executable condition
+    names none, because nothing consumes it and a state key on a value nothing
     consumes would read as a claim about the world.
+
+    Whether later run setup may proceed without support for it is the second
+    field, and since T021A only a `REQUIREMENT_BEARING_ROLES` value carries it.
+    A reported observation names its state and states no requirement: nothing
+    consumes a reading, so there is no run that could proceed without support
+    for it, and a level there was read by nothing while reading as a claim that
+    a profile had to model reporting the state. Presence is REFUSED rather than
+    ignored, and the refusal names the position, because ignoring it is what let
+    the shipped document declare two readings `REQUIRED` unnoticed.
 
     Since T020A1 the state it names is an ADDRESS. `state_key` holds the whole
     reference - the semantic key, optionally scoped `site:` or addressed to
@@ -1123,12 +1137,30 @@ def _parse_execution_placement(
             f"'{where}.state_key' is required for the executable role "
             f"{execution_role!r} in {source}. An executable value names the "
             "world or reporting state it concerns, so later run setup can "
-            "decide whether the chosen model profile supports it."
+            "resolve it against the Site that has to carry it."
         )
 
     resolved_state_ref = _require_state_ref(
         raw, "state_key", where=where, source=source
     )
+
+    if execution_role not in REQUIREMENT_BEARING_ROLES:
+        if requirement is not None:
+            raise ScenarioConfigurationInvalid(
+                f"'{where}.execution_requirement' is declared as "
+                f"{requirement!r} on a {execution_role} in {source}. A "
+                "requirement level says whether later run setup may proceed "
+                "without support for an input a kernel CONSUMES, and nothing "
+                "consumes a reading: it is what a source said, not what the "
+                "world was told to do. There is no level to declare here - "
+                "remove the field. If the intent was that the world state "
+                "behind the reading must be modelled, declare that on the "
+                "cause that moves it; if it was about whether the reporting "
+                "path carries readings at all, that is a forcing input on the "
+                "reporting path and the publication profile answers for it."
+            )
+        return resolved_state_ref, None
+
     resolved_requirement = _require_choice(
         raw,
         "execution_requirement",

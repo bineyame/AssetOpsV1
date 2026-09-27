@@ -1507,7 +1507,14 @@ class TestTheAddressObligationIgnoresTheRequirementLevel:
     """
 
     def declared(self, reference: str, requirement: str):
-        """The twin document with its north level retargeted and re-levelled."""
+        """The twin document with its north level retargeted and re-levelled.
+
+        Re-levelled only where a level is a field. Since T021A a reported
+        observation declares no `execution_requirement`, so the reading entry
+        naming this reference is left alone - writing one there is refused by the
+        parser, and the address obligation this class is about was never the
+        requirement's to carry.
+        """
         document = twin_document(
             north_level_ref=reference, south_level_ref=None
         )
@@ -1515,9 +1522,12 @@ class TestTheAddressObligationIgnoresTheRequirementLevel:
             if parameter["parameter_id"] == "north-start":
                 parameter["execution_requirement"] = requirement
         for entry in document["timeline"]:
-            if entry.get("state_key") == reference:
+            if entry.get("state_key") != reference:
+                continue
+            if entry["execution_role"] != "REPORTED_OBSERVATION":
                 entry["execution_requirement"] = requirement
-                for parameter in entry.get("parameters", []):
+            for parameter in entry.get("parameters", []):
+                if parameter["execution_role"] != "REPORTED_OBSERVATION":
                     parameter["execution_requirement"] = requirement
         return run(document=document)
 
@@ -1578,17 +1588,15 @@ class TestTheAddressObligationIgnoresTheRequirementLevel:
         )
 
         assert record.execution_status == "READY"
-        # Two records for one address, because the fixture declares that
-        # level as a cause and reports it through the operator record - and a
-        # profile may be able to do one and not the other, so they are two
-        # skipped things rather than one.
+        # One record, and since T021A that is the whole set. The fixture also
+        # reports that level through the operator record, and a reading is no
+        # longer a support question: there is no requirement on it to be
+        # optional about, so nothing was skipped on its behalf. The cause is
+        # what a profile was asked about and what the row names.
         assert {
             (item.addressed_key, item.execution_role)
             for item in record.unsupported_optional_inputs
-        } == {
-            (f"unmodelled-level@{NORTH_TANK}", "CAUSAL_INPUT"),
-            (f"unmodelled-level@{NORTH_TANK}", "REPORTED_OBSERVATION"),
-        }
+        } == {(f"unmodelled-level@{NORTH_TANK}", "CAUSAL_INPUT")}
 
     def test_the_same_reference_required_blocks_instead(self) -> None:
         """The control for the line above: the level is what differs."""

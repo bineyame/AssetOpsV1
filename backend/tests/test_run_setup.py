@@ -985,13 +985,21 @@ class TestBlockedDraftsArePersisted:
         assert store.written == [record]
 
     def test_an_unsupported_role_on_a_supported_state_blocks(self) -> None:
+        """A state a profile models, in a role it does not.
+
+        Reported, never caused, rather than the other way round. Since T021A a
+        reading is not a support question at all, so a profile that models the
+        state only as a cause has nothing left to refuse; the case that still
+        exists is a profile that models the state and not the role a kernel
+        would have to CONSUME it in.
+        """
         narrowed = (
             SupportedState(
                 state_key="example-stored-volume",
                 scope="COMPONENT",
-                supported_roles=frozenset({"CAUSAL_INPUT"}),
+                supported_roles=frozenset({"REPORTED_OBSERVATION"}),
                 foundation_binding=None,
-                statement="Caused but never reported.",
+                statement="Reported but never caused.",
             ),
             default_supported_states()[1],
         )
@@ -1046,18 +1054,65 @@ class TestBlockedDraftsArePersisted:
 
     def test_a_state_unsupported_in_two_roles_names_both(self) -> None:
         """The complementary half: a role failure really is one per role, so
-        its subject carries the role and the two rows stay two."""
+        its subject carries the role and the two rows stay two.
+
+        The two roles are the two a kernel CONSUMES, since T021A. The fixture
+        declares that state as a cause and reports it, and the reported half is
+        no longer a support question, so the second role is declared here: one
+        interval-wide forcing of the same address, which is a legitimate
+        declaration a profile may model or not independently of causing it.
+        """
+        document = scenario_document()
+        document["timeline"].append(
+            {
+                "event_id": "forced-level",
+                "sequence": len(document["timeline"]) + 1,
+                "offset_minutes": 0,
+                "entry_kind": "EVENT",
+                "category": "EQUIPMENT",
+                "description": "The stored level is forced for the interval.",
+                "execution_role": "FORCING_INPUT",
+                "state_key": "example-stored-volume@example-store",
+                "execution_requirement": "REQUIRED",
+                "timing": {"shape": "INTERVAL_WIDE"},
+                "parameters": [
+                    {
+                        "parameter_id": "forced-level-value",
+                        "display_name": "The level it is held at",
+                        "value": 180,
+                        "unit": "L",
+                        "execution_role": "FORCING_INPUT",
+                        "state_key": "example-stored-volume@example-store",
+                        "execution_requirement": "REQUIRED",
+                        "ownership": {
+                            "owner": "SCENARIO_INPUT",
+                            "initializes": False,
+                        },
+                    }
+                ],
+            }
+        )
         narrowed = (
             SupportedState(
                 state_key="example-stored-volume",
                 scope="COMPONENT",
-                supported_roles=frozenset({"FORCING_INPUT"}),
+                supported_roles=frozenset({"REPORTED_OBSERVATION"}),
                 foundation_binding=None,
-                statement="Modelled, but in neither role this scenario uses.",
+                statement="Modelled, but in neither role this scenario "
+                "asks a profile about.",
             ),
             default_supported_states()[1],
         )
-        setup, _ = service(model=model_profile(supported_states=narrowed))
+        setup, _ = service(
+            scenarios=FakeScenarios(
+                (
+                    parse_scenario_document(
+                        document, source="a test", origin="SHIPPED"
+                    ),
+                )
+            ),
+            model=model_profile(supported_states=narrowed),
+        )
         record = setup.create_draft_run(setup_request())
 
         assert sorted(
@@ -1066,7 +1121,7 @@ class TestBlockedDraftsArePersisted:
             if reason.kind == "ROLE_NOT_SUPPORTED"
         ) == [
             "example-stored-volume@example-store as CAUSAL_INPUT",
-            "example-stored-volume@example-store as REPORTED_OBSERVATION",
+            "example-stored-volume@example-store as FORCING_INPUT",
         ]
 
     def test_an_optional_unsupported_input_is_recorded_and_does_not_block(
@@ -2057,9 +2112,11 @@ class TestTheExecutionContractVersionMove:
     alter the outcome for a document that was already valid. T020A's
     Foundation-value narrowing took it to three, T020A1's addressing to four,
     T020B's requirement-conflict refusal, reporting-path authority move and four
-    declared kernel semantics to five, and T021 to six - a run now freezes the
-    causal projection, so a run of an unchanged document freezes differently than
-    it did, which is exactly the test that decision sets.
+    declared kernel semantics to five, T021 to six - a run now freezes the causal
+    projection, so a run of an unchanged document freezes differently than it did
+    - and T021A to seven: a document that declared a reported observation
+    `REQUIRED` was valid at six and is refused at seven, which is the narrowing
+    direction that decision measures rather than a change in kernel behaviour.
 
     The absolute numbers are written relatively where they can be. Here they
     cannot: the point of the test is that the number CHANGED and that an
@@ -2068,7 +2125,7 @@ class TestTheExecutionContractVersionMove:
     """
 
     def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
-        assert EXECUTION_CONTRACT_VERSION == 6
+        assert EXECUTION_CONTRACT_VERSION == 7
 
     def test_a_new_draft_is_stamped_with_it(self) -> None:
         record, _ = create()

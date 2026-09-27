@@ -360,7 +360,6 @@ def twin_document(
                 "description": "A technician records the north tank by hand.",
                 "execution_role": "REPORTED_OBSERVATION",
                 "state_key": north_level_ref,
-                "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
                     "source_id": "example-hand-record",
@@ -374,7 +373,6 @@ def twin_document(
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
                         "state_key": north_level_ref,
-                        "execution_requirement": "REQUIRED",
                     }
                 ],
             },
