@@ -1,6 +1,6 @@
 # T022 - Execute a Draft and inspect generated device observations
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
