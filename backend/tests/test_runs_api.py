@@ -251,17 +251,40 @@ class TestTheInventory:
             assert absent not in row, absent
 
     def test_the_order_is_newest_first_and_total(self) -> None:
-        """Two runs made in the same second do not swap between reads."""
+        """Two runs made in the same second do not swap between reads.
+
+        ## This test asserted a tie-break that only holds by luck
+
+        It said "the fixture clock is fixed, so identity is what breaks the tie"
+        and then asserted the whole list was sorted by `run_id` descending. The
+        clock here is NOT fixed - `client()` injects none, so run setup uses the
+        real one - so that assertion held only while all three runs landed in the
+        same second. It failed once during T021's correction round, where freezing
+        the causal projection made `create_run` do enough more work to straddle a
+        second boundary, and passed on every rerun.
+
+        So it now asserts the property the service actually guarantees: the order
+        is total, stable between reads, and sorted by `(created_at, run_id)`
+        descending - which is the sort key `list_runs` declares. The tie-break by
+        identity is still exercised whenever the seconds do coincide, and is no
+        longer the thing the assertion depends on.
+        """
         store = FakeRuns()
         served, _ = client(runs=store)
         for _ in range(3):
             served.post(RUNS_PATH, json=setup_request())
 
-        first = [row["run_id"] for row in served.get(RUNS_PATH).json()["runs"]]
-        second = [row["run_id"] for row in served.get(RUNS_PATH).json()["runs"]]
+        def keys() -> list[tuple[str, str]]:
+            return [
+                (row["created_at"], row["run_id"])
+                for row in served.get(RUNS_PATH).json()["runs"]
+            ]
 
+        first = keys()
+        second = keys()
+
+        assert len(first) == 3
         assert first == second
-        # The fixture clock is fixed, so identity is what breaks the tie.
         assert first == sorted(first, reverse=True)
 
     def test_an_unreadable_store_is_not_an_empty_inventory(self) -> None:
