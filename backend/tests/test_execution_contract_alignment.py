@@ -309,23 +309,49 @@ class TestARequirementConflictIsRefusedAndNeverResolved:
         """The case that must NOT refuse, so the rule is not too wide.
 
         `example-stored-volume@example-store` is a `CAUSAL_INPUT` in the public
-        parameters and a `REPORTED_OBSERVATION` on the third entry. Lowering
-        only the observation side leaves one address at two levels in two
-        different roles, and that is not a contradiction: a profile may model a
-        state it can cause and cannot report, so the two are two questions.
+        parameters. Declaring it as an OPTIONAL `FORCING_INPUT` as well leaves
+        one address at two levels in two different roles, and that is not a
+        contradiction: a profile may model a state it can cause and cannot
+        force, so the two are two questions.
+
+        The observation side used to be the second role here, and since T021A it
+        cannot be: a reading declares no level, so it is neither half of a
+        disagreement about one. Both roles in this test are roles a kernel
+        consumes, which is where a requirement level now lives.
         """
         document = scenario_document()
-        lowered = 0
-        for entry in document["timeline"]:
-            for position in (entry, *entry.get("parameters", ())):
-                if position.get("execution_role") != "REPORTED_OBSERVATION":
-                    continue
-                position["execution_requirement"] = "OPTIONAL"
-                lowered += 1
-        # Every position naming that role, because lowering some of them is the
-        # authored-grain conflict the parser refuses - which is the rule above,
-        # not this one.
-        assert lowered >= 2
+        document["timeline"].append(
+            {
+                "event_id": "forced-level",
+                "sequence": len(document["timeline"]) + 1,
+                "offset_minutes": 0,
+                "entry_kind": "EVENT",
+                "category": "EQUIPMENT",
+                "description": "The stored level is forced for the interval.",
+                "execution_role": "FORCING_INPUT",
+                "state_key": "example-stored-volume@example-store",
+                "execution_requirement": "OPTIONAL",
+                "timing": {"shape": "INTERVAL_WIDE"},
+                "parameters": [
+                    {
+                        "parameter_id": "forced-level-value",
+                        "display_name": "The level it is held at",
+                        "value": 180,
+                        "unit": "L",
+                        "execution_role": "FORCING_INPUT",
+                        "state_key": "example-stored-volume@example-store",
+                        # Both positions naming that role, because levelling
+                        # some of them is the authored-grain conflict the parser
+                        # refuses - which is the rule above, not this one.
+                        "execution_requirement": "OPTIONAL",
+                        "ownership": {
+                            "owner": "SCENARIO_INPUT",
+                            "initializes": False,
+                        },
+                    }
+                ],
+            }
+        )
 
         definition = scenario(document)
         levels = {
@@ -341,7 +367,7 @@ class TestARequirementConflictIsRefusedAndNeverResolved:
             ("example-stored-volume@example-store", "CAUSAL_INPUT")
         ] == "REQUIRED"
         assert levels[
-            ("example-stored-volume@example-store", "REPORTED_OBSERVATION")
+            ("example-stored-volume@example-store", "FORCING_INPUT")
         ] == "OPTIONAL"
 
     def test_the_refusal_names_every_conflict_not_only_the_first(self) -> None:
@@ -353,12 +379,44 @@ class TestARequirementConflictIsRefusedAndNeverResolved:
         Two conflicts on ONE state in two ROLES, rather than two states: the
         alias only exists where the profile declares a binding for the bare
         reference to resolve through, and this fixture's profile binds one state.
-        The document already declares that state addressed as both a
-        `CAUSAL_INPUT` and a `REPORTED_OBSERVATION` at `REQUIRED`, so a bare
-        `OPTIONAL` declaration in each role produces exactly two conflicting
-        `(address, role)` pairs.
+        The document declares that state addressed as a `CAUSAL_INPUT` at
+        `REQUIRED`; a forcing of the same address at `REQUIRED` gives it a second
+        requirement-bearing role, and a bare `OPTIONAL` declaration in each role
+        produces exactly two conflicting `(address, role)` pairs.
+
+        The second role was the observation before T021A, which no longer
+        declares a level and therefore can no longer conflict with anything.
         """
         document = scenario_document()
+        document["timeline"].append(
+            {
+                "event_id": "forced-level",
+                "sequence": len(document["timeline"]) + 1,
+                "offset_minutes": 0,
+                "entry_kind": "EVENT",
+                "category": "EQUIPMENT",
+                "description": "The stored level is forced for the interval.",
+                "execution_role": "FORCING_INPUT",
+                "state_key": "example-stored-volume@example-store",
+                "execution_requirement": "REQUIRED",
+                "timing": {"shape": "INTERVAL_WIDE"},
+                "parameters": [
+                    {
+                        "parameter_id": "forced-level-value",
+                        "display_name": "The level it is held at",
+                        "value": 180,
+                        "unit": "L",
+                        "execution_role": "FORCING_INPUT",
+                        "state_key": "example-stored-volume@example-store",
+                        "execution_requirement": "REQUIRED",
+                        "ownership": {
+                            "owner": "SCENARIO_INPUT",
+                            "initializes": False,
+                        },
+                    }
+                ],
+            }
+        )
         document["public_parameters"].append(
             {
                 "parameter_id": "unqualified-draw",
@@ -373,15 +431,14 @@ class TestARequirementConflictIsRefusedAndNeverResolved:
         )
         document["public_parameters"].append(
             {
-                # No ownership: a reported value carrying one could be named as
-                # the source of an initial world state, which the parser refuses.
-                "parameter_id": "unqualified-reading",
-                "display_name": "A reading named without its component",
+                "parameter_id": "unqualified-forcing",
+                "display_name": "A forcing named without its component",
                 "value": 188,
                 "unit": "L",
-                "execution_role": "REPORTED_OBSERVATION",
+                "execution_role": "FORCING_INPUT",
                 "state_key": "example-stored-volume",
                 "execution_requirement": "OPTIONAL",
+                "ownership": {"owner": "SCENARIO_INPUT", "initializes": False},
             }
         )
 
@@ -406,8 +463,7 @@ class TestARequirementConflictIsRefusedAndNeverResolved:
         # Both roles named, so the author sees the whole job rather than half.
         assert "example-stored-volume@example-store as a CAUSAL_INPUT" in message
         assert (
-            "example-stored-volume@example-store as a REPORTED_OBSERVATION"
-            in message
+            "example-stored-volume@example-store as a FORCING_INPUT" in message
         )
         assert store.written == []
 
@@ -848,6 +904,90 @@ class TestTheShippedFuelLossEventReachesReadyThroughTheProductPath:
         assert disclosure is not None
         assert disclosure.strip()
 
+    def test_a_reading_is_not_a_support_question_the_profiles_answer(
+        self,
+    ) -> None:
+        """T021A criterion 6, on the run that reaches READY.
+
+        A reading declares no requirement, so it is not gathered as an
+        executable input and neither blocks a Draft nor is recorded as a skipped
+        optional one. Both halves are asserted against non-empty sets: the
+        document really does declare two readings, and the run really does carry
+        unsupported optional rows - they are the two lowered forcings, which is
+        what shows the filter is by role rather than by there being nothing.
+        """
+        shipped = self._shipped()
+        readings = [
+            entry
+            for entry in shipped.timeline
+            if entry.execution_role == "REPORTED_OBSERVATION"
+        ]
+        assert [entry.event_id for entry in readings] == [
+            "fuel-level-after-the-gap",
+            "operator-tank-inspection",
+        ]
+
+        gathered = {
+            (item.addressed_key, item.execution_role)
+            for item in executable_inputs(shipped)
+        }
+        assert gathered
+        assert {role for _, role in gathered} == {
+            "CAUSAL_INPUT",
+            "FORCING_INPUT",
+        }
+
+        record, _ = self._draft()
+        assert record.execution_status == "READY"
+        assert record.blocking_reasons == ()
+
+        optional = {
+            (item.addressed_key, item.execution_role)
+            for item in record.unsupported_optional_inputs
+        }
+        assert optional == {
+            ("site:site-load-demand", "FORCING_INPUT"),
+            ("site:plane-of-array-irradiance", "FORCING_INPUT"),
+        }
+
+        # The profile's ability to report that state has NOT been withdrawn -
+        # the kernel samples it, and T021's derived supported set is built from
+        # the handler that does. What changed is that run setup stopped asking a
+        # question no declaration in the document was making.
+        supported = MINIMAL_FUEL_TANK_MODEL.supported("fuel-tank-volume")
+        assert supported is not None
+        assert "REPORTED_OBSERVATION" in supported.supported_roles
+
+    def test_the_reporting_path_is_still_the_publication_profile_s_answer(
+        self,
+    ) -> None:
+        """Criterion 6's second half: publication behaviour is unchanged.
+
+        The narrowing removes a level from a reading. It does not touch the
+        reporting path, which is a FORCING_INPUT on a state the publication
+        profile owns - so whether readings are carried at all is still declared,
+        still `REQUIRED`, and still answered by the profile whose job it is.
+        """
+        levels = {
+            item.addressed_key: (item.execution_role, item.execution_requirement)
+            for item in executable_inputs(self._shipped())
+        }
+        assert levels["fuel-level-reporting-availability@fuel-tank"] == (
+            "FORCING_INPUT",
+            "REQUIRED",
+        )
+
+        authority = state_authority(
+            "fuel-level-reporting-availability",
+            MINIMAL_FUEL_TANK_MODEL,
+            LAB_PUBLICATION_PROFILE,
+        )
+        assert authority.supported is not None
+        assert "publication profile" in authority.detail
+
+        record, _ = self._draft()
+        assert record.execution_status == "READY"
+
     def test_the_draft_freezes_this_build_s_contract_version(self) -> None:
         """Criterion 10, on the run that reaches READY."""
         from assetops_backend.scenarios.execution import (
@@ -865,8 +1005,9 @@ class TestTheShippedFuelLossEventReachesReadyThroughTheProductPath:
 class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
     """Criterion 10: old frozen runs retain their old identity."""
 
-    def test_a_version_four_run_is_readable_and_refused_execution(
-        self,
+    @pytest.mark.parametrize("earlier", [4, 6])
+    def test_an_earlier_run_is_readable_and_refused_execution(
+        self, earlier: int
     ) -> None:
         """Readable is not executable, and the run says which it is.
 
@@ -874,6 +1015,13 @@ class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
         refused - a run that cannot be executed is still a run somebody needs
         to inspect to find out why - and executing one is, because the rules
         behind its frozen inputs have changed.
+
+        Six is here since T021A, and it is the version that matters now: it is
+        what `main` was at before this narrowing and what the local run store is
+        full of. The projection such a run carries is still READ - what is
+        required at the current version is that the key be present, and what is
+        tolerated below it is that it be absent, so a record carrying one below
+        the current version is neither refused nor reinterpreted.
         """
         from assetops_backend.runs.parsing import (
             parse_run_document,
@@ -889,18 +1037,28 @@ class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
         document = render_run_document(record)
         document["deterministic_identity"]["profiles"][
             "execution_contract_version"
-        ] = 4
+        ] = earlier
+        # The projection a version-six record carries is left in the document,
+        # because that is the case this parametrization exists to read.
+        assert document["deterministic_identity"]["causes"] is not None
 
         reloaded = parse_run_document(document, source="an earlier run")
         frozen = reloaded.deterministic_identity.profiles
 
-        assert frozen.execution_contract_version == 4
-        assert EXECUTION_CONTRACT_VERSION == 6
+        assert frozen.execution_contract_version == earlier
+        assert EXECUTION_CONTRACT_VERSION == 7
+        assert earlier < EXECUTION_CONTRACT_VERSION
+        # Readable means the record came back whole, not merely that parsing
+        # returned something.
+        assert reloaded.run_id == record.run_id
+        assert reloaded.deterministic_identity.causes == (
+            record.deterministic_identity.causes
+        )
 
         with pytest.raises(ExecutionContractIncompatible) as raised:
             refuse_incompatible_execution(frozen.execution_contract_version)
 
-        assert "version 4" in str(raised.value)
+        assert f"version {earlier}" in str(raised.value)
         assert "stays readable" in str(raised.value)
 
 

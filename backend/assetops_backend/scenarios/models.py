@@ -147,6 +147,30 @@ EXECUTABLE_ROLES = frozenset(
     {"CAUSAL_INPUT", "FORCING_INPUT", "REPORTED_OBSERVATION"}
 )
 
+#: The roles that carry an `execution_requirement`, and the one that does not.
+#:
+#: A requirement level is an instruction to run setup about an input a kernel
+#: CONSUMES: `REQUIRED` means the chosen profile must support it or the Draft is
+#: `BLOCKED`, and `OPTIONAL` means a run may proceed with it recorded as
+#: unsupported. A reported observation is neither. Nothing consumes it - it is
+#: what a source said, not what the world was told to do - so there is no run
+#: that could proceed without support for it and nothing for a level to decide.
+#:
+#: T021A closes that at the document rather than downstream, which is the whole
+#: of the slice. `execution_requirement` on a `REPORTED_OBSERVATION` was read by
+#: nothing and looked like a claim that a reading was an input a profile had to
+#: model: the shipped Fuel Loss Event declared its two readings `REQUIRED`, and
+#: the only effect was to make the model profile answer a question about
+#: reporting a state that no reading of this document ever asked it.
+#:
+#: Declared as data beside `EXECUTABLE_ROLES` rather than as a check written
+#: twice. `_parse_execution_placement` refuses the field outside this set and
+#: `_declared_requirements` gathers within it, so the parser and run setup read
+#: one list. An executable role still names the STATE it concerns whether or not
+#: it carries a level: an address a run cannot place is a reference nothing can
+#: be said about, and a reading's address is checked exactly as a cause's is.
+REQUIREMENT_BEARING_ROLES = frozenset({"CAUSAL_INPUT", "FORCING_INPUT"})
+
 #: The roles that may reach initialization or a private-state transition. One.
 #:
 #: This is enforced rather than described, in two places that do not depend on
@@ -194,6 +218,11 @@ ROLES_BY_ENTRY_KIND = {
 #: or the Draft is `BLOCKED`. `OPTIONAL` means a profile may leave it
 #: unsupported and say so. There is no third value, because "supported if
 #: convenient" is how an input gets ignored.
+#:
+#: Declared only by a `REQUIREMENT_BEARING_ROLES` value. A reported observation
+#: has no position in the document for one, which is why there is no third
+#: value meaning "not applicable": an inapplicable level would be a field an
+#: author fills in for a row where the question does not arise.
 EXECUTION_REQUIREMENTS = frozenset({"REQUIRED", "OPTIONAL"})
 
 #: Who owns an initial world value or a model coefficient.
@@ -418,11 +447,13 @@ class ScenarioParameter:
     when the role calls for them, and the parser refuses every other
     combination:
 
-    - an executable role names the state it concerns and says whether a later
+    - an executable role names the state it concerns;
+    - a causal or forcing input declares ownership, and says whether a later
       run setup may proceed without support for it;
-    - a causal or forcing input declares ownership;
-    - a reported observation declares none, so it cannot initialize anything;
-    - a non-executable condition declares neither, so nothing consumes it.
+    - a reported observation declares neither, so it cannot initialize
+      anything and cannot make a profile answer for reporting it;
+    - a non-executable condition declares no state at all, so nothing
+      consumes it.
     """
 
     parameter_id: str
@@ -564,6 +595,12 @@ class TimelineEntry:
     `observation` exactly when it is `REPORTED_OBSERVATION`. They are mutually
     exclusive by construction, which is how a reported value is kept out of the
     private-state transition inputs: there is no field it could arrive in.
+
+    `execution_requirement` is present exactly for a `REQUIREMENT_BEARING_ROLES`
+    entry, so a reported observation is a declaration and states nothing about
+    whether a profile must model reporting it. That is the same shape as the
+    ownership guarantee above rather than a second kind of rule: the absence is
+    structural, and an authored observation that carries one is refused.
     """
 
     event_id: str

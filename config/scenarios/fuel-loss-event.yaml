@@ -81,6 +81,16 @@
 # exactly the consumption the model law owns. It was 155 L of unexplained
 # difference and it is now the one quantity the document deliberately does not
 # carry.
+#
+# T021A removes one field from the two readings below and nothing else. They
+# declared `execution_requirement: REQUIRED`, which says an executor must MODEL
+# this input to run this scenario - and nothing executes a reading: it is what a
+# source said, not what the world was told to do. The level was read by no run,
+# and its only effect was to make the model profile answer for reporting a state
+# on behalf of a question no execution asks. The readings, their sources, their
+# addresses and their corrected values are unchanged; a reading is now a
+# declaration that names the state it is about and claims nothing about whether
+# anything had to model it.
 
 scenario_id: fuel-loss-event
 display_name: Fuel Loss Event
@@ -382,7 +392,6 @@ timeline:
       level sensor, not a level the simulated world is told to hold.
     execution_role: REPORTED_OBSERVATION
     state_key: fuel-tank-volume@fuel-tank
-    execution_requirement: REQUIRED
     timing:
       shape: POINT
     observation:
@@ -408,7 +417,6 @@ timeline:
         unit: L
         execution_role: REPORTED_OBSERVATION
         state_key: fuel-tank-volume@fuel-tank
-        execution_requirement: REQUIRED
 
   - event_id: operator-tank-inspection
     sequence: 7
@@ -420,7 +428,6 @@ timeline:
       the interval a second, independent account of the same quantity.
     execution_role: REPORTED_OBSERVATION
     state_key: fuel-tank-volume@fuel-tank
-    execution_requirement: REQUIRED
     timing:
       shape: POINT
     observation:
@@ -437,7 +444,6 @@ timeline:
         unit: L
         execution_role: REPORTED_OBSERVATION
         state_key: fuel-tank-volume@fuel-tank
-        execution_requirement: REQUIRED
 
   - event_id: scheduled-refuelling
     sequence: 8

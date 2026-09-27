@@ -124,7 +124,7 @@ from assetops_backend.scenarios.execution import (
     initialization_inputs,
 )
 from assetops_backend.scenarios.models import (
-    EXECUTABLE_ROLES,
+    REQUIREMENT_BEARING_ROLES,
     ScenarioDefinition,
     ScenarioParameter,
 )
@@ -151,6 +151,13 @@ class ExecutableInput:
     two requirements a scenario can state differently, and they are one
     question to a profile, which models a kind of state and knows nothing
     about how many of them a site has.
+
+    **A reported observation is not one of these, since T021A.** It carries no
+    requirement, so there is nothing for `_support_for` to decide about it: a
+    reading is not an input a profile must model, and asking made a run block or
+    record a skipped input over a value no kernel takes. What remains for a
+    reading is what always mattered - that its address names one component of
+    this Site - and that is checked for every declared reference at every role.
     """
 
     state_ref: StateRef
@@ -2248,25 +2255,32 @@ class UnresolvedRequirementConflict(Exception):
 def _declared_requirements(
     scenario: ScenarioDefinition,
 ) -> dict[tuple[str, str], tuple[StateRef, str]]:
-    """Every `(address, role)` the scenario declares, and its requirement.
+    """Every requirement-bearing `(address, role)`, and its requirement.
 
     One requirement per pair, never a resolution of two. See
     `UnresolvedRequirementConflict` for why the collapse that used to be here
     is gone rather than kept as a fallback.
+
+    **Requirement-bearing, not executable, since T021A.** A reported observation
+    is an executable role and declares no requirement, so it is not a support
+    question this asks the profiles: nothing consumes a reading, and a run
+    cannot proceed-or-block over an input no kernel takes. Its ADDRESS is still
+    resolved and can still block - that is `declared_state_refs`, which reads
+    every position in the document and has never been requirement-sensitive.
     """
     found: dict[tuple[str, str], tuple[StateRef, str]] = {}
 
     def record(
         state_ref: StateRef | None, role: str, requirement: str | None
     ) -> None:
-        if state_ref is None or role not in EXECUTABLE_ROLES:
+        if state_ref is None or role not in REQUIREMENT_BEARING_ROLES:
             return
         key = (state_ref.addressed_key, role)
-        # An executable declaration always carries a requirement: the scenario
-        # parser requires one for every executable role and refuses one on a
-        # non-executable condition. `or "REQUIRED"` used to stand here and was
-        # a default for a case that cannot arise, which is the shape that hides
-        # the next one.
+        # A requirement-bearing declaration always carries a requirement: the
+        # scenario parser requires one for these two roles and refuses one
+        # everywhere else. `or "REQUIRED"` used to stand here and was a default
+        # for a case that cannot arise, which is the shape that hides the next
+        # one.
         if requirement is None:
             raise UnresolvedRequirementConflict(
                 f"{state_ref.addressed_key} is declared as a {role} with no "
@@ -2358,7 +2372,9 @@ def requirement_conflicts(
     def record(
         state_ref: StateRef | None, role: str, requirement: str | None
     ) -> None:
-        if state_ref is None or role not in EXECUTABLE_ROLES:
+        # Requirement-bearing roles only, since T021A: a reported observation
+        # declares no level, so two of them can never disagree about one.
+        if state_ref is None or role not in REQUIREMENT_BEARING_ROLES:
             return
         if requirement is None:
             return

@@ -163,7 +163,6 @@ def scenario_document() -> dict[str, Any]:
                 "description": "A technician records a reading by hand.",
                 "execution_role": "REPORTED_OBSERVATION",
                 "state_key": "example-stored-volume@example-store",
-                "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
                     "source_id": "example-hand-record",
@@ -180,7 +179,6 @@ def scenario_document() -> dict[str, Any]:
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
                         "state_key": "example-stored-volume@example-store",
-                        "execution_requirement": "REQUIRED",
                     }
                 ],
             },
@@ -193,7 +191,6 @@ def scenario_document() -> dict[str, Any]:
                 "description": "Reported values resume after a gap.",
                 "execution_role": "REPORTED_OBSERVATION",
                 "state_key": "example-stored-volume@example-store",
-                "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
                     "source_id": "example-device-reading",
@@ -207,7 +204,6 @@ def scenario_document() -> dict[str, Any]:
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
                         "state_key": "example-stored-volume@example-store",
-                        "execution_requirement": "REQUIRED",
                     }
                 ],
             },

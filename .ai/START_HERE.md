@@ -14,17 +14,19 @@ and the verified intervention (H). E, F, G and I follow.
 
 Planning status:
 
-T001-T020B are complete. Sites, Foundation, scenario inspection and frozen Draft
+T001-T021 are complete. Sites, Foundation, scenario inspection and frozen Draft
 setup/readback exist, the shipped Fuel Loss Event reaches READY through the
 product path, and **T021 executes one**: a frozen Draft runs in the simulator and
 produces a private trajectory. No execution is visible on any screen yet.
+**T021A is built and in review**: a reported observation declares no execution
+requirement, and the execution contract is at version 7.
 
 The Planner recreated the task queue, the Architect reviewed it, and the user's
 queue review resequenced it on 2026-09-24 under
 `D-2026-09-24-queue-resequenced-for-demo`: verification moved ahead of analytic
 breadth, T026 was thinned, and T036 is the last of four demo points rather than
-the first client-facing one. **T021 is built and in review**, unaffected by that
-resequencing, followed by the order in `tasks/README.md`.
+the first client-facing one. **T021A is built and in review**, unaffected by that
+resequencing; T022 is next, then the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
 `.ai/PLANNING_HANDOFF_T020A_T023.md`.

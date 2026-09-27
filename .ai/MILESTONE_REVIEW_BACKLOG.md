@@ -331,6 +331,98 @@ docstring corrections that this decision says to carry rather than fix. The
 reviewers cited the decision; the coordinator forwarded every finding as work.
 See `.ai/ROLE_CONFIG.md`, "Sort Findings Before Forwarding Them".
 
+## T022 cannot start from an existing Draft
+
+Found by the T021A review, 2026-09-27, as a consequence nobody had drawn. It is
+not a defect; it is a fact T022's dispatch needs.
+
+The reviewer read **all 165 run documents** in `var/runs` under build 7:
+`165 readable, 0 failed; frozen versions {2:49, 3:33, 4:20, 5:47, 6:16};
+refused execution 165, executable 0`.
+
+Every stored Draft is now refused execution, **including the sixteen at version
+6 that were executable before T021A narrowed the contract to 7**. Readback is
+intact across all five versions, which is criterion 5 holding across the whole
+store rather than a sample - but nothing on this machine can be executed as it
+stands.
+
+T022's outcome is to create a READY Draft in the gated Lab, start it, step it
+and run it to completion. It must **create a fresh Draft** rather than reach for
+one of these, and its dispatch brief should say so. An implementer that picks a
+version-6 Draft out of `var/runs` to save a setup step will meet
+`ExecutionContractIncompatible` and may read it as a defect in its own work.
+
+This is the fourth time the integer-equality version guard has decided
+something consequential, and the first time the consequence is entirely correct:
+a Draft frozen under a contract that has since narrowed genuinely cannot be
+re-derived, so refusing it is right. Recorded beside the other three because the
+pattern is the same mechanism.
+
+## One invalid scenario document takes the whole catalog down
+
+Recorded 2026-09-27 at T021A's closeout, on the owner's decision. Found because
+T021A's narrowing made four user-authored documents invalid, not because anyone
+was looking for it.
+
+`read_scenario_records` in
+`backend/assetops_backend/scenarios/adapters/yaml_scenario_documents.py:48`
+strictly validates every document under its root and **raises
+`ScenarioConfigurationInvalid` on the first invalid one**. There is no
+skip-and-continue. `CompositeScenarioRepository.list_scenarios` calls it for
+both stores, so a single unparseable document in `var/scenarios/` takes the
+entire catalog down - **the shipped scenarios with it**. The screen reports an
+error instead of a list.
+
+Its docstring already distinguishes the case it does tolerate: a missing root is
+an empty store rather than a failure, "and that is not a reason to refuse to
+render the catalog". One bad document is treated as a reason, and the same
+argument applies to it.
+
+**Why this is a product defect rather than a strictness decision.** Strict
+validation on read is right - a document that cannot be parsed must not be
+silently half-loaded. What is wrong is the blast radius. Any future narrowing of
+the authored-document contract invalidates whatever a user already wrote, and
+the consequence is not "that document is unavailable" but "the catalog is
+unavailable". T021A is the second contract narrowing in three slices, so this
+recurs by construction rather than by accident.
+
+**What would close it:** list the documents that parse, and surface each
+invalid one as an inspectable entry naming its file and its validation error,
+rather than replacing the list with an exception. The refusal stays loud; it
+stops being fatal. That is a change to the store's read path and its screen, and
+it wants a slice rather than a patch inside one.
+
+**What the owner decided here:** the four edited documents stay edited. The
+edits were mechanically identical to the shipped change - only the string
+`execution_requirement: REQUIRED` removed, at the two positions a
+`REPORTED_OBSERVATION` carries it, four lines in each Fuel Loss variant and two
+in each twin-tank one, with no value, address, source, timing or identity
+touched. Pre-edit copies were taken but live only in a session scratchpad, and
+`var/` is gitignored, so there is no durable copy; the edit is four hand-edits
+to reverse if that is ever wanted.
+
+**The lesson, corrected by the T021A review.** The coordinator's first account
+of this said the dispatch brief had named `var/sites/` and `var/runs/` without
+naming `var/scenarios/`, and that an incomplete instruction was the lesson. That
+was wrong. `tasks/README.md:134`, under "Shared scope and protected seams",
+says **"Keep the existing mg-001/mg-002/mg-003 and var/ data intact"** - all of
+`var/`, not two named subdirectories - and the task file cites that README by
+name for its shared checks and exclusions. It is the only statement on the
+subject in the standing records.
+
+So a standing scope limit covered this and was **overridden** by necessity and
+then ratified by the owner, rather than being absent. The lesson for a future
+dispatch is not "name the subdirectories"; it is that a standing exclusion can
+become impossible to honour when a contract narrowing invalidates data the
+exclusion protects, and that the honest move then is what the Implementer did -
+edit minimally, back the originals up, and hand both judgements to somebody who
+can take them.
+
+**One consequence of T021's R1 fix worth recording, because it is the first
+place it paid off:** a frozen run carries its whole causal projection and never
+re-reads the document, so editing these files cannot change any existing
+Draft's trajectory or identity. The 165 runs in `var/runs` were unaffected.
+
 ## T030 owes the refused delivery quantity a home
 
 Recorded 2026-09-27 from the owner's operational reading at T021's closeout,

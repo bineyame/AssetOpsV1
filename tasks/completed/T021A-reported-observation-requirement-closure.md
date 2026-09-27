@@ -1,6 +1,6 @@
 # T021A - Narrow reported-observation declarations
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Map: A starter.
@@ -75,4 +75,32 @@ kernel trajectory or change authored observation values as part of narrowing.
 
 Independent review is required; no new user checkpoint is needed for this
 already-directed parser closure.
-Review outcome: pending.
+Review outcome: accepted.
+
+**Independent review, 2026-09-27**, by a fresh Claude `assetops-reviewer` under
+`.ai/ROLE_CONFIG.md`'s verification routing rather than by Codex, to conserve
+Codex quota for discovery. Seven of seven criteria met, the slice stayed inside
+its Execution-rule time-box, 8 of 8 guard probes reproduced independently, and
+the reviewer verified criterion 5 across all 165 stored runs rather than the
+packet's sample of two. It judged the round correctly classified - nothing it
+found required a reader to decide anything - and named two places a Codex pass
+would add something: the 6-to-7 move itself, since a contract version move is
+listed as Codex work, and R-3's strictness question.
+
+Two findings were fixed before closeout, both coordinator errors in durable
+records rather than product defects: `.ai/CODE_STATE.md` said no backlog entry
+was written when the coordinator had written one after the packet closed, and
+the backlog's account of the `var/scenarios/` edit blamed an incomplete
+instruction when `tasks/README.md:134` already covered all of `var/`. The
+correct account is that a standing scope limit was overridden by necessity and
+ratified by the owner.
+
+Carried rather than fixed, in `.ai/MILESTONE_REVIEW_BACKLOG.md` and the review
+file: a present-but-null requirement on a reading is ignored rather than refused,
+which is the parser's convention at every comparable position; criterion 6's
+behavioural negative is unasserted though its regressions are caught; a repeated
+test literal; and that no stored Draft is executable under version 7, which
+T022's dispatch needs.
+
+No owner checkpoint was outstanding - `USER_REVIEW_REQUIRED` is false and the
+owner had already ruled on the `var/scenarios/` edit.

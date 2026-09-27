@@ -195,7 +195,6 @@ def second_site_document() -> dict[str, Any]:
                 ),
                 "execution_role": "REPORTED_OBSERVATION",
                 "state_key": SOUTH_TANK,
-                "execution_requirement": "REQUIRED",
                 "timing": {"shape": "POINT"},
                 "observation": {
                     "source_id": "south-tank-level",
@@ -209,7 +208,6 @@ def second_site_document() -> dict[str, Any]:
                         "unit": "L",
                         "execution_role": "REPORTED_OBSERVATION",
                         "state_key": SOUTH_TANK,
-                        "execution_requirement": "REQUIRED",
                     }
                 ],
             },

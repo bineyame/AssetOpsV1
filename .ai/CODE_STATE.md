@@ -3379,3 +3379,117 @@ inserted. `.agent/` is gitignored, so there was no committed copy to restore fro
 the block was rebuilt with a `lines()` helper so no probe body contains an escape
 sequence at all. The instance was cheap and the class is not: a repair that removes
 the possibility is worth more than one that removes the symptom.
+
+## T021A - Narrow reported-observation declarations
+
+What this slice settled in code. **A reading declares no execution requirement**,
+and an authored document that says one is refused at the strict boundary with the
+position named. Nothing else moved: the kernel, the packs, the trace, the
+reconciliation payload and every authored value are untouched.
+
+### The rule is a list, and both sides read it
+
+`REQUIREMENT_BEARING_ROLES = {"CAUSAL_INPUT", "FORCING_INPUT"}` in
+`scenarios/models.py`, beside `EXECUTABLE_ROLES` and deliberately different from
+it. `_parse_execution_placement` refuses `execution_requirement` outside that set;
+`_declared_requirements` and `requirement_conflicts` in `runs/service.py` gather
+within it. One list rather than a rule written twice, which is the shape this
+project keeps paying for when a rule reaches three of four positions.
+
+The two sets differ on purpose and a future reader has to know which one their
+rule belongs in. A reading IS executable - the reporting path consumes it and the
+kernel's `SAMPLE_HANDLER` samples `fuel-tank-volume` in the
+`REPORTED_OBSERVATION` role - but it is not an input a run can proceed-or-block
+over, because a requirement level answers "may setup proceed without support for
+this" and nothing was ever asking that about a reading.
+
+### What a reading keeps, and it is the half worth remembering
+
+Its ADDRESS. `declared_state_refs` reads all four positions a reference can be
+written at and has never been requirement-sensitive, so a reading naming a
+component this Site does not declare still blocks with
+`STATE_ADDRESS_NOT_RESOLVED`. The narrowing removed a support question, not a
+reference obligation. `TestTheAddressObligationIgnoresTheRequirementLevel` is the
+class that holds this, and its `declared()` helper now skips the reading entry
+when it re-levels a document, because writing a level there is refused.
+
+### The version move, and why it is a move at all
+
+6 to 7. Nothing executes differently - that is the whole argument for removing
+the field - and under `D-2026-09-22-contract-version-scope` that is not the test.
+The test is DIRECTION against documents that already exist: this narrows, so the
+shipped document valid at 6 is refused at 7 and a run frozen against it can no
+longer be re-derived from a document that parses. Six was published (T021 merged
+at `ed0635c`, `var/runs` carries Drafts at 6), so the unreleased-version doctrine
+did not apply and the ledger's own "the next narrowing is a seven" stood.
+
+Worth keeping for the next vocabulary change: this is the first entry in the
+ledger where the number moves although no conforming kernel could behave
+differently. The paragraph in `execution_contract.py` says so explicitly, so
+nobody re-derives it as "document shape changed" - which would bump on
+everything.
+
+### What an earlier frozen run does now, measured rather than assumed
+
+A version-6 record carries a causal projection. The readback rule REQUIRES the
+projection key at the current version and TOLERATES its absence below - so a
+record carrying one below the current version is read, not refused. Confirmed
+against real runs already in `var/runs`:
+`run-0cc40a866aa0472b97ac33f736f0309f` (version 6, READY, 2 causes, 4 forcings)
+and `run-9f74603b06384126a627a5339fc78fbe` (version 5, T020B's Draft) both parse
+under build 7 and both are refused execution. The test for it is parametrized
+over 4 and 6 and asserts the record came back WHOLE - run id and frozen causes
+equal to the original - rather than that parsing returned something.
+
+### A narrowing of the document structure invalidates documents that exist
+
+The cost this slice actually paid, and the thing a future narrowing should expect
+to pay again. The version number protects RUNS: an old frozen run keeps its
+identity, stays readable and is refused execution. There is no equivalent signal
+for authored DOCUMENTS. The four user-authored scenarios in `var/scenarios/` all
+declared `execution_requirement` on their readings, and after the narrowing none
+of them parsed.
+
+Two consequences, and the second is open.
+
+- Those four documents had the field removed from their reading positions and
+  nothing else, by the same mechanical rule applied to the shipped document. No
+  value, address, source or identity changed. Pre-edit copies were kept outside
+  the repository for the length of the slice.
+- **One invalid user document makes the whole catalog unreadable.**
+  `composite_scenario_repository.list_scenarios` raises out of the list rather
+  than reporting the one document it could not read, so a single unparseable file
+  in `var/scenarios/` takes the scenario catalog down. That is how this was
+  found: `test_scenario_repository.py` and four `test_scenarios_api.py` tests
+  failed on this checkout for a reason that had nothing to do with the shipped
+  document. Pre-existing, unowned, and deliberately not fixed here - the slice
+  was time-boxed to the parser closure.
+
+### What stayed inside the box
+
+The Execution rule said implement the narrow closure and stop. What was NOT done,
+so a reviewer does not have to infer it: no readiness rework, no vocabulary
+decision about what an author should write instead, no reconciliation-panel
+retirement, no trace, no authored value change, and no fix for the catalog
+fragility above. The Implementer wrote no backlog entry, correctly, because
+writing one is a planning act the time-box excluded; **the coordinator then
+wrote it at the owner's direction after the packet was closed** -
+`.ai/MILESTONE_REVIEW_BACKLOG.md`, "One invalid scenario document takes the
+whole catalog down". Do not read the sentence above as saying the item is
+unrecorded. Two tests changed the role they prove the
+role-support rule with - `FORCING_INPUT` in place of the observation role - and
+that was forced by the closure rather than chosen: the case they used no longer
+exists.
+
+### What this leaves open
+
+- **The intent the field used to carry has no home yet.** An author who meant
+  "the world state behind this reading must be modelled" is pointed at the cause
+  that moves it, and one who meant "the reporting path must carry readings" at
+  the reporting-path forcing. If a real authoring case fits neither, the
+  vocabulary needs a decision.
+- **`requirement_conflicts` keeps a `requirement is None` guard that the parser
+  now makes unreachable.** Left as defence in a reporting function.
+- **The catalog fragility above has no owner.**
+- Guard probes: `.agent/T021A-guard-probes.py`, 8 probes, all CAUGHT, baseline
+  measured green before any mutation.

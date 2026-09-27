@@ -387,6 +387,56 @@ describe("the detail screen shows how each authored value executes", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders a reading with no requirement as a declaration of its source", async () => {
+    // T021A criterion 2. The payload a narrowed document produces carries no
+    // `execution_requirement` for a reading and still carries one for a cause,
+    // so this is a test about the narrowed record rather than about a shape the
+    // screen happens to tolerate.
+    const readings = SCENARIO_DETAIL.timeline.filter(
+      (entry) => entry.execution_role === "REPORTED_OBSERVATION",
+    );
+    expect(readings).toHaveLength(2);
+    for (const entry of readings) {
+      expect(entry.execution_requirement).toBeNull();
+      expect(entry.parameters.length).toBeGreaterThan(0);
+      for (const parameter of entry.parameters) {
+        expect(parameter.execution_requirement).toBeNull();
+      }
+    }
+    const levelled = SCENARIO_DETAIL.timeline.filter(
+      (entry) => entry.execution_requirement !== null,
+    );
+    expect(levelled.length).toBeGreaterThan(0);
+
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    const timeline = panelNamed("Event and intervention timeline");
+    for (const entry of readings) {
+      const row = within(timeline).getByRole("row", {
+        name: new RegExp(entry.event_id),
+      });
+      const source = entry.observation?.source_id;
+      expect(source).toBeDefined();
+      // The source identity, which is what distinguishes the two readings from
+      // each other and from every cause row: a cause says what it raises or
+      // lowers and names no source, so neither of these phrases can be
+      // satisfied by an adjacent row's text.
+      expect(
+        within(row).getByText(new RegExp(`reported through ${source}`)),
+      ).toBeInTheDocument();
+      // Twice: the entry's own role cell and the role beside its parameter.
+      // Both are the row saying what it is rather than what it does.
+      expect(within(row).getAllByText("REPORTED_OBSERVATION")).toHaveLength(2);
+    }
+
+    // Both sources, so the loop above asserted two different facts rather than
+    // the same one twice.
+    expect(
+      new Set(readings.map((entry) => entry.observation?.source_id)).size,
+    ).toBe(2);
+  });
+
   it("names one owner for each initial world value", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();

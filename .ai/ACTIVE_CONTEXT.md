@@ -15,42 +15,33 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 is complete and merged.** `tasks/completed/T021-minimal-fuel-loss-causal-kernel.md`,
-packet `.agent/T021-review-packet.md`, three reviews and five probe files in
-`.agent/`. Seventeen of seventeen criteria, eight of eight mutation rows, the
-owner's review on 2026-09-27. **T021A is the active task.**
+**T021 and T021A are complete and merged**; packets in `.agent/`, full records
+in `.ai/CODE_STATE.md`. `EXECUTION_CONTRACT_VERSION` is 7 and **no stored Draft
+is executable under it**, so T022 creates a fresh one. **T022 is active.**
+
 **Something executes.** A frozen READY Draft of the shipped Fuel Loss Event runs
 in `assetops_simulator` and produces a private trajectory: 430 L, 374.02 L when
 the dispatch window closes, 254.02 L after the removal, and 500 L at the delivery
 with 54.02 L recorded refused. Exact rationals throughout, derived by hand before
-the code ran.
+the code ran. T021's two review rounds returned nine defects and the user asked
+for all of them; what they settled is in `.ai/CODE_STATE.md` under T021, and the
+two headlines are that **a run now freezes its whole causal projection** so the
+run alone determines the experiment, and that **every number a run freezes crosses
+one checked conversion** that refuses what a frozen float cannot carry.
 
-Two review rounds returned nine defects and the user asked for all of them.
-
-**Round one, five: a frozen run did not determine the experiment it executed.** A
-Draft froze the values a scenario declared and left their timing in a mutable
-document, so the same persisted run with one offset moved on the live document
-produced a different trajectory. Run setup freezes the whole causal projection now -
-causes, forcings, bound relationships and reporting-path conditions, each with its
-resolved address and span - and the executing component takes the run alone.
-**`EXECUTION_CONTRACT_VERSION` moved 5 to 6 for that.** The other four: adjacent
-windows sharing a step are no longer mistaken for ambiguous simultaneous values; a
-law's operands resolve before the first boundary so a missing coefficient is a
-classified failure rather than silence; a declared cause survives whichever frozen
-carrier holds its magnitude; and an excluded address neither acts nor invents a
-machine.
-
-**Round two, four, all at the boundary a run is frozen at.** A rate was normalized
-twice, so a millionth of a litre an hour froze as ZERO and the run said COMPLETED -
-every number a run freezes now crosses one checked conversion that refuses what the
-frozen float cannot carry. A version-6 record could omit the projection version 6
-exists to carry and execute anyway, which was my own argument for the version move
-applied to a layer I had not applied it to. An unanswered magnitude raised as HTTP
-500 where the product blocks. And the exclusion applied to an address rather than an
-`(address, role)` pair, suppressing a role the model does support. **The version
-stays 6**: it has never left this branch, so the four ride on it under the same
-unreleased-version doctrine versions 2 and 5 used, recorded in the contract's
-ledger.
+**T021A closed one position in the authored document.** A `REPORTED_OBSERVATION`
+carries no `execution_requirement` and a document declaring one is refused with
+the position named; `REQUIREMENT_BEARING_ROLES` is the single list the parser and
+run setup both read, so a reading is no longer a support question that can block a
+Draft. A reading's ADDRESS is still resolved and can still block.
+**`EXECUTION_CONTRACT_VERSION` is 7**, and it is the first move in the ledger
+where no conforming kernel behaves differently: the test is narrowing DIRECTION
+against documents that already exist, not executor behaviour. Two things it left
+for someone: the intent that field used to carry has no home in the vocabulary
+yet, and **one unparseable document in `var/scenarios/` takes the whole scenario
+catalog down** - pre-existing, unowned, found by this slice. The four local user
+scenarios there had the same field removed from their readings, because otherwise
+they no longer parse.
 
 Five trees now, three of them Python-importable. `contracts/assetops_contracts`
 holds what both sides of the truth barrier agree about, including the versioned
@@ -102,9 +93,10 @@ denominator above a million is refused rather than frozen. Five inline
 store's O(n) create wants a bounded fix with an owner before T027; `var/runs` holds
 165 Drafts, some frozen at version 6 by pre-fix code.
 
-**Next task: T021A**, then T022, T023 and T024 onward per `tasks/README.md`. None
-of the resequencing touches the starter path. T021A is a narrow parser closure to
-be time-boxed and is not a checkpoint.
+**Next task: T022**, then T023 and T024 onward per `tasks/README.md`. None of the
+resequencing touches the starter path. T021A needed no user checkpoint and asked
+for none; T022 owns the generated trace, the observation values and the
+reconciliation panel's retirement.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -116,15 +108,15 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **While T021 is `in_review` its own file is the active one**:
-   `tasks/T021-minimal-fuel-loss-causal-kernel.md`, with
-   `.agent/T021-review-packet.md`. Once it moves to `tasks/completed/`, read
-   `tasks/T021A-*.md` and `tasks/README.md` instead.
-2. `.ai/CODE_STATE.md`: the T021 entry and its two correction rounds first, then
-   T020B for the boundary cycle and the reading conventions, then T020A1 and T020A.
-   Completed tasks are regression evidence, not future direction.
+1. **While T021A is `in_review` its own file is the active one**:
+   `tasks/T021A-reported-observation-requirement-closure.md`, with
+   `.agent/T021A-review-packet.md` and `.agent/T021A-guard-probes.py`. Once it
+   moves to `tasks/completed/`, read `tasks/T022-*.md` and `tasks/README.md`.
+2. `.ai/CODE_STATE.md`: the T021A entry, then the T021 entry and its two correction
+   rounds, then T020B for the boundary cycle and the reading conventions, then
+   T020A1 and T020A. Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Placement is built; Contract Versions And
-   Retirements carries the outstanding T021A transition.
+   Retirements records the T021A transition as done at version 7.
 4. `contracts/assetops_contracts/execution_contract.py` for what a kernel must do,
    `simulator/assetops_simulator/kernel/execute.py` for one that conforms, and
    `runs/models.py`'s four frozen projection records for what makes a run determine
@@ -167,21 +159,29 @@ test, and its second scenario document lives in `host/tests/second_site.py` rath
 than in the writable store, because a document that exists to prove a kernel
 property would appear on the scenario catalog screen.
 
-`var/runs/` holds 165 local Drafts, added across this slice by runs of
-`tools/layout-evidence.mjs` - one per run-setup visit, which that tool has done
-since T019 - plus one manual POST. Some are at contract version 6 and were frozen by
-code the second review then corrected, so a local Draft there could carry a wrongly
-normalized rate. Nothing executes a local Draft and every test regenerates. A local Draft is not shipped proof of
-anything: the reachable path is proved by
-`backend/tests/test_execution_contract_alignment.py` and the executable path by
-`host/tests/`, both of which build the Site from the shipped template.
+`var/runs/` holds 165 local Drafts, added by runs of `tools/layout-evidence.mjs`
+- one per run-setup visit since T019 - plus one manual POST. Some are at version 6
+and were frozen by code T021's second review then corrected, so one could carry a
+wrongly normalized rate. Nothing executes a local Draft and every test regenerates:
+the reachable path is proved by `backend/tests/test_execution_contract_alignment.py`
+and the executable path by `host/tests/`, both building the Site from the template.
 
 `run-9f74603b06384126a627a5339fc78fbe` on `mg-006` is T020B's READY Draft. It is
-at contract version 5, the build is at 6, and T021 did not execute it: the version
-guard is an equality test on an integer and cannot tell a Draft frozen before a
-build from one frozen by it, so every executed Draft is regenerated in process.
-Every Draft below 6 now carries no causal projection at all and is refused
-execution, which is what makes an empty projection safe to read back.
+at contract version 5 and the build is at 7, so it is refused execution: the
+version guard is an equality test on an integer and cannot tell a Draft frozen
+before a build from one frozen by it, so every executed Draft is regenerated in
+process. **T021A took the build to 7, so every local Draft is now below it.**
+Both cases were read back to check the policy holds: a version-5 Draft carrying
+no projection and a version-6 one carrying a full projection each parse whole and
+each are refused execution.
+
+**`var/scenarios/` holds four user-authored documents** - two Fuel Loss variants
+on MG-004 and MG-006 and two twin-tank documents on MG-005. T021A edited them: a
+narrowing of the authored-document structure makes an existing document
+unparseable, and one unparseable document there takes the whole scenario catalog
+down. Only the `execution_requirement` line on each reading was removed; no value,
+address, source or identity changed. A future narrowing should expect to pay the
+same cost, and the catalog fragility has no owner yet.
 
 ## Standing Direction And Checks
 
