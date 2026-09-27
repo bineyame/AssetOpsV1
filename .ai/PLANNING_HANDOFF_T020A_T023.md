@@ -96,7 +96,11 @@ Renamed switching-position or controller-mode enums are not a workaround.
 
 ## Contract Versions And Retirements
 
-The built `EXECUTION_CONTRACT_VERSION` is **6** after T021's correction round. Three forecast
+The built `EXECUTION_CONTRACT_VERSION` is **6** after T021's correction rounds.
+Version 6 has never left the T021 branch, so its later amendments ride on it under
+the same unreleased-version doctrine versions 2 and 5 used; the ledger paragraph in
+`contracts/assetops_contracts/execution_contract.py` records them rather than
+leaving them invisible after a merge. Three forecast
 transitions happened and they landed as 3, 4 and 5: T020A's Foundation-value
 narrowing, T020A1's addressing, and T020B's requirement-conflict refusal plus
 reporting-path authority move plus the four declared kernel semantics. The old

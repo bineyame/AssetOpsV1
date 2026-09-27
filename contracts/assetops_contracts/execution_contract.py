@@ -198,6 +198,31 @@ from fractions import Fraction
 #: expectation kind is a pure widening off every executable path. And this
 #: module's relocation from `assetops_backend.scenarios.execution` carries
 #: identical objects, which the backend re-exports: `is` holds.
+#:
+#: ## Six was amended in place after a second review, and that is recorded here
+#:
+#: A second independent pass found four gaps at the boundary a run is frozen at,
+#: and they ride on six rather than spending a seven:
+#:
+#: - a rate was normalized twice, so a millionth of a litre an hour froze as zero.
+#:   `frozen_canonical_value` below does the conversion once, in exact arithmetic,
+#:   with the integration inside it, and refuses a value the frozen float cannot
+#:   carry. The contract already required one-time normalization, so this is an
+#:   implementation conforming rather than a rule changing - but it DOES change
+#:   what a run freezes for an unchanged document, which is why it is recorded
+#:   here rather than treated as invisible;
+#: - a record AT version six could omit the projection version six exists to
+#:   carry, and executed anyway. That one is a rule: a record at this version
+#:   carries it, and a record below may not;
+#: - an unanswered magnitude raised instead of freezing absent beside its blocking
+#:   reason;
+#: - the unsupported-input exclusion applied to an address rather than to an
+#:   `(address, role)` pair, so it suppressed a role the model does support.
+#:
+#: They ride on six because six has never been published: `main` is at five and no
+#: run outside this branch carries six. That is the doctrine versions two and five
+#: used, and this paragraph is what stops the amendment being invisible after the
+#: merge. Once this merges, the next narrowing is a seven.
 EXECUTION_CONTRACT_VERSION = 6
 
 

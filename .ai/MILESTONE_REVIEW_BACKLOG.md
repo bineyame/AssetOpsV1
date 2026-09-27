@@ -645,6 +645,59 @@ precondition ever being checked.
 
 *What would change the answer:* nothing. Delete at the milestone review.
 
+## Carried out of T021's second correction round
+
+Added 2026-09-27 after a second Codex pass found four gaps at the boundary a run is
+frozen at. All four are fixed, and so is the same defect one site further on. These
+are what remains, and none meets
+`D-2026-09-22-milestone-speed-over-purity`'s stopping rule.
+
+### A frozen record carries a `float`, and the guard is a refusal
+
+Every number a run freezes crosses `frozen_canonical_value`, which converts once in
+exact arithmetic and then checks that the `float` a frozen record holds reads back
+as the same rational. Where it does not, the run is refused. That is honest and it
+is not the same as being able to freeze the number: a rate whose integral needs a
+denominator above a million cannot be frozen at all.
+
+*Safe to carry* because the refusal is loud, the reachable units are narrow - only
+`L/h` among the canonical units has a non-unit factor - and no shipped or local
+document approaches it. The alternative is an exact representation on every frozen
+record, which changes the run document's shape and therefore the contract version.
+
+*What would change the answer:* a unit with a large factor, a scenario authored in
+very small rates, or any slice that wants a frozen run to carry an exact rational
+rather than a float. That last one is the real fix and it is a deliberate change,
+not a repair.
+
+### Version-6 Drafts in `var/runs` were frozen by pre-fix code
+
+The layout tool creates a Draft per run-setup visit against the live backend, and
+it ran while version 6 was being amended. Those Drafts are version 6 and are
+indistinguishable from post-fix ones, so one could carry a wrongly normalized rate
+or, before the parser guard, a record the parser now refuses.
+
+*Safe to carry* because nothing executes a local Draft, every test regenerates in
+process, and the shipped document declares no rate at all. It is the third time the
+integer-equality version guard has been the thing that cannot tell two builds
+apart, which is the part worth carrying forward rather than this instance.
+
+*What would change the answer:* anything that executes a Draft read out of `var/`.
+The standing instruction is to regenerate, and it has held for three rounds.
+
+### `.agent/` is gitignored, so a broken tool there cannot be restored
+
+A patch script wrote newline escapes into `.agent/T021-guard-probes.py` through a
+script where they were already newlines and broke the block it inserted. There was
+no committed copy to restore from. It was rebuilt with a helper that removes the
+possibility rather than the symptom.
+
+*Safe to carry* because the probe script is evidence rather than product code, it is
+rebuilt from the tests it points at, and the packet records what it measured.
+
+*What would change the answer:* a guard probe script becoming something a later
+slice has to re-run rather than re-derive. If it does, it stops being local-only.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

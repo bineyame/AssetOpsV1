@@ -3268,3 +3268,114 @@ by `(created_at, run_id)` descending.
 - **`var/runs` holds 159 local Drafts.** Ten more than before this round: the
   layout tool creates one per run-setup visit and was run three times, plus one
   manual POST against the live backend to confirm it served the new projection.
+
+### T021 second correction round: the boundary a run is frozen at
+
+Codex's second pass confirmed the first round's five closed - ten CAUGHT lines,
+plus it verified the new red-baseline control by feeding the harness a deliberately
+red suite and watching it refuse to probe, and confirmed the adjacent-window fix
+works with two DIFFERENT levels (first step energy 75/4, not just the identical
+case the tests used). It then found four more and hit its usage limit before
+writing a report, so `.agent/T021-codex-second-pass-probes.py` is the review.
+
+Where the first four defects were a kernel reinterpreting or omitting things, these
+four are about the **boundary a run is frozen at**.
+
+**1. A rate was normalized twice, and a valid removal became zero.** The worst of
+the four, because it was a silent wrong number in the one property this kernel
+exists to provide. The projection called a conversion that normalizes and returns a
+float, then normalized THAT float again before multiplying by the window's length.
+A millionth of a litre an hour is 1/60000000 of a litre a minute; the float is
+1.67e-08; normalizing it again gives ZERO, and the run reported COMPLETED having
+moved nothing. 1.000001 L/h froze as 999960/999959.
+
+`frozen_canonical_value` in the contract does the whole conversion in exact
+arithmetic **with the integration inside it**, converts to float once, and asserts
+the round trip. Where the exact value cannot survive the float a frozen record
+carries it refuses: `limit_denominator` recovers any denominator within its limit
+and none outside it, and a run carrying a number the document did not declare is
+what `EXACT_RATIONAL` exists to rule out. Every number a run freezes crosses it,
+including initial values - the reported site was the projection and the same
+unchecked conversion was one function away, which is how a class comes back.
+
+**2. A version-6 record could omit the fields version 6 exists to carry.** Deleting
+`causes` parsed, was READY, executed, and reported COMPLETED with the removal never
+happening. Deleting `declared_bounds` overfilled the tank past its capacity. The
+version guard cannot help when the version is the current one - and **this was my
+own argument for the version move applied to a layer I had not applied it to.** A
+run AT this build's version now carries the projection; an empty list is still a
+real answer and a missing or null key is not; a run below it may carry none of it,
+which is what preserves earlier readback. Both directions are probed, because a
+guard that required the fields at every version would pass the first probe and lose
+every earlier run.
+
+**3. An unanswered magnitude raised where the product blocks.** A `MODEL_RULE`
+magnitude no profile supplies a rule for has no number, and the product has always
+BLOCKED such a run because a different profile may answer - the reviewer's own
+control proved it by disabling the projection and getting
+`INITIAL_VALUE_NOT_RESOLVED`. Raising turned that into HTTP 500 with nothing
+written. `FrozenCause.canonical_value` and `FrozenForcing`'s have an absent case
+now, and `SimulationRun` enforces for them the invariant it already enforced for an
+absent initial value: the thing that made it absent is on the run beside it, naming
+the same address. `UnresolvedCausalProjection` survives only for what the scenario
+parser already guarantees cannot happen, and its docstring says so.
+
+**4. The exclusion was one notch too wide.** A model may model a state without
+modelling every role of it: this one moves a tank's stored volume and cannot have
+one FORCED, so a scenario forcing `fuel-tank-volume@fuel-tank` is correctly
+recorded unsupported at that role. Excluding the ADDRESS then suppressed the
+`CAUSAL_INPUT` role it does support, and execution failed `INITIAL_STATE_UNANSWERED`
+for a stock the run genuinely carried. The neutral boundary carries `(address,
+role)` pairs - `UnsupportedOptionalInput` has carried both since T020A1 - and
+topology asks the different question it should have been asking: an address
+excluded in EVERY role it appears in contributes no machine, which is what keeps
+R5 fixed.
+
+Also, the same class as 3: a zero-length window reached the kernel and escaped as
+an unclassified `ValueError`. It is refused where a document is read.
+
+### The contract version did not move again, and why
+
+**It stays 6, and the four fixes ride on it.** Version 6 has never left this
+branch - `main` is at 5 - so the unreleased-version doctrine that let version 2
+carry three amendments and version 5 carry four applies, and this paragraph is what
+stops the amendment being invisible afterwards.
+
+Judged per change even so, because two of them would otherwise look like moves.
+Fix 1 changes what a run freezes for an unchanged document, which is the policy's
+test - but the contract already said one-time normalization at the input boundary,
+so a conforming implementation always produced 1/1000000 and this is conformance
+rather than a rule change. Fix 2 narrows what a version-6 RECORD may be, which is a
+rule, and it lands on 6 before 6 is published. Fixes 3 and 4 change what a
+non-conforming implementation did.
+
+**One thing to know about `var/runs`.** It holds 165 Drafts and contains version-6
+ones frozen by the pre-fix code, created by the layout tool against the live
+backend. They are
+indistinguishable from post-fix ones by version - the same trap the backlog named
+for version 5 - so any Draft there could carry a wrongly normalized rate. Nothing
+executes a local Draft and every test regenerates, so it is a note rather than a
+defect, and it is the third time this integer-equality guard has been the thing
+that cannot tell two builds apart.
+
+### What this round cost, and what the probes caught that I did not
+
+Three probe results were mine rather than the code's, and each is worth keeping.
+
+**A test was satisfied by an adjacent mechanism.**
+`test_an_address_excluded_in_every_role_contributes_no_machine` used a `site:`
+address, which the scope filter removes before the exclusion is consulted - so it
+passed with the exclusion deleted from topology and proved nothing. The probe
+written for it found that. It now names a second COMPONENT-scoped tank on the
+twin-tank Site, mentioned only in a role the run records as unsupported.
+
+**Two probe anchors went stale** when the exclusion gained a role, and the harness
+reported SKIPPED rather than passing. That is the harness working: a probe whose
+anchor has moved says so. Both anchors follow the new signature.
+
+**A patch script wrote newline escapes into Python source through a script where
+they were already newlines**, and broke every multi-line anchor in the block it
+inserted. `.agent/` is gitignored, so there was no committed copy to restore from;
+the block was rebuilt with a `lines()` helper so no probe body contains an escape
+sequence at all. The instance was cheap and the class is not: a repair that removes
+the possibility is worth more than one that removes the symptom.
