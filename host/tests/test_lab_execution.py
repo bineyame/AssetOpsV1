@@ -39,6 +39,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 from fastapi.testclient import TestClient
 from fixtures import (
     HYBRID_TEMPLATE,
@@ -70,10 +71,13 @@ from assetops_contracts.execution_contract import (
 )
 from assetops_contracts.lab_projection import (
     LAB_CONTROL_REFUSALS,
+    LAB_EXECUTION_STATUS_STATEMENTS,
+    LAB_EXECUTION_STATUSES,
     LabControlRefused,
 )
 from assetops_contracts.observation import (
     RNG_DOMAIN,
+    SHAPE_NOT_RECORDED,
     ReportingPathWindow,
     SAMPLE_OUTCOMES,
     DeviceSignalSpec,
@@ -96,6 +100,7 @@ from execution_adapter import (
     unconfigured_signals,
 )
 from lab_execution import (
+    EXECUTION_ARTIFACT_SCHEMA_VERSION,
     HostLabExecution,
     LabSession,
     YamlExecutionArtifacts,
@@ -376,6 +381,21 @@ class TestStartAcceptsAnEligibleDraftAndNothingElse:
 
         with pytest.raises(ValueError):
             LabControlRefused("NOT_A_REFUSAL", "a subject")
+
+    def test_every_status_a_projection_can_hold_has_a_statement(self) -> None:
+        """The same rule for the status vocabulary, which had no guard at all.
+
+        A status is rendered beside its statement on the screen, and the
+        statement is looked up by name. Adding a status without one would have
+        been a `KeyError` at the moment somebody opened the run - which is
+        precisely the class of defect R4 was.
+        """
+        assert LAB_EXECUTION_STATUSES
+        for status in sorted(LAB_EXECUTION_STATUSES):
+            assert len(LAB_EXECUTION_STATUS_STATEMENTS[status]) > 60
+        assert (
+            set(LAB_EXECUTION_STATUS_STATEMENTS) == LAB_EXECUTION_STATUSES
+        ), "a statement for a status nothing can hold is a sentence nobody reads"
 
 
 # --- Criterion 2: stepping, batching and the simulated clock ----------------
@@ -1140,13 +1160,20 @@ class TestTheFirstStochasticMechanism:
         assert draw_fraction(seed, stream, step_index, ordinal) == expected
         assert 0 <= expected < 1
 
-    def test_the_draw_has_nowhere_to_put_anything_else(self) -> None:
-        """The structural half, and the one that stops the caller drifting again.
+    def test_the_draw_takes_the_named_fields_and_no_further_one(self) -> None:
+        """The ARITY half, which is the whole of what a signature guarantees.
 
-        A guard written as "the caller currently passes the right things" is a
-        guard the next caller walks past. `draw_fraction` takes exactly the
-        specified fields, so an address, a timestamp or an offset cannot be
-        supplied - there is no parameter for one.
+        This test was called "nowhere to put anything else" and the claim beside
+        it said an address could not be supplied. C4: that was false, and the
+        test below is the demonstration. A signature constrains how many
+        arguments arrive and what they are called. It does not constrain their
+        types, because Python does not enforce annotations, and a test whose
+        name implies otherwise tells the next reader a guard exists where none
+        does.
+
+        What IS guaranteed is here: the four fields the contract names, no
+        variadic through which a fifth could arrive, and a `TypeError` if one is
+        passed anyway.
         """
         import inspect
 
@@ -1168,6 +1195,45 @@ class TestTheFirstStochasticMechanism:
 
         with pytest.raises(TypeError):
             draw_fraction(1, "a-stream", 0, 0, "fuel-tank-volume@fuel-tank")
+
+    def test_an_address_in_a_whole_number_field_is_refused(self) -> None:
+        """C4: the annotation is not the guard, so this is.
+
+        An independent review passed the address as `step_index` and got a
+        Fraction back. That is exactly the defect R1 was - a draw keyed on an
+        address is deterministic, returns a plausible number, and is a different
+        stream from the contract's with nothing on any surface to show it - so
+        the substitution is refused rather than hashed.
+
+        Narrow on purpose. This is not a licence to validate every internal
+        function; it is here because a wrong digest is silent, and silent is
+        what this milestone keeps paying for.
+        """
+        with pytest.raises(TypeError) as raised:
+            draw_fraction(7, "a-stream", "fuel-tank-volume@fuel-tank", 1500)
+
+        assert "step_index is a whole number" in str(raised.value)
+
+        for wrong in (
+            lambda: draw_fraction("7", "a-stream", 3),
+            lambda: draw_fraction(7, 12, 3),
+            lambda: draw_fraction(7, "a-stream", 3, "0"),
+            # `True` is an `int` in Python and is not a boundary index, refused
+            # for the reason the Lab's own step request refuses it.
+            lambda: draw_fraction(7, "a-stream", True),
+        ):
+            with pytest.raises(TypeError):
+                wrong()
+
+    def test_the_refusal_does_not_reject_what_the_contract_names(self) -> None:
+        """The other side, so the guard is not simply always raising.
+
+        A check that refused everything would pass the test above and break
+        every draw, and the production transform would be the thing that found
+        out.
+        """
+        assert isinstance(draw_fraction(7, "a-stream", 3), Fraction)
+        assert isinstance(draw_fraction(0, "", 0, 0), Fraction)
 
     def test_the_ordinal_separates_two_draws_at_one_step(self) -> None:
         """The field that exists for the second mechanism, proved to do something.
@@ -1635,6 +1701,54 @@ class TestAReportingConditionOccupiesTimeByItsDeclaredShape:
         assert max(suppressed) == 2445
         assert 2460 not in suppressed
 
+    def reason_at(self, document: dict[str, Any], offset: int) -> str:
+        """Why the fuel sensor published nothing at one instant, in words."""
+        run = draft(definition=scenario(document))
+        _, _, reporting, trajectory = executed_to_end(run)
+        (suppressed,) = [
+            item
+            for item in readings(trajectory, reporting)
+            if item.key == (TANK, *FUEL_SIGNAL)
+            and item.at_offset_minutes == offset
+            and item.outcome == "SUPPRESSED_BY_GAP"
+        ]
+        return suppressed.suppression_reason or ""
+
+    def test_the_explanation_names_the_span_it_is_explaining(self) -> None:
+        """C5: the sentence used to give a span that excluded its own row.
+
+        A POINT declared at offset 1490 suppresses the sample at 1485, which is
+        right - `point-applied-once` gives it the step whose half-open span
+        contains 1490, and that is `[1485, 1500)`. The explanation on that row
+        said the path was unavailable "from offset 1490", a span that does not
+        contain 1485. A reader could only reconcile the two by already knowing
+        the containing-step rule, which is the thing the sentence exists to tell
+        them.
+
+        Both numbers are now on the row and they are labelled as what they are:
+        the instant the document declared, and the interval it resolved to.
+        """
+        reason = self.reason_at(
+            _reporting_condition_as(POINT_AT_THE_GAP_OFFSET), 1485
+        )
+
+        assert "across offset 1485 up to but not including 1500" in reason
+        assert "declared at offset 1490" in reason
+
+    def test_a_window_says_one_thing_because_it_has_one_answer(self) -> None:
+        """The other side, so the extra clause is not simply always appended.
+
+        A WINDOW's declared instant IS where its outage starts, so there is no
+        second number to disclose and the sentence does not invent one. If every
+        row carried both phrasings, "these two differ" would stop being
+        information.
+        """
+        reason = self.reason_at(shipped_document(), 1545)
+
+        assert "across offset 1490 up to but not including 1580" in reason
+        assert reason.count("declared at offset 1490") == 1
+        assert "which falls in the step covering" not in reason
+
     def test_the_three_shapes_do_not_agree_with_each_other(self) -> None:
         """The claim the first version made false, stated as a comparison.
 
@@ -1718,6 +1832,313 @@ class TestAReportingConditionOccupiesTimeByItsDeclaredShape:
             )
 
         assert "an outage of a length nobody declared" in str(raised.value)
+
+    def test_an_unrecorded_shape_with_no_recorded_span_is_refused(self) -> None:
+        """The collapse again, under a new name, refused at construction.
+
+        `SHAPE_NOT_RECORDED` says the writing build did not record which shape
+        produced the outage. Without the span that build resolved, the row says
+        neither how long the outage lasted nor what decides it, which is exactly
+        the state the shape field was added to make impossible.
+        """
+        with pytest.raises(ValueError) as raised:
+            ReportingPathWindow(
+                event_id="a-gap",
+                condition_address="fuel-level-reporting-availability@fuel-tank",
+                device_id="fuel-level-sensor",
+                signal_id="fuel-level",
+                address=TANK,
+                timing_shape=SHAPE_NOT_RECORDED,
+                offset_minutes=1490,
+                duration_minutes=90,
+                interval_minutes=2460,
+                timestep_minutes=15,
+            )
+
+        assert "records no shape and no span either" in str(raised.value)
+
+    def test_a_declared_shape_carrying_a_recorded_span_is_refused(self) -> None:
+        """Two answers to one question, which is one too many.
+
+        A row states the shape its span follows from, or it states the span a
+        record already resolved. Allowing both would leave the next reader
+        guessing which is authoritative - and would let a fresh execution ship a
+        span that disagrees with its own declared shape.
+        """
+        with pytest.raises(ValueError) as raised:
+            ReportingPathWindow(
+                event_id="a-gap",
+                condition_address="fuel-level-reporting-availability@fuel-tank",
+                device_id="fuel-level-sensor",
+                signal_id="fuel-level",
+                address=TANK,
+                timing_shape="WINDOW",
+                offset_minutes=1490,
+                duration_minutes=90,
+                interval_minutes=2460,
+                timestep_minutes=15,
+                recorded_end_offset_minutes=1580,
+            )
+
+        assert "two answers to one question" in str(raised.value)
+
+    def test_every_window_a_fresh_execution_builds_declares_its_shape(
+        self,
+    ) -> None:
+        """The other side of the read path, so it stays a READ path.
+
+        `SHAPE_NOT_RECORDED` exists for records written before the shape was
+        carried. A window this build resolves for a live run must never have it,
+        or the absence would have become a shape a new execution can produce.
+        """
+        run = draft()
+        reporting = reporting_inputs(run)
+
+        assert reporting.gaps, "the shipped document declares a gap at all"
+        for window in reporting.gaps:
+            assert window.timing_shape != SHAPE_NOT_RECORDED
+            assert window.recorded_end_offset_minutes is None
+
+
+# --- R4: a record written before the rule changed --------------------------
+
+
+class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
+    """R4: carrying the shape changed the artifact, and broke every old one.
+
+    `parse_projection` began reading `timing_shape` and `timestep_minutes` off
+    every reporting-gap row. Records written by the build reviewed one round
+    earlier carry neither, so reading one raised `KeyError 'timing_shape'`, which
+    escaped the composed GET execution route as **HTTP 500**. Four completed runs
+    already on disk were affected: the correction that made new results right made
+    every old result unopenable, which is the fourth time this milestone that a
+    change correct going forward was silent going backward.
+
+    The fixture here is not a hand-authored corrupt file. It executes a real run,
+    takes the artifact this build writes, and removes exactly what the first-pass
+    build never wrote - so what is read back has the shape of a real record rather
+    than a guess at one.
+    """
+
+    def strip_to_first_pass(self, path: Path) -> dict[str, Any]:
+        """One persisted artifact, back in the schema that predates the shape."""
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document.pop("artifact_schema_version")
+        for row in document["reporting_gaps"]:
+            del row["timing_shape"]
+            del row["timestep_minutes"]
+            del row["recorded_end_offset_minutes"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+        return document
+
+    def completed(
+        self, tmp_path: Path, run: SimulationRun
+    ) -> tuple[HostLabExecution, LabProjection, Path]:
+        execution = port(tmp_path)
+        execution.start(run)
+        written = execution.run_to_end(run)
+        execution.forget(run.run_id)
+        return execution, written, tmp_path / f"{run.run_id}.yaml"
+
+    def test_the_fixture_really_is_the_first_pass_shape(
+        self, tmp_path: Path
+    ) -> None:
+        """The precondition, so the claims below are about the right file.
+
+        A fixture that still carried the new field would pass whether or not the
+        read path this class is about existed at all.
+        """
+        run = draft()
+        _, _, path = self.completed(tmp_path, run)
+
+        document = self.strip_to_first_pass(path)
+
+        assert "artifact_schema_version" not in document
+        assert document["reporting_gaps"], "the fixture needs a gap row at all"
+        for row in document["reporting_gaps"]:
+            assert "timing_shape" not in row
+            assert "timestep_minutes" not in row
+
+    def test_an_old_record_reads_back_as_the_result_it_is(
+        self, tmp_path: Path
+    ) -> None:
+        """Criterion 12, for the records that already exist.
+
+        Everything the old build computed is still there and still exact. The
+        readings are the readings it generated and the digests are the ones it
+        wrote; nothing is re-executed.
+        """
+        run = draft()
+        execution, written, path = self.completed(tmp_path, run)
+        self.strip_to_first_pass(path)
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "COMPLETED"
+        assert reloaded.observations == written.observations
+        assert reloaded.private_state == written.private_state
+        assert reloaded.content_digest == written.content_digest
+        assert (
+            reloaded.observation_series_digest
+            == written.observation_series_digest
+        )
+
+    def test_the_span_is_the_one_that_record_was_resolved_against(
+        self, tmp_path: Path
+    ) -> None:
+        """Recovered, not guessed - and the row says which.
+
+        The first-pass build resolved every window by one rule over two fields
+        the record still carries, so the span its readings were generated against
+        is recoverable exactly. Which authored SHAPE produced that span is not,
+        and the row says so rather than giving the likelier answer.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        self.strip_to_first_pass(path)
+
+        reloaded = execution.projection(run)
+
+        (window,) = reloaded.reporting_gaps
+        assert window.timing_shape == SHAPE_NOT_RECORDED
+        assert window.recorded_end_offset_minutes == 1580
+        assert window.start_offset_minutes == 1490
+        assert window.end_offset_minutes == 1580
+        assert window.covers(1545)
+        assert not window.covers(1580)
+
+    def test_the_reader_is_told_the_record_predates_the_rule(
+        self, tmp_path: Path
+    ) -> None:
+        """On the projection, not in a log.
+
+        The person looking at the screen is the one who needs to know that one
+        column on it is absent and why. A record read under an older rule that
+        said so nowhere would be the silent reinterpretation this is about.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        self.strip_to_first_pass(path)
+
+        reloaded = execution.projection(run)
+
+        note = " ".join(reloaded.notes)
+        assert "artifact schema 1" in note
+        assert "is not recoverable from the record and is not guessed" in note
+
+    def test_the_composed_route_answers_rather_than_returning_five_hundred(
+        self, tmp_path: Path
+    ) -> None:
+        """The surface the defect actually appeared on.
+
+        Reproduced through the real `create_app` with a real `HostLabExecution`,
+        because a `KeyError` inside the port is only a defect once it escapes the
+        route as a 500 on the screen that exists to inspect the run.
+        """
+        run, store = _persisted(draft())
+        execution = port(tmp_path)
+        client = TestClient(
+            create_app(
+                FeatureFlags(simulator_lab_enabled=True),
+                site_repository=FakeSites((_mg_001(),)),
+                run_repository=store,
+                execution=execution,
+            )
+        )
+        client.post(f"/api/simulator-lab/runs/{run.run_id}/execution/start")
+        client.post(
+            f"/api/simulator-lab/runs/{run.run_id}/execution/run-to-end",
+            json={"from_boundary": 0},
+        )
+        execution.forget(run.run_id)
+        self.strip_to_first_pass(tmp_path / f"{run.run_id}.yaml")
+
+        response = client.get(f"/api/simulator-lab/runs/{run.run_id}/execution")
+
+        assert response.status_code == 200, response.text
+        payload = response.json()["execution"]
+        assert payload["status"] == "COMPLETED"
+        assert payload["observations"], "the readings are still on the wire"
+        (gap,) = payload["reporting_gaps"]
+        assert gap["timing_shape"] == SHAPE_NOT_RECORDED
+        assert gap["start_offset_minutes"] == 1490
+        assert gap["end_offset_minutes"] == 1580
+
+    def test_a_record_from_a_later_build_is_reported_and_not_reinterpreted(
+        self, tmp_path: Path
+    ) -> None:
+        """The other direction, where nothing is recoverable.
+
+        A build cannot honestly read a rule it does not have, so this is the
+        typed unavailable answer rather than a best effort. It is still an
+        ANSWER: the status says what is wrong and the note says which schema.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document["artifact_schema_version"] = (
+            EXECUTION_ARTIFACT_SCHEMA_VERSION + 1
+        )
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "ARTIFACT_UNREADABLE"
+        assert reloaded.private_state == ()
+        assert reloaded.observations == ()
+        assert reloaded.content_digest is None
+        assert f"schema {EXECUTION_ARTIFACT_SCHEMA_VERSION + 1}" in " ".join(
+            reloaded.notes
+        )
+
+    def test_no_control_executes_over_a_record_it_cannot_read(
+        self, tmp_path: Path
+    ) -> None:
+        """The reason this is a refusal and not a shrug.
+
+        Treating an unreadable record as no record would start a second execution
+        under the first one's identity and overwrite the very result nobody could
+        read.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document["artifact_schema_version"] = 99
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+        before = path.read_bytes()
+
+        for control in (
+            lambda: execution.start(run),
+            lambda: execution.step(run, boundaries=1, from_boundary=0),
+            lambda: execution.run_to_end(run),
+        ):
+            with pytest.raises(LabControlRefused) as refused:
+                control()
+            assert refused.value.kind == "ARTIFACT_UNREADABLE"
+            assert "schema 99" in str(refused.value.detail)
+
+        assert path.read_bytes() == before, "the record is left exactly as it was"
+
+    def test_this_build_writes_the_schema_it_reads(self, tmp_path: Path) -> None:
+        """The field that makes the next change survivable.
+
+        A reader that learns which rule applied by noticing a key is absent
+        cannot tell an old record from a damaged one, and cannot say which. This
+        is what stops the fifth variant of this defect.
+        """
+        run = draft()
+        _, _, path = self.completed(tmp_path, run)
+
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+
+        assert (
+            document["artifact_schema_version"]
+            == EXECUTION_ARTIFACT_SCHEMA_VERSION
+        )
+        assert next(iter(document)) == "artifact_schema_version", (
+            "a person opening the file reads which rule wrote it before they "
+            "read anything that rule decided"
+        )
 
 
 # --- Criterion 16: executing a draft writes nothing ------------------------

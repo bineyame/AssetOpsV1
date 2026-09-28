@@ -296,7 +296,12 @@ export interface RunReportingGap {
   signal_id: string;
   address: string;
   timing_shape: string;
-  offset_minutes: number;
+  /** The instant the document declared, which for a POINT is not the
+   * start of the outage: an entry at offset 1490 in a fifteen-minute run
+   * silences the sample at 1485. Both are carried so a reader can see
+   * what was written and what it came to. */
+  declared_offset_minutes: number;
+  start_offset_minutes: number;
   end_offset_minutes: number;
 }
 
@@ -637,7 +642,8 @@ function isReportingGap(value: unknown): value is RunReportingGap {
     typeof value.signal_id === "string" &&
     typeof value.address === "string" &&
     typeof value.timing_shape === "string" &&
-    typeof value.offset_minutes === "number" &&
+    typeof value.declared_offset_minutes === "number" &&
+    typeof value.start_offset_minutes === "number" &&
     typeof value.end_offset_minutes === "number"
   );
 }

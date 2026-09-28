@@ -467,8 +467,16 @@ describe("simulator lab gate: enabled", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "What this workspace is" }),
     ).toBeInTheDocument();
+    // The claim is about EXECUTING a draft, and it says so. It said "Nothing
+    // here ... writes to any site" while + Add site sat on the same workspace
+    // and its ordinary flow persists a product Site - so a guard pinned to that
+    // phrasing would have been guarding a sentence that was false about the
+    // screen it was on.
     expect(
-      screen.getByText(/writes to any site/i),
+      screen.getByText(/Executing a Draft stages no gateway message/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Setting a Site up is a separate thing/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/Simulator truth is never product evidence/i),

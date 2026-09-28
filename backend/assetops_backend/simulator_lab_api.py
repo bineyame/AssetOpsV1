@@ -840,11 +840,18 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
                 "device_id": window.device_id,
                 "signal_id": window.signal_id,
                 "address": window.address,
-                # The shape, and the span it RESOLVED to. A reader has to be
-                # able to see both: that the document declared an instant, and
-                # which instants that instant covers at this run's timestep.
+                # The shape, the instant the document DECLARED, and the span
+                # that instant RESOLVED to. All three, under three names,
+                # because for a POINT the first two differ: an entry declared
+                # at offset 1490 in a fifteen-minute run silences the sample
+                # at 1485. This field was called `offset_minutes` and carried
+                # the resolved start, which is the right number under a name
+                # that promises the other one - and a reader comparing it with
+                # the authored document would have found them disagreeing with
+                # nothing on the wire to explain it.
                 "timing_shape": window.timing_shape,
-                "offset_minutes": window.start_offset_minutes,
+                "declared_offset_minutes": window.offset_minutes,
+                "start_offset_minutes": window.start_offset_minutes,
                 "end_offset_minutes": window.end_offset_minutes,
             }
             for window in projection.reporting_gaps

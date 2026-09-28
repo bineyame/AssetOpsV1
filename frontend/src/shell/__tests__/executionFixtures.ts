@@ -64,7 +64,8 @@ const GAPS: RunExecution["reporting_gaps"] = [
     // and a WINDOW can resolve to the same offsets at some timesteps, and a
     // fixture that carried only the offsets would render them identically.
     timing_shape: "WINDOW",
-    offset_minutes: 1490,
+    declared_offset_minutes: 1490,
+    start_offset_minutes: 1490,
     end_offset_minutes: 1580,
   },
 ];
@@ -252,6 +253,25 @@ export const INTERRUPTED: RunExecution = {
   status: "INTERRUPTED",
   statement:
     "An execution of this Draft was running when the process holding it ended.",
+};
+
+/**
+ * A record this build cannot interpret, which is a fact about the RECORD.
+ *
+ * Deliberately not INTERRUPTED and not FAILED: both of those report an
+ * execution event, and nothing happened to this run. The note is where the
+ * reason lives, because a per-status sentence cannot name a schema number.
+ */
+export const ARTIFACT_UNREADABLE: RunExecution = {
+  ...BASE,
+  status: "ARTIFACT_UNREADABLE",
+  statement:
+    "This Draft has an execution record and this build cannot interpret it.",
+  notes: [
+    "The execution record for run-a is written in artifact schema 3 and this " +
+      "build reads schema 2. A later build wrote it, so what its fields mean " +
+      "is that build's to say. The record is left exactly as it is.",
+  ],
 };
 
 /**

@@ -14,6 +14,7 @@ import type {
   RunSummary,
 } from "../runSetupClient";
 import {
+  ARTIFACT_UNREADABLE,
   COMPLETED,
   INTERRUPTED,
   NOT_STARTED,
@@ -331,7 +332,8 @@ describe("private truth beside what was reported", () => {
             {
               ...RUNNING_IN_THE_GAP.reporting_gaps[0],
               timing_shape: "POINT",
-              offset_minutes: 1485,
+              declared_offset_minutes: 1490,
+              start_offset_minutes: 1485,
               end_offset_minutes: 1500,
             },
           ],
@@ -347,8 +349,54 @@ describe("private truth beside what was reported", () => {
     expect(
       row.querySelector("[data-reporting-gap-shape]")?.textContent?.trim(),
     ).toBe("POINT");
+    // The instant the DOCUMENT declared and the span it RESOLVED to, in
+    // separate cells. For a POINT they differ - 1490 falls inside the step
+    // covering [1485, 1500) - and a table that showed only one of them would
+    // either contradict the authored document or hide which sample was
+    // silenced.
+    expect(
+      row
+        .querySelector("[data-reporting-gap-declared-at]")
+        ?.textContent?.trim(),
+    ).toBe("1490");
     expect(row.textContent).toContain("1485");
     expect(row.textContent).toContain("1500");
+  });
+
+  it("does not show a declared instant as the start of the outage", async () => {
+    renderAt(
+      READY_URL,
+      client({
+        status: "loaded",
+        execution: {
+          ...RUNNING_IN_THE_GAP,
+          reporting_gaps: [
+            {
+              ...RUNNING_IN_THE_GAP.reporting_gaps[0],
+              timing_shape: "POINT",
+              declared_offset_minutes: 1490,
+              start_offset_minutes: 1485,
+              end_offset_minutes: 1500,
+            },
+          ],
+        },
+      }),
+    );
+    await settledScreen();
+
+    const cells = Array.from(
+      (
+        document.querySelector(
+          '[data-reporting-gap="fuel-level-reporting-gap"]',
+        ) as HTMLElement
+      ).querySelectorAll("td"),
+    ).map((cell) => (cell.textContent ?? "").trim());
+
+    // 1490 appears once, in the declared cell, and 1485 is the cell beside it.
+    // Before the columns were split, the resolved start was rendered under a
+    // heading that promised the authored number.
+    expect(cells.filter((text) => text === "1490")).toHaveLength(1);
+    expect(cells.indexOf("1485")).toBe(cells.indexOf("1490") + 1);
   });
 
   it("lists each configured path with its own cadence, bias and dropout", async () => {
@@ -472,6 +520,30 @@ describe("the execution controls", () => {
     await settledScreen();
 
     expect(requests).toEqual([16]);
+  });
+
+  it("says a record it cannot read is unreadable, and offers no control", async () => {
+    // R4. Before this, a record written before the reporting shape was carried
+    // raised inside the port and left the screen as an HTTP 500. A status is an
+    // answer; a 500 is the absence of one.
+    renderAt(
+      READY_URL,
+      client({ status: "loaded", execution: ARTIFACT_UNREADABLE }),
+    );
+    await settledScreen();
+
+    const panel = executionPanel();
+    expect(within(panel).getByText("ARTIFACT_UNREADABLE")).toBeInTheDocument();
+    expect(within(panel).getByText(/cannot interpret it/i)).toBeInTheDocument();
+    // The reason, with the number that makes it actionable.
+    expect(within(panel).getByText(/artifact schema 3/i)).toBeInTheDocument();
+
+    for (const name of ["Start this run", "Step", "Run to the end"]) {
+      const control = screen.queryByRole("button", { name });
+      expect(control === null || (control as HTMLButtonElement).disabled).toBe(
+        true,
+      );
+    }
   });
 
   it("offers no execution control at all for a blocked draft", async () => {

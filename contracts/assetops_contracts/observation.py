@@ -72,6 +72,11 @@ from assetops_contracts.execution_contract import (
 from assetops_contracts.identity import canonical_payload, identity_digest
 from assetops_contracts.world_inputs import ENTRY_SHAPES, FrozenInterval
 
+#: Not a shape. The absence of one, in a record written before the shape was
+#: carried at all, and it may only appear beside the span that record actually
+#: used. See `ReportingPathWindow` for why a guess was not put here instead.
+SHAPE_NOT_RECORDED = "NOT_RECORDED"
+
 #: The domain separator every stochastic draw in this product carries, kept
 #: apart from `IDENTITY_DOMAIN` so a draw and an identity of the same fields
 #: cannot collide. v4 section 9.
@@ -152,15 +157,57 @@ def draw_fraction(
     every slice: a check that proves what the code does rather than what the
     contract requires.
 
-    So there is no `*fields` any more. A caller cannot supply an address, a
-    timestamp or anything else, because there is nowhere to put one, which is a
-    stronger statement than any assertion about what the caller passes today.
+    So there is no `*fields` any more, and an EXTRA field now has nowhere to go:
+    a fifth positional argument raises `TypeError` before anything is hashed.
+
+    ## What the signature does not do, said plainly
+
+    It was claimed here, in the packet and in a test that the address could not be
+    supplied "because there is nowhere to put one". That is wrong, and an
+    independent review demonstrated it: annotations are not enforced, so
+    `draw_fraction(7, "a-stream", "fuel-tank-volume@fuel-tank", 1500)` fits the
+    address into `step_index` and returns a Fraction. The signature constrains
+    ARITY. It never constrained types, and describing it as though it did would
+    have told the next reader a guard existed where none did.
+
+    So the arity guarantee is stated as arity, and the type refusal below is what
+    makes the field claim true. It is deliberately narrow - this is not a licence
+    to validate every internal function - and it is here because this particular
+    substitution is the defect R1 WAS: a draw keyed on an address is
+    deterministic, produces a plausible Fraction, and differs from the contract's
+    stream of numbers with nothing on any surface to show it. A wrong digest is
+    silent, and silent is what this whole milestone keeps paying for.
+
+    `bool` is refused where a whole number is wanted for the reason the Lab's step
+    request refuses it: `True` is an `int` in Python and is not a boundary index.
 
     `step_index` is the boundary's own index, which is what the contract names.
     `ordinal` distinguishes several draws by one stream at one step; a mechanism
     drawing once per step passes zero, and it is a parameter rather than a
     constant so the second such mechanism has somewhere to go.
+
+    Raises:
+        TypeError: a field is not of the type the identity names.
     """
+    for name, value in (
+        ("seed", seed),
+        ("step_index", step_index),
+        ("ordinal", ordinal),
+    ):
+        if type(value) is not int:
+            raise TypeError(
+                f"A draw's {name} is a whole number and this one is "
+                f"{type(value).__name__} ({value!r}). v4 section 9.2 names the "
+                "five fields of a draw's identity, and a value of the wrong "
+                "kind in one of them produces a different stream of numbers "
+                "with nothing to show for it."
+            )
+    if type(stream) is not str:
+        raise TypeError(
+            "A draw's stream is a name and this one is "
+            f"{type(stream).__name__} ({stream!r}). The stream name is what "
+            "makes two mechanisms independent, and it is a string."
+        )
     payload = canonical_payload(
         [RNG_DOMAIN, seed, stream, step_index, ordinal]
     )
@@ -352,6 +399,28 @@ class ReportingPathWindow:
     So the shape is here and `end_offset_minutes` reads it. Half-open at both
     ends, like every other span in this product, and `covers` is the whole of the
     membership test.
+
+    ## A record written before the shape was carried, read as what it recorded
+
+    Adding the field broke the artifacts already on disk: they have no shape, and
+    a reader that demanded one raised where it should have answered. The choice
+    then is between guessing which shape produced a span and refusing to show the
+    record at all, and this record takes neither.
+
+    `SHAPE_NOT_RECORDED` says the shape was not written down, and it is accepted
+    only together with `recorded_end_offset_minutes` - the span that was actually
+    in force when that artifact's readings were generated. That span is not an
+    inference: the build that wrote the record resolved every window by one
+    published rule over fields the record still carries, so its end is recoverable
+    exactly, and the readings beside it were computed against it. What is NOT
+    recoverable is which authored shape the document declared, and that is
+    precisely what this refuses to invent.
+
+    The two go together in both directions. A shape of `NOT_RECORDED` with no
+    recorded span would be an outage of unknown length - the collapse again, under
+    a new name. A recorded span on a row that also names a shape would be two
+    answers to one question, and the next reader would have to guess which is
+    authoritative.
     """
 
     event_id: str
@@ -364,8 +433,34 @@ class ReportingPathWindow:
     duration_minutes: int | None
     interval_minutes: int
     timestep_minutes: int
+    #: Set only on a row read back from a record written before the shape was
+    #: carried, and then it is the span that record used.
+    recorded_end_offset_minutes: int | None = None
 
     def __post_init__(self) -> None:
+        if self.timing_shape == SHAPE_NOT_RECORDED:
+            if self.recorded_end_offset_minutes is None:
+                raise ValueError(
+                    f"Reporting condition {self.event_id!r} records no shape and "
+                    "no span either. A row that says neither how long the outage "
+                    "lasted nor what shape decided it is an outage of unknown "
+                    "length, which is the collapse the shape was added to stop."
+                )
+            if self.recorded_end_offset_minutes < self.offset_minutes:
+                raise ValueError(
+                    f"Reporting condition {self.event_id!r} records a span "
+                    f"ending at {self.recorded_end_offset_minutes} and starting "
+                    f"at {self.offset_minutes}. A span runs forwards."
+                )
+            return
+        if self.recorded_end_offset_minutes is not None:
+            raise ValueError(
+                f"Reporting condition {self.event_id!r} is a "
+                f"{self.timing_shape} and also carries a recorded span ending at "
+                f"{self.recorded_end_offset_minutes}. That is two answers to one "
+                "question: a row states the shape its span follows from, or it "
+                "states the span a record already resolved, and never both."
+            )
         if self.timing_shape not in ENTRY_SHAPES:
             raise ValueError(
                 f"Reporting condition {self.event_id!r} occupies time as "
@@ -406,7 +501,12 @@ class ReportingPathWindow:
           step. Since a cadence is a whole multiple of the timestep, that span
           holds at most one due sample - which is what makes a point outage an
           instant rather than a stretch.
+
+        A row with no recorded shape has no shape to decide anything, so it
+        answers with the span the record it came from actually used.
         """
+        if self.recorded_end_offset_minutes is not None:
+            return self.recorded_end_offset_minutes
         if self.timing_shape == "WINDOW":
             return self.offset_minutes + (self.duration_minutes or 0)
         if self.timing_shape == "INTERVAL_WIDE":

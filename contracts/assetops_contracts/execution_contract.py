@@ -317,6 +317,21 @@ from fractions import Fraction
 #: refused by the rule and by the code, and what was wrong was that the refusal
 #: escaped an HTTP boundary untranslated. A translation is not a rule.
 #:
+#: ### And a third amendment, which the second one caused
+#:
+#: Carrying the shape changed the persisted artifact's schema, and the reader
+#: demanded the new field from records written without it. Four completed runs
+#: already on disk became an HTTP 500 on the screen that exists to inspect them.
+#: This is the fourth time in this milestone that a change correct going forward
+#: was silent going backward - frozen runs reinterpreted by a live document, a
+#: version guard that could not separate two builds sharing a number, a narrowing
+#: that invalidated four authored documents, and now a schema with no reader for
+#: its own past - so the backward path is now a published rule rather than
+#: something each slice remembers:
+#: `a-record-older-than-a-rule-is-read-as-what-it-recorded`. It narrows what a
+#: conforming implementation may do with an old result, which is why it is an
+#: amendment and not a footnote.
+#:
 #: Once this merges, the next narrowing is a nine.
 EXECUTION_CONTRACT_VERSION = 8
 
@@ -1089,6 +1104,30 @@ REPORTING_RULES: tuple[ReportingRule, ...] = (
             "run-long outage, which is a different experiment from the one the "
             "document describes. A WINDOW declaring no length is refused rather "
             "than read as either."
+        ),
+    ),
+    ReportingRule(
+        rule_id="a-record-older-than-a-rule-is-read-as-what-it-recorded",
+        display_name="What happens to results a rule change left behind",
+        statement=(
+            "A persisted execution result written before a rule changed is read "
+            "as the result it is, not re-derived under the new rule and not "
+            "refused for lacking a field the old rule had no name for. Where the "
+            "old rule was a function of fields the record still carries, what it "
+            "resolved is recoverable exactly, and the record shows that resolved "
+            "value and says it was recorded rather than declared. What the record "
+            "cannot supply is not invented: a shape that was never written down "
+            "is reported as absent, never guessed from the span it produced. "
+            "Where even the resolved value is not recoverable, the record is "
+            "reported as unreadable, naming the schema it was written in and the "
+            "field that is missing - which is an answer a reader can act on, "
+            "unlike an error escaping the surface that was meant to show it. "
+            "**Rewriting, re-executing or discarding the record are all refused**: "
+            "an old result silently replaced by a new one is the loss this rule "
+            "exists to prevent, and it is worse than the gap it would paper over. "
+            "Every persisted result therefore states the schema version it was "
+            "written in, so a reader decides which rule applied by reading it "
+            "rather than by noticing that a key is absent."
         ),
     ),
     ReportingRule(

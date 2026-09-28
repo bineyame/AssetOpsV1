@@ -617,7 +617,8 @@ export function RunFrame({
                 <th scope="col">Declared by</th>
                 <th scope="col">Silences</th>
                 <th scope="col">Declared as</th>
-                <th scope="col">From offset</th>
+                <th scope="col">Declared at offset</th>
+                <th scope="col">Covers from offset</th>
                 <th scope="col">Up to offset</th>
               </tr>
             </thead>
@@ -630,15 +631,20 @@ export function RunFrame({
                   <th scope="row">{gap.event_id}</th>
                   <td>{`${gap.device_id} / ${gap.signal_id}`}</td>
                   {/*
-                    The shape the document declared, beside the span it resolved
-                    to. A POINT covering one step and a WINDOW covering ninety
-                    minutes are different declarations, and a table showing only
-                    the resolved offsets would render them the same way.
+                    The shape the document declared, the instant it declared,
+                    and the span that instant resolved to - three columns,
+                    because for a POINT the declared instant is not where the
+                    outage starts. One column showing the resolved start under
+                    the heading "From offset" read as the authored number and
+                    was not it.
                   */}
                   <td data-reporting-gap-shape={gap.timing_shape}>
                     {gap.timing_shape}
                   </td>
-                  <td>{String(gap.offset_minutes)}</td>
+                  <td data-reporting-gap-declared-at>
+                    {String(gap.declared_offset_minutes)}
+                  </td>
+                  <td>{String(gap.start_offset_minutes)}</td>
                   <td>{String(gap.end_offset_minutes)}</td>
                 </tr>
               ))}

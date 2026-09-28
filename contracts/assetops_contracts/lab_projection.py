@@ -49,11 +49,24 @@ from assetops_contracts.observation import (
     ReportingPathWindow,
 )
 
-#: What state a Lab execution is in. Five, and the three the private trajectory
+#: What state a Lab execution is in. Six, and the four the private trajectory
 #: cannot express are the reason this vocabulary exists rather than reusing
 #: `EXECUTION_OUTCOMES`.
+#:
+#: `ARTIFACT_UNREADABLE` is about the RECORD rather than about the run: the run
+#: happened, and this build cannot interpret what was written down about it. It
+#: is deliberately not `INTERRUPTED`, which says a process died mid-flight, and
+#: deliberately not `FAILED`, which says an execution stopped. Collapsing it into
+#: either would report an execution event that did not occur.
 LAB_EXECUTION_STATUSES = frozenset(
-    {"NOT_STARTED", "RUNNING", "COMPLETED", "FAILED", "INTERRUPTED"}
+    {
+        "NOT_STARTED",
+        "RUNNING",
+        "COMPLETED",
+        "FAILED",
+        "INTERRUPTED",
+        "ARTIFACT_UNREADABLE",
+    }
 )
 
 #: The terminal ones. A terminal run accepts no control and carries a digest.
@@ -83,6 +96,7 @@ LAB_CONTROL_REFUSALS = frozenset(
         "PORT_NOT_COMPOSED",
         "FROZEN_RUN_NOT_RECONSTRUCTIBLE",
         "CADENCE_NOT_EXPRESSIBLE",
+        "ARTIFACT_UNREADABLE",
     }
 )
 
@@ -146,6 +160,13 @@ LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
         "into a different one. The detail names the signal and the two numbers. "
         "A timestep is chosen at run setup, so setting a run up with a timestep "
         "the cadence divides is what makes this document executable."
+    ),
+    "ARTIFACT_UNREADABLE": (
+        "This Draft has an execution record this build cannot interpret, so no "
+        "control is offered. It is not started again, because a second execution "
+        "under the first one's identity would overwrite a result nobody can "
+        "currently read - and a record that cannot be read is exactly the one "
+        "worth not overwriting. The detail names the schema and the field."
     ),
 }
 
@@ -372,5 +393,12 @@ LAB_EXECUTION_STATUS_STATEMENTS: dict[str, str] = {
         "ended. Its private state lived in that process and was not persisted "
         "as a completed result, so there is nothing to resume and nothing to "
         "show."
+    ),
+    "ARTIFACT_UNREADABLE": (
+        "This Draft has an execution record and this build cannot interpret it. "
+        "The record itself is untouched and is not re-executed, rewritten or "
+        "discarded: a result silently replaced by a newer one would be the loss "
+        "worth avoiding here. The note below names the schema it was written in "
+        "and what is missing, which is a question a person can act on."
     ),
 }

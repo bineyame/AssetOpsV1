@@ -101,10 +101,12 @@ export function SimulatorLabFrame({
           A Draft run can be set up, started, stepped and run to the end here,
           and what it produced can be inspected: the world it holds at the
           instant it has reached, and what each configured device reported about
-          that world. None of it leaves this workspace. Nothing here stages a
-          gateway message, releases a source envelope, commits anything, or
-          writes to any site, and nothing can be rerun or compared against
-          another run.
+          that world. None of it leaves this workspace. Executing a Draft stages
+          no gateway message, releases no source envelope, commits nothing and
+          writes nothing to any site - the readings it generates are private
+          simulator truth and are not operational evidence - and nothing can be
+          rerun or compared against another run. Setting a Site up is a separate
+          thing this workspace does do, and it does persist a product Site.
         </p>
         <p>
           This is a developer and simulator workspace, separate from the

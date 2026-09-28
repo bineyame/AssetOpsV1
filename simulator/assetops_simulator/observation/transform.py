@@ -121,13 +121,31 @@ def _attempt(
     gaps = reporting.gaps_covering(signal, boundary.offset_minutes)
     if gaps:
         window = gaps[0]
+        # The AUTHORED instant and the RESOLVED interval, said separately,
+        # because for a POINT they differ and the sentence used to give the
+        # authored one as the interval's start. A point at offset 1490 in a
+        # fifteen-minute run suppresses the sample at 1485, and the explanation
+        # for that row read "unavailable from offset 1490" - a span that does not
+        # contain the row it was explaining. A reader can only reconcile that by
+        # already knowing the containing-step rule, which is the thing the
+        # sentence was supposed to tell them.
+        resolved = (
+            f"offset {window.start_offset_minutes} up to but not including "
+            f"{window.end_offset_minutes}"
+        )
+        if window.start_offset_minutes == window.offset_minutes:
+            placement = f"declared at offset {window.offset_minutes}"
+        else:
+            placement = (
+                f"declared at offset {window.offset_minutes}, which falls in "
+                f"the step covering {resolved}"
+            )
         return observation(
             "SUPPRESSED_BY_GAP",
             reason=(
                 f"{window.event_id} forces {window.condition_address} "
-                f"unavailable from offset {window.offset_minutes} up to but not "
-                f"including {window.end_offset_minutes}, so this signal took no "
-                "sample here."
+                f"unavailable across {resolved} - {placement} - so this signal "
+                "took no sample here."
             ),
         )
 

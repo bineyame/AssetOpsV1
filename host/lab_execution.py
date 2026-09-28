@@ -67,6 +67,7 @@ from assetops_contracts.lab_projection import (
     PrivateStateRow,
 )
 from assetops_contracts.observation import (
+    SHAPE_NOT_RECORDED,
     DeviceObservation,
     DeviceSignalSpec,
     FrozenReportingInputs,
@@ -100,6 +101,66 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 #: product record and this is private simulator truth, and a reader deleting one
 #: should not have to pick the other out of the same folder.
 EXECUTION_ARTIFACT_ROOT = REPOSITORY_ROOT / "var" / "executions"
+
+#: What shape the artifact on disk is in, written into every artifact this build
+#: writes and read out of every artifact it reads.
+#:
+#: **One: the first build that persisted an execution.** Its reporting-gap rows
+#: carry an offset, a duration and the interval, and no shape - because the shape
+#: was not carried anywhere yet.
+#:
+#: **Two: the shape and the run's timestep on every gap row**, added when
+#: discarding the shape turned a declared instant into a run-long outage.
+#:
+#: The number exists because the correction that added the field also broke every
+#: record written without it: the reader demanded the new key and four completed
+#: runs on disk became an HTTP 500 on the screen that exists to inspect them. A
+#: reader that learns which rule applied by finding out that a key is absent has
+#: no way to tell an old record from a damaged one, and no way to say which.
+#: `a-record-older-than-a-rule-is-read-as-what-it-recorded` is the published rule
+#: and this integer is how a reader applies it.
+EXECUTION_ARTIFACT_SCHEMA_VERSION = 2
+
+
+def _first_pass_end_offset(row: dict[str, object]) -> int:
+    """Where schema one's reader put the end of this window.
+
+    Not a guess and not a re-derivation. Schema one resolved every reporting
+    window by one rule - the declared length where there was one, and the end of
+    the interval where there was not - over two fields the record still carries.
+    So the span those readings were generated against is recoverable exactly,
+    which is what lets an old artifact be shown as the result it is.
+
+    What is NOT recoverable is which authored shape produced that span: a window
+    ending at the interval's end could have been declared INTERVAL_WIDE or could
+    be an absent duration read as one, and those are different documents. The row
+    is marked `SHAPE_NOT_RECORDED` rather than given the more likely answer.
+    """
+    duration = row.get("duration_minutes")
+    if duration is None:
+        return int(row["interval_minutes"])
+    return int(row["offset_minutes"]) + int(duration)
+
+
+class ExecutionArtifactUnreadable(Exception):
+    """A persisted execution record this build cannot interpret.
+
+    Raised rather than a `KeyError`, and carrying the schema version and the
+    reason, because the difference between "written by a build I do not know" and
+    "damaged" is the whole of what a reader needs and a `KeyError` says neither.
+    It is translated at every surface: the read answers `ARTIFACT_UNREADABLE` and
+    every control refuses, so nothing re-executes over a record nobody can read.
+    """
+
+    def __init__(self, run_id: str, schema_version: int, reason: str) -> None:
+        self.run_id = run_id
+        self.schema_version = schema_version
+        self.reason = reason
+        super().__init__(
+            f"The execution record for {run_id} is written in artifact schema "
+            f"{schema_version} and this build reads schema "
+            f"{EXECUTION_ARTIFACT_SCHEMA_VERSION}. {reason}"
+        )
 
 #: How many of the newest sample attempts a projection carries.
 #:
@@ -354,6 +415,9 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
     that cannot be read back exactly is not evidence of anything.
     """
     return {
+        # First, so a person opening the file sees which rule wrote it before
+        # they see anything the rule decided.
+        "artifact_schema_version": EXECUTION_ARTIFACT_SCHEMA_VERSION,
         "run_id": projection.run_id,
         "status": projection.status,
         "boundaries_completed": projection.boundaries_completed,
@@ -431,6 +495,12 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
                 "duration_minutes": window.duration_minutes,
                 "interval_minutes": window.interval_minutes,
                 "timestep_minutes": window.timestep_minutes,
+                # Null on everything this build executes, and the round trip is
+                # total only if it is written: a row read back out of a schema
+                # one record carries its recorded span and nothing else says so.
+                "recorded_end_offset_minutes": (
+                    window.recorded_end_offset_minutes
+                ),
             }
             for window in projection.reporting_gaps
         ],
@@ -487,13 +557,117 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
     }
 
 
+def _schema_notes(schema: int, gap_count: int) -> tuple[str, ...]:
+    """What a reader is told when the record predates a rule.
+
+    On the projection rather than only in a log, because the person looking at
+    the screen is the one who needs to know that one column on it is missing and
+    why. A record read under an older rule that said so nowhere would be the
+    silent reinterpretation this whole correction is about.
+    """
+    if schema >= EXECUTION_ARTIFACT_SCHEMA_VERSION or gap_count == 0:
+        return ()
+    return (
+        f"this execution record was written in artifact schema {schema}, before "
+        "a reporting condition's declared shape was persisted, so each reporting "
+        "gap below shows the span that record was resolved against and no shape. "
+        "The readings were generated against exactly that span. Which shape the "
+        "document declared is not recoverable from the record and is not guessed "
+        "here; executing the Draft again would answer it, and would be a second "
+        "execution rather than this one",
+    )
+
+
+def _parse_reporting_gap(
+    row: dict[str, object], schema: int, run_timestep_minutes: int
+) -> ReportingPathWindow:
+    """One persisted reporting-gap row, read under the rule that wrote it."""
+    if schema >= 2:
+        recorded = row.get("recorded_end_offset_minutes")
+        return ReportingPathWindow(
+            event_id=str(row["event_id"]),
+            condition_address=str(row["condition_address"]),
+            device_id=str(row["device_id"]),
+            signal_id=str(row["signal_id"]),
+            address=str(row["address"]),
+            timing_shape=str(row["timing_shape"]),
+            offset_minutes=int(row["offset_minutes"]),
+            duration_minutes=(
+                None
+                if row["duration_minutes"] is None
+                else int(row["duration_minutes"])
+            ),
+            interval_minutes=int(row["interval_minutes"]),
+            timestep_minutes=int(row["timestep_minutes"]),
+            recorded_end_offset_minutes=(
+                None if recorded is None else int(recorded)
+            ),
+        )
+    # Schema one. The run's own timestep is on the document and is the timestep
+    # this row was resolved under, so it is carried rather than invented - but it
+    # decides nothing here, because a recorded span needs no shape rule to resolve
+    # it.
+    return ReportingPathWindow(
+        event_id=str(row["event_id"]),
+        condition_address=str(row["condition_address"]),
+        device_id=str(row["device_id"]),
+        signal_id=str(row["signal_id"]),
+        address=str(row["address"]),
+        timing_shape=SHAPE_NOT_RECORDED,
+        offset_minutes=int(row["offset_minutes"]),
+        duration_minutes=(
+            None
+            if row.get("duration_minutes") is None
+            else int(row["duration_minutes"])
+        ),
+        interval_minutes=int(row["interval_minutes"]),
+        timestep_minutes=run_timestep_minutes,
+        recorded_end_offset_minutes=_first_pass_end_offset(row),
+    )
+
+
 def parse_projection(document: dict[str, object]) -> LabProjection:
     """One persisted artifact back as the projection it was written from.
 
     Strict: every exact value goes back through `Fraction`, and a value that is
     not a ratio is refused rather than coerced. An artifact somebody hand-edited
     is the same boundary every other parser in this product guards.
+
+    ## Which rule wrote this, asked rather than discovered
+
+    The schema version is read first and decides how the reporting-gap rows are
+    built. A record from schema one has no shape on them, and rather than
+    demanding a key that build had no name for, each row is read as the span that
+    build resolved - marked `SHAPE_NOT_RECORDED`, so nothing on any surface
+    claims to know a shape that was never written down. The readings beside it
+    were computed against exactly that span, which is why showing it is showing
+    the result rather than reconstructing one.
+
+    A record from a LATER schema is refused with
+    `ExecutionArtifactUnreadable`, because a build cannot honestly interpret a
+    rule it does not have. That is the same answer in the other direction, and it
+    is an answer rather than a `KeyError` at whichever field happens to be first.
+
+    Raises:
+        ExecutionArtifactUnreadable: the record was written by a build whose
+            schema this one does not know.
     """
+    schema = int(document.get("artifact_schema_version", 1))
+    run_id = str(document["run_id"])
+    if schema > EXECUTION_ARTIFACT_SCHEMA_VERSION:
+        raise ExecutionArtifactUnreadable(
+            run_id,
+            schema,
+            "A later build wrote it, so what its fields mean is that build's "
+            "to say. The record is left exactly as it is.",
+        )
+    if schema < 1:
+        raise ExecutionArtifactUnreadable(
+            run_id,
+            schema,
+            "An artifact schema is a whole number from one upwards, so this "
+            "record does not say which rule wrote it.",
+        )
     failure = document.get("failure")
     return LabProjection(
         run_id=str(document["run_id"]),
@@ -529,7 +703,10 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
         reported_count=int(document["reported_count"]),
         suppressed_by_gap_count=int(document["suppressed_by_gap_count"]),
         dropped_count=int(document["dropped_count"]),
-        notes=tuple(str(note) for note in document.get("notes", ())),
+        notes=(
+            tuple(str(note) for note in document.get("notes", ()))
+            + _schema_notes(schema, len(document["reporting_gaps"]))
+        ),
         failure=(
             None
             if failure is None
@@ -571,22 +748,7 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
             for row in document["signals"]
         ),
         reporting_gaps=tuple(
-            ReportingPathWindow(
-                event_id=str(row["event_id"]),
-                condition_address=str(row["condition_address"]),
-                device_id=str(row["device_id"]),
-                signal_id=str(row["signal_id"]),
-                address=str(row["address"]),
-                timing_shape=str(row["timing_shape"]),
-                offset_minutes=int(row["offset_minutes"]),
-                duration_minutes=(
-                    None
-                    if row["duration_minutes"] is None
-                    else int(row["duration_minutes"])
-                ),
-                interval_minutes=int(row["interval_minutes"]),
-                timestep_minutes=int(row["timestep_minutes"]),
-            )
+            _parse_reporting_gap(row, schema, int(document["timestep_minutes"]))
             for row in document["reporting_gaps"]
         ),
         observations=tuple(
@@ -800,7 +962,10 @@ class HostLabExecution:
             session = self._sessions.get(run.run_id)
             if session is not None:
                 return project(session)
-            stored = self._artifacts.read(run.run_id)
+            try:
+                stored = self._artifacts.read(run.run_id)
+            except ExecutionArtifactUnreadable as unreadable:
+                return self._artifact_unreadable(run, unreadable)
             if stored is not None and stored.is_terminal:
                 return stored
             if stored is not None:
@@ -808,6 +973,38 @@ class HostLabExecution:
             return not_started(
                 run, self._reporting_for(run), self._notes(run)
             )
+
+    def _artifact_unreadable(
+        self, run: SimulationRun, unreadable: ExecutionArtifactUnreadable
+    ) -> LabProjection:
+        """A record exists, this build cannot interpret it, and it says so.
+
+        Carrying no world quantity and no reading for the same reason
+        INTERRUPTED carries none: there is nothing this build can honestly put
+        there. What it does carry is the reason, on the projection, because the
+        alternative a reader met before this existed was an HTTP 500.
+        """
+        base = not_started(run, self._reporting_for(run), self._notes(run))
+        return replace(
+            base,
+            status="ARTIFACT_UNREADABLE",
+            statement=LAB_EXECUTION_STATUS_STATEMENTS["ARTIFACT_UNREADABLE"],
+            notes=base.notes + (str(unreadable),),
+        )
+
+    def _read_or_refuse(self, run: SimulationRun) -> LabProjection | None:
+        """The stored record, or a refusal rather than an escaping exception.
+
+        Every control goes through here. A record this build cannot read is not
+        "no record": treating it as one would start a second execution under the
+        first one's identity and overwrite the very result nobody could read.
+        """
+        try:
+            return self._artifacts.read(run.run_id)
+        except ExecutionArtifactUnreadable as unreadable:
+            raise LabControlRefused(
+                "ARTIFACT_UNREADABLE", run.run_id, str(unreadable)
+            ) from unreadable
 
     def _interrupted(self, run: SimulationRun) -> LabProjection:
         """The same shape as NOT_STARTED, saying a different thing.
@@ -837,7 +1034,7 @@ class HostLabExecution:
                 # execution, and answering with where it is beats either starting
                 # a second one or refusing a caller who has lost track.
                 return project(session)
-            stored = self._artifacts.read(run.run_id)
+            stored = self._read_or_refuse(run)
             if stored is not None and stored.is_terminal:
                 raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
             if stored is not None:
@@ -908,7 +1105,7 @@ class HostLabExecution:
         session = self._sessions.get(run.run_id)
         if session is not None:
             return session
-        stored = self._artifacts.read(run.run_id)
+        stored = self._read_or_refuse(run)
         if stored is not None and stored.is_terminal:
             raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
         if stored is not None:
