@@ -851,8 +851,16 @@ for (const [label, width, height] of [
         scenario.scrollers.map((s) => `${s.name}: ${s.columnCount}`).join("; "),
       ],
       [
-        "all four review proposals are on the page",
-        scenario.reviewProposals.length === 4,
+        // Three since T022, not four. The fourth was the reconciliation
+        // panel's, and it went with the panel under
+        // `D-2026-09-22-reconciliation-panel-retirement`: a checkpoint asking
+        // what to do about a difference this build no longer computes would
+        // be a question nobody can answer. Named rather than counted, so a
+        // renamed or missing proposal fails on which one rather than on how
+        // many.
+        "the three review proposals are on the page, by name",
+        scenario.reviewProposals.join("|") ===
+          "scenario-execution-roles|scenario-input-ownership|scenario-timing-and-bounds",
         scenario.reviewProposals.join(" | ") || "none",
       ],
       [

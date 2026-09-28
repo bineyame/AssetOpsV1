@@ -245,6 +245,45 @@ class TestStartAcceptsAnEligibleDraftAndNothingElse:
         assert refused.value.kind == "CONTRACT_INCOMPATIBLE"
         assert "stays readable" in refused.value.statement
 
+    def test_a_run_from_an_earlier_build_names_the_contract_not_the_profile(
+        self, tmp_path: Path
+    ) -> None:
+        """The ordering a browser found, as a regression test.
+
+        A run frozen under an earlier contract ALSO names an earlier publication
+        profile, because the two moved together in T022. Asking about the profile
+        first answers "this run does not determine one experiment" for a run whose
+        real answer is "these are not the rules it was frozen under" - the
+        narrower of the two facts, and the less useful one.
+
+        No suite could see it: every fixture in this repository is built in
+        process at the current version, so nothing had a run that failed both
+        checks. This is that run, built by hand from a rendered document and
+        re-parsed, so what reaches the port is a record the strict parser
+        accepted.
+        """
+        document = render_run_document(draft())
+        profiles = document["deterministic_identity"]["profiles"]
+        profiles["execution_contract_version"] = EXECUTION_CONTRACT_VERSION - 1
+        profiles["publication_profile_version"] = (
+            LAB_PUBLICATION_PROFILE.publication_profile_version - 1
+        )
+        earlier = parse_run_document(document, source="a run from an earlier build")
+
+        # Both are genuinely wrong, which is what makes the ordering matter.
+        assert earlier.deterministic_identity.profiles.execution_contract_version != (
+            EXECUTION_CONTRACT_VERSION
+        )
+        assert earlier.deterministic_identity.profiles.publication_profile_version != (
+            LAB_PUBLICATION_PROFILE.publication_profile_version
+        )
+
+        with pytest.raises(LabControlRefused) as refused:
+            port(tmp_path).projection(earlier)
+
+        assert refused.value.kind == "CONTRACT_INCOMPATIBLE"
+        assert refused.value.kind != "FROZEN_RUN_NOT_RECONSTRUCTIBLE"
+
     def test_an_already_terminal_run_is_refused_by_name(
         self, tmp_path: Path
     ) -> None:
