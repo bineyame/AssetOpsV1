@@ -164,5 +164,62 @@ function Invoke-DependencyDirectionCheck {
         }
     }
 
+    # --- Staged content is not accepted evidence --------------------------------
+    #
+    # T023. A staged source envelope is what a later Commit would release, not
+    # something ingestion accepted, and v4 section 11.3 and `.ai/ARCHITECTURE.md`
+    # Evidence Loop Boundaries forbid an operator surface from treating it as
+    # evidence. The stage contract is therefore importable in the product only by
+    # the gated Lab surface and the port that serves it. An operator module that
+    # imported it could render staged content as Site history, and the gate would
+    # not see it, because the gate guards URLs rather than imports.
+    #
+    # The envelope SCHEMA (`source_envelope`) is deliberately not restricted:
+    # ingestion (T027) is exactly the product module that must parse it. What is
+    # restricted is the stage - staged, unreleased content - which nothing but
+    # the Lab may read. Tests are exempt, because a test must reach a boundary to
+    # prove where it is.
+    $stageImport = @(
+        '^\s*(?:from|import)\s+assetops_contracts\.source_stage(?:\s|$)',
+        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\bsource_stage\b',
+        'import_module\(\s*["'']assetops_contracts\.source_stage'
+    )
+    $mayImportStage = @(
+        "backend/assetops_backend/simulator_lab_api.py",
+        "backend/assetops_backend/runs/execution_ports.py"
+    )
+
+    $backendModules = @(Get-ScannedModules -Root "backend/assetops_backend" -Extensions @(".py"))
+    $stageImporters = 0
+    foreach ($module in $backendModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $stageImport) {
+                if ($line -match $pattern) {
+                    if ($mayImportStage -contains $module.Path) {
+                        $stageImporters++
+                    }
+                    else {
+                        $failures.Add(("Staged content imported outside the gated Lab surface at " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()). A staged source " +
+                            "envelope is not accepted evidence; only " +
+                            "$($mayImportStage -join ' and ') may read the stage contract.")) | Out-Null
+                    }
+                    break
+                }
+            }
+        }
+    }
+
+    # Anti-vacuity: the allowed importers really do import it, so this check is
+    # scanning the right tree with a pattern that matches the real spelling.
+    if ($stageImporters -lt $mayImportStage.Count) {
+        $failures.Add(("The staged-content check matched $stageImporters of the " +
+            "$($mayImportStage.Count) modules allowed to import the stage contract, " +
+            "so its pattern no longer matches how the stage is imported and the " +
+            "check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+
     return $failures
 }
