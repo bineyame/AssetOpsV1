@@ -257,6 +257,20 @@ class BoundaryState:
             )
         return exposures[0].value
 
+    def state_sample(self, address: str) -> Fraction | None:
+        """What the model's reporting handler answered for one address here.
+
+        The private answer to what the world holds at this instant, taken in the
+        sampling phase and after that instant's events. It is what the observation
+        transform reads, and it is deliberately not `stock`: a stock the model
+        cannot sample is not reportable at all, and reading the stock instead
+        would generate a reading out of a state no handler answered for.
+        """
+        for key, value in self.state_samples:
+            if key == address:
+                return value
+        return None
+
     def interval_measurement(self, address: str) -> Fraction | None:
         for key, value in self.interval_measurements:
             if key == address:

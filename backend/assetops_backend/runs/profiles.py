@@ -13,8 +13,13 @@ different questions:
   two values and no third, so a required input this profile does not support
   blocks the run and an optional one is recorded as unsupported. There is no
   "supported if convenient", which is how an input gets ignored.
-- a **publication profile** says at what cadence a device signal reports, and
-  which simulator source and which gateway a run would publish through.
+- a **publication profile** says at what cadence a device signal reports, which
+  simulator source and which gateway a run would publish through, and - since
+  T022 - which configured device signals report which world state, with what
+  error and with what reliability. That last one is what the observation
+  transform consumes, and it is here because the publication profile owns
+  reporting behaviour: a Foundation says a signal CAN report and declares its
+  unit, and declares no rate, no bias and no dropout.
 
 ## Why this module may not see a Site
 
@@ -67,6 +72,7 @@ from assetops_backend.runs.models import (
 )
 from assetops_backend.scenarios.models import ObservationSource
 from assetops_backend.state_refs import STATE_SCOPES
+from assetops_contracts.observation import REPORTABLE_READING_CLASSES
 
 
 @dataclass(frozen=True)
@@ -205,12 +211,29 @@ class SupportedReportingState:
     `state_key` must be in `REPORTING_PATH_STATES`. That is the half of the
     authority split this record enforces: a publication profile cannot claim to
     model a state of the world by declaring it here.
+
+    ## `silences` is new in T022, and it is the declaration nothing else could make
+
+    A scenario forces `fuel-level-reporting-availability@fuel-tank` and the
+    observation transform has to know WHICH configured signals stop publishing.
+    Nothing derivable answers that. The component is not enough - a second sensor
+    on the same tank is a second path, and cutting one says nothing about the
+    other - and the state key is not enough either, because two tanks have two
+    paths. So the profile that declares both the reporting-path capability and the
+    device signals declares the link between them, and
+    `PublicationProfile.__post_init__` refuses a name that is not one of its own
+    declared signals.
+
+    Empty is a real answer and has a consequence worth stating: a reporting-path
+    state this profile can model but that silences nothing would be a capability
+    with no effect, so a run forcing it would complete with every reading intact.
     """
 
     state_key: str
     scope: str
     supported_roles: frozenset[str]
     statement: str
+    silences: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self) -> None:
         if self.scope not in STATE_SCOPES:
@@ -277,6 +300,86 @@ class ModelProfile:
 
 
 @dataclass(frozen=True)
+class DeviceSignalDeclaration:
+    """One reporting path this profile declares: what publishes what, and how.
+
+    The product half of `assetops_contracts.observation.DeviceSignalSpec`, and
+    the reason the publication profile is the thing that declares it: "the
+    publication profile owns reporting behavior" (`.ai/ARCHITECTURE.md`
+    Addressing, Properties And Policy). A Foundation declares that a device
+    signal CAN report and declares its unit; it declares no rate, no error and no
+    reliability, and nothing infers one from a device name.
+
+    `device_id` and `signal_id` must be a signal the target Site's Foundation
+    configures, which run setup resolves - a profile cannot see a Foundation, so
+    it declares the identity and run setup says whether this installation has it.
+    The COMPONENT comes from the Foundation's own signal mapping, which is what
+    turns a declaration about `fuel-tank-volume` into a reporting path about
+    `fuel-tank-volume@fuel-tank`.
+
+    `state_key` is a state of the WORLD, refused below if it is a reporting-path
+    state. A path cannot report whether it is itself reporting.
+
+    `bias` is additive, in the signal's canonical unit, and is the whole of the
+    instrument error this build models. It is authored as a decimal and normalized
+    once at the input boundary like every other authored number.
+
+    `dropout_per_thousand` is how many of this signal's due samples do not
+    publish. Which ones is drawn from the run's seed rather than chosen, under the
+    contract's `a-publication-failure-is-drawn-not-chosen`.
+
+    `cadence_minutes` is when a sample is due, counted from the interval's start.
+    It is NOT the span an interval reading covers: the span is the run's timestep
+    and the contract's `interval-signal-describes-the-preceding-interval` says so.
+    A signal publishing hourly at a fifteen-minute timestep therefore publishes a
+    measurement of the last fifteen minutes, once an hour, which is what real
+    telemetry does.
+    """
+
+    device_id: str
+    signal_id: str
+    state_key: str
+    reading_class: str
+    canonical_unit: str
+    cadence_minutes: int
+    bias: float
+    dropout_per_thousand: int
+    statement: str
+
+    def __post_init__(self) -> None:
+        if self.reading_class not in REPORTABLE_READING_CLASSES:
+            raise ValueError(
+                f"Signal {self.signal_id!r} on {self.device_id!r} is declared as "
+                f"a {self.reading_class!r}, and a published reading is one of "
+                f"{sorted(REPORTABLE_READING_CLASSES)}. A controller's view is "
+                "not published, so no device signal may be declared for it."
+            )
+        if self.state_key in REPORTING_PATH_STATES:
+            raise ValueError(
+                f"Signal {self.signal_id!r} on {self.device_id!r} is declared to "
+                f"report {self.state_key!r}, which is a fact about the reporting "
+                "path rather than about the world. A path does not report "
+                "whether it is reporting."
+            )
+        if self.cadence_minutes <= 0:
+            raise ValueError(
+                f"Signal {self.signal_id!r} on {self.device_id!r} declares a "
+                f"cadence of {self.cadence_minutes} minutes. How often a reading "
+                "is published is a span of non-zero length."
+            )
+        if not 0 <= self.dropout_per_thousand <= 1000:
+            raise ValueError(
+                f"Signal {self.signal_id!r} on {self.device_id!r} declares a "
+                f"dropout of {self.dropout_per_thousand} per thousand, which is "
+                "not a share of the samples that were due."
+            )
+
+    @property
+    def signal_key(self) -> tuple[str, str]:
+        return (self.device_id, self.signal_id)
+
+
+@dataclass(frozen=True)
 class PublicationProfile:
     """One versioned observation and publication profile.
 
@@ -299,6 +402,21 @@ class PublicationProfile:
     profile does not declare is `BLOCKED`, with a reason naming this profile
     rather than the model profile. That is the whole reason the authority
     moved - the previous answer sent a reader to widen the wrong profile.
+
+    ## `device_signals` is a fifth since T022, and it is what makes a reading
+
+    Until T022 this profile said at what rate a declared scenario source
+    publishes and nothing about what any device reports. Nothing generated a
+    reading, so there was nothing more to say. The observation transform is the
+    consumer, and it needs per-signal answers that a single blanket cadence
+    cannot give: two signals about one tank at two rates, one biased and one not,
+    one dropping samples and one not.
+
+    **`device_signal_cadence_minutes` is not a second answer to the same
+    question.** It is what a scenario's own declared observation source resolves
+    to and is frozen on the run for provenance. `resolve_observation_binding`
+    below now prefers a matching declaration's cadence and falls back to it, so
+    there is one answer per signal rather than two that could drift.
     """
 
     publication_profile_id: str
@@ -309,6 +427,30 @@ class PublicationProfile:
     simulator_source_id: str | None
     gateway_id: str | None
     supported_reporting_states: tuple[SupportedReportingState, ...] = ()
+    device_signals: tuple[DeviceSignalDeclaration, ...] = ()
+
+    def __post_init__(self) -> None:
+        seen: set[tuple[str, str]] = set()
+        for declaration in self.device_signals:
+            if declaration.signal_key in seen:
+                raise ValueError(
+                    f"Publication profile {self.publication_profile_id!r} "
+                    f"declares {declaration.signal_key} twice. One device signal "
+                    "has one reporting path, or nothing says which cadence, bias "
+                    "and dropout apply to it."
+                )
+            seen.add(declaration.signal_key)
+        for state in self.supported_reporting_states:
+            for silenced in state.silences:
+                if silenced not in seen:
+                    raise ValueError(
+                        f"Publication profile {self.publication_profile_id!r} "
+                        f"says {state.state_key!r} silences {silenced}, which it "
+                        "does not declare as a device signal. A path can only "
+                        "silence a path this profile says exists, or the "
+                        "capability would be a claim about a signal nobody "
+                        "configured."
+                    )
 
     def supported_reporting(
         self, state_key: str
@@ -316,6 +458,14 @@ class PublicationProfile:
         for state in self.supported_reporting_states:
             if state.state_key == state_key:
                 return state
+        return None
+
+    def device_signal(
+        self, device_id: str, signal_id: str
+    ) -> DeviceSignalDeclaration | None:
+        for declaration in self.device_signals:
+            if declaration.signal_key == (device_id, signal_id):
+                return declaration
         return None
 
 
@@ -432,6 +582,13 @@ def resolve_observation_binding(
     An operator record resolves to `NOT_APPLICABLE` deliberately rather than by
     omission: a person writing a level down reports at no rate, so there is no
     cadence for anything to own and no reason to block.
+
+    **Since T022 the profile may declare a rate per signal.** Where it has, that
+    is the rate, and the blanket `device_signal_cadence_minutes` is the answer for
+    a signal it has not declared one for. One answer per signal rather than two:
+    a declaration and a blanket rate disagreeing about one signal would put a
+    provenance row and a generated reading series on two grids, and nothing would
+    say which was the cadence.
     """
     if source.source_kind != "DEVICE_SIGNAL":
         return FrozenObservationBinding(
@@ -446,7 +603,16 @@ def resolve_observation_binding(
             cadence_minutes=None,
         )
 
-    cadence = profile.device_signal_cadence_minutes
+    declared = (
+        None
+        if source.device_id is None or source.signal_id is None
+        else profile.device_signal(source.device_id, source.signal_id)
+    )
+    cadence = (
+        profile.device_signal_cadence_minutes
+        if declared is None
+        else declared.cadence_minutes
+    )
 
     return FrozenObservationBinding(
         source_id=source.source_id,
@@ -571,17 +737,54 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
 #: belongs here rather than in the model profile because a sensor reporting
 #: nothing changes nothing about the fuel. This profile OWNS the path, so
 #: suppressing what travels along it is a capability of the path.
+#:
+#: ## Version two since T022, and the version moves because the content does
+#:
+#: `device_signals` is new, and it is what turns a sampled world into a reading:
+#: which configured signals report which state, when, with what error and with
+#: what reliability. A run freezes which publication profile answered and at
+#: which version precisely so that the readings it produced can be reproduced
+#: without the profile catalog being frozen with it. Leaving this at version one
+#: would mean two builds claiming one version and generating different series,
+#: which is the whole thing the version exists to rule out.
+#:
+#: Two reporting paths, and both resolve against MG-001's own Foundation because
+#: a profile declares a signal's identity and run setup says whether this
+#: installation configures it. They are deliberately different in every field
+#: that matters, because criterion 10's claim is about the key and a pair that
+#: differed only in name would not test it:
+#:
+#: - `fuel-level-sensor`/`fuel-level` reports the tank's stored volume every
+#:   fifteen minutes, half a litre low, losing one sample in twenty-five. It is
+#:   the signal the shipped scenario's own declared observation source names, and
+#:   the one the scenario's reporting gap silences across the removal.
+#: - `generator-controller`/`ac-power` reports the average output over the span
+#:   that just ended, hourly, with no error and losing nothing. The cadence and
+#:   the span are different numbers on purpose: the cadence says when it publishes
+#:   and the run's timestep says what span the measurement covers, which is what
+#:   real telemetry does.
+#:
+#: **The dropout is on the fifteen-minute signal deliberately, and the reason is
+#: about evidence rather than realism.** An hourly signal whose measurement exists
+#: only while the generator runs has four valued samples in this interval, so a
+#: dropout declared on it would draw four times and would quite likely select
+#: none - and a stochastic mechanism that produced nothing would be a mechanism
+#: whose test passes over an empty set. On the fifteen-minute signal it draws a
+#: hundred and fifty-nine times and drops a visible handful, which is what makes
+#: "adding an unrelated stream changes no existing stream" worth asserting.
 LAB_PUBLICATION_PROFILE = PublicationProfile(
     publication_profile_id="simulator-lab-publication",
-    publication_profile_version=1,
+    publication_profile_version=2,
     display_name="Simulator Lab publication profile",
     statement=(
-        "Declares the reporting cadence for a configured device signal, the "
-        "simulator source and gateway identities a run would publish through, "
-        "and that a run may force the reporting path for a configured signal "
-        "to be unavailable across a declared window. A site's foundation "
-        "declares none of these and nothing derives them from a device or from "
-        "how a site was created."
+        "Declares which configured device signals report which world state, how "
+        "often, with what bias and with what share of samples not arriving; the "
+        "simulator source and gateway identities a run would publish through; "
+        "and that a run may force the reporting path for a configured signal to "
+        "be unavailable across a declared window. A site's foundation declares "
+        "that a signal can report and declares its unit, and declares none of "
+        "these; nothing derives them from a device or from how a site was "
+        "created."
     ),
     device_signal_cadence_minutes=15,
     simulator_source_id="simulator-lab-source",
@@ -598,6 +801,48 @@ LAB_PUBLICATION_PROFILE = PublicationProfile(
                 "physical quantity, moves no stock, and carries no state "
                 "effect. What it changes is which readings exist to be "
                 "published, which is this profile's business."
+            ),
+            silences=(("fuel-level-sensor", "fuel-level"),),
+        ),
+    ),
+    device_signals=(
+        DeviceSignalDeclaration(
+            device_id="fuel-level-sensor",
+            signal_id="fuel-level",
+            state_key="fuel-tank-volume",
+            reading_class="STATE_SIGNAL",
+            canonical_unit="L",
+            cadence_minutes=15,
+            bias=-0.5,
+            dropout_per_thousand=40,
+            statement=(
+                "The fuel level sensor publishes the tank's stored volume every "
+                "fifteen minutes, reading half a litre low, and one sample in "
+                "twenty-five does not arrive. The bias is the instrument's and "
+                "not the installation's: the tank holds what it holds, and this "
+                "is what the sensor says about it. The dropout is the path's, and "
+                "which samples it takes is drawn from the run's seed - so it is "
+                "reproducible without being chosen."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="generator-controller",
+            signal_id="ac-power",
+            state_key="generator-output-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=60,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The generator controller publishes its average output over the "
+                "span that just ended, once an hour, with no measurement error "
+                "and losing no sample. An hourly publication of a fifteen-minute "
+                "span is what the two numbers mean: the cadence is when it speaks "
+                "and the run's timestep is what it speaks about. It is clean on "
+                "purpose, so that a reader comparing it against the fuel sensor "
+                "beside it can see that a bias and a dropout are properties of one "
+                "reporting path rather than of the run."
             ),
         ),
     ),

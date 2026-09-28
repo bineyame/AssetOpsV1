@@ -216,11 +216,11 @@ def draft(
             "seed": seed,
             "model_profile": {
                 "profile_id": "minimal-fuel-tank",
-                "profile_version": 1,
+                "profile_version": MINIMAL_FUEL_TANK_MODEL.model_profile_version,
             },
             "publication_profile": {
                 "profile_id": "simulator-lab-publication",
-                "profile_version": 1,
+                "profile_version": LAB_PUBLICATION_PROFILE.publication_profile_version,
             },
             "run_inputs": list(run_inputs),
         }

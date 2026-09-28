@@ -18,48 +18,32 @@ share as executable arithmetic beside the sentences that publish them.
 
 What stayed is what needs a `ScenarioDefinition`:
 
-- `initialization_inputs` and `state_transition_inputs`, which report the
-  initial world values and the declared changes a document carries;
-- `declared_bounds`, which reports the `(lower, upper)` a document declares and
-  deliberately reports no number for a bound whose value is the site's
-  (`D-2026-09-22-capacity-bound-source`);
-- `reconcile_reported_observations`, the specification reference implementation.
+What stays is `initialization_inputs` and `state_transition_inputs`, which report
+the initial world values and the declared changes a document carries. Both are
+reports about a DOCUMENT: neither has a clock, a timestep, a seed, a state record
+or an event cursor, and nothing that executes calls either.
 
-## `reconcile_reported_observations` has lost its authority
+## What left in T022, and why the module got shorter rather than longer
 
-`D-2026-09-21-specification-reference-implementation` said it stops being an
-authority the moment a kernel exists to be compared against, and T021 is that
-moment. The comparison is in `host/tests/test_shipped_trajectory.py`: against
-the shipped document the reconciler reports the declared level as 310 L at both
-readings and the kernel computes 254.02 L, and the 55.98 L between them is
-exactly the fuel the model law burns and the document no longer declares. Where
-the two disagree, the kernel is right, and the reconciler is right about the
-narrower question it asks.
+`reconcile_reported_observations` and everything that existed for it -
+`ObservationReconciliation`, `RECONCILIATION_STATES`, the reason strings,
+`unaccounted_observations`, `declared_bounds` and
+`IMPLICIT_LOWER_BOUND_DIMENSIONS` - are gone under
+`D-2026-09-22-reconciliation-panel-retirement`. The comment where they used to
+be, at the end of this module, records the reasoning and the one name collision
+worth not tripping over.
 
-It is still honest about that narrower question, so it stays: it answers whether
-the causes a DOCUMENT declares reach a reading the same document declares, which
-is a real property of a document that still contains two authored readings. Its
-removal follows its last product-path caller, the scenario detail screen's
-reconciliation panel, which is T022's under
-`D-2026-09-22-reconciliation-panel-retirement`. `declared_bounds` and
-`IMPLICIT_LOWER_BOUND_DIMENSIONS` leave with it.
-
-## This is still not a runtime kernel
-
-`reconcile_reported_observations` has no clock, no timestep, no seed, no state
-record and no event cursor, and it produces nothing for any instant the scenario
-did not author an observation at. It never produces a state trajectory, nothing
-that executes calls it, and removing it would change no behaviour except what
-the scenario detail screen can tell a reader. The kernel owns initialization and
-the transition from one private world state to the next; this module keeps
-answering only the contract question.
+The short version: it compared an authored reading against the value a document's
+own declared causes reach, that comparison has been a partial account since the
+consumption coefficient moved to the machine, and a run now generates the reading
+from a world a kernel computed. The stronger answer arrived, so the weaker one
+went with the panel that showed it.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from fractions import Fraction
-from typing import Iterable
 
 from assetops_contracts.execution_contract import (
     BOUNDARY_CYCLE,
@@ -77,13 +61,16 @@ from assetops_contracts.execution_contract import (
     OBSERVATION_RULES,
     RATE_INTEGRALS,
     READING_CLASSES,
+    REPORTING_RULES,
     BoundaryPhase,
     BoundCase,
     CanonicalUnit,
     DispatchRule,
     ExecutionContractIncompatible,
     ObservationRule,
+    ReportingRule,
     _exact,
+    cadence_is_expressible,
     canonical_fraction,
     canonical_quantity,
     frozen_canonical_value,
@@ -91,6 +78,7 @@ from assetops_contracts.execution_contract import (
     overlap_minutes,
     point_due_at,
     refuse_incompatible_execution,
+    sample_due_at,
     step_concerns_window,
     steps_concerning_window,
     window_share_of_step,
@@ -122,6 +110,7 @@ __all__ = [
     "OBSERVATION_RULES",
     "RATE_INTEGRALS",
     "READING_CLASSES",
+    "REPORTING_RULES",
     "BoundaryPhase",
     "BoundCase",
     "CanonicalUnit",
@@ -129,6 +118,8 @@ __all__ = [
     "DispatchRule",
     "ExecutionContractIncompatible",
     "ObservationRule",
+    "ReportingRule",
+    "cadence_is_expressible",
     "canonical_fraction",
     "canonical_quantity",
     "frozen_canonical_value",
@@ -136,27 +127,15 @@ __all__ = [
     "overlap_minutes",
     "point_due_at",
     "refuse_incompatible_execution",
+    "sample_due_at",
     "step_concerns_window",
     "steps_concerning_window",
     "window_share_of_step",
     "window_span",
-    "ACCOUNTED_FOR_REASON",
-    "BOUND_REACHED_LOWER",
-    "BOUND_REACHED_UPPER",
-    "IMPLICIT_LOWER_BOUND_DIMENSIONS",
     "InitializationInput",
-    "NOT_ACCOUNTED_FOR_REASON",
-    "NO_DECLARED_INITIAL_VALUE",
-    "OPEN_CAUSAL_WINDOW",
-    "ORDER_DEPENDENT_GROUP",
-    "ObservationReconciliation",
-    "RECONCILIATION_STATES",
     "StateTransitionInput",
-    "declared_bounds",
     "initialization_inputs",
-    "reconcile_reported_observations",
     "state_transition_inputs",
-    "unaccounted_observations",
 ]
 
 
@@ -402,399 +381,39 @@ def _complete_at(entry: TimelineEntry) -> int | None:
     return None
 
 
-# --- Reconciling reported observations against the declared causes ----------
-
-#: What a reported observation turned out to be, against the causes the same
-#: scenario declares.
-#:
-#: `ACCOUNTED_FOR` means the declared causal inputs reach the reported value
-#: exactly. `NOT_ACCOUNTED_FOR` means they do not, and the difference is
-#: reported with its sign so a reader can see which way and by how much.
-#: `NOT_RECONCILABLE` means the contract cannot answer, for one of four
-#: reasons it names: no declared initial value for the state, a causal window
-#: still running when the reading is taken, a declared bound reached before
-#: it, or a group of simultaneous causes whose outcome depends on an order the
-#: scenario does not declare.
-#:
-#: The third was the T018 review's finding. Summing every completed transition
-#: without consulting a bound reported a declared volume above the capacity
-#: the same document declares, under a column headed "declared causes reach" -
-#: a number the contract refuses elsewhere. Applying the bound is the kernel's
-#: job and out of scope here, so the contract declines to answer instead.
-#:
-#: The fourth is the same lesson once more, and T019's review found it. An
-#: earlier draft of `intra-instant-order` serialised simultaneous causes in
-#: authored order and evaluated bounds between them, so a delivery and a draw
-#: at one instant could reach a level the tank is never in - an artifact of
-#: serialising two things the author declared to happen together. The contract
-#: now evaluates the group's net and abstains only when an ordering could
-#: genuinely have changed the answer.
-#:
-#: There is no value meaning "close enough". A reported value that differs from
-#: the declared causes differs for a reason, and the reason is either another
-#: cause nobody modelled or a reporting behaviour nobody declared. Both are
-#: things to decide, not things to round away.
-RECONCILIATION_STATES = frozenset(
-    {"ACCOUNTED_FOR", "NOT_ACCOUNTED_FOR", "NOT_RECONCILABLE"}
-)
-
-#: The reasons, as product copy. Digit-free on purpose: the quantities belong
-#: in the record's own columns, and prose that restated them would be a second
-#: place for a number to drift.
-ACCOUNTED_FOR_REASON = (
-    "the causes declared before this reading reach the value it reports"
-)
-NOT_ACCOUNTED_FOR_REASON = (
-    "the causes declared before this reading do not reach the value it "
-    "reports, and no declared cause accounts for the difference"
-)
-NO_DECLARED_INITIAL_VALUE = (
-    "no initial value is declared for this state, so there is nothing for the "
-    "declared causes to start from"
-)
-#: Reworded in T020B's correction round, because it had become false.
-#:
-#: It read "apportioning part of a window would be a transition rule rather
-#: than a contract", and `window-ramp` is now exactly a contract statement of
-#: how a window apportions - so this string denied what the same module
-#: declares two hundred lines up. The reconciler still abstains, and still
-#: should: it has no clock and no state, so it cannot evaluate a ramp even
-#: though the contract now defines one. What changed is that its reason has to
-#: be its own inability rather than a gap in the contract.
-OPEN_CAUSAL_WINDOW = (
-    "a declared cause is still running when this reading is taken. The contract "
-    "states how a window apportions - see the window ramp rule - but this "
-    "comparison has no clock and no state to evaluate it with, so it reports "
-    "that it cannot answer rather than guessing at the fraction"
-)
-BOUND_REACHED_UPPER = (
-    "a declared cause would take this state above a bound the same definition "
-    "declares before the reading. What a run does then is the bounded "
-    "transition the bound case names, and computing it belongs to the runtime"
-)
-BOUND_REACHED_LOWER = (
-    "a declared cause would take this state below a bound the same definition "
-    "declares before the reading. What a run does then is what the bound case "
-    "names, and deciding it belongs to the runtime"
-)
-ORDER_DEPENDENT_GROUP = (
-    "two or more declared causes complete on this state at the same offset, "
-    "and whether a bound is reached between them depends on the order they "
-    "are applied in. The scenario declares them as simultaneous, so no order "
-    "is the true one and the contract will not pick between them. A scenario "
-    "that needs one to happen first says so in time, by separating the "
-    "offsets"
-)
-
-#: The floor every stored quantity has, whether or not a document declares
-#: one. The `insufficient-fuel` bound case states it in words - a draw that
-#: would take the stored volume below zero - so the contract may rely on it
-#: without inventing anything.
-IMPLICIT_LOWER_BOUND_DIMENSIONS: dict[str, float] = {"VOLUME": 0.0}
-
-
-def declared_bounds(
-    scenario: ScenarioDefinition,
-) -> dict[str, tuple[float | None, float | None]]:
-    """The `(lower, upper)` a document declares for each addressed state.
-
-    Keyed on the ADDRESS since T020A1, and on a site with two tanks that is
-    the substance of it: the capacity bounding the north tank's volume is the
-    north tank's, and a map keyed on `fuel-tank-volume` would have let
-    whichever capacity was read last cap both of them.
-
-    Upper bounds come from a `bounds` declaration on an initial world value;
-    nothing is inferred from two state keys that happen to share a prefix. The
-    lower bound for a stored quantity is the floor the `insufficient-fuel`
-    bound case already states in words.
-
-    Everything here is in canonical units, because a bound and the value it
-    limits have to be compared in the same terms and an authored unit is not
-    guaranteed to be the canonical one.
-    """
-    lower: dict[str, float] = {}
-    upper: dict[str, float] = {}
-
-    for parameter in _all_parameters(scenario).values():
-        if parameter.unit is None or not isinstance(parameter.value, float):
-            continue
-
-        canonical_value, _, dimension = canonical_quantity(
-            parameter.value, parameter.unit
-        )
-
-        address = parameter.addressed_key
-        if address is not None and dimension in IMPLICIT_LOWER_BOUND_DIMENSIONS:
-            lower.setdefault(
-                address, IMPLICIT_LOWER_BOUND_DIMENSIONS[dimension]
-            )
-
-        bound = parameter.bounds
-        if bound is None:
-            continue
-        if bound.bound_kind == "UPPER":
-            upper[bound.state_ref.addressed_key] = canonical_value
-        else:
-            lower[bound.state_ref.addressed_key] = canonical_value
-
-    return {
-        address: (lower.get(address), upper.get(address))
-        for address in set(lower) | set(upper)
-    }
-
-
-@dataclass(frozen=True)
-class ObservationReconciliation:
-    """One reported observation, against the causes declared before it."""
-
-    event_id: str
-    source_id: str
-    parameter_id: str
-    state_ref: StateRef
-    offset_minutes: int
-    reported_value: float
-    declared_value: float | None
-    difference: float | None
-    unit: str
-    state: str
-    #: Why the contract answered the way it did. Always present, because a
-    #: `NOT_RECONCILABLE` with no reason is four different facts wearing one
-    #: name: no declared initial value, an open causal window, a declared
-    #: bound reached, and a group of simultaneous causes whose outcome depends
-    #: on an order nobody declared are four problems with four different
-    #: fixes. The fourth arrived with T019's revised intra-instant rule and
-    #: this count did not follow it until the review said so.
-    reason: str
-    accounted_by: tuple[str, ...]
-
-    @property
-    def state_key(self) -> str:
-        """The semantic state, without its selector."""
-        return self.state_ref.state_key
-
-    @property
-    def addressed_key(self) -> str:
-        """The canonical spelling of the address this concerns."""
-        return self.state_ref.addressed_key
-
-
-def reconcile_reported_observations(
-    scenario: ScenarioDefinition,
-) -> tuple[ObservationReconciliation, ...]:
-    """Compare each reported observation with the causes declared before it.
-
-    Contract arithmetic over declared quantities, evaluated only at the offsets
-    the scenario authored an observation at. It computes no trajectory, holds
-    no state, and produces nothing for any other instant. See the module
-    docstring: this is not a kernel and must not grow into one.
-
-    A causal effect counts when it is complete at or before the reading. An
-    effect whose window is still open when the reading is taken makes the
-    reading `NOT_RECONCILABLE`, because apportioning part of a window would be
-    a transition rule, and transition rules belong to the kernel.
-    """
-    parameters = _all_parameters(scenario)
-    # Every lookup below is by ADDRESS. Two tanks share one semantic state
-    # key, so a map keyed on the key would reconcile the north tank's reading
-    # against the south tank's initial value and its causes, and report a
-    # discrepancy about a tank nobody touched.
-    initial_by_state = {
-        entry.addressed_key: entry
-        for entry in initialization_inputs(scenario)
-    }
-    transitions = state_transition_inputs(scenario)
-    bounds_by_state = declared_bounds(scenario)
-
-    results: list[ObservationReconciliation] = []
-
-    for entry in scenario.timeline:
-        binding = entry.observation
-        if binding is None:
-            continue
-        parameter = parameters.get(binding.reported_parameter_id)
-        if (
-            parameter is None
-            or parameter.state_ref is None
-            or parameter.unit is None
-            or not isinstance(parameter.value, float)
-        ):
-            continue
-
-        state_ref = parameter.state_ref
-        address = state_ref.addressed_key
-        reported_value, reported_unit, _ = canonical_quantity(
-            parameter.value, parameter.unit
-        )
-
-        initial = initial_by_state.get(address)
-        bounds = bounds_by_state.get(address, (None, None))
-        relevant = [
-            transition
-            for transition in transitions
-            if transition.addressed_key == address
-        ]
-        straddling = [
-            transition
-            for transition in relevant
-            if transition.starts_at_offset <= entry.offset_minutes
-            and (
-                transition.complete_at_offset is None
-                or transition.complete_at_offset > entry.offset_minutes
-            )
-        ]
-
-        def unanswerable(reason: str) -> ObservationReconciliation:
-            return ObservationReconciliation(
-                event_id=entry.event_id,
-                source_id=binding.source_id,
-                parameter_id=parameter.parameter_id,
-                state_ref=state_ref,
-                offset_minutes=entry.offset_minutes,
-                reported_value=reported_value,
-                declared_value=None,
-                difference=None,
-                unit=reported_unit,
-                state="NOT_RECONCILABLE",
-                reason=reason,
-                accounted_by=(),
-            )
-
-        if initial is None:
-            results.append(unanswerable(NO_DECLARED_INITIAL_VALUE))
-            continue
-        if straddling:
-            results.append(unanswerable(OPEN_CAUSAL_WINDOW))
-            continue
-
-        applied = [
-            transition
-            for transition in relevant
-            if transition.complete_at_offset is not None
-            and transition.complete_at_offset <= entry.offset_minutes
-        ]
-
-        lower, upper = bounds
-
-        # Walked instant by instant rather than summed, because a bound is
-        # reached at a moment: a delivery that overfills and a draw that
-        # empties both land inside the sequence, and a total that happens to
-        # come back inside the bounds would hide them.
-        #
-        # Everything completing at one offset is ONE step, not several. That
-        # is the `intra-instant-order` dispatch rule and it is the whole of
-        # what this loop assumes about order: nothing here reads the order
-        # rows were written in, because that order is authoring rather than
-        # physics. Whether it could have mattered is decided exactly, by the
-        # two extremes below, and the result of this function does not depend
-        # on document order at all.
-        declared = _exact(initial.canonical_value)
-        reached: str | None = None
-
-        for offset in sorted({item.complete_at_offset for item in applied}):
-            group = [
-                item for item in applied if item.complete_at_offset == offset
-            ]
-            increases = sum(
-                (
-                    _exact(item.applied_value)
-                    for item in group
-                    if item.direction == "INCREASE"
-                ),
-                Fraction(0),
-            )
-            decreases = sum(
-                (
-                    _exact(item.applied_value)
-                    for item in group
-                    if item.direction != "INCREASE"
-                ),
-                Fraction(0),
-            )
-            after = declared + increases - decreases
-
-            # The net endpoint first. Every ordering reaches it, so a bound
-            # broken there is broken however the group is applied, and that is
-            # the ordinary bound case rather than an ambiguity.
-            if upper is not None and after > _exact(upper):
-                reached = BOUND_REACHED_UPPER
-                break
-            if lower is not None and after < _exact(lower):
-                reached = BOUND_REACHED_LOWER
-                break
-
-            # Then the two extremes, which bracket every ordering: no ordering
-            # peaks above "every increase first" and none troughs below "every
-            # decrease first". If neither extreme reaches a bound, no ordering
-            # does and the net stands. If either does - one of them or both -
-            # the group is ambiguous and the contract will not pick an order.
-            #
-            # Both is a real case and the statement above names it, because a
-            # case a versioned statement leaves unspecified is a case where
-            # two conforming kernels may legitimately disagree: a group that
-            # overfills applied one way and empties applied the other reaches
-            # a bound under every ordering, but not the same bound, so what a
-            # kernel does still differs.
-            peak = declared + increases
-            trough = declared - decreases
-            if (upper is not None and peak > _exact(upper)) or (
-                lower is not None and trough < _exact(lower)
-            ):
-                reached = ORDER_DEPENDENT_GROUP
-                break
-
-            declared = after
-
-        if reached is not None:
-            results.append(unanswerable(reached))
-            continue
-
-        difference = _exact(reported_value) - declared
-
-        results.append(
-            ObservationReconciliation(
-                event_id=entry.event_id,
-                source_id=binding.source_id,
-                parameter_id=parameter.parameter_id,
-                state_ref=state_ref,
-                offset_minutes=entry.offset_minutes,
-                reported_value=reported_value,
-                declared_value=float(declared),
-                difference=float(difference),
-                unit=reported_unit,
-                state="ACCOUNTED_FOR" if difference == 0 else "NOT_ACCOUNTED_FOR",
-                reason=(
-                    ACCOUNTED_FOR_REASON
-                    if difference == 0
-                    else NOT_ACCOUNTED_FOR_REASON
-                ),
-                # Sorted within each instant, because within an instant
-                # there is no order to preserve. Across instants the
-                # completion offset is the order. Together that makes this
-                # tuple - and so the whole record - independent of the order
-                # the document happens to list simultaneous entries in, which
-                # is what the dispatch rule says and a test measures.
-                accounted_by=tuple(
-                    transition.event_id
-                    for transition in sorted(
-                        applied,
-                        key=lambda item: (
-                            item.complete_at_offset or 0,
-                            item.event_id,
-                        ),
-                    )
-                ),
-            )
-        )
-
-    return tuple(results)
-
-
-def unaccounted_observations(
-    reconciliations: Iterable[ObservationReconciliation],
-) -> tuple[ObservationReconciliation, ...]:
-    """The reported observations the declared causes do not reach."""
-    return tuple(
-        result
-        for result in reconciliations
-        if result.state != "ACCOUNTED_FOR"
-    )
+# --- What used to be here, and where it went --------------------------------
+#
+# `reconcile_reported_observations`, `ObservationReconciliation`,
+# `RECONCILIATION_STATES`, their seven reason strings, `unaccounted_observations`,
+# `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` were all here until
+# T022, and they left together under
+# `D-2026-09-22-reconciliation-panel-retirement`.
+#
+# `D-2026-09-21-specification-reference-implementation` said the reference
+# implementation stops being an authority the moment a kernel exists to be
+# compared against, and that it goes when its last product-path caller goes. T021
+# built the kernel and this slice removed the caller - the scenario detail
+# screen's reconciliation panel - so both conditions are met at once.
+#
+# The narrower question it answered was honest and is now answered better. It
+# compared an authored reading against the value the DOCUMENT's own declared
+# causes reach, which after T020A is a partial account by construction: the
+# document no longer declares what the generator burns, so it reported 310 L
+# against a world holding 254.02 L and the 55.98 L between them was the model
+# law's. A run now generates the reading from the world a kernel computed, and the
+# Lab shows the true value, the reported value and the reason there is no reading
+# side by side. Keeping the subtraction would have meant offering the weaker of
+# two available answers.
+#
+# `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` had exactly one caller
+# between them and it was the reconciler. The floor they injected is now the fuel
+# model's own - `STOCK_HANDLER.floor` in `assetops_simulator.packs.fuel`, with the
+# bound case that says what happens when it is reached - which is where
+# `D-2026-09-21-physical-property-ownership` says a model rule belongs. Nothing
+# about a validation layer asserting that volume is non-negative survives.
+#
+# **Nothing here is the frozen run's `declared_bounds`.** That is a different
+# thing with the same name: a tuple of `FrozenDeclaredBound` on a run's
+# deterministic identity, which run setup writes, provenance reads and the host
+# adapter turns into the bounds a kernel executes against. It is load-bearing and
+# untouched.

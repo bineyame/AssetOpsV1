@@ -61,6 +61,7 @@ from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
 
+from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.models import SimulationRun, readiness_disclosure
 from assetops_backend.runs.ports import (
     RunConfigurationInvalid,
@@ -85,9 +86,9 @@ from assetops_backend.scenarios.execution import (
     DISPATCH_RULES,
     EXECUTION_CONTRACT_VERSION,
     OBSERVATION_RULES,
+    REPORTING_RULES,
     canonical_quantity,
     initialization_inputs,
-    reconcile_reported_observations,
     state_transition_inputs,
 )
 from assetops_backend.scenarios.identity import (
@@ -131,6 +132,16 @@ from assetops_backend.sites.service import (
 )
 from assetops_backend.sites.site_parsing import parse_create_site_request
 from assetops_backend.sites_api import site_summary
+from assetops_contracts.lab_projection import (
+    LAB_CONTROL_REFUSAL_STATEMENTS,
+    LabControlRefused,
+    LabProjection,
+)
+from assetops_contracts.observation import (
+    READING_QUALITY_STATEMENTS,
+    SAMPLE_OUTCOME_STATEMENTS,
+    exact_decimal_text,
+)
 
 SIMULATOR_LAB_API_PREFIX = "/api/simulator-lab"
 
@@ -144,6 +155,14 @@ CREATE_RUN_ROUTE = "/runs"
 RUNS_ROUTE = "/runs"
 RUN_DETAIL_ROUTE = "/runs/{run_id}"
 
+# The four execution routes. One read and three controls, and the split is the
+# point: reading where a run is changes nothing, and each control is a separate
+# act with a separate refusal.
+RUN_EXECUTION_ROUTE = "/runs/{run_id}/execution"
+RUN_EXECUTION_START_ROUTE = "/runs/{run_id}/execution/start"
+RUN_EXECUTION_STEP_ROUTE = "/runs/{run_id}/execution/step"
+RUN_EXECUTION_END_ROUTE = "/runs/{run_id}/execution/run-to-end"
+
 # Refusal codes. The message is the product copy a user reads; the code is what
 # a client switches on, so neither has to be parsed out of the other.
 REFUSAL_INVALID_REQUEST = "SITE_REQUEST_INVALID"
@@ -154,6 +173,18 @@ REFUSAL_SCENARIO_NOT_FOUND = "SCENARIO_NOT_FOUND"
 REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 REFUSAL_RUN_STORE_UNAVAILABLE = "RUN_STORE_UNAVAILABLE"
 REFUSAL_RUN_NOT_FOUND = "RUN_NOT_FOUND"
+REFUSAL_EXECUTION_REQUEST_INVALID = "EXECUTION_REQUEST_INVALID"
+
+
+def execution_refusal_code(kind: str) -> str:
+    """A control refusal code: the refusal kind, prefixed.
+
+    Derived from `LAB_CONTROL_REFUSALS` exactly as `run_refusal_code` is derived
+    from the setup vocabulary, and for the same reason: a kind added to the
+    contract with no code here would reach a client as a refusal nobody could
+    switch on.
+    """
+    return f"EXECUTION_{kind}"
 
 
 def run_refusal_code(kind: str) -> str:
@@ -379,16 +410,21 @@ def scenario_execution_contract(
     meet them together:
 
     - the semantics every scenario shares - canonical units, dispatch rules,
-      and bound policies - which are versioned simulator rules rather than
-      authored content;
+      the boundary cycle, what a timestamped reading means, whether one exists
+      at all, and the bound policies - which are versioned simulator rules
+      rather than authored content;
     - what this scenario's own inputs initialize and transition, which is the
-      whole of the surface an executor would consume;
-    - whether each reported observation is reached by the causal inputs the
-      same scenario declares.
+      whole of the surface an executor would consume.
 
-    The last one is contract arithmetic, not execution. It states a
-    disagreement where one exists instead of letting a reported number quietly
-    stand in for private world state, and it changes nothing.
+    **There is no third part any more, and its removal is T022's.** This payload
+    used to carry `observation_reconciliation`: each authored reading beside the
+    value the document's own declared causes reached, with the difference between
+    them. `D-2026-09-22-reconciliation-panel-retirement` put its removal in the
+    slice that falsifies it, and this is that slice. A run now GENERATES the
+    reading, from a world a kernel computed, so the honest presentation of what a
+    sensor said is the Lab's observation row and not a subtraction over a document.
+    A panel comparing an authored number against a partial account of it would now
+    be the weaker of two available answers, offered beside the stronger one.
     """
     return {
         "contract_version": EXECUTION_CONTRACT_VERSION,
@@ -469,22 +505,17 @@ def scenario_execution_contract(
             }
             for item in state_transition_inputs(scenario)
         ],
-        "observation_reconciliation": [
+        # The rules about whether a reading exists at all, beside the rules about
+        # what one means. New in T022 and on the wire for the same reason the
+        # boundary cycle is: a screen explaining why a step produced no reading
+        # should place the contract's own sentence rather than write a second one.
+        "reporting_rules": [
             {
-                "event_id": item.event_id,
-                "source_id": item.source_id,
-                "parameter_id": item.parameter_id,
-                "state_key": item.addressed_key,
-                "offset_minutes": item.offset_minutes,
-                "reported_value": item.reported_value,
-                "declared_value": item.declared_value,
-                "difference": item.difference,
-                "unit": item.unit,
-                "state": item.state,
-                "reason": item.reason,
-                "accounted_by": list(item.accounted_by),
+                "rule_id": rule.rule_id,
+                "display_name": rule.display_name,
+                "statement": rule.statement,
             }
-            for item in reconcile_reported_observations(scenario)
+            for rule in REPORTING_RULES
         ],
     }
 
@@ -676,6 +707,152 @@ def run_inventory_row(record: SimulationRun) -> dict[str, object]:
     }
 
 
+def execution_payload(projection: LabProjection) -> dict[str, object]:
+    """One gated Lab projection on the wire.
+
+    **Every exact quantity travels as text, and no float appears anywhere.** The
+    numeric policy is `EXACT_RATIONAL` and nothing in this build rounds, so a
+    payload carrying `3.4987499999999997` where the arithmetic produced `2799/800`
+    would be the one place the policy stopped holding - and it would hold the
+    screen responsible for formatting a number the wire had already spoiled.
+    `exact_decimal_text` writes the decimal the rational has, which every number
+    this build has produced does.
+
+    The three vocabularies' own statements are placed beside the rows that carry
+    their values, for the reason the readiness disclosure is: a screen composing
+    its own sentence about `SUPPRESSED_BY_GAP` would be a second copy of a rule.
+    """
+
+    def exact(value: object) -> str | None:
+        return None if value is None else exact_decimal_text(value)
+
+    return {
+        "run_id": projection.run_id,
+        "status": projection.status,
+        "statement": projection.statement,
+        "boundaries_completed": projection.boundaries_completed,
+        "boundaries_total": projection.boundaries_total,
+        "offset_minutes": projection.offset_minutes,
+        "simulation_time": projection.simulation_time,
+        "interval_start_time": projection.interval_start_time,
+        "interval_end_time": projection.interval_end_time,
+        "timestep_minutes": projection.timestep_minutes,
+        "seed": projection.seed,
+        "kernel_version": projection.kernel_version,
+        "model_profile_id": projection.model_profile_id,
+        "model_profile_version": projection.model_profile_version,
+        "publication_profile_id": projection.publication_profile_id,
+        "publication_profile_version": projection.publication_profile_version,
+        "numeric_policy": projection.numeric_policy,
+        "numeric_policy_version": projection.numeric_policy_version,
+        "execution_contract_version": projection.execution_contract_version,
+        "inputs_identity": projection.inputs_identity,
+        "content_digest": projection.content_digest,
+        "observation_series_digest": projection.observation_series_digest,
+        "reported_count": projection.reported_count,
+        "suppressed_by_gap_count": projection.suppressed_by_gap_count,
+        "dropped_count": projection.dropped_count,
+        "notes": list(projection.notes),
+        "failure": (
+            None
+            if projection.failure is None
+            else {
+                "kind": projection.failure.kind,
+                "subject": projection.failure.subject,
+                "statement": projection.failure.statement,
+                "at_offset_minutes": projection.failure.at_offset_minutes,
+                "detail": list(projection.failure.detail),
+            }
+        ),
+        # Private truth, on a gated surface and nowhere else. The exact stock the
+        # kernel holds, which is the left-hand column of the distinction this
+        # whole screen exists to make.
+        "private_state": [
+            {
+                "address": row.address,
+                "state_key": row.state_key,
+                "value": exact(row.value),
+                "canonical_unit": row.canonical_unit,
+                "kind": row.kind,
+            }
+            for row in projection.private_state
+        ],
+        "observations": [
+            {
+                "address": view.address,
+                "state_key": view.state_key,
+                "device_id": view.device_id,
+                "signal_id": view.signal_id,
+                "reading_class": view.reading_class,
+                "at_offset_minutes": view.at_offset_minutes,
+                "simulation_time": view.simulation_time,
+                "canonical_unit": view.canonical_unit,
+                "true_value": exact(view.true_value),
+                "reported_value": exact(view.reported_value),
+                "reported_source_time": view.reported_source_time,
+                "reported_at_offset_minutes": view.reported_at_offset_minutes,
+                "quality": view.quality,
+                "quality_statement": READING_QUALITY_STATEMENTS[view.quality],
+                "due": view.due,
+                "outcome": view.outcome,
+                "outcome_statement": (
+                    None
+                    if view.outcome is None
+                    else SAMPLE_OUTCOME_STATEMENTS[view.outcome]
+                ),
+                "suppression_reason": view.suppression_reason,
+                "cadence_minutes": view.cadence_minutes,
+                "bias": exact(view.bias),
+                "dropout_per_thousand": view.dropout_per_thousand,
+            }
+            for view in projection.observations
+        ],
+        "signals": [
+            {
+                "device_id": signal.device_id,
+                "signal_id": signal.signal_id,
+                "address": signal.address,
+                "state_key": signal.state_key,
+                "reading_class": signal.reading_class,
+                "canonical_unit": signal.canonical_unit,
+                "cadence_minutes": signal.cadence_minutes,
+                "bias": exact(signal.bias),
+                "dropout_per_thousand": signal.dropout_per_thousand,
+                "statement": signal.statement,
+            }
+            for signal in projection.signals
+        ],
+        "reporting_gaps": [
+            {
+                "event_id": window.event_id,
+                "condition_address": window.condition_address,
+                "device_id": window.device_id,
+                "signal_id": window.signal_id,
+                "address": window.address,
+                "offset_minutes": window.offset_minutes,
+                "end_offset_minutes": window.end_offset_minutes,
+            }
+            for window in projection.reporting_gaps
+        ],
+        "recent_reports": [
+            {
+                "device_id": item.device_id,
+                "signal_id": item.signal_id,
+                "address": item.address,
+                "reading_class": item.reading_class,
+                "at_offset_minutes": item.at_offset_minutes,
+                "source_sample_time": item.source_sample_time,
+                "outcome": item.outcome,
+                "outcome_statement": SAMPLE_OUTCOME_STATEMENTS[item.outcome],
+                "reported_value": exact(item.reported_value),
+                "canonical_unit": item.canonical_unit,
+                "suppression_reason": item.suppression_reason,
+            }
+            for item in projection.recent_reports
+        ],
+    }
+
+
 def run_summary(record: SimulationRun) -> dict[str, object]:
     """One Draft run: its identity, what it froze, and why it may not run.
 
@@ -814,17 +991,27 @@ def build_simulator_lab_router(
     runs: SimulationRunRepository,
     model_profiles: tuple[ModelProfile, ...],
     publication_profiles: tuple[PublicationProfile, ...],
+    execution: LabExecutionPort | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
-    All three arrive as ports. This module never learns whether templates,
-    Sites, or scenarios are files, rows, or objects, and it never imports an
-    adapter.
+    All of them arrive as ports. This module never learns whether templates,
+    Sites, or scenarios are files, rows, or objects, it never imports an
+    adapter, and it cannot name a kernel: the execution port speaks
+    `SimulationRun` in and `LabProjection` out, and both are types the backend is
+    allowed to know.
 
     The Site repository reaches the scenario detail service as well as the
     create service, and that is the only place the two domains meet: a scenario
     declares which Site it needs, and resolving that declaration is a read
     against the Site port. Nothing flows the other way.
+
+    `execution` is optional and its absence is a served state rather than a
+    different serving shape. Only the composition leaf can build one - nothing may
+    import `host/` - so a build serving this package alone has none, and the four
+    execution routes answer `EXECUTION_NOT_COMPOSED`. The route SET stays a
+    function of the Lab gate alone, which is what keeps the gate's own test a
+    comparison between two states instead of three.
     """
     service = SiteTemplateCatalogService(catalog)
     creation = SiteCreationService(repository, catalog)
@@ -850,7 +1037,13 @@ def build_simulator_lab_router(
         """
         return {
             "simulator_lab_enabled": True,
-            "run_execution": "not_implemented",
+            # Two facts rather than one. `served` says this build serves the
+            # execution surface at all, and `composed` says an execution port is
+            # wired behind it - which only the composition leaf can do. A single
+            # flag would make a build that serves the controls and cannot execute
+            # indistinguishable from one that does neither.
+            "run_execution": "served",
+            "run_execution_composed": execution is not None,
             "truth_overlays": "not_implemented",
         }
 
@@ -1177,4 +1370,197 @@ def build_simulator_lab_router(
 
         return {"run": run_summary(record)}
 
+    # --- Execution ----------------------------------------------------------
+    #
+    # One read and three controls, behind the Lab gate like everything else on
+    # this router. What each of them may NOT do is as much the point as what it
+    # does: none of them writes a Site, releases an envelope, stages anything, or
+    # commits anything, because no such call exists anywhere in this module and
+    # the port has no method that could.
+
+    def _run_or_404(run_id: str) -> SimulationRun:
+        """The persisted Draft a control is about, or a typed not-found.
+
+        Shared by all four routes so that an unknown identity is one answer with
+        one message rather than four that could drift. Criterion 1's "unknown
+        input yields a typed, inspectable outcome" is this, and it is the same
+        `RUN_NOT_FOUND` the detail route already answers - a control about a run
+        that does not exist is not a new kind of fact.
+        """
+        try:
+            validate_run_id(run_id)
+        except RunConfigurationInvalid as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_RUN_NOT_FOUND,
+                    f"No run with run ID {run_id!r} is persisted, and no run "
+                    f"could have that ID. {RUN_ID_RULE}",
+                ),
+            ) from error
+        try:
+            return run_inventory.get_run(run_id)
+        except RunNotFound as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal(
+                    REFUSAL_RUN_NOT_FOUND,
+                    f"No run with run ID {run_id!r} is persisted.",
+                ),
+            ) from error
+        except (RunConfigurationInvalid, RunStoreUnavailable) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_RUN_STORE_UNAVAILABLE, str(error)),
+            ) from error
+
+    def _port() -> LabExecutionPort:
+        """The composed execution port, or a typed answer that there is none."""
+        if execution is None:
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    **_refusal(
+                        execution_refusal_code("PORT_NOT_COMPOSED"),
+                        LAB_CONTROL_REFUSAL_STATEMENTS[
+                            "PORT_NOT_COMPOSED"
+                        ],
+                    ),
+                    "refusal_kind": "PORT_NOT_COMPOSED",
+                    "advanced": False,
+                },
+            )
+        return execution
+
+    def _refused(error: LabControlRefused) -> HTTPException:
+        """One refused control as a 409, carrying the vocabulary's own statement.
+
+        409 rather than 422, and the difference is worth stating because run setup
+        answers 422 beside this. A 422 means the REQUEST was not something that
+        could be acted on; every one of these means the request was well formed and
+        the RUN is not in a state where it applies. `advanced` is on the body so a
+        caller knows nothing moved without having to infer it from the status.
+        """
+        return HTTPException(
+            status_code=409,
+            detail={
+                **_refusal(
+                    execution_refusal_code(error.kind), error.statement
+                ),
+                "refusal_kind": error.kind,
+                "subject": error.subject,
+                "advanced": False,
+            },
+        )
+
+    @router.get(RUN_EXECUTION_ROUTE)
+    def read_run_execution(run_id: str) -> dict[str, object]:
+        """Where this Draft's execution is, without changing it.
+
+        A read, so it takes no token and refuses nothing about the run's state: a
+        Draft nothing has executed, one in flight, one that finished, one that
+        failed and one whose handle is gone are five answers this returns rather
+        than five errors.
+        """
+        record = _run_or_404(run_id)
+        try:
+            projection = _port().projection(record)
+        except LabControlRefused as error:
+            raise _refused(error) from error
+        return {"execution": execution_payload(projection)}
+
+    @router.post(RUN_EXECUTION_START_ROUTE)
+    def start_run_execution(run_id: str) -> dict[str, object]:
+        """Begin an execution of an eligible frozen Draft."""
+        record = _run_or_404(run_id)
+        try:
+            projection = _port().start(record)
+        except LabControlRefused as error:
+            raise _refused(error) from error
+        return {"execution": execution_payload(projection)}
+
+    @router.post(RUN_EXECUTION_STEP_ROUTE)
+    def step_run_execution(
+        run_id: str, request: Any = Body(default=None)
+    ) -> dict[str, object]:
+        """Advance a started execution by a requested number of boundaries.
+
+        The body carries `boundaries` and `from_boundary`, and the second is what
+        makes the control safe to resubmit. It is not a nonce and not a timestamp:
+        it is the position the caller believes the run is at, which a caller
+        already knows because the projection it is looking at says so.
+        """
+        record = _run_or_404(run_id)
+        boundaries, from_boundary = _parse_step_request(request)
+        try:
+            projection = _port().step(
+                record, boundaries=boundaries, from_boundary=from_boundary
+            )
+        except LabControlRefused as error:
+            raise _refused(error) from error
+        return {"execution": execution_payload(projection)}
+
+    @router.post(RUN_EXECUTION_END_ROUTE)
+    def run_execution_to_end(run_id: str) -> dict[str, object]:
+        """Advance a started execution until its interval is covered."""
+        record = _run_or_404(run_id)
+        try:
+            projection = _port().run_to_end(record)
+        except LabControlRefused as error:
+            raise _refused(error) from error
+        return {"execution": execution_payload(projection)}
+
     return router
+
+
+def _parse_step_request(request: Any) -> tuple[int, int]:
+    """The two whole numbers a step request carries, or a typed refusal.
+
+    Strict, like every other request parser here: an unknown key, a missing one, a
+    non-integer and a boolean are all refused rather than coerced. `True` is an
+    `int` in Python and would otherwise arrive as a request to advance one
+    boundary, which is a request nobody made.
+    """
+    if not isinstance(request, dict):
+        raise HTTPException(
+            status_code=422,
+            detail=_refusal(
+                REFUSAL_EXECUTION_REQUEST_INVALID,
+                "A step request is an object carrying 'boundaries' and "
+                "'from_boundary'. Nothing was advanced.",
+            ),
+        )
+    unknown = sorted(set(request) - {"boundaries", "from_boundary"})
+    if unknown:
+        raise HTTPException(
+            status_code=422,
+            detail=_refusal(
+                REFUSAL_EXECUTION_REQUEST_INVALID,
+                f"A step request carries 'boundaries' and 'from_boundary' and "
+                f"nothing else; this one also carries {unknown}. Nothing was "
+                "advanced.",
+            ),
+        )
+    values: list[int] = []
+    for field, floor in (("boundaries", 1), ("from_boundary", 0)):
+        value = request.get(field)
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise HTTPException(
+                status_code=422,
+                detail=_refusal(
+                    REFUSAL_EXECUTION_REQUEST_INVALID,
+                    f"A step request's {field!r} is a whole number and this one "
+                    f"is {value!r}. Nothing was advanced.",
+                ),
+            )
+        if value < floor:
+            raise HTTPException(
+                status_code=422,
+                detail=_refusal(
+                    REFUSAL_EXECUTION_REQUEST_INVALID,
+                    f"A step request's {field!r} is at least {floor} and this "
+                    f"one is {value}. Nothing was advanced.",
+                ),
+            )
+        values.append(value)
+    return values[0], values[1]

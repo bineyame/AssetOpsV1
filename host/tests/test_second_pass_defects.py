@@ -367,7 +367,9 @@ class TestAnUnansweredMagnitudeBlocksRatherThanRaising:
                 },
                 "publication_profile": {
                     "profile_id": "simulator-lab-publication",
-                    "profile_version": 1,
+                    "profile_version": (
+                        LAB_PUBLICATION_PROFILE.publication_profile_version
+                    ),
                 },
                 "run_inputs": [],
             }

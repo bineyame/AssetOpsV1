@@ -1,0 +1,899 @@
+"""The composed Lab execution: a kernel, a transform, a clock and an artifact.
+
+The second half of the composition leaf. `execution_adapter` projects a frozen
+Draft into the two neutral records an execution consumes; this holds the running
+handle, pairs private truth with what each device reported, and persists enough
+that a completed run can be inspected after the process that ran it is gone.
+
+## Why the private artifact store is here and not in the product
+
+`var/runs` is a product store: a Draft is a record the product wrote and reads
+back, and `runs/ports.py` is its seam. A trajectory is not. It is private
+simulator truth, and the product having a store of private truth would be the
+truth barrier with a filing cabinet in it - a later slice reaching for "the
+persisted trajectory" would find one in `assetops_backend` and be right to use it.
+
+So the artifact store is the leaf's. The product receives a `LabProjection`
+through a port and cannot name a file, a directory or a format. That also keeps
+the configuration-persistence seam honest: `var/executions` is not configuration
+and is not registered as a configuration domain, because it is neither authored
+nor read as configuration by anything.
+
+## What survives a restart, and what honestly does not
+
+A `COMPLETED` or `FAILED` run persists its whole projection and reloads from it.
+A `RUNNING` one persists that it is running and nothing else, because its state
+is a live handle in one process: there is no serialized world to resume from, and
+inventing one would mean re-executing and calling the result the same run. So a
+persisted `RUNNING` record with no live handle reads back as `INTERRUPTED`, which
+is criterion 12's "explicit interrupted/unavailable state" and is the honest
+answer rather than a convenient one.
+
+## Concurrency
+
+One lock per run, held across read-modify-write of a session. Two controls
+arriving together therefore serialize, and the second sees the boundary count the
+first produced - which is what makes the `from_boundary` check a guard rather than
+a race. The lock is per run rather than global so two runs do not queue behind
+each other.
+"""
+
+from __future__ import annotations
+
+import threading
+from dataclasses import dataclass, replace
+from fractions import Fraction
+from pathlib import Path
+
+import yaml
+
+from assetops_backend.runs.models import SimulationRun
+from assetops_backend.runs.profiles import (
+    LAB_PUBLICATION_PROFILE,
+    PublicationProfile,
+)
+from assetops_contracts.execution_contract import (
+    EXECUTION_CONTRACT_VERSION,
+    ExecutionContractIncompatible,
+    NUMERIC_POLICY,
+    NUMERIC_POLICY_VERSION,
+)
+from assetops_contracts.failures import ExecutionFailure
+from assetops_contracts.lab_projection import (
+    LAB_EXECUTION_STATUS_STATEMENTS,
+    LabControlRefused,
+    LabProjection,
+    ObservationView,
+    PrivateStateRow,
+)
+from assetops_contracts.observation import (
+    DeviceObservation,
+    DeviceSignalSpec,
+    FrozenReportingInputs,
+    ReportingPathWindow,
+    observation_series_digest,
+)
+from assetops_simulator.kernel.execute import Execution, start
+from assetops_simulator.kernel.model import KERNEL_VERSION, ModelSpec
+from assetops_simulator.observation.transform import (
+    generate_observations,
+    outcome_counts,
+    reported_reading,
+    world_value,
+)
+from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
+
+from execution_adapter import (
+    FrozenRunNotReconstructible,
+    RunNotExecutable,
+    frozen_world_inputs,
+    refuse_a_model_the_run_did_not_select,
+    reporting_inputs,
+    unconfigured_signals,
+)
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+
+#: Where a private execution artifact is kept. Under `var/`, which is gitignored
+#: user data, and in its own directory rather than beside the Drafts: a Draft is a
+#: product record and this is private simulator truth, and a reader deleting one
+#: should not have to pick the other out of the same folder.
+EXECUTION_ARTIFACT_ROOT = REPOSITORY_ROOT / "var" / "executions"
+
+#: How many of the newest sample attempts a projection carries.
+#:
+#: A completed run of the shipped scenario makes 164 fuel-level attempts and 41
+#: generator ones, and a screen showing all 205 would be a log rather than an
+#: inspection. The newest few are what a reader stepping a run wants: what just
+#: happened, and what happened either side of it.
+RECENT_REPORT_LIMIT = 12
+
+
+def _exact(text: object, where: str) -> Fraction:
+    if not isinstance(text, str):
+        raise ValueError(
+            f"{where} in a persisted execution artifact is {text!r} and an exact "
+            "value is written as a ratio of two whole numbers."
+        )
+    return Fraction(text)
+
+
+@dataclass
+class LabSession:
+    """One live execution of one Draft, with everything it needs to be rendered.
+
+    The handle, the two projected input records, and the reporting notes. Held in
+    memory for as long as the process lives, which is the whole of what a live
+    execution is.
+    """
+
+    run_id: str
+    execution: Execution
+    reporting: FrozenReportingInputs
+    notes: tuple[str, ...]
+
+
+def _state_key_of(address: str) -> str:
+    """The semantic state an `addressed_key` names, whichever form it is in.
+
+    Three spellings and all three appear in a frozen run: a bare key, a key with
+    a component after a selector, and a site-wide key behind a scope mark.
+    """
+    if address.startswith("site:"):
+        return address[len("site:") :]
+    return address.split("@")[0]
+
+
+def private_state_rows(execution: Execution) -> tuple[PrivateStateRow, ...]:
+    """Every stock the world holds at the instant the run has reached.
+
+    Private truth. It is on the Lab's record because the Lab is gated and is the
+    surface entitled to see it; nothing else in this product is handed one.
+
+    Stocks only, and the interval measurements deliberately are not here. A stock
+    carries the unit the run froze for it, so the unit on the row is a fact the run
+    answered for. An interval measurement's unit is the model's - the fuel pack
+    accumulates kilowatt-hours - and this leaf would have to name it on the pack's
+    behalf. The interval truth is not lost: it appears in the observation row
+    beside what was reported, in the unit the publication profile declared for that
+    signal.
+    """
+    boundaries = execution.boundaries
+    if not boundaries:
+        return ()
+    boundary = boundaries[-1]
+    return tuple(
+        PrivateStateRow(
+            address=address,
+            state_key=_state_key_of(address),
+            value=value,
+            canonical_unit=(
+                ""
+                if execution.inputs.initial_value(address) is None
+                else execution.inputs.initial_value(address).canonical_unit
+            ),
+            kind="STOCK",
+        )
+        for address, value in boundary.stocks
+    )
+
+
+def observation_views(
+    execution: Execution,
+    reporting: FrozenReportingInputs,
+    observations: tuple[DeviceObservation, ...],
+) -> tuple[ObservationView, ...]:
+    """One row per reporting path at the instant the run has reached.
+
+    **This is the deliberate exception to the truth barrier**, and it is the only
+    place in the product where a true value and a reported value are fields of one
+    record. The transform computes the reported half from the reading series alone
+    and cannot see the world; the private state comes from the trajectory and
+    cannot see a device. Pairing them is this function's whole job, it happens in
+    the leaf, and what it produces goes to a gated surface and nowhere else.
+    """
+    boundaries = execution.boundaries
+    if not boundaries:
+        return ()
+    boundary = boundaries[-1]
+    span = (
+        None
+        if len(boundaries) < 2
+        else boundary.offset_minutes - boundaries[-2].offset_minutes
+    )
+    views: list[ObservationView] = []
+    for signal in reporting.signals:
+        reading = reported_reading(
+            observations, signal, boundary.offset_minutes
+        )
+        views.append(
+            ObservationView(
+                address=signal.address,
+                state_key=signal.state_key,
+                device_id=signal.device_id,
+                signal_id=signal.signal_id,
+                reading_class=signal.reading_class,
+                at_offset_minutes=boundary.offset_minutes,
+                simulation_time=boundary.simulation_time,
+                canonical_unit=signal.canonical_unit,
+                true_value=world_value(boundary, signal, span),
+                reported_value=reading.value,
+                reported_source_time=reading.source_sample_time,
+                reported_at_offset_minutes=reading.source_offset_minutes,
+                quality=reading.quality,
+                due=reading.due,
+                outcome=reading.outcome,
+                suppression_reason=reading.suppression_reason,
+                cadence_minutes=signal.cadence_minutes,
+                bias=signal.bias,
+                dropout_per_thousand=signal.dropout_per_thousand,
+            )
+        )
+    return tuple(views)
+
+
+def project(session: LabSession) -> LabProjection:
+    """The gated view of one live execution, at the instant it has reached."""
+    execution = session.execution
+    outcome = execution.outcome
+    # A started run that has not been stepped is RUNNING at boundary zero. That is
+    # a different state from NOT_STARTED, which is what a Draft nothing has
+    # executed is, and the Lab shows the difference.
+    status = "RUNNING" if outcome is None else outcome
+
+    observations = generate_observations(execution.boundaries, session.reporting)
+    counts = outcome_counts(observations)
+    final = execution.final
+    interval = execution.inputs.interval
+
+    return LabProjection(
+        run_id=session.run_id,
+        status=status,
+        statement=LAB_EXECUTION_STATUS_STATEMENTS[status],
+        boundaries_completed=execution.boundaries_completed,
+        boundaries_total=execution.boundaries_total,
+        offset_minutes=0 if final is None else final.offset_minutes,
+        simulation_time=(
+            interval.start_time if final is None else final.simulation_time
+        ),
+        interval_start_time=interval.start_time,
+        interval_end_time=interval.end_time,
+        timestep_minutes=interval.timestep_minutes,
+        seed=execution.inputs.seed,
+        kernel_version=KERNEL_VERSION,
+        model_profile_id=execution.model.model_profile_id,
+        model_profile_version=execution.model.model_profile_version,
+        publication_profile_id=session.reporting.publication_profile_id,
+        publication_profile_version=(
+            session.reporting.publication_profile_version
+        ),
+        numeric_policy=NUMERIC_POLICY,
+        numeric_policy_version=NUMERIC_POLICY_VERSION,
+        execution_contract_version=EXECUTION_CONTRACT_VERSION,
+        inputs_identity=execution.inputs_identity,
+        content_digest=(
+            execution.trajectory().content_digest
+            if outcome is not None
+            else None
+        ),
+        observation_series_digest=observation_series_digest(observations),
+        private_state=private_state_rows(execution),
+        observations=observation_views(
+            execution, session.reporting, observations
+        ),
+        signals=session.reporting.signals,
+        reporting_gaps=session.reporting.gaps,
+        recent_reports=tuple(observations[-RECENT_REPORT_LIMIT:]),
+        reported_count=counts.get("REPORTED", 0),
+        suppressed_by_gap_count=counts.get("SUPPRESSED_BY_GAP", 0),
+        dropped_count=counts.get("DROPPED", 0),
+        failure=execution.failure,
+        notes=session.notes + execution.notes,
+    )
+
+
+def not_started(
+    run: SimulationRun, reporting: FrozenReportingInputs, notes: tuple[str, ...]
+) -> LabProjection:
+    """The projection of a Draft nothing has executed.
+
+    A real state rather than an absence, because the Lab has to distinguish it
+    from an interrupted run and from a run at its first boundary. It carries the
+    identities and the declared reporting paths - those are facts about what WOULD
+    be executed - and no world quantity and no reading, because nothing has run.
+    """
+    interval = reporting.interval
+    return LabProjection(
+        run_id=run.run_id,
+        status="NOT_STARTED",
+        statement=LAB_EXECUTION_STATUS_STATEMENTS["NOT_STARTED"],
+        boundaries_completed=0,
+        boundaries_total=len(interval.boundaries),
+        offset_minutes=0,
+        simulation_time=interval.start_time,
+        interval_start_time=interval.start_time,
+        interval_end_time=interval.end_time,
+        timestep_minutes=interval.timestep_minutes,
+        seed=reporting.seed,
+        kernel_version=KERNEL_VERSION,
+        model_profile_id=run.deterministic_identity.profiles.model_profile_id,
+        model_profile_version=(
+            run.deterministic_identity.profiles.model_profile_version
+        ),
+        publication_profile_id=reporting.publication_profile_id,
+        publication_profile_version=reporting.publication_profile_version,
+        numeric_policy=NUMERIC_POLICY,
+        numeric_policy_version=NUMERIC_POLICY_VERSION,
+        execution_contract_version=EXECUTION_CONTRACT_VERSION,
+        inputs_identity="",
+        content_digest=None,
+        observation_series_digest=observation_series_digest(()),
+        private_state=(),
+        observations=(),
+        signals=reporting.signals,
+        reporting_gaps=reporting.gaps,
+        recent_reports=(),
+        reported_count=0,
+        suppressed_by_gap_count=0,
+        dropped_count=0,
+        notes=notes,
+    )
+
+
+# --- The private artifact ----------------------------------------------------
+
+
+def render_projection(projection: LabProjection) -> dict[str, object]:
+    """One projection as the mapping the artifact persists.
+
+    Every exact value is written as a ratio of two whole numbers, never as a
+    float. That is the same rule `identity.py` holds for a digest payload and for
+    the same reason: a persisted trajectory whose numbers came back as binary
+    approximations would not be the trajectory that was executed, and an artifact
+    that cannot be read back exactly is not evidence of anything.
+    """
+    return {
+        "run_id": projection.run_id,
+        "status": projection.status,
+        "boundaries_completed": projection.boundaries_completed,
+        "boundaries_total": projection.boundaries_total,
+        "offset_minutes": projection.offset_minutes,
+        "simulation_time": projection.simulation_time,
+        "interval_start_time": projection.interval_start_time,
+        "interval_end_time": projection.interval_end_time,
+        "timestep_minutes": projection.timestep_minutes,
+        "seed": projection.seed,
+        "kernel_version": projection.kernel_version,
+        "model_profile_id": projection.model_profile_id,
+        "model_profile_version": projection.model_profile_version,
+        "publication_profile_id": projection.publication_profile_id,
+        "publication_profile_version": projection.publication_profile_version,
+        "numeric_policy": projection.numeric_policy,
+        "numeric_policy_version": projection.numeric_policy_version,
+        "execution_contract_version": projection.execution_contract_version,
+        "inputs_identity": projection.inputs_identity,
+        "content_digest": projection.content_digest,
+        "observation_series_digest": projection.observation_series_digest,
+        "reported_count": projection.reported_count,
+        "suppressed_by_gap_count": projection.suppressed_by_gap_count,
+        "dropped_count": projection.dropped_count,
+        "notes": list(projection.notes),
+        "failure": (
+            None
+            if projection.failure is None
+            else {
+                "kind": projection.failure.kind,
+                "subject": projection.failure.subject,
+                "statement": projection.failure.statement,
+                "at_offset_minutes": projection.failure.at_offset_minutes,
+                "detail": list(projection.failure.detail),
+            }
+        ),
+        "private_state": [
+            {
+                "address": row.address,
+                "state_key": row.state_key,
+                "value": str(row.value),
+                "canonical_unit": row.canonical_unit,
+                "kind": row.kind,
+            }
+            for row in projection.private_state
+        ],
+        "signals": [
+            {
+                "device_id": signal.device_id,
+                "signal_id": signal.signal_id,
+                "address": signal.address,
+                "state_key": signal.state_key,
+                "reading_class": signal.reading_class,
+                "canonical_unit": signal.canonical_unit,
+                "cadence_minutes": signal.cadence_minutes,
+                "bias": str(signal.bias),
+                "dropout_per_thousand": signal.dropout_per_thousand,
+                "statement": signal.statement,
+            }
+            for signal in projection.signals
+        ],
+        "reporting_gaps": [
+            {
+                "event_id": window.event_id,
+                "condition_address": window.condition_address,
+                "device_id": window.device_id,
+                "signal_id": window.signal_id,
+                "address": window.address,
+                "offset_minutes": window.offset_minutes,
+                "duration_minutes": window.duration_minutes,
+                "interval_minutes": window.interval_minutes,
+            }
+            for window in projection.reporting_gaps
+        ],
+        "observations": [
+            {
+                "address": view.address,
+                "state_key": view.state_key,
+                "device_id": view.device_id,
+                "signal_id": view.signal_id,
+                "reading_class": view.reading_class,
+                "at_offset_minutes": view.at_offset_minutes,
+                "simulation_time": view.simulation_time,
+                "canonical_unit": view.canonical_unit,
+                "true_value": (
+                    None if view.true_value is None else str(view.true_value)
+                ),
+                "reported_value": (
+                    None
+                    if view.reported_value is None
+                    else str(view.reported_value)
+                ),
+                "reported_source_time": view.reported_source_time,
+                "reported_at_offset_minutes": view.reported_at_offset_minutes,
+                "quality": view.quality,
+                "due": view.due,
+                "outcome": view.outcome,
+                "suppression_reason": view.suppression_reason,
+                "cadence_minutes": view.cadence_minutes,
+                "bias": str(view.bias),
+                "dropout_per_thousand": view.dropout_per_thousand,
+            }
+            for view in projection.observations
+        ],
+        "recent_reports": [
+            {
+                "device_id": item.device_id,
+                "signal_id": item.signal_id,
+                "address": item.address,
+                "state_key": item.state_key,
+                "reading_class": item.reading_class,
+                "at_offset_minutes": item.at_offset_minutes,
+                "source_sample_time": item.source_sample_time,
+                "outcome": item.outcome,
+                "reported_value": (
+                    None
+                    if item.reported_value is None
+                    else str(item.reported_value)
+                ),
+                "canonical_unit": item.canonical_unit,
+                "suppression_reason": item.suppression_reason,
+            }
+            for item in projection.recent_reports
+        ],
+    }
+
+
+def parse_projection(document: dict[str, object]) -> LabProjection:
+    """One persisted artifact back as the projection it was written from.
+
+    Strict: every exact value goes back through `Fraction`, and a value that is
+    not a ratio is refused rather than coerced. An artifact somebody hand-edited
+    is the same boundary every other parser in this product guards.
+    """
+    failure = document.get("failure")
+    return LabProjection(
+        run_id=str(document["run_id"]),
+        status=str(document["status"]),
+        statement=LAB_EXECUTION_STATUS_STATEMENTS[str(document["status"])],
+        boundaries_completed=int(document["boundaries_completed"]),
+        boundaries_total=int(document["boundaries_total"]),
+        offset_minutes=int(document["offset_minutes"]),
+        simulation_time=str(document["simulation_time"]),
+        interval_start_time=str(document["interval_start_time"]),
+        interval_end_time=str(document["interval_end_time"]),
+        timestep_minutes=int(document["timestep_minutes"]),
+        seed=int(document["seed"]),
+        kernel_version=int(document["kernel_version"]),
+        model_profile_id=str(document["model_profile_id"]),
+        model_profile_version=int(document["model_profile_version"]),
+        publication_profile_id=str(document["publication_profile_id"]),
+        publication_profile_version=int(
+            document["publication_profile_version"]
+        ),
+        numeric_policy=str(document["numeric_policy"]),
+        numeric_policy_version=int(document["numeric_policy_version"]),
+        execution_contract_version=int(
+            document["execution_contract_version"]
+        ),
+        inputs_identity=str(document["inputs_identity"]),
+        content_digest=(
+            None
+            if document["content_digest"] is None
+            else str(document["content_digest"])
+        ),
+        observation_series_digest=str(document["observation_series_digest"]),
+        reported_count=int(document["reported_count"]),
+        suppressed_by_gap_count=int(document["suppressed_by_gap_count"]),
+        dropped_count=int(document["dropped_count"]),
+        notes=tuple(str(note) for note in document.get("notes", ())),
+        failure=(
+            None
+            if failure is None
+            else ExecutionFailure(
+                kind=str(failure["kind"]),
+                subject=str(failure["subject"]),
+                statement=str(failure["statement"]),
+                at_offset_minutes=(
+                    None
+                    if failure["at_offset_minutes"] is None
+                    else int(failure["at_offset_minutes"])
+                ),
+                detail=tuple(str(item) for item in failure["detail"]),
+            )
+        ),
+        private_state=tuple(
+            PrivateStateRow(
+                address=str(row["address"]),
+                state_key=str(row["state_key"]),
+                value=_exact(row["value"], f"the value of {row['address']}"),
+                canonical_unit=str(row["canonical_unit"]),
+                kind=str(row["kind"]),
+            )
+            for row in document["private_state"]
+        ),
+        signals=tuple(
+            DeviceSignalSpec(
+                device_id=str(row["device_id"]),
+                signal_id=str(row["signal_id"]),
+                address=str(row["address"]),
+                state_key=str(row["state_key"]),
+                reading_class=str(row["reading_class"]),
+                canonical_unit=str(row["canonical_unit"]),
+                cadence_minutes=int(row["cadence_minutes"]),
+                bias=_exact(row["bias"], f"the bias of {row['signal_id']}"),
+                dropout_per_thousand=int(row["dropout_per_thousand"]),
+                statement=str(row["statement"]),
+            )
+            for row in document["signals"]
+        ),
+        reporting_gaps=tuple(
+            ReportingPathWindow(
+                event_id=str(row["event_id"]),
+                condition_address=str(row["condition_address"]),
+                device_id=str(row["device_id"]),
+                signal_id=str(row["signal_id"]),
+                address=str(row["address"]),
+                offset_minutes=int(row["offset_minutes"]),
+                duration_minutes=(
+                    None
+                    if row["duration_minutes"] is None
+                    else int(row["duration_minutes"])
+                ),
+                interval_minutes=int(row["interval_minutes"]),
+            )
+            for row in document["reporting_gaps"]
+        ),
+        observations=tuple(
+            ObservationView(
+                address=str(row["address"]),
+                state_key=str(row["state_key"]),
+                device_id=str(row["device_id"]),
+                signal_id=str(row["signal_id"]),
+                reading_class=str(row["reading_class"]),
+                at_offset_minutes=int(row["at_offset_minutes"]),
+                simulation_time=str(row["simulation_time"]),
+                canonical_unit=str(row["canonical_unit"]),
+                true_value=(
+                    None
+                    if row["true_value"] is None
+                    else _exact(row["true_value"], "a true value")
+                ),
+                reported_value=(
+                    None
+                    if row["reported_value"] is None
+                    else _exact(row["reported_value"], "a reported value")
+                ),
+                reported_source_time=(
+                    None
+                    if row["reported_source_time"] is None
+                    else str(row["reported_source_time"])
+                ),
+                reported_at_offset_minutes=(
+                    None
+                    if row["reported_at_offset_minutes"] is None
+                    else int(row["reported_at_offset_minutes"])
+                ),
+                quality=str(row["quality"]),
+                due=bool(row["due"]),
+                outcome=(
+                    None if row["outcome"] is None else str(row["outcome"])
+                ),
+                suppression_reason=(
+                    None
+                    if row["suppression_reason"] is None
+                    else str(row["suppression_reason"])
+                ),
+                cadence_minutes=int(row["cadence_minutes"]),
+                bias=_exact(row["bias"], "a signal bias"),
+                dropout_per_thousand=int(row["dropout_per_thousand"]),
+            )
+            for row in document["observations"]
+        ),
+        recent_reports=tuple(
+            DeviceObservation(
+                device_id=str(row["device_id"]),
+                signal_id=str(row["signal_id"]),
+                address=str(row["address"]),
+                state_key=str(row["state_key"]),
+                reading_class=str(row["reading_class"]),
+                at_offset_minutes=int(row["at_offset_minutes"]),
+                source_sample_time=str(row["source_sample_time"]),
+                outcome=str(row["outcome"]),
+                reported_value=(
+                    None
+                    if row["reported_value"] is None
+                    else _exact(row["reported_value"], "a reported value")
+                ),
+                canonical_unit=str(row["canonical_unit"]),
+                suppression_reason=(
+                    None
+                    if row["suppression_reason"] is None
+                    else str(row["suppression_reason"])
+                ),
+            )
+            for row in document["recent_reports"]
+        ),
+    )
+
+
+class YamlExecutionArtifacts:
+    """One file per run under `var/executions`, written whole or not at all.
+
+    The same atomicity discipline the run store uses, for a weaker reason: a
+    half-written artifact would read back as an unparseable execution rather than
+    as a corrupted product record. It is still worth having, because the failure
+    it prevents - a reload that says INTERRUPTED because the write was cut short -
+    would be indistinguishable from the real interruption it is meant to report.
+    """
+
+    def __init__(self, root: Path = EXECUTION_ARTIFACT_ROOT) -> None:
+        self._root = root
+
+    def _path(self, run_id: str) -> Path:
+        return self._root / f"{run_id}.yaml"
+
+    def write(self, projection: LabProjection) -> None:
+        self._root.mkdir(parents=True, exist_ok=True)
+        path = self._path(projection.run_id)
+        temporary = path.with_suffix(".yaml.partial")
+        temporary.write_text(
+            yaml.safe_dump(
+                render_projection(projection), sort_keys=False, allow_unicode=True
+            ),
+            encoding="utf-8",
+        )
+        temporary.replace(path)
+
+    def read(self, run_id: str) -> LabProjection | None:
+        path = self._path(run_id)
+        if not path.exists():
+            return None
+        return parse_projection(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+
+    def note_running(self, projection: LabProjection) -> None:
+        """Record that a run is in flight, and nothing about its world.
+
+        Deliberately the projection with its rows still on it, because the rows a
+        RUNNING artifact carries are never read back: `read_status` is what a
+        reload consults, and it answers INTERRUPTED for anything not terminal. The
+        alternative - two artifact shapes - would be a second parser for a record
+        nobody reads.
+        """
+        self.write(projection)
+
+
+# --- The port the product consumes -------------------------------------------
+
+
+class HostLabExecution:
+    """The execution port, composed. Speaks `SimulationRun` and `LabProjection`.
+
+    The product side of this is a `Protocol` in `assetops_backend.runs`
+    `execution_ports`, and this class satisfies it without importing it - which it
+    could, since the leaf may import both sides. It does not, because a port is a
+    seam the consumer owns: an adapter that inherited from it would make the
+    product's own declaration of what it needs depend on something implementing it.
+    """
+
+    def __init__(
+        self,
+        *,
+        model: ModelSpec = MINIMAL_FUEL_MODEL,
+        publication_profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
+        artifacts: YamlExecutionArtifacts | None = None,
+    ) -> None:
+        self._model = model
+        self._publication_profile = publication_profile
+        self._artifacts = (
+            YamlExecutionArtifacts() if artifacts is None else artifacts
+        )
+        self._sessions: dict[str, LabSession] = {}
+        self._locks: dict[str, threading.Lock] = {}
+        self._registry = threading.Lock()
+
+    def _lock_for(self, run_id: str) -> threading.Lock:
+        with self._registry:
+            return self._locks.setdefault(run_id, threading.Lock())
+
+    def _reporting_for(self, run: SimulationRun) -> FrozenReportingInputs:
+        try:
+            return reporting_inputs(run, self._publication_profile)
+        except ExecutionContractIncompatible as incompatible:
+            raise LabControlRefused(
+                "CONTRACT_INCOMPATIBLE", run.run_id
+            ) from incompatible
+        except FrozenRunNotReconstructible as broken:
+            raise LabControlRefused(
+                "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id
+            ) from broken
+
+    def _notes(self, run: SimulationRun) -> tuple[str, ...]:
+        missing = unconfigured_signals(run, self._publication_profile)
+        if not missing:
+            return ()
+        return (
+            "the publication profile declares reporting paths this site does "
+            f"not configure, so they publish nothing here: {', '.join(missing)}",
+        )
+
+    def projection(self, run: SimulationRun) -> LabProjection:
+        """Where this Draft's execution is, without changing it.
+
+        Three answers and they are different facts. A live session is rendered. A
+        terminal artifact is read back. A persisted RUNNING record with no live
+        session is INTERRUPTED, because its world lived in a process that is gone.
+        """
+        with self._lock_for(run.run_id):
+            session = self._sessions.get(run.run_id)
+            if session is not None:
+                return project(session)
+            stored = self._artifacts.read(run.run_id)
+            if stored is not None and stored.is_terminal:
+                return stored
+            if stored is not None:
+                return self._interrupted(run)
+            return not_started(
+                run, self._reporting_for(run), self._notes(run)
+            )
+
+    def _interrupted(self, run: SimulationRun) -> LabProjection:
+        """The same shape as NOT_STARTED, saying a different thing.
+
+        Deliberately carrying no world quantity and no reading, because there are
+        none to carry: what the interrupted run produced lived in a process that
+        has ended. A projection that showed a prefix here would be showing a run
+        that can still be advanced, and it cannot.
+        """
+        base = not_started(run, self._reporting_for(run), self._notes(run))
+        return replace(
+            base,
+            status="INTERRUPTED",
+            statement=LAB_EXECUTION_STATUS_STATEMENTS["INTERRUPTED"],
+        )
+
+    def start(self, run: SimulationRun) -> LabProjection:
+        """Begin an execution of an eligible Draft, without advancing it."""
+        with self._lock_for(run.run_id):
+            if run.run_id in self._sessions:
+                session = self._sessions[run.run_id]
+                if session.execution.is_terminal:
+                    raise LabControlRefused(
+                        "ALREADY_TERMINAL", run.run_id
+                    )
+                # Starting an already-started run is a repeat rather than a new
+                # execution, and answering with where it is beats either starting
+                # a second one or refusing a caller who has lost track.
+                return project(session)
+            stored = self._artifacts.read(run.run_id)
+            if stored is not None and stored.is_terminal:
+                raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
+            if stored is not None:
+                raise LabControlRefused("INTERRUPTED", run.run_id)
+
+            try:
+                refuse_a_model_the_run_did_not_select(run, self._model)
+                inputs = frozen_world_inputs(run)
+            except RunNotExecutable as blocked:
+                raise LabControlRefused("RUN_BLOCKED", run.run_id) from blocked
+            except ExecutionContractIncompatible as incompatible:
+                raise LabControlRefused(
+                    "CONTRACT_INCOMPATIBLE", run.run_id
+                ) from incompatible
+            except FrozenRunNotReconstructible as broken:
+                raise LabControlRefused(
+                    "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id
+                ) from broken
+
+            reporting = self._reporting_for(run)
+            reporting.refuse_a_cadence_the_run_cannot_express()
+            session = LabSession(
+                run_id=run.run_id,
+                execution=start(inputs, self._model),
+                reporting=reporting,
+                notes=self._notes(run),
+            )
+            self._sessions[run.run_id] = session
+            projection = project(session)
+            self._artifacts.note_running(projection)
+            return projection
+
+    def step(
+        self, run: SimulationRun, *, boundaries: int, from_boundary: int
+    ) -> LabProjection:
+        """Advance a started execution by `boundaries` instants.
+
+        `from_boundary` is the position the caller believes the run is at, and it
+        is what makes a resubmitted control safe. A double click, a retried
+        request or a second tab sends the same number twice; the first advances
+        and the second finds the run somewhere else and is refused without
+        advancing anything. The whole read-modify-write happens under this run's
+        lock, so two controls arriving together cannot both pass the check.
+        """
+        with self._lock_for(run.run_id):
+            session = self._require_session(run)
+            if session.execution.is_terminal:
+                raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
+            if session.execution.boundaries_completed != from_boundary:
+                raise LabControlRefused(
+                    "STEP_ALREADY_APPLIED",
+                    f"{run.run_id} at boundary "
+                    f"{session.execution.boundaries_completed}, requested from "
+                    f"{from_boundary}",
+                )
+            session.execution.advance(boundaries)
+            return self._persisted(session)
+
+    def run_to_end(self, run: SimulationRun) -> LabProjection:
+        """Advance a started execution until its interval is covered."""
+        with self._lock_for(run.run_id):
+            session = self._require_session(run)
+            if session.execution.is_terminal:
+                raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
+            session.execution.run_to_end()
+            return self._persisted(session)
+
+    def _require_session(self, run: SimulationRun) -> LabSession:
+        session = self._sessions.get(run.run_id)
+        if session is not None:
+            return session
+        stored = self._artifacts.read(run.run_id)
+        if stored is not None and stored.is_terminal:
+            raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
+        if stored is not None:
+            raise LabControlRefused("INTERRUPTED", run.run_id)
+        raise LabControlRefused("NOT_STARTED", run.run_id)
+
+    def _persisted(self, session: LabSession) -> LabProjection:
+        projection = project(session)
+        self._artifacts.write(projection)
+        return projection
+
+    def forget(self, run_id: str) -> None:
+        """Drop the live handle for one run, as a host restart would.
+
+        The only way to produce a genuine interruption in one process, and it
+        exists so that criterion 12's claim can be measured rather than argued
+        about. It removes the handle and touches no artifact, which is exactly
+        what a process ending does.
+        """
+        with self._lock_for(run_id):
+            self._sessions.pop(run_id, None)

@@ -251,7 +251,43 @@ from fractions import Fraction
 #: still blocks a run it cannot be placed on. What is gone is the support
 #: question - whether a profile must model reporting that state - which was
 #: asked on behalf of nothing.
-EXECUTION_CONTRACT_VERSION = 7
+#:
+#: ## Eight since T022, and it is the reporting path becoming decidable
+#:
+#: Version seven declared what happens to the world and left the sentence "the
+#: device and reporting transform is applied" in the sampling phase as the only
+#: thing it said about readings. Two conforming version-seven implementations
+#: could therefore disagree about every reading a run produces: whether a sample
+#: is due at an instant, what a forced reporting gap does to one, what a consumer
+#: sees when nothing fresh arrived, and whether a stochastic publication failure
+#: is drawn or chosen. `REPORTING_RULES` below answers all four, and each answer
+#: narrows a space a version-seven implementation was free to occupy.
+#:
+#: It is a move rather than an amendment. Seven IS published - T021A merged to
+#: `main` and the local run store carries Drafts at seven - so the
+#: unreleased-version doctrine that let five's four amendments and two's three
+#: ride in place does not apply. The paragraph above said as much: "once this
+#: merges, the next narrowing is a seven", and the same sentence now says eight.
+#:
+#: It also passes `D-2026-09-22-contract-version-scope`'s own test on the run
+#: rather than only on the rules. The publication profile moves to version two in
+#: the same slice, because it now declares which devices and signals report which
+#: state, at what cadence, with what bias and with what dropout - content a
+#: version-one profile did not have. `frozen_inputs_identity` reads the
+#: publication profile's version, so a run of an unchanged document freezes a
+#: different identity under eight than under seven. The resolved identity of the
+#: same experiment is different, which is exactly what spends a number.
+#:
+#: Two things in the same slice deliberately did NOT move it, and saying so is
+#: part of applying the policy rather than reciting it. `LabProjection` is a gated
+#: read of what an execution produced, and no executable path consumes one. And
+#: the resumable execution handle changes when a caller may look at a boundary,
+#: not what any boundary holds: `execute` is that handle advanced to the end, and
+#: a test asserts the trajectory it returns is identical to the one a sequence of
+#: single steps produces.
+#:
+#: Once this merges, the next narrowing is a nine.
+EXECUTION_CONTRACT_VERSION = 8
 
 
 class ExecutionContractIncompatible(Exception):
@@ -876,6 +912,178 @@ OBSERVATION_RULES: tuple[ObservationRule, ...] = (
             "cadence into a reporting rate. A controller that could only act "
             "as often as a remote sensor published would be an artifact of the "
             "instrumentation rather than of the installation."
+        ),
+    ),
+)
+
+
+# --- The reporting path -----------------------------------------------------
+#
+# What the sampling phase's "the device and reporting transform is applied"
+# actually commits an implementation to. Until T022 that sentence was the whole
+# of it, and it decided nothing: two conforming kernels could have disagreed
+# about every reading a run produced. These rules are what version eight
+# narrows, and each of them is a question somebody had to answer before a
+# reading could be generated at all.
+#
+# The rules above are about what a reading MEANS once it exists - a stock at T,
+# a rate over the span ending at T. These are about WHETHER it exists. Keeping
+# the two sets apart is deliberate: a timing convention and a reporting policy
+# are different kinds of statement, and one tuple holding both would invite a
+# consumer to treat a cadence as a fact about the world.
+
+
+@dataclass(frozen=True)
+class ReportingRule:
+    """One rule about whether, and as what, a reading reaches a consumer."""
+
+    rule_id: str
+    display_name: str
+    statement: str
+
+
+def sample_due_at(offset_minutes: int, cadence_minutes: int) -> bool:
+    """`reporting-cadence-is-counted-from-the-interval-start`, exactly.
+
+    Here as arithmetic beside the sentence that publishes it, for the reason the
+    two dispatch formulas are: a transform that computed its own due-ness could
+    drift from the published rule, and one that calls this cannot.
+    """
+    if cadence_minutes <= 0:
+        raise ValueError(
+            f"A cadence of {cadence_minutes} minutes is not a cadence. How "
+            "often a reading is published is a span of non-zero length."
+        )
+    return offset_minutes % cadence_minutes == 0
+
+
+def cadence_is_expressible(cadence_minutes: int, timestep_minutes: int) -> bool:
+    """Whether every instant a cadence is due at is a boundary of the run.
+
+    `cadence-must-divide-the-timestep`, as the one line that decides it. False
+    means some sample would be due between two boundaries, which is the case the
+    rule refuses rather than rounds.
+    """
+    if timestep_minutes <= 0:
+        raise ValueError(
+            f"A step of {timestep_minutes} minutes is not a step. A run walks "
+            "its interval in spans of non-zero length."
+        )
+    return sample_due_at(cadence_minutes, timestep_minutes)
+
+
+REPORTING_RULES: tuple[ReportingRule, ...] = (
+    ReportingRule(
+        rule_id="reporting-cadence-is-counted-from-the-interval-start",
+        display_name="When a sample is due",
+        statement=(
+            "A configured signal's sample is due at every instant whose offset "
+            "from the start of the run's interval is a whole multiple of its "
+            "declared cadence, and at no other instant. `sample_due_at` is that "
+            "line of arithmetic and is what a conforming transform calls. The "
+            "origin is the interval's start rather than the first reading or the "
+            "first event, because those are properties of the content and a "
+            "cadence is a property of the path: two runs of one document over "
+            "two intervals would otherwise publish on two grids."
+        ),
+    ),
+    ReportingRule(
+        rule_id="cadence-must-divide-the-timestep",
+        display_name="A cadence the run's resolution cannot express",
+        statement=(
+            "A sample is due at an instant, and the only instants an execution "
+            "has are its boundaries. A declared cadence that is not a whole "
+            "multiple of the run's timestep is therefore refused, naming the "
+            "signal and the two numbers. It is not moved to the nearest "
+            "boundary, which would report a value at a time it was not taken, "
+            "and it is not quietly skipped, which would turn a declared cadence "
+            "into a different one. A timestep is chosen at run setup, so this is "
+            "a run that cannot express its own publication profile rather than a "
+            "profile that is wrong."
+        ),
+    ),
+    ReportingRule(
+        rule_id="a-reporting-gap-suppresses-the-sample",
+        display_name="A forced reporting gap",
+        statement=(
+            "While a reporting-path condition forces a signal's path unavailable "
+            "across its declared window, a sample due inside that window "
+            "produces no reading at all. Nothing is sampled, nothing is "
+            "published, and no value is invented for the instant. The window's "
+            "membership is the half-open one every span in this contract uses, so "
+            "the instant reporting resumes is exactly the instant the window "
+            "excludes. **The world is not affected**: a condition on the path "
+            "changes no stock, no flow and no bound, which is why the "
+            "publication profile answers for it and why it is not a forcing on a "
+            "world state. A gap therefore makes a real event unreportable rather "
+            "than making it not happen, and a consumer looking only at readings "
+            "cannot see what the world did inside one."
+        ),
+    ),
+    ReportingRule(
+        rule_id="an-interval-reading-is-a-mean-over-the-span",
+        display_name="What an interval reading publishes",
+        statement=(
+            "An interval reading publishes the mean of the measured quantity over "
+            "the span that ended at its timestamp, in the signal's own unit - so "
+            "an accumulated 11.25 kWh over a fifteen-minute span is published as "
+            "45 kW. The span is the run's timestep and never the signal's "
+            "cadence: `interval-signal-describes-the-preceding-interval` says "
+            "which interval a reading at T describes, and a signal publishing "
+            "hourly at a fifteen-minute timestep therefore publishes a "
+            "measurement of the last fifteen minutes, once an hour. **This build "
+            "declares the mean and not the accumulation**, because a rate signal "
+            "is what it has: a signal that needs the accumulated quantity reopens "
+            "this rule with a reason on the record rather than by a reader "
+            "assuming the other convention."
+        ),
+    ),
+    ReportingRule(
+        rule_id="a-retained-reading-carries-its-own-time",
+        display_name="What a consumer sees when nothing fresh arrived",
+        statement=(
+            "At an instant where a signal published nothing - not due, "
+            "suppressed, dropped, or with nothing to read - a consumer retaining "
+            "the newest reading it has shows that reading's OWN source time and "
+            "says the value is stale. It is not restamped to the present instant, "
+            "it is not interpolated towards the present value, and it is not "
+            "reported as an absence: it is a real number, published at a real "
+            "instant, which no longer describes now. Where no reading has ever "
+            "been published on that signal there is nothing to retain and the "
+            "value is unavailable, which is a different statement from stale and "
+            "is kept as one."
+        ),
+    ),
+    ReportingRule(
+        rule_id="a-publication-failure-is-drawn-not-chosen",
+        display_name="A dropped publication",
+        statement=(
+            "Where a publication profile declares that a share of a signal's due "
+            "samples do not publish, which samples those are is DRAWN from the "
+            "run's seed under the reserved stochastic domain "
+            "`assetops-sim-rng-v1`, keyed by a stream name derived from the "
+            "device and the signal and by the instant. It is therefore "
+            "reproducible - the same run drops the same samples in every process "
+            "- and independent: a draw is a function of its own arguments and not "
+            "of how many draws preceded it, so introducing a second stochastic "
+            "mechanism changes no existing stream's draws. A sequential "
+            "generator would satisfy the first and break the second, which is "
+            "why the family and the keying are declared rather than left to an "
+            "implementation."
+        ),
+    ),
+    ReportingRule(
+        rule_id="reporting-parameters-move-no-world-quantity",
+        display_name="What a reporting parameter may and may not change",
+        statement=(
+            "A cadence, a bias and a dropout change which readings exist and what "
+            "they say. They change no stock, no accepted flow, no bound and no "
+            "controller-local input, so two runs of one document differing only "
+            "in them produce the same trajectory and the same world identity. A "
+            "declared bias is applied to the reported value and nowhere else, "
+            "which is what makes the difference between the true value and the "
+            "reported one a property of the instrument rather than of the "
+            "installation."
         ),
     ),
 )

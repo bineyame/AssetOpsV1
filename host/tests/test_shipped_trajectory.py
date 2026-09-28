@@ -9,14 +9,12 @@ litres of it never arrive - and the correction is asserted here rather than only
 written into the document. The other three are consistent, and the assertions say
 why each one is.
 
-**The reconciliation reference implementation has lost its authority.**
-`D-2026-09-21-specification-reference-implementation` says it stops being an
-authority the moment a kernel exists to be compared against. The two are run
-against the same document and compared: the reconciler reports 310 litres at both
-readings and the kernel computes 254.02, and the 55.98 between them is exactly the
-fuel the model law burns and the document no longer declares. The kernel is right;
-the reconciler is still right about the narrower question it asks, which is why it
-stays until its last product-path caller goes.
+**The bounded delivery is the kernel's own, and nothing document-level could see
+it.** The 300 litre delivery reaches a tank holding 254.02 litres against a 500
+litre capacity, so 245.98 enter and 54.02 are recorded refused. A projection of the
+document could not notice that, because the document no longer carries the
+capacity - which is half of why the reconciliation reference implementation was
+retired in T022. The comment where its comparison used to be records the rest.
 
 **A second installation.** The capacity bound and the consumption coefficient are
 taken from a second Site's Foundation - an 800 litre tank and a 0.285 L/kWh
@@ -40,10 +38,6 @@ from second_site import (
     SOUTH_COEFFICIENT,
     SOUTH_TANK,
     second_site_document,
-)
-
-from assetops_backend.scenarios.execution import (
-    reconcile_reported_observations,
 )
 
 from execution_adapter import run_to_end
@@ -205,78 +199,24 @@ class TestTheAuthoredExpectationsAgainstTheComputedWorld:
         )
 
 
-class TestTheReconciliationReferenceImplementation:
-    def test_the_two_disagree_and_the_difference_is_the_model_law(self) -> None:
-        """Criterion 17, as a measurement rather than an assertion of authority.
-
-        The reconciler reads the document and only the document. The document no
-        longer declares what the generator burns, so what the reconciler cannot
-        see is exactly the model law's 55.98 litres - and that is the whole of the
-        disagreement, at both readings, to the litre.
-        """
-        definition, executed = _shipped_trajectory()
-        results = {
-            result.event_id: result
-            for result in reconcile_reported_observations(definition)
-        }
-        assert set(results) == {
-            "fuel-level-after-the-gap",
-            "operator-tank-inspection",
-        }
-
-        world_at_1590 = executed.trajectory.boundary_at(1590).stock(TANK)
-        world_at_1800 = executed.trajectory.boundary_at(1800).stock(TANK)
-        assert world_at_1590 == AFTER_REMOVAL
-        assert world_at_1800 == AFTER_REMOVAL
-
-        for result in results.values():
-            assert result.declared_value == 310.0
-            assert result.reported_value == 254.02
-            assert result.state == "NOT_ACCOUNTED_FOR"
-            assert (
-                Fraction(str(result.declared_value)) - world_at_1590
-                == DISPATCH_TOTAL
-            )
-            assert Fraction(str(result.difference)) == -DISPATCH_TOTAL
-
-    def test_the_kernel_is_the_one_that_accounts_for_the_difference(
-        self,
-    ) -> None:
-        """Where they disagree the kernel is right, and this is why.
-
-        The reconciler's 310 is the start level minus the removal. The kernel's
-        254.02 is the same, minus the fuel the generator burnt - a quantity the
-        Site declares and the document does not. So the reconciler is not wrong
-        about what a document declares; it is answering a narrower question, and
-        the wider one is the kernel's.
-        """
-        _, executed = _shipped_trajectory()
-        assert Fraction(430) - Fraction(120) == Fraction(310)
-        assert Fraction(310) - DISPATCH_TOTAL == AFTER_REMOVAL
-        coefficient = executed.inputs.initial_value(
-            "generator-specific-fuel-consumption@generator"
-        )
-        assert coefficient.value == Fraction(311, 1000)
-        assert coefficient.answered_by == "SITE_FOUNDATION"
-
-    def test_the_reconciler_cannot_see_the_bound_the_kernel_applies(
-        self,
-    ) -> None:
-        """The other half of what it has stopped being an authority about.
-
-        `declared_bounds` reports no upper number for the tank volume, which is
-        the correct answer for a projection of a document that no longer carries
-        the capacity. So nothing document-level can notice the delivery overfilling
-        the tank, and the kernel is the first thing that can.
-        """
-        from assetops_backend.scenarios.execution import declared_bounds
-
-        definition, executed = _shipped_trajectory()
-        assert declared_bounds(definition)[TANK] == (0.0, None)
-        assert executed.trajectory.bounded_transitions
-        assert executed.trajectory.bounded_transitions[0].bound_value == (
-            Fraction(500)
-        )
+# The reconciliation reference implementation was compared against the kernel
+# here until T022, and the comparison went with it. What it measured is on the
+# record and is worth keeping, because it is why the thing was retired:
+#
+# - the reconciler reported 310 L at both authored readings, the kernel computed
+#   254.02 L, and the 55.98 L between them was exactly the fuel the model law
+#   burns and the document no longer declares;
+# - `declared_bounds` reported no upper number for the tank volume, which was the
+#   correct answer for a projection of a document that no longer carries the
+#   capacity - so nothing document-level could notice the delivery overfilling the
+#   tank, and the kernel was the first thing that could.
+#
+# `D-2026-09-21-specification-reference-implementation` said it stops being an
+# authority the moment a kernel exists and goes when its last product-path caller
+# goes. T021 built the first; T022 removed the second, which was the scenario
+# detail screen's panel. Both numbers above survive as assertions elsewhere in
+# this file: the 55.98 L as `DISPATCH_TOTAL` against the computed trajectory, and
+# the bound as the `BOUNDED_AND_RECORDED` transition at the 500 L capacity.
 
 
 class TestASecondSiteWithADifferentCapacity:

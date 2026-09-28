@@ -114,14 +114,30 @@ class TestAReadyDraftExecutes:
         initialization input; and the bound the kernel applies names that frozen
         row as its source. All three are asserted, because the interesting failure
         is a 500 that came from somewhere else.
-        """
-        from assetops_backend.scenarios.execution import declared_bounds
 
+        The document-side half used to be asserted through `declared_bounds`,
+        which reported `(0.0, None)` for the tank - no upper number, correctly, for
+        a projection of a document that no longer carries the capacity. That
+        function was retired in T022 with the reconciler it existed for, so the
+        same fact is asserted directly against the document instead: the bounds
+        declaration names the state it caps and carries no value field at all.
+        """
         definition = scenario()
         run = draft(definition=definition)
         executed = run_to_end(run)
 
-        assert declared_bounds(definition)[TANK] == (0.0, None)
+        capped = [
+            parameter
+            for parameter in definition.public_parameters
+            if parameter.bounds is not None
+        ]
+        assert len(capped) == 1
+        assert capped[0].bounds.state_ref.addressed_key == TANK
+        assert capped[0].bounds.bound_kind == "UPPER"
+        # The document states the relationship and no number: the capacity
+        # parameter it caps with declares no value of its own.
+        assert capped[0].value is None
+
         frozen = {
             item.addressed_key: item
             for item in run.deterministic_identity.initialization_inputs

@@ -175,27 +175,22 @@ export interface ScenarioInitializationInput {
 }
 
 /**
- * One reported reading against the causes declared before it.
+ * One rule about whether a reading exists at all, and as what.
  *
- * `declared_value` and `difference` are null when the contract cannot answer:
- * no declared initial value for the state, or a causal window still open when
- * the reading is taken. A contract that guessed at half a window would be
- * making a transition rule up, and transition rules belong to the runtime.
+ * The companion to `ScenarioObservationRule`, which is about what a reading
+ * MEANS once it exists. The two sets are kept apart on the wire for the reason
+ * the contract keeps them apart: a timing convention and a reporting policy are
+ * different kinds of statement, and one list holding both would invite a reader
+ * to treat a cadence as a fact about the world.
+ *
+ * `observation_reconciliation` stood in this record until T022 and went with the
+ * panel that rendered it, under
+ * `D-2026-09-22-reconciliation-panel-retirement`.
  */
-export interface ScenarioObservationReconciliation {
-  event_id: string;
-  source_id: string;
-  parameter_id: string;
-  state_key: string;
-  offset_minutes: number;
-  reported_value: number;
-  declared_value: number | null;
-  difference: number | null;
-  unit: string;
-  state: string;
-  /** Which of the answers this is, in words. Always present. */
-  reason: string;
-  accounted_by: string[];
+export interface ScenarioReportingRule {
+  rule_id: string;
+  display_name: string;
+  statement: string;
 }
 
 export interface ScenarioExecutionContract {
@@ -203,9 +198,9 @@ export interface ScenarioExecutionContract {
   dispatch_rules: ScenarioDispatchRule[];
   boundary_cycle: ScenarioBoundaryPhase[];
   observation_rules: ScenarioObservationRule[];
+  reporting_rules: ScenarioReportingRule[];
   bound_cases: ScenarioBoundCase[];
   initialization_inputs: ScenarioInitializationInput[];
-  observation_reconciliation: ScenarioObservationReconciliation[];
 }
 
 /** What a declared observation source resolved to on this installation. */
@@ -508,27 +503,14 @@ function isInitializationInput(
   );
 }
 
-function isReconciliation(
-  value: unknown,
-): value is ScenarioObservationReconciliation {
+function isReportingRule(value: unknown): value is ScenarioReportingRule {
   if (!isRecord(value)) {
     return false;
   }
   return (
-    typeof value.event_id === "string" &&
-    typeof value.source_id === "string" &&
-    typeof value.parameter_id === "string" &&
-    typeof value.state_key === "string" &&
-    typeof value.offset_minutes === "number" &&
-    typeof value.reported_value === "number" &&
-    (value.declared_value === null ||
-      typeof value.declared_value === "number") &&
-    (value.difference === null || typeof value.difference === "number") &&
-    typeof value.unit === "string" &&
-    typeof value.state === "string" &&
-    typeof value.reason === "string" &&
-    Array.isArray(value.accounted_by) &&
-    value.accounted_by.every((item) => typeof item === "string")
+    typeof value.rule_id === "string" &&
+    typeof value.display_name === "string" &&
+    typeof value.statement === "string"
   );
 }
 
@@ -548,10 +530,10 @@ function isExecutionContract(
     value.observation_rules.every(isObservationRule) &&
     Array.isArray(value.bound_cases) &&
     value.bound_cases.every(isBoundCase) &&
+    Array.isArray(value.reporting_rules) &&
+    value.reporting_rules.every(isReportingRule) &&
     Array.isArray(value.initialization_inputs) &&
-    value.initialization_inputs.every(isInitializationInput) &&
-    Array.isArray(value.observation_reconciliation) &&
-    value.observation_reconciliation.every(isReconciliation)
+    value.initialization_inputs.every(isInitializationInput)
   );
 }
 

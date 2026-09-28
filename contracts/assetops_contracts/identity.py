@@ -9,10 +9,11 @@ identity.
 
 **The identity domain is separated from the RNG domain.**
 `assetops-sim-identity-v1` prefixes every identity digest. v4 reserves
-`assetops-sim-rng-v1` for stochastic draws, and this build declares no
-stochastic mechanism, so that prefix is not spelled here: a domain constant with
-no consumer is a promise, and T022 adds it with the first stream that consumes
-one.
+`assetops-sim-rng-v1` for stochastic draws, and it is spelled in `observation.py`
+rather than here, beside the dropout that is its first consumer - a domain
+constant with no consumer is a promise. The two domains share this module's
+encoding and nothing else, which is the point of separating them: the identity of
+a run and a draw keyed on the same fields are different numbers by construction.
 
 **The encoding is length-prefixed rather than concatenated.** `("a", "bc")` and
 `("ab", "c")` join to the same string and must not hash to the same digest.

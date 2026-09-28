@@ -9,11 +9,16 @@ import { settledScreen } from "../../test/settled";
 import { spacedText, textNodes } from "../../test/text";
 import type {
   RunDetailResult,
+  RunExecutionResult,
   RunInventoryRow,
   RunListResult,
   RunSetupClient,
   RunSummary,
 } from "../runSetupClient";
+import {
+  RUNNING_IN_THE_GAP,
+  executionMethods,
+} from "./executionFixtures";
 
 /**
  * The Runs inventory and the Draft shell.
@@ -143,6 +148,10 @@ const BLOCKED_RUN: RunSummary = {
 function runClient(
   list: RunListResult = { status: "loaded", runs: ROWS },
   detail: RunDetailResult = { status: "loaded", run: READY_RUN },
+  execution: RunExecutionResult = {
+    status: "loaded",
+    execution: RUNNING_IN_THE_GAP,
+  },
 ): RunSetupClient {
   return {
     listProfiles: () => Promise.resolve({ status: "unavailable" }),
@@ -150,6 +159,7 @@ function runClient(
       Promise.resolve({ status: "unavailable", message: null }),
     listRuns: () => Promise.resolve(list),
     getRun: () => Promise.resolve(detail),
+    ...executionMethods(execution),
   };
 }
 
@@ -294,17 +304,30 @@ describe("one draft run", () => {
     expect(screen.getByText(DISCLOSURE)).toBeInTheDocument();
   });
 
-  it("offers the run action disabled, with the prerequisite named", async () => {
+  /*
+   * The disabled "Run this draft" control and its "no causal kernel" reason were
+   * asserted here until T022, and both are gone because the prerequisite arrived.
+   * What replaced them is a real Start, a real Step and a real Run to the end, and
+   * they are asserted in `runExecution.test.tsx` against a projection - which is
+   * where a claim about executing a run belongs, since it needs one to exist.
+   *
+   * The two claims this file keeps are the ones that are about THIS screen rather
+   * than about an execution: that a blocked draft still offers nothing at all, and
+   * that the set of controls a READY draft offers is closed.
+   */
+  it("offers exactly the three execution controls and nothing else", async () => {
     renderAt(url, runClient());
     await settledScreen();
 
-    const control = screen.getByRole("button", { name: "Run this draft" });
+    const main = screen.getByRole("main");
+    const buttons = within(main)
+      .getAllByRole("button")
+      .map((button) => button.textContent);
 
-    expect(control).toBeDisabled();
-    const reason = document.getElementById(
-      control.getAttribute("aria-describedby") ?? "",
-    );
-    expect(reason?.textContent).toMatch(/causal kernel/i);
+    // A closed set rather than a count. A fourth control fails whatever it is
+    // called, which is the lesson a word ban learnt when "Execute this run now"
+    // walked past one.
+    expect(buttons).toEqual(["Start this run", "Step", "Run to the end"]);
   });
 
   it("offers no run action at all on a blocked draft", async () => {
@@ -349,9 +372,11 @@ describe("one draft run", () => {
     ]);
   });
 
-  it("offers no runtime control of any kind", async () => {
-    // Absent rather than disabled: a disabled control says the capability
-    // exists and is switched off, which is a different and false claim.
+  it("offers no runtime control beyond starting and stepping", async () => {
+    // Three of the words this list used to ban are now truthful, because the
+    // capability arrived: a run can be started, stepped and run to the end. The
+    // rest are still absent rather than disabled, because a disabled control says
+    // the capability exists and is switched off - a different and false claim.
     renderAt(url, runClient());
     await settledScreen();
 
@@ -359,31 +384,20 @@ describe("one draft run", () => {
     for (const banned of [
       /pause/i,
       /resume/i,
-      /step/i,
       /reset/i,
       /rerun/i,
       /replay/i,
       /commit/i,
       /stage/i,
+      /release/i,
       /ingest/i,
       /open in assetops/i,
       /truth/i,
-      // The three this list was missing. An enabled anchor reading "Execute
-      // this run now" passed both guard suites until a reviewer added one:
-      // the ban was written over a word list, and the next violation used a
-      // word nobody had listed.
-      /execute/i,
-      /start/i,
       /launch/i,
     ]) {
       expect(within(main).queryByRole("button", { name: banned })).toBeNull();
       expect(within(main).queryByRole("link", { name: banned })).toBeNull();
     }
-
-    // And the only button on the screen is the disabled one above.
-    const buttons = within(main).getAllByRole("button");
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0]).toBeDisabled();
 
     // The durable half: the links this screen carries are exactly the two
     // ways back, by href and by text. A word list can only ban what somebody
@@ -397,23 +411,23 @@ describe("one draft run", () => {
     ]);
   });
 
-  it("reserves no plausible runtime value", async () => {
-    // The trap this screen is built against: a shell that reads as a runtime
-    // which happens to be stopped. A zeroed clock or an empty observation
-    // count would be exactly that.
+  it("shows a simulated clock and reserves no wall-clock value", async () => {
+    // The trap has moved rather than gone. The screen now legitimately shows a
+    // clock, and what it must not show is a REAL one: elapsed time, wall-clock
+    // duration or a progress meter would all be facts about how fast the process
+    // ran, and none of them is a fact about the simulated interval. Criterion 2's
+    // "execution speed does not change simulation timestamps" is only inspectable
+    // if nothing on the screen conflates the two.
     renderAt(url, runClient());
     await settledScreen();
 
     const main = screen.getByRole("main");
     const words = spacedText(main);
 
-    for (const banned of [
-      /simulated time/i,
-      /elapsed/i,
-      /progress/i,
-      /steps completed/i,
-      /observations/i,
-    ]) {
+    // The clock that IS here is the simulated one, taken from the projection.
+    expect(words).toMatch(/Simulated time 2026-09-22T01:45:00Z/);
+
+    for (const banned of [/elapsed/i, /wall clock/i, /progress/i, /% complete/i]) {
       expect(words).not.toMatch(banned);
     }
 
@@ -435,7 +449,8 @@ describe("one draft run", () => {
 
     const words = spacedText(screen.getByRole("main"));
 
-    expect(words).toMatch(/has not been executed/i);
+    expect(words).toMatch(/Neither is evidence/i);
+    expect(words).toMatch(/nothing here has entered ingestion/i);
     expect(words).toMatch(/Nothing has been staged for a gateway/i);
     expect(words).toMatch(/cannot be committed/i);
     expect(words).toMatch(/No evidence has been accepted/i);
