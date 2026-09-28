@@ -138,9 +138,34 @@ EXECUTION_ARTIFACT_SCHEMA_VERSION = 2
 #: their reporting-gap rows carry `timing_shape` - which is the exact field the
 #: build that wrote the second of them added. A record whose rows disagree with
 #: each other was written by neither and is not interpreted.
+#:
+#: The names say `UNMARKED` because that is how those two records reach us, but
+#: what they identify is a SERIALIZED SHAPE rather than the presence of a
+#: marker. A record that states `artifact_schema_version: 1` is naming the
+#: shapeless layout explicitly, and is read as that layout if its rows agree -
+#: no build wrote such a record, and honouring what one says is still what
+#: "a reader decides which rule applied by reading it" means.
 LAYOUT_CURRENT = "SCHEMA_2"
 LAYOUT_UNMARKED_WITH_SHAPE = "UNMARKED_WITH_SHAPE"
 LAYOUT_UNMARKED_WITHOUT_SHAPE = "UNMARKED_WITHOUT_SHAPE"
+
+#: How each layout is described to a person, so a message never has to
+#: interpolate a constant whose spelling is an implementation detail - and never
+#: has to call a record that states a marker "unmarked".
+LAYOUT_DESCRIPTIONS = {
+    LAYOUT_CURRENT: (
+        "the current layout, which records a reporting condition's shape and "
+        "the run's timestep on every gap row"
+    ),
+    LAYOUT_UNMARKED_WITH_SHAPE: (
+        "the layout that records a reporting condition's shape and states no "
+        "schema of its own"
+    ),
+    LAYOUT_UNMARKED_WITHOUT_SHAPE: (
+        "the layout written before a reporting condition's shape was recorded "
+        "at all"
+    ),
+}
 
 
 def _first_pass_end_offset(row: dict[str, object]) -> int:
@@ -168,7 +193,9 @@ def _first_pass_end_offset(row: dict[str, object]) -> int:
     return int(row["offset_minutes"]) + int(duration)
 
 
-def _identify_layout(document: dict[str, object], run_id: str) -> str:
+def _identify_layout(
+    document: dict[str, object], run_id: str
+) -> tuple[str, int | None]:
     """Which build wrote this record, decided from what the record carries.
 
     A marked record says so. An unmarked one is one of the two that predate the
@@ -186,11 +213,29 @@ def _identify_layout(document: dict[str, object], run_id: str) -> str:
     default, and nothing turns on the choice: with no row there is no shape to
     report and no span to resolve, so both layouts read it identically.
 
+    **A stated marker is obeyed, including one no build wrote.** The first
+    version of this refused only a marker above the current version or below
+    one, so `artifact_schema_version: 1` fell through to the current layout and
+    was then told, in the failure message, that it stated a 2. Ignoring what a
+    record says about itself and asserting a different number in its place is
+    the confident wrong reading this whole correction is about, arriving inside
+    the correction.
+
+    Returns:
+        The layout, and the marker the record states - `None` where it states
+        none. The marker travels because a message about a record must report
+        the number that record carries and not the one this build writes.
+
     Raises:
         ExecutionArtifactUnreadable: the rows do not agree on which build wrote
-            them, or the marker is not a whole number.
+            them, the marker is not a whole number, or the marker names a layout
+            the rows contradict.
     """
+    rows = document.get("reporting_gaps") or []
+    shaped = [row for row in rows if "timing_shape" in row]
+    stepped = [row for row in rows if "timestep_minutes" in row]
     marker = document.get("artifact_schema_version")
+
     if marker is not None:
         # Parsed here rather than at the call site, because a marker that is not
         # a number used to raise `ValueError` from `int()` BEFORE the protected
@@ -218,24 +263,43 @@ def _identify_layout(document: dict[str, object], run_id: str) -> str:
                 "An artifact schema is a whole number from one upwards, so this "
                 "record does not say which rule wrote it.",
             )
-        return LAYOUT_CURRENT
+        if marker == 1:
+            # Schema one names the shapeless layout, and a record claiming it
+            # while carrying shapes is claiming two things at once. Reading it
+            # under either rule would honour half of what it says.
+            if shaped:
+                raise ExecutionArtifactUnreadable(
+                    run_id,
+                    marker,
+                    f"It states schema 1, which is the layout written before a "
+                    f"reporting condition's shape was recorded, and "
+                    f"{len(shaped)} of {len(rows)} of its reporting-gap rows "
+                    "record a shape. The marker and the rows describe different "
+                    "layouts, and honouring one would mean ignoring the other.",
+                )
+            return LAYOUT_UNMARKED_WITHOUT_SHAPE, marker
+        return LAYOUT_CURRENT, marker
 
-    rows = document.get("reporting_gaps") or []
-    shaped = [row for row in rows if "timing_shape" in row]
     if not shaped:
-        return LAYOUT_UNMARKED_WITHOUT_SHAPE
-    if len(shaped) == len(rows) and all(
-        "timestep_minutes" in row for row in rows
-    ):
-        return LAYOUT_UNMARKED_WITH_SHAPE
+        return LAYOUT_UNMARKED_WITHOUT_SHAPE, None
+    if len(shaped) == len(rows) and len(stepped) == len(rows):
+        return LAYOUT_UNMARKED_WITH_SHAPE, None
+    # Name the field that actually decided. Counting only `timing_shape` here
+    # produced "1 of 1 rows record a timing shape ... so this record was written
+    # by neither": a sentence that states agreement and concludes disagreement,
+    # while the field that disagreed went unmentioned.
+    disagreeing = (
+        "a timing shape" if len(shaped) != len(rows) else "the run's timestep"
+    )
+    counted = shaped if len(shaped) != len(rows) else stepped
     raise ExecutionArtifactUnreadable(
         run_id,
-        1,
-        f"It carries no schema marker, and {len(shaped)} of {len(rows)} "
-        "reporting-gap rows record a timing shape. The two builds that wrote "
-        "unmarked records wrote it on every row or on none, so this record was "
-        "written by neither and reading half of it under each rule would be a "
-        "result nobody produced.",
+        None,
+        f"It carries no schema marker, and {len(counted)} of {len(rows)} "
+        f"reporting-gap rows record {disagreeing}. The two builds that wrote "
+        "unmarked records wrote both fields on every row or neither on any, so "
+        "this record was written by neither and reading half of it under each "
+        "rule would be a result nobody produced.",
     )
 
 
@@ -797,7 +861,7 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
             its rows do not agree on which build wrote them.
     """
     run_id = str(document.get("run_id", "an execution record with no run id"))
-    layout = _identify_layout(document, run_id)
+    layout, marker = _identify_layout(document, run_id)
     failure = document.get("failure")
     try:
         return LabProjection(
@@ -960,12 +1024,14 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
         # escaping as an HTTP 500 does not.
         raise ExecutionArtifactUnreadable(
             run_id,
-            EXECUTION_ARTIFACT_SCHEMA_VERSION
-            if layout == LAYOUT_CURRENT
-            else 1,
-            f"It was read as the {layout} layout and does not carry {missing}, "
-            "which that layout requires. That is a damaged or hand-edited "
-            "record rather than an older one, and it is left as it is.",
+            # The marker the RECORD states, not the one this build writes. It
+            # used to be the module constant whenever the record was read as
+            # the current layout, so a file saying 1 was announced as saying 2.
+            marker,
+            f"It was read as {LAYOUT_DESCRIPTIONS[layout]}, and does not carry "
+            f"{missing}, which that layout requires. That is a damaged or "
+            "hand-edited record rather than an older one, and it is left as it "
+            "is.",
         ) from missing
 
 

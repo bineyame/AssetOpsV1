@@ -3672,7 +3672,7 @@ fact is asked first now.
   docstring saying the backend cannot import the simulator failed the check. It
   was reworded rather than fixed, because loosening a dependency check inside the
   slice it blocks is the one edit that file forbids. Backlog.
-### The fourth variant of one defect, and why it is a rule now
+### The fifth variant of one defect, and why it is a rule now
 
 R4 was a change correct going forward and silent going backward. So were three
 before it: T021's frozen runs reinterpreted by a live document, a version guard
@@ -3686,13 +3686,21 @@ each slice is expected to remember, and why the rule now names its own second
 half - identifying what predates the marker from what it carries - which is the
 half that was skipped.
 
-The shape is worth recognising rather than the instance: every one of the four
+The shape is worth recognising rather than the instance: every one of the five
 was found by somebody looking at existing data, and none by a suite, because a
 suite writes its fixtures with the build that reads them. A round trip through
 one schema cannot fail this way. **The test that catches it supplies a record in
 the shape the PREVIOUS build wrote**, and the one for R4 builds that record by
 executing a real run and removing exactly what the old build never wrote - with a
 precondition test asserting the fixture really is that shape.
+
+A sixth instance of the same habit, smaller and caught by a reviewer rather than
+by data: the fix's own tests all build their fixtures by STRIPPING a record the
+current build wrote, so none of them states a schema marker the current build
+would not write - and a record stating `artifact_schema_version: 1` was read
+under the current layout and then told it had said 2. The lesson applies to a
+fix as readily as to a defect, and the missing case is always the one the author
+did not think to write down.
 
 ### What the independent review returned, and what it cost to be wrong about
 

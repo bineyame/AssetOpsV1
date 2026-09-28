@@ -2357,6 +2357,136 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         assert "timing_shape" in note
         assert "damaged or hand-edited" in note
 
+    # --- What a record SAYS about itself, obeyed and reported accurately ------
+
+    def test_a_record_that_states_schema_one_is_read_as_schema_one(
+        self, tmp_path: Path
+    ) -> None:
+        """The marker is obeyed, including a value no build ever wrote.
+
+        Schema one names the layout written before a reporting condition's
+        shape was recorded. Nothing has ever written that marker - it was
+        introduced at two - so this record could only come from a person, and
+        obeying what it says is what "a reader decides which rule applied by
+        reading it" means.
+
+        It used to fall through to the current layout, because only a marker
+        ABOVE the current version or below one was refused. The record was then
+        asked for `timing_shape` it does not carry.
+
+        Invisible to every other test here, and that is this round's own lesson
+        turned on the fix: every other fixture is built by stripping a record
+        the current build wrote, so none of them states a marker the current
+        build would not write. A marker-value fixture is the missing case.
+        """
+        run = draft()
+        execution, written, path = self.completed(tmp_path, run)
+        document = self.strip_to_first_pass(path)
+        document["artifact_schema_version"] = 1
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "COMPLETED"
+        assert reloaded.observations == written.observations
+        (window,) = reloaded.reporting_gaps
+        assert window.timing_shape == SHAPE_NOT_RECORDED
+        assert window.end_offset_minutes == 1580
+
+    def test_a_marker_the_rows_contradict_is_not_half_honoured(
+        self, tmp_path: Path
+    ) -> None:
+        """Two claims in one record, and obeying either ignores the other.
+
+        A record stating schema one - the layout with no shape - while carrying
+        shaped rows describes two different layouts. Reading it under the
+        marker discards the shape; reading it under the rows ignores the marker.
+        Neither is a reading of the record, so it is reported instead.
+        """
+        run = self.point_run()
+        execution, _, path = self.completed(tmp_path, run)
+        document = self.strip_to_intermediate(path)
+        document["artifact_schema_version"] = 1
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "ARTIFACT_UNREADABLE"
+        note = " ".join(reloaded.notes)
+        assert "The marker and the rows describe different layouts" in note
+        assert "1 of 1" in note
+
+    def test_a_failure_reports_the_marker_the_record_states(
+        self, tmp_path: Path
+    ) -> None:
+        """The number in the sentence is the record's, not this build's.
+
+        The missing-field guard passed the module constant whenever the record
+        had been read as the current layout, so a file saying 1 was announced
+        as saying 2 - a different number asserted in place of the one the
+        reader ignored.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document["artifact_schema_version"] = 2
+        for row in document["reporting_gaps"]:
+            del row["timestep_minutes"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        note = " ".join(execution.projection(run).notes)
+
+        assert "states artifact schema 2" in note
+        assert "timestep_minutes" in note
+        # And the layout is described rather than spelled as a constant: a
+        # record that states a marker must never be called "unmarked".
+        assert "UNMARKED" not in note
+
+    def test_a_record_with_no_marker_is_not_announced_as_stating_one(
+        self, tmp_path: Path
+    ) -> None:
+        """"States artifact schema 1. It carries no schema marker" was the text.
+
+        A sentence contradicted by its own next clause, which is the exact
+        defect the `None` opening was written for - and the opening was then
+        used on one of the three paths that needed it.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = self.strip_to_intermediate(path)
+        document["reporting_gaps"].append(
+            {**document["reporting_gaps"][0], "event_id": "a-second-gap"}
+        )
+        del document["reporting_gaps"][1]["timing_shape"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        note = " ".join(execution.projection(run).notes)
+
+        assert "does not state a readable artifact schema" in note
+        assert "states artifact schema" not in note
+
+    def test_the_disagreement_names_the_field_that_decided_it(
+        self, tmp_path: Path
+    ) -> None:
+        """A message that counted one field while another did the deciding.
+
+        The branch requires the shape AND the run's timestep on every row. A
+        record where every row is shaped and one lacks the timestep read
+        "1 of 1 reporting-gap rows record a timing shape ... so this record was
+        written by neither": agreement stated, disagreement concluded, and the
+        field that decided never mentioned.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = self.strip_to_intermediate(path)
+        del document["reporting_gaps"][0]["timestep_minutes"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        note = " ".join(execution.projection(run).notes)
+
+        assert "0 of 1 reporting-gap rows record the run's timestep" in note
+        assert "record a timing shape" not in note
+
     def test_this_build_writes_the_schema_it_reads(self, tmp_path: Path) -> None:
         """The field that makes the next change survivable.
 
