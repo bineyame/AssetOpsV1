@@ -15,12 +15,14 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 and T021A are complete and merged.** **T022 is built, reviewed four times
-and back in review**; packet in `.agent/T022-review-packet.md`, reviews in
-`.agent/T022-codex-review{,-2,-3}.md` and `-backup-review.md`, record in
-`.ai/CODE_STATE.md`. Three artifact layouts exist and each reads back as the
-result it is. **R4 is closed and AC12 PASSES, verified by measurement**; the last
-round corrected four ways the reader misdescribed the record it was reading.
+**T021, T021A and T022 are complete and merged.** T022's packet, its four
+reviews and the record in `.ai/CODE_STATE.md` carry the detail; three artifact
+layouts exist and each reads back as the result it is.
+
+**T022A is active**, raised from the owner's own session: stepping the first
+real run works and every value is right, but a single-run read parses all 216
+stored records, so each interaction costs nine seconds. **The owner's review of
+T022 waits for T022A** and happens with T022A's own.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
@@ -36,20 +38,18 @@ and the two are one move. `REPORTING_RULES` answers what a version-seven
 implementation could have answered any way it liked - when a sample is due, what
 a forced gap does to one, how long an outage of each declared shape lasts, what a
 consumer sees when nothing fresh arrived, and whether a publication failure is
-drawn or chosen - and the profile now declares which signal reports which state,
-at what cadence, with what bias and with what dropout. Eight was amended in place
-after its review and the ledger says so. **Every stored Draft is below 8 and
-refused execution**: T023 creates a fresh one, as T022 did.
+drawn or chosen - and the profile declares which signal reports which state, at
+what cadence, bias and dropout. Eight was amended in place after its review.
+**Every stored Draft is below 8 and refused execution**: T023 creates a fresh
+one, as T022 did.
 
-Four mechanisms carry it and `.ai/CODE_STATE.md` records each in full: the
-resumable execution **handle**, the **separate observation transform** kept so by
-two records neither of which has a field for the other's content, the
-**`DeviceObservation` that carries no true value**, and the **draw under
-`assetops-sim-rng-v1`** on v4 section 9.2's identity.
+Four mechanisms carry it - the resumable handle, the separate observation
+transform, the `DeviceObservation` carrying no true value, and the draw under
+`assetops-sim-rng-v1` - each recorded in full in `.ai/CODE_STATE.md`.
 
 **Only the leaf can implement the execution port.** `assetops_backend.main:app`
-answers `EXECUTION_PORT_NOT_COMPOSED`; **`host/lab_app.py` is the entry point for
-a build that executes**. Private artifacts live under `var/executions`.
+answers `EXECUTION_PORT_NOT_COMPOSED`; **`host/lab_app.py` executes**. Private
+artifacts live under `var/executions`.
 
 **T022 completed the reconciliation retirement**
 (`D-2026-09-22-reconciliation-panel-retirement`): the reference implementation,
