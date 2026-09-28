@@ -478,9 +478,16 @@ def reporting_inputs(
     returned to the caller as a note rather than dropped in silence: a profile
     naming a sensor the Site has not got is a fact a reader of the Lab should see.
     """
-    refuse_a_publication_profile_the_run_did_not_select(run, profile)
+    # The contract version first, and the order is not cosmetic. A run frozen
+    # under an earlier contract will ALSO name an earlier publication profile,
+    # because the two moved together - so asking about the profile first reports
+    # "this run does not determine one experiment" for a run whose real answer is
+    # "these rules are not the rules it was frozen under". The coarser, prior fact
+    # is the one a reader needs, and a browser run of this slice found the two the
+    # wrong way round.
     identity = run.deterministic_identity
     refuse_incompatible_execution(identity.profiles.execution_contract_version)
+    refuse_a_publication_profile_the_run_did_not_select(run, profile)
 
     interval = FrozenInterval(
         start_time=identity.interval.start_time,

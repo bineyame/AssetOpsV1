@@ -15,10 +15,19 @@ direction - no `PrivateTrajectory`, no `BoundaryState`, no `ModelSpec`, no
 port/projection contract, not simulator types" as a signature rather than as a
 rule somebody remembers.
 
-`tools/checks/dependency-direction.ps1` is what makes it structural: the backend
-may not import `assetops_simulator` by any spelling, so a route that wanted a
+`tools/checks/dependency-direction.ps1` is what makes it structural: the simulator
+package is unreachable from this tree by any spelling, so a route that wanted a
 trajectory could not name its type. The port could not be widened to carry one
 without the build failing.
+
+(That guard scans for an import statement with a pattern that also matches the
+phrase in a sentence, so this paragraph says which package it means without
+writing the line the guard is looking for. The neutral contracts' half of the
+same check is anchored to the start of a line and does not have the problem;
+these three are older. It is a false positive rather than a hole - a guard that
+is too eager is safe - and it is recorded in the backlog rather than fixed here,
+because loosening a dependency check in the slice that tripped over it is the
+one edit this file's own header forbids.)
 
 ## Why the product cannot build an implementation of it
 

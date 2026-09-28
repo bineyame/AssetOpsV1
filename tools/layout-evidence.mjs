@@ -251,6 +251,46 @@ const MEASURE = `(() => {
           length: (optionalPanel.textContent || "").trim().length,
           visible: optionalBox.width > 0 && optionalBox.height > 0,
         };
+  // T022: the execution panels. Read as ROWS with their own cells rather than
+  // as page text, because the whole difficulty of this screen is that private
+  // truth, a reported value and a retained reading sit inches apart. A
+  // measurement over text would hold on a screen that merged the three columns.
+  const executionStatusNode = document.querySelector("[data-execution-status]");
+  const executionStatus = executionStatusNode
+    ? executionStatusNode.getAttribute("data-execution-status")
+    : null;
+  const attributeOf = (row, attribute) => {
+    const cell = row.querySelector("[" + attribute + "]");
+    return cell ? cell.getAttribute(attribute) : null;
+  };
+  const cellText = (row, attribute) => {
+    const cell = row.querySelector("[" + attribute + "]");
+    return cell ? (cell.textContent || "").trim() : null;
+  };
+  const observationRows = Array.from(
+    document.querySelectorAll("[data-observation]"),
+  ).map((row) => ({
+    signal: row.getAttribute("data-observation"),
+    trueValue: cellText(row, "data-observation-true"),
+    reported: cellText(row, "data-observation-reported"),
+    sourceTime: cellText(row, "data-observation-source-time"),
+    quality: attributeOf(row, "data-observation-quality"),
+    outcome: attributeOf(row, "data-observation-outcome"),
+  }));
+  const privateStateRows = Array.from(
+    document.querySelectorAll("[data-private-state]"),
+  ).map((row) => ({
+    address: row.getAttribute("data-private-state"),
+    text: (row.textContent || "").trim(),
+  }));
+  const reportingGapRows = document.querySelectorAll("[data-reporting-gap]").length;
+  const signalRows = document.querySelectorAll("[data-signal]").length;
+  const sampleAttemptRows = document.querySelectorAll("[data-sample-attempt]").length;
+  // The two digests, read off the fact list they are rendered in. Sixty-four
+  // hexadecimal characters is what one looks like; a placeholder is not.
+  const digestLeaves = Array.from(document.querySelectorAll("main dd"))
+    .map((node) => (node.textContent || "").trim())
+    .filter((value) => /^[0-9a-f]{64}$/.test(value));
   const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
     scrollers,
@@ -262,6 +302,13 @@ const MEASURE = `(() => {
     privateRegionVisible,
     slots,
     runRows,
+    executionStatus,
+    observationRows,
+    privateStateRows,
+    reportingGapRows,
+    signalRows,
+    sampleAttemptRows,
+    digestLeaves,
     disclosure,
     unsupportedOptional,
     railLeftAfterAll,
@@ -461,6 +508,49 @@ const SUBMIT_RUN_SETUP = `(() => {
   if (!filled || !submit) return "controls-missing";
   if (submit.disabled) return "not-ready";
   submit.click();
+  return true;
+})()`;
+
+/**
+ * Click one named control on the Draft screen, the way a person would.
+ *
+ * The three execution controls are found by their exact labels rather than by
+ * position, so a renamed control fails loudly instead of driving whichever
+ * button happened to be third.
+ */
+const clickControl = (label) =>
+  `(() => {
+  const control = Array.from(document.querySelectorAll('main button')).find(
+    (button) => (button.textContent || '').trim() === ${JSON.stringify(label)},
+  );
+  if (!control) return 'controls-missing';
+  if (control.disabled) return 'not-ready';
+  control.click();
+  return true;
+})()`;
+
+/**
+ * Set the step size and step, which is how the owner crosses the fuel event.
+ *
+ * 104 boundaries at a fifteen-minute timestep lands the run at offset 1545:
+ * inside the shipped reporting gap [1490, 1580) and past the removal
+ * [1500, 1545). That is the instant the whole slice exists to make inspectable,
+ * so it is the instant a browser is asked to draw.
+ */
+const STEP_ACROSS_THE_FUEL_EVENT = `(() => {
+  const setNative = (prototype, element, value) => {
+    const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const size = document.getElementById('run-step-boundaries');
+  const step = Array.from(document.querySelectorAll('main button')).find(
+    (button) => (button.textContent || '').trim() === 'Step',
+  );
+  if (!size || !step) return 'controls-missing';
+  setNative(window.HTMLInputElement.prototype, size, '104');
+  if (step.disabled) return 'not-ready';
+  step.click();
   return true;
 })()`;
 
@@ -979,6 +1069,38 @@ for (const [label, width, height] of [
 // The two run detail measurements below are reached from here rather than
 // from a literal address, because a run identity is allocated per
 // installation and this script cannot know one in advance.
+// --- A Draft this build can execute ---------------------------------------
+//
+// The shipped Fuel Loss Event targets MG-001, and the MG-001 in this checkout
+// was created from a template that predates the two Foundation properties the
+// model profile binds to - so every Draft of it comes back BLOCKED, truthfully.
+// That was fine while nothing executed: the READY measurements below ran against
+// a READY Draft somebody had left in the store.
+//
+// T022 executes, and an execution needs a Draft frozen under THIS build's
+// contract and publication profile. A Draft left behind by an earlier build is
+// refused, correctly, so relying on one would measure the refusal rather than the
+// slice. This creates one through the product path, from the user's own MG-006
+// scenario - MG-006 declares both properties, so its Draft reaches READY - and
+// the inventory below then finds it as the newest READY row.
+const readySetup = await visit(
+  cdp,
+  "/simulator-lab/scenarios/fuel-loss-event-mg006/run-setup",
+  1280,
+  800,
+  "form",
+  // `.fact-list` is already on the page BEFORE the form is submitted, so
+  // waiting for it returns instantly and the create lands seconds later - which
+  // is exactly what happened the first time this ran, and the inventory below
+  // then found a Draft from an earlier build instead of this one. The summary
+  // table only exists after a Draft was created, so that is what is waited for.
+  { script: SUBMIT_RUN_SETUP, waitFor: ".data-table__scroll" },
+);
+console.log(
+  `\n=== Created a Draft for the execution measurements ===\n  ` +
+    `run setup summary drawn with ${readySetup.scrollers.length} table(s)`,
+);
+
 let readyHref = null;
 let blockedHref = null;
 
@@ -990,14 +1112,15 @@ for (const [label, width, height] of [
   const runs = await visit(cdp, "/simulator-lab/runs", width, height, "table");
   const inventory = runs.scrollers.find((s) => s.name === "runs-table-heading");
 
+  // The NEWEST of each, re-read at every visit rather than latched at the
+  // first. The inventory is newest first, so this is the Draft this run of the
+  // script created - which is the only one frozen under this build's contract
+  // and publication profile, and so the only one an execution measurement can
+  // be made against.
   readyHref =
-    readyHref ??
-    runs.runRows.find((row) => row.status === "READY")?.href ??
-    null;
+    runs.runRows.find((row) => row.status === "READY")?.href ?? readyHref;
   blockedHref =
-    blockedHref ??
-    runs.runRows.find((row) => row.status === "BLOCKED")?.href ??
-    null;
+    runs.runRows.find((row) => row.status === "BLOCKED")?.href ?? blockedHref;
 
   allPass =
     report(`Runs inventory at ${label}`, runs, [
@@ -1193,8 +1316,16 @@ for (const [state, href, expectBlockedTable] of [
               run.buttons.map((b) => b.label).join(", ") || "no button rendered",
             ]
           : [
-              "the one action on a ready draft is rendered and disabled",
-              run.buttons.length === 1 && run.buttons[0].disabled,
+              // T022 replaced the one disabled "Run this draft" control with
+              // three real ones. The claim moves with it: a closed set by NAME,
+              // and at least one of them enabled - because a ready draft whose
+              // controls were all disabled would satisfy a count and assert
+              // nothing about a Lab that can execute.
+              "a ready draft offers exactly the three execution controls, at least one enabled",
+              run.buttons.length === 3 &&
+                run.buttons.map((b) => b.label).join("|") ===
+                  "Start this run|Step|Run to the end" &&
+                run.buttons.some((b) => !b.disabled),
               run.buttons
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
                 .join(", ") || "no button rendered",
@@ -1230,6 +1361,213 @@ for (const [state, href, expectBlockedTable] of [
       ]) && allPass;
   }
 }
+
+// --- The executed run, which is what T022 is for -------------------------
+//
+// jsdom has no layout, so no suite in this repository can see any of this. It is
+// also the only place the slice's own demonstration is driven end to end through
+// real input events: start a Draft, step it across the fuel event, and run it to
+// the end, measuring what a browser actually drew at each stop.
+//
+// Every claim below is pinned to a CELL of a named row rather than to page text.
+// Private truth, the reported value and a retained reading sit inches apart on
+// this screen by construction, and a text assertion would hold on a screen that
+// merged them - which is the defect this milestone has paid for five times.
+
+const started = await visit(
+  cdp,
+  readyHref,
+  1280,
+  800,
+  "[data-execution-status]",
+  {
+    script: clickControl("Start this run"),
+    waitFor: "[data-execution-status='RUNNING']",
+  },
+);
+allPass =
+  report("Draft run started at 1280x800", started, [
+    [
+      "starting a draft leaves it RUNNING at its first boundary",
+      started.executionStatus === "RUNNING",
+      `status ${started.executionStatus}`,
+    ],
+    [
+      // Starting is not stepping. No boundary has been run, so there is no
+      // world at any instant and no sample has been taken - and the screen
+      // draws neither rather than a zeroed clock and an empty reading, which
+      // is the shape a shell that reads as a stopped runtime would have.
+      "a started run has no world and no reading yet",
+      started.privateStateRows.length === 0 &&
+        started.observationRows.length === 0,
+      `${started.privateStateRows.length} state rows, ` +
+        `${started.observationRows.length} observation rows`,
+    ],
+    [
+      // What IS drawn: what the profile declares and the document forces. Those
+      // are facts about what WOULD be reported and do not wait on a boundary.
+      "both configured reporting paths are drawn",
+      started.signalRows === 2,
+      `${started.signalRows} configured signal rows`,
+    ],
+    [
+      "the declared reporting gap is drawn",
+      started.reportingGapRows === 1,
+      `${started.reportingGapRows} gap rows`,
+    ],
+    [
+      "the page does not scroll horizontally",
+      !started.pageScrollsHorizontally,
+      `scrollWidth ${started.pageScrollWidth} vs clientWidth ${started.pageClientWidth}`,
+    ],
+  ]) && allPass;
+
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["640x700, narrow enough that the observation table cannot fit", 640, 700],
+]) {
+  // The step is driven ONCE, at the first width. The run's position lives on
+  // the server, so the second width re-measures the same instant rather than
+  // stepping again - which advanced 208 boundaries of 165, finished the run,
+  // and left the next block's control correctly disabled.
+  const stepped = await visit(
+    cdp,
+    readyHref,
+    width,
+    height,
+    "[data-observation]",
+    width === 1280
+      ? {
+          script: STEP_ACROSS_THE_FUEL_EVENT,
+          waitFor: "[data-observation-quality='STALE']",
+        }
+      : undefined,
+  );
+  const fuel = stepped.observationRows.find(
+    (row) => row.signal === "fuel-level-sensor:fuel-level",
+  );
+  const tank = stepped.privateStateRows.find(
+    (row) => row.address === "fuel-tank-volume@fuel-tank",
+  );
+
+  allPass =
+    report(`Draft run stepped into the reporting gap at ${label}`, stepped, [
+      [
+        "the fuel sensor row is drawn at all",
+        fuel !== undefined,
+        stepped.observationRows.map((r) => r.signal).join(", ") || "no rows",
+      ],
+      [
+        "the true value and the reported value are two different cells",
+        fuel !== undefined &&
+          fuel.trueValue !== null &&
+          fuel.reported !== null &&
+          fuel.trueValue !== fuel.reported,
+        fuel === undefined
+          ? "no fuel row"
+          : `true ${fuel.trueValue} vs reported ${fuel.reported}`,
+      ],
+      [
+        "the world holds 254.02 L after the removal",
+        tank !== undefined && tank.text.includes("254.02"),
+        tank === undefined ? "no tank row" : tank.text,
+      ],
+      [
+        "the reading is the one taken before the gap opened, marked stale",
+        fuel !== undefined &&
+          fuel.quality === "STALE" &&
+          fuel.outcome === "SUPPRESSED_BY_GAP" &&
+          fuel.reported.startsWith("373.52"),
+        fuel === undefined
+          ? "no fuel row"
+          : `${fuel.quality}/${fuel.outcome}, reported ${fuel.reported}`,
+      ],
+      [
+        "the retained reading carries its own source time, not this instant",
+        fuel !== undefined &&
+          fuel.sourceTime !== null &&
+          fuel.sourceTime.startsWith("2026-09-22T00:45"),
+        fuel === undefined ? "no fuel row" : `source ${fuel.sourceTime}`,
+      ],
+      [
+        "the newest sample attempts are drawn",
+        stepped.sampleAttemptRows > 0,
+        `${stepped.sampleAttemptRows} attempts`,
+      ],
+      [
+        "the page does not scroll horizontally",
+        !stepped.pageScrollsHorizontally,
+        `scrollWidth ${stepped.pageScrollWidth} vs clientWidth ${stepped.pageClientWidth}`,
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        stepped.scrollers
+          .filter((s) => s.overflows)
+          .every((s) => s.scrolledBy > 0),
+        stepped.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              stepped.scrollers.some((s) => s.overflows),
+              `${stepped.scrollers.filter((s) => s.overflows).length} of ${stepped.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
+
+const finished = await visit(
+  cdp,
+  readyHref,
+  1280,
+  800,
+  "[data-execution-status]",
+  {
+    script: clickControl("Run to the end"),
+    waitFor: "[data-execution-status='COMPLETED']",
+  },
+);
+allPass =
+  report("Draft run run to the end at 1280x800", finished, [
+    [
+      "the run reached a terminal outcome",
+      finished.executionStatus === "COMPLETED",
+      `status ${finished.executionStatus}`,
+    ],
+    [
+      "both digests are drawn as real sixty-four character values",
+      finished.digestLeaves.length >= 3,
+      `${finished.digestLeaves.length} digest-shaped values`,
+    ],
+    [
+      "the tank is at its capacity after the bounded delivery",
+      finished.privateStateRows.some(
+        (row) =>
+          row.address === "fuel-tank-volume@fuel-tank" &&
+          row.text.includes("500"),
+      ),
+      finished.privateStateRows.map((r) => r.text).join(" | ") || "no rows",
+    ],
+    [
+      "a terminal run offers no enabled control",
+      finished.buttons.length > 0 && finished.buttons.every((b) => b.disabled),
+      finished.buttons
+        .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
+        .join(", ") || "no button rendered",
+    ],
+    [
+      "the page does not scroll horizontally",
+      !finished.pageScrollsHorizontally,
+      `scrollWidth ${finished.pageScrollWidth} vs clientWidth ${finished.pageClientWidth}`,
+    ],
+  ]) && allPass;
 
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
 allPass =

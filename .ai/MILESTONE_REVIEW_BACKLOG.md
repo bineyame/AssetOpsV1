@@ -891,6 +891,117 @@ rebuilt from the tests it points at, and the packet records what it measured.
 *What would change the answer:* a guard probe script becoming something a later
 slice has to re-run rather than re-derive. If it does, it stops being local-only.
 
+## Carried from T022
+
+Six, and none of them is a defect in what T022 built: five are facts about
+the tree it ran against and one is a guard that is too eager.
+
+### The shipped scenario cannot reach READY against the user's own MG-001
+
+`var/sites/mg-001.yaml` was created from a template that predates the two
+Foundation properties `MINIMAL_FUEL_TANK_MODEL` binds to, so every Draft of the
+shipped Fuel Loss Event against it comes back `BLOCKED` on
+`INITIAL_VALUE_NOT_RESOLVED` for `fuel-tank-capacity@fuel-tank` and
+`generator-specific-fuel-consumption@generator`. That is the truthful answer, and
+`backend/tests/test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation`
+has asserted it since T020A.
+
+It became visible in T022 because the browser measurement now needs a Draft this
+build can EXECUTE, and one created through the product path from the shipped
+scenario is blocked. The layout tool therefore creates its READY Draft from the
+user's own `fuel-loss-event-mg006` document, whose target site declares both
+properties.
+
+*Safe to carry* because nothing is wrong: a Site created from an older template
+legitimately lacks a property a later template added, and
+`.ai/ACTIVE_CONTEXT.md` says not to mutate existing fixtures. Both suites and the
+browser evidence reach a READY execution through the product path.
+
+*What would change the answer:* a demo that has to run the SHIPPED document end
+to end in front of somebody, which would need an MG-001 created from the current
+template - a new Site, not an edit to the existing one.
+
+### The layout tool now writes four Drafts per run, not three
+
+Three `BLOCKED` MG-001 Drafts from the run-setup measurement at three widths, plus
+one `READY` MG-006 Draft the execution measurements need. `var/runs` grows by four
+per invocation and nothing clears it.
+
+*Safe to carry* because it has been true since T019 at three, the run store is
+gitignored user data, and the create path is measured rather than mocked - which
+is the reason the tool writes at all. The run store's O(n) create is already
+carried separately and this makes it grow faster.
+
+*What would change the answer:* the bounded fix that entry asks for, which should
+now size itself against four per run rather than three.
+
+### The dependency-direction guard's three oldest patterns match prose
+
+`tools/checks/dependency-direction.ps1` scans for an import statement with
+`(?:^|\s)(?:from|import)\s+[^\s]*assetops_simulator`, which also matches the words
+in an ordinary sentence. A docstring in `backend/assetops_backend/runs/`
+`execution_ports.py` explaining that the backend cannot import the simulator
+failed the check. The neutral-contracts half of the same file is anchored to the
+start of a line and does not have the problem; the three older patterns are not.
+
+*Safe to carry* because it is a false positive rather than a hole - a guard that is
+too eager refuses honest prose and never admits a real import - and because the
+sentence was reworded instead. Loosening a dependency check inside the slice that
+tripped over it is the one edit that file's own header forbids, so it was not done
+here.
+
+*What would change the answer:* nothing about safety. It is a five-character fix
+(anchor the three patterns with `^\s*`, as the contracts patterns already are) and
+it belongs in a slice that is not the one being unblocked by it.
+
+### `var/executions` is a writable root with no configuration domain
+
+T022 persists a private execution artifact per run under `var/executions`, written
+by `host/lab_execution.py`. It is deliberately NOT registered in
+`tools/checks/configuration-persistence.ps1`: a trajectory is private simulator
+truth rather than configuration, and the product having a store of private truth
+would put a filing cabinet inside the truth barrier - a later slice would find
+"the persisted trajectory" in `assetops_backend` and be right to use it.
+
+*Safe to carry* because the leaf owns it, nothing imports the leaf, the directory
+is inside the already-gitignored `var/`, and the product reaches it only through a
+port that speaks `LabProjection`.
+
+*What would change the answer:* a second writer, or any product module learning
+the path. Either would mean the seam has moved and the guard should follow it.
+
+### The run setup screen does not show the reporting paths a profile declares
+
+`LAB_PUBLICATION_PROFILE` now declares which device signals report which state,
+at what cadence, with what bias and with what dropout. The run-profiles payload
+still carries only the blanket cadence, the source and gateway identities and the
+supported reporting states, so somebody choosing a publication profile cannot see
+what it will make the sensors do until the run is executing.
+
+*Safe to carry* because the declared paths ARE shown, on the Draft's own execution
+panel, with the values the run froze - which is the screen where they decide
+something. This is a convenience on the chooser rather than a missing fact.
+
+*What would change the answer:* a second publication profile. With one to choose
+from, a chooser that omits the difference between them omits nothing.
+
+### Private state shows stocks and not interval measurements
+
+`LabProjection.private_state` carries the stocks a run holds and not the interval
+measurements the kernel accumulated. A stock carries the unit the RUN froze for it;
+an interval measurement's unit is the model's - the fuel pack accumulates
+kilowatt-hours - and the composition leaf would have to name it on the pack's
+behalf.
+
+*Safe to carry* because the interval truth is not lost: it appears in the
+observation row beside what was reported, in the unit the publication profile
+declared for that signal, and `host/tests/test_lab_execution.py` asserts the
+11.25 kWh the kernel measured and the 45 kW the controller published.
+
+*What would change the answer:* a second model, or a kernel measurement nothing
+reports on. Either would mean the Lab is hiding a quantity rather than showing it
+one layer along, and the model should then declare the unit.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

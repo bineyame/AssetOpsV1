@@ -308,7 +308,17 @@ export function RunFrame({
             <p>
               <Badge tone="lifecycle">{projection.status}</Badge>
             </p>
-            <p data-execution-statement>{projection.statement}</p>
+            {/*
+              The status on an attribute as well as in the badge, so a browser
+              measurement can wait for a run to reach one. A tool that waited for
+              text would be matching the sentence rather than the state.
+            */}
+            <p
+              data-execution-statement
+              data-execution-status={projection.status}
+            >
+              {projection.statement}
+            </p>
             <FactList>
               <Fact term="Simulated time">{projection.simulation_time}</Fact>
               <Fact term="Offset from the interval start">
@@ -534,8 +544,13 @@ export function RunFrame({
                   <td data-observation-source-time>
                     {row.reported_source_time ?? "no reading"}
                   </td>
-                  <td data-observation-quality>{row.quality}</td>
-                  <td className="cell-secondary" data-observation-outcome>
+                  <td data-observation-quality={row.quality}>{row.quality}</td>
+                  <td
+                    className="cell-secondary"
+                    data-observation-outcome={
+                      row.due ? row.outcome ?? "DUE" : "NOT_DUE"
+                    }
+                  >
                     {row.due ? row.outcome ?? "due" : "not due"}
                     {row.suppression_reason === null ? null : (
                       <span className="cell-note">

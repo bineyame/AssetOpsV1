@@ -3493,3 +3493,118 @@ exists.
 - **The catalog fragility above has no owner.**
 - Guard probes: `.agent/T021A-guard-probes.py`, 8 probes, all CAUGHT, baseline
   measured green before any mutation.
+
+## T022 - Execute a Draft in the Lab, and inspect generated device observations
+
+The first visible slice since T020. Before it, the kernel existed, executed and
+was confirmed by three independent reviewers, and nobody outside a test had seen
+it run. After it, the owner starts a Draft in the gated Lab, steps it across the
+fuel event, and reads three things that used to be one: what the world holds,
+what a device reported, and the fact that nothing reported at all.
+
+### The demonstration, in numbers, because it is what the slice is for
+
+The shipped reporting gap is `[1490, 1580)` and the removal `[1500, 1545)` sits
+entirely inside it. At offset 1545 the Lab shows:
+
+- true value **254.02 L** - the tank after the removal;
+- reported value **373.52 L** - the fuel sensor's reading from offset 1485,
+  half a litre below the 374.02 L the world held there;
+- source sample time **2026-09-22T00:45:00Z**, which is not this instant;
+- quality **STALE**, outcome **SUPPRESSED_BY_GAP**, and the authored entry that
+  did it named on the row.
+
+The two columns disagree by exactly the 120 L the gap hides. That is asserted in
+`host/tests/test_lab_execution.py` and measured in a real browser by
+`tools/layout-evidence.mjs`.
+
+### What it settled in code
+
+- **`EXECUTION_CONTRACT_VERSION` is 8.** `REPORTING_RULES` in the contract
+  answers four questions a version-seven implementation was free to answer any
+  way it liked: when a sample is due, what a forced gap does to one, what a
+  consumer sees when nothing fresh arrived, and whether a publication failure is
+  drawn or chosen. Two of them are executable beside their sentences -
+  `sample_due_at` and `cadence_is_expressible` - for the reason `window-overlap`
+  and `window-ramp` are.
+- **The publication profile is version 2**, and the two moves are one move. It
+  now declares `device_signals`: which configured signal reports which world
+  state, at what cadence, with what bias and with what dropout. A run freezes
+  which publication profile answered, so a run of an unchanged document freezes
+  a different identity under eight than under seven - which is
+  `D-2026-09-22-contract-version-scope`'s own test.
+- **A kernel execution is a handle.** `Execution` advances a boundary at a time
+  with the boundaries so far readable mid-flight; `execute` is that handle
+  advanced to the end and returns the trajectory it always did. Every scrap of
+  state was already on one mutable object, so this changes when a caller may
+  look rather than what any boundary holds - and five batching patterns are
+  asserted to produce one content digest.
+- **The observation transform is a separate component**, in
+  `simulator/assetops_simulator/observation/`. It is handed the boundaries and a
+  `FrozenReportingInputs` with no field a stock could arrive in; the kernel is
+  handed a `FrozenWorldInputs` with no field a cadence could. Criterion 8 -
+  changing a cadence, a bias or a dropout changes the reports and not the world -
+  is therefore a fact about two signatures rather than a rule a caller remembers.
+- **A `DeviceObservation` carries no true value**, deliberately. Pairing truth
+  with a reading happens once, in `LabProjection`, built by the composition leaf
+  and consumed by a gated surface. That is the exception to the truth barrier
+  stated as one record rather than left as a habit.
+- **The first stochastic mechanism draws under `assetops-sim-rng-v1`**, the
+  domain v4 reserved and `identity.py` declined to spell until something consumed
+  it. A draw is BLAKE2b-256 over the seed, a stream name derived from the device
+  and signal, and the fields that locate it - never over how many draws came
+  before. That is what makes "adding an unrelated stream changes no existing
+  stream" structural rather than a hope about call order.
+- **The execution port is the backend's, and only the leaf can implement one.**
+  `runs/execution_ports.py` speaks `SimulationRun` in and `LabProjection` out.
+  `host/lab_app.py` is the entry point for a build that executes; run it from
+  `host/` with `python -m uvicorn lab_app:app`. `assetops_backend.main:app` still
+  serves everything else and answers `PORT_NOT_COMPOSED` on the four execution
+  routes, which keeps the served route set a function of the gate alone.
+- **Private execution artifacts are the leaf's**, under `var/executions`, one
+  file per run. A terminal run reloads from its artifact; a run recorded as
+  RUNNING with no live handle reads back as `INTERRUPTED`, because its world
+  lived in a process that has ended and re-executing it would be a second
+  trajectory under the first one's identity.
+- **Every exact quantity leaves the backend as text.** `EXACT_RATIONAL` never
+  rounds, and a payload carrying a binary float would be the one place the policy
+  stopped holding. A test walks the whole payload and fails on a float anywhere.
+- **Criterion 14 is done.** `reconcile_reported_observations`,
+  `ObservationReconciliation`, `RECONCILIATION_STATES`, its seven reason strings,
+  `unaccounted_observations`, `declared_bounds` and
+  `IMPLICIT_LOWER_BOUND_DIMENSIONS` are gone with the scenario detail panel that
+  was their last product-path caller. Nothing survived the retirement. The
+  frozen run's own `declared_bounds` - a tuple of `FrozenDeclaredBound` on the
+  deterministic identity - is a different thing with the same name, is
+  load-bearing, and is untouched.
+
+### One defect the browser found, which no suite could
+
+`reporting_inputs` asked whether the run had selected this publication profile
+BEFORE asking whether it was frozen under this contract version. A run from an
+earlier build fails both, and it was reporting the narrower one: "this run does
+not determine one experiment" for a run whose real answer is "these rules are not
+the rules it was frozen under". Every suite builds its runs in process at the
+current version, so none of them had a run that failed both. The coarse, prior
+fact is asked first now.
+
+### What this leaves open
+
+- **The shipped scenario cannot reach READY against the MG-001 in `var/sites`**,
+  which predates the two Foundation properties the model profile binds to. Both
+  suites and the browser evidence reach a READY execution through the product
+  path from the user's own `fuel-loss-event-mg006` document instead. Backlog.
+- **`var/runs` grows by four per layout-evidence run**, not three: three BLOCKED
+  MG-001 Drafts from the run-setup measurement at three widths, plus the READY
+  MG-006 Draft the execution measurements need.
+- **The run setup screen does not show a publication profile's declared reporting
+  paths.** They are on the Draft's own execution panel, which is the screen where
+  they decide something, and there is one profile to choose from.
+- **`private_state` carries stocks and not interval measurements**, because a
+  stock's unit is the run's and an interval measurement's is the model's. The
+  interval truth is in the observation row, in the unit the profile declared.
+- **The dependency-direction guard's three oldest patterns match prose.** A
+  docstring saying the backend cannot import the simulator failed the check. It
+  was reworded rather than fixed, because loosening a dependency check inside the
+  slice it blocks is the one edit that file forbids. Backlog.
+- Guard probes: `.agent/T022-guard-probes.py`.
