@@ -19,10 +19,13 @@ the user's own review then resequenced it under
 reviews and the record in `.ai/CODE_STATE.md` carry the detail; three artifact
 layouts exist and each reads back as the result it is.
 
-**T022A is active**, raised from the owner's own session: stepping the first
-real run works and every value is right, but a single-run read parses all 216
-stored records, so each interaction costs nine seconds. **The owner's review of
-T022 waits for T022A** and happens with T022A's own.
+**T022A is built and in review.** A single-run read reads one document: at 216
+records the run detail went from 9.3s to 0.08s and a Lab step from 9.5s to
+0.12s, measured through `host/lab_app.py` and in a browser. **The inventory was
+measured and deliberately left alone, and it is not acceptable**: ~41ms per
+record, 99% of it the pure-Python YAML scanner, so it passed one second at about
+24 records. The bounded fix trades a parser, so T022A reports it rather than
+taking it. **The owner's review of T022 waits for T022A** and happens with its own.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
@@ -71,15 +74,13 @@ executes. Three editable installs - see `README.md`.
 The lessons those slices paid for are in `.ai/CODE_STATE.md` beside the slice
 that paid for each. T022 adds one with four instances: **a check written from the
 code rather than from the contract, or from the surface a user meets, does not
-fail when the code is wrong.** A test recomputing the implementation's own hash
-payload; a test one layer below the HTTP composition; tests covering only the
-shape the shipped document declares; a suite whose fixtures are all at the
-current version.
+fail when the code is wrong.** T022A adds the measuring half: a benchmark on a
+ten-record fixture cannot see a cost that only appears at two hundred.
 
 Carried, not lost. `.ai/MILESTONE_REVIEW_BACKLOG.md` is the list and T022 adds
 six. Five inline `float(value)` overflow sites are still open, the run store's
-O(n) create wants a bounded fix before T027, and `var/runs` now grows by FOUR per
-layout-evidence run rather than three.
+O(n) create still wants a bounded fix before T027, and `var/runs` grows by FOUR
+per layout-evidence run.
 
 **Next task: T023**, then T024 onward per `tasks/README.md`. None of the
 resequencing touches the starter path. **T022 requires a user checkpoint**
@@ -96,10 +97,9 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **While T022 is `in_review` its own file is the active one**:
-   `tasks/T022-lab-execution-and-device-observation.md`, with
-   `.agent/T022-review-packet.md`, `.agent/T022-codex-review.md` and the two probe
-   suites. Once it moves to `tasks/completed/`, read `tasks/T023-*.md`.
+1. **`tasks/T022A-run-store-read-cost.md` with `.agent/T022A-review-packet.md`**,
+   then `tasks/T022-lab-execution-and-device-observation.md` and its packet and
+   reviews. Once both move to `tasks/completed/`, read `tasks/T023-*.md`.
 2. `.ai/CODE_STATE.md`: the T022 entry, then T021A, T021 and T020B. Completed
    tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
