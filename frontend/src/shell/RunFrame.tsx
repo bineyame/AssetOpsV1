@@ -739,6 +739,7 @@ export function RunFrame({
               data-stage-statement
               data-stage-status={stage.stage.status}
               data-stage-count={stage.stage.envelopes.length}
+              data-stage-execution={stage.stage.execution_status}
             >
               {stage.stage.statement}
             </p>
