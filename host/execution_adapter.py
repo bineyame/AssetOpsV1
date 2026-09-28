@@ -543,6 +543,13 @@ def reporting_inputs(
                 != components[(device_id, signal_id)]
             ):
                 continue
+            # `timing_shape` travels, and its absence was a defect rather than a
+            # simplification. Without it every missing duration read as the
+            # interval's end, so a POINT condition at offset 1500 silenced 1500,
+            # 1515 and 2400 alike - a run-long outage where the document declared
+            # an instant. `FrozenReportingPathCondition`'s own docstring says its
+            # window was frozen for this consumer; dropping the shape on the way
+            # here discarded part of what had been frozen.
             gaps.append(
                 ReportingPathWindow(
                     event_id=condition.event_id,
@@ -550,9 +557,11 @@ def reporting_inputs(
                     device_id=device_id,
                     signal_id=signal_id,
                     address=signal.address,
+                    timing_shape=condition.timing_shape,
                     offset_minutes=condition.offset_minutes,
                     duration_minutes=condition.duration_minutes,
                     interval_minutes=interval.duration_minutes,
+                    timestep_minutes=interval.timestep_minutes,
                 )
             )
 

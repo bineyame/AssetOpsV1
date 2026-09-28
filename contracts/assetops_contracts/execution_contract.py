@@ -286,6 +286,37 @@ from fractions import Fraction
 #: a test asserts the trajectory it returns is identical to the one a sequence of
 #: single steps produces.
 #:
+#: ## Eight was amended in place after its review, and that is recorded here
+#:
+#: An independent review returned three defects, and two of them changed what a
+#: conforming implementation does. They ride on eight rather than spending a
+#: nine, and this paragraph is what stops the amendment being invisible after
+#: the merge - the same doctrine versions two, five and six used, and the same
+#: condition: **eight has never been published.** `main` is at seven and no run
+#: outside this branch carries eight.
+#:
+#: - **The stochastic draw's identity was not the one v4 section 9.2 names.** It
+#:   hashed the domain, the stream, the seed and whatever the caller found
+#:   convenient to key on - in practice an address and an offset in minutes -
+#:   where the specification names the domain, the seed, the stream name, the
+#:   step index and the ordinal, in that order. It was deterministic and
+#:   domain-separated and it was a different contract, which is a narrowing of
+#:   the space a conforming implementation may occupy and would move a number
+#:   under the policy above. `a-publication-failure-is-drawn-not-chosen` now
+#:   states the five fields, and `draw_fraction` has no variadic parameter a
+#:   sixth could arrive through.
+#: - **A reporting-path condition's declared SHAPE was discarded.** Every absent
+#:   duration read as the interval's end, so a POINT condition at an instant
+#:   became an outage lasting the rest of the run and POINT and INTERVAL_WIDE
+#:   collapsed into one meaning.
+#:   `reporting-path-conditions-occupy-time-by-their-shape` states what each of
+#:   the three shapes covers, which is a space two conforming implementations
+#:   could otherwise have split on.
+#:
+#: The third defect moved nothing: a cadence this run cannot express was already
+#: refused by the rule and by the code, and what was wrong was that the refusal
+#: escaped an HTTP boundary untranslated. A translation is not a rule.
+#:
 #: Once this merges, the next narrowing is a nine.
 EXECUTION_CONTRACT_VERSION = 8
 
@@ -1039,6 +1070,28 @@ REPORTING_RULES: tuple[ReportingRule, ...] = (
         ),
     ),
     ReportingRule(
+        rule_id="reporting-path-conditions-occupy-time-by-their-shape",
+        display_name="How long a forced reporting outage lasts",
+        statement=(
+            "A reporting-path condition occupies time by the SHAPE the document "
+            "declared, and the three shapes are the three every other entry has. "
+            "A WINDOW covers its offset up to but not including its offset plus "
+            "its declared length. An INTERVAL_WIDE entry holds until the run "
+            "interval ends, which `interval-wide-span` already says of every "
+            "interval-wide entry. A POINT covers the one step whose half-open "
+            "span contains its offset - `point-applied-once`, unchanged - and "
+            "because a cadence is a whole multiple of the timestep that span "
+            "holds at most one due sample, which is what makes a point outage an "
+            "instant rather than a stretch. **A shape a conforming "
+            "implementation does not read is a shape it gets wrong**: reading "
+            "every absent duration as the interval's end collapses POINT and "
+            "INTERVAL_WIDE into one meaning and turns a declared instant into a "
+            "run-long outage, which is a different experiment from the one the "
+            "document describes. A WINDOW declaring no length is refused rather "
+            "than read as either."
+        ),
+    ),
+    ReportingRule(
         rule_id="a-retained-reading-carries-its-own-time",
         display_name="What a consumer sees when nothing fresh arrived",
         statement=(
@@ -1059,13 +1112,19 @@ REPORTING_RULES: tuple[ReportingRule, ...] = (
         display_name="A dropped publication",
         statement=(
             "Where a publication profile declares that a share of a signal's due "
-            "samples do not publish, which samples those are is DRAWN from the "
-            "run's seed under the reserved stochastic domain "
-            "`assetops-sim-rng-v1`, keyed by a stream name derived from the "
-            "device and the signal and by the instant. It is therefore "
+            "samples do not publish, which samples those are is DRAWN rather "
+            "than chosen, and the draw's identity is the one v4 section 9.2 "
+            "names: the reserved stochastic domain `assetops-sim-rng-v1`, the "
+            "run's seed, a stream name, the step index, and the draw's ordinal "
+            "within that step - in that order, over a canonical length-prefixed "
+            "encoding. **Those fields and no others.** An address, a timestamp, "
+            "or anything else a particular mechanism finds convenient to key on "
+            "would be a different draw contract wearing the same domain, and a "
+            "test that recomputed whatever the implementation chose would "
+            "establish determinism rather than conformance. It is therefore "
             "reproducible - the same run drops the same samples in every process "
-            "- and independent: a draw is a function of its own arguments and not "
-            "of how many draws preceded it, so introducing a second stochastic "
+            "- and independent: a draw is a function of those fields and not of "
+            "how many draws preceded it, so introducing a second stochastic "
             "mechanism changes no existing stream's draws. A sequential "
             "generator would satisfy the first and break the second, which is "
             "why the family and the keying are declared rather than left to an "

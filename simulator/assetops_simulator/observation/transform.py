@@ -154,12 +154,19 @@ def _attempt(
             ),
         )
 
+    # v4 section 9.2's identity: seed, stream name, step index, ordinal. The
+    # stream name already identifies the signal - `dropout:<device>:<signal>`,
+    # which is the shape of the specification's own `sensor-noise:TANK-001:level`
+    # - so the address is not a field of the draw, and since this function was
+    # last reviewed there is nowhere to pass one.
+    #
+    # The ordinal is zero because this mechanism makes exactly one draw per
+    # stream per step. A second draw at one step would be one.
     if draw_selects(
         reporting.seed,
         signal.dropout_stream,
         signal.dropout_per_thousand,
-        signal.address,
-        boundary.offset_minutes,
+        boundary.step_index,
     ):
         return observation(
             "DROPPED",

@@ -454,18 +454,28 @@ describe("simulator lab gate: enabled", () => {
     ).toBeInTheDocument();
   });
 
-  it.each(SIMULATOR_LAB_SHELL_URLS)("serves an empty Simulator Lab shell at %s", (url) => {
+  it.each(SIMULATOR_LAB_SHELL_URLS)("serves the Simulator Lab shell at %s", (url) => {
     renderAt(url, ENABLED);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
     ).toBeInTheDocument();
+    // "No simulator run exists" and "run execution is not implemented yet"
+    // were asserted here until T022 made both false. What the landing page
+    // says now is what the workspace is AND what it still is not, and the
+    // second half is the half worth guarding.
     expect(
-      screen.getByRole("heading", { level: 2, name: "No simulator run exists" }),
+      screen.getByRole("heading", { level: 2, name: "What this workspace is" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/run execution is not implemented yet/i),
+      screen.getByText(/writes to any site/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Simulator truth is never product evidence/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/run execution is not implemented/i),
+    ).toBeNull();
   });
 
   /**

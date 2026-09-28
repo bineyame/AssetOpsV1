@@ -59,6 +59,10 @@ const GAPS: RunExecution["reporting_gaps"] = [
     device_id: "fuel-level-sensor",
     signal_id: "fuel-level",
     address: "fuel-tank-volume@fuel-tank",
+    // The shape the document declared, beside the span it resolved to. A POINT
+    // and a WINDOW can resolve to the same offsets at some timesteps, and a
+    // fixture that carried only the offsets would render them identically.
+    timing_shape: "WINDOW",
     offset_minutes: 1490,
     end_offset_minutes: 1580,
   },

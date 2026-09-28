@@ -70,6 +70,29 @@ def boundary(index: int, offset: int, **changes) -> BoundaryState:
     return BoundaryState(**fields)
 
 
+def window(**changes) -> ReportingPathWindow:
+    """One reporting outage, with its shape named rather than inferred.
+
+    The shape is a required field since T022's review: reading an absent duration
+    as the interval's end collapsed POINT and INTERVAL_WIDE into one meaning, so
+    every construction here says which of the three it is.
+    """
+    fields = dict(
+        event_id="a-gap",
+        condition_address="fuel-level-reporting-availability@tank",
+        device_id="a-sensor",
+        signal_id="a-signal",
+        address=TANK,
+        timing_shape="WINDOW",
+        offset_minutes=0,
+        duration_minutes=30,
+        interval_minutes=60,
+        timestep_minutes=15,
+    )
+    fields.update(changes)
+    return ReportingPathWindow(**fields)
+
+
 def inputs(signals, gaps=(), timestep: int = 15) -> FrozenReportingInputs:
     return FrozenReportingInputs(
         run_id="run-0",
@@ -237,19 +260,10 @@ class TestWhatTheTransformReads:
         """
         first = spec(device_id="sensor-one")
         second = spec(device_id="sensor-two")
-        window = ReportingPathWindow(
-            event_id="a-gap",
-            condition_address="fuel-level-reporting-availability@tank",
-            device_id="sensor-one",
-            signal_id="a-signal",
-            address=TANK,
-            offset_minutes=0,
-            duration_minutes=30,
-            interval_minutes=60,
-        )
 
         published = generate_observations(
-            (boundary(0, 0),), inputs((first, second), (window,))
+            (boundary(0, 0),),
+            inputs((first, second), (window(device_id="sensor-one"),)),
         )
         by_device = {item.device_id: item.outcome for item in published}
 
@@ -259,22 +273,13 @@ class TestWhatTheTransformReads:
         }
 
     def test_a_window_is_half_open_at_both_ends(self) -> None:
-        window = ReportingPathWindow(
-            event_id="a-gap",
-            condition_address="fuel-level-reporting-availability@tank",
-            device_id="a-sensor",
-            signal_id="a-signal",
-            address=TANK,
-            offset_minutes=15,
-            duration_minutes=30,
-            interval_minutes=60,
-        )
+        outage = window(offset_minutes=15, duration_minutes=30)
 
-        assert window.covers(15) is True
-        assert window.covers(44) is True
-        assert window.covers(45) is False
-        assert window.covers(14) is False
-        assert window.end_offset_minutes == 45
+        assert outage.covers(15) is True
+        assert outage.covers(44) is True
+        assert outage.covers(45) is False
+        assert outage.covers(14) is False
+        assert outage.end_offset_minutes == 45
 
     def test_an_interval_wide_condition_runs_to_the_end_of_the_interval(
         self,
@@ -284,41 +289,64 @@ class TestWhatTheTransformReads:
         Stated here because the alternative reading - a window of zero length -
         would silence nothing at all while looking like a declared gap.
         """
-        window = ReportingPathWindow(
-            event_id="a-gap",
-            condition_address="fuel-level-reporting-availability@tank",
-            device_id="a-sensor",
-            signal_id="a-signal",
-            address=TANK,
-            offset_minutes=0,
-            duration_minutes=None,
-            interval_minutes=60,
+        outage = window(timing_shape="INTERVAL_WIDE", duration_minutes=None)
+
+        assert outage.end_offset_minutes == 60
+        assert outage.covers(0) is True
+        assert outage.covers(59) is True
+        # Half-open at the far end too: the interval excludes its own end, so the
+        # boundary at 60 is outside the outage and its sample publishes.
+        assert outage.covers(60) is False
+
+    def test_a_point_covers_the_step_it_belongs_to_and_no_more(self) -> None:
+        """`point-applied-once`, as the outage's own span.
+
+        The shape was dropped on the way to this record until T022's review, so
+        an absent duration read as the interval's end and a declared instant
+        became a run-long outage. A POINT at offset 20 belongs to the step
+        `[15, 30)` at a fifteen-minute timestep, and covers that and nothing else.
+        """
+        outage = window(
+            timing_shape="POINT", offset_minutes=20, duration_minutes=None
         )
 
-        assert window.end_offset_minutes == 60
-        assert window.covers(59) is True
-        assert window.covers(60) is False
+        assert outage.start_offset_minutes == 15
+        assert outage.end_offset_minutes == 30
+        assert outage.covers(15) is True
+        assert outage.covers(29) is True
+        assert outage.covers(30) is False
+        assert outage.covers(14) is False
+
+    def test_the_three_shapes_resolve_to_three_different_spans(self) -> None:
+        """One offset, three declarations, three answers.
+
+        The defect was that two of these three agreed. Asserting each separately
+        would not have caught it; asserting that they differ is what does.
+        """
+        at_twenty = {
+            shape: window(
+                timing_shape=shape,
+                offset_minutes=0 if shape == "INTERVAL_WIDE" else 20,
+                duration_minutes=30 if shape == "WINDOW" else None,
+            )
+            for shape in ("POINT", "WINDOW", "INTERVAL_WIDE")
+        }
+        spans = {
+            shape: (outage.start_offset_minutes, outage.end_offset_minutes)
+            for shape, outage in at_twenty.items()
+        }
+
+        assert spans["POINT"] == (15, 30)
+        assert spans["WINDOW"] == (20, 50)
+        assert spans["INTERVAL_WIDE"] == (0, 60)
+        assert len(set(spans.values())) == 3
 
     def test_a_retained_reading_is_the_newest_one_at_or_before_the_instant(
         self,
     ) -> None:
         published = generate_observations(
             (boundary(0, 0), boundary(1, 15), boundary(2, 30)),
-            inputs(
-                (spec(),),
-                (
-                    ReportingPathWindow(
-                        event_id="a-gap",
-                        condition_address="x@tank",
-                        device_id="a-sensor",
-                        signal_id="a-signal",
-                        address=TANK,
-                        offset_minutes=15,
-                        duration_minutes=30,
-                        interval_minutes=60,
-                    ),
-                ),
-            ),
+            inputs((spec(),), (window(offset_minutes=15, duration_minutes=30),)),
         )
 
         fresh = reported_reading(published, spec(), 0)

@@ -71,6 +71,7 @@ from assetops_contracts.observation import (
     DeviceSignalSpec,
     FrozenReportingInputs,
     ReportingPathWindow,
+    ReportingResolutionUnrepresentable,
     observation_series_digest,
 )
 from assetops_simulator.kernel.execute import Execution, start
@@ -421,9 +422,15 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
                 "device_id": window.device_id,
                 "signal_id": window.signal_id,
                 "address": window.address,
+                # The SHAPE, persisted. An artifact that kept only the offset and
+                # the duration could not say whether an absent duration meant an
+                # instant or the rest of the run, which is the collapse this
+                # field exists to prevent.
+                "timing_shape": window.timing_shape,
                 "offset_minutes": window.offset_minutes,
                 "duration_minutes": window.duration_minutes,
                 "interval_minutes": window.interval_minutes,
+                "timestep_minutes": window.timestep_minutes,
             }
             for window in projection.reporting_gaps
         ],
@@ -570,6 +577,7 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                 device_id=str(row["device_id"]),
                 signal_id=str(row["signal_id"]),
                 address=str(row["address"]),
+                timing_shape=str(row["timing_shape"]),
                 offset_minutes=int(row["offset_minutes"]),
                 duration_minutes=(
                     None
@@ -577,6 +585,7 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                     else int(row["duration_minutes"])
                 ),
                 interval_minutes=int(row["interval_minutes"]),
+                timestep_minutes=int(row["timestep_minutes"]),
             )
             for row in document["reporting_gaps"]
         ),
@@ -735,8 +744,22 @@ class HostLabExecution:
             return self._locks.setdefault(run_id, threading.Lock())
 
     def _reporting_for(self, run: SimulationRun) -> FrozenReportingInputs:
+        """The reporting inputs, or a typed refusal, and never a raw exception.
+
+        **Every way this can fail is translated here, the cadence check
+        included.** It used to be called separately in `start`, outside any
+        translation, so a Draft whose timestep the fuel sensor's cadence does not
+        divide - `timestep_minutes=30`, an input anybody would try - reached
+        READY and then returned HTTP 500 on Start. The refusal's numeric
+        explanation had already been written and never reached the user.
+
+        The check belongs here rather than beside the call site because the
+        object it is about is built here: a caller holding a
+        `FrozenReportingInputs` should be holding one this run can express, and
+        the only way to make that true is to refuse before returning it.
+        """
         try:
-            return reporting_inputs(run, self._publication_profile)
+            reporting = reporting_inputs(run, self._publication_profile)
         except ExecutionContractIncompatible as incompatible:
             raise LabControlRefused(
                 "CONTRACT_INCOMPATIBLE", run.run_id
@@ -745,6 +768,17 @@ class HostLabExecution:
             raise LabControlRefused(
                 "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id
             ) from broken
+
+        try:
+            reporting.refuse_a_cadence_the_run_cannot_express()
+        except ReportingResolutionUnrepresentable as unrepresentable:
+            # The exception's own message names the signal and the two numbers,
+            # and it is carried through as the refusal's detail rather than
+            # replaced by a sentence that could not know them.
+            raise LabControlRefused(
+                "CADENCE_NOT_EXPRESSIBLE", run.run_id, str(unrepresentable)
+            ) from unrepresentable
+        return reporting
 
     def _notes(self, run: SimulationRun) -> tuple[str, ...]:
         missing = unconfigured_signals(run, self._publication_profile)
@@ -824,7 +858,6 @@ class HostLabExecution:
                 ) from broken
 
             reporting = self._reporting_for(run)
-            reporting.refuse_a_cadence_the_run_cannot_express()
             session = LabSession(
                 run_id=run.run_id,
                 execution=start(inputs, self._model),

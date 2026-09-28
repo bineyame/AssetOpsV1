@@ -615,6 +615,7 @@ export function RunFrame({
               <tr>
                 <th scope="col">Declared by</th>
                 <th scope="col">Silences</th>
+                <th scope="col">Declared as</th>
                 <th scope="col">From offset</th>
                 <th scope="col">Up to offset</th>
               </tr>
@@ -627,6 +628,15 @@ export function RunFrame({
                 >
                   <th scope="row">{gap.event_id}</th>
                   <td>{`${gap.device_id} / ${gap.signal_id}`}</td>
+                  {/*
+                    The shape the document declared, beside the span it resolved
+                    to. A POINT covering one step and a WINDOW covering ninety
+                    minutes are different declarations, and a table showing only
+                    the resolved offsets would render them the same way.
+                  */}
+                  <td data-reporting-gap-shape={gap.timing_shape}>
+                    {gap.timing_shape}
+                  </td>
                   <td>{String(gap.offset_minutes)}</td>
                   <td>{String(gap.end_offset_minutes)}</td>
                 </tr>

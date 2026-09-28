@@ -43,13 +43,20 @@ it from the identity domain. `identity.py` deliberately did not spell it,
 because a domain constant with no consumer is a promise; the first consumer is
 the dropout below, so it is spelled here.
 
-A draw is a pure function of the run's seed, a stream name, and the fields that
-locate the draw - never of how many draws came before it. That is what makes
-"adding an unrelated stream changes no existing stream" a structural property
-rather than a hope about call order: a new stream has a different stream name in
-its payload, so it produces a different set of digests and touches none of the
-old ones. A sequential generator would have made the same claim false the moment
-a second mechanism drew from it.
+A draw is a pure function of the run's seed, a stream name, the step index and
+the draw's ordinal within that step - the five fields v4 section 9.2 names, in
+the order it names them, and never of how many draws came before it. That is
+what makes "adding an unrelated stream changes no existing stream" a structural
+property rather than a hope about call order: a new stream has a different stream
+name in its payload, so it produces a different set of digests and touches none
+of the old ones. A sequential generator would have made the same claim false the
+moment a second mechanism drew from it.
+
+`draw_fraction` takes those fields and nothing else. It is not a variadic helper
+a caller can hand whatever locates a draw in its own terms, because that is what
+it was when it first went to review and what the caller then supplied was an
+address and an offset in minutes - deterministic, domain-separated, and a
+different contract from the specified one.
 """
 
 from __future__ import annotations
@@ -63,7 +70,7 @@ from assetops_contracts.execution_contract import (
     sample_due_at,
 )
 from assetops_contracts.identity import canonical_payload, identity_digest
-from assetops_contracts.world_inputs import FrozenInterval
+from assetops_contracts.world_inputs import ENTRY_SHAPES, FrozenInterval
 
 #: The domain separator every stochastic draw in this product carries, kept
 #: apart from `IDENTITY_DOMAIN` so a draw and an identity of the same fields
@@ -116,21 +123,57 @@ class ReportingResolutionUnrepresentable(Exception):
     """
 
 
-def draw_fraction(seed: int, stream: str, *fields: object) -> Fraction:
-    """One uniform draw in the half-open unit interval, from seed and stream.
+def draw_fraction(
+    seed: int, stream: str, step_index: int, ordinal: int = 0
+) -> Fraction:
+    """One uniform draw in the half-open unit interval, per v4 section 9.2.
 
-    BLAKE2b-256 over the same length-prefixed canonical encoding every identity
-    uses, under `RNG_DOMAIN` rather than the identity domain. Pure in its
-    arguments: two calls with the same arguments in two processes agree, and no
-    call anywhere changes what another call returns.
+    The identity is the one the specification names rather than one this build
+    chose:
+
+        digest("assetops-sim-rng-v1", seed, stream_name, step_index, ordinal)
+
+    in that order, over the same length-prefixed canonical encoding every
+    identity here uses - which is the "another repository-canonical byte
+    encoding" v4 permits beside length-prefixed UTF-8.
+
+    `rng-contract-version` is the `v1` in the domain separator. v4 lists it among
+    the things a draw is a function of and then shows a conceptual digest with
+    five fields and no separate version, so it is carried where the specification
+    carries it rather than added as a sixth field nothing else would agree about.
+
+    ## The signature is the guard, and the first version of this had none
+
+    It used to take `*fields`, and its production caller passed the address and
+    the offset in minutes. That is a sound deterministic construction and a
+    DIFFERENT contract from the one above. The test meant to catch it recomputed
+    the payload the implementation had chosen, so it established determinism
+    rather than conformance - the defect shape this milestone has repeated in
+    every slice: a check that proves what the code does rather than what the
+    contract requires.
+
+    So there is no `*fields` any more. A caller cannot supply an address, a
+    timestamp or anything else, because there is nowhere to put one, which is a
+    stronger statement than any assertion about what the caller passes today.
+
+    `step_index` is the boundary's own index, which is what the contract names.
+    `ordinal` distinguishes several draws by one stream at one step; a mechanism
+    drawing once per step passes zero, and it is a parameter rather than a
+    constant so the second such mechanism has somewhere to go.
     """
-    payload = canonical_payload([RNG_DOMAIN, stream, seed, list(fields)])
+    payload = canonical_payload(
+        [RNG_DOMAIN, seed, stream, step_index, ordinal]
+    )
     digest = hashlib.blake2b(payload, digest_size=32).digest()
     return Fraction(int.from_bytes(digest, "big"), DRAW_DENOMINATOR)
 
 
 def draw_selects(
-    seed: int, stream: str, per_thousand: int, *fields: object
+    seed: int,
+    stream: str,
+    per_thousand: int,
+    step_index: int,
+    ordinal: int = 0,
 ) -> bool:
     """Whether a draw falls inside a threshold expressed per thousand.
 
@@ -148,7 +191,9 @@ def draw_selects(
             f"A dropout of {per_thousand} per thousand is not a share of "
             "anything. A threshold lies between none and all of them."
         )
-    return draw_fraction(seed, stream, *fields) < Fraction(per_thousand, 1000)
+    return draw_fraction(seed, stream, step_index, ordinal) < Fraction(
+        per_thousand, 1000
+    )
 
 
 def exact_decimal_text(value: Fraction) -> str:
@@ -198,10 +243,17 @@ class DeviceSignalSpec:
     the state alone, and criterion 10's "a change to one reporting path leaves
     the others intact" is a claim about exactly that key.
 
-    `dropout_stream` is the stream name the draw contract uses. It is derived
-    from the device and the signal rather than authored, so two signals cannot be
-    given one stream by accident - which would make their dropouts correlated for
-    no declared reason.
+    `dropout_stream` is the stream name the draw contract uses, and it is the
+    whole of what identifies this path to the draw - v4 section 9.2's identity is
+    seed, stream name, step index and ordinal, with no room for an address. It is
+    derived from the device and the signal rather than authored, so two signals
+    cannot be given one stream by accident, and the publication profile refuses
+    two declarations of one device signal, so the name is unique by construction.
+
+    The device has to be in it. Two devices may report one address with the same
+    signal identifier - a redundant sensor is ordinary - and a stream named after
+    the address and the signal alone would give both the same draws, which is
+    exactly the correlation this name exists to prevent.
     """
 
     device_id: str
@@ -288,8 +340,17 @@ class ReportingPathWindow:
     a screen can say which authored entry did this rather than only that something
     did.
 
-    Half-open, from the offset up to but not including the offset plus the length,
-    like every other span in this product, and `covers` is the whole of the
+    ## `timing_shape` is carried, and leaving it out collapsed two meanings
+
+    The authored vocabulary has three shapes and the frozen condition carries
+    which one it is. The first version of this record did not, and read every
+    absent duration as the interval's end - so a POINT condition at offset 1500
+    silenced 1500, 1515 and 2400 alike, which is a run-long outage where the
+    document declared an instant. Execution had discarded a frozen causal timing
+    field, which is the thing freezing the projection exists to prevent.
+
+    So the shape is here and `end_offset_minutes` reads it. Half-open at both
+    ends, like every other span in this product, and `covers` is the whole of the
     membership test.
     """
 
@@ -298,9 +359,33 @@ class ReportingPathWindow:
     device_id: str
     signal_id: str
     address: str
+    timing_shape: str
     offset_minutes: int
     duration_minutes: int | None
     interval_minutes: int
+    timestep_minutes: int
+
+    def __post_init__(self) -> None:
+        if self.timing_shape not in ENTRY_SHAPES:
+            raise ValueError(
+                f"Reporting condition {self.event_id!r} occupies time as "
+                f"{self.timing_shape!r}, and an entry is one of "
+                f"{sorted(ENTRY_SHAPES)}. A shape with no rule for how long it "
+                "lasts would be an outage of a length nobody declared."
+            )
+        if self.timing_shape == "WINDOW" and self.duration_minutes is None:
+            raise ValueError(
+                f"Reporting condition {self.event_id!r} is a WINDOW and declares "
+                "no length. A window with no length is not a window, and reading "
+                "the absence as the rest of the run is how an instant became an "
+                "outage."
+            )
+        if self.timestep_minutes <= 0:
+            raise ValueError(
+                f"Reporting condition {self.event_id!r} is placed in a run of "
+                f"{self.timestep_minutes}-minute steps. A run walks its interval "
+                "in spans of non-zero length."
+            )
 
     @property
     def signal_key(self) -> tuple[str, str, str]:
@@ -308,12 +393,48 @@ class ReportingPathWindow:
 
     @property
     def end_offset_minutes(self) -> int:
-        if self.duration_minutes is None:
+        """Where the outage stops, decided by the shape the document declared.
+
+        `reporting-path-conditions-occupy-time-by-their-shape` in the execution
+        contract, as the arithmetic:
+
+        - a WINDOW ends at its offset plus its declared length;
+        - an INTERVAL_WIDE entry holds until the run interval ends, which is what
+          `interval-wide-span` already says of every interval-wide entry;
+        - a POINT covers the one step whose half-open span contains its offset,
+          because `point-applied-once` says an instant belongs to exactly one
+          step. Since a cadence is a whole multiple of the timestep, that span
+          holds at most one due sample - which is what makes a point outage an
+          instant rather than a stretch.
+        """
+        if self.timing_shape == "WINDOW":
+            return self.offset_minutes + (self.duration_minutes or 0)
+        if self.timing_shape == "INTERVAL_WIDE":
             return self.interval_minutes
-        return self.offset_minutes + self.duration_minutes
+        step_start = (
+            self.offset_minutes // self.timestep_minutes
+        ) * self.timestep_minutes
+        return min(step_start + self.timestep_minutes, self.interval_minutes)
+
+    @property
+    def start_offset_minutes(self) -> int:
+        """Where the outage starts, which for a POINT is its step's start.
+
+        A point belongs to the step whose span contains it, so the outage is that
+        step's span rather than a stretch beginning part way through one.
+        """
+        if self.timing_shape == "POINT":
+            return (
+                self.offset_minutes // self.timestep_minutes
+            ) * self.timestep_minutes
+        return self.offset_minutes
 
     def covers(self, offset_minutes: int) -> bool:
-        return self.offset_minutes <= offset_minutes < self.end_offset_minutes
+        return (
+            self.start_offset_minutes
+            <= offset_minutes
+            < self.end_offset_minutes
+        )
 
     def as_fields(self) -> tuple[object, ...]:
         return (
@@ -322,7 +443,8 @@ class ReportingPathWindow:
             self.device_id,
             self.signal_id,
             self.address,
-            self.offset_minutes,
+            self.timing_shape,
+            self.start_offset_minutes,
             self.end_offset_minutes,
         )
 

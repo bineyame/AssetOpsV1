@@ -38,7 +38,21 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from fixtures import FakeRuns, FakeScenarios, FakeSites, draft, scenario, shipped_document
+from fastapi.testclient import TestClient
+from fixtures import (
+    HYBRID_TEMPLATE,
+    FakeRuns,
+    FakeScenarios,
+    FakeSites,
+    draft,
+    scenario,
+    shipped_document,
+    site_from_template,
+)
+
+from assetops_backend.config import FeatureFlags
+from assetops_backend.main import create_app
+from assetops_backend.sites.models import SiteRecord
 
 from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.parsing import parse_run_document, render_run_document
@@ -59,6 +73,7 @@ from assetops_contracts.lab_projection import (
 )
 from assetops_contracts.observation import (
     RNG_DOMAIN,
+    ReportingPathWindow,
     SAMPLE_OUTCOMES,
     DeviceSignalSpec,
     draw_fraction,
@@ -105,6 +120,44 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
 # --- Helpers ----------------------------------------------------------------
+
+#: The shipped reporting gap redeclared as each of the other two shapes. Its
+#: offset is 1490 - the authored condition opens ten minutes before the removal -
+#: so a POINT there belongs to the step `[1485, 1500)` and suppresses the sample
+#: due at 1485. That is one instant, which is the point of the shape.
+POINT_AT_THE_GAP_OFFSET = {"shape": "POINT"}
+INTERVAL_WIDE = {"shape": "INTERVAL_WIDE"}
+
+
+def _reporting_condition_as(timing: dict[str, Any]) -> dict[str, Any]:
+    """The shipped document with its reporting gap declared as another shape.
+
+    Only the `timing` block changes. The condition keeps its identity, its
+    address, its role and its requirement, so what the assertions compare is the
+    shape and nothing else. An INTERVAL_WIDE entry starts at offset zero, which
+    is what `interval-wide-span` says of every interval-wide entry.
+    """
+    document = shipped_document()
+    for entry in document["timeline"]:
+        if entry["event_id"] != "fuel-level-reporting-gap":
+            continue
+        entry["timing"] = dict(timing)
+        if timing["shape"] == "INTERVAL_WIDE":
+            entry["offset_minutes"] = 0
+    return document
+
+
+def _mg_001() -> SiteRecord:
+    """The Site the shipped document targets, instantiated in memory."""
+    return site_from_template(HYBRID_TEMPLATE, site_id="MG-001")
+
+
+def _persisted(run: SimulationRun) -> tuple[SimulationRun, FakeRuns]:
+    """One Draft in a store the composed application can read it back from."""
+    store = FakeRuns()
+    store.create_run(run)
+    return run, store
+
 
 
 def executed_to_end(run: SimulationRun | None = None):
@@ -817,11 +870,23 @@ class TestSamplingHappensOnlyWhenDue:
         published = readings(trajectory, reporting)
         fuel = signal(reporting, FUEL_SIGNAL)
 
+        instant = {
+            boundary.offset_minutes: boundary.simulation_time
+            for boundary in trajectory.boundaries
+        }
+
         for offset in (1500, 1515, 1530, 1545, 1560, 1575):
             reading = reported_reading(published, fuel, offset)
             assert reading.quality == "STALE"
             assert reading.source_offset_minutes == BEFORE_THE_GAP
             assert reading.value == AFTER_DISPATCH + BIAS
+            # The TIMESTAMP itself, which this test did not assert until an
+            # independent review restamped it to the current attempt's own time
+            # and watched the test pass. The offset and the value were both
+            # still right under that mutation; only the timestamp was wrong,
+            # which is exactly the value a reader of the screen reads.
+            assert reading.source_sample_time == instant[BEFORE_THE_GAP]
+            assert reading.source_sample_time != instant[offset]
 
     def test_a_signal_that_has_never_published_is_unavailable_not_stale(
         self,
@@ -1038,36 +1103,94 @@ class TestTwoReportingPathsAreTwoThings:
 
 
 class TestTheFirstStochasticMechanism:
-    def test_the_draw_is_blake2b_over_the_reserved_rng_domain(self) -> None:
-        """v4 section 9's family and domain, named rather than assumed.
+    def test_the_draw_identity_is_the_one_v4_section_9_2_names(self) -> None:
+        """Conformance to the SPECIFIED identity, not to the chosen one.
 
-        Recomputed here from `hashlib` directly, so the assertion is about the
-        hash family and the domain separator rather than about the function
-        agreeing with itself.
+        The payload below is written from v4 section 9.2's own field list -
+
+            digest("assetops-sim-rng-v1", seed, stream_name, step_index, ordinal)
+
+        - in the order the specification gives, and the draw is required to
+        agree. The first version of this test recomputed whatever payload the
+        implementation had picked, which established determinism and said
+        nothing about conformance; the production caller was meanwhile supplying
+        an address and an offset in minutes, and this test could not see it.
+
+        That is the defect shape this milestone has repeated in every slice: a
+        check that proves what the code does rather than what the contract
+        requires. Writing the expected payload from the spec is the difference.
         """
         from assetops_contracts.identity import IDENTITY_DOMAIN, canonical_payload
 
         assert RNG_DOMAIN == "assetops-sim-rng-v1"
         assert RNG_DOMAIN != IDENTITY_DOMAIN
 
-        payload = canonical_payload([RNG_DOMAIN, "a-stream", 7, ["a", 1]])
+        seed, stream, step_index, ordinal = 20260927, "dropout:a-device:a-signal", 7, 0
+        payload = canonical_payload(
+            [RNG_DOMAIN, seed, stream, step_index, ordinal]
+        )
         expected = Fraction(
             int.from_bytes(
                 hashlib.blake2b(payload, digest_size=32).digest(), "big"
             ),
             2**256,
         )
-        assert draw_fraction(7, "a-stream", "a", 1) == expected
+
+        assert draw_fraction(seed, stream, step_index, ordinal) == expected
         assert 0 <= expected < 1
 
+    def test_the_draw_has_nowhere_to_put_anything_else(self) -> None:
+        """The structural half, and the one that stops the caller drifting again.
+
+        A guard written as "the caller currently passes the right things" is a
+        guard the next caller walks past. `draw_fraction` takes exactly the
+        specified fields, so an address, a timestamp or an offset cannot be
+        supplied - there is no parameter for one.
+        """
+        import inspect
+
+        parameters = list(
+            inspect.signature(draw_fraction).parameters.values()
+        )
+
+        assert [item.name for item in parameters] == [
+            "seed",
+            "stream",
+            "step_index",
+            "ordinal",
+        ]
+        assert not any(
+            item.kind is inspect.Parameter.VAR_POSITIONAL
+            or item.kind is inspect.Parameter.VAR_KEYWORD
+            for item in parameters
+        ), "a variadic parameter is somewhere to put a field the contract does not name"
+
+        with pytest.raises(TypeError):
+            draw_fraction(1, "a-stream", 0, 0, "fuel-tank-volume@fuel-tank")
+
+    def test_the_ordinal_separates_two_draws_at_one_step(self) -> None:
+        """The field that exists for the second mechanism, proved to do something.
+
+        The dropout draws once per stream per step and passes zero. A parameter
+        that never varied would be a field nothing distinguishes, so the two
+        ordinals are asserted to differ here rather than assumed to.
+        """
+        first = draw_fraction(7, "a-stream", 3, 0)
+        second = draw_fraction(7, "a-stream", 3, 1)
+
+        assert first != second
+        assert draw_fraction(7, "a-stream", 3) == first
+
     def test_a_draw_is_reproducible_and_independent_of_call_order(self) -> None:
-        first = draw_fraction(20260927, "one", TANK, 1500)
-        second = draw_fraction(20260927, "two", TANK, 1500)
+        first = draw_fraction(20260927, "one", 100)
+        second = draw_fraction(20260927, "two", 100)
 
         assert first != second
         # Drawing the second does not move the first, in either order.
-        assert draw_fraction(20260927, "one", TANK, 1500) == first
-        assert draw_fraction(20260927, "two", TANK, 1500) == second
+        assert draw_fraction(20260927, "one", 100) == first
+        assert draw_fraction(20260927, "two", 100) == second
+        # And the step index is a field of the identity rather than decoration.
+        assert draw_fraction(20260927, "one", 101) != first
 
     def test_a_signal_declaring_no_dropout_still_draws(self) -> None:
         """A threshold of zero selects nothing by comparison, not by shortcut.
@@ -1075,10 +1198,10 @@ class TestTheFirstStochasticMechanism:
         It matters because it makes the threshold the only thing a reader has to
         change to see the mechanism work.
         """
-        assert draw_selects(1, "s", 1000, "x") is True
-        assert draw_selects(1, "s", 0, "x") is False
+        assert draw_selects(1, "s", 1000, 0) is True
+        assert draw_selects(1, "s", 0, 0) is False
         with pytest.raises(ValueError):
-            draw_selects(1, "s", 1001, "x")
+            draw_selects(1, "s", 1001, 0)
 
     def test_adding_an_unrelated_stream_changes_no_existing_stream(self) -> None:
         """Criterion 11, with the existing stream proved non-empty first.
@@ -1335,6 +1458,265 @@ class TestGeneratedArtifactsBindToTheirInputs:
         assert observation_series_digest(()) != observation_series_digest(
             published
         )
+
+
+# --- R2 and R3: the two defects an independent review reproduced -----------
+#
+# Both reached review because the tests that were supposed to cover them stopped
+# one layer short of where the defect lived. R2's proved that the lower-level
+# reporting object raises and never drove the HTTP composition the user meets;
+# R3's covered the shipped WINDOW condition and never the other two shapes the
+# parser accepts. So these two classes are written at the layer that was missing.
+
+
+class TestACadenceThisRunCannotExpressIsARefusalAndNotACrash:
+    """R2, at the real HTTP composition rather than at the object beneath it.
+
+    A 30-minute timestep is an input anybody would try. It reaches READY, and
+    before this fix POST execution/start returned HTTP 500: the cadence check ran
+    outside the port's exception translation and the route catches only
+    `LabControlRefused`, so the numeric explanation that had already been written
+    never reached the user.
+
+    The app is composed here the way `host/lab_app.py` composes it - the real
+    `create_app` with a real `HostLabExecution` behind it - because that
+    composition is exactly what the earlier test did not exercise.
+    """
+
+    def served(self, tmp_path: Path, run: SimulationRun, store: FakeRuns):
+        return TestClient(
+            create_app(
+                FeatureFlags(simulator_lab_enabled=True),
+                site_repository=FakeSites((_mg_001(),)),
+                run_repository=store,
+                execution=port(tmp_path),
+            )
+        )
+
+    def test_a_thirty_minute_timestep_reaches_ready(self) -> None:
+        """The precondition, asserted so the claim below is not about a refusal
+        somewhere earlier. Run setup accepts this Draft."""
+        run = draft(timestep_minutes=30)
+
+        assert run.execution_status == "READY"
+        assert run.deterministic_identity.interval.timestep_minutes == 30
+
+    def test_start_answers_a_typed_refusal_carrying_both_numbers(
+        self, tmp_path: Path
+    ) -> None:
+        run, store = _persisted(draft(timestep_minutes=30))
+        client = self.served(tmp_path, run, store)
+
+        response = client.post(
+            f"/api/simulator-lab/runs/{run.run_id}/execution/start"
+        )
+
+        assert response.status_code == 409, response.text
+        detail = response.json()["detail"]
+        assert detail["refusal_kind"] == "CADENCE_NOT_EXPRESSIBLE"
+        assert detail["code"] == "EXECUTION_CADENCE_NOT_EXPRESSIBLE"
+        assert detail["advanced"] is False
+        # The authored explanation, with the two numbers that make it actionable,
+        # reaching the user rather than a stack trace.
+        assert "every 15 minutes" in detail["message"]
+        assert "steps of 30" in detail["message"]
+        assert "fuel-level" in detail["message"]
+
+    def test_the_read_refuses_the_same_way_rather_than_crashing(
+        self, tmp_path: Path
+    ) -> None:
+        """The read is on the same path and had the same hole.
+
+        `projection` builds the reporting inputs too, so a screen opening this
+        Draft met the same 500 before a control was touched.
+        """
+        run, store = _persisted(draft(timestep_minutes=30))
+        client = self.served(tmp_path, run, store)
+
+        response = client.get(
+            f"/api/simulator-lab/runs/{run.run_id}/execution"
+        )
+
+        assert response.status_code == 409, response.text
+        assert (
+            response.json()["detail"]["refusal_kind"]
+            == "CADENCE_NOT_EXPRESSIBLE"
+        )
+
+    def test_a_timestep_the_cadence_divides_is_unaffected(
+        self, tmp_path: Path
+    ) -> None:
+        """The other side, so the refusal is not simply always raised.
+
+        Both declared cadences are whole multiples of a 15-minute timestep, so
+        this Draft starts.
+        """
+        run, store = _persisted(draft())
+        client = self.served(tmp_path, run, store)
+
+        response = client.post(
+            f"/api/simulator-lab/runs/{run.run_id}/execution/start"
+        )
+
+        assert response.status_code == 200, response.text
+        assert response.json()["execution"]["status"] == "RUNNING"
+
+
+class TestAReportingConditionOccupiesTimeByItsDeclaredShape:
+    """R3: POINT, WINDOW and INTERVAL_WIDE are three declarations, not one.
+
+    The frozen condition carries its shape and the adapter used to drop it, so
+    every absent duration read as the interval's end: a POINT at offset 1500
+    silenced 1500, 1515 and 2400 alike. Execution had discarded a frozen causal
+    timing field, which is the thing freezing the projection exists to prevent.
+
+    The shipped document declares a WINDOW, which is why the shipped case always
+    passed. These cover the accepted input surface instead.
+    """
+
+    def suppressed(self, document: dict[str, Any]) -> set[int]:
+        """Every offset at which the fuel sensor's sample was suppressed."""
+        run = draft(definition=scenario(document))
+        assert run.execution_status == "READY"
+        _, _, reporting, trajectory = executed_to_end(run)
+        published = readings(trajectory, reporting)
+        assert published, "no sample was attempted at all"
+        return {
+            item.at_offset_minutes
+            for item in published
+            if item.key == (TANK, *FUEL_SIGNAL)
+            and item.outcome == "SUPPRESSED_BY_GAP"
+        }
+
+    def test_the_shipped_window_covers_its_declared_length(self) -> None:
+        """The case that always passed, kept as the comparison the others need."""
+        assert self.suppressed(shipped_document()) == {
+            1500,
+            1515,
+            1530,
+            1545,
+            1560,
+            1575,
+        }
+
+    def test_a_point_condition_covers_one_step_and_not_the_rest_of_the_run(
+        self,
+    ) -> None:
+        """The defect, as the difference between one instant and 65 of them.
+
+        `point-applied-once` gives a point the one step whose half-open span
+        contains its offset. The shipped condition's offset is 1490, so at a
+        15-minute timestep that is `[1485, 1500)` - and because a cadence is a
+        whole multiple of the timestep, that span holds exactly one due sample.
+
+        Before the fix this set was every offset from 1490 to the end of the run.
+        """
+        assert self.suppressed(
+            _reporting_condition_as(POINT_AT_THE_GAP_OFFSET)
+        ) == {1485}
+
+    def test_an_interval_wide_condition_covers_the_whole_interval(self) -> None:
+        """The shape a POINT used to be indistinguishable from.
+
+        This is what "the rest of the run" is supposed to look like, declared
+        deliberately: `interval-wide-span` says such an entry starts at offset
+        zero and holds until the run interval ends.
+
+        164 and not 165, and the missing one is the point of the half-open span:
+        the interval EXCLUDES its end instant, so the boundary at 2460 is outside
+        the outage and its sample publishes. A count of 165 would mean an
+        interval-wide entry had been stretched one boundary past the interval.
+        """
+        suppressed = self.suppressed(_reporting_condition_as(INTERVAL_WIDE))
+
+        assert len(suppressed) == 164
+        assert min(suppressed) == 0
+        assert max(suppressed) == 2445
+        assert 2460 not in suppressed
+
+    def test_the_three_shapes_do_not_agree_with_each_other(self) -> None:
+        """The claim the first version made false, stated as a comparison.
+
+        One instant, ninety minutes and the whole interval are three different
+        experiments. A reader should not have to take that on trust from three
+        separate assertions that could each be about the same set.
+
+        Compared by SIZE rather than by containment: the point at 1490 lands in
+        the step before the window opens, so the two are disjoint rather than
+        nested, and asserting containment would fail for a reason that has
+        nothing to do with the defect.
+        """
+        point = self.suppressed(
+            _reporting_condition_as(POINT_AT_THE_GAP_OFFSET)
+        )
+        window = self.suppressed(shipped_document())
+        interval_wide = self.suppressed(_reporting_condition_as(INTERVAL_WIDE))
+
+        assert len(point) == 1
+        assert len(window) == 6
+        assert len(interval_wide) == 164
+        assert point != window != interval_wide
+
+    def test_the_frozen_shape_reaches_the_window_rather_than_being_dropped(
+        self,
+    ) -> None:
+        """The structural half: what the run froze is what the transform reads.
+
+        Asserted on the record rather than only through its effect, because the
+        effect is what a later shape with the same resolved span would hide.
+        """
+        run = draft(definition=scenario(_reporting_condition_as(POINT_AT_THE_GAP_OFFSET)))
+        reporting = reporting_inputs(run)
+
+        assert len(reporting.gaps) == 1
+        window = reporting.gaps[0]
+        assert window.timing_shape == "POINT"
+        assert (
+            run.deterministic_identity.reporting_path_conditions[0].timing_shape
+            == "POINT"
+        )
+        assert window.offset_minutes == 1490
+        assert window.start_offset_minutes == 1485
+        assert window.end_offset_minutes == 1500
+
+    def test_a_window_with_no_declared_length_is_refused(self) -> None:
+        """Not read as either of the other two.
+
+        A window is its length; an absent one used to be read as the rest of the
+        run, which is how this whole collapse worked.
+        """
+        with pytest.raises(ValueError) as raised:
+            ReportingPathWindow(
+                event_id="a-gap",
+                condition_address="fuel-level-reporting-availability@fuel-tank",
+                device_id="fuel-level-sensor",
+                signal_id="fuel-level",
+                address=TANK,
+                timing_shape="WINDOW",
+                offset_minutes=1490,
+                duration_minutes=None,
+                interval_minutes=2460,
+                timestep_minutes=15,
+            )
+
+        assert "not a window" in str(raised.value)
+
+    def test_a_shape_outside_the_vocabulary_is_refused(self) -> None:
+        with pytest.raises(ValueError) as raised:
+            ReportingPathWindow(
+                event_id="a-gap",
+                condition_address="fuel-level-reporting-availability@fuel-tank",
+                device_id="fuel-level-sensor",
+                signal_id="fuel-level",
+                address=TANK,
+                timing_shape="FOREVER",
+                offset_minutes=0,
+                duration_minutes=None,
+                interval_minutes=2460,
+                timestep_minutes=15,
+            )
+
+        assert "an outage of a length nobody declared" in str(raised.value)
 
 
 # --- Criterion 16: executing a draft writes nothing ------------------------

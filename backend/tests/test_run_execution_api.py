@@ -38,6 +38,7 @@ from assetops_backend.runs.service import RunSetupService
 import run_fixtures as profiles
 from assetops_contracts.lab_projection import (
     LAB_CONTROL_REFUSALS,
+    LAB_CONTROL_REFUSAL_STATEMENTS,
     LabControlRefused,
     LabProjection,
     ObservationView,
@@ -137,9 +138,11 @@ def projection(run_id: str, **changes) -> LabProjection:
                 device_id="fuel-level-sensor",
                 signal_id="fuel-level",
                 address=TANK,
+                timing_shape="WINDOW",
                 offset_minutes=1490,
                 duration_minutes=90,
                 interval_minutes=2460,
+                timestep_minutes=15,
             ),
         ),
         recent_reports=(
@@ -323,6 +326,64 @@ class TestARefusedControlAdvancesNothing:
         assert detail["advanced"] is False
         assert detail["subject"] == record.run_id
         assert len(detail["message"]) > 60
+
+    def test_a_refusal_carrying_a_detail_puts_it_in_the_message(self) -> None:
+        """The wire half of R2, at the layer that dropped it.
+
+        A per-kind statement cannot name a particular signal's rate and a
+        particular run's timestep. The raising site knows both, and before
+        `detail` existed the exception carrying them escaped translation entirely
+        and arrived as an HTTP 500 - so an explanation that had already been
+        written never reached anybody.
+
+        Appended to the message rather than put in a field of its own, so a
+        client that renders the message does not have to know there is a second
+        half to look for.
+        """
+        detail_text = (
+            "Signal 'fuel-level' on 'fuel-level-sensor' publishes every 15 "
+            "minutes and run r walks in steps of 30."
+        )
+
+        class Detailed(FakeExecution):
+            def _reply(self, name, run, *rest):
+                self.calls.append((name, run.run_id, *rest))
+                raise LabControlRefused(
+                    "CADENCE_NOT_EXPRESSIBLE", run.run_id, detail_text
+                )
+
+        execution = Detailed()
+        client, record = served(execution)
+
+        response = client.post(
+            f"{RUNS_PATH}/{record.run_id}/execution/start"
+        )
+
+        assert response.status_code == 409
+        message = response.json()["detail"]["message"]
+        # Both halves: the vocabulary's own sentence AND the numbers only the
+        # raising site knew.
+        assert "between two boundaries" in message
+        assert detail_text in message
+
+    def test_a_refusal_without_a_detail_carries_the_statement_alone(
+        self,
+    ) -> None:
+        """So the test above is about the detail rather than about the message.
+
+        Seven of the eight refusals have nothing a statement could not say, and
+        their message is exactly the statement with nothing appended.
+        """
+        execution = FakeExecution(refuse="ALREADY_TERMINAL")
+        client, record = served(execution)
+
+        response = client.post(
+            f"{RUNS_PATH}/{record.run_id}/execution/start"
+        )
+
+        assert response.json()["detail"]["message"] == (
+            LAB_CONTROL_REFUSAL_STATEMENTS["ALREADY_TERMINAL"]
+        )
 
     def test_a_refusal_is_not_a_run_setup_refusal(self) -> None:
         """Four vocabularies, pairwise disjoint, and this is the fourth.

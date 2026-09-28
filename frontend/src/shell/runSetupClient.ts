@@ -280,13 +280,22 @@ export interface RunDeviceSignal {
   statement: string;
 }
 
-/** One span across which one signal's reporting path is forced unavailable. */
+/**
+ * One span across which one signal's reporting path is forced unavailable.
+ *
+ * `timing_shape` is the shape the document declared and the two offsets are the
+ * span it resolved to at this run's timestep. Both are carried because a reader
+ * has to be able to see that a POINT condition covers one step rather than the
+ * rest of the run - a collapse the first version of this made, by reading every
+ * absent duration as the interval's end.
+ */
 export interface RunReportingGap {
   event_id: string;
   condition_address: string;
   device_id: string;
   signal_id: string;
   address: string;
+  timing_shape: string;
   offset_minutes: number;
   end_offset_minutes: number;
 }
@@ -627,6 +636,7 @@ function isReportingGap(value: unknown): value is RunReportingGap {
     typeof value.device_id === "string" &&
     typeof value.signal_id === "string" &&
     typeof value.address === "string" &&
+    typeof value.timing_shape === "string" &&
     typeof value.offset_minutes === "number" &&
     typeof value.end_offset_minutes === "number"
   );

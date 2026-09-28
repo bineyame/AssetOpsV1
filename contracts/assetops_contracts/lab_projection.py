@@ -82,6 +82,7 @@ LAB_CONTROL_REFUSALS = frozenset(
         "INTERRUPTED",
         "PORT_NOT_COMPOSED",
         "FROZEN_RUN_NOT_RECONSTRUCTIBLE",
+        "CADENCE_NOT_EXPRESSIBLE",
     }
 )
 
@@ -137,19 +138,40 @@ LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
         "executed. What is wrong is named on the refusal: an address answered "
         "twice, a bound with no policy, or a profile the run did not select."
     ),
+    "CADENCE_NOT_EXPRESSIBLE": (
+        "A configured signal publishes at a rate this run's timestep cannot "
+        "express, so some sample would be due between two boundaries. It is not "
+        "moved to the nearest one, which would report a value at a time it was "
+        "not taken, and it is not skipped, which would turn a declared cadence "
+        "into a different one. The detail names the signal and the two numbers. "
+        "A timestep is chosen at run setup, so setting a run up with a timestep "
+        "the cadence divides is what makes this document executable."
+    ),
 }
 
 
 class LabControlRefused(Exception):
     """A control request was judged and nothing was executed.
 
-    Carries the kind, what it is about, and the vocabulary's own statement. The
+    Carries the kind, what it is about, the vocabulary's own statement, and -
+    where there is one - the detail that names the particular numbers. The
     statement is never written at the raising site, for the reason
     `assetops_contracts.failures.failure` records one layer along: a message
     composed where it is raised drifts between two sites meaning one thing.
+
+    ## `detail` exists because a statement alone lost an authored explanation
+
+    The cadence refusal below is about two numbers - this signal's rate and this
+    run's timestep - and a per-kind statement cannot name them. Before this field
+    existed the exception carrying them escaped the port untranslated and reached
+    the user as an HTTP 500, so an explanation that had already been written never
+    arrived. `detail` is where a raising site puts what only it knows, and it is
+    rendered beside the statement rather than instead of it.
     """
 
-    def __init__(self, kind: str, subject: str) -> None:
+    def __init__(
+        self, kind: str, subject: str, detail: str | None = None
+    ) -> None:
         if kind not in LAB_CONTROL_REFUSALS:
             raise ValueError(
                 f"{kind!r} is not a Lab control refusal. A control request is "
@@ -160,6 +182,7 @@ class LabControlRefused(Exception):
         self.kind = kind
         self.subject = subject
         self.statement = LAB_CONTROL_REFUSAL_STATEMENTS[kind]
+        self.detail = detail
         super().__init__(f"{kind}: {self.statement}")
 
 
@@ -315,9 +338,16 @@ class LabProjection:
 
 #: What each status tells a reader, placed rather than composed on a screen.
 LAB_EXECUTION_STATUS_STATEMENTS: dict[str, str] = {
+    # It said "Its frozen inputs are eligible" until a BLOCKED Draft was looked
+    # at: NOT_STARTED is the absence of an execution and says nothing about
+    # whether one may begin. Whether the frozen inputs may execute is the run's
+    # own status, sitting on the same screen and sometimes saying the opposite.
     "NOT_STARTED": (
-        "This Draft has not been executed. Its frozen inputs are eligible and "
-        "nothing has run, so there is no trajectory, no reading and no clock."
+        "This Draft has not been executed: nothing has run, so there is no "
+        "trajectory, no reading and no clock. Whether its frozen inputs MAY "
+        "execute is a separate question this status does not answer - the run's "
+        "own execution status is what says, and a BLOCKED one is offered no "
+        "control at all."
     ),
     "RUNNING": (
         "This execution has reached the instant shown and has not finished. "

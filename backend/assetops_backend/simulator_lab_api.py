@@ -11,15 +11,22 @@ anywhere else. Lab-only paths therefore hang off `SIMULATOR_LAB_API_PREFIX`,
 which keeps them behind the single existing chokepoint instead of introducing
 a second one.
 
-This module owns no simulated world, no private simulator truth, and no run
-execution. Its Site Templates endpoints read shipped, read-only configuration
-through the `SiteTemplateCatalog` port: they return template archetypes, never
-Sites, and never operational values. No template endpoint writes anything, and
-no route here edits, renames, duplicates, or deletes anything.
+This module owns no simulated world and no private simulator truth. Since T022
+it SERVES run execution, and it still owns none of it: the three control routes
+speak a port the product declares and cannot implement, because only the neutral
+composition leaf may import a kernel. What crosses back is a `LabProjection`, and
+no trajectory, boundary or model type can be named here at all.
+
+Its Site Templates endpoints read shipped, read-only configuration through the
+`SiteTemplateCatalog` port: they return template archetypes, never Sites, and
+never operational values. No template endpoint writes anything, and no route here
+edits, renames, duplicates, or deletes anything.
 
 Two routes write, and both are Simulator Lab capabilities behind the gate and
 under the Lab prefix, absent from the served route inventory when the flag is
-false.
+false. The three execution controls change no store at all: what they advance is
+a handle the leaf holds, and what the leaf persists is a private artifact this
+module cannot name a path to.
 
 Creating a Site from a template is the first. What it creates is not a Lab
 object: it is a normal product Site in the product store, carrying simulated
@@ -39,9 +46,13 @@ flattening into one failure.
 The scenario routes T017 adds are reads, through the
 `ScenarioDefinitionRepository` port. They serve saved `ScenarioDefinition`
 records: what a simulated interval is intended to do, before any run exists.
-No route here starts, stages, commits, ingests, or replays anything, and none
-of them returns an assessment, a source-health result, a confidence, a
-severity, or a Finding, because none of those has a truthful source.
+
+No route here stages, commits, releases an envelope, ingests, resets, injects an
+event or replays anything, and none of them returns an assessment, a
+source-health result, a confidence, a severity, or a Finding, because none of
+those has a truthful source. Starting a run left that list in T022 and the rest of
+it did not: a started run produces private truth and the readings a configured
+device would have published, and neither is evidence about anywhere.
 
 The scenario detail route carries the private test-oracle expectations in a
 section of its own, built by a payload function that never reads any public
@@ -829,7 +840,11 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
                 "device_id": window.device_id,
                 "signal_id": window.signal_id,
                 "address": window.address,
-                "offset_minutes": window.offset_minutes,
+                # The shape, and the span it RESOLVED to. A reader has to be
+                # able to see both: that the document declared an instant, and
+                # which instants that instant covers at this run's timestep.
+                "timing_shape": window.timing_shape,
+                "offset_minutes": window.start_offset_minutes,
                 "end_offset_minutes": window.end_offset_minutes,
             }
             for window in projection.reporting_gaps
@@ -1449,13 +1464,25 @@ def build_simulator_lab_router(
         could be acted on; every one of these means the request was well formed and
         the RUN is not in a state where it applies. `advanced` is on the body so a
         caller knows nothing moved without having to infer it from the status.
+
+        `detail` carries what only the raising site knew, and it is here because
+        its absence lost one. The cadence refusal is about two numbers - a
+        signal's rate and this run's timestep - and a per-kind statement cannot
+        name them; the exception carrying them used to escape translation
+        entirely and arrive as an HTTP 500, so an explanation that had already
+        been written never reached anybody. It is appended to the message rather
+        than put in a field of its own, because a client that renders the message
+        should not have to know there is a second half to look for.
         """
+        message = (
+            error.statement
+            if error.detail is None
+            else f"{error.statement} {error.detail}"
+        )
         return HTTPException(
             status_code=409,
             detail={
-                **_refusal(
-                    execution_refusal_code(error.kind), error.statement
-                ),
+                **_refusal(execution_refusal_code(error.kind), message),
                 "refusal_kind": error.kind,
                 "subject": error.subject,
                 "advanced": False,

@@ -299,7 +299,7 @@ describe("private truth beside what was reported", () => {
     expect(row.textContent).toContain("254.02");
   });
 
-  it("names the declared reporting gap and which signal it silences", async () => {
+  it("names the declared reporting gap, its shape and which signal it silences", async () => {
     renderAt(READY_URL, client());
     await settledScreen();
 
@@ -311,6 +311,44 @@ describe("private truth beside what was reported", () => {
     expect(row.textContent).toContain("fuel-level-sensor / fuel-level");
     expect(row.textContent).toContain("1490");
     expect(row.textContent).toContain("1580");
+    // The SHAPE, in its own cell. A POINT covering one step and a WINDOW
+    // covering ninety minutes are different declarations, and a table showing
+    // only the resolved offsets would render them the same way - which is how
+    // an instant became a run-long outage before this was carried.
+    const shape = row.querySelector("[data-reporting-gap-shape]");
+    expect(shape?.getAttribute("data-reporting-gap-shape")).toBe("WINDOW");
+    expect((shape?.textContent ?? "").trim()).toBe("WINDOW");
+  });
+
+  it("shows a point condition as a point, not as the span it resolves to", async () => {
+    renderAt(
+      READY_URL,
+      client({
+        status: "loaded",
+        execution: {
+          ...RUNNING_IN_THE_GAP,
+          reporting_gaps: [
+            {
+              ...RUNNING_IN_THE_GAP.reporting_gaps[0],
+              timing_shape: "POINT",
+              offset_minutes: 1485,
+              end_offset_minutes: 1500,
+            },
+          ],
+        },
+      }),
+    );
+    await settledScreen();
+
+    const row = document.querySelector(
+      '[data-reporting-gap="fuel-level-reporting-gap"]',
+    ) as HTMLElement;
+
+    expect(
+      row.querySelector("[data-reporting-gap-shape]")?.textContent?.trim(),
+    ).toBe("POINT");
+    expect(row.textContent).toContain("1485");
+    expect(row.textContent).toContain("1500");
   });
 
   it("lists each configured path with its own cadence, bias and dropout", async () => {
