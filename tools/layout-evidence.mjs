@@ -99,11 +99,37 @@ class Cdp {
     });
   }
 
-  send(method, params = {}) {
+  // Every request is bounded. A reply that never arrives - a crashed renderer,
+  // a detached target, a socket that closed without an event - used to leave
+  // this promise pending forever, and the run simply stopped: no output, no
+  // error, no exit. A measurement harness that stalls silently is the same
+  // defect as a guard that cannot fail, one layer out. It now fails loudly and
+  // names the request it was waiting on.
+  send(method, params = {}, timeoutMs = 60000) {
     this.id += 1;
     const id = this.id;
     return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(
+          new Error(
+            `CDP ${method} (#${id}) got no reply within ${timeoutMs}ms. The ` +
+              "browser stopped answering - most often a renderer that ran out " +
+              "of memory on a very large page. Nothing below this point was " +
+              "measured.",
+          ),
+        );
+      }, timeoutMs);
+      this.pending.set(id, {
+        resolve: (value) => {
+          clearTimeout(timer);
+          resolve(value);
+        },
+        reject: (error) => {
+          clearTimeout(timer);
+          reject(error);
+        },
+      });
       this.ws.send(JSON.stringify({ id, method, params }));
     });
   }
@@ -290,6 +316,24 @@ const MEASURE = `(() => {
     text: (row.textContent || "").trim(),
   }));
   const reportingGapRows = document.querySelectorAll("[data-reporting-gap]").length;
+  // The gap row's own cells. The declared instant and the span it resolves to
+  // are separate columns, because for a POINT they differ: an entry declared at
+  // offset 1490 in a fifteen-minute run silences the sample at 1485. The
+  // shipped entry is a WINDOW, where the two coincide - so what a browser can
+  // prove here is that the surface carries both, which is the half a jsdom
+  // fixture cannot vouch for.
+  const gapRow = document.querySelector("[data-reporting-gap]");
+  const reportingGapCells = gapRow
+    ? Array.from(gapRow.querySelectorAll("th, td")).map((cell) =>
+        (cell.textContent || "").trim(),
+      )
+    : [];
+  const reportingGapDeclaredAt = gapRow
+    ? (
+        gapRow.querySelector("[data-reporting-gap-declared-at]")?.textContent ||
+        ""
+      ).trim()
+    : null;
   const signalRows = document.querySelectorAll("[data-signal]").length;
   const sampleAttemptRows = document.querySelectorAll("[data-sample-attempt]").length;
   // The two digests, read off the fact list they are rendered in. Sixty-four
@@ -313,6 +357,8 @@ const MEASURE = `(() => {
     observationRows,
     privateStateRows,
     reportingGapRows,
+    reportingGapCells,
+    reportingGapDeclaredAt,
     signalRows,
     sampleAttemptRows,
     digestLeaves,
@@ -1437,6 +1483,15 @@ allPass =
       "the declared reporting gap is drawn",
       started.reportingGapRows === 1,
       `${started.reportingGapRows} gap rows`,
+    ],
+    [
+      // Six cells, not five. The declared instant and the covered span are two
+      // columns, and one column carrying the resolved start under a heading
+      // promising the authored number is what this replaced.
+      "the gap row carries the declared instant beside the span it covers",
+      started.reportingGapCells.length === 6 &&
+        started.reportingGapDeclaredAt === "1490",
+      `${started.reportingGapCells.length} cells, declared at ${started.reportingGapDeclaredAt}: ${started.reportingGapCells.join(" | ")}`,
     ],
     [
       "the page does not scroll horizontally",
