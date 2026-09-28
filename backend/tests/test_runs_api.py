@@ -583,7 +583,13 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
                 },
                 "publication_profile": {
                     "profile_id": "simulator-lab-publication",
-                    "profile_version": 1,
+                    # Read off the profile rather than written as a literal. It
+                    # moved to version two in T022, when the profile started
+                    # declaring which signals report which state, and a literal
+                    # here would have to be found again on the next move.
+                    "profile_version": (
+                        LAB_PUBLICATION_PROFILE.publication_profile_version
+                    ),
                 },
                 "run_inputs": [],
             }
@@ -855,7 +861,13 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
                 },
                 "publication_profile": {
                     "profile_id": "simulator-lab-publication",
-                    "profile_version": 1,
+                    # Read off the profile rather than written as a literal. It
+                    # moved to version two in T022, when the profile started
+                    # declaring which signals report which state, and a literal
+                    # here would have to be found again on the next move.
+                    "profile_version": (
+                        LAB_PUBLICATION_PROFILE.publication_profile_version
+                    ),
                 },
                 "run_inputs": [],
             }
@@ -1013,7 +1025,13 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
                 },
                 "publication_profile": {
                     "profile_id": "simulator-lab-publication",
-                    "profile_version": 1,
+                    # Read off the profile rather than written as a literal. It
+                    # moved to version two in T022, when the profile started
+                    # declaring which signals report which state, and a literal
+                    # here would have to be found again on the next move.
+                    "profile_version": (
+                        LAB_PUBLICATION_PROFILE.publication_profile_version
+                    ),
                 },
                 "run_inputs": [],
             }

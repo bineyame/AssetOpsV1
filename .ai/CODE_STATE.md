@@ -3493,3 +3493,265 @@ exists.
 - **The catalog fragility above has no owner.**
 - Guard probes: `.agent/T021A-guard-probes.py`, 8 probes, all CAUGHT, baseline
   measured green before any mutation.
+
+## T022 - Execute a Draft in the Lab, and inspect generated device observations
+
+The first visible slice since T020. Before it, the kernel existed, executed and
+was confirmed by three independent reviewers, and nobody outside a test had seen
+it run. After it, the owner starts a Draft in the gated Lab, steps it across the
+fuel event, and reads three things that used to be one: what the world holds,
+what a device reported, and the fact that nothing reported at all.
+
+### The demonstration, in numbers, because it is what the slice is for
+
+The shipped reporting gap is `[1490, 1580)` and the removal `[1500, 1545)` sits
+entirely inside it. At offset 1545 the Lab shows:
+
+- true value **254.02 L** - the tank after the removal;
+- reported value **373.52 L** - the fuel sensor's last reading before the gap
+  opened, half a litre below the 374.02 L the world held when it was taken;
+- a source sample time that is that earlier instant and not this one. WHICH
+  earlier instant depends on the draws, so it is not a constant of the slice:
+  the host suite's fixture retains offset 1485 (`2026-09-22T00:45:00Z`) and the
+  browser, executing `fuel-loss-event-mg006`, retains offset 1470
+  (`2026-09-22T00:30:00Z`). The reported value is 373.52 L either way, because
+  nothing moves the tank between those instants and the removal;
+- quality **STALE**, outcome **SUPPRESSED_BY_GAP**, and the authored entry that
+  did it named on the row.
+
+The two columns differ by 119.50 L. The removal is 120 L, and the difference is
+that number with the sensor's declared -0.5 L bias taken back out: 373.52 + 0.5 =
+374.02 L when it was taken, less 254.02 L now. Saying "the columns differ by 120"
+would be reading the reported value as the world's, which is the one confusion
+this screen exists to prevent. That is asserted in
+`host/tests/test_lab_execution.py` and measured in a real browser by
+`tools/layout-evidence.mjs`.
+
+### What it settled in code
+
+- **`EXECUTION_CONTRACT_VERSION` is 8.** `REPORTING_RULES` in the contract
+  answers four questions a version-seven implementation was free to answer any
+  way it liked: when a sample is due, what a forced gap does to one, what a
+  consumer sees when nothing fresh arrived, and whether a publication failure is
+  drawn or chosen. Two of them are executable beside their sentences -
+  `sample_due_at` and `cadence_is_expressible` - for the reason `window-overlap`
+  and `window-ramp` are.
+- **The publication profile is version 2**, and the two moves are one move. It
+  now declares `device_signals`: which configured signal reports which world
+  state, at what cadence, with what bias and with what dropout. A run freezes
+  which publication profile answered, so a run of an unchanged document freezes
+  a different identity under eight than under seven - which is
+  `D-2026-09-22-contract-version-scope`'s own test.
+- **A kernel execution is a handle.** `Execution` advances a boundary at a time
+  with the boundaries so far readable mid-flight; `execute` is that handle
+  advanced to the end and returns the trajectory it always did. Every scrap of
+  state was already on one mutable object, so this changes when a caller may
+  look rather than what any boundary holds - and five batching patterns are
+  asserted to produce one content digest.
+- **The observation transform is a separate component**, in
+  `simulator/assetops_simulator/observation/`. It is handed the boundaries and a
+  `FrozenReportingInputs` with no field a stock could arrive in; the kernel is
+  handed a `FrozenWorldInputs` with no field a cadence could. Criterion 8 -
+  changing a cadence, a bias or a dropout changes the reports and not the world -
+  is therefore a fact about two signatures rather than a rule a caller remembers.
+- **A `DeviceObservation` carries no true value**, deliberately. Pairing truth
+  with a reading happens once, in `LabProjection`, built by the composition leaf
+  and consumed by a gated surface. That is the exception to the truth barrier
+  stated as one record rather than left as a habit.
+- **The first stochastic mechanism draws under `assetops-sim-rng-v1`**, the
+  domain v4 reserved and `identity.py` declined to spell until something consumed
+  it. A draw is BLAKE2b-256 over the seed, a stream name derived from the device
+  and signal, and the fields that locate it - never over how many draws came
+  before. That is what makes "adding an unrelated stream changes no existing
+  stream" structural rather than a hope about call order.
+- **The execution port is the backend's, and only the leaf can implement one.**
+  `runs/execution_ports.py` speaks `SimulationRun` in and `LabProjection` out.
+  `host/lab_app.py` is the entry point for a build that executes; run it from
+  `host/` with `python -m uvicorn lab_app:app`. `assetops_backend.main:app` still
+  serves everything else and answers `PORT_NOT_COMPOSED` on the four execution
+  routes, which keeps the served route set a function of the gate alone.
+- **Private execution artifacts are the leaf's**, under `var/executions`, one
+  file per run. A terminal run reloads from its artifact; a run recorded as
+  RUNNING with no live handle reads back as `INTERRUPTED`, because its world
+  lived in a process that has ended and re-executing it would be a second
+  trajectory under the first one's identity.
+- **Every execution artifact states the schema version it was written in**,
+  first in the file, and `EXECUTION_ARTIFACT_SCHEMA_VERSION` is 2. One is the
+  first build that persisted an execution; two added the reporting condition's
+  shape and the run's timestep to every gap row. The number exists because
+  adding those fields broke every record already on disk: the reader demanded
+  them and four completed runs became an HTTP 500 on the screen that inspects
+  them.
+
+  **Three layouts exist on disk and each was written by a build on this branch.**
+  The current one says its schema. The two older ones do not, and
+  `_identify_layout` tells them apart by whether their reporting-gap rows carry
+  `timing_shape` - the exact field the later of those two builds added, and the
+  only evidence such a record holds about its own provenance. All rows or none;
+  a record whose rows disagree was written by neither and is not interpreted.
+
+  **Where the shape was recorded it is honoured**, and the span follows from it
+  by `end_offset_minutes` - the same rule that build resolved with, so what is
+  shown is what was computed. **Where it was not**, each row carries
+  `recorded_end_offset_minutes`, the span that build resolved, recoverable
+  exactly because it resolved every window by one rule over fields the record
+  still carries; the shape is `SHAPE_NOT_RECORDED`, which is not a shape and
+  never a guess. **A record this build cannot interpret** - a later schema, a
+  marker that is not a whole number, disagreeing rows, or a record that states a
+  layout and then lacks what it requires - is reported: status
+  `ARTIFACT_UNREADABLE` with the reason on the projection, and a typed refusal on
+  every control, because an unreadable record treated as no record would let
+  Start overwrite the very result nobody could read. Nothing is re-executed,
+  rewritten or discarded.
+
+  **A version marker cannot name what predates it, and the first attempt proved
+  it.** The marker was added by the build that fixed the shape collapse, so the
+  build before it had already written records with the shape on them and no
+  marker. Assigning every unmarked record to the oldest known layout discarded
+  that shape and printed a note saying it had never been recorded - while it sat
+  in the same file - and turned an honest `KeyError` into a confident wrong
+  reading. That is in the published rule now, not only here:
+  `a-record-older-than-a-rule-is-read-as-what-it-recorded`, with version 8's
+  ledger carrying the third amendment. **A later slice adding a persisted field
+  inherits the rule, not the mechanism**: the run store and the scenario
+  documents have their own versioning conventions and were not touched here, and
+  the rule's second half - identify what predates the marker from what it carries
+  - is the half that is easy to skip.
+- **A window's declared instant and its resolved span are separate everywhere.**
+  For a POINT they differ: an entry declared at offset 1490 in a fifteen-minute
+  run silences the sample at 1485. The suppression sentence names both, the wire
+  carries `declared_offset_minutes` beside `start_offset_minutes` and
+  `end_offset_minutes`, and the gaps table has a column for each. One field
+  named `offset_minutes` was carrying the resolved start - the right number
+  under a name that promised the other one.
+- **`draw_fraction` refuses a field of the wrong type**, narrowly and on
+  purpose. A signature constrains arity and not types, so the claim that an
+  address "cannot be supplied" was false - `draw_fraction(7, "a-stream",
+  "<an address>", 1500)` returned a Fraction. The refusal is here rather than
+  everywhere because this substitution IS the defect R1 was: a draw keyed on an
+  address is deterministic, returns a plausible number, and differs from the
+  contract's stream with nothing on any surface to show it.
+- **Every exact quantity leaves the backend as text.** `EXACT_RATIONAL` never
+  rounds, and a payload carrying a binary float would be the one place the policy
+  stopped holding. A test walks the whole payload and fails on a float anywhere.
+- **Criterion 14 is done.** `reconcile_reported_observations`,
+  `ObservationReconciliation`, `RECONCILIATION_STATES`, its seven reason strings,
+  `unaccounted_observations`, `declared_bounds` and
+  `IMPLICIT_LOWER_BOUND_DIMENSIONS` are gone with the scenario detail panel that
+  was their last product-path caller. Nothing survived the retirement. The
+  frozen run's own `declared_bounds` - a tuple of `FrozenDeclaredBound` on the
+  deterministic identity - is a different thing with the same name, is
+  load-bearing, and is untouched.
+
+### One defect the browser found, which no suite could
+
+`reporting_inputs` asked whether the run had selected this publication profile
+BEFORE asking whether it was frozen under this contract version. A run from an
+earlier build fails both, and it was reporting the narrower one: "this run does
+not determine one experiment" for a run whose real answer is "these rules are not
+the rules it was frozen under". Every suite builds its runs in process at the
+current version, so none of them had a run that failed both. The coarse, prior
+fact is asked first now.
+
+### What this leaves open
+
+- **The shipped scenario cannot reach READY against the MG-001 in `var/sites`**,
+  which predates the two Foundation properties the model profile binds to. Both
+  suites and the browser evidence reach a READY execution through the product
+  path from the user's own `fuel-loss-event-mg006` document instead. Backlog.
+- **`var/runs` grows by four per layout-evidence run**, not three: three BLOCKED
+  MG-001 Drafts from the run-setup measurement at three widths, plus the READY
+  MG-006 Draft the execution measurements need.
+- **The run setup screen does not show a publication profile's declared reporting
+  paths.** They are on the Draft's own execution panel, which is the screen where
+  they decide something, and there is one profile to choose from.
+- **`private_state` carries stocks and not interval measurements**, because a
+  stock's unit is the run's and an interval measurement's is the model's. The
+  interval truth is in the observation row, in the unit the profile declared.
+- **The dependency-direction guard's three oldest patterns match prose.** A
+  docstring saying the backend cannot import the simulator failed the check. It
+  was reworded rather than fixed, because loosening a dependency check inside the
+  slice it blocks is the one edit that file forbids. Backlog.
+### The fifth variant of one defect, and why it is a rule now
+
+R4 was a change correct going forward and silent going backward. So were three
+before it: T021's frozen runs reinterpreted by a live document, a version guard
+unable to separate two builds sharing a number, T021A's narrowing invalidating
+four authored documents, and then a schema with no reader for its own past.
+**And so was R4's own fix**, which is the fifth: a version marker that correctly
+identified future writes and could not identify the two historical shapes that
+lacked it. The fourth was the fix for the third and the fifth was the fix for the
+fourth. That is why the backward path is a published rule rather than something
+each slice is expected to remember, and why the rule now names its own second
+half - identifying what predates the marker from what it carries - which is the
+half that was skipped.
+
+The shape is worth recognising rather than the instance: every one of the five
+was found by somebody looking at existing data, and none by a suite, because a
+suite writes its fixtures with the build that reads them. A round trip through
+one schema cannot fail this way. **The test that catches it supplies a record in
+the shape the PREVIOUS build wrote**, and the one for R4 builds that record by
+executing a real run and removing exactly what the old build never wrote - with a
+precondition test asserting the fixture really is that shape.
+
+A sixth instance of the same habit, smaller and caught by a reviewer rather than
+by data: the fix's own tests all build their fixtures by STRIPPING a record the
+current build wrote, so none of them states a schema marker the current build
+would not write - and a record stating `artifact_schema_version: 1` was read
+under the current layout and then told it had said 2. The lesson applies to a
+fix as readily as to a defect, and the missing case is always the one the author
+did not think to write down.
+
+### What the independent review returned, and what it cost to be wrong about
+
+Three defects, and each was missed by a test that was written from the code
+rather than from the contract or from the surface a user meets. That is one
+lesson with three instances, and it is the one worth carrying.
+
+- **R1: the draw identity was not v4 section 9.2's.** It hashed the domain, the
+  stream, the seed and whatever the caller found convenient - an address and an
+  offset in minutes - where the specification names the domain, the seed, the
+  stream name, the step index and the ordinal. Deterministic, domain-separated,
+  and a different contract. **The test could not catch it because it recomputed
+  the payload the implementation had chosen.** It now writes the expected payload
+  from the specification's field list, and `draw_fraction` has no variadic
+  parameter, so a caller cannot supply an address because there is nowhere to put
+  one. The shipped run drops 12 samples where it dropped 13.
+- **R2: a READY Draft at a 30-minute timestep answered HTTP 500 on Start.** The
+  cadence check ran outside the port's exception translation and the route
+  catches only `LabControlRefused`, so the explanation naming the signal and both
+  numbers never arrived. **The test proved the lower-level object raises and
+  never drove the HTTP composition.** The check moved inside `_reporting_for`,
+  `CADENCE_NOT_EXPRESSIBLE` is a ninth control refusal, and `LabControlRefused`
+  gained a `detail` because a per-kind statement cannot name two particular
+  numbers.
+- **R3: a POINT reporting condition became an outage lasting the rest of the
+  run.** `reporting_inputs` dropped the frozen `timing_shape` and every absent
+  duration read as the interval's end, so POINT and INTERVAL_WIDE collapsed.
+  **Every test used the shipped document, which declares a WINDOW**, so the one
+  shape that worked was the only shape covered. The shape travels now,
+  `ReportingPathWindow` resolves its own span from it, and
+  `reporting-path-conditions-occupy-time-by-their-shape` publishes the rule.
+
+`EXECUTION_CONTRACT_VERSION` stays 8. R1 and R3 each narrow what a conforming
+implementation may do and would each move a number; they ride on eight because
+eight has never been published - `main` is at seven - and the ledger records the
+amendment rather than leaving it invisible after the merge. R2 moved nothing: a
+translation is not a rule.
+
+Three smaller corrections. The Lab landing page still said no simulator run
+exists and that execution was not implemented. The retained-timestamp probe's
+mutant was an undefined name, so its CAUGHT measured a `NameError` rather than a
+rejected restamping - and the test it named survived the reviewer's semantic
+mutant, because it asserted the offset and the value and never the timestamp.
+And `NOT_STARTED` said "Its frozen inputs are eligible", which a BLOCKED Draft
+renders beside its own blocking reasons.
+
+**The displayed columns differ by 119.50 L and not 120.** The removal is 120 L;
+the difference is that with the sensor's -0.5 L bias taken back out. Saying 120
+reads the reported value as the world's, which is the confusion the screen exists
+to prevent.
+
+- Guard probes: `.agent/T022-guard-probes.py` (11 of 11 CAUGHT) and
+  `.agent/T022-return-probes.py` (4 of 4, each putting a returned defect back
+  exactly as it was).

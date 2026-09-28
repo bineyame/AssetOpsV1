@@ -13,7 +13,6 @@ import {
 import type {
   ScenarioCatalogClient,
   ScenarioDetailResult,
-  ScenarioObservationReconciliation,
   ScenarioObservationSourceResolution,
   ScenarioParameter,
   ScenarioTargetResolution,
@@ -734,6 +733,36 @@ export function ScenarioFrame({
         </div>
 
         <div className="subsection">
+          <h3 className="subsection__heading" id="scenario-reporting-heading">
+            Whether a reading exists at all
+          </h3>
+          <p>
+            The rules above say what a reading timestamped at an instant
+            describes. These say whether there is one: when a sample is due, what
+            a forced reporting gap does to it, what a consumer sees when nothing
+            fresh arrived, and whether a publication failure is drawn or chosen.
+            None of them changes a world quantity, which is the last of them and
+            the reason the publication profile owns all of them.
+          </p>
+          <DataTable labelledBy="scenario-reporting-heading">
+            <thead>
+              <tr>
+                <th scope="col">Rule</th>
+                <th scope="col">What it says</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contract.reporting_rules.map((rule) => (
+                <tr key={rule.rule_id}>
+                  <th scope="row">{rule.display_name}</th>
+                  <td className="cell-secondary">{rule.statement}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </div>
+
+        <div className="subsection">
           <h3 className="subsection__heading" id="scenario-bounds-heading">
             What a later run does at a bound
           </h3>
@@ -822,125 +851,21 @@ export function ScenarioFrame({
         />
       </Panel>
 
-      <Panel
-        heading="The readings, against the causes declared before them"
-        headingId="scenario-reconciliation-heading"
-      >
-        <p>
-          Neither reading below prescribes what the simulated world holds. Each
-          is a value from a named source, and neither appears among the inputs
-          that start or change private world state. What this table adds is the
-          other half: whether the causes this scenario declares actually reach
-          the value the source reports.
-        </p>
-        <p>
-          The declared column is arithmetic over the authored causes that are
-          complete by that offset, in canonical units. It computes no
-          trajectory, holds no state, and changes nothing. Where it differs
-          from the reported value, the difference is stated with its sign
-          rather than left for a reader to work out.
-        </p>
-        <p>
-          Where it cannot answer it says so and says why, rather than
-          reporting a number the contract refuses elsewhere. There are three
-          such cases and each is a different fact: no declared starting value
-          for the state, a declared cause still running when the reading is
-          taken, and a declared cause that would take the state past a bound
-          this definition declares. Working out what a run does at a bound is
-          the runtime&apos;s, not this screen&apos;s.
-        </p>
+      {/*
+        The reconciliation panel stood here until T022 and went under
+        `D-2026-09-22-reconciliation-panel-retirement`. It published each authored
+        reading beside the value this document's own declared causes reach, with
+        the difference and its sign.
 
-        {contract.observation_reconciliation.length > 0 ? (
-          <DataTable labelledBy="scenario-reconciliation-heading">
-            <thead>
-              <tr>
-                <th scope="col">Reading</th>
-                <th scope="col">Source</th>
-                <th scope="col">Offset (minutes)</th>
-                <th scope="col">Reported</th>
-                <th scope="col">Declared causes reach</th>
-                <th scope="col">Difference</th>
-                <th scope="col">Result</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contract.observation_reconciliation.map((item) => (
-                <tr key={item.event_id}>
-                  <td>{item.event_id}</td>
-                  <td>{item.source_id}</td>
-                  <td>{item.offset_minutes}</td>
-                  <td>{`${item.reported_value} ${item.unit}`}</td>
-                  <td>
-                    {amount(item.declared_value, item.unit)}
-                    <span className="cell-secondary">
-                      {accountedByText(item)}
-                    </span>
-                  </td>
-                  <td>{amount(item.difference, item.unit)}</td>
-                  <td>
-                    {item.state}
-                    <span className="cell-secondary">{item.reason}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        ) : (
-          <p>This scenario authors no reading to reconcile.</p>
-        )}
-
-        <ReviewProposal
-          id="scenario-observation-reconciliation"
-          question="What should happen when the declared causes do not reach a reported reading?"
-          proposal={
-            <>
-              <p>
-                Proposed: state it, with the quantity and the sign, and do not
-                resolve it in code. The two readings this scenario authors are
-                reported observations from a named source, so neither can
-                prescribe tank state and the contract is coherent as it stands.
-                What it also has to say out loud is that the causes it declares
-                do not reach either of them.
-              </p>
-              <p>
-                Deliberately not done: adjusting any authored number so that
-                the two sides agree. The values on this screen are the ones the
-                previous checkpoint accepted, and editing them into agreement
-                would settle a product question by arithmetic rather than by
-                review.
-              </p>
-              <p>
-                There are three honest ways out and they are yours to choose
-                between: model the missing cause as its own causal entry;
-                declare a reporting behaviour that explains the difference; or
-                accept the authored readings and change the causes. Until one
-                is chosen, a later run setup should treat an unreached reading
-                as a reason to block rather than as a rounding matter.
-              </p>
-            </>
-          }
-          settled={
-            <>
-              A scenario authors causes and conditions, not the state
-              trajectory they produce, and a reported value is never private
-              world truth. Both readings are already classified that way and
-              neither reaches an initial value or a state change.
-            </>
-          }
-          onAccepting={
-            <>
-              The contract stating the difference rather than hiding it, with
-              the resolution left to a later slice you direct.
-            </>
-          }
-          onRedirecting={
-            <>
-              Naming which of the three ways out to take, or saying that a
-              difference of this size should be tolerated and why.
-            </>
-          }
-        />
-      </Panel>
+        It was honest about a narrower question than a reader would take it for,
+        and after T020A it was a partial account by construction: the document no
+        longer declares what the generator burns, so the column read 310 L against
+        a world holding 254.02 L. A run now generates the reading from a world a
+        kernel computed, and the Draft's own screen shows the true value, the
+        reported value and the reason there is no reading side by side. Keeping the
+        subtraction would have meant offering the weaker of two available answers,
+        beside the stronger one.
+      */}
 
       <Panel
         heading="Private test-oracle expectations"
@@ -1223,16 +1148,4 @@ function signalText(
     resolution.signal_display_name === null
     ? signalId
     : `${signalId}, ${resolution.signal_display_name}`;
-}
-
-/** A quantity the contract could compute, or a statement that it could not. */
-function amount(value: number | null, unit: string): string {
-  return value === null ? "Cannot be worked out" : `${value} ${unit}`;
-}
-
-function accountedByText(item: ScenarioObservationReconciliation): string {
-  if (item.accounted_by.length === 0) {
-    return "no declared cause is complete by this offset";
-  }
-  return `counting ${item.accounted_by.join(", ")}`;
 }

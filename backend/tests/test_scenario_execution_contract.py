@@ -7,52 +7,33 @@ because the acceptance criterion T018 carries is about that document: every
 public value in it is accounted for, and no reported value reaches
 initialization or a private-state transition.
 
-The fixture appears here too, and for one reason worth stating. Its numbers
-reconcile exactly and the shipped document's do not, so running both is what
-makes the reconciliation assertions two-sided: a reconciliation that could
-only ever answer `NOT_ACCOUNTED_FOR` would pass on a function that always said
-so.
+The fixture appears here too, because running two documents is what keeps a
+two-sided assertion two-sided: a claim that could only ever come out one way
+would pass on a function that always said so.
 
 Every scan here asserts its own input is non-empty before asserting anything
 about it. A scan over an empty set passes on a tree where the thing it
 protects has been deleted, which is the failure shape this project has now
 shipped nine times.
 
-## `reconcile_reported_observations` is a specification reference implementation
+## What used to be most of this file, and where it went
 
-Labelled here rather than left to be inferred, per
-`D-2026-09-21-specification-reference-implementation`: a specification with
-zero implementations is under-tested, so the contract has one, and it belongs
-to the test suite rather than to the product.
+The reconciliation reference implementation was exercised here at length, under a
+long explanation of why a specification with zero implementations is under-tested
+and why this one belonged to the test suite rather than to the product
+(`D-2026-09-21-specification-reference-implementation`). Its two expiry conditions
+were both conditions rather than slice numbers, and both have now happened: T021
+built the kernel it stopped being an authority against, and T022 removed its last
+product-path caller - the scenario detail screen's panel - under
+`D-2026-09-22-reconciliation-panel-retirement`.
 
-**It is not a product feature and nothing may treat it as one.** It answers
-one question about an authored document - do the causes declared before a
-reading reach the value that reading reports - and it answers it with no
-clock, no timestep, no state record and no output for any instant the
-scenario did not author a reading at. T019 removed the one thing that had
-made it a feature: run setup used to block a Draft on its verdict, and
-Amendment 1's proposal (e) took that out, because deciding whether causes
-reach a reading needs a kernel and run setup has none.
-
-**Its expiry is a condition, not a slice number**
-(`D-2026-09-22-expiry-follows-the-condition`), and it is two conditions on two
-clocks:
-
-- it stops being an **authority** when a kernel exists and the two are run
-  against the shipped document and compared. The kernel is what survives any
-  disagreement. That is the comparison T021 performs;
-- it leaves the **repository** when its last remaining product-path caller
-  goes. That caller is the `observation_reconciliation` payload built in
-  `simulator_lab_api.py` and rendered as a panel on the scenario detail
-  screen, which is merged T018 work.
-
-When that panel goes is Open Question 5 in
-`Docs/simulator-scenario-authoring-and-runtime.md` and it is **undecided**.
-Until someone decides, the panel is honest - it describes a real property of
-a document that does still contain two authored readings - so it is removed
-because somebody chose to, not because it became false. **No slice before that
-decision may treat the removal as in scope**, and the comparison is not the
-removal.
+So it is gone, and with it `declared_bounds`,
+`IMPLICIT_LOWER_BOUND_DIMENSIONS`, `RECONCILIATION_STATES` and the seven reason
+strings. The comment where `TestReconciliation` stood records what it was
+measuring. What this file still proves is what it always proved about the
+contract itself: the canonical units, the dispatch rules, the boundary cycle,
+what a timestamped reading means, whether a reading exists at all, and what a run
+does at a bound.
 """
 
 from __future__ import annotations
@@ -66,30 +47,23 @@ import yaml
 from scenario_fixtures import scenario_document
 
 from assetops_backend.scenarios.execution import (
-    ACCOUNTED_FOR_REASON,
     BOUNDARY_CYCLE,
     BOUND_CASES,
     BOUND_POLICIES,
     BOUND_POLICY_STATEMENTS,
-    OBSERVATION_RULES,
-    READING_CLASSES,
-    BOUND_REACHED_LOWER,
-    BOUND_REACHED_UPPER,
-    NOT_ACCOUNTED_FOR_REASON,
-    NO_DECLARED_INITIAL_VALUE,
-    OPEN_CAUSAL_WINDOW,
-    ORDER_DEPENDENT_GROUP,
     CANONICAL_UNITS,
     DISPATCH_RULES,
     DURATION_UNIT_SPELLINGS,
     NON_NEGATIVE_DIMENSIONS,
+    OBSERVATION_RULES,
     RATE_INTEGRALS,
+    READING_CLASSES,
+    REPORTING_RULES,
+    cadence_is_expressible,
     canonical_quantity,
-    declared_bounds,
     initialization_inputs,
-    reconcile_reported_observations,
+    sample_due_at,
     state_transition_inputs,
-    unaccounted_observations,
 )
 from assetops_backend.scenarios.models import (
     EXECUTABLE_ROLES,
@@ -699,16 +673,6 @@ DELIVERY = ("simultaneous-delivery", "INCREASE")
 DRAW = ("simultaneous-draw", "DECREASE")
 
 
-def _reading_after_the_pair(document: dict):
-    results = {
-        result.event_id: result
-        for result in reconcile_reported_observations(
-            parse_scenario_document(document, source="a test", origin="SHIPPED")
-        )
-    }
-    return results["second-entry"]
-
-
 class TestIntraInstantOrder:
     """Two causes at one instant are a group with a net, not a sequence.
 
@@ -747,88 +711,55 @@ class TestIntraInstantOrder:
         # The reversed claim must be gone rather than softened.
         assert "authored order" not in rule.statement
 
-    def test_a_group_whose_net_is_unambiguous_is_answered(self) -> None:
-        """The half that would be missing if only the refusing case were
-        measured. Neither extreme reaches a bound, so no ordering does."""
-        reading = _reading_after_the_pair(
-            _with_simultaneous_transitions(
-                (*DELIVERY, 100), (*DRAW, 50), capacity=500
-            )
-        )
-
-        # Two hundred, plus a net fifty at the instant, less the six the
-        # window draws by the time the reading is taken.
-        assert reading.declared_value == 244.0
-        assert reading.state == "NOT_ACCOUNTED_FOR"
-
     def test_the_listing_order_of_a_group_changes_nothing_at_all(self) -> None:
-        """The invariant the reversal restores, measured over the whole
-        record rather than over the declared value alone: `accounted_by` is
-        part of what a reader sees, so it has to be order-independent too."""
-        one_way = _reading_after_the_pair(
-            _with_simultaneous_transitions(
-                (*DELIVERY, 100), (*DRAW, 50), capacity=500
-            )
-        )
-        the_other = _reading_after_the_pair(
-            _with_simultaneous_transitions(
-                (*DRAW, 50), (*DELIVERY, 100), capacity=500
-            )
-        )
+        """The invariant the reversal restores, over what the document projects.
 
-        assert one_way == the_other
-        assert "simultaneous-delivery" in one_way.accounted_by
-        assert "simultaneous-draw" in one_way.accounted_by
+        Two documents differing only in which of two simultaneous transitions is
+        listed first declare the same two transitions, with the same direction, the
+        same quantity and the same instant. The assertion used to be made through
+        the reconciler's own record; that record is gone, and
+        `state_transition_inputs` is the projection that survives.
 
-    def test_a_group_one_ordering_could_overfill_is_abstained_on(self) -> None:
-        """Every increase first reaches five hundred and fifty against a
-        declared five hundred; every decrease first reaches one hundred and
-        then four hundred and fifty, and does not. The group is genuinely
-        ambiguous, so the contract declines rather than picking."""
-        reading = _reading_after_the_pair(
-            _with_simultaneous_transitions(
-                (*DELIVERY, 350), (*DRAW, 100), capacity=500
-            )
-        )
-
-        assert reading.declared_value is None
-        assert reading.state == "NOT_RECONCILABLE"
-        assert reading.reason == ORDER_DEPENDENT_GROUP
-
-    def test_a_group_one_ordering_could_empty_is_abstained_on(self) -> None:
-        """The lower bound is the floor every stored quantity has, so this
-        case needs no declared capacity. Every decrease first reaches minus
-        fifty; every increase first does not."""
-        reading = _reading_after_the_pair(
-            _with_simultaneous_transitions((*DRAW, 250), (*DELIVERY, 300))
-        )
-
-        assert reading.declared_value is None
-        assert reading.state == "NOT_RECONCILABLE"
-        assert reading.reason == ORDER_DEPENDENT_GROUP
-
-    def test_a_group_where_both_extremes_reach_a_bound_is_abstained_on(
-        self,
-    ) -> None:
-        """The case the statement left unspecified until T019's review.
-
-        Every increase first reaches five hundred and fifty against a
-        declared five hundred; every decrease first reaches minus fifty
-        against the floor. Both orderings reach A bound, but not the same
-        one, so what a kernel does still differs and the contract is no more
-        able to answer than when only one reaches. The code always abstained
-        here; the versioned statement did not say so, and an unspecified case
-        is one where two conforming kernels may legitimately disagree.
+        Compared as a SET rather than as a sequence, and the difference is the rule
+        itself: `intra-instant-order` says the order rows are written in "is
+        authoring and display; it is not a fact about the world". So the projection
+        listing them in authored order is correct, and what must not differ is any
+        number a kernel would act on.
         """
-        reading = _reading_after_the_pair(
-            _with_simultaneous_transitions(
-                (*DELIVERY, 350), (*DRAW, 250), capacity=500
+        one_way = state_transition_inputs(
+            parse_scenario_document(
+                _with_simultaneous_transitions(
+                    (*DELIVERY, 100), (*DRAW, 50), capacity=500
+                ),
+                source="a test",
+                origin="SHIPPED",
+            )
+        )
+        the_other = state_transition_inputs(
+            parse_scenario_document(
+                _with_simultaneous_transitions(
+                    (*DRAW, 50), (*DELIVERY, 100), capacity=500
+                ),
+                source="a test",
+                origin="SHIPPED",
             )
         )
 
-        assert reading.declared_value is None
-        assert reading.state == "NOT_RECONCILABLE"
-        assert reading.reason == ORDER_DEPENDENT_GROUP
+        # Non-empty first: two empty projections are equal and prove nothing.
+        assert len(one_way) >= 3
+        assert set(one_way) == set(the_other)
+        events = {item.event_id for item in one_way}
+        assert "simultaneous-delivery" in events
+        assert "simultaneous-draw" in events
+        # And the two of them really do land at one instant, which is what makes
+        # this an ordering question rather than a sequence of two.
+        at_one_instant = {
+            item.event_id: item.complete_at_offset
+            for item in one_way
+            if item.event_id.startswith("simultaneous-")
+        }
+        assert len(at_one_instant) == 2
+        assert len(set(at_one_instant.values())) == 1
 
     def test_the_rule_states_the_both_extremes_case(self) -> None:
         """The statement is versioned, so the case has to be in it and not
@@ -839,86 +770,6 @@ class TestIntraInstantOrder:
 
         assert "either extreme" in rule.statement
         assert "or both" in rule.statement
-
-    def test_a_group_whose_net_breaches_is_the_ordinary_bound_case(
-        self,
-    ) -> None:
-        """Not everything about a group is an ambiguity. When the net itself
-        ends outside a bound, every ordering ends outside it, so this is the
-        bound case the same contract already had and it keeps its own
-        reason."""
-        reading = _reading_after_the_pair(
-            _with_simultaneous_transitions(
-                (*DELIVERY, 400), (*DRAW, 50), capacity=500
-            )
-        )
-
-        assert reading.state == "NOT_RECONCILABLE"
-        assert reading.reason == BOUND_REACHED_UPPER
-
-    def test_a_lone_transition_that_breaches_is_still_the_bound_case(
-        self,
-    ) -> None:
-        """A group of one has no ordering to be ambiguous about, so the
-        reversal changed nothing for the case T018's review found."""
-        document = scenario_document()
-        document["timeline"][2:2] = [
-            {
-                "event_id": "one-large-delivery",
-                "sequence": 0,
-                "offset_minutes": 110,
-                "entry_kind": "EVENT",
-                "category": "MAINTENANCE",
-                "description": "A delivery larger than the store holds.",
-                "execution_role": "CAUSAL_INPUT",
-                "state_key": "example-stored-volume@example-store",
-                "execution_requirement": "REQUIRED",
-                "timing": {"shape": "POINT"},
-                "state_effect": {
-                    "direction": "INCREASE",
-                    "quantity_parameter_id": "one-large-delivery-volume",
-                },
-                "parameters": [
-                    {
-                        "parameter_id": "one-large-delivery-volume",
-                        "display_name": "A volume this entry moves",
-                        "value": 400,
-                        "unit": "L",
-                        "execution_role": "CAUSAL_INPUT",
-                        "state_key": "example-stored-volume@example-store",
-                        "execution_requirement": "REQUIRED",
-                        "ownership": {
-                            "owner": "SCENARIO_INPUT",
-                            "initializes": False,
-                        },
-                    }
-                ],
-            }
-        ]
-        document["public_parameters"].append(
-            {
-                "parameter_id": "example-capacity",
-                "display_name": "How much the store holds",
-                "value": 500,
-                "unit": "L",
-                "execution_role": "CAUSAL_INPUT",
-                "state_key": "example-stored-capacity",
-                "execution_requirement": "REQUIRED",
-                "ownership": {"owner": "SCENARIO_INPUT", "initializes": True},
-                "bounds": {
-                    "state_key": "example-stored-volume@example-store",
-                    "bound_kind": "UPPER",
-                },
-            }
-        )
-        for position, entry in enumerate(document["timeline"], start=1):
-            entry["sequence"] = position
-
-        reading = _reading_after_the_pair(document)
-
-        assert reading.state == "NOT_RECONCILABLE"
-        assert reading.reason == BOUND_REACHED_UPPER
-
 
 class TestBoundCases:
     def test_the_four_bound_cases_the_task_names_are_declared(self) -> None:
@@ -1005,285 +856,80 @@ def _shipped_document_with_a_scenario_owned_capacity() -> dict:
     than of a shape the parser would refuse.
     """
     document = shipped_document()
-    for parameter in document["public_parameters"]:
-        if parameter["parameter_id"] != "tank-capacity":
-            continue
-        parameter["value"] = 500
-        parameter["ownership"]["owner"] = "SCENARIO_INPUT"
-    return document
+# `TestReconciliation`, the two `declared_bounds` tests and the reason-vocabulary
+# test stood here until T022. They exercised
+# `reconcile_reported_observations`, `declared_bounds`,
+# `IMPLICIT_LOWER_BOUND_DIMENSIONS`, `RECONCILIATION_STATES` and the seven reason
+# strings, all of which were retired together under
+# `D-2026-09-22-reconciliation-panel-retirement` when their last product-path
+# caller - the scenario detail screen's panel - was removed.
+#
+# What they were measuring, kept because it is why the retirement was right rather
+# than merely permitted: the reconciler answered whether the causes a DOCUMENT
+# declares reach a reading the same document declares. After T020A that is a
+# partial account by construction - the document no longer carries what the
+# generator burns - so on the shipped scenario it reported 310 L against a world
+# holding 254.02 L. A run now generates the reading from a world a kernel computed,
+# and `host/tests/` asserts that world to the litre.
+#
+# The contract semantics those tests also touched are still asserted here: the
+# bound cases and their policies in `TestBoundCases`, the intra-instant rule's own
+# statement in `TestIntraInstantOrder`, and the reporting rules in
+# `TestReportingRules` below.
 
 
-class TestReconciliation:
-    """Exercising the reference implementation described in the module
-    docstring above. These are tests of a specification's reference
-    implementation, not of a product feature: nothing in the product decides
-    anything on their subject any more."""
+class TestReportingRules:
+    """The rules about whether a reading exists at all, new in T022.
 
-    """Two-sided on purpose: one document reconciles and one does not."""
+    Four questions a version-seven implementation could have answered any way it
+    liked: when a sample is due, what a forced gap does to one, what a consumer
+    sees when nothing fresh arrived, and whether a publication failure is drawn or
+    chosen. Each is a rule here, and the two that are arithmetic are executable
+    beside the sentence that publishes them.
+    """
 
-    def test_the_fixture_reconciles_exactly(self) -> None:
-        results = reconcile_reported_observations(fixture_scenario())
+    def test_every_rule_has_an_identity_and_a_statement(self) -> None:
+        assert len(REPORTING_RULES) >= 6
+        identities = [rule.rule_id for rule in REPORTING_RULES]
+        assert len(set(identities)) == len(identities)
+        for rule in REPORTING_RULES:
+            assert rule.display_name
+            assert len(rule.statement) > 80
 
-        assert results
-        assert [result.state for result in results] == [
-            "ACCOUNTED_FOR",
-            "ACCOUNTED_FOR",
+    def test_the_cadence_rules_are_executable_beside_their_sentences(
+        self,
+    ) -> None:
+        """The T020B lesson applied here: the formula decides, the prose describes.
+
+        Four review rounds went on sentences that restated a subset of what a
+        formula did, and the formula was right every time. So the two lines of
+        arithmetic these rules are about live in the contract module and anything
+        that needs the answer calls them.
+        """
+        assert sample_due_at(0, 15) is True
+        assert sample_due_at(1545, 15) is True
+        assert sample_due_at(1545, 60) is False
+        assert sample_due_at(1500, 60) is True
+
+        assert cadence_is_expressible(60, 15) is True
+        assert cadence_is_expressible(15, 15) is True
+        # The case the rule refuses rather than rounds: a cadence the run's
+        # resolution cannot express would be due between two boundaries.
+        assert cadence_is_expressible(10, 15) is False
+
+    def test_a_reporting_parameter_may_not_change_the_world(self) -> None:
+        """The rule that keeps criterion 8 a fact about records.
+
+        Stated here because the structural half is elsewhere - two records with no
+        field for each other's content - and a reader of the contract needs the
+        sentence as well as the shape.
+        """
+        rule = {item.rule_id: item for item in REPORTING_RULES}[
+            "reporting-parameters-move-no-world-quantity"
         ]
-        assert not unaccounted_observations(results)
 
-    def test_one_changed_value_makes_the_fixture_stop_reconciling(self) -> None:
-        document = scenario_document()
-        document["timeline"][2]["parameters"][0]["value"] = 180
-
-        results = reconcile_reported_observations(
-            parse_scenario_document(document, source="a test", origin="SHIPPED")
-        )
-
-        unaccounted = unaccounted_observations(results)
-        assert [result.event_id for result in unaccounted] == ["second-entry"]
-        assert unaccounted[0].difference == -14.0
-
-    def test_the_shipped_readings_are_not_reached_by_the_declared_causes(
-        self,
-    ) -> None:
-        """The conflict, stated rather than hidden, and it widened at T020A.
-
-        Neither reading prescribes private tank state: both are reported
-        observations from a named source and neither appears in the
-        initialization or transition inputs, which the tests above assert. So
-        the contract is internally coherent. What it also says, out loud, is
-        that the causes it declares do not reach either reading - and it says
-        it with the quantity and the sign rather than leaving a reader to
-        subtract.
-
-        The declared level was 254 L until T020A and is now 310 L, because
-        the dispatch window no longer declares the 56 L it consumes: the
-        generator's specific fuel consumption is a property of the machine,
-        the Foundation declares it, and the model rule owns the transition
-        (`D-2026-09-22-consumption-coefficient-unit`). This projection reads
-        the document and only the document, so the consumption it can no
-        longer see is consumption it does not report.
-
-        T021 closed the gap and corrected the two readings to 254.02 L, the
-        value its kernel independently computes against MG-001's own
-        Foundation. The difference this projection reports is therefore no
-        longer arbitrary: it is 55.98 L at both readings, which is exactly the
-        fuel the model law burns over the dispatch window and exactly the
-        quantity this document deliberately does not carry. The reconciler is
-        still right about the narrower question it asks, and it has stopped
-        being the authority on the wider one.
-        """
-        results = {
-            result.event_id: result
-            for result in reconcile_reported_observations(shipped_scenario())
-        }
-
-        assert set(results) == {
-            "fuel-level-after-the-gap",
-            "operator-tank-inspection",
-        }
-
-        after_the_gap = results["fuel-level-after-the-gap"]
-        assert after_the_gap.declared_value == 310.0
-        assert after_the_gap.reported_value == 254.02
-        assert after_the_gap.difference == -55.98
-        assert after_the_gap.state == "NOT_ACCOUNTED_FOR"
-        assert after_the_gap.accounted_by == ("unaccounted-fuel-removal",)
-
-        inspection = results["operator-tank-inspection"]
-        assert inspection.declared_value == 310.0
-        assert inspection.reported_value == 254.02
-        assert inspection.difference == -55.98
-        assert inspection.state == "NOT_ACCOUNTED_FOR"
-
-        # The difference is the same at both readings, and it is the
-        # consumption the model law owns. Nothing moves the tank between
-        # offset 1590 and offset 1800, so two readings of one world are the
-        # same number, and the residual a document-only projection reports is
-        # the one quantity the document no longer declares.
-        assert after_the_gap.difference == inspection.difference
-
-    def test_a_reading_after_a_bound_is_reached_is_not_reported_at_all(
-        self,
-    ) -> None:
-        """The T018 review's reproduction, kept.
-
-        Summing every completed transition without consulting a bound
-        reported a declared volume above the capacity the same document
-        declares, under a column headed "declared causes reach" - a number
-        the contract refuses elsewhere. Applying the bound would be the
-        kernel; declining to answer is the contract.
-        """
-        document = _shipped_document_with_a_scenario_owned_capacity()
-        for entry in document["timeline"]:
-            if entry["event_id"] == "scheduled-refuelling":
-                entry["offset_minutes"] = 1550
-
-        results = {
-            result.event_id: result
-            for result in reconcile_reported_observations(
-                parse_scenario_document(
-                    document, source="a test", origin="SHIPPED"
-                )
-            )
-        }
-
-        assert results
-        for result in results.values():
-            assert result.state == "NOT_RECONCILABLE", result.event_id
-            assert result.declared_value is None
-            assert result.difference is None
-            assert "above a bound" in result.reason
-
-        # Non-vacuous: without the delivery moved, the same two readings are
-        # answered, so the assertion above is about the bound and not about
-        # the readings being unanswerable in general. The control is the same
-        # document with the delivery where the scenario puts it, not the
-        # shipped one - otherwise the control and the case would differ in
-        # two ways and neither would be the bound.
-        unmoved = {
-            result.event_id: result
-            for result in reconcile_reported_observations(
-                parse_scenario_document(
-                    _shipped_document_with_a_scenario_owned_capacity(),
-                    source="a test",
-                    origin="SHIPPED",
-                )
-            )
-        }
-        assert set(unmoved) == set(results)
-        for result in unmoved.values():
-            assert result.state == "NOT_ACCOUNTED_FOR"
-
-    def test_the_declared_bound_is_declared_rather_than_guessed(self) -> None:
-        """Nothing infers that a capacity limits a volume from their names.
-
-        Re-proved where the distinction still exists, which is not where it
-        was. `declared_bounds` reports no upper value for the SHIPPED
-        document any more: the capacity is the site's and the document does
-        not know it, so the control and the case would both be `(0.0, None)`
-        and the test would pass while proving nothing - the exact failure
-        `D-2026-09-22-capacity-bound-source` warns the cheap fix produces.
-
-        So the relationship is proved against the parsed document, where
-        removing the `bounds` block is still an observable change, and the
-        value is proved in `test_run_setup.py`, where run setup resolves it
-        from the site's own declared property.
-        """
-        scenario = shipped_scenario()
-        capacity = next(
-            parameter
-            for parameter in scenario.public_parameters
-            if parameter.parameter_id == "tank-capacity"
-        )
-
-        # The relationship, declared and carrying no number.
-        assert capacity.value is None
-        assert capacity.bounds is not None
-        assert capacity.bounds.state_key == "fuel-tank-volume"
-        assert capacity.bounds.bound_kind == "UPPER"
-
-        # Remove the declaration and it is gone: it came from the document,
-        # not from the two state keys sharing a prefix.
-        document = shipped_document()
-        for parameter in document["public_parameters"]:
-            parameter.pop("bounds", None)
-
-        without = next(
-            parameter
-            for parameter in parse_scenario_document(
-                document, source="a test", origin="SHIPPED"
-            ).public_parameters
-            if parameter.parameter_id == "tank-capacity"
-        )
-        assert without.bounds is None
-
-    def test_the_bound_value_left_the_document_with_the_capacity(self) -> None:
-        """`declared_bounds` reports no upper value, and that is the answer.
-
-        A projection of a document cannot report a number the document does
-        not carry. The lower bound that remains is this module's own
-        `IMPLICIT_LOWER_BOUND_DIMENSIONS` rule rather than anything authored,
-        which is stated here so a reader does not take the `0.0` for a
-        surviving document fact.
-        """
-        # Keyed on the ADDRESS since T020A1. The shipped document names the
-        # tank, so the bound it declares is about that tank and the map says
-        # so; a key of `fuel-tank-volume` raises here rather than quietly
-        # returning the default, which is the assertion.
-        assert declared_bounds(shipped_scenario())[
-            "fuel-tank-volume@fuel-tank"
-        ] == (0.0, None)
-
-        # And a document that DOES own its capacity still reports the value,
-        # so the function is not simply broken.
-        with_value = declared_bounds(
-            parse_scenario_document(
-                _shipped_document_with_a_scenario_owned_capacity(),
-                source="a test",
-                origin="SHIPPED",
-            )
-        )
-        assert with_value["fuel-tank-volume@fuel-tank"] == (0.0, 500.0)
-
-    def test_every_answer_says_which_one_it_is(self) -> None:
-        """A `NOT_RECONCILABLE` with no reason is several facts wearing one
-        name, and the same is true of an answer.
-
-        The set is built from the module rather than listed here, and the
-        count is derived from it. A hand-written count is a number to keep in
-        agreement with a set that grows: this test asserted six while
-        `ORDER_DEPENDENT_GROUP` existed and was not in it, so the new reason
-        was outside every assertion below.
-        """
-        import assetops_backend.scenarios.execution as contract
-
-        reasons = {
-            getattr(contract, name)
-            for name in dir(contract)
-            if name.endswith(("_REASON", "_WINDOW", "_UPPER", "_LOWER", "_VALUE", "_GROUP"))
-            and isinstance(getattr(contract, name), str)
-        }
-
-        assert reasons >= {
-            ACCOUNTED_FOR_REASON,
-            NOT_ACCOUNTED_FOR_REASON,
-            NO_DECLARED_INITIAL_VALUE,
-            OPEN_CAUSAL_WINDOW,
-            BOUND_REACHED_UPPER,
-            BOUND_REACHED_LOWER,
-            ORDER_DEPENDENT_GROUP,
-        }
-        assert len(reasons) == 7, sorted(reasons)
-
-        for reason in reasons:
-            assert reason.strip()
-            # Digit-free on purpose: the quantities belong in the record's
-            # own columns, and prose that restated them would be a second
-            # place for a number to drift.
-            assert not any(character.isdigit() for character in reason)
-
-        for result in reconcile_reported_observations(shipped_scenario()):
-            assert result.reason in reasons
-
-    def test_a_reading_inside_an_open_causal_window_is_not_guessed_at(
-        self,
-    ) -> None:
-        """Apportioning part of a window would be a transition rule.
-
-        Transition rules belong to the kernel. The contract says it cannot
-        answer rather than inventing half an effect.
-        """
-        document = scenario_document()
-        document["timeline"][2]["offset_minutes"] = 90
-
-        results = reconcile_reported_observations(
-            parse_scenario_document(document, source="a test", origin="SHIPPED")
-        )
-        by_event = {result.event_id: result for result in results}
-
-        assert by_event["second-entry"].state == "NOT_RECONCILABLE"
-        assert by_event["second-entry"].declared_value is None
+        assert "no stock" in rule.statement
+        assert "same trajectory" in rule.statement
 
 
 def _every_parameter(scenario):

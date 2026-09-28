@@ -9,9 +9,15 @@ The operator Sites API is mounted in both gate states, because the gate covers
 simulator surfaces and execution, never objects or stores. Creating a Site is a
 Simulator Lab capability and its route lives on the gated router.
 
-No simulator execution, ingestion, analytics, configuration editing, or
-Findings are served, and no endpoint here implies that operational evidence
-exists.
+Simulator EXECUTION is served behind the gate since T022, and this module cannot
+compose it. Only `host/` may import both a kernel and the product, and nothing may
+import `host/`, so an execution port arrives here as an argument or not at all:
+`create_app` takes one, passes it to the gated router, and a build without one
+serves the execution routes answering that no port is composed. The composed
+entry point is the leaf's own application module.
+
+No ingestion, analytics, configuration editing, or Findings are served, and no
+endpoint here implies that operational evidence exists.
 """
 
 from __future__ import annotations
@@ -20,6 +26,7 @@ from fastapi import APIRouter, FastAPI
 
 from assetops_backend.config import FeatureFlags, load_feature_flags
 from assetops_backend.runs.composition import build_run_repository
+from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
 from assetops_backend.runs.profiles import (
     MODEL_PROFILES,
@@ -55,6 +62,7 @@ def create_app(
     site_repository: SiteRepository | None = None,
     scenario_repository: ScenarioDefinitionRepository | None = None,
     run_repository: SimulationRunRepository | None = None,
+    execution: LabExecutionPort | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -86,6 +94,13 @@ def create_app(
     would be written to. The versioned profiles are passed in from the one
     module that declares them, so a route never reaches for a catalog it
     could also have imported.
+
+    `execution` is injected and never built here. It is the one port this module
+    could not compose even if it wanted to: only the neutral leaf may import a
+    kernel, and nothing may import the leaf. It is also only passed on when the
+    gate is open, which is what makes a closed build unable to reach a kernel
+    however it was composed - the gate covers execution, so a closed gate hands
+    the router nothing.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -115,6 +130,7 @@ def create_app(
                 runs,
                 MODEL_PROFILES,
                 PUBLICATION_PROFILES,
+                execution,
             )
         )
 

@@ -85,14 +85,28 @@ export function SimulatorLabFrame({
         ))}
       </Panel>
 
+      {/*
+        This panel said "No simulator run exists" and that execution was not
+        implemented until T022, when both became false: a Draft can be started,
+        stepped and run to the end, and what it produced is inspectable on the
+        Draft's own screen. The heading and the first paragraph are the two
+        sentences that changed; everything below them was true before and is
+        true now, and is what this workspace is still not.
+      */}
       <Panel
-        heading="No simulator run exists"
+        heading="What this workspace is"
         headingId="simulator-lab-empty-heading"
       >
         <p>
-          No simulated world, site, device, or simulator run exists, and run
-          execution is not implemented yet. Nothing can be started, inspected,
-          rerun, or compared against simulator truth here.
+          A Draft run can be set up, started, stepped and run to the end here,
+          and what it produced can be inspected: the world it holds at the
+          instant it has reached, and what each configured device reported about
+          that world. None of it leaves this workspace. Executing a Draft stages
+          no gateway message, releases no source envelope, commits nothing and
+          writes nothing to any site - the readings it generates are private
+          simulator truth and are not operational evidence - and nothing can be
+          rerun or compared against another run. Setting a Site up is a separate
+          thing this workspace does do, and it does persist a product Site.
         </p>
         <p>
           This is a developer and simulator workspace, separate from the

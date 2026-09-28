@@ -51,8 +51,12 @@ Replay, are unaffected by it in both states.
   Lab's Site Templates catalog is served at
   `GET /api/simulator-lab/site-templates`, and the create-a-site flow is served
   at `/simulator-lab/create-site` with `POST /api/simulator-lab/sites` behind
-  it. The Sites index offers a link into that flow. There is still no run
-  execution.
+  it. The Sites index offers a link into that flow. A Draft can be set up,
+  and - in a build composed through `host/lab_app.py` - started, stepped and
+  run to the end, with the world it holds and the readings its configured
+  devices published shown side by side on the Draft's own screen. Nothing
+  there stages a gateway message, releases an envelope, commits anything, or
+  writes to any Site.
 
 The Sites index, one site's page, and the `GET /api/sites` and
 `GET /api/sites/{site_id}` routes behind them are operator capabilities and are
@@ -175,6 +179,30 @@ cd backend
 
 Health route: `GET http://127.0.0.1:8000/api/health`
 
+**This entry point cannot execute a run, and says so rather than hiding it.**
+Only `host/` may import a kernel and the product at once, and nothing may import
+`host/`, so an execution port reaches the app as an argument or not at all. A
+build composed from `assetops_backend` alone serves the four execution routes
+behind the Lab gate and answers `EXECUTION_PORT_NOT_COMPOSED` on each. The route
+set stays a function of the gate, which is what keeps the gate's own test a
+comparison between two states rather than three.
+
+### A build that executes
+
+```
+cd host
+..\.venv\Scripts\python.exe -m uvicorn lab_app:app --reload
+```
+
+`host/lab_app.py` is the composition: the same application, with an execution
+port wired behind the gated Lab. It builds the port only when
+`simulator_lab.enabled` is true, for the reason the run store is built only
+then - a closed build must not hold a handle belonging to a capability it does
+not serve.
+
+`GET /api/simulator-lab/status` reports `run_execution_composed`, which is how to
+tell the two entry points apart without guessing from a refusal.
+
 ### Frontend
 
 ```
@@ -207,6 +235,13 @@ cd host
 A test that composes both sides lives here and nowhere else. The dependency guard
 scans the whole backend tree including `backend/tests`, and a composing test is
 not an exception to it.
+
+`host/` also owns the private execution artifacts, under `var/executions` - one
+file per run, holding what an execution produced so a completed run can be
+inspected after the process that ran it is gone. It is the leaf's and not the
+product's on purpose: a trajectory is private simulator truth rather than
+configuration, and a product store of private truth would put a filing cabinet
+inside the truth barrier.
 
 ### Guards
 

@@ -505,38 +505,20 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
         canonical_unit: "L",
       },
     ],
-    observation_reconciliation: [
+    reporting_rules: [
       {
-        event_id: "fuel-level-after-the-gap",
-        source_id: "fuel-level-sensor-reading",
-        parameter_id: "level-after-the-gap",
-        state_key: "fuel-tank-volume",
-        offset_minutes: 1590,
-        reported_value: 155,
-        declared_value: 254,
-        difference: -99,
-        unit: "L",
-        state: "NOT_ACCOUNTED_FOR",
-        reason:
-          "the causes declared before this reading do not reach the value " +
-          "it reports, and no declared cause accounts for the difference",
-        accounted_by: ["generator-run-window", "unaccounted-fuel-removal"],
+        rule_id: "reporting-cadence-is-counted-from-the-interval-start",
+        display_name: "When a sample is due",
+        statement:
+          "A sample is due at every instant whose offset is a whole multiple " +
+          "of the declared cadence, and at no other instant.",
       },
       {
-        event_id: "operator-tank-inspection",
-        source_id: "operator-hand-record",
-        parameter_id: "hand-recorded-level",
-        state_key: "fuel-tank-volume",
-        offset_minutes: 1800,
-        reported_value: 150,
-        declared_value: 254,
-        difference: -104,
-        unit: "L",
-        state: "NOT_ACCOUNTED_FOR",
-        reason:
-          "the causes declared before this reading do not reach the value " +
-          "it reports, and no declared cause accounts for the difference",
-        accounted_by: ["generator-run-window", "unaccounted-fuel-removal"],
+        rule_id: "a-reporting-gap-suppresses-the-sample",
+        display_name: "A forced reporting gap",
+        statement:
+          "While a path is forced unavailable, a sample due inside the window " +
+          "produces no reading at all and the world carries on unobserved.",
       },
     ],
   },
@@ -802,24 +784,8 @@ export function recordRenderedStrings(
     );
   }
 
-  for (const item of detail.execution_contract.observation_reconciliation) {
-    rendered.push(
-      item.event_id,
-      item.source_id,
-      String(item.offset_minutes),
-      `${item.reported_value} ${item.unit}`,
-      item.declared_value === null
-        ? "Cannot be worked out"
-        : `${item.declared_value} ${item.unit}`,
-      item.difference === null
-        ? "Cannot be worked out"
-        : `${item.difference} ${item.unit}`,
-      item.state,
-      item.reason,
-      item.accounted_by.length === 0
-        ? "no declared cause is complete by this offset"
-        : `counting ${item.accounted_by.join(", ")}`,
-    );
+  for (const rule of detail.execution_contract.reporting_rules) {
+    rendered.push(rule.display_name, rule.statement);
   }
 
   for (const expectation of expectations) {
@@ -883,6 +849,5 @@ export const SCENARIO_DETAIL_FALLBACKS: ScenarioDetail = {
   execution_contract: {
     ...SCENARIO_DETAIL.execution_contract,
     initialization_inputs: [],
-    observation_reconciliation: [],
   },
 };

@@ -850,24 +850,23 @@ class TestObservationSourceResolution:
             ), item["cadence_statement"]
 
 
-class TestTheShippedReconciliation:
-    """The declared-versus-reported conflict, on the payload.
+class TestTheReportingRulesOnThePayload:
+    """What replaced the reconciliation, on the payload.
 
     Run through the real composition, because the claim is about the shipped
     definition rather than about a fixture built to make it true.
 
-    The declared level is 310 L since T020A, where it was 254 L: the dispatch
-    window no longer declares the fuel it consumes, because the generator's
-    specific fuel consumption is a property of the machine and the
-    Foundation declares it
-    (`D-2026-09-22-consumption-coefficient-unit`). This payload is a
-    projection of the document, so consumption it cannot see is consumption
-    it does not report.
+    `observation_reconciliation` was here until T022. It published each authored
+    reading beside the value this document's own declared causes reach - 310 L
+    against readings of 254.02 L, a difference of 55.98 L that was exactly the
+    fuel the model law burns and the document stopped declaring in T020A. It went
+    with its panel under `D-2026-09-22-reconciliation-panel-retirement`, because a
+    run now generates the reading from a world a kernel computed and the Draft's
+    own screen shows the true value, the reported value and the reason there is no
+    reading side by side.
 
-    T021 corrected the two readings to 254.02 L from the trajectory its kernel
-    computes, so the difference this panel shows is now 55.98 L at both - the
-    fuel the model law burns, which is the one quantity the document does not
-    declare.
+    What the payload carries instead is the rules that decide whether a reading
+    exists at all, which is the subject the subtraction was a weaker answer about.
     """
 
     def contract(self) -> dict:
@@ -878,30 +877,38 @@ class TestTheShippedReconciliation:
             "scenario"
         ]["execution_contract"]
 
-    def test_the_readings_are_reported_against_the_declared_causes(
+    def test_every_reporting_rule_the_contract_declares_is_published(
         self,
     ) -> None:
-        results = {
-            item["event_id"]: item
-            for item in self.contract()["observation_reconciliation"]
+        from assetops_backend.scenarios.execution import REPORTING_RULES
+
+        published = {
+            item["rule_id"]: item for item in self.contract()["reporting_rules"]
         }
 
-        assert set(results) == {
-            "fuel-level-after-the-gap",
-            "operator-tank-inspection",
-        }
+        # Non-empty first, and compared against the contract's own tuple rather
+        # than against a list written here: a payload built from an empty set
+        # would satisfy every per-rule assertion below.
+        assert len(REPORTING_RULES) >= 6
+        assert set(published) == {rule.rule_id for rule in REPORTING_RULES}
+        for rule in REPORTING_RULES:
+            assert published[rule.rule_id]["display_name"] == rule.display_name
+            assert published[rule.rule_id]["statement"] == rule.statement
 
-        after_the_gap = results["fuel-level-after-the-gap"]
-        assert after_the_gap["reported_value"] == 254.02
-        assert after_the_gap["declared_value"] == 310.0
-        assert after_the_gap["difference"] == -55.98
-        assert after_the_gap["state"] == "NOT_ACCOUNTED_FOR"
-        assert after_the_gap["source_id"] == "fuel-level-sensor-reading"
+    def test_the_reconciliation_payload_is_gone_rather_than_empty(self) -> None:
+        """Absent, not an empty list.
 
-        inspection = results["operator-tank-inspection"]
-        assert inspection["reported_value"] == 254.02
-        assert inspection["difference"] == -55.98
-        assert inspection["source_id"] == "operator-hand-record"
+        An empty list would be the panel's claim with nothing in it, which is a
+        claim that has become false rather than one that has been withdrawn. The
+        key is not a key of the payload at all.
+        """
+        contract = self.contract()
+
+        assert "observation_reconciliation" not in contract
+        # And the payload really is the one the screen reads, so this is not an
+        # absence asserted over an empty response.
+        assert contract["contract_version"] >= 8
+        assert contract["dispatch_rules"]
 
     def test_a_foundation_owned_parameter_reaches_the_payload_with_no_value(
         self,

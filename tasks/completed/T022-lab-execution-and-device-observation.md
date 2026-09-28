@@ -1,6 +1,6 @@
 # T022 - Execute a Draft and inspect generated device observations
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A starter.
@@ -113,4 +113,31 @@ No operator reconciliation or Findings are delivered here.
 
 The owner steps a real run and distinguishes truth, reporting gap and measured
 value. The Reviewer checks the observation boundary and gate from API to UI.
-Review outcome: pending.
+Review outcome: accepted on independent review; **owner review deferred to
+after T022A**.
+
+**Independent review.** Three Codex passes and one Claude backup pass, across
+five implementation rounds. Codex returned R1 (the RNG draw identity was not
+v4's), R2 (a READY Draft returned HTTP 500 on Start because a cadence refusal
+escaped its translation), R3 (a POINT reporting condition collapsed into a
+run-long outage), then R4 (the R3 fix changed the persisted artifact schema
+with no reader for its own past), then R4-not-closed (that fix misread the
+intermediate format its own previous round had written). The backup pass
+confirmed R4 closed and AC12 passing, measured against Codex's unmodified
+probe, and found four unnamed defects of the same class - a record's own
+description misstating itself - which were fixed. **Sixteen of sixteen criteria
+and nine of nine proof rows.**
+
+**Owner review deliberately deferred.** The owner stepped the first real run on
+2026-09-28. It completed correctly - 162 of 162 boundaries, no failure - and
+every value was right, but each interaction took about nine seconds because a
+single-run read parses the whole store. That is `T022A`, raised as its own
+slice before T023. Judging the screens through a nine-second pause would judge
+the wrong thing, so **the owner's review of T022 happens after T022A lands**,
+together with T022A's own.
+
+What the owner reviews then: step a Draft from `fuel-loss-event-mg006` into the
+reporting gap and distinguish the true value from the reported value from the
+missing report. At offset 1545 the five cells read 254.02 L, 373.52 L, source
+time 00:45, STALE, and SUPPRESSED_BY_GAP - the two columns disagreeing by
+exactly the 120 L the gap hides.

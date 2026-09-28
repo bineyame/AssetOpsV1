@@ -559,52 +559,54 @@ describe("the detail screen says where each reading comes from", () => {
   });
 });
 
-describe("the detail screen reconciles the readings it renders", () => {
-  it("renders the reported value, the declared value and the difference", async () => {
+/**
+ * The reconciliation panel went in T022 under
+ * `D-2026-09-22-reconciliation-panel-retirement`, and the two claims about its
+ * contents went with it. What replaced them is the rules that say whether a
+ * reading exists at all - the subject the panel was a weaker answer about - plus
+ * the Draft screen's own true-against-reported columns, which are asserted in
+ * `runExecution.test.tsx` because they need a run.
+ *
+ * The retirement is asserted rather than assumed: the panel's heading and its
+ * review-proposal region must both be gone, and a screen that still rendered
+ * either would fail here.
+ */
+describe("the detail screen publishes the reporting rules and not a reconciliation", () => {
+  it("renders every reporting rule the contract declares", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();
 
-    const table = tableNamed(
-      "The readings, against the causes declared before them",
+    const table = tableNamed("Whether a reading exists at all");
+    const rules = SCENARIO_DETAIL.execution_contract.reporting_rules;
+
+    // Non-empty first. A table rendered from an empty list would satisfy every
+    // assertion below without publishing anything.
+    expect(rules.length).toBeGreaterThan(1);
+    expect(within(table).getAllByRole("row").slice(1)).toHaveLength(
+      rules.length,
     );
-    const rows = within(table).getAllByRole("row").slice(1);
-
-    const results =
-      SCENARIO_DETAIL.execution_contract.observation_reconciliation;
-    expect(rows).toHaveLength(results.length);
-    expect(results.length).toBeGreaterThan(1);
-
-    rows.forEach((row, index) => {
-      const result = results[index];
-      expect(
-        within(row).getByText(`${result.reported_value} ${result.unit}`),
-      ).toBeInTheDocument();
-      expect(
-        within(row).getByText(`${result.declared_value} ${result.unit}`),
-      ).toBeInTheDocument();
-      expect(
-        within(row).getByText(`${result.difference} ${result.unit}`),
-      ).toBeInTheDocument();
-      expect(within(row).getByText(result.state)).toBeInTheDocument();
-    });
+    for (const rule of rules) {
+      expect(within(table).getByText(rule.display_name)).toBeInTheDocument();
+      expect(within(table).getByText(rule.statement)).toBeInTheDocument();
+    }
   });
 
-  it("says which answer each reading got, and why", async () => {
-    renderAt(SCENARIO_URL);
+  it("no longer offers the reconciliation panel or its proposal", async () => {
+    const { container } = renderAt(SCENARIO_URL);
     await settledScreen();
 
-    const table = tableNamed(
-      "The readings, against the causes declared before them",
-    );
-
-    // A NOT_RECONCILABLE with no reason would be three different facts
-    // wearing one name, so the reason is rendered beside the result.
-    for (const result of SCENARIO_DETAIL.execution_contract
-      .observation_reconciliation) {
-      expect(within(table).getAllByText(result.reason).length).toBeGreaterThan(
-        0,
-      );
-    }
+    expect(
+      screen.queryByRole("heading", {
+        name: "The readings, against the causes declared before them",
+      }),
+    ).toBeNull();
+    expect(
+      container.querySelector(
+        "[data-review-proposal='scenario-observation-reconciliation']",
+      ),
+    ).toBeNull();
+    // And no column heading from it survives on any table.
+    expect(spacedText(container)).not.toMatch(/Declared causes reach/i);
   });
 
   it("names the version of the semantics being accepted", async () => {
@@ -625,20 +627,6 @@ describe("the detail screen reconciles the readings it renders", () => {
     ).toBeInTheDocument();
   });
 
-  it("says the difference is unresolved rather than resolving it here", async () => {
-    const { container } = renderAt(SCENARIO_URL);
-    await settledScreen();
-
-    const region = regionNamed(
-      container,
-      "scenario-observation-reconciliation",
-    );
-    const text = spacedText(region);
-
-    expect(text).toMatch(/do not reach either of them/i);
-    expect(text).toMatch(/three honest ways out/i);
-    expect(text).not.toMatch(/\d/);
-  });
 });
 
 describe("the scenario detail screen states no product outcome", () => {
@@ -782,7 +770,6 @@ describe("the scenario detail screen states no product outcome", () => {
     expect(leaves).toContain("This scenario declares no expectation.");
     expect(leaves).toContain("This scenario declares no observation source.");
     expect(leaves).toContain("This scenario declares no initial world value.");
-    expect(leaves).toContain("This scenario authors no reading to reconcile.");
   });
 });
 
@@ -953,11 +940,13 @@ describe("the accepted T017 semantics are no longer marked provisional", () => {
 });
 
 describe("the T018 checkpoint puts proposals on screen, not menus", () => {
+  // Three regions since T022. The fourth was the reconciliation panel's, and it
+  // went with the panel: a review proposal about a question this build no longer
+  // asks would be a checkpoint nobody can answer.
   const REGIONS = [
     "scenario-execution-roles",
     "scenario-input-ownership",
     "scenario-timing-and-bounds",
-    "scenario-observation-reconciliation",
   ];
 
   it.each(REGIONS)("marks the %s region visibly provisional", async (id) => {
@@ -1006,13 +995,6 @@ describe("the T018 checkpoint puts proposals on screen, not menus", () => {
         "How an entry is dispatched, and what happens at a bound",
       ).querySelector("[data-review-proposal='scenario-timing-and-bounds']"),
     ).not.toBeNull();
-    expect(
-      panelNamed(
-        "The readings, against the causes declared before them",
-      ).querySelector(
-        "[data-review-proposal='scenario-observation-reconciliation']",
-      ),
-    ).not.toBeNull();
 
     // And the tables those questions are about are all on the same screen.
     for (const name of [
@@ -1020,7 +1002,7 @@ describe("the T018 checkpoint puts proposals on screen, not menus", () => {
       "Initial world values and who owns them",
       "Where each reading comes from",
       "What a later run does at a bound",
-      "The readings, against the causes declared before them",
+      "Whether a reading exists at all",
     ]) {
       expect(tableNamed(name)).toBeInTheDocument();
     }

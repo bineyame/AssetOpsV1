@@ -23,6 +23,7 @@ import type {
   RunSetupInput,
   RunSummary,
 } from "../runSetupClient";
+import { executionMethods } from "./executionFixtures";
 import {
   RESOLVED_TARGET,
   SCENARIO_DETAIL,
@@ -240,6 +241,7 @@ function runClient(outcome: CreateRunResult): {
       },
       listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
       getRun: () => Promise.resolve({ status: "not_found" }),
+      ...executionMethods(),
     },
   };
 }
@@ -508,6 +510,7 @@ describe("nothing on this screen is chosen for the person", () => {
       createRun: () => Promise.resolve({ status: "created", run: READY_RUN }),
       listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
       getRun: () => Promise.resolve({ status: "not_found" }),
+      ...executionMethods(),
     });
     await settledScreen();
 
@@ -678,6 +681,7 @@ describe("when a read the screen depends on fails", () => {
       createRun: () => Promise.resolve({ status: "created", run: READY_RUN }),
       listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
       getRun: () => Promise.resolve({ status: "not_found" }),
+      ...executionMethods(),
     };
     renderSetup(client);
     await settledScreen();

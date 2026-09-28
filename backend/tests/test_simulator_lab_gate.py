@@ -24,12 +24,26 @@ SCENARIO_DETAIL_PATH = "/api/simulator-lab/scenarios/{scenario_id}"
 RUN_PROFILES_PATH = "/api/simulator-lab/run-profiles"
 CREATE_RUN_PATH = "/api/simulator-lab/runs"
 RUN_DETAIL_PATH = "/api/simulator-lab/runs/{run_id}"
+RUN_EXECUTION_PATH = "/api/simulator-lab/runs/{run_id}/execution"
+RUN_EXECUTION_START_PATH = "/api/simulator-lab/runs/{run_id}/execution/start"
+RUN_EXECUTION_STEP_PATH = "/api/simulator-lab/runs/{run_id}/execution/step"
+RUN_EXECUTION_END_PATH = (
+    "/api/simulator-lab/runs/{run_id}/execution/run-to-end"
+)
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
 # added the two template paths, T006 added the create path, T017 added the
 # two scenario paths, and T019 added run setup and the profiles it selects
 # from; the inventory assertions below are extended to name them rather than
 # relaxed to tolerate them.
+#
+# T022 adds the four execution paths and they are the first ones that DO
+# something to a run. They are named here rather than tolerated for the same
+# reason every other addition was, and the tests below say what each flag state
+# does with them: closed, none of the four exists; open, all four exist and a
+# build with no execution port composed behind them says so in a typed refusal
+# rather than by not serving them. Whether a port is composed is not the gate's
+# question, so it may not change the route set.
 SIMULATOR_LAB_SERVED_PATHS = {
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
@@ -40,7 +54,19 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_PROFILES_PATH,
     CREATE_RUN_PATH,
     RUN_DETAIL_PATH,
+    RUN_EXECUTION_PATH,
+    RUN_EXECUTION_START_PATH,
+    RUN_EXECUTION_STEP_PATH,
+    RUN_EXECUTION_END_PATH,
 }
+
+# The same four, with a concrete run identity, for the request-level assertions.
+RUN_EXECUTION_REQUEST_PATHS = [
+    "/api/simulator-lab/runs/run-1/execution",
+    "/api/simulator-lab/runs/run-1/execution/start",
+    "/api/simulator-lab/runs/run-1/execution/step",
+    "/api/simulator-lab/runs/run-1/execution/run-to-end",
+]
 
 # Paths an operator, a script, or a stale bookmark could plausibly aim at the
 # simulator. None of them may be served while the gate is closed.
@@ -55,6 +81,7 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     "/api/simulator-lab/scenarios/fuel-loss-event",
     RUN_PROFILES_PATH,
     CREATE_RUN_PATH,
+    *RUN_EXECUTION_REQUEST_PATHS,
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",
@@ -153,9 +180,16 @@ class TestGateEnabled:
         response = client.get(SIMULATOR_LAB_STATUS_PATH)
 
         assert response.status_code == 200
+        # `run_execution` stopped being "not_implemented" in T022, and the two
+        # keys are two facts rather than one. `served` says this build serves the
+        # execution surface; `run_execution_composed` says whether a kernel is
+        # wired behind it, which only the composition leaf can do. A single flag
+        # would make a build that serves the controls and cannot execute
+        # indistinguishable from one that does neither.
         assert response.json() == {
             "simulator_lab_enabled": True,
-            "run_execution": "not_implemented",
+            "run_execution": "served",
+            "run_execution_composed": False,
             "truth_overlays": "not_implemented",
         }
 
@@ -169,12 +203,87 @@ class TestGateEnabled:
 
         assert added == SIMULATOR_LAB_SERVED_PATHS
 
-    def test_no_execution_surface_exists_yet(self) -> None:
-        """T003 scope limit: the enabled shell has no run behavior."""
+    def test_the_execution_surface_the_lab_does_not_serve_stays_unserved(
+        self,
+    ) -> None:
+        """T022 serves four execution paths, and these are not among them.
+
+        A run can be started, stepped and run to the end. It cannot be rerun, it
+        cannot be asked for truth on its own path, nothing is staged, and no
+        operator-facing run or ingestion path exists. The arrival of execution
+        did not relax this: the list is the same one, and what left it is named
+        in the comment above it.
+        """
         client = TestClient(create_app(ENABLED))
 
+        assert EXECUTION_PATHS, "the unserved-path list is empty"
         for path in EXECUTION_PATHS:
             assert client.get(path).status_code == 404, f"{path} served run behavior"
+
+    def test_the_four_execution_paths_are_served_when_the_gate_is_open(
+        self,
+    ) -> None:
+        """The floor under every absence claim in this file.
+
+        Each assertion elsewhere iterates paths or controls, and a build serving
+        none of them would satisfy all of them. So this establishes that the
+        enabled surface really carries the four, before anything asserts that the
+        closed one does not.
+        """
+        served = paths_for(ENABLED)
+
+        for path in (
+            RUN_EXECUTION_PATH,
+            RUN_EXECUTION_START_PATH,
+            RUN_EXECUTION_STEP_PATH,
+            RUN_EXECUTION_END_PATH,
+        ):
+            assert path in served, f"{path} is not served with the gate open"
+
+    def test_an_uncomposed_execution_port_is_a_typed_refusal_not_an_absence(
+        self,
+    ) -> None:
+        """What `assetops_backend.main:app` serves, and why it is honest.
+
+        Only `host/` may import a kernel and nothing may import `host/`, so a
+        build composed from this package alone has no execution port. It still
+        SERVES the four paths, because whether a port is composed is not the
+        gate's question and a route set that varied with it would make the gate's
+        own comparison a comparison between three states.
+
+        What it answers is a typed refusal naming the missing composition, so a
+        reader meets the reason rather than a 404 that would say the capability
+        does not exist.
+        """
+        client = TestClient(create_app(ENABLED))
+
+        answers = {
+            path: client.post(path) if "execution/" in path else client.get(path)
+            for path in RUN_EXECUTION_REQUEST_PATHS
+        }
+        assert len(answers) == 4
+        for path, response in answers.items():
+            assert response.status_code == 503, f"{path} answered {response.status_code}"
+            detail = response.json()["detail"]
+            assert detail["refusal_kind"] == "PORT_NOT_COMPOSED"
+            assert detail["advanced"] is False
+            assert "composition leaf" in detail["message"]
+
+    def test_no_execution_path_is_served_when_the_gate_is_closed(self) -> None:
+        """The same four, and every verb on them, gone with the gate shut.
+
+        Criterion 15 in its narrowest form: with the Lab disabled, execution and
+        private inspection are not reachable by any spelling. The test above is
+        what stops this one passing over an empty set.
+        """
+        client = TestClient(create_app(DISABLED))
+
+        assert RUN_EXECUTION_REQUEST_PATHS
+        for path in RUN_EXECUTION_REQUEST_PATHS:
+            assert client.get(path).status_code == 404
+            assert client.post(path).status_code == 404
+            assert client.put(path).status_code == 404
+            assert client.delete(path).status_code == 404
 
 
 class TestExecutionPathsInBothStates:

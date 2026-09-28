@@ -99,11 +99,37 @@ class Cdp {
     });
   }
 
-  send(method, params = {}) {
+  // Every request is bounded. A reply that never arrives - a crashed renderer,
+  // a detached target, a socket that closed without an event - used to leave
+  // this promise pending forever, and the run simply stopped: no output, no
+  // error, no exit. A measurement harness that stalls silently is the same
+  // defect as a guard that cannot fail, one layer out. It now fails loudly and
+  // names the request it was waiting on.
+  send(method, params = {}, timeoutMs = 60000) {
     this.id += 1;
     const id = this.id;
     return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(
+          new Error(
+            `CDP ${method} (#${id}) got no reply within ${timeoutMs}ms. The ` +
+              "browser stopped answering - most often a renderer that ran out " +
+              "of memory on a very large page. Nothing below this point was " +
+              "measured.",
+          ),
+        );
+      }, timeoutMs);
+      this.pending.set(id, {
+        resolve: (value) => {
+          clearTimeout(timer);
+          resolve(value);
+        },
+        reject: (error) => {
+          clearTimeout(timer);
+          reject(error);
+        },
+      });
       this.ws.send(JSON.stringify({ id, method, params }));
     });
   }
@@ -251,6 +277,70 @@ const MEASURE = `(() => {
           length: (optionalPanel.textContent || "").trim().length,
           visible: optionalBox.width > 0 && optionalBox.height > 0,
         };
+  // T022: the execution panels. Read as ROWS with their own cells rather than
+  // as page text, because the whole difficulty of this screen is that private
+  // truth, a reported value and a retained reading sit inches apart. A
+  // measurement over text would hold on a screen that merged the three columns.
+  const executionStatusNode = document.querySelector("[data-execution-status]");
+  const simulationTimeNode = document.querySelector(
+    "[data-execution-simulation-time]",
+  );
+  const simulationTime = simulationTimeNode
+    ? simulationTimeNode.getAttribute("data-execution-simulation-time")
+    : null;
+  const executionStatus = executionStatusNode
+    ? executionStatusNode.getAttribute("data-execution-status")
+    : null;
+  const attributeOf = (row, attribute) => {
+    const cell = row.querySelector("[" + attribute + "]");
+    return cell ? cell.getAttribute(attribute) : null;
+  };
+  const cellText = (row, attribute) => {
+    const cell = row.querySelector("[" + attribute + "]");
+    return cell ? (cell.textContent || "").trim() : null;
+  };
+  const observationRows = Array.from(
+    document.querySelectorAll("[data-observation]"),
+  ).map((row) => ({
+    signal: row.getAttribute("data-observation"),
+    trueValue: cellText(row, "data-observation-true"),
+    reported: cellText(row, "data-observation-reported"),
+    sourceTime: cellText(row, "data-observation-source-time"),
+    quality: attributeOf(row, "data-observation-quality"),
+    outcome: attributeOf(row, "data-observation-outcome"),
+  }));
+  const privateStateRows = Array.from(
+    document.querySelectorAll("[data-private-state]"),
+  ).map((row) => ({
+    address: row.getAttribute("data-private-state"),
+    text: (row.textContent || "").trim(),
+  }));
+  const reportingGapRows = document.querySelectorAll("[data-reporting-gap]").length;
+  // The gap row's own cells. The declared instant and the span it resolves to
+  // are separate columns, because for a POINT they differ: an entry declared at
+  // offset 1490 in a fifteen-minute run silences the sample at 1485. The
+  // shipped entry is a WINDOW, where the two coincide - so what a browser can
+  // prove here is that the surface carries both, which is the half a jsdom
+  // fixture cannot vouch for.
+  const gapRow = document.querySelector("[data-reporting-gap]");
+  const reportingGapCells = gapRow
+    ? Array.from(gapRow.querySelectorAll("th, td")).map((cell) =>
+        (cell.textContent || "").trim(),
+      )
+    : [];
+  const reportingGapDeclaredAt = gapRow
+    ? (
+        gapRow.querySelector("[data-reporting-gap-declared-at]")?.textContent ||
+        ""
+      ).trim()
+    : null;
+  const signalRows = document.querySelectorAll("[data-signal]").length;
+  const sampleAttemptRows = document.querySelectorAll("[data-sample-attempt]").length;
+  // The two digests, read off the fact list they are rendered in. Sixty-four
+  // hexadecimal characters is what one looks like; a placeholder is not.
+  const digestLeaves = Array.from(document.querySelectorAll("main dd"))
+    .map((node) => (node.textContent || "").trim())
+    .filter((value) => /^[0-9a-f]{64}$/.test(value));
   const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
     scrollers,
@@ -262,6 +352,16 @@ const MEASURE = `(() => {
     privateRegionVisible,
     slots,
     runRows,
+    executionStatus,
+    simulationTime,
+    observationRows,
+    privateStateRows,
+    reportingGapRows,
+    reportingGapCells,
+    reportingGapDeclaredAt,
+    signalRows,
+    sampleAttemptRows,
+    digestLeaves,
     disclosure,
     unsupportedOptional,
     railLeftAfterAll,
@@ -461,6 +561,49 @@ const SUBMIT_RUN_SETUP = `(() => {
   if (!filled || !submit) return "controls-missing";
   if (submit.disabled) return "not-ready";
   submit.click();
+  return true;
+})()`;
+
+/**
+ * Click one named control on the Draft screen, the way a person would.
+ *
+ * The three execution controls are found by their exact labels rather than by
+ * position, so a renamed control fails loudly instead of driving whichever
+ * button happened to be third.
+ */
+const clickControl = (label) =>
+  `(() => {
+  const control = Array.from(document.querySelectorAll('main button')).find(
+    (button) => (button.textContent || '').trim() === ${JSON.stringify(label)},
+  );
+  if (!control) return 'controls-missing';
+  if (control.disabled) return 'not-ready';
+  control.click();
+  return true;
+})()`;
+
+/**
+ * Set the step size and step, which is how the owner crosses the fuel event.
+ *
+ * 104 boundaries at a fifteen-minute timestep lands the run at offset 1545:
+ * inside the shipped reporting gap [1490, 1580) and past the removal
+ * [1500, 1545). That is the instant the whole slice exists to make inspectable,
+ * so it is the instant a browser is asked to draw.
+ */
+const STEP_ACROSS_THE_FUEL_EVENT = `(() => {
+  const setNative = (prototype, element, value) => {
+    const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const size = document.getElementById('run-step-boundaries');
+  const step = Array.from(document.querySelectorAll('main button')).find(
+    (button) => (button.textContent || '').trim() === 'Step',
+  );
+  if (!size || !step) return 'controls-missing';
+  setNative(window.HTMLInputElement.prototype, size, '104');
+  if (step.disabled) return 'not-ready';
+  step.click();
   return true;
 })()`;
 
@@ -761,8 +904,16 @@ for (const [label, width, height] of [
         scenario.scrollers.map((s) => `${s.name}: ${s.columnCount}`).join("; "),
       ],
       [
-        "all four review proposals are on the page",
-        scenario.reviewProposals.length === 4,
+        // Three since T022, not four. The fourth was the reconciliation
+        // panel's, and it went with the panel under
+        // `D-2026-09-22-reconciliation-panel-retirement`: a checkpoint asking
+        // what to do about a difference this build no longer computes would
+        // be a question nobody can answer. Named rather than counted, so a
+        // renamed or missing proposal fails on which one rather than on how
+        // many.
+        "the three review proposals are on the page, by name",
+        scenario.reviewProposals.join("|") ===
+          "scenario-execution-roles|scenario-input-ownership|scenario-timing-and-bounds",
         scenario.reviewProposals.join(" | ") || "none",
       ],
       [
@@ -979,6 +1130,38 @@ for (const [label, width, height] of [
 // The two run detail measurements below are reached from here rather than
 // from a literal address, because a run identity is allocated per
 // installation and this script cannot know one in advance.
+// --- A Draft this build can execute ---------------------------------------
+//
+// The shipped Fuel Loss Event targets MG-001, and the MG-001 in this checkout
+// was created from a template that predates the two Foundation properties the
+// model profile binds to - so every Draft of it comes back BLOCKED, truthfully.
+// That was fine while nothing executed: the READY measurements below ran against
+// a READY Draft somebody had left in the store.
+//
+// T022 executes, and an execution needs a Draft frozen under THIS build's
+// contract and publication profile. A Draft left behind by an earlier build is
+// refused, correctly, so relying on one would measure the refusal rather than the
+// slice. This creates one through the product path, from the user's own MG-006
+// scenario - MG-006 declares both properties, so its Draft reaches READY - and
+// the inventory below then finds it as the newest READY row.
+const readySetup = await visit(
+  cdp,
+  "/simulator-lab/scenarios/fuel-loss-event-mg006/run-setup",
+  1280,
+  800,
+  "form",
+  // `.fact-list` is already on the page BEFORE the form is submitted, so
+  // waiting for it returns instantly and the create lands seconds later - which
+  // is exactly what happened the first time this ran, and the inventory below
+  // then found a Draft from an earlier build instead of this one. The summary
+  // table only exists after a Draft was created, so that is what is waited for.
+  { script: SUBMIT_RUN_SETUP, waitFor: ".data-table__scroll" },
+);
+console.log(
+  `\n=== Created a Draft for the execution measurements ===\n  ` +
+    `run setup summary drawn with ${readySetup.scrollers.length} table(s)`,
+);
+
 let readyHref = null;
 let blockedHref = null;
 
@@ -990,14 +1173,15 @@ for (const [label, width, height] of [
   const runs = await visit(cdp, "/simulator-lab/runs", width, height, "table");
   const inventory = runs.scrollers.find((s) => s.name === "runs-table-heading");
 
+  // The NEWEST of each, re-read at every visit rather than latched at the
+  // first. The inventory is newest first, so this is the Draft this run of the
+  // script created - which is the only one frozen under this build's contract
+  // and publication profile, and so the only one an execution measurement can
+  // be made against.
   readyHref =
-    readyHref ??
-    runs.runRows.find((row) => row.status === "READY")?.href ??
-    null;
+    runs.runRows.find((row) => row.status === "READY")?.href ?? readyHref;
   blockedHref =
-    blockedHref ??
-    runs.runRows.find((row) => row.status === "BLOCKED")?.href ??
-    null;
+    runs.runRows.find((row) => row.status === "BLOCKED")?.href ?? blockedHref;
 
   allPass =
     report(`Runs inventory at ${label}`, runs, [
@@ -1091,7 +1275,15 @@ for (const [state, href, expectBlockedTable] of [
     ["1000x700, below the commitment", 1000, 700],
     ["640x700, narrow enough that the frozen table cannot fit", 640, 700],
   ]) {
-    const run = await visit(cdp, href, width, height, ".fact-list");
+    // `[data-execution-status]` rather than `.fact-list`, and the difference
+    // is the same race `settledScreen` exists for in jsdom. This screen makes
+    // TWO reads - the persisted Draft and its execution - and `.fact-list`
+    // appears when the first lands. At 1280 and 1000 the second landed inside
+    // the settle pause and at 640 it did not, so one width measured a screen
+    // that had not finished loading and reported no controls. Waiting for
+    // something only the second read draws is what makes all three widths
+    // measure the same screen.
+    const run = await visit(cdp, href, width, height, "[data-execution-status]");
     const frozen = run.scrollers.find((s) => s.name === "run-frozen-heading");
     const blocked = run.scrollers.find((s) => s.name === "run-blocked-heading");
 
@@ -1193,8 +1385,16 @@ for (const [state, href, expectBlockedTable] of [
               run.buttons.map((b) => b.label).join(", ") || "no button rendered",
             ]
           : [
-              "the one action on a ready draft is rendered and disabled",
-              run.buttons.length === 1 && run.buttons[0].disabled,
+              // T022 replaced the one disabled "Run this draft" control with
+              // three real ones. The claim moves with it: a closed set by NAME,
+              // and at least one of them enabled - because a ready draft whose
+              // controls were all disabled would satisfy a count and assert
+              // nothing about a Lab that can execute.
+              "a ready draft offers exactly the three execution controls, at least one enabled",
+              run.buttons.length === 3 &&
+                run.buttons.map((b) => b.label).join("|") ===
+                  "Start this run|Step|Run to the end" &&
+                run.buttons.some((b) => !b.disabled),
               run.buttons
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
                 .join(", ") || "no button rendered",
@@ -1230,6 +1430,232 @@ for (const [state, href, expectBlockedTable] of [
       ]) && allPass;
   }
 }
+
+// --- The executed run, which is what T022 is for -------------------------
+//
+// jsdom has no layout, so no suite in this repository can see any of this. It is
+// also the only place the slice's own demonstration is driven end to end through
+// real input events: start a Draft, step it across the fuel event, and run it to
+// the end, measuring what a browser actually drew at each stop.
+//
+// Every claim below is pinned to a CELL of a named row rather than to page text.
+// Private truth, the reported value and a retained reading sit inches apart on
+// this screen by construction, and a text assertion would hold on a screen that
+// merged them - which is the defect this milestone has paid for five times.
+
+const started = await visit(
+  cdp,
+  readyHref,
+  1280,
+  800,
+  "[data-execution-status]",
+  {
+    script: clickControl("Start this run"),
+    waitFor: "[data-execution-status='RUNNING']",
+  },
+);
+allPass =
+  report("Draft run started at 1280x800", started, [
+    [
+      "starting a draft leaves it RUNNING at its first boundary",
+      started.executionStatus === "RUNNING",
+      `status ${started.executionStatus}`,
+    ],
+    [
+      // Starting is not stepping. No boundary has been run, so there is no
+      // world at any instant and no sample has been taken - and the screen
+      // draws neither rather than a zeroed clock and an empty reading, which
+      // is the shape a shell that reads as a stopped runtime would have.
+      "a started run has no world and no reading yet",
+      started.privateStateRows.length === 0 &&
+        started.observationRows.length === 0,
+      `${started.privateStateRows.length} state rows, ` +
+        `${started.observationRows.length} observation rows`,
+    ],
+    [
+      // What IS drawn: what the profile declares and the document forces. Those
+      // are facts about what WOULD be reported and do not wait on a boundary.
+      "both configured reporting paths are drawn",
+      started.signalRows === 2,
+      `${started.signalRows} configured signal rows`,
+    ],
+    [
+      "the declared reporting gap is drawn",
+      started.reportingGapRows === 1,
+      `${started.reportingGapRows} gap rows`,
+    ],
+    [
+      // Six cells, not five. The declared instant and the covered span are two
+      // columns, and one column carrying the resolved start under a heading
+      // promising the authored number is what this replaced.
+      "the gap row carries the declared instant beside the span it covers",
+      started.reportingGapCells.length === 6 &&
+        started.reportingGapDeclaredAt === "1490",
+      `${started.reportingGapCells.length} cells, declared at ${started.reportingGapDeclaredAt}: ${started.reportingGapCells.join(" | ")}`,
+    ],
+    [
+      "the page does not scroll horizontally",
+      !started.pageScrollsHorizontally,
+      `scrollWidth ${started.pageScrollWidth} vs clientWidth ${started.pageClientWidth}`,
+    ],
+  ]) && allPass;
+
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["640x700, narrow enough that the observation table cannot fit", 640, 700],
+]) {
+  // The step is driven ONCE, at the first width. The run's position lives on
+  // the server, so the second width re-measures the same instant rather than
+  // stepping again - which advanced 208 boundaries of 165, finished the run,
+  // and left the next block's control correctly disabled.
+  const stepped = await visit(
+    cdp,
+    readyHref,
+    width,
+    height,
+    "[data-observation]",
+    width === 1280
+      ? {
+          script: STEP_ACROSS_THE_FUEL_EVENT,
+          waitFor: "[data-observation-quality='STALE']",
+        }
+      : undefined,
+  );
+  const fuel = stepped.observationRows.find(
+    (row) => row.signal === "fuel-level-sensor:fuel-level",
+  );
+  const tank = stepped.privateStateRows.find(
+    (row) => row.address === "fuel-tank-volume@fuel-tank",
+  );
+
+  allPass =
+    report(`Draft run stepped into the reporting gap at ${label}`, stepped, [
+      [
+        "the fuel sensor row is drawn at all",
+        fuel !== undefined,
+        stepped.observationRows.map((r) => r.signal).join(", ") || "no rows",
+      ],
+      [
+        "the true value and the reported value are two different cells",
+        fuel !== undefined &&
+          fuel.trueValue !== null &&
+          fuel.reported !== null &&
+          fuel.trueValue !== fuel.reported,
+        fuel === undefined
+          ? "no fuel row"
+          : `true ${fuel.trueValue} vs reported ${fuel.reported}`,
+      ],
+      [
+        "the world holds 254.02 L after the removal",
+        tank !== undefined && tank.text.includes("254.02"),
+        tank === undefined ? "no tank row" : tank.text,
+      ],
+      [
+        "the reading is the one taken before the gap opened, marked stale",
+        fuel !== undefined &&
+          fuel.quality === "STALE" &&
+          fuel.outcome === "SUPPRESSED_BY_GAP" &&
+          fuel.reported.startsWith("373.52"),
+        fuel === undefined
+          ? "no fuel row"
+          : `${fuel.quality}/${fuel.outcome}, reported ${fuel.reported}`,
+      ],
+      [
+        // The RELATIONSHIP, not a hard-coded timestamp. Which sample the
+        // retained reading came from depends on the run's seed and on the draw
+        // identity - correcting that identity moved it from 1485 to 1470 here -
+        // and a claim naming one instant would be a claim about a particular
+        // draw outcome rather than about the mechanism. What must hold is that
+        // the reading is older than now and was taken before the gap opened.
+        "the retained reading carries its own source time, earlier than this instant and before the gap",
+        fuel !== undefined &&
+          fuel.sourceTime !== null &&
+          fuel.sourceTime !== stepped.simulationTime &&
+          fuel.sourceTime < (stepped.simulationTime ?? "") &&
+          fuel.sourceTime < "2026-09-22T00:50",
+        fuel === undefined
+          ? "no fuel row"
+          : `source ${fuel.sourceTime}, now ${stepped.simulationTime}`,
+      ],
+      [
+        "the newest sample attempts are drawn",
+        stepped.sampleAttemptRows > 0,
+        `${stepped.sampleAttemptRows} attempts`,
+      ],
+      [
+        "the page does not scroll horizontally",
+        !stepped.pageScrollsHorizontally,
+        `scrollWidth ${stepped.pageScrollWidth} vs clientWidth ${stepped.pageClientWidth}`,
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        stepped.scrollers
+          .filter((s) => s.overflows)
+          .every((s) => s.scrolledBy > 0),
+        stepped.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              stepped.scrollers.some((s) => s.overflows),
+              `${stepped.scrollers.filter((s) => s.overflows).length} of ${stepped.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
+
+const finished = await visit(
+  cdp,
+  readyHref,
+  1280,
+  800,
+  "[data-execution-status]",
+  {
+    script: clickControl("Run to the end"),
+    waitFor: "[data-execution-status='COMPLETED']",
+  },
+);
+allPass =
+  report("Draft run run to the end at 1280x800", finished, [
+    [
+      "the run reached a terminal outcome",
+      finished.executionStatus === "COMPLETED",
+      `status ${finished.executionStatus}`,
+    ],
+    [
+      "both digests are drawn as real sixty-four character values",
+      finished.digestLeaves.length >= 3,
+      `${finished.digestLeaves.length} digest-shaped values`,
+    ],
+    [
+      "the tank is at its capacity after the bounded delivery",
+      finished.privateStateRows.some(
+        (row) =>
+          row.address === "fuel-tank-volume@fuel-tank" &&
+          row.text.includes("500"),
+      ),
+      finished.privateStateRows.map((r) => r.text).join(" | ") || "no rows",
+    ],
+    [
+      "a terminal run offers no enabled control",
+      finished.buttons.length > 0 && finished.buttons.every((b) => b.disabled),
+      finished.buttons
+        .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
+        .join(", ") || "no button rendered",
+    ],
+    [
+      "the page does not scroll horizontally",
+      !finished.pageScrollsHorizontally,
+      `scrollWidth ${finished.pageScrollWidth} vs clientWidth ${finished.pageClientWidth}`,
+    ],
+  ]) && allPass;
 
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
 allPass =

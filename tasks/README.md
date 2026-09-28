@@ -22,21 +22,22 @@ adjusted again from its round-two section. See
 | 4 | T021 | A | Independent causal fuel trajectory; unlocks T022 |
 | 5 | T021A | A | Observation declarations lose execution requirement |
 | 6 | T022 | A | Start/step a Draft; inspect truth versus generated reading |
-| 7 | T023 | B preparation | Inspect persisted canonical staged envelopes |
-| 8 | T024 | A | Daytime PV/storage serves three addressed loads |
-| 9 | T025 | A completion | Generator/policy change and healthy full-site run |
-| 10 | T026 | B | Dispatch evidence with one gap and one delayed publication |
-| 11 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 12 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 13 | T029 | D | Versioned assumptions translate quantity into money |
-| 14 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 15 | T034 | H | Policy action -> post-action evidence -> verification |
-| 16 | T030 | E | Fuel balance with separate delivery/dip records |
-| 17 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 18 | T032 | F completion | Paired load addition with isolated comparison history |
-| 19 | T033 | G | Battery stress trajectory and replacement exposure |
-| 20 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 21 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 7 | T022A | A hardening | A run read that does not cost the whole store |
+| 8 | T023 | B preparation | Inspect persisted canonical staged envelopes |
+| 9 | T024 | A | Daytime PV/storage serves three addressed loads |
+| 10 | T025 | A completion | Generator/policy change and healthy full-site run |
+| 11 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 12 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
+| 13 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
+| 14 | T029 | D | Versioned assumptions translate quantity into money |
+| 15 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 16 | T034 | H | Policy action -> post-action evidence -> verification |
+| 17 | T030 | E | Fuel balance with separate delivery/dip records |
+| 18 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 19 | T032 | F completion | Paired load addition with isolated comparison history |
+| 20 | T033 | G | Battery stress trajectory and replacement exposure |
+| 21 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 22 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 | - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.
@@ -63,10 +64,10 @@ the first credible client milestone is the mistake this queue now avoids.
 
 | Point | Task | What it is |
 | --- | --- | --- |
-| 1 | T027 | Internal architecture demo |
+| 23 | T027 | Internal architecture demo |
 | 2 | T028 / T029 | Domain-expert and early-prospect demo: one site, one strong Finding, its evidence, its money |
-| 3 | T034 | Strong product demo: Finding -> action -> verification |
-| 4 | T036 | Full portfolio and polished client demo |
+| 24 | T034 | Strong product demo: Finding -> action -> verification |
+| 25 | T036 | Full portfolio and polished client demo |
 
 Seek domain-expert feedback at point 2, before the portfolio exists. A former
 mini-grid operator does not need six sites to tell you whether the Finding is

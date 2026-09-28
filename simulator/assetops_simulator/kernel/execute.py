@@ -1216,6 +1216,255 @@ def declared_phase_order() -> tuple[str, ...]:
 
 
 # --- The run ----------------------------------------------------------------
+#
+# One execution is a handle advanced a boundary at a time, and `execute` is that
+# handle advanced to the end. T022 needed the first because the Lab steps a run
+# and shows the world at the instant it has reached; it did NOT need the second
+# to change, and the version ledger records that this moves no contract number
+# for exactly that reason.
+#
+# The reason the split is safe is that every scrap of execution state already
+# lives on `_World`, including the per-boundary scratch and the delivered energy
+# carried across a boundary. Advancing one boundary per call and advancing all of
+# them in one loop visit the same phases in the same order against the same
+# object, so the trajectory cannot differ - and `test_step_batching` asserts that
+# rather than trusting this paragraph.
+
+
+class ExecutionStillRunning(Exception):
+    """A trajectory was asked for from an execution that has not finished."""
+
+
+class Execution:
+    """One execution in progress: a clock, a world, and how far it has got.
+
+    `PrivateTrajectory` has two outcomes and no third, because a run that is
+    still running is a handle rather than a trajectory. This is that handle.
+
+    The version guard runs in the constructor and nothing is initialized before
+    it. A run frozen against a different contract is refused rather than
+    reinterpreted, because the meanings behind its frozen inputs have changed -
+    and refusing at construction means a caller cannot hold a handle to a run
+    this build may not execute.
+
+    Setup failures are outcomes rather than exceptions, for the same reason step
+    failures are: a run that stopped before its first boundary is still a run
+    somebody needs to inspect, and the reason it stopped is a classified failure
+    on the record rather than a traceback.
+    """
+
+    def __init__(
+        self,
+        inputs: FrozenWorldInputs,
+        model: ModelSpec = MINIMAL_FUEL_MODEL,
+    ) -> None:
+        refuse_incompatible_execution(inputs.execution_contract_version)
+
+        self._inputs = inputs
+        self._model = model
+        self._world = _World(
+            inputs=inputs, model=model, ledger=ExecutionLedger()
+        )
+        self._order = declared_phase_order()
+        self._instants = inputs.interval.boundaries
+        self._step_starts = frozenset(inputs.interval.step_starts)
+        self._next_index = 0
+        self._stop: ExecutionFailure | None = None
+
+        try:
+            _refuse_entries_outside_the_interval(self._world)
+            _resolve_relations(self._world)
+            _initialize(self._world)
+            _note_reporting_path_conditions(self._world)
+        except _Stop as stopped:
+            self._stop = stopped.record
+
+    # --- Where it has got to -------------------------------------------------
+
+    @property
+    def inputs(self) -> FrozenWorldInputs:
+        return self._inputs
+
+    @property
+    def model(self) -> ModelSpec:
+        return self._model
+
+    @property
+    def boundaries_total(self) -> int:
+        """How many instants the boundary cycle runs at, including the end."""
+        return len(self._instants)
+
+    @property
+    def boundaries_completed(self) -> int:
+        return len(self._world.boundaries)
+
+    @property
+    def is_terminal(self) -> bool:
+        """Whether this execution can be advanced again.
+
+        Read off the failure and the remaining instants rather than off a
+        separate flag, so there is no state in which a handle believes it is
+        running and has nothing left to run.
+        """
+        return self._stop is not None or self._next_index >= len(self._instants)
+
+    @property
+    def outcome(self) -> str | None:
+        if not self.is_terminal:
+            return None
+        return "FAILED" if self._stop is not None else "COMPLETED"
+
+    @property
+    def failure(self) -> ExecutionFailure | None:
+        return self._stop
+
+    @property
+    def boundaries(self) -> tuple[BoundaryState, ...]:
+        """Every boundary recorded so far, in order.
+
+        The private truth the Lab renders, and the input the observation
+        transform reads. Available mid-flight, which is the whole point of a
+        handle: the world at the instant a run has reached is a fact, and waiting
+        for a terminal outcome to expose it would make stepping unobservable.
+        """
+        return tuple(self._world.boundaries)
+
+    @property
+    def final(self) -> BoundaryState | None:
+        return self._world.boundaries[-1] if self._world.boundaries else None
+
+    @property
+    def notes(self) -> tuple[str, ...]:
+        return tuple(self._world.notes)
+
+    @property
+    def handlers_exercised(self) -> tuple[str, ...]:
+        return self._world.ledger.handlers
+
+    @property
+    def inputs_identity(self) -> str:
+        """The identity of this execution's inputs, kernel and numeric policy.
+
+        Computable before a single boundary has run, because it is a property of
+        what is being executed rather than of what happened. Two handles agreeing
+        on it are the same experiment and must produce the same trajectory.
+        """
+        return frozen_inputs_identity(
+            self._inputs,
+            kernel_version=KERNEL_VERSION,
+            model_profile_id=self._model.model_profile_id,
+            model_profile_version=self._model.model_profile_version,
+            numeric_policy=NUMERIC_POLICY,
+        )
+
+    # --- Advancing it --------------------------------------------------------
+
+    def advance(self, boundaries: int = 1) -> int:
+        """Run the cycle at the next `boundaries` instants, and say how many ran.
+
+        Returns fewer than asked for at the end of the interval and zero once the
+        run is terminal, rather than raising: a caller that asks a finished run
+        for another step has asked a question with an answer, and the answer is
+        none. What a control surface does about a repeated request is its own
+        business and is decided by the boundary the request names, not here.
+        """
+        if boundaries < 1:
+            raise ValueError(
+                f"Advancing {boundaries} boundaries is not advancing. A step "
+                "covers at least one instant of the interval."
+            )
+        advanced = 0
+        while advanced < boundaries and not self.is_terminal:
+            self._advance_one()
+            advanced += 1
+        return advanced
+
+    def run_to_end(self) -> int:
+        """Advance until the interval is covered or the run fails."""
+        advanced = 0
+        while not self.is_terminal:
+            self._advance_one()
+            advanced += 1
+        return advanced
+
+    def _advance_one(self) -> None:
+        world = self._world
+        index = self._next_index
+        offset = self._instants[index]
+        interval = self._inputs.interval
+
+        world.offset = offset
+        world.step_index = index
+        world.begins_a_step = offset in self._step_starts
+        world.step_length = (
+            min(offset + interval.timestep_minutes, interval.duration_minutes)
+            - offset
+            if world.begins_a_step
+            else 0
+        )
+
+        try:
+            for phase_id in self._order:
+                # The boundary state is the state AT T, so it is recorded once
+                # the instant's own numbers are all in hand - after the events,
+                # the sample and the resolved acceptance - and before the
+                # evolution, which produces the NEXT boundary's state.
+                if phase_id == "evolve":
+                    _record_boundary(world)
+                _PHASES[phase_id](world)
+        except _Stop as stopped:
+            self._stop = stopped.record
+            return
+
+        self._next_index = index + 1
+
+    # --- The result ----------------------------------------------------------
+
+    def trajectory(self) -> PrivateTrajectory:
+        """The private trajectory, once this execution has reached an outcome.
+
+        Refused while the run is still going, because `PrivateTrajectory` has no
+        status for that and inventing one would let a prefix pass for a whole
+        result. A caller that wants the world mid-flight reads `boundaries`.
+        """
+        outcome = self.outcome
+        if outcome is None:
+            raise ExecutionStillRunning(
+                f"Run {self._inputs.run_id} has covered "
+                f"{self.boundaries_completed} of {self.boundaries_total} "
+                "boundaries. A trajectory is what an execution produced, and "
+                "this one has not finished producing it: read the boundaries so "
+                "far instead, or advance it to the end."
+            )
+        return PrivateTrajectory(
+            run_id=self._inputs.run_id,
+            outcome=outcome,
+            inputs_identity=self.inputs_identity,
+            kernel_version=KERNEL_VERSION,
+            model_profile_id=self._model.model_profile_id,
+            model_profile_version=self._model.model_profile_version,
+            numeric_policy=NUMERIC_POLICY,
+            execution_contract_version=EXECUTION_CONTRACT_VERSION,
+            boundaries=self.boundaries,
+            applied_events=tuple(self._world.applied),
+            bounded_transitions=tuple(self._world.bounded),
+            handlers_exercised=self.handlers_exercised,
+            failure=self._stop,
+            notes=self.notes,
+        )
+
+
+def start(
+    inputs: FrozenWorldInputs, model: ModelSpec = MINIMAL_FUEL_MODEL
+) -> Execution:
+    """Begin one execution without advancing it.
+
+    Separate from `advance` so that starting a run and stepping it are two
+    observable acts. A step that silently started a run would lose the
+    distinction between a Draft nothing has executed and a run sitting at its
+    first boundary, and the Lab shows exactly that difference.
+    """
+    return Execution(inputs, model)
 
 
 def execute(
@@ -1224,73 +1473,18 @@ def execute(
     *,
     raise_on_failure: bool = False,
 ) -> PrivateTrajectory:
-    """Execute one frozen Draft and return its private trajectory.
+    """Execute one frozen Draft to the end and return its private trajectory.
 
-    The version guard runs first and nothing is initialized before it. A run
-    frozen against a different contract is refused rather than reinterpreted,
-    because the meanings behind its frozen inputs have changed.
+    The handle advanced to the end, and nothing more. It is kept because it is
+    what every caller that does not step wants, and because a test comparing a
+    batched execution against a stepped one needs one of the two to be the
+    obvious spelling.
     """
-    refuse_incompatible_execution(inputs.execution_contract_version)
-
-    world = _World(inputs=inputs, model=model, ledger=ExecutionLedger())
-    order = declared_phase_order()
-    interval = inputs.interval
-    step_starts = interval.step_starts
-    stop: ExecutionFailure | None = None
-
-    try:
-        _refuse_entries_outside_the_interval(world)
-        _resolve_relations(world)
-        _initialize(world)
-        _note_reporting_path_conditions(world)
-
-        for index, offset in enumerate(interval.boundaries):
-            world.offset = offset
-            world.step_index = index
-            world.begins_a_step = offset in step_starts
-            world.step_length = (
-                min(offset + interval.timestep_minutes, interval.duration_minutes)
-                - offset
-                if world.begins_a_step
-                else 0
-            )
-
-            for phase_id in order:
-                # The boundary state is the state AT T, so it is recorded once
-                # the instant's own numbers are all in hand - after the events,
-                # the sample and the resolved acceptance - and before the
-                # evolution, which produces the NEXT boundary's state.
-                if phase_id == "evolve":
-                    _record_boundary(world)
-                _PHASES[phase_id](world)
-    except _Stop as stopped:
-        stop = stopped.record
-
-    trajectory = PrivateTrajectory(
-        run_id=inputs.run_id,
-        outcome="FAILED" if stop is not None else "COMPLETED",
-        inputs_identity=frozen_inputs_identity(
-            inputs,
-            kernel_version=KERNEL_VERSION,
-            model_profile_id=model.model_profile_id,
-            model_profile_version=model.model_profile_version,
-            numeric_policy=NUMERIC_POLICY,
-        ),
-        kernel_version=KERNEL_VERSION,
-        model_profile_id=model.model_profile_id,
-        model_profile_version=model.model_profile_version,
-        numeric_policy=NUMERIC_POLICY,
-        execution_contract_version=EXECUTION_CONTRACT_VERSION,
-        boundaries=tuple(world.boundaries),
-        applied_events=tuple(world.applied),
-        bounded_transitions=tuple(world.bounded),
-        handlers_exercised=world.ledger.handlers,
-        failure=stop,
-        notes=tuple(world.notes),
-    )
-
-    if stop is not None and raise_on_failure:
-        raise KernelExecutionFailed(stop)
+    execution = Execution(inputs, model)
+    execution.run_to_end()
+    trajectory = execution.trajectory()
+    if trajectory.failure is not None and raise_on_failure:
+        raise KernelExecutionFailed(trajectory.failure)
     return trajectory
 
 

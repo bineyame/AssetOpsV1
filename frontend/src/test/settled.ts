@@ -1,12 +1,18 @@
 import { waitFor } from "@testing-library/react";
 
 /**
- * The loading sentences of the screens that read the site store. Each screen
- * renders exactly one of these while its read is in flight, and none of them
- * afterwards, in any settled state.
+ * The loading sentences of the screens that read a store or a run. Each screen
+ * renders one of these per read in flight, and none of them afterwards, in any
+ * settled state.
+ *
+ * The run detail screen makes TWO reads since T022 - the persisted Draft and its
+ * execution - so it has two sentences here and a test settles only when both are
+ * gone. A screen whose second read was not listed would settle on the first, and
+ * an assertion about a reading would then be made against a screen that has not
+ * got one yet. That is the same race this helper exists for, one read along.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run)\./;
+  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run)\./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.

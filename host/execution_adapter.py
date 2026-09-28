@@ -68,10 +68,20 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 from assetops_backend.runs.models import SimulationRun
+from assetops_backend.runs.profiles import (
+    LAB_PUBLICATION_PROFILE,
+    PublicationProfile,
+)
+from assetops_backend.state_refs import component_state
 from assetops_contracts.execution_contract import (
     BOUND_CASES,
     normalize_authored_float,
     refuse_incompatible_execution,
+)
+from assetops_contracts.observation import (
+    DeviceSignalSpec,
+    FrozenReportingInputs,
+    ReportingPathWindow,
 )
 from assetops_contracts.trajectory import PrivateTrajectory
 from assetops_contracts.world_inputs import (
@@ -378,6 +388,211 @@ def refuse_a_model_the_run_did_not_select(
         f"{model.model_profile_id} version {model.model_profile_version}. A run "
         "executes the model it selected; executing it against another is "
         "reinterpretation wearing the old run's identity."
+    )
+
+
+def refuse_a_publication_profile_the_run_did_not_select(
+    run: SimulationRun, profile: PublicationProfile
+) -> None:
+    """Refuse a publication profile whose identity is not the one the run froze.
+
+    The same rule as `refuse_a_model_the_run_did_not_select`, one noun along, and
+    it became load-bearing in the same slice the profile started deciding
+    something. A run freezes which publication profile answered and at which
+    version; generating its readings against another profile's cadences, biases
+    and dropouts would produce a different experiment's series under this run's
+    name, and the reading digest would then be an identity for nothing.
+    """
+    frozen = run.deterministic_identity.profiles
+    if (
+        profile.publication_profile_id == frozen.publication_profile_id
+        and profile.publication_profile_version
+        == frozen.publication_profile_version
+    ):
+        return
+    raise FrozenRunNotReconstructible(
+        f"Run {run.run_id} froze publication profile "
+        f"{frozen.publication_profile_id} version "
+        f"{frozen.publication_profile_version} and was handed "
+        f"{profile.publication_profile_id} version "
+        f"{profile.publication_profile_version}. A run publishes through the "
+        "profile it selected; generating its readings through another is "
+        "reinterpretation wearing the old run's identity."
+    )
+
+
+def _component_carrying(
+    run: SimulationRun, device_id: str, signal_id: str
+) -> str | None:
+    """Which component the Foundation says one device signal describes.
+
+    Read off the run's frozen signal mappings, which is where the Foundation's
+    own declaration was frozen, and never inferred from a device's attachment or
+    its name: the shipped template's own comment says a device may be attached to
+    one component and describe another.
+
+    Two mappings for one device signal are refused rather than resolved. A map
+    built from such a run would make the last row authoritative silently, which
+    is the defect `_refuse_two_answers` above exists for, one record along.
+    """
+    matches = sorted(
+        {
+            mapping.component_id
+            for mapping in run.deterministic_identity.signal_mappings
+            if mapping.device_id == device_id and mapping.signal_id == signal_id
+        }
+    )
+    if not matches:
+        return None
+    if len(matches) > 1:
+        raise FrozenRunNotReconstructible(
+            f"Run {run.run_id} froze {len(matches)} signal mappings saying "
+            f"{device_id}/{signal_id} describes {matches}. Which component a "
+            "reading is about is not a question with two answers, so this is "
+            "refused where both rows are still visible."
+        )
+    return matches[0]
+
+
+def reporting_inputs(
+    run: SimulationRun, profile: PublicationProfile = LAB_PUBLICATION_PROFILE
+) -> FrozenReportingInputs:
+    """Project one frozen Draft into the observation transform's input.
+
+    The companion projection to `frozen_world_inputs`, and deliberately a second
+    function producing a second record. The world record has no field a cadence
+    could arrive in and this one has no field a stock could, so the two halves of
+    criterion 8 - the reports change, the world does not - are properties of two
+    signatures rather than of a caller's discipline.
+
+    Three sources and no fourth. The publication profile declares which signals
+    report which state, when, with what bias and with what dropout. The run's
+    frozen signal mappings say which component each signal describes, which is
+    what turns a declaration about `fuel-tank-volume` into a reporting path about
+    `fuel-tank-volume@fuel-tank`. And the run's frozen reporting-path conditions
+    supply the windows, which is exactly the consumer
+    `FrozenReportingPathCondition` says its window was frozen for.
+
+    **A declared signal this installation does not configure is not a reporting
+    path.** It is left out rather than invented, and the left-out signals are
+    returned to the caller as a note rather than dropped in silence: a profile
+    naming a sensor the Site has not got is a fact a reader of the Lab should see.
+    """
+    # The contract version first, and the order is not cosmetic. A run frozen
+    # under an earlier contract will ALSO name an earlier publication profile,
+    # because the two moved together - so asking about the profile first reports
+    # "this run does not determine one experiment" for a run whose real answer is
+    # "these rules are not the rules it was frozen under". The coarser, prior fact
+    # is the one a reader needs, and a browser run of this slice found the two the
+    # wrong way round.
+    identity = run.deterministic_identity
+    refuse_incompatible_execution(identity.profiles.execution_contract_version)
+    refuse_a_publication_profile_the_run_did_not_select(run, profile)
+
+    interval = FrozenInterval(
+        start_time=identity.interval.start_time,
+        end_time=identity.interval.end_time,
+        duration_minutes=identity.interval.duration_minutes,
+        timestep_minutes=identity.interval.timestep_minutes,
+    )
+
+    signals: list[DeviceSignalSpec] = []
+    components: dict[tuple[str, str], str] = {}
+    for declaration in profile.device_signals:
+        component = _component_carrying(
+            run, declaration.device_id, declaration.signal_id
+        )
+        if component is None:
+            continue
+        components[declaration.signal_key] = component
+        signals.append(
+            DeviceSignalSpec(
+                device_id=declaration.device_id,
+                signal_id=declaration.signal_id,
+                address=component_state(
+                    declaration.state_key, component
+                ).addressed_key,
+                state_key=declaration.state_key,
+                reading_class=declaration.reading_class,
+                canonical_unit=declaration.canonical_unit,
+                cadence_minutes=declaration.cadence_minutes,
+                bias=normalize_authored_float(declaration.bias),
+                dropout_per_thousand=declaration.dropout_per_thousand,
+                statement=declaration.statement,
+            )
+        )
+
+    by_signal = {
+        (signal.device_id, signal.signal_id): signal for signal in signals
+    }
+    gaps: list[ReportingPathWindow] = []
+    for condition in identity.reporting_path_conditions:
+        declared = profile.supported_reporting(condition.state_ref.state_key)
+        if declared is None:
+            continue
+        for device_id, signal_id in declared.silences:
+            signal = by_signal.get((device_id, signal_id))
+            if signal is None:
+                continue
+            # The condition names a path on a component. A condition on one tank
+            # does not silence another tank's sensor, so the components have to
+            # agree before the window applies.
+            if (
+                condition.state_ref.component_id is not None
+                and condition.state_ref.component_id
+                != components[(device_id, signal_id)]
+            ):
+                continue
+            # `timing_shape` travels, and its absence was a defect rather than a
+            # simplification. Without it every missing duration read as the
+            # interval's end, so a POINT condition at offset 1500 silenced 1500,
+            # 1515 and 2400 alike - a run-long outage where the document declared
+            # an instant. `FrozenReportingPathCondition`'s own docstring says its
+            # window was frozen for this consumer; dropping the shape on the way
+            # here discarded part of what had been frozen.
+            gaps.append(
+                ReportingPathWindow(
+                    event_id=condition.event_id,
+                    condition_address=condition.addressed_key,
+                    device_id=device_id,
+                    signal_id=signal_id,
+                    address=signal.address,
+                    timing_shape=condition.timing_shape,
+                    offset_minutes=condition.offset_minutes,
+                    duration_minutes=condition.duration_minutes,
+                    interval_minutes=interval.duration_minutes,
+                    timestep_minutes=interval.timestep_minutes,
+                )
+            )
+
+    return FrozenReportingInputs(
+        run_id=run.run_id,
+        publication_profile_id=profile.publication_profile_id,
+        publication_profile_version=profile.publication_profile_version,
+        seed=identity.seed,
+        interval=interval,
+        signals=tuple(signals),
+        gaps=tuple(gaps),
+    )
+
+
+def unconfigured_signals(
+    run: SimulationRun, profile: PublicationProfile = LAB_PUBLICATION_PROFILE
+) -> tuple[str, ...]:
+    """Which declared reporting paths this installation does not configure.
+
+    Returned so the Lab can say so. A profile declaring a sensor the Site has not
+    got is not an error - a profile is versioned simulator configuration and is
+    the same for every Site - but it IS a reason a reading a reader expected is
+    not there, and that reason has to be visible somewhere.
+    """
+    return tuple(
+        f"{declaration.device_id}/{declaration.signal_id}"
+        for declaration in profile.device_signals
+        if _component_carrying(
+            run, declaration.device_id, declaration.signal_id
+        )
+        is None
     )
 
 

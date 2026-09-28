@@ -185,7 +185,7 @@ describe("workspace entry point: enabled", () => {
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "No simulator run exists" }),
+      screen.getByRole("heading", { level: 2, name: "What this workspace is" }),
     ).toBeInTheDocument();
 
     // The operator shell, its navigation, and the workspace chrome are gone:

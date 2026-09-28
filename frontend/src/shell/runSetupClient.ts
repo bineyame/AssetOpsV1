@@ -6,11 +6,15 @@
  * allows that only in `simulatorLabRoutes.tsx`, which is where the paths live
  * and where this client is constructed.
  *
- * It reads the versioned profiles, it creates one Draft, and since T020 it
- * lists and reads the Drafts that exist. There is still no start, step, pause,
- * commit, stage, ingest, replay, rerun or delete method, so no screen built on
- * it can offer one. That is not a convention: a screen cannot call what the
- * client does not have, and the backend serves no such route.
+ * It reads the versioned profiles, it creates one Draft, and since T020 it lists
+ * and reads the Drafts that exist. Since T022 it also STARTS one, steps it, runs
+ * it to the end and reads where it got to.
+ *
+ * The absences that remain are the point, and they are still structural rather
+ * than a convention: there is no pause, no commit, no stage, no release, no
+ * ingest, no replay, no rerun, no reset, no event injection and no delete method
+ * here, so no screen built on this client can offer one. A screen cannot call what
+ * the client does not have, and the backend serves no such route either.
  *
  * ## The two outcomes are two shapes
  *
@@ -212,11 +216,217 @@ export type CreateRunResult =
    */
   | { status: "unavailable"; message: string | null };
 
+/**
+ * One world quantity at the instant a run has reached.
+ *
+ * `value` is a string and that is deliberate everywhere in this family. The
+ * backend's numeric policy is exact rational arithmetic and it never rounds, so
+ * the wire carries the exact decimal as text. Parsing it into a JavaScript
+ * number here would reintroduce the one approximation the policy forbids, in the
+ * layer furthest from anyone who could notice.
+ */
+export interface RunPrivateStateRow {
+  address: string;
+  state_key: string;
+  value: string;
+  canonical_unit: string;
+  kind: string;
+}
+
+/**
+ * One reporting path at one instant: what was true, and what was reported.
+ *
+ * The five things this screen exists to keep apart, each in its own field.
+ * `true_value` is the world's, `reported_value` is the freshest reading at or
+ * before this instant, `reported_source_time` is THAT reading's own time,
+ * `quality` says whether it is fresh, retained or absent, and `outcome` says what
+ * the sample attempt at this instant did - or is `null` when none was due.
+ */
+export interface RunObservationRow {
+  address: string;
+  state_key: string;
+  device_id: string;
+  signal_id: string;
+  reading_class: string;
+  at_offset_minutes: number;
+  simulation_time: string;
+  canonical_unit: string;
+  true_value: string | null;
+  reported_value: string | null;
+  reported_source_time: string | null;
+  reported_at_offset_minutes: number | null;
+  quality: string;
+  quality_statement: string;
+  due: boolean;
+  outcome: string | null;
+  outcome_statement: string | null;
+  suppression_reason: string | null;
+  cadence_minutes: number;
+  bias: string;
+  dropout_per_thousand: number;
+}
+
+/** One configured reporting path, and everything the profile declares about it. */
+export interface RunDeviceSignal {
+  device_id: string;
+  signal_id: string;
+  address: string;
+  state_key: string;
+  reading_class: string;
+  canonical_unit: string;
+  cadence_minutes: number;
+  bias: string;
+  dropout_per_thousand: number;
+  statement: string;
+}
+
+/**
+ * One span across which one signal's reporting path is forced unavailable.
+ *
+ * `timing_shape` is the shape the document declared and the two offsets are the
+ * span it resolved to at this run's timestep. Both are carried because a reader
+ * has to be able to see that a POINT condition covers one step rather than the
+ * rest of the run - a collapse the first version of this made, by reading every
+ * absent duration as the interval's end.
+ */
+export interface RunReportingGap {
+  event_id: string;
+  condition_address: string;
+  device_id: string;
+  signal_id: string;
+  address: string;
+  timing_shape: string;
+  /** The instant the document declared, which for a POINT is not the
+   * start of the outage: an entry at offset 1490 in a fifteen-minute run
+   * silences the sample at 1485. Both are carried so a reader can see
+   * what was written and what it came to. */
+  declared_offset_minutes: number;
+  start_offset_minutes: number;
+  end_offset_minutes: number;
+}
+
+/** One sample attempt, as what it published or as why it did not. */
+export interface RunRecentReport {
+  device_id: string;
+  signal_id: string;
+  address: string;
+  reading_class: string;
+  at_offset_minutes: number;
+  source_sample_time: string;
+  outcome: string;
+  outcome_statement: string;
+  reported_value: string | null;
+  canonical_unit: string;
+  suppression_reason: string | null;
+}
+
+/** Why an execution stopped. Distinct from a refused control: this one ran. */
+export interface RunExecutionFailure {
+  kind: string;
+  subject: string;
+  statement: string;
+  at_offset_minutes: number | null;
+  detail: string[];
+}
+
+/**
+ * Where one Draft's execution is, and what it has produced.
+ *
+ * `status` is one of `NOT_STARTED`, `RUNNING`, `COMPLETED`, `FAILED` and
+ * `INTERRUPTED`, and `statement` is the backend's own sentence for it. The screen
+ * places that sentence rather than writing a second one, for the same reason it
+ * places the readiness disclosure.
+ *
+ * `content_digest` is `null` until the run reaches a terminal outcome, because a
+ * digest over a prefix would be an identity for something that is not yet a
+ * thing. `observation_series_digest` is always present and is a second identity
+ * on purpose: the world's identity excludes the reporting path, so one digest
+ * could not tell two runs whose reports differ apart.
+ */
+export interface RunExecution {
+  run_id: string;
+  status: string;
+  statement: string;
+  boundaries_completed: number;
+  boundaries_total: number;
+  offset_minutes: number;
+  simulation_time: string;
+  interval_start_time: string;
+  interval_end_time: string;
+  timestep_minutes: number;
+  seed: number;
+  kernel_version: number;
+  model_profile_id: string;
+  model_profile_version: number;
+  publication_profile_id: string;
+  publication_profile_version: number;
+  numeric_policy: string;
+  numeric_policy_version: number;
+  execution_contract_version: number;
+  inputs_identity: string;
+  content_digest: string | null;
+  observation_series_digest: string;
+  reported_count: number;
+  suppressed_by_gap_count: number;
+  dropped_count: number;
+  notes: string[];
+  failure: RunExecutionFailure | null;
+  private_state: RunPrivateStateRow[];
+  observations: RunObservationRow[];
+  signals: RunDeviceSignal[];
+  reporting_gaps: RunReportingGap[];
+  recent_reports: RunRecentReport[];
+}
+
+/**
+ * The outcome of one execution read or one control request.
+ *
+ * `refused` and `unavailable` are kept apart for the reason `createRun`'s are: a
+ * refusal means the request was judged and NOTHING was advanced, and the backend
+ * says which of the eight refusals it was and why. `unavailable` means the
+ * request did not complete, so nothing is known about whether it applied.
+ */
+export type RunExecutionResult =
+  | { status: "loaded"; execution: RunExecution }
+  | { status: "not_found" }
+  | {
+      status: "refused";
+      code: string | null;
+      refusalKind: string | null;
+      message: string;
+    }
+  | { status: "unavailable"; message: string | null };
+
+/** What a step request says: how far, and from where it believes the run is. */
+export interface RunStepRequest {
+  boundaries: number;
+  fromBoundary: number;
+}
+
 export interface RunSetupClient {
   listProfiles(): Promise<RunProfilesResult>;
   createRun(input: RunSetupInput): Promise<CreateRunResult>;
   listRuns(): Promise<RunListResult>;
   getRun(runId: string): Promise<RunDetailResult>;
+  /**
+   * Where this Draft's execution is. A read: it changes nothing, and a Draft
+   * nothing has executed is a `loaded` `NOT_STARTED` rather than an error.
+   */
+  getExecution(runId: string): Promise<RunExecutionResult>;
+  startExecution(runId: string): Promise<RunExecutionResult>;
+  /**
+   * Advance a started execution.
+   *
+   * `fromBoundary` is what makes the control safe to resubmit: it is the position
+   * the caller believes the run is at, which the projection it is looking at
+   * already told it. A double click sends the same number twice and the second
+   * request advances nothing.
+   */
+  stepExecution(
+    runId: string,
+    request: RunStepRequest,
+  ): Promise<RunExecutionResult>;
+  runExecutionToEnd(runId: string): Promise<RunExecutionResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -354,6 +564,172 @@ export function isRunSummary(value: unknown): value is RunSummary {
     value.blocking_reasons.every(isBlockingReason) &&
     Array.isArray(value.unsupported_optional_inputs) &&
     value.unsupported_optional_inputs.every(isUnsupportedOptional)
+  );
+}
+
+function isStringArray(value: unknown): boolean {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isPrivateStateRow(value: unknown): value is RunPrivateStateRow {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.address === "string" &&
+    typeof value.state_key === "string" &&
+    typeof value.value === "string" &&
+    typeof value.canonical_unit === "string" &&
+    typeof value.kind === "string"
+  );
+}
+
+function isObservationRow(value: unknown): value is RunObservationRow {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.address === "string" &&
+    typeof value.state_key === "string" &&
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.reading_class === "string" &&
+    typeof value.at_offset_minutes === "number" &&
+    typeof value.simulation_time === "string" &&
+    typeof value.canonical_unit === "string" &&
+    isNullableString(value.true_value) &&
+    isNullableString(value.reported_value) &&
+    isNullableString(value.reported_source_time) &&
+    isNullableNumber(value.reported_at_offset_minutes) &&
+    typeof value.quality === "string" &&
+    typeof value.quality_statement === "string" &&
+    typeof value.due === "boolean" &&
+    isNullableString(value.outcome) &&
+    isNullableString(value.outcome_statement) &&
+    isNullableString(value.suppression_reason) &&
+    typeof value.cadence_minutes === "number" &&
+    typeof value.bias === "string" &&
+    typeof value.dropout_per_thousand === "number"
+  );
+}
+
+function isDeviceSignal(value: unknown): value is RunDeviceSignal {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.address === "string" &&
+    typeof value.state_key === "string" &&
+    typeof value.reading_class === "string" &&
+    typeof value.canonical_unit === "string" &&
+    typeof value.cadence_minutes === "number" &&
+    typeof value.bias === "string" &&
+    typeof value.dropout_per_thousand === "number" &&
+    typeof value.statement === "string"
+  );
+}
+
+function isReportingGap(value: unknown): value is RunReportingGap {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.event_id === "string" &&
+    typeof value.condition_address === "string" &&
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.address === "string" &&
+    typeof value.timing_shape === "string" &&
+    typeof value.declared_offset_minutes === "number" &&
+    typeof value.start_offset_minutes === "number" &&
+    typeof value.end_offset_minutes === "number"
+  );
+}
+
+function isRecentReport(value: unknown): value is RunRecentReport {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.address === "string" &&
+    typeof value.reading_class === "string" &&
+    typeof value.at_offset_minutes === "number" &&
+    typeof value.source_sample_time === "string" &&
+    typeof value.outcome === "string" &&
+    typeof value.outcome_statement === "string" &&
+    isNullableString(value.reported_value) &&
+    typeof value.canonical_unit === "string" &&
+    isNullableString(value.suppression_reason)
+  );
+}
+
+function isExecutionFailure(value: unknown): value is RunExecutionFailure {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.kind === "string" &&
+    typeof value.subject === "string" &&
+    typeof value.statement === "string" &&
+    isNullableNumber(value.at_offset_minutes) &&
+    isStringArray(value.detail)
+  );
+}
+
+/**
+ * Whether a body is a whole execution projection.
+ *
+ * Checked field by field, like every other shape here, and for the reason the
+ * module docstring gives: a screen must not render half an execution. Half of
+ * this one would be worse than half a frozen identity - a true value with no
+ * reported value beside it reads as a reading that did not happen.
+ */
+export function isRunExecution(value: unknown): value is RunExecution {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.run_id === "string" &&
+    typeof value.status === "string" &&
+    typeof value.statement === "string" &&
+    typeof value.boundaries_completed === "number" &&
+    typeof value.boundaries_total === "number" &&
+    typeof value.offset_minutes === "number" &&
+    typeof value.simulation_time === "string" &&
+    typeof value.interval_start_time === "string" &&
+    typeof value.interval_end_time === "string" &&
+    typeof value.timestep_minutes === "number" &&
+    typeof value.seed === "number" &&
+    typeof value.kernel_version === "number" &&
+    typeof value.model_profile_id === "string" &&
+    typeof value.model_profile_version === "number" &&
+    typeof value.publication_profile_id === "string" &&
+    typeof value.publication_profile_version === "number" &&
+    typeof value.numeric_policy === "string" &&
+    typeof value.numeric_policy_version === "number" &&
+    typeof value.execution_contract_version === "number" &&
+    typeof value.inputs_identity === "string" &&
+    isNullableString(value.content_digest) &&
+    typeof value.observation_series_digest === "string" &&
+    typeof value.reported_count === "number" &&
+    typeof value.suppressed_by_gap_count === "number" &&
+    typeof value.dropped_count === "number" &&
+    isStringArray(value.notes) &&
+    (value.failure === null || isExecutionFailure(value.failure)) &&
+    Array.isArray(value.private_state) &&
+    value.private_state.every(isPrivateStateRow) &&
+    Array.isArray(value.observations) &&
+    value.observations.every(isObservationRow) &&
+    Array.isArray(value.signals) &&
+    value.signals.every(isDeviceSignal) &&
+    Array.isArray(value.reporting_gaps) &&
+    value.reporting_gaps.every(isReportingGap) &&
+    Array.isArray(value.recent_reports) &&
+    value.recent_reports.every(isRecentReport)
   );
 }
 
@@ -498,5 +874,112 @@ export function createRunSetupClient(
       // sentence.
       return { status: "unavailable", message };
     },
+
+    getExecution(runId: string): Promise<RunExecutionResult> {
+      return executionRequest(`${executionPath(runsPath, runId)}`, "GET");
+    },
+
+    startExecution(runId: string): Promise<RunExecutionResult> {
+      return executionRequest(
+        `${executionPath(runsPath, runId)}/start`,
+        "POST",
+      );
+    },
+
+    stepExecution(
+      runId: string,
+      request: RunStepRequest,
+    ): Promise<RunExecutionResult> {
+      return executionRequest(
+        `${executionPath(runsPath, runId)}/step`,
+        "POST",
+        {
+          boundaries: request.boundaries,
+          from_boundary: request.fromBoundary,
+        },
+      );
+    },
+
+    runExecutionToEnd(runId: string): Promise<RunExecutionResult> {
+      return executionRequest(
+        `${executionPath(runsPath, runId)}/run-to-end`,
+        "POST",
+      );
+    },
   };
+}
+
+function executionPath(runsPath: string, runId: string): string {
+  return `${runsPath}/${encodeURIComponent(runId)}/execution`;
+}
+
+/**
+ * One execution read or control, with the four outcomes kept apart.
+ *
+ * Shared by all four methods rather than written out four times, because the
+ * outcome mapping is the same fact each time and four copies would be four things
+ * to keep in agreement. 404 is a run that is not there, 409 is a control the run's
+ * state does not admit, 422 is a request that was not one, and anything else did
+ * not complete.
+ */
+async function executionRequest(
+  path: string,
+  method: "GET" | "POST",
+  body?: Record<string, number>,
+): Promise<RunExecutionResult> {
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      method,
+      ...(body === undefined
+        ? {}
+        : {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          }),
+    });
+  } catch {
+    return { status: "unavailable", message: null };
+  }
+
+  let parsed: Record<string, unknown> | null = null;
+  try {
+    parsed = (await response.json()) as Record<string, unknown>;
+  } catch {
+    parsed = null;
+  }
+
+  if (response.status === 404) {
+    return { status: "not_found" };
+  }
+
+  if (response.ok) {
+    if (!isRunExecution(parsed?.execution)) {
+      return { status: "unavailable", message: null };
+    }
+    return { status: "loaded", execution: parsed.execution as RunExecution };
+  }
+
+  const detail = parsed?.detail;
+  const message =
+    isRecord(detail) && typeof detail.message === "string"
+      ? detail.message
+      : null;
+
+  if (response.status === 409 || response.status === 422) {
+    return {
+      status: "refused",
+      code:
+        isRecord(detail) && typeof detail.code === "string"
+          ? detail.code
+          : null,
+      refusalKind:
+        isRecord(detail) && typeof detail.refusal_kind === "string"
+          ? detail.refusal_kind
+          : null,
+      message: message ?? "The execution control was refused.",
+    };
+  }
+
+  return { status: "unavailable", message };
 }

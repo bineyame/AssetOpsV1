@@ -10,6 +10,10 @@ import {
   type FeatureFlags,
 } from "../../config/featureFlags";
 import type { RunSetupClient } from "../runSetupClient";
+import {
+  RUNNING_IN_THE_GAP,
+  executionMethods,
+} from "./executionFixtures";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
@@ -107,6 +111,14 @@ const RUN_SETUP: RunSetupClient = {
         unsupported_optional_inputs: [],
       },
     }),
+  /*
+   * An execution in flight, injected for the same reason the draft is READY.
+   * Every gate claim below is about which controls a screen offers, and a run
+   * detail screen with no execution to show offers no execution control at all -
+   * so asserting a closed gate hides them would be asserting about an empty set.
+   * This is the case that WOULD hide an enabled control if the gate leaked.
+   */
+  ...executionMethods({ status: "loaded", execution: RUNNING_IN_THE_GAP }),
 };
 
 /**
@@ -254,6 +266,16 @@ const INTERACTIVE_SELECTOR = [
 ].join(", ");
 
 /** Vocabulary for run execution, inspection, rerun and truth comparison. */
+/**
+ * The three controls the gated Lab may offer on a run surface, by name.
+ *
+ * A closed set rather than a pattern, and the reason is the one this file learnt
+ * the hard way: a ban written over what a control SAYS is a ban the next
+ * violation walks past using a word nobody listed. A fourth control here has to
+ * be added deliberately.
+ */
+const EXECUTION_CONTROLS = ["Start this run", "Step", "Run to the end"];
+
 const RUN_ACTION_PATTERN =
   /\b(run|runs|rerun|re-run|start|stop|execute|execution|simulate|simulation|playback|replay|compare|comparison|truth|inspect|commit|publish|stage|staging|ingest)\b/i;
 
@@ -432,18 +454,36 @@ describe("simulator lab gate: enabled", () => {
     ).toBeInTheDocument();
   });
 
-  it.each(SIMULATOR_LAB_SHELL_URLS)("serves an empty Simulator Lab shell at %s", (url) => {
+  it.each(SIMULATOR_LAB_SHELL_URLS)("serves the Simulator Lab shell at %s", (url) => {
     renderAt(url, ENABLED);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
     ).toBeInTheDocument();
+    // "No simulator run exists" and "run execution is not implemented yet"
+    // were asserted here until T022 made both false. What the landing page
+    // says now is what the workspace is AND what it still is not, and the
+    // second half is the half worth guarding.
     expect(
-      screen.getByRole("heading", { level: 2, name: "No simulator run exists" }),
+      screen.getByRole("heading", { level: 2, name: "What this workspace is" }),
+    ).toBeInTheDocument();
+    // The claim is about EXECUTING a draft, and it says so. It said "Nothing
+    // here ... writes to any site" while + Add site sat on the same workspace
+    // and its ordinary flow persists a product Site - so a guard pinned to that
+    // phrasing would have been guarding a sentence that was false about the
+    // screen it was on.
+    expect(
+      screen.getByText(/Executing a Draft stages no gateway message/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/run execution is not implemented yet/i),
+      screen.getByText(/Setting a Site up is a separate thing/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Simulator truth is never product evidence/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/run execution is not implemented/i),
+    ).toBeNull();
   });
 
   /**
@@ -520,8 +560,10 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
           continue;
         }
 
-        // T020 makes two truthful things match this pattern, so the ban
-        // moves from "nothing may say it" to "nothing may DO it".
+        // T020 moved the ban from "nothing may say it" to "nothing may DO it".
+        // T022 moves it once more, because now something may: a Draft can be
+        // started, stepped and run to the end in the gated Lab, and that is the
+        // slice. So the ban becomes a closed set rather than a prohibition.
         //
         // A link may: a destination called Runs, and a row naming a run
         // identity, are navigation. Following one shows a record; it starts
@@ -532,6 +574,10 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
         // disabled, carrying the prerequisite - and a disabled control
         // without a reason is a dead end, so it fails here too.
         //
+        // And one of exactly three named execution controls may, on a run
+        // surface only. Named rather than pattern-matched: a fourth control fails
+        // whatever it is called, and one on any other surface fails too.
+        //
         // Anything else still fails, and an ENABLED button saying any of
         // these words fails however it is spelled.
         const isNavigation = control.tagName === "A";
@@ -539,26 +585,62 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
           control.tagName === "BUTTON" &&
           (control as HTMLButtonElement).disabled &&
           control.getAttribute("aria-describedby") !== null;
+        const isNamedExecutionControl =
+          RUN_SURFACE_URLS.includes(url) &&
+          EXECUTION_CONTROLS.includes(description.trim());
 
         expect(
-          isNavigation || isDisabledWithReason,
+          isNavigation || isDisabledWithReason || isNamedExecutionControl,
           `${url} offers "${description}" as something other than a ` +
-            "destination or a disabled control with a reason",
+            "destination, a disabled control with a reason, or one of the " +
+            "three named execution controls",
         ).toBe(true);
       }
     },
   );
 
+  /**
+   * The floor under the three-control allowance above, and it comes FIRST.
+   *
+   * Every claim in this block iterates the controls a screen renders, and a
+   * screen that rendered none would satisfy all of them. That has been the
+   * defect in every slice of this milestone, including in the probe suites
+   * written to catch it. So this asserts the enabled run detail actually
+   * carries the three controls, enabled, before anything below asserts what
+   * the closed gate does not carry.
+   */
+  it("carries the three execution controls on the enabled run detail", async () => {
+    const { container } = renderAt("/simulator-lab/runs/run-1", ENABLED);
+    await settledScreen();
+
+    const buttons = Array.from(container.querySelectorAll("button"));
+    expect(buttons.map((button) => (button.textContent ?? "").trim())).toEqual(
+      EXECUTION_CONTROLS,
+    );
+    // Enabled, not merely present. A disabled set would make the ban below a ban
+    // over controls nobody could use.
+    expect(buttons.some((button) => !button.disabled)).toBe(true);
+  });
+
   it.each(RUN_SURFACE_URLS)(
-    "offers no enabled control at all on the run surface %s when enabled",
+    "offers exactly the named execution controls on the run surface %s when enabled",
     async (url) => {
-      // The stronger half, stated separately so the allowance above cannot
-      // be read as "the run screens may act". Nothing on them may.
+      // The stronger half, stated separately so the allowance above cannot be
+      // read as "the run screens may do anything". Three named controls and a
+      // number input for the step size; every other non-anchor affordance is
+      // disabled or absent.
       const { container } = renderAt(url, ENABLED);
       await settledScreen();
 
       for (const control of interactiveControls(container)) {
         if (control.tagName === "A") {
+          continue;
+        }
+        const description = controlDescription(control).trim();
+        if (
+          EXECUTION_CONTROLS.includes(description) ||
+          control.id === "run-step-boundaries"
+        ) {
           continue;
         }
         expect(control).toBeDisabled();
