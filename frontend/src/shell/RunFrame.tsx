@@ -6,6 +6,8 @@ import type {
   RunDetailResult,
   RunExecutionResult,
   RunSetupClient,
+  RunStageResult,
+  RunStagedEnvelope,
 } from "./runSetupClient";
 
 /**
@@ -22,8 +24,8 @@ import type {
  *
  * The absences that remain are still absences rather than disabled controls.
  * There is no pause, no reset, no event injection, no truth overlay on an
- * operator screen, no staged gateway message, no commit and no bridge into the
- * operator product, and none of them appears here in any form. The rule
+ * operator screen, no commit, no release and no bridge into the operator
+ * product, and none of them appears here in any form. The rule
  * (`D-2026-09-20-scenario-detail-affordances`) is that a disabled control appears
  * only when the action is native to the object and the missing prerequisite is the
  * next named causal capability - and none of those is.
@@ -42,6 +44,17 @@ import type {
  * published nothing - is placed from the payload rather than written here. They
  * are properties of the contract's own vocabularies, and a screen composing its
  * own sentence would be a second copy of a rule.
+ *
+ * ## The stage inspector, since T023
+ *
+ * Executing a Draft now also publishes, through the simulated gateway, the
+ * canonical source envelopes a later Commit would release. The inspector below
+ * the readings shows them exactly as persisted - each envelope's canonical text,
+ * with its identity, mapping and the two times split out beside it - and it is
+ * read from the persisted stage rather than from the live run, so reloading the
+ * page after the process that ran it is gone shows the same bytes. It is
+ * deliberately utilitarian and it is read-only: a staged record cannot be edited
+ * here, and nothing here releases or commits one.
  */
 export interface RunFrameProps {
   runSetup: RunSetupClient;
@@ -67,6 +80,8 @@ export function RunFrame({
   const [execution, setExecution] = useState<RunExecutionResult | null>(null);
   const [pending, setPending] = useState(false);
   const [boundaries, setBoundaries] = useState("1");
+  const [stage, setStage] = useState<RunStageResult | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -84,6 +99,11 @@ export function RunFrame({
     void runSetup.getExecution(runId).then((loaded) => {
       if (active) {
         setExecution(loaded);
+      }
+    });
+    void runSetup.getStage(runId).then((loaded) => {
+      if (active) {
+        setStage(loaded);
       }
     });
 
@@ -107,9 +127,14 @@ export function RunFrame({
       setPending(true);
       const answer = await act();
       setExecution(answer);
+      // A control may have staged envelopes, so the stage is re-read from
+      // persistence after it rather than patched from the control's answer.
+      if (runId !== undefined) {
+        setStage(await runSetup.getStage(runId));
+      }
       setPending(false);
     },
-    [],
+    [runSetup, runId],
   );
 
   const backLinks = (
@@ -182,10 +207,11 @@ export function RunFrame({
           <Fact term="Set up">{run.created_at}</Fact>
         </FactList>
         <p>
-          Nothing on this screen stages a gateway message, releases a source
-          envelope, commits anything, or writes to any site. Executing a draft
-          produces private simulator truth and the readings a configured device
-          would have published from it, and both stay in this workspace.
+          Nothing on this screen releases a source envelope, commits anything,
+          or writes to any site. Executing a draft produces private simulator
+          truth, the readings a configured device would have published from it,
+          and the canonical source envelopes the simulated gateway staged from
+          those readings - and all three stay in this workspace.
         </p>
       </Panel>
 
@@ -694,6 +720,138 @@ export function RunFrame({
         </Panel>
       )}
 
+      <Panel
+        heading="Staged source envelopes"
+        headingId="run-stage-heading"
+      >
+        {stage === null ? (
+          <p>Loading the staged source envelopes.</p>
+        ) : stage.status === "not_found" ? (
+          <p>No stage surface answered for this run identity.</p>
+        ) : stage.status === "unavailable" ? (
+          <p data-stage-unavailable>
+            {stage.message ??
+              "The stage could not be read, so nothing is known about what was staged."}
+          </p>
+        ) : (
+          <>
+            <p
+              data-stage-statement
+              data-stage-status={stage.stage.status}
+              data-stage-count={stage.stage.envelopes.length}
+            >
+              {stage.stage.statement}
+            </p>
+            {stage.stage.unreadable_detail === null ? null : (
+              <p data-stage-unreadable>
+                <strong>Integrity check failed.</strong>{" "}
+                {stage.stage.unreadable_detail}
+              </p>
+            )}
+            <FactList>
+              <Fact term="Stage status">{stage.stage.status}</Fact>
+              <Fact term="Release eligibility">
+                <span
+                  data-stage-release={
+                    stage.stage.release_eligible ? "ELIGIBLE" : "NOT_ELIGIBLE"
+                  }
+                >
+                  {stage.stage.release_eligible
+                    ? "Eligible. Nothing in this build releases it: Commit and ingestion do not exist yet."
+                    : "Not eligible"}
+                </span>
+              </Fact>
+              <Fact term="Envelope schema">
+                {`${stage.stage.envelope_schema_id} v${stage.stage.envelope_schema_version}`}
+              </Fact>
+              <Fact term="Stage schema">
+                {`v${stage.stage.stage_schema_version}`}
+              </Fact>
+              {stage.stage.mapping === null ? null : (
+                <>
+                  <Fact term="Frozen mapping">
+                    {`${stage.stage.mapping.mapping_set_id} v${stage.stage.mapping.mapping_version}`}
+                  </Fact>
+                  <Fact term="Publication latency">
+                    {`${stage.stage.mapping.publication_latency_seconds} seconds after the sample`}
+                  </Fact>
+                </>
+              )}
+              {stage.stage.site_id === null ? null : (
+                <Fact term="Site, source and gateway">
+                  {`${stage.stage.site_id} / ${stage.stage.source_id ?? ""} / ${stage.stage.gateway_id ?? ""}`}
+                </Fact>
+              )}
+              <Fact term="Envelopes staged">
+                {String(stage.stage.envelopes.length)}
+              </Fact>
+              <Fact term="Integrity digest">
+                {stage.stage.integrity_digest ?? "none"}
+              </Fact>
+            </FactList>
+            {stage.stage.release_blockers.length === 0 ? null : (
+              <ul className="cell-list" data-stage-blockers>
+                {stage.stage.release_blockers.map((blocker) => (
+                  <li key={blocker.kind} data-stage-blocker={blocker.kind}>
+                    <strong>{blocker.kind}.</strong> {blocker.statement}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {stage.stage.refused_publications.length === 0 ? null : (
+              <ul className="cell-list">
+                {stage.stage.refused_publications.map((item) => (
+                  <li key={item.message_id}>
+                    {`${item.kind}: ${item.message_id}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+      </Panel>
+
+      {stage === null ||
+      stage.status !== "loaded" ||
+      stage.stage.mapping === null ? null : (
+        <Panel
+          heading="The allowlist this stage froze"
+          headingId="run-stage-mapping-heading"
+          flush
+        >
+          <DataTable labelledBy="run-stage-mapping-heading">
+            <thead>
+              <tr>
+                <th scope="col">Device and signal</th>
+                <th scope="col">Published as</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Publishes unavailability</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stage.stage.mapping.entries.map((entry) => (
+                <tr key={`${entry.device_id}-${entry.signal_id}`}>
+                  <th scope="row">{`${entry.device_id} / ${entry.signal_id}`}</th>
+                  <td>{entry.measurement}</td>
+                  <td>{entry.unit}</td>
+                  <td>{entry.publishes_unavailable ? "yes" : "no"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Panel>
+      )}
+
+      {stage === null ||
+      stage.status !== "loaded" ||
+      stage.stage.envelopes.length === 0 ? null : (
+        <StagedEnvelopes
+          envelopes={stage.stage.envelopes}
+          selected={selectedMessage}
+          onSelect={setSelectedMessage}
+        />
+      )}
+
       <Panel heading="What this run is not" headingId="run-not-heading">
         <ul className="cell-list">
           <li>
@@ -702,8 +860,9 @@ export function RunFrame({
             and nothing here has entered ingestion.
           </li>
           <li>
-            Nothing has been staged for a gateway, and no source envelope
-            exists.
+            Its staged source envelopes are staged and nothing more. None has
+            been released, received or accepted, and a staged envelope is not
+            evidence about anywhere.
           </li>
           <li>
             It is a draft and it cannot be committed. Committing is what makes
@@ -721,5 +880,111 @@ export function RunFrame({
         </ul>
       </Panel>
     </>,
+  );
+}
+
+/**
+ * The staged envelopes: one row of metadata each, and one exact text on demand.
+ *
+ * The row splits out what a reader compares - identity, source time,
+ * publication time, value and quality - and the selected envelope is shown as
+ * its canonical text, exactly as persisted, beside its metadata. The newest is
+ * selected until a reader chooses another, because the newest is what a reader
+ * stepping a run has just caused.
+ */
+function StagedEnvelopes({
+  envelopes,
+  selected,
+  onSelect,
+}: {
+  envelopes: RunStagedEnvelope[];
+  selected: string | null;
+  onSelect: (messageId: string) => void;
+}) {
+  const shown =
+    envelopes.find((item) => item.message_id === selected) ??
+    envelopes[envelopes.length - 1];
+
+  return (
+    <>
+      <Panel
+        heading="The selected envelope, exactly as staged"
+        headingId="run-stage-selected-heading"
+      >
+        <FactList>
+          <Fact term="Message ID">{shown.message_id}</Fact>
+          <Fact term="Sequence">{String(shown.sequence)}</Fact>
+          <Fact term="Device and signal">
+            {`${shown.device_id} / ${shown.signal_id}`}
+          </Fact>
+          <Fact term="Mapping">
+            {`${shown.mapping_set_id} v${shown.mapping_version}`}
+          </Fact>
+          <Fact term="Envelope schema">{`v${shown.schema_version}`}</Fact>
+          <Fact term="Source time">
+            <span data-stage-selected-source-time>{shown.source_time}</span>
+          </Fact>
+          <Fact term="Published at">
+            <span data-stage-selected-published-at>{shown.published_at}</span>
+          </Fact>
+          <Fact term="Measurement">
+            {shown.interval_start === null
+              ? shown.measurement
+              : `${shown.measurement} over ${shown.interval_start} to ${shown.interval_end ?? ""}`}
+          </Fact>
+        </FactList>
+        <pre
+          className="canonical-text"
+          data-stage-canonical={shown.message_id}
+        >
+          {shown.canonical}
+        </pre>
+      </Panel>
+      <Panel
+        heading="Every staged envelope"
+        headingId="run-stage-envelopes-heading"
+        flush
+      >
+        <DataTable labelledBy="run-stage-envelopes-heading">
+          <thead>
+            <tr>
+              <th scope="col">Sequence</th>
+              <th scope="col">Device and signal</th>
+              <th scope="col">Source time</th>
+              <th scope="col">Published at</th>
+              <th scope="col">Value</th>
+              <th scope="col">Quality</th>
+              <th scope="col">Exact envelope</th>
+            </tr>
+          </thead>
+          <tbody>
+            {envelopes.map((item) => (
+              <tr key={item.message_id} data-staged-envelope={item.message_id}>
+                <th scope="row">{String(item.sequence)}</th>
+                <td>{`${item.device_id} / ${item.signal_id}`}</td>
+                <td data-staged-source-time>{item.source_time}</td>
+                <td data-staged-published-at>{item.published_at}</td>
+                <td data-staged-value>
+                  {item.value === null
+                    ? `no value (${item.unavailable_reason ?? "unavailable"})`
+                    : `${item.value} ${item.unit}`}
+                </td>
+                <td>{item.quality}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="action"
+                    aria-pressed={item.message_id === shown.message_id}
+                    onClick={() => onSelect(item.message_id)}
+                  >
+                    {`Show envelope ${item.sequence}`}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </Panel>
+    </>
   );
 }

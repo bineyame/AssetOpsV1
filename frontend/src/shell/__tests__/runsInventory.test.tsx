@@ -451,7 +451,10 @@ describe("one draft run", () => {
 
     expect(words).toMatch(/Neither is evidence/i);
     expect(words).toMatch(/nothing here has entered ingestion/i);
-    expect(words).toMatch(/Nothing has been staged for a gateway/i);
+    // Since T023 a run DOES stage envelopes; what it still does not do is
+    // release one, and the panel says that instead.
+    expect(words).toMatch(/staged and nothing more/i);
+    expect(words).toMatch(/None has been released, received or accepted/i);
     expect(words).toMatch(/cannot be committed/i);
     expect(words).toMatch(/No evidence has been accepted/i);
     expect(words).toMatch(/No conclusion has been drawn/i);

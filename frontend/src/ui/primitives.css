@@ -1414,3 +1414,27 @@ button:focus-visible {
   background: var(--surface-sunken);
   padding: var(--space-4);
 }
+
+/*
+ * Exact machine text: a staged source envelope's canonical serialization.
+ *
+ * Shown byte for byte, so it is never reformatted - and a canonical envelope is
+ * one line several hundred characters long with break opportunities only at its
+ * punctuation. `overflow-wrap: anywhere` breaks it inside the panel rather than
+ * letting it set the page's minimum width, for the reason the fact list's value
+ * column does: a machine identity is read a character at a time or copied whole.
+ * `pre-wrap` keeps every character, spaces included, exactly as persisted.
+ */
+.canonical-text {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+}
