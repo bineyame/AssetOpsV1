@@ -1,6 +1,6 @@
 # T022A - A run read that does not cost the whole store
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A hardening; unblocks the Lab as a demonstrable surface.
