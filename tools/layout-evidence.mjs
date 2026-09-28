@@ -256,6 +256,12 @@ const MEASURE = `(() => {
   // truth, a reported value and a retained reading sit inches apart. A
   // measurement over text would hold on a screen that merged the three columns.
   const executionStatusNode = document.querySelector("[data-execution-status]");
+  const simulationTimeNode = document.querySelector(
+    "[data-execution-simulation-time]",
+  );
+  const simulationTime = simulationTimeNode
+    ? simulationTimeNode.getAttribute("data-execution-simulation-time")
+    : null;
   const executionStatus = executionStatusNode
     ? executionStatusNode.getAttribute("data-execution-status")
     : null;
@@ -303,6 +309,7 @@ const MEASURE = `(() => {
     slots,
     runRows,
     executionStatus,
+    simulationTime,
     observationRows,
     privateStateRows,
     reportingGapRows,
@@ -1499,11 +1506,21 @@ for (const [label, width, height] of [
           : `${fuel.quality}/${fuel.outcome}, reported ${fuel.reported}`,
       ],
       [
-        "the retained reading carries its own source time, not this instant",
+        // The RELATIONSHIP, not a hard-coded timestamp. Which sample the
+        // retained reading came from depends on the run's seed and on the draw
+        // identity - correcting that identity moved it from 1485 to 1470 here -
+        // and a claim naming one instant would be a claim about a particular
+        // draw outcome rather than about the mechanism. What must hold is that
+        // the reading is older than now and was taken before the gap opened.
+        "the retained reading carries its own source time, earlier than this instant and before the gap",
         fuel !== undefined &&
           fuel.sourceTime !== null &&
-          fuel.sourceTime.startsWith("2026-09-22T00:45"),
-        fuel === undefined ? "no fuel row" : `source ${fuel.sourceTime}`,
+          fuel.sourceTime !== stepped.simulationTime &&
+          fuel.sourceTime < (stepped.simulationTime ?? "") &&
+          fuel.sourceTime < "2026-09-22T00:50",
+        fuel === undefined
+          ? "no fuel row"
+          : `source ${fuel.sourceTime}, now ${stepped.simulationTime}`,
       ],
       [
         "the newest sample attempts are drawn",

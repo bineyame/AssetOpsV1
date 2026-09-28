@@ -316,6 +316,7 @@ export function RunFrame({
             <p
               data-execution-statement
               data-execution-status={projection.status}
+              data-execution-simulation-time={projection.simulation_time}
             >
               {projection.statement}
             </p>
