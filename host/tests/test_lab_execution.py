@@ -1753,8 +1753,16 @@ class TestAReportingConditionOccupiesTimeByItsDeclaredShape:
         """The claim the first version made false, stated as a comparison.
 
         One instant, ninety minutes and the whole interval are three different
-        experiments. A reader should not have to take that on trust from three
-        separate assertions that could each be about the same set.
+        experiments, and this says so in one place rather than leaving it to be
+        inferred from three assertions elsewhere.
+
+        It was claimed here that asserting the three sets separately "would not
+        have caught it". That is too strong and a reviewer said so: asserting
+        the POINT set equals `{1485}` alone rejects a run-long outage on its
+        own. What a cross-case comparison adds is that the three are shown to
+        differ from EACH OTHER, so a future change collapsing two of them again
+        fails here even if each individual expectation were quietly relaxed to
+        match. That is additional evidence, not the only possible protection.
 
         Compared by SIZE rather than by containment: the point at 1490 lands in
         the step before the window opens, so the two are disjoint rather than
