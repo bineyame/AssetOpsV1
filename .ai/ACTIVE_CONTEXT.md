@@ -15,12 +15,12 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 and T021A are complete and merged.** **T022 is built, reviewed three times
+**T021 and T021A are complete and merged.** **T022 is built, reviewed four times
 and back in review**; packet in `.agent/T022-review-packet.md`, reviews in
-`.agent/T022-codex-review{,-2,-3}.md`, record in `.ai/CODE_STATE.md`. Rounds one
-and two returned four defects; round three found the fourth's fix repeated it -
-**a version marker cannot identify shapes written before markers existed**. All
-fixed: three artifact layouts exist and each reads back as the result it is.
+`.agent/T022-codex-review{,-2,-3}.md` and `-backup-review.md`, record in
+`.ai/CODE_STATE.md`. Three artifact layouts exist and each reads back as the
+result it is. **R4 is closed and AC12 PASSES, verified by measurement**; the last
+round corrected four ways the reader misdescribed the record it was reading.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
