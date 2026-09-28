@@ -587,6 +587,43 @@ class TestDamagedContentIsAnErrorNotAStage:
         assert (tmp_path / "stages" / f"{record.run_id}.json.partial").exists()
         assert port(tmp_path).staged_envelopes(record).status == "STAGED"
 
+    def test_the_stage_is_written_before_the_execution_artifact(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Release eligibility depends on this order, so it is measured.
+
+        Only the STAGE's rename fails here. If the stage is written first, the
+        failure stops the step before the execution artifact records the new
+        position, so a crash can never leave a later execution record beside
+        an earlier stage - which, at the final step, would present an
+        incomplete stage as a completed run's and therefore as releasable.
+        """
+        record = draft()
+        execution = port(tmp_path)
+        execution.start(record)
+        execution.step(record, boundaries=10, from_boundary=0)
+        real_replace = os.replace
+
+        def stage_rename_dies(source, target, *args, **kwargs):
+            if str(target).endswith(".json"):
+                raise OSError("the process died renaming the stage")
+            return real_replace(source, target, *args, **kwargs)
+
+        monkeypatch.setattr(os, "replace", stage_rename_dies)
+        with pytest.raises(OSError):
+            execution.run_to_end(record)
+        monkeypatch.undo()
+        execution.forget(record.run_id)
+
+        artifact = YamlExecutionArtifacts(tmp_path / "executions").read(
+            record.run_id
+        )
+        assert artifact.status == "RUNNING"
+        assert artifact.boundaries_completed == 10
+        view = port(tmp_path).staged_envelopes(record)
+        assert view.execution_status == "INTERRUPTED"
+        assert not view.release_eligible
+
     def test_a_partial_file_alone_is_not_a_stage(self, tmp_path: Path) -> None:
         record = draft()
         root = tmp_path / "stages"
