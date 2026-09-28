@@ -156,10 +156,21 @@ class ExecutionArtifactUnreadable(Exception):
         self.run_id = run_id
         self.schema_version = schema_version
         self.reason = reason
+        # The version clause only where the versions actually differ. A record
+        # damaged at the CURRENT schema would otherwise be announced as
+        # "written in schema 2 and this build reads schema 2", which reads as a
+        # mismatch and is not one.
+        mismatch = (
+            ""
+            if schema_version == EXECUTION_ARTIFACT_SCHEMA_VERSION
+            else (
+                f" and this build reads schema "
+                f"{EXECUTION_ARTIFACT_SCHEMA_VERSION}"
+            )
+        )
         super().__init__(
-            f"The execution record for {run_id} is written in artifact schema "
-            f"{schema_version} and this build reads schema "
-            f"{EXECUTION_ARTIFACT_SCHEMA_VERSION}. {reason}"
+            f"The execution record for {run_id} states artifact schema "
+            f"{schema_version}{mismatch}. {reason}"
         )
 
 #: How many of the newest sample attempts a projection carries.
@@ -669,159 +680,172 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
             "record does not say which rule wrote it.",
         )
     failure = document.get("failure")
-    return LabProjection(
-        run_id=str(document["run_id"]),
-        status=str(document["status"]),
-        statement=LAB_EXECUTION_STATUS_STATEMENTS[str(document["status"])],
-        boundaries_completed=int(document["boundaries_completed"]),
-        boundaries_total=int(document["boundaries_total"]),
-        offset_minutes=int(document["offset_minutes"]),
-        simulation_time=str(document["simulation_time"]),
-        interval_start_time=str(document["interval_start_time"]),
-        interval_end_time=str(document["interval_end_time"]),
-        timestep_minutes=int(document["timestep_minutes"]),
-        seed=int(document["seed"]),
-        kernel_version=int(document["kernel_version"]),
-        model_profile_id=str(document["model_profile_id"]),
-        model_profile_version=int(document["model_profile_version"]),
-        publication_profile_id=str(document["publication_profile_id"]),
-        publication_profile_version=int(
-            document["publication_profile_version"]
-        ),
-        numeric_policy=str(document["numeric_policy"]),
-        numeric_policy_version=int(document["numeric_policy_version"]),
-        execution_contract_version=int(
-            document["execution_contract_version"]
-        ),
-        inputs_identity=str(document["inputs_identity"]),
-        content_digest=(
-            None
-            if document["content_digest"] is None
-            else str(document["content_digest"])
-        ),
-        observation_series_digest=str(document["observation_series_digest"]),
-        reported_count=int(document["reported_count"]),
-        suppressed_by_gap_count=int(document["suppressed_by_gap_count"]),
-        dropped_count=int(document["dropped_count"]),
-        notes=(
-            tuple(str(note) for note in document.get("notes", ()))
-            + _schema_notes(schema, len(document["reporting_gaps"]))
-        ),
-        failure=(
-            None
-            if failure is None
-            else ExecutionFailure(
-                kind=str(failure["kind"]),
-                subject=str(failure["subject"]),
-                statement=str(failure["statement"]),
-                at_offset_minutes=(
-                    None
-                    if failure["at_offset_minutes"] is None
-                    else int(failure["at_offset_minutes"])
-                ),
-                detail=tuple(str(item) for item in failure["detail"]),
-            )
-        ),
-        private_state=tuple(
-            PrivateStateRow(
-                address=str(row["address"]),
-                state_key=str(row["state_key"]),
-                value=_exact(row["value"], f"the value of {row['address']}"),
-                canonical_unit=str(row["canonical_unit"]),
-                kind=str(row["kind"]),
-            )
-            for row in document["private_state"]
-        ),
-        signals=tuple(
-            DeviceSignalSpec(
-                device_id=str(row["device_id"]),
-                signal_id=str(row["signal_id"]),
-                address=str(row["address"]),
-                state_key=str(row["state_key"]),
-                reading_class=str(row["reading_class"]),
-                canonical_unit=str(row["canonical_unit"]),
-                cadence_minutes=int(row["cadence_minutes"]),
-                bias=_exact(row["bias"], f"the bias of {row['signal_id']}"),
-                dropout_per_thousand=int(row["dropout_per_thousand"]),
-                statement=str(row["statement"]),
-            )
-            for row in document["signals"]
-        ),
-        reporting_gaps=tuple(
-            _parse_reporting_gap(row, schema, int(document["timestep_minutes"]))
-            for row in document["reporting_gaps"]
-        ),
-        observations=tuple(
-            ObservationView(
-                address=str(row["address"]),
-                state_key=str(row["state_key"]),
-                device_id=str(row["device_id"]),
-                signal_id=str(row["signal_id"]),
-                reading_class=str(row["reading_class"]),
-                at_offset_minutes=int(row["at_offset_minutes"]),
-                simulation_time=str(row["simulation_time"]),
-                canonical_unit=str(row["canonical_unit"]),
-                true_value=(
-                    None
-                    if row["true_value"] is None
-                    else _exact(row["true_value"], "a true value")
-                ),
-                reported_value=(
-                    None
-                    if row["reported_value"] is None
-                    else _exact(row["reported_value"], "a reported value")
-                ),
-                reported_source_time=(
-                    None
-                    if row["reported_source_time"] is None
-                    else str(row["reported_source_time"])
-                ),
-                reported_at_offset_minutes=(
-                    None
-                    if row["reported_at_offset_minutes"] is None
-                    else int(row["reported_at_offset_minutes"])
-                ),
-                quality=str(row["quality"]),
-                due=bool(row["due"]),
-                outcome=(
-                    None if row["outcome"] is None else str(row["outcome"])
-                ),
-                suppression_reason=(
-                    None
-                    if row["suppression_reason"] is None
-                    else str(row["suppression_reason"])
-                ),
-                cadence_minutes=int(row["cadence_minutes"]),
-                bias=_exact(row["bias"], "a signal bias"),
-                dropout_per_thousand=int(row["dropout_per_thousand"]),
-            )
-            for row in document["observations"]
-        ),
-        recent_reports=tuple(
-            DeviceObservation(
-                device_id=str(row["device_id"]),
-                signal_id=str(row["signal_id"]),
-                address=str(row["address"]),
-                state_key=str(row["state_key"]),
-                reading_class=str(row["reading_class"]),
-                at_offset_minutes=int(row["at_offset_minutes"]),
-                source_sample_time=str(row["source_sample_time"]),
-                outcome=str(row["outcome"]),
-                reported_value=(
-                    None
-                    if row["reported_value"] is None
-                    else _exact(row["reported_value"], "a reported value")
-                ),
-                canonical_unit=str(row["canonical_unit"]),
-                suppression_reason=(
-                    None
-                    if row["suppression_reason"] is None
-                    else str(row["suppression_reason"])
-                ),
-            )
-            for row in document["recent_reports"]
-        ),
-    )
+    try:
+        return LabProjection(
+            run_id=str(document["run_id"]),
+            status=str(document["status"]),
+            statement=LAB_EXECUTION_STATUS_STATEMENTS[str(document["status"])],
+            boundaries_completed=int(document["boundaries_completed"]),
+            boundaries_total=int(document["boundaries_total"]),
+            offset_minutes=int(document["offset_minutes"]),
+            simulation_time=str(document["simulation_time"]),
+            interval_start_time=str(document["interval_start_time"]),
+            interval_end_time=str(document["interval_end_time"]),
+            timestep_minutes=int(document["timestep_minutes"]),
+            seed=int(document["seed"]),
+            kernel_version=int(document["kernel_version"]),
+            model_profile_id=str(document["model_profile_id"]),
+            model_profile_version=int(document["model_profile_version"]),
+            publication_profile_id=str(document["publication_profile_id"]),
+            publication_profile_version=int(
+                document["publication_profile_version"]
+            ),
+            numeric_policy=str(document["numeric_policy"]),
+            numeric_policy_version=int(document["numeric_policy_version"]),
+            execution_contract_version=int(
+                document["execution_contract_version"]
+            ),
+            inputs_identity=str(document["inputs_identity"]),
+            content_digest=(
+                None
+                if document["content_digest"] is None
+                else str(document["content_digest"])
+            ),
+            observation_series_digest=str(document["observation_series_digest"]),
+            reported_count=int(document["reported_count"]),
+            suppressed_by_gap_count=int(document["suppressed_by_gap_count"]),
+            dropped_count=int(document["dropped_count"]),
+            notes=(
+                tuple(str(note) for note in document.get("notes", ()))
+                + _schema_notes(schema, len(document["reporting_gaps"]))
+            ),
+            failure=(
+                None
+                if failure is None
+                else ExecutionFailure(
+                    kind=str(failure["kind"]),
+                    subject=str(failure["subject"]),
+                    statement=str(failure["statement"]),
+                    at_offset_minutes=(
+                        None
+                        if failure["at_offset_minutes"] is None
+                        else int(failure["at_offset_minutes"])
+                    ),
+                    detail=tuple(str(item) for item in failure["detail"]),
+                )
+            ),
+            private_state=tuple(
+                PrivateStateRow(
+                    address=str(row["address"]),
+                    state_key=str(row["state_key"]),
+                    value=_exact(row["value"], f"the value of {row['address']}"),
+                    canonical_unit=str(row["canonical_unit"]),
+                    kind=str(row["kind"]),
+                )
+                for row in document["private_state"]
+            ),
+            signals=tuple(
+                DeviceSignalSpec(
+                    device_id=str(row["device_id"]),
+                    signal_id=str(row["signal_id"]),
+                    address=str(row["address"]),
+                    state_key=str(row["state_key"]),
+                    reading_class=str(row["reading_class"]),
+                    canonical_unit=str(row["canonical_unit"]),
+                    cadence_minutes=int(row["cadence_minutes"]),
+                    bias=_exact(row["bias"], f"the bias of {row['signal_id']}"),
+                    dropout_per_thousand=int(row["dropout_per_thousand"]),
+                    statement=str(row["statement"]),
+                )
+                for row in document["signals"]
+            ),
+            reporting_gaps=tuple(
+                _parse_reporting_gap(row, schema, int(document["timestep_minutes"]))
+                for row in document["reporting_gaps"]
+            ),
+            observations=tuple(
+                ObservationView(
+                    address=str(row["address"]),
+                    state_key=str(row["state_key"]),
+                    device_id=str(row["device_id"]),
+                    signal_id=str(row["signal_id"]),
+                    reading_class=str(row["reading_class"]),
+                    at_offset_minutes=int(row["at_offset_minutes"]),
+                    simulation_time=str(row["simulation_time"]),
+                    canonical_unit=str(row["canonical_unit"]),
+                    true_value=(
+                        None
+                        if row["true_value"] is None
+                        else _exact(row["true_value"], "a true value")
+                    ),
+                    reported_value=(
+                        None
+                        if row["reported_value"] is None
+                        else _exact(row["reported_value"], "a reported value")
+                    ),
+                    reported_source_time=(
+                        None
+                        if row["reported_source_time"] is None
+                        else str(row["reported_source_time"])
+                    ),
+                    reported_at_offset_minutes=(
+                        None
+                        if row["reported_at_offset_minutes"] is None
+                        else int(row["reported_at_offset_minutes"])
+                    ),
+                    quality=str(row["quality"]),
+                    due=bool(row["due"]),
+                    outcome=(
+                        None if row["outcome"] is None else str(row["outcome"])
+                    ),
+                    suppression_reason=(
+                        None
+                        if row["suppression_reason"] is None
+                        else str(row["suppression_reason"])
+                    ),
+                    cadence_minutes=int(row["cadence_minutes"]),
+                    bias=_exact(row["bias"], "a signal bias"),
+                    dropout_per_thousand=int(row["dropout_per_thousand"]),
+                )
+                for row in document["observations"]
+            ),
+            recent_reports=tuple(
+                DeviceObservation(
+                    device_id=str(row["device_id"]),
+                    signal_id=str(row["signal_id"]),
+                    address=str(row["address"]),
+                    state_key=str(row["state_key"]),
+                    reading_class=str(row["reading_class"]),
+                    at_offset_minutes=int(row["at_offset_minutes"]),
+                    source_sample_time=str(row["source_sample_time"]),
+                    outcome=str(row["outcome"]),
+                    reported_value=(
+                        None
+                        if row["reported_value"] is None
+                        else _exact(row["reported_value"], "a reported value")
+                    ),
+                    canonical_unit=str(row["canonical_unit"]),
+                    suppression_reason=(
+                        None
+                        if row["suppression_reason"] is None
+                        else str(row["suppression_reason"])
+                    ),
+                )
+                for row in document["recent_reports"]
+            ),
+        )
+    except KeyError as missing:
+        # A record that states its schema and then does not carry what that
+        # schema requires is DAMAGED rather than old, and the two need
+        # different answers. This one names the field, which a KeyError
+        # escaping as an HTTP 500 does not.
+        raise ExecutionArtifactUnreadable(
+            run_id,
+            schema,
+            f"It states schema {schema} and does not carry {missing}, which "
+            f"schema {schema} requires. That is a damaged or hand-edited "
+            "record rather than an older one, and it is left as it is.",
+        ) from missing
 
 
 class YamlExecutionArtifacts:

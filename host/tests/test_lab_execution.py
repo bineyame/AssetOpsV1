@@ -2127,6 +2127,32 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
 
         assert path.read_bytes() == before, "the record is left exactly as it was"
 
+    def test_a_record_that_states_a_schema_it_does_not_carry_is_named(
+        self, tmp_path: Path
+    ) -> None:
+        """Damaged is not old, and the two get different answers.
+
+        A record saying schema two and then missing a field schema two requires
+        is hand-edited or truncated, not written by an earlier build. It is
+        reported with the FIELD named, which is what a reader needs and what a
+        `KeyError` escaping as an HTTP 500 gave them instead. The reviewer's own
+        reproduction produces exactly this hybrid, because it removed the field
+        without removing the schema marker.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        for row in document["reporting_gaps"]:
+            del row["timing_shape"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "ARTIFACT_UNREADABLE"
+        note = " ".join(reloaded.notes)
+        assert "timing_shape" in note
+        assert "damaged or hand-edited" in note
+
     def test_this_build_writes_the_schema_it_reads(self, tmp_path: Path) -> None:
         """The field that makes the next change survivable.
 
