@@ -332,6 +332,17 @@ from fractions import Fraction
 #: conforming implementation may do with an old result, which is why it is an
 #: amendment and not a footnote.
 #:
+#: **The rule's first implementation broke the rule, and the amendment says so.**
+#: The version marker was added by the build that fixed the shape collapse, so
+#: the build BEFORE it had written records with the shape on them and no marker.
+#: Assigning every unmarked record to the oldest known shape threw that shape
+#: away and printed a note saying it had never been recorded - while it sat in
+#: the same file. A version marker is itself a rule change and cannot name what
+#: predates it; the shapes that predate it are identified from what they carry.
+#: That is now part of the rule rather than a lesson in a commit message, because
+#: this is the fifth time in this milestone that a correction was right going
+#: forward and silent going backward, and the fourth was the fix for the third.
+#:
 #: Once this merges, the next narrowing is a nine.
 EXECUTION_CONTRACT_VERSION = 8
 
@@ -1127,7 +1138,18 @@ REPORTING_RULES: tuple[ReportingRule, ...] = (
             "exists to prevent, and it is worse than the gap it would paper over. "
             "Every persisted result therefore states the schema version it was "
             "written in, so a reader decides which rule applied by reading it "
-            "rather than by noticing that a key is absent."
+            "rather than by noticing that a key is absent. **And a reader must "
+            "also identify the results written before that marker existed, from "
+            "what those results carry.** A version marker is itself a rule "
+            "change, so it cannot name the shapes that predate it; an "
+            "implementation that assigns every unmarked record to the oldest "
+            "shape it knows will discard fields those records genuinely hold, "
+            "which is this rule broken by the mechanism meant to keep it. Where "
+            "the unmarked shapes are told apart by what they contain, they are "
+            "told apart that way; where a record matches none of them, it is "
+            "reported as unreadable rather than assigned to the nearest. A "
+            "confident wrong reading is worse than the error it replaced, "
+            "because an error is an honest answer."
         ),
     ),
     ReportingRule(
