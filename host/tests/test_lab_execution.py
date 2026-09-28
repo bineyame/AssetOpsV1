@@ -2442,6 +2442,34 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         # record that states a marker must never be called "unmarked".
         assert "UNMARKED" not in note
 
+    def test_a_failure_on_a_record_stating_one_does_not_report_two(
+        self, tmp_path: Path
+    ) -> None:
+        """The case that discriminates, and the first version of this missed it.
+
+        `test_a_failure_reports_the_marker_the_record_states` uses a record
+        stating 2, where the marker and the module constant are the same
+        number - so it passes whichever is reported and proves nothing about
+        which one travels. This states 1 and is missing a field every layout
+        requires, so it reaches the same guard with the two numbers different.
+
+        A probe found that: the mutation putting the module constant back was
+        MISSED, which is a probe doing its job on a test that was not doing
+        its own.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = self.strip_to_first_pass(path)
+        document["artifact_schema_version"] = 1
+        del document["seed"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        note = " ".join(execution.projection(run).notes)
+
+        assert "states artifact schema 1 and this build reads schema 2" in note
+        assert "seed" in note
+        assert "states artifact schema 2" not in note
+
     def test_a_record_with_no_marker_is_not_announced_as_stating_one(
         self, tmp_path: Path
     ) -> None:
