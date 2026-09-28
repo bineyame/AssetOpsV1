@@ -15,12 +15,12 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021 and T021A are complete and merged.** **T022 is built, reviewed once and
-back in review**; packet in `.agent/T022-review-packet.md`, the review in
-`.agent/T022-codex-review.md`, record in `.ai/CODE_STATE.md`. It returned three
-defects, all fixed: the draw's identity was not v4 section 9.2's, a 30-minute
-timestep answered HTTP 500 on Start, and a POINT reporting condition became a
-run-long outage.
+**T021 and T021A are complete and merged.** **T022 is built, reviewed twice and
+back in review**; packet in `.agent/T022-review-packet.md`, the reviews in
+`.agent/T022-codex-review.md` and `-2.md`, record in `.ai/CODE_STATE.md`. Round
+one returned three defects; round two closed them and found a fourth: **a schema
+change with no reader for the records already on disk**. All fixed. An artifact
+now states its schema version; an older one reads back as the result it is.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at

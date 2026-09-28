@@ -3575,6 +3575,45 @@ this screen exists to prevent. That is asserted in
   RUNNING with no live handle reads back as `INTERRUPTED`, because its world
   lived in a process that has ended and re-executing it would be a second
   trajectory under the first one's identity.
+- **Every execution artifact states the schema version it was written in**,
+  first in the file, and `EXECUTION_ARTIFACT_SCHEMA_VERSION` is 2. One is the
+  first build that persisted an execution; two added the reporting condition's
+  shape and the run's timestep to every gap row. The number exists because
+  adding those fields broke every record already on disk: the reader demanded
+  them and four completed runs became an HTTP 500 on the screen that inspects
+  them.
+
+  **A schema-one record is read as the result it is.** Its readings, digests and
+  counts are exactly what that build computed and are not re-derived, and each
+  gap row carries `recorded_end_offset_minutes` - the span that build resolved,
+  recoverable exactly because schema one resolved every window by one rule over
+  fields the record still carries. The row's shape is `SHAPE_NOT_RECORDED`,
+  which is not a shape and never a guess. **A record this build cannot
+  interpret** - a later schema, or one that states a schema and then lacks what
+  it requires - is reported: status `ARTIFACT_UNREADABLE`, the schema and the
+  missing field on the projection, and a typed refusal on every control, because
+  an unreadable record treated as no record would let Start overwrite the very
+  result nobody could read. Nothing is re-executed, rewritten or discarded.
+
+  The rule is published as
+  `a-record-older-than-a-rule-is-read-as-what-it-recorded`, and version 8's
+  ledger carries the amendment. **A later slice adding a persisted field
+  inherits the rule, not the mechanism**: the run store and the scenario
+  documents have their own versioning conventions and were not touched here.
+- **A window's declared instant and its resolved span are separate everywhere.**
+  For a POINT they differ: an entry declared at offset 1490 in a fifteen-minute
+  run silences the sample at 1485. The suppression sentence names both, the wire
+  carries `declared_offset_minutes` beside `start_offset_minutes` and
+  `end_offset_minutes`, and the gaps table has a column for each. One field
+  named `offset_minutes` was carrying the resolved start - the right number
+  under a name that promised the other one.
+- **`draw_fraction` refuses a field of the wrong type**, narrowly and on
+  purpose. A signature constrains arity and not types, so the claim that an
+  address "cannot be supplied" was false - `draw_fraction(7, "a-stream",
+  "<an address>", 1500)` returned a Fraction. The refusal is here rather than
+  everywhere because this substitution IS the defect R1 was: a draw keyed on an
+  address is deterministic, returns a plausible number, and differs from the
+  contract's stream with nothing on any surface to show it.
 - **Every exact quantity leaves the backend as text.** `EXACT_RATIONAL` never
   rounds, and a payload carrying a binary float would be the one place the policy
   stopped holding. A test walks the whole payload and fails on a float anywhere.
@@ -3616,6 +3655,24 @@ fact is asked first now.
   docstring saying the backend cannot import the simulator failed the check. It
   was reworded rather than fixed, because loosening a dependency check inside the
   slice it blocks is the one edit that file forbids. Backlog.
+### The fourth variant of one defect, and why it is a rule now
+
+R4 was a change correct going forward and silent going backward. So were three
+before it: T021's frozen runs reinterpreted by a live document, a version guard
+unable to separate two builds sharing a number, T021A's narrowing invalidating
+four authored documents, and now a schema with no reader for its own past. **A
+habit that has failed four times is not a habit**, which is why the backward path
+is a published rule with a version field behind it rather than something each
+slice is expected to remember.
+
+The shape is worth recognising rather than the instance: every one of the four
+was found by somebody looking at existing data, and none by a suite, because a
+suite writes its fixtures with the build that reads them. A round trip through
+one schema cannot fail this way. **The test that catches it supplies a record in
+the shape the PREVIOUS build wrote**, and the one for R4 builds that record by
+executing a real run and removing exactly what the old build never wrote - with a
+precondition test asserting the fixture really is that shape.
+
 ### What the independent review returned, and what it cost to be wrong about
 
 Three defects, and each was missed by a test that was written from the code
