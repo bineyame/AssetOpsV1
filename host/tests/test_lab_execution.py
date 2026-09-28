@@ -2231,7 +2231,12 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         reloaded = execution.projection(run)
 
         assert reloaded.status == "ARTIFACT_UNREADABLE"
-        assert "is not a whole number" in " ".join(reloaded.notes)
+        note = " ".join(reloaded.notes)
+        assert "is not a whole number" in note
+        assert "does not state a readable artifact schema" in note
+        # And it does not invent one. A placeholder number in the opening
+        # sentence would be a fact the next sentence contradicts.
+        assert "artifact schema 0" not in note
 
     def test_the_composed_route_answers_rather_than_returning_five_hundred(
         self, tmp_path: Path

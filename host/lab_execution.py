@@ -199,7 +199,7 @@ def _identify_layout(document: dict[str, object], run_id: str) -> str:
         if isinstance(marker, bool) or not isinstance(marker, int):
             raise ExecutionArtifactUnreadable(
                 run_id,
-                0,
+                None,
                 f"Its schema marker is {marker!r}, which is not a whole number, "
                 "so the record does not say which rule wrote it and nothing "
                 "here will decide on its behalf.",
@@ -249,25 +249,30 @@ class ExecutionArtifactUnreadable(Exception):
     every control refuses, so nothing re-executes over a record nobody can read.
     """
 
-    def __init__(self, run_id: str, schema_version: int, reason: str) -> None:
+    def __init__(
+        self, run_id: str, schema_version: int | None, reason: str
+    ) -> None:
         self.run_id = run_id
         self.schema_version = schema_version
         self.reason = reason
-        # The version clause only where the versions actually differ. A record
-        # damaged at the CURRENT schema would otherwise be announced as
-        # "written in schema 2 and this build reads schema 2", which reads as a
-        # mismatch and is not one.
-        mismatch = (
-            ""
-            if schema_version == EXECUTION_ARTIFACT_SCHEMA_VERSION
-            else (
-                f" and this build reads schema "
-                f"{EXECUTION_ARTIFACT_SCHEMA_VERSION}"
+        # Three openings, because there are three things a record can say about
+        # its own schema and reporting the wrong one is its own small lie. A
+        # record damaged at the CURRENT schema announced as "written in schema 2
+        # and this build reads schema 2" reads as a mismatch and is not one; a
+        # record whose marker is a word has no number at all, and printing a
+        # placeholder for one - "states artifact schema 0" - invents a fact the
+        # very next sentence contradicts.
+        if schema_version is None:
+            states = "does not state a readable artifact schema"
+        elif schema_version == EXECUTION_ARTIFACT_SCHEMA_VERSION:
+            states = f"states artifact schema {schema_version}"
+        else:
+            states = (
+                f"states artifact schema {schema_version} and this build reads "
+                f"schema {EXECUTION_ARTIFACT_SCHEMA_VERSION}"
             )
-        )
         super().__init__(
-            f"The execution record for {run_id} states artifact schema "
-            f"{schema_version}{mismatch}. {reason}"
+            f"The execution record for {run_id} {states}. {reason}"
         )
 
 #: How many of the newest sample attempts a projection carries.
