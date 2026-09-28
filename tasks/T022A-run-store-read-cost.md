@@ -22,7 +22,8 @@ a demo in its first minute**, and T027 is the internal architecture demo.
 
 ## The measurement that opened it
 
-Against a store of 216 runs, on the composed `host/lab_app.py`:
+Against a store of 216 runs, on the composed `host/lab_app.py`, in one session
+on one machine:
 
 | Endpoint | Time |
 | --- | --- |
@@ -32,17 +33,27 @@ Against a store of 216 runs, on the composed `host/lab_app.py`:
 | `/api/simulator-lab/runs/{id}` | 9.06s |
 | `/api/simulator-lab/runs/{id}/execution` | 9.21s |
 
-The three run endpoints cost the same, so the cost is not in the execution
-artifact or in rendering one run. `YamlRunStore.get_run` at
+**Read the shape of this table, not its absolute seconds.** Corrected after
+implementation, because the same whole-store read was later measured by three
+readers at about 15ms, 41ms and 49ms per record - a three-fold spread on machine
+state alone, and the 8.93s above is the middle of it taken under load. The
+`/api/sites` row moved from 0.41s to 0.13s in the same session with nothing
+touching the site store, which is the warning made visible in the table itself.
+
+What does reproduce is what the task turns on. The three run endpoints cost the
+same as each other and about three thousand times `status`, so the cost is not in
+the execution artifact or in rendering one run. `YamlRunStore.get_run` at
 `backend/assetops_backend/runs/adapters/yaml_run_store.py:85` calls
 `self.list_runs()`, which calls `read_run_records(self._root)` and parses every
 stored run, then scans linearly for one id. A single-run read pays the whole
 store.
 
-This is the cost first measured in T020A at 70 Drafts and 6.8 seconds, carried
-in `.ai/MILESTONE_REVIEW_BACKLOG.md` since, and named there as wanting a
-bounded fix with an owner before T027. At 216 runs it has crossed from slow to
-unusable.
+This is the cost first measured in T020A at 70 Drafts and 6.8 seconds. It was
+believed to be carried in `.ai/MILESTONE_REVIEW_BACKLOG.md` since - by this task
+file, by T022A's packet and by `.ai/CODE_STATE.md`, all three of which cited an
+entry that did not exist until T022A's review found the dangling reference and
+the entry was written. It is now real, as "Reading the run store still costs the
+whole store, twice". At 216 runs the cost has crossed from slow to unusable.
 
 ## Deliver
 

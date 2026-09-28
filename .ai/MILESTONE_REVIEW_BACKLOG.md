@@ -929,8 +929,10 @@ per invocation and nothing clears it.
 
 *Safe to carry* because it has been true since T019 at three, the run store is
 gitignored user data, and the create path is measured rather than mocked - which
-is the reason the tool writes at all. The run store's O(n) create is already
-carried separately and this makes it grow faster.
+is the reason the tool writes at all. The run store's O(n) create is carried
+under T022A, in "Reading the run store still costs the whole store, twice",
+and this makes it grow faster. That cross-reference pointed at nothing until
+T022A's review found it and the entry was written.
 
 *What would change the answer:* the bounded fix that entry asks for, which should
 now size itself against four per run rather than three.
@@ -1031,6 +1033,156 @@ envelope release, and the port has no method that could acquire one.
 
 *What would change the answer:* T027 creating that store. The digest should widen
 to it in the same slice, not after something has written to it.
+
+## Carried from T022A
+
+### Reading the run store still costs the whole store, twice
+
+**This is the entry three documents already claimed existed.** T022A's packet,
+`.ai/CODE_STATE.md` and the task file each said the run store's O(n) cost was
+"already carried" here. It was not: the only mention in this file was a pointer
+from the layout-tool entry to an entry that had never been written, present
+since before T022A. That dangling reference is why this is written out in full
+rather than as a cross-link - a residual that lives only in a gitignored packet
+and a history file is a residual nobody reads first.
+
+Two live costs, both O(n) in the number of stored runs, both outside what T022A
+fixed. T022A made a single-run read cost one document; neither of these is a
+single-run read.
+
+1.  **The inventory parses and strictly validates every stored record.**
+    `YamlRunStore.list_runs` calls `read_run_records`, which is what the Runs
+    screen and `GET /api/simulator-lab/runs` cost. It is unchanged and
+    deliberately so: a partial inventory is a wrong answer rather than a slow
+    one, so it cannot simply read less.
+2.  **`create_run` is still O(n).** `_refuse_existing_identity` calls
+    `list_runs`, so setting up a Draft pays the inventory's cost before it
+    writes anything. The destination-exists check immediately before the
+    atomic move is the other half of the same refusal, and reconciling the two
+    is a change to the write's atomicity argument rather than a cheap swap.
+
+**What reproduces, and what does not.** Three independent measurements of the
+same operation over the same 216 documents returned about 15 ms, 41 ms and 49 ms
+per record - a spread of more than three times on machine state alone. **The
+absolute is not a project fact and should not be quoted as one.** What
+reproduced across all three: the average stored document is about 6.7 KB, the
+YAML scanner is about 99% of the cost with the record parser under 1%, and
+libyaml's scanner reads the same corpus about eight times faster. At the
+measured range the inventory passes one second somewhere between about 20 and
+65 stored runs, which is why it was already uncomfortable when T020A measured
+it at 70 Drafts and is plainly a problem at the 216 the store now holds.
+
+*Safe to carry* because a single-run read - every Lab control, every run
+screen, every execution read - no longer pays it, which is what made the
+build unusable; because neither cost is a correctness defect; and because the
+one bounded fix worth anything trades a strictness surface rather than being
+free.
+
+*What would change the answer:* **this is partly an owner's decision and is
+recorded as one.** The lever is the per-record constant, and libyaml is the
+only candidate measured to be worth taking. It shares `SafeConstructor` and
+`Resolver` with the current loader, and a reviewer confirmed the two produce
+equal documents for all 216 stored runs - but that says nothing about what the
+two scanners REFUSE, which is the question that actually matters and which a
+pass over valid documents cannot answer. Settling it means comparing them on
+invalid inputs. Until somebody does that, or the owner accepts the trade, both
+costs stand. T027 is the internal architecture demo and the Runs screen is on
+the way to every run.
+
+### The shape check and the identity comparison are two barriers, not one
+
+T022A's fast read is guarded twice: `is_allocated_run_id_key` decides whether a
+key may name a file at all, and the identity parsed out of the document is
+compared to the key before the record is returned. The packet originally called
+the first defence in depth. It is not: the reviewer showed it is what stops an
+out-of-root file being opened and parsed, because the identity comparison never
+runs on a file that fails to parse. Both now have non-vacuous guards and the
+code says so.
+
+*Safe to carry* because it is now correct in the code, the tests and the packet;
+what is carried is the risk that a later reader removes **either** barrier as
+redundant.
+
+*What would change the answer:* nothing pending. It is here so the next person
+to touch `_read_filed_under` meets the reason before the temptation.
+
+### Two documents declaring one identity now resolve to the canonical one
+
+Undeclared behaviour change found in review. With two individually valid
+documents declaring the same `run_id`, the old read returned whichever path
+sorted first and the new one returns the one filed under that identity. The new
+answer is the better one.
+
+*Safe to carry* because `create_run` refuses a duplicate identity, so no path in
+the product can produce this, and a check of all 216 stored documents found no
+duplicates. It is recorded because T022A's criterion 10 asked for the list of
+behaviour changes to be complete and this was missing from it.
+
+*What would change the answer:* a store hand-arranged to contain one, which is
+also the only way to reach it.
+
+### `RUN_ID_PATTERN` accepts one trailing newline
+
+`re.compile(r"^run-[0-9a-f]{32}$")` with `.match()` matches before a single
+trailing newline, so `is_allocated_run_id_key` and `validate_run_id` both accept
+a well-formed identity with a newline after it. Inherited, not introduced: the
+pattern predates T022A.
+
+*Safe to carry* because a newline cannot form a path escape and the identity
+comparison still refuses the record, so the laxity is not reachable as a defect.
+The docstring wording that says "and nothing else" is very slightly generous.
+
+*What would change the answer:* `\Z` is the one-character fix, but it also
+tightens `validate_run_id` for every stored document, so it belongs to a slice
+that intends that rather than to one that notices it.
+
+### Two T022A claims were stated more broadly than they hold
+
+Both about the account rather than the code, corrected in the packet and kept
+here so the correction is not the only record.
+
+- Criterion 4, "one invalid document does not break an unrelated read", holds
+  for a canonically filed run - which is every run in the real store - and not
+  for a sound run reachable only through the fallback scan. The baseline failed
+  there too, so it is not a regression.
+- Criterion 1's "a store of any size does not change what one read costs" is
+  true of a hit and not of a miss. A miss still walks the store.
+
+*Safe to carry* because both are disclosed and neither is a code defect.
+
+*What would change the answer:* making the fallback unnecessary, which would
+mean enforcing the filed-name invariant, which would mean refusing documents the
+inventory currently accepts.
+
+### The concurrency test does not prove temporal overlap
+
+Raised by both reviewers. `test_a_read_during_a_write_returns_a_whole_record`
+asserts that reads happened, which a reader finishing before the writer started
+would also satisfy. The mechanism it covers is sound and was verified
+deterministically by a reviewer's synchronized probe.
+
+*Safe to carry* because the property - staging files carry no document suffix and
+publication is `os.replace` - is structural, and because the write path is
+byte-identical to the one that held before.
+
+*What would change the answer:* a barrier or an injected pause that forces the
+read to land mid-write. Worth doing in whichever slice next touches the write.
+
+### A browser harness should live beside the packet it measured
+
+`.agent/` holds the T020A and T020B browser probes, so the practice exists; it
+was not applied to T022A's criterion-9 harness until review asked. The harness is
+now at `.agent/T022A-step-evidence.mjs` with its baseline server at
+`.agent/T022A-before-app.py`, but nothing makes this a rule and `.agent/` is
+gitignored, so a preserved harness is still one machine away from being lost.
+
+*Safe to carry* because the practice is cheap and known, and because the same
+gitignore risk is already carried in T021's entry about `.agent/`.
+
+*What would change the answer:* deciding whether measurement harnesses belong in
+`tools/` beside `layout-evidence.mjs` instead. That is an Architect decision
+about what evidence means here, which is the same reason `layout-evidence.mjs`
+is not wired into the architecture check.
 
 ## Tracked elsewhere, listed so the review finds them
 

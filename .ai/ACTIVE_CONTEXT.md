@@ -19,13 +19,15 @@ the user's own review then resequenced it under
 reviews and the record in `.ai/CODE_STATE.md` carry the detail; three artifact
 layouts exist and each reads back as the result it is.
 
-**T022A is built and in review.** A single-run read reads one document: at 216
-records the run detail went from 9.3s to 0.08s and a Lab step from 9.5s to
-0.12s, measured through `host/lab_app.py` and in a browser. **The inventory was
-measured and deliberately left alone, and it is not acceptable**: ~41ms per
-record, 99% of it the pure-Python YAML scanner, so it passed one second at about
-24 records. The bounded fix trades a parser, so T022A reports it rather than
-taking it. **The owner's review of T022 waits for T022A** and happens with its own.
+**T022A is built, reviewed once and corrected.** A single-run read reads one
+document: 216 parses become 1, and the run detail, the execution read and a Lab
+step each drop about two orders of magnitude. **Quote that ratio, not the
+seconds** - the same measurement varied 3x across three readers; `CODE_STATE`
+says why. **The inventory was measured and deliberately left alone, and it is
+not acceptable**: 99% of it is the pure-Python YAML scanner, and it passes one
+second between about 20 and 65 records. The bounded fix trades a parser, so
+T022A reports it rather than taking it. **The owner's review of T022 waits for
+T022A** and happens with its own.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
@@ -58,29 +60,26 @@ artifacts live under `var/executions`.
 (`D-2026-09-22-reconciliation-panel-retirement`): the reference implementation,
 its vocabulary, `declared_bounds` and `IMPLICIT_LOWER_BOUND_DIMENSIONS` went with
 the panel that was their last caller. The frozen run's own `declared_bounds` is a
-different thing with the same name, untouched.
-
-One thing it left that a later reader meets first: **the MG-001 in `var/sites`
-predates the two Foundation properties the model profile binds to**, so the
-shipped document blocks against it and the browser evidence executes the user's
-own `fuel-loss-event-mg006` instead. That and five others are in
-`.ai/MILESTONE_REVIEW_BACKLOG.md`. Five trees, three Python-importable;
+different thing with the same name, untouched. One thing it left that a later
+reader meets first: **the MG-001 in `var/sites` predates the two Foundation
+properties the model profile binds to**, so the shipped document blocks against
+it and the browser evidence executes the user's own `fuel-loss-event-mg006`
+instead. Five trees, three Python-importable;
 `contracts/` now also holds what a device reports and the gated projection,
 `simulator/` the observation transform, and `host/` the application that
 executes. Three editable installs - see `README.md`.
 
 **T020B, T020A1 and T020A before them are complete and merged**; full records in
-`.ai/CODE_STATE.md` and `.agent/`.
-The lessons those slices paid for are in `.ai/CODE_STATE.md` beside the slice
-that paid for each. T022 adds one with four instances: **a check written from the
+`.ai/CODE_STATE.md` and `.agent/`, and the lessons each paid for sit beside it. T022 adds one with four instances: **a check written from the
 code rather than from the contract, or from the surface a user meets, does not
 fail when the code is wrong.** T022A adds the measuring half: a benchmark on a
 ten-record fixture cannot see a cost that only appears at two hundred.
 
-Carried, not lost. `.ai/MILESTONE_REVIEW_BACKLOG.md` is the list and T022 adds
-six. Five inline `float(value)` overflow sites are still open, the run store's
-O(n) create still wants a bounded fix before T027, and `var/runs` grows by FOUR
-per layout-evidence run.
+Carried, not lost. `.ai/MILESTONE_REVIEW_BACKLOG.md` is the list; T022 adds six
+and T022A seven. Five `float(value)` overflow sites are open, the inventory AND
+`create_run` still cost the whole store, `var/runs` grows by FOUR per
+layout-evidence run. T022A had to WRITE the run-store entry three documents
+already cited: a residual living only in a packet is one nobody reads first.
 
 **Next task: T023**, then T024 onward per `tasks/README.md`. None of the
 resequencing touches the starter path. **T022 requires a user checkpoint**
