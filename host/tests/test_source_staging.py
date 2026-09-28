@@ -632,6 +632,26 @@ class TestDamagedContentIsAnErrorNotAStage:
 
         assert port(tmp_path).staged_envelopes(record).status == "NOT_STAGED"
 
+    def test_an_edited_value_is_named_as_an_integrity_failure(
+        self, tmp_path: Path
+    ) -> None:
+        """The reason, not only the refusal.
+
+        A guard probe found the digest comparison could be removed with every
+        damage case above still refused - by the later canonical-form check,
+        which recomputes the digest as part of the text. The refusal held; the
+        reason a reader acts on became "not canonical" for what is a changed
+        value. So the reason is asserted here.
+        """
+        record, _, _ = completed(tmp_path)
+        path = stage_file(tmp_path, record)
+        path.write_text(path.read_text().replace("373.52", "373.53", 1))
+
+        view = port(tmp_path).staged_envelopes(record)
+
+        assert view.status == "STAGE_UNREADABLE"
+        assert "integrity digest does not match" in view.unreadable_detail
+
     def test_a_stage_declaring_another_run_is_refused(self, tmp_path: Path) -> None:
         record, _, _ = completed(tmp_path)
         text = stage_file(tmp_path, record).read_text()
