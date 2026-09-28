@@ -27,7 +27,8 @@ steps it, and runs it to the end, and the Draft's own screen shows the world at
 the instant it has reached beside what each device reported. The row the slice
 exists for is offset 1545, inside the shipped gap `[1490, 1580)` and past the
 removal `[1500, 1545)`: the tank holds **254.02 L**, the newest reading is the
-**373.52 L** the sensor published at 1485, and it carries its own source time.
+**373.52 L** the sensor published before the gap opened, and it carries its own
+source time rather than this instant.
 The columns differ by 119.50 L; the removal is 120 L, that difference with the
 sensor's -0.5 L bias taken back out.
 

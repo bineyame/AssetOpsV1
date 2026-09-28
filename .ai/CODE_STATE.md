@@ -3508,15 +3508,20 @@ The shipped reporting gap is `[1490, 1580)` and the removal `[1500, 1545)` sits
 entirely inside it. At offset 1545 the Lab shows:
 
 - true value **254.02 L** - the tank after the removal;
-- reported value **373.52 L** - the fuel sensor's reading from offset 1485,
-  half a litre below the 374.02 L the world held there;
-- source sample time **2026-09-22T00:45:00Z**, which is not this instant;
+- reported value **373.52 L** - the fuel sensor's last reading before the gap
+  opened, half a litre below the 374.02 L the world held when it was taken;
+- a source sample time that is that earlier instant and not this one. WHICH
+  earlier instant depends on the draws, so it is not a constant of the slice:
+  the host suite's fixture retains offset 1485 (`2026-09-22T00:45:00Z`) and the
+  browser, executing `fuel-loss-event-mg006`, retains offset 1470
+  (`2026-09-22T00:30:00Z`). The reported value is 373.52 L either way, because
+  nothing moves the tank between those instants and the removal;
 - quality **STALE**, outcome **SUPPRESSED_BY_GAP**, and the authored entry that
   did it named on the row.
 
 The two columns differ by 119.50 L. The removal is 120 L, and the difference is
 that number with the sensor's declared -0.5 L bias taken back out: 373.52 + 0.5 =
-374.02 L at offset 1485, less 254.02 L now. Saying "the columns differ by 120"
+374.02 L when it was taken, less 254.02 L now. Saying "the columns differ by 120"
 would be reading the reported value as the world's, which is the one confusion
 this screen exists to prevent. That is asserted in
 `host/tests/test_lab_execution.py` and measured in a real browser by
