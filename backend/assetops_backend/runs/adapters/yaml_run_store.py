@@ -34,6 +34,36 @@ store established, for the same reasons and in the same order:
 The stored file name is the case-folded `run_id`, but identity is never read
 back out of a file name: documents are parsed and keyed on the `run_id` they
 declare.
+
+## Locating one run, and why that is not the same as trusting a file name
+
+A single read used to walk the whole store: it parsed every document and then
+scanned the records for one identity. That is correct and it is the cost of the
+whole store for the price of one run - 216 stored runs made every Lab
+interaction take about nine seconds, which reads as a hang rather than as work.
+
+`get_run` now uses the file name as a HINT about where to look, which is a
+different thing from reading identity out of it. Three properties keep the rule
+above intact and they are worth stating because a fast read that quietly
+accepted what a slow read refused would be a worse defect than the slowness:
+
+1.  The name is built from the comparison key only when that key is the shape
+    allocation produces, which `is_allocated_run_id_key` decides. A key of that
+    shape is the prefix and thirty-two hexadecimal characters, so it cannot
+    name anything outside the store root, and an identity still never becomes
+    an arbitrary path.
+2.  The document found there is read by the same strict reader the inventory
+    uses, so it is validated exactly as whole-store reading validates it. The
+    fast path refuses everything the slow path refused, for the same reason and
+    with the same message.
+3.  The identity is taken from the parsed document and compared to the key
+    before the record is returned. A document that declares a different run
+    than its file name suggests is not answered under the name it was filed
+    under; the scan runs and finds it wherever it really is.
+
+So a name that leads nowhere, or leads to the wrong run, costs what it always
+did. A name that leads to the right run - every run this store has ever written
+- costs one document.
 """
 
 from __future__ import annotations
@@ -49,7 +79,7 @@ from assetops_backend.runs.adapters.yaml_run_documents import (
     read_run_records,
     serialize_run_document,
 )
-from assetops_backend.runs.identity import run_id_key
+from assetops_backend.runs.identity import is_allocated_run_id_key, run_id_key
 from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.parsing import render_run_document
 from assetops_backend.runs.ports import (
@@ -80,14 +110,70 @@ class YamlRunStore:
         self._write_lock = threading.Lock()
 
     def list_runs(self) -> tuple[SimulationRun, ...]:
+        """Every persisted Draft, each strictly validated.
+
+        Unchanged by the read-cost work, and deliberately so. An inventory is
+        a question about every record, so reading every record is what it
+        costs; what it must not do is answer with fewer records than the store
+        holds because one of them would not parse. One invalid document still
+        takes the whole inventory down, which is the same all-or-nothing rule
+        the scenario catalog holds, and it stays that way here because a
+        partial inventory is a wrong answer rather than a slow one.
+        """
         return read_run_records(self._root)
 
     def get_run(self, run_id: str) -> SimulationRun:
+        """One run, for the cost of one run wherever the name leads to it.
+
+        See the module docstring for why reading the filed name is not the
+        same as reading identity out of it.
+        """
         key = run_id_key(run_id)
+
+        filed = self._read_filed_under(key)
+        if filed is not None:
+            return filed
+
+        # Nothing is filed under that name, or what is filed there declares a
+        # different run. Neither has ever happened to a document this store
+        # wrote, so this is the answer for a hand-arranged store rather than
+        # the ordinary path - and it is kept because dropping it would make a
+        # record the inventory still lists unreachable by identity.
         for record in self.list_runs():
             if run_id_key(record.run_id) == key:
                 return record
         raise RunNotFound(f"No run with run ID {run_id!r} is persisted.")
+
+    def _read_filed_under(self, key: str) -> SimulationRun | None:
+        """The record filed under `key`, or `None` if the name leads nowhere.
+
+        `None` means "look the slow way", never "there is no such run", and
+        never "the document there was unacceptable". An invalid document
+        propagates its own refusal: a read of the run whose document is broken
+        must say what is wrong with it rather than fall back to searching for a
+        second copy that does not exist.
+
+        One store-level rule is deliberately not consulted here, and it is
+        named rather than left to be discovered. `MAX_DOCUMENTS` is enforced by
+        `document_paths`, so a store above the bound still refuses to be
+        enumerated and still refuses to accept a new run; a run somebody can
+        name is now readable in such a store where it previously was not. That
+        bound is about how large the store may grow, not about whether a
+        document is valid, and counting the whole directory on every read is
+        the shape of cost this method exists to remove.
+        """
+        if not is_allocated_run_id_key(key):
+            return None
+
+        path = self._root / f"{key}{DOCUMENT_SUFFIX}"
+        if not path.is_file():
+            return None
+
+        record = read_run_record(path)
+        if run_id_key(record.run_id) != key:
+            return None
+
+        return record
 
     def create_run(self, record: SimulationRun) -> SimulationRun:
         """Write a new Draft, or write nothing at all."""

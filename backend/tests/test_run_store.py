@@ -13,6 +13,7 @@ later read would pick up.
 
 from __future__ import annotations
 
+import threading
 from dataclasses import replace
 from pathlib import Path
 
@@ -31,6 +32,7 @@ from run_fixtures import (
     site,
 )
 
+from assetops_backend.runs.adapters import yaml_run_documents, yaml_run_store
 from assetops_backend.runs.adapters.yaml_run_documents import DOCUMENT_SUFFIX
 from assetops_backend.runs.adapters.yaml_run_store import (
     RUN_STORE_ROOT,
@@ -499,3 +501,320 @@ class TestTheBoundaryThatActuallyStopsAValuelessResolvedParameter:
         store.create_run(record)
 
         assert [item.run_id for item in store.list_runs()] == [record.run_id]
+
+
+def a_store_of(
+    root: Path, count: int
+) -> tuple[YamlRunStore, tuple[SimulationRun, ...]]:
+    """A store holding `count` Drafts, and the records it holds."""
+    store = YamlRunStore(root)
+    records = tuple(a_run() for _ in range(count))
+    for record in records:
+        store.create_run(record)
+    return store, records
+
+
+@pytest.fixture(scope="module")
+def ten(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> tuple[YamlRunStore, tuple[SimulationRun, ...]]:
+    """Ten stored Drafts, written once and shared by the reads that use them.
+
+    Module-scoped because every test taking it only reads: each write fsyncs a
+    document, and rebuilding the same ten per test cost more than the rest of
+    this file put together. Tests that corrupt or rearrange a store build their
+    own.
+    """
+    return a_store_of(tmp_path_factory.mktemp("ten-runs"), 10)
+
+
+class TestASingleReadCostsOneRun:
+    """One read reads one run, and reads it exactly as strictly as before.
+
+    The defect these close is not hypothetical and was not found by a test: the
+    owner stepped the first real run and every interaction took about nine
+    seconds, because `get_run` parsed all 216 stored documents to answer a
+    question about one of them.
+
+    Cost is asserted by counting documents parsed rather than by timing. A clock
+    measures the machine that happens to be running; a count measures the
+    property - that a store of any size costs one parse - and it fails loudly on
+    the change that would reintroduce the defect.
+    """
+
+    @pytest.fixture
+    def parsed(self, monkeypatch: pytest.MonkeyPatch) -> list[Path]:
+        """Every document the store parses, in the order it parses them.
+
+        Both module references are replaced because there are two: the bulk
+        reader calls its own module's name and the store calls the one it
+        imported. Patching one would count half the store's reading and would
+        make the assertions below true of a store that still walks everything.
+        """
+        seen: list[Path] = []
+        real = yaml_run_documents.read_run_record
+
+        def counting(path: Path) -> SimulationRun:
+            seen.append(path)
+            return real(path)
+
+        monkeypatch.setattr(yaml_run_documents, "read_run_record", counting)
+        monkeypatch.setattr(yaml_run_store, "read_run_record", counting)
+        return seen
+
+    def test_the_count_sees_the_whole_store_being_read(
+        self,
+        ten: tuple[YamlRunStore, tuple[SimulationRun, ...]],
+        parsed: list[Path],
+    ) -> None:
+        """Non-vacuity for every assertion below.
+
+        If the counter could not observe the bulk reader, "one read parses one
+        document" would be true of an instrument that cannot see more than one.
+        """
+        store, _ = ten
+        parsed.clear()
+
+        store.list_runs()
+
+        assert len(parsed) == 10
+
+    def test_one_read_parses_one_document(
+        self,
+        ten: tuple[YamlRunStore, tuple[SimulationRun, ...]],
+        parsed: list[Path],
+    ) -> None:
+        store, records = ten
+        wanted = records[0]
+        parsed.clear()
+
+        assert store.get_run(wanted.run_id) == wanted
+
+        assert len(parsed) == 1
+        assert parsed[0].name == f"{wanted.run_id}{DOCUMENT_SUFFIX}"
+
+    def test_the_cost_does_not_grow_with_the_store(
+        self,
+        tmp_path: Path,
+        ten: tuple[YamlRunStore, tuple[SimulationRun, ...]],
+        parsed: list[Path],
+    ) -> None:
+        """The same read, against a store three times the size.
+
+        The record read is the one written first, so a store that answered
+        cheaply only for whatever it wrote last would fail here.
+        """
+        ten_store, ten_records = ten
+        thirty_store, thirty_records = a_store_of(tmp_path / "thirty", 30)
+
+        parsed.clear()
+        assert ten_store.get_run(ten_records[0].run_id) == ten_records[0]
+        cost_of_ten = len(parsed)
+
+        parsed.clear()
+        assert thirty_store.get_run(thirty_records[0].run_id) == thirty_records[0]
+        cost_of_thirty = len(parsed)
+
+        assert cost_of_ten == 1
+        assert cost_of_thirty == 1
+
+    def test_a_case_variant_resolves_the_same_record(
+        self,
+        ten: tuple[YamlRunStore, tuple[SimulationRun, ...]],
+        parsed: list[Path],
+    ) -> None:
+        """Identity comparison still decides, and still folds case."""
+        store, records = ten
+        wanted = records[3]
+        parsed.clear()
+
+        assert store.get_run(wanted.run_id.upper()) == wanted
+        assert len(parsed) == 1
+
+    def test_an_identity_no_run_could_carry_is_not_found(
+        self, ten: tuple[YamlRunStore, tuple[SimulationRun, ...]]
+    ) -> None:
+        """And it never becomes a path.
+
+        A separator, a parent reference and a drive letter are all refused by
+        the shape rule before anything is opened, so a read cannot address a
+        file outside the store however the identity is spelled. The store is
+        populated, so a refusal here is about the identity rather than about an
+        empty directory.
+        """
+        store, _ = ten
+
+        for identity in (
+            "../../../etc/passwd",
+            "run-0000/../../secret",
+            "C:/Windows/win.ini",
+            "not-a-run",
+        ):
+            with pytest.raises(RunNotFound):
+                store.get_run(identity)
+
+    def test_a_well_formed_absent_identity_is_not_found(
+        self, ten: tuple[YamlRunStore, tuple[SimulationRun, ...]]
+    ) -> None:
+        store, _ = ten
+
+        with pytest.raises(RunNotFound):
+            store.get_run("run-" + "0" * 32)
+
+    def test_the_requested_runs_own_broken_document_refuses_with_its_reason(
+        self, tmp_path: Path
+    ) -> None:
+        """The fast path is not a looser path.
+
+        The edit is the one `TestTheWriteIsAllOrNothing` makes against the
+        inventory: a hand-typed status the record's own invariant refuses. A
+        single read of that run has to refuse it for the same reason.
+        """
+        store = YamlRunStore(tmp_path)
+        setup = RunSetupService(
+            FakeRuns(),
+            FakeSites((site(),)),
+            FakeScenarios((scenario(),)),
+            model_profiles=(model_profile(),),
+            publication_profiles=(publication_profile(gateway_id=None),),
+            now=lambda: "2026-09-21T09:00:00Z",
+        )
+        blocked = setup.create_draft_run(setup_request())
+        store.create_run(blocked)
+
+        document = tmp_path / f"{blocked.run_id}{DOCUMENT_SUFFIX}"
+        document.write_text(
+            document.read_text(encoding="utf-8").replace(
+                "execution_status: BLOCKED", "execution_status: READY"
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(RunConfigurationInvalid) as refusal:
+            YamlRunStore(tmp_path).get_run(blocked.run_id)
+
+        assert blocked.run_id in str(refusal.value)
+
+    def test_one_broken_document_does_not_break_an_unrelated_read(
+        self, tmp_path: Path
+    ) -> None:
+        """Criterion 4, and the one behaviour this slice deliberately changes.
+
+        Before, a single read walked the store, so any unreadable document
+        anywhere refused every read. Now a run whose own document is sound
+        reads back. The inventory is unchanged and still fails whole, which is
+        asserted here rather than assumed: a partial inventory would be a wrong
+        answer rather than a slow one.
+        """
+        store, records = a_store_of(tmp_path, 5)
+        wanted = records[0]
+        broken = records[-1]
+
+        (tmp_path / f"{broken.run_id}{DOCUMENT_SUFFIX}").write_text(
+            "this: is: not: a run", encoding="utf-8"
+        )
+
+        assert YamlRunStore(tmp_path).get_run(wanted.run_id) == wanted
+
+        with pytest.raises(RunConfigurationInvalid):
+            YamlRunStore(tmp_path).list_runs()
+
+    def test_a_document_filed_under_another_name_is_still_found(
+        self, tmp_path: Path, parsed: list[Path]
+    ) -> None:
+        """The records already on disk are the test, including rearranged ones.
+
+        No document this store wrote is filed under anything but its own
+        case-folded identity, so this is about a store somebody rearranged by
+        hand. It is here because the change being guarded is one that could be
+        right going forward and silently wrong going backward: a read that only
+        ever looked at the expected name would make a record the inventory
+        still lists unreachable by identity.
+        """
+        store, records = a_store_of(tmp_path, 5)
+        moved = records[2]
+        (tmp_path / f"{moved.run_id}{DOCUMENT_SUFFIX}").rename(
+            tmp_path / f"run-{'f' * 32}{DOCUMENT_SUFFIX}"
+        )
+        parsed.clear()
+
+        assert store.get_run(moved.run_id) == moved
+
+        # Finding it cost the whole store, which is the honest price of a name
+        # that leads nowhere and is the price it always was.
+        assert len(parsed) == 5
+
+    def test_a_run_is_never_answered_under_another_runs_name(
+        self, tmp_path: Path
+    ) -> None:
+        """Locating by name is not reading identity out of a name.
+
+        The document filed as `run-ff...ff` declares a different run. Asking for
+        `run-ff...ff` must not return it, because a lookup that fell back to
+        whatever was filed there would put one run's frozen identity under
+        another run's name.
+        """
+        store, records = a_store_of(tmp_path, 3)
+        moved = records[0]
+        impostor = f"run-{'f' * 32}"
+        (tmp_path / f"{moved.run_id}{DOCUMENT_SUFFIX}").rename(
+            tmp_path / f"{impostor}{DOCUMENT_SUFFIX}"
+        )
+
+        with pytest.raises(RunNotFound):
+            store.get_run(impostor)
+
+        assert store.get_run(moved.run_id) == moved
+
+    def test_a_read_during_a_write_returns_a_whole_record(
+        self, tmp_path: Path
+    ) -> None:
+        """Concurrency is unchanged, at the level a reader meets it.
+
+        One thread creates runs while another reads an existing one. Every read
+        must return that record whole and equal - never a partial document,
+        never a staging file, never a refusal - and every write must land.
+        """
+        store = YamlRunStore(tmp_path)
+        target = a_run()
+        store.create_run(target)
+        pending = [a_run() for _ in range(10)]
+
+        failures: list[BaseException] = []
+        reads = 0
+        done = threading.Event()
+
+        def write() -> None:
+            try:
+                for record in pending:
+                    store.create_run(record)
+            except BaseException as error:  # pragma: no cover - asserted below
+                failures.append(error)
+            finally:
+                done.set()
+
+        def read() -> None:
+            nonlocal reads
+            while not done.is_set():
+                try:
+                    assert store.get_run(target.run_id) == target
+                except BaseException as error:
+                    failures.append(error)
+                    return
+                reads += 1
+
+        writer = threading.Thread(target=write)
+        reader = threading.Thread(target=read)
+        reader.start()
+        writer.start()
+        writer.join()
+        reader.join()
+
+        assert failures == []
+        assert reads > 0
+        assert len(store.list_runs()) == len(pending) + 1
+        assert [
+            path.name
+            for path in tmp_path.iterdir()
+            if not path.name.endswith(DOCUMENT_SUFFIX)
+        ] == []
