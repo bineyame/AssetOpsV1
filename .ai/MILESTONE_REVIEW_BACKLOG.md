@@ -1002,6 +1002,36 @@ declared for that signal, and `host/tests/test_lab_execution.py` asserts the
 reports on. Either would mean the Lab is hiding a quantity rather than showing it
 one layer along, and the model should then declare the unit.
 
+### The reporting-path vocabulary has no "silences nothing" case to refuse
+
+`SupportedReportingState.silences` may be empty, and an empty one means the
+profile can model a reporting-path state that suppresses no configured signal. A
+run forcing it would complete with every reading intact, which is a capability
+with no effect rather than a refusal.
+
+*Safe to carry* because the shipped profile declares exactly one such state and it
+silences exactly one signal, the constructor already refuses a name that is not a
+declared device signal, and nothing can reach the empty case without somebody
+authoring a second reporting-path state.
+
+*What would change the answer:* a second member of `REPORTING_PATH_STATES`. At
+that point "declared and silences nothing" becomes reachable by accident and
+should be refused at construction rather than executed.
+
+### Accepted evidence history does not exist, so criterion 16's guard cannot cover it
+
+`TestExecutingADraftWritesNoSiteHistory` hashes every file under `var/sites`
+before and after a completed execution. That is the whole of the persisted Site
+substrate this build has. **Accepted operational evidence history is T027's**, so
+the guard proves nothing was written to the store that exists, not that a future
+evidence store was left alone.
+
+*Safe to carry* because the host has no evidence writer, no Commit and no
+envelope release, and the port has no method that could acquire one.
+
+*What would change the answer:* T027 creating that store. The digest should widen
+to it in the same slice, not after something has written to it.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline
