@@ -25,9 +25,14 @@ inventory is measured, deliberately unfixed and not acceptable**: 99% is the
 pure-Python YAML scanner and it passes one second between about 20 and 65
 records. The bounded fix trades a parser, so it is the owner's.
 
-**T023 is the active task.** Two things stay open and neither is parked: the
-owner's functional review of T022 and T022A - criterion 9 closes when they step
-a run - and the libyaml decision above.
+**T023 is built and in review** (`task/T023-staged-source-envelopes`, packet
+`.agent/T023-review-packet.md`, `USER_REVIEW_REQUIRED: true`): an executed
+Draft stages canonical source envelopes, schema v1 under
+`D-2026-09-29-source-envelope-schema-v1`, inspected on the Draft's own screen.
+Next: independent review, then the owner's check of source versus publication
+time and a reload. Still open and not parked: the owner's functional review of
+T022 and T022A - criterion 9 closes when they step a run - and the libyaml
+decision above.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
@@ -46,11 +51,7 @@ consumer sees when nothing fresh arrived, and whether a publication failure is
 drawn or chosen - and the profile declares which signal reports which state, at
 what cadence, bias and dropout. Eight was amended in place after its review.
 **Every stored Draft is below 8 and refused execution**: T023 creates a fresh
-one, as T022 did.
-
-Four mechanisms carry it - the resumable handle, the separate observation
-transform, the `DeviceObservation` carrying no true value, and the draw under
-`assetops-sim-rng-v1` - each recorded in full in `.ai/CODE_STATE.md`.
+one, as T022 did. Its four mechanisms are recorded in `.ai/CODE_STATE.md`.
 
 **Only the leaf can implement the execution port.** `assetops_backend.main:app`
 answers `EXECUTION_PORT_NOT_COMPOSED`; **`host/lab_app.py` executes**. Private
@@ -69,8 +70,8 @@ instead. Five trees, three Python-importable;
 `simulator/` the observation transform, and `host/` the application that
 executes. Three editable installs - see `README.md`.
 
-**T020B, T020A1 and T020A before them are complete and merged**; full records in
-`.ai/CODE_STATE.md` and `.agent/`, and the lessons each paid for sit beside it. T022 adds one with four instances: **a check written from the
+**T020B, T020A1 and T020A before them are complete and merged**; records in
+`.ai/CODE_STATE.md`. T022 adds one lesson with four instances: **a check written from the
 code rather than from the contract, or from the surface a user meets, does not
 fail when the code is wrong.** T022A adds the measuring half: a benchmark on a
 ten-record fixture cannot see a cost that only appears at two hundred.
@@ -81,10 +82,8 @@ and T022A seven. Five `float(value)` overflow sites are open, the inventory AND
 layout-evidence run. T022A had to WRITE the run-store entry three documents
 already cited: a residual living only in a packet is one nobody reads first.
 
-**Next task: T023**, then T024 onward per `tasks/README.md`. None of the
-resequencing touches the starter path. **T022 requires a user checkpoint**
-(`USER_REVIEW_REQUIRED: true`): the owner steps a real run and distinguishes
-truth, reporting gap and measured value.
+**After T023's review: T024** onward per `tasks/README.md`. T022 and T023 both
+carry user checkpoints (`USER_REVIEW_REQUIRED: true`).
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -96,17 +95,17 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **`tasks/T022A-run-store-read-cost.md` with `.agent/T022A-review-packet.md`**,
-   then `tasks/T022-lab-execution-and-device-observation.md` and its packet and
-   reviews. Once both move to `tasks/completed/`, read `tasks/T023-*.md`.
-2. `.ai/CODE_STATE.md`: the T022 entry, then T021A, T021 and T020B. Completed
-   tasks are regression evidence, not direction.
+1. **`tasks/T023-staged-source-envelopes.md` with `.agent/T023-review-packet.md`**
+   (in review), then T022/T022A as regression evidence.
+2. `.ai/CODE_STATE.md`: the T023 entry, then T022, T021A, T021 and T020B.
+   Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
    records T021A at version 7 and T022 at 8.
 4. `contracts/assetops_contracts/`: `execution_contract.py` for what a conforming
    implementation must do including `REPORTING_RULES`, `observation.py` for what a
    device reports and the draw contract, `lab_projection.py` for the gated record
-   and the control refusals. Then
+   and the control refusals, `source_envelope.py` and `source_stage.py` for
+   the crossing and the stage. Then `simulator/assetops_simulator/gateway/`,
    `simulator/assetops_simulator/observation/transform.py` and
    `host/lab_execution.py`.
 5. v4 sections 3, 6, 7, 8, 9, 11.1, 21, 23 and 25, plus the decisions those name.
@@ -125,10 +124,10 @@ properties, addressing, reachable readiness and the declared boundary contract.
 clock, a boundary cycle, a private trajectory, a trajectory identity, a resumable
 handle, a separate observation transform, a reading series with its own identity,
 a private artifact per run, and a gated screen that starts, steps and finishes a
-run and shows truth beside what was reported. There is still **no gateway, no
-envelope, no staging, no ingestion, no accepted history, no analytics and no
-Findings**, no Commit, no reset and no event injection, and nothing an execution
-produces has reached an operator surface.
+run and shows truth beside what was reported. **T023 (in review) adds the
+gateway, the canonical envelope and an immutable stage** with a gated inspector.
+There is still **no Commit, no ingestion, no accepted history, no analytics and
+no Findings**, and nothing an execution produces reaches an operator surface.
 
 The shipped scenario lives in `config/scenarios/fuel-loss-event.yaml`.
 Shipped and writable stores have disjoint identities; the scenario store ships
@@ -160,7 +159,8 @@ template.
 per executed run, written by `host/lab_execution.py` and by nothing else. It is
 the leaf's rather than the product's, because a product store of private truth
 would put a filing cabinet inside the truth barrier. Safe to delete; a run whose
-artifact is gone reads as never executed.
+artifact is gone reads as never executed. `var/stages/` (T023) is the same kind
+of data: one staged-envelope stage per executed run, safe to delete.
 
 The version guard is an equality test on an integer and cannot tell a Draft frozen
 before a build from one frozen by it, so every executed Draft is regenerated in

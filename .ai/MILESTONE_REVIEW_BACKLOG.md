@@ -1184,6 +1184,51 @@ gitignore risk is already carried in T021's entry about `.agent/`.
 about what evidence means here, which is the same reason `layout-evidence.mjs`
 is not wired into the architecture check.
 
+## Carried from T023
+
+### A message id is the publication's, so two Drafts of one Site share ids
+
+`envelope_message_id` covers Site, gateway, source, device, signal and source
+time and deliberately not the run. Inside one stage that is what makes a retry
+recognisable. Two Drafts against one Site publishing the same device at the same
+simulated instant produce the same id with (usually) different content - a real
+collision that T027's Commit or ingestion must decide about (refuse, scope by
+commit, or treat as a conflicting report). Not decided here because nothing
+crosses a stage yet.
+
+### Interval envelopes and typed unavailability are proved on fixtures only
+
+The shipped allowlist is the fuel level sensor, a state signal that always has a
+value, so the shipped run exercises neither `INTERVAL_MEAN` nor `UNAVAILABLE`.
+Both are proved by `simulator/tests/test_gateway_publication.py`. T026's
+allowlist extension is where they first meet a real run.
+
+### A stage is rewritten whole on every step
+
+`JsonSourceStages.admit` re-reads and rewrites the stage, and the host
+republishes the whole series every step: quadratic per run. About 110 KB and
+150 envelopes at completion today. An append-only format belongs with T026's
+larger allowlist if it matters.
+
+### Release eligibility rests on write order, not a seal
+
+The stage is written before the execution artifact, and a test measures it. A
+stage has no "complete" marker of its own; sealing is Commit's (T027).
+
+### The stage's integrity digest is redundant with its canonical-form check
+
+A guard probe removed the digest comparison and every damage case was still
+refused, by the final check that re-renders the whole text including a
+recomputed digest. Only the REASON changed, which a test now asserts. Harmless
+duplication; a later reader simplifying it should keep one of the two and the
+reason assertion.
+
+### Stage selection buttons scale with the stage
+
+The inspector renders one "Show envelope N" button per envelope (154 at the end
+of the browser run). Utilitarian by instruction; a later slice with thousands of
+envelopes needs paging, not polish now.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline
