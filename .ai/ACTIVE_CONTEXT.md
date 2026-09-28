@@ -15,19 +15,19 @@ The Planner recreated the queue, the Architect reviewed it on 2026-09-24, and
 the user's own review then resequenced it under
 `D-2026-09-24-queue-resequenced-for-demo`. `tasks/README.md` is authoritative.
 
-**T021, T021A and T022 are complete and merged.** T022's packet, its four
-reviews and the record in `.ai/CODE_STATE.md` carry the detail; three artifact
-layouts exist and each reads back as the result it is.
+**T021 through T022A are complete and merged.** Their packets, reviews and the
+record in `.ai/CODE_STATE.md` carry the detail; three artifact layouts exist and
+each reads back as the result it is. A single-run read reads one document: 216
+parses become 1, and the run detail, the execution read and a Lab step each drop
+about two orders of magnitude. **Quote that ratio, not the seconds** - the same
+measurement varied 3x across three readers; `CODE_STATE` says why. **The
+inventory is measured, deliberately unfixed and not acceptable**: 99% is the
+pure-Python YAML scanner and it passes one second between about 20 and 65
+records. The bounded fix trades a parser, so it is the owner's.
 
-**T022A is built, reviewed once and corrected.** A single-run read reads one
-document: 216 parses become 1, and the run detail, the execution read and a Lab
-step each drop about two orders of magnitude. **Quote that ratio, not the
-seconds** - the same measurement varied 3x across three readers; `CODE_STATE`
-says why. **The inventory was measured and deliberately left alone, and it is
-not acceptable**: 99% of it is the pure-Python YAML scanner, and it passes one
-second between about 20 and 65 records. The bounded fix trades a parser, so
-T022A reports it rather than taking it. **The owner's review of T022 waits for
-T022A** and happens with its own.
+**T023 is the active task.** Two things stay open and neither is parked: the
+owner's functional review of T022 and T022A - criterion 9 closes when they step
+a run - and the libyaml decision above.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at

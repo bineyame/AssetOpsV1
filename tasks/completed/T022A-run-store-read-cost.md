@@ -1,6 +1,6 @@
 # T022A - A run read that does not cost the whole store
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A hardening; unblocks the Lab as a demonstrable surface.
@@ -120,4 +120,34 @@ fix it here.
 The owner steps a run and judges whether it responds. The Reviewer checks that
 strictness, identity and concurrency are unchanged and that the measurement was
 taken at the real store size.
-Review outcome: pending.
+Review outcome: accepted on independent review; **merged at the owner's
+instruction with the owner's own review outstanding.**
+
+**Independent review.** A Claude backup reviewer under `.ai/ROLE_CONFIG.md`'s
+verification routing, Codex being spared to conserve quota. It accepted the core
+- the mechanism, the fallback, the untouched write path and the strictness
+argument - and returned seven findings. One was a real defect: the single
+filesystem stat on the fast path sat outside the strict reader's `OSError`
+translation, so a permission denial escaped as a 500 where the store's own
+docstring says storage vocabulary never crosses the seam. Fixed with a guard
+that fails without it. The shape check was also proved load-bearing rather than
+defence in depth: without it the store opens a file outside its own root, which
+the identity comparison cannot prevent because it never runs on a file that will
+not parse. An incomplete Codex review of the same commit exists at
+`.agent/T022A-codex-review.md`, from a run stopped mid-pass.
+
+**A measurement withdrawn rather than corrected.** Three readers measured the
+same inventory over the same 216 documents at about 15, 41 and 49 milliseconds
+per record - a threefold spread on machine state. The absolutes are struck from
+the records rather than replaced with a fourth; what stands is the range, the
+ratios, and the three figures all three readers agreed on. `.ai/CODE_STATE.md`
+carries the rule that came out of it: an absolute measured once here is not a
+project fact.
+
+**Owner review outstanding.** Criterion 9 - that the Lab's step responds - is
+settled by the owner stepping a run, and criterion 2 - whether the inventory
+moves to libyaml - is a decision only the owner can take. Neither is closed by
+this merge. The sharpened form of criterion 2: `CSafeLoader` and `safe_load`
+produce equal documents for all 216 stored runs, so the constructor and resolver
+are settled; what is unsettled is what the two scanners **refuse**, and a corpus
+of valid documents cannot establish that.
