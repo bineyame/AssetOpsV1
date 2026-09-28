@@ -1222,7 +1222,15 @@ for (const [state, href, expectBlockedTable] of [
     ["1000x700, below the commitment", 1000, 700],
     ["640x700, narrow enough that the frozen table cannot fit", 640, 700],
   ]) {
-    const run = await visit(cdp, href, width, height, ".fact-list");
+    // `[data-execution-status]` rather than `.fact-list`, and the difference
+    // is the same race `settledScreen` exists for in jsdom. This screen makes
+    // TWO reads - the persisted Draft and its execution - and `.fact-list`
+    // appears when the first lands. At 1280 and 1000 the second landed inside
+    // the settle pause and at 640 it did not, so one width measured a screen
+    // that had not finished loading and reported no controls. Waiting for
+    // something only the second read draws is what makes all three widths
+    // measure the same screen.
+    const run = await visit(cdp, href, width, height, "[data-execution-status]");
     const frozen = run.scrollers.find((s) => s.name === "run-frozen-heading");
     const blocked = run.scrollers.find((s) => s.name === "run-blocked-heading");
 
