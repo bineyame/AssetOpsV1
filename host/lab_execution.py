@@ -119,13 +119,34 @@ EXECUTION_ARTIFACT_ROOT = REPOSITORY_ROOT / "var" / "executions"
 #: no way to tell an old record from a damaged one, and no way to say which.
 #: `a-record-older-than-a-rule-is-read-as-what-it-recorded` is the published rule
 #: and this integer is how a reader applies it.
+#:
+#: **And a marker cannot identify what was written before markers existed.** The
+#: build that added the shape did not add this field, so it left records with the
+#: shape ON them and no number to say so - and the first reader to use this
+#: number assigned every unmarked record to schema one and threw that shape away.
+#: The fix for "right going forward, silent going backward" was itself right
+#: going forward and silent going backward, and it was worse than what it
+#: replaced: a `KeyError` is an honest failure, and a confident wrong reading is
+#: not. So `_identify_layout` reads the ROWS of an unmarked record, which is the
+#: only evidence such a record carries about which build wrote it.
 EXECUTION_ARTIFACT_SCHEMA_VERSION = 2
+
+#: The three shapes an execution record on disk actually has, and every one of
+#: them was written by a build on this branch.
+#:
+#: `SCHEMA_2` says so itself. The other two do not, and are told apart by whether
+#: their reporting-gap rows carry `timing_shape` - which is the exact field the
+#: build that wrote the second of them added. A record whose rows disagree with
+#: each other was written by neither and is not interpreted.
+LAYOUT_CURRENT = "SCHEMA_2"
+LAYOUT_UNMARKED_WITH_SHAPE = "UNMARKED_WITH_SHAPE"
+LAYOUT_UNMARKED_WITHOUT_SHAPE = "UNMARKED_WITHOUT_SHAPE"
 
 
 def _first_pass_end_offset(row: dict[str, object]) -> int:
-    """Where schema one's reader put the end of this window.
+    """Where the shapeless build's reader put the end of this window.
 
-    Not a guess and not a re-derivation. Schema one resolved every reporting
+    Not a guess and not a re-derivation. That build resolved every reporting
     window by one rule - the declared length where there was one, and the end of
     the interval where there was not - over two fields the record still carries.
     So the span those readings were generated against is recoverable exactly,
@@ -135,11 +156,87 @@ def _first_pass_end_offset(row: dict[str, object]) -> int:
     ending at the interval's end could have been declared INTERVAL_WIDE or could
     be an absent duration read as one, and those are different documents. The row
     is marked `SHAPE_NOT_RECORDED` rather than given the more likely answer.
+
+    **It applies to that layout and to no other.** Running it over a record whose
+    rows DO carry a shape is how a POINT at 1490 - an instant covering
+    `[1485, 1500)` - was reported as `[1490, 2460)` with the shape called absent
+    while it sat in the same file.
     """
     duration = row.get("duration_minutes")
     if duration is None:
         return int(row["interval_minutes"])
     return int(row["offset_minutes"]) + int(duration)
+
+
+def _identify_layout(document: dict[str, object], run_id: str) -> str:
+    """Which build wrote this record, decided from what the record carries.
+
+    A marked record says so. An unmarked one is one of the two that predate the
+    marker, and the difference between them is a field: the later build wrote
+    `timing_shape` on every reporting-gap row and the earlier one had no name for
+    it. That field is the only evidence such a record holds about its own
+    provenance, so it is what decides - and deciding by it is not a guess, it is
+    reading the record.
+
+    All or none. A record whose gap rows disagree with each other was written by
+    neither build, and interpreting half of it under one rule and half under
+    another would be the collapse again with extra steps.
+
+    An unmarked record with no gap rows at all is the shapeless layout by
+    default, and nothing turns on the choice: with no row there is no shape to
+    report and no span to resolve, so both layouts read it identically.
+
+    Raises:
+        ExecutionArtifactUnreadable: the rows do not agree on which build wrote
+            them, or the marker is not a whole number.
+    """
+    marker = document.get("artifact_schema_version")
+    if marker is not None:
+        # Parsed here rather than at the call site, because a marker that is not
+        # a number used to raise `ValueError` from `int()` BEFORE the protected
+        # parse and escape as an HTTP 500 - the same failure this whole function
+        # exists to stop, one field earlier.
+        if isinstance(marker, bool) or not isinstance(marker, int):
+            raise ExecutionArtifactUnreadable(
+                run_id,
+                0,
+                f"Its schema marker is {marker!r}, which is not a whole number, "
+                "so the record does not say which rule wrote it and nothing "
+                "here will decide on its behalf.",
+            )
+        if marker > EXECUTION_ARTIFACT_SCHEMA_VERSION:
+            raise ExecutionArtifactUnreadable(
+                run_id,
+                marker,
+                "A later build wrote it, so what its fields mean is that "
+                "build's to say. The record is left exactly as it is.",
+            )
+        if marker < 1:
+            raise ExecutionArtifactUnreadable(
+                run_id,
+                marker,
+                "An artifact schema is a whole number from one upwards, so this "
+                "record does not say which rule wrote it.",
+            )
+        return LAYOUT_CURRENT
+
+    rows = document.get("reporting_gaps") or []
+    shaped = [row for row in rows if "timing_shape" in row]
+    if not shaped:
+        return LAYOUT_UNMARKED_WITHOUT_SHAPE
+    if len(shaped) == len(rows) and all(
+        "timestep_minutes" in row for row in rows
+    ):
+        return LAYOUT_UNMARKED_WITH_SHAPE
+    raise ExecutionArtifactUnreadable(
+        run_id,
+        1,
+        f"It carries no schema marker, and {len(shaped)} of {len(rows)} "
+        "reporting-gap rows record a timing shape. The two builds that wrote "
+        "unmarked records wrote it on every row or on none, so this record was "
+        "written by neither and reading half of it under each rule would be a "
+        "result nobody produced.",
+    )
 
 
 class ExecutionArtifactUnreadable(Exception):
@@ -568,32 +665,58 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
     }
 
 
-def _schema_notes(schema: int, gap_count: int) -> tuple[str, ...]:
+def _layout_notes(layout: str, gap_count: int) -> tuple[str, ...]:
     """What a reader is told when the record predates a rule.
 
     On the projection rather than only in a log, because the person looking at
-    the screen is the one who needs to know that one column on it is missing and
-    why. A record read under an older rule that said so nowhere would be the
-    silent reinterpretation this whole correction is about.
+    the screen is the one who needs to know that a column on it came from
+    somewhere unusual, or is missing, and why.
+
+    **Each note describes the record actually read.** The first version of this
+    said "the shape is not recoverable from the record" on every unmarked record,
+    including the ones that carry the shape - a sentence that was false about the
+    file it was printed beside. A note that misdescribes the record is worse than
+    no note: it is the silent reinterpretation this correction is about, with a
+    paragraph asserting that it did not happen.
     """
-    if schema >= EXECUTION_ARTIFACT_SCHEMA_VERSION or gap_count == 0:
+    if layout == LAYOUT_CURRENT or gap_count == 0:
         return ()
+    if layout == LAYOUT_UNMARKED_WITH_SHAPE:
+        return (
+            "this execution record was written before an execution record "
+            "stated its schema, and after a reporting condition's declared "
+            "shape was persisted. The shape shown on each reporting gap below "
+            "is the one that record holds, and the span beside it follows from "
+            "that shape by the same rule the build that wrote the record "
+            "resolved it with - so what is shown is what was computed, not a "
+            "re-derivation under a later rule",
+        )
     return (
-        f"this execution record was written in artifact schema {schema}, before "
-        "a reporting condition's declared shape was persisted, so each reporting "
-        "gap below shows the span that record was resolved against and no shape. "
-        "The readings were generated against exactly that span. Which shape the "
-        "document declared is not recoverable from the record and is not guessed "
-        "here; executing the Draft again would answer it, and would be a second "
-        "execution rather than this one",
+        "this execution record was written before a reporting condition's "
+        "declared shape was persisted, so each reporting gap below shows the "
+        "span that record was resolved against and no shape. The readings were "
+        "generated against exactly that span. Which shape the document declared "
+        "is not recoverable from THIS record and is not guessed here; executing "
+        "the Draft again would answer it, and would be a second execution rather "
+        "than this one",
     )
 
 
 def _parse_reporting_gap(
-    row: dict[str, object], schema: int, run_timestep_minutes: int
+    row: dict[str, object], layout: str, run_timestep_minutes: int
 ) -> ReportingPathWindow:
-    """One persisted reporting-gap row, read under the rule that wrote it."""
-    if schema >= 2:
+    """One persisted reporting-gap row, read under the rule that wrote it.
+
+    Two of the three layouts recorded the shape, and for those the shape is what
+    resolves the span - not a stored end offset, because the build that wrote
+    them resolved by exactly the rule `end_offset_minutes` still applies. Reading
+    the shape is therefore reproducing that build's own arithmetic rather than
+    re-deriving under a changed one, which is the whole of what makes it honest.
+
+    The third layout recorded no shape, and only there is the span read off the
+    row and the shape reported absent.
+    """
+    if layout in (LAYOUT_CURRENT, LAYOUT_UNMARKED_WITH_SHAPE):
         recorded = row.get("recorded_end_offset_minutes")
         return ReportingPathWindow(
             event_id=str(row["event_id"]),
@@ -614,10 +737,10 @@ def _parse_reporting_gap(
                 None if recorded is None else int(recorded)
             ),
         )
-    # Schema one. The run's own timestep is on the document and is the timestep
-    # this row was resolved under, so it is carried rather than invented - but it
-    # decides nothing here, because a recorded span needs no shape rule to resolve
-    # it.
+    # The shapeless layout. The run's own timestep is on the document and is the
+    # timestep this row was resolved under, so it is carried rather than invented
+    # - but it decides nothing here, because a recorded span needs no shape rule
+    # to resolve it.
     return ReportingPathWindow(
         event_id=str(row["event_id"]),
         condition_address=str(row["condition_address"]),
@@ -644,41 +767,32 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
     not a ratio is refused rather than coerced. An artifact somebody hand-edited
     is the same boundary every other parser in this product guards.
 
-    ## Which rule wrote this, asked rather than discovered
+    ## Which build wrote this, asked rather than assumed
 
-    The schema version is read first and decides how the reporting-gap rows are
-    built. A record from schema one has no shape on them, and rather than
-    demanding a key that build had no name for, each row is read as the span that
-    build resolved - marked `SHAPE_NOT_RECORDED`, so nothing on any surface
-    claims to know a shape that was never written down. The readings beside it
-    were computed against exactly that span, which is why showing it is showing
-    the result rather than reconstructing one.
+    `_identify_layout` answers first, and it decides how the reporting-gap rows
+    are built. Three layouts exist on disk and each was written by a build on
+    this branch: the current one says its schema, and the two older ones are told
+    apart by whether their gap rows carry `timing_shape`.
 
-    A record from a LATER schema is refused with
-    `ExecutionArtifactUnreadable`, because a build cannot honestly interpret a
-    rule it does not have. That is the same answer in the other direction, and it
-    is an answer rather than a `KeyError` at whichever field happens to be first.
+    Where the shape was recorded it is HONOURED - the row shows what the record
+    holds, and the span follows from it by the rule that build resolved with.
+    Where it was not, each row is read as the span that build resolved and marked
+    `SHAPE_NOT_RECORDED`, so nothing claims to know a shape nobody wrote down.
+    The readings were computed against exactly those spans either way, which is
+    why showing them is showing the result rather than reconstructing one.
+
+    A record from a LATER schema is refused with `ExecutionArtifactUnreadable`,
+    because a build cannot honestly interpret a rule it does not have, and so is
+    one whose rows disagree about which build wrote them. That is an answer
+    rather than a `KeyError` at whichever field happens to be first.
 
     Raises:
         ExecutionArtifactUnreadable: the record was written by a build whose
-            schema this one does not know.
+            schema this one does not know, its marker is not a whole number, or
+            its rows do not agree on which build wrote them.
     """
-    schema = int(document.get("artifact_schema_version", 1))
-    run_id = str(document["run_id"])
-    if schema > EXECUTION_ARTIFACT_SCHEMA_VERSION:
-        raise ExecutionArtifactUnreadable(
-            run_id,
-            schema,
-            "A later build wrote it, so what its fields mean is that build's "
-            "to say. The record is left exactly as it is.",
-        )
-    if schema < 1:
-        raise ExecutionArtifactUnreadable(
-            run_id,
-            schema,
-            "An artifact schema is a whole number from one upwards, so this "
-            "record does not say which rule wrote it.",
-        )
+    run_id = str(document.get("run_id", "an execution record with no run id"))
+    layout = _identify_layout(document, run_id)
     failure = document.get("failure")
     try:
         return LabProjection(
@@ -717,7 +831,7 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
             dropped_count=int(document["dropped_count"]),
             notes=(
                 tuple(str(note) for note in document.get("notes", ()))
-                + _schema_notes(schema, len(document["reporting_gaps"]))
+                + _layout_notes(layout, len(document["reporting_gaps"]))
             ),
             failure=(
                 None
@@ -760,7 +874,7 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                 for row in document["signals"]
             ),
             reporting_gaps=tuple(
-                _parse_reporting_gap(row, schema, int(document["timestep_minutes"]))
+                _parse_reporting_gap(row, layout, int(document["timestep_minutes"]))
                 for row in document["reporting_gaps"]
             ),
             observations=tuple(
@@ -841,9 +955,11 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
         # escaping as an HTTP 500 does not.
         raise ExecutionArtifactUnreadable(
             run_id,
-            schema,
-            f"It states schema {schema} and does not carry {missing}, which "
-            f"schema {schema} requires. That is a damaged or hand-edited "
+            EXECUTION_ARTIFACT_SCHEMA_VERSION
+            if layout == LAYOUT_CURRENT
+            else 1,
+            f"It was read as the {layout} layout and does not carry {missing}, "
+            "which that layout requires. That is a damaged or hand-edited "
             "record rather than an older one, and it is left as it is.",
         ) from missing
 

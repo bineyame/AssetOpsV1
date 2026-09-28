@@ -1929,7 +1929,12 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
     """
 
     def strip_to_first_pass(self, path: Path) -> dict[str, Any]:
-        """One persisted artifact, back in the schema that predates the shape."""
+        """One persisted artifact, back in the layout that predates the shape.
+
+        What the FIRST build on this branch wrote: no schema marker, and gap
+        rows with an offset, a duration and the interval and nothing about which
+        shape produced them.
+        """
         document = yaml.safe_load(path.read_text(encoding="utf-8"))
         document.pop("artifact_schema_version")
         for row in document["reporting_gaps"]:
@@ -1938,6 +1943,37 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
             del row["recorded_end_offset_minutes"]
         path.write_text(yaml.safe_dump(document), encoding="utf-8")
         return document
+
+    def strip_to_intermediate(self, path: Path) -> dict[str, Any]:
+        """One persisted artifact, back in the layout the SECOND build wrote.
+
+        That build added `timing_shape` and the per-gap timestep and did not add
+        a schema marker, because the marker did not exist yet. So a record of
+        this layout carries the shape and says nothing about its own schema -
+        which is precisely what the first version of the reader could not see,
+        and why it assigned these records to the shapeless layout and threw the
+        recorded shape away.
+        """
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document.pop("artifact_schema_version")
+        for row in document["reporting_gaps"]:
+            del row["recorded_end_offset_minutes"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+        return document
+
+    def point_run(self) -> SimulationRun:
+        """A Draft whose reporting gap is a POINT at offset 1490.
+
+        The fixture the three-layout claims need. A POINT's declared instant and
+        the span it covers DIFFER - 1490 falls in the step covering
+        `[1485, 1500)` - so a reader that quietly applied the shapeless layout's
+        duration rule to it produces `[1490, 2460)`, a different answer rather
+        than the same one by another route. Against the shipped WINDOW both
+        rules agree, which is why the WINDOW records already on disk hid this.
+        """
+        run = draft(definition=scenario(_reporting_condition_as(POINT_AT_THE_GAP_OFFSET)))
+        assert run.execution_status == "READY"
+        return run
 
     def completed(
         self, tmp_path: Path, run: SimulationRun
@@ -2031,8 +2067,171 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         reloaded = execution.projection(run)
 
         note = " ".join(reloaded.notes)
-        assert "artifact schema 1" in note
-        assert "is not recoverable from the record and is not guessed" in note
+        assert "before a reporting condition's declared shape was persisted" in note
+        assert "is not recoverable from THIS record and is not guessed" in note
+
+    # --- The layout in between, which the first version of this could not see -
+
+    def test_a_record_that_recorded_its_shape_keeps_it(
+        self, tmp_path: Path
+    ) -> None:
+        """The third layout, and the one the schema marker cannot identify.
+
+        The build that added `timing_shape` did not add the marker, because the
+        marker was invented to fix the breakage that build caused. So it left
+        records with the shape ON them and no number to say so, and the first
+        reader to use the number assigned every unmarked record to the shapeless
+        layout - discarding a field sitting in the same file.
+
+        A POINT is what makes that visible. Its declared instant is 1490 and the
+        span it covers is `[1485, 1500)`; the shapeless layout's rule over the
+        same fields gives `[1490, 2460)`. Against a WINDOW both agree, which is
+        why the two real records of this layout did not expose it.
+        """
+        run = self.point_run()
+        execution, written, path = self.completed(tmp_path, run)
+        self.strip_to_intermediate(path)
+
+        reloaded = execution.projection(run)
+
+        (window,) = reloaded.reporting_gaps
+        assert window.timing_shape == "POINT"
+        assert window.recorded_end_offset_minutes is None
+        assert window.start_offset_minutes == 1485
+        assert window.end_offset_minutes == 1500
+        # And it is the SAME window the run produced, not a near miss. A fresh
+        # execution records no span, so nothing has to be allowed for here: the
+        # record read back is equal to the record written.
+        assert window == written.reporting_gaps[0]
+
+    def test_the_shapeless_rule_is_not_applied_to_a_record_with_a_shape(
+        self, tmp_path: Path
+    ) -> None:
+        """The defect, stated as the answer it used to give.
+
+        `[1490, 2460)` is what the shapeless layout's rule produces from this
+        record's fields - an instant read as the rest of the run. That is the
+        collapse R3 fixed, arriving a second time through the reader instead of
+        through the adapter.
+        """
+        run = self.point_run()
+        execution, _, path = self.completed(tmp_path, run)
+        self.strip_to_intermediate(path)
+
+        (window,) = execution.projection(run).reporting_gaps
+
+        assert (window.start_offset_minutes, window.end_offset_minutes) != (
+            1490,
+            2460,
+        ), "the shapeless layout's duration rule was applied to a shaped record"
+        assert window.timing_shape != SHAPE_NOT_RECORDED, (
+            "a shape sitting in the record was reported as absent"
+        )
+
+    def test_the_note_describes_the_record_that_was_actually_read(
+        self, tmp_path: Path
+    ) -> None:
+        """A note that misdescribes the record is worse than no note.
+
+        It said "the shape is not recoverable from the record" on every unmarked
+        record, including the ones carrying the shape - a sentence false about
+        the file printed beside it, asserting that the silent reinterpretation
+        had not happened while it was happening.
+        """
+        run = self.point_run()
+        execution, _, path = self.completed(tmp_path, run)
+        self.strip_to_intermediate(path)
+
+        note = " ".join(execution.projection(run).notes)
+
+        assert "The shape shown on each reporting gap below is the one that" in note
+        assert "not recoverable" not in note
+
+    def test_the_three_layouts_do_not_agree_with_each_other(
+        self, tmp_path: Path
+    ) -> None:
+        """One record, three ways of having been written, three readings.
+
+        Stated as a comparison because that is the claim: the current layout and
+        the one that recorded its shape both give `[1485, 1500)` with a POINT,
+        and the shapeless one gives the span it actually resolved with no shape.
+        Asserting each separately leaves "these two are read the same way" as
+        something a reader has to take on trust, and the defect was exactly that
+        two of them WERE read the same way when they should not have been.
+        """
+        answers = {}
+        for name, strip in (
+            ("current", lambda path: None),
+            ("intermediate", self.strip_to_intermediate),
+            ("first-pass", self.strip_to_first_pass),
+        ):
+            root = tmp_path / name
+            root.mkdir()
+            run = self.point_run()
+            execution = port(root)
+            execution.start(run)
+            execution.run_to_end(run)
+            execution.forget(run.run_id)
+            strip(root / f"{run.run_id}.yaml")
+            (window,) = execution.projection(run).reporting_gaps
+            answers[name] = (
+                window.timing_shape,
+                window.start_offset_minutes,
+                window.end_offset_minutes,
+            )
+
+        assert answers["current"] == ("POINT", 1485, 1500)
+        assert answers["intermediate"] == ("POINT", 1485, 1500)
+        assert answers["first-pass"] == (SHAPE_NOT_RECORDED, 1490, 2460)
+        assert answers["intermediate"] != answers["first-pass"], (
+            "the two unmarked layouts are different records and are read "
+            "differently; reading them the same way is the defect"
+        )
+
+    def test_rows_that_disagree_about_their_own_build_are_not_interpreted(
+        self, tmp_path: Path
+    ) -> None:
+        """Neither build wrote this, so no rule here fits it.
+
+        Both unmarked layouts wrote the shape on every gap row or on none.
+        Reading half a record under one rule and half under another would be a
+        result nobody produced, so it is reported instead.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = self.strip_to_intermediate(path)
+        document["reporting_gaps"].append(
+            {**document["reporting_gaps"][0], "event_id": "a-second-gap"}
+        )
+        del document["reporting_gaps"][1]["timing_shape"]
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "ARTIFACT_UNREADABLE"
+        note = " ".join(reloaded.notes)
+        assert "1 of 2 reporting-gap rows record a timing shape" in note
+
+    def test_a_schema_marker_that_is_not_a_number_is_reported(
+        self, tmp_path: Path
+    ) -> None:
+        """The header is inside the guard too, which it was not.
+
+        The marker was converted by `int()` before the protected parse, so a
+        record whose marker is a word raised `ValueError` and escaped as an HTTP
+        500 - one field earlier than the failure the guard was written for, and
+        the same failure. A reviewer found it by writing one.
+        """
+        run = draft()
+        execution, _, path = self.completed(tmp_path, run)
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document["artifact_schema_version"] = "not-a-number"
+        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+
+        reloaded = execution.projection(run)
+
+        assert reloaded.status == "ARTIFACT_UNREADABLE"
+        assert "is not a whole number" in " ".join(reloaded.notes)
 
     def test_the_composed_route_answers_rather_than_returning_five_hundred(
         self, tmp_path: Path
