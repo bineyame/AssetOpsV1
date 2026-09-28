@@ -2117,6 +2117,17 @@ class TestTheExecutionContractVersionMove:
     - and T021A to seven: a document that declared a reported observation
     `REQUIRED` was valid at six and is refused at seven, which is the narrowing
     direction that decision measures rather than a change in kernel behaviour.
+    T022 takes it to eight, and the narrowing is the reporting path becoming
+    decidable. Version seven said what happens to the world and left "the device
+    and reporting transform is applied" as the whole of what it said about
+    readings, so two conforming implementations could have disagreed about every
+    reading a run produced; `REPORTING_RULES` answers when a sample is due, what
+    a forced gap does to one, what a consumer sees when nothing fresh arrived and
+    whether a publication failure is drawn or chosen. The publication profile
+    moves to version two in the same slice because it now declares which signals
+    report which state, and the frozen identity reads that version - so a run of
+    an unchanged document freezes differently at eight than at seven, which is
+    the test the decision sets.
 
     The absolute numbers are written relatively where they can be. Here they
     cannot: the point of the test is that the number CHANGED and that an
@@ -2125,7 +2136,7 @@ class TestTheExecutionContractVersionMove:
     """
 
     def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
-        assert EXECUTION_CONTRACT_VERSION == 7
+        assert EXECUTION_CONTRACT_VERSION == 8
 
     def test_a_new_draft_is_stamped_with_it(self) -> None:
         record, _ = create()

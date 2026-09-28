@@ -1415,7 +1415,16 @@ def build_simulator_lab_router(
             ) from error
 
     def _port() -> LabExecutionPort:
-        """The composed execution port, or a typed answer that there is none."""
+        """The composed execution port, or a typed answer that there is none.
+
+        Asked BEFORE the run is looked up, and the order is deliberate. A build
+        with no port cannot answer any execution question about any run, so
+        reading the run store to discover that would be touching a store on
+        behalf of a capability this build does not have - the same discipline
+        `create_app` uses when it declines to build the run store with the gate
+        closed. It also makes the answer a property of the build rather than of
+        which identity was asked about.
+        """
         if execution is None:
             raise HTTPException(
                 status_code=503,
@@ -1462,9 +1471,10 @@ def build_simulator_lab_router(
         failed and one whose handle is gone are five answers this returns rather
         than five errors.
         """
+        port = _port()
         record = _run_or_404(run_id)
         try:
-            projection = _port().projection(record)
+            projection = port.projection(record)
         except LabControlRefused as error:
             raise _refused(error) from error
         return {"execution": execution_payload(projection)}
@@ -1472,9 +1482,10 @@ def build_simulator_lab_router(
     @router.post(RUN_EXECUTION_START_ROUTE)
     def start_run_execution(run_id: str) -> dict[str, object]:
         """Begin an execution of an eligible frozen Draft."""
+        port = _port()
         record = _run_or_404(run_id)
         try:
-            projection = _port().start(record)
+            projection = port.start(record)
         except LabControlRefused as error:
             raise _refused(error) from error
         return {"execution": execution_payload(projection)}
@@ -1490,10 +1501,11 @@ def build_simulator_lab_router(
         it is the position the caller believes the run is at, which a caller
         already knows because the projection it is looking at says so.
         """
+        port = _port()
         record = _run_or_404(run_id)
         boundaries, from_boundary = _parse_step_request(request)
         try:
-            projection = _port().step(
+            projection = port.step(
                 record, boundaries=boundaries, from_boundary=from_boundary
             )
         except LabControlRefused as error:
@@ -1503,9 +1515,10 @@ def build_simulator_lab_router(
     @router.post(RUN_EXECUTION_END_ROUTE)
     def run_execution_to_end(run_id: str) -> dict[str, object]:
         """Advance a started execution until its interval is covered."""
+        port = _port()
         record = _run_or_404(run_id)
         try:
-            projection = _port().run_to_end(record)
+            projection = port.run_to_end(record)
         except LabControlRefused as error:
             raise _refused(error) from error
         return {"execution": execution_payload(projection)}

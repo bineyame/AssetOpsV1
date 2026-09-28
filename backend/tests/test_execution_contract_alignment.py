@@ -745,7 +745,13 @@ class TestTheShippedFuelLossEventReachesReadyThroughTheProductPath:
                 },
                 "publication_profile": {
                     "profile_id": "simulator-lab-publication",
-                    "profile_version": 1,
+                    # Read off the profile rather than written as a literal. It
+                    # moved to version two in T022, when the profile started
+                    # declaring which signals report which state, and a literal
+                    # here would have to be found again on the next move.
+                    "profile_version": (
+                        LAB_PUBLICATION_PROFILE.publication_profile_version
+                    ),
                 },
                 "run_inputs": [],
             }
@@ -1005,7 +1011,7 @@ class TestTheShippedFuelLossEventReachesReadyThroughTheProductPath:
 class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
     """Criterion 10: old frozen runs retain their old identity."""
 
-    @pytest.mark.parametrize("earlier", [4, 6])
+    @pytest.mark.parametrize("earlier", [4, 6, 7])
     def test_an_earlier_run_is_readable_and_refused_execution(
         self, earlier: int
     ) -> None:
@@ -1016,12 +1022,18 @@ class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
         to inspect to find out why - and executing one is, because the rules
         behind its frozen inputs have changed.
 
-        Six is here since T021A, and it is the version that matters now: it is
-        what `main` was at before this narrowing and what the local run store is
-        full of. The projection such a run carries is still READ - what is
-        required at the current version is that the key be present, and what is
-        tolerated below it is that it be absent, so a record carrying one below
-        the current version is neither refused nor reinterpreted.
+        Six is here since T021A and seven since T022, and seven is the one that
+        matters now: it is what `main` was at before this narrowing and what the
+        local run store is full of. The projection such a run carries is still
+        READ - what is required at the current version is that the key be
+        present, and what is tolerated below it is that it be absent, so a record
+        carrying one below the current version is neither refused nor
+        reinterpreted.
+
+        The parametrization keeps the earlier versions rather than replacing
+        them. Each is a version some persisted Draft actually carries, and the
+        claim is about all of them: an earlier run keeps its own identity, in
+        every earlier version, not only in the most recent one.
         """
         from assetops_backend.runs.parsing import (
             parse_run_document,
@@ -1046,7 +1058,7 @@ class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
         frozen = reloaded.deterministic_identity.profiles
 
         assert frozen.execution_contract_version == earlier
-        assert EXECUTION_CONTRACT_VERSION == 7
+        assert EXECUTION_CONTRACT_VERSION == 8
         assert earlier < EXECUTION_CONTRACT_VERSION
         # Readable means the record came back whole, not merely that parsing
         # returned something.

@@ -384,7 +384,8 @@
       },
       "response": {
         "body": {
-          "run_execution": "not_implemented",
+          "run_execution": "served",
+          "run_execution_composed": false,
           "simulator_lab_enabled": true,
           "truth_overlays": "not_implemented"
         },

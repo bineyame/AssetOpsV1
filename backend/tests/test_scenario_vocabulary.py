@@ -143,8 +143,18 @@ class TestTheScenarioDomainModel:
         ):
             assert isinstance(getattr(scenario_parsing, name), frozenset)
 
-        for name in ("BOUND_POLICIES", "RECONCILIATION_STATES"):
+        # `RECONCILIATION_STATES` was here until T022 and went with the
+        # reconciliation reference implementation under
+        # `D-2026-09-22-reconciliation-panel-retirement`. `READING_CLASSES` takes
+        # its place in the scan: it is the execution module's other closed
+        # vocabulary of values a breaker word could arrive in, and it survives.
+        for name in ("BOUND_POLICIES", "READING_CLASSES"):
             assert isinstance(getattr(scenario_execution, name), frozenset)
+
+        # And the retired one really is gone rather than merely unscanned. A
+        # vocabulary the scan stopped naming but the module still exported would
+        # be a set nothing checks for a breaker word.
+        assert not hasattr(scenario_execution, "RECONCILIATION_STATES")
 
 
 class TestTheShippedDefinition:
