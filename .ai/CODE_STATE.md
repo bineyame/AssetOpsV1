@@ -3583,23 +3583,40 @@ this screen exists to prevent. That is asserted in
   them and four completed runs became an HTTP 500 on the screen that inspects
   them.
 
-  **A schema-one record is read as the result it is.** Its readings, digests and
-  counts are exactly what that build computed and are not re-derived, and each
-  gap row carries `recorded_end_offset_minutes` - the span that build resolved,
-  recoverable exactly because schema one resolved every window by one rule over
-  fields the record still carries. The row's shape is `SHAPE_NOT_RECORDED`,
-  which is not a shape and never a guess. **A record this build cannot
-  interpret** - a later schema, or one that states a schema and then lacks what
-  it requires - is reported: status `ARTIFACT_UNREADABLE`, the schema and the
-  missing field on the projection, and a typed refusal on every control, because
-  an unreadable record treated as no record would let Start overwrite the very
-  result nobody could read. Nothing is re-executed, rewritten or discarded.
+  **Three layouts exist on disk and each was written by a build on this branch.**
+  The current one says its schema. The two older ones do not, and
+  `_identify_layout` tells them apart by whether their reporting-gap rows carry
+  `timing_shape` - the exact field the later of those two builds added, and the
+  only evidence such a record holds about its own provenance. All rows or none;
+  a record whose rows disagree was written by neither and is not interpreted.
 
-  The rule is published as
-  `a-record-older-than-a-rule-is-read-as-what-it-recorded`, and version 8's
-  ledger carries the amendment. **A later slice adding a persisted field
+  **Where the shape was recorded it is honoured**, and the span follows from it
+  by `end_offset_minutes` - the same rule that build resolved with, so what is
+  shown is what was computed. **Where it was not**, each row carries
+  `recorded_end_offset_minutes`, the span that build resolved, recoverable
+  exactly because it resolved every window by one rule over fields the record
+  still carries; the shape is `SHAPE_NOT_RECORDED`, which is not a shape and
+  never a guess. **A record this build cannot interpret** - a later schema, a
+  marker that is not a whole number, disagreeing rows, or a record that states a
+  layout and then lacks what it requires - is reported: status
+  `ARTIFACT_UNREADABLE` with the reason on the projection, and a typed refusal on
+  every control, because an unreadable record treated as no record would let
+  Start overwrite the very result nobody could read. Nothing is re-executed,
+  rewritten or discarded.
+
+  **A version marker cannot name what predates it, and the first attempt proved
+  it.** The marker was added by the build that fixed the shape collapse, so the
+  build before it had already written records with the shape on them and no
+  marker. Assigning every unmarked record to the oldest known layout discarded
+  that shape and printed a note saying it had never been recorded - while it sat
+  in the same file - and turned an honest `KeyError` into a confident wrong
+  reading. That is in the published rule now, not only here:
+  `a-record-older-than-a-rule-is-read-as-what-it-recorded`, with version 8's
+  ledger carrying the third amendment. **A later slice adding a persisted field
   inherits the rule, not the mechanism**: the run store and the scenario
-  documents have their own versioning conventions and were not touched here.
+  documents have their own versioning conventions and were not touched here, and
+  the rule's second half - identify what predates the marker from what it carries
+  - is the half that is easy to skip.
 - **A window's declared instant and its resolved span are separate everywhere.**
   For a POINT they differ: an entry declared at offset 1490 in a fifteen-minute
   run silences the sample at 1485. The suppression sentence names both, the wire
@@ -3660,10 +3677,14 @@ fact is asked first now.
 R4 was a change correct going forward and silent going backward. So were three
 before it: T021's frozen runs reinterpreted by a live document, a version guard
 unable to separate two builds sharing a number, T021A's narrowing invalidating
-four authored documents, and now a schema with no reader for its own past. **A
-habit that has failed four times is not a habit**, which is why the backward path
-is a published rule with a version field behind it rather than something each
-slice is expected to remember.
+four authored documents, and then a schema with no reader for its own past.
+**And so was R4's own fix**, which is the fifth: a version marker that correctly
+identified future writes and could not identify the two historical shapes that
+lacked it. The fourth was the fix for the third and the fifth was the fix for the
+fourth. That is why the backward path is a published rule rather than something
+each slice is expected to remember, and why the rule now names its own second
+half - identifying what predates the marker from what it carries - which is the
+half that was skipped.
 
 The shape is worth recognising rather than the instance: every one of the four
 was found by somebody looking at existing data, and none by a suite, because a
