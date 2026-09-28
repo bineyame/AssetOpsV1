@@ -166,8 +166,24 @@ class YamlRunStore:
             return None
 
         path = self._root / f"{key}{DOCUMENT_SUFFIX}"
-        if not path.is_file():
-            return None
+        try:
+            if not path.is_file():
+                return None
+        except OSError as error:
+            # `is_file` answers False for "not there" and lets everything else
+            # through: a permission denial, a sharing violation, a path the
+            # filesystem will not accept. This is the one place in the read
+            # path that touches the filesystem OUTSIDE the strict reader's own
+            # translation, so without this the rule `yaml_run_documents` states
+            # in its module docstring - that an `OSError` is storage vocabulary
+            # and never crosses the seam - would hold everywhere in the run
+            # store but here, and a store this adapter could not reach would
+            # arrive at a caller as a raw error rather than as a refusal it can
+            # answer. It is the same translation `read_run_record` performs one
+            # line below, worded the same way, because it is the same fact.
+            raise RunStoreUnavailable(
+                f"Run document {path.name} could not be read"
+            ) from error
 
         record = read_run_record(path)
         if run_id_key(record.run_id) != key:

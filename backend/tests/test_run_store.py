@@ -43,6 +43,7 @@ from assetops_backend.runs.ports import (
     RunConfigurationInvalid,
     RunIdentityConflict,
     RunNotFound,
+    RunStoreUnavailable,
 )
 from assetops_backend.runs.service import RunSetupService
 
@@ -818,3 +819,62 @@ class TestASingleReadCostsOneRun:
             for path in tmp_path.iterdir()
             if not path.name.endswith(DOCUMENT_SUFFIX)
         ] == []
+
+    def test_a_stat_failure_crosses_the_seam_as_a_store_failure(
+        self,
+        ten: tuple[YamlRunStore, tuple[SimulationRun, ...]],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The one filesystem touch outside the strict reader still translates.
+
+        `is_file` answers False for "not there" and lets a permission denial, a
+        sharing violation and an unacceptable path through. Untranslated, that
+        `OSError` crosses the port and the route that answers 503 for an
+        unreachable store answers 500 instead - so the caller is told the
+        server broke rather than that the store could not be read.
+
+        Raised only for the requested document, so what is being measured is
+        the stat on the fast path rather than any other file the store touches.
+        """
+        store, records = ten
+        wanted = records[0]
+        real_is_file = Path.is_file
+
+        def denied(self: Path) -> bool:
+            if self.name == f"{wanted.run_id}{DOCUMENT_SUFFIX}":
+                raise PermissionError(13, "Access is denied")
+            return real_is_file(self)
+
+        monkeypatch.setattr(Path, "is_file", denied)
+
+        with pytest.raises(RunStoreUnavailable) as refusal:
+            store.get_run(wanted.run_id)
+
+        assert wanted.run_id in str(refusal.value)
+
+    def test_a_document_outside_the_store_is_never_opened(
+        self, tmp_path: Path
+    ) -> None:
+        """The shape check is load-bearing, and this is what it bears.
+
+        The packet for this slice called the shape check defence in depth and
+        said it had found no mutation that could fail a test without it. This
+        is that mutation's target: the identity comparison cannot prevent an
+        out-of-root read, because the file is opened and parsed BEFORE there is
+        an identity to compare. Neuter `is_allocated_run_id_key` and this
+        refusal becomes `RunConfigurationInvalid` naming a file the store does
+        not own, which is both an arbitrary read and an existence oracle.
+
+        The sentinel is deliberately not a valid run document. A valid one
+        would be refused by the identity comparison anyway, so the test would
+        pass either way and prove nothing.
+        """
+        root = tmp_path / "store"
+        root.mkdir()
+        (tmp_path / "outside.yaml").write_text(
+            "this: is: not: a run", encoding="utf-8"
+        )
+        store = YamlRunStore(root)
+
+        with pytest.raises(RunNotFound):
+            store.get_run("../outside")
