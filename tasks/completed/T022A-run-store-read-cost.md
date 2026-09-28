@@ -1,6 +1,6 @@
 # T022A - A run read that does not cost the whole store
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A hardening; unblocks the Lab as a demonstrable surface.
@@ -22,7 +22,8 @@ a demo in its first minute**, and T027 is the internal architecture demo.
 
 ## The measurement that opened it
 
-Against a store of 216 runs, on the composed `host/lab_app.py`:
+Against a store of 216 runs, on the composed `host/lab_app.py`, in one session
+on one machine:
 
 | Endpoint | Time |
 | --- | --- |
@@ -32,17 +33,27 @@ Against a store of 216 runs, on the composed `host/lab_app.py`:
 | `/api/simulator-lab/runs/{id}` | 9.06s |
 | `/api/simulator-lab/runs/{id}/execution` | 9.21s |
 
-The three run endpoints cost the same, so the cost is not in the execution
-artifact or in rendering one run. `YamlRunStore.get_run` at
+**Read the shape of this table, not its absolute seconds.** Corrected after
+implementation, because the same whole-store read was later measured by three
+readers at about 15ms, 41ms and 49ms per record - a three-fold spread on machine
+state alone, and the 8.93s above is the middle of it taken under load. The
+`/api/sites` row moved from 0.41s to 0.13s in the same session with nothing
+touching the site store, which is the warning made visible in the table itself.
+
+What does reproduce is what the task turns on. The three run endpoints cost the
+same as each other and about three thousand times `status`, so the cost is not in
+the execution artifact or in rendering one run. `YamlRunStore.get_run` at
 `backend/assetops_backend/runs/adapters/yaml_run_store.py:85` calls
 `self.list_runs()`, which calls `read_run_records(self._root)` and parses every
 stored run, then scans linearly for one id. A single-run read pays the whole
 store.
 
-This is the cost first measured in T020A at 70 Drafts and 6.8 seconds, carried
-in `.ai/MILESTONE_REVIEW_BACKLOG.md` since, and named there as wanting a
-bounded fix with an owner before T027. At 216 runs it has crossed from slow to
-unusable.
+This is the cost first measured in T020A at 70 Drafts and 6.8 seconds. It was
+believed to be carried in `.ai/MILESTONE_REVIEW_BACKLOG.md` since - by this task
+file, by T022A's packet and by `.ai/CODE_STATE.md`, all three of which cited an
+entry that did not exist until T022A's review found the dangling reference and
+the entry was written. It is now real, as "Reading the run store still costs the
+whole store, twice". At 216 runs the cost has crossed from slow to unusable.
 
 ## Deliver
 
@@ -109,4 +120,34 @@ fix it here.
 The owner steps a run and judges whether it responds. The Reviewer checks that
 strictness, identity and concurrency are unchanged and that the measurement was
 taken at the real store size.
-Review outcome: pending.
+Review outcome: accepted on independent review; **merged at the owner's
+instruction with the owner's own review outstanding.**
+
+**Independent review.** A Claude backup reviewer under `.ai/ROLE_CONFIG.md`'s
+verification routing, Codex being spared to conserve quota. It accepted the core
+- the mechanism, the fallback, the untouched write path and the strictness
+argument - and returned seven findings. One was a real defect: the single
+filesystem stat on the fast path sat outside the strict reader's `OSError`
+translation, so a permission denial escaped as a 500 where the store's own
+docstring says storage vocabulary never crosses the seam. Fixed with a guard
+that fails without it. The shape check was also proved load-bearing rather than
+defence in depth: without it the store opens a file outside its own root, which
+the identity comparison cannot prevent because it never runs on a file that will
+not parse. An incomplete Codex review of the same commit exists at
+`.agent/T022A-codex-review.md`, from a run stopped mid-pass.
+
+**A measurement withdrawn rather than corrected.** Three readers measured the
+same inventory over the same 216 documents at about 15, 41 and 49 milliseconds
+per record - a threefold spread on machine state. The absolutes are struck from
+the records rather than replaced with a fourth; what stands is the range, the
+ratios, and the three figures all three readers agreed on. `.ai/CODE_STATE.md`
+carries the rule that came out of it: an absolute measured once here is not a
+project fact.
+
+**Owner review outstanding.** Criterion 9 - that the Lab's step responds - is
+settled by the owner stepping a run, and criterion 2 - whether the inventory
+moves to libyaml - is a decision only the owner can take. Neither is closed by
+this merge. The sharpened form of criterion 2: `CSafeLoader` and `safe_load`
+produce equal documents for all 216 stored runs, so the constructor and resolver
+are settled; what is unsettled is what the two scanners **refuse**, and a corpus
+of valid documents cannot establish that.

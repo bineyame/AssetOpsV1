@@ -3755,3 +3755,125 @@ to prevent.
 - Guard probes: `.agent/T022-guard-probes.py` (11 of 11 CAUGHT) and
   `.agent/T022-return-probes.py` (4 of 4, each putting a returned defect back
   exactly as it was).
+
+## T022A - A run read that does not cost the whole store
+
+The owner found this stepping the first real run T022 delivered: everything was
+correct and every interaction took about nine seconds, which reads as a hang.
+`YamlRunStore.get_run` called `list_runs`, parsed all 216 stored documents and
+then scanned the records for one identity, so a single read paid for the whole
+store. It is the cost T020A measured at 70 Drafts and 6.8 seconds.
+
+### What a single read does now
+
+`get_run` looks for the document filed under the requested identity first. The
+file name has always been the case-folded `run_id`, and using it as a hint about
+WHERE TO LOOK is a different thing from reading identity out of it. Three
+properties keep that true, and a reader changing this code needs all three:
+
+- a key may name a file only when `is_allocated_run_id_key` says it is the shape
+  allocation produces. **This is a barrier, not defence in depth**: it is the
+  only thing that stops an out-of-root file being opened and parsed, because the
+  identity comparison below never runs on a file that will not parse. T022A's
+  packet called it defence in depth and was wrong; a reviewer found the mutation
+  that proves otherwise, and the guard now carries an out-of-root sentinel;
+- the document is read by the same strict reader the inventory uses, so the fast
+  path refuses exactly what the slow path refused;
+- the identity comes from the PARSED DOCUMENT and is compared to the key before
+  the record is returned. **This is the load-bearing barrier.** Remove it as
+  redundant and one run's frozen record can be answered under another's name.
+
+A name that leads nowhere, or to a document declaring a different run, falls
+back to the old scan. That is why a store somebody rearranged by hand still
+answers, and why a MISSING run still costs the whole store - unchanged behaviour
+on a path that is not the defect.
+
+Measured through `host/lab_app.py` against the real `var/runs` at 216 records:
+216 documents parsed becomes 1, and every wall-clock ratio sits around two
+orders of magnitude - run detail and execution read both from about nine seconds
+to under a tenth, a step from about ten seconds to about a twentieth. In a
+browser, clicking Step went from about nine and a half seconds to about an
+eighth. **Quote the ratios, not the seconds**: see the measurement warning
+below.
+
+Cost is guarded by counting documents parsed, not by timing. A clock measures
+the machine; the count measures the property.
+
+### One behaviour deliberately changed, and one bound deliberately dropped
+
+An unrelated invalid document no longer refuses a sound single read - criterion
+4 asked for that. And `MAX_DOCUMENTS` is enforced by `document_paths`, so a
+store above the bound still refuses to be enumerated and still refuses a new
+run, but a run somebody can name is now readable in one. Counting the directory
+on every read is the shape of cost the slice exists to remove.
+
+### An absolute measured once here is not a project fact
+
+Recorded because this slice got it wrong first. `read_run_records` over the same
+216 documents was measured three times by three readers and returned about
+**15 ms, 41 ms and 49 ms per record** - more than a three-fold spread on machine
+state alone, on the same corpus and the same operation. The first packet wrote
+41.3 ms and a derived threshold into this file as fact, and a reviewer's
+measurement disagreed by 2.7x. The same session had already seen `/api/sites`
+move from 0.41 s to 0.13 s with nothing touching the site store, which was the
+warning.
+
+**So quote a ratio, a share or a shape here; quote an absolute only with the
+conditions it was taken under.** What reproduced across all three readings: the
+average stored document is about 6.7 KB, the YAML scanner is about 99% of the
+inventory with the record parser under 1%, and libyaml reads the same corpus
+about eight times faster.
+
+### The inventory was measured and left alone, and it is NOT acceptable
+
+`list_runs` still reads and strictly validates every record - a partial
+inventory is a wrong answer rather than a slow one - and it costs a whole-store
+parse every time. **99% of that is the pure-Python YAML scanner**; the record
+parser is under 1%. Across the measured range the inventory passes one second
+somewhere between about 20 and 65 stored runs. **It stopped being acceptable
+long before the 216 the store now holds**, which is consistent with T020A
+finding it uncomfortable at 70 Drafts.
+
+The one lever measured to be worth anything is the constant: libyaml's scanner
+is present here and reads the same corpus about eight times faster, with the
+same `SafeConstructor` and `Resolver`, so only the scanner differs. A reviewer
+went further and confirmed the two produce EQUAL documents for all 216 stored
+runs - which settles the constructor argument and settles nothing about what the
+two scanners REFUSE, and refusal is the question. It was reported rather than
+taken, because this slice was told strictness is not what is being traded.
+**It wants an owner's decision.**
+
+`create_run` is also still O(n): `_refuse_existing_identity` calls `list_runs`,
+so setting a Draft up still pays the inventory's cost. Both costs are carried in
+`.ai/MILESTONE_REVIEW_BACKLOG.md` under "Reading the run store still costs the
+whole store, twice" - an entry T022A had to WRITE, because three documents
+including this one cited it before it existed.
+
+### What the records on disk proved before anything changed
+
+All 216 stored documents are filed under their own case-folded identity, with no
+duplicates and no non-YAML entries. That was checked FIRST, because a change to
+how a record is located is exactly the shape that is right going forward and
+silently wrong going backward. Nothing enforces the invariant and nothing needs
+to; the fallback covers a store where it does not hold, at the old cost.
+
+### Two things the review round added
+
+**The one filesystem touch outside the strict reader now translates.**
+`Path.is_file` answers False for "not there" and lets a permission denial, a
+sharing violation and an unacceptable path through. That stat sits outside
+`read_run_record`, so an `OSError` on the requested document crossed the port
+raw and a 503 became a 500 - breaking the rule `yaml_run_documents` states in
+its own docstring. Because every record in the real store is canonically filed,
+it was reachable on every read. Fixed with the same translation one line below
+it, and guarded.
+
+**Duplicate identities resolve differently now**, to the canonically filed
+document rather than to whichever path sorted first. Unreachable through
+`create_run` and absent from the store; carried, and recorded because criterion
+10 asked for the list of behaviour changes to be complete.
+
+- Packet: `.agent/T022A-review-packet.md`; reviews `.agent/T022A-review.md`
+  (Claude backup) and `.agent/T022A-codex-review.md` (incomplete); the
+  criterion-9 harness and its pre-change baseline server at
+  `.agent/T022A-step-evidence.mjs` and `.agent/T022A-before-app.py`.

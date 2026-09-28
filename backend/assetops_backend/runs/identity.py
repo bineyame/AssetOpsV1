@@ -91,3 +91,22 @@ def run_id_key(run_id: str) -> str:
     hand-edited document that capitalised one must not become a second run.
     """
     return run_id.casefold()
+
+
+def is_allocated_run_id_key(key: str) -> bool:
+    """Whether `key` is exactly the shape allocation produces.
+
+    The same question `validate_run_id` answers, asked by a caller that needs a
+    fact rather than a refusal. The store asks it before it will let a
+    comparison key name a file: a value of this shape is the prefix followed by
+    thirty-two hexadecimal characters and nothing else, so it carries no
+    separator, no parent reference and no drive letter, and a path built from it
+    cannot leave the store root. A key that fails here is one no stored document
+    could ever declare, because reading a document validates the identity it
+    declares against the same pattern.
+
+    It takes a comparison key rather than a raw identity on purpose. The
+    allocated form is already lower case, so a key that came through
+    `run_id_key` and still matches is the same value it started as.
+    """
+    return bool(RUN_ID_PATTERN.match(key))
