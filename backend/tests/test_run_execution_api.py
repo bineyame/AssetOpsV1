@@ -73,7 +73,8 @@ def projection(run_id: str, **changes) -> LabProjection:
 
     The numbers are the shipped scenario's own at offset 1545: the world holds
     254.02 L, the newest reading is the 373.52 L published before the gap opened,
-    and they disagree by the 120 L the gap hides.
+    and they differ by 119.50 L - the 120 L removal with the sensor's declared
+    -0.5 L bias taken back out.
     """
     fields = dict(
         run_id=run_id,

@@ -18,7 +18,8 @@ import type {
  * offset 1545, inside the declared reporting gap `[1490, 1580)` and past the
  * removal `[1500, 1545)`: the world holds 254.02 L, the newest reading is the
  * 373.52 L published at offset 1485 before the gap opened, and the two columns
- * therefore disagree by exactly the 120 L the gap hides. That is the demonstration,
+ * therefore differ by 119.50 L, which is the 120 L removal with the sensor's
+ * declared -0.5 L bias taken back out. That is the demonstration,
  * and a test that asserts against page text rather than against the two cells
  * would pass with the columns merged.
  */

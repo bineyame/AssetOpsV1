@@ -219,7 +219,10 @@ class ObservationView:
     The pair that carries the scenario is `true_value` moving while
     `reported_value` does not. Across the shipped reporting gap the tank loses
     120 litres and the newest reading is the one taken before the gap opened, so
-    the two columns disagree by exactly the quantity the gap hides.
+    the two columns disagree by that quantity plus whatever the instrument's
+    declared bias contributes - which is why they are two fields. A reader who
+    wants the quantity the gap hid subtracts the bias from the reported value
+    first; a reader who wants to know what the sensor said reads the column.
     """
 
     address: str

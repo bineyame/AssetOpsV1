@@ -3514,7 +3514,11 @@ entirely inside it. At offset 1545 the Lab shows:
 - quality **STALE**, outcome **SUPPRESSED_BY_GAP**, and the authored entry that
   did it named on the row.
 
-The two columns disagree by exactly the 120 L the gap hides. That is asserted in
+The two columns differ by 119.50 L. The removal is 120 L, and the difference is
+that number with the sensor's declared -0.5 L bias taken back out: 373.52 + 0.5 =
+374.02 L at offset 1485, less 254.02 L now. Saying "the columns differ by 120"
+would be reading the reported value as the world's, which is the one confusion
+this screen exists to prevent. That is asserted in
 `host/tests/test_lab_execution.py` and measured in a real browser by
 `tools/layout-evidence.mjs`.
 
@@ -3607,4 +3611,56 @@ fact is asked first now.
   docstring saying the backend cannot import the simulator failed the check. It
   was reworded rather than fixed, because loosening a dependency check inside the
   slice it blocks is the one edit that file forbids. Backlog.
-- Guard probes: `.agent/T022-guard-probes.py`.
+### What the independent review returned, and what it cost to be wrong about
+
+Three defects, and each was missed by a test that was written from the code
+rather than from the contract or from the surface a user meets. That is one
+lesson with three instances, and it is the one worth carrying.
+
+- **R1: the draw identity was not v4 section 9.2's.** It hashed the domain, the
+  stream, the seed and whatever the caller found convenient - an address and an
+  offset in minutes - where the specification names the domain, the seed, the
+  stream name, the step index and the ordinal. Deterministic, domain-separated,
+  and a different contract. **The test could not catch it because it recomputed
+  the payload the implementation had chosen.** It now writes the expected payload
+  from the specification's field list, and `draw_fraction` has no variadic
+  parameter, so a caller cannot supply an address because there is nowhere to put
+  one. The shipped run drops 12 samples where it dropped 13.
+- **R2: a READY Draft at a 30-minute timestep answered HTTP 500 on Start.** The
+  cadence check ran outside the port's exception translation and the route
+  catches only `LabControlRefused`, so the explanation naming the signal and both
+  numbers never arrived. **The test proved the lower-level object raises and
+  never drove the HTTP composition.** The check moved inside `_reporting_for`,
+  `CADENCE_NOT_EXPRESSIBLE` is a ninth control refusal, and `LabControlRefused`
+  gained a `detail` because a per-kind statement cannot name two particular
+  numbers.
+- **R3: a POINT reporting condition became an outage lasting the rest of the
+  run.** `reporting_inputs` dropped the frozen `timing_shape` and every absent
+  duration read as the interval's end, so POINT and INTERVAL_WIDE collapsed.
+  **Every test used the shipped document, which declares a WINDOW**, so the one
+  shape that worked was the only shape covered. The shape travels now,
+  `ReportingPathWindow` resolves its own span from it, and
+  `reporting-path-conditions-occupy-time-by-their-shape` publishes the rule.
+
+`EXECUTION_CONTRACT_VERSION` stays 8. R1 and R3 each narrow what a conforming
+implementation may do and would each move a number; they ride on eight because
+eight has never been published - `main` is at seven - and the ledger records the
+amendment rather than leaving it invisible after the merge. R2 moved nothing: a
+translation is not a rule.
+
+Three smaller corrections. The Lab landing page still said no simulator run
+exists and that execution was not implemented. The retained-timestamp probe's
+mutant was an undefined name, so its CAUGHT measured a `NameError` rather than a
+rejected restamping - and the test it named survived the reviewer's semantic
+mutant, because it asserted the offset and the value and never the timestamp.
+And `NOT_STARTED` said "Its frozen inputs are eligible", which a BLOCKED Draft
+renders beside its own blocking reasons.
+
+**The displayed columns differ by 119.50 L and not 120.** The removal is 120 L;
+the difference is that with the sensor's -0.5 L bias taken back out. Saying 120
+reads the reported value as the world's, which is the confusion the screen exists
+to prevent.
+
+- Guard probes: `.agent/T022-guard-probes.py` (11 of 11 CAUGHT) and
+  `.agent/T022-return-probes.py` (4 of 4, each putting a returned defect back
+  exactly as it was).

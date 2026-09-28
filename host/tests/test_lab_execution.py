@@ -24,7 +24,8 @@ about it.
 The demonstration the slice exists for is one row of the projection at offset
 1545. The world holds 254.02 L. The newest reading is the 373.52 L the sensor
 published at offset 1485, before the reporting gap `[1490, 1580)` opened. The two
-disagree by exactly the 120 L the gap hides, and the reading carries its own
+differ by 119.50 L - the 120 L removal with the sensor's -0.5 L bias taken back
+out, which the assertions below do explicitly - and the reading carries its own
 source time so nothing pretends otherwise.
 """
 
