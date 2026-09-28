@@ -106,6 +106,7 @@ from lab_execution import (
     YamlExecutionArtifacts,
     project,
 )
+from source_stages import JsonSourceStages
 
 TANK = "fuel-tank-volume@fuel-tank"
 GENERATOR = "generator-output-power@generator"
@@ -248,7 +249,11 @@ def port(tmp_path: Path) -> HostLabExecution:
     Never `var/executions`. A test that wrote there would be adding to the user's
     own data to prove something about a run built for one test.
     """
-    return HostLabExecution(artifacts=YamlExecutionArtifacts(tmp_path))
+    return HostLabExecution(
+        artifacts=YamlExecutionArtifacts(tmp_path),
+        # Never `var/stages` either, for the same reason.
+        stages=JsonSourceStages(tmp_path / "stages"),
+    )
 
 
 # --- Criterion 1: what start accepts, and what it refuses by name -----------
@@ -2576,8 +2581,12 @@ class TestExecutingADraftWritesNoSiteHistory:
     ) -> None:
         """The scope limit, as an absence of methods rather than a promise.
 
-        A caller cannot commit, stage, release an envelope, reset or inject an
-        event, because there is nothing on the port that could.
+        A caller cannot commit, release an envelope, reset or inject an event,
+        because there is nothing on the port that could.
+
+        T023 added exactly one method, `staged_envelopes`, and it is a READ.
+        Staging itself happens as a run is stepped and is not a control a
+        caller invokes, so `stage` stays absent as a name too.
         """
         execution = port(tmp_path)
 
@@ -2598,7 +2607,14 @@ class TestExecutingADraftWritesNoSiteHistory:
             name
             for name in dir(execution)
             if not name.startswith("_")
-        ) == ["forget", "projection", "run_to_end", "start", "step"]
+        ) == [
+            "forget",
+            "projection",
+            "run_to_end",
+            "staged_envelopes",
+            "start",
+            "step",
+        ]
 
 
 # --- The composed whole -----------------------------------------------------

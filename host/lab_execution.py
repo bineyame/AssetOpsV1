@@ -41,7 +41,7 @@ each other.
 from __future__ import annotations
 
 import threading
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from pathlib import Path
 
@@ -83,6 +83,17 @@ from assetops_simulator.observation.transform import (
     reported_reading,
     world_value,
 )
+from assetops_contracts.source_envelope import EnvelopeRejected, SourceMappingSet
+from assetops_contracts.source_stage import (
+    SOURCE_STAGE_STATUS_STATEMENTS,
+    SourceStageView,
+    StageConflict,
+    StageUnreadable,
+    release_blockers,
+    stage_integrity_digest,
+)
+from assetops_simulator.gateway.mappings import SIMULATOR_LAB_GATEWAY_MAPPINGS
+from assetops_simulator.gateway.publish import publish
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
 
 from execution_adapter import (
@@ -93,6 +104,7 @@ from execution_adapter import (
     reporting_inputs,
     unconfigured_signals,
 )
+from source_stages import JsonSourceStages
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
@@ -370,6 +382,17 @@ class LabSession:
     execution: Execution
     reporting: FrozenReportingInputs
     notes: tuple[str, ...]
+    #: The publication identities the Draft froze and the gateway mapping this
+    #: session stages under. The mapping is captured when the run starts, so a
+    #: change to the gateway's current mapping mid-run cannot mix two mappings
+    #: into one stage.
+    site_id: str = ""
+    source_id: str = ""
+    gateway_id: str = ""
+    mapping: SourceMappingSet = SIMULATOR_LAB_GATEWAY_MAPPINGS
+    #: What staging had to say, e.g. a refused conflicting publication. Mutable,
+    #: because it accrues as the run is stepped.
+    staging_notes: list[str] = field(default_factory=list)
 
 
 def _state_key_of(address: str) -> str:
@@ -527,7 +550,7 @@ def project(session: LabSession) -> LabProjection:
         suppressed_by_gap_count=counts.get("SUPPRESSED_BY_GAP", 0),
         dropped_count=counts.get("DROPPED", 0),
         failure=execution.failure,
-        notes=session.notes + execution.notes,
+        notes=session.notes + tuple(session.staging_notes) + execution.notes,
     )
 
 
@@ -1102,12 +1125,16 @@ class HostLabExecution:
         model: ModelSpec = MINIMAL_FUEL_MODEL,
         publication_profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
         artifacts: YamlExecutionArtifacts | None = None,
+        stages: JsonSourceStages | None = None,
+        gateway_mapping: SourceMappingSet = SIMULATOR_LAB_GATEWAY_MAPPINGS,
     ) -> None:
         self._model = model
         self._publication_profile = publication_profile
         self._artifacts = (
             YamlExecutionArtifacts() if artifacts is None else artifacts
         )
+        self._stages = JsonSourceStages() if stages is None else stages
+        self._gateway_mapping = gateway_mapping
         self._sessions: dict[str, LabSession] = {}
         self._locks: dict[str, threading.Lock] = {}
         self._registry = threading.Lock()
@@ -1266,13 +1293,21 @@ class HostLabExecution:
                 ) from broken
 
             reporting = self._reporting_for(run)
+            publication = run.deterministic_identity.publication
             session = LabSession(
                 run_id=run.run_id,
                 execution=start(inputs, self._model),
                 reporting=reporting,
                 notes=self._notes(run),
+                site_id=run.deterministic_identity.site.site_id,
+                source_id=publication.simulator_source_id or "",
+                gateway_id=publication.gateway_id or "",
+                mapping=self._gateway_mapping,
             )
             self._sessions[run.run_id] = session
+            # Staged before the artifact says the run is running, so the stage
+            # exists - and has frozen its mapping - from the run's first instant.
+            self._stage(session)
             projection = project(session)
             self._artifacts.note_running(projection)
             return projection
@@ -1324,9 +1359,114 @@ class HostLabExecution:
         raise LabControlRefused("NOT_STARTED", run.run_id)
 
     def _persisted(self, session: LabSession) -> LabProjection:
+        # The stage is written BEFORE the execution artifact, and the order is
+        # what makes release eligibility honest. Eligibility requires a
+        # COMPLETED execution; if the process dies between the two writes, the
+        # artifact still says RUNNING, the run reads back INTERRUPTED, and a
+        # stage missing its last envelopes is never presented as releasable.
+        self._stage(session)
         projection = project(session)
         self._artifacts.write(projection)
         return projection
+
+    def _stage(self, session: LabSession) -> None:
+        """Publish the reading series so far through the gateway, into the stage.
+
+        The whole series every time, which is the retry case by construction:
+        every envelope staged by an earlier step is re-published with the same
+        message id and the same content, and admission counts it as already
+        staged rather than staging it twice.
+
+        A refused admission does not stop the execution - the world has already
+        advanced - and it is not swallowed either: the stage records it and
+        becomes ineligible for release, and the projection says what happened.
+        """
+        observations = generate_observations(
+            session.execution.boundaries, session.reporting
+        )
+        try:
+            envelopes = publish(
+                observations,
+                session.mapping,
+                session.reporting.interval,
+                site_id=session.site_id,
+                source_id=session.source_id,
+                gateway_id=session.gateway_id,
+            )
+            self._stages.admit(
+                run_id=session.run_id,
+                site_id=session.site_id,
+                source_id=session.source_id,
+                gateway_id=session.gateway_id,
+                mapping=session.mapping,
+                envelopes=envelopes,
+            )
+        except (StageConflict, StageUnreadable, EnvelopeRejected) as refused:
+            note = (
+                "staging refused a publication and changed nothing already "
+                f"staged: {refused}"
+            )
+            if note not in session.staging_notes:
+                session.staging_notes.append(note)
+
+    def staged_envelopes(self, run: SimulationRun) -> SourceStageView:
+        """This Draft's staged envelopes, re-read from persistence and verified.
+
+        Never read from a live session: what the inspector presents is what a
+        reload reads, which is criterion 9's "reloaded content matches what the
+        inspector presents as releasable" as a property of where the data comes
+        from. A Draft whose live handle is gone reads exactly the same.
+        """
+        with self._lock_for(run.run_id):
+            execution_status = self._execution_status(run)
+            try:
+                stored = self._stages.read(run.run_id)
+            except StageUnreadable as unreadable:
+                return SourceStageView(
+                    run_id=run.run_id,
+                    status="STAGE_UNREADABLE",
+                    statement=SOURCE_STAGE_STATUS_STATEMENTS["STAGE_UNREADABLE"],
+                    execution_status=execution_status,
+                    release_blockers=release_blockers(
+                        "STAGE_UNREADABLE", execution_status, None
+                    ),
+                    stage=None,
+                    integrity_digest=None,
+                    unreadable_detail=unreadable.detail,
+                )
+            status = "NOT_STAGED" if stored is None else "STAGED"
+            return SourceStageView(
+                run_id=run.run_id,
+                status=status,
+                statement=SOURCE_STAGE_STATUS_STATEMENTS[status],
+                execution_status=execution_status,
+                release_blockers=release_blockers(
+                    status, execution_status, stored
+                ),
+                stage=stored,
+                integrity_digest=(
+                    None if stored is None else stage_integrity_digest(stored)
+                ),
+            )
+
+    def _execution_status(self, run: SimulationRun) -> str:
+        """Where the execution publishing into a stage is, without executing.
+
+        Cheaper than a projection and never refused: a stage is readable for a
+        Draft whatever its execution's state, including one frozen under an
+        earlier contract.
+        """
+        session = self._sessions.get(run.run_id)
+        if session is not None:
+            outcome = session.execution.outcome
+            return "RUNNING" if outcome is None else outcome
+        try:
+            stored = self._artifacts.read(run.run_id)
+        except ExecutionArtifactUnreadable:
+            return "ARTIFACT_UNREADABLE"
+        if stored is None:
+            return "NOT_STARTED"
+        return stored.status if stored.is_terminal else "INTERRUPTED"
 
     def forget(self, run_id: str) -> None:
         """Drop the live handle for one run, as a host restart would.
