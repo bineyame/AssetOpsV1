@@ -1,6 +1,6 @@
 # T023 - Persist and inspect canonical staged source envelopes
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: B preparation; does not complete A or B.
