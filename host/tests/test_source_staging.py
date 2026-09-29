@@ -734,6 +734,34 @@ class TestEligibilityRequiresStagingThroughCompletion:
         assert "STAGING_INCOMPLETE" in reloaded.release_blockers
         assert not reloaded.release_eligible
 
+    def test_a_healthy_partial_run_does_not_claim_a_staging_failure(
+        self, tmp_path: Path
+    ) -> None:
+        """R4 of the follow-up review: the blocker is right, the diagnosis was not.
+
+        A run stepped part way with nothing going wrong is short of its last
+        boundary, so it is blocked - and what it is told must not assert that a
+        write failed or a publication was refused, because neither happened.
+        """
+        from assetops_contracts.source_stage import RELEASE_BLOCKER_STATEMENTS
+
+        record = draft()
+        execution = port(tmp_path)
+        execution.start(record)
+        projection = execution.step(record, boundaries=10, from_boundary=0)
+
+        view = execution.staged_envelopes(record)
+        statement = RELEASE_BLOCKER_STATEMENTS["STAGING_INCOMPLETE"]
+
+        assert view.execution_status == "RUNNING"
+        assert not any("staging refused" in note for note in projection.notes)
+        assert view.stage.refused == ()
+        assert "STAGING_INCOMPLETE" in view.release_blockers
+        assert "expected while the run is still executing" in statement
+        # No unconditional failure claim: a failure is only ever "can mean".
+        assert "A stage write failed" not in statement
+        assert "it can mean a stage write failed" in statement
+
     def test_a_successful_run_is_published_through_its_last_boundary(
         self, tmp_path: Path
     ) -> None:

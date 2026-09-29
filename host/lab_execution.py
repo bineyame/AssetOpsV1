@@ -1365,8 +1365,13 @@ class HostLabExecution:
         # publication refusal, both reading as eligible. What does is the
         # stage's own publication watermark: eligibility requires it to reach
         # the run's last boundary, and it moves only when a stage write
-        # succeeds. The order is kept so a persisted execution record is never
-        # AHEAD of the stage it was published into.
+        # succeeds. The order does one narrower thing: when the stage write
+        # RAISES, the step aborts before the artifact is written. It does not
+        # keep the artifact behind the stage in general - a publication refusal
+        # is caught in `_stage` by design, the artifact is then written, and
+        # the persisted execution can be ahead of the stage's watermark (the
+        # review, R5, measured 106 against 105). The watermark is what keeps
+        # that divergence from reading as releasable.
         self._stage(session)
         projection = project(session)
         self._artifacts.write(projection)

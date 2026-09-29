@@ -128,11 +128,16 @@ RELEASE_BLOCKER_STATEMENTS: dict[str, str] = {
         "The persisted stage failed its integrity check, and content that cannot "
         "be verified is not releasable."
     ),
+    # What the watermark establishes and no more. It is short on every healthy
+    # run still executing, so it may not assert that anything failed: the first
+    # wording did, and the review (R4) caught it saying so of a run that was
+    # merely part way through. A failure is named as a possibility only.
     "STAGING_INCOMPLETE": (
-        "The stage has not recorded a successful publication through the end "
-        "of its run. A stage write failed or a publication was refused, so the "
-        "stage may be missing envelopes the execution produced, and a stage "
-        "that may be missing envelopes is not releasable."
+        "The stage has not yet recorded publication through the last boundary "
+        "of its run. That is expected while the run is still executing; after "
+        "it has finished, it can mean a stage write failed or a publication "
+        "was refused. Either way the stage may not hold every envelope the run "
+        "publishes, and a stage that may be incomplete is not releasable."
     ),
     "CONFLICTING_PUBLICATION": (
         "The gateway attempted to publish different content under a message id "

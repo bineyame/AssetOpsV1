@@ -3923,8 +3923,11 @@ ingested or accepted; no Site history changes.
   via a `.partial` sibling and `os.replace`. Gitignored user data, safe to
   delete; a missing stage reads `NOT_STAGED`.
 - **`host/lab_execution.py` stages on start and on every step, before writing
-  the execution artifact**, so a persisted execution record is never ahead of
-  its stage. **Write order does NOT make eligibility honest** - the first
+  the execution artifact**. That order only means a stage write that RAISES
+  aborts the step before the artifact is written; a publication refusal caught
+  in `_stage` (by design) is followed by the artifact write, so a persisted
+  execution CAN be ahead of the stage's watermark (review R5: 106 vs 105).
+  **Write order does NOT make eligibility honest** - the first
   packet said it did, and the independent review (R1) disproved it: a failed
   final stage write with the process still alive, and a publication refusal
   caught in `_stage`, both read as ELIGIBLE. What does is the stage's own

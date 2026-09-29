@@ -377,7 +377,7 @@ export const STAGED_IN_THE_GAP: RunStage = {
     {
       kind: "STAGING_INCOMPLETE",
       statement:
-        "The stage has not recorded a successful publication through the end of its run. A stage write failed or a publication was refused, so the stage may be missing envelopes the execution produced, and a stage that may be missing envelopes is not releasable.",
+        "The stage has not yet recorded publication through the last boundary of its run. That is expected while the run is still executing; after it has finished, it can mean a stage write failed or a publication was refused. Either way the stage may not hold every envelope the run publishes, and a stage that may be incomplete is not releasable.",
     },
   ],
   integrity_digest:

@@ -214,9 +214,13 @@ describe("the stage says how far it was published", () => {
     expect(
       document.querySelector("[data-stage-published-through]")?.textContent,
     ).toBe("boundary 104 of 165");
-    expect(
-      document.querySelector('[data-stage-blocker="STAGING_INCOMPLETE"]'),
-    ).not.toBeNull();
+    const blocker = document.querySelector(
+      '[data-stage-blocker="STAGING_INCOMPLETE"]',
+    );
+    expect(blocker).not.toBeNull();
+    // A healthy run part way through is incomplete, not failed (review R4).
+    expect(blocker?.textContent).toMatch(/expected while the run is still executing/);
+    expect(blocker?.textContent).not.toMatch(/A stage write failed/);
   });
 });
 
