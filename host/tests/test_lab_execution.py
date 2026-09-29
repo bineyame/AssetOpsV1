@@ -40,6 +40,7 @@ from typing import Any
 
 import pytest
 import yaml
+from lab_history import HISTORY_MARKER
 from fastapi.testclient import TestClient
 from fixtures import (
     HYBRID_TEMPLATE,
@@ -1941,7 +1942,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         rows with an offset, a duration and the interval and nothing about which
         shape produced them.
         """
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         document.pop("artifact_schema_version")
         for row in document["reporting_gaps"]:
             del row["timing_shape"]
@@ -1960,7 +1961,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         and why it assigned these records to the shapeless layout and threw the
         recorded shape away.
         """
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         document.pop("artifact_schema_version")
         for row in document["reporting_gaps"]:
             del row["recorded_end_offset_minutes"]
@@ -2230,7 +2231,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         """
         run = draft()
         execution, _, path = self.completed(tmp_path, run)
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         document["artifact_schema_version"] = "not-a-number"
         path.write_text(yaml.safe_dump(document), encoding="utf-8")
 
@@ -2293,7 +2294,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         """
         run = draft()
         execution, _, path = self.completed(tmp_path, run)
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         document["artifact_schema_version"] = (
             EXECUTION_ARTIFACT_SCHEMA_VERSION + 1
         )
@@ -2320,7 +2321,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         """
         run = draft()
         execution, _, path = self.completed(tmp_path, run)
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         document["artifact_schema_version"] = 99
         path.write_text(yaml.safe_dump(document), encoding="utf-8")
         before = path.read_bytes()
@@ -2351,7 +2352,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         """
         run = draft()
         execution, _, path = self.completed(tmp_path, run)
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         for row in document["reporting_gaps"]:
             del row["timing_shape"]
         path.write_text(yaml.safe_dump(document), encoding="utf-8")
@@ -2434,7 +2435,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         """
         run = draft()
         execution, _, path = self.completed(tmp_path, run)
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
         document["artifact_schema_version"] = 2
         for row in document["reporting_gaps"]:
             del row["timestep_minutes"]
@@ -2534,7 +2535,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         run = draft()
         _, _, path = self.completed(tmp_path, run)
 
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0])
 
         # T025a: a record without a generator keeps the schema-three layout
         # and number; four is written only when a generator is recorded.
@@ -2616,6 +2617,7 @@ class TestExecutingADraftWritesNoSiteHistory:
             if not name.startswith("_")
         ) == [
             "forget",
+            "history",
             "projection",
             "run_to_end",
             "staged_envelopes",
