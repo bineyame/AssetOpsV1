@@ -121,9 +121,11 @@ export function RunHeader({
                 recorded.coverage.filter((c) => c.availability === "RECORDED")
                   .length
               } of ${recorded.coverage.length}`}
-              {recorded.history_digest === null
-                ? "; no history digest (not a durable record)"
-                : `; history digest ${recorded.history_digest}`}
+              {recorded.source === "PERSISTED" && recorded.history_digest !== null
+                ? `; verified artifact, history digest ${recorded.history_digest}`
+                : recorded.source === "LIVE_SESSION"
+                  ? "; read from the live session, so no persisted digest is claimed"
+                  : "; not a verified durable record"}
             </span>
           )}
         </Fact>

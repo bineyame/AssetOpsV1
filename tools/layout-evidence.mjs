@@ -712,6 +712,7 @@ const READ_CHARTS = `(() => {
       id: figure.getAttribute('data-chart-panel'),
       svgWidth: svg ? Math.round(svg.getBoundingClientRect().width) : 0,
       overflows: region ? region.scrollWidth > region.clientWidth : null,
+      scrolledBy: region ? (region.scrollLeft = 99999, Math.round(region.scrollLeft)) : 0,
       paths: all('[data-chart-series]', figure).filter((p) => (p.getAttribute('d') || '').length > 0).length,
       stateRuns: all('[data-chart-state]', figure).length,
       reports: all('[data-chart-report]', figure).length,
@@ -831,6 +832,11 @@ const chartClaims = (read, page, width) => [
     "no chart pushes the page sideways",
     !page.pageScrollsHorizontally,
     `page scrollWidth ${page.pageScrollWidth} vs ${page.pageClientWidth}; svg width ${[...new Set(read.panels.map((p) => p.svgWidth))].join("/")} at ${width}; ${read.panels.filter((p) => p.overflows).length} chart regions overflow`,
+  ],
+  [
+    "every chart region that overflows scrolls inside itself",
+    read.panels.filter((p) => p.overflows).every((p) => p.scrolledBy > 0),
+    `${read.panels.filter((p) => p.overflows).length} of ${read.panels.length} overflow; scrolled ${read.panels.filter((p) => p.overflows).map((p) => p.scrolledBy).join("/") || "none"} px`,
   ],
   [
     "every table that overflows scrolls inside its own region",
@@ -2703,6 +2709,15 @@ allPass =
           read.fingerprint.length > 0 && (previous === null || read.fingerprint === previous),
           `${read.fingerprint.length} characters`,
         ],
+        ...(width <= 640
+          ? [
+              [
+                "the charts overflow their regions here, so the scrolling claim above is not vacuous",
+                read.panels.some((p) => p.overflows),
+                `${read.panels.filter((p) => p.overflows).length} overflow`,
+              ],
+            ]
+          : []),
       ]) && allPass;
     previous = read.fingerprint;
   }
