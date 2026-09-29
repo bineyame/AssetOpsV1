@@ -15,6 +15,8 @@ adjusted again from its round-two section. See
 `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
 T022B precedes T024 under `D-2026-09-29-run-store-libyaml` and owns
 T022A's outstanding inventory-cost criterion 2.
+T025 is split into T025a then T025b under
+`D-2026-09-29-t025-generator-policy-package`; T025b is A's acceptance checkpoint.
 
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
@@ -28,19 +30,20 @@ T022A's outstanding inventory-cost criterion 2.
 | 8 | T023 | B preparation | Inspect persisted canonical staged envelopes |
 | 9 | T022B | A hardening | Responsive Runs inventory and Draft setup with libyaml |
 | 10 | T024 | A | Daytime PV/storage serves three addressed loads |
-| 11 | T025 | A completion | Generator/policy change and healthy full-site run |
-| 12 | T026 | B | Dispatch evidence with one gap and one delayed publication |
-| 13 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 14 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 15 | T029 | D | Versioned assumptions translate quantity into money |
-| 16 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 17 | T034 | H | Policy action -> post-action evidence -> verification |
-| 18 | T030 | E | Fuel balance with separate delivery/dip records |
-| 19 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 20 | T032 | F completion | Paired load addition with isolated comparison history |
-| 21 | T033 | G | Battery stress trajectory and replacement exposure |
-| 22 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 23 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 11 | [T025a](T025a-healthy-generator-runtime.md) | A | Healthy full-site generator physics and contract-9 reproduction |
+| 12 | [T025b](T025b-generator-policy-and-a-acceptance.md) | A completion | Policy recipes, reported status and owner acceptance of A |
+| 13 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 14 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
+| 15 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
+| 16 | T029 | D | Versioned assumptions translate quantity into money |
+| 17 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 18 | T034 | H | Policy action -> post-action evidence -> verification |
+| 19 | T030 | E | Fuel balance with separate delivery/dip records |
+| 20 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 21 | T032 | F completion | Paired load addition with isolated comparison history |
+| 22 | T033 | G | Battery stress trajectory and replacement exposure |
+| 23 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 24 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 | - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.
@@ -48,7 +51,7 @@ The order above is the intended delivery order; a user checkpoint may redirect
 later tasks. T021A stays after T021 and is not a kernel prerequisite.
 T023 is preparatory B work; A completes before B's internal demo.
 
-**Rows 21 and 22 are an interchangeable pair.** T033 and T035 consume nothing
+**Rows 22 and 23 are an interchangeable pair.** T033 and T035 consume nothing
 from each other; both depend only on T027's evidence, T029's assumptions and
 T034's rule set. Which runs first is a product-priority call taken from
 T028/T029 feedback - backup failure and unserved customers may matter more to
@@ -205,7 +208,7 @@ Use the roadmap defaults internally, visibly labelled, without inventing approva
 Physical balance, causality, evidence coverage and claim ceilings have objective
 proofs in the owning tasks. Practitioner usefulness, physical calibration to a
 real installation and client credibility cannot be certified by automated tests.
-T025 asks the owner to judge physical behavior; T028 collects expert feedback;
+T025b asks the owner to judge physical behavior; T028 collects expert feedback;
 T034 asks whether the detect-to-verify path is showable; T036 carries the 13.3
 walkthrough. These remain human review criteria, not
 assertions that passing fixtures establish field validity.
