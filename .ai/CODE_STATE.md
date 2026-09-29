@@ -4026,12 +4026,18 @@ evidence `.agent/T022B-evidence/`.
 
 Owner corpus 223 docs / 1,504,668 B: equal under both readers. Composed
 in-process at 223, warm medians: inventory 4.14 s -> **0.73 s**, setup 9.43 s ->
-**1.57 s**. At 300 generated: ~1.1 s / ~2.3 s; at 500: 1.93 s / 4.06 s; at
-2,000: 6.8 s / 34 s (wide ranges). Browser, quiet, dev server, 223-231
-records: Runs **1.46 s** by navigation, 1.32 s in-app (API ~0.67 s, the rest
-React dev-build rendering); setup **1.58 s**. **T022A criterion 2 stays open:
-the 1 s inventory budget is missed on the dev server.** Quote conditions with
-the numbers: loaded samples on this workstation ran 3-4x slower.
+**1.57 s** - both inside the budgets at the server. At 300 generated records
+(2,305,440 B) the warm medians are 1.09 s / 2.26 s, **both over budget**: 300 is
+an observed breach point, and where between the two corpora the server stops
+meeting the budgets is not established. At 500: 1.93 s / 4.06 s; at 2,000:
+6.8 s / 34 s (wide ranges). The browser is a separate and worse result.
+Browser, dev server, 223-231 records, CPU ~50 %: Runs **1.46-1.48 s** by
+navigation, 1.32-1.37 s in-app (API ~0.67 s, the rest React dev-build
+rendering); setup through populated run detail, one clock, **median 1.86 s
+[1.73-2.37], 2 of 7 samples over 2 s** (the created summary on the setup page
+alone: 1.62 s). **T022A criterion 2 stays open: the 1 s inventory budget is
+missed on the dev server.** Quote conditions with the numbers: loaded samples
+on this workstation ran 2.5-4x slower (setup through detail 4.8 s at 86 % CPU).
 
 ### What this leaves open
 
@@ -4043,8 +4049,10 @@ the numbers: loaded samples on this workstation ran 3-4x slower.
   bound would be a new refusal rule; not added.
 - **The inventory budget.** Remaining cost at 223: ~0.65 s client rendering in
   the dev build, ~0.37 s PyYAML building Python nodes and resolving scalars on
-  top of libyaml, ~0.07 s domain parsing. O(N) retained; the interactive
-  envelope is ~300 records at the server and smaller in the browser.
+  top of libyaml, ~0.07 s domain parsing. O(N) retained. Demonstrated server
+  envelope: 223 records / 1,504,668 B passes; 300 / 2,305,440 B breaches; the
+  threshold between them is not established. The browser misses inventory
+  already at 223.
 - **No CI exists**; the backend test `test_the_installed_pyyaml_carries_libyaml`
   and `tools/run-store-evidence.py runtime` are the gates. Verified at runtime
   on Windows x86-64, Linux x86-64 and Linux aarch64 (emulated); macOS only at

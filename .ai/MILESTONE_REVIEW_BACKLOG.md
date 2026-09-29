@@ -1049,8 +1049,11 @@ went from 4.1 s to 0.73 s (inventory) and 9.4 s to 1.6 s (setup), but the Runs
 screen on the dev server still takes ~1.3-1.5 s on a quiet machine: **the 1 s
 budget is missed and T022A criterion 2 stays open.** Remaining cost at 223:
 ~0.65 s React development-build rendering of the rows, ~0.37 s PyYAML building
-Python nodes over libyaml, ~0.07 s domain parsing. The server-side envelope is
-~300 records. Deferred triggers (caching, indexing, create's scans) are now
+Python nodes over libyaml, ~0.07 s domain parsing. At the server, 223 records /
+1,504,668 B met both budgets; 300 generated records / 2,305,440 B breached both
+(warm medians 1.09 s / 2.26 s); the threshold between them is not established.
+Setup through populated run detail in the browser at 223: median 1.86 s, 2 of 7
+samples over 2 s. Deferred triggers (caching, indexing, create's scans) are now
 live; see `.agent/T022B-review-packet.md`.
 
 **This is the entry three documents already claimed existed.** T022A's packet,
