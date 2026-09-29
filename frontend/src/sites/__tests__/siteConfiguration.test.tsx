@@ -83,6 +83,7 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 
@@ -241,6 +242,14 @@ const DECLARED_SITE: SiteDetailReadModel = {
         component_id: "battery",
         basis: "SITE",
         statement: "The battery retains a reserve for evening supply.",
+      },
+    ],
+    site_controls: [
+      {
+        control_key: "source-priority",
+        members: ["pv-array", "battery"],
+        source: "TEMPLATE",
+        source_version: 2,
       },
     ],
   },

@@ -231,6 +231,20 @@ export interface SiteFoundationReadModel {
   devices: FoundationDeviceReadModel[] | null;
   signal_mappings: SignalMappingReadModel[] | null;
   control_assumptions: ControlAssumptionReadModel[] | null;
+  /**
+   * T024: typed Site Controls. Each is an ordered list of component
+   * identities naming every component of its kind once. `null` when the
+   * document declares none, which every Site created before T024 does.
+   */
+  site_controls: SiteControlReadModel[] | null;
+}
+
+/** One typed Site Control: an ordered priority list of component ids. */
+export interface SiteControlReadModel {
+  control_key: string;
+  members: string[];
+  source: string;
+  source_version: number;
 }
 
 /**

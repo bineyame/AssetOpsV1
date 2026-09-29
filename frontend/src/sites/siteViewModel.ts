@@ -411,8 +411,31 @@ export const CONTROL_PROPERTIES_NOT_DECLARED: SiteUnavailableFact = {
  */
 export const CONTROL_PROPERTIES_ARE_NOT_CONTROLS =
   "These are declared configuration values, not controls. Nothing on this " +
-  "screen issues a control action, nothing in this build writes one of these " +
-  "values to a machine, and nothing reads one to decide anything.";
+  "screen issues a control action and nothing in this build writes one of " +
+  "these values to a machine. A simulated run may read one as a frozen " +
+  "input, and nothing else reads them.";
+
+export const SITE_CONTROLS_NOT_DECLARED: SiteUnavailableFact = {
+  value: "Not declared",
+  reason:
+    "This site's foundation document declares no typed Site Control, so " +
+    "nothing here states a source or critical-load priority. A simulated run " +
+    "whose model needs one is blocked rather than given an invented order.",
+};
+
+/** What a typed Site Control is called on screen. */
+export const SITE_CONTROL_LABELS: Record<string, string> = {
+  "source-priority": "Source priority",
+  "critical-load-priority": "Critical-load priority",
+};
+
+/** One typed Site Control, as display. */
+export interface SiteControlView {
+  controlKey: string;
+  displayName: string;
+  order: string;
+  declaredBy: string;
+}
 
 export const CONTROL_ASSUMPTIONS_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
@@ -562,6 +585,7 @@ export interface SiteConfigurationView extends SiteDetailView {
   devices: SiteDeclaredSection<FoundationDeviceView>;
   signalMappings: SiteDeclaredSection<SignalMappingView>;
   controlAssumptions: SiteDeclaredSection<ControlAssumptionView>;
+  siteControls: SiteDeclaredSection<SiteControlView>;
 }
 
 /** What a topology node's role is called on screen. */
@@ -678,6 +702,7 @@ export function deriveSiteConfigurationView(
     devices: deriveDevices(site),
     signalMappings: deriveSignalMappings(site),
     controlAssumptions: deriveControlAssumptions(site),
+    siteControls: deriveSiteControls(site),
   };
 }
 
@@ -859,6 +884,27 @@ export const COMPONENT_PROPERTY_SOURCE_LABELS: Record<string, string> = {
   TEMPLATE: "Template",
   SITE: "This site",
 };
+
+export function deriveSiteControls(
+  site: SiteDetailReadModel,
+): SiteDeclaredSection<SiteControlView> {
+  const controls = site.foundation.site_controls ?? null;
+  if (controls === null) {
+    return notDeclared(SITE_CONTROLS_NOT_DECLARED);
+  }
+  const names = nameComponents(site.foundation.components);
+  return declared(
+    controls.map((control) => ({
+      controlKey: control.control_key,
+      displayName: SITE_CONTROL_LABELS[control.control_key] ?? control.control_key,
+      // The order IS the value, first to last, by the component's name.
+      order: control.members
+        .map((member) => names[member] ?? member)
+        .join(", then "),
+      declaredBy: `${label(control.source, COMPONENT_PROPERTY_SOURCE_LABELS)} version ${control.source_version}`,
+    })),
+  );
+}
 
 export function deriveControlAssumptions(
   site: SiteDetailReadModel,

@@ -265,6 +265,21 @@ function isSignalMapping(value: unknown): boolean {
   );
 }
 
+function isSiteControl(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const control = value as Record<string, unknown>;
+  return (
+    typeof control.control_key === "string" &&
+    Array.isArray(control.members) &&
+    control.members.length > 0 &&
+    control.members.every((member) => typeof member === "string") &&
+    typeof control.source === "string" &&
+    typeof control.source_version === "number"
+  );
+}
+
 function isControlAssumption(value: unknown): boolean {
   if (value === null || typeof value !== "object") {
     return false;
@@ -317,7 +332,8 @@ export function isSiteDetail(value: unknown): value is SiteDetailReadModel {
     isFoundationTopology(foundation.topology) &&
     isDeclaredOrNull(foundation.devices, isFoundationDevice) &&
     isDeclaredOrNull(foundation.signal_mappings, isSignalMapping) &&
-    isDeclaredOrNull(foundation.control_assumptions, isControlAssumption)
+    isDeclaredOrNull(foundation.control_assumptions, isControlAssumption) &&
+    isDeclaredOrNull(foundation.site_controls, isSiteControl)
   );
 }
 

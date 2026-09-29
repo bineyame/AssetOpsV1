@@ -360,6 +360,7 @@ const FOUNDATION: SiteFoundationReadModel = {
         "The battery is assumed to retain a reserve for evening supply.",
     },
   ],
+  site_controls: null,
 };
 
 export const HYBRID_MINI_GRID_SITE: SiteDetailReadModel = {
@@ -384,6 +385,7 @@ export const UNDECLARED_TOPOLOGY_SITE: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 
