@@ -33,6 +33,7 @@ from dataclasses import dataclass
 from typing import Sequence
 
 from assetops_backend.runs.models import BlockingReason, DeterministicIdentity
+from assetops_backend.runs.profiles import MODEL_PROFILES, find_model_profile
 from assetops_backend.scenarios.execution import (
     ExecutionContractIncompatible,
     refuse_incompatible_execution,
@@ -653,15 +654,37 @@ def frozen_inputs(
         )
 
     if not identity.bus_attachments:
-        rows.append(
-            FrozenInput(
-                identity_field="bus_attachments",
-                field="Bus attachments",
-                value="none needed by this profile",
-                answered_by="MODEL_PROFILE",
-                answered_by_detail=profile_detail,
-            )
+        # Empty means two different things. A profile that declares no bus
+        # arrangement needs none, and the profile is the answerer. A profile
+        # that does declare one and has none frozen was refused by the Site
+        # topology (zero or several buses) or is an older run recorded before
+        # attachments were frozen; the profile did not answer that, so the row
+        # says nothing was frozen and names the topology reason when there is
+        # one.
+        profile = find_model_profile(
+            MODEL_PROFILES, profiles.model_profile_id, profiles.model_profile_version
         )
+        if profile is not None and not profile.bus_paths:
+            rows.append(
+                FrozenInput(
+                    identity_field="bus_attachments",
+                    field="Bus attachments",
+                    value="none needed by this profile",
+                    answered_by="MODEL_PROFILE",
+                    answered_by_detail=profile_detail,
+                )
+            )
+        else:
+            rows.append(
+                FrozenInput(
+                    identity_field="bus_attachments",
+                    field="Bus attachments",
+                    value="none frozen",
+                    answered_by="SITE_FOUNDATION",
+                    answered_by_detail=site_detail,
+                    blocking_statement=explanations.get("topology"),
+                )
+            )
     for attachment in identity.bus_attachments:
         via = (
             "directly"

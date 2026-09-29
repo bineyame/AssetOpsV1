@@ -107,6 +107,7 @@ def kobo_draft(
     seed: int = 20260929,
     start_time: str = START,
     end_time: str = END,
+    run_inputs: list[dict[str, Any]] | None = None,
 ) -> SimulationRun:
     raw = copy.deepcopy(document if document is not None else kobo_document(name))
     if document_edit is not None:
@@ -142,7 +143,7 @@ def kobo_draft(
                 "profile_id": LAB_PUBLICATION_PROFILE.publication_profile_id,
                 "profile_version": LAB_PUBLICATION_PROFILE.publication_profile_version,
             },
-            "run_inputs": [],
+            "run_inputs": list(run_inputs or []),
         }
     )
 

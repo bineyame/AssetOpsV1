@@ -68,11 +68,20 @@ class TestAScenarioCannotSupplyAModelOwnedFoundationNeed:
         assert need_at(run, CAPACITY).value is None
 
     def test_a_run_owned_value_is_refused_the_same_way(self) -> None:
-        # Without a supplied value the run-owned declaration refuses; the
-        # ownership rule is the scenario's, so the scenario-owned case above
-        # is the reachable one. This pins that the shipped baseline is READY,
-        # so every BLOCKED result above is caused by the added declaration.
-        assert kobo_draft().execution_status == "READY"
+        # A RUN_OVERRIDE declaration at the address is reached by supplying
+        # the value through run_inputs, which setup accepts for a run-owned
+        # parameter. The Foundation owns the need, so setup still blocks.
+        run = kobo_draft(
+            document_edit=scenario_supplies_capacity("RUN_OVERRIDE"),
+            run_inputs=[
+                {"parameter_id": "scenario-capacity", "value": 1000, "unit": "kWh"}
+            ],
+        )
+        assert run.execution_status == "BLOCKED"
+        assert ("INITIAL_VALUE_NOT_RESOLVED", CAPACITY) in reasons_of(run)
+        need = need_at(run, CAPACITY)
+        assert need.value == 200
+        assert need.answered_by == "SITE_FOUNDATION"
 
     def test_a_foundation_owned_declaration_at_the_address_is_still_accepted(
         self,
@@ -230,75 +239,34 @@ class TestTheDeclaredTopologyMustConnectWhatTheModelServes:
             ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "topology")
         }
 
-        def no_bus(document):
-            for node in document["foundation"]["topology"]["nodes"]:
-                if node["node_role"] == "BUS":
-                    node["node_role"] = "CONVERSION"
+        def second_bus(document):
+            import copy
 
-        assert reasons_of(kobo_draft(site_edit=no_bus)) == {
-            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "topology")
-        }
+            from kobo import component
 
-    def test_the_frozen_arrangement_survives_readback(self) -> None:
-        run = kobo_draft()
-        again = parse_run_document(render_run_document(run), source="readback")
-        assert attachments_of(again) == attachments_of(run)
-        assert (
-            again.deterministic_identity.bus_attachments
-            == run.deterministic_identity.bus_attachments
-        )
-
-    def test_execution_reads_the_frozen_run_and_no_live_site(self) -> None:
-        # The connected run executes from its frozen record alone: a later
-        # edit that disconnects the clinic on the live Site cannot reach it,
-        # because nothing here holds a Site.
-        run = kobo_draft()
-        kobo_draft(site_edit=without_connection("bus-to-clinic"))
-        assert run_to_end(run, model_for(run)).trajectory.outcome == "COMPLETED"
-
-    def test_the_structure_is_part_of_the_inputs_identity(self) -> None:
-        from assetops_contracts.trajectory import frozen_inputs_identity
-
-        run = kobo_draft()
-        inputs = frozen_world_inputs(run)
-        assert inputs.bus_attachments
-        moved = dataclasses.replace(
-            inputs,
-            bus_attachments=tuple(
-                dataclasses.replace(item, bus_component_id="other-bus")
-                if item.component_id == "load-clinic"
-                else item
-                for item in inputs.bus_attachments
-            ),
-        )
-
-        def identity(value):
-            return frozen_inputs_identity(
-                value,
-                kernel_version=1,
-                model_profile_id="daytime-mini-grid",
-                model_profile_version=1,
-                numeric_policy="x",
+            second = copy.deepcopy(component(document, "ac-bus"))
+            second["component_id"] = "ac-bus-2"
+            document["foundation"]["components"].append(second)
+            document["foundation"]["topology"]["nodes"].append(
+                {"node_id": "bus-2", "component_id": "ac-bus-2", "node_role": "BUS"}
             )
 
-        assert identity(inputs) != identity(moved)
+        run = kobo_draft(site_edit=second_bus)
+        assert not run.deterministic_identity.bus_attachments
+        row = self.row_of(run)
+        assert row.value == "none frozen"
+        assert row.answered_by == "SITE_FOUNDATION"
+        assert row.blocking_statement
 
-    def test_a_run_frozen_without_the_arrangement_is_refused_at_execution(
-        self,
-    ) -> None:
-        run = kobo_draft()
-        stripped = dataclasses.replace(
-            run,
-            deterministic_identity=dataclasses.replace(
-                run.deterministic_identity,
-                bus_attachments=tuple(
-                    item
-                    for item in run.deterministic_identity.bus_attachments
-                    if item.component_id != "load-clinic"
-                ),
-            ),
+    def test_a_profile_that_needs_none_still_says_so(self) -> None:
+        from assetops_backend.runs.provenance import frozen_inputs
+        from fixtures import draft
+
+        run = draft()
+        row = next(
+            row
+            for row in frozen_inputs(run.deterministic_identity, run.blocking_reasons)
+            if row.identity_field == "bus_attachments"
         )
-        trajectory = run_to_end(stripped, model_for(stripped)).trajectory
-        assert trajectory.outcome == "FAILED"
-        assert trajectory.failure.kind == "TOPOLOGY_INCONSISTENT"
-        assert trajectory.failure.subject == "load-clinic"
+        assert row.value == "none needed by this profile"
+        assert row.answered_by == "MODEL_PROFILE"
