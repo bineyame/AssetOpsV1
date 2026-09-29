@@ -813,7 +813,10 @@ class RunSetupService:
         # Site Controls its controller reads, whether or not the scenario
         # asks (Option C).
         needs, controls, need_reasons = _freeze_model_needs(
-            site=site, model=model, initialization=initialization
+            site=site,
+            model=model,
+            initialization=initialization,
+            run_start=request.start_time,
         )
         unresolved = unresolved + need_reasons
 
@@ -1418,11 +1421,26 @@ class RunSetupService:
         return _deduplicated(reasons), tuple(optional)
 
 
+def _instant(text: str) -> datetime:
+    """A timezone-aware instant, so two instants compare as instants.
+
+    Foundation `valid_from` and the run's start are both UTC-suffixed today; an
+    explicit offset is honoured, and a value with none is refused rather than
+    guessed, because comparing a local time as if it were UTC is the error this
+    exists to prevent.
+    """
+    parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError(f"{text!r} carries no timezone offset.")
+    return parsed
+
+
 def _freeze_model_needs(
     *,
     site: SiteRecord,
     model: ModelProfile,
     initialization: tuple[FrozenInitializationInput, ...],
+    run_start: str,
 ) -> tuple[
     tuple[FrozenModelNeed, ...],
     tuple[FrozenSiteControl, ...],
@@ -1437,7 +1455,19 @@ def _freeze_model_needs(
     be two rows at two addresses - and nothing reads a live Site afterwards.
 
     A need the scenario ALSO initializes at the same address is answered by
-    that row and not frozen twice: one address has one answer.
+    that row and not frozen twice only when that row is itself answered by the
+    Foundation (a Foundation-owned declaration): one address has one answer.
+    A row answered by anyone else - the scenario or the run - is an attempt to
+    supply a physical value the model declared the Foundation's to supply. It
+    blocks with the address named, and the Foundation's own answer is still
+    resolved beside it, so the need's provenance is not lost and an absent
+    Foundation property still blocks.
+
+    **Validity is checked against run start.** The store holds one Foundation
+    version, and this build has no history service: a Foundation whose
+    `valid_from` is after the run starts cannot honestly answer for that
+    interval, so every need and control it would supply blocks instead of being
+    frozen as if it were the baseline valid at run start.
 
     Every failure blocks, and none refuses, for the reason every other
     Foundation answer blocks: a different Foundation or profile may answer.
@@ -1450,9 +1480,15 @@ def _freeze_model_needs(
     foundation_detail = (
         f"site {site.site_id} foundation version {foundation.version}"
     )
-    already = {item.addressed_key for item in initialization}
+    already = {item.addressed_key: item for item in initialization}
     needs: list[FrozenModelNeed] = []
     reasons: list[BlockingReason] = []
+    not_yet_valid = _instant(foundation.valid_from) > _instant(run_start)
+    validity = (
+        f"has valid_from {foundation.valid_from}, which is after this run "
+        f"starts at {run_start}, and this build has no Foundation history to "
+        "answer that interval from"
+    )
 
     for state_key in model.foundation_needs:
         supported = model.supported(state_key)
@@ -1483,8 +1519,38 @@ def _freeze_model_needs(
             continue
         for component in candidates:
             ref = component_state(state_key, component.component_id)
-            if ref.addressed_key in already:
+            existing = already.get(ref.addressed_key)
+            if existing is not None and existing.answered_by == "SITE_FOUNDATION":
+                if not_yet_valid:
+                    reasons.append(
+                        BlockingReason(
+                            kind="INITIAL_VALUE_NOT_RESOLVED",
+                            subject=ref.addressed_key,
+                            statement=(
+                                f"The foundation of site {site.site_id} "
+                                f"{validity}, so it cannot answer "
+                                f"{ref.addressed_key}."
+                            ),
+                        )
+                    )
                 continue
+            if existing is not None:
+                reasons.append(
+                    BlockingReason(
+                        kind="INITIAL_VALUE_NOT_RESOLVED",
+                        subject=ref.addressed_key,
+                        statement=(
+                            f"This scenario or run supplies a value for "
+                            f"{ref.addressed_key}, and {declared_by} needs it "
+                            f"from the {binding.property_key} property of "
+                            f"component {component.component_id} on the "
+                            "foundation. A physical value the model's laws "
+                            "need is the Foundation's to supply; a scenario or "
+                            "run cannot answer it, mask it, or stand in for "
+                            "an absent one."
+                        ),
+                    )
+                )
             declared = next(
                 (
                     item
@@ -1493,9 +1559,13 @@ def _freeze_model_needs(
                 ),
                 None,
             )
+            if not_yet_valid:
+                declared = None
             if declared is None or declared.unit != binding.unit:
                 missing = (
-                    f"declares no {binding.property_key}"
+                    validity
+                    if not_yet_valid
+                    else f"declares no {binding.property_key}"
                     if declared is None
                     else (
                         f"declares {binding.property_key} in {declared.unit}, "
@@ -1603,6 +1673,8 @@ def _freeze_model_needs(
             ),
             None,
         )
+        if not_yet_valid:
+            declared_control = None
         if declared_control is None:
             controls.append(
                 FrozenSiteControl(
@@ -1611,7 +1683,9 @@ def _freeze_model_needs(
                     declared_by=declared_by,
                     answered_by="SITE_FOUNDATION",
                     answered_by_detail=(
-                        f"{foundation_detail}, which declares no "
+                        f"{foundation_detail}, which {validity}"
+                        if not_yet_valid
+                        else f"{foundation_detail}, which declares no "
                         f"{control_key} Site Control"
                     ),
                     foundation_version=foundation.version,
@@ -1628,8 +1702,14 @@ def _freeze_model_needs(
                         f"{declared_by.capitalize()} needs the {control_key} "
                         f"Site Control, and the foundation of site "
                         f"{site.site_id} at version {foundation.version} "
-                        "declares none. Nothing invents a priority order: a "
-                        "Foundation that declares one is what this run needs."
+                        + (
+                            f"{validity}. "
+                            if not_yet_valid
+                            else "declares none. "
+                        )
+                        + "Nothing invents a priority order: a "
+                        "Foundation valid at run start that declares one is "
+                        "what this run needs."
                     ),
                 )
             )

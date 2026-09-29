@@ -47,6 +47,7 @@ SCENARIOS = REPOSITORY_ROOT / "config" / "scenarios"
 KOBO_SITE_ID = "KOBO-001"
 START = "2026-09-22T03:00:00Z"  # 06:00 in Africa/Addis_Ababa
 END = "2026-09-22T15:00:00Z"
+FOUNDATION_VALID_FROM = "2026-09-01T00:00:00Z"  # before START
 
 
 def kobo_document(name: str = "kobo-daytime") -> dict[str, Any]:
@@ -59,10 +60,14 @@ def kobo_site(
     site = site_from_template(
         KOBO_TEMPLATE, site_id=KOBO_SITE_ID, timezone="Africa/Addis_Ababa"
     )
-    if site_edit is None:
-        return site
+    # The template path stamps the Foundation with the wall clock, which is
+    # after the September interval these runs cover. A Foundation that begins
+    # after the run starts blocks it (T024 fix round), so the fixture's
+    # Foundation is made valid from before the run.
     document = copy.deepcopy(render_site_document(site))
-    site_edit(document)
+    document["foundation"]["valid_from"] = FOUNDATION_VALID_FROM
+    if site_edit is not None:
+        site_edit(document)
     return parse_site_document(document, source="an edited Kobo site")
 
 
@@ -100,6 +105,8 @@ def kobo_draft(
     timestep_minutes: int = 15,
     model_profile: str = "daytime-mini-grid",
     seed: int = 20260929,
+    start_time: str = START,
+    end_time: str = END,
 ) -> SimulationRun:
     raw = copy.deepcopy(document if document is not None else kobo_document(name))
     if document_edit is not None:
@@ -124,7 +131,7 @@ def kobo_draft(
             "foundation_version": site.foundation.version,
             "scenario_id": definition.scenario_id,
             "scenario_version": definition.version.scenario_version,
-            "interval": {"start_time": START, "end_time": END},
+            "interval": {"start_time": start_time, "end_time": end_time},
             "timestep_minutes": timestep_minutes,
             "seed": seed,
             "model_profile": {

@@ -76,10 +76,12 @@ def kobo_site(edit=None):
         )
     )
     site = created[0]
-    if edit is None:
-        return site
+    # The Foundation is stamped with the wall clock; the runs below start on
+    # 2026-09-22, so it is made valid from before them.
     document = copy.deepcopy(render_site_document(site))
-    edit(document)
+    document["foundation"]["valid_from"] = "2026-09-01T00:00:00Z"
+    if edit is not None:
+        edit(document)
     return parse_site_document(document, source="an edited Kobo site")
 
 
