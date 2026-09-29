@@ -93,6 +93,16 @@
   --badge-neutral-text: #334155;
   --badge-neutral-border: #cbd5e1;
 
+  /* Chart series (T025c) -------------------------------------------------- */
+  /* The first four slots of the dataviz reference categorical order, in fixed
+     order and never cycled; a Lab chart panel carries at most four truth
+     series. Each series also wears its own dash pattern and a legend entry,
+     so identity is never colour alone. Reported readings wear text ink. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+
   /* Spacing --------------------------------------------------------------- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;

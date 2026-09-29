@@ -44,6 +44,15 @@ function Invoke-ShellOverflowCheck {
     $diagramScrollClass = ".sld__scroll"
     $diagramModule = "frontend/src/sites/SiteSingleLineDiagram.tsx"
 
+    # T025c: the Lab's recorded day curves are the third. A chart spans the
+    # whole run window at the width it measures, and at a narrow viewport that
+    # is wider than the column. It gets the diagram's answer, with its own
+    # region class and its own module, and the rules below hold it to the same
+    # standard: its region declares the inline overflow, its module renders
+    # that region, and no other module draws an svg.
+    $chartScrollClass = ".history-chart__scroll"
+    $chartModule = "frontend/src/shell/HistoryCharts.tsx"
+
     if (-not (Test-Path -LiteralPath $primitivesCss -PathType Leaf)) {
         $failures.Add("Missing $primitivesCss, so every overflow rule below is unenforceable") | Out-Null
         return $failures
@@ -114,6 +123,22 @@ function Invoke-ShellOverflowCheck {
             "line diagram has an intrinsic width wider than the content " +
             "column, and without the region that owns it the drawing pushes " +
             "the rail and the workspace bar sideways.")) | Out-Null
+    }
+
+    # 1c. The chart region contains the inline axis as well.
+    $chartContainsInlineAxis = $false
+    foreach ($block in $blocks) {
+        if ($block.Selector -ne $chartScrollClass) { continue }
+        if ($block.Declarations -match '(?m)^\s*overflow(-x)?\s*:\s*(auto|scroll)\s*;') {
+            $chartContainsInlineAxis = $true
+        }
+    }
+
+    if (-not $chartContainsInlineAxis) {
+        $failures.Add(("$chartScrollClass in $primitivesCss does not declare " +
+            "'overflow-x: auto' or 'overflow-x: scroll'. A history chart spans " +
+            "the run window, and without the region that owns it the drawing " +
+            "pushes the rail and the workspace bar sideways.")) | Out-Null
     }
 
     # 2. The frame is full height standalone, and not full height nested.
@@ -188,6 +213,8 @@ function Invoke-ShellOverflowCheck {
     #    intrinsic width.
     $diagramRegionSeen = $false
     $diagramSvgSeen = $false
+    $chartRegionSeen = $false
+    $chartSvgSeen = $false
 
     foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
         $lineNumber = 0
@@ -196,6 +223,9 @@ function Invoke-ShellOverflowCheck {
 
             if ($line -match [regex]::Escape($diagramScrollClass.TrimStart("."))) {
                 if ($module.Path -eq $diagramModule) { $diagramRegionSeen = $true }
+            }
+            if ($line -match [regex]::Escape($chartScrollClass.TrimStart("."))) {
+                if ($module.Path -eq $chartModule) { $chartRegionSeen = $true }
             }
 
             # A comment naming the element is not an element. AppHeader's own
@@ -214,10 +244,15 @@ function Invoke-ShellOverflowCheck {
                 $diagramSvgSeen = $true
                 continue
             }
+            if ($module.Path -eq $chartModule) {
+                $chartSvgSeen = $true
+                continue
+            }
 
-            $failures.Add(("An svg element outside the diagram module at " +
+            $failures.Add(("An svg element outside the diagram and chart modules at " +
                 "$($module.Path):${lineNumber}: $($line.Trim()). The " +
-                "configured diagram renders through $diagramModule, which " +
+                "configured diagram renders through $diagramModule and the Lab's " +
+                "history charts through $chartModule, each of which " +
                 "supplies the region that owns its overflow. A drawing " +
                 "anywhere else has nothing between it and the document.")) | Out-Null
         }
@@ -234,6 +269,17 @@ function Invoke-ShellOverflowCheck {
             "$diagramScrollClass, so the drawing it renders has no region " +
             "that owns its overflow. The CSS rule above would then be a rule " +
             "for a class nothing uses.")) | Out-Null
+    }
+
+    if (-not $chartSvgSeen) {
+        $failures.Add(("$chartModule renders no svg element, so its " +
+            "exemption from the one-diagram-pattern check is vacuous. Update " +
+            "the check, do not delete it.")) | Out-Null
+    }
+
+    if (-not $chartRegionSeen) {
+        $failures.Add(("$chartModule does not render $chartScrollClass, so " +
+            "the charts it draws have no region that owns their overflow.")) | Out-Null
     }
 
     return $failures

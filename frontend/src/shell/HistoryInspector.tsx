@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
+import { HistoryCharts } from "./HistoryCharts";
 import type { RunHistory, RunHistoryResult } from "./runHistory";
+import type { RunElectricalStep } from "./runSetupClient";
 
 /**
  * One exact value, shown exactly. Unlike the summary panels' `ExactQuantity`,
@@ -44,8 +46,13 @@ function ExactQuantity({ value, unit }: { value: string | null; unit?: string })
  */
 export function HistoryInspector({
   result,
+  steps = null,
+  timestepMinutes = null,
 }: {
   result: RunHistoryResult | null;
+  /** The execution projection's electrical steps, when the model has them. */
+  steps?: RunElectricalStep[] | null;
+  timestepMinutes?: number | null;
 }) {
   if (result === null) {
     return (
@@ -66,10 +73,24 @@ export function HistoryInspector({
       </Panel>
     );
   }
-  return <LoadedHistory history={result.history} />;
+  return (
+    <LoadedHistory
+      history={result.history}
+      steps={steps}
+      timestepMinutes={timestepMinutes}
+    />
+  );
 }
 
-function LoadedHistory({ history }: { history: RunHistory }) {
+function LoadedHistory({
+  history,
+  steps,
+  timestepMinutes,
+}: {
+  history: RunHistory;
+  steps: RunElectricalStep[] | null;
+  timestepMinutes: number | null;
+}) {
   const last = history.boundaries[history.boundaries.length - 1];
   const [chosen, setChosen] = useState<number | null>(null);
   const selected =
@@ -149,6 +170,16 @@ function LoadedHistory({ history }: { history: RunHistory }) {
           </tbody>
         </DataTable>
       </Panel>
+
+      {selected === null ? null : (
+        <HistoryCharts
+          history={history}
+          steps={steps}
+          timestepMinutes={timestepMinutes}
+          selected={selected}
+          onSelect={setChosen}
+        />
+      )}
 
       {selected === null ? null : (
         <BoundaryRecords
