@@ -663,6 +663,88 @@ class TestDamagedContentIsAnErrorNotAStage:
 # --- Stage a complete Draft -> accepted history unchanged ----------------------
 
 
+class TestEligibilityRequiresStagingThroughCompletion:
+    """R1 of the independent review: a completed execution beside a readable
+    stage is not proof the stage holds what that execution published.
+
+    Both routes the review found are reproduced here with the process STILL
+    ALIVE - neither test calls `forget`, because the restart case was already
+    covered and was not the defect.
+    """
+
+    def test_a_failed_final_stage_write_leaves_a_live_completed_run_ineligible(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        record = draft()
+        execution = port(tmp_path)
+        execution.start(record)
+        execution.step(record, boundaries=10, from_boundary=0)
+        real_replace = os.replace
+
+        def stage_rename_dies(source, target, *args, **kwargs):
+            if str(target).endswith(".json"):
+                raise OSError("the stage rename failed")
+            return real_replace(source, target, *args, **kwargs)
+
+        monkeypatch.setattr(os, "replace", stage_rename_dies)
+        with pytest.raises(OSError):
+            execution.run_to_end(record)
+        monkeypatch.undo()
+
+        view = execution.staged_envelopes(record)
+
+        # The live session really is complete - that is what made it look
+        # eligible before the fix.
+        assert view.execution_status == "COMPLETED"
+        assert view.status == "STAGED"
+        assert view.stage.published_through == 10
+        assert view.stage.published_through < view.stage.boundaries_total
+        assert "STAGING_INCOMPLETE" in view.release_blockers
+        assert not view.release_eligible
+
+    def test_a_refused_publication_leaves_the_stage_ineligible_after_reload(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import lab_execution
+
+        record = draft()
+        execution = port(tmp_path)
+        execution.start(record)
+        execution.step(record, boundaries=10, from_boundary=0)
+
+        def refused(*_args, **_kwargs):
+            raise EnvelopeRejected(
+                "UNIT_INCOMPATIBLE", "payload.unit", "injected by the test"
+            )
+
+        monkeypatch.setattr(lab_execution, "publish", refused)
+        projection = execution.run_to_end(record)
+        monkeypatch.undo()
+
+        assert projection.status == "COMPLETED"
+        assert any("staging refused" in note for note in projection.notes)
+        live = execution.staged_envelopes(record)
+        assert live.execution_status == "COMPLETED"
+        assert "STAGING_INCOMPLETE" in live.release_blockers
+        assert not live.release_eligible
+
+        reloaded = port(tmp_path).staged_envelopes(record)
+        assert reloaded.execution_status == "COMPLETED"
+        assert reloaded.stage.published_through == 10
+        assert "STAGING_INCOMPLETE" in reloaded.release_blockers
+        assert not reloaded.release_eligible
+
+    def test_a_successful_run_is_published_through_its_last_boundary(
+        self, tmp_path: Path
+    ) -> None:
+        record, _, projection = completed(tmp_path)
+
+        stage = port(tmp_path).staged_envelopes(record).stage
+
+        assert stage.boundaries_total == projection.boundaries_total
+        assert stage.published_through == projection.boundaries_total
+
+
 class TestStagingWritesNoAcceptedHistory:
     def test_the_site_store_is_byte_identical(self, tmp_path: Path) -> None:
         before = _site_store_digest()
@@ -749,6 +831,8 @@ class TestTheInspectorApi:
         assert newest["source_time"] != newest["published_at"]
         assert payload["mapping"]["mapping_version"] == 1
         assert payload["envelope_schema_version"] == 1
+        assert payload["stage_schema_version"] == 2
+        assert payload["published_through"] == payload["boundaries_total"] > 0
         # Every value on the wire is text; no float anywhere.
         assert "." not in "".join(
             str(v) for v in _numbers(payload)

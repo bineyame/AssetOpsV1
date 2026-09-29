@@ -1359,11 +1359,14 @@ class HostLabExecution:
         raise LabControlRefused("NOT_STARTED", run.run_id)
 
     def _persisted(self, session: LabSession) -> LabProjection:
-        # The stage is written BEFORE the execution artifact, and the order is
-        # what makes release eligibility honest. Eligibility requires a
-        # COMPLETED execution; if the process dies between the two writes, the
-        # artifact still says RUNNING, the run reads back INTERRUPTED, and a
-        # stage missing its last envelopes is never presented as releasable.
+        # The stage is written before the execution artifact. That order alone
+        # does NOT make eligibility honest - the independent review showed a
+        # failed final stage write with the process still alive, and a caught
+        # publication refusal, both reading as eligible. What does is the
+        # stage's own publication watermark: eligibility requires it to reach
+        # the run's last boundary, and it moves only when a stage write
+        # succeeds. The order is kept so a persisted execution record is never
+        # AHEAD of the stage it was published into.
         self._stage(session)
         projection = project(session)
         self._artifacts.write(projection)
@@ -1378,8 +1381,10 @@ class HostLabExecution:
         staged rather than staging it twice.
 
         A refused admission does not stop the execution - the world has already
-        advanced - and it is not swallowed either: the stage records it and
-        becomes ineligible for release, and the projection says what happened.
+        advanced - and it is not swallowed either: the stage's publication
+        watermark does not move, so the stage stays ineligible for release (after
+        a reload too), a content conflict is also recorded by id, and the
+        projection says what happened.
         """
         observations = generate_observations(
             session.execution.boundaries, session.reporting
@@ -1400,6 +1405,12 @@ class HostLabExecution:
                 gateway_id=session.gateway_id,
                 mapping=session.mapping,
                 envelopes=envelopes,
+                boundaries_total=session.execution.boundaries_total,
+                # Every boundary so far was just published in full, so the
+                # watermark moves to here - but only if this write succeeds. A
+                # failed write or a refusal below leaves it where it was, and
+                # the stage stays ineligible even after its execution completes.
+                published_through=session.execution.boundaries_completed,
             )
         except (StageConflict, StageUnreadable, EnvelopeRejected) as refused:
             note = (

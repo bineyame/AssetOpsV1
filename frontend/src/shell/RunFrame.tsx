@@ -783,6 +783,13 @@ export function RunFrame({
                   {`${stage.stage.site_id} / ${stage.stage.source_id ?? ""} / ${stage.stage.gateway_id ?? ""}`}
                 </Fact>
               )}
+              {stage.stage.published_through === null ? null : (
+                <Fact term="Published through">
+                  <span data-stage-published-through>
+                    {`boundary ${stage.stage.published_through} of ${stage.stage.boundaries_total ?? "?"}`}
+                  </span>
+                </Fact>
+              )}
               <Fact term="Envelopes staged">
                 {String(stage.stage.envelopes.length)}
               </Fact>

@@ -460,6 +460,9 @@ export interface RunStage {
   envelope_schema_version: number;
   stage_schema_version: number;
   integrity_digest: string | null;
+  /** How many of its run's boundaries the stage records as published. */
+  boundaries_total: number | null;
+  published_through: number | null;
   site_id: string | null;
   source_id: string | null;
   gateway_id: string | null;
@@ -883,6 +886,8 @@ export function isRunStage(value: unknown): value is RunStage {
     typeof value.envelope_schema_version === "number" &&
     typeof value.stage_schema_version === "number" &&
     isNullableString(value.integrity_digest) &&
+    isNullableNumber(value.boundaries_total) &&
+    isNullableNumber(value.published_through) &&
     isNullableString(value.site_id) &&
     isNullableString(value.source_id) &&
     isNullableString(value.gateway_id) &&

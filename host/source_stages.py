@@ -80,6 +80,8 @@ class JsonSourceStages:
         gateway_id: str,
         mapping: SourceMappingSet,
         envelopes: Sequence[SourceEnvelope],
+        boundaries_total: int = 0,
+        published_through: int | None = None,
     ) -> Admission:
         """Append new envelopes; accept identical retries; refuse conflicts.
 
@@ -100,16 +102,22 @@ class JsonSourceStages:
                 source_id=source_id,
                 gateway_id=gateway_id,
                 mapping=mapping,
+                boundaries_total=boundaries_total,
             )
             if existing is None
             else existing
         )
         try:
-            admission = admit(stage, envelopes)
+            admission = admit(
+                stage, envelopes, published_through=published_through
+            )
         except StageConflict as conflict:
             if existing is not None:
                 self._write(with_refusal(existing, conflict))
             raise
-        if admission.added or existing is None:
+        # Written whenever anything changed, the watermark included: a batch
+        # that adds nothing but covers one more boundary is still progress, and
+        # the watermark is only ever as far as what was WRITTEN.
+        if existing is None or admission.stage != existing:
             self._write(admission.stage)
         return admission

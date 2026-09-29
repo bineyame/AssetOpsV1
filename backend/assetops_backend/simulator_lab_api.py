@@ -923,6 +923,11 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
         "envelope_schema_version": SOURCE_ENVELOPE_SCHEMA_VERSION,
         "stage_schema_version": SOURCE_STAGE_SCHEMA_VERSION,
         "integrity_digest": view.integrity_digest,
+        # How far the stage records its run as published. Eligibility needs
+        # this to reach the total; a completed execution alone cannot vouch
+        # for what the stage holds.
+        "boundaries_total": None if stage is None else stage.boundaries_total,
+        "published_through": None if stage is None else stage.published_through,
         "site_id": None if stage is None else stage.site_id,
         "source_id": None if stage is None else stage.source_id,
         "gateway_id": None if stage is None else stage.gateway_id,

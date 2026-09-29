@@ -354,8 +354,10 @@ export const NOT_STAGED: RunStage = {
   unreadable_detail: null,
   envelope_schema_id: "assetops.source-envelope",
   envelope_schema_version: 1,
-  stage_schema_version: 1,
+  stage_schema_version: 2,
   integrity_digest: null,
+  boundaries_total: null,
+  published_through: null,
   site_id: null,
   source_id: null,
   gateway_id: null,
@@ -370,9 +372,18 @@ export const STAGED_IN_THE_GAP: RunStage = {
   statement:
     "These are the canonical source envelopes the simulated gateway published for this draft, exactly as persisted and re-read from the stage. They are staged, not released: nothing has been committed, nothing has reached ingestion, and no site history, evidence or finding has been written from them.",
   execution_status: "RUNNING",
-  release_blockers: [NOT_STAGED.release_blockers[1]],
+  release_blockers: [
+    NOT_STAGED.release_blockers[1],
+    {
+      kind: "STAGING_INCOMPLETE",
+      statement:
+        "The stage has not recorded a successful publication through the end of its run. A stage write failed or a publication was refused, so the stage may be missing envelopes the execution produced, and a stage that may be missing envelopes is not releasable.",
+    },
+  ],
   integrity_digest:
     "27bccb8e5da84e80e41291d5211ff337cad675ee5a755d4c6f51c31ab8920ab7",
+  boundaries_total: 165,
+  published_through: 104,
   site_id: "MG-001",
   source_id: "simulator-lab-source",
   gateway_id: "simulator-lab-gateway",

@@ -206,6 +206,20 @@ describe("a control re-reads the persisted stage", () => {
   });
 });
 
+describe("the stage says how far it was published", () => {
+  it("shows the publication watermark and the blocker it produces", async () => {
+    renderAt(client({ status: "loaded", stage: STAGED_IN_THE_GAP }));
+    await settledScreen();
+
+    expect(
+      document.querySelector("[data-stage-published-through]")?.textContent,
+    ).toBe("boundary 104 of 165");
+    expect(
+      document.querySelector('[data-stage-blocker="STAGING_INCOMPLETE"]'),
+    ).not.toBeNull();
+  });
+});
+
 describe("an unreadable stage is shown as a failure, not as content", () => {
   it("names the integrity failure and presents no envelope", async () => {
     renderAt(client({ status: "loaded", stage: STAGE_UNREADABLE }));
@@ -304,6 +318,7 @@ describe("the stage is read from the stage route, and only behind the gate", () 
         execution_status: "COMPLETED",
         release_eligible: true,
         release_blockers: [],
+        published_through: 165,
       },
     };
     const runSetup: RunSetupClient = {

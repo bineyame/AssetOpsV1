@@ -28,6 +28,18 @@ stage reads THAT mapping. Changing the gateway's current mapping therefore canno
 reinterpret an envelope already staged, and an envelope mapped under a different
 mapping is refused at admission rather than mixed in.
 
+## Eligibility needs the stage to say how far it was published
+
+A completed execution beside a readable stage does not prove the stage holds
+what that execution published: a final write can fail while the process lives
+on, and a publication the gateway or the stage refused leaves the stage behind
+the world. So a stage records `boundaries_total` - how many boundaries the run
+it stages covers - and `published_through`, how many of them have had their
+readings published into it successfully. It moves only when an admission is
+WRITTEN, and a stage whose watermark is short of its total is not eligible
+(`STAGING_INCOMPLETE`), whatever the execution says. This is a progress record,
+not T027's seal: it says what was published, and releasing it is still Commit's.
+
 ## Integrity, and what a reader sees when it fails
 
 The persisted document carries a BLAKE2b-256 digest over its canonical content,
@@ -39,7 +51,7 @@ the inspector shows that and why, and the stage is not eligible for release.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Sequence
 
 from assetops_contracts.identity import DIGEST_NAME, identity_digest
@@ -60,7 +72,11 @@ from assetops_contracts.source_envelope import (
 
 #: The persisted stage document's own layout. Separate from the envelope schema:
 #: the envelope is what crosses to ingestion and the stage is the Lab's container.
-SOURCE_STAGE_SCHEMA_VERSION = 1
+#:
+#: Two since the T023 fix round, which added the publication watermark. Schema
+#: one never left the T023 branch; a stage written in it reads as unreadable
+#: rather than as a stage whose completeness is assumed.
+SOURCE_STAGE_SCHEMA_VERSION = 2
 
 #: Where a Draft's staging is.
 SOURCE_STAGE_STATUSES = frozenset({"NOT_STAGED", "STAGED", "STAGE_UNREADABLE"})
@@ -73,6 +89,7 @@ RELEASE_BLOCKERS = frozenset(
         "EXECUTION_NOT_COMPLETED",
         "INTEGRITY_FAILURE",
         "CONFLICTING_PUBLICATION",
+        "STAGING_INCOMPLETE",
     }
 )
 
@@ -110,6 +127,12 @@ RELEASE_BLOCKER_STATEMENTS: dict[str, str] = {
     "INTEGRITY_FAILURE": (
         "The persisted stage failed its integrity check, and content that cannot "
         "be verified is not releasable."
+    ),
+    "STAGING_INCOMPLETE": (
+        "The stage has not recorded a successful publication through the end "
+        "of its run. A stage write failed or a publication was refused, so the "
+        "stage may be missing envelopes the execution produced, and a stage "
+        "that may be missing envelopes is not releasable."
     ),
     "CONFLICTING_PUBLICATION": (
         "The gateway attempted to publish different content under a message id "
@@ -167,8 +190,21 @@ class SourceStage:
     mapping: SourceMappingSet
     envelopes: tuple[SourceEnvelope, ...] = ()
     refused: tuple[RefusedPublication, ...] = ()
+    #: How many boundaries the staged run covers, and through how many of them
+    #: every reading has been published into this stage and written.
+    boundaries_total: int = 0
+    published_through: int = 0
 
     def __post_init__(self) -> None:
+        for name in ("boundaries_total", "published_through"):
+            value = getattr(self, name)
+            if type(value) is not int or value < 0:
+                raise ValueError(f"A stage's {name} is a whole number, not {value!r}.")
+        if self.published_through > self.boundaries_total:
+            raise ValueError(
+                f"The stage for {self.run_id} claims publication through "
+                f"{self.published_through} of {self.boundaries_total} boundaries."
+            )
         seen: set[str] = set()
         for envelope in self.envelopes:
             if type(envelope) is not SourceEnvelope:
@@ -214,13 +250,22 @@ class Admission:
     already_staged: int
 
 
-def admit(stage: SourceStage, envelopes: Sequence[object]) -> Admission:
+def admit(
+    stage: SourceStage,
+    envelopes: Sequence[object],
+    *,
+    published_through: int | None = None,
+) -> Admission:
     """Append what is new; accept an identical retry; refuse a conflict.
 
     Anything that is not a `SourceEnvelope` instance is refused as
     `NOT_AN_ENVELOPE`, whatever it looks like - a dict, a projection, an
     observation. Admission is all or nothing: a conflict anywhere in the batch
-    raises before the stage changes at all.
+    raises before the stage changes at all - including its watermark.
+
+    `published_through` is how many boundaries the batch covers completely. It
+    only ever moves forward, so a stale caller cannot make a stage look less
+    published than it was - or, by passing nothing, more.
     """
     staged = {item.message_id: item for item in stage.envelopes}
     added: list[SourceEnvelope] = []
@@ -262,14 +307,14 @@ def admit(stage: SourceStage, envelopes: Sequence[object]) -> Admission:
         staged[candidate.message_id] = candidate
         added.append(candidate)
     return Admission(
-        stage=SourceStage(
-            run_id=stage.run_id,
-            site_id=stage.site_id,
-            source_id=stage.source_id,
-            gateway_id=stage.gateway_id,
-            mapping=stage.mapping,
+        stage=replace(
+            stage,
             envelopes=stage.envelopes + tuple(added),
-            refused=stage.refused,
+            published_through=(
+                stage.published_through
+                if published_through is None
+                else max(stage.published_through, published_through)
+            ),
         ),
         added=len(added),
         already_staged=repeated,
@@ -281,15 +326,7 @@ def with_refusal(stage: SourceStage, refusal: StageConflict) -> SourceStage:
     record = RefusedPublication(message_id=refusal.message_id, kind=refusal.kind)
     if record in stage.refused:
         return stage
-    return SourceStage(
-        run_id=stage.run_id,
-        site_id=stage.site_id,
-        source_id=stage.source_id,
-        gateway_id=stage.gateway_id,
-        mapping=stage.mapping,
-        envelopes=stage.envelopes,
-        refused=stage.refused + (record,),
-    )
+    return replace(stage, refused=stage.refused + (record,))
 
 
 def stage_integrity_digest(stage: SourceStage) -> str:
@@ -305,6 +342,8 @@ def stage_integrity_digest(stage: SourceStage) -> str:
             canonical_json(mapping_set_document(stage.mapping)),
             tuple(canonical_envelope_json(item) for item in stage.envelopes),
             tuple((item.message_id, item.kind) for item in stage.refused),
+            stage.boundaries_total,
+            stage.published_through,
         ]
     )
 
@@ -328,6 +367,8 @@ def stage_document(stage: SourceStage) -> dict[str, Any]:
             {"message_id": item.message_id, "kind": item.kind}
             for item in stage.refused
         ],
+        "boundaries_total": stage.boundaries_total,
+        "published_through": stage.published_through,
         "integrity": {
             "algorithm": DIGEST_NAME,
             "digest": stage_integrity_digest(stage),
@@ -351,6 +392,8 @@ _STAGE_KEYS = frozenset(
         "mapping",
         "envelopes",
         "refused",
+        "boundaries_total",
+        "published_through",
         "integrity",
     }
 )
@@ -374,6 +417,15 @@ def parse_stage_text(text: str, run_id: str) -> SourceStage:
         ) from error
     if not isinstance(document, dict):
         raise StageUnreadable(run_id, "the persisted stage is not an object")
+    # The schema first: a stage from another schema is reported as that, not
+    # as a list of the fields this schema would have wanted from it.
+    stated = document.get("stage_schema_version")
+    if type(stated) is not int or stated != SOURCE_STAGE_SCHEMA_VERSION:
+        raise StageUnreadable(
+            run_id,
+            f"it states stage schema {stated!r} and this build reads "
+            f"{SOURCE_STAGE_SCHEMA_VERSION} only",
+        )
     unknown = sorted(set(document) - _STAGE_KEYS)
     missing = sorted(_STAGE_KEYS - set(document))
     if unknown or missing:
@@ -423,6 +475,8 @@ def parse_stage_text(text: str, run_id: str) -> SourceStage:
                 )
                 for item in refused
             ),
+            boundaries_total=document["boundaries_total"],
+            published_through=document["published_through"],
         )
     except EnvelopeRejected as error:
         raise StageUnreadable(
@@ -454,7 +508,9 @@ def release_blockers(
     """Every reason a stage is not eligible for release, or none.
 
     Eligible means: the stage verified, it holds something, nothing was refused
-    into it, and the execution publishing into it completed. It does NOT mean
+    into it, the execution publishing into it completed, AND the stage itself
+    records that every boundary of that run was published into it. The last
+    condition is the one a completed execution cannot vouch for. It does NOT mean
     released - nothing in this build releases anything.
     """
     if status == "STAGE_UNREADABLE":
@@ -466,6 +522,8 @@ def release_blockers(
         blockers.append("EXECUTION_NOT_COMPLETED")
     if stage is not None and stage.refused:
         blockers.append("CONFLICTING_PUBLICATION")
+    if stage is not None and stage.published_through < stage.boundaries_total:
+        blockers.append("STAGING_INCOMPLETE")
     return tuple(blockers)
 
 
