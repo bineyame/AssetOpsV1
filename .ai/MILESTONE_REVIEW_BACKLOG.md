@@ -1117,7 +1117,13 @@ and well inside the 256 KiB size bound. The pure-Python loader raised
 `RecursionError` and the process survived. Pinned as found by
 `test_flow_nesting_a_few_thousand_deep_ends_the_process`.
 
-*Not yet safe to carry - it needs a decision.* The store's own writer cannot
+**Owner decision, 2026-09-29: accepted risk, carried until the run store moves
+to a database** (recorded by the coordinator). No database is scheduled in the
+queue, so this stays open until one is. Reopen sooner if the store starts
+accepting run files from anything but its own writer, or the Lab runs on a
+shared or unattended server.
+
+*Why it needed a decision:* the store's own writer cannot
 produce such a document, so only a hand-placed or hostile file triggers it; but
 one such file in `var/runs` takes the Lab server down on every Runs visit and
 every create, because both read the whole store.

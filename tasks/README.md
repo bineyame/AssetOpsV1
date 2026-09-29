@@ -26,7 +26,7 @@ T022A's outstanding inventory-cost criterion 2.
 | 6 | T022 | A | Start/step a Draft; inspect truth versus generated reading |
 | 7 | T022A | A hardening | A run read that does not cost the whole store |
 | 8 | T023 | B preparation | Inspect persisted canonical staged envelopes |
-| 9 | [T022B](T022B-run-store-libyaml.md) | A hardening | Responsive Runs inventory and Draft setup with libyaml |
+| 9 | T022B | A hardening | Responsive Runs inventory and Draft setup with libyaml |
 | 10 | T024 | A | Daytime PV/storage serves three addressed loads |
 | 11 | T025 | A completion | Generator/policy change and healthy full-site run |
 | 12 | T026 | B | Dispatch evidence with one gap and one delayed publication |

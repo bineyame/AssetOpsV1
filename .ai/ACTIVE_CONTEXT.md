@@ -81,10 +81,10 @@ and T022A seven. Five `float(value)` overflow sites are open, the inventory AND
 layout-evidence run. T022A had to WRITE the run-store entry three documents
 already cited: a residual living only in a packet is one nobody reads first.
 
-**T022B is built and in review** (packet in `.agent/`, user review required):
-libyaml, C extension required, API 5-6x faster at 223 runs, but **the 1 s Runs
-budget is missed on the dev server, so T022A criterion 2 stays open**, and deep
-flow nesting now crashing the process is an **open decision**. Then T024.
+**T022B is complete and merged** as a partial improvement: libyaml, C extension
+required, API 5-6x faster at 223 runs, but **the 1 s Runs budget is missed on the
+dev server, so T022A criterion 2 stays open**. The deep-nesting crash is an
+owner-accepted risk carried until a database. **T024 is active.**
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -96,8 +96,7 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **T022B** (in review), then `tasks/T024-daytime-mini-grid-runtime.md`; T023,
-   T022 and T022A in `tasks/completed/` as regression evidence.
+1. **`tasks/T024-daytime-mini-grid-runtime.md`**; T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
 2. `.ai/CODE_STATE.md`: the T022B and T023 entries, then T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which

@@ -2986,3 +2986,12 @@ points explicitly:
 Deferred with triggers, per the recommendation: removing `create_run`'s two
 identity scans, caching/indexing/storage changes, and T023's whole-stage
 rewrite (with T026). None is authorized here.
+
+Amendment, 2026-09-29, T022B: **the owner accepts the deep-nesting process
+crash as a carried risk until the run store moves to a database.** A
+hand-placed run document with flow nesting past a few thousand levels overflows
+libyaml's native stack and kills the process, where the pure-Python loader
+raised `RecursionError`. The owner decided to add no pre-load bound. No database
+is scheduled; the backlog entry names the triggers that reopen this sooner.
+Setup is measured through populated run detail. T022B closed as a partial
+improvement; T022A criterion 2 stays open.
