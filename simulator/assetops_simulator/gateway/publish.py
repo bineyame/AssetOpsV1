@@ -41,6 +41,7 @@ from assetops_contracts.source_envelope import (
     SourceMappingSet,
     envelope_message_id,
     instant_text,
+    refuse_an_enum_under_schema_1,
 )
 from assetops_contracts.world_inputs import FrozenInterval
 
@@ -113,6 +114,11 @@ def publish(
         entry = mapping.entry(item.device_id, item.signal_id)
         if entry is None or item.outcome in NOT_PUBLISHED:
             continue
+        # T025b: an allowlisted enum signal is refused, not converted - schema
+        # 1 has no way to carry `RUNNING` - whatever unit the entry claims.
+        refuse_an_enum_under_schema_1(
+            item.device_id, item.signal_id, item.canonical_unit
+        )
         measurement = MEASUREMENT_OF_READING_CLASS[item.reading_class]
         if measurement != entry.measurement:
             raise EnvelopeRejected(

@@ -723,9 +723,17 @@ export function RunFrame({
                   <td>{`${report.device_id} / ${report.signal_id}`}</td>
                   <td>{report.outcome}</td>
                   <td>
-                    {report.reported_value === null
-                      ? "nothing published"
-                      : `${report.reported_value} ${report.canonical_unit}`}
+                    {report.reported_value === null ? (
+                      "nothing published"
+                    ) : report.canonical_unit === "state" ? (
+                      // T025b: a status member is text, never "RUNNING state".
+                      <ExactQuantity
+                        value={report.reported_value}
+                        unit={report.canonical_unit}
+                      />
+                    ) : (
+                      `${report.reported_value} ${report.canonical_unit}`
+                    )}
                   </td>
                   <td className="cell-secondary">
                     {report.suppression_reason ?? ""}
@@ -741,6 +749,24 @@ export function RunFrame({
         heading="Staged source envelopes"
         headingId="run-stage-heading"
       >
+        {/* T025b: a typed status is observed and not staged - envelope schema 1
+            carries numbers only. Each such signal is named here with the
+            profile's own sentence, so the stage is not read as the whole of
+            what the run reports. */}
+        {projection === null
+          ? null
+          : projection.signals
+              .filter((signal) => signal.canonical_unit === "state")
+              .map((signal) => (
+                <p
+                  key={`${signal.device_id}-${signal.signal_id}`}
+                  className="note"
+                  data-stage-unstaged-signal={`${signal.device_id}:${signal.signal_id}`}
+                >
+                  <strong>{`${signal.device_id} / ${signal.signal_id} is observed, not staged.`}</strong>{" "}
+                  {signal.statement}
+                </p>
+              ))}
         {stage === null ? (
           <p>Loading the staged source envelopes.</p>
         ) : stage.status === "not_found" ? (

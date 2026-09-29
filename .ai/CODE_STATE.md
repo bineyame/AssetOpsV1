@@ -4194,3 +4194,47 @@ Kobo's `[pv-array, battery, generator]` the battery serves ahead of a running
 generator, so the state of charge hovers at the reserve while the generator
 charges only when the battery is not discharging. Generator status is not
 yet reported (T025b) or staged (T026).
+
+## T025b - Generator policy recipes, reported status and A acceptance
+
+Complete; owner accepted A on 2026-09-29 (`.agent/T025b-review-packet.md` is
+also A's integrated acceptance packet; Codex ACCEPT WITH CARRY). Contract 9 kept; `D-2026-09-29-t025-generator-policy-package`.
+
+### What it settled in code
+
+- **`mini-grid` v2** (`runs/profiles.py`, `packs/mini_grid.py` `resolve_v2`):
+  v1 unchanged. The stop threshold is a second overridable CONTROL
+  (`STOP_THRESHOLD_OVERRIDE`, value in (start, 100]); `ModelProfile.step_aligned_forcings`
+  makes setup block an off-step stop window as `LIFECYCLE_TIMING_NOT_ALIGNED`;
+  overlap is the kernel's runtime `FORCING_VALUE_AMBIGUOUS`. `effective_controls`
+  is (reserve, stop threshold) per step - nothing may assume index 0 is the
+  only one. v2 measures generator power over the completed interval.
+- **Shipped recipes** `kobo-mini-grid-prolonged` / `kobo-mini-grid-stop-60`
+  (03:00Z-11:00Z, 5 min), identical but for one 60 % stop override.
+- **Publication profile 4** (`LAB_PUBLICATION_PROFILE_V4`), v3 kept: typed
+  `generator-controller/status` (unit `state`, 15 min, bias 0, dropout 40/1000)
+  and 15-min generator power. An enum is marked by unit `state`; numeric error
+  on it is refused (`refuse_numeric_error_on_a_discrete_signal`). A status at T
+  reads phase-B `BoundaryState.discrete`.
+- **Artifact schema 5** only when a `state` reading is recorded (4 and 3 keep
+  their bytes). `GeneratorStepRow.reported_state/reported_quality`;
+  `GENERATOR_STATUS_REPORTED_NOT_STAGED` for profile-4 runs.
+- **Envelope** schema 1 and the fuel-only mapping unchanged;
+  `refuse_an_enum_under_schema_1` refuses an enum mapping or allowlist entry.
+- **Frontend.** Client guards type the step's reported status (closed members,
+  qualities) and refuse a `state` reading carrying a decimal or bias.
+  `GeneratorPanels` shows reported status beside physical state (fact and
+  series column, profile-4 only); `ElectricalPanels` names each effective
+  control by address; the stage panel names each `state` signal as observed,
+  not staged. Real-backend fixture `kobo-mini-grid-stop-60-execution.json`.
+- **Layout evidence** pins the T025a run to `mini-grid@1`/profile 3 and adds
+  three v2/profile-4 runs; it creates three more Drafts per run in its store.
+
+### What this leaves open
+
+Setup preselects no publication profile when two are offered (owner question).
+The owner's `var/sites/kobo-001` lacks the status signal and generator
+properties; demo on a Site created from the current template. Content digests
+differ across separately created Drafts (run metadata); reproduction is
+trajectory/step equality. Generator status staging is T026's; start-failure
+causes are T035's. Demo values await the owner's hands-on check.

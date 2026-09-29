@@ -34,7 +34,8 @@ consumer that merged them would lose the scenario:
   The `BoundaryState` docstring already separates that from "no span ended";
   this keeps the separation on the reporting side.
 
-`REPORTED` is the fifth and is the only one carrying a number.
+`REPORTED` is the fifth and is the only one carrying a value: an exact number,
+or since T025b a typed discrete member (`RUNNING`) in `DISCRETE_UNIT`.
 
 ## The draw contract, and why the stream name is inside the payload
 
@@ -65,6 +66,7 @@ import hashlib
 from dataclasses import dataclass
 from fractions import Fraction
 
+from assetops_contracts.control import DISCRETE_UNIT, check_typed_value
 from assetops_contracts.execution_contract import (
     cadence_is_expressible,
     sample_due_at,
@@ -113,6 +115,42 @@ READING_QUALITIES = frozenset({"GOOD", "STALE", "UNAVAILABLE"})
 #: here on purpose: a controller's view is not published, so no device signal
 #: may be declared for it.
 REPORTABLE_READING_CLASSES = frozenset({"STATE_SIGNAL", "INTERVAL_SIGNAL"})
+
+
+def refuse_numeric_error_on_a_discrete_signal(
+    *,
+    device_id: str,
+    signal_id: str,
+    reading_class: str,
+    canonical_unit: str,
+    bias: object,
+) -> None:
+    """T025b: a discrete (enum) signal is a state at an instant, reported as is.
+
+    A signal in `DISCRETE_UNIT` publishes the member the world holds at T -
+    `RUNNING`, not a code for it - so it is a `STATE_SIGNAL` and never an
+    interval mean, and it carries no numeric instrument error. Bias is the only
+    numeric error this build models; a non-zero bias on an enum is refused rather
+    than ignored, and so would a noise or quantization setting be if either
+    existed, because none of them means anything for a member of a closed set.
+    Missing reports (dropout, a reporting-path gap) are about whether a reading
+    exists, not about its value, so they apply to an enum unchanged.
+    """
+    if canonical_unit != DISCRETE_UNIT:
+        return
+    if reading_class != "STATE_SIGNAL":
+        raise ValueError(
+            f"Signal {signal_id!r} on {device_id!r} reports a discrete state as "
+            f"a {reading_class!r}. A discrete state is observed at an instant; "
+            "there is no mean of RUNNING and STOPPED over a span."
+        )
+    if bias:
+        raise ValueError(
+            f"Signal {signal_id!r} on {device_id!r} reports a discrete state and "
+            f"declares a bias of {bias}. Numeric bias, noise and quantization "
+            "do not apply to a member of a closed set, so they are refused on an "
+            "enum rather than silently ignored."
+        )
 
 
 class ReportingResolutionUnrepresentable(Exception):
@@ -334,6 +372,18 @@ class DeviceSignalSpec:
                 f"dropout of {self.dropout_per_thousand} per thousand, which is "
                 "not a share of the samples that were due."
             )
+        refuse_numeric_error_on_a_discrete_signal(
+            device_id=self.device_id,
+            signal_id=self.signal_id,
+            reading_class=self.reading_class,
+            canonical_unit=self.canonical_unit,
+            bias=self.bias,
+        )
+
+    @property
+    def is_discrete(self) -> bool:
+        """Whether this path publishes a typed discrete member (T025b)."""
+        return self.canonical_unit == DISCRETE_UNIT
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -648,7 +698,7 @@ class DeviceObservation:
     at_offset_minutes: int
     source_sample_time: str
     outcome: str
-    reported_value: Fraction | None
+    reported_value: Fraction | str | None
     canonical_unit: str
     suppression_reason: str | None = None
 
@@ -666,6 +716,13 @@ class DeviceObservation:
                 " value. A reading that did not happen has no number, and one "
                 "that did is not reported without it."
             )
+        check_typed_value(
+            self.reported_value,
+            self.canonical_unit,
+            f"reading {self.device_id}/{self.signal_id} at offset "
+            f"{self.at_offset_minutes}",
+            optional=True,
+        )
         if (self.outcome == "REPORTED") == (
             self.suppression_reason is not None
         ):
@@ -718,7 +775,7 @@ class ReportedReading:
     signal_id: str
     reading_class: str
     at_offset_minutes: int
-    value: Fraction | None
+    value: Fraction | str | None
     source_sample_time: str | None
     source_offset_minutes: int | None
     quality: str

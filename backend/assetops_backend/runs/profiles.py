@@ -64,7 +64,7 @@ is refused.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from assetops_backend.runs.models import (
     FrozenObservationBinding,
@@ -72,7 +72,10 @@ from assetops_backend.runs.models import (
 )
 from assetops_backend.scenarios.models import ObservationSource
 from assetops_backend.state_refs import STATE_SCOPES
-from assetops_contracts.observation import REPORTABLE_READING_CLASSES
+from assetops_contracts.observation import (
+    REPORTABLE_READING_CLASSES,
+    refuse_numeric_error_on_a_discrete_signal,
+)
 
 
 @dataclass(frozen=True)
@@ -208,7 +211,15 @@ class SupportedState:
 #:
 #: One member today, which is the honest size of it. The build knows one
 #: reporting-path state because the shipped scenario declares one.
-REPORTING_PATH_STATES = frozenset({"fuel-level-reporting-availability"})
+#:
+#: T025b adds the second: whether the generator controller's status path is
+#: carrying readings, declared by publication profile 4 only.
+REPORTING_PATH_STATES = frozenset(
+    {
+        "fuel-level-reporting-availability",
+        "generator-status-reporting-availability",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -350,6 +361,12 @@ class ModelProfile:
     #: model moves lifecycle state at step boundaries only.
     discrete_states: tuple[DiscreteStateDeclaration, ...] = ()
     step_aligned_needs: tuple[str, ...] = ()
+    #: T025b. State keys whose scenario override windows must start and end on
+    #: the run's step boundaries, because the controller reads them at T only
+    #: (generator policy). Setup blocks a window the step cannot express, or a
+    #: timing shape that is not a window, with `LIFECYCLE_TIMING_NOT_ALIGNED`.
+    #: Every key named here must be an overridable CONTROL of this profile.
+    step_aligned_forcings: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         for _, participant, via in self.bus_paths:
@@ -380,6 +397,19 @@ class ModelProfile:
                     "from the Foundation and does not declare it as a "
                     "component-scoped CAUSAL_INPUT state with a Foundation "
                     "binding. A need names the binding that answers it."
+                )
+        for key in self.step_aligned_forcings:
+            state = self.supported(key)
+            if (
+                key not in self.foundation_needs
+                or state is None
+                or "FORCING_INPUT" not in state.supported_roles
+            ):
+                raise ValueError(
+                    f"Model profile {self.model_profile_id!r} requires "
+                    f"step-aligned override windows on {key!r}, which it does "
+                    "not declare as an overridable Foundation need (a need "
+                    "that also supports FORCING_INPUT)."
                 )
         for need in self.initialization_needs:
             state = self.supported(need)
@@ -484,6 +514,14 @@ class DeviceSignalDeclaration:
                 f"dropout of {self.dropout_per_thousand} per thousand, which is "
                 "not a share of the samples that were due."
             )
+        # T025b: an enum signal is a state at an instant with no numeric error.
+        refuse_numeric_error_on_a_discrete_signal(
+            device_id=self.device_id,
+            signal_id=self.signal_id,
+            reading_class=self.reading_class,
+            canonical_unit=self.canonical_unit,
+            bias=self.bias,
+        )
 
     @property
     def signal_key(self) -> tuple[str, str]:
@@ -1134,6 +1172,61 @@ MINI_GRID_MODEL = ModelProfile(
     step_aligned_needs=("generator-minimum-runtime", "generator-start-delay"),
 )
 
+
+def _overridable_need(
+    state_key: str,
+    component_type: str,
+    property_key: str,
+    unit: str,
+    statement: str,
+) -> SupportedState:
+    """A Foundation-answered CONTROL a scenario may also override in a window.
+
+    T025b (`D-2026-09-29-t025-generator-policy-package`, Q3). The Foundation
+    answers the baseline, frozen with its provenance as a model need; a
+    scenario FORCING_INPUT at the same address replaces it absolutely on its
+    half-open window and the baseline returns at the window's end
+    (`a-control-override-replaces-its-baseline`). Only profile-declared
+    numeric CONTROL properties are overridable.
+    """
+    need = _need(state_key, component_type, property_key, unit, statement)
+    return replace(need, supported_roles=frozenset({"CAUSAL_INPUT", "FORCING_INPUT"}))
+
+
+#: T025b. `mini-grid` v2: v1 unchanged beside it, plus one overridable CONTROL
+#: address - the generator's stop threshold - beside the battery reserve every
+#: electrical profile already lets a scenario override. A new version because
+#: a published profile identity is never edited in place: a run frozen
+#: against v1 keeps meaning what it meant. Generator-policy windows must be
+#: step-aligned, since the controller reads policy at T only.
+MINI_GRID_V2_MODEL = replace(
+    MINI_GRID_MODEL,
+    model_profile_version=2,
+    statement=(
+        MINI_GRID_MODEL.statement
+        + " A scenario may override two of the Site's CONTROL values across a "
+        "window - the battery's reserve and the generator's stop threshold - "
+        "each replacing its frozen Foundation baseline on [start, end) only, "
+        "after which the baseline applies again. A stop-threshold window must "
+        "start and end on the run's step boundaries."
+    ),
+    supported_states=tuple(
+        _overridable_need(
+            "generator-stop-soc-threshold",
+            "GENERATOR",
+            "stop-soc-threshold",
+            "%",
+            "Site policy: the generator is requested to stop at or above it. "
+            "A scenario may override it across a step-aligned window; the "
+            "frozen Foundation value is the baseline outside it.",
+        )
+        if item.state_key == "generator-stop-soc-threshold"
+        else item
+        for item in MINI_GRID_MODEL.supported_states
+    ),
+    step_aligned_forcings=("generator-stop-soc-threshold",),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -1356,13 +1449,104 @@ LAB_PUBLICATION_PROFILE = PublicationProfile(
     ),
 )
 
+#: ## Version four since T025b, beside version three rather than over it
+#:
+#: Two generator reporting paths change, and a run of an unchanged document
+#: would generate a different series, so the version moves. Unlike three, four
+#: is ADDED: version three stays registered and stays executable, so a run
+#: frozen under it keeps its readings, digests and stored readback
+#: (`D-2026-09-29-t025-generator-policy-package`: publication profile 4 moves
+#: only when its contract changes, with prior readers kept).
+#:
+#: - `generator-controller/status` is new: the generator's lifecycle member
+#:   (`STOPPED`/`STARTING`/`RUNNING`/`FAILED`) as a typed discrete reading in
+#:   unit `state`, sampled at T after that instant's due transitions. No bias,
+#:   noise or quantization - an enum refuses them - and one sample in
+#:   twenty-five does not arrive, so a missing status and a retained (STALE)
+#:   one are visible in an ordinary run.
+#: - `generator-controller/ac-power` publishes every fifteen minutes rather than
+#:   hourly, reporting the mean output over the completed step. It reports only
+#:   for a model that measures generator output over the interval (the fuel
+#:   model, `mini-grid` v2).
+#: - `generator-status-reporting-availability` lets a scenario silence the
+#:   status path across a window. Like the fuel path's, it is a condition on
+#:   the path and moves nothing physical.
+#:
+#: Generator status is not staged: envelope schema 1 carries numbers only, the
+#: gateway's allowlist stays fuel-only, and a mapping promising an enum under
+#: schema 1 is refused. T026 owns staging it.
+LAB_PUBLICATION_PROFILE_V4 = replace(
+    LAB_PUBLICATION_PROFILE,
+    publication_profile_version=4,
+    statement=(
+        LAB_PUBLICATION_PROFILE.statement
+        + " Version four adds the generator controller's typed status reading "
+        "and publishes its output power every fifteen minutes; generator status "
+        "is observed here and not yet staged."
+    ),
+    supported_reporting_states=LAB_PUBLICATION_PROFILE.supported_reporting_states
+    + (
+        SupportedReportingState(
+            state_key="generator-status-reporting-availability",
+            scope="COMPONENT",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            statement=(
+                "Whether the generator controller's status reporting path is "
+                "carrying readings can be forced across a declared window. It "
+                "changes nothing the generator does and nothing its controller "
+                "decides; it changes which status readings exist."
+            ),
+            silences=(("generator-controller", "status"),),
+        ),
+    ),
+    device_signals=tuple(
+        replace(
+            declaration,
+            cadence_minutes=15,
+            statement=(
+                "The generator controller publishes its mean output over the "
+                "completed step every fifteen minutes, with no measurement "
+                "error and losing no sample. The mean is the accepted energy "
+                "the fuel was debited for, divided by the span."
+            ),
+        )
+        if declaration.signal_key == ("generator-controller", "ac-power")
+        else declaration
+        for declaration in LAB_PUBLICATION_PROFILE.device_signals
+    )
+    + (
+        DeviceSignalDeclaration(
+            device_id="generator-controller",
+            signal_id="status",
+            state_key="generator-state",
+            reading_class="STATE_SIGNAL",
+            canonical_unit="state",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=40,
+            statement=(
+                "The generator controller publishes the generator's lifecycle "
+                "state every fifteen minutes as the member it is - STOPPED, "
+                "STARTING, RUNNING or FAILED - sampled at that instant after the "
+                "transitions already due there, so a start the controller "
+                "requests at that instant is not in it. One sample in "
+                "twenty-five does not arrive. It is not staged: T026 owns that."
+            ),
+        ),
+    ),
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
+    MINI_GRID_V2_MODEL,
 )
 
-PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (LAB_PUBLICATION_PROFILE,)
+PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
+    LAB_PUBLICATION_PROFILE,
+    LAB_PUBLICATION_PROFILE_V4,
+)
 
 
 def find_model_profile(

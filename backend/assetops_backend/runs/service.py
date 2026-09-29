@@ -1733,6 +1733,48 @@ def _check_discrete_and_timing(
                     ),
                 )
             )
+    # T025b. A generator-policy override window is read by the controller at
+    # T only, so it must start and end on the run's step boundaries; one the
+    # step cannot express, or a timing that is not a window, blocks rather
+    # than being rounded, applied early or silently skipped.
+    aligned = set(model.step_aligned_forcings)
+    for entry in scenario.timeline if aligned else ():
+        if entry.execution_role != "FORCING_INPUT":
+            continue
+        for parameter in entry.parameters:
+            ref = parameter.state_ref
+            if ref is None or ref.state_key not in aligned:
+                continue
+            shape = entry.timing.shape
+            start = entry.offset_minutes
+            end = start + (entry.timing.duration_minutes or 0)
+            if shape == "INTERVAL_WIDE":
+                continue
+            if shape != "WINDOW" or end <= start:
+                problem = (
+                    f"its timing is {shape} and a policy override needs a "
+                    "window with a positive length"
+                )
+            elif start % timestep_minutes or end % timestep_minutes:
+                problem = (
+                    f"its window [{start}, {end}) does not start and end on "
+                    f"this run's {timestep_minutes}-min step boundaries"
+                )
+            else:
+                continue
+            reasons.append(
+                BlockingReason(
+                    kind="LIFECYCLE_TIMING_NOT_ALIGNED",
+                    subject=ref.addressed_key,
+                    statement=(
+                        f"Timeline entry {entry.event_id} overrides "
+                        f"{ref.addressed_key}, and {problem}. "
+                        f"{declared_by.capitalize()} reads generator policy at "
+                        "step boundaries only, so an override window is never "
+                        "rounded or applied part-way through a step."
+                    ),
+                )
+            )
     return tuple(reasons)
 
 

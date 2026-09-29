@@ -66,7 +66,7 @@ def world_value(
     boundary: BoundaryState,
     signal: DeviceSignalSpec,
     span_minutes: int | None,
-) -> Fraction | None:
+) -> Fraction | str | None:
     """The private quantity one signal would report at one boundary, or nothing.
 
     A `STATE_SIGNAL` reads the sample taken at this instant and an
@@ -81,7 +81,17 @@ def world_value(
     is 45 kW, and that is the number a controller's power telemetry carries. The
     division is exact, so the mean of a dispatch forced at 45 kW is 45 kW and not
     44.999999999999996.
+
+    T025b: a discrete signal reads the member the world holds at T -
+    `BoundaryState.discrete`, taken after the transitions already due at T and
+    before anything a request emitted at T can cause (kernel phase B). So a
+    sample coinciding with a due transition observes the new member, and a
+    request the controller emits at T is not observed retroactively: its effect
+    is a transition at a later boundary, and that boundary's sample sees it.
+    The member is returned as the text it is, never a code.
     """
+    if signal.is_discrete:
+        return boundary.discrete_state(signal.address)
     if signal.reading_class == "STATE_SIGNAL":
         return boundary.state_sample(signal.address)
     measured = boundary.interval_measurement(signal.address)
@@ -101,7 +111,7 @@ def _attempt(
     def observation(
         outcome: str,
         *,
-        value: Fraction | None = None,
+        value: Fraction | str | None = None,
         reason: str | None = None,
     ) -> DeviceObservation:
         return DeviceObservation(
@@ -195,6 +205,9 @@ def _attempt(
             ),
         )
 
+    if isinstance(value, str):
+        # A discrete member is reported as is: the spec refused any bias.
+        return observation("REPORTED", value=value)
     return observation("REPORTED", value=value + signal.bias)
 
 

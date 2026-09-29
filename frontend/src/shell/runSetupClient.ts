@@ -455,6 +455,17 @@ export interface RunGeneratorStep {
   fuel_start: string;
   fuel_end: string;
   limited_by: string[];
+  /**
+   * T025b: the newest generator status reading at or before T - a lifecycle
+   * member - and its quality. It is a READING beside the physical state, never
+   * a replacement for it: at a 15-minute status cadence the steps between
+   * samples show a STALE member while the world has moved on. The state is
+   * `null` with quality UNAVAILABLE before any reading arrived, and both are
+   * `null` when the run's publication profile publishes no status (every
+   * profile-3 run).
+   */
+  reported_state: string | null;
+  reported_quality: string | null;
 }
 
 /** One lifecycle transition, with its phase, cause and instant. */
@@ -821,11 +832,35 @@ function isPrivateStateRow(value: unknown): value is RunPrivateStateRow {
   );
 }
 
+/**
+ * T025b: a reading in unit `state` carries a member's text (`"RUNNING"`), never
+ * a decimal, and a discrete signal has no numeric error. A decimal arriving
+ * here would be a status disguised as a number - the thing the envelope
+ * refuses - so the screen refuses it too rather than showing it.
+ */
+function isNullableMemberText(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    (typeof value === "string" && /^[A-Z][A-Z_]*$/.test(value))
+  );
+}
+
+function isDiscreteReadingSound(value: Record<string, unknown>): boolean {
+  return (
+    value.canonical_unit !== "state" ||
+    (isNullableMemberText(value.true_value) &&
+      isNullableMemberText(value.reported_value) &&
+      (value.bias === undefined || value.bias === "0"))
+  );
+}
+
 function isObservationRow(value: unknown): value is RunObservationRow {
   if (!isRecord(value)) {
     return false;
   }
   return (
+    isDiscreteReadingSound(value) &&
     typeof value.address === "string" &&
     typeof value.state_key === "string" &&
     typeof value.device_id === "string" &&
@@ -864,7 +899,8 @@ function isDeviceSignal(value: unknown): value is RunDeviceSignal {
     typeof value.cadence_minutes === "number" &&
     typeof value.bias === "string" &&
     typeof value.dropout_per_thousand === "number" &&
-    typeof value.statement === "string"
+    typeof value.statement === "string" &&
+    isDiscreteReadingSound(value)
   );
 }
 
@@ -900,7 +936,8 @@ function isRecentReport(value: unknown): value is RunRecentReport {
     typeof value.outcome_statement === "string" &&
     isNullableString(value.reported_value) &&
     typeof value.canonical_unit === "string" &&
-    isNullableString(value.suppression_reason)
+    isNullableString(value.suppression_reason) &&
+    isDiscreteReadingSound(value)
   );
 }
 
@@ -1043,6 +1080,12 @@ const GENERATOR_STATES: readonly string[] = [
   "FAILED",
 ];
 const GENERATOR_REQUESTS: readonly string[] = ["RUN", "STOP"];
+/** T025b: the reading qualities a reported generator status can carry. */
+const REPORTED_QUALITIES: readonly string[] = ["GOOD", "STALE", "UNAVAILABLE"];
+
+function isNullableMember(value: unknown, allowed: readonly string[]): boolean {
+  return value === null || isMember(value, allowed);
+}
 
 function isMember(value: unknown, allowed: readonly string[]): boolean {
   return typeof value === "string" && allowed.includes(value);
@@ -1075,7 +1118,11 @@ export function isRunGenerator(value: unknown): value is RunGenerator {
         isMember(item.state_at_t, GENERATOR_STATES) &&
         isMember(item.state_for_step, GENERATOR_STATES) &&
         isMember(item.requested, GENERATOR_REQUESTS) &&
-        isStringArray(item.limited_by),
+        isStringArray(item.limited_by) &&
+        isNullableMember(item.reported_state, GENERATOR_STATES) &&
+        isNullableMember(item.reported_quality, REPORTED_QUALITIES) &&
+        // A member needs a quality; an UNAVAILABLE quality may carry none.
+        (item.reported_state === null || item.reported_quality !== null),
     ) &&
     everyRecord(
       value.transitions,

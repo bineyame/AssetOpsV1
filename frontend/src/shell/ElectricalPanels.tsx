@@ -45,6 +45,12 @@ export function ExactQuantity({
   );
 }
 
+/** A control's name is its state key: the address before its `@component`. */
+function controlName(address: string): string {
+  const at = address.indexOf("@");
+  return at < 0 ? address : address.slice(0, at);
+}
+
 function offsetSpan(from: number, to: number): string {
   return `[${from}, ${to}) min`;
 }
@@ -68,7 +74,10 @@ export function ElectricalPanels({ electrical }: { electrical: RunElectrical }) 
   if (latest === undefined) {
     return null;
   }
-  const reserve = electrical.latest_effective_controls;
+  // Every Site control in effect at this step: the reserve, and under
+  // `mini-grid` v2 the generator stop threshold too (T025b). Each row is named
+  // by its own address; none is assumed to be the reserve.
+  const effective = electrical.latest_effective_controls;
   return (
     <>
       <Panel
@@ -277,7 +286,7 @@ export function ElectricalPanels({ electrical }: { electrical: RunElectrical }) 
       </Panel>
 
       <Panel
-        heading="What the controller saw, and the reserve in effect"
+        heading="What the controller saw, and the controls in effect"
         headingId="run-view-heading"
         flush
       >
@@ -302,15 +311,17 @@ export function ElectricalPanels({ electrical }: { electrical: RunElectrical }) 
                 </td>
               </tr>
             ))}
-            {reserve.map((item) => (
+            {effective.map((item) => (
               <tr
-                key={`reserve-${item.from_offset}`}
+                key={`${item.address}-${item.from_offset}`}
                 data-effective-control={item.origin}
+                data-effective-control-address={item.address}
               >
-                <th scope="row">{`reserve over ${offsetSpan(item.from_offset, item.to_offset)}`}</th>
-                <td>{item.provenance}</td>
+                <th scope="row">{`${controlName(item.address)} in effect over ${offsetSpan(item.from_offset, item.to_offset)}`}</th>
+                <td>{item.address}</td>
                 <td>
                   <ExactQuantity value={item.value} unit={item.unit} />
+                  {` (${item.origin.toLowerCase()}: ${item.provenance})`}
                 </td>
               </tr>
             ))}

@@ -85,7 +85,7 @@ Site runs PV, a battery and three addressed loads through a controller, a
 declared-cascade resolver and exact balances, under contract **9**, Option C
 and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
 Record in `.ai/CODE_STATE.md`. **T025a is complete and merged** (`mini-grid` v1,
-contract 9 kept, gate `host/tests/contract9_gate`); **T025b is next** (`D-2026-09-29-t025-generator-policy-package`).
+contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T026 is next.**
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -97,8 +97,8 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **`tasks/T025b-generator-policy-and-a-acceptance.md`** once activated; T025a, T024, T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
-2. `.ai/CODE_STATE.md`: the T024, T022B and T023 entries, then T022, T021A, T021, T020B.
+1. **`tasks/T026-dispatch-capable-evidence.md`** (next; not yet started); T025b, T025a, T024, T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
+2. `.ai/CODE_STATE.md`: the T025b, T025a and T024 entries, then T022B, T023, T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
    records T021A at version 7 and T022 at 8.

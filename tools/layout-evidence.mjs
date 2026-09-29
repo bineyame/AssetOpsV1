@@ -2106,7 +2106,10 @@ const SUBMIT_MINI_GRID_SETUP = SUBMIT_KOBO_SETUP.replace(
 )
   .replace('"2026-09-22T15:00:00Z"', '"2026-09-22T17:00:00Z"')
   .replace('setValue("run-setup-timestep", "15")', 'setValue("run-setup-timestep", "5")')
-  .replace('"daytime-mini-grid"', '"mini-grid"')
+  // Pinned to mini-grid v1 and publication profile 3: T025b offers v2 and 4
+  // beside them, and the form preselects neither.
+  .replace('"daytime-mini-grid"', '"mini-grid@1"')
+  .replace('"simulator-lab-publication")', '"simulator-lab-publication@3")')
   // `choose` matches by substring, and "mini-grid" is inside "daytime-mini-grid".
   .replace('item.value.includes(fragment)', 'item.value.startsWith(fragment)');
 
@@ -2239,6 +2242,180 @@ for (const [label, width, height] of [
         : []),
     ]) && allPass;
 }
+
+// --- T025b: healthy, prolonged and changed-policy runs, profile 4 ----------
+//
+// Three Drafts against the same Site, each `mini-grid` v2 under publication
+// profile 4 at 5-minute steps and each run to its end: the shipped
+// `kobo-mini-grid-evening` (09:00Z-17:00Z, healthy), and the shipped
+// `kobo-mini-grid-prolonged` and `kobo-mini-grid-stop-60` (03:00Z-11:00Z),
+// identical but for the stop-threshold override. The claims are the ones the
+// owner inspects by hand: the reported status column beside the physical
+// state (with GOOD and STALE both present, so it is not a column of blanks),
+// both controls in effect named by address, the stop-threshold origin, the
+// earlier STOPPED of the 60 % run and its larger fuel remainder, and the
+// status disclosed as observed and not staged. The 640 px pass proves the
+// wider generator series still scrolls inside its own region.
+const submitV2Setup = (start, end) =>
+  SUBMIT_KOBO_SETUP.replace('"2026-09-22T03:00:00Z"', JSON.stringify(start))
+    .replace('"2026-09-22T15:00:00Z"', JSON.stringify(end))
+    .replace('setValue("run-setup-timestep", "15")', 'setValue("run-setup-timestep", "5")')
+    .replace('"daytime-mini-grid"', '"mini-grid@2"')
+    .replace('"simulator-lab-publication")', '"simulator-lab-publication@4")')
+    .replace("item.value.includes(fragment)", "item.value.startsWith(fragment)");
+
+const READ_V2_RUN = `(() => {
+  const text = (element) => (element ? (element.textContent || '').trim() : null);
+  const all = (selector) => Array.from(document.querySelectorAll(selector));
+  return {
+    status: document.querySelector('[data-execution-status]')?.getAttribute('data-execution-status') ?? null,
+    steps: all('[data-generator-step]').length,
+    reportedCells: all('[data-generator-step-reported]').map((cell) =>
+      cell.getAttribute('data-generator-step-reported'),
+    ),
+    transitions: all('[data-generator-transition]').map(
+      (row) => row.getAttribute('data-generator-transition') + '@' + text(row.querySelector('th')),
+    ),
+    controls: all('[data-effective-control-address]').map(
+      (row) => row.getAttribute('data-effective-control-address') + '=' + row.getAttribute('data-effective-control'),
+    ),
+    stopValue: text(document.querySelector('[data-effective-control-address^="generator-stop"] td:last-child')),
+    stateAtT: text(document.querySelector('[data-generator-state-at-t]')),
+    reportedState: text(document.querySelector('[data-generator-reported-state]')),
+    fuelEnd: text(document.querySelector('[data-generator-fuel-end]')),
+    unstaged: all('[data-stage-unstaged-signal]').map((item) => item.getAttribute('data-stage-unstaged-signal')),
+    statusObserved: text(document.querySelector('[data-observation="generator-controller:status"] [data-observation-true]')),
+  };
+})()`;
+
+const seenHrefs = new Set([koboHref, miniHref]);
+const v2Runs = {};
+for (const [name, start, end] of [
+  ["kobo-mini-grid-evening", "2026-09-22T09:00:00Z", "2026-09-22T17:00:00Z"],
+  ["kobo-mini-grid-prolonged", "2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"],
+  ["kobo-mini-grid-stop-60", "2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"],
+]) {
+  await visit(cdp, `/simulator-lab/scenarios/${name}/run-setup`, 1280, 800, "form", {
+    script: submitV2Setup(start, end),
+    waitFor: ".data-table__scroll",
+  });
+  const listed = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const href = listed.runRows.find((row) => row.status === "READY")?.href ?? null;
+  if (href === null || seenHrefs.has(href)) {
+    throw new Error(
+      `No new READY mini-grid v2 Draft of ${name} was found against ${KOBO_SITE}. ` +
+        "Does the Site carry the generator-controller status signal and policy properties?",
+    );
+  }
+  seenHrefs.add(href);
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Start this run"),
+    waitFor: "[data-execution-status='RUNNING']",
+  });
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Run to the end"),
+    waitFor: "[data-execution-status='COMPLETED']",
+  });
+  v2Runs[name] = href;
+}
+
+const v2Reads = {};
+for (const [name, href] of Object.entries(v2Runs)) {
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ...(name === "kobo-mini-grid-stop-60" ? [["640x700", 640, 700]] : []),
+  ]) {
+    const page = await visit(cdp, href, width, height, "[data-generator-step]");
+    const read = (
+      await cdp.send("Runtime.evaluate", { expression: READ_V2_RUN, returnByValue: true })
+    ).result.value;
+    v2Reads[name] = read;
+    const series = page.scrollers.find((s) => s.name === "run-generator-series-heading");
+    const qualities = new Set(read.reportedCells);
+    allPass =
+      report(`T025b ${name}, mini-grid v2 / profile 4, run to its end, at ${label}`, page, [
+        [
+          "the run completed and the series has a row per step, and there are some",
+          read.status === "COMPLETED" &&
+            read.steps === 96 &&
+            series !== undefined &&
+            series.rowCount === 96,
+          `${read.status}, ${read.steps} step rows`,
+        ],
+        [
+          "every step row has a reported-status cell, with GOOD and STALE both present",
+          read.reportedCells.length === read.steps && qualities.has("GOOD") && qualities.has("STALE"),
+          `${read.reportedCells.length} cells, qualities ${[...qualities].join(",")}`,
+        ],
+        [
+          "the reported status is drawn beside the physical state at T",
+          read.stateAtT !== null && (read.reportedState ?? "").length > 0,
+          `physical ${read.stateAtT}, reported ${read.reportedState}`,
+        ],
+        [
+          "both controls in effect are named by address",
+          read.controls.length === 2 &&
+            read.controls[0].startsWith("battery-reserve-state-of-charge@battery=") &&
+            read.controls[1].startsWith("generator-stop-soc-threshold@generator="),
+          `${read.controls.join("; ")}; stop ${read.stopValue}`,
+        ],
+        [
+          "the status is disclosed as observed and not staged, and read as a member",
+          read.unstaged.join(",") === "generator-controller:status" &&
+            /^[A-Z]+$/.test(read.statusObserved ?? ""),
+          `unstaged ${read.unstaged.join(",") || "none"}; status true value ${read.statusObserved}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+        [
+          "every table that overflows scrolls inside its own region",
+          page.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+          page.scrollers
+            .map((s) => `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`)
+            .join("; "),
+        ],
+        ...(width <= 640
+          ? [
+              [
+                "the generator series overflows here, so the claim above is not vacuous",
+                series !== undefined && series.overflows,
+                series === undefined ? "absent" : series.overflows ? "overflows" : "fits",
+              ],
+            ]
+          : []),
+      ]) && allPass;
+  }
+}
+
+const prolongedRead = v2Reads["kobo-mini-grid-prolonged"];
+const changedRead = v2Reads["kobo-mini-grid-stop-60"];
+const stoppedAt = (read) =>
+  read.transitions.find((item) => item.startsWith("STOPPED@")) ?? "none";
+const policyChecks = [
+  [
+    "the stop threshold is the baseline in one run and the override in the other",
+    Boolean(prolongedRead.controls[1]?.endsWith("=BASELINE")) &&
+      Boolean(changedRead.controls[1]?.endsWith("=OVERRIDE")),
+    `prolonged ${prolongedRead.controls[1]} (${prolongedRead.stopValue}); changed ${changedRead.controls[1]} (${changedRead.stopValue})`,
+  ],
+  [
+    "the 60 % run stops earlier (07:10Z against 09:15Z)",
+    stoppedAt(changedRead) === "STOPPED@2026-09-22T07:10:00Z" &&
+      stoppedAt(prolongedRead) === "STOPPED@2026-09-22T09:15:00Z",
+    `changed ${stoppedAt(changedRead)}; prolonged ${stoppedAt(prolongedRead)}`,
+  ],
+  [
+    "the 60 % run ends with more fuel (272.3 L against 259.8 L)",
+    changedRead.fuelEnd === "272.3 L" && prolongedRead.fuelEnd === "259.8 L",
+    `changed ${changedRead.fuelEnd}; prolonged ${prolongedRead.fuelEnd}`,
+  ],
+];
+allPass =
+  report("T025b prolonged (stop 90 %) against changed policy (stop 60 %)", null, policyChecks) &&
+  allPass;
 
 console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
 

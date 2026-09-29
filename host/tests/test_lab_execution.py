@@ -2541,7 +2541,7 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
         assert (
             document["artifact_schema_version"]
             == SCHEMA_WITHOUT_GENERATOR
-            == EXECUTION_ARTIFACT_SCHEMA_VERSION - 1
+            == EXECUTION_ARTIFACT_SCHEMA_VERSION - 2
         )
         assert next(iter(document)) == "artifact_schema_version", (
             "a person opening the file reads which rule wrote it before they "

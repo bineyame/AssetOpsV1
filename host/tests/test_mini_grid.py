@@ -29,6 +29,7 @@ from execution_adapter import frozen_world_inputs, model_for, run_to_end
 from kobo import component, kobo_draft, set_property
 from lab_execution import (
     EXECUTION_ARTIFACT_SCHEMA_VERSION,
+    SCHEMA_WITH_GENERATOR,
     HostLabExecution,
     YamlExecutionArtifacts,
 )
@@ -570,7 +571,10 @@ class TestReproductionAndReadback:
         document = yaml.safe_load(
             (tmp_path / f"{run.run_id}.yaml").read_text(encoding="utf-8")
         )
-        assert document["artifact_schema_version"] == EXECUTION_ARTIFACT_SCHEMA_VERSION == 4
+        # T025b: a generator record with no discrete reading keeps schema 4;
+        # five is written only when a typed status reading is recorded.
+        assert document["artifact_schema_version"] == SCHEMA_WITH_GENERATOR == 4
+        assert EXECUTION_ARTIFACT_SCHEMA_VERSION == 5
         # Service includes the generator's share, which T024's projection
         # would have dropped.
         row = next(

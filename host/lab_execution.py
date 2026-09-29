@@ -48,10 +48,7 @@ from pathlib import Path
 import yaml
 
 from assetops_backend.runs.models import SimulationRun
-from assetops_backend.runs.profiles import (
-    LAB_PUBLICATION_PROFILE,
-    PublicationProfile,
-)
+from assetops_backend.runs.profiles import PublicationProfile
 from assetops_contracts.execution_contract import (
     EXECUTION_CONTRACT_VERSION,
     ExecutionContractIncompatible,
@@ -69,6 +66,7 @@ from assetops_contracts.control import (
     ViewEntry,
 )
 from assetops_contracts.lab_projection import (
+    GENERATOR_STATUS_REPORTED_NOT_STAGED,
     LAB_EXECUTION_STATUS_STATEMENTS,
     ElectricalStepRow,
     ElectricalView,
@@ -80,6 +78,7 @@ from assetops_contracts.lab_projection import (
     PrivateStateRow,
 )
 from assetops_contracts.observation import (
+    READING_QUALITIES,
     SHAPE_NOT_RECORDED,
     DeviceObservation,
     DeviceSignalSpec,
@@ -172,17 +171,37 @@ EXECUTION_ARTIFACT_ROOT = REPOSITORY_ROOT / "var" / "executions"
 #: is still written as three and every pre-change Draft re-executes to the
 #: same bytes (the contract-9 merge gate). A three that carries a generator,
 #: or a four that does not, is refused as damaged.
-EXECUTION_ARTIFACT_SCHEMA_VERSION = 4
+#:
+#: **Five: typed discrete readings (T025b)**. An observation or recent-report
+#: row in unit `state` carries its true and reported values as the member text
+#: (`RUNNING`) rather than a ratio, which a schema-four reader would refuse as
+#: an inexact number. Five is written ONLY for a record carrying such a row, so
+#: every record without one keeps its number and bytes; a five without a
+#: discrete reading, or a lower marker with one, is refused as damaged.
+EXECUTION_ARTIFACT_SCHEMA_VERSION = 5
+
+#: The schema a record carrying a generator, and no discrete reading, is
+#: written in (T025a's layout, unchanged).
+SCHEMA_WITH_GENERATOR = 4
 
 #: The schema a record without a generator is written in: its layout did not
 #: change, so its number does not either.
 SCHEMA_WITHOUT_GENERATOR = 3
 
 
+def _carries_discrete_readings(projection) -> bool:
+    return any(
+        row.canonical_unit == DISCRETE_UNIT
+        for row in (*projection.observations, *projection.recent_reports)
+    )
+
+
 def _schema_written(projection) -> int:
+    if _carries_discrete_readings(projection):
+        return EXECUTION_ARTIFACT_SCHEMA_VERSION
     electrical = projection.electrical
     if electrical is not None and electrical.generator is not None:
-        return EXECUTION_ARTIFACT_SCHEMA_VERSION
+        return SCHEMA_WITH_GENERATOR
     return SCHEMA_WITHOUT_GENERATOR
 
 #: The three shapes an execution record on disk actually has, and every one of
@@ -341,15 +360,30 @@ def _identify_layout(
             return LAYOUT_SCHEMA_2, marker
         electrical = document.get("electrical")
         carries_generator = isinstance(electrical, dict) and "generator" in electrical
-        if carries_generator != (marker == EXECUTION_ARTIFACT_SCHEMA_VERSION):
+        if carries_generator != (marker >= SCHEMA_WITH_GENERATOR):
             raise ExecutionArtifactUnreadable(
                 run_id,
                 marker,
                 f"It states schema {marker} and "
                 + ("carries" if carries_generator else "does not carry")
-                + " a generator. Schema 4 is written exactly when a generator "
-                "is recorded and schema 3 exactly when none is, so the marker "
-                "and the record disagree.",
+                + " a generator. Schemas 4 and 5 are written only when a "
+                "generator is recorded and schema 3 exactly when none is, so "
+                "the marker and the record disagree.",
+            )
+        carries_discrete = any(
+            isinstance(row, dict) and row.get("canonical_unit") == DISCRETE_UNIT
+            for key in ("observations", "recent_reports")
+            for row in (document.get(key) or ())
+        )
+        if carries_discrete != (marker == EXECUTION_ARTIFACT_SCHEMA_VERSION):
+            raise ExecutionArtifactUnreadable(
+                run_id,
+                marker,
+                f"It states schema {marker} and "
+                + ("carries" if carries_discrete else "does not carry")
+                + " a discrete (enum) reading. Schema 5 is written exactly when "
+                "a reading in unit 'state' is recorded, so the marker and the "
+                "record disagree.",
             )
         return LAYOUT_CURRENT, marker
 
@@ -403,6 +437,7 @@ class ExecutionArtifactUnreadable(Exception):
             states = "does not state a readable artifact schema"
         elif schema_version in (
             EXECUTION_ARTIFACT_SCHEMA_VERSION,
+            SCHEMA_WITH_GENERATOR,
             SCHEMA_WITHOUT_GENERATOR,
         ):
             states = f"states artifact schema {schema_version}"
@@ -422,6 +457,18 @@ class ExecutionArtifactUnreadable(Exception):
 #: inspection. The newest few are what a reader stepping a run wants: what just
 #: happened, and what happened either side of it.
 RECENT_REPORT_LIMIT = 12
+
+
+def _reading(text: object, unit: object, where: str) -> Fraction | str:
+    """A persisted reading value, typed by its unit (T025b).
+
+    A reading in unit `state` is a generator lifecycle member - the only
+    discrete signal this build publishes - and is refused if it is not one;
+    every other reading is an exact ratio.
+    """
+    if unit == DISCRETE_UNIT:
+        return _member(text, _LIFECYCLE, where)
+    return _exact(text, where)
 
 
 def _exact(text: object, where: str) -> Fraction:
@@ -558,6 +605,56 @@ def observation_views(
     return tuple(views)
 
 
+def with_reported_generator_status(
+    electrical: ElectricalView | None,
+    reporting: FrozenReportingInputs,
+    observations: tuple[DeviceObservation, ...],
+) -> ElectricalView | None:
+    """T025b: put the REPORTED generator status beside the physical one.
+
+    Only when the run publishes a discrete status reading about the generator's
+    state address (publication profile 4, on a Site that configures it). Each
+    step row gains the status a consumer sees at the step's instant T - the
+    newest reading at or before T, from the reading series alone - and its
+    quality, so a missing or retained (STALE) status sits beside the private
+    state it did or did not describe. Nothing here reads back into the world:
+    the trajectory is already complete when this runs.
+    """
+    if electrical is None or electrical.generator is None:
+        return electrical
+    generator = electrical.generator
+    status = next(
+        (
+            signal
+            for signal in reporting.signals
+            if signal.is_discrete and signal.address == generator.state_address
+        ),
+        None,
+    )
+    if status is None:
+        return electrical
+    steps = []
+    for row in generator.steps:
+        reading = reported_reading(observations, status, row.from_offset)
+        steps.append(
+            replace(
+                row,
+                reported_state=(
+                    None if reading.value is None else str(reading.value)
+                ),
+                reported_quality=reading.quality,
+            )
+        )
+    return replace(
+        electrical,
+        generator=replace(
+            generator,
+            steps=tuple(steps),
+            reported_status=GENERATOR_STATUS_REPORTED_NOT_STAGED,
+        ),
+    )
+
+
 def project(session: LabSession) -> LabProjection:
     """The gated view of one live execution, at the instant it has reached."""
     execution = session.execution
@@ -615,7 +712,9 @@ def project(session: LabSession) -> LabProjection:
         dropped_count=counts.get("DROPPED", 0),
         failure=execution.failure,
         notes=session.notes + tuple(session.staging_notes) + execution.notes,
-        electrical=electrical_view(execution),
+        electrical=with_reported_generator_status(
+            electrical_view(execution), session.reporting, observations
+        ),
     )
 
 # --- The electrical world (T024) ---------------------------------------------
@@ -871,6 +970,16 @@ def _render_generator(view: GeneratorView) -> dict[str, object]:
                 "fuel_end": str(row.fuel_end),
                 "limited_by": list(row.limited_by),
             }
+            # T025b: written only when a status reading exists (schema 5), so
+            # a schema-4 record keeps its bytes.
+            | (
+                {}
+                if row.reported_quality is None
+                else {
+                    "reported_state": row.reported_state,
+                    "reported_quality": row.reported_quality,
+                }
+            )
             for row in view.steps
         ],
         "transitions": [
@@ -941,6 +1050,22 @@ def _parse_generator(raw: object) -> GeneratorView:
                 fuel_start=x(row["fuel_start"], "a fuel volume"),
                 fuel_end=x(row["fuel_end"], "a fuel volume"),
                 limited_by=tuple(str(item) for item in row["limited_by"]),
+                reported_state=(
+                    None
+                    if row.get("reported_state") is None
+                    else _member(
+                        row["reported_state"], _LIFECYCLE, "a reported generator status"
+                    )
+                ),
+                reported_quality=(
+                    None
+                    if row.get("reported_quality") is None
+                    else _member(
+                        row["reported_quality"],
+                        READING_QUALITIES,
+                        "a reported status quality",
+                    )
+                ),
             )
             for row in raw["steps"]
         ),
@@ -1519,12 +1644,20 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                     true_value=(
                         None
                         if row["true_value"] is None
-                        else _exact(row["true_value"], "a true value")
+                        else _reading(
+                            row["true_value"],
+                            row["canonical_unit"],
+                            "a true value",
+                        )
                     ),
                     reported_value=(
                         None
                         if row["reported_value"] is None
-                        else _exact(row["reported_value"], "a reported value")
+                        else _reading(
+                            row["reported_value"],
+                            row["canonical_unit"],
+                            "a reported value",
+                        )
                     ),
                     reported_source_time=(
                         None
@@ -1565,7 +1698,11 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                     reported_value=(
                         None
                         if row["reported_value"] is None
-                        else _exact(row["reported_value"], "a reported value")
+                        else _reading(
+                            row["reported_value"],
+                            row["canonical_unit"],
+                            "a reported value",
+                        )
                     ),
                     canonical_unit=str(row["canonical_unit"]),
                     suppression_reason=(
@@ -1668,7 +1805,9 @@ class HostLabExecution:
         self,
         *,
         model: ModelSpec | None = None,
-        publication_profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
+        # T025b: None resolves each run's frozen publication profile (the
+        # build carries versions three and four); a test may inject one.
+        publication_profile: PublicationProfile | None = None,
         artifacts: YamlExecutionArtifacts | None = None,
         stages: JsonSourceStages | None = None,
         gateway_mapping: SourceMappingSet = SIMULATOR_LAB_GATEWAY_MAPPINGS,

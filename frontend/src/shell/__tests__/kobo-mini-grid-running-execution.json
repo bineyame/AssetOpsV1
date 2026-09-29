@@ -454,7 +454,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 5,
@@ -471,7 +473,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 10,
@@ -488,7 +492,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 15,
@@ -505,7 +511,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 20,
@@ -522,7 +530,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 25,
@@ -539,7 +549,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 30,
@@ -556,7 +568,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 35,
@@ -573,7 +587,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 40,
@@ -590,7 +606,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 45,
@@ -607,7 +625,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 50,
@@ -624,7 +644,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 55,
@@ -641,7 +663,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 60,
@@ -658,7 +682,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 65,
@@ -675,7 +701,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 70,
@@ -692,7 +720,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 75,
@@ -709,7 +739,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 80,
@@ -726,7 +758,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 85,
@@ -743,7 +777,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 90,
@@ -760,7 +796,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 95,
@@ -777,7 +815,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 100,
@@ -794,7 +834,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 105,
@@ -811,7 +853,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 110,
@@ -828,7 +872,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 115,
@@ -845,7 +891,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 120,
@@ -862,7 +910,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 125,
@@ -879,7 +929,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 130,
@@ -896,7 +948,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 135,
@@ -913,7 +967,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 140,
@@ -930,7 +986,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 145,
@@ -947,7 +1005,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 150,
@@ -964,7 +1024,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 155,
@@ -981,7 +1043,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 160,
@@ -998,7 +1062,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 165,
@@ -1015,7 +1081,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 170,
@@ -1032,7 +1100,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 175,
@@ -1049,7 +1119,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 180,
@@ -1066,7 +1138,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 185,
@@ -1083,7 +1157,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 190,
@@ -1100,7 +1176,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STOPPED: no output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 195,
@@ -1117,7 +1195,9 @@
           "fuel_end": "300",
           "limited_by": [
             "STARTING: no output during the 5 min start delay"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 200,
@@ -1134,7 +1214,9 @@
           "fuel_end": "300",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 205,
@@ -1151,7 +1233,9 @@
           "fuel_end": "300",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 210,
@@ -1168,7 +1252,9 @@
           "fuel_end": "300",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 215,
@@ -1185,7 +1271,9 @@
           "fuel_end": "300",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 220,
@@ -1202,7 +1290,9 @@
           "fuel_end": "300",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 225,
@@ -1219,7 +1309,9 @@
           "fuel_end": "300",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 230,
@@ -1234,7 +1326,9 @@
           "to_battery": "0",
           "fuel_start": "300",
           "fuel_end": "299.873",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 235,
@@ -1249,7 +1343,9 @@
           "to_battery": "26",
           "fuel_start": "299.873",
           "fuel_end": "298.873",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 240,
@@ -1266,7 +1362,9 @@
           "fuel_end": "298.873",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 245,
@@ -1281,7 +1379,9 @@
           "to_battery": "0",
           "fuel_start": "298.873",
           "fuel_end": "298.659625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 250,
@@ -1296,7 +1396,9 @@
           "to_battery": "24",
           "fuel_start": "298.659625",
           "fuel_end": "297.659625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 255,
@@ -1313,7 +1415,9 @@
           "fuel_end": "297.659625",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 260,
@@ -1328,7 +1432,9 @@
           "to_battery": "0",
           "fuel_start": "297.659625",
           "fuel_end": "297.401125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 265,
@@ -1343,7 +1449,9 @@
           "to_battery": "24",
           "fuel_start": "297.401125",
           "fuel_end": "296.401125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 270,
@@ -1360,7 +1468,9 @@
           "fuel_end": "296.401125",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 275,
@@ -1375,7 +1485,9 @@
           "to_battery": "0",
           "fuel_start": "296.401125",
           "fuel_end": "296.142625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 280,
@@ -1390,7 +1502,9 @@
           "to_battery": "24",
           "fuel_start": "296.142625",
           "fuel_end": "295.142625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 285,
@@ -1407,7 +1521,9 @@
           "fuel_end": "295.142625",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 290,
@@ -1422,7 +1538,9 @@
           "to_battery": "0",
           "fuel_start": "295.142625",
           "fuel_end": "294.884125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 295,
@@ -1437,7 +1555,9 @@
           "to_battery": "24",
           "fuel_start": "294.884125",
           "fuel_end": "293.884125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 300,
@@ -1454,7 +1574,9 @@
           "fuel_end": "293.884125",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 305,
@@ -1469,7 +1591,9 @@
           "to_battery": "0",
           "fuel_start": "293.884125",
           "fuel_end": "293.625625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 310,
@@ -1484,7 +1608,9 @@
           "to_battery": "24",
           "fuel_start": "293.625625",
           "fuel_end": "292.625625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 315,
@@ -1501,7 +1627,9 @@
           "fuel_end": "292.625625",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 320,
@@ -1516,7 +1644,9 @@
           "to_battery": "0",
           "fuel_start": "292.625625",
           "fuel_end": "292.367125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 325,
@@ -1531,7 +1661,9 @@
           "to_battery": "24",
           "fuel_start": "292.367125",
           "fuel_end": "291.367125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 330,
@@ -1548,7 +1680,9 @@
           "fuel_end": "291.367125",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 335,
@@ -1563,7 +1697,9 @@
           "to_battery": "0",
           "fuel_start": "291.367125",
           "fuel_end": "291.108625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 340,
@@ -1578,7 +1714,9 @@
           "to_battery": "24",
           "fuel_start": "291.108625",
           "fuel_end": "290.108625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 345,
@@ -1595,7 +1733,9 @@
           "fuel_end": "290.108625",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 350,
@@ -1610,7 +1750,9 @@
           "to_battery": "0",
           "fuel_start": "290.108625",
           "fuel_end": "289.850125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 355,
@@ -1625,7 +1767,9 @@
           "to_battery": "24",
           "fuel_start": "289.850125",
           "fuel_end": "288.850125",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 360,
@@ -1642,7 +1786,9 @@
           "fuel_end": "288.850125",
           "limited_by": [
             "RUNNING with nothing to absorb its output"
-          ]
+          ],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 365,
@@ -1657,7 +1803,9 @@
           "to_battery": "0",
           "fuel_start": "288.850125",
           "fuel_end": "288.441625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 370,
@@ -1672,7 +1820,9 @@
           "to_battery": "21",
           "fuel_start": "288.441625",
           "fuel_end": "287.441625",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 375,
@@ -1687,7 +1837,9 @@
           "to_battery": "0",
           "fuel_start": "287.441625",
           "fuel_end": "287.4404375",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 380,
@@ -1702,7 +1854,9 @@
           "to_battery": "21",
           "fuel_start": "287.4404375",
           "fuel_end": "286.4404375",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 385,
@@ -1717,7 +1871,9 @@
           "to_battery": "0",
           "fuel_start": "286.4404375",
           "fuel_end": "286.43925",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         },
         {
           "from_offset": 390,
@@ -1732,7 +1888,9 @@
           "to_battery": "21",
           "fuel_start": "286.43925",
           "fuel_end": "285.43925",
-          "limited_by": []
+          "limited_by": [],
+          "reported_state": null,
+          "reported_quality": null
         }
       ],
       "transitions": [

@@ -1,6 +1,6 @@
 # T025b - Generator policy recipes, reported status and A acceptance
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A completion.
@@ -112,4 +112,13 @@ The owner reviews A on the complete Lab site: healthy behavior, cause-authored
 prolonged runtime, forcing/policy response, reserve/service consequences and
 demo values. Independent review checks the integrated proof packet and truth
 boundaries. Synthetic proofs do not establish calibrated fidelity to a plant.
-Review outcome: pending.
+Review outcome: accepted by the owner on 2026-09-29 after the hands-on A walkthrough.
+
+Independent review 2026-09-29: Codex, ACCEPT WITH CARRY, no blocking findings
+(`.agent/T025b-codex-review.md`); C1 carried to the milestone backlog.
+Owner decisions 2026-09-29: the implementer's demo values are accepted
+(decision values plus proposed irradiance, loads, initial SOC 40 %, profile-4
+status every 15 min with 40/1000 dropout, 15-min generator power); setup keeps
+no preselection when more than one profile is offered - the owner selects by
+hand. The owner completed the hands-on A walkthrough successfully on
+2026-09-29 in a demo environment (`.demo/T025b/`, not tracked); A is accepted.

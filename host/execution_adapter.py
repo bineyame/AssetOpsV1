@@ -69,8 +69,9 @@ from fractions import Fraction
 
 from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.profiles import (
-    LAB_PUBLICATION_PROFILE,
+    PUBLICATION_PROFILES,
     PublicationProfile,
+    find_publication_profile,
 )
 from assetops_backend.state_refs import component_state
 from assetops_contracts.execution_contract import (
@@ -100,7 +101,7 @@ from assetops_contracts.world_inputs import (
 from assetops_simulator.kernel.execute import execute
 from assetops_simulator.kernel.model import ModelSpec
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
-from assetops_simulator.packs.mini_grid import MINI_GRID_MODEL
+from assetops_simulator.packs.mini_grid import MINI_GRID_MODEL, MINI_GRID_V2_MODEL
 from assetops_simulator.packs.minigrid import DAYTIME_MINI_GRID_MODEL
 
 #: Every model this build can execute, by the profile identity a run freezes.
@@ -111,6 +112,7 @@ EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
     MINIMAL_FUEL_MODEL,
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
+    MINI_GRID_V2_MODEL,
 )
 
 
@@ -128,6 +130,29 @@ def model_for(run: SimulationRun) -> ModelSpec:
         f"version {frozen.model_profile_version}, and this build has no model "
         "with that identity to execute it against."
     )
+
+
+def publication_profile_for(run: SimulationRun) -> PublicationProfile:
+    """The publication profile with the identity this run froze, or a refusal.
+
+    T025b: the build carries two (versions three and four), so a run's readings
+    are generated through the profile it froze rather than through whichever
+    one the host was constructed with. The same rule as `model_for`.
+    """
+    frozen = run.deterministic_identity.profiles
+    profile = find_publication_profile(
+        PUBLICATION_PROFILES,
+        frozen.publication_profile_id,
+        frozen.publication_profile_version,
+    )
+    if profile is None:
+        raise FrozenRunNotReconstructible(
+            f"Run {run.run_id} froze publication profile "
+            f"{frozen.publication_profile_id} version "
+            f"{frozen.publication_profile_version}, and this build has no "
+            "publication profile with that identity to generate its readings."
+        )
+    return profile
 
 #: Which contract bound case a declared bound falls under, keyed on the state
 #: whose value supplies the limit and the direction of the limit.
@@ -560,7 +585,7 @@ def _component_carrying(
 
 def reporting_inputs(
     run: SimulationRun,
-    profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
+    profile: PublicationProfile | None = None,
     model: ModelSpec | None = None,
 ) -> FrozenReportingInputs:
     """Project one frozen Draft into the observation transform's input.
@@ -593,6 +618,8 @@ def reporting_inputs(
     # wrong way round.
     identity = run.deterministic_identity
     refuse_incompatible_execution(identity.profiles.execution_contract_version)
+    if profile is None:
+        profile = publication_profile_for(run)
     refuse_a_publication_profile_the_run_did_not_select(run, profile)
     if model is None:
         model = model_for(run)
@@ -611,7 +638,9 @@ def reporting_inputs(
         # produce is not a reporting path for this run. Without this a fuel
         # run on a hybrid Site would grow a column of empty battery readings.
         if not model.reports(
-            declaration.state_key, declaration.reading_class
+            declaration.state_key,
+            declaration.reading_class,
+            declaration.canonical_unit,
         ):
             continue
         component = _component_carrying(
@@ -693,7 +722,7 @@ def reporting_inputs(
 
 def unconfigured_signals(
     run: SimulationRun,
-    profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
+    profile: PublicationProfile | None = None,
     model: ModelSpec | None = None,
 ) -> tuple[str, ...]:
     """Which declared reporting paths this installation does not configure.
@@ -705,11 +734,17 @@ def unconfigured_signals(
     """
     if model is None:
         model = model_for(run)
+    if profile is None:
+        profile = publication_profile_for(run)
     return tuple(
         f"{declaration.device_id}/{declaration.signal_id}"
         for declaration in profile.device_signals
         if (
-            model.reports(declaration.state_key, declaration.reading_class)
+            model.reports(
+                declaration.state_key,
+                declaration.reading_class,
+                declaration.canonical_unit,
+            )
         )
         and _component_carrying(
             run, declaration.device_id, declaration.signal_id

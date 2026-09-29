@@ -35,7 +35,7 @@ rather than rounded.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from fractions import Fraction
 
 from assetops_contracts.control import (
@@ -66,6 +66,7 @@ from assetops_simulator.packs import minigrid as daytime
 from assetops_simulator.packs.fuel import (
     FUEL_TANK_CAPACITY,
     FUEL_TANK_VOLUME,
+    GENERATOR_OUTPUT_POWER,
     GENERATOR_SPECIFIC_CONSUMPTION,
     PhysicallyUnacceptable,
 )
@@ -353,6 +354,51 @@ def _refuse_a_deadline_inside_the_step(
         )
 
 
+def _stop_threshold_at(context: StepContext, gen: _Generator) -> tuple[Fraction, str, str]:
+    """The stop threshold in effect over this step, and where it comes from.
+
+    T025b (`a-control-override-replaces-its-baseline`). A scenario override
+    replaces the frozen Foundation baseline absolutely inside its window and
+    nowhere else. Only `mini-grid` v2 declares the override, so under v1 there
+    is never an exposure here and the baseline always applies. The controller
+    reads policy at T only, so an override that begins or ends inside the step
+    is refused rather than applied early or split (setup blocks it first).
+    """
+    address = f"{STOP_THRESHOLD}@{gen.generator}"
+    exposures = context.exposures_of(address)
+    for exposure in exposures:
+        if (
+            exposure.from_offset != context.from_offset
+            or exposure.to_offset != context.to_offset
+        ):
+            raise CouplingRefused(
+                "PHYSICAL_RESOLUTION_FAILURE",
+                address,
+                f"the stop-threshold override {exposure.event_id} covers "
+                f"[{exposure.from_offset}, {exposure.to_offset}) of the step "
+                f"[{context.from_offset}, {context.to_offset}); generator policy "
+                "is read at step boundaries only, so an override window must "
+                "start and end on them",
+            )
+    found = daytime._level_at(context, address, context.from_offset)
+    if found is None:
+        return (
+            gen.stop_threshold,
+            "BASELINE",
+            "frozen Foundation answer (stop-soc-threshold)",
+        )
+    value, event_id = found
+    if not gen.start_threshold < value <= HUNDRED:
+        raise CouplingRefused(
+            "PHYSICAL_RESOLUTION_FAILURE",
+            address,
+            f"the stop-threshold override {event_id} of {value} % is not above "
+            f"the start threshold {gen.start_threshold} % and at most 100 %, so "
+            "the Site policy would have no band",
+        )
+    return value, "OVERRIDE", f"scenario override {event_id}"
+
+
 # --- The callables ----------------------------------------------------------
 
 
@@ -436,7 +482,7 @@ def view(context: StepContext) -> ControllerView:
         ViewEntry("generator-running-for", gen.state_address, running_for, "min"),
         ViewEntry("generator-rated-power", f"{GENERATOR_RATED_POWER}@{gen.generator}", gen.rated, "kW"),
         ViewEntry("start-soc-threshold", f"{START_THRESHOLD}@{gen.generator}", gen.start_threshold, "%"),
-        ViewEntry("stop-soc-threshold", f"{STOP_THRESHOLD}@{gen.generator}", gen.stop_threshold, "%"),
+        ViewEntry("stop-soc-threshold", f"{STOP_THRESHOLD}@{gen.generator}", _stop_threshold_at(context, gen)[0], "%"),
         ViewEntry("minimum-runtime", f"{MINIMUM_RUNTIME}@{gen.generator}", Fraction(gen.minimum_runtime), "min"),
         ViewEntry("fuel-in-tank", gen.fuel_address, context.stock(gen.fuel_address), "L"),
     ]
@@ -893,4 +939,85 @@ MINI_GRID_MODEL = ModelSpec(
         {daytime.PV_AC_POWER, daytime.BATTERY_AC_POWER, daytime.LOAD_SERVED_POWER}
     ),
     discrete_states=(GENERATOR_LIFECYCLE,),
+)
+
+
+# --- `mini-grid` v2 (T025b) ------------------------------------------------
+
+
+STOP_THRESHOLD_OVERRIDE = StateHandler(
+    handler_id="generator-stop-soc-threshold-override-forcing",
+    state_key=STOP_THRESHOLD,
+    scope="COMPONENT",
+    role="FORCING_INPUT",
+    kind="FORCING",
+    dimension="FRACTION",
+    statement=(
+        "A scenario override of the generator's stop threshold, replacing the "
+        "Site's frozen baseline inside its step-aligned window only."
+    ),
+    consume=daytime._forced_level("a stop threshold override", "%"),
+)
+
+
+def resolve_v2(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v1's resolution, plus the stop threshold in effect over the step.
+
+    The effective stop threshold is recorded beside the reserve (after it, so
+    the reserve stays the first effective control) so the time-valid policy a
+    run executed is reconstructible from its trajectory alone.
+
+    Phase 2 (criterion 6): the generator's accepted output energy over the step
+    is also an interval measurement at the generator's address, so a
+    `generator-output-power` INTERVAL_SIGNAL reports the mean power over the
+    completed step - the same energy the fuel stock was debited for, never a
+    power read at an instant. v1 is untouched: its runs keep their interval
+    measurements and digests.
+    """
+    accepted = resolve(context, intent)
+    plant, gen = _both(context)
+    value, origin, provenance = _stop_threshold_at(context, gen)
+    generator_energy = next(
+        flow.energy
+        for flow in accepted.flows
+        if flow.flow_id == "generator_output"
+    )
+    return replace(
+        accepted,
+        interval_energies=tuple(
+            sorted(
+                accepted.interval_energies
+                + ((f"{GENERATOR_OUTPUT_POWER}@{gen.generator}", generator_energy),)
+            )
+        ),
+        effective_controls=accepted.effective_controls
+        + (
+            EffectiveControl(
+                f"{STOP_THRESHOLD}@{gen.generator}",
+                context.from_offset,
+                context.to_offset,
+                value,
+                "%",
+                origin,
+                provenance,
+            ),
+        ),
+    )
+
+
+MINI_GRID_V2_COUPLING = replace(MINI_GRID_COUPLING, resolve=resolve_v2)
+
+MINI_GRID_V2_MODEL = replace(
+    MINI_GRID_MODEL,
+    model_profile_version=2,
+    statement=(
+        MINI_GRID_MODEL.statement
+        + " A scenario may override the battery reserve and the generator's "
+        "stop threshold across a window; each replaces its frozen baseline "
+        "there only."
+    ),
+    handlers=MINI_GRID_MODEL.handlers + (STOP_THRESHOLD_OVERRIDE,),
+    coupling=MINI_GRID_V2_COUPLING,
+    measured_interval_states=MINI_GRID_MODEL.measured_interval_states
+    | {GENERATOR_OUTPUT_POWER},
 )

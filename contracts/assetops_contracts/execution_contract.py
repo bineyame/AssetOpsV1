@@ -391,6 +391,11 @@ from fractions import Fraction
 #: every pre-change v9 Draft still parses, executes and reproduces its
 #: identity, trajectory, observations and artifact.
 #:
+#: T025b adds the `mini-grid` v2 profile - the stop threshold becomes a second
+#: overridable CONTROL beside the reserve, with step-aligned windows - and
+#: widens the override rule's text to name it. v1 and every earlier profile
+#: execute exactly as before (the same gate), so nine still does not move.
+#:
 #: Once this merges, the next narrowing is a ten.
 EXECUTION_CONTRACT_VERSION = 9
 
@@ -759,8 +764,10 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
         rule_id="a-control-override-replaces-its-baseline",
         display_name="A control override replaces its baseline, then reverts",
         statement=(
-            "A forcing whose address is a typed CONTROL - the battery's reserve "
-            "state of charge - is an ABSOLUTE REPLACEMENT of that control's "
+            "A forcing whose address is a typed CONTROL the selected model "
+            "profile declares overridable - the battery's reserve state of "
+            "charge, and from `mini-grid` v2 the generator's stop threshold - "
+            "is an ABSOLUTE REPLACEMENT of that control's "
             "frozen baseline inside its own half-open window [start, end) and "
             "nowhere else. At the window's end the baseline applies again: the "
             "setting reverts, the trajectory does not. It is not an increment, "
@@ -772,8 +779,12 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "as ambiguous; two that meet end to start are valid, even inside "
             "one step. A change inside a step splits that step's evaluation at "
             "the change rather than applying it early, stretching it or "
-            "averaging two settings. A reserve raised above the current state "
-            "of charge creates no energy: it stops further discharge."
+            "averaging two settings. A generator-policy override (the stop "
+            "threshold) is read by the controller at step boundaries only, so "
+            "its window must start and end on them: setup blocks one the step "
+            "cannot express rather than splitting, rounding or applying it "
+            "early. A reserve raised above the current state of charge creates "
+            "no energy: it stops further discharge."
         ),
     ),
 )

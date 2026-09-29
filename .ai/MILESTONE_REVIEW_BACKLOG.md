@@ -1400,6 +1400,25 @@ Drafts or stored artifacts are parsed, hashed or rendered, or at the milestone
 review, whichever comes first. Then run the current reader over `var/runs` and
 `var/executions` read-only and diff against a fresh re-execution.
 
+## Carried from T025b: all-missing status attempts skip the enum mapping check
+
+Codex first review, 2026-09-29, finding C1 (`.agent/T025b-codex-review.md`,
+probe `.agent/T025b-codex-probe.py`). The gateway skips `DROPPED` and
+`SUPPRESSED_BY_GAP` observations before `refuse_an_enum_under_schema_1`
+(`simulator/assetops_simulator/gateway/publish.py:115-121`). An allowlist entry
+that disguises `generator-controller/status` as numeric therefore publishes
+nothing and raises nothing when every status attempt is missing; the same
+mapping raises `MAPPING_INCOMPATIBLE` once one report arrives.
+
+Carried under `D-2026-09-22-milestone-speed-over-purity`: the shipped mapping
+is fuel-only, no false numeric or UNAVAILABLE status envelope is emitted, and
+the fix is a local validation-order change with no identity or persisted-format
+migration.
+
+Trigger: when T026 extends the gateway for status staging, validate an
+allowlisted observation's enum compatibility before skipping a missing attempt,
+with an all-dropped and an all-suppressed case.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

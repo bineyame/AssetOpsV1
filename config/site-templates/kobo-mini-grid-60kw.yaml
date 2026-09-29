@@ -295,6 +295,9 @@ foundation:
         - signal_id: ac-power
           display_name: Generator output power
           unit: kW
+        - signal_id: status
+          display_name: Generator status
+          unit: state
     - device_id: fuel-level-sensor
       device_type: SENSOR
       display_name: Fuel level sensor
@@ -348,6 +351,10 @@ foundation:
     - mapping_id: generator-ac-power
       device_id: generator-controller
       signal_id: ac-power
+      component_id: generator
+    - mapping_id: generator-status
+      device_id: generator-controller
+      signal_id: status
       component_id: generator
     - mapping_id: fuel-tank-level
       device_id: fuel-level-sensor

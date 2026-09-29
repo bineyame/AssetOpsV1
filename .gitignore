@@ -32,3 +32,4 @@ coverage/
 
 # Agent session state
 .codex/
+.demo/

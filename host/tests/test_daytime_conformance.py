@@ -152,9 +152,10 @@ class TestTheLabShowsTheElectricalWorld:
         document = yaml.safe_load(
             (tmp_path / f"{run.run_id}.yaml").read_text(encoding="utf-8")
         )
-        # T025a: schema four is written only when a generator is recorded.
+        # T025a: schema four is written only when a generator is recorded;
+        # T025b: five only when a typed discrete reading is.
         assert document["artifact_schema_version"] == 3
-        assert EXECUTION_ARTIFACT_SCHEMA_VERSION == 4
+        assert EXECUTION_ARTIFACT_SCHEMA_VERSION == 5
         assert "generator" not in document["electrical"]
         assert len(document["electrical"]["steps"]) == 48
 

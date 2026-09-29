@@ -22,7 +22,9 @@ from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.profiles import (
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
+    MINI_GRID_V2_MODEL,
     LAB_PUBLICATION_PROFILE,
+    LAB_PUBLICATION_PROFILE_V4,
     MINIMAL_FUEL_TANK_MODEL,
 )
 from assetops_backend.runs.service import RunSetupService
@@ -105,10 +107,12 @@ def kobo_draft(
     site_edit: Callable[[dict[str, Any]], None] | None = None,
     timestep_minutes: int = 15,
     model_profile: str = "daytime-mini-grid",
+    model_profile_version: int | None = None,
     seed: int = 20260929,
     start_time: str = START,
     end_time: str = END,
     run_inputs: list[dict[str, Any]] | None = None,
+    publication_profile_version: int = 3,
 ) -> SimulationRun:
     raw = copy.deepcopy(document if document is not None else kobo_document(name))
     if document_edit is not None:
@@ -117,14 +121,24 @@ def kobo_draft(
         raw, source="a Kobo scenario", origin="SHIPPED"
     )
     site = kobo_site(site_edit)
-    profiles = (MINIMAL_FUEL_TANK_MODEL, DAYTIME_MINI_GRID_MODEL, MINI_GRID_MODEL)
-    profile = next(p for p in profiles if p.model_profile_id == model_profile)
+    profiles = (
+        MINIMAL_FUEL_TANK_MODEL,
+        DAYTIME_MINI_GRID_MODEL,
+        MINI_GRID_MODEL,
+        MINI_GRID_V2_MODEL,
+    )
+    profile = next(
+        p
+        for p in profiles
+        if p.model_profile_id == model_profile
+        and (model_profile_version in (None, p.model_profile_version))
+    )
     setup = RunSetupService(
         FakeRuns(),
         FakeSites((site,)),
         FakeScenarios((definition,)),
         model_profiles=profiles,
-        publication_profiles=(LAB_PUBLICATION_PROFILE,),
+        publication_profiles=(LAB_PUBLICATION_PROFILE, LAB_PUBLICATION_PROFILE_V4),
         now=lambda: "2026-09-29T09:00:00Z",
     )
     return setup.create_draft_run(
@@ -142,7 +156,7 @@ def kobo_draft(
             },
             "publication_profile": {
                 "profile_id": LAB_PUBLICATION_PROFILE.publication_profile_id,
-                "profile_version": LAB_PUBLICATION_PROFILE.publication_profile_version,
+                "profile_version": publication_profile_version,
             },
             "run_inputs": list(run_inputs or []),
         }

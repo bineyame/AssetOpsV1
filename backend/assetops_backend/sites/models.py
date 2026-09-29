@@ -255,7 +255,13 @@ DEVICE_TYPES = frozenset({"METER", "SENSOR", "CONTROLLER"})
 # Units a declared signal may carry. Closed, and separate from `RATING_UNITS`:
 # a nameplate rating and a reportable signal are different kinds of fact, and
 # collapsing their vocabularies would let a rating unit onto a signal.
-SIGNAL_UNITS = frozenset({"kW", "kWh", "V", "Hz", "L", "degC", "W/m2", "%"})
+#
+# T025b adds `state`: a signal whose reading is a typed discrete member (a
+# generator's `RUNNING`), never a number. It is the unit the execution contract
+# already types discrete values by (`assetops_contracts.control.DISCRETE_UNIT`).
+SIGNAL_UNITS = frozenset(
+    {"kW", "kWh", "V", "Hz", "L", "degC", "W/m2", "%", "state"}
+)
 
 # --- Typed Site Controls (T024) ----------------------------------------------
 #

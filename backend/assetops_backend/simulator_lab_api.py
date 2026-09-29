@@ -900,6 +900,10 @@ def generator_payload(view: GeneratorView | None) -> dict[str, object] | None:
                 "fuel_start": exact_decimal_text(row.fuel_start),
                 "fuel_end": exact_decimal_text(row.fuel_end),
                 "limited_by": list(row.limited_by),
+                # T025b: the reported status at T and its quality, or null when
+                # the run publishes no status reading (before profile 4).
+                "reported_state": row.reported_state,
+                "reported_quality": row.reported_quality,
             }
             for row in view.steps
         ],
@@ -936,6 +940,10 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
     """
 
     def exact(value: object) -> str | None:
+        # T025b: a typed discrete reading (unit `state`) travels as the member
+        # text it is - `RUNNING` - and never as a decimal code.
+        if isinstance(value, str):
+            return value
         return None if value is None else exact_decimal_text(value)
 
     return {

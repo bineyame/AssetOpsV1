@@ -35,7 +35,15 @@ from fractions import Fraction
 DISCRETE_UNIT = "state"
 
 
-def _typed(value: object, unit: str, what: str, *, optional: bool = False) -> None:
+def check_typed_value(
+    value: object, unit: str, what: str, *, optional: bool = False
+) -> None:
+    """Refuse a discrete value carried as a number, or a number as text.
+
+    Public since T025b, because a published reading is typed by the same rule
+    as the controller's view: the observation path carries a generator status
+    as the member it is, never a decimal code for it.
+    """
     if value is None and optional:
         return
     if (unit == DISCRETE_UNIT) != isinstance(value, str):
@@ -43,6 +51,9 @@ def _typed(value: object, unit: str, what: str, *, optional: bool = False) -> No
             f"{what} {value!r} in unit {unit!r}: a discrete value is text in "
             f"unit {DISCRETE_UNIT!r} and every other value is a number."
         )
+
+
+_typed = check_typed_value
 
 
 @dataclass(frozen=True)

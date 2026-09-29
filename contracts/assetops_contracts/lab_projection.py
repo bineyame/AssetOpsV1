@@ -253,6 +253,10 @@ class ObservationView:
     declared bias contributes - which is why they are two fields. A reader who
     wants the quantity the gap hid subtracts the bias from the reported value
     first; a reader who wants to know what the sensor said reads the column.
+
+    T025b: a row in unit `state` (the generator controller's status) carries
+    both values as the typed member text - `RUNNING` - never as a number, and
+    its bias is zero because an enum refuses one.
     """
 
     address: str
@@ -263,8 +267,8 @@ class ObservationView:
     at_offset_minutes: int
     simulation_time: str
     canonical_unit: str
-    true_value: Fraction | None
-    reported_value: Fraction | None
+    true_value: Fraction | str | None
+    reported_value: Fraction | str | None
     reported_source_time: str | None
     reported_at_offset_minutes: int | None
     quality: str
@@ -319,6 +323,18 @@ GENERATOR_REPORTED_STATUS_PENDING = (
 )
 
 
+#: T025b. What the Lab says when the run's publication profile publishes a
+#: generator status reading (profile 4) and this Site configures it.
+GENERATOR_STATUS_REPORTED_NOT_STAGED = (
+    "Reported generator status comes from the generator controller's status "
+    "reading (publication profile 4), through the observation path: it can be "
+    "missing, or a retained STALE reading, while the physical state carries on. "
+    "It is not yet staged - source envelope schema 1 carries numbers only and "
+    "the gateway allowlist stays fuel-only - and staging it is T026's. The "
+    "state columns are the simulator's private physical state."
+)
+
+
 @dataclass(frozen=True)
 class GeneratorStepRow:
     """One resolved step of the generator, for the gated Lab (T025a).
@@ -342,6 +358,11 @@ class GeneratorStepRow:
     fuel_start: Fraction
     fuel_end: Fraction
     limited_by: tuple[str, ...]
+    # T025b: the reported status a consumer sees at this step's instant T
+    # (the newest status reading at or before T) and its quality. `None` when
+    # the run publishes no status reading, which is every run before profile 4.
+    reported_state: str | None = None
+    reported_quality: str | None = None
 
 
 @dataclass(frozen=True)

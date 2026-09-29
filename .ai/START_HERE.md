@@ -25,8 +25,9 @@ queue review resequenced it on 2026-09-24 under
 `D-2026-09-24-queue-resequenced-for-demo`. On 2026-09-29 the owner approved
 `D-2026-09-29-run-store-libyaml`: the run store moves to libyaml in its own
 slice T022B, now complete as a partial improvement. **T024 is complete**
-(daytime PV, storage and three addressed loads, contract 9); T025a is
-complete; **T025b is next**, then the order in `tasks/README.md`.
+(daytime PV, storage and three addressed loads, contract 9); T025a and
+T025b are complete and the owner accepted A; **T026 is next**, then the order
+in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
 `.ai/PLANNING_HANDOFF_T020A_T023.md`.

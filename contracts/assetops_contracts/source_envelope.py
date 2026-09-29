@@ -71,6 +71,7 @@ from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Any
 
+from assetops_contracts.control import DISCRETE_UNIT
 from assetops_contracts.identity import identity_digest
 from assetops_contracts.observation import exact_decimal_text
 
@@ -221,6 +222,26 @@ def envelope_message_id(
     )
 
 
+def refuse_an_enum_under_schema_1(
+    device_id: str, signal_id: str, unit: object
+) -> None:
+    """T025b: envelope schema 1 carries an exact number, or none, per envelope.
+
+    A typed discrete reading (unit `state`: a generator's `RUNNING`) has no
+    number, so a mapping promising one under schema 1 is refused - never
+    silently omitted, never disguised as a decimal code, never published as
+    UNAVAILABLE. Generator status is not yet staged; T026 owns staging it.
+    """
+    if unit == DISCRETE_UNIT:
+        raise EnvelopeRejected(
+            "MAPPING_INCOMPATIBLE",
+            "mapping.unit",
+            f"{device_id}/{signal_id} reports a typed discrete state, and "
+            f"source envelope schema {SOURCE_ENVELOPE_SCHEMA_VERSION} carries "
+            "numbers only; generator status is not yet staged (T026)",
+        )
+
+
 @dataclass(frozen=True)
 class SourceMappingEntry:
     """One allowlisted device signal: what it publishes, in what unit.
@@ -248,6 +269,7 @@ class SourceMappingEntry:
                 "mapping.measurement",
                 f"{self.measurement!r} is not one of {sorted(ENVELOPE_MEASUREMENTS)}",
             )
+        refuse_an_enum_under_schema_1(self.device_id, self.signal_id, self.unit)
         if type(self.unit) is not str or not _UNIT.match(self.unit):
             raise EnvelopeRejected(
                 "INVALID_PAYLOAD", "mapping.unit", f"{self.unit!r} is not a unit"

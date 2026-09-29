@@ -44,6 +44,7 @@ from typing import Callable
 from assetops_contracts.control import (
     AcceptedFlowSet,
     ControlIntent,
+    DISCRETE_UNIT,
     ControllerView,
 )
 from assetops_contracts.trajectory import ForcingExposure
@@ -378,12 +379,20 @@ class ModelSpec:
                     "about one machine."
                 )
 
-    def reports(self, state_key: str, reading_class: str) -> bool:
+    def reports(
+        self, state_key: str, reading_class: str, unit: str | None = None
+    ) -> bool:
         """Whether this model produces the value a reading of this class needs.
 
         A STATE_SIGNAL needs a state-sample handler; an INTERVAL_SIGNAL needs
-        the state among `measured_interval_states`.
+        the state among `measured_interval_states`. T025b: a STATE_SIGNAL in
+        the discrete unit (`state`) needs a declared discrete state instead,
+        and reads its member at T; a numeric reading never reads an enum.
         """
+        if unit == DISCRETE_UNIT:
+            return reading_class == "STATE_SIGNAL" and any(
+                spec.state_key == state_key for spec in self.discrete_states
+            )
         if reading_class == "STATE_SIGNAL":
             return any(
                 handler.state_key == state_key and handler.kind == "STATE_SAMPLE"

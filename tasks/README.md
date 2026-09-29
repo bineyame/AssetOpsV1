@@ -31,7 +31,7 @@ T025 is split into T025a then T025b under
 | 9 | T022B | A hardening | Responsive Runs inventory and Draft setup with libyaml |
 | 10 | T024 | A | Daytime PV/storage serves three addressed loads |
 | 11 | [T025a](T025a-healthy-generator-runtime.md) | A | Healthy full-site generator physics and contract-9 reproduction |
-| 12 | [T025b](T025b-generator-policy-and-a-acceptance.md) | A completion | Policy recipes, reported status and owner acceptance of A |
+| 12 | T025b | A completion | Policy recipes, reported status and owner acceptance of A |
 | 13 | T026 | B | Dispatch evidence with one gap and one delayed publication |
 | 14 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
 | 15 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
