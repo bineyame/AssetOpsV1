@@ -24,6 +24,15 @@
  *   npm run dev            # from frontend/
  *   node tools/layout-evidence.mjs [baseUrl]
  *
+ * T025c adds a second invocation, made after the host has been restarted over
+ * the same store: `node tools/layout-evidence.mjs <baseUrl> <site> --readback
+ * <file>` reopens the completed run the first invocation recorded in <file>
+ * (`ASSETOPS_READBACK_FILE`, default in the OS temp directory) and measures
+ * that its charts and identity came back from the artifact alone. With
+ * `ASSETOPS_EVIDENCE_ENV` naming the served store it hashes the run's
+ * artifact before and after the reads, so "reading changes no artifact" is
+ * measured rather than assumed.
+ *
  * It exits non-zero if any claim fails, so it can be read by a person or by a
  * script. It drives the Chrome already installed on this machine over the
  * DevTools Protocol using Node's built-in fetch and WebSocket, so it adds no
@@ -31,7 +40,8 @@
  */
 
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -668,6 +678,178 @@ function report(title, m, checks) {
   return checks.every(([, pass]) => pass);
 }
 
+// --- T025c: recorded day curves, the shared cursor and the run header -------
+//
+// Measured on a completed mini-grid v2 run. Everything the fingerprint holds is
+// a data attribute - which series, how many recorded steps, which report at
+// which source time with which exact value, which gap glyph where, which state
+// run from where, and the exact-value table - so the same record drawn at two
+// widths, or before and after a host restart, fingerprints the same, and a
+// record that changed does not.
+const READBACK_ARG = process.argv.indexOf("--readback");
+const READBACK_FILE =
+  READBACK_ARG > 0
+    ? process.argv[READBACK_ARG + 1]
+    : process.env.ASSETOPS_READBACK_FILE ?? join(tmpdir(), "assetops-t025c-readback.json");
+const EVIDENCE_ENV = process.env.ASSETOPS_EVIDENCE_ENV ?? null;
+
+const READ_CHARTS = `(() => {
+  const text = (element) => (element ? (element.textContent || '').trim() : null);
+  const all = (selector, scope) => Array.from((scope || document).querySelectorAll(selector));
+  const panels = all('[data-chart-panel]').map((figure) => {
+    const region = figure.querySelector('.history-chart__scroll');
+    const svg = figure.querySelector('svg');
+    const box = figure.getBoundingClientRect();
+    const legend = all('.history-legend li', figure).map((item) => {
+      const r = item.getBoundingClientRect();
+      return {
+        inside: r.left >= box.left - 1 && r.right <= box.right + 1 && r.width > 0,
+        fontPx: parseFloat(getComputedStyle(item).fontSize),
+      };
+    });
+    const label = figure.querySelector('.history-chart__label');
+    return {
+      id: figure.getAttribute('data-chart-panel'),
+      svgWidth: svg ? Math.round(svg.getBoundingClientRect().width) : 0,
+      overflows: region ? region.scrollWidth > region.clientWidth : null,
+      paths: all('[data-chart-series]', figure).filter((p) => (p.getAttribute('d') || '').length > 0).length,
+      stateRuns: all('[data-chart-state]', figure).length,
+      reports: all('[data-chart-report]', figure).length,
+      missing: all('[data-chart-missing]', figure).map((g) => (g.firstChild ? g.firstChild.textContent : '') + '@' + g.getAttribute('data-offset') + ':' + g.getAttribute('data-chart-missing')),
+      titledMarks: all('[data-chart-report] > title, [data-chart-missing] > title', figure).length,
+      legend,
+      axisFontPx: label ? parseFloat(getComputedStyle(label).fontSize) : 0,
+    };
+  });
+  const panelOf = (element) => element.closest('[data-chart-panel]').getAttribute('data-chart-panel');
+  const fingerprint = [
+    ...all('[data-chart-series]').map((p) => panelOf(p) + '/' + p.getAttribute('data-chart-series') + '#' + p.getAttribute('data-points')),
+    ...all('[data-chart-report]').map((c) => panelOf(c) + '/r' + c.getAttribute('data-chart-report') + '=' + c.getAttribute('data-value')),
+    ...all('[data-chart-missing]').map((g) => panelOf(g) + '/m' + g.getAttribute('data-offset') + '=' + g.getAttribute('data-chart-missing')),
+    ...all('[data-chart-state]').map((g) => panelOf(g) + '/s' + g.getAttribute('data-from') + '=' + g.getAttribute('data-chart-state')),
+    ...all('[data-value-row]').map((row) => row.getAttribute('data-value-row') + '=' + text(row.querySelector('td:last-child'))),
+  ].join('|');
+  const history = performance.getEntriesByType('resource').find((e) => e.name.includes('/execution/history'));
+  return {
+    panels,
+    fingerprint,
+    cursors: [...new Set(all('[data-chart-cursor]').map((c) => c.getAttribute('data-chart-cursor')))],
+    selected: document.querySelector('[data-history-selected]')?.getAttribute('data-history-selected') ?? null,
+    valueRows: all('[data-value-row]').length,
+    status: document.querySelector('[data-execution-status]')?.getAttribute('data-execution-status') ?? null,
+    boundaries: text(document.querySelector('[data-header-boundaries]')),
+    headerExecution: document.querySelector('[data-header-execution]')?.getAttribute('data-header-execution') ?? null,
+    headerHistory: document.querySelector('[data-header-history]')?.getAttribute('data-header-history') ?? null,
+    headerHistoryText: text(document.querySelector('[data-header-history]')),
+    headerStage: document.querySelector('[data-header-stage]')?.getAttribute('data-header-stage') ?? null,
+    headerWindow: text(document.querySelector('[data-header-window]')),
+    headerTimestep: document.querySelector('[data-header-timestep]')?.getAttribute('data-header-timestep') ?? null,
+    historyDigest: text(document.querySelector('[data-history-digest]')),
+    historySource: document.querySelector('[data-history-source]')?.getAttribute('data-history-source') ?? null,
+    historyBytes: history ? history.decodedBodySize : null,
+    historyResponseEnd: history ? history.responseEnd : null,
+    chartsAt: window.__chartsAt ?? null,
+  };
+})()`;
+
+/** Record when the first chart appears, from the very start of each page. */
+const CHARTS_TIMER = `window.__chartsAt = null;
+new MutationObserver((_, observer) => {
+  if (document.querySelector('[data-chart-panel]')) {
+    window.__chartsAt = performance.now();
+    observer.disconnect();
+  }
+}).observe(document, { subtree: true, childList: true });`;
+
+/** Move the shared cursor with the keyboard, as a person would. */
+async function pressOnCursor(cdp, key, keyCode) {
+  await cdp.send("Runtime.evaluate", {
+    expression: "document.getElementById('history-cursor-range').focus()",
+  });
+  for (const type of ["keyDown", "keyUp"]) {
+    await cdp.send("Input.dispatchKeyEvent", {
+      type,
+      key,
+      code: key,
+      windowsVirtualKeyCode: keyCode,
+      nativeVirtualKeyCode: keyCode,
+    });
+  }
+  await sleep(300);
+}
+
+async function readCharts(cdp) {
+  return (await cdp.send("Runtime.evaluate", { expression: READ_CHARTS, returnByValue: true }))
+    .result.value;
+}
+
+function artifactDigest(runId) {
+  if (EVIDENCE_ENV === null) return null;
+  try {
+    return createHash("sha256")
+      .update(readFileSync(join(EVIDENCE_ENV, "executions", `${runId}.yaml`)))
+      .digest("hex");
+  } catch {
+    return "missing";
+  }
+}
+
+const EXPECTED_PANELS =
+  "pv,load-load-clinic,load-load-res,load-load-mill,soc-battery,battery-power,generator-output,fuel-fuel-tank,state-generator";
+
+const chartClaims = (read, page, width) => [
+  [
+    "nine populated chart panels: PV, three addressed loads, SOC, battery power, generator output, fuel, generator state",
+    read.panels.map((p) => p.id).join(",") === EXPECTED_PANELS &&
+      read.panels.every((p) => p.paths > 0 || p.stateRuns > 0),
+    read.panels.map((p) => `${p.id}: ${p.paths} series, ${p.stateRuns} state runs, ${p.reports} reports`).join("; "),
+  ],
+  [
+    "the report markers are the whole series, far longer than the 12-report tail",
+    read.panels.reduce((sum, p) => sum + p.reports, 0) > 12,
+    `${read.panels.reduce((sum, p) => sum + p.reports, 0)} report markers`,
+  ],
+  [
+    "each due attempt without a reading is a glyph with its outcome in words, and there are some",
+    read.panels.some((p) => p.missing.length > 0) &&
+      read.panels.every((p) => p.missing.every((m) => /^[×□–]@\d+:[A-Z_]+$/.test(m))),
+    read.panels.flatMap((p) => p.missing.map((m) => `${p.id} ${m}`)).join("; "),
+  ],
+  [
+    "every report marker and gap glyph carries its own tooltip",
+    read.panels.every((p) => p.titledMarks === p.reports + p.missing.length),
+    read.panels.map((p) => `${p.id} ${p.titledMarks}/${p.reports + p.missing.length}`).join("; "),
+  ],
+  [
+    "every legend entry sits inside its chart at 11 px or more, and so do the axis labels",
+    read.panels.every(
+      (p) => p.legend.length > 0 && p.legend.every((l) => l.inside && l.fontPx >= 11) && p.axisFontPx >= 11,
+    ),
+    read.panels.map((p) => `${p.id} ${p.legend.length} entries`).join("; "),
+  ],
+  [
+    "no chart pushes the page sideways",
+    !page.pageScrollsHorizontally,
+    `page scrollWidth ${page.pageScrollWidth} vs ${page.pageClientWidth}; svg width ${[...new Set(read.panels.map((p) => p.svgWidth))].join("/")} at ${width}; ${read.panels.filter((p) => p.overflows).length} chart regions overflow`,
+  ],
+  [
+    "every table that overflows scrolls inside its own region",
+    page.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+    page.scrollers
+      .filter((s) => (s.name ?? "").startsWith("run-history"))
+      .map((s) => `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`)
+      .join("; "),
+  ],
+  [
+    "the header keeps execution outcome, recorded coverage and stage apart",
+    read.headerExecution === "COMPLETED" &&
+      read.headerHistory !== null &&
+      read.headerStage !== null &&
+      read.headerTimestep === "5",
+    `execution ${read.headerExecution}; history ${read.headerHistoryText}; stage ${read.headerStage}; window ${read.headerWindow}; timestep ${read.headerTimestep}; ${read.boundaries}`,
+  ],
+];
+
 const socketUrl = await pageSocketUrl();
 const ws = new WebSocket(socketUrl);
 await new Promise((resolve) => ws.addEventListener("open", resolve));
@@ -676,6 +858,78 @@ await cdp.send("Page.enable");
 await cdp.send("Runtime.enable");
 
 let allPass = true;
+
+if (READBACK_ARG > 0) {
+  // T025c's second invocation, made after the host was stopped and started
+  // again over the same store: no live session exists for the run any more.
+  const saved = JSON.parse(readFileSync(READBACK_FILE, "utf-8"));
+  await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: CHARTS_TIMER });
+  const runId = saved.href.split("/").pop();
+  const before = artifactDigest(runId);
+  const reads = [];
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, saved.href, width, height, "[data-chart-panel]");
+    await sleep(500);
+    const read = await readCharts(cdp);
+    reads.push(read);
+    allPass =
+      report(`T025c readback after a host restart, ${saved.href}, at ${label}`, page, [
+        [
+          "the history is the persisted record with its digest, not a live session",
+          read.historySource === "PERSISTED" &&
+            read.headerHistory === "PERSISTED" &&
+            /^[0-9a-f]{64}$/.test(read.historyDigest ?? ""),
+          `source ${read.historySource}; digest ${read.historyDigest}`,
+        ],
+        [
+          "the charts and exact values are the ones drawn before the restart",
+          read.fingerprint.length > 0 && read.fingerprint === saved.fingerprint,
+          `${read.fingerprint.length} fingerprint characters; before the restart ${saved.fingerprint.length}`,
+        ],
+        [
+          "the port reports the same completed run at the same boundary count",
+          read.status === "COMPLETED" && read.boundaries === saved.boundaries,
+          `${read.status}; ${read.boundaries} (before: ${saved.boundaries})`,
+        ],
+        ...chartClaims(read, page, width),
+      ]) && allPass;
+  }
+  await pressOnCursor(cdp, "Home", 36);
+  const home = await readCharts(cdp);
+  const after = artifactDigest(runId);
+  allPass =
+    report("T025c browsing the reloaded run changes nothing", null, [
+      [
+        "the keyboard moves the reloaded cursor on every chart, and the run stays where it was",
+        home.cursors.join(",") === "0" &&
+          home.selected === "0" &&
+          home.status === "COMPLETED" &&
+          home.boundaries === saved.boundaries,
+        `cursor ${home.cursors.join(",")}; ${home.status}; ${home.boundaries}`,
+      ],
+      [
+        "the artifact's bytes are unchanged by every read (ASSETOPS_EVIDENCE_ENV names the store)",
+        EVIDENCE_ENV !== null && before !== "missing" && before === after && before === saved.artifact,
+        `at completion ${saved.artifact}; before the reads ${before}; after ${after}`,
+      ],
+      [
+        "render cost: charts drawn within 1.5 s of the history response",
+        reads.every(
+          (r) => r.chartsAt !== null && r.historyResponseEnd !== null && r.chartsAt - r.historyResponseEnd < 1500,
+        ),
+        reads
+          .map((r) => `${r.historyBytes} B history, charts ${Math.round((r.chartsAt ?? 0) - (r.historyResponseEnd ?? 0))} ms after its response`)
+          .join("; "),
+      ],
+    ]) && allPass;
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  process.exit(allPass ? 0 : 1);
+}
 
 for (const [label, width, height] of [
   ["1280x800, the committed minimum", 1280, 800],
@@ -2416,6 +2670,105 @@ const policyChecks = [
 allPass =
   report("T025b prolonged (stop 90 %) against changed policy (stop 60 %)", null, policyChecks) &&
   allPass;
+
+// --- T025c: the recorded day curves of the completed changed-policy run ----
+//
+// The stop-60 run T025b just completed, drawn at three widths. The first
+// invocation also records the run, its fingerprint and its artifact digest for
+// the `--readback` pass made after a host restart.
+{
+  await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: CHARTS_TIMER });
+  const href = v2Runs["kobo-mini-grid-stop-60"];
+  let previous = null;
+  const reads = [];
+  for (const [label, width, height] of [
+    ["1280x800, the committed minimum", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, href, width, height, "[data-chart-panel]");
+    await sleep(500);
+    const read = await readCharts(cdp);
+    reads.push(read);
+    allPass =
+      report(`T025c recorded day curves, kobo-mini-grid-stop-60 completed, at ${label}`, page, [
+        ...chartClaims(read, page, width),
+        [
+          "the selection opens at the last recorded boundary on every chart and in the inspector",
+          read.cursors.join(",") === "480" && read.selected === "480",
+          `cursor ${read.cursors.join(",")}; inspector ${read.selected}`,
+        ],
+        [
+          "the same record fingerprints the same at every width",
+          read.fingerprint.length > 0 && (previous === null || read.fingerprint === previous),
+          `${read.fingerprint.length} characters`,
+        ],
+      ]) && allPass;
+    previous = read.fingerprint;
+  }
+  await pressOnCursor(cdp, "ArrowLeft", 37);
+  const left = await readCharts(cdp);
+  await pressOnCursor(cdp, "Home", 36);
+  const home = await readCharts(cdp);
+  const moved = (
+    await cdp.send("Runtime.evaluate", {
+      expression: `(() => {
+        const range = document.getElementById('history-cursor-range');
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+        const t0 = performance.now();
+        setter.call(range, '48');
+        range.dispatchEvent(new Event('input', { bubbles: true }));
+        return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() =>
+          resolve({
+            ms: Math.round(performance.now() - t0),
+            cursor: document.querySelector('[data-chart-cursor]')?.getAttribute('data-chart-cursor') ?? null,
+          }))));
+      })()`,
+      awaitPromise: true,
+      returnByValue: true,
+    })
+  ).result.value;
+  allPass =
+    report("T025c the shared cursor, by keyboard, reads and never executes", null, [
+      [
+        "ArrowLeft moves every chart and the inspector to the previous boundary",
+        left.cursors.join(",") === "475" && left.selected === "475",
+        `cursor ${left.cursors.join(",")}; inspector ${left.selected}`,
+      ],
+      [
+        "Home moves them to the first boundary, where no step has ended yet",
+        home.cursors.join(",") === "0" && home.selected === "0" && home.valueRows > 0,
+        `cursor ${home.cursors.join(",")}; ${home.valueRows} exact-value rows`,
+      ],
+      [
+        "browsing did not move the run: still completed at the same boundary count",
+        home.status === "COMPLETED" && home.boundaries === reads[0].boundaries,
+        `${home.status}; ${home.boundaries}`,
+      ],
+      [
+        "render cost: charts drawn within 1.5 s of the history response, a cursor move within 250 ms",
+        reads.every(
+          (r) => r.chartsAt !== null && r.historyResponseEnd !== null && r.chartsAt - r.historyResponseEnd < 1500,
+        ) &&
+          moved.ms < 250 &&
+          moved.cursor === "240",
+        `${reads
+          .map((r) => `${r.historyBytes} B history, charts ${Math.round((r.chartsAt ?? 0) - (r.historyResponseEnd ?? 0))} ms after its response`)
+          .join("; ")}; cursor move to 240 in ${moved.ms} ms`,
+      ],
+    ]) && allPass;
+  const runId = href.split("/").pop();
+  writeFileSync(
+    READBACK_FILE,
+    JSON.stringify({
+      href,
+      fingerprint: previous,
+      boundaries: reads[0].boundaries,
+      artifact: artifactDigest(runId),
+    }),
+  );
+  console.log(`\n  T025c: recorded ${href} for the --readback pass in ${READBACK_FILE}`);
+}
 
 console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
 
