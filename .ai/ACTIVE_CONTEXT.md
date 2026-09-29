@@ -20,10 +20,8 @@ record in `.ai/CODE_STATE.md` carry the detail; three artifact layouts exist and
 each reads back as the result it is. A single-run read reads one document: 216
 parses become 1, and the run detail, the execution read and a Lab step each drop
 about two orders of magnitude. **Quote that ratio, not the seconds** - the same
-measurement varied 3x across three readers; `CODE_STATE` says why. **The
-inventory is measured, deliberately unfixed and not acceptable**: 99% is the
-pure-Python YAML scanner and it passes one second between about 20 and 65
-records. The bounded fix trades a parser, so it is the owner's.
+measurement varied 3x across three readers; `CODE_STATE` says why. The
+inventory's parser half is T022B's (below); its criterion 2 is still open.
 
 **T023 is complete and merged**: an executed Draft stages canonical source
 envelopes (envelope schema 1, stage schema 2, under
@@ -83,7 +81,10 @@ and T022A seven. Five `float(value)` overflow sites are open, the inventory AND
 layout-evidence run. T022A had to WRITE the run-store entry three documents
 already cited: a residual living only in a packet is one nobody reads first.
 
-**T022B is next** (being planned), then T024 per `tasks/README.md`.
+**T022B is built and in review** (packet in `.agent/`, user review required):
+libyaml, C extension required, API 5-6x faster at 223 runs, but **the 1 s Runs
+budget is missed on the dev server, so T022A criterion 2 stays open**, and deep
+flow nesting now crashing the process is an **open decision**. Then T024.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -95,9 +96,9 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **T022B** once planned, then `tasks/T024-daytime-mini-grid-runtime.md`; T023, T022 and
-   T022A in `tasks/completed/` as regression evidence.
-2. `.ai/CODE_STATE.md`: the T023 entry, then T022, T021A, T021 and T020B.
+1. **T022B** (in review), then `tasks/T024-daytime-mini-grid-runtime.md`; T023,
+   T022 and T022A in `tasks/completed/` as regression evidence.
+2. `.ai/CODE_STATE.md`: the T022B and T023 entries, then T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
    records T021A at version 7 and T022 at 8.

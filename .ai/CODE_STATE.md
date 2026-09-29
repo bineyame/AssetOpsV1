@@ -3986,3 +3986,66 @@ text. Quote the relationship, not the count: which samples drop is the draw.
   `var/runs` gains.
 - Guard probes: `.agent/T023-guard-probes.py` (12 of 12 CAUGHT); browser log
   `.agent/T023-layout-evidence.log`.
+
+## T022B - The run store reads with libyaml
+
+Under `D-2026-09-29-run-store-libyaml`. Packet: `.agent/T022B-review-packet.md`;
+evidence `.agent/T022B-evidence/`.
+
+### What the code settles
+
+- **One load point, libyaml, required.** `runs/adapters/yaml_run_documents.py`
+  loads every run document with `yaml.load(text, Loader=CSafeLoader)`. The
+  inventory, canonical and fallback reads, both create identity scans and the
+  staged readback all pass through `read_run_record`. `from yaml import
+  CSafeLoader` failing raises `LibyamlUnavailable` (an `ImportError`) at import,
+  so an installation without the C extension cannot import the run store - or
+  `assetops_backend.main` - and is told how to reinstall. No fallback exists.
+  Site, scenario, execution-artifact and stage readers are untouched.
+- **Guard:** `tools/checks/configuration-persistence.ps1` check 7 - exactly one
+  `= yaml.load(..., Loader=CSafeLoader)` in the run adapters, a direct
+  `from yaml import CSafeLoader`, and no `safe_load`, other `Loader=`, other
+  loader import or `__with_libyaml__` there. Proven non-vacuous four ways.
+- **Declared compatibility changes, pinned both ways** in
+  `backend/tests/test_run_store_loader.py`: tab after a colon and tab in a flow
+  sequence now accepted; literal `\uD800` and `\U00110000` now
+  `RunConfigurationInvalid` (the latter was an untranslated `ValueError`); ~600-
+  deep flow nesting was an untranslated `RecursionError` and is now the run
+  parser's own depth refusal. 34 further probes give equal outcomes. Inherited
+  policy unchanged: unknown top-level fields ignored, duplicate keys keep the
+  last value.
+- **Counts:** canonical hit 1 parse, inventory N, fallback N, create 2N+1 - now
+  asserted at the loader, not just at `read_run_record`.
+- **Tools:** `tools/run-store-evidence.py` (`runtime` is the installation check
+  named in README and in the diagnostic; `compare-corpus` is read-only and
+  hashes; `seed`/`measure`/`serve` write only to a directory outside `var/`,
+  and refuse one inside it). `tools/run-store-browser-evidence.mjs` times Runs,
+  setup and run detail in headless Chrome.
+
+### The numbers, and what they do not say
+
+Owner corpus 223 docs / 1,504,668 B: equal under both readers. Composed
+in-process at 223, warm medians: inventory 4.14 s -> **0.73 s**, setup 9.43 s ->
+**1.57 s**. At 300 generated: ~1.1 s / ~2.3 s; at 500: 1.93 s / 4.06 s; at
+2,000: 6.8 s / 34 s (wide ranges). Browser, quiet, dev server, 223-231
+records: Runs **1.46 s** by navigation, 1.32 s in-app (API ~0.67 s, the rest
+React dev-build rendering); setup **1.58 s**. **T022A criterion 2 stays open:
+the 1 s inventory budget is missed on the dev server.** Quote conditions with
+the numbers: loaded samples on this workstation ran 3-4x slower.
+
+### What this leaves open
+
+- **Deep flow nesting kills the process (open Architect/owner decision).**
+  libyaml's C composer overflows the native stack at ~2.5-3k levels on Windows,
+  ~20-30k on Linux - inside the 256 KiB bound - where the baseline raised
+  `RecursionError`. Pinned by
+  `test_flow_nesting_a_few_thousand_deep_ends_the_process`. A pre-load nesting
+  bound would be a new refusal rule; not added.
+- **The inventory budget.** Remaining cost at 223: ~0.65 s client rendering in
+  the dev build, ~0.37 s PyYAML building Python nodes and resolving scalars on
+  top of libyaml, ~0.07 s domain parsing. O(N) retained; the interactive
+  envelope is ~300 records at the server and smaller in the browser.
+- **No CI exists**; the backend test `test_the_installed_pyyaml_carries_libyaml`
+  and `tools/run-store-evidence.py runtime` are the gates. Verified at runtime
+  on Windows x86-64, Linux x86-64 and Linux aarch64 (emulated); macOS only at
+  the wheel-contents level.
