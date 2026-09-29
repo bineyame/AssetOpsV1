@@ -60,6 +60,7 @@ from assetops_contracts.execution_contract import (
 )
 from assetops_contracts.failures import ExecutionFailure
 from assetops_contracts.control import (
+    DISCRETE_UNIT,
     AcceptedControl,
     AcceptedFlow,
     ControlRequest,
@@ -71,6 +72,8 @@ from assetops_contracts.lab_projection import (
     LAB_EXECUTION_STATUS_STATEMENTS,
     ElectricalStepRow,
     ElectricalView,
+    GeneratorStepRow,
+    GeneratorView,
     LabControlRefused,
     LabProjection,
     ObservationView,
@@ -94,6 +97,7 @@ from assetops_simulator.observation.transform import (
     world_value,
 )
 from assetops_contracts.source_envelope import EnvelopeRejected, SourceMappingSet
+from assetops_contracts.trajectory import DiscreteTransition
 from assetops_contracts.source_stage import (
     SOURCE_STAGE_STATUS_STATEMENTS,
     SourceStageView,
@@ -105,6 +109,7 @@ from assetops_contracts.source_stage import (
 from assetops_simulator.gateway.mappings import SIMULATOR_LAB_GATEWAY_MAPPINGS
 from assetops_simulator.gateway.publish import publish
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
+from assetops_simulator.packs.mini_grid import GENERATOR_LIFECYCLE, RUN, STOP
 
 from execution_adapter import (
     FrozenRunNotReconstructible,
@@ -158,7 +163,27 @@ EXECUTION_ARTIFACT_ROOT = REPOSITORY_ROOT / "var" / "executions"
 #: acceptance, flows, loads and effective controls - `null` for a model with
 #: no controller. A schema-two record is read as what it recorded: no
 #: electrical view, because none was written.
-EXECUTION_ARTIFACT_SCHEMA_VERSION = 3
+#:
+#: **Four: the generator (T025a)**, an optional `generator` key inside
+#: `electrical` carrying the lifecycle state at T and over each step, the
+#: request, the accepted output, fuel, and every discrete transition with its
+#: phase, cause and instant. Four is written ONLY for a record that carries a
+#: generator: a record without one has exactly the schema-three layout, so it
+#: is still written as three and every pre-change Draft re-executes to the
+#: same bytes (the contract-9 merge gate). A three that carries a generator,
+#: or a four that does not, is refused as damaged.
+EXECUTION_ARTIFACT_SCHEMA_VERSION = 4
+
+#: The schema a record without a generator is written in: its layout did not
+#: change, so its number does not either.
+SCHEMA_WITHOUT_GENERATOR = 3
+
+
+def _schema_written(projection) -> int:
+    electrical = projection.electrical
+    if electrical is not None and electrical.generator is not None:
+        return EXECUTION_ARTIFACT_SCHEMA_VERSION
+    return SCHEMA_WITHOUT_GENERATOR
 
 #: The three shapes an execution record on disk actually has, and every one of
 #: them was written by a build on this branch.
@@ -314,6 +339,18 @@ def _identify_layout(
             return LAYOUT_UNMARKED_WITHOUT_SHAPE, marker
         if marker == 2:
             return LAYOUT_SCHEMA_2, marker
+        electrical = document.get("electrical")
+        carries_generator = isinstance(electrical, dict) and "generator" in electrical
+        if carries_generator != (marker == EXECUTION_ARTIFACT_SCHEMA_VERSION):
+            raise ExecutionArtifactUnreadable(
+                run_id,
+                marker,
+                f"It states schema {marker} and "
+                + ("carries" if carries_generator else "does not carry")
+                + " a generator. Schema 4 is written exactly when a generator "
+                "is recorded and schema 3 exactly when none is, so the marker "
+                "and the record disagree.",
+            )
         return LAYOUT_CURRENT, marker
 
     if not shaped:
@@ -364,7 +401,10 @@ class ExecutionArtifactUnreadable(Exception):
         # very next sentence contradicts.
         if schema_version is None:
             states = "does not state a readable artifact schema"
-        elif schema_version == EXECUTION_ARTIFACT_SCHEMA_VERSION:
+        elif schema_version in (
+            EXECUTION_ARTIFACT_SCHEMA_VERSION,
+            SCHEMA_WITHOUT_GENERATOR,
+        ):
             states = f"states artifact schema {schema_version}"
         else:
             states = (
@@ -589,14 +629,23 @@ def electrical_view(execution: Execution) -> ElectricalView | None:
     with no controller, which is the fuel model.
     """
     steps: list[ElectricalStepRow] = []
+    generator_steps: list[GeneratorStepRow] = []
+    generator_state = ""
+    fuel_address = ""
     latest = None
     battery = ""
+    zero = AcceptedFlow("absent", "", "", Fraction(0), Fraction(0))
     for boundary in execution.boundaries:
         step = boundary.control_step
         if step is None:
             continue
         accepted = step.accepted
         flows = {item.flow_id: item for item in accepted.flows}
+        # T025a: a model with a generator names two more flows; for the
+        # daytime model they are absent and contribute nothing, so its rows
+        # are exactly the T024 rows.
+        generator_to_load = flows.get("generator_to_load", zero).mean_power
+        generator_to_battery = flows.get("generator_to_battery", zero).mean_power
         account = accepted.stock_accounts[0]
         battery = account.address
         soc_start = boundary.stock(account.address) or Fraction(0)
@@ -622,6 +671,7 @@ def electrical_view(execution: Execution) -> ElectricalView | None:
                 battery_power=(
                     flows["battery_to_load"].mean_power
                     - flows["pv_to_battery"].mean_power
+                    - generator_to_battery
                 ),
                 requested_battery_power=request.requested,
                 limited_by=control.limited_by,
@@ -629,13 +679,55 @@ def electrical_view(execution: Execution) -> ElectricalView | None:
                 served=(
                     flows["pv_to_load"].mean_power
                     + flows["battery_to_load"].mean_power
+                    + generator_to_load
                 ),
                 unserved=flows["unserved_load"].mean_power,
             )
         )
+        run = next(
+            (item for item in step.intent.requests if item.quantity == "generator-run"),
+            None,
+        )
+        if run is not None:
+            generator_state = run.address
+            outcome = next(
+                item for item in accepted.controls if item.quantity == "generator-run"
+            )
+            fuel = next(
+                item for item in accepted.stock_accounts if item.outflows == ("generator_output",)
+            )
+            fuel_address = fuel.address
+            fuel_start = boundary.stock(fuel.address) or Fraction(0)
+            generator_steps.append(
+                GeneratorStepRow(
+                    from_offset=accepted.from_offset,
+                    to_offset=accepted.to_offset,
+                    simulation_time=boundary.simulation_time,
+                    state_at_t=boundary.discrete_state(run.address) or "",
+                    state_for_step=boundary.discrete_state_for_step(run.address) or "",
+                    requested=str(run.requested),
+                    request_reason=run.reason,
+                    output=flows["generator_output"].mean_power,
+                    to_load=generator_to_load,
+                    to_battery=generator_to_battery,
+                    fuel_start=fuel_start,
+                    fuel_end=fuel_start + fuel.delta,
+                    limited_by=outcome.limited_by,
+                )
+            )
         latest = step
     if latest is None:
         return None
+    generator = (
+        None
+        if not generator_steps
+        else GeneratorView(
+            state_address=generator_state,
+            fuel_address=fuel_address,
+            steps=tuple(generator_steps),
+            transitions=execution.discrete_transitions,
+        )
+    )
     return ElectricalView(
         battery_address=battery,
         steps=tuple(steps),
@@ -650,10 +742,11 @@ def electrical_view(execution: Execution) -> ElectricalView | None:
         ),
         latest_segments=latest.accepted.segments,
         notes=latest.accepted.notes,
+        generator=generator,
     )
 
 
-def _text(value: Fraction | None) -> str | None:
+def _text(value: Fraction | str | None) -> str | None:
     return None if value is None else str(value)
 
 
@@ -753,7 +846,131 @@ def render_electrical(view: ElectricalView | None) -> dict[str, object] | None:
         "latest_balances": list(view.latest_balances),
         "latest_segments": [list(item) for item in view.latest_segments],
         "notes": list(view.notes),
+    } | ({} if view.generator is None else {"generator": _render_generator(view.generator)})
+
+
+def _render_generator(view: GeneratorView) -> dict[str, object]:
+    """T025a. The generator as artifact schema 4 persists it."""
+    return {
+        "state_address": view.state_address,
+        "fuel_address": view.fuel_address,
+        "reported_status": view.reported_status,
+        "steps": [
+            {
+                "from_offset": row.from_offset,
+                "to_offset": row.to_offset,
+                "simulation_time": row.simulation_time,
+                "state_at_t": row.state_at_t,
+                "state_for_step": row.state_for_step,
+                "requested": row.requested,
+                "request_reason": row.request_reason,
+                "output": str(row.output),
+                "to_load": str(row.to_load),
+                "to_battery": str(row.to_battery),
+                "fuel_start": str(row.fuel_start),
+                "fuel_end": str(row.fuel_end),
+                "limited_by": list(row.limited_by),
+            }
+            for row in view.steps
+        ],
+        "transitions": [
+            {
+                "address": item.address,
+                "state_key": item.state_key,
+                "previous": item.previous,
+                "next": item.next,
+                "phase": item.phase,
+                "cause": item.cause,
+                "controller_ref": item.controller_ref,
+                "at_offset_minutes": item.at_offset_minutes,
+                "simulation_time": item.simulation_time,
+            }
+            for item in view.transitions
+        ],
     }
+
+
+#: T025a. The two closed vocabularies a persisted discrete value may take: a
+#: lifecycle member (a physical state), or a request naming one (RUN / STOP).
+_LIFECYCLE = frozenset(GENERATOR_LIFECYCLE.allowed_values)
+_REQUESTS = frozenset({RUN, STOP})
+
+
+def _member(value: object, allowed: frozenset[str], where: str) -> str:
+    """A persisted enum member: text, and declared. The original type is
+    checked before anything converts it, so `1` is refused rather than
+    becoming `'1'`, and an undeclared member is refused rather than passed on."""
+    if not isinstance(value, str):
+        raise ValueError(
+            f"{where} in a persisted execution artifact is {value!r} and an "
+            f"enum member is written as text, one of {sorted(allowed)}."
+        )
+    if value not in allowed:
+        raise ValueError(
+            f"{where} in a persisted execution artifact is {value!r}, which is "
+            f"not one of the declared members {sorted(allowed)}."
+        )
+    return value
+
+
+def _parse_generator(raw: object) -> GeneratorView:
+    """T025a. The persisted generator, strictly: members stay text, numbers
+    go back through `Fraction`."""
+    if not isinstance(raw, dict):
+        raise KeyError("generator")
+
+    def x(value: object, where: str) -> Fraction:
+        return _exact(value, where)
+
+    return GeneratorView(
+        state_address=str(raw["state_address"]),
+        fuel_address=str(raw["fuel_address"]),
+        reported_status=str(raw["reported_status"]),
+        steps=tuple(
+            GeneratorStepRow(
+                from_offset=int(row["from_offset"]),
+                to_offset=int(row["to_offset"]),
+                simulation_time=str(row["simulation_time"]),
+                state_at_t=_member(row["state_at_t"], _LIFECYCLE, "a generator state_at_t"),
+                state_for_step=_member(row["state_for_step"], _LIFECYCLE, "a generator state_for_step"),
+                requested=_member(row["requested"], _REQUESTS, "a generator request"),
+                request_reason=str(row["request_reason"]),
+                output=x(row["output"], "a generator output"),
+                to_load=x(row["to_load"], "a generator output"),
+                to_battery=x(row["to_battery"], "a generator output"),
+                fuel_start=x(row["fuel_start"], "a fuel volume"),
+                fuel_end=x(row["fuel_end"], "a fuel volume"),
+                limited_by=tuple(str(item) for item in row["limited_by"]),
+            )
+            for row in raw["steps"]
+        ),
+        transitions=tuple(
+            DiscreteTransition(
+                address=str(item["address"]),
+                state_key=str(item["state_key"]),
+                previous=_member(item["previous"], _LIFECYCLE, "a transition previous state"),
+                next=_member(item["next"], _LIFECYCLE, "a transition next state"),
+                phase=str(item["phase"]),
+                cause=str(item["cause"]),
+                controller_ref=(
+                    None if item["controller_ref"] is None else str(item["controller_ref"])
+                ),
+                at_offset_minutes=int(item["at_offset_minutes"]),
+                simulation_time=str(item["simulation_time"]),
+            )
+            for item in raw["transitions"]
+        ),
+    )
+
+
+def _typed_value(
+    value: object, unit: str, where: str, allowed: frozenset[str] = _LIFECYCLE
+):
+    """A persisted control value: a discrete member stays text and stays
+    declared (T025a)."""
+    if unit == DISCRETE_UNIT:
+        return _member(value, allowed, where)
+    return _exact(value, where)
 
 
 def parse_electrical(raw: object) -> ElectricalView | None:
@@ -798,7 +1015,9 @@ def parse_electrical(raw: object) -> ElectricalView | None:
                 name=str(row["name"]),
                 address=str(row["address"]),
                 value=(
-                    None if row["value"] is None else x(row["value"], "a view value")
+                    None
+                    if row["value"] is None
+                    else _typed_value(row["value"], str(row["unit"]), "a view value")
                 ),
                 unit=str(row["unit"]),
             )
@@ -808,7 +1027,7 @@ def parse_electrical(raw: object) -> ElectricalView | None:
             ControlRequest(
                 address=str(row["address"]),
                 quantity=str(row["quantity"]),
-                requested=x(row["requested"], "a request"),
+                requested=_typed_value(row["requested"], str(row["unit"]), "a request", _REQUESTS),
                 unit=str(row["unit"]),
                 reason=str(row["reason"]),
             )
@@ -818,8 +1037,8 @@ def parse_electrical(raw: object) -> ElectricalView | None:
             AcceptedControl(
                 address=str(row["address"]),
                 quantity=str(row["quantity"]),
-                requested=x(row["requested"], "a request"),
-                accepted=x(row["accepted"], "an accepted power"),
+                requested=_typed_value(row["requested"], str(row["unit"]), "a request", _REQUESTS),
+                accepted=_typed_value(row["accepted"], str(row["unit"]), "an accepted power"),
                 unit=str(row["unit"]),
                 limited_by=tuple(str(item) for item in row["limited_by"]),
             )
@@ -865,6 +1084,9 @@ def parse_electrical(raw: object) -> ElectricalView | None:
             (int(item[0]), int(item[1])) for item in raw["latest_segments"]
         ),
         notes=tuple(str(item) for item in raw["notes"]),
+        generator=(
+            _parse_generator(raw["generator"]) if "generator" in raw else None
+        ),
     )
 
 
@@ -931,7 +1153,7 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
     return {
         # First, so a person opening the file sees which rule wrote it before
         # they see anything the rule decided.
-        "artifact_schema_version": EXECUTION_ARTIFACT_SCHEMA_VERSION,
+        "artifact_schema_version": _schema_written(projection),
         "run_id": projection.run_id,
         "status": projection.status,
         "boundaries_completed": projection.boundaries_completed,

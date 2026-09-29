@@ -381,6 +381,16 @@ from fractions import Fraction
 #: whose trajectory values under nine are the values it produced under eight.
 #: Every Draft below nine stays readable and is refused execution.
 #:
+#: ## T025a extends nine additively and does not move it
+#:
+#: `D-2026-09-29-t025-generator-policy-package`: addressed discrete state,
+#: the generator lifecycle and generator/fuel balances arrive as the new
+#: `mini-grid` v1 profile and `DISCRETE_STATE_RULES`, none of which a model
+#: without discrete state reaches. Empty discrete fields stay out of every
+#: identity and digest. The merge gate in `host/tests/contract9_gate` proves
+#: every pre-change v9 Draft still parses, executes and reproduces its
+#: identity, trajectory, observations and artifact.
+#:
 #: Once this merges, the next narrowing is a ten.
 EXECUTION_CONTRACT_VERSION = 9
 
@@ -842,6 +852,79 @@ COUPLING_RULES: tuple[DispatchRule, ...] = (
         ),
     ),
 )
+
+#: T025a. What a model with addressed discrete state (the `mini-grid` v1
+#: generator lifecycle) commits to, additively under nine: no rule here is
+#: reached by a model that declares no discrete state, so no existing Draft's
+#: outcome can move (`D-2026-09-29-t025-generator-policy-package`).
+DISCRETE_STATE_RULES: tuple[DispatchRule, ...] = (
+    DispatchRule(
+        rule_id="discrete-transitions-at-step-boundaries",
+        display_name="Discrete transitions happen at step boundaries only",
+        statement=(
+            "At T, a lifecycle deadline already due (a start delay that has "
+            "elapsed) is applied first, before the sample at T. The "
+            "controller then reads its local view and emits intent; a "
+            "transition that request causes is applied at T after the sample, "
+            "never treated as already due before its own observation. Every "
+            "transition records the state address, previous and next values, "
+            "the cause and controller reference, and the instant. Start delay, "
+            "minimum runtime and generator policy windows must be whole "
+            "multiples of the step or setup refuses them; minimum runtime "
+            "counts from the boundary the state became RUNNING."
+        ),
+    ),
+    DispatchRule(
+        rule_id="site-policy-owns-generator-control",
+        display_name="The Site's frozen policy owns generator control",
+        statement=(
+            "The generator is requested to start only when the state of "
+            "charge at T is at or below the Site's start threshold, and to "
+            "stop only when it is RUNNING, the Site's minimum runtime has "
+            "elapsed and the state of charge is at or above the stop "
+            "threshold. The model adds no trigger of its own. Sources serve "
+            "load in the Site's frozen source priority; a running generator "
+            "serves what the sources ahead of it do not and may charge the "
+            "battery only when the battery is not discharging, within the "
+            "PCS limit and headroom. The rating is a ceiling, fuel is checked "
+            "before energy is accepted, and fuel falls by the specific "
+            "consumption times accepted generator energy, with no idle or "
+            "start fuel."
+        ),
+    ),
+    DispatchRule(
+        rule_id="physical-state-is-not-a-request",
+        display_name="A request, a physical state and an output are three things",
+        statement=(
+            "A run request is not RUNNING, and RUNNING is not output: a "
+            "generator that is STARTING delivers nothing, and FAILED is inert "
+            "and delivers nothing without failing the execution. A physical "
+            "state is neither a switch position nor a controller mode, and it "
+            "is not a reported reading until a publication profile publishes "
+            "it."
+        ),
+    ),
+)
+
+#: T025a. Units a Foundation property answering a model need may carry that
+#: are NOT scenario parameter units. A duration still has no position in a
+#: scenario document (`DURATION_UNIT_SPELLINGS`); a generator's minimum
+#: runtime and start delay are Foundation facts in minutes, frozen with their
+#: provenance, which is the one reason on the record for this entry.
+MODEL_NEED_ONLY_UNITS: dict[str, CanonicalUnit] = {
+    "min": CanonicalUnit("DURATION", "min", 1, 1),
+}
+
+
+def canonical_model_need_quantity(value: float, unit: str) -> tuple[float, str, str]:
+    """`canonical_quantity` for a Foundation answer to a model need."""
+    if unit in MODEL_NEED_ONLY_UNITS:
+        canonical = MODEL_NEED_ONLY_UNITS[unit]
+        converted = _exact(value) * Fraction(
+            canonical.numerator, canonical.denominator
+        )
+        return float(converted), canonical.canonical_unit, canonical.dimension
+    return canonical_quantity(value, unit)
 
 
 # --- The boundary cycle -----------------------------------------------------

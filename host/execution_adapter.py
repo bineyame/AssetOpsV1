@@ -83,6 +83,7 @@ from assetops_contracts.observation import (
     FrozenReportingInputs,
     ReportingPathWindow,
 )
+from assetops_contracts.control import DISCRETE_UNIT
 from assetops_contracts.trajectory import PrivateTrajectory
 from assetops_contracts.world_inputs import (
     DeclaredBound,
@@ -90,6 +91,7 @@ from assetops_contracts.world_inputs import (
     ForcingInput,
     FrozenInterval,
     FrozenWorldInputs,
+    DiscreteInitialValue,
     InitialValue,
     BusAttachmentInput,
     SiteControlInput,
@@ -98,6 +100,7 @@ from assetops_contracts.world_inputs import (
 from assetops_simulator.kernel.execute import execute
 from assetops_simulator.kernel.model import ModelSpec
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
+from assetops_simulator.packs.mini_grid import MINI_GRID_MODEL
 from assetops_simulator.packs.minigrid import DAYTIME_MINI_GRID_MODEL
 
 #: Every model this build can execute, by the profile identity a run freezes.
@@ -107,6 +110,7 @@ from assetops_simulator.packs.minigrid import DAYTIME_MINI_GRID_MODEL
 EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
     MINIMAL_FUEL_MODEL,
     DAYTIME_MINI_GRID_MODEL,
+    MINI_GRID_MODEL,
 )
 
 
@@ -263,6 +267,31 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
         intervention_history=identity.intervention_history,
         site_controls=site_controls,
         bus_attachments=bus_attachments,
+        discrete_initial_values=_discrete_initial_values(run),
+    )
+
+
+def _is_discrete(item) -> bool:
+    """T025a. A typed discrete member, frozen in unit `state`."""
+    return item.unit == DISCRETE_UNIT
+
+
+def _discrete_initial_values(run: SimulationRun) -> tuple[DiscreteInitialValue, ...]:
+    """T025a. The run-start discrete states a scenario owns, typed, never numbers.
+
+    Empty for every run frozen before discrete state existed, which is what
+    keeps those runs' identities exactly as they were.
+    """
+    return tuple(
+        DiscreteInitialValue(
+            address=item.addressed_key,
+            state_key=item.state_key,
+            scope=item.state_ref.scope,
+            value=str(item.canonical_value),
+            answered_by=item.answered_by,
+        )
+        for item in run.deterministic_identity.initialization_inputs
+        if _is_discrete(item)
     )
 
 
@@ -338,6 +367,7 @@ def _initial_values(run: SimulationRun) -> tuple[InitialValue, ...]:
             answered_by=item.answered_by,
         )
         for item in frozen
+        if not _is_discrete(item)
     )
 
 

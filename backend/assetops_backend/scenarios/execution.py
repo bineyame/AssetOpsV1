@@ -45,6 +45,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction
 
+from assetops_contracts.control import DISCRETE_UNIT
+
 from assetops_contracts.execution_contract import (
     BOUNDARY_CYCLE,
     CanonicalValueNotRepresentable,
@@ -140,6 +142,9 @@ __all__ = [
     "state_transition_inputs",
 ]
 
+#: T025a. The dimension a typed discrete initial value is frozen in.
+DISCRETE_DIMENSION = "DISCRETE"
+
 
 # --- Initialization and the private-state transition surface ----------------
 
@@ -164,9 +169,10 @@ class InitializationInput:
     display_name: str
     state_ref: StateRef
     owner: str
-    value: float | None
+    #: Text only for a typed discrete member (T025a), in `DISCRETE_UNIT`.
+    value: float | str | None
     unit: str
-    canonical_value: float | None
+    canonical_value: float | str | None
     canonical_unit: str
     dimension: str
 
@@ -278,6 +284,14 @@ def initialization_inputs(
             value = parameter.value
             canonical_value, canonical_unit, dimension = canonical_quantity(
                 parameter.value, parameter.unit
+            )
+        elif parameter.unit == DISCRETE_UNIT and isinstance(parameter.value, str):
+            # T025a: a typed discrete member is its own canonical value.
+            value = parameter.value
+            canonical_value, canonical_unit, dimension = (
+                parameter.value,
+                DISCRETE_UNIT,
+                DISCRETE_DIMENSION,
             )
         else:
             continue

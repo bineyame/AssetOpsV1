@@ -21,6 +21,7 @@ import yaml
 from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.profiles import (
     DAYTIME_MINI_GRID_MODEL,
+    MINI_GRID_MODEL,
     LAB_PUBLICATION_PROFILE,
     MINIMAL_FUEL_TANK_MODEL,
 )
@@ -116,7 +117,7 @@ def kobo_draft(
         raw, source="a Kobo scenario", origin="SHIPPED"
     )
     site = kobo_site(site_edit)
-    profiles = (MINIMAL_FUEL_TANK_MODEL, DAYTIME_MINI_GRID_MODEL)
+    profiles = (MINIMAL_FUEL_TANK_MODEL, DAYTIME_MINI_GRID_MODEL, MINI_GRID_MODEL)
     profile = next(p for p in profiles if p.model_profile_id == model_profile)
     setup = RunSetupService(
         FakeRuns(),

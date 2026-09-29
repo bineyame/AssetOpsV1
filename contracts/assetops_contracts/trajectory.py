@@ -53,13 +53,22 @@ EXECUTION_OUTCOMES = frozenset({"COMPLETED", "FAILED"})
 
 #: The trace record kinds this kernel produces, a subset of v4 section 21's
 #: list. The absent ones are absent because nothing here makes them:
-#: `CONTROL_INTENT` and `ACCEPTED_FLOW` need a controller, `DISCRETE_TRANSITION`
-#: needs a discrete state, and `DEVICE_OBSERVATION` and `GATEWAY_PUBLICATION`
-#: need the observation transform and the gateway. A kind listed with no
-#: producer would be a claim that this kernel does more than it does.
+#: `CONTROL_INTENT` and `ACCEPTED_FLOW` need a controller, and
+#: `DEVICE_OBSERVATION` and `GATEWAY_PUBLICATION` need the observation
+#: transform and the gateway. `DISCRETE_TRANSITION` is produced since T025a by
+#: a model that declares a discrete state (`mini-grid` v1's generator
+#: lifecycle). A kind listed with no producer would be a claim that this kernel
+#: does more than it does.
 TRACE_RECORD_KINDS = frozenset(
-    {"STEP", "EVENT_APPLIED", "BOUNDED_TRANSITION", "FAILURE"}
+    {"STEP", "EVENT_APPLIED", "BOUNDED_TRANSITION", "DISCRETE_TRANSITION", "FAILURE"}
 )
+
+#: The phases a discrete transition may happen in (T025a, criterion 4). A
+#: lifecycle deadline already due at T is applied in `apply-events`, before the
+#: sample at T; a transition that a request newly emitted at T causes is
+#: applied in `physical-acceptance`, after the sample and the view at T, so it
+#: is never treated as an event already due before its own observation.
+DISCRETE_TRANSITION_PHASES = frozenset({"apply-events", "physical-acceptance"})
 
 #: Where a change to a stock came from. Two, and no third: a change is
 #: something the document declared or something a model law computed.
@@ -104,6 +113,53 @@ class AppliedEvent:
             self.declared,
             self.origin,
             self.phase_id,
+        )
+
+
+@dataclass(frozen=True)
+class DiscreteTransition:
+    """One change of an addressed discrete state (v4 section 4.3).
+
+    `address` is the StateRef (`generator-state@generator`); `previous` and
+    `next` are members of the state's declared allowed values; `cause` says in
+    words why (a due deadline, or which request); `controller_ref` names the
+    control intent that caused it, or is `None` for a due deadline. The instant
+    is always a step boundary: this build has no sub-step transition.
+    """
+
+    address: str
+    state_key: str
+    previous: str
+    next: str
+    phase: str
+    cause: str
+    controller_ref: str | None
+    at_offset_minutes: int
+    simulation_time: str
+
+    def __post_init__(self) -> None:
+        if self.phase not in DISCRETE_TRANSITION_PHASES:
+            raise ValueError(
+                f"A discrete transition happens in one of "
+                f"{sorted(DISCRETE_TRANSITION_PHASES)}, not {self.phase!r}."
+            )
+        if self.previous == self.next:
+            raise ValueError(
+                f"{self.address} did not change at {self.at_offset_minutes}: a "
+                "transition from a value to itself is not a transition."
+            )
+
+    def as_fields(self) -> tuple[object, ...]:
+        return (
+            self.address,
+            self.state_key,
+            self.previous,
+            self.next,
+            self.phase,
+            self.cause,
+            self.controller_ref,
+            self.at_offset_minutes,
+            self.simulation_time,
         )
 
 
@@ -222,6 +278,26 @@ class BoundaryState:
     #: step. Absent is not written into the content digest, so a model with no
     #: controller digests exactly as it did before this field existed.
     control_step: ControlStep | None = None
+    #: T025a. The addressed discrete states at T after that instant's due
+    #: transitions - what a sample at T sees - and the states over the step
+    #: beginning at T, after any transition a request emitted at T caused.
+    #: Both empty for a model with no discrete state, and empty is not written
+    #: into the content digest, so every earlier model digests exactly as it
+    #: did before these fields existed (the contract-9 merge gate).
+    discrete: tuple[tuple[str, str], ...] = ()
+    discrete_for_step: tuple[tuple[str, str], ...] = ()
+
+    def discrete_state(self, address: str) -> str | None:
+        for key, value in self.discrete:
+            if key == address:
+                return value
+        return None
+
+    def discrete_state_for_step(self, address: str) -> str | None:
+        for key, value in self.discrete_for_step:
+            if key == address:
+                return value
+        return None
 
     def stock(self, address: str) -> Fraction | None:
         for key, value in self.stocks:
@@ -298,6 +374,10 @@ class BoundaryState:
             self.has_preceding_interval,
         ) + (
             () if self.control_step is None else (self.control_step.as_fields(),)
+        ) + (
+            ()
+            if not self.discrete and not self.discrete_for_step
+            else (("discrete", self.discrete, self.discrete_for_step),)
         )
 
 
@@ -319,6 +399,9 @@ class PrivateTrajectory:
     handlers_exercised: tuple[str, ...]
     failure: ExecutionFailure | None = None
     notes: tuple[str, ...] = field(default_factory=tuple)
+    #: T025a. Every discrete transition, in the order applied. Empty for a
+    #: model with no discrete state, and then left out of the digest.
+    discrete_transitions: tuple[DiscreteTransition, ...] = ()
 
     def __post_init__(self) -> None:
         if self.outcome not in EXECUTION_OUTCOMES:
@@ -394,6 +477,19 @@ class PrivateTrajectory:
                 None if self.failure is None else self.failure.kind,
                 None if self.failure is None else self.failure.subject,
             ]
+            + (
+                []
+                if not self.discrete_transitions
+                else [
+                    (
+                        "discrete-transitions",
+                        tuple(
+                            transition.as_fields()
+                            for transition in self.discrete_transitions
+                        ),
+                    )
+                ]
+            )
         )
 
 
@@ -509,6 +605,28 @@ def frozen_inputs_identity(
             model_profile_version,
             numeric_policy,
         ]
+        # T025a: scenario-owned discrete initial values (a generator's
+        # lifecycle state at run start). Appended only when present, so every
+        # Draft frozen before they existed keeps its identity exactly.
+        + (
+            []
+            if not inputs.discrete_initial_values
+            else [
+                (
+                    "discrete-initial-values",
+                    tuple(
+                        (
+                            entry.address,
+                            entry.state_key,
+                            entry.scope,
+                            entry.value,
+                            entry.answered_by,
+                        )
+                        for entry in inputs.discrete_initial_values
+                    ),
+                )
+            ]
+        )
     )
 
 
@@ -539,6 +657,7 @@ IDENTITY_FIELDS_READ = frozenset(
         "intervention_history",
         "site_controls",
         "bus_attachments",
+        "discrete_initial_values",
     }
 )
 

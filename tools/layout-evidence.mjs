@@ -2092,6 +2092,154 @@ allPass =
     ],
   ]) && allPass;
 
+// --- T025a: the full mini-grid and its generator on the Draft screen --------
+//
+// A Draft of the shipped `kobo-mini-grid-evening` scenario with the
+// `mini-grid` profile at 5-minute steps, against the same Site (whose
+// Foundation must carry the generator policy the T025a template adds). It is
+// stepped to offset 390, where the generator has started and is RUNNING at
+// its rating, so the generator series has 79 rows and the transitions table
+// two. A missing generator section fails rather than passing on nothing.
+const SUBMIT_MINI_GRID_SETUP = SUBMIT_KOBO_SETUP.replace(
+  '"2026-09-22T03:00:00Z"',
+  '"2026-09-22T09:00:00Z"',
+)
+  .replace('"2026-09-22T15:00:00Z"', '"2026-09-22T17:00:00Z"')
+  .replace('setValue("run-setup-timestep", "15")', 'setValue("run-setup-timestep", "5")')
+  .replace('"daytime-mini-grid"', '"mini-grid"')
+  // `choose` matches by substring, and "mini-grid" is inside "daytime-mini-grid".
+  .replace('item.value.includes(fragment)', 'item.value.startsWith(fragment)');
+
+const STEP_TO_THE_RUNNING_GENERATOR = STEP_TO_THE_EVENING.replace("'41'", "'79'");
+
+const READ_GENERATOR = `(() => {
+  const text = (element) => (element ? (element.textContent || '').trim() : null);
+  return {
+    steps: document.querySelectorAll('[data-generator-step]').length,
+    transitions: Array.from(document.querySelectorAll('[data-generator-transition]')).map(
+      (row) => row.getAttribute('data-generator-transition'),
+    ),
+    stateForStep: text(document.querySelector('[data-generator-state-for-step]')),
+    requested: text(document.querySelector('[data-generator-request]')),
+    output: text(document.querySelector('[data-generator-output]')),
+    reported: text(document.querySelector('[data-generator-reported-status]')),
+    served: text(document.querySelector('[data-electrical-served]')),
+    demand: text(document.querySelector('[data-electrical-demand]')),
+  };
+})()`;
+
+await visit(
+  cdp,
+  "/simulator-lab/scenarios/kobo-mini-grid-evening/run-setup",
+  1280,
+  800,
+  "form",
+  { script: SUBMIT_MINI_GRID_SETUP, waitFor: ".data-table__scroll" },
+);
+const miniRuns = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+// Newest first, as the Kobo daytime lookup above relies on too.
+const miniHref =
+  miniRuns.runRows.find((row) => row.status === "READY")?.href ?? null;
+if (miniHref === null || miniHref === koboHref) {
+  throw new Error(
+    `No READY mini-grid Draft was found after setting one up against ${KOBO_SITE}. ` +
+      "Does its Foundation carry the generator policy properties?",
+  );
+}
+await visit(cdp, miniHref, 1280, 800, "[data-execution-status]", {
+  script: clickControl("Start this run"),
+  waitFor: "[data-execution-status='RUNNING']",
+});
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["1000x700, below the commitment", 1000, 700],
+  ["640x700, narrow enough that the generator series cannot fit", 640, 700],
+]) {
+  const mini = await visit(
+    cdp,
+    miniHref,
+    width,
+    height,
+    width === 1280 ? "[data-execution-status]" : "[data-generator-step]",
+    width === 1280
+      ? { script: STEP_TO_THE_RUNNING_GENERATOR, waitFor: "[data-generator-step]" }
+      : undefined,
+  );
+  const generator = (
+    await cdp.send("Runtime.evaluate", {
+      expression: READ_GENERATOR,
+      returnByValue: true,
+    })
+  ).result.value;
+  const series = mini.scrollers.find(
+    (s) => s.name === "run-generator-series-heading",
+  );
+  const transitions = mini.scrollers.find(
+    (s) => s.name === "run-generator-transitions-heading",
+  );
+  allPass =
+    report(`Kobo mini-grid draft stepped to a running generator at ${label}`, mini, [
+      [
+        "the generator series has a row per resolved step, and there are some",
+        generator.steps === 79 && series !== undefined && series.rowCount === 79,
+        `${generator.steps} step rows, series table ${series === undefined ? "absent" : `${series.rowCount} rows`}`,
+      ],
+      [
+        "both lifecycle transitions are drawn, start request then running",
+        transitions !== undefined &&
+          transitions.rowCount === 2 &&
+          generator.transitions.join(",") === "STARTING,RUNNING",
+        `${generator.transitions.join(" -> ") || "none"}`,
+      ],
+      [
+        "request, physical state and accepted output are three drawn values",
+        generator.requested === "RUN" &&
+          generator.stateForStep === "RUNNING" &&
+          generator.output === "40 kW",
+        `requested ${generator.requested}, state ${generator.stateForStep}, output ${generator.output}`,
+      ],
+      [
+        "service counts the generator's share",
+        generator.served !== null && generator.served === generator.demand,
+        `served ${generator.served} of demand ${generator.demand}`,
+      ],
+      [
+        "the reported status is stated as pending",
+        (generator.reported ?? "").includes("pending T025b"),
+        generator.reported ?? "absent",
+      ],
+      [
+        "the page does not scroll horizontally",
+        !mini.pageScrollsHorizontally,
+        `scrollWidth ${mini.pageScrollWidth} vs clientWidth ${mini.pageClientWidth}`,
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        mini.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+        mini.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the rail does not move when every table is scrolled to its end",
+        mini.railLeftBefore === mini.railLeftAfterAll,
+        `left ${mini.railLeftBefore} -> ${mini.railLeftAfterAll}`,
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "the generator series overflows here, so the claim above is not vacuous",
+              series !== undefined && series.overflows,
+              series === undefined ? "absent" : series.overflows ? "overflows" : "fits",
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
+
 console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
 
 ws.close();

@@ -1,0 +1,99 @@
+artifact_schema_version: 3
+run_id: run-c9000000000000000000000000000204
+status: RUNNING
+boundaries_completed: 0
+boundaries_total: 49
+offset_minutes: 0
+simulation_time: '2026-09-22T03:00:00Z'
+interval_start_time: '2026-09-22T03:00:00Z'
+interval_end_time: '2026-09-22T15:00:00Z'
+timestep_minutes: 15
+seed: 3
+kernel_version: 1
+model_profile_id: daytime-mini-grid
+model_profile_version: 1
+publication_profile_id: simulator-lab-publication
+publication_profile_version: 3
+numeric_policy: EXACT_RATIONAL
+numeric_policy_version: 1
+execution_contract_version: 9
+inputs_identity: 2ffdb6a0450cfe8da1abdd4de27b41f0283dc1ba38cb85e273d01de7d92517f4
+content_digest: null
+observation_series_digest: 352b275362fa2d7927625894a003f69502f7d4adc3c1ab22efb2218aea64aac1
+reported_count: 0
+suppressed_by_gap_count: 0
+dropped_count: 0
+notes: []
+failure: null
+private_state: []
+signals:
+- device_id: battery-pcs-controller
+  signal_id: state-of-charge
+  address: battery-state-of-charge@battery
+  state_key: battery-state-of-charge
+  reading_class: STATE_SIGNAL
+  canonical_unit: '%'
+  cadence_minutes: 15
+  bias: '0'
+  dropout_per_thousand: 20
+  statement: The PCS controller publishes the battery's state of charge every fifteen
+    minutes, sampled after that instant's events. One sample in fifty does not arrive.
+- device_id: battery-pcs-controller
+  signal_id: ac-power
+  address: battery-ac-power@battery-pcs
+  state_key: battery-ac-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 15
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: 'The PCS controller publishes the mean AC power over the span that just
+    ended: positive while discharging to the bus, negative while charging from it.'
+- device_id: pv-inverter-controller
+  signal_id: ac-power
+  address: pv-ac-power@pv-inverter
+  state_key: pv-ac-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 15
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: The PV inverter publishes the mean AC power it delivered over the span
+    that just ended - what was used, not what the array could have offered.
+- device_id: residential-meter
+  signal_id: active-power
+  address: load-served-power@load-res
+  state_key: load-served-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 15
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: The residential feeder meter publishes the mean power served to the feeder
+    over the span that just ended.
+- device_id: clinic-meter
+  signal_id: active-power
+  address: load-served-power@load-clinic
+  state_key: load-served-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 15
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: The clinic meter publishes the mean power served to the clinic over the
+    span that just ended.
+- device_id: mill-meter
+  signal_id: active-power
+  address: load-served-power@load-mill
+  state_key: load-served-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 15
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: The mill meter publishes the mean power served to the mill over the span
+    that just ended.
+reporting_gaps: []
+observations: []
+recent_reports: []
+electrical: null

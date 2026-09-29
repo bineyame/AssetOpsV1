@@ -48,6 +48,9 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Mapping, NoReturn
 
+from assetops_contracts.control import DISCRETE_UNIT as DISCRETE_VALUE_UNIT
+from assetops_contracts.execution_contract import MODEL_NEED_ONLY_UNITS
+
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.runs.identity import validate_run_id
 from assetops_backend.runs.models import (
@@ -122,6 +125,8 @@ RUN_INPUT_KEYS = frozenset({"parameter_id", "value", "unit"})
 #: than whatever a client happened to emit.
 INSTANT_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
+#: T025a. How a discrete member is spelled in a frozen run.
+DISCRETE_MEMBER = re.compile(r"[A-Z][A-Z_]*")
 PROFILE_ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 #: Bounds, so a request cannot ask for a run nothing could walk. Each is a
@@ -1143,7 +1148,7 @@ def _parse_model_need(entry: Any) -> FrozenModelNeed:
     """One model-owned Foundation need (T024), with its absent case checked."""
     raw = _mapping(entry, where="model_need")
     unit = _text(raw, "unit", where="model_need")
-    if unit not in PARAMETER_UNITS:
+    if unit not in PARAMETER_UNITS and unit not in MODEL_NEED_ONLY_UNITS:
         raise _bad(f"'model_need.unit' {unit!r} is not a unit this contract knows.")
     value = _optional_real(raw, "value", where="model_need")
     canonical_value = _optional_real(raw, "canonical_value", where="model_need")
@@ -1300,16 +1305,31 @@ def _parse_initialization_input(entry: Any) -> FrozenInitializationInput:
     """
     raw = _mapping(entry, where="initialization_input")
     unit = _text(raw, "unit", where="initialization_input")
-    if unit not in PARAMETER_UNITS:
+    value: float | str | None
+    canonical_value: float | str | None
+    if unit == DISCRETE_VALUE_UNIT:
+        # T025a: a typed discrete member, which is its own canonical value.
+        value = raw.get("value")
+        canonical_value = raw.get("canonical_value")
+        if value is not None and (
+            not isinstance(value, str)
+            or not DISCRETE_MEMBER.fullmatch(value)
+            or canonical_value != value
+        ):
+            raise _bad(
+                "'initialization_input.value' in unit 'state' is a discrete "
+                "member name, restated unchanged as its canonical value."
+            )
+    elif unit not in PARAMETER_UNITS:
         raise _bad(
             f"'initialization_input.unit' {unit!r} is not a unit this "
             "contract knows."
         )
-
-    value = _optional_real(raw, "value", where="initialization_input")
-    canonical_value = _optional_real(
-        raw, "canonical_value", where="initialization_input"
-    )
+    else:
+        value = _optional_real(raw, "value", where="initialization_input")
+        canonical_value = _optional_real(
+            raw, "canonical_value", where="initialization_input"
+        )
     if (value is None) != (canonical_value is None):
         raise _bad(
             "'initialization_input.value' and its canonical restatement are "

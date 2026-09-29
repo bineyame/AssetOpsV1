@@ -1,0 +1,585 @@
+run_id: run-c9000000000000000000000000000204
+lifecycle_status: DRAFT
+execution_status: READY
+created_at: '2026-09-29T09:00:00Z'
+deterministic_identity:
+  site:
+    site_id: KOBO-001
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    site_type: MINIGRID
+    timezone: Africa/Addis_Ababa
+  scenario:
+    scenario_id: kobo-daytime
+    scenario_version: 1
+    resolved_parameters:
+    - parameter_id: irradiance-1-level
+      value: 150.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: irradiance-2-level
+      value: 550.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: irradiance-3-level
+      value: 900.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: irradiance-4-level
+      value: 950.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: irradiance-5-level
+      value: 600.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: irradiance-6-level
+      value: 150.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: residential-demand-1-level
+      value: 8.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: residential-demand-2-level
+      value: 6.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: residential-demand-3-level
+      value: 5.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: residential-demand-4-level
+      value: 6.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: residential-demand-5-level
+      value: 8.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: residential-demand-6-level
+      value: 14.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: clinic-demand-1-level
+      value: 5.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: clinic-demand-2-level
+      value: 6.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: clinic-demand-3-level
+      value: 7.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: clinic-demand-4-level
+      value: 7.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: clinic-demand-5-level
+      value: 6.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: clinic-demand-6-level
+      value: 5.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: mill-demand-1-level
+      value: 0.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: mill-demand-2-level
+      value: 15.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: mill-demand-3-level
+      value: 18.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: mill-demand-4-level
+      value: 10.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: mill-demand-5-level
+      value: 12.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: mill-demand-6-level
+      value: 0.0
+      unit: kW
+      answered_by: SCENARIO
+  interval:
+    start_time: '2026-09-22T03:00:00Z'
+    end_time: '2026-09-22T15:00:00Z'
+    duration_minutes: 720
+    timestep_minutes: 15
+  seed: 3
+  profiles:
+    model_profile_id: daytime-mini-grid
+    model_profile_version: 1
+    publication_profile_id: simulator-lab-publication
+    publication_profile_version: 3
+    execution_contract_version: 9
+  initialization_inputs:
+  - state_key: battery-state-of-charge@battery
+    parameter_id: starting-state-of-charge
+    value: 55.0
+    unit: '%'
+    canonical_value: 55.0
+    canonical_unit: '%'
+    dimension: FRACTION
+    answered_by: SCENARIO
+    answered_by_detail: scenario kobo-daytime version 1
+  causes: []
+  forcings:
+  - state_key: site:plane-of-array-irradiance
+    event_id: irradiance-1
+    parameter_id: irradiance-1-level
+    canonical_value: 150.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 0
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: site:plane-of-array-irradiance
+    event_id: irradiance-2
+    parameter_id: irradiance-2-level
+    canonical_value: 550.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 120
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: site:plane-of-array-irradiance
+    event_id: irradiance-3
+    parameter_id: irradiance-3-level
+    canonical_value: 900.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 240
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: site:plane-of-array-irradiance
+    event_id: irradiance-4
+    parameter_id: irradiance-4-level
+    canonical_value: 950.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 360
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: site:plane-of-array-irradiance
+    event_id: irradiance-5
+    parameter_id: irradiance-5-level
+    canonical_value: 600.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 480
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: site:plane-of-array-irradiance
+    event_id: irradiance-6
+    parameter_id: irradiance-6-level
+    canonical_value: 150.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 600
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-res
+    event_id: residential-demand-1
+    parameter_id: residential-demand-1-level
+    canonical_value: 8.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 0
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-res
+    event_id: residential-demand-2
+    parameter_id: residential-demand-2-level
+    canonical_value: 6.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 120
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-res
+    event_id: residential-demand-3
+    parameter_id: residential-demand-3-level
+    canonical_value: 5.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 240
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-res
+    event_id: residential-demand-4
+    parameter_id: residential-demand-4-level
+    canonical_value: 6.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 360
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-res
+    event_id: residential-demand-5
+    parameter_id: residential-demand-5-level
+    canonical_value: 8.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 480
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-res
+    event_id: residential-demand-6
+    parameter_id: residential-demand-6-level
+    canonical_value: 14.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 600
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-clinic
+    event_id: clinic-demand-1
+    parameter_id: clinic-demand-1-level
+    canonical_value: 5.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 0
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-clinic
+    event_id: clinic-demand-2
+    parameter_id: clinic-demand-2-level
+    canonical_value: 6.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 120
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-clinic
+    event_id: clinic-demand-3
+    parameter_id: clinic-demand-3-level
+    canonical_value: 7.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 240
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-clinic
+    event_id: clinic-demand-4
+    parameter_id: clinic-demand-4-level
+    canonical_value: 7.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 360
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-clinic
+    event_id: clinic-demand-5
+    parameter_id: clinic-demand-5-level
+    canonical_value: 6.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 480
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-clinic
+    event_id: clinic-demand-6
+    parameter_id: clinic-demand-6-level
+    canonical_value: 5.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 600
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-mill
+    event_id: mill-demand-1
+    parameter_id: mill-demand-1-level
+    canonical_value: 0.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 0
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-mill
+    event_id: mill-demand-2
+    parameter_id: mill-demand-2-level
+    canonical_value: 15.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 120
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-mill
+    event_id: mill-demand-3
+    parameter_id: mill-demand-3-level
+    canonical_value: 18.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 240
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-mill
+    event_id: mill-demand-4
+    parameter_id: mill-demand-4-level
+    canonical_value: 10.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 360
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-mill
+    event_id: mill-demand-5
+    parameter_id: mill-demand-5-level
+    canonical_value: 12.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 480
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  - state_key: load-demand@load-mill
+    event_id: mill-demand-6
+    parameter_id: mill-demand-6-level
+    canonical_value: 0.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 600
+    duration_minutes: 120
+    execution_requirement: REQUIRED
+  declared_bounds: []
+  reporting_path_conditions: []
+  observation_bindings: []
+  publication:
+    simulator_source_id: simulator-lab-source
+    gateway_id: simulator-lab-gateway
+  signal_mappings:
+  - mapping_id: pv-inverter-ac-power
+    device_id: pv-inverter-controller
+    signal_id: ac-power
+    component_id: pv-inverter
+  - mapping_id: pv-array-irradiance
+    device_id: pv-irradiance-sensor
+    signal_id: irradiance
+    component_id: pv-array
+  - mapping_id: battery-pcs-ac-power
+    device_id: battery-pcs-controller
+    signal_id: ac-power
+    component_id: battery-pcs
+  - mapping_id: battery-state-of-charge
+    device_id: battery-pcs-controller
+    signal_id: state-of-charge
+    component_id: battery
+  - mapping_id: generator-ac-power
+    device_id: generator-controller
+    signal_id: ac-power
+    component_id: generator
+  - mapping_id: fuel-tank-level
+    device_id: fuel-level-sensor
+    signal_id: fuel-level
+    component_id: fuel-tank
+  - mapping_id: residential-active-power
+    device_id: residential-meter
+    signal_id: active-power
+    component_id: load-res
+  - mapping_id: clinic-active-power
+    device_id: clinic-meter
+    signal_id: active-power
+    component_id: load-clinic
+  - mapping_id: mill-active-power
+    device_id: mill-meter
+    signal_id: active-power
+    component_id: load-mill
+  intervention_history: []
+  model_needs:
+  - state_key: pv-rated-power@pv-array
+    property_key: pv-rated-power
+    value: 60.0
+    unit: kW
+    canonical_value: 60.0
+    canonical_unit: kW
+    dimension: POWER
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component pv-array property
+      pv-rated-power
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  - state_key: inverter-ac-limit@pv-inverter
+    property_key: inverter-ac-limit
+    value: 50.0
+    unit: kW
+    canonical_value: 50.0
+    canonical_unit: kW
+    dimension: POWER
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component pv-inverter
+      property inverter-ac-limit
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  - state_key: battery-energy-capacity@battery
+    property_key: battery-energy-capacity
+    value: 200.0
+    unit: kWh
+    canonical_value: 200.0
+    canonical_unit: kWh
+    dimension: ENERGY
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component battery property
+      battery-energy-capacity
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  - state_key: pcs-charge-limit@battery-pcs
+    property_key: pcs-charge-limit
+    value: 30.0
+    unit: kW
+    canonical_value: 30.0
+    canonical_unit: kW
+    dimension: POWER
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component battery-pcs
+      property pcs-charge-limit
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  - state_key: pcs-discharge-limit@battery-pcs
+    property_key: pcs-discharge-limit
+    value: 30.0
+    unit: kW
+    canonical_value: 30.0
+    canonical_unit: kW
+    dimension: POWER
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component battery-pcs
+      property pcs-discharge-limit
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  - state_key: pcs-conversion-efficiency@battery-pcs
+    property_key: pcs-conversion-efficiency
+    value: 95.0
+    unit: '%'
+    canonical_value: 95.0
+    canonical_unit: '%'
+    dimension: FRACTION
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component battery-pcs
+      property pcs-conversion-efficiency
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  - state_key: battery-reserve-state-of-charge@battery
+    property_key: reserve-state-of-charge
+    value: 30.0
+    unit: '%'
+    canonical_value: 30.0
+    canonical_unit: '%'
+    dimension: FRACTION
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, component battery property
+      reserve-state-of-charge
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    property_source: TEMPLATE
+    property_source_version: 1
+  site_controls:
+  - control_key: source-priority
+    members:
+    - pv-array
+    - battery
+    - generator
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, Site Control source-priority
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    source: TEMPLATE
+    source_version: 1
+  - control_key: critical-load-priority
+    members:
+    - load-clinic
+    - load-res
+    - load-mill
+    declared_by: model profile daytime-mini-grid version 1
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site KOBO-001 foundation version 1, Site Control critical-load-priority
+    foundation_version: 1
+    foundation_valid_from: '2026-09-01T00:00:00Z'
+    source: TEMPLATE
+    source_version: 1
+  bus_attachments:
+  - role: PV_SOURCE
+    component_id: pv-array
+    via_component_id: pv-inverter
+    bus_component_id: ac-bus
+    connection_ids:
+    - pv-array-to-inverter
+    - pv-inverter-to-bus
+  - role: STORAGE
+    component_id: battery
+    via_component_id: battery-pcs
+    bus_component_id: ac-bus
+    connection_ids:
+    - battery-to-pcs
+    - pcs-to-bus
+  - role: LOAD
+    component_id: load-clinic
+    via_component_id: null
+    bus_component_id: ac-bus
+    connection_ids:
+    - bus-to-clinic
+  - role: LOAD
+    component_id: load-res
+    via_component_id: null
+    bus_component_id: ac-bus
+    connection_ids:
+    - bus-to-residential
+  - role: LOAD
+    component_id: load-mill
+    via_component_id: null
+    bus_component_id: ac-bus
+    connection_ids:
+    - bus-to-mill
+blocking_reasons: []
+unsupported_optional_inputs: []

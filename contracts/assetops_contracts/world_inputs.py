@@ -251,6 +251,22 @@ class BusAttachmentInput:
 
 
 @dataclass(frozen=True)
+class DiscreteInitialValue:
+    """One addressed discrete state's value at run start (T025a).
+
+    `value` is a member of the state's allowed values (`STOPPED`), as text.
+    `answered_by` is who said so; for a lifecycle state that is the scenario,
+    because initial physical state is scenario-owned (v4 section 10).
+    """
+
+    address: str
+    state_key: str
+    scope: str
+    value: str
+    answered_by: str
+
+
+@dataclass(frozen=True)
 class FrozenWorldInputs:
     """Everything one execution of one frozen Draft consumes.
 
@@ -300,6 +316,11 @@ class FrozenWorldInputs:
     site_controls: tuple[SiteControlInput, ...] = ()
     #: T024 fix round. The single-bus arrangement the run froze.
     bus_attachments: tuple[BusAttachmentInput, ...] = ()
+    #: T025a. Scenario-owned initial values of addressed discrete states (a
+    #: generator's lifecycle state). Typed members of the state's declared
+    #: allowed values, never numbers standing in for them. Empty for every
+    #: model without a discrete state, and then outside the identity.
+    discrete_initial_values: tuple["DiscreteInitialValue", ...] = ()
 
     def site_control(self, control_key: str) -> SiteControlInput | None:
         for entry in self.site_controls:

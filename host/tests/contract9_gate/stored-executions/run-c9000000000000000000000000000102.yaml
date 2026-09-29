@@ -1,0 +1,82 @@
+artifact_schema_version: 3
+run_id: run-c9000000000000000000000000000102
+status: RUNNING
+boundaries_completed: 0
+boundaries_total: 493
+offset_minutes: 0
+simulation_time: '2026-09-21T00:00:00Z'
+interval_start_time: '2026-09-21T00:00:00Z'
+interval_end_time: '2026-09-22T17:00:00Z'
+timestep_minutes: 5
+seed: 20260101
+kernel_version: 1
+model_profile_id: minimal-fuel-tank
+model_profile_version: 1
+publication_profile_id: simulator-lab-publication
+publication_profile_version: 3
+numeric_policy: EXACT_RATIONAL
+numeric_policy_version: 1
+execution_contract_version: 9
+inputs_identity: 6bdd7e8eb6021f0dc87a9e5550f5974f26ccf9667abed093c7cb1fb64e36451a
+content_digest: null
+observation_series_digest: 352b275362fa2d7927625894a003f69502f7d4adc3c1ab22efb2218aea64aac1
+reported_count: 0
+suppressed_by_gap_count: 0
+dropped_count: 0
+notes:
+- site:site-load-demand is recorded on the run as an unsupported optional input in
+  the FORCING_INPUT role, so nothing about this run models it in that role
+- site:plane-of-array-irradiance is recorded on the run as an unsupported optional
+  input in the FORCING_INPUT role, so nothing about this run models it in that role
+- the run forces the reporting path at fuel-level-reporting-availability@fuel-tank;
+  that is the publication profile's to model and no state of the world, so this kernel
+  neither consumes it nor changes anything because of it
+failure: null
+private_state: []
+signals:
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  canonical_unit: L
+  cadence_minutes: 15
+  bias: -1/2
+  dropout_per_thousand: 40
+  statement: 'The fuel level sensor publishes the tank''s stored volume every fifteen
+    minutes, reading half a litre low, and one sample in twenty-five does not arrive.
+    The bias is the instrument''s and not the installation''s: the tank holds what
+    it holds, and this is what the sensor says about it. The dropout is the path''s,
+    and which samples it takes is drawn from the run''s seed - so it is reproducible
+    without being chosen.'
+- device_id: generator-controller
+  signal_id: ac-power
+  address: generator-output-power@generator
+  state_key: generator-output-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 60
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: 'The generator controller publishes its average output over the span
+    that just ended, once an hour, with no measurement error and losing no sample.
+    An hourly publication of a fifteen-minute span is what the two numbers mean: the
+    cadence is when it speaks and the run''s timestep is what it speaks about. It
+    is clean on purpose, so that a reader comparing it against the fuel sensor beside
+    it can see that a bias and a dropout are properties of one reporting path rather
+    than of the run.'
+reporting_gaps:
+- event_id: fuel-level-reporting-gap
+  condition_address: fuel-level-reporting-availability@fuel-tank
+  device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  timing_shape: WINDOW
+  offset_minutes: 1490
+  duration_minutes: 90
+  interval_minutes: 2460
+  timestep_minutes: 5
+  recorded_end_offset_minutes: null
+observations: []
+recent_reports: []
+electrical: null

@@ -1,6 +1,6 @@
 # T025a - Generator lifecycle and healthy full-site runtime
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Map: A, healthy full-site physics.
@@ -115,4 +115,20 @@ Finding, economics, intervention UI or paired-comparison claim.
 Independent review checks physical balances, boundary timing, Site-policy
 execution, request/output separation and the contract-9 merge gate. A's owner
 acceptance remains at T025b; this task does not complete A.
-Review outcome: pending.
+Review outcome: accepted on independent review 2026-09-29. No owner review
+required; the owner accepts A at T025b.
+
+**Independent review.** Codex returned R1 (a lifecycle deadline due at the
+terminal boundary was never applied) and R2 (schema-4 readback accepted
+numeric and undeclared lifecycle values). A fresh Sonnet round fixed both. At
+the owner's decision the contract-9 gate's fixtures, first copied from the
+owner's `var/runs`, were replaced by stand-ins generated with pre-change
+`96618d9`; the owner's copies never reached `main` (squash merge). A Sonnet
+verification pass accepted R1, R2 and the stand-ins, having regenerated the
+baselines from `96618d9` itself and confirmed no owner data remains. Reviews:
+`.agent/T025a-codex-review.md`, `.agent/T025a-claude-verification-round2.md`.
+Carried in the backlog: the gate no longer covers the owner's real stored
+Drafts, and three owner artifacts already failed to re-render equal before
+T025a. For T025b's hands-on check: the owner's `kobo-001` lacks the four new
+generator properties, and with source priority `[pv-array, battery,
+generator]` SOC holds near the reserve while the generator runs.

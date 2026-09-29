@@ -1,4 +1,5 @@
 import { DataTable, Fact, FactList, Panel } from "../ui";
+import { GeneratorPanels } from "./GeneratorPanels";
 import type { RunElectrical } from "./runSetupClient";
 
 /**
@@ -21,6 +22,10 @@ export function ExactQuantity({
 }) {
   if (value === null) {
     return <>not available</>;
+  }
+  if (unit === "state") {
+    // T025a: a typed discrete member is shown as itself, never as a number.
+    return <span data-discrete={value}>{value}</span>;
   }
   const suffix = unit === undefined || unit === "" ? "" : ` ${unit}`;
   const ratio = /^(-?\d+)\/(\d+)$/.exec(value);
@@ -136,6 +141,10 @@ export function ElectricalPanels({ electrical }: { electrical: RunElectrical }) 
           </ul>
         )}
       </Panel>
+
+      {electrical.generator === undefined || electrical.generator === null ? null : (
+        <GeneratorPanels generator={electrical.generator} />
+      )}
 
       <Panel
         heading="Requested versus accepted control"
@@ -311,7 +320,10 @@ export function ElectricalPanels({ electrical }: { electrical: RunElectrical }) 
           The controller reads these local inputs and never a published
           reading. The source and critical-load priorities are the baseline
           Site Controls this run froze; no scenario entry changes them in this
-          build. The generator is not modelled until T025.
+          build.{" "}
+          {electrical.generator === undefined || electrical.generator === null
+            ? "This model does not run the generator; the mini-grid model does."
+            : "The generator's start and stop policy is the Site's, frozen with this run."}
         </p>
       </Panel>
 

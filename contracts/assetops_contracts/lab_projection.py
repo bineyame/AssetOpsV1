@@ -51,6 +51,7 @@ from assetops_contracts.control import (
     ViewEntry,
 )
 from assetops_contracts.failures import ExecutionFailure
+from assetops_contracts.trajectory import DiscreteTransition
 from assetops_contracts.observation import (
     DeviceObservation,
     DeviceSignalSpec,
@@ -308,6 +309,53 @@ class ElectricalStepRow:
     unserved: Fraction
 
 
+#: T025a. What the Lab says about the generator's REPORTED status: nothing yet.
+#: Its physical state below is private truth, not a reading; a reported status
+#: is T025b's to publish and staging it is T026's.
+GENERATOR_REPORTED_STATUS_PENDING = (
+    "Reported generator status is pending T025b, and staging it is T026's. "
+    "The state shown here is the simulator's private physical state, not a "
+    "reading any device reported."
+)
+
+
+@dataclass(frozen=True)
+class GeneratorStepRow:
+    """One resolved step of the generator, for the gated Lab (T025a).
+
+    Four things kept apart: the physical state at T (after that instant's due
+    transitions, what a sample at T sees), the state over the step (after any
+    transition the request emitted at T caused), the controller's request, and
+    the accepted output. `fuel_start` and `fuel_end` are litres in the tank.
+    """
+
+    from_offset: int
+    to_offset: int
+    simulation_time: str
+    state_at_t: str
+    state_for_step: str
+    requested: str
+    request_reason: str
+    output: Fraction
+    to_load: Fraction
+    to_battery: Fraction
+    fuel_start: Fraction
+    fuel_end: Fraction
+    limited_by: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class GeneratorView:
+    """The generator of a `mini-grid` execution: states, requests, fuel, and
+    every lifecycle transition with its phase, cause and instant."""
+
+    state_address: str
+    fuel_address: str
+    steps: tuple[GeneratorStepRow, ...]
+    transitions: tuple[DiscreteTransition, ...]
+    reported_status: str = GENERATOR_REPORTED_STATUS_PENDING
+
+
 @dataclass(frozen=True)
 class ElectricalView:
     """The electrical world of one execution, for the gated Lab.
@@ -331,6 +379,9 @@ class ElectricalView:
     latest_balances: tuple[str, ...]
     latest_segments: tuple[tuple[int, int], ...]
     notes: tuple[str, ...] = ()
+    #: T025a. Present only for a model with a generator; absent, the view is
+    #: exactly the T024 view and persists in artifact schema 3.
+    generator: GeneratorView | None = None
 
     @property
     def latest(self) -> ElectricalStepRow | None:

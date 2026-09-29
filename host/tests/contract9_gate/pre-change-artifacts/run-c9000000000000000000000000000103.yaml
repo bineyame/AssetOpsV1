@@ -1,0 +1,263 @@
+artifact_schema_version: 3
+run_id: run-c9000000000000000000000000000103
+status: COMPLETED
+boundaries_completed: 193
+boundaries_total: 193
+offset_minutes: 2880
+simulation_time: '2026-09-23T00:00:00Z'
+interval_start_time: '2026-09-21T00:00:00Z'
+interval_end_time: '2026-09-23T00:00:00Z'
+timestep_minutes: 15
+seed: 7
+kernel_version: 1
+model_profile_id: minimal-fuel-tank
+model_profile_version: 1
+publication_profile_id: simulator-lab-publication
+publication_profile_version: 3
+numeric_policy: EXACT_RATIONAL
+numeric_policy_version: 1
+execution_contract_version: 9
+inputs_identity: 90f06f63854ef00981ef61e9d2bf001c4362fd8e78d343561ea2815931f8d689
+content_digest: 4d8a1eae0d1053ccdb77c4f7f88b3d304f1c8295bf6eb4edc5dfb4f43b1063ac
+observation_series_digest: 4d67884ba4a83e219c6ac31ad57f060273cb60087914679fe052b5d3f6eb6a9e
+reported_count: 186
+suppressed_by_gap_count: 6
+dropped_count: 5
+notes:
+- site:site-load-demand is recorded on the run as an unsupported optional input in
+  the FORCING_INPUT role, so nothing about this run models it in that role
+- site:plane-of-array-irradiance is recorded on the run as an unsupported optional
+  input in the FORCING_INPUT role, so nothing about this run models it in that role
+- the run forces the reporting path at fuel-level-reporting-availability@fuel-tank;
+  that is the publication profile's to model and no state of the world, so this kernel
+  neither consumes it nor changes anything because of it
+- this model declares no controller, so the controller view and intent phases build
+  nothing and mutate nothing
+failure: null
+private_state:
+- address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  value: '500'
+  canonical_unit: L
+  kind: STOCK
+signals:
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  canonical_unit: L
+  cadence_minutes: 15
+  bias: -1/2
+  dropout_per_thousand: 40
+  statement: 'The fuel level sensor publishes the tank''s stored volume every fifteen
+    minutes, reading half a litre low, and one sample in twenty-five does not arrive.
+    The bias is the instrument''s and not the installation''s: the tank holds what
+    it holds, and this is what the sensor says about it. The dropout is the path''s,
+    and which samples it takes is drawn from the run''s seed - so it is reproducible
+    without being chosen.'
+- device_id: generator-controller
+  signal_id: ac-power
+  address: generator-output-power@generator
+  state_key: generator-output-power
+  reading_class: INTERVAL_SIGNAL
+  canonical_unit: kW
+  cadence_minutes: 60
+  bias: '0'
+  dropout_per_thousand: 0
+  statement: 'The generator controller publishes its average output over the span
+    that just ended, once an hour, with no measurement error and losing no sample.
+    An hourly publication of a fifteen-minute span is what the two numbers mean: the
+    cadence is when it speaks and the run''s timestep is what it speaks about. It
+    is clean on purpose, so that a reader comparing it against the fuel sensor beside
+    it can see that a bias and a dropout are properties of one reporting path rather
+    than of the run.'
+reporting_gaps:
+- event_id: fuel-level-reporting-gap
+  condition_address: fuel-level-reporting-availability@fuel-tank
+  device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  timing_shape: WINDOW
+  offset_minutes: 1490
+  duration_minutes: 90
+  interval_minutes: 2880
+  timestep_minutes: 15
+  recorded_end_offset_minutes: null
+observations:
+- address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  device_id: fuel-level-sensor
+  signal_id: fuel-level
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2880
+  simulation_time: '2026-09-23T00:00:00Z'
+  canonical_unit: L
+  true_value: '500'
+  reported_value: 999/2
+  reported_source_time: '2026-09-23T00:00:00Z'
+  reported_at_offset_minutes: 2880
+  quality: GOOD
+  due: true
+  outcome: REPORTED
+  suppression_reason: null
+  cadence_minutes: 15
+  bias: -1/2
+  dropout_per_thousand: 40
+- address: generator-output-power@generator
+  state_key: generator-output-power
+  device_id: generator-controller
+  signal_id: ac-power
+  reading_class: INTERVAL_SIGNAL
+  at_offset_minutes: 2880
+  simulation_time: '2026-09-23T00:00:00Z'
+  canonical_unit: kW
+  true_value: null
+  reported_value: '45'
+  reported_source_time: '2026-09-21T22:00:00Z'
+  reported_at_offset_minutes: 1320
+  quality: STALE
+  due: true
+  outcome: NO_VALUE_AT_BOUNDARY
+  suppression_reason: This model produced no INTERVAL_SIGNAL for generator-output-power@generator
+    at this instant, so the sample had nothing to read.
+  cadence_minutes: 60
+  bias: '0'
+  dropout_per_thousand: 0
+recent_reports:
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2760
+  source_sample_time: '2026-09-22T22:00:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: generator-controller
+  signal_id: ac-power
+  address: generator-output-power@generator
+  state_key: generator-output-power
+  reading_class: INTERVAL_SIGNAL
+  at_offset_minutes: 2760
+  source_sample_time: '2026-09-22T22:00:00Z'
+  outcome: NO_VALUE_AT_BOUNDARY
+  reported_value: null
+  canonical_unit: kW
+  suppression_reason: This model produced no INTERVAL_SIGNAL for generator-output-power@generator
+    at this instant, so the sample had nothing to read.
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2775
+  source_sample_time: '2026-09-22T22:15:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2790
+  source_sample_time: '2026-09-22T22:30:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2805
+  source_sample_time: '2026-09-22T22:45:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2820
+  source_sample_time: '2026-09-22T23:00:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: generator-controller
+  signal_id: ac-power
+  address: generator-output-power@generator
+  state_key: generator-output-power
+  reading_class: INTERVAL_SIGNAL
+  at_offset_minutes: 2820
+  source_sample_time: '2026-09-22T23:00:00Z'
+  outcome: NO_VALUE_AT_BOUNDARY
+  reported_value: null
+  canonical_unit: kW
+  suppression_reason: This model produced no INTERVAL_SIGNAL for generator-output-power@generator
+    at this instant, so the sample had nothing to read.
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2835
+  source_sample_time: '2026-09-22T23:15:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2850
+  source_sample_time: '2026-09-22T23:30:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2865
+  source_sample_time: '2026-09-22T23:45:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: fuel-level-sensor
+  signal_id: fuel-level
+  address: fuel-tank-volume@fuel-tank
+  state_key: fuel-tank-volume
+  reading_class: STATE_SIGNAL
+  at_offset_minutes: 2880
+  source_sample_time: '2026-09-23T00:00:00Z'
+  outcome: REPORTED
+  reported_value: 999/2
+  canonical_unit: L
+  suppression_reason: null
+- device_id: generator-controller
+  signal_id: ac-power
+  address: generator-output-power@generator
+  state_key: generator-output-power
+  reading_class: INTERVAL_SIGNAL
+  at_offset_minutes: 2880
+  source_sample_time: '2026-09-23T00:00:00Z'
+  outcome: NO_VALUE_AT_BOUNDARY
+  reported_value: null
+  canonical_unit: kW
+  suppression_reason: This model produced no INTERVAL_SIGNAL for generator-output-power@generator
+    at this instant, so the sample had nothing to read.
+electrical: null

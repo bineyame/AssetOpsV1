@@ -279,6 +279,11 @@ BLOCKING_REASON_KINDS = frozenset(
         # subject names the unconnected component (or `topology`). A different
         # Site would answer it, so it blocks rather than refusing.
         "ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
+        # T025a. A lifecycle duration the selected model moves state on (a
+        # generator's start delay or minimum runtime) that is not a whole,
+        # positive multiple of the run's step. A different step or Foundation
+        # answers it, so it blocks rather than refusing.
+        "LIFECYCLE_TIMING_NOT_ALIGNED",
     }
 )
 
@@ -402,9 +407,12 @@ class FrozenInitializationInput:
 
     state_ref: StateRef
     parameter_id: str
-    value: float | None
+    #: Text only for a typed discrete member in unit `state` (T025a: a
+    #: generator's lifecycle state at run start), which is then also its own
+    #: canonical value. Every other value is a number.
+    value: float | str | None
     unit: str
-    canonical_value: float | None
+    canonical_value: float | str | None
     canonical_unit: str
     dimension: str
     answered_by: str

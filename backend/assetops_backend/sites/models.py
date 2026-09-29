@@ -147,6 +147,22 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
         kind="PHYSICAL",
         display_name="PCS one-way conversion efficiency",
     ),
+    # T025a (`D-2026-09-29-t025-generator-policy-package`): the generator's
+    # Site-owned control policy and the physical facts its lifecycle needs.
+    # The `mini-grid` profile declares each as a model need and the
+    # Foundation answers it; `minimum-runtime` above is now read by it.
+    "start-soc-threshold": PropertyDefinition(
+        unit="%", kind="CONTROL", display_name="Generator start state of charge"
+    ),
+    "stop-soc-threshold": PropertyDefinition(
+        unit="%", kind="CONTROL", display_name="Generator stop state of charge"
+    ),
+    "start-delay": PropertyDefinition(
+        unit="min", kind="PHYSICAL", display_name="Generator start delay"
+    ),
+    "generator-rated-power": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="Generator rated power"
+    ),
 }
 
 #: Every unit a declared property may carry, derived from the vocabulary so a

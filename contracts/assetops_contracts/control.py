@@ -27,15 +27,39 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction
 
+#: T025a. The unit a typed discrete value carries: a member of a discrete
+#: state's declared allowed values (`RUNNING`), or a request naming one
+#: (`RUN`). Such a value is text and never a number standing in for it; every
+#: other unit carries an exact `Fraction`. Checked on construction, so an enum
+#: cannot cross as a number or a number as an enum.
+DISCRETE_UNIT = "state"
+
+
+def _typed(value: object, unit: str, what: str, *, optional: bool = False) -> None:
+    if value is None and optional:
+        return
+    if (unit == DISCRETE_UNIT) != isinstance(value, str):
+        raise ValueError(
+            f"{what} {value!r} in unit {unit!r}: a discrete value is text in "
+            f"unit {DISCRETE_UNIT!r} and every other value is a number."
+        )
+
 
 @dataclass(frozen=True)
 class ViewEntry:
-    """One local input the controller read at T."""
+    """One local input the controller read at T.
+
+    `value` is a `Fraction`, or since T025a a typed discrete value in
+    `DISCRETE_UNIT` (the generator's physical state at T).
+    """
 
     name: str
     address: str
-    value: Fraction | None
+    value: Fraction | str | None
     unit: str
+
+    def __post_init__(self) -> None:
+        _typed(self.value, self.unit, f"view entry {self.name}", optional=True)
 
     def as_fields(self) -> tuple[object, ...]:
         return (self.name, self.address, self.value, self.unit)
@@ -75,9 +99,12 @@ class ControlRequest:
 
     address: str
     quantity: str
-    requested: Fraction
+    requested: Fraction | str
     unit: str
     reason: str
+
+    def __post_init__(self) -> None:
+        _typed(self.requested, self.unit, f"request {self.quantity}")
 
     def as_fields(self) -> tuple[object, ...]:
         return (self.address, self.quantity, self.requested, self.unit, self.reason)
@@ -144,10 +171,14 @@ class AcceptedControl:
 
     address: str
     quantity: str
-    requested: Fraction
-    accepted: Fraction
+    requested: Fraction | str
+    accepted: Fraction | str
     unit: str
     limited_by: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        _typed(self.requested, self.unit, f"control {self.quantity} request")
+        _typed(self.accepted, self.unit, f"control {self.quantity} acceptance")
 
     def as_fields(self) -> tuple[object, ...]:
         return (

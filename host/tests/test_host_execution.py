@@ -536,6 +536,7 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
             # identities. No field of it can carry an authored reading.
             "site_controls",
             "bus_attachments",
+            "discrete_initial_values",
             "execution_contract_version",
             "site_id",
             "foundation_version",

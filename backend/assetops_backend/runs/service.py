@@ -119,10 +119,17 @@ from assetops_backend.runs.timezones import (
     TimeZoneNotFound,
     validate_iana_timezone,
 )
+from assetops_contracts.control import DISCRETE_UNIT
+from assetops_contracts.execution_contract import (
+    MODEL_NEED_ONLY_UNITS,
+    canonical_model_need_quantity,
+)
+
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
     EXECUTION_CONTRACT_VERSION,
     RATE_INTEGRALS,
+    DISCRETE_DIMENSION,
     canonical_quantity,
     frozen_canonical_value,
     initialization_inputs,
@@ -828,6 +835,16 @@ class RunSetupService:
         )
         unresolved = unresolved + bus_reasons
 
+        # T025a: typed discrete initial values, authored lifecycle causes
+        # (T035's), and lifecycle timing the step cannot express.
+        unresolved = unresolved + _check_discrete_and_timing(
+            scenario=scenario,
+            model=model,
+            initialization=initialization,
+            needs=needs,
+            timestep_minutes=request.timestep_minutes,
+        )
+
         # A Foundation-owned parameter states no value
         # (`D-2026-09-22-foundation-value-declaration`), so there is nothing
         # for this record to resolve. It is left out rather than frozen as a
@@ -987,7 +1004,7 @@ class RunSetupService:
             # `test_run_setup.py` before it could ever reach here.
             owner = initial.owner
             answered_by = ANSWERER_BY_INITIALIZATION_OWNER[owner]
-            value: float | None
+            value: float | str | None
             reason: BlockingReason | None = None
             # The address this row is frozen at, for EVERY owner.
             #
@@ -1103,12 +1120,20 @@ class RunSetupService:
             # factor could freeze a number the frozen float cannot carry. Fixing
             # the reported instance and not the class is how the class comes
             # back somewhere else.
-            canonical_value = (
-                None
-                if value is None
-                else frozen_canonical_value(value, initial.unit)[0]
-            )
-            _, canonical_unit, dimension = canonical_quantity(0.0, initial.unit)
+            if initial.unit == DISCRETE_UNIT:
+                # T025a: a typed discrete member is its own canonical value;
+                # whether the model has such a state is checked below.
+                canonical_value = value
+                canonical_unit, dimension = DISCRETE_UNIT, DISCRETE_DIMENSION
+            else:
+                canonical_value = (
+                    None
+                    if value is None
+                    else frozen_canonical_value(value, initial.unit)[0]
+                )
+                _, canonical_unit, dimension = canonical_quantity(
+                    0.0, initial.unit
+                )
 
             frozen.append(
                 FrozenInitializationInput(
@@ -1513,6 +1538,29 @@ def _freeze_bus_arrangement(
 
     attachments: list[FrozenBusAttachment] = []
     for role, participant_need, via_need in model.bus_paths:
+        if via_need is None:
+            # T025a: a machine attached to the bus directly (a generator).
+            for component_id in carriers(participant_need):
+                connection_id = linked(component_id, bus.component_id)
+                if connection_id is None:
+                    refuse(
+                        component_id,
+                        f"{declared_by.capitalize()} needs {component_id} "
+                        f"({role.lower().replace('_', ' ')}) connected to the "
+                        f"bus {bus.component_id}, and the topology of site "
+                        f"{site.site_id} declares no such connection.",
+                    )
+                    continue
+                attachments.append(
+                    FrozenBusAttachment(
+                        role=role,
+                        component_id=component_id,
+                        via_component_id=None,
+                        bus_component_id=bus.component_id,
+                        connection_ids=(connection_id,),
+                    )
+                )
+            continue
         via_candidates = carriers(via_need)
         for component_id in carriers(participant_need):
             found = None
@@ -1575,6 +1623,117 @@ def _freeze_bus_arrangement(
             )
         )
     return tuple(attachments), tuple(reasons)
+
+
+def _check_discrete_and_timing(
+    *,
+    scenario: ScenarioDefinition,
+    model: ModelProfile,
+    initialization: tuple[FrozenInitializationInput, ...],
+    needs: tuple[FrozenModelNeed, ...],
+    timestep_minutes: int,
+) -> tuple[BlockingReason, ...]:
+    """T025a. What a model with discrete state needs checked before it runs.
+
+    - A typed discrete initial value (unit `state`) must name a member of a
+      discrete state the selected profile declares, and one this build can
+      start from. RUNNING or STARTING would need timer history no scenario can
+      declare yet, so it blocks rather than being started with an invented
+      history. A number standing in for a discrete state blocks too.
+    - A timeline entry addressed at a discrete state is an authored lifecycle
+      cause - a start failure, a recovery - and those are T035's: it blocks
+      rather than being ignored or half-honoured.
+    - A step-aligned need (start delay, minimum runtime) that is not a whole,
+      positive multiple of the run's step blocks: this build moves lifecycle
+      state at step boundaries only and does not round a deadline.
+    """
+    declared_by = (
+        f"model profile {model.model_profile_id} version "
+        f"{model.model_profile_version}"
+    )
+    discrete = {item.state_key: item for item in model.discrete_states}
+    reasons: list[BlockingReason] = []
+    for row in initialization:
+        spec = discrete.get(row.state_key)
+        if row.unit == DISCRETE_UNIT:
+            if spec is None:
+                reasons.append(
+                    BlockingReason(
+                        kind="STATE_NOT_SUPPORTED",
+                        subject=row.addressed_key,
+                        statement=(
+                            f"{row.addressed_key} is initialized with the "
+                            f"discrete value {row.value!r}, and {declared_by} "
+                            "declares no discrete state of that name."
+                        ),
+                    )
+                )
+            elif row.value is not None and (
+                row.value not in spec.allowed_values
+                or row.value not in spec.initial_values_supported
+            ):
+                reasons.append(
+                    BlockingReason(
+                        kind="INITIAL_VALUE_NOT_RESOLVED",
+                        subject=row.addressed_key,
+                        statement=(
+                            f"{row.addressed_key} starts {row.value!r}. "
+                            f"{declared_by.capitalize()} declares "
+                            f"{list(spec.allowed_values)} and supports starting "
+                            f"from {sorted(spec.initial_values_supported)} only: "
+                            f"{spec.unsupported_initial_reason}"
+                        ),
+                    )
+                )
+        elif spec is not None:
+            reasons.append(
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=row.addressed_key,
+                    statement=(
+                        f"{row.addressed_key} is a discrete state and is "
+                        "initialized with a number. Its value is a typed member "
+                        f"such as {spec.allowed_values[0]!r} in unit "
+                        f"{DISCRETE_UNIT!r}, never a number standing in for one."
+                    ),
+                )
+            )
+    for entry in scenario.timeline:
+        refs = [entry.state_ref] + [item.state_ref for item in entry.parameters]
+        for ref in refs:
+            if ref is not None and ref.state_key in discrete:
+                reasons.append(
+                    BlockingReason(
+                        kind="STATE_NOT_SUPPORTED",
+                        subject=ref.addressed_key,
+                        statement=(
+                            f"Timeline entry {entry.event_id} is an authored "
+                            f"cause on {ref.addressed_key}. Lifecycle causes - a "
+                            "start failure, a recovery - are T035's, and this "
+                            "build refuses them rather than ignoring them."
+                        ),
+                    )
+                )
+                break
+    for need in needs:
+        if need.state_key not in model.step_aligned_needs or need.canonical_value is None:
+            continue
+        minutes = need.canonical_value
+        if minutes <= 0 or minutes % timestep_minutes != 0:
+            reasons.append(
+                BlockingReason(
+                    kind="LIFECYCLE_TIMING_NOT_ALIGNED",
+                    subject=need.addressed_key,
+                    statement=(
+                        f"{need.addressed_key} is {minutes:g} min and this run "
+                        f"steps every {timestep_minutes} min. {declared_by.capitalize()} "
+                        "moves lifecycle state at step boundaries only, so it "
+                        "must be a whole, positive multiple of the step; it is "
+                        "never rounded."
+                    ),
+                )
+            )
+    return tuple(reasons)
 
 
 def _instant(text: str) -> datetime:
@@ -1651,7 +1810,9 @@ def _freeze_model_needs(
         binding = None if supported is None else supported.foundation_binding
         if binding is None:  # pragma: no cover - refused by ModelProfile
             raise ValueError(f"{declared_by} needs {state_key} with no binding")
-        _, canonical_unit, dimension = canonical_quantity(0.0, binding.unit)
+        _, canonical_unit, dimension = canonical_model_need_quantity(
+            0.0, binding.unit
+        )
         candidates = [
             component
             for component in foundation.components
@@ -1766,9 +1927,12 @@ def _freeze_model_needs(
                     )
                 )
                 continue
-            canonical_value = frozen_canonical_value(
-                declared.value, binding.unit
-            )[0]
+            canonical_value = (
+                # A Foundation duration (T025a) is already canonical in min.
+                float(declared.value)
+                if binding.unit in MODEL_NEED_ONLY_UNITS
+                else frozen_canonical_value(declared.value, binding.unit)[0]
+            )
             needs.append(
                 FrozenModelNeed(
                     state_ref=ref,

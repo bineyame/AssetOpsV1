@@ -168,9 +168,9 @@ export interface ScenarioInitializationInput {
   display_name: string;
   state_key: string;
   owner: string;
-  value: number | null;
+  value: number | string | null;
   unit: string;
-  canonical_value: number | null;
+  canonical_value: number | string | null;
   canonical_unit: string;
 }
 
@@ -497,7 +497,12 @@ function isInitializationInput(
     // itself, and accepting one would put `undefined` in a rendered string.
     ((typeof value.value === "number" &&
       typeof value.canonical_value === "number") ||
-      (value.value === null && value.canonical_value === null)) &&
+      (value.value === null && value.canonical_value === null) ||
+      // T025a: a typed discrete member (unit `state`) is its own canonical
+      // value, and is text rather than a number.
+      (value.unit === "state" &&
+        typeof value.value === "string" &&
+        value.canonical_value === value.value)) &&
     typeof value.unit === "string" &&
     typeof value.canonical_unit === "string"
   );

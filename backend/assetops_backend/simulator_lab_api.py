@@ -147,9 +147,11 @@ from assetops_backend.sites.service import (
 )
 from assetops_backend.sites.site_parsing import parse_create_site_request
 from assetops_backend.sites_api import site_summary
+from assetops_contracts.execution_contract import DISCRETE_STATE_RULES
 from assetops_contracts.lab_projection import (
     LAB_CONTROL_REFUSAL_STATEMENTS,
     ElectricalView,
+    GeneratorView,
     LabControlRefused,
     LabProjection,
 )
@@ -752,10 +754,14 @@ def electrical_payload(view: ElectricalView | None) -> dict[str, object] | None:
         return None
 
     def exact(value: object) -> str | None:
+        # T025a: a typed discrete member (unit `state`) crosses as itself.
+        if isinstance(value, str):
+            return value
         return None if value is None else exact_decimal_text(value)
 
     return {
         "battery_address": view.battery_address,
+        "generator": generator_payload(view.generator),
         "coupling_rules": [
             {
                 "rule_id": rule.rule_id,
@@ -854,6 +860,62 @@ def electrical_payload(view: ElectricalView | None) -> dict[str, object] | None:
         "latest_balances": list(view.latest_balances),
         "latest_segments": [list(item) for item in view.latest_segments],
         "notes": list(view.notes),
+    }
+
+
+def generator_payload(view: GeneratorView | None) -> dict[str, object] | None:
+    """T025a. The generator of a `mini-grid` execution on the wire.
+
+    Four things the contract keeps apart travel as four fields per step: the
+    physical state at T, the state over the step, the controller's request and
+    the accepted output. Every transition carries its phase, cause and
+    instant. The reported status is stated as pending, never omitted.
+    """
+    if view is None:
+        return None
+    return {
+        "state_address": view.state_address,
+        "fuel_address": view.fuel_address,
+        "reported_status": view.reported_status,
+        "discrete_state_rules": [
+            {
+                "rule_id": rule.rule_id,
+                "display_name": rule.display_name,
+                "statement": rule.statement,
+            }
+            for rule in DISCRETE_STATE_RULES
+        ],
+        "steps": [
+            {
+                "from_offset": row.from_offset,
+                "to_offset": row.to_offset,
+                "simulation_time": row.simulation_time,
+                "state_at_t": row.state_at_t,
+                "state_for_step": row.state_for_step,
+                "requested": row.requested,
+                "request_reason": row.request_reason,
+                "output": exact_decimal_text(row.output),
+                "to_load": exact_decimal_text(row.to_load),
+                "to_battery": exact_decimal_text(row.to_battery),
+                "fuel_start": exact_decimal_text(row.fuel_start),
+                "fuel_end": exact_decimal_text(row.fuel_end),
+                "limited_by": list(row.limited_by),
+            }
+            for row in view.steps
+        ],
+        "transitions": [
+            {
+                "address": item.address,
+                "previous": item.previous,
+                "next": item.next,
+                "phase": item.phase,
+                "cause": item.cause,
+                "controller_ref": item.controller_ref,
+                "at_offset_minutes": item.at_offset_minutes,
+                "simulation_time": item.simulation_time,
+            }
+            for item in view.transitions
+        ],
     }
 
 

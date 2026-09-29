@@ -62,6 +62,7 @@ from assetops_contracts.trajectory import (
     AppliedEvent,
     BoundaryState,
     BoundedTransition,
+    DiscreteTransition,
     ForcingExposure,
     PrivateTrajectory,
     frozen_inputs_identity,
@@ -80,10 +81,12 @@ from assetops_contracts.control import (
 from assetops_simulator.kernel.model import (
     KERNEL_VERSION,
     CouplingRefused,
+    DiscreteValue,
     ExecutionLedger,
     ModelSpec,
     StateHandler,
     StepContext,
+    TransitionRequest,
 )
 # The default model, and the one exception a model's own code may raise. No fuel
 # STATE KEY is imported any more: T021's independent review found four of them
@@ -195,6 +198,13 @@ class _World:
     view_now: ControllerView | None = None
     intent_now: ControlIntent | None = None
     accepted_now: AcceptedFlowSet | None = None
+    #: T025a. Addressed discrete states, the boundary each entered its value
+    #: at (`None`: held since before run start), every transition applied,
+    #: and the snapshot at T after that instant's due transitions.
+    discrete: dict[str, str] = field(default_factory=dict)
+    discrete_since: dict[str, int | None] = field(default_factory=dict)
+    discrete_transitions: list[DiscreteTransition] = field(default_factory=list)
+    discrete_at_t: tuple[tuple[str, str], ...] = ()
 
 
 # --- Setup ------------------------------------------------------------------
@@ -486,11 +496,112 @@ def _initialize(world: _World) -> None:
             # bound below, because that relationship is the document's.
             pass
 
+    _initialize_discrete(world)
     _resolve_declared_bounds(world)
     _require_handlers_for_every_entry(world)
     _require_an_initial_value_for_every_stock_a_cause_moves(world)
     _bind_laws(world)
     _prepare_coupling(world)
+
+
+def _initialize_discrete(world: _World) -> None:
+    """T025a. Scenario-owned discrete initial values, typed and checked.
+
+    A value outside the state's allowed members, or one this build cannot
+    start from because it needs timer history nobody declared, stops the run
+    before the first boundary rather than being coerced or given a history.
+    """
+    for entry in world.inputs.discrete_initial_values:
+        spec = world.model.discrete_state(entry.state_key)
+        if spec is None or spec.scope != entry.scope:
+            raise _Stop(
+                failure(
+                    "UNSUPPORTED_MODEL_STATE",
+                    entry.address,
+                    detail=(
+                        f"model {world.model.model_profile_id} declares no "
+                        f"discrete state {entry.state_key} at {entry.scope}",
+                    ),
+                )
+            )
+        if entry.value not in spec.initial_values_supported:
+            raise _Stop(
+                failure(
+                    "INITIAL_STATE_UNANSWERED",
+                    entry.address,
+                    detail=(
+                        f"{entry.value!r} is not a run-start value this build "
+                        f"supports for {entry.state_key}; it supports "
+                        f"{sorted(spec.initial_values_supported)} of "
+                        f"{list(spec.allowed_values)}",
+                    ),
+                )
+            )
+        if entry.address in world.discrete:
+            raise _Stop(
+                failure(
+                    "INITIAL_STATE_UNANSWERED",
+                    entry.address,
+                    detail=("the run answers this discrete state twice",),
+                )
+            )
+        world.discrete[entry.address] = entry.value
+        world.discrete_since[entry.address] = None
+
+
+def _discrete_values(world: _World) -> tuple[DiscreteValue, ...]:
+    return tuple(
+        DiscreteValue(address, value, world.discrete_since[address])
+        for address, value in sorted(world.discrete.items())
+    )
+
+
+def _apply_discrete(
+    world: _World, requests: tuple[TransitionRequest, ...], phase: str
+) -> None:
+    """Validate and apply a pack's transition requests at this boundary."""
+    for request in requests:
+        spec = world.model.discrete_state(_state_key_of(request.address))
+        previous = world.discrete.get(request.address)
+        if spec is None or previous is None:
+            raise _Stop(
+                failure(
+                    "UNSUPPORTED_MODEL_STATE",
+                    request.address,
+                    at_offset_minutes=world.offset,
+                    detail=("a transition was requested for a discrete state "
+                            "this run does not carry",),
+                )
+            )
+        if (previous, request.next) not in spec.transitions:
+            raise _Stop(
+                failure(
+                    "PHYSICAL_RESOLUTION_FAILURE",
+                    request.address,
+                    at_offset_minutes=world.offset,
+                    detail=(
+                        f"{previous} -> {request.next} is not a transition "
+                        f"{spec.state_key} declares",
+                    ),
+                )
+            )
+        world.discrete[request.address] = request.next
+        world.discrete_since[request.address] = world.offset
+        world.discrete_transitions.append(
+            DiscreteTransition(
+                address=request.address,
+                state_key=spec.state_key,
+                previous=previous,
+                next=request.next,
+                phase=phase,
+                cause=request.cause,
+                controller_ref=request.controller_ref,
+                at_offset_minutes=world.offset,
+                simulation_time=_instant(
+                    world.inputs.interval.start_time, world.offset
+                ),
+            )
+        )
 
 
 def _step_context(world: _World, from_offset: int, to_offset: int) -> StepContext:
@@ -508,6 +619,7 @@ def _step_context(world: _World, from_offset: int, to_offset: int) -> StepContex
         ),
         site_controls=world.inputs.site_controls,
         bus_attachments=world.inputs.bus_attachments,
+        discrete=_discrete_values(world),
     )
 
 
@@ -553,6 +665,7 @@ def _prepare_coupling(world: _World) -> None:
         exposures=declared,
         site_controls=world.inputs.site_controls,
         bus_attachments=world.inputs.bus_attachments,
+        discrete=_discrete_values(world),
     )
     try:
         coupling.prepare(context)
@@ -948,6 +1061,8 @@ def _phase_apply_events(world: _World) -> None:
         # there. Run setup refuses a document with an entry outside the
         # interval, and `_refuse_entries_outside_the_interval` refuses frozen
         # inputs carrying one, so there is nothing to apply and nothing to skip.
+        # A lifecycle deadline already due here is not an entry, though.
+        _apply_due_lifecycle(world)
         return
 
     step_starts = world.inputs.interval.step_starts
@@ -977,10 +1092,46 @@ def _phase_apply_events(world: _World) -> None:
     for address in sorted(grouped):
         _apply_contributions(world, address, grouped[address], "apply-events")
 
+    _apply_due_lifecycle(world)
+
+
+def _apply_due_lifecycle(world: _World) -> None:
+    """T025a: a lifecycle deadline already due at T is applied before T is read.
+
+    It runs at every step start and at the terminal boundary, where a start
+    delay may expire exactly at the run's end. The terminal boundary emits no
+    controller intent and evolves no interval.
+    """
+    terminal = world.offset >= world.inputs.interval.duration_minutes
+    coupling = world.model.coupling
+    if not (world.begins_a_step or terminal):
+        return
+    if coupling is None or coupling.due is None:
+        return
+    context = StepContext(
+        from_offset=world.offset,
+        to_offset=world.offset + world.step_length,
+        stocks=tuple(sorted(world.stocks.items())),
+        coefficients=tuple(sorted(world.coefficients.items())),
+        exposures=(),
+        site_controls=world.inputs.site_controls,
+        bus_attachments=world.inputs.bus_attachments,
+        discrete=_discrete_values(world),
+    )
+    try:
+        requests = coupling.due(context)
+    except CouplingRefused as refused:
+        raise _coupling_stop(world, refused) from refused
+    _apply_discrete(world, requests, "apply-events")
+
 
 def _phase_state_at_t(world: _World) -> None:
-    """B. The post-event state at T exists, and every later phase reads it."""
-    return None
+    """B. The post-event state at T exists, and every later phase reads it.
+
+    T025a: the discrete snapshot at T is taken here, after the due
+    transitions and before anything a request emitted at T can cause.
+    """
+    world.discrete_at_t = tuple(sorted(world.discrete.items()))
 
 
 def _phase_sample_and_publish(world: _World) -> None:
@@ -1081,6 +1232,19 @@ def _phase_physical_acceptance(world: _World) -> None:
     if coupling is None or world.intent_now is None:
         return
     context = _step_context(world, world.offset, world.offset + world.step_length)
+    if coupling.commit is not None:
+        # T025a: a transition the request just emitted at T causes happens
+        # now, after the sample and the view at T, never retroactively; the
+        # resolver then resolves the physical state the step actually has.
+        try:
+            requests = coupling.commit(context, world.intent_now)
+        except CouplingRefused as refused:
+            raise _coupling_stop(world, refused) from refused
+        if requests:
+            _apply_discrete(world, requests, "physical-acceptance")
+            context = _step_context(
+                world, world.offset, world.offset + world.step_length
+            )
     try:
         world.accepted_now = coupling.resolve(context, world.intent_now)
     except CouplingRefused as refused:
@@ -1577,6 +1741,11 @@ class Execution:
         return tuple(self._world.notes)
 
     @property
+    def discrete_transitions(self) -> tuple[DiscreteTransition, ...]:
+        """T025a. Every discrete transition applied so far, in order."""
+        return tuple(self._world.discrete_transitions)
+
+    @property
     def handlers_exercised(self) -> tuple[str, ...]:
         return self._world.ledger.handlers
 
@@ -1690,6 +1859,7 @@ class Execution:
             handlers_exercised=self.handlers_exercised,
             failure=self._stop,
             notes=self.notes,
+            discrete_transitions=tuple(self._world.discrete_transitions),
         )
 
 
@@ -1766,6 +1936,12 @@ def _record_boundary(world: _World) -> None:
                     intent=world.intent_now,
                     accepted=world.accepted_now,
                 )
+            ),
+            discrete=world.discrete_at_t,
+            discrete_for_step=(
+                tuple(sorted(world.discrete.items()))
+                if world.begins_a_step
+                else ()
             ),
         )
     )

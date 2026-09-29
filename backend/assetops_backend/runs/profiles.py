@@ -282,6 +282,21 @@ class SupportedReportingState:
 
 
 @dataclass(frozen=True)
+class DiscreteStateDeclaration:
+    """T025a. A discrete state a model profile carries, as run setup checks it.
+
+    The product half of the simulator's `DiscreteStateSpec`: the closed set of
+    members, which of them a run may start from, and why the others may not.
+    A conformance test holds the two halves equal.
+    """
+
+    state_key: str
+    allowed_values: tuple[str, ...]
+    initial_values_supported: frozenset[str]
+    unsupported_initial_reason: str
+
+
+@dataclass(frozen=True)
 class ModelProfile:
     """One versioned simulator model, and what it can model.
 
@@ -326,13 +341,20 @@ class ModelProfile:
     #: Setup refuses to run a Site whose declared topology does not connect
     #: them, instead of serving a load nothing connects. Empty for a profile
     #: with no electrical bus.
-    bus_paths: tuple[tuple[str, str, str], ...] = ()
+    #: T025a: `via_need` may be `None` for a machine attached to the bus
+    #: directly (a generator).
+    bus_paths: tuple[tuple[str, str, str | None], ...] = ()
     bus_loads_control: str = ""
+    #: T025a. The discrete states this model carries, and the Foundation needs
+    #: in minutes that must be whole multiples of the run's step because the
+    #: model moves lifecycle state at step boundaries only.
+    discrete_states: tuple[DiscreteStateDeclaration, ...] = ()
+    step_aligned_needs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         for _, participant, via in self.bus_paths:
             if participant not in self.foundation_needs or (
-                via not in self.foundation_needs
+                via is not None and via not in self.foundation_needs
             ):
                 raise ValueError(
                     f"{self.model_profile_id} names the bus path "
@@ -975,6 +997,143 @@ DAYTIME_MINI_GRID_MODEL = ModelProfile(
     bus_loads_control="critical-load-priority",
 )
 
+#: The full-site mini-grid model T025a adds (map A, healthy full-site physics),
+#: under execution contract 9 and additively
+#: (`D-2026-09-29-t025-generator-policy-package`). `daytime-mini-grid` v1 is
+#: unchanged beside it: a new profile identity is a new answer.
+#:
+#: The generator's control policy is the SITE's: start and stop thresholds and
+#: minimum runtime are CONTROL properties of the generator on the Foundation,
+#: frozen as model needs with their provenance; the model adds no trigger of
+#: its own. The start delay and rating are PHYSICAL properties. Initial fuel,
+#: state of charge and lifecycle state are the scenario's.
+MINI_GRID_MODEL = ModelProfile(
+    model_profile_id="mini-grid",
+    model_profile_version=1,
+    display_name="Mini-grid model",
+    statement=(
+        "Models a full mini-grid: one PV array behind one inverter, one battery "
+        "behind one power conversion system, any number of addressed loads, "
+        "and one generator with its fuel tank. The generator's lifecycle - "
+        "STOPPED, STARTING, RUNNING, FAILED - is a typed discrete state that "
+        "moves at step boundaries only; the Site's frozen policy starts it at "
+        "or below its start threshold and stops it at or above its stop "
+        "threshold once its minimum runtime has elapsed. Sources serve load in "
+        "the Site's frozen source priority, fuel falls with accepted generator "
+        "energy, and every electrical and fuel balance is exact."
+    ),
+    supported_states=DAYTIME_MINI_GRID_MODEL.supported_states
+    + (
+        SupportedState(
+            state_key="generator-state",
+            scope="COMPONENT",
+            supported_roles=frozenset({"CAUSAL_INPUT"}),
+            foundation_binding=None,
+            component_type="GENERATOR",
+            statement=(
+                "The generator's physical lifecycle state, a typed member of "
+                "STOPPED, STARTING, RUNNING and FAILED. The scenario states it "
+                "at run start; this build starts from STOPPED or FAILED only."
+            ),
+        ),
+        SupportedState(
+            state_key="fuel-tank-volume",
+            scope="COMPONENT",
+            supported_roles=frozenset({"CAUSAL_INPUT"}),
+            foundation_binding=None,
+            component_type="FUEL_TANK",
+            statement=(
+                "The fuel in the tank, initialized by the scenario and moved "
+                "only by accepted generator energy."
+            ),
+        ),
+        _need(
+            "generator-rated-power",
+            "GENERATOR",
+            "generator-rated-power",
+            "kW",
+            "The most AC power the generator delivers: a ceiling, not a command.",
+        ),
+        _need(
+            "generator-specific-fuel-consumption",
+            "GENERATOR",
+            "specific-fuel-consumption",
+            "L/kWh",
+            "Litres burned per kWh of accepted generator energy.",
+        ),
+        _need(
+            "generator-start-soc-threshold",
+            "GENERATOR",
+            "start-soc-threshold",
+            "%",
+            "Site policy: the generator is requested to start at or below it.",
+        ),
+        _need(
+            "generator-stop-soc-threshold",
+            "GENERATOR",
+            "stop-soc-threshold",
+            "%",
+            "Site policy: the generator is requested to stop at or above it.",
+        ),
+        _need(
+            "generator-minimum-runtime",
+            "GENERATOR",
+            "minimum-runtime",
+            "min",
+            "Site policy: no stop before the generator has run this long.",
+        ),
+        _need(
+            "generator-start-delay",
+            "GENERATOR",
+            "start-delay",
+            "min",
+            "How long the generator is STARTING, delivering nothing.",
+        ),
+        _need(
+            "fuel-tank-capacity",
+            "FUEL_TANK",
+            "tank-capacity",
+            "L",
+            "The most fuel the tank holds.",
+        ),
+    ),
+    foundation_needs=DAYTIME_MINI_GRID_MODEL.foundation_needs
+    + (
+        "generator-rated-power",
+        "generator-specific-fuel-consumption",
+        "generator-start-soc-threshold",
+        "generator-stop-soc-threshold",
+        "generator-minimum-runtime",
+        "generator-start-delay",
+        "fuel-tank-capacity",
+    ),
+    site_control_needs=("source-priority", "critical-load-priority"),
+    initialization_needs=(
+        "battery-state-of-charge",
+        "fuel-tank-volume",
+        "generator-state",
+    ),
+    bus_paths=DAYTIME_MINI_GRID_MODEL.bus_paths
+    + (
+        ("GENERATION", "generator-rated-power", None),
+        ("FUEL_SUPPLY", "fuel-tank-capacity", "generator-rated-power"),
+    ),
+    bus_loads_control="critical-load-priority",
+    discrete_states=(
+        DiscreteStateDeclaration(
+            state_key="generator-state",
+            allowed_values=("STOPPED", "STARTING", "RUNNING", "FAILED"),
+            initial_values_supported=frozenset({"STOPPED", "FAILED"}),
+            unsupported_initial_reason=(
+                "RUNNING and STARTING need timer history - how long it has run, "
+                "how much start delay remains - that no scenario can declare "
+                "yet, and this build does not invent one."
+            ),
+        ),
+    ),
+    step_aligned_needs=("generator-minimum-runtime", "generator-start-delay"),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -1200,6 +1359,7 @@ LAB_PUBLICATION_PROFILE = PublicationProfile(
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
+    MINI_GRID_MODEL,
 )
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (LAB_PUBLICATION_PROFILE,)

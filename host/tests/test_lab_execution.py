@@ -101,6 +101,7 @@ from execution_adapter import (
 )
 from lab_execution import (
     EXECUTION_ARTIFACT_SCHEMA_VERSION,
+    SCHEMA_WITHOUT_GENERATOR,
     HostLabExecution,
     LabSession,
     YamlExecutionArtifacts,
@@ -2535,9 +2536,12 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
 
         document = yaml.safe_load(path.read_text(encoding="utf-8"))
 
+        # T025a: a record without a generator keeps the schema-three layout
+        # and number; four is written only when a generator is recorded.
         assert (
             document["artifact_schema_version"]
-            == EXECUTION_ARTIFACT_SCHEMA_VERSION
+            == SCHEMA_WITHOUT_GENERATOR
+            == EXECUTION_ARTIFACT_SCHEMA_VERSION - 1
         )
         assert next(iter(document)) == "artifact_schema_version", (
             "a person opening the file reads which rule wrote it before they "

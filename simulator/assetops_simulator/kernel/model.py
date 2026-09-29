@@ -58,7 +58,86 @@ HANDLER_KINDS = frozenset(
 #: This kernel's own version, part of every trajectory's identity. A kernel
 #: change that could move a number moves this, so a golden trace bound to the
 #: old number refuses playback rather than being reinterpreted.
+#:
+#: T025a added discrete state without moving it, deliberately: nothing it adds
+#: is reached by a model that declares no discrete state, and the contract-9
+#: merge gate (`host/tests/contract9_gate`) proves every pre-change fuel and
+#: daytime Draft reproduces its identity, trajectory and observations exactly.
 KERNEL_VERSION = 1
+
+
+# --- Discrete state (T025a, v4 section 4.3) ----------------------------------
+
+
+@dataclass(frozen=True)
+class DiscreteStateSpec:
+    """One addressed discrete state a model carries, declared rather than implied.
+
+    - `allowed_values` is the closed set of members; a value outside it is a
+      failure, never coerced.
+    - `initialization_owner` says who answers the value at run start
+      (`SCENARIO` for physical state, v4 section 10), and
+      `initial_values_supported` which members this build can start from:
+      one that needs timer history nobody can declare yet is refused rather
+      than started with an invented history.
+    - `transitions` is every permitted `(previous, next)` pair. The kernel
+      refuses any other, so a pack cannot move a state along an edge the spec
+      does not declare.
+    - `observable_signals` names what the state is observable through; a
+      physical state is not a reported reading until one of them is published.
+    """
+
+    state_key: str
+    scope: str
+    allowed_values: tuple[str, ...]
+    initialization_owner: str
+    initial_values_supported: frozenset[str]
+    transitions: frozenset[tuple[str, str]]
+    observable_signals: tuple[str, ...]
+    statement: str
+
+    def __post_init__(self) -> None:
+        members = set(self.allowed_values)
+        unknown = {
+            value
+            for pair in self.transitions
+            for value in pair
+            if value not in members
+        } | (set(self.initial_values_supported) - members)
+        if unknown:
+            raise ValueError(
+                f"Discrete state {self.state_key!r} names {sorted(unknown)}, "
+                f"which are not among its allowed values {self.allowed_values}."
+            )
+
+
+@dataclass(frozen=True)
+class DiscreteValue:
+    """One addressed discrete state as a view or resolver may read it.
+
+    `since_offset` is the boundary at which the state entered its current
+    value, or `None` when it has held it since before run start - which is
+    what makes elapsed time in a state (minimum runtime, start delay) a
+    reading of recorded transitions rather than a counter a pack keeps.
+    """
+
+    address: str
+    value: str
+    since_offset: int | None
+
+
+@dataclass(frozen=True)
+class TransitionRequest:
+    """A pack asking the kernel to move one discrete state at this boundary.
+
+    The kernel validates it against the model's `DiscreteStateSpec`, applies
+    it, and records the `DiscreteTransition`; a pack never writes state.
+    """
+
+    address: str
+    next: str
+    cause: str
+    controller_ref: str | None = None
 
 
 @dataclass(frozen=True)
@@ -215,6 +294,16 @@ class ModelSpec:
     #: derived: a reporting path about a state no model measures would be a
     #: column of readings nothing could fill.
     measured_interval_states: frozenset[str] = frozenset()
+    #: T025a. The addressed discrete states this model carries. Empty for
+    #: every model before T025a, which is what keeps them executing exactly as
+    #: they did.
+    discrete_states: tuple[DiscreteStateSpec, ...] = ()
+
+    def discrete_state(self, state_key: str) -> DiscreteStateSpec | None:
+        for spec in self.discrete_states:
+            if spec.state_key == state_key:
+                return spec
+        return None
 
     def __post_init__(self) -> None:
         seen: set[str] = set()
@@ -313,6 +402,11 @@ class ModelSpec:
         for handler in self.handlers:
             roles.setdefault(handler.state_key, set()).add(handler.role)
             scopes[handler.state_key] = handler.scope
+        # T025a: a discrete state is consumed as a scenario-owned initial
+        # value, which is the CAUSAL_INPUT role, by the kernel itself.
+        for spec in self.discrete_states:
+            roles.setdefault(spec.state_key, set()).add("CAUSAL_INPUT")
+            scopes[spec.state_key] = spec.scope
         return tuple(
             AdvertisedState(
                 state_key=state_key,
@@ -326,6 +420,8 @@ class ModelSpec:
         """Every `(state_key, role)` this model advertises."""
         return frozenset(
             (handler.state_key, handler.role) for handler in self.handlers
+        ) | frozenset(
+            (spec.state_key, "CAUSAL_INPUT") for spec in self.discrete_states
         )
 
     def handler(
@@ -405,6 +501,15 @@ class StepContext:
     exposures: tuple[ForcingExposure, ...]
     site_controls: tuple[SiteControlInput, ...]
     bus_attachments: tuple[BusAttachmentInput, ...] = ()
+    #: T025a. Every addressed discrete state as it stands in the phase the
+    #: context was built for. Empty for a model with no discrete state.
+    discrete: tuple[DiscreteValue, ...] = ()
+
+    def discrete_value(self, address: str) -> DiscreteValue | None:
+        for entry in self.discrete:
+            if entry.address == address:
+                return entry
+        return None
 
     def stock(self, address: str) -> Fraction | None:
         for key, value in self.stocks:
@@ -468,6 +573,16 @@ class Coupling:
     view: Callable[[StepContext], ControllerView]
     decide: Callable[[ControllerView], ControlIntent]
     resolve: Callable[[StepContext, ControlIntent], AcceptedFlowSet]
+    #: T025a, for a model with discrete state. `due(context)` returns the
+    #: transitions already due at T (a start delay that has elapsed), applied
+    #: in phase A before the sample at T. `commit(context, intent)` returns the
+    #: transitions a request newly emitted at T causes, applied in phase F
+    #: before the resolver runs, so the resolver resolves the physical state
+    #: the step actually has. Both absent for every earlier model.
+    due: Callable[[StepContext], tuple[TransitionRequest, ...]] | None = None
+    commit: (
+        Callable[[StepContext, ControlIntent], tuple[TransitionRequest, ...]] | None
+    ) = None
 
 
 class ExecutionLedger:

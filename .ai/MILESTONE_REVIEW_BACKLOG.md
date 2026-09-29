@@ -1380,6 +1380,26 @@ reached the server); the immediate re-run passed every claim. Each run now adds
 five Drafts to `var/runs` (four as before plus the Kobo Draft), and the Kobo
 Draft adds one execution artifact and one stage.
 
+## Carried from T025a: the contract-9 gate no longer covers real stored Drafts
+
+Owner decision 2026-09-29: the T025a contract-9 gate uses generated stand-ins
+(`host/tests/contract9_gate/`, built by its `capture.py` on 96618d9 from the
+shipped templates and scenarios), not copies of the owner's Drafts. So the gate
+no longer proves that the owner's real stored v9 Drafts and artifacts in
+`var/` survive a change. It covers the same case classes (fuel and daytime,
+READY, BLOCKED, FAILED, within-step reserve windows, schema-3 stored
+artifacts, COMPLETED and RUNNING) and nothing older than what 96618d9 wrote.
+
+Also carried: three of the owner's stored artifacts (two written mid-run, one
+under an identity an earlier v9 fix changed) already failed to re-render equal
+on `main` before T025a. That was found while the gate still held copies and is
+not explained further.
+
+Trigger to look again: before a contract 10, before any change to how v9
+Drafts or stored artifacts are parsed, hashed or rendered, or at the milestone
+review, whichever comes first. Then run the current reader over `var/runs` and
+`var/executions` read-only and diff against a fresh re-execution.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

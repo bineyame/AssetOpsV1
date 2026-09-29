@@ -113,6 +113,8 @@ import math
 import re
 from typing import Any, Mapping, NoReturn
 
+from assetops_contracts.control import DISCRETE_UNIT as DISCRETE_VALUE_UNIT
+
 from assetops_backend.control_vocabulary import (
     CONTROL_VOCABULARY_RULE,
     banned_tokens_in,
@@ -280,6 +282,9 @@ MAX_SEQUENCE = 10_000
 MAX_OFFSET_MINUTES = 10_000
 
 MAX_TEMPLATE_ID_LENGTH = 64
+#: T025a. How a discrete member is spelled: `STOPPED`, `FAILED`.
+DISCRETE_MEMBER = re.compile(r"[A-Z][A-Z_]*")
+
 IDENTIFIER_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 #: An ISO-8601 instant in UTC, spelled the one way the Site Foundation spells
@@ -897,6 +902,43 @@ def _parse_parameter(raw: Any, *, where: str, source: str) -> ScenarioParameter:
             display_name=display_name,
             value=quantity,
             unit=unit,
+            execution_role=execution_role,
+            state_ref=state_ref,
+            execution_requirement=execution_requirement,
+            ownership=ownership,
+            bounds=bounds,
+        )
+
+    if isinstance(value, str) and unit == DISCRETE_VALUE_UNIT:
+        # T025a. A typed discrete value - a generator's lifecycle state at run
+        # start - is the one text an executor consumes, and only as the
+        # scenario-owned initial value of a state. It is a member name, never
+        # a phrase; which members exist, and which a run may start from, is the
+        # selected model profile's to say at run setup.
+        if (
+            execution_role != "CAUSAL_INPUT"
+            or ownership is None
+            or not ownership.initializes
+            or ownership.owner != "SCENARIO_INPUT"
+            or state_ref is None
+        ):
+            raise ScenarioConfigurationInvalid(
+                f"'{where}' carries a discrete value in unit "
+                f"{DISCRETE_VALUE_UNIT!r} in {source}. A discrete value is only "
+                "a scenario-owned initial value of a CAUSAL_INPUT state that "
+                "the scenario initializes."
+            )
+        if not DISCRETE_MEMBER.fullmatch(value):
+            raise ScenarioConfigurationInvalid(
+                f"'{where}.value' {value!r} in {source} is not a discrete "
+                "member name: upper-case letters and underscores, such as "
+                "STOPPED."
+            )
+        return ScenarioParameter(
+            parameter_id=parameter_id,
+            display_name=display_name,
+            value=value,
+            unit=DISCRETE_VALUE_UNIT,
             execution_role=execution_role,
             state_ref=state_ref,
             execution_requirement=execution_requirement,

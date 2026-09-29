@@ -4144,3 +4144,53 @@ baseline-only; one CDP hang in layout evidence. `var/sites` gained `kobo-001`
 ### T024 fix round 1
 
 Codex review R1-R3 closed on the branch (`.agent/T024-review-packet.md`, "Fix round 1"). Setup now: blocks a scenario/run value at a model-owned Foundation address while still resolving the Foundation's need; blocks needs and controls when the Foundation's `valid_from` is after run start (`_instant`); and validates the single-bus topology, freezing `FrozenBusAttachment` rows (`bus_attachments`, optional in the run document, required by the model at execution) under the new blocking kind `ELECTRICAL_TOPOLOGY_NOT_CONNECTED`. Open: connections are undirected; offset instants unreachable through setup.
+
+
+## T025a - Generator lifecycle and healthy full-site runtime
+
+In review (`.agent/T025a-review-packet.md`). Contract 9 kept, additively
+(`D-2026-09-29-t025-generator-policy-package`).
+
+### What it settled in code
+
+- **Kernel discrete state.** `DiscreteStateSpec`, `DiscreteValue`,
+  `TransitionRequest` (`kernel/model.py`); `ModelSpec.discrete_states`,
+  `StepContext.discrete`, `Coupling.due` (phase A, before the sample) and
+  `Coupling.commit` (phase F, before the resolver). The kernel validates every
+  edge and records `DiscreteTransition` (address, previous/next, phase, cause,
+  controller ref, instant). `BoundaryState.discrete` / `discrete_for_step`,
+  `PrivateTrajectory.discrete_transitions` and
+  `FrozenWorldInputs.discrete_initial_values` enter digests and identities only
+  when non-empty. `KERNEL_VERSION` stays 1.
+- **Typed enums.** `DISCRETE_UNIT = "state"` (`contracts/control.py`); view,
+  request and acceptance values are text exactly in that unit, checked on
+  construction. Scenarios author a discrete initial value as `value: STOPPED,
+  unit: state` (CAUSAL_INPUT, scenario-owned, initializes only).
+- **Profile `mini-grid` v1** (`runs/profiles.py`, `packs/mini_grid.py`):
+  daytime states plus `generator-state`, `fuel-tank-volume` and seven Option C
+  needs (rating, SFC, start/stop thresholds, minimum runtime, start delay, tank
+  capacity). New Foundation properties `start-soc-threshold`,
+  `stop-soc-threshold`, `start-delay`, `generator-rated-power`; `min` is a
+  model-need-only unit (`MODEL_NEED_ONLY_UNITS`), still no scenario unit.
+  Bus paths may attach directly (`GENERATION`, via `None`); `FUEL_SUPPLY` is
+  tank via generator. `DISCRETE_STATE_RULES` state the contract text.
+- **Setup blocks**: initial RUNNING/STARTING or a number for a discrete state
+  (`INITIAL_VALUE_NOT_RESOLVED`), a timeline entry on a discrete state
+  (`STATE_NOT_SUPPORTED`, T035's), and new kind `LIFECYCLE_TIMING_NOT_ALIGNED`.
+- **Lab.** `ElectricalView.generator` (`GeneratorView`); service counts
+  `generator_to_load`. Artifact schema **4** only when a generator is recorded;
+  every other record is still written as 3, byte-identical. API serves
+  `electrical.generator`; `GeneratorPanels.tsx` renders it.
+- **Shipped content.** Scenario `kobo-mini-grid-evening` (5-min, 12:00-20:00);
+  template gains the generator policy (35/90 %, 5 min, 40 kW).
+- **Merge gate** `host/tests/contract9_gate`: all 15 v9 Drafts from `var/runs`
+  plus a within-step reserve Draft, captured before any shared change.
+
+### What this leaves open
+
+The owner's `var/sites/kobo-001` lacks the four new properties, so a
+`mini-grid` Draft against it BLOCKS until its Foundation gains them. Under
+Kobo's `[pv-array, battery, generator]` the battery serves ahead of a running
+generator, so the state of charge hovers at the reserve while the generator
+charges only when the battery is not discharging. Generator status is not
+yet reported (T025b) or staged (T026).

@@ -1,0 +1,169 @@
+{
+  "run-c9000000000000000000000000000101": {
+    "boundaries": 165,
+    "content_digest": "8271c6dfb4cce429e7f625cdbb19c702e8336eacb8d6fb84f7ed09c171ae9b49",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "86b531601e43c330e45d2f3e43d1c31e7e050b0e66fa8dec1398a33323ccefc1",
+    "lab_content_digest": "8271c6dfb4cce429e7f625cdbb19c702e8336eacb8d6fb84f7ed09c171ae9b49",
+    "lab_observation_series_digest": "c8d1ef82715b5c378dddc559500fbfa3c7a685ac8e1e8477bcb3dd62406ed3a2",
+    "model_profile": "minimal-fuel-tank v1",
+    "observation_count": 207,
+    "observation_series_digest": "c8d1ef82715b5c378dddc559500fbfa3c7a685ac8e1e8477bcb3dd62406ed3a2",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000102": {
+    "boundaries": 493,
+    "content_digest": "2c53c51ebb9593786797774b01d76fc17d8dec0855747ffd2acfec34a165f6d8",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "6bdd7e8eb6021f0dc87a9e5550f5974f26ccf9667abed093c7cb1fb64e36451a",
+    "lab_content_digest": "2c53c51ebb9593786797774b01d76fc17d8dec0855747ffd2acfec34a165f6d8",
+    "lab_observation_series_digest": "542ad3bc7d1b010a22c352bd29c7444011c3e7b0155cc34b55cac321f0db4a1b",
+    "model_profile": "minimal-fuel-tank v1",
+    "observation_count": 207,
+    "observation_series_digest": "542ad3bc7d1b010a22c352bd29c7444011c3e7b0155cc34b55cac321f0db4a1b",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000103": {
+    "boundaries": 193,
+    "content_digest": "4d8a1eae0d1053ccdb77c4f7f88b3d304f1c8295bf6eb4edc5dfb4f43b1063ac",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "90f06f63854ef00981ef61e9d2bf001c4362fd8e78d343561ea2815931f8d689",
+    "lab_content_digest": "4d8a1eae0d1053ccdb77c4f7f88b3d304f1c8295bf6eb4edc5dfb4f43b1063ac",
+    "lab_observation_series_digest": "4d67884ba4a83e219c6ac31ad57f060273cb60087914679fe052b5d3f6eb6a9e",
+    "model_profile": "minimal-fuel-tank v1",
+    "observation_count": 242,
+    "observation_series_digest": "4d67884ba4a83e219c6ac31ad57f060273cb60087914679fe052b5d3f6eb6a9e",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000104": {
+    "blocking": [
+      "INITIAL_VALUE_NOT_RESOLVED fuel-tank-capacity@fuel-tank"
+    ],
+    "status": "BLOCKED"
+  },
+  "run-c9000000000000000000000000000105": {
+    "blocking": [
+      "INITIAL_VALUE_NOT_RESOLVED generator-specific-fuel-consumption@generator"
+    ],
+    "status": "BLOCKED"
+  },
+  "run-c9000000000000000000000000000201": {
+    "boundaries": 49,
+    "content_digest": "88ae164ede544202b78c64c9f16929d840bd7bfe7e300a36f754ec8da4263180",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "870afe4c0036740605b6023e11f72d0a120799119ecebaeae71fd946826bbf4d",
+    "lab_content_digest": "88ae164ede544202b78c64c9f16929d840bd7bfe7e300a36f754ec8da4263180",
+    "lab_observation_series_digest": "ff9520f4a0a38d5696a2e5d5b70f1c3cf0642ef87bd3ffb2443f4b5cecacd3ac",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "ff9520f4a0a38d5696a2e5d5b70f1c3cf0642ef87bd3ffb2443f4b5cecacd3ac",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000202": {
+    "boundaries": 49,
+    "content_digest": "ee0de5911a38fcf20534b2787ae566f6009ad7aa9c04340097894ffc89d1a732",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "d44c0f76f68277f4a5f144d6fb6ce6c10e91c7a8aad6aa65924301c020e90494",
+    "lab_content_digest": "ee0de5911a38fcf20534b2787ae566f6009ad7aa9c04340097894ffc89d1a732",
+    "lab_observation_series_digest": "8cc7166681694ebdcab3d60edb6a7d84ee86f90816f16611a30bed1e2453dd34",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "8cc7166681694ebdcab3d60edb6a7d84ee86f90816f16611a30bed1e2453dd34",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000203": {
+    "boundaries": 49,
+    "content_digest": "c5183be2cb2ebc84e9c1c088632fba0b2ed8e12ea077c1621fda65a0f797a0d4",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "a369eff1942ed8101c916fea15723347757fb8f3f6faa9cfd6cbc1c3520c253c",
+    "lab_content_digest": "c5183be2cb2ebc84e9c1c088632fba0b2ed8e12ea077c1621fda65a0f797a0d4",
+    "lab_observation_series_digest": "b7fbac29377f133c231e010e70e12e8700426e2d812b77ba8197ca2e118264bc",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "b7fbac29377f133c231e010e70e12e8700426e2d812b77ba8197ca2e118264bc",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000204": {
+    "boundaries": 49,
+    "content_digest": "038752dfc24fbc099c573578588eef973970ca983d4b5796da2d65ec53dc4559",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "2ffdb6a0450cfe8da1abdd4de27b41f0283dc1ba38cb85e273d01de7d92517f4",
+    "lab_content_digest": "038752dfc24fbc099c573578588eef973970ca983d4b5796da2d65ec53dc4559",
+    "lab_observation_series_digest": "f466c6c07462fbc317286149bf4829f562047dbb8655026d72cb63d404c4bbf7",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "f466c6c07462fbc317286149bf4829f562047dbb8655026d72cb63d404c4bbf7",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000205": {
+    "boundaries": 145,
+    "content_digest": "b96070a302255687da7e3f520571b9b2801eaf8d66f8b5b876d72a1fd872893d",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "869fa396f37c0cb7c64743345f86d9884982d694d70339be8ac1e3bbef56af4b",
+    "lab_content_digest": "b96070a302255687da7e3f520571b9b2801eaf8d66f8b5b876d72a1fd872893d",
+    "lab_observation_series_digest": "c07459f5b822a99648535bb98f429ab05e6a5985c78160fe9126c5ae6e5f8410",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "c07459f5b822a99648535bb98f429ab05e6a5985c78160fe9126c5ae6e5f8410",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000206": {
+    "boundaries": 49,
+    "content_digest": "b0de0ffbc7fa2bb8fb93acb71b10214b1df9d5c016b6816df4567fba69ba3985",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "f1a525858d84ed334d864fcf90ad8251ba85d3528cd89e28d73a246448013722",
+    "lab_content_digest": "b0de0ffbc7fa2bb8fb93acb71b10214b1df9d5c016b6816df4567fba69ba3985",
+    "lab_observation_series_digest": "c1a83293049c58b2c72e320d2ff84a2b3055885291cb68d61f6ac465cd22b4ff",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "c1a83293049c58b2c72e320d2ff84a2b3055885291cb68d61f6ac465cd22b4ff",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000207": {
+    "boundaries": 49,
+    "content_digest": "6c4e4cf941ed8eaa19b9b16e9ee04b410f831f15a19014cf5d64e6eb6b85c71b",
+    "execution_contract_version": 9,
+    "failure": null,
+    "inputs_identity": "0682b3a11f3fafc273f19aad91a8f39565afbc1fce4ae4795fd64c9875c25080",
+    "lab_content_digest": "6c4e4cf941ed8eaa19b9b16e9ee04b410f831f15a19014cf5d64e6eb6b85c71b",
+    "lab_observation_series_digest": "e12db1dbd1dba4849aa25bde8f4f6374c9ca0b1ec07afeab740b0a6cdc0d4b02",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 294,
+    "observation_series_digest": "e12db1dbd1dba4849aa25bde8f4f6374c9ca0b1ec07afeab740b0a6cdc0d4b02",
+    "outcome": "COMPLETED"
+  },
+  "run-c9000000000000000000000000000208": {
+    "blocking": [
+      "INITIAL_VALUE_NOT_RESOLVED battery-energy-capacity@battery"
+    ],
+    "status": "BLOCKED"
+  },
+  "run-c9000000000000000000000000000209": {
+    "blocking": [
+      "INITIAL_VALUE_NOT_RESOLVED pv-rated-power@pv-array"
+    ],
+    "status": "BLOCKED"
+  },
+  "run-c9000000000000000000000000000210": {
+    "boundaries": 0,
+    "content_digest": "4340020290e5648e56bb7c787ba9e4efdc54526ff526406acf1f00970999bf23",
+    "execution_contract_version": 9,
+    "failure": "TOPOLOGY_INCONSISTENT pv-array, pv-array-2",
+    "inputs_identity": "ed9d2f640c0f798d49bb049e5a97d822907a5fd6546c4ae480ce73ce53732160",
+    "lab_content_digest": "4340020290e5648e56bb7c787ba9e4efdc54526ff526406acf1f00970999bf23",
+    "lab_observation_series_digest": "352b275362fa2d7927625894a003f69502f7d4adc3c1ab22efb2218aea64aac1",
+    "model_profile": "daytime-mini-grid v1",
+    "observation_count": 0,
+    "observation_series_digest": "352b275362fa2d7927625894a003f69502f7d4adc3c1ab22efb2218aea64aac1",
+    "outcome": "FAILED"
+  }
+}

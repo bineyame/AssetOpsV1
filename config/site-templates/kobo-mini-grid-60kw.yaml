@@ -129,6 +129,29 @@ foundation:
           unit: min
           source: TEMPLATE
           source_version: 1
+        # T025a: the generator's Site-owned control policy and the physical
+        # facts its lifecycle needs. Demo values, reviewed at T025b's
+        # hands-on check (D-2026-09-29-t025-generator-policy-package).
+        - property_key: start-soc-threshold
+          value: 35
+          unit: "%"
+          source: TEMPLATE
+          source_version: 1
+        - property_key: stop-soc-threshold
+          value: 90
+          unit: "%"
+          source: TEMPLATE
+          source_version: 1
+        - property_key: start-delay
+          value: 5
+          unit: min
+          source: TEMPLATE
+          source_version: 1
+        - property_key: generator-rated-power
+          value: 40
+          unit: kW
+          source: TEMPLATE
+          source_version: 1
     - component_id: fuel-tank
       component_type: FUEL_TANK
       display_name: Generator fuel tank
@@ -349,7 +372,8 @@ foundation:
   # valid_from. Each list names every component of its kind once.
   #
   # Source priority: PV serves load first, then the battery, then the
-  # generator. The daytime model does not run the generator (T025 does); the
+  # generator. The daytime model does not run the generator; the mini-grid
+  # model (T025a) dispatches it in exactly this order. The
   # list still names it, because the priority is a fact about the site.
   #
   # Critical-load priority: when supply cannot serve everything, the clinic is

@@ -1,0 +1,256 @@
+run_id: run-c9000000000000000000000000000104
+lifecycle_status: DRAFT
+execution_status: BLOCKED
+created_at: '2026-09-27T09:00:00Z'
+deterministic_identity:
+  site:
+    site_id: MG-001
+    foundation_version: 1
+    foundation_valid_from: '2026-09-29T17:21:31Z'
+    site_type: MINIGRID
+    timezone: Africa/Kampala
+  scenario:
+    scenario_id: fuel-loss-event
+    scenario_version: 1
+    resolved_parameters:
+    - parameter_id: evening-peak-load
+      value: 72.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: overnight-base-load
+      value: 18.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: peak-irradiance
+      value: 310.0
+      unit: W/m2
+      answered_by: SCENARIO
+    - parameter_id: dispatched-output
+      value: 45.0
+      unit: kW
+      answered_by: SCENARIO
+    - parameter_id: volume-removed
+      value: 120.0
+      unit: L
+      answered_by: SCENARIO
+    - parameter_id: level-after-the-gap
+      value: 254.02
+      unit: L
+      answered_by: SCENARIO
+    - parameter_id: hand-recorded-level
+      value: 254.02
+      unit: L
+      answered_by: SCENARIO
+    - parameter_id: volume-delivered
+      value: 300.0
+      unit: L
+      answered_by: SCENARIO
+  interval:
+    start_time: '2026-09-21T00:00:00Z'
+    end_time: '2026-09-22T17:00:00Z'
+    duration_minutes: 2460
+    timestep_minutes: 15
+  seed: 20260927
+  profiles:
+    model_profile_id: minimal-fuel-tank
+    model_profile_version: 1
+    publication_profile_id: simulator-lab-publication
+    publication_profile_version: 3
+    execution_contract_version: 9
+  initialization_inputs:
+  - state_key: fuel-tank-capacity@fuel-tank
+    parameter_id: tank-capacity
+    value: null
+    unit: L
+    canonical_value: null
+    canonical_unit: L
+    dimension: VOLUME
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site MG-001 foundation version 1, whose component fuel-tank
+      declares no tank-capacity
+  - state_key: fuel-tank-volume@fuel-tank
+    parameter_id: starting-fuel-level
+    value: 430.0
+    unit: L
+    canonical_value: 430.0
+    canonical_unit: L
+    dimension: VOLUME
+    answered_by: SCENARIO
+    answered_by_detail: scenario fuel-loss-event version 1
+  - state_key: generator-specific-fuel-consumption@generator
+    parameter_id: generator-specific-consumption
+    value: 0.311
+    unit: L/kWh
+    canonical_value: 0.311
+    canonical_unit: L/kWh
+    dimension: VOLUME_PER_ENERGY
+    answered_by: SITE_FOUNDATION
+    answered_by_detail: site MG-001 foundation version 1, component generator property
+      specific-fuel-consumption
+  causes:
+  - state_key: fuel-tank-volume@fuel-tank
+    event_id: unaccounted-fuel-removal
+    direction: DECREASE
+    parameter_id: volume-removed
+    canonical_value: 120.0
+    canonical_unit: L
+    dimension: VOLUME
+    timing_shape: WINDOW
+    offset_minutes: 1500
+    duration_minutes: 45
+  - state_key: fuel-tank-volume@fuel-tank
+    event_id: scheduled-refuelling
+    direction: INCREASE
+    parameter_id: volume-delivered
+    canonical_value: 300.0
+    canonical_unit: L
+    dimension: VOLUME
+    timing_shape: POINT
+    offset_minutes: 2400
+    duration_minutes: null
+  forcings:
+  - state_key: site:site-load-demand
+    event_id: baseline-load-profile
+    parameter_id: evening-peak-load
+    canonical_value: 72.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: INTERVAL_WIDE
+    offset_minutes: 0
+    duration_minutes: null
+    execution_requirement: OPTIONAL
+  - state_key: site:site-load-demand
+    event_id: baseline-load-profile
+    parameter_id: overnight-base-load
+    canonical_value: 18.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: INTERVAL_WIDE
+    offset_minutes: 0
+    duration_minutes: null
+    execution_requirement: OPTIONAL
+  - state_key: site:plane-of-array-irradiance
+    event_id: overcast-day
+    parameter_id: peak-irradiance
+    canonical_value: 310.0
+    canonical_unit: W/m2
+    dimension: IRRADIANCE
+    timing_shape: WINDOW
+    offset_minutes: 720
+    duration_minutes: 360
+    execution_requirement: OPTIONAL
+  - state_key: generator-output-power@generator
+    event_id: generator-run-window
+    parameter_id: dispatched-output
+    canonical_value: 45.0
+    canonical_unit: kW
+    dimension: POWER
+    timing_shape: WINDOW
+    offset_minutes: 1080
+    duration_minutes: 240
+    execution_requirement: REQUIRED
+  declared_bounds:
+  - state_key: fuel-tank-volume@fuel-tank
+    bound_kind: UPPER
+    source_state_key: fuel-tank-capacity@fuel-tank
+    source_parameter_id: tank-capacity
+  reporting_path_conditions:
+  - state_key: fuel-level-reporting-availability@fuel-tank
+    event_id: fuel-level-reporting-gap
+    timing_shape: WINDOW
+    offset_minutes: 1490
+    duration_minutes: 90
+  observation_bindings:
+  - source_id: fuel-level-sensor-reading
+    source_kind: DEVICE_SIGNAL
+    device_id: fuel-level-sensor
+    signal_id: fuel-level
+    cadence_ownership: NOT_DECLARED
+    cadence_minutes: 15
+  - source_id: operator-hand-record
+    source_kind: OPERATOR_RECORD
+    device_id: null
+    signal_id: null
+    cadence_ownership: NOT_APPLICABLE
+    cadence_minutes: null
+  publication:
+    simulator_source_id: simulator-lab-source
+    gateway_id: simulator-lab-gateway
+  signal_mappings:
+  - mapping_id: pv-inverter-ac-power
+    device_id: pv-inverter-controller
+    signal_id: ac-power
+    component_id: pv-inverter
+  - mapping_id: pv-array-energy
+    device_id: pv-inverter-controller
+    signal_id: lifetime-energy
+    component_id: pv-array
+  - mapping_id: pv-array-irradiance
+    device_id: pv-irradiance-sensor
+    signal_id: irradiance
+    component_id: pv-array
+  - mapping_id: pv-array-module-temperature
+    device_id: pv-irradiance-sensor
+    signal_id: module-temperature
+    component_id: pv-array
+  - mapping_id: battery-pcs-ac-power
+    device_id: battery-pcs-controller
+    signal_id: ac-power
+    component_id: battery-pcs
+  - mapping_id: battery-state-of-charge
+    device_id: battery-pcs-controller
+    signal_id: state-of-charge
+    component_id: battery
+  - mapping_id: generator-ac-power
+    device_id: generator-controller
+    signal_id: ac-power
+    component_id: generator
+  - mapping_id: generator-output-voltage
+    device_id: generator-controller
+    signal_id: output-voltage
+    component_id: generator
+  - mapping_id: fuel-tank-level
+    device_id: fuel-level-sensor
+    signal_id: fuel-level
+    component_id: fuel-tank
+  - mapping_id: load-active-power
+    device_id: site-meter-unit
+    signal_id: active-power
+    component_id: distribution-load
+  - mapping_id: load-energy
+    device_id: site-meter-unit
+    signal_id: throughput-energy
+    component_id: distribution-load
+  - mapping_id: ac-bus-voltage
+    device_id: site-meter-unit
+    signal_id: bus-voltage
+    component_id: ac-bus
+  - mapping_id: ac-bus-frequency
+    device_id: site-meter-unit
+    signal_id: bus-frequency
+    component_id: ac-bus
+  intervention_history: []
+  model_needs: []
+  site_controls: []
+  bus_attachments: []
+blocking_reasons:
+- kind: INITIAL_VALUE_NOT_RESOLVED
+  subject: fuel-tank-capacity@fuel-tank
+  statement: model profile minimal-fuel-tank version 1 looks for the initial value
+    of fuel-tank-capacity@fuel-tank in the tank-capacity property of component fuel-tank,
+    and the foundation of site MG-001 declares no such property on it. Nothing looks
+    for that value on another component, so this needs either a foundation that declares
+    the property or a profile that names one it does declare.
+unsupported_optional_inputs:
+- state_key: site:plane-of-array-irradiance
+  execution_role: FORCING_INPUT
+  statement: The scenario concerns plane-of-array-irradiance, and model profile minimal-fuel-tank
+    version 1 does not model that state at all. This scenario declares it optional,
+    so the run proceeds without it and the gap is recorded here rather than blocking.
+    Nothing about this run models it.
+- state_key: site:site-load-demand
+  execution_role: FORCING_INPUT
+  statement: The scenario concerns site-load-demand, and model profile minimal-fuel-tank
+    version 1 does not model that state at all. This scenario declares it optional,
+    so the run proceeds without it and the gap is recorded here rather than blocking.
+    Nothing about this run models it.

@@ -1259,6 +1259,9 @@ class TestBlockedDraftsArePersisted:
             # Foundation does not declare - a fact about the pair.
             "SITE_CONTROL_NOT_RESOLVED",
             "ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
+            # T025a: a lifecycle duration the run step cannot express - a fact
+            # about the Site and the run, not the scenario against itself.
+            "LIFECYCLE_TIMING_NOT_ALIGNED",
         }
 
     def test_run_setup_never_reconciles(self) -> None:

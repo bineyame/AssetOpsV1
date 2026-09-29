@@ -174,8 +174,7 @@ export interface RunInventoryRow {
 }
 
 export type RunListResult =
-  | { status: "loaded"; runs: RunInventoryRow[] }
-  | { status: "unavailable" };
+  { status: "loaded"; runs: RunInventoryRow[] } | { status: "unavailable" };
 
 export type RunDetailResult =
   | { status: "loaded"; run: RunSummary }
@@ -433,6 +432,50 @@ export interface RunElectrical {
   latest_balances: string[];
   latest_segments: number[][];
   notes: string[];
+  /** T025a: the generator of a `mini-grid` run; absent or `null` otherwise. */
+  generator?: RunGenerator | null;
+}
+
+/**
+ * One resolved generator step (T025a). Four things the contract keeps apart:
+ * the physical state at T, the state over the step, the controller's request
+ * and the accepted output (kW), plus fuel in litres.
+ */
+export interface RunGeneratorStep {
+  from_offset: number;
+  to_offset: number;
+  simulation_time: string;
+  state_at_t: string;
+  state_for_step: string;
+  requested: string;
+  request_reason: string;
+  output: string;
+  to_load: string;
+  to_battery: string;
+  fuel_start: string;
+  fuel_end: string;
+  limited_by: string[];
+}
+
+/** One lifecycle transition, with its phase, cause and instant. */
+export interface RunGeneratorTransition {
+  address: string;
+  previous: string;
+  next: string;
+  phase: string;
+  cause: string;
+  controller_ref: string | null;
+  at_offset_minutes: number;
+  simulation_time: string;
+}
+
+export interface RunGenerator {
+  state_address: string;
+  fuel_address: string;
+  reported_status: string;
+  discrete_state_rules: RunElectricalRule[];
+  steps: RunGeneratorStep[];
+  transitions: RunGeneratorTransition[];
 }
 
 /**
@@ -760,7 +803,9 @@ export function isRunSummary(value: unknown): value is RunSummary {
 }
 
 function isStringArray(value: unknown): boolean {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
 }
 
 function isPrivateStateRow(value: unknown): value is RunPrivateStateRow {
@@ -906,8 +951,7 @@ function everyRecord(
   check: (item: Record<string, unknown>) => boolean,
 ): boolean {
   return (
-    Array.isArray(value) &&
-    value.every((item) => isRecord(item) && check(item))
+    Array.isArray(value) && value.every((item) => isRecord(item) && check(item))
   );
 }
 
@@ -938,8 +982,13 @@ export function isRunElectrical(value: unknown): value is RunElectrical {
     everyRecord(
       value.latest_controls,
       (item) =>
-        hasStrings(item, ["address", "quantity", "requested", "accepted", "unit"]) &&
-        isStringArray(item.limited_by),
+        hasStrings(item, [
+          "address",
+          "quantity",
+          "requested",
+          "accepted",
+          "unit",
+        ]) && isStringArray(item.limited_by),
     ) &&
     everyRecord(
       value.latest_loads,
@@ -979,7 +1028,64 @@ export function isRunElectrical(value: unknown): value is RunElectrical {
         item.length === 2 &&
         item.every((part) => typeof part === "number"),
     ) &&
-    isStringArray(value.notes)
+    isStringArray(value.notes) &&
+    (value.generator === undefined ||
+      value.generator === null ||
+      isRunGenerator(value.generator))
+  );
+}
+
+/** T025a: the declared lifecycle members and the request vocabulary. */
+const GENERATOR_STATES: readonly string[] = [
+  "STOPPED",
+  "STARTING",
+  "RUNNING",
+  "FAILED",
+];
+const GENERATOR_REQUESTS: readonly string[] = ["RUN", "STOP"];
+
+function isMember(value: unknown, allowed: readonly string[]): boolean {
+  return typeof value === "string" && allowed.includes(value);
+}
+
+/** T025a: the generator section, checked whole. */
+export function isRunGenerator(value: unknown): value is RunGenerator {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    hasStrings(value, ["state_address", "fuel_address", "reported_status"]) &&
+    everyRecord(value.discrete_state_rules, (item) =>
+      hasStrings(item, ["rule_id", "display_name", "statement"]),
+    ) &&
+    everyRecord(
+      value.steps,
+      (item) =>
+        typeof item.from_offset === "number" &&
+        typeof item.to_offset === "number" &&
+        hasStrings(item, [
+          "simulation_time",
+          "request_reason",
+          "output",
+          "to_load",
+          "to_battery",
+          "fuel_start",
+          "fuel_end",
+        ]) &&
+        isMember(item.state_at_t, GENERATOR_STATES) &&
+        isMember(item.state_for_step, GENERATOR_STATES) &&
+        isMember(item.requested, GENERATOR_REQUESTS) &&
+        isStringArray(item.limited_by),
+    ) &&
+    everyRecord(
+      value.transitions,
+      (item) =>
+        typeof item.at_offset_minutes === "number" &&
+        hasStrings(item, ["address", "phase", "cause", "simulation_time"]) &&
+        isMember(item.previous, GENERATOR_STATES) &&
+        isMember(item.next, GENERATOR_STATES) &&
+        isNullableString(item.controller_ref),
+    )
   );
 }
 
