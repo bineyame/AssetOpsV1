@@ -436,3 +436,100 @@ def test_parse_refuses_a_history_that_names_another_run(mini_grid) -> None:
 
     with pytest.raises(HistoryUnreadable, match="run_id"):
         parse_history(json.loads(tail), other)
+
+
+@pytest.fixture(scope="module")
+def recorded(tmp_path_factory):
+    """The fuel run executed and reloaded: (persisted history, reporting)."""
+    root = tmp_path_factory.mktemp("fuel-window")
+    run = read_run_record(FUEL_WITH_GAP)
+    finish(run, root)
+    lab = a_lab(root)
+    history = lab.history(run)
+    assert history.source == "PERSISTED", history.notes
+    return history, lab._reporting_for(run)
+
+
+class TestAnIndependentlyDerivedShortWindow:
+    """T025c proof: a short window of the recorded fuel history, derived by hand.
+
+    Every expected value below comes from the run's declared inputs and the
+    contract's rules, not from the kernel: 430 L at the start; the dispatched
+    generator window burns 45 kW x 4 h x 0.311 L/kWh = 55.98 L; the 120 L
+    removal is a WINDOW of 45 minutes applied in nine equal five-minute shares;
+    the reporting gap [1490, 1580) suppresses every fuel-level sample due in
+    it at the sensor's 15-minute cadence; the 300 L delivery at 2400 is a POINT
+    event against the 500 L capacity, so the bound refuses what does not fit.
+    The window [1485, 1590] holds the boundary events and the whole gap; 2400
+    holds the bounded boundary event.
+    """
+
+    def test_the_stock_follows_the_declared_causes(self, recorded) -> None:
+        history, _ = recorded
+        fuel = {
+            s.offset_minutes: s.value
+            for s in history.samples
+            if s.address == "fuel-tank-volume@fuel-tank" and s.phase == "POST_EVENT"
+        }
+        before = Fraction(430) - Fraction(45) * 4 * Fraction("0.311")
+        assert before == Fraction("374.02")
+        share = Fraction(120) / 9
+        for offset in range(1485, 1591, 5):
+            steps_applied = min(max((offset - 1500) // 5, 0), 9)
+            assert fuel[offset] == before - steps_applied * share, offset
+        assert fuel[1545] == Fraction("254.02")
+        # The removal is recorded where the ledger applied it: nine entries,
+        # one per step of the window, each at the boundary that begins its step.
+        removal = [
+            e for e in history.applied_events if e.event_id == "unaccounted-fuel-removal"
+        ]
+        assert [e.at_offset_minutes for e in removal] == list(range(1500, 1545, 5))
+        assert all(e.share == Fraction(1, 9) for e in removal)
+
+    def test_the_gap_suppresses_exactly_the_due_samples_inside_it(
+        self, recorded
+    ) -> None:
+        history, reporting = recorded
+        signal = next(
+            s for s in reporting.signals if s.address == "fuel-tank-volume@fuel-tank"
+        )
+        assert signal.cadence_minutes == 15
+        level = [
+            a
+            for a in history.attempts
+            if a.address == "fuel-tank-volume@fuel-tank"
+            and 1485 <= a.at_offset_minutes <= 1590
+        ]
+        # Due every 15 minutes and nowhere else: the instants between are
+        # cadence, recorded as no attempt at all.
+        assert [a.at_offset_minutes for a in level] == list(range(1485, 1591, 15))
+        inside = [a for a in level if 1490 <= a.at_offset_minutes < 1580]
+        assert [a.outcome for a in inside] == ["SUPPRESSED_BY_GAP"] * 6
+        assert all(a.reported_value is None for a in inside)
+        edges = [a for a in level if a not in inside]
+        assert [a.outcome for a in edges] == ["REPORTED", "REPORTED"]
+        truth = {
+            s.offset_minutes: s.value
+            for s in history.samples
+            if s.address == "fuel-tank-volume@fuel-tank" and s.phase == "POST_EVENT"
+        }
+        # A reading is the state at its own source time plus the profile's
+        # declared bias - never a value restamped from another instant.
+        for attempt in edges:
+            assert attempt.reported_value == truth[attempt.at_offset_minutes] + signal.bias
+
+    def test_the_bounded_delivery_refuses_what_does_not_fit(self, recorded) -> None:
+        history, _ = recorded
+        (bounded,) = history.bounded_transitions
+        level = Fraction("254.02")
+        assert bounded.at_offset_minutes == 2400
+        assert bounded.requested == level + 300
+        assert bounded.accepted == Fraction(500)
+        assert bounded.refused == level + 300 - 500
+        fuel = {
+            s.offset_minutes: s.value
+            for s in history.samples
+            if s.address == "fuel-tank-volume@fuel-tank" and s.phase == "POST_EVENT"
+        }
+        # State at T is after T's events: the delivery shows at 2400 itself.
+        assert (fuel[2395], fuel[2400]) == (level, Fraction(500))
