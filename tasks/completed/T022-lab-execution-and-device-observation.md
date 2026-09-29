@@ -113,8 +113,8 @@ No operator reconciliation or Findings are delivered here.
 
 The owner steps a real run and distinguishes truth, reporting gap and measured
 value. The Reviewer checks the observation boundary and gate from API to UI.
-Review outcome: accepted on independent review; **owner review deferred to
-after T022A**.
+Review outcome: accepted on independent review; **accepted on owner review
+2026-09-29**, after T022A.
 
 **Independent review.** Three Codex passes and one Claude backup pass, across
 five implementation rounds. Codex returned R1 (the RNG draw identity was not
@@ -141,3 +141,7 @@ reporting gap and distinguish the true value from the reported value from the
 missing report. At offset 1545 the five cells read 254.02 L, 373.52 L, source
 time 00:45, STALE, and SUPPRESSED_BY_GAP - the two columns disagreeing by
 exactly the 120 L the gap hides.
+
+**Owner review, 2026-09-29.** Recorded by the coordinator relaying the owner,
+who stated in session: "hands-on review of T022 and T022A is OK", and then
+explicitly authorised recording it to close T022 and T022A.
