@@ -271,6 +271,26 @@ Ask Codex for judgement, not for re-running a green suite.
   branch reads that branch's `.ai/`, not main's. Merge main into the branch
   before a review if a rule has changed.
 
+## Using The Claude Implementer Efficiently
+
+Set by the owner on 2026-09-29 after T023, T022B and T024 each cost 80-200M
+re-read tokens and one to three hours. Measured from the transcripts: cost is
+context size times turns, and context grew from resumed agents and from source
+code read whole into context. The agent's own rules are in
+`.claude/agents/assetops-implementer.md` "Context budget"; these are the
+coordinator's:
+
+- **A fresh implementer per build and per fix round. Never resume one.**
+  T024's build started at 209k tokens because the read-only planning agent was
+  resumed; T023's fix rounds started at 458k. If a slice needs a planning pass,
+  the planner writes its plan to `.agent/T0NN-implementer-plan.md` and a fresh
+  agent builds from that file.
+- **Fix rounds run on Sonnet** (`model: sonnet` on dispatch), briefed with the
+  review file and the findings to fix. New slices stay on the session model,
+  where design judgement matters.
+- **Keep slices small.** A task the implementer sizes at several times a
+  previous slice is a split candidate before it is built, not after.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record
