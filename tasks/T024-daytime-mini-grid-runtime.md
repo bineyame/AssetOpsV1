@@ -1,6 +1,6 @@
 # T024 - Daytime PV, storage and addressed load service
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A, first electrical demonstration.
