@@ -33,17 +33,11 @@ review of T022 and T022A is also recorded, 2026-09-29. The libyaml
 decision above is **made**: `D-2026-09-29-run-store-libyaml` adopts
 `CSafeLoader` for the run store in its own slice **T022B, before T024**.
 
-**Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
-steps it, and runs it to the end, and the Draft's own screen shows the world at
-the instant it has reached beside what each device reported. The row the slice
-exists for is offset 1545, inside the shipped gap `[1490, 1580)` and past the
-removal `[1500, 1545)`: the tank holds **254.02 L**, the newest reading is the
-**373.52 L** published before the gap opened, carrying its own source time.
-The columns differ by 119.50 L; the removal is 120 L, that difference with the
-sensor's -0.5 L bias taken back out.
+**Something runs, and somebody can watch it** - the Lab starts, steps and
+finishes a Draft; T022's offset-1545 demonstration is in `.ai/CODE_STATE.md`.
 
-**`EXECUTION_CONTRACT_VERSION` is 8 and the publication profile is version 2**,
-and the two are one move. `REPORTING_RULES` answers what a version-seven
+**`EXECUTION_CONTRACT_VERSION` is 8 and the publication profile is version 2
+on `main`** (9 and 3 on the T024 branch), and the two were one move. `REPORTING_RULES` answers what a version-seven
 implementation could have answered any way it liked - when a sample is due, what
 a forced gap does to one, how long an outage of each declared shape lasts, what a
 consumer sees when nothing fresh arrived, and whether a publication failure is
@@ -84,7 +78,14 @@ already cited: a residual living only in a packet is one nobody reads first.
 **T022B is complete and merged** as a partial improvement: libyaml, C extension
 required, API 5-6x faster at 223 runs, but **the 1 s Runs budget is missed on the
 dev server, so T022A criterion 2 stays open**. The deep-nesting crash is an
-owner-accepted risk carried until a database. **T024 is active.**
+owner-accepted risk carried until a database.
+
+**T024 is built and in review** on `task/T024-daytime-mini-grid-runtime`
+(packet `.agent/T024-review-packet.md`; `USER_REVIEW_REQUIRED: true`): a Kobo
+Site runs PV, a battery and three addressed loads through a controller, a
+declared-cascade resolver and exact balances, under contract **9**, Option C
+and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
+Record in `.ai/CODE_STATE.md`. T025 is next after review.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -96,8 +97,8 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **`tasks/T024-daytime-mini-grid-runtime.md`**; T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
-2. `.ai/CODE_STATE.md`: the T022B and T023 entries, then T022, T021A, T021, T020B.
+1. **`tasks/T024-daytime-mini-grid-runtime.md`** (in review); T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
+2. `.ai/CODE_STATE.md`: the T024, T022B and T023 entries, then T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
    records T021A at version 7 and T022 at 8.
@@ -137,7 +138,7 @@ nonempty because there is no authoring UI.
 
 The working checkout's gitignored `var/sites/` holds mg-001, mg-002 (cold room),
 mg-003 (two AC buses), mg-004, mg-005 (twin tank) and mg-006, which the user asked
-to preserve. Do not clear, replace or delete that directory. Updated templates do
+to preserve, plus kobo-001 (T024 evidence). Do not clear, replace or delete that directory. Updated templates do
 not mutate existing Sites: use a new explicit fixture for new property or schema
 demonstrations. An isolated checkout does not contain them.
 

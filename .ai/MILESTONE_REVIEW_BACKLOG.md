@@ -1317,6 +1317,69 @@ The inspector renders one "Show envelope N" button per envelope (154 at the end
 of the browser run). Utilitarian by instruction; a later slice with thousands of
 envelopes needs paging, not polish now.
 
+## Carried from T024
+
+### The controller decides once per step, at T
+
+The controller's request is made from the view at T and holds as a ceiling
+across the step, even when the step is split into segments because a forcing
+window starts or ends inside it. A demand rise mid-step can therefore leave
+load unserved that a re-deciding controller would have served. Deterministic
+and stated in `resolver-is-a-declared-cascade`; the shipped scenarios align
+every window to the step grid, so they never meet it.
+
+*What would change the answer:* a scenario with off-grid demand windows that
+the owner reads as wrong, or T025's generator start logic needing sub-step
+decisions.
+
+### "Battery first" in the source priority means the controller asks for the whole demand
+
+The Implementer's reading of a source priority placing the battery ahead of PV:
+the controller requests the whole demand from the battery and PV serves what
+the battery cannot; PV surplus during battery discharge is curtailed, because
+the battery cannot charge while it discharges. Physically coherent and tested,
+and a domain choice nobody else made. The shipped template puts PV first.
+
+*What would change the answer:* the owner's hands-on review, or T025 adding
+the generator to the same list.
+
+### One PV array, one inverter, one battery and one PCS
+
+The daytime model relates exactly one of each (`TOPOLOGY_INCONSISTENT`
+otherwise), like the fuel model's one tank and one generator. Loads are the
+first relation of many. Two batteries resolve and freeze independently at
+setup and then refuse to execute.
+
+### The kernel still imports the fuel pack as its default model
+
+The new dependency guard tolerates `packs.fuel` in the kernel and forbids any
+other pack. Removing the default is a refactor across every fuel caller.
+
+### Electrical observations are generated, not published
+
+Publication profile 3 declares the electrical reporting paths and the transform
+generates their readings; the gateway allowlist is still fuel-only, so a Kobo
+Draft stages no envelope. T026 extends the allowlist.
+
+### The screen approximates exact ratios
+
+A state of charge after a 95 % efficient conversion is a ratio such as
+`965/19`. The Lab shows it to two decimals marked approximate, with the exact
+text in the title. The wire and the artifact stay exact.
+
+### Priority lists cannot change during a run
+
+Only the battery reserve has a scenario override in T024; the two priority
+lists are baseline-only and the Lab says so.
+
+### Layout evidence: one CDP hang on the first attempt
+
+The first `tools/layout-evidence.mjs` run of this slice stopped with "the
+browser stopped answering" while stepping the fuel Draft (no step request ever
+reached the server); the immediate re-run passed every claim. Each run now adds
+five Drafts to `var/runs` (four as before plus the Kobo Draft), and the Kobo
+Draft adds one execution artifact and one stage.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline
@@ -1339,8 +1402,9 @@ The carried review findings above are unchanged.
   A user-authored `Docs/AssetOps_MiniGrid_Technical_Walkthrough.md` covers part
   of this ground and cites the pre-resequencing T024-T029 order; reconcile
   before or during that work.
-- Option C (the model declaring its Foundation need) remains triggered by its
-  first consuming law: `D-2026-09-22-foundation-value-declaration`.
+- Option C (the model declaring its Foundation need) was taken by T024 for the
+  daytime mini-grid profile (`D-2026-09-29-t024-option-c-and-reserve-override`).
+  The Fuel Loss scenario stays on Option B, deliberately.
 - The separate observation transform is owned by the recreated T022 starter
   work; see `.ai/PLANNING_HANDOFF_T020A_T023.md` and architecture's Execution
   Composition And Truth Barrier.
