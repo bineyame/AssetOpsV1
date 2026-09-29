@@ -25,10 +25,17 @@
  * - inventory, full navigation: from the navigation's time origin to the Runs
  *   table holding its rows (and the row count is checked against the API's).
  * - inventory, in-app: from the click on the Lab's Runs link to the same state.
- * - setup: from the click on "Create draft run" to the created Draft's summary
- *   showing its run ID and a frozen-input table with rows.
- * - run detail: from the navigation's time origin to the run's frozen-input
- *   table holding rows.
+ * - setup to run detail (THE BUDGETED SETUP INTERACTION, criterion 7): one
+ *   time origin, the click on "Create draft run", to the Draft's own run
+ *   detail page holding its frozen-input rows. The setup screen links to no
+ *   run detail, so as soon as the created summary shows the new run ID the
+ *   harness navigates to `/simulator-lab/runs/<id>` with no think time; that
+ *   navigation, its page boot and the detail read are all inside the number.
+ *   The two documents share one clock: `performance.timeOrigin + now()`.
+ * - submission to created summary (a component): the click to the setup
+ *   page's created-Draft summary showing its run ID and frozen-input rows.
+ * - run detail (a component): the detail navigation's own time origin to its
+ *   frozen-input rows.
  *
  * The first sample is reported apart from the rest: it pays for a cold browser
  * cache and, against `npm run dev`, for the dev server compiling modules.
@@ -278,7 +285,8 @@ async function setup(cdp) {
       if (!id) return;
       observer.disconnect();
       const status = (text.match(/Execution status\\s*(READY|BLOCKED)/) || [])[1] || null;
-      resolve({ ms: performance.now() - t0, runId: id[0], frozenRows: rows, status });
+      resolve({ ms: performance.now() - t0, runId: id[0], frozenRows: rows, status,
+        clickEpoch: performance.timeOrigin + t0 });
     };
     const observer = new MutationObserver(done);
     observer.observe(document, { subtree: true, childList: true, characterData: true });
@@ -295,7 +303,8 @@ async function runDetail(cdp, runId) {
   }
   const mark = await cdp.value("window.__marks.runFrozenRows");
   const shown = await cdp.value(`(document.querySelector("main").textContent || "").includes(${JSON.stringify(runId)})`);
-  return { ms: mark.t, frozenRows: mark.count, showsRunId: shown };
+  const readyEpoch = await cdp.value(`performance.timeOrigin + ${mark.t}`);
+  return { ms: mark.t, frozenRows: mark.count, showsRunId: shown, readyEpoch };
 }
 
 function stats(values) {
@@ -323,7 +332,14 @@ try {
     const inApp = await inventoryInApp(cdp);
     const created = await setup(cdp);
     const detail = created.runId ? await runDetail(cdp, created.runId) : null;
-    const sample = { index: i, first: i === 0, navigation, inApp, setup: created, detail };
+    const setupToDetail =
+      detail && created.clickEpoch != null && detail.readyEpoch != null
+        ? { ms: detail.readyEpoch - created.clickEpoch, runId: created.runId }
+        : { ms: null, note: "no run detail" };
+    const sample = {
+      index: i, first: i === 0, navigation, inApp,
+      setupToDetail, submissionToCreatedSummary: created, detail,
+    };
     samples.push(sample);
     console.log(
       `${i === 0 ? "first " : "sample"} ${i}: inventory nav ${Math.round(navigation.ms)} ms ` +
@@ -331,8 +347,9 @@ try {
         ` | in-app ${inApp.ms === null ? inApp.note : Math.round(inApp.ms) + " ms"}` +
         ` (api ${inApp.apiStart == null ? "?" : Math.round(inApp.apiStart)}->${inApp.apiEnd == null ? "?" : Math.round(inApp.apiEnd)} ms)` +
         ` | page boot dcl ${navigation.page?.domContentLoaded == null ? "?" : Math.round(navigation.page.domContentLoaded)} ms` +
-        ` | setup ${created.ms === null ? created.note : Math.round(created.ms) + " ms"} ${created.status ?? ""}` +
-        ` | detail ${detail ? Math.round(detail.ms) + " ms" : "-"}`,
+        ` | SETUP->DETAIL ${setupToDetail.ms === null ? setupToDetail.note : Math.round(setupToDetail.ms) + " ms"}` +
+        ` (created summary ${created.ms === null ? created.note : Math.round(created.ms) + " ms"} ${created.status ?? ""}` +
+        `, detail load ${detail ? Math.round(detail.ms) + " ms" : "-"})`,
     );
   }
 } catch (error) {
@@ -356,7 +373,8 @@ const summary = {
     inventoryInAppApiEnd: stats(quiet.map((s) => s.inApp.apiEnd)),
     inventoryInAppAfterApi: stats(quiet.map((s) =>
       s.inApp.ms != null && s.inApp.apiEnd != null ? s.inApp.ms - s.inApp.apiEnd : null)),
-    setup: stats(quiet.map((s) => s.setup.ms)),
+    setupToDetail: stats(quiet.map((s) => s.setupToDetail.ms)),
+    submissionToCreatedSummary: stats(quiet.map((s) => s.submissionToCreatedSummary.ms)),
     runDetail: stats(quiet.map((s) => s.detail?.ms)),
   },
   rowCountsMatched: samples.every((s) => s.navigation.rows === s.navigation.expected),
