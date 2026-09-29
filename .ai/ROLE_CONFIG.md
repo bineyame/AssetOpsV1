@@ -290,6 +290,16 @@ coordinator's:
   where design judgement matters.
 - **Keep slices small.** A task the implementer sizes at several times a
   previous slice is a split candidate before it is built, not after.
+- **Build large slices in phases, a fresh agent per phase.** Set by the owner
+  on 2026-09-29 after T025a: bounded reads cut read volume by about two thirds,
+  but 508 turns still took context to 467k and cost 142M re-read tokens,
+  because cost grows with the square of the turn count. A slice beyond one
+  focused change is dispatched as phases (for example contracts and core, then
+  model and setup, then Lab and frontend). Each phase ends with committed work
+  and a short handoff at `.agent/T0NN-phase-N-handoff.md` (what landed, file
+  anchors, what is next, open risks); the coordinator dispatches a fresh agent
+  for the next phase from that file. Full suites and the packet belong to the
+  last phase.
 
 ## Updating Bindings
 

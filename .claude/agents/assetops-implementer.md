@@ -63,6 +63,11 @@ again. Keep the context small by construction:
   40 lines and the review packet under about 150; both are evidence, not
   history. Do not restate what the task file or decision already says - cite
   it.
+- **Phased dispatch.** When the brief names a phase, build only that phase,
+  commit it, and end with `.agent/T0NN-phase-N-handoff.md`: what landed, file
+  anchors the next phase needs, what is next, open risks. Keep it short; a
+  fresh agent builds the next phase from it. When starting a later phase, read
+  the previous handoff instead of re-surveying.
 
 ## Work standard
 
