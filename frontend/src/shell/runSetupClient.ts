@@ -330,6 +330,112 @@ export interface RunExecutionFailure {
 }
 
 /**
+ * One resolved step of the electrical world (T024), as mean powers in kW.
+ *
+ * Private truth for the gated Lab. `requested_battery_power` is what the
+ * controller asked for and `battery_power` what the PCS accepted - positive
+ * discharging, negative charging. Every quantity is exact text.
+ */
+export interface RunElectricalStep {
+  from_offset: number;
+  to_offset: number;
+  simulation_time: string;
+  soc_start: string;
+  soc_end: string;
+  reserve: string;
+  reserve_origin: string;
+  pv_potential: string;
+  pv_output: string;
+  curtailed: string;
+  clipped: string;
+  battery_power: string;
+  requested_battery_power: string;
+  limited_by: string[];
+  demand: string;
+  served: string;
+  unserved: string;
+}
+
+export interface RunElectricalRule {
+  rule_id: string;
+  display_name: string;
+  statement: string;
+}
+
+export interface RunElectricalViewEntry {
+  name: string;
+  address: string;
+  value: string | null;
+  unit: string;
+}
+
+export interface RunElectricalRequest {
+  address: string;
+  quantity: string;
+  requested: string;
+  unit: string;
+  reason: string;
+}
+
+export interface RunElectricalControl {
+  address: string;
+  quantity: string;
+  requested: string;
+  accepted: string;
+  unit: string;
+  limited_by: string[];
+}
+
+export interface RunElectricalLoad {
+  address: string;
+  priority_rank: number;
+  demand_power: string;
+  served_power: string;
+  unserved_power: string;
+  demand_energy: string;
+  served_energy: string;
+  unserved_energy: string;
+}
+
+export interface RunElectricalFlow {
+  flow_id: string;
+  from_address: string;
+  to_address: string;
+  energy: string;
+  mean_power: string;
+}
+
+export interface RunElectricalEffectiveControl {
+  address: string;
+  from_offset: number;
+  to_offset: number;
+  value: string;
+  unit: string;
+  origin: string;
+  provenance: string;
+}
+
+/**
+ * The electrical world of one execution: every step so far, and the latest
+ * step's view, request, acceptance, loads, flows and reserve in effect - kept
+ * as separate collections because the execution contract keeps them apart.
+ */
+export interface RunElectrical {
+  battery_address: string;
+  coupling_rules: RunElectricalRule[];
+  steps: RunElectricalStep[];
+  latest_view: RunElectricalViewEntry[];
+  latest_requests: RunElectricalRequest[];
+  latest_controls: RunElectricalControl[];
+  latest_loads: RunElectricalLoad[];
+  latest_flows: RunElectricalFlow[];
+  latest_effective_controls: RunElectricalEffectiveControl[];
+  latest_balances: string[];
+  latest_segments: number[][];
+  notes: string[];
+}
+
+/**
  * Where one Draft's execution is, and what it has produced.
  *
  * `status` is one of `NOT_STARTED`, `RUNNING`, `COMPLETED`, `FAILED` and
@@ -376,6 +482,8 @@ export interface RunExecution {
   signals: RunDeviceSignal[];
   reporting_gaps: RunReportingGap[];
   recent_reports: RunRecentReport[];
+  /** T024: the electrical world, or `null` for a model with no controller. */
+  electrical: RunElectrical | null;
 }
 
 /**
@@ -764,6 +872,117 @@ function isExecutionFailure(value: unknown): value is RunExecutionFailure {
   );
 }
 
+function hasStrings(value: Record<string, unknown>, keys: string[]): boolean {
+  return keys.every((key) => typeof value[key] === "string");
+}
+
+function isElectricalStep(value: unknown): value is RunElectricalStep {
+  return (
+    isRecord(value) &&
+    typeof value.from_offset === "number" &&
+    typeof value.to_offset === "number" &&
+    hasStrings(value, [
+      "simulation_time",
+      "soc_start",
+      "soc_end",
+      "reserve",
+      "reserve_origin",
+      "pv_potential",
+      "pv_output",
+      "curtailed",
+      "clipped",
+      "battery_power",
+      "requested_battery_power",
+      "demand",
+      "served",
+      "unserved",
+    ]) &&
+    isStringArray(value.limited_by)
+  );
+}
+
+function everyRecord(
+  value: unknown,
+  check: (item: Record<string, unknown>) => boolean,
+): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => isRecord(item) && check(item))
+  );
+}
+
+/**
+ * The electrical world, checked whole. `null` is the answer for a model with
+ * no controller - the fuel model - and for a run nothing has executed.
+ */
+export function isRunElectrical(value: unknown): value is RunElectrical {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.battery_address === "string" &&
+    everyRecord(value.coupling_rules, (item) =>
+      hasStrings(item, ["rule_id", "display_name", "statement"]),
+    ) &&
+    Array.isArray(value.steps) &&
+    value.steps.every(isElectricalStep) &&
+    everyRecord(
+      value.latest_view,
+      (item) =>
+        hasStrings(item, ["name", "address", "unit"]) &&
+        isNullableString(item.value),
+    ) &&
+    everyRecord(value.latest_requests, (item) =>
+      hasStrings(item, ["address", "quantity", "requested", "unit", "reason"]),
+    ) &&
+    everyRecord(
+      value.latest_controls,
+      (item) =>
+        hasStrings(item, ["address", "quantity", "requested", "accepted", "unit"]) &&
+        isStringArray(item.limited_by),
+    ) &&
+    everyRecord(
+      value.latest_loads,
+      (item) =>
+        typeof item.priority_rank === "number" &&
+        hasStrings(item, [
+          "address",
+          "demand_power",
+          "served_power",
+          "unserved_power",
+          "demand_energy",
+          "served_energy",
+          "unserved_energy",
+        ]),
+    ) &&
+    everyRecord(value.latest_flows, (item) =>
+      hasStrings(item, [
+        "flow_id",
+        "from_address",
+        "to_address",
+        "energy",
+        "mean_power",
+      ]),
+    ) &&
+    everyRecord(
+      value.latest_effective_controls,
+      (item) =>
+        typeof item.from_offset === "number" &&
+        typeof item.to_offset === "number" &&
+        hasStrings(item, ["address", "value", "unit", "origin", "provenance"]),
+    ) &&
+    isStringArray(value.latest_balances) &&
+    Array.isArray(value.latest_segments) &&
+    value.latest_segments.every(
+      (item) =>
+        Array.isArray(item) &&
+        item.length === 2 &&
+        item.every((part) => typeof part === "number"),
+    ) &&
+    isStringArray(value.notes)
+  );
+}
+
 /**
  * Whether a body is a whole execution projection.
  *
@@ -813,7 +1032,8 @@ export function isRunExecution(value: unknown): value is RunExecution {
     Array.isArray(value.reporting_gaps) &&
     value.reporting_gaps.every(isReportingGap) &&
     Array.isArray(value.recent_reports) &&
-    value.recent_reports.every(isRecentReport)
+    value.recent_reports.every(isRecentReport) &&
+    (value.electrical === null || isRunElectrical(value.electrical))
   );
 }
 

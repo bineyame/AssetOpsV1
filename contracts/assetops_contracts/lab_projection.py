@@ -42,6 +42,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from fractions import Fraction
 
+from assetops_contracts.control import (
+    AcceptedControl,
+    AcceptedFlow,
+    ControlRequest,
+    EffectiveControl,
+    LoadService,
+    ViewEntry,
+)
 from assetops_contracts.failures import ExecutionFailure
 from assetops_contracts.observation import (
     DeviceObservation,
@@ -267,6 +275,68 @@ class ObservationView:
     dropout_per_thousand: int
 
 
+# --- The electrical world at the instant reached (T024) ----------------------
+
+
+@dataclass(frozen=True)
+class ElectricalStepRow:
+    """One resolved step of a model with a controller, as mean powers.
+
+    Private truth for the gated Lab. `requested_battery_power` is the
+    controller's request and `battery_power` the accepted mean AC power at the
+    PCS - positive discharging, negative charging - so the two numbers the
+    contract keeps apart are two fields here too. `soc_start` is the state at
+    the step's first instant and `soc_end` the state it carried to the next.
+    """
+
+    from_offset: int
+    to_offset: int
+    simulation_time: str
+    soc_start: Fraction
+    soc_end: Fraction
+    reserve: Fraction
+    reserve_origin: str
+    pv_potential: Fraction
+    pv_output: Fraction
+    curtailed: Fraction
+    clipped: Fraction
+    battery_power: Fraction
+    requested_battery_power: Fraction
+    limited_by: tuple[str, ...]
+    demand: Fraction
+    served: Fraction
+    unserved: Fraction
+
+
+@dataclass(frozen=True)
+class ElectricalView:
+    """The electrical world of one execution, for the gated Lab.
+
+    `steps` is every step resolved so far, oldest first, which is what shows
+    PV, the battery and service against simulation time. The `latest_*`
+    fields are the most recent step's records in full: what the controller
+    saw, what it asked for, what was accepted and why, each load's service,
+    the named flows, the reserve in effect with its origin, and the balances
+    the kernel verified exactly.
+    """
+
+    battery_address: str
+    steps: tuple[ElectricalStepRow, ...]
+    latest_view: tuple[ViewEntry, ...]
+    latest_requests: tuple[ControlRequest, ...]
+    latest_controls: tuple[AcceptedControl, ...]
+    latest_loads: tuple[LoadService, ...]
+    latest_flows: tuple[AcceptedFlow, ...]
+    latest_effective_controls: tuple[EffectiveControl, ...]
+    latest_balances: tuple[str, ...]
+    latest_segments: tuple[tuple[int, int], ...]
+    notes: tuple[str, ...] = ()
+
+    @property
+    def latest(self) -> ElectricalStepRow | None:
+        return self.steps[-1] if self.steps else None
+
+
 @dataclass(frozen=True)
 class LabProjection:
     """One gated view of one execution: where it is, what is true, what was said.
@@ -317,6 +387,9 @@ class LabProjection:
     dropped_count: int
     failure: ExecutionFailure | None = None
     notes: tuple[str, ...] = field(default_factory=tuple)
+    #: T024. The electrical world for a model with a controller; absent for
+    #: the fuel model and before anything has run.
+    electrical: ElectricalView | None = None
 
     def __post_init__(self) -> None:
         if self.status not in LAB_EXECUTION_STATUSES:

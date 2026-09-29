@@ -59,8 +59,18 @@ from assetops_contracts.execution_contract import (
     NUMERIC_POLICY_VERSION,
 )
 from assetops_contracts.failures import ExecutionFailure
+from assetops_contracts.control import (
+    AcceptedControl,
+    AcceptedFlow,
+    ControlRequest,
+    EffectiveControl,
+    LoadService,
+    ViewEntry,
+)
 from assetops_contracts.lab_projection import (
     LAB_EXECUTION_STATUS_STATEMENTS,
+    ElectricalStepRow,
+    ElectricalView,
     LabControlRefused,
     LabProjection,
     ObservationView,
@@ -142,7 +152,13 @@ EXECUTION_ARTIFACT_ROOT = REPOSITORY_ROOT / "var" / "executions"
 #: replaced: a `KeyError` is an honest failure, and a confident wrong reading is
 #: not. So `_identify_layout` reads the ROWS of an unmarked record, which is the
 #: only evidence such a record carries about which build wrote it.
-EXECUTION_ARTIFACT_SCHEMA_VERSION = 2
+#:
+#: **Three: the electrical world (T024)**, an `electrical` key carrying the
+#: per-step PV, battery and service rows and the latest step's view, intent,
+#: acceptance, flows, loads and effective controls - `null` for a model with
+#: no controller. A schema-two record is read as what it recorded: no
+#: electrical view, because none was written.
+EXECUTION_ARTIFACT_SCHEMA_VERSION = 3
 
 #: The three shapes an execution record on disk actually has, and every one of
 #: them was written by a build on this branch.
@@ -158,7 +174,8 @@ EXECUTION_ARTIFACT_SCHEMA_VERSION = 2
 #: shapeless layout explicitly, and is read as that layout if its rows agree -
 #: no build wrote such a record, and honouring what one says is still what
 #: "a reader decides which rule applied by reading it" means.
-LAYOUT_CURRENT = "SCHEMA_2"
+LAYOUT_CURRENT = "SCHEMA_3"
+LAYOUT_SCHEMA_2 = "SCHEMA_2"
 LAYOUT_UNMARKED_WITH_SHAPE = "UNMARKED_WITH_SHAPE"
 LAYOUT_UNMARKED_WITHOUT_SHAPE = "UNMARKED_WITHOUT_SHAPE"
 
@@ -168,7 +185,11 @@ LAYOUT_UNMARKED_WITHOUT_SHAPE = "UNMARKED_WITHOUT_SHAPE"
 LAYOUT_DESCRIPTIONS = {
     LAYOUT_CURRENT: (
         "the current layout, which records a reporting condition's shape and "
-        "the run's timestep on every gap row"
+        "the run's timestep on every gap row, and the electrical world"
+    ),
+    LAYOUT_SCHEMA_2: (
+        "schema 2, which records a reporting condition's shape and the run's "
+        "timestep on every gap row and predates the electrical world"
     ),
     LAYOUT_UNMARKED_WITH_SHAPE: (
         "the layout that records a reporting condition's shape and states no "
@@ -291,6 +312,8 @@ def _identify_layout(
                     "layouts, and honouring one would mean ignoring the other.",
                 )
             return LAYOUT_UNMARKED_WITHOUT_SHAPE, marker
+        if marker == 2:
+            return LAYOUT_SCHEMA_2, marker
         return LAYOUT_CURRENT, marker
 
     if not shaped:
@@ -552,6 +575,296 @@ def project(session: LabSession) -> LabProjection:
         dropped_count=counts.get("DROPPED", 0),
         failure=execution.failure,
         notes=session.notes + tuple(session.staging_notes) + execution.notes,
+        electrical=electrical_view(execution),
+    )
+
+# --- The electrical world (T024) ---------------------------------------------
+
+
+def electrical_view(execution: Execution) -> ElectricalView | None:
+    """The electrical world of an execution whose model has a controller.
+
+    Built from the trajectory's own control steps - what the controller saw,
+    asked for and what was accepted - and nothing else. `None` for a model
+    with no controller, which is the fuel model.
+    """
+    steps: list[ElectricalStepRow] = []
+    latest = None
+    battery = ""
+    for boundary in execution.boundaries:
+        step = boundary.control_step
+        if step is None:
+            continue
+        accepted = step.accepted
+        flows = {item.flow_id: item for item in accepted.flows}
+        account = accepted.stock_accounts[0]
+        battery = account.address
+        soc_start = boundary.stock(account.address) or Fraction(0)
+        request = step.intent.requests[0]
+        control = accepted.controls[0]
+        reserve = accepted.effective_controls[0]
+        steps.append(
+            ElectricalStepRow(
+                from_offset=accepted.from_offset,
+                to_offset=accepted.to_offset,
+                simulation_time=boundary.simulation_time,
+                soc_start=soc_start,
+                soc_end=soc_start + account.delta,
+                reserve=reserve.value,
+                reserve_origin=reserve.origin,
+                pv_potential=flows["pv_potential"].mean_power,
+                pv_output=(
+                    flows["pv_to_load"].mean_power
+                    + flows["pv_to_battery"].mean_power
+                ),
+                curtailed=flows["curtailed_pv"].mean_power,
+                clipped=flows["inverter_clipping"].mean_power,
+                battery_power=(
+                    flows["battery_to_load"].mean_power
+                    - flows["pv_to_battery"].mean_power
+                ),
+                requested_battery_power=request.requested,
+                limited_by=control.limited_by,
+                demand=flows["load_demand"].mean_power,
+                served=(
+                    flows["pv_to_load"].mean_power
+                    + flows["battery_to_load"].mean_power
+                ),
+                unserved=flows["unserved_load"].mean_power,
+            )
+        )
+        latest = step
+    if latest is None:
+        return None
+    return ElectricalView(
+        battery_address=battery,
+        steps=tuple(steps),
+        latest_view=latest.view.entries,
+        latest_requests=latest.intent.requests,
+        latest_controls=latest.accepted.controls,
+        latest_loads=latest.accepted.loads,
+        latest_flows=latest.accepted.flows,
+        latest_effective_controls=latest.accepted.effective_controls,
+        latest_balances=tuple(
+            item.identity_id for item in latest.accepted.balances
+        ),
+        latest_segments=latest.accepted.segments,
+        notes=latest.accepted.notes,
+    )
+
+
+def _text(value: Fraction | None) -> str | None:
+    return None if value is None else str(value)
+
+
+def render_electrical(view: ElectricalView | None) -> dict[str, object] | None:
+    """The electrical view as the artifact persists it, exact as ratios."""
+    if view is None:
+        return None
+    return {
+        "battery_address": view.battery_address,
+        "steps": [
+            {
+                "from_offset": row.from_offset,
+                "to_offset": row.to_offset,
+                "simulation_time": row.simulation_time,
+                "soc_start": str(row.soc_start),
+                "soc_end": str(row.soc_end),
+                "reserve": str(row.reserve),
+                "reserve_origin": row.reserve_origin,
+                "pv_potential": str(row.pv_potential),
+                "pv_output": str(row.pv_output),
+                "curtailed": str(row.curtailed),
+                "clipped": str(row.clipped),
+                "battery_power": str(row.battery_power),
+                "requested_battery_power": str(row.requested_battery_power),
+                "limited_by": list(row.limited_by),
+                "demand": str(row.demand),
+                "served": str(row.served),
+                "unserved": str(row.unserved),
+            }
+            for row in view.steps
+        ],
+        "latest_view": [
+            {
+                "name": item.name,
+                "address": item.address,
+                "value": _text(item.value),
+                "unit": item.unit,
+            }
+            for item in view.latest_view
+        ],
+        "latest_requests": [
+            {
+                "address": item.address,
+                "quantity": item.quantity,
+                "requested": str(item.requested),
+                "unit": item.unit,
+                "reason": item.reason,
+            }
+            for item in view.latest_requests
+        ],
+        "latest_controls": [
+            {
+                "address": item.address,
+                "quantity": item.quantity,
+                "requested": str(item.requested),
+                "accepted": str(item.accepted),
+                "unit": item.unit,
+                "limited_by": list(item.limited_by),
+            }
+            for item in view.latest_controls
+        ],
+        "latest_loads": [
+            {
+                "address": item.address,
+                "priority_rank": item.priority_rank,
+                "demand_energy": str(item.demand_energy),
+                "served_energy": str(item.served_energy),
+                "unserved_energy": str(item.unserved_energy),
+                "demand_power": str(item.demand_power),
+                "served_power": str(item.served_power),
+                "unserved_power": str(item.unserved_power),
+            }
+            for item in view.latest_loads
+        ],
+        "latest_flows": [
+            {
+                "flow_id": item.flow_id,
+                "from_address": item.from_address,
+                "to_address": item.to_address,
+                "energy": str(item.energy),
+                "mean_power": str(item.mean_power),
+            }
+            for item in view.latest_flows
+        ],
+        "latest_effective_controls": [
+            {
+                "address": item.address,
+                "from_offset": item.from_offset,
+                "to_offset": item.to_offset,
+                "value": str(item.value),
+                "unit": item.unit,
+                "origin": item.origin,
+                "provenance": item.provenance,
+            }
+            for item in view.latest_effective_controls
+        ],
+        "latest_balances": list(view.latest_balances),
+        "latest_segments": [list(item) for item in view.latest_segments],
+        "notes": list(view.notes),
+    }
+
+
+def parse_electrical(raw: object) -> ElectricalView | None:
+    """The persisted electrical view, strictly. A value that is not a ratio
+    is refused, as everywhere else in the artifact."""
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise KeyError("electrical")
+
+    def x(value: object, where: str) -> Fraction:
+        return _exact(value, where)
+
+    return ElectricalView(
+        battery_address=str(raw["battery_address"]),
+        steps=tuple(
+            ElectricalStepRow(
+                from_offset=int(row["from_offset"]),
+                to_offset=int(row["to_offset"]),
+                simulation_time=str(row["simulation_time"]),
+                soc_start=x(row["soc_start"], "a state of charge"),
+                soc_end=x(row["soc_end"], "a state of charge"),
+                reserve=x(row["reserve"], "a reserve"),
+                reserve_origin=str(row["reserve_origin"]),
+                pv_potential=x(row["pv_potential"], "a PV potential"),
+                pv_output=x(row["pv_output"], "a PV output"),
+                curtailed=x(row["curtailed"], "a curtailment"),
+                clipped=x(row["clipped"], "a clipping"),
+                battery_power=x(row["battery_power"], "a battery power"),
+                requested_battery_power=x(
+                    row["requested_battery_power"], "a requested power"
+                ),
+                limited_by=tuple(str(item) for item in row["limited_by"]),
+                demand=x(row["demand"], "a demand"),
+                served=x(row["served"], "a service"),
+                unserved=x(row["unserved"], "an unserved load"),
+            )
+            for row in raw["steps"]
+        ),
+        latest_view=tuple(
+            ViewEntry(
+                name=str(row["name"]),
+                address=str(row["address"]),
+                value=(
+                    None if row["value"] is None else x(row["value"], "a view value")
+                ),
+                unit=str(row["unit"]),
+            )
+            for row in raw["latest_view"]
+        ),
+        latest_requests=tuple(
+            ControlRequest(
+                address=str(row["address"]),
+                quantity=str(row["quantity"]),
+                requested=x(row["requested"], "a request"),
+                unit=str(row["unit"]),
+                reason=str(row["reason"]),
+            )
+            for row in raw["latest_requests"]
+        ),
+        latest_controls=tuple(
+            AcceptedControl(
+                address=str(row["address"]),
+                quantity=str(row["quantity"]),
+                requested=x(row["requested"], "a request"),
+                accepted=x(row["accepted"], "an accepted power"),
+                unit=str(row["unit"]),
+                limited_by=tuple(str(item) for item in row["limited_by"]),
+            )
+            for row in raw["latest_controls"]
+        ),
+        latest_loads=tuple(
+            LoadService(
+                address=str(row["address"]),
+                priority_rank=int(row["priority_rank"]),
+                demand_energy=x(row["demand_energy"], "a demand"),
+                served_energy=x(row["served_energy"], "a service"),
+                unserved_energy=x(row["unserved_energy"], "an unserved load"),
+                demand_power=x(row["demand_power"], "a demand"),
+                served_power=x(row["served_power"], "a service"),
+                unserved_power=x(row["unserved_power"], "an unserved load"),
+            )
+            for row in raw["latest_loads"]
+        ),
+        latest_flows=tuple(
+            AcceptedFlow(
+                flow_id=str(row["flow_id"]),
+                from_address=str(row["from_address"]),
+                to_address=str(row["to_address"]),
+                energy=x(row["energy"], "a flow energy"),
+                mean_power=x(row["mean_power"], "a flow power"),
+            )
+            for row in raw["latest_flows"]
+        ),
+        latest_effective_controls=tuple(
+            EffectiveControl(
+                address=str(row["address"]),
+                from_offset=int(row["from_offset"]),
+                to_offset=int(row["to_offset"]),
+                value=x(row["value"], "a control value"),
+                unit=str(row["unit"]),
+                origin=str(row["origin"]),
+                provenance=str(row["provenance"]),
+            )
+            for row in raw["latest_effective_controls"]
+        ),
+        latest_balances=tuple(str(item) for item in raw["latest_balances"]),
+        latest_segments=tuple(
+            (int(item[0]), int(item[1])) for item in raw["latest_segments"]
+        ),
+        notes=tuple(str(item) for item in raw["notes"]),
     )
 
 
@@ -755,6 +1068,7 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
             }
             for item in projection.recent_reports
         ],
+        "electrical": render_electrical(projection.electrical),
     }
 
 
@@ -772,7 +1086,7 @@ def _layout_notes(layout: str, gap_count: int) -> tuple[str, ...]:
     no note: it is the silent reinterpretation this correction is about, with a
     paragraph asserting that it did not happen.
     """
-    if layout == LAYOUT_CURRENT or gap_count == 0:
+    if layout in (LAYOUT_CURRENT, LAYOUT_SCHEMA_2) or gap_count == 0:
         return ()
     if layout == LAYOUT_UNMARKED_WITH_SHAPE:
         return (
@@ -809,7 +1123,7 @@ def _parse_reporting_gap(
     The third layout recorded no shape, and only there is the span read off the
     row and the shape reported absent.
     """
-    if layout in (LAYOUT_CURRENT, LAYOUT_UNMARKED_WITH_SHAPE):
+    if layout in (LAYOUT_CURRENT, LAYOUT_SCHEMA_2, LAYOUT_UNMARKED_WITH_SHAPE):
         recorded = row.get("recorded_end_offset_minutes")
         return ReportingPathWindow(
             event_id=str(row["event_id"]),
@@ -1039,6 +1353,14 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                     ),
                 )
                 for row in document["recent_reports"]
+            ),
+            # Required at schema three, where `null` is the answer for a model
+            # with no controller; absent at every earlier layout, which wrote
+            # no electrical world.
+            electrical=(
+                parse_electrical(document["electrical"])
+                if layout == LAYOUT_CURRENT
+                else None
             ),
         )
     except KeyError as missing:
