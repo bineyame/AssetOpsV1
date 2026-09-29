@@ -780,6 +780,8 @@ class TestBoundCases:
             "delivery-overflow",
             "insufficient-fuel",
             "invalid-rate",
+            # T024: the battery's state of charge between 0 % and 100 %.
+            "battery-state-of-charge-limits",
         }
 
     def test_no_bound_policy_is_a_silent_one(self) -> None:

@@ -71,11 +71,19 @@ from assetops_contracts.world_inputs import (
     ForcingInput,
     FrozenWorldInputs,
 )
+from assetops_contracts.control import (
+    AcceptedFlowSet,
+    ControlIntent,
+    ControllerView,
+    ControlStep,
+)
 from assetops_simulator.kernel.model import (
     KERNEL_VERSION,
+    CouplingRefused,
     ExecutionLedger,
     ModelSpec,
     StateHandler,
+    StepContext,
 )
 # The default model, and the one exception a model's own code may raise. No fuel
 # STATE KEY is imported any more: T021's independent review found four of them
@@ -180,6 +188,13 @@ class _World:
         default_factory=dict
     )
     step_refusals: dict[str, Fraction] = field(default_factory=dict)
+    #: T024 scratch for a model with a controller: whether this step's forcing
+    #: exposures are already computed, and the step's view, intent and
+    #: acceptance. Rebuilt at every instant.
+    exposures_ready: bool = False
+    view_now: ControllerView | None = None
+    intent_now: ControlIntent | None = None
+    accepted_now: AcceptedFlowSet | None = None
 
 
 # --- Setup ------------------------------------------------------------------
@@ -323,6 +338,11 @@ def _resolve_relations(world: _World) -> None:
     law-binding pass's answer.
     """
     for relation in world.model.component_relations:
+        if relation.many:
+            # Several machines of this relation are the point - three loads -
+            # so there is no single component to record, and nothing may
+            # resolve a law operand through it.
+            continue
         components = sorted(
             {
                 _component_of(address)
@@ -432,6 +452,19 @@ def _initialize(world: _World) -> None:
 
         if handler.kind == "STOCK":
             world.stocks[entry.address] = value
+            if handler.ceiling is not None:
+                world.upper[entry.address] = _Bound(
+                    value=handler.ceiling,
+                    kind="UPPER",
+                    bound_case_id=handler.ceiling_bound_case_id or "",
+                    policy=POLICY_BY_BOUND_CASE[
+                        handler.ceiling_bound_case_id or ""
+                    ],
+                    source_address=(
+                        f"model {world.model.model_profile_id} version "
+                        f"{world.model.model_profile_version}"
+                    ),
+                )
             if handler.floor is not None:
                 world.lower[entry.address] = _Bound(
                     value=handler.floor,
@@ -457,6 +490,72 @@ def _initialize(world: _World) -> None:
     _require_handlers_for_every_entry(world)
     _require_an_initial_value_for_every_stock_a_cause_moves(world)
     _bind_laws(world)
+    _prepare_coupling(world)
+
+
+def _step_context(world: _World, from_offset: int, to_offset: int) -> StepContext:
+    """The immutable record a controller view and a resolver read."""
+    return StepContext(
+        from_offset=from_offset,
+        to_offset=to_offset,
+        stocks=tuple(sorted(world.stocks.items())),
+        coefficients=tuple(sorted(world.coefficients.items())),
+        exposures=tuple(
+            sorted(
+                world.exposures_now,
+                key=lambda item: (item.address, item.from_offset),
+            )
+        ),
+        site_controls=world.inputs.site_controls,
+    )
+
+
+def _coupling_stop(world: _World, refused: CouplingRefused) -> _Stop:
+    return _Stop(
+        failure(
+            refused.kind,
+            refused.subject,
+            at_offset_minutes=world.offset,
+            detail=refused.detail,
+        )
+    )
+
+
+def _prepare_coupling(world: _World) -> None:
+    """Let a model with a controller refuse a run it cannot execute, up front.
+
+    Handed every forcing the run declares as if exposed across the whole
+    interval, so a load with no demand anywhere or a missing Site Control is a
+    classified failure before the first boundary rather than mid-run.
+    """
+    coupling = world.model.coupling
+    if coupling is None:
+        return
+    interval = world.inputs.interval.duration_minutes
+    declared = tuple(
+        ForcingExposure(
+            address=forcing.address,
+            event_id=forcing.event_id,
+            parameter_id=forcing.parameter_id,
+            value=forcing.value,
+            from_offset=_entry_span(forcing, interval)[0],
+            to_offset=_entry_span(forcing, interval)[1],
+        )
+        for forcing in world.inputs.forcings
+        if not _excluded(world, forcing.address, "FORCING_INPUT")
+    )
+    context = StepContext(
+        from_offset=0,
+        to_offset=interval,
+        stocks=tuple(sorted(world.stocks.items())),
+        coefficients=tuple(sorted(world.coefficients.items())),
+        exposures=declared,
+        site_controls=world.inputs.site_controls,
+    )
+    try:
+        coupling.prepare(context)
+    except CouplingRefused as refused:
+        raise _coupling_stop(world, refused) from refused
 
 
 def _resolve_declared_bounds(world: _World) -> None:
@@ -837,6 +936,10 @@ def _phase_apply_events(world: _World) -> None:
     world.stocks_before_step = dict(world.stocks)
     world.step_contributions = {}
     world.step_refusals = {}
+    world.exposures_ready = False
+    world.view_now = None
+    world.intent_now = None
+    world.accepted_now = None
 
     if world.offset >= world.inputs.interval.duration_minutes:
         # The end instant is outside a half-open interval, so nothing is due
@@ -916,17 +1019,37 @@ def _phase_controller_view(world: _World) -> None:
     phase it has nothing to do in would have no place to put the first
     controller when one arrives.
     """
-    note = (
-        "this model declares no controller, so the controller view and intent "
-        "phases build nothing and mutate nothing"
-    )
-    if note not in world.notes:
-        world.notes.append(note)
+    coupling = world.model.coupling
+    if coupling is None:
+        note = (
+            "this model declares no controller, so the controller view and "
+            "intent phases build nothing and mutate nothing"
+        )
+        if note not in world.notes:
+            world.notes.append(note)
+        return
+    if not world.begins_a_step:
+        return
+    # The view reads the forcings in effect at T, so the step's exposures are
+    # computed here rather than in the acceptance phase. Computing an exposure
+    # decides nothing: it is the overlap predicate, the same in either place.
+    _compute_exposures(world)
+    context = _step_context(world, world.offset, world.offset + world.step_length)
+    try:
+        world.view_now = coupling.view(context)
+    except CouplingRefused as refused:
+        raise _coupling_stop(world, refused) from refused
 
 
 def _phase_controller_intent(world: _World) -> None:
-    """E. Emit intent for [T, T+dt). No controller, so no intent."""
-    return None
+    """E. Emit intent for [T, T+dt), from the view and nothing else."""
+    coupling = world.model.coupling
+    if coupling is None or world.view_now is None:
+        return
+    try:
+        world.intent_now = coupling.decide(world.view_now)
+    except CouplingRefused as refused:
+        raise _coupling_stop(world, refused) from refused
 
 
 def _phase_physical_acceptance(world: _World) -> None:
@@ -950,6 +1073,35 @@ def _phase_physical_acceptance(world: _World) -> None:
     levels a shape selects between, so `FORCING_VALUE_AMBIGUOUS` still declines
     to pick - which is the T020B carry this kernel is the first consumer of.
     """
+    if not world.exposures_ready:
+        _compute_exposures(world)
+    coupling = world.model.coupling
+    if coupling is None or world.intent_now is None:
+        return
+    context = _step_context(world, world.offset, world.offset + world.step_length)
+    try:
+        world.accepted_now = coupling.resolve(context, world.intent_now)
+    except CouplingRefused as refused:
+        raise _coupling_stop(world, refused) from refused
+    except PhysicallyUnacceptable as unacceptable:
+        raise _Stop(
+            failure(
+                "PHYSICAL_RESOLUTION_FAILURE",
+                world.model.model_profile_id,
+                at_offset_minutes=world.offset,
+                detail=(str(unacceptable),),
+            )
+        ) from unacceptable
+
+
+def _compute_exposures(world: _World) -> None:
+    """Every forcing's exposure to the step beginning at T, and its handler.
+
+    Unchanged from T021 in what it computes; it is a function of its own since
+    T024 because a controller's view needs the exposures before the acceptance
+    phase runs.
+    """
+    world.exposures_ready = True
     world.exposures_now = []
     world.delivered_energy_now = {}
     if not world.begins_a_step:
@@ -1065,6 +1217,22 @@ def _phase_evolve(world: _World) -> None:
         address, contribution = moved
         grouped.setdefault(address, []).append(contribution)
 
+    # T024: only ACCEPTED flows evolve the world. A request never reaches a
+    # stock; the accepted set's stock accounts are the whole of what moves.
+    if world.accepted_now is not None:
+        for account in world.accepted_now.stock_accounts:
+            if account.delta == 0:
+                continue
+            grouped.setdefault(account.address, []).append(
+                _Contribution(
+                    event_id="accepted-flows",
+                    direction="INCREASE" if account.delta > 0 else "DECREASE",
+                    quantity=abs(account.delta),
+                    share=Fraction(1),
+                    origin="ACCEPTED_FLOW",
+                )
+            )
+
     for address in sorted(grouped):
         _apply_contributions(world, address, grouped[address], "evolve")
 
@@ -1111,6 +1279,8 @@ def _phase_check_invariants(world: _World) -> None:
     `BALANCE_IDENTITY_VIOLATION`, and a stock left outside its own bound is the
     same failure, because the policy that should have applied did not.
     """
+    _check_accepted_balances(world)
+
     for address, before in world.stocks_before_step.items():
         after = world.stocks[address]
         contributions = world.step_contributions.get(address, [])
@@ -1165,6 +1335,66 @@ def _phase_check_invariants(world: _World) -> None:
             )
 
 
+def _check_accepted_balances(world: _World) -> None:
+    """Every balance the accepted set declares, recomputed from its flows.
+
+    The kernel sums the named flows' energies itself, exactly, so a resolver
+    cannot pass a balance by reporting totals. A stock account is checked the
+    same way: the stock's change times its energy per unit equals what flowed
+    in less what flowed out. No tolerance; a failure is typed.
+    """
+    accepted = world.accepted_now
+    if accepted is None:
+        return
+    energies = {flow.flow_id: flow.energy for flow in accepted.flows}
+
+    def total(flow_ids: tuple[str, ...], identity_id: str) -> Fraction:
+        missing = [flow_id for flow_id in flow_ids if flow_id not in energies]
+        if missing:
+            raise _Stop(
+                failure(
+                    "BALANCE_IDENTITY_VIOLATION",
+                    identity_id,
+                    at_offset_minutes=world.offset,
+                    detail=(f"the balance names flows {missing} nobody accepted",),
+                )
+            )
+        return sum((energies[flow_id] for flow_id in flow_ids), Fraction(0))
+
+    for identity in accepted.balances:
+        sources = total(identity.sources, identity.identity_id)
+        sinks = total(identity.sinks, identity.identity_id)
+        if sources != sinks:
+            raise _Stop(
+                failure(
+                    "BALANCE_IDENTITY_VIOLATION",
+                    identity.identity_id,
+                    at_offset_minutes=world.offset,
+                    detail=(
+                        f"sources {identity.sources} carry {sources} kWh",
+                        f"sinks {identity.sinks} carry {sinks} kWh",
+                    ),
+                )
+            )
+    for account in accepted.stock_accounts:
+        flowed = total(account.inflows, account.address) - total(
+            account.outflows, account.address
+        )
+        if account.delta * account.energy_per_unit != flowed:
+            raise _Stop(
+                failure(
+                    "BALANCE_IDENTITY_VIOLATION",
+                    account.address,
+                    at_offset_minutes=world.offset,
+                    detail=(
+                        f"the stock moved by {account.delta} at "
+                        f"{account.energy_per_unit} kWh per unit",
+                        f"the flows account for {flowed} kWh",
+                    ),
+                )
+            )
+
+
 def _phase_carry_forward(world: _World) -> None:
     """I. The result becomes the state the next boundary starts from.
 
@@ -1172,7 +1402,14 @@ def _phase_carry_forward(world: _World) -> None:
     what this phase does is remember the span that just finished, which is what
     the next boundary's interval measurement describes.
     """
-    world.previous_delivered_energy = dict(world.delivered_energy_now)
+    if world.accepted_now is not None:
+        # The interval readings at the next boundary describe what the world
+        # ACCEPTED over this step, never what the controller asked for.
+        world.previous_delivered_energy = dict(
+            world.accepted_now.interval_energies
+        )
+    else:
+        world.previous_delivered_energy = dict(world.delivered_energy_now)
     world.previous_step_length = world.step_length
 
 
@@ -1517,5 +1754,16 @@ def _record_boundary(world: _World) -> None:
             state_samples=tuple(sorted(world.samples_now.items())),
             interval_measurements=measurements,
             has_preceding_interval=interval_available,
+            control_step=(
+                None
+                if world.accepted_now is None
+                or world.view_now is None
+                or world.intent_now is None
+                else ControlStep(
+                    view=world.view_now,
+                    intent=world.intent_now,
+                    accepted=world.accepted_now,
+                )
+            ),
         )
     )

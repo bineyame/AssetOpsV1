@@ -42,6 +42,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from fractions import Fraction
 
+from assetops_contracts.control import ControlStep
 from assetops_contracts.failures import ExecutionFailure
 from assetops_contracts.identity import identity_digest
 
@@ -62,7 +63,7 @@ TRACE_RECORD_KINDS = frozenset(
 
 #: Where a change to a stock came from. Two, and no third: a change is
 #: something the document declared or something a model law computed.
-CHANGE_ORIGINS = frozenset({"DECLARED_CAUSE", "MODEL_LAW"})
+CHANGE_ORIGINS = frozenset({"DECLARED_CAUSE", "MODEL_LAW", "ACCEPTED_FLOW"})
 
 
 @dataclass(frozen=True)
@@ -215,6 +216,12 @@ class BoundaryState:
     state_samples: tuple[tuple[str, Fraction], ...]
     interval_measurements: tuple[tuple[str, Fraction], ...]
     has_preceding_interval: bool
+    #: T024. What the controller saw at this instant, asked for over the step
+    #: beginning here, and what the resolver accepted - three records. Absent
+    #: for a model with no controller and at the end instant, which begins no
+    #: step. Absent is not written into the content digest, so a model with no
+    #: controller digests exactly as it did before this field existed.
+    control_step: ControlStep | None = None
 
     def stock(self, address: str) -> Fraction | None:
         for key, value in self.stocks:
@@ -289,6 +296,8 @@ class BoundaryState:
             tuple((key, value) for key, value in self.state_samples),
             tuple((key, value) for key, value in self.interval_measurements),
             self.has_preceding_interval,
+        ) + (
+            () if self.control_step is None else (self.control_step.as_fields(),)
         )
 
 
@@ -482,6 +491,10 @@ def frozen_inputs_identity(
                 (item.address, item.role) for item in inputs.unmodelled_inputs
             ),
             tuple(inputs.intervention_history),
+            tuple(
+                (entry.control_key, entry.members)
+                for entry in inputs.site_controls
+            ),
             kernel_version,
             model_profile_id,
             model_profile_version,
@@ -515,6 +528,7 @@ IDENTITY_FIELDS_READ = frozenset(
         "causes",
         "unmodelled_inputs",
         "intervention_history",
+        "site_controls",
     }
 )
 

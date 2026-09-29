@@ -83,6 +83,7 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 
@@ -241,6 +242,14 @@ const DECLARED_SITE: SiteDetailReadModel = {
         component_id: "battery",
         basis: "SITE",
         statement: "The battery retains a reserve for evening supply.",
+      },
+    ],
+    site_controls: [
+      {
+        control_key: "source-priority",
+        members: ["pv-array", "battery"],
+        source: "TEMPLATE",
+        source_version: 2,
       },
     ],
   },
@@ -1477,5 +1486,35 @@ describe("typed component properties read back as declared configuration", () =>
     // The rating is still its own row: a property and a rating are two facts
     // about one component and neither stands for the other.
     expect(terms).toContain("PV array");
+  });
+});
+
+describe("typed Site Controls render as declared order (T024)", () => {
+  it("shows each control's order first to last by component name", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const table = container.querySelector(
+      'table[aria-labelledby="foundation-site-controls-heading"]',
+    );
+    expect(table).not.toBeNull();
+    const cells = Array.from(table?.querySelectorAll("tbody td, tbody th") ?? []).map(
+      (cell) => cell.textContent,
+    );
+    expect(cells).toContain("Source priority");
+    expect(cells).toContain("PV array, then Battery energy storage");
+    expect(cells).toContain("Template version 2");
+  });
+
+  it("states the absence for a foundation that declares none", async () => {
+    const { container } = renderConfiguration(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    expect(
+      container.querySelector(
+        'table[aria-labelledby="foundation-site-controls-heading"]',
+      ),
+    ).toBeNull();
+    expect(factValue(container, "Site Controls")).toMatch(/^Not declared\./);
   });
 });

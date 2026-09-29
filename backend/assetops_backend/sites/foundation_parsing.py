@@ -46,6 +46,8 @@ from assetops_backend.sites.models import (
     CONNECTION_MEDIA,
     CONTROL_ASSUMPTION_BASES,
     DEVICE_TYPES,
+    SITE_CONTROL_DEFINITIONS,
+    SITE_CONTROL_SOURCES,
     SIGNAL_UNITS,
     TOPOLOGY_NODE_ROLES,
     ComponentProperty,
@@ -55,6 +57,7 @@ from assetops_backend.sites.models import (
     FoundationDevice,
     FoundationTopology,
     SignalMapping,
+    SiteControl,
     TopologyConnection,
     TopologyNode,
 )
@@ -64,7 +67,13 @@ from assetops_backend.sites.models import (
 #: parser and not the other would be a document the template store accepts and
 #: the Site store refuses.
 FOUNDATION_CONTENT_KEYS = frozenset(
-    {"topology", "devices", "signal_mappings", "control_assumptions"}
+    {
+        "topology",
+        "devices",
+        "signal_mappings",
+        "control_assumptions",
+        "site_controls",
+    }
 )
 
 TOPOLOGY_KEYS = frozenset({"nodes", "connections"})
@@ -123,6 +132,12 @@ MAX_SIGNALS_PER_DEVICE = 32
 # answers. A cap above the ceiling is not a limit, it is a comment.
 MAX_SIGNAL_MAPPINGS = 160
 MAX_CONTROL_ASSUMPTIONS = 32
+#: The Site Control vocabulary has two members, so a longer list is declaring
+#: duplicates, which the duplicate rule refuses first.
+MAX_SITE_CONTROLS = 8
+SITE_CONTROL_KEYS = frozenset(
+    {"control_key", "members", "source", "source_version"}
+)
 #: One component may declare at most this many typed properties. Small on
 #: purpose: the vocabulary itself is closed and has four members today, so a
 #: component declaring more entries than the vocabulary has keys is declaring
@@ -171,6 +186,7 @@ def parse_foundation_content(
     where: str,
     source: str,
     invalid: Invalid,
+    component_types: Mapping[str, str] | None = None,
 ) -> FoundationContent:
     """Validate the four sections below a Foundation's component list.
 
@@ -220,11 +236,20 @@ def parse_foundation_content(
         invalid=invalid,
     )
 
+    site_controls = _parse_site_controls(
+        foundation.get("site_controls"),
+        component_types=component_types or {},
+        where=f"{where}.site_controls",
+        source=source,
+        invalid=invalid,
+    )
+
     return FoundationContent(
         topology=topology,
         devices=devices,
         signal_mappings=signal_mappings,
         control_assumptions=control_assumptions,
+        site_controls=site_controls,
     )
 
 
@@ -240,6 +265,7 @@ def render_foundation_content(content: FoundationContent) -> dict[str, Any]:
     devices = content.devices
     mappings = content.signal_mappings
     assumptions = content.control_assumptions
+    controls = content.site_controls
 
     return {
         "topology": (
@@ -311,6 +337,19 @@ def render_foundation_content(content: FoundationContent) -> dict[str, Any]:
                     "statement": assumption.statement,
                 }
                 for assumption in assumptions
+            ]
+        ),
+        "site_controls": (
+            None
+            if controls is None
+            else [
+                {
+                    "control_key": control.control_key,
+                    "members": list(control.members),
+                    "source": control.source,
+                    "source_version": control.source_version,
+                }
+                for control in controls
             ]
         ),
     }
@@ -839,6 +878,131 @@ def _parse_control_assumption(
         basis=basis,
         statement=statement,
     )
+
+
+# --- Typed Site Controls (T024) ---------------------------------------------
+
+
+def _parse_site_controls(
+    raw: Any,
+    *,
+    component_types: Mapping[str, str],
+    where: str,
+    source: str,
+    invalid: Invalid,
+) -> tuple[SiteControl, ...] | None:
+    """Validate the typed Site Controls a Foundation declares.
+
+    `None` is the document declaring none, which every Foundation written
+    before T024 does; it stays readable, and a model profile that needs a
+    control blocks a run against it rather than inventing one.
+
+    Each control is an ordered list of component identities, and the list
+    must name EVERY component of the control's member types exactly once.
+    That is what makes the order total: a priority list that left a load out
+    would leave that load's place to an implicit tie rule nobody declared.
+    """
+    if raw is None:
+        return None
+
+    entries = _require_non_empty_list(
+        raw, where=where, source=source, limit=MAX_SITE_CONTROLS, invalid=invalid
+    )
+    controls: list[SiteControl] = []
+    for index, entry in enumerate(entries):
+        at = f"{where}[{index}]"
+        mapping = _require_mapping(entry, where=at, source=source, invalid=invalid)
+        _reject_unknown_keys(
+            mapping, SITE_CONTROL_KEYS, where=at, source=source, invalid=invalid
+        )
+        control_key = mapping.get("control_key")
+        if (
+            not isinstance(control_key, str)
+            or control_key not in SITE_CONTROL_DEFINITIONS
+        ):
+            invalid(
+                f"'{at}.control_key' must be one of "
+                f"{sorted(SITE_CONTROL_DEFINITIONS)} in {source}, got "
+                f"{control_key!r}. The Site Control vocabulary is closed: a "
+                "model profile needs a control by name."
+            )
+        definition = SITE_CONTROL_DEFINITIONS[control_key]
+
+        members = mapping.get("members")
+        if not isinstance(members, list) or not members:
+            invalid(
+                f"'{at}.members' must be a non-empty ordered list of component "
+                f"identities in {source}."
+            )
+        for position, member in enumerate(members):
+            if not isinstance(member, str) or member not in component_types:
+                invalid(
+                    f"'{at}.members[{position}]' names {member!r} in {source}, "
+                    "which this foundation does not declare as a component."
+                )
+            if component_types[member] not in definition.member_types:
+                invalid(
+                    f"'{at}.members[{position}]' names {member!r}, a "
+                    f"{component_types[member]}, in {source}. "
+                    f"{definition.display_name} orders components of type "
+                    f"{sorted(definition.member_types)} only."
+                )
+        _reject_duplicates(
+            list(members),
+            kind="member",
+            where=f"{at}.members",
+            source=source,
+            invalid=invalid,
+        )
+        expected = sorted(
+            component_id
+            for component_id, component_type in component_types.items()
+            if component_type in definition.member_types
+        )
+        missing = sorted(set(expected) - set(members))
+        if missing:
+            invalid(
+                f"'{at}.members' leaves out {missing} in {source}. "
+                f"{definition.display_name} names every component of type "
+                f"{sorted(definition.member_types)} this foundation declares, "
+                "each once, so no component is placed by an implicit tie order."
+            )
+
+        declared_source = _require_choice(
+            mapping,
+            "source",
+            SITE_CONTROL_SOURCES,
+            where=at,
+            source=source,
+            invalid=invalid,
+        )
+        source_version = mapping.get("source_version")
+        if (
+            type(source_version) is not int
+            or not 1 <= source_version <= MAX_PROPERTY_SOURCE_VERSION
+        ):
+            invalid(
+                f"'{at}.source_version' must be an integer between 1 and "
+                f"{MAX_PROPERTY_SOURCE_VERSION} in {source}, got "
+                f"{source_version!r}."
+            )
+        controls.append(
+            SiteControl(
+                control_key=control_key,
+                members=tuple(members),
+                source=declared_source,
+                source_version=source_version,
+            )
+        )
+
+    _reject_duplicates(
+        [control.control_key for control in controls],
+        kind="control_key",
+        where=where,
+        source=source,
+        invalid=invalid,
+    )
+    return tuple(controls)
 
 
 # --- Typed component properties ---------------------------------------------

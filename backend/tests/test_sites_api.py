@@ -634,6 +634,9 @@ class TestSiteDetail:
             "devices",
             "signal_mappings",
             "control_assumptions",
+            # T024: the typed Site Controls a controller consumes, rendered on
+            # the Foundation's Controls subtab.
+            "site_controls",
         }
 
     def test_the_topology_shape_carries_no_diagram_or_layout_field(

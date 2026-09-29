@@ -1,0 +1,632 @@
+# Shipped scenario (T024). A Kobo-like daytime operating story, run against a
+# Site created from the kobo-mini-grid-60kw template with site ID KOBO-001.
+#
+# Set a run up with the daytime-mini-grid model profile, an interval of 720
+# minutes (twelve hours: 06:00 to 18:00 local time is the intended reading)
+# and a 15-minute timestep. Every window below is two hours long.
+#
+# This document declares only the story: irradiance, each load's demand and
+# the battery's state of charge at run start. The physical values the
+# model's laws need - PV rating, inverter limit, battery capacity, PCS limits
+# and efficiency, the baseline reserve - and the source and critical-load
+# priorities are the Site's, which the model profile declares it needs
+# (Option C). No number here is one of them.
+#
+# The numbers are demonstration values proposed by the T024 Implementer for
+# the owner's hands-on review, not a recommendation for any real site.
+scenario_id: kobo-daytime
+display_name: Kobo daytime (sunny)
+purpose: >-
+  The healthy sunny reference: PV serves the three loads through the day, the surplus charges the battery until it is full and the rest is curtailed, and the battery covers the early morning and late afternoon. No load goes unserved.
+
+version:
+  scenario_version: 1
+  version_valid_from: '2026-09-29T00:00:00Z'
+  supersedes: null
+
+target_site:
+  policy: DECLARED_SITE
+  site_id: KOBO-001
+  template_id: null
+  requirement: >-
+    A mini-grid created from the kobo-mini-grid-60kw template: one PV array
+    behind one inverter, one battery behind one PCS, and three addressed loads
+    - load-res, load-clinic and load-mill - with typed source-priority and
+    critical-load-priority Site Controls.
+
+# No observation source is declared: nothing in this story is a reading the
+# scenario states. What devices report is the publication profile's.
+observation_sources: []
+
+public_parameters:
+  # The battery's state of charge at run start, stated explicitly. It is never
+  # inferred from the reserve or the capacity; a scenario that leaves it out
+  # leaves the run BLOCKED.
+  - parameter_id: starting-state-of-charge
+    display_name: Battery state of charge at the start of the interval
+    value: 55
+    unit: "%"
+    execution_role: CAUSAL_INPUT
+    state_key: battery-state-of-charge@battery
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+
+timeline:
+  - event_id: irradiance-1
+    sequence: 1
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 06:00 to 08:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-1-level
+        display_name: Plane-of-array irradiance
+        value: 150
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-2
+    sequence: 2
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 08:00 to 10:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-2-level
+        display_name: Plane-of-array irradiance
+        value: 550
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-3
+    sequence: 3
+    offset_minutes: 240
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 10:00 to 12:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-3-level
+        display_name: Plane-of-array irradiance
+        value: 900
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-4
+    sequence: 4
+    offset_minutes: 360
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 12:00 to 14:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-4-level
+        display_name: Plane-of-array irradiance
+        value: 950
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-5
+    sequence: 5
+    offset_minutes: 480
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 14:00 to 16:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-5-level
+        display_name: Plane-of-array irradiance
+        value: 600
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-6
+    sequence: 6
+    offset_minutes: 600
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 16:00 to 18:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-6-level
+        display_name: Plane-of-array irradiance
+        value: 150
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-1
+    sequence: 7
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential feeder demand from 06:00 to 08:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-1-level
+        display_name: Residential feeder demand
+        value: 8
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-2
+    sequence: 8
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential feeder demand from 08:00 to 10:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-2-level
+        display_name: Residential feeder demand
+        value: 6
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-3
+    sequence: 9
+    offset_minutes: 240
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential feeder demand from 10:00 to 12:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-3-level
+        display_name: Residential feeder demand
+        value: 5
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-4
+    sequence: 10
+    offset_minutes: 360
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential feeder demand from 12:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-4-level
+        display_name: Residential feeder demand
+        value: 6
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-5
+    sequence: 11
+    offset_minutes: 480
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential feeder demand from 14:00 to 16:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-5-level
+        display_name: Residential feeder demand
+        value: 8
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-6
+    sequence: 12
+    offset_minutes: 600
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential feeder demand from 16:00 to 18:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-6-level
+        display_name: Residential feeder demand
+        value: 14
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-1
+    sequence: 13
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 06:00 to 08:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: clinic-demand-1-level
+        display_name: Clinic demand
+        value: 5
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-2
+    sequence: 14
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 08:00 to 10:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: clinic-demand-2-level
+        display_name: Clinic demand
+        value: 6
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-3
+    sequence: 15
+    offset_minutes: 240
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 10:00 to 12:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: clinic-demand-3-level
+        display_name: Clinic demand
+        value: 7
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-4
+    sequence: 16
+    offset_minutes: 360
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 12:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: clinic-demand-4-level
+        display_name: Clinic demand
+        value: 7
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-5
+    sequence: 17
+    offset_minutes: 480
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 14:00 to 16:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: clinic-demand-5-level
+        display_name: Clinic demand
+        value: 6
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-6
+    sequence: 18
+    offset_minutes: 600
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 16:00 to 18:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: clinic-demand-6-level
+        display_name: Clinic demand
+        value: 5
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-1
+    sequence: 19
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Grain mill demand from 06:00 to 08:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: mill-demand-1-level
+        display_name: Grain mill demand
+        value: 0
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-2
+    sequence: 20
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Grain mill demand from 08:00 to 10:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: mill-demand-2-level
+        display_name: Grain mill demand
+        value: 15
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-3
+    sequence: 21
+    offset_minutes: 240
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Grain mill demand from 10:00 to 12:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: mill-demand-3-level
+        display_name: Grain mill demand
+        value: 18
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-4
+    sequence: 22
+    offset_minutes: 360
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Grain mill demand from 12:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: mill-demand-4-level
+        display_name: Grain mill demand
+        value: 10
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-5
+    sequence: 23
+    offset_minutes: 480
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Grain mill demand from 14:00 to 16:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: mill-demand-5-level
+        display_name: Grain mill demand
+        value: 12
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-6
+    sequence: 24
+    offset_minutes: 600
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Grain mill demand from 16:00 to 18:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: mill-demand-6-level
+        display_name: Grain mill demand
+        value: 0
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false

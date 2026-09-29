@@ -63,6 +63,8 @@ from assetops_backend.runs.models import (
     FrozenInitializationInput,
     FrozenReportingPathCondition,
     FrozenInterval,
+    FrozenModelNeed,
+    FrozenSiteControl,
     FrozenObservationBinding,
     FrozenParameter,
     FrozenProfileBinding,
@@ -721,6 +723,43 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 for item in identity.signal_mappings
             ],
             "intervention_history": list(identity.intervention_history),
+            # T024, execution contract 9: the model-owned Foundation needs and
+            # the effective Site Controls, each with its provenance.
+            "model_needs": [
+                {
+                    "state_key": item.addressed_key,
+                    "property_key": item.property_key,
+                    "value": item.value,
+                    "unit": item.unit,
+                    "canonical_value": item.canonical_value,
+                    "canonical_unit": item.canonical_unit,
+                    "dimension": item.dimension,
+                    "declared_by": item.declared_by,
+                    "answered_by": item.answered_by,
+                    "answered_by_detail": item.answered_by_detail,
+                    "foundation_version": item.foundation_version,
+                    "foundation_valid_from": item.foundation_valid_from,
+                    "property_source": item.property_source,
+                    "property_source_version": item.property_source_version,
+                }
+                for item in identity.model_needs
+            ],
+            "site_controls": [
+                {
+                    "control_key": item.control_key,
+                    "members": (
+                        None if item.members is None else list(item.members)
+                    ),
+                    "declared_by": item.declared_by,
+                    "answered_by": item.answered_by,
+                    "answered_by_detail": item.answered_by_detail,
+                    "foundation_version": item.foundation_version,
+                    "foundation_valid_from": item.foundation_valid_from,
+                    "source": item.source,
+                    "source_version": item.source_version,
+                }
+                for item in identity.site_controls
+            ],
         },
         "blocking_reasons": [
             {
@@ -1060,6 +1099,119 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
             )
         ),
         intervention_history=tuple(history),
+        # Required at this build's version and empty below it, by the same
+        # rule as the causal projection: a version-9 record that omitted its
+        # needs would execute an experiment it does not describe.
+        model_needs=tuple(
+            _parse_model_need(entry)
+            for entry in _projection_entries(
+                raw, "model_needs", contract_version=contract_version
+            )
+        ),
+        site_controls=tuple(
+            _parse_site_control(entry)
+            for entry in _projection_entries(
+                raw, "site_controls", contract_version=contract_version
+            )
+        ),
+    )
+
+def _parse_model_need(entry: Any) -> FrozenModelNeed:
+    """One model-owned Foundation need (T024), with its absent case checked."""
+    raw = _mapping(entry, where="model_need")
+    unit = _text(raw, "unit", where="model_need")
+    if unit not in PARAMETER_UNITS:
+        raise _bad(f"'model_need.unit' {unit!r} is not a unit this contract knows.")
+    value = _optional_real(raw, "value", where="model_need")
+    canonical_value = _optional_real(raw, "canonical_value", where="model_need")
+    if (value is None) != (canonical_value is None):
+        raise _bad(
+            "'model_need.value' and its canonical restatement are absent "
+            "together or present together."
+        )
+    source = _optional_text(raw, "property_source", where="model_need")
+    source_version = _optional_whole(
+        raw, "property_source_version", where="model_need"
+    )
+    if (value is None) != (source is None) or (source is None) != (
+        source_version is None
+    ):
+        raise _bad(
+            "'model_need' carries a value exactly when it carries the "
+            "property's source and source version: an answer is never frozen "
+            "without the declaration that supplied it."
+        )
+    return FrozenModelNeed(
+        state_ref=parse_state_ref(
+            raw.get("state_key"),
+            where="model_need.state_key",
+            source="a run document",
+            invalid=_raise_invalid,
+        ),
+        property_key=_text(raw, "property_key", where="model_need"),
+        value=value,
+        unit=unit,
+        canonical_value=canonical_value,
+        canonical_unit=_text(raw, "canonical_unit", where="model_need"),
+        dimension=_text(raw, "dimension", where="model_need"),
+        declared_by=_text(raw, "declared_by", where="model_need"),
+        answered_by=_choice(
+            raw, "answered_by", where="model_need", allowed=FROZEN_INPUT_ANSWERERS
+        ),
+        answered_by_detail=_text(raw, "answered_by_detail", where="model_need"),
+        foundation_version=_whole(raw, "foundation_version", where="model_need"),
+        foundation_valid_from=_text(
+            raw, "foundation_valid_from", where="model_need"
+        ),
+        property_source=source,
+        property_source_version=source_version,
+    )
+
+
+def _parse_site_control(entry: Any) -> FrozenSiteControl:
+    """One effective Site Control (T024), ordered, with its absent case."""
+    raw = _mapping(entry, where="site_control")
+    members_raw = raw.get("members")
+    members: tuple[str, ...] | None
+    if members_raw is None:
+        members = None
+    else:
+        if not isinstance(members_raw, list) or not members_raw or not all(
+            isinstance(item, str) and item for item in members_raw
+        ):
+            raise _bad(
+                "'site_control.members' is null or a non-empty ordered list of "
+                "component identities."
+            )
+        if len(set(members_raw)) != len(members_raw):
+            raise _bad("'site_control.members' names a component twice.")
+        members = tuple(members_raw)
+    source = _optional_text(raw, "source", where="site_control")
+    source_version = _optional_whole(raw, "source_version", where="site_control")
+    if (members is None) != (source is None) or (source is None) != (
+        source_version is None
+    ):
+        raise _bad(
+            "'site_control' carries members exactly when it carries the "
+            "control's source and source version."
+        )
+    return FrozenSiteControl(
+        control_key=_text(raw, "control_key", where="site_control"),
+        members=members,
+        declared_by=_text(raw, "declared_by", where="site_control"),
+        answered_by=_choice(
+            raw,
+            "answered_by",
+            where="site_control",
+            allowed=FROZEN_INPUT_ANSWERERS,
+        ),
+        answered_by_detail=_text(raw, "answered_by_detail", where="site_control"),
+        foundation_version=_whole(raw, "foundation_version", where="site_control"),
+        foundation_valid_from=_text(
+            raw, "foundation_valid_from", where="site_control"
+        ),
+        source=source,
+        source_version=source_version,
     )
 
 

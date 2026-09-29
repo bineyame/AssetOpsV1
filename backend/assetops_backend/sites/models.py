@@ -121,6 +121,32 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "minimum-runtime": PropertyDefinition(
         unit="min", kind="CONTROL", display_name="Minimum runtime"
     ),
+    # T024: the physical facts the daytime mini-grid model's laws need. The
+    # model profile declares each need (Option C,
+    # `D-2026-09-29-t024-option-c-and-reserve-override`) and the Foundation
+    # answers it; no scenario states one of these numbers.
+    "pv-rated-power": PropertyDefinition(
+        unit="kW",
+        kind="PHYSICAL",
+        display_name="PV rated power at 1000 W/m2",
+    ),
+    "inverter-ac-limit": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="Inverter AC output limit"
+    ),
+    "battery-energy-capacity": PropertyDefinition(
+        unit="kWh", kind="PHYSICAL", display_name="Battery energy capacity"
+    ),
+    "pcs-charge-limit": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="PCS charge power limit"
+    ),
+    "pcs-discharge-limit": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="PCS discharge power limit"
+    ),
+    "pcs-conversion-efficiency": PropertyDefinition(
+        unit="%",
+        kind="PHYSICAL",
+        display_name="PCS one-way conversion efficiency",
+    ),
 }
 
 #: Every unit a declared property may carry, derived from the vocabulary so a
@@ -214,6 +240,70 @@ DEVICE_TYPES = frozenset({"METER", "SENSOR", "CONTROLLER"})
 # a nameplate rating and a reportable signal are different kinds of fact, and
 # collapsing their vocabularies would let a rating unit onto a signal.
 SIGNAL_UNITS = frozenset({"kW", "kWh", "V", "Hz", "L", "degC", "W/m2", "%"})
+
+# --- Typed Site Controls (T024) ----------------------------------------------
+#
+# The Site-scoped half of v4 section 5.2's typed control properties. A
+# component control (a battery's reserve) is a component property; a control
+# about the installation as a whole - which source serves load first, which
+# load is protected first - has no component to hang on, so it lives in its
+# own collection rather than abusing the property table.
+#
+# `ControlAssumption` stays documentary and is untouched: an assumption says
+# in words how a site is meant to run, and a Site Control is a typed value a
+# controller consumes. Both may describe the same intent; only one is read.
+#
+# Time validity is the containing Foundation's: a Site Control is valid from
+# the Foundation's `valid_from` at its `version`, and a run freezes both.
+#
+# Priority lists name explicit component identities. The parser requires each
+# list to name EVERY component of its member types exactly once, so there is
+# no implicit tie order and no display-name matching.
+
+
+@dataclass(frozen=True)
+class SiteControlDefinition:
+    """One member of the closed Site Control vocabulary."""
+
+    display_name: str
+    member_types: frozenset[str]
+    statement: str
+
+
+SITE_CONTROL_DEFINITIONS: dict[str, SiteControlDefinition] = {
+    "source-priority": SiteControlDefinition(
+        display_name="Source priority",
+        member_types=frozenset({"PV_ARRAY", "BATTERY", "GENERATOR"}),
+        statement=(
+            "The order in which the site's sources serve load, first to last. "
+            "Names every PV array, battery and generator the Foundation "
+            "declares, each once."
+        ),
+    ),
+    "critical-load-priority": SiteControlDefinition(
+        display_name="Critical-load priority",
+        member_types=frozenset({"LOAD"}),
+        statement=(
+            "The order in which loads are protected when supply cannot serve "
+            "all of them, first to last. Names every load the Foundation "
+            "declares, each once."
+        ),
+    ),
+}
+
+#: Where a Site Control came from; the same two values as a property's source.
+SITE_CONTROL_SOURCES = frozenset({"TEMPLATE", "SITE"})
+
+
+@dataclass(frozen=True)
+class SiteControl:
+    """One typed Site Control: an ordered list of component identities."""
+
+    control_key: str
+    members: tuple[str, ...]
+    source: str
+    source_version: int
+
 
 # Where a declared control assumption comes from. Provenance about the
 # assumption, not a control vocabulary: `TEMPLATE` is an assumption the
@@ -363,6 +453,7 @@ class FoundationContent:
     devices: tuple[FoundationDevice, ...] | None = None
     signal_mappings: tuple[SignalMapping, ...] | None = None
     control_assumptions: tuple[ControlAssumption, ...] | None = None
+    site_controls: tuple[SiteControl, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -397,6 +488,7 @@ class TemplateFoundation:
     devices: tuple[FoundationDevice, ...] | None = None
     signal_mappings: tuple[SignalMapping, ...] | None = None
     control_assumptions: tuple[ControlAssumption, ...] | None = None
+    site_controls: tuple[SiteControl, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -510,6 +602,7 @@ class SiteFoundation:
     devices: tuple[FoundationDevice, ...] | None = None
     signal_mappings: tuple[SignalMapping, ...] | None = None
     control_assumptions: tuple[ControlAssumption, ...] | None = None
+    site_controls: tuple[SiteControl, ...] | None = None
 
 
 @dataclass(frozen=True)

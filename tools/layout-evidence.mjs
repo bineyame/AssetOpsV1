@@ -1845,6 +1845,253 @@ allPass =
     ],
   ]) && allPass;
 
+// --- T024: the daytime mini-grid on the Draft screen ------------------------
+//
+// Measured against a Kobo Draft created here through the product path, from
+// the shipped `kobo-daytime-overcast` scenario, against the Site `KOBO-001`
+// created from the `kobo-mini-grid-60kw` template (it must exist; this script
+// creates no Site). The run is stepped to offset 600, where the evening reserve
+// override is in effect and the battery is serving the evening deficit, so
+// every electrical table has rows and the series table has forty-one.
+const KOBO_SITE = process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001";
+
+const SUBMIT_KOBO_SETUP = `(() => {
+  const setNative = (prototype, element, value) => {
+    const setter = Object.getOwnPropertyDescriptor(prototype, "value").set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  const setValue = (id, value) => {
+    const element = document.getElementById(id);
+    if (!element) return false;
+    setNative(window.HTMLInputElement.prototype, element, value);
+    return true;
+  };
+  const choose = (id, fragment) => {
+    const element = document.getElementById(id);
+    if (!element) return false;
+    const option = Array.from(element.options).find(
+      (item) => item.value !== "" && item.value.includes(fragment),
+    );
+    if (!option) return false;
+    setNative(window.HTMLSelectElement.prototype, element, option.value);
+    return true;
+  };
+  const filled =
+    setValue("run-setup-start", "2026-09-22T03:00:00Z") &&
+    setValue("run-setup-end", "2026-09-22T15:00:00Z") &&
+    setValue("run-setup-timestep", "15") &&
+    setValue("run-setup-seed", "20260929") &&
+    choose("run-setup-model-profile", "daytime-mini-grid") &&
+    choose("run-setup-publication-profile", "simulator-lab-publication");
+  const submit = Array.from(document.querySelectorAll("main button")).find(
+    (button) => (button.textContent || "").trim() === "Create draft run",
+  );
+  if (!filled || !submit) return "controls-missing";
+  if (submit.disabled) return "not-ready";
+  submit.click();
+  return true;
+})()`;
+
+const STEP_TO_THE_EVENING = `(() => {
+  const setNative = (prototype, element, value) => {
+    const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const size = document.getElementById('run-step-boundaries');
+  const step = Array.from(document.querySelectorAll('main button')).find(
+    (button) => (button.textContent || '').trim() === 'Step',
+  );
+  if (!size || !step) return 'controls-missing';
+  setNative(window.HTMLInputElement.prototype, size, '41');
+  if (step.disabled) return 'not-ready';
+  step.click();
+  return true;
+})()`;
+
+const READ_ELECTRICAL = `(() => {
+  const text = (element) => (element ? (element.textContent || '').trim() : null);
+  const control = document.querySelector('[data-control="battery-power"]');
+  return {
+    steps: document.querySelectorAll('[data-electrical-step]').length,
+    loads: Array.from(document.querySelectorAll('[data-load]')).map((row) => ({
+      address: row.getAttribute('data-load'),
+      demand: text(row.querySelector('[data-load-demand]')),
+      served: text(row.querySelector('[data-load-served]')),
+      unserved: text(row.querySelector('[data-load-unserved]')),
+    })),
+    flows: document.querySelectorAll('[data-flow]').length,
+    requested: text(control && control.querySelector('[data-control-requested]')),
+    accepted: text(control && control.querySelector('[data-control-accepted]')),
+    reserve: text(document.querySelector('[data-electrical-reserve]')),
+    reserveOrigin: (document.querySelector('[data-electrical-reserve]') || {
+      getAttribute: () => null,
+    }).getAttribute('data-electrical-reserve'),
+    socEnd: text(document.querySelector('[data-electrical-soc-end]')),
+  };
+})()`;
+
+const koboSetup = await visit(
+  cdp,
+  "/simulator-lab/scenarios/kobo-daytime-overcast/run-setup",
+  1280,
+  800,
+  "form",
+  { script: SUBMIT_KOBO_SETUP, waitFor: ".data-table__scroll" },
+);
+console.log(
+  `\n=== Created a Kobo Draft against ${KOBO_SITE} ===\n  ` +
+    `run setup summary drawn with ${koboSetup.scrollers.length} table(s)`,
+);
+const koboRuns = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+const koboHref =
+  koboRuns.runRows.find((row) => row.status === "READY")?.href ?? null;
+if (koboHref === null) {
+  throw new Error(
+    `No READY Draft was found after setting one up against ${KOBO_SITE}, so ` +
+      "the electrical measurements cannot be made. Does the Site exist, " +
+      "created from the kobo-mini-grid-60kw template?",
+  );
+}
+
+await visit(cdp, koboHref, 1280, 800, "[data-execution-status]", {
+  script: clickControl("Start this run"),
+  waitFor: "[data-execution-status='RUNNING']",
+});
+
+for (const [label, width, height] of [
+  ["1280x800, the committed minimum", 1280, 800],
+  ["1000x700, below the commitment", 1000, 700],
+  ["640x700, narrow enough that the series table cannot fit", 640, 700],
+]) {
+  // Stepped once, at the first width; the other widths re-measure the same
+  // instant, because the run's position lives on the server.
+  const kobo = await visit(
+    cdp,
+    koboHref,
+    width,
+    height,
+    width === 1280 ? "[data-execution-status]" : "[data-electrical-step]",
+    width === 1280
+      ? { script: STEP_TO_THE_EVENING, waitFor: "[data-electrical-step]" }
+      : undefined,
+  );
+  const electrical = (
+    await cdp.send("Runtime.evaluate", {
+      expression: READ_ELECTRICAL,
+      returnByValue: true,
+    })
+  ).result.value;
+  const series = kobo.scrollers.find(
+    (s) => s.name === "run-electrical-series-heading",
+  );
+  const loadsTable = kobo.scrollers.find((s) => s.name === "run-loads-heading");
+  const controlTable = kobo.scrollers.find(
+    (s) => s.name === "run-control-heading",
+  );
+  allPass =
+    report(`Kobo daytime draft stepped to the evening at ${label}`, kobo, [
+      [
+        "the series against simulation time has a row per resolved step, and there are some",
+        electrical.steps === 41 && series !== undefined && series.rowCount === 41,
+        `${electrical.steps} step rows, series table ${series === undefined ? "absent" : `${series.rowCount} rows`}`,
+      ],
+      [
+        "each of the three loads has its own row with demand, service and unserved load",
+        electrical.loads.length === 3 &&
+          electrical.loads.every(
+            (row) => row.demand && row.served && row.unserved !== null,
+          ) &&
+          loadsTable !== undefined &&
+          loadsTable.rowCount === 3,
+        electrical.loads
+          .map((row) => `${row.address}: ${row.demand} / ${row.served} / ${row.unserved}`)
+          .join("; ") || "no load rows",
+      ],
+      [
+        "the requested and the accepted battery power are two cells",
+        electrical.requested !== null &&
+          electrical.accepted !== null &&
+          controlTable !== undefined &&
+          controlTable.rowCount === 1,
+        `requested ${electrical.requested}, accepted ${electrical.accepted}`,
+      ],
+      [
+        "the named flows are drawn",
+        electrical.flows >= 18,
+        `${electrical.flows} flow rows`,
+      ],
+      [
+        "the reserve in effect is the scenario override, named as one",
+        electrical.reserveOrigin === "OVERRIDE" &&
+          (electrical.reserve ?? "").startsWith("15 %"),
+        `${electrical.reserve} (${electrical.reserveOrigin})`,
+      ],
+      [
+        "the page does not scroll horizontally",
+        !kobo.pageScrollsHorizontally,
+        `scrollWidth ${kobo.pageScrollWidth} vs clientWidth ${kobo.pageClientWidth}`,
+      ],
+      [
+        "every table on the page has a named, focusable overflow region",
+        kobo.scrollers.length > 0 &&
+          kobo.scrollers.every((s) => s.focusable && s.name),
+        kobo.scrollers.map((s) => s.name ?? "unnamed").join(", "),
+      ],
+      [
+        "every table that overflows scrolls inside its own region",
+        kobo.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+        kobo.scrollers
+          .map(
+            (s) =>
+              `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`,
+          )
+          .join("; "),
+      ],
+      [
+        "the rail does not move when every table is scrolled to its end",
+        kobo.railLeftBefore === kobo.railLeftAfterAll,
+        `left ${kobo.railLeftBefore} -> ${kobo.railLeftAfterAll}`,
+      ],
+      ...(width <= 640
+        ? [
+            [
+              "at least one table overflows here, so the claim above is not vacuous",
+              kobo.scrollers.some((s) => s.overflows),
+              `${kobo.scrollers.filter((s) => s.overflows).length} of ${kobo.scrollers.length} overflow`,
+            ],
+          ]
+        : []),
+    ]) && allPass;
+}
+
+// The Kobo Site's Foundation: the typed Site Controls render as a table.
+const koboFoundation = await visit(
+  cdp,
+  `/sites/${KOBO_SITE}/foundation`,
+  1280,
+  800,
+  "table",
+);
+const siteControls = koboFoundation.scrollers.find(
+  (s) => s.name === "foundation-site-controls-heading",
+);
+allPass =
+  report(`Kobo Foundation at 1280x800`, koboFoundation, [
+    [
+      "the typed Site Controls render as a table with both controls",
+      siteControls !== undefined && siteControls.rowCount === 2,
+      siteControls === undefined ? "no Site Controls table" : `${siteControls.rowCount} rows`,
+    ],
+    [
+      "the page does not scroll horizontally",
+      !koboFoundation.pageScrollsHorizontally,
+      `scrollWidth ${koboFoundation.pageScrollWidth} vs clientWidth ${koboFoundation.pageClientWidth}`,
+    ],
+  ]) && allPass;
+
 console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
 
 ws.close();

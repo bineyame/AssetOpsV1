@@ -532,6 +532,9 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
         names = {field.name for field in fields(FrozenWorldInputs)}
         assert names == {
             "run_id",
+            # T024: the effective Site Controls, an ordered list of component
+            # identities. No field of it can carry an authored reading.
+            "site_controls",
             "execution_contract_version",
             "site_id",
             "foundation_version",

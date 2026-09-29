@@ -34,6 +34,36 @@ Read the modules under `tools/checks/` for the seams this slice touches, before
 writing code, so the work lands in a shape the guards accept and so you extend
 rather than loosen them.
 
+## Context budget
+
+Every turn re-reads your whole context, so its size times your turn count is
+the cost. T024 reached 688k tokens over 408 turns (199M tokens re-read, 69
+minutes); most of that was source code dumped into context and never needed
+again. Keep the context small by construction:
+
+- **Survey code through an `Explore` subagent.** Questions like "how does the
+  kernel call the controller phase" or "where is the frozen identity built"
+  go to Explore; you keep its conclusion and the exact file:line anchors, not
+  the files. Read directly only what you are about to edit.
+- **Bounded reads only.** `grep -n` first, then `Read` with `offset`/`limit`
+  (about 150 lines at most per read). Never `cat` a source file or design doc,
+  and never `sed -n` a range over 150 lines. Read `Docs/` and `.ai/` by
+  heading or decision ID, never whole.
+- **Batch independent calls in one turn**: several reads, greps or checks go
+  out together, not one per turn.
+- **Tests: targeted while building, full once at the end.** Run the test file
+  you are changing; run the full backend/host/simulator/frontend suites once
+  after the build is committed, and again only if code changed after that.
+  Always trim output (`| tail -n 30`, or failures only).
+- **Layout evidence once, at the end**, not per iteration.
+- **Long jobs in the background.** Start servers and measurements with
+  `run_in_background` and act on the completion notification; do not poll with
+  multi-minute `until` loops.
+- **Closeout records are short.** The `CODE_STATE.md` entry stays under about
+  40 lines and the review packet under about 150; both are evidence, not
+  history. Do not restate what the task file or decision already says - cite
+  it.
+
 ## Work standard
 
 - Build only the active task. Do not redefine feature sequencing, product

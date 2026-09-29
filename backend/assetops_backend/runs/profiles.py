@@ -158,8 +158,23 @@ class SupportedState:
     supported_roles: frozenset[str]
     foundation_binding: FoundationBinding | None
     statement: str
+    #: T024. The kind of component a COMPONENT state with no Foundation
+    #: binding is carried on - a load's demand is a fact about a LOAD. Without
+    #: it an explicitly addressed reference could name any component at all,
+    #: because the binding's component type was the only type check there was.
+    #: A state with a binding reads its type from the binding instead.
+    component_type: str | None = None
 
     def __post_init__(self) -> None:
+        if self.component_type is not None and (
+            self.scope != "COMPONENT" or self.foundation_binding is not None
+        ):
+            raise ValueError(
+                f"Model profile state {self.state_key!r} declares a carrier "
+                "component type and is either site-wide or already bound. A "
+                "bound state's carrier is its binding's type, and a site-wide "
+                "state has no carrier."
+            )
         if self.scope not in STATE_SCOPES:
             raise ValueError(
                 f"Model profile state {self.state_key!r} is claimed at "
@@ -251,6 +266,10 @@ class SupportedReportingState:
                 f"are {sorted(REPORTING_PATH_STATES)}."
             )
 
+    #: A reporting-path state is carried on whatever component the scenario
+    #: names; no carrier type is declared for it.
+    component_type = None
+
     @property
     def foundation_binding(self) -> None:
         """Always absent, and absent by construction rather than by value.
@@ -280,8 +299,52 @@ class ModelProfile:
     display_name: str
     statement: str
     supported_states: tuple[SupportedState, ...]
+    #: T024, Option C (`D-2026-09-29-t024-option-c-and-reserve-override`).
+    #: The Foundation values this model's laws need whether or not a scenario
+    #: asks for them: each names a supported state whose binding says which
+    #: property of which component type answers. Run setup resolves every
+    #: component of that type and freezes each answer with its provenance in
+    #: the run's deterministic identity; an absent answer BLOCKS. Empty for a
+    #: profile whose laws need nothing the scenario does not declare, which is
+    #: every profile before T024.
+    foundation_needs: tuple[str, ...] = ()
+    #: The typed Site Controls this model's controller needs, by control key.
+    site_control_needs: tuple[str, ...] = ()
+    #: Run-start dynamic states this model needs the SCENARIO (or the run) to
+    #: initialize at every component of the state's carrier type - a battery's
+    #: state of charge. v4 section 10.1 makes a run-start condition the
+    #: scenario's to answer, so the model does not answer it; it says it needs
+    #: one, and a Draft whose scenario states none is BLOCKED with the address
+    #: named rather than executing until the kernel meets the hole.
+    initialization_needs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
+        for need in self.foundation_needs:
+            state = self.supported(need)
+            if (
+                state is None
+                or state.foundation_binding is None
+                or state.scope != "COMPONENT"
+                or "CAUSAL_INPUT" not in state.supported_roles
+            ):
+                raise ValueError(
+                    f"Model profile {self.model_profile_id!r} needs {need!r} "
+                    "from the Foundation and does not declare it as a "
+                    "component-scoped CAUSAL_INPUT state with a Foundation "
+                    "binding. A need names the binding that answers it."
+                )
+        for need in self.initialization_needs:
+            state = self.supported(need)
+            if (
+                state is None
+                or state.component_type is None
+                or "CAUSAL_INPUT" not in state.supported_roles
+            ):
+                raise ValueError(
+                    f"Model profile {self.model_profile_id!r} needs {need!r} "
+                    "initialized and does not declare it as a CAUSAL_INPUT "
+                    "state with a carrier component type."
+                )
         for state in self.supported_states:
             if state.state_key in REPORTING_PATH_STATES:
                 raise ValueError(
@@ -724,6 +787,163 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
     ),
 )
 
+
+def _need(
+    state_key: str,
+    component_type: str,
+    property_key: str,
+    unit: str,
+    statement: str,
+) -> SupportedState:
+    return SupportedState(
+        state_key=state_key,
+        scope="COMPONENT",
+        supported_roles=frozenset({"CAUSAL_INPUT"}),
+        foundation_binding=FoundationBinding(
+            component_type=component_type,
+            property_key=property_key,
+            unit=unit,
+        ),
+        statement=statement,
+    )
+
+
+#: The daytime mini-grid model T024 adds (map A, first electrical world).
+#:
+#: A separate profile rather than a second version of `minimal-fuel-tank`,
+#: which is unchanged: the fuel profile's recorded limitation - it does not
+#: model demand or irradiance - stays true of it, and a Fuel Loss run keeps
+#: meaning exactly what it meant (criterion 14).
+#:
+#: It is the first profile whose laws need Foundation values no scenario asks
+#: for, which is Option C's trigger. `foundation_needs` names them; the
+#: scenario declares only the story - irradiance, each load's demand, the
+#: battery's state of charge at the start, and any temporary reserve override.
+#:
+#: The generator is deliberately not modelled: this is a generator-stopped
+#: daytime baseline and T025 adds the generator lifecycle.
+DAYTIME_MINI_GRID_MODEL = ModelProfile(
+    model_profile_id="daytime-mini-grid",
+    model_profile_version=1,
+    display_name="Daytime mini-grid model",
+    statement=(
+        "Models a daytime mini-grid with one PV array behind one inverter, one "
+        "battery behind one power conversion system, and any number of "
+        "addressed loads. Plane-of-array irradiance and each load's demand are "
+        "forced; the battery's state of charge is initialized by the scenario "
+        "and evolves under accepted charge and discharge. A controller reads a "
+        "local view and requests battery power; a resolver accepts what the "
+        "PCS limits, the battery's energy, its reserve and its efficiency allow, "
+        "serves loads in the Site's critical-load priority and curtails what "
+        "cannot be used. The generator is not modelled."
+    ),
+    supported_states=(
+        SupportedState(
+            state_key="plane-of-array-irradiance",
+            scope="SITE",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            foundation_binding=None,
+            statement=(
+                "Plane-of-array irradiance is forced by the scenario across "
+                "declared windows. PV potential is the array's rated power "
+                "scaled by irradiance over 1000 W/m2."
+            ),
+        ),
+        SupportedState(
+            state_key="load-demand",
+            scope="COMPONENT",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            foundation_binding=None,
+            component_type="LOAD",
+            statement=(
+                "Each load's demand is forced separately at its own address, "
+                "so two loads of one type have two independent demands."
+            ),
+        ),
+        SupportedState(
+            state_key="battery-state-of-charge",
+            scope="COMPONENT",
+            supported_roles=frozenset({"CAUSAL_INPUT", "REPORTED_OBSERVATION"}),
+            foundation_binding=None,
+            component_type="BATTERY",
+            statement=(
+                "The battery's state of charge is initialized explicitly by the "
+                "scenario at run start, never inferred from its reserve, and "
+                "moves only under accepted charge and discharge."
+            ),
+        ),
+        SupportedState(
+            state_key="battery-reserve-state-of-charge",
+            scope="COMPONENT",
+            supported_roles=frozenset({"CAUSAL_INPUT", "FORCING_INPUT"}),
+            foundation_binding=FoundationBinding(
+                component_type="BATTERY",
+                property_key="reserve-state-of-charge",
+                unit="%",
+            ),
+            statement=(
+                "The battery's reserve is a component control property the "
+                "Foundation answers for as the baseline. A scenario may force "
+                "it across a window, which replaces the baseline inside the "
+                "window only; the baseline applies again at the window's end."
+            ),
+        ),
+        _need(
+            "pv-rated-power",
+            "PV_ARRAY",
+            "pv-rated-power",
+            "kW",
+            "The array's DC output at 1000 W/m2, from the Foundation.",
+        ),
+        _need(
+            "inverter-ac-limit",
+            "INVERTER",
+            "inverter-ac-limit",
+            "kW",
+            "The most AC power the PV inverter passes, from the Foundation.",
+        ),
+        _need(
+            "battery-energy-capacity",
+            "BATTERY",
+            "battery-energy-capacity",
+            "kWh",
+            "The battery's usable energy at 100 % state of charge.",
+        ),
+        _need(
+            "pcs-charge-limit",
+            "POWER_CONVERSION_SYSTEM",
+            "pcs-charge-limit",
+            "kW",
+            "The most AC power the PCS takes in while charging.",
+        ),
+        _need(
+            "pcs-discharge-limit",
+            "POWER_CONVERSION_SYSTEM",
+            "pcs-discharge-limit",
+            "kW",
+            "The most AC power the PCS delivers while discharging.",
+        ),
+        _need(
+            "pcs-conversion-efficiency",
+            "POWER_CONVERSION_SYSTEM",
+            "pcs-conversion-efficiency",
+            "%",
+            "The PCS's one-way efficiency, applied in each direction.",
+        ),
+    ),
+    foundation_needs=(
+        "pv-rated-power",
+        "inverter-ac-limit",
+        "battery-energy-capacity",
+        "pcs-charge-limit",
+        "pcs-discharge-limit",
+        "pcs-conversion-efficiency",
+        "battery-reserve-state-of-charge",
+    ),
+    site_control_needs=("source-priority", "critical-load-priority"),
+    initialization_needs=("battery-state-of-charge",),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -747,6 +967,15 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
 #: without the profile catalog being frozen with it. Leaving this at version one
 #: would mean two builds claiming one version and generating different series,
 #: which is the whole thing the version exists to rule out.
+#:
+#: ## Version three since T024, and it moves for the same reason
+#:
+#: Six electrical reporting paths are added: the battery's state of charge,
+#: the PCS's AC power, the PV inverter's AC power and one meter per load. A run
+#: of an unchanged document against this profile generates a different series
+#: than it would under two, so the version moves. A declared path whose state
+#: the selected model does not produce is not a reporting path for that run -
+#: a fuel run on a hybrid Site does not grow a column of empty battery readings.
 #:
 #: Two reporting paths, and both resolve against MG-001's own Foundation because
 #: a profile declares a signal's identity and run setup says whether this
@@ -774,7 +1003,7 @@ MINIMAL_FUEL_TANK_MODEL = ModelProfile(
 #: "adding an unrelated stream changes no existing stream" worth asserting.
 LAB_PUBLICATION_PROFILE = PublicationProfile(
     publication_profile_id="simulator-lab-publication",
-    publication_profile_version=2,
+    publication_profile_version=3,
     display_name="Simulator Lab publication profile",
     statement=(
         "Declares which configured device signals report which world state, how "
@@ -845,10 +1074,102 @@ LAB_PUBLICATION_PROFILE = PublicationProfile(
                 "reporting path rather than of the run."
             ),
         ),
+        # T024: the electrical signals T026 will publish. Generated as device
+        # observations now; the gateway's allowlist does not publish them yet.
+        DeviceSignalDeclaration(
+            device_id="battery-pcs-controller",
+            signal_id="state-of-charge",
+            state_key="battery-state-of-charge",
+            reading_class="STATE_SIGNAL",
+            canonical_unit="%",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=20,
+            statement=(
+                "The PCS controller publishes the battery's state of charge "
+                "every fifteen minutes, sampled after that instant's events. "
+                "One sample in fifty does not arrive."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="battery-pcs-controller",
+            signal_id="ac-power",
+            state_key="battery-ac-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The PCS controller publishes the mean AC power over the span "
+                "that just ended: positive while discharging to the bus, "
+                "negative while charging from it."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="pv-inverter-controller",
+            signal_id="ac-power",
+            state_key="pv-ac-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The PV inverter publishes the mean AC power it delivered over "
+                "the span that just ended - what was used, not what the array "
+                "could have offered."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="residential-meter",
+            signal_id="active-power",
+            state_key="load-served-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The residential feeder meter publishes the mean power served "
+                "to the feeder over the span that just ended."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="clinic-meter",
+            signal_id="active-power",
+            state_key="load-served-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The clinic meter publishes the mean power served to the "
+                "clinic over the span that just ended."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="mill-meter",
+            signal_id="active-power",
+            state_key="load-served-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The mill meter publishes the mean power served to the mill "
+                "over the span that just ended."
+            ),
+        ),
     ),
 )
 
-MODEL_PROFILES: tuple[ModelProfile, ...] = (MINIMAL_FUEL_TANK_MODEL,)
+MODEL_PROFILES: tuple[ModelProfile, ...] = (
+    MINIMAL_FUEL_TANK_MODEL,
+    DAYTIME_MINI_GRID_MODEL,
+)
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (LAB_PUBLICATION_PROFILE,)
 

@@ -115,6 +115,7 @@ const SITE_DETAIL: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 

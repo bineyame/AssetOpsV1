@@ -66,6 +66,7 @@ const USER_SIMULATED_SITE: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 
@@ -109,6 +110,7 @@ const SHIPPED_SIMULATED_SITE: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 

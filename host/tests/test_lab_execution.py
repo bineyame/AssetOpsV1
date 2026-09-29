@@ -2471,7 +2471,10 @@ class TestAnExecutionRecordOlderThanTheShapeRuleIsStillInspectable:
 
         note = " ".join(execution.projection(run).notes)
 
-        assert "states artifact schema 1 and this build reads schema 2" in note
+        assert (
+            "states artifact schema 1 and this build reads schema "
+            f"{EXECUTION_ARTIFACT_SCHEMA_VERSION}"
+        ) in note
         assert "seed" in note
         assert "states artifact schema 2" not in note
 

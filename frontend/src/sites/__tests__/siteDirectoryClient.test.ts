@@ -63,6 +63,7 @@ const SITE_DETAIL_BODY: SiteDetailReadModel = {
     devices: null,
     signal_mappings: null,
     control_assumptions: null,
+    site_controls: null,
   },
 };
 
@@ -137,6 +138,7 @@ const SHAPES_THAT_FABRICATE_A_VALUE: [string, unknown][] = [
       devices: null,
       signal_mappings: null,
       control_assumptions: null,
+      site_controls: null,
     }),
   ],
   [

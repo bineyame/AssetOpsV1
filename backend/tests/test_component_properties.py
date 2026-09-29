@@ -413,20 +413,15 @@ class TestNoControlCapabilityIsImplied:
                 f"property vocabulary as {offenders}."
             )
 
-    def test_no_shipped_profile_binds_a_control_property(self) -> None:
-        """The one consumer this build could have, asserted as an absence.
+    def test_only_the_controller_profile_binds_a_control_property(self) -> None:
+        """The first consumer of a CONTROL property is T024's, and only it.
 
-        Narrower than "nothing in the product consumes one", which is what
-        this used to be called, and an independent review was right that the
-        name overstated the scan: it reads the shipped model profiles and
-        nothing else. What makes the wider claim true today is that a model
-        profile's binding is the only mechanism that reads a declared
-        property at all - source inspection establishes that, and this
-        establishes that no profile uses it on a control key.
-
-        The first controller that consumes one is T024's, and a binding that
-        reached for one here would be a Site-scoped Controls capability
-        arriving without the slice that owns it.
+        Before T024 this asserted that no shipped profile bound a control key,
+        and named T024 as the slice whose controller would be the first. It
+        is: `daytime-mini-grid` binds `reserve-state-of-charge` as its baseline
+        reserve, which its controller and resolver read. The fuel profile,
+        which has no controller, still binds none - a control property does
+        not become consumed by a model that cannot act on it.
         """
         from assetops_backend.runs.profiles import MODEL_PROFILES
 
@@ -437,14 +432,19 @@ class TestNoControlCapabilityIsImplied:
         }
         assert control_keys, "the scan would be vacuous"
 
-        bound = {
-            state.foundation_binding.property_key
+        bound_by = {
+            profile.model_profile_id: {
+                state.foundation_binding.property_key
+                for state in profile.supported_states
+                if state.foundation_binding is not None
+            }
             for profile in MODEL_PROFILES
-            for state in profile.supported_states
-            if state.foundation_binding is not None
         }
-        assert bound, "the scan would be vacuous"
-        assert bound & control_keys == set()
+        assert bound_by["minimal-fuel-tank"], "the scan would be vacuous"
+        assert bound_by["minimal-fuel-tank"] & control_keys == set()
+        assert bound_by["daytime-mini-grid"] & control_keys == {
+            "reserve-state-of-charge"
+        }
 
 
 class TestANumberThatCannotBeStoredOrShown:

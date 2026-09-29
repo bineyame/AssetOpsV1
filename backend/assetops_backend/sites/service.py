@@ -214,6 +214,7 @@ class SiteCreationService:
                         devices=template.foundation.devices,
                         signal_mappings=template.foundation.signal_mappings,
                         control_assumptions=template.foundation.control_assumptions,
+                        site_controls=template.foundation.site_controls,
                     )
                 ),
             },

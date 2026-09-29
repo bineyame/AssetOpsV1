@@ -182,6 +182,10 @@ def _parse_foundation(raw: Any, *, source: str) -> TemplateFoundation:
     content = parse_foundation_content(
         foundation,
         component_ids=frozenset(seen),
+        component_types={
+            component.component_id: component.component_type
+            for component in components
+        },
         where="foundation",
         source=source,
         invalid=_invalid,
@@ -195,6 +199,7 @@ def _parse_foundation(raw: Any, *, source: str) -> TemplateFoundation:
         devices=content.devices,
         signal_mappings=content.signal_mappings,
         control_assumptions=content.control_assumptions,
+        site_controls=content.site_controls,
     )
 
 

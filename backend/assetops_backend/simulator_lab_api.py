@@ -97,6 +97,7 @@ from assetops_backend.scenarios.execution import (
     BOUND_CASES,
     BOUND_POLICY_STATEMENTS,
     CANONICAL_UNITS,
+    COUPLING_RULES,
     DISPATCH_RULES,
     EXECUTION_CONTRACT_VERSION,
     OBSERVATION_RULES,
@@ -148,6 +149,7 @@ from assetops_backend.sites.site_parsing import parse_create_site_request
 from assetops_backend.sites_api import site_summary
 from assetops_contracts.lab_projection import (
     LAB_CONTROL_REFUSAL_STATEMENTS,
+    ElectricalView,
     LabControlRefused,
     LabProjection,
 )
@@ -736,6 +738,125 @@ def run_inventory_row(record: SimulationRun) -> dict[str, object]:
     }
 
 
+def electrical_payload(view: ElectricalView | None) -> dict[str, object] | None:
+    """The electrical world of one execution on the wire (T024).
+
+    Private truth for the gated Lab, every quantity as exact text. `steps` is
+    PV, the battery and service against simulation time; the `latest_*`
+    collections are the most recent step's view, request, acceptance, loads,
+    named flows and reserve in effect, kept as separate collections because the
+    contract keeps them separate. The coupling rules travel beside them so the
+    screen states the contract rather than composing its own sentence.
+    """
+    if view is None:
+        return None
+
+    def exact(value: object) -> str | None:
+        return None if value is None else exact_decimal_text(value)
+
+    return {
+        "battery_address": view.battery_address,
+        "coupling_rules": [
+            {
+                "rule_id": rule.rule_id,
+                "display_name": rule.display_name,
+                "statement": rule.statement,
+            }
+            for rule in COUPLING_RULES
+        ],
+        "steps": [
+            {
+                "from_offset": row.from_offset,
+                "to_offset": row.to_offset,
+                "simulation_time": row.simulation_time,
+                "soc_start": exact(row.soc_start),
+                "soc_end": exact(row.soc_end),
+                "reserve": exact(row.reserve),
+                "reserve_origin": row.reserve_origin,
+                "pv_potential": exact(row.pv_potential),
+                "pv_output": exact(row.pv_output),
+                "curtailed": exact(row.curtailed),
+                "clipped": exact(row.clipped),
+                "battery_power": exact(row.battery_power),
+                "requested_battery_power": exact(row.requested_battery_power),
+                "limited_by": list(row.limited_by),
+                "demand": exact(row.demand),
+                "served": exact(row.served),
+                "unserved": exact(row.unserved),
+            }
+            for row in view.steps
+        ],
+        "latest_view": [
+            {
+                "name": item.name,
+                "address": item.address,
+                "value": exact(item.value),
+                "unit": item.unit,
+            }
+            for item in view.latest_view
+        ],
+        "latest_requests": [
+            {
+                "address": item.address,
+                "quantity": item.quantity,
+                "requested": exact(item.requested),
+                "unit": item.unit,
+                "reason": item.reason,
+            }
+            for item in view.latest_requests
+        ],
+        "latest_controls": [
+            {
+                "address": item.address,
+                "quantity": item.quantity,
+                "requested": exact(item.requested),
+                "accepted": exact(item.accepted),
+                "unit": item.unit,
+                "limited_by": list(item.limited_by),
+            }
+            for item in view.latest_controls
+        ],
+        "latest_loads": [
+            {
+                "address": item.address,
+                "priority_rank": item.priority_rank,
+                "demand_power": exact(item.demand_power),
+                "served_power": exact(item.served_power),
+                "unserved_power": exact(item.unserved_power),
+                "demand_energy": exact(item.demand_energy),
+                "served_energy": exact(item.served_energy),
+                "unserved_energy": exact(item.unserved_energy),
+            }
+            for item in view.latest_loads
+        ],
+        "latest_flows": [
+            {
+                "flow_id": item.flow_id,
+                "from_address": item.from_address,
+                "to_address": item.to_address,
+                "energy": exact(item.energy),
+                "mean_power": exact(item.mean_power),
+            }
+            for item in view.latest_flows
+        ],
+        "latest_effective_controls": [
+            {
+                "address": item.address,
+                "from_offset": item.from_offset,
+                "to_offset": item.to_offset,
+                "value": exact(item.value),
+                "unit": item.unit,
+                "origin": item.origin,
+                "provenance": item.provenance,
+            }
+            for item in view.latest_effective_controls
+        ],
+        "latest_balances": list(view.latest_balances),
+        "latest_segments": [list(item) for item in view.latest_segments],
+        "notes": list(view.notes),
+    }
+
+
 def execution_payload(projection: LabProjection) -> dict[str, object]:
     """One gated Lab projection on the wire.
 
@@ -890,6 +1011,7 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
             }
             for item in projection.recent_reports
         ],
+        "electrical": electrical_payload(projection.electrical),
     }
 
 

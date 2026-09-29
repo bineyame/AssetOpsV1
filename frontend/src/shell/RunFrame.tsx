@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
+import { ElectricalPanels, ExactQuantity } from "./ElectricalPanels";
 import type {
   RunDetailResult,
   RunExecutionResult,
@@ -523,13 +524,19 @@ export function RunFrame({
               {projection.private_state.map((row) => (
                 <tr key={row.address} data-private-state={row.address}>
                   <th scope="row">{row.address}</th>
-                  <td>{row.value}</td>
+                  <td>
+                    <ExactQuantity value={row.value} />
+                  </td>
                   <td>{row.canonical_unit}</td>
                 </tr>
               ))}
             </tbody>
           </DataTable>
         </Panel>
+      )}
+
+      {projection === null || projection.electrical === null ? null : (
+        <ElectricalPanels electrical={projection.electrical} />
       )}
 
       {projection === null || projection.observations.length === 0 ? null : (
@@ -559,14 +566,24 @@ export function RunFrame({
                   <th scope="row">{`${row.device_id} / ${row.signal_id}`}</th>
                   <td>{row.address}</td>
                   <td data-observation-true>
-                    {row.true_value === null
-                      ? "not measured here"
-                      : `${row.true_value} ${row.canonical_unit}`}
+                    {row.true_value === null ? (
+                      "not measured here"
+                    ) : (
+                      <ExactQuantity
+                        value={row.true_value}
+                        unit={row.canonical_unit}
+                      />
+                    )}
                   </td>
                   <td data-observation-reported>
-                    {row.reported_value === null
-                      ? "no reading"
-                      : `${row.reported_value} ${row.canonical_unit}`}
+                    {row.reported_value === null ? (
+                      "no reading"
+                    ) : (
+                      <ExactQuantity
+                        value={row.reported_value}
+                        unit={row.canonical_unit}
+                      />
+                    )}
                   </td>
                   <td data-observation-source-time>
                     {row.reported_source_time ?? "no reading"}

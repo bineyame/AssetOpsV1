@@ -344,4 +344,8 @@ MINIMAL_FUEL_MODEL = ModelSpec(
     ),
     laws=(FUEL_CONSUMPTION_LAW,),
     component_relations=COMPONENT_RELATIONS,
+    # The delivered energy the dispatch forcing produces is measured at the
+    # generator's output-power address, which is what the generator
+    # controller's hourly power reading describes.
+    measured_interval_states=frozenset({GENERATOR_OUTPUT_POWER}),
 )

@@ -107,6 +107,7 @@ const BASE: RunExecution = {
   signals: SIGNALS,
   reporting_gaps: GAPS,
   recent_reports: [],
+  electrical: null,
 };
 
 export const NOT_STARTED: RunExecution = BASE;

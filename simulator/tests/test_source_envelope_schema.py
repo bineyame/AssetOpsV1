@@ -158,7 +158,7 @@ class TestTheValidEnvelope:
         # Independent numbers. If they happen to coincide one day that is not a
         # coupling, but this build proves they are not the same constant.
         assert SOURCE_ENVELOPE_SCHEMA_VERSION == 1
-        assert EXECUTION_CONTRACT_VERSION == 8
+        assert EXECUTION_CONTRACT_VERSION == 9
 
 
 class TestUnknownAndPrivateFieldsAreRefused:

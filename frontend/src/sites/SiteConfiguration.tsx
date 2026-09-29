@@ -20,6 +20,7 @@ import type {
   ComponentPropertyView,
   ControlAssumptionView,
   FoundationDeviceView,
+  SiteControlView,
   SiteDeclaredSection,
   SiteKeyParameterView,
   SignalMappingView,
@@ -372,6 +373,7 @@ export function SiteConfigurationFacts({
           * properties table says so where a reader meets the numbers.
           */}
         <SiteControlProperties section={view.controlProperties} />
+        <SiteControlsTable section={view.siteControls} />
         <SiteControlAssumptions section={view.controlAssumptions} />
       </Panel>
 
@@ -792,6 +794,33 @@ export function SiteSignalMappings({
           mapping.describes,
           mapping.mappingId,
         ],
+      })}
+    />
+  );
+}
+
+/**
+ * The typed Site Controls the foundation declares (T024).
+ *
+ * Ordered lists of the site's own components - which source serves load first,
+ * which load is protected first. Configured values a simulated run reads as
+ * frozen inputs, and nothing on this screen changes one.
+ */
+export function SiteControlsTable({
+  section,
+}: {
+  section: SiteDeclaredSection<SiteControlView>;
+}) {
+  return (
+    <SiteConfigurationSubsection
+      name="Site Controls"
+      headingId="foundation-site-controls-heading"
+      section={section}
+      caption="Typed Site-scoped controls this site's foundation declares, each an ordered list of its components, first to last, with the document and version that declared it."
+      columns={["Control", "Order", "Declared by"]}
+      row={(control) => ({
+        key: control.controlKey,
+        cells: [control.displayName, control.order, control.declaredBy],
       })}
     />
   );

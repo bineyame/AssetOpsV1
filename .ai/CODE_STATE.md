@@ -4057,3 +4057,86 @@ on this workstation ran 2.5-4x slower (setup through detail 4.8 s at 86 % CPU).
   and `tools/run-store-evidence.py runtime` are the gates. Verified at runtime
   on Windows x86-64, Linux x86-64 and Linux aarch64 (emulated); macOS only at
   the wheel-contents level.
+
+## T024 - Daytime PV, storage and addressed load service
+
+The first electrical world. A Kobo-like Site runs a daytime interval in the Lab:
+PV, a battery and three separately addressed loads, a controller that reads a
+local view and requests battery power, a declared-cascade resolver that
+accepts what the installation allows, and exact energy balances. The generator
+is not modelled (T025).
+
+### What it settled in code
+
+- **`EXECUTION_CONTRACT_VERSION` is 9** (`D-2026-09-29-t024-option-c-and-reserve-override`).
+  The ledger paragraph names three moves: model-owned needs and Site Controls
+  frozen in the identity, `a-control-override-replaces-its-baseline` in
+  `DISPATCH_RULES`, and `COUPLING_RULES` (local view, intent versus acceptance,
+  declared cascade, segment split, exact balance). New bound case
+  `battery-state-of-charge-limits` (FAIL_RUN). Every Draft below 9 reads and is
+  refused execution.
+- **Option C.** `ModelProfile` gained `foundation_needs`, `site_control_needs`
+  and `initialization_needs`; `SupportedState` gained an optional carrier
+  `component_type` for unbound component states. Run setup resolves each need
+  at every component of the bound type and freezes a `FrozenModelNeed`
+  (declared_by, answered_by, Foundation version and valid_from, property
+  source and version) in `DeterministicIdentity.model_needs`; Site Controls
+  freeze as `FrozenSiteControl` in `site_controls`. Absent answers BLOCK:
+  `INITIAL_VALUE_NOT_RESOLVED` at the address, and new
+  `SITE_CONTROL_NOT_RESOLVED` at `site-control:<key>`. A run-start state of
+  charge the scenario does not state blocks at `battery-state-of-charge@<battery>`.
+  A version-9 run document omitting either collection is refused; below 9 they
+  read as empty. Provenance rows render on the Draft's frozen table.
+- **Foundation.** Six electrical properties (`pv-rated-power`,
+  `inverter-ac-limit`, `battery-energy-capacity`, `pcs-charge-limit`,
+  `pcs-discharge-limit`, `pcs-conversion-efficiency`) and an optional typed
+  `site_controls` section: `source-priority` and `critical-load-priority`, each
+  an ordered list naming every component of its member types exactly once.
+  Existing Sites parse unchanged. Rendered on the Foundation Controls section.
+  The control-properties note no longer says nothing reads them.
+- **Profiles.** New `daytime-mini-grid` v1 beside the unchanged
+  `minimal-fuel-tank` v1. Publication profile **3** adds six electrical paths;
+  a declared path whose state the selected model does not produce is skipped,
+  so a fuel run grows no electrical column.
+- **Kernel.** `ModelSpec` gained an optional `Coupling` (prepare, view, decide,
+  resolve) and `measured_interval_states`; phases D-F call it, G applies only
+  the accepted stock accounts (origin `ACCEPTED_FLOW`), H checks every declared
+  balance and the stock account exactly from the named flows. `StateHandler`
+  gained a `ceiling`; `ComponentRelation` gained `many`. The kernel imports no
+  electrical pack, guarded in `tools/checks/dependency-direction.ps1`.
+  Contract records live in `contracts/assetops_contracts/control.py`;
+  `BoundaryState.control_step` carries view, intent and acceptance, and is left
+  out of the digest when absent, so fuel digests are unchanged in shape.
+- **Pack** `simulator/assetops_simulator/packs/minigrid.py`: PV potential =
+  rated x irradiance / 1000, capped by the inverter (clipping); battery SOC in
+  %, 95 %-style one-way efficiency each direction; the controller requests the
+  deficit (or the whole demand when the battery precedes PV) above the reserve
+  in effect, or the surplus to charge; the resolver clips by PCS limit, energy
+  above the reserve and headroom, serves loads in critical priority, curtails
+  the rest; segments split where a forcing window starts or ends in a step.
+- **Host.** `model_for(run)` selects the model by the frozen profile identity;
+  model needs reach the kernel as initial values answered by the Foundation.
+  The Lab projection gains `electrical` and the execution artifact is schema
+  **3**; schema-2 records read with no electrical view.
+- **Shipped content.** Template `kobo-mini-grid-60kw` and scenarios
+  `kobo-daytime`, `kobo-daytime-overcast` (with the 16:00-18:00 reserve
+  override to 15 %) and `kobo-daytime-larger-mill`, targeting `KOBO-001`.
+
+### The demonstration, in numbers
+
+Sunny: no load unserved, battery full at 100 % by early afternoon and PV
+curtailed after, 7 kW clipped at 12:00, SOC 55 % -> 89.47 %. Overcast: the
+battery holds the 30 % reserve, 56.9 kWh of mill and 6.3 kWh of residential
+demand unserved, clinic fully served, and the override carries the evening to
+15 %. Larger mill: residential demand unserved in the evening (19.865 kWh),
+SOC ends at the reserve. 30 kW requested through a 22 kW PCS: accepted 22 kW,
+SOC falls 55/19 %, 2 kWh unserved in the step, next PCS reading 22 kW.
+
+### What this leaves open
+
+Carried in `.ai/MILESTONE_REVIEW_BACKLOG.md` under "Carried from T024": the
+controller decides once per step; "battery first" semantics; one of each
+electrical machine; the kernel's fuel default import; electrical readings not
+yet published (T026); ratios approximated on screen; priority lists
+baseline-only; one CDP hang in layout evidence. `var/sites` gained `kobo-001`
+(created through the product for the browser evidence).

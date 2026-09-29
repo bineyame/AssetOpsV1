@@ -1255,6 +1255,9 @@ class TestBlockedDraftsArePersisted:
             "SOURCE_IDENTITY_NOT_RESOLVED",
             "GATEWAY_IDENTITY_NOT_RESOLVED",
             "INITIAL_VALUE_NOT_RESOLVED",
+            # T024: a Site Control the selected profile needs and this Site's
+            # Foundation does not declare - a fact about the pair.
+            "SITE_CONTROL_NOT_RESOLVED",
         }
 
     def test_run_setup_never_reconciles(self) -> None:
@@ -1604,6 +1607,30 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenReportingPathCondition", "timing_shape"),
             ("FrozenReportingPathCondition", "offset_minutes"),
             ("FrozenReportingPathCondition", "duration_minutes"),
+            # T024, Option C. Every provenance field of a model-owned need and
+            # of a Site Control reaches its row: who declared the need, who
+            # answered, the Foundation version and validity, and the
+            # declaration's own source.
+            ("FrozenModelNeed", "state_ref"),
+            ("FrozenModelNeed", "property_key"),
+            ("FrozenModelNeed", "value"),
+            ("FrozenModelNeed", "unit"),
+            ("FrozenModelNeed", "declared_by"),
+            ("FrozenModelNeed", "answered_by"),
+            ("FrozenModelNeed", "answered_by_detail"),
+            ("FrozenModelNeed", "foundation_version"),
+            ("FrozenModelNeed", "foundation_valid_from"),
+            ("FrozenModelNeed", "property_source"),
+            ("FrozenModelNeed", "property_source_version"),
+            ("FrozenSiteControl", "control_key"),
+            ("FrozenSiteControl", "members"),
+            ("FrozenSiteControl", "declared_by"),
+            ("FrozenSiteControl", "answered_by"),
+            ("FrozenSiteControl", "answered_by_detail"),
+            ("FrozenSiteControl", "foundation_version"),
+            ("FrozenSiteControl", "foundation_valid_from"),
+            ("FrozenSiteControl", "source"),
+            ("FrozenSiteControl", "source_version"),
         }
 
         # Frozen and inspectable through the structured identity, and
@@ -1637,6 +1664,11 @@ class TestEveryFrozenValueNamesAnAnswerer:
             # how a reader finds the initialization row that carries it. The
             # parameter identity on that row is the same one.
             ("FrozenDeclaredBound", "source_parameter_id"),
+            # T024: the canonical restatement of a model need's value, the
+            # same reason as the initialization row's.
+            ("FrozenModelNeed", "canonical_value"),
+            ("FrozenModelNeed", "canonical_unit"),
+            ("FrozenModelNeed", "dimension"),
         }
 
         from dataclasses import is_dataclass
@@ -2127,7 +2159,10 @@ class TestTheExecutionContractVersionMove:
     moves to version two in the same slice because it now declares which signals
     report which state, and the frozen identity reads that version - so a run of
     an unchanged document freezes differently at eight than at seven, which is
-    the test the decision sets.
+    the test the decision sets. T024 takes it to nine: a run now freezes what
+    the selected MODEL needs from the Foundation and the effective Site
+    Controls (Option C, `D-2026-09-29-t024-option-c-and-reserve-override`), and
+    a forcing on a control address has a declared meaning.
 
     The absolute numbers are written relatively where they can be. Here they
     cannot: the point of the test is that the number CHANGED and that an
@@ -2136,7 +2171,7 @@ class TestTheExecutionContractVersionMove:
     """
 
     def test_the_version_moved_past_the_one_this_slice_found(self) -> None:
-        assert EXECUTION_CONTRACT_VERSION == 8
+        assert EXECUTION_CONTRACT_VERSION == 9
 
     def test_a_new_draft_is_stamped_with_it(self) -> None:
         record, _ = create()
