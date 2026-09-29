@@ -25,14 +25,15 @@ inventory is measured, deliberately unfixed and not acceptable**: 99% is the
 pure-Python YAML scanner and it passes one second between about 20 and 65
 records. The bounded fix trades a parser, so it is the owner's.
 
-**T023 is built and in review** (`task/T023-staged-source-envelopes`, packet
-`.agent/T023-review-packet.md`, `USER_REVIEW_REQUIRED: true`): an executed
-Draft stages canonical source envelopes, schema v1 under
-`D-2026-09-29-source-envelope-schema-v1`, inspected on the Draft's own screen.
-Next: independent review, then the owner's check of source versus publication
-time and a reload. Still open and not parked: the owner's functional review of
-T022 and T022A - criterion 9 closes when they step a run - and the libyaml
-decision above.
+**T023 is complete and merged**: an executed Draft stages canonical source
+envelopes (envelope schema 1, stage schema 2, under
+`D-2026-09-29-source-envelope-schema-v1`) with a published-through watermark
+whose `STAGING_INCOMPLETE` blocker keeps an incomplete stage ineligible,
+inspected on the Draft's own screen. Accepted on independent review (two Codex
+passes, one Claude verification) and on owner review 2026-09-29. The owner's
+review of T022 and T022A is also recorded, 2026-09-29. **Still open and not
+parked: the libyaml decision above**, now with the Architect for a
+recommendation to the owner.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
@@ -82,8 +83,7 @@ and T022A seven. Five `float(value)` overflow sites are open, the inventory AND
 layout-evidence run. T022A had to WRITE the run-store entry three documents
 already cited: a residual living only in a packet is one nobody reads first.
 
-**After T023's review: T024** onward per `tasks/README.md`. T022 and T023 both
-carry user checkpoints (`USER_REVIEW_REQUIRED: true`).
+**T024 is next** per `tasks/README.md`; it is not yet activated.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -95,8 +95,8 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **`tasks/T023-staged-source-envelopes.md` with `.agent/T023-review-packet.md`**
-   (in review), then T022/T022A as regression evidence.
+1. **`tasks/T024-daytime-mini-grid-runtime.md`** once activated; T023, T022 and
+   T022A in `tasks/completed/` as regression evidence.
 2. `.ai/CODE_STATE.md`: the T023 entry, then T022, T021A, T021 and T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
@@ -124,7 +124,7 @@ properties, addressing, reachable readiness and the declared boundary contract.
 clock, a boundary cycle, a private trajectory, a trajectory identity, a resumable
 handle, a separate observation transform, a reading series with its own identity,
 a private artifact per run, and a gated screen that starts, steps and finishes a
-run and shows truth beside what was reported. **T023 (in review) adds the
+run and shows truth beside what was reported. **T023 adds the
 gateway, the canonical envelope and an immutable stage** with a gated inspector.
 There is still **no Commit, no ingestion, no accepted history, no analytics and
 no Findings**, and nothing an execution produces reaches an operator surface.
