@@ -310,7 +310,7 @@ class TestOldAndDamagedArtifacts:
         if damage == "value":
             document["samples"][3][4] = "1/3"
         elif damage == "schema":
-            document["history_schema_version"] = 2
+            document["history_schema_version"] = 3
         elif damage == "digest":
             document["manifest"]["history_digest"] = "0" * 64
         elif damage == "order":
@@ -533,3 +533,78 @@ class TestAnIndependentlyDerivedShortWindow:
         }
         # State at T is after T's events: the delivery shows at 2400 itself.
         assert (fuel[2395], fuel[2400]) == (level, Fraction(500))
+
+
+class TestProjectionBackedDataIsBoundToTheHistory:
+    """R1: the cockpit reads signals, gaps and electrical steps from the
+    projection. Editing the projection alone, with the appended history left
+    untouched, must be an explicit integrity failure, not a verified cockpit."""
+
+    @staticmethod
+    def edit_projection(path: Path, change) -> bytes:
+        import yaml
+
+        source = path.read_text(encoding="utf-8")
+        head, marker, tail = source.partition(HISTORY_MARKER)
+        document = yaml.safe_load(head)
+        change(document)
+        path.write_text(
+            yaml.safe_dump(document, sort_keys=False) + marker + tail,
+            encoding="utf-8",
+        )
+        return path.read_bytes()
+
+    def prepared(self, run, root, tmp_path):
+        path = tmp_path / f"{run.run_id}.yaml"
+        path.write_text(
+            (root / f"{run.run_id}.yaml").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        return path
+
+    def assert_refused(self, lab, run, path, before) -> None:
+        history = lab.history(run)
+        assert history.source == "HISTORY_UNREADABLE"
+        assert history.history_digest is None and history.samples == ()
+        assert any("execution record beside the history" in n for n in history.notes)
+        assert path.read_bytes() == before
+
+    def test_an_unedited_copy_still_verifies(self, mini_grid, tmp_path) -> None:
+        run, root, _, live = mini_grid
+        self.prepared(run, root, tmp_path)
+        history = a_lab(tmp_path).history(run)
+        assert history.source == "PERSISTED"
+        assert history.history_digest == a_lab(root).history(run).history_digest
+
+    def test_a_changed_signal_cadence_is_refused(self, mini_grid, tmp_path) -> None:
+        run, root, _, _ = mini_grid
+        path = self.prepared(run, root, tmp_path)
+        before = self.edit_projection(
+            path, lambda d: d["signals"][0].update(cadence_minutes=120)
+        )
+        self.assert_refused(a_lab(tmp_path), run, path, before)
+
+    def test_a_changed_chart_value_is_refused(self, mini_grid, tmp_path) -> None:
+        run, root, _, _ = mini_grid
+        path = self.prepared(run, root, tmp_path)
+        before = self.edit_projection(
+            path, lambda d: d["electrical"]["steps"][0].update(pv_output="1234")
+        )
+        self.assert_refused(a_lab(tmp_path), run, path, before)
+
+    def test_a_changed_battery_value_is_refused(self, mini_grid, tmp_path) -> None:
+        run, root, _, _ = mini_grid
+        path = self.prepared(run, root, tmp_path)
+        before = self.edit_projection(
+            path, lambda d: d["electrical"]["steps"][5].update(battery_power="999")
+        )
+        self.assert_refused(a_lab(tmp_path), run, path, before)
+
+    def test_a_changed_reporting_gap_is_refused(self, tmp_path) -> None:
+        run = read_run_record(FUEL_WITH_GAP)
+        finish(run, tmp_path)
+        path = tmp_path / f"{run.run_id}.yaml"
+        before = self.edit_projection(
+            path, lambda d: d["reporting_gaps"][0].update(offset_minutes=1)
+        )
+        self.assert_refused(a_lab(tmp_path), run, path, before)

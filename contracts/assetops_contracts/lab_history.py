@@ -56,7 +56,10 @@ from assetops_contracts.world_inputs import BusAttachmentInput
 #: execution contract, the kernel, the publication profile and the projection
 #: artifact's own schema: adding a recorded family is an artifact change, not a
 #: change to what a frozen Draft means (`D-2026-09-22-contract-version-scope`).
-LAB_HISTORY_SCHEMA_VERSION = 1
+LAB_HISTORY_SCHEMA_VERSION = 2
+#: Schema 2 adds the manifest's `projection_binding`. Schema 1 existed only on
+#: the T025c branch (never released); a schema-1 artifact reads as an unknown
+#: schema: unreadable, disclosed and never overwritten, like any other.
 
 #: The recorded families, in the order a reader meets them.
 HISTORY_FAMILIES = (

@@ -43,6 +43,7 @@ and declared coverage before returning anything.
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import re
@@ -283,9 +284,43 @@ def _typed(value: Fraction | str | None) -> str | None:
     return None if value is None else str(value)
 
 
+def _plain(value: object):
+    """A projection value as canonical JSON data: ratios exact, tuples lists."""
+    if dataclasses.is_dataclass(value) and not isinstance(value, type):
+        return {f.name: _plain(getattr(value, f.name)) for f in dataclasses.fields(value)}
+    if isinstance(value, (tuple, list)):
+        return [_plain(item) for item in value]
+    if isinstance(value, Fraction):
+        return str(value)
+    return value
+
+
+def projection_binding(projection: LabProjection) -> str:
+    """A digest of the projection-owned data the cockpit reads beside history.
+
+    The reader takes the signal catalogue and reporting gaps, and the chart's
+    PV and battery values (the electrical steps), from the projection rather
+    than from the appended history. The history digest cannot cover a document
+    it does not contain, so the manifest carries this digest of those fields
+    and the reader recomputes it from the projection it loaded: editing the
+    projection alone no longer leaves a verified-looking history.
+    """
+    body = _canonical(
+        {
+            "signals": _plain(projection.signals),
+            "reporting_gaps": _plain(projection.reporting_gaps),
+            "electrical": _plain(projection.electrical),
+        }
+    )
+    return hashlib.blake2b(
+        b"assetops-lab-history-projection\x00" + body, digest_size=32
+    ).hexdigest()
+
+
 def _manifest(history: LabHistory, projection: LabProjection) -> dict:
     failure = history.failure
     return {
+        "projection_binding": projection_binding(projection),
         "run_id": projection.run_id,
         "status": projection.status,
         "inputs_identity": projection.inputs_identity,
@@ -590,6 +625,12 @@ def parse_history(document: object, projection: LabProjection) -> LabHistory:
                 f"The history's manifest says {key} is {manifest.get(key)!r} and "
                 f"the execution record beside it says {getattr(projection, key)!r}."
             )
+    if manifest.get("projection_binding") != projection_binding(projection):
+        raise _fail(
+            "The execution record beside the history no longer matches the "
+            "signals, reporting gaps and electrical steps the history was "
+            "written with; it was changed after the history was written."
+        )
     try:
         return _parse_records(document, manifest, projection, stored_digest)
     except HistoryUnreadable:

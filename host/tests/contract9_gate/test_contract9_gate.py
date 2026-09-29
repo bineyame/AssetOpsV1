@@ -17,7 +17,7 @@ its Draft. A RUNNING one is a mid-run record and is held to its own status.
 
 **The one artifact-byte transition, T025c.** A terminal artifact written from
 T025c on is the pre-change projection document, byte for byte, followed by
-`HISTORY_MARKER` and the run's recorded history (history schema 1). The gate
+`HISTORY_MARKER` and the run's recorded history (history schema 2). The gate
 therefore compares the projection document exactly as before and holds the
 appended history to its own proof: it is present exactly when the run is
 terminal, it passes the strict reader against the projection it was written
