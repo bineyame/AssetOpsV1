@@ -100,6 +100,7 @@ from execution_adapter import (
     FrozenRunNotReconstructible,
     RunNotExecutable,
     frozen_world_inputs,
+    model_for,
     refuse_a_model_the_run_did_not_select,
     reporting_inputs,
     unconfigured_signals,
@@ -1122,7 +1123,7 @@ class HostLabExecution:
     def __init__(
         self,
         *,
-        model: ModelSpec = MINIMAL_FUEL_MODEL,
+        model: ModelSpec | None = None,
         publication_profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
         artifacts: YamlExecutionArtifacts | None = None,
         stages: JsonSourceStages | None = None,
@@ -1138,6 +1139,22 @@ class HostLabExecution:
         self._sessions: dict[str, LabSession] = {}
         self._locks: dict[str, threading.Lock] = {}
         self._registry = threading.Lock()
+
+    def _model_for(self, run: SimulationRun) -> ModelSpec:
+        """The model this run executes against.
+
+        The injected one when a caller composed one - a test proving the
+        identity check does - and otherwise the executable model whose identity
+        the run froze (T024: there are two).
+        """
+        if self._model is not None:
+            return self._model
+        try:
+            return model_for(run)
+        except FrozenRunNotReconstructible as broken:
+            raise LabControlRefused(
+                "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id
+            ) from broken
 
     def _lock_for(self, run_id: str) -> threading.Lock:
         with self._registry:
@@ -1159,7 +1176,9 @@ class HostLabExecution:
         the only way to make that true is to refuse before returning it.
         """
         try:
-            reporting = reporting_inputs(run, self._publication_profile)
+            reporting = reporting_inputs(
+                run, self._publication_profile, self._model_for(run)
+            )
         except ExecutionContractIncompatible as incompatible:
             raise LabControlRefused(
                 "CONTRACT_INCOMPATIBLE", run.run_id
@@ -1181,7 +1200,9 @@ class HostLabExecution:
         return reporting
 
     def _notes(self, run: SimulationRun) -> tuple[str, ...]:
-        missing = unconfigured_signals(run, self._publication_profile)
+        missing = unconfigured_signals(
+            run, self._publication_profile, self._model_for(run)
+        )
         if not missing:
             return ()
         return (
@@ -1279,7 +1300,8 @@ class HostLabExecution:
                 raise LabControlRefused("INTERRUPTED", run.run_id)
 
             try:
-                refuse_a_model_the_run_did_not_select(run, self._model)
+                model = self._model_for(run)
+                refuse_a_model_the_run_did_not_select(run, model)
                 inputs = frozen_world_inputs(run)
             except RunNotExecutable as blocked:
                 raise LabControlRefused("RUN_BLOCKED", run.run_id) from blocked
@@ -1296,7 +1318,7 @@ class HostLabExecution:
             publication = run.deterministic_identity.publication
             session = LabSession(
                 run_id=run.run_id,
-                execution=start(inputs, self._model),
+                execution=start(inputs, model),
                 reporting=reporting,
                 notes=self._notes(run),
                 site_id=run.deterministic_identity.site.site_id,

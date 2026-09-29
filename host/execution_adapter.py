@@ -91,11 +91,38 @@ from assetops_contracts.world_inputs import (
     FrozenInterval,
     FrozenWorldInputs,
     InitialValue,
+    SiteControlInput,
     UnmodelledInput,
 )
 from assetops_simulator.kernel.execute import execute
 from assetops_simulator.kernel.model import ModelSpec
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
+from assetops_simulator.packs.minigrid import DAYTIME_MINI_GRID_MODEL
+
+#: Every model this build can execute, by the profile identity a run freezes.
+#: Selected by identity, never by the shape of a run: the leaf is the one
+#: place allowed to know both the product's profiles and the simulator's
+#: models, so it is where a frozen profile identity becomes executable code.
+EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
+    MINIMAL_FUEL_MODEL,
+    DAYTIME_MINI_GRID_MODEL,
+)
+
+
+def model_for(run: SimulationRun) -> ModelSpec:
+    """The executable model with the identity this run froze, or a refusal."""
+    frozen = run.deterministic_identity.profiles
+    for model in EXECUTABLE_MODELS:
+        if (
+            model.model_profile_id == frozen.model_profile_id
+            and model.model_profile_version == frozen.model_profile_version
+        ):
+            return model
+    raise FrozenRunNotReconstructible(
+        f"Run {run.run_id} froze model profile {frozen.model_profile_id} "
+        f"version {frozen.model_profile_version}, and this build has no model "
+        "with that identity to execute it against."
+    )
 
 #: Which contract bound case a declared bound falls under, keyed on the state
 #: whose value supplies the limit and the direction of the limit.
@@ -181,6 +208,12 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
         )
     )
 
+    site_controls = tuple(
+        SiteControlInput(control_key=item.control_key, members=item.members)
+        for item in identity.site_controls
+        if item.members is not None
+    )
+
     return FrozenWorldInputs(
         run_id=run.run_id,
         execution_contract_version=(
@@ -217,6 +250,7 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
             )
         ),
         intervention_history=identity.intervention_history,
+        site_controls=site_controls,
     )
 
 
@@ -245,11 +279,39 @@ def _refuse_two_answers(run: SimulationRun, kind: str, keys: list[str]) -> None:
 
 
 def _initial_values(run: SimulationRun) -> tuple[InitialValue, ...]:
+    """Every frozen number a kernel initializes from, scenario and model alike.
+
+    T024: a model-owned Foundation need is, to a kernel, a frozen number at an
+    address answered by the Foundation - so it travels as an initial value. Its
+    `parameter_id` says it answers a model need, because no scenario parameter
+    stands behind it and none is invented. One address still has one answer
+    across both collections, refused here where both rows are visible.
+    """
     frozen = run.deterministic_identity.initialization_inputs
+    needs = run.deterministic_identity.model_needs
     _refuse_two_answers(
-        run, "initial value", [item.addressed_key for item in frozen]
+        run,
+        "initial value",
+        [item.addressed_key for item in frozen]
+        + [item.addressed_key for item in needs],
     )
-    return tuple(
+    from_needs = tuple(
+        InitialValue(
+            address=item.addressed_key,
+            state_key=item.state_key,
+            scope=item.state_ref.scope,
+            parameter_id=f"model-need:{item.property_key}",
+            value=_fraction(
+                item.canonical_value,
+                f"the model-owned need {item.addressed_key}",
+            ),
+            canonical_unit=item.canonical_unit,
+            dimension=item.dimension,
+            answered_by=item.answered_by,
+        )
+        for item in needs
+    )
+    return from_needs + tuple(
         InitialValue(
             address=item.addressed_key,
             state_key=item.state_key,
@@ -455,7 +517,9 @@ def _component_carrying(
 
 
 def reporting_inputs(
-    run: SimulationRun, profile: PublicationProfile = LAB_PUBLICATION_PROFILE
+    run: SimulationRun,
+    profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
+    model: ModelSpec | None = None,
 ) -> FrozenReportingInputs:
     """Project one frozen Draft into the observation transform's input.
 
@@ -488,6 +552,8 @@ def reporting_inputs(
     identity = run.deterministic_identity
     refuse_incompatible_execution(identity.profiles.execution_contract_version)
     refuse_a_publication_profile_the_run_did_not_select(run, profile)
+    if model is None:
+        model = model_for(run)
 
     interval = FrozenInterval(
         start_time=identity.interval.start_time,
@@ -499,6 +565,13 @@ def reporting_inputs(
     signals: list[DeviceSignalSpec] = []
     components: dict[tuple[str, str], str] = {}
     for declaration in profile.device_signals:
+        # T024: a declared path about a state the selected model does not
+        # produce is not a reporting path for this run. Without this a fuel
+        # run on a hybrid Site would grow a column of empty battery readings.
+        if not model.reports(
+            declaration.state_key, declaration.reading_class
+        ):
+            continue
         component = _component_carrying(
             run, declaration.device_id, declaration.signal_id
         )
@@ -577,7 +650,9 @@ def reporting_inputs(
 
 
 def unconfigured_signals(
-    run: SimulationRun, profile: PublicationProfile = LAB_PUBLICATION_PROFILE
+    run: SimulationRun,
+    profile: PublicationProfile = LAB_PUBLICATION_PROFILE,
+    model: ModelSpec | None = None,
 ) -> tuple[str, ...]:
     """Which declared reporting paths this installation does not configure.
 
@@ -586,10 +661,15 @@ def unconfigured_signals(
     the same for every Site - but it IS a reason a reading a reader expected is
     not there, and that reason has to be visible somewhere.
     """
+    if model is None:
+        model = model_for(run)
     return tuple(
         f"{declaration.device_id}/{declaration.signal_id}"
         for declaration in profile.device_signals
-        if _component_carrying(
+        if (
+            model.reports(declaration.state_key, declaration.reading_class)
+        )
+        and _component_carrying(
             run, declaration.device_id, declaration.signal_id
         )
         is None

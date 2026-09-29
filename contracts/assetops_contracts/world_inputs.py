@@ -225,6 +225,17 @@ class UnmodelledInput:
 
 
 @dataclass(frozen=True)
+class SiteControlInput:
+    """One effective Site Control a run froze: an ordered list of components.
+
+    T024. The frozen run carries its provenance; a kernel needs the order.
+    """
+
+    control_key: str
+    members: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class FrozenWorldInputs:
     """Everything one execution of one frozen Draft consumes.
 
@@ -268,6 +279,16 @@ class FrozenWorldInputs:
     unmodelled_inputs: tuple[UnmodelledInput, ...]
     reporting_path_addresses: tuple[str, ...]
     intervention_history: tuple[str, ...]
+    #: T024. The effective Site Controls the run froze. The model-owned
+    #: Foundation needs arrive as `initial_values` answered by the Foundation,
+    #: because to a kernel they are frozen numbers at addresses like any other.
+    site_controls: tuple[SiteControlInput, ...] = ()
+
+    def site_control(self, control_key: str) -> SiteControlInput | None:
+        for entry in self.site_controls:
+            if entry.control_key == control_key:
+                return entry
+        return None
 
     def initial_value(self, address: str) -> InitialValue | None:
         for entry in self.initial_values:

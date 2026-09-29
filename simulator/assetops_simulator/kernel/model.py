@@ -41,6 +41,14 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import Callable
 
+from assetops_contracts.control import (
+    AcceptedFlowSet,
+    ControlIntent,
+    ControllerView,
+)
+from assetops_contracts.trajectory import ForcingExposure
+from assetops_contracts.world_inputs import SiteControlInput
+
 #: The kinds of thing a handler consumes. Five, each consumed at a different
 #: phase of the boundary cycle.
 HANDLER_KINDS = frozenset(
@@ -80,6 +88,11 @@ class StateHandler:
     dimension: str | None = None
     floor: Fraction | None = None
     floor_bound_case_id: str | None = None
+    #: T024. A STOCK's own upper limit where the model owns one - a state of
+    #: charge cannot exceed 100 % - with the bound case that says what reaching
+    #: it does. The same pairing rule as the floor.
+    ceiling: Fraction | None = None
+    ceiling_bound_case_id: str | None = None
 
     def __post_init__(self) -> None:
         if self.kind not in HANDLER_KINDS:
@@ -100,6 +113,13 @@ class StateHandler:
                 "initializer. A STOCK is initialized from the frozen run and "
                 "nothing else is: a coefficient, a bound and a forcing are read "
                 "where they are used."
+            )
+        if (self.ceiling is None) != (self.ceiling_bound_case_id is None) or (
+            self.ceiling is not None and self.kind != "STOCK"
+        ):
+            raise ValueError(
+                f"Handler {self.handler_id!r} has a ceiling without its bound "
+                "case, or a ceiling on something that is not a STOCK."
             )
         if (self.floor is None) != (self.floor_bound_case_id is None):
             raise ValueError(
@@ -156,6 +176,10 @@ class ComponentRelation:
     display_name: str
     state_keys: frozenset[str]
     statement: str
+    #: T024. Whether a run may carry several components of this relation -
+    #: three loads - rather than exactly one. A relation of many identifies no
+    #: single machine, so no law operand may resolve through one.
+    many: bool = False
 
 
 @dataclass(frozen=True)
@@ -182,6 +206,15 @@ class ModelSpec:
     handlers: tuple[StateHandler, ...]
     laws: tuple[ModelLaw, ...]
     component_relations: tuple[ComponentRelation, ...] = ()
+    #: T024. The model's controller and resolver, or nothing for a model with
+    #: no controller - which is every model before T024, and the fuel model.
+    coupling: "Coupling | None" = None
+    #: The state keys this model publishes an interval measurement at, which
+    #: is what makes an INTERVAL_SIGNAL about them a reporting path at all.
+    #: Declared rather than inferred for the reason the advertised set is
+    #: derived: a reporting path about a state no model measures would be a
+    #: column of readings nothing could fill.
+    measured_interval_states: frozenset[str] = frozenset()
 
     def __post_init__(self) -> None:
         seen: set[str] = set()
@@ -255,6 +288,19 @@ class ModelSpec:
                     "names it. A fact about the installation is not a fact "
                     "about one machine."
                 )
+
+    def reports(self, state_key: str, reading_class: str) -> bool:
+        """Whether this model produces the value a reading of this class needs.
+
+        A STATE_SIGNAL needs a state-sample handler; an INTERVAL_SIGNAL needs
+        the state among `measured_interval_states`.
+        """
+        if reading_class == "STATE_SIGNAL":
+            return any(
+                handler.state_key == state_key and handler.kind == "STATE_SAMPLE"
+                for handler in self.handlers
+            )
+        return state_key in self.measured_interval_states
 
     def advertised_supported_states(self) -> tuple[AdvertisedState, ...]:
         """What this model can model, derived from the handler table.
@@ -330,6 +376,97 @@ class ModelSpec:
             and (scope is None or handler.scope == scope)
             for handler in self.handlers
         )
+
+
+# --- A controller and a resolver (T024, execution contract 9) ---------------
+#
+# A model with a controller supplies three callables and the kernel calls them
+# in phases D, E and F. The kernel never imports a pack: it calls what the
+# `ModelSpec` it was handed carries, which is v4 section 16's
+# `controller_factory` and `physical_resolver` in the smallest form that works,
+# not a plugin framework.
+
+
+@dataclass(frozen=True)
+class StepContext:
+    """What a controller view and a resolver may read for one step.
+
+    Immutable, and built by the kernel from the world at T: the stocks after
+    T's events, the frozen coefficients, the forcing exposures the step has -
+    one per forcing per portion of the step it covers - and the frozen Site
+    Controls. It carries no published reading and no reporting condition, so a
+    controller cannot see the reporting path at all.
+    """
+
+    from_offset: int
+    to_offset: int
+    stocks: tuple[tuple[str, Fraction], ...]
+    coefficients: tuple[tuple[str, Fraction], ...]
+    exposures: tuple[ForcingExposure, ...]
+    site_controls: tuple[SiteControlInput, ...]
+
+    def stock(self, address: str) -> Fraction | None:
+        for key, value in self.stocks:
+            if key == address:
+                return value
+        return None
+
+    def coefficient(self, address: str) -> Fraction | None:
+        for key, value in self.coefficients:
+            if key == address:
+                return value
+        return None
+
+    def exposures_of(self, address: str) -> tuple[ForcingExposure, ...]:
+        return tuple(
+            sorted(
+                (item for item in self.exposures if item.address == address),
+                key=lambda item: item.from_offset,
+            )
+        )
+
+    def site_control(self, control_key: str) -> SiteControlInput | None:
+        for entry in self.site_controls:
+            if entry.control_key == control_key:
+                return entry
+        return None
+
+
+class CouplingRefused(Exception):
+    """A controller or resolver declines, with a classified failure kind.
+
+    `kind` is a member of `EXECUTION_FAILURE_KINDS`; the kernel turns this into
+    that failure at the phase that raised it, so a pack never builds a failure
+    record itself.
+    """
+
+    def __init__(self, kind: str, subject: str, *detail: str) -> None:
+        super().__init__(f"{kind}: {subject}")
+        self.kind = kind
+        self.subject = subject
+        self.detail = detail
+
+
+@dataclass(frozen=True)
+class Coupling:
+    """A model's controller and physical resolver, as three callables.
+
+    - `prepare(context)` runs once before the first boundary, against the
+      initial world and every forcing the run declares, and raises
+      `CouplingRefused` for a run the model cannot execute - a machine it
+      needs that the run does not carry, a load with no demand, a missing
+      Site Control. Decided before the first boundary, as law binding is.
+    - `view(context)` builds the controller's local view at T.
+    - `decide(view)` returns the controller's intent for [T, T+dt). It is
+      handed the view and nothing else.
+    - `resolve(context, intent)` returns what the world accepts.
+    """
+
+    statement: str
+    prepare: Callable[[StepContext], None]
+    view: Callable[[StepContext], ControllerView]
+    decide: Callable[[ControllerView], ControlIntent]
+    resolve: Callable[[StepContext, ControlIntent], AcceptedFlowSet]
 
 
 class ExecutionLedger:
