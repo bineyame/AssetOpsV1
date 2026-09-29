@@ -74,14 +74,20 @@ function useWidth(): [React.RefObject<HTMLDivElement>, number] {
   return [ref, width];
 }
 
-function niceTicks(min: number, max: number): number[] {
+export function niceTicks(min: number, max: number): number[] {
   const span = max - min || 1;
   const raw = span / 4;
   const power = 10 ** Math.floor(Math.log10(raw));
   const step =
     [1, 2, 2.5, 5, 10].map((m) => m * power).find((s) => s >= raw) ?? raw;
+  // From the step at or below the minimum to the step at or ABOVE the
+  // maximum: the axis must contain every value, or the top of a curve is
+  // drawn outside its own plot.
   const ticks: number[] = [];
-  for (let t = Math.floor(min / step) * step; t <= max + step * 1e-9; t += step) {
+  let t = Math.floor(min / step) * step;
+  ticks.push(Number(t.toFixed(6)));
+  while (t < max - step * 1e-9) {
+    t += step;
     ticks.push(Number(t.toFixed(6)));
   }
   return ticks;
@@ -824,7 +830,9 @@ export function HistoryCharts({
     <Panel heading="Recorded day curves" headingId="run-history-charts-heading">
       <p>
         Every curve below is read from this run&apos;s recorded history; none is
-        recomputed here. Choosing a boundary moves the cursor on every chart
+        recomputed here. Reported readings are rings at their source time; a
+        thin line joins consecutive readings of one signal only to show that no
+        due attempt failed between them, and is not a value between them. Choosing a boundary moves the cursor on every chart
         and the exact values beside them. It reads the record and never
         advances the run.
       </p>

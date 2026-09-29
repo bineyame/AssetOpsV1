@@ -6,7 +6,8 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
-import { chartModel, readingAt, reportedRuns } from "../historyChartModel";
+import { niceTicks } from "../HistoryCharts";
+import { chartModel, plotted, readingAt, reportedRuns } from "../historyChartModel";
 import type { RunHistory, RunHistoryResult } from "../runHistory";
 import type {
   RunExecution,
@@ -199,6 +200,38 @@ describe("the chart model reads the record and adds nothing", () => {
     expect(notDue.kind === "not_due" && notDue.last?.source_sample_time).toBe(
       "2026-09-22T03:45:00Z",
     );
+  });
+});
+
+describe("the value axis contains every value it draws", () => {
+  it("ends at a tick at or above the largest value, and starts at or below the smallest", () => {
+    for (const [min, max] of [
+      [0, 5],
+      [0, 33],
+      [0, 62.4],
+      [-30, 20],
+      [0, 1],
+    ]) {
+      const ticks = niceTicks(min, max);
+      expect(ticks[0]).toBeLessThanOrEqual(min);
+      expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(max);
+    }
+  });
+
+  it("holds for every panel of the recorded run", () => {
+    const model = chartModel(HISTORY, STEPS, EXECUTION.timestep_minutes);
+    for (const panel of model.panels) {
+      const values = panel.series.flatMap((s) =>
+        s.kind === "instant" ? s.points.map((p) => p.value) : s.values.map((v) => v.value),
+      );
+      values.push(
+        ...panel.reported.flatMap((t) =>
+          t.attempts.filter((a) => a.reported_value !== null).map((a) => plotted(a.reported_value!)),
+        ),
+      );
+      const ticks = niceTicks(Math.min(0, ...values), Math.max(1, ...values));
+      expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(Math.max(...values));
+    }
   });
 });
 
