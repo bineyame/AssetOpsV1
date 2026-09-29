@@ -13,6 +13,8 @@ The six existing starter files are replacements, not amendments.
 Resequenced on 2026-09-24 from `Docs/queue-review-feedback-verbatim.md`, then
 adjusted again from its round-two section. See
 `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
+T022B precedes T024 under `D-2026-09-29-run-store-libyaml` and owns
+T022A's outstanding inventory-cost criterion 2.
 
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
@@ -24,20 +26,21 @@ adjusted again from its round-two section. See
 | 6 | T022 | A | Start/step a Draft; inspect truth versus generated reading |
 | 7 | T022A | A hardening | A run read that does not cost the whole store |
 | 8 | T023 | B preparation | Inspect persisted canonical staged envelopes |
-| 9 | T024 | A | Daytime PV/storage serves three addressed loads |
-| 10 | T025 | A completion | Generator/policy change and healthy full-site run |
-| 11 | T026 | B | Dispatch evidence with one gap and one delayed publication |
-| 12 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 13 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 14 | T029 | D | Versioned assumptions translate quantity into money |
-| 15 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 16 | T034 | H | Policy action -> post-action evidence -> verification |
-| 17 | T030 | E | Fuel balance with separate delivery/dip records |
-| 18 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 19 | T032 | F completion | Paired load addition with isolated comparison history |
-| 20 | T033 | G | Battery stress trajectory and replacement exposure |
-| 21 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 22 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 9 | [T022B](T022B-run-store-libyaml.md) | A hardening | Responsive Runs inventory and Draft setup with libyaml |
+| 10 | T024 | A | Daytime PV/storage serves three addressed loads |
+| 11 | T025 | A completion | Generator/policy change and healthy full-site run |
+| 12 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 13 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
+| 14 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
+| 15 | T029 | D | Versioned assumptions translate quantity into money |
+| 16 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 17 | T034 | H | Policy action -> post-action evidence -> verification |
+| 18 | T030 | E | Fuel balance with separate delivery/dip records |
+| 19 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 20 | T032 | F completion | Paired load addition with isolated comparison history |
+| 21 | T033 | G | Battery stress trajectory and replacement exposure |
+| 22 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 23 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 | - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.
@@ -45,7 +48,7 @@ The order above is the intended delivery order; a user checkpoint may redirect
 later tasks. T021A stays after T021 and is not a kernel prerequisite.
 T023 is preparatory B work; A completes before B's internal demo.
 
-**Rows 19 and 20 are an interchangeable pair.** T033 and T035 consume nothing
+**Rows 21 and 22 are an interchangeable pair.** T033 and T035 consume nothing
 from each other; both depend only on T027's evidence, T029's assumptions and
 T034's rule set. Which runs first is a product-priority call taken from
 T028/T029 feedback - backup failure and unserved customers may matter more to
