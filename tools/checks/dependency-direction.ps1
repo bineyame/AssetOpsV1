@@ -221,5 +221,51 @@ function Invoke-DependencyDirectionCheck {
             "check is vacuous. Update the check, do not delete it.")) | Out-Null
     }
 
+    # --- The shared kernel knows no electrical pack (T024) ----------------------
+    #
+    # v4 section 16: the shared kernel may not import a pack implementation or
+    # branch on which model it runs. The daytime mini-grid model reaches the
+    # kernel as a `ModelSpec` carrying its controller and resolver, handed over
+    # by the composition leaf; the kernel calls what it is handed. The fuel pack
+    # is the kernel's historical default model and is the one import this check
+    # tolerates (backlog: "kernel imports the fuel pack as its default").
+    #
+    # Anti-vacuity: the kernel modules must be found, and the leaf must be what
+    # imports the electrical pack - so a renamed pack or a moved kernel fails
+    # here rather than passing over an empty set.
+    $kernelMayNotImport = @(
+        '^\s*(?:from|import)\s+assetops_simulator\.packs\.(?!fuel\b)',
+        '^\s*from\s+assetops_simulator\.packs\s+import\s+(?!fuel\b)',
+        'model_profile_id\s*=='
+    )
+    $kernelModules = @(Get-ScannedModules -Root "simulator/assetops_simulator/kernel" -Extensions @(".py"))
+    if ($kernelModules.Count -eq 0) {
+        $failures.Add(("No module was scanned under simulator/assetops_simulator/kernel, " +
+            "so the kernel-knows-no-pack check is vacuous. Update the check, do " +
+            "not delete it.")) | Out-Null
+    }
+    foreach ($module in $kernelModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $kernelMayNotImport) {
+                if ($line -match $pattern) {
+                    $failures.Add(("The shared kernel names a pack or branches on a model at " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()). A model reaches " +
+                        "the kernel as the ModelSpec the composition leaf hands it.")) | Out-Null
+                    break
+                }
+            }
+        }
+    }
+    $leafImportsElectricalPack = @(Get-ScannedModules -Root "host" -Extensions @(".py") |
+        Where-Object { $_.Path -notlike "host/tests/*" } |
+        Where-Object { ($_.Lines -join "`n") -match '(?m)^\s*from\s+assetops_simulator\.packs\.minigrid\s+import' })
+    if ($leafImportsElectricalPack.Count -eq 0) {
+        $failures.Add(("No composition-leaf module imports the electrical pack, so " +
+            "the kernel-knows-no-pack check is not observing the path the model " +
+            "actually takes. Update the check, do not delete it.")) | Out-Null
+    }
+
     return $failures
 }
