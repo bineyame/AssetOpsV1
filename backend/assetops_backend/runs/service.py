@@ -84,6 +84,7 @@ from assetops_backend.runs.models import (
     FrozenReportingPathCondition,
     FrozenInterval,
     FrozenModelNeed,
+    FrozenBusAttachment,
     FrozenSiteControl,
     FrozenParameter,
     FrozenProfileBinding,
@@ -813,9 +814,19 @@ class RunSetupService:
         # Site Controls its controller reads, whether or not the scenario
         # asks (Option C).
         needs, controls, need_reasons = _freeze_model_needs(
-            site=site, model=model, initialization=initialization
+            site=site,
+            model=model,
+            initialization=initialization,
+            run_start=request.start_time,
         )
         unresolved = unresolved + need_reasons
+
+        # The single-bus arrangement the model's resolver assumes, checked
+        # against the declared topology and frozen (T024 fix round).
+        bus_attachments, bus_reasons = _freeze_bus_arrangement(
+            site=site, model=model, controls=controls
+        )
+        unresolved = unresolved + bus_reasons
 
         # A Foundation-owned parameter states no value
         # (`D-2026-09-22-foundation-value-declaration`), so there is nothing
@@ -933,6 +944,7 @@ class RunSetupService:
             intervention_history=(),
             model_needs=needs,
             site_controls=controls,
+            bus_attachments=bus_attachments,
         ), unresolved, addresses
 
     def _freeze_initialization(
@@ -1418,11 +1430,173 @@ class RunSetupService:
         return _deduplicated(reasons), tuple(optional)
 
 
+def _freeze_bus_arrangement(
+    *,
+    site: SiteRecord,
+    model: ModelProfile,
+    controls: tuple[FrozenSiteControl, ...],
+) -> tuple[tuple[FrozenBusAttachment, ...], tuple[BlockingReason, ...]]:
+    """Check the declared topology is the model's single bus, and freeze it.
+
+    The model's resolver serves an addressed load, and moves energy between an
+    addressed array, battery and bus, from coefficients and priority lists
+    alone. Without this it served a clinic whose only connection had been
+    deleted, exactly as the connected Site (review R2). So the topology the
+    Site declares is checked here: exactly one bus node; every component of
+    each path's type connected to the bus THROUGH a component of the path's
+    conversion type; every load in the load priority connected to the bus
+    directly. Anything else BLOCKS with the unconnected component named.
+
+    Connections are treated as undirected links: the declared direction is a
+    flow direction in the document and this check asks only whether a path
+    exists. There is no network solver and no unserved-demand model for a
+    disconnected load; a Site that does not connect them does not run.
+    """
+    if not model.bus_paths:
+        return (), ()
+    declared_by = (
+        f"model profile {model.model_profile_id} version "
+        f"{model.model_profile_version}"
+    )
+    foundation = site.foundation
+    topology = foundation.topology
+    reasons: list[BlockingReason] = []
+
+    def refuse(subject: str, statement: str) -> None:
+        reasons.append(
+            BlockingReason(
+                kind="ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
+                subject=subject,
+                statement=statement,
+            )
+        )
+
+    nodes = {} if topology is None else {n.node_id: n for n in topology.nodes}
+    buses = [n for n in nodes.values() if n.node_role == "BUS"]
+    if len(buses) != 1:
+        refuse(
+            "topology",
+            f"{declared_by.capitalize()} runs one AC bus, and the topology of "
+            f"site {site.site_id} declares {len(buses)}. A Site with no bus, "
+            "or with several separate buses, is not an arrangement this "
+            "model can execute.",
+        )
+        return (), tuple(reasons)
+    bus = buses[0]
+
+    links: dict[str, dict[str, str]] = {}
+    for connection in () if topology is None else topology.connections:
+        for a, b in (
+            (connection.from_node, connection.to_node),
+            (connection.to_node, connection.from_node),
+        ):
+            links.setdefault(a, {})[b] = connection.connection_id
+
+    def linked(a_component: str, b_component: str) -> str | None:
+        for a in nodes.values():
+            if a.component_id != a_component:
+                continue
+            for b_node, connection_id in links.get(a.node_id, {}).items():
+                if nodes[b_node].component_id == b_component:
+                    return connection_id
+        return None
+
+    def carriers(need: str) -> list[str]:
+        supported = model.supported(need)
+        binding = None if supported is None else supported.foundation_binding
+        return [
+            component.component_id
+            for component in foundation.components
+            if binding is not None
+            and component.component_type == binding.component_type
+        ]
+
+    attachments: list[FrozenBusAttachment] = []
+    for role, participant_need, via_need in model.bus_paths:
+        via_candidates = carriers(via_need)
+        for component_id in carriers(participant_need):
+            found = None
+            for via_id in via_candidates:
+                first = linked(component_id, via_id)
+                second = linked(via_id, bus.component_id)
+                if first is not None and second is not None:
+                    found = (via_id, first, second)
+                    break
+            if found is None:
+                refuse(
+                    component_id,
+                    f"{declared_by.capitalize()} needs {component_id} "
+                    f"({role.lower().replace('_', ' ')}) connected to the bus "
+                    f"{bus.component_id} through its conversion component, "
+                    f"and the topology of site {site.site_id} declares no "
+                    "such connection. A component the topology does not "
+                    "connect is never served or fed as if it were.",
+                )
+                continue
+            attachments.append(
+                FrozenBusAttachment(
+                    role=role,
+                    component_id=component_id,
+                    via_component_id=found[0],
+                    bus_component_id=bus.component_id,
+                    connection_ids=(found[1], found[2]),
+                )
+            )
+
+    loads = next(
+        (
+            item.members
+            for item in controls
+            if item.control_key == model.bus_loads_control
+            and item.members is not None
+        ),
+        (),
+    )
+    for load_id in loads:
+        connection_id = linked(load_id, bus.component_id)
+        if connection_id is None:
+            refuse(
+                load_id,
+                f"{declared_by.capitalize()} serves {load_id} from the bus "
+                f"{bus.component_id}, and the topology of site "
+                f"{site.site_id} declares no connection between them. This "
+                "build models no unserved demand for a disconnected load: "
+                "the Site has to connect it or leave it out of the load "
+                "priority.",
+            )
+            continue
+        attachments.append(
+            FrozenBusAttachment(
+                role="LOAD",
+                component_id=load_id,
+                via_component_id=None,
+                bus_component_id=bus.component_id,
+                connection_ids=(connection_id,),
+            )
+        )
+    return tuple(attachments), tuple(reasons)
+
+
+def _instant(text: str) -> datetime:
+    """A timezone-aware instant, so two instants compare as instants.
+
+    Foundation `valid_from` and the run's start are both UTC-suffixed today; an
+    explicit offset is honoured, and a value with none is refused rather than
+    guessed, because comparing a local time as if it were UTC is the error this
+    exists to prevent.
+    """
+    parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError(f"{text!r} carries no timezone offset.")
+    return parsed
+
+
 def _freeze_model_needs(
     *,
     site: SiteRecord,
     model: ModelProfile,
     initialization: tuple[FrozenInitializationInput, ...],
+    run_start: str,
 ) -> tuple[
     tuple[FrozenModelNeed, ...],
     tuple[FrozenSiteControl, ...],
@@ -1437,7 +1611,19 @@ def _freeze_model_needs(
     be two rows at two addresses - and nothing reads a live Site afterwards.
 
     A need the scenario ALSO initializes at the same address is answered by
-    that row and not frozen twice: one address has one answer.
+    that row and not frozen twice only when that row is itself answered by the
+    Foundation (a Foundation-owned declaration): one address has one answer.
+    A row answered by anyone else - the scenario or the run - is an attempt to
+    supply a physical value the model declared the Foundation's to supply. It
+    blocks with the address named, and the Foundation's own answer is still
+    resolved beside it, so the need's provenance is not lost and an absent
+    Foundation property still blocks.
+
+    **Validity is checked against run start.** The store holds one Foundation
+    version, and this build has no history service: a Foundation whose
+    `valid_from` is after the run starts cannot honestly answer for that
+    interval, so every need and control it would supply blocks instead of being
+    frozen as if it were the baseline valid at run start.
 
     Every failure blocks, and none refuses, for the reason every other
     Foundation answer blocks: a different Foundation or profile may answer.
@@ -1450,9 +1636,15 @@ def _freeze_model_needs(
     foundation_detail = (
         f"site {site.site_id} foundation version {foundation.version}"
     )
-    already = {item.addressed_key for item in initialization}
+    already = {item.addressed_key: item for item in initialization}
     needs: list[FrozenModelNeed] = []
     reasons: list[BlockingReason] = []
+    not_yet_valid = _instant(foundation.valid_from) > _instant(run_start)
+    validity = (
+        f"has valid_from {foundation.valid_from}, which is after this run "
+        f"starts at {run_start}, and this build has no Foundation history to "
+        "answer that interval from"
+    )
 
     for state_key in model.foundation_needs:
         supported = model.supported(state_key)
@@ -1483,8 +1675,38 @@ def _freeze_model_needs(
             continue
         for component in candidates:
             ref = component_state(state_key, component.component_id)
-            if ref.addressed_key in already:
+            existing = already.get(ref.addressed_key)
+            if existing is not None and existing.answered_by == "SITE_FOUNDATION":
+                if not_yet_valid:
+                    reasons.append(
+                        BlockingReason(
+                            kind="INITIAL_VALUE_NOT_RESOLVED",
+                            subject=ref.addressed_key,
+                            statement=(
+                                f"The foundation of site {site.site_id} "
+                                f"{validity}, so it cannot answer "
+                                f"{ref.addressed_key}."
+                            ),
+                        )
+                    )
                 continue
+            if existing is not None:
+                reasons.append(
+                    BlockingReason(
+                        kind="INITIAL_VALUE_NOT_RESOLVED",
+                        subject=ref.addressed_key,
+                        statement=(
+                            f"This scenario or run supplies a value for "
+                            f"{ref.addressed_key}, and {declared_by} needs it "
+                            f"from the {binding.property_key} property of "
+                            f"component {component.component_id} on the "
+                            "foundation. A physical value the model's laws "
+                            "need is the Foundation's to supply; a scenario or "
+                            "run cannot answer it, mask it, or stand in for "
+                            "an absent one."
+                        ),
+                    )
+                )
             declared = next(
                 (
                     item
@@ -1493,9 +1715,13 @@ def _freeze_model_needs(
                 ),
                 None,
             )
+            if not_yet_valid:
+                declared = None
             if declared is None or declared.unit != binding.unit:
                 missing = (
-                    f"declares no {binding.property_key}"
+                    validity
+                    if not_yet_valid
+                    else f"declares no {binding.property_key}"
                     if declared is None
                     else (
                         f"declares {binding.property_key} in {declared.unit}, "
@@ -1603,6 +1829,8 @@ def _freeze_model_needs(
             ),
             None,
         )
+        if not_yet_valid:
+            declared_control = None
         if declared_control is None:
             controls.append(
                 FrozenSiteControl(
@@ -1611,7 +1839,9 @@ def _freeze_model_needs(
                     declared_by=declared_by,
                     answered_by="SITE_FOUNDATION",
                     answered_by_detail=(
-                        f"{foundation_detail}, which declares no "
+                        f"{foundation_detail}, which {validity}"
+                        if not_yet_valid
+                        else f"{foundation_detail}, which declares no "
                         f"{control_key} Site Control"
                     ),
                     foundation_version=foundation.version,
@@ -1628,8 +1858,14 @@ def _freeze_model_needs(
                         f"{declared_by.capitalize()} needs the {control_key} "
                         f"Site Control, and the foundation of site "
                         f"{site.site_id} at version {foundation.version} "
-                        "declares none. Nothing invents a priority order: a "
-                        "Foundation that declares one is what this run needs."
+                        + (
+                            f"{validity}. "
+                            if not_yet_valid
+                            else "declares none. "
+                        )
+                        + "Nothing invents a priority order: a "
+                        "Foundation valid at run start that declares one is "
+                        "what this run needs."
                     ),
                 )
             )

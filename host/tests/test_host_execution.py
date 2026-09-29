@@ -535,6 +535,7 @@ class TestTheTruthBarrierIsTheShapeOfTheInput:
             # T024: the effective Site Controls, an ordered list of component
             # identities. No field of it can carry an authored reading.
             "site_controls",
+            "bus_attachments",
             "execution_contract_version",
             "site_id",
             "foundation_version",

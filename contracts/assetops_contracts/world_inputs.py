@@ -236,6 +236,21 @@ class SiteControlInput:
 
 
 @dataclass(frozen=True)
+class BusAttachmentInput:
+    """One component's frozen attachment to the Site's bus.
+
+    T024 fix round. The structural relationship a resolver depends on, carried
+    in the frozen inputs so a kernel reads the arrangement the run froze and
+    never a live Site. `via_component_id` is absent for a load.
+    """
+
+    role: str
+    component_id: str
+    via_component_id: str | None
+    bus_component_id: str
+
+
+@dataclass(frozen=True)
 class FrozenWorldInputs:
     """Everything one execution of one frozen Draft consumes.
 
@@ -283,6 +298,8 @@ class FrozenWorldInputs:
     #: Foundation needs arrive as `initial_values` answered by the Foundation,
     #: because to a kernel they are frozen numbers at addresses like any other.
     site_controls: tuple[SiteControlInput, ...] = ()
+    #: T024 fix round. The single-bus arrangement the run froze.
+    bus_attachments: tuple[BusAttachmentInput, ...] = ()
 
     def site_control(self, control_key: str) -> SiteControlInput | None:
         for entry in self.site_controls:

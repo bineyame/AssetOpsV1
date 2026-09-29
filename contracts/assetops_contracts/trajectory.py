@@ -495,6 +495,15 @@ def frozen_inputs_identity(
                 (entry.control_key, entry.members)
                 for entry in inputs.site_controls
             ),
+            tuple(
+                (
+                    entry.role,
+                    entry.component_id,
+                    entry.via_component_id,
+                    entry.bus_component_id,
+                )
+                for entry in inputs.bus_attachments
+            ),
             kernel_version,
             model_profile_id,
             model_profile_version,
@@ -529,6 +538,7 @@ IDENTITY_FIELDS_READ = frozenset(
         "unmodelled_inputs",
         "intervention_history",
         "site_controls",
+        "bus_attachments",
     }
 )
 

@@ -1258,6 +1258,7 @@ class TestBlockedDraftsArePersisted:
             # T024: a Site Control the selected profile needs and this Site's
             # Foundation does not declare - a fact about the pair.
             "SITE_CONTROL_NOT_RESOLVED",
+            "ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
         }
 
     def test_run_setup_never_reconciles(self) -> None:
@@ -1631,6 +1632,12 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenSiteControl", "foundation_valid_from"),
             ("FrozenSiteControl", "source"),
             ("FrozenSiteControl", "source_version"),
+            # T024 fix round: every field of a bus attachment is on its row.
+            ("FrozenBusAttachment", "role"),
+            ("FrozenBusAttachment", "component_id"),
+            ("FrozenBusAttachment", "via_component_id"),
+            ("FrozenBusAttachment", "bus_component_id"),
+            ("FrozenBusAttachment", "connection_ids"),
         }
 
         # Frozen and inspectable through the structured identity, and

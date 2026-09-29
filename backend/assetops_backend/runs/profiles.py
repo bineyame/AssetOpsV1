@@ -317,8 +317,34 @@ class ModelProfile:
     #: one, and a Draft whose scenario states none is BLOCKED with the address
     #: named rather than executing until the kernel meets the hole.
     initialization_needs: tuple[str, ...] = ()
+    #: T024 fix round. The single-bus electrical arrangement this model's
+    #: laws assume, as `(role, need, via_need)` paths: every component the
+    #: `need` names must connect to the Site's one bus THROUGH a component the
+    #: `via_need` names (an array through its inverter, a battery through its
+    #: PCS). `bus_loads_control` names the Site Control whose members are the
+    #: loads the model serves, each of which must connect to the bus directly.
+    #: Setup refuses to run a Site whose declared topology does not connect
+    #: them, instead of serving a load nothing connects. Empty for a profile
+    #: with no electrical bus.
+    bus_paths: tuple[tuple[str, str, str], ...] = ()
+    bus_loads_control: str = ""
 
     def __post_init__(self) -> None:
+        for _, participant, via in self.bus_paths:
+            if participant not in self.foundation_needs or (
+                via not in self.foundation_needs
+            ):
+                raise ValueError(
+                    f"{self.model_profile_id} names the bus path "
+                    f"{participant} via {via}, and a bus path is made only of "
+                    "declared Foundation needs, which is what says which "
+                    "component type carries each."
+                )
+        if self.bus_paths and self.bus_loads_control not in self.site_control_needs:
+            raise ValueError(
+                f"{self.model_profile_id} declares a bus and names no "
+                "declared Site Control as the loads it serves."
+            )
         for need in self.foundation_needs:
             state = self.supported(need)
             if (
@@ -942,6 +968,11 @@ DAYTIME_MINI_GRID_MODEL = ModelProfile(
     ),
     site_control_needs=("source-priority", "critical-load-priority"),
     initialization_needs=("battery-state-of-charge",),
+    bus_paths=(
+        ("PV_SOURCE", "pv-rated-power", "inverter-ac-limit"),
+        ("STORAGE", "battery-energy-capacity", "pcs-charge-limit"),
+    ),
+    bus_loads_control="critical-load-priority",
 )
 
 #: The publication profile the Lab publishes through.
