@@ -67,6 +67,9 @@ and a noisy signal whose imperfection is visible without being invented.
    explicit identity conflicts, three distinct timestamp meanings.
 9. Existing Findings, financials and verification results recomputed over the
    same accepted evidence are unchanged by the added fault machinery.
+10. After reload, actual delay, retry, outage and buffering outcomes appear in
+    the appropriate gated Lab diagnostics/inspector, with source time and
+    report loss distinct from publication loss; this does not create C8.
 
 ## Proof
 

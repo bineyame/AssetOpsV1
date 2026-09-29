@@ -65,6 +65,10 @@ remains an unexplained residual rather than an accusation.
     provenance links and the effect of a late/corrected record.
 16. Same accepted evidence and analytic version reproduce the balance.
     Gate off and removal of private runtime data leave it intact.
+17. After reload, show new physical fuel causes in the gated private timeline;
+    show delivery and hand-dip records in the separate source-record inspector
+    with occurrence, publication and effective times. A missing record is not
+    an absent physical delivery, and the timeline makes no theft inference.
 
 ## Proof
 

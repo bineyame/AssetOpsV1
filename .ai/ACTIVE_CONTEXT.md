@@ -85,23 +85,23 @@ Site runs PV, a battery and three addressed loads through a controller, a
 declared-cascade resolver and exact balances, under contract **9**, Option C
 and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
 Record in `.ai/CODE_STATE.md`. **T025a is complete and merged** (`mini-grid` v1,
-contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T026 is next.**
+contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. Owner accepted the Lab cockpit decisions 2026-09-30: **T025c (L1a) is next**, then T025d (L1b), then T026; none is activated here.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
 Delivery order is A, B, C, D, H, then E, F, G, I.
 
-Direction comes only from `Docs/simulator_design_v4.md` for simulator mechanisms
-and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
-`D-2026-09-24-v4-roadmap-replan`. What that supersedes is in `.ai/START_HERE.md`.
+Mechanism/demo direction: `Docs/simulator_design_v4.md` and
+`Docs/mini-grid-demo-architecture-and-roadmap.md`. Scoped owner-authorized Lab
+input: `Docs/lab-cockpit-proposal.md`; handoff: `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md`.
 
 ## Read For The Active Task
 
-1. **`tasks/T026-dispatch-capable-evidence.md`** (next; not yet started); T025b, T025a, T024, T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
+1. **`tasks/T025c-persisted-lab-history-and-charts.md`** (next; not started), then `tasks/T025d-lab-cockpit-inspection-and-playback.md`, then T026; T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
 2. `.ai/CODE_STATE.md`: the T025b, T025a and T024 entries, then T022B, T023, T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
-3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which
-   records T021A at version 7 and T022 at 8.
+3. `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and its three 2026-09-30 decisions;
+   `.ai/PLANNING_HANDOFF_T020A_T023.md` for contract-version retirements.
 4. `contracts/assetops_contracts/`: `execution_contract.py` for what a conforming
    implementation must do including `REPORTING_RULES`, `observation.py` for what a
    device reports and the draw contract, `lab_projection.py` for the gated record

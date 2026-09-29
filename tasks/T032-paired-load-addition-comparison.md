@@ -101,6 +101,11 @@ Context routing belongs to release/ingestion metadata, not simulator truth.
     proof and evidence. It cannot claim verified real-world impact.
 18. Before external demo recording, obtain the user's recognizable load choice
     under roadmap 12.2. This does not block the underlying internal example.
+19. In each run's reloadable gated cockpit, show the new addressed load and
+    frozen topology in the SLD/charts and its declared/applied intervention in
+    the timeline. Links retain experiment/side context; product paired metrics
+    remain accepted-evidence comparisons. No general multi-run Lab chart is
+    required.
 
 ## Proof
 

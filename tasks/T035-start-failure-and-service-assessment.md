@@ -73,6 +73,10 @@ cannot be traced to that chain, cut it rather than implement it.
     rebuild from the committed envelope/configuration path.
 13. Existing dispatch, fuel and opportunity stories remain derived normally;
     the new recipe cannot directly seed their assessments.
+14. After reload, the existing gated transition/timeline display shows the
+    physical start-failure cause and state, reported generator status separately,
+    and each addressed load's service deficit. Physical generator FAILED is
+    distinct from execution FAILED and from a sensor/reporting outage.
 
 ## Proof
 

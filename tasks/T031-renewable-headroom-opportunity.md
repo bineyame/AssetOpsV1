@@ -56,6 +56,9 @@ Assert which windows qualify, their evidence references and why others do not.
 Use an independently calculated simple headroom/energy case and verify that
 recurrence requires more than a single fortunate sample.
 Change price/tariff and show the physical opportunity remains unchanged.
+Reuse the cockpit's existing PV/load curves to inspect the Lab recipe. If
+criterion 2 adds a reported signal, apply README's L2 history/view/reload
+check; otherwise record that this analytic adds no new cockpit data.
 
 Run relevant simulator/host and analytic/UI tests, shared checks and layout
 evidence on populated and evidence-limited Renewable views.

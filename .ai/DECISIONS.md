@@ -6,15 +6,14 @@ Use this index to find only the decisions relevant to the active task. Keep
 newest task-routing state in `.ai/ACTIVE_CONTEXT.md`; keep full decision
 rationale in the dated entries below.
 
-Lab cockpit proposals (2026-09-30; no owner approval recorded):
+Lab cockpit decisions (owner accepted 2026-09-30):
 
-- `D-2026-09-30-lab-cockpit-cadence`: authorized proposal input, recommended
-  L1a/L1b before T026, conditional L2 and feedback-selected L3; owner priority
-  choice remains open.
-- `D-2026-09-30-lab-cockpit-history`: Architect recommendation for persisted
-  host-owned history and gated projections; no implicit re-execution on read.
-- `D-2026-09-30-lab-cockpit-presentation`: Architect recommendation for timing,
-  missingness, SLD reuse, playback and mockup annotations under existing seams.
+- `D-2026-09-30-lab-cockpit-cadence`: L1a then L1b, sequentially before T026;
+  conditional L2 in each owning slice and feedback-selected L3.
+- `D-2026-09-30-lab-cockpit-history`: persisted host-owned history and gated
+  projections; no implicit re-execution on read.
+- `D-2026-09-30-lab-cockpit-presentation`: accepted timing, missingness, SLD
+  reuse, playback and mockup annotations under existing seams.
 
 Current direction correction: `D-2026-09-24-v4-roadmap-replan` supersedes the
 old demo readiness/sequence and ambiguous sampling shorthand identified below.
@@ -3109,21 +3108,21 @@ Demo values, reviewed again at T025b's hands-on check: start 35 %, stop 90 %
 
 ## 2026-09-30
 
-Proposed decision: `D-2026-09-30-lab-cockpit-cadence`.
+Decision: `D-2026-09-30-lab-cockpit-cadence`.
 
-Status: **PROPOSED - owner priority confirmation needed.** The owner requested
-Architect consideration of `Docs/lab-cockpit-proposal.md` (aeb4c99); that
-authorizes weighing it alongside existing direction, not recording adoption.
+Status: **ACCEPTED by the owner, 2026-09-30.** The owner requested
+Architect consideration of `Docs/lab-cockpit-proposal.md` (aeb4c99) and
+accepted the resulting cadence and conditional L2 rule.
 It is a scoped addition to the planning basis in
 `D-2026-09-24-v4-roadmap-replan`: v4 still governs mechanisms and the corrected
 roadmap plus adopted queue decisions govern demo outcomes/order. Motivation
 images remain Lab presentation guidance, not capability or operator-navigation
 authority. The untracked technical walkthrough is explanatory context only.
 
-Recommend L1/L2/L3 now that T025b is complete and A accepted. Split L1 into
+Adopt L1/L2/L3 now that T025b is complete and A accepted. Split L1 into
 two reviewable vertical slices: L1a durable history/charts/header (C2/C6), then
 L1b runtime SLD/timeline/requested-versus-accepted/playback (C1/C3/C4/C5).
-Recommend both before T026, sequentially. They touch the same host, observation
+Place both before T026, sequentially. They touch the same host, observation
 and projection seams as T026, and the shared checkout permits one editor.
 Parallel implementation is not justified by frontend separation alone.
 
@@ -3139,15 +3138,14 @@ before domain-expert feedback. Complete history is a real storage/readback
 change, so "one presentation slice" understates L1. Deferring health/authoring
 breadth protects the first Finding path.
 
-Owner choice: accept the delay of T026 for these two slices and adopt L2, or
-keep T026 next and place L1 later. No queue has been changed by this proposal.
-The Planner can prepare the concrete task/sequence amendment from
-`.ai/PLANNING_HANDOFF_LAB_COCKPIT.md`; adoption/activation remains explicit.
+The owner accepted the delay of T026 and conditional L2 on 2026-09-30.
+The Planner's task/sequence amendment follows
+`.ai/PLANNING_HANDOFF_LAB_COCKPIT.md`; implementation is not activated here.
 
-Proposed decision: `D-2026-09-30-lab-cockpit-history`.
+Decision: `D-2026-09-30-lab-cockpit-history`.
 
-Status: **PROPOSED Architect technical recommendation for the cockpit slices**;
-implementation timing depends on the cadence choice above.
+Status: **ACCEPTED by the owner, 2026-09-30.** Persisted history is option (a)
+for the cockpit slices; reading never re-executes an old run.
 
 Persist complete compact Lab history with the host-owned execution artifact,
 and expose it through a neutral gated Lab projection. Do not re-execute on
@@ -3173,9 +3171,9 @@ T022A's whole-store read cost. Detailed readback/size and version-transition
 guidance is in the handoff; an artifact addition alone does not move the
 execution contract under `D-2026-09-22-contract-version-scope`.
 
-Proposed decision: `D-2026-09-30-lab-cockpit-presentation`.
+Decision: `D-2026-09-30-lab-cockpit-presentation`.
 
-Status: **PROPOSED Architect implementation guidance**. The underlying truth,
+Status: **ACCEPTED by the owner with the cadence, 2026-09-30.** The underlying truth,
 timing and source-health seams are already settled; no new owner domain choice
 is needed to apply them.
 

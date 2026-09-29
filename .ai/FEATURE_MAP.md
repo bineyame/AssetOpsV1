@@ -10,8 +10,8 @@ Built-state evidence is in `.ai/CODE_STATE.md` and `tasks/completed/`.
 
 2026-09-30 scoped addition: the owner explicitly commissioned review of
 `Docs/lab-cockpit-proposal.md` (aeb4c99) alongside those sources. It adds
-proposed Lab inspection features, not a new physics/evidence authority or an
-approved queue change. The recommendations and owner priority choice are in
+Lab inspection features, not a new physics/evidence authority. The owner
+accepted the two-slice priority on 2026-09-30; the recommendations are in
 [the Lab cockpit handoff](PLANNING_HANDOFF_LAB_COCKPIT.md). v4 mechanisms,
 the roadmap's demo outcomes and later adopted queue decisions still govern.
 
@@ -39,8 +39,8 @@ handoff, T001-T025b are complete and merged, and the owner has accepted A.
 The Lab executes a causal mini-grid with PV, battery, addressed loads,
 generator/policy behavior, generated readings and initial fuel staging.
 Electrical summary series and generator steps/transitions already persist;
-complete chart/timeline history does not. T026's dispatch staging extension
-is next in the unchanged task queue. Commit, ingestion, accepted history,
+complete chart/timeline history does not. T025c/T025d are next, then T026's
+dispatch staging extension. Commit, ingestion, accepted history,
 Findings, financial translation and verification remain future work.
 
 ## Delivery Sequence
@@ -216,9 +216,9 @@ the other five stories do not automatically supply them.
 
 ## Next Work And Unowned Requirements
 
-The Lab cockpit is newly assigned at feature level in the section below;
-the Planner must allocate its task ids and amend the queue if the owner adopts
-the recommended priority. This does not activate work ahead of T026 by itself.
+The Lab cockpit is assigned at feature level in the section below. The owner
+accepted the recommended priority on 2026-09-30; T025c/T025d are planned
+before T026, without activating implementation.
 
 **Done: the Planner recreated the queue and the Architect reviewed it on
 2026-09-24.** `tasks/README.md` holds the order; `.ai/ACTIVE_CONTEXT.md` routes
@@ -252,9 +252,9 @@ checklist, so a later replan can re-verify coverage rather than assume it.
 | Battery stress initialization, evidence-derived trajectory and replacement exposure | G |
 | Configuration change, Action/Maintenance link, target/guardrail verification and Finding history | H |
 | Independent portfolio recipes, service/start-failure assessment and Lab truth-versus-inference validation | I; v4 sections 17, 20, 25 |
-| Reloadable Lab history, charts, SLD overlays, timeline and playback | Proposed L1a/L1b, then conditional L2 additions in their mechanism-owning slices; Planner allocation pending owner priority choice |
+| Reloadable Lab history, charts, SLD overlays, timeline and playback | T025c (L1a), T025d (L1b), then conditional L2 additions in their mechanism-owning slices |
 
-## Lab Cockpit - Inspection Across A-I (Proposed)
+## Lab Cockpit - Inspection Across A-I (Accepted Sequence)
 
 This supports A's physical review, B's boundary explanation and I's final
 truth-versus-inference reveal; it is not a tenth product milestone. A remains
@@ -263,7 +263,7 @@ and evidence gaps before C/D feedback, using the existing developer shell.
 See the [handoff](PLANNING_HANDOFF_LAB_COCKPIT.md) for mechanisms, exact
 acceptance-level results, seam proofs and T026-T036 amendments.
 
-| Feature | Causal prerequisite | Demonstrable result / proposed ownership |
+| Feature | Causal prerequisite | Demonstrable result / ownership |
 | --- | --- | --- |
 | C1 Runtime SLD | Run-bound configured topology plus addressed accepted flows/stocks/discrete state; shared SLD presentation slots | Select an interval and see actual branch direction, battery state and each load's service; L1b |
 | C2 Time-series inspection | Complete persisted Lab history, exact units/addresses and state-versus-interval semantics | Healthy/policy-varied curves, truth versus reported gaps, historical selection and identical reload; L1a |
@@ -275,10 +275,9 @@ acceptance-level results, seam proofs and T026-T036 amendments.
 | C8 Health/log inspection | T027 release/ingestion records and accepted source-health backing; T026A for extra delivery faults when scheduled | Trace actual outcomes without treating stage or playback as Online. Broad dashboard is conditional L3, no demo gate |
 | C9 Setup/authoring | Existing frozen setup for a wizard; new versioned authoring write path for New/Edit | Separate future scoped features, only if feedback requires them; no implied general authoring commitment |
 
-Recommend L1a (durable history/charts/header), then L1b (SLD/timeline/control/
-playback) before T026, rather than one large L1 slice or concurrent work in
-the shared checkout. The **owner must choose this priority change**.
-`tasks/README.md` remains authoritative until the Planner applies that choice.
+The owner accepted L1a (T025c: durable history/charts/header), then L1b
+(T025d: SLD/timeline/control/playback) sequentially before T026 on 2026-09-30.
+`tasks/README.md` holds the authoritative order.
 L2 updates the relevant cockpit view when a slice adds a physical/reporting/
 intervention fact; pure product analytics and economics do not require new
 private plots. L3 follows feedback, normally after T036; T026A stays unscheduled.

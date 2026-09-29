@@ -66,6 +66,9 @@ repeat aggregation and any displayed extrapolation.
 Run relevant backend/frontend tests, shared repository checks and layout
 evidence for Financials and the new Overview/Finding value.
 Show the owner the same Finding before and after a price change.
+The cockpit may help review the Lab recipe, but money and technical quantity
+consume accepted evidence and versioned assumptions only. This slice adds no
+private runtime fact or required Lab chart.
 
 ## Scope limits
 

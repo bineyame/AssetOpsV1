@@ -73,6 +73,10 @@ this slice adds battery stress to H's existing versioned guardrail set.
 16. Add battery stress to T034's verification guardrail set as a new rule
     version. Earlier verification results keep their original rule version and
     outcome and are not retroactively re-judged.
+17. Persist and reload private stress history with its start basis or unknown
+    state, and plot any new actual reported signals with their source time and
+    gaps in gated Lab. Keep the product's evidence-derived trajectory distinct;
+    private accumulation is never relabelled as measured SoH.
 
 ## Proof
 
