@@ -4140,3 +4140,7 @@ electrical machine; the kernel's fuel default import; electrical readings not
 yet published (T026); ratios approximated on screen; priority lists
 baseline-only; one CDP hang in layout evidence. `var/sites` gained `kobo-001`
 (created through the product for the browser evidence).
+
+### T024 fix round 1
+
+Codex review R1-R3 closed on the branch (`.agent/T024-review-packet.md`, "Fix round 1"). Setup now: blocks a scenario/run value at a model-owned Foundation address while still resolving the Foundation's need; blocks needs and controls when the Foundation's `valid_from` is after run start (`_instant`); and validates the single-bus topology, freezing `FrozenBusAttachment` rows (`bus_attachments`, optional in the run document, required by the model at execution) under the new blocking kind `ELECTRICAL_TOPOLOGY_NOT_CONNECTED`. Open: connections are undirected; offset instants unreachable through setup.
