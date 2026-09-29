@@ -239,6 +239,92 @@ class TestTheDeclaredTopologyMustConnectWhatTheModelServes:
             ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "topology")
         }
 
+        def no_bus(document):
+            for node in document["foundation"]["topology"]["nodes"]:
+                if node["node_role"] == "BUS":
+                    node["node_role"] = "CONVERSION"
+
+        assert reasons_of(kobo_draft(site_edit=no_bus)) == {
+            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "topology")
+        }
+
+    def test_the_frozen_arrangement_survives_readback(self) -> None:
+        run = kobo_draft()
+        again = parse_run_document(render_run_document(run), source="readback")
+        assert attachments_of(again) == attachments_of(run)
+        assert (
+            again.deterministic_identity.bus_attachments
+            == run.deterministic_identity.bus_attachments
+        )
+
+    def test_execution_reads_the_frozen_run_and_no_live_site(self) -> None:
+        # The connected run executes from its frozen record alone: a later
+        # edit that disconnects the clinic on the live Site cannot reach it,
+        # because nothing here holds a Site.
+        run = kobo_draft()
+        kobo_draft(site_edit=without_connection("bus-to-clinic"))
+        assert run_to_end(run, model_for(run)).trajectory.outcome == "COMPLETED"
+
+    def test_the_structure_is_part_of_the_inputs_identity(self) -> None:
+        from assetops_contracts.trajectory import frozen_inputs_identity
+
+        run = kobo_draft()
+        inputs = frozen_world_inputs(run)
+        assert inputs.bus_attachments
+        moved = dataclasses.replace(
+            inputs,
+            bus_attachments=tuple(
+                dataclasses.replace(item, bus_component_id="other-bus")
+                if item.component_id == "load-clinic"
+                else item
+                for item in inputs.bus_attachments
+            ),
+        )
+
+        def identity(value):
+            return frozen_inputs_identity(
+                value,
+                kernel_version=1,
+                model_profile_id="daytime-mini-grid",
+                model_profile_version=1,
+                numeric_policy="x",
+            )
+
+        assert identity(inputs) != identity(moved)
+
+    def test_a_run_frozen_without_the_arrangement_is_refused_at_execution(
+        self,
+    ) -> None:
+        run = kobo_draft()
+        stripped = dataclasses.replace(
+            run,
+            deterministic_identity=dataclasses.replace(
+                run.deterministic_identity,
+                bus_attachments=tuple(
+                    item
+                    for item in run.deterministic_identity.bus_attachments
+                    if item.component_id != "load-clinic"
+                ),
+            ),
+        )
+        trajectory = run_to_end(stripped, model_for(stripped)).trajectory
+        assert trajectory.outcome == "FAILED"
+        assert trajectory.failure.kind == "TOPOLOGY_INCONSISTENT"
+        assert trajectory.failure.subject == "load-clinic"
+
+class TestTheBusAttachmentsRowIsHonestWhenNoneAreFrozen:
+    def row_of(self, run):
+        from assetops_backend.runs.provenance import frozen_inputs
+
+        return next(
+            row
+            for row in frozen_inputs(run.deterministic_identity, run.blocking_reasons)
+            if row.identity_field == "bus_attachments"
+        )
+
+    def test_a_topology_blocked_draft_does_not_claim_the_profile_needs_none(
+        self,
+    ) -> None:
         def second_bus(document):
             import copy
 
