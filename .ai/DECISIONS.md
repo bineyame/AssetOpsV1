@@ -3033,3 +3033,66 @@ Architect's recommendation (Codex as Architect,
   at the hands-on check.
 - Already settled: T024 is one slice; ship `kobo-daytime` plus overcast and
   larger-mill variants.
+
+## 2026-09-29
+
+Decision: `D-2026-09-29-t025-generator-policy-package`. **T025 extends contract
+9 additively, takes its generator policy wholly from Site policy, and is
+delivered as T025a then T025b.**
+
+Decided by the owner on 2026-09-29, recorded by the coordinator, on the
+Architect's recommendation (Codex as Architect,
+`.agent/T025-architect-recommendation.md`) over the Implementer's size-gate
+plan (`.agent/T025-implementer-plan.md`). The owner approved:
+
+- **Contract 9 stays.** A new `mini-grid` v1 profile carries discrete state,
+  the generator lifecycle and generator/fuel balances; `daytime-mini-grid` v1
+  and the fuel model are preserved and existing v9 Drafts keep executing.
+  Publication profile 4 and artifact schema 4 move only when their contracts
+  change, with prior readers kept. **Merge gate:** representative pre-change
+  frozen fuel and daytime inputs must parse, execute, keep their deterministic
+  identities and reproduce trajectories, digests and numeric observations,
+  including old reserve windows and stored artifact readback. If that cannot
+  hold, return with the concrete incompatibility and a case for contract 10.
+- **Q1** typed discrete (enum) values through state, trajectory, controller
+  view, observation, artifact and Lab projection; no numeric noise settings on
+  enums. Envelope schema 1 and the fuel-only mapping stay; generator status is
+  disclosed as not yet staged (T026 owns it), never silently omitted.
+- **Q2** generator CONTROL properties `start-soc-threshold` (%),
+  `stop-soc-threshold` (%) and existing `minimum-runtime` (min); PHYSICAL
+  `start-delay` (min) and `generator-rated-power` (kW) as the runtime
+  authority; existing `specific-fuel-consumption` and tank capacity. Resolved
+  and frozen as Option C model needs; an unambiguous generator-battery-tank-bus
+  relationship frozen. Initial fuel, SOC and lifecycle state are
+  scenario-owned.
+- **Q3** the reverting override extends to profile-declared overridable
+  numeric CONTROL addresses: battery reserve and generator stop threshold only.
+- **Q5** lifecycle transitions at step boundaries only; start delay, policy
+  windows and minimum runtime step-aligned or refused; generator fixtures step
+  at 5 min. Minimum runtime counts actual RUNNING time.
+- **Q6** STOPPED/STARTING/RUNNING/FAILED declared; initial FAILED is inert;
+  failure causes refused until T035. Physical FAILED is not an execution
+  failure.
+- **Split:** T025a (criteria 1-6, 10, 14; 13 for healthy runs; balance/timing
+  portions of 15) then T025b (7-9, 11-12; 13 for prolonged/changed-policy runs;
+  the rest of 15; A acceptance). T025b uses `mini-grid` v2 rather than editing
+  v1 in place.
+
+**Control policy belongs to the Site, not the model.** The owner's rule: "these
+are all control policies, the model should not define them itself." The model
+executes only what the Site's frozen policy declares:
+
+- The generator starts when SOC is at or below the Site's `start-soc-threshold`
+  and stops when RUNNING, the Site's `minimum-runtime` has elapsed and SOC is at
+  or above `stop-soc-threshold`. The model adds no trigger of its own; a
+  shortfall-based start would first need to exist as a Site policy.
+- Dispatch follows the Site's frozen `source-priority` Site Control (the Kobo
+  template ships `[pv-array, battery, generator]`); the model never substitutes
+  another order.
+- Generator charging accepts only power absorbable by load and battery/PCS
+  headroom; the rating is a ceiling. Fuel is checked before energy is accepted.
+  The linear fuel law (no idle or start fuel) is disclosed as a simplification.
+
+Demo values, reviewed again at T025b's hands-on check: start 35 %, stop 90 %
+(prolonged) against 60 % (changed policy), minimum runtime 30 min, 40 kW,
+0.3 L/kWh, tank 400 L starting at 300 L.
