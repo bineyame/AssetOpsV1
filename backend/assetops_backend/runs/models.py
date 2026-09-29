@@ -268,6 +268,11 @@ BLOCKING_REASON_KINDS = frozenset(
         "SOURCE_IDENTITY_NOT_RESOLVED",
         "GATEWAY_IDENTITY_NOT_RESOLVED",
         "INITIAL_VALUE_NOT_RESOLVED",
+        # T024. A typed Site Control the selected profile's controller needs
+        # and the Foundation does not declare. Its subject is
+        # `site-control:<key>`. A different Foundation would answer it, so it
+        # blocks rather than refusing.
+        "SITE_CONTROL_NOT_RESOLVED",
     }
 )
 
@@ -656,6 +661,88 @@ class FrozenReportingPathCondition:
 
 
 @dataclass(frozen=True)
+class FrozenModelNeed:
+    """One Foundation value a model's laws need, frozen with its provenance.
+
+    Option C (`D-2026-09-29-t024-option-c-and-reserve-override`): the MODEL
+    PROFILE declared the need and the Site's FOUNDATION answered it, and the
+    record keeps the two apart - `declared_by` says whose need it is and
+    `answered_by` whose number. There is no scenario parameter behind it, so
+    there is no `parameter_id` and none is invented.
+
+    `state_ref` is the resolved component address: one row per component of
+    the need's type, so two batteries would be two rows at two addresses.
+
+    The provenance is the Foundation's version and validity start plus the
+    property's own TEMPLATE/SITE source and version, so a reader of a frozen
+    run can say exactly which declaration supplied the number without reading
+    a live Site - and a later edit of that Site cannot change what this run
+    executes.
+
+    `value` is absent exactly when the component declares no such property,
+    and the run is BLOCKED by a reason naming this same address.
+    """
+
+    state_ref: StateRef
+    property_key: str
+    value: float | None
+    unit: str
+    canonical_value: float | None
+    canonical_unit: str
+    dimension: str
+    declared_by: str
+    answered_by: str
+    answered_by_detail: str
+    foundation_version: int
+    foundation_valid_from: str
+    property_source: str | None
+    property_source_version: int | None
+
+    @property
+    def state_key(self) -> str:
+        return self.state_ref.state_key
+
+    @property
+    def addressed_key(self) -> str:
+        return self.state_ref.addressed_key
+
+
+#: The subject spelling of a Site Control on a blocking reason, so an absent
+#: control and its reason line up the way an address and its reason do.
+def site_control_subject(control_key: str) -> str:
+    return f"site-control:{control_key}"
+
+
+@dataclass(frozen=True)
+class FrozenSiteControl:
+    """One effective Site Control, frozen with its provenance.
+
+    The baseline valid at run start - the Foundation this run is bound to, at
+    its version and `valid_from` - with the control's own TEMPLATE/SITE source.
+    `members` is the ordered list of component identities, absent exactly
+    when the Foundation declares no such control, in which case the run is
+    BLOCKED by a `SITE_CONTROL_NOT_RESOLVED` reason naming it.
+
+    Priority lists are baseline-only in T024: no scenario entry can change one
+    during a run, and the Lab says so.
+    """
+
+    control_key: str
+    members: tuple[str, ...] | None
+    declared_by: str
+    answered_by: str
+    answered_by_detail: str
+    foundation_version: int
+    foundation_valid_from: str
+    source: str | None
+    source_version: int | None
+
+    @property
+    def subject(self) -> str:
+        return site_control_subject(self.control_key)
+
+
+@dataclass(frozen=True)
 class DeterministicIdentity:
     """Everything a rerun would have to reproduce to be the same run.
 
@@ -679,6 +766,12 @@ class DeterministicIdentity:
     publication: FrozenPublicationIdentity
     signal_mappings: tuple[FrozenSignalMapping, ...]
     intervention_history: tuple[str, ...]
+    #: T024 (execution contract 9). What the selected model profile needs from
+    #: the Foundation beyond what the scenario declares, and the effective
+    #: Site Controls, both frozen with provenance. Empty on every run frozen
+    #: below version 9, and on a run whose profile needs nothing.
+    model_needs: tuple[FrozenModelNeed, ...] = ()
+    site_controls: tuple[FrozenSiteControl, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -788,6 +881,35 @@ class SimulationRun:
                 "silence: it carries its number, or it carries the reason "
                 "nobody supplied one."
             )
+
+        # The same rule for T024's model-owned needs and Site Controls. An
+        # absent answer is a hole in the frozen identity exactly as an absent
+        # initial value is, and it is explained by a reason naming it.
+        unexplained_needs = sorted(
+            {
+                item.addressed_key
+                for item in self.deterministic_identity.model_needs
+                if item.canonical_value is None
+                and item.addressed_key not in explained
+            }
+            | {
+                item.subject
+                for item in self.deterministic_identity.site_controls
+                if item.members is None and item.subject not in explained
+            }
+        )
+        if unexplained_needs:
+            raise ValueError(
+                f"A run froze no answer for {unexplained_needs} and no "
+                "blocking reason about it. A model-owned need or a Site "
+                "Control is absent only because something blocked the run."
+            )
+        for item in self.deterministic_identity.model_needs:
+            if (item.value is None) != (item.canonical_value is None):
+                raise ValueError(
+                    f"The model-owned need {item.addressed_key} has one of its "
+                    "two numbers and not the other."
+                )
 
         # The two number fields are absent together or present together.
         # Stated on the record because `FrozenInitializationInput` states it

@@ -1058,7 +1058,7 @@ class TestAnEarlierFrozenRunKeepsItsOwnIdentity:
         frozen = reloaded.deterministic_identity.profiles
 
         assert frozen.execution_contract_version == earlier
-        assert EXECUTION_CONTRACT_VERSION == 8
+        assert EXECUTION_CONTRACT_VERSION == 9
         assert earlier < EXECUTION_CONTRACT_VERSION
         # Readable means the record came back whole, not merely that parsing
         # returned something.

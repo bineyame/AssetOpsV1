@@ -83,6 +83,8 @@ from assetops_backend.runs.models import (
     FrozenInitializationInput,
     FrozenReportingPathCondition,
     FrozenInterval,
+    FrozenModelNeed,
+    FrozenSiteControl,
     FrozenParameter,
     FrozenProfileBinding,
     FrozenScenarioBinding,
@@ -90,6 +92,7 @@ from assetops_backend.runs.models import (
     FrozenSiteBinding,
     SimulationRun,
     UnsupportedOptionalInput,
+    site_control_subject,
 )
 from assetops_backend.runs.parsing import (
     RunSetupRequest,
@@ -134,7 +137,7 @@ from assetops_backend.scenarios.ports import (
 )
 from assetops_backend.sites.models import SiteComponent, SiteRecord
 from assetops_backend.sites.ports import SiteNotFound, SiteRepository
-from assetops_backend.state_refs import StateRef
+from assetops_backend.state_refs import StateRef, component_state
 
 
 @dataclass(frozen=True)
@@ -806,6 +809,14 @@ class RunSetupService:
             if address.reason is not None
         )
 
+        # T024: what the selected MODEL needs from the Foundation, and the
+        # Site Controls its controller reads, whether or not the scenario
+        # asks (Option C).
+        needs, controls, need_reasons = _freeze_model_needs(
+            site=site, model=model, initialization=initialization
+        )
+        unresolved = unresolved + need_reasons
+
         # A Foundation-owned parameter states no value
         # (`D-2026-09-22-foundation-value-declaration`), so there is nothing
         # for this record to resolve. It is left out rather than frozen as a
@@ -920,6 +931,8 @@ class RunSetupService:
             # event, and `D-2026-09-20-run-scoped-event-injection` puts one
             # here rather than in the scenario when something can.
             intervention_history=(),
+            model_needs=needs,
+            site_controls=controls,
         ), unresolved, addresses
 
     def _freeze_initialization(
@@ -1403,6 +1416,214 @@ class RunSetupService:
         reasons.extend(_publication_reasons(identity))
 
         return _deduplicated(reasons), tuple(optional)
+
+
+def _freeze_model_needs(
+    *,
+    site: SiteRecord,
+    model: ModelProfile,
+    initialization: tuple[FrozenInitializationInput, ...],
+) -> tuple[
+    tuple[FrozenModelNeed, ...],
+    tuple[FrozenSiteControl, ...],
+    tuple[BlockingReason, ...],
+]:
+    """Resolve and freeze what the selected model needs from the Foundation.
+
+    Option C (`D-2026-09-29-t024-option-c-and-reserve-override`). The profile
+    declares the need; the Foundation valid at run start answers it; the run
+    freezes the answer with its provenance so execution reads only the frozen
+    run. Every component of the need's type is resolved - two batteries would
+    be two rows at two addresses - and nothing reads a live Site afterwards.
+
+    A need the scenario ALSO initializes at the same address is answered by
+    that row and not frozen twice: one address has one answer.
+
+    Every failure blocks, and none refuses, for the reason every other
+    Foundation answer blocks: a different Foundation or profile may answer.
+    """
+    declared_by = (
+        f"model profile {model.model_profile_id} version "
+        f"{model.model_profile_version}"
+    )
+    foundation = site.foundation
+    foundation_detail = (
+        f"site {site.site_id} foundation version {foundation.version}"
+    )
+    already = {item.addressed_key for item in initialization}
+    needs: list[FrozenModelNeed] = []
+    reasons: list[BlockingReason] = []
+
+    for state_key in model.foundation_needs:
+        supported = model.supported(state_key)
+        binding = None if supported is None else supported.foundation_binding
+        if binding is None:  # pragma: no cover - refused by ModelProfile
+            raise ValueError(f"{declared_by} needs {state_key} with no binding")
+        _, canonical_unit, dimension = canonical_quantity(0.0, binding.unit)
+        candidates = [
+            component
+            for component in foundation.components
+            if component.component_type == binding.component_type
+        ]
+        if not candidates:
+            reasons.append(
+                BlockingReason(
+                    kind="STATE_ADDRESS_NOT_RESOLVED",
+                    subject=state_key,
+                    statement=(
+                        f"{declared_by.capitalize()} needs {state_key} from the "
+                        f"{binding.property_key} property of a "
+                        f"{binding.component_type}, and the foundation of site "
+                        f"{site.site_id} declares no {binding.component_type}. "
+                        "This model's laws cannot run without it, whatever the "
+                        "scenario declares."
+                    ),
+                )
+            )
+            continue
+        for component in candidates:
+            ref = component_state(state_key, component.component_id)
+            if ref.addressed_key in already:
+                continue
+            declared = next(
+                (
+                    item
+                    for item in component.properties or ()
+                    if item.property_key == binding.property_key
+                ),
+                None,
+            )
+            if declared is None or declared.unit != binding.unit:
+                missing = (
+                    f"declares no {binding.property_key}"
+                    if declared is None
+                    else (
+                        f"declares {binding.property_key} in {declared.unit}, "
+                        f"not {binding.unit}"
+                    )
+                )
+                needs.append(
+                    FrozenModelNeed(
+                        state_ref=ref,
+                        property_key=binding.property_key,
+                        value=None,
+                        unit=binding.unit,
+                        canonical_value=None,
+                        canonical_unit=canonical_unit,
+                        dimension=dimension,
+                        declared_by=declared_by,
+                        answered_by="SITE_FOUNDATION",
+                        answered_by_detail=(
+                            f"{foundation_detail}, whose component "
+                            f"{component.component_id} {missing}"
+                        ),
+                        foundation_version=foundation.version,
+                        foundation_valid_from=foundation.valid_from,
+                        property_source=None,
+                        property_source_version=None,
+                    )
+                )
+                reasons.append(
+                    BlockingReason(
+                        kind="INITIAL_VALUE_NOT_RESOLVED",
+                        subject=ref.addressed_key,
+                        statement=(
+                            f"{declared_by.capitalize()} needs "
+                            f"{ref.addressed_key} from the "
+                            f"{binding.property_key} property of component "
+                            f"{component.component_id}, and the foundation of "
+                            f"site {site.site_id} {missing}. The scenario does "
+                            "not declare this value and is not asked to: the "
+                            "model's own law needs it, so a Foundation that "
+                            "declares it is what this run needs."
+                        ),
+                    )
+                )
+                continue
+            canonical_value = frozen_canonical_value(
+                declared.value, binding.unit
+            )[0]
+            needs.append(
+                FrozenModelNeed(
+                    state_ref=ref,
+                    property_key=binding.property_key,
+                    value=declared.value,
+                    unit=binding.unit,
+                    canonical_value=canonical_value,
+                    canonical_unit=canonical_unit,
+                    dimension=dimension,
+                    declared_by=declared_by,
+                    answered_by="SITE_FOUNDATION",
+                    answered_by_detail=(
+                        f"{foundation_detail}, component "
+                        f"{component.component_id} property "
+                        f"{declared.property_key}"
+                    ),
+                    foundation_version=foundation.version,
+                    foundation_valid_from=foundation.valid_from,
+                    property_source=declared.source,
+                    property_source_version=declared.source_version,
+                )
+            )
+
+    controls: list[FrozenSiteControl] = []
+    for control_key in model.site_control_needs:
+        declared_control = next(
+            (
+                item
+                for item in foundation.site_controls or ()
+                if item.control_key == control_key
+            ),
+            None,
+        )
+        if declared_control is None:
+            controls.append(
+                FrozenSiteControl(
+                    control_key=control_key,
+                    members=None,
+                    declared_by=declared_by,
+                    answered_by="SITE_FOUNDATION",
+                    answered_by_detail=(
+                        f"{foundation_detail}, which declares no "
+                        f"{control_key} Site Control"
+                    ),
+                    foundation_version=foundation.version,
+                    foundation_valid_from=foundation.valid_from,
+                    source=None,
+                    source_version=None,
+                )
+            )
+            reasons.append(
+                BlockingReason(
+                    kind="SITE_CONTROL_NOT_RESOLVED",
+                    subject=site_control_subject(control_key),
+                    statement=(
+                        f"{declared_by.capitalize()} needs the {control_key} "
+                        f"Site Control, and the foundation of site "
+                        f"{site.site_id} at version {foundation.version} "
+                        "declares none. Nothing invents a priority order: a "
+                        "Foundation that declares one is what this run needs."
+                    ),
+                )
+            )
+            continue
+        controls.append(
+            FrozenSiteControl(
+                control_key=control_key,
+                members=declared_control.members,
+                declared_by=declared_by,
+                answered_by="SITE_FOUNDATION",
+                answered_by_detail=(
+                    f"{foundation_detail}, Site Control {control_key}"
+                ),
+                foundation_version=foundation.version,
+                foundation_valid_from=foundation.valid_from,
+                source=declared_control.source,
+                source_version=declared_control.source_version,
+            )
+        )
+
+    return tuple(needs), tuple(controls), tuple(reasons)
 
 
 def _freeze_causal_projection(
@@ -2024,6 +2245,20 @@ def resolve_state_addresses(
             else None
         )
         component: SiteComponent | None = None
+        # T024: the kind of component this state is carried on. A bound state
+        # reads it from its binding; a state with no Foundation answer - a
+        # load's demand, a battery's state of charge - declares it on the
+        # profile, so an explicit address naming a component of another type
+        # blocks just as it would for a bound state.
+        carrier = (
+            binding.component_type
+            if binding is not None
+            else (
+                supported.component_type
+                if supported is not None and authority.scope == ref.scope
+                else None
+            )
+        )
 
         # --- Obligation one: the address ---------------------------------
         #
@@ -2058,8 +2293,8 @@ def resolve_state_addresses(
                     )
                     continue
                 if (
-                    binding is not None
-                    and component.component_type != binding.component_type
+                    carrier is not None
+                    and component.component_type != carrier
                 ):
                     resolutions[authored.addressed_key] = refused(
                         authored,
@@ -2067,10 +2302,10 @@ def resolve_state_addresses(
                         f"component {component.component_id}, which the "
                         f"foundation of site {site.site_id} declares as a "
                         f"{component.component_type}, and {profile_detail} "
-                        f"carries that state on a {binding.component_type}. "
+                        f"carries that state on a {carrier}. "
                         "The named component is the one this run would act "
                         f"on, so nothing looks for a "
-                        f"{binding.component_type} elsewhere on the site.",
+                        f"{carrier} elsewhere on the site.",
                         "SITE_FOUNDATION",
                         (
                             f"{foundation_detail}, whose component "
@@ -2108,7 +2343,7 @@ def resolve_state_addresses(
                     "scope",
                 )
                 continue
-            elif binding is None:
+            elif carrier is None:
                 # Nothing can choose, and now this branch means one thing: the
                 # answering profile does not model this state at all, so there
                 # is no component type to select candidates from. Reading one
@@ -2143,14 +2378,14 @@ def resolve_state_addresses(
                 matches = [
                     candidate
                     for candidate in site.foundation.components
-                    if candidate.component_type == binding.component_type
+                    if candidate.component_type == carrier
                 ]
 
                 if not matches:
                     resolutions[authored.addressed_key] = refused(
                         authored,
                         f"{where.capitalize()} concerns {ref.state_key} on a "
-                        f"{binding.component_type} component and names none, "
+                        f"{carrier} component and names none, "
                         f"and the foundation of site {site.site_id} declares "
                         "no such component. A scenario addressing something "
                         "this site declares would resolve it.",
@@ -2169,7 +2404,7 @@ def resolve_state_addresses(
                         f"{where.capitalize()} concerns {ref.state_key} "
                         "without saying which component it is about, "
                         f"{profile_detail} carries that state on a "
-                        f"{binding.component_type}, and the foundation of "
+                        f"{carrier}, and the foundation of "
                         f"site {site.site_id} declares more than one: "
                         f"{', '.join(named_ids)}. Two assets for one "
                         "reference is not something a run may choose between, "

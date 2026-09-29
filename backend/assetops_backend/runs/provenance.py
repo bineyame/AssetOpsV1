@@ -559,6 +559,99 @@ def frozen_inputs(
             )
         )
 
+    # T024, Option C: what the selected MODEL needs from the Foundation, and
+    # the effective Site Controls. Each row names who declared the need and
+    # who answered it, with the Foundation version, its validity start and the
+    # declaration's own source - the whole provenance the run froze.
+    profile_detail = (
+        f"model profile {profiles.model_profile_id} version "
+        f"{profiles.model_profile_version}"
+    )
+    if identity.model_needs:
+        for need in identity.model_needs:
+            provenance = (
+                f"needed by {need.declared_by}; {need.answered_by_detail}, "
+                f"valid from {need.foundation_valid_from}"
+            )
+            if need.property_source is not None:
+                provenance += (
+                    f", declared {need.property_source} version "
+                    f"{need.property_source_version}"
+                )
+            rows.append(
+                FrozenInput(
+                    identity_field="model_needs",
+                    field=f"Model need {need.addressed_key} ({need.property_key})",
+                    value=(
+                        "not resolved"
+                        if need.value is None
+                        else _quantity(need.value, need.unit)
+                    ),
+                    answered_by=need.answered_by,
+                    answered_by_detail=(
+                        f"{provenance} (foundation version "
+                        f"{need.foundation_version})"
+                    ),
+                    blocking_statement=(
+                        None
+                        if need.value is not None
+                        else explanations.get(need.addressed_key)
+                    ),
+                )
+            )
+    else:
+        rows.append(
+            FrozenInput(
+                identity_field="model_needs",
+                field="Model-owned Foundation needs",
+                value="none declared by this profile",
+                answered_by="MODEL_PROFILE",
+                answered_by_detail=profile_detail,
+            )
+        )
+
+    if identity.site_controls:
+        for control in identity.site_controls:
+            provenance = (
+                f"needed by {control.declared_by}; "
+                f"{control.answered_by_detail}, valid from "
+                f"{control.foundation_valid_from} (foundation version "
+                f"{control.foundation_version})"
+            )
+            if control.source is not None:
+                provenance += (
+                    f", declared {control.source} version "
+                    f"{control.source_version}"
+                )
+            rows.append(
+                FrozenInput(
+                    identity_field="site_controls",
+                    field=f"Site control {control.control_key}",
+                    value=(
+                        "not resolved"
+                        if control.members is None
+                        else " > ".join(control.members)
+                    ),
+                    answered_by=control.answered_by,
+                    answered_by_detail=provenance,
+                    blocking_statement=(
+                        None
+                        if control.members is not None
+                        else explanations.get(control.subject)
+                    ),
+                )
+            )
+    else:
+        rows.append(
+            FrozenInput(
+                identity_field="site_controls",
+                field="Site Controls",
+                value="none needed by this profile",
+                answered_by="MODEL_PROFILE",
+                answered_by_detail=profile_detail,
+            )
+        )
+
     rows.append(
         FrozenInput(
             identity_field="intervention_history",

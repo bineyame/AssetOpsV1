@@ -344,7 +344,45 @@ from fractions import Fraction
 #: forward and silent going backward, and the fourth was the fix for the third.
 #:
 #: Once this merges, the next narrowing is a nine.
-EXECUTION_CONTRACT_VERSION = 8
+#:
+#: ## Nine since T024, and it is the first electrical world
+#:
+#: `D-2026-09-29-t024-option-c-and-reserve-override` moves the number, and it
+#: is a move rather than an amendment: eight IS published - T022 merged to
+#: `main` and every local Draft since carries it. Three things change what a
+#: conforming implementation does and what a run freezes:
+#:
+#: 1. **A run freezes what the MODEL needs, not only what the scenario asks
+#:    for** (Option C). A profile may declare Foundation values its laws need;
+#:    run setup resolves each at every component of the bound type and freezes
+#:    it in the deterministic identity with its provenance - who declared the
+#:    need, who answered, the Foundation version and validity start, and the
+#:    property's own source. The effective Site Controls are frozen the same
+#:    way. A run of an unchanged document therefore freezes a different
+#:    identity under nine than under eight, which is
+#:    `D-2026-09-22-contract-version-scope`'s own test, and a nine record that
+#:    omits either collection is refused rather than read as having none.
+#: 2. **A forcing on a control address replaces that control's frozen baseline
+#:    inside its window and nowhere else** (`a-control-override-replaces-its-
+#:    baseline`). Before nine nothing said what a forcing on a control meant.
+#:    The general rule that a forcing is unavailable outside its window is
+#:    unchanged: the baseline is a separately frozen answer, and the
+#:    precedence between them is this rule rather than two competing forcings.
+#: 3. **The controller, resolver and balance phases have content** -
+#:    `COUPLING_RULES` below. Eight declared the phases and left a model free
+#:    to do anything in them, because no model had a controller; nine says a
+#:    controller's view is local and never the published observation, intent
+#:    and acceptance are separate records, only accepted flows evolve the
+#:    world, a within-step change splits evaluation, and the energy balance is
+#:    exact with its failure typed.
+#:
+#: What did NOT move it: the new `daytime-mini-grid` profile identity (a new
+#: profile is a new answer, not a new rule), and the unchanged Fuel Loss model,
+#: whose trajectory values under nine are the values it produced under eight.
+#: Every Draft below nine stays readable and is refused execution.
+#:
+#: Once this merges, the next narrowing is a ten.
+EXECUTION_CONTRACT_VERSION = 9
 
 
 class ExecutionContractIncompatible(Exception):
@@ -705,6 +743,102 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "interval a run chooses is a mismatch between the scenario and the "
             "run. Later run setup refuses it and says which entry; it never "
             "quietly leaves the entry out and executes the rest."
+        ),
+    ),
+    DispatchRule(
+        rule_id="a-control-override-replaces-its-baseline",
+        display_name="A control override replaces its baseline, then reverts",
+        statement=(
+            "A forcing whose address is a typed CONTROL - the battery's reserve "
+            "state of charge - is an ABSOLUTE REPLACEMENT of that control's "
+            "frozen baseline inside its own half-open window [start, end) and "
+            "nowhere else. At the window's end the baseline applies again: the "
+            "setting reverts, the trajectory does not. It is not an increment, "
+            "not a permanent change and not an edit of the Foundation. Outside "
+            "its window the forcing is unavailable exactly as every forcing is; "
+            "what applies there is the separately frozen baseline, by this "
+            "precedence rule and not because a forcing held its value. Two "
+            "override windows that genuinely overlap on one address are refused "
+            "as ambiguous; two that meet end to start are valid, even inside "
+            "one step. A change inside a step splits that step's evaluation at "
+            "the change rather than applying it early, stretching it or "
+            "averaging two settings. A reserve raised above the current state "
+            "of charge creates no energy: it stops further discharge."
+        ),
+    ),
+)
+
+
+# --- Controller, resolver and balance (execution contract 9) -----------------
+#
+# What phases D to H commit a model with a controller to. Eight declared the
+# phases; no model had a controller, so nothing said what happens in them. The
+# first electrical world is what makes these decidable.
+
+COUPLING_RULES: tuple[DispatchRule, ...] = (
+    DispatchRule(
+        rule_id="controller-view-is-local",
+        display_name="The controller reads a local view at T",
+        statement=(
+            "The controller's view at T is built from its declared local inputs "
+            "after T's events: the state of charge, the reserve in effect, the "
+            "irradiance and each load's demand in effect at T. It is never a "
+            "published reading and is not derived from one, so a reporting "
+            "cadence, a dropout or a gap changes no controller decision. The "
+            "view is an immutable record; nothing the controller does can "
+            "change the world."
+        ),
+    ),
+    DispatchRule(
+        rule_id="intent-and-acceptance-are-two-records",
+        display_name="Intent and acceptance are two records",
+        statement=(
+            "The controller emits requests for [T, T+dt) - for example a "
+            "battery discharge of 30 kW. The resolver accepts what the "
+            "installation allows - 22 kW through a 22 kW PCS - and records why. "
+            "Both numbers are kept. Only accepted flows move a stock or reach a "
+            "later reading; a request never does."
+        ),
+    ),
+    DispatchRule(
+        rule_id="resolver-is-a-declared-cascade",
+        display_name="The resolver is a declared cascade",
+        statement=(
+            "PV potential is rated power times irradiance over 1000 W/m2, "
+            "capped by the inverter. Sources serve load in the Site's source "
+            "priority, and loads are served in its critical-load priority: a "
+            "load is served in full before the next one gets anything. The "
+            "battery discharges no faster than the PCS limit and the request "
+            "allow and not below the reserve in effect; it charges from PV "
+            "surplus no faster than the PCS limit and the request allow and "
+            "not above full. PV nobody can use is curtailed. There is no "
+            "iterative solver and no tolerance."
+        ),
+    ),
+    DispatchRule(
+        rule_id="a-step-splits-where-its-inputs-change",
+        display_name="A step is evaluated in segments where inputs change",
+        statement=(
+            "Where a forcing's window starts or ends inside a step, the "
+            "resolver evaluates that step as consecutive segments split at "
+            "those instants, each with the values in effect across it, and "
+            "the state of charge carried from one segment to the next. No "
+            "value is applied early, stretched across the step or averaged."
+        ),
+    ),
+    DispatchRule(
+        rule_id="energy-balance-is-exact",
+        display_name="The energy balance is exact",
+        statement=(
+            "Every step's accepted flows satisfy their balances exactly in "
+            "rational arithmetic: PV potential equals PV to load, PV to "
+            "battery, curtailment and inverter clipping; energy taken into "
+            "the battery equals energy stored plus charging loss; energy taken "
+            "out equals energy delivered plus discharging loss; demand equals "
+            "service plus unserved load, for each load and in total; and the "
+            "stored-energy change equals what was stored less what was taken "
+            "out. A balance that does not hold fails the run as "
+            "BALANCE_IDENTITY_VIOLATION. Nothing is absorbed by a tolerance."
         ),
     ),
 )
@@ -1304,6 +1438,18 @@ BOUND_CASES: tuple[BoundCase, ...] = (
             "disagree. The run fails and names the entry. It does not empty "
             "the tank quietly, because that would invent the missing quantity "
             "out of the model instead of reporting the contradiction."
+        ),
+    ),
+    BoundCase(
+        case_id="battery-state-of-charge-limits",
+        display_name="Battery state-of-charge limits",
+        policy="FAIL_RUN",
+        statement=(
+            "A battery's state of charge lies between 0 % and 100 %. The "
+            "resolver accepts no charge above full and no discharge below the "
+            "reserve in effect, so a transition that would still cross a limit "
+            "means the resolver and the world disagree. The run fails and names "
+            "the battery rather than clamping the stock."
         ),
     ),
     BoundCase(

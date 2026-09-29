@@ -742,6 +742,8 @@ class TestTheExecutionContractOnThePayload:
             "delivery-overflow",
             "insufficient-fuel",
             "invalid-rate",
+            # T024: the battery's state of charge between 0 % and 100 %.
+            "battery-state-of-charge-limits",
         }
 
     def test_the_contract_names_the_owner_of_each_initial_value(self) -> None:
