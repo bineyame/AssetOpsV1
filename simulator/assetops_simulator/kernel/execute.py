@@ -507,6 +507,7 @@ def _step_context(world: _World, from_offset: int, to_offset: int) -> StepContex
             )
         ),
         site_controls=world.inputs.site_controls,
+        bus_attachments=world.inputs.bus_attachments,
     )
 
 
@@ -551,6 +552,7 @@ def _prepare_coupling(world: _World) -> None:
         coefficients=tuple(sorted(world.coefficients.items())),
         exposures=declared,
         site_controls=world.inputs.site_controls,
+        bus_attachments=world.inputs.bus_attachments,
     )
     try:
         coupling.prepare(context)

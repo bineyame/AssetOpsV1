@@ -64,6 +64,7 @@ from assetops_backend.runs.models import (
     FrozenReportingPathCondition,
     FrozenInterval,
     FrozenModelNeed,
+    FrozenBusAttachment,
     FrozenSiteControl,
     FrozenObservationBinding,
     FrozenParameter,
@@ -760,6 +761,16 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 }
                 for item in identity.site_controls
             ],
+            "bus_attachments": [
+                {
+                    "role": item.role,
+                    "component_id": item.component_id,
+                    "via_component_id": item.via_component_id,
+                    "bus_component_id": item.bus_component_id,
+                    "connection_ids": list(item.connection_ids),
+                }
+                for item in identity.bus_attachments
+            ],
         },
         "blocking_reasons": [
             {
@@ -1114,6 +1125,18 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
                 raw, "site_controls", contract_version=contract_version
             )
         ),
+        # Optional at every version: a version-9 record written before the
+        # arrangement was frozen reads back with none, and the model refuses
+        # to execute it (its resolver requires every attachment) rather than
+        # this parser refusing an owner's stored run.
+        bus_attachments=tuple(
+            _parse_bus_attachment(entry)
+            for entry in (
+                _entries(raw, "bus_attachments", where="deterministic_identity")
+                if raw.get("bus_attachments") is not None
+                else []
+            )
+        ),
     )
 
 def _parse_model_need(entry: Any) -> FrozenModelNeed:
@@ -1165,6 +1188,30 @@ def _parse_model_need(entry: Any) -> FrozenModelNeed:
         ),
         property_source=source,
         property_source_version=source_version,
+    )
+
+
+def _parse_bus_attachment(entry: Any) -> FrozenBusAttachment:
+    """One component's attachment to the bus (T024 fix round)."""
+    raw = _mapping(entry, where="bus_attachment")
+    connections = raw.get("connection_ids")
+    if (
+        not isinstance(connections, list)
+        or not connections
+        or not all(isinstance(item, str) and item for item in connections)
+    ):
+        raise _bad(
+            "'bus_attachment.connection_ids' is a non-empty list of declared "
+            "connection identities."
+        )
+    return FrozenBusAttachment(
+        role=_text(raw, "role", where="bus_attachment"),
+        component_id=_text(raw, "component_id", where="bus_attachment"),
+        via_component_id=_optional_text(
+            raw, "via_component_id", where="bus_attachment"
+        ),
+        bus_component_id=_text(raw, "bus_component_id", where="bus_attachment"),
+        connection_ids=tuple(connections),
     )
 
 

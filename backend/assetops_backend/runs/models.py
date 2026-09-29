@@ -273,6 +273,12 @@ BLOCKING_REASON_KINDS = frozenset(
         # `site-control:<key>`. A different Foundation would answer it, so it
         # blocks rather than refusing.
         "SITE_CONTROL_NOT_RESOLVED",
+        # T024 fix round. A component the selected model uses is not connected
+        # to the Site's one bus by the Site's declared topology, or the
+        # topology is not the single-bus arrangement the model supports. Its
+        # subject names the unconnected component (or `topology`). A different
+        # Site would answer it, so it blocks rather than refusing.
+        "ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
     }
 )
 
@@ -743,6 +749,25 @@ class FrozenSiteControl:
 
 
 @dataclass(frozen=True)
+class FrozenBusAttachment:
+    """One component's connection to the Site's bus, as the Foundation declared it.
+
+    T024 fix round. The structural relationship the model's resolver depends
+    on, frozen so it survives readback and a later edit of the live Site: who
+    is attached to which bus, through which conversion component, by which
+    declared connections. A run that served a load nothing connects is the
+    defect this exists to prevent. `via_component_id` is absent for a load,
+    which attaches directly.
+    """
+
+    role: str
+    component_id: str
+    via_component_id: str | None
+    bus_component_id: str
+    connection_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class DeterministicIdentity:
     """Everything a rerun would have to reproduce to be the same run.
 
@@ -772,6 +797,10 @@ class DeterministicIdentity:
     #: below version 9, and on a run whose profile needs nothing.
     model_needs: tuple[FrozenModelNeed, ...] = ()
     site_controls: tuple[FrozenSiteControl, ...] = ()
+    #: The single-bus arrangement the model's resolver assumes, frozen as
+    #: attachments. Absent (empty) on a run whose profile has no bus, and on
+    #: an earlier version-9 record, which the model refuses at execution.
+    bus_attachments: tuple[FrozenBusAttachment, ...] = ()
 
 
 @dataclass(frozen=True)

@@ -1258,6 +1258,7 @@ class TestBlockedDraftsArePersisted:
             # T024: a Site Control the selected profile needs and this Site's
             # Foundation does not declare - a fact about the pair.
             "SITE_CONTROL_NOT_RESOLVED",
+            "ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
         }
 
     def test_run_setup_never_reconciles(self) -> None:

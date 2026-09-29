@@ -47,7 +47,7 @@ from assetops_contracts.control import (
     ControllerView,
 )
 from assetops_contracts.trajectory import ForcingExposure
-from assetops_contracts.world_inputs import SiteControlInput
+from assetops_contracts.world_inputs import BusAttachmentInput, SiteControlInput
 
 #: The kinds of thing a handler consumes. Five, each consumed at a different
 #: phase of the boundary cycle.
@@ -404,6 +404,7 @@ class StepContext:
     coefficients: tuple[tuple[str, Fraction], ...]
     exposures: tuple[ForcingExposure, ...]
     site_controls: tuple[SiteControlInput, ...]
+    bus_attachments: tuple[BusAttachmentInput, ...] = ()
 
     def stock(self, address: str) -> Fraction | None:
         for key, value in self.stocks:

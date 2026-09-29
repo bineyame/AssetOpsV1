@@ -652,6 +652,29 @@ def frozen_inputs(
             )
         )
 
+    for attachment in identity.bus_attachments:
+        via = (
+            "directly"
+            if attachment.via_component_id is None
+            else f"through {attachment.via_component_id}"
+        )
+        rows.append(
+            FrozenInput(
+                identity_field="bus_attachments",
+                field=f"Bus attachment {attachment.component_id}",
+                value=(
+                    f"{attachment.role.lower().replace('_', ' ')} on "
+                    f"{attachment.bus_component_id}, {via}"
+                ),
+                answered_by="SITE_FOUNDATION",
+                answered_by_detail=(
+                    f"site {identity.site.site_id} foundation version "
+                    f"{identity.site.foundation_version}, declared "
+                    f"connections {', '.join(attachment.connection_ids)}"
+                ),
+            )
+        )
+
     rows.append(
         FrozenInput(
             identity_field="intervention_history",

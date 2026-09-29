@@ -84,6 +84,7 @@ from assetops_backend.runs.models import (
     FrozenReportingPathCondition,
     FrozenInterval,
     FrozenModelNeed,
+    FrozenBusAttachment,
     FrozenSiteControl,
     FrozenParameter,
     FrozenProfileBinding,
@@ -820,6 +821,13 @@ class RunSetupService:
         )
         unresolved = unresolved + need_reasons
 
+        # The single-bus arrangement the model's resolver assumes, checked
+        # against the declared topology and frozen (T024 fix round).
+        bus_attachments, bus_reasons = _freeze_bus_arrangement(
+            site=site, model=model, controls=controls
+        )
+        unresolved = unresolved + bus_reasons
+
         # A Foundation-owned parameter states no value
         # (`D-2026-09-22-foundation-value-declaration`), so there is nothing
         # for this record to resolve. It is left out rather than frozen as a
@@ -936,6 +944,7 @@ class RunSetupService:
             intervention_history=(),
             model_needs=needs,
             site_controls=controls,
+            bus_attachments=bus_attachments,
         ), unresolved, addresses
 
     def _freeze_initialization(
@@ -1419,6 +1428,153 @@ class RunSetupService:
         reasons.extend(_publication_reasons(identity))
 
         return _deduplicated(reasons), tuple(optional)
+
+
+def _freeze_bus_arrangement(
+    *,
+    site: SiteRecord,
+    model: ModelProfile,
+    controls: tuple[FrozenSiteControl, ...],
+) -> tuple[tuple[FrozenBusAttachment, ...], tuple[BlockingReason, ...]]:
+    """Check the declared topology is the model's single bus, and freeze it.
+
+    The model's resolver serves an addressed load, and moves energy between an
+    addressed array, battery and bus, from coefficients and priority lists
+    alone. Without this it served a clinic whose only connection had been
+    deleted, exactly as the connected Site (review R2). So the topology the
+    Site declares is checked here: exactly one bus node; every component of
+    each path's type connected to the bus THROUGH a component of the path's
+    conversion type; every load in the load priority connected to the bus
+    directly. Anything else BLOCKS with the unconnected component named.
+
+    Connections are treated as undirected links: the declared direction is a
+    flow direction in the document and this check asks only whether a path
+    exists. There is no network solver and no unserved-demand model for a
+    disconnected load; a Site that does not connect them does not run.
+    """
+    if not model.bus_paths:
+        return (), ()
+    declared_by = (
+        f"model profile {model.model_profile_id} version "
+        f"{model.model_profile_version}"
+    )
+    foundation = site.foundation
+    topology = foundation.topology
+    reasons: list[BlockingReason] = []
+
+    def refuse(subject: str, statement: str) -> None:
+        reasons.append(
+            BlockingReason(
+                kind="ELECTRICAL_TOPOLOGY_NOT_CONNECTED",
+                subject=subject,
+                statement=statement,
+            )
+        )
+
+    nodes = {} if topology is None else {n.node_id: n for n in topology.nodes}
+    buses = [n for n in nodes.values() if n.node_role == "BUS"]
+    if len(buses) != 1:
+        refuse(
+            "topology",
+            f"{declared_by.capitalize()} runs one AC bus, and the topology of "
+            f"site {site.site_id} declares {len(buses)}. A Site with no bus, "
+            "or with several separate buses, is not an arrangement this "
+            "model can execute.",
+        )
+        return (), tuple(reasons)
+    bus = buses[0]
+
+    links: dict[str, dict[str, str]] = {}
+    for connection in () if topology is None else topology.connections:
+        for a, b in (
+            (connection.from_node, connection.to_node),
+            (connection.to_node, connection.from_node),
+        ):
+            links.setdefault(a, {})[b] = connection.connection_id
+
+    def linked(a_component: str, b_component: str) -> str | None:
+        for a in nodes.values():
+            if a.component_id != a_component:
+                continue
+            for b_node, connection_id in links.get(a.node_id, {}).items():
+                if nodes[b_node].component_id == b_component:
+                    return connection_id
+        return None
+
+    def carriers(need: str) -> list[str]:
+        supported = model.supported(need)
+        binding = None if supported is None else supported.foundation_binding
+        return [
+            component.component_id
+            for component in foundation.components
+            if binding is not None
+            and component.component_type == binding.component_type
+        ]
+
+    attachments: list[FrozenBusAttachment] = []
+    for role, participant_need, via_need in model.bus_paths:
+        via_candidates = carriers(via_need)
+        for component_id in carriers(participant_need):
+            found = None
+            for via_id in via_candidates:
+                first = linked(component_id, via_id)
+                second = linked(via_id, bus.component_id)
+                if first is not None and second is not None:
+                    found = (via_id, first, second)
+                    break
+            if found is None:
+                refuse(
+                    component_id,
+                    f"{declared_by.capitalize()} needs {component_id} "
+                    f"({role.lower().replace('_', ' ')}) connected to the bus "
+                    f"{bus.component_id} through its conversion component, "
+                    f"and the topology of site {site.site_id} declares no "
+                    "such connection. A component the topology does not "
+                    "connect is never served or fed as if it were.",
+                )
+                continue
+            attachments.append(
+                FrozenBusAttachment(
+                    role=role,
+                    component_id=component_id,
+                    via_component_id=found[0],
+                    bus_component_id=bus.component_id,
+                    connection_ids=(found[1], found[2]),
+                )
+            )
+
+    loads = next(
+        (
+            item.members
+            for item in controls
+            if item.control_key == model.bus_loads_control
+            and item.members is not None
+        ),
+        (),
+    )
+    for load_id in loads:
+        connection_id = linked(load_id, bus.component_id)
+        if connection_id is None:
+            refuse(
+                load_id,
+                f"{declared_by.capitalize()} serves {load_id} from the bus "
+                f"{bus.component_id}, and the topology of site "
+                f"{site.site_id} declares no connection between them. This "
+                "build models no unserved demand for a disconnected load: "
+                "the Site has to connect it or leave it out of the load "
+                "priority.",
+            )
+            continue
+        attachments.append(
+            FrozenBusAttachment(
+                role="LOAD",
+                component_id=load_id,
+                via_component_id=None,
+                bus_component_id=bus.component_id,
+                connection_ids=(connection_id,),
+            )
+        )
+    return tuple(attachments), tuple(reasons)
 
 
 def _instant(text: str) -> datetime:

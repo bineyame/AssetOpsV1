@@ -142,3 +142,163 @@ class TestFoundationValidityIsEnforcedAgainstRunStart:
 
         with pytest.raises(ValueError):
             _instant("2026-09-22T03:00:00")
+
+
+# ---------------------------------------------------------------------------
+# R2: the declared topology constrains execution and is frozen
+# ---------------------------------------------------------------------------
+
+import dataclasses  # noqa: E402
+
+from assetops_backend.runs.parsing import (  # noqa: E402
+    parse_run_document,
+    render_run_document,
+)
+from execution_adapter import frozen_world_inputs, model_for, run_to_end  # noqa: E402
+
+
+def without_connection(connection_id: str):
+    def edit(document):
+        topology = document["foundation"]["topology"]
+        topology["connections"] = [
+            item
+            for item in topology["connections"]
+            if item["connection_id"] != connection_id
+        ]
+
+    return edit
+
+
+def attachments_of(run):
+    return {
+        (item.role, item.component_id, item.via_component_id)
+        for item in run.deterministic_identity.bus_attachments
+    }
+
+
+class TestTheDeclaredTopologyMustConnectWhatTheModelServes:
+    def test_the_connected_site_freezes_every_attachment(self) -> None:
+        run = kobo_draft()
+        assert run.execution_status == "READY"
+        assert attachments_of(run) == {
+            ("PV_SOURCE", "pv-array", "pv-inverter"),
+            ("STORAGE", "battery", "battery-pcs"),
+            ("LOAD", "load-res", None),
+            ("LOAD", "load-clinic", None),
+            ("LOAD", "load-mill", None),
+        }
+        assert {
+            item.bus_component_id
+            for item in run.deterministic_identity.bus_attachments
+        } == {"ac-bus"}
+
+    def test_a_disconnected_clinic_blocks_and_names_it(self) -> None:
+        run = kobo_draft(site_edit=without_connection("bus-to-clinic"))
+        assert run.execution_status == "BLOCKED"
+        assert reasons_of(run) == {
+            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "load-clinic")
+        }
+        # The connected loads are still attached; only the clinic is refused.
+        assert ("LOAD", "load-res", None) in attachments_of(run)
+        assert ("LOAD", "load-clinic", None) not in attachments_of(run)
+
+    def test_a_disconnected_conversion_component_blocks_its_source(self) -> None:
+        run = kobo_draft(site_edit=without_connection("pv-inverter-to-bus"))
+        assert reasons_of(run) == {
+            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "pv-array")
+        }
+        run = kobo_draft(site_edit=without_connection("battery-to-pcs"))
+        assert reasons_of(run) == {
+            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "battery")
+        }
+
+    def test_two_buses_or_none_is_not_the_supported_arrangement(self) -> None:
+        def second_bus(document):
+            import copy
+
+            from kobo import component
+
+            second = copy.deepcopy(component(document, "ac-bus"))
+            second["component_id"] = "ac-bus-2"
+            document["foundation"]["components"].append(second)
+            topology = document["foundation"]["topology"]
+            topology["nodes"].append(
+                {"node_id": "bus-2", "component_id": "ac-bus-2", "node_role": "BUS"}
+            )
+
+        assert reasons_of(kobo_draft(site_edit=second_bus)) == {
+            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "topology")
+        }
+
+        def no_bus(document):
+            for node in document["foundation"]["topology"]["nodes"]:
+                if node["node_role"] == "BUS":
+                    node["node_role"] = "CONVERSION"
+
+        assert reasons_of(kobo_draft(site_edit=no_bus)) == {
+            ("ELECTRICAL_TOPOLOGY_NOT_CONNECTED", "topology")
+        }
+
+    def test_the_frozen_arrangement_survives_readback(self) -> None:
+        run = kobo_draft()
+        again = parse_run_document(render_run_document(run), source="readback")
+        assert attachments_of(again) == attachments_of(run)
+        assert (
+            again.deterministic_identity.bus_attachments
+            == run.deterministic_identity.bus_attachments
+        )
+
+    def test_execution_reads_the_frozen_run_and_no_live_site(self) -> None:
+        # The connected run executes from its frozen record alone: a later
+        # edit that disconnects the clinic on the live Site cannot reach it,
+        # because nothing here holds a Site.
+        run = kobo_draft()
+        kobo_draft(site_edit=without_connection("bus-to-clinic"))
+        assert run_to_end(run, model_for(run)).trajectory.outcome == "COMPLETED"
+
+    def test_the_structure_is_part_of_the_inputs_identity(self) -> None:
+        from assetops_contracts.trajectory import frozen_inputs_identity
+
+        run = kobo_draft()
+        inputs = frozen_world_inputs(run)
+        assert inputs.bus_attachments
+        moved = dataclasses.replace(
+            inputs,
+            bus_attachments=tuple(
+                dataclasses.replace(item, bus_component_id="other-bus")
+                if item.component_id == "load-clinic"
+                else item
+                for item in inputs.bus_attachments
+            ),
+        )
+
+        def identity(value):
+            return frozen_inputs_identity(
+                value,
+                kernel_version=1,
+                model_profile_id="daytime-mini-grid",
+                model_profile_version=1,
+                numeric_policy="x",
+            )
+
+        assert identity(inputs) != identity(moved)
+
+    def test_a_run_frozen_without_the_arrangement_is_refused_at_execution(
+        self,
+    ) -> None:
+        run = kobo_draft()
+        stripped = dataclasses.replace(
+            run,
+            deterministic_identity=dataclasses.replace(
+                run.deterministic_identity,
+                bus_attachments=tuple(
+                    item
+                    for item in run.deterministic_identity.bus_attachments
+                    if item.component_id != "load-clinic"
+                ),
+            ),
+        )
+        trajectory = run_to_end(stripped, model_for(stripped)).trajectory
+        assert trajectory.outcome == "FAILED"
+        assert trajectory.failure.kind == "TOPOLOGY_INCONSISTENT"
+        assert trajectory.failure.subject == "load-clinic"

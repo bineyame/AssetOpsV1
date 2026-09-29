@@ -91,6 +91,7 @@ from assetops_contracts.world_inputs import (
     FrozenInterval,
     FrozenWorldInputs,
     InitialValue,
+    BusAttachmentInput,
     SiteControlInput,
     UnmodelledInput,
 )
@@ -214,6 +215,16 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
         if item.members is not None
     )
 
+    bus_attachments = tuple(
+        BusAttachmentInput(
+            role=item.role,
+            component_id=item.component_id,
+            via_component_id=item.via_component_id,
+            bus_component_id=item.bus_component_id,
+        )
+        for item in identity.bus_attachments
+    )
+
     return FrozenWorldInputs(
         run_id=run.run_id,
         execution_contract_version=(
@@ -251,6 +262,7 @@ def frozen_world_inputs(run: SimulationRun) -> FrozenWorldInputs:
         ),
         intervention_history=identity.intervention_history,
         site_controls=site_controls,
+        bus_attachments=bus_attachments,
     )
 
 

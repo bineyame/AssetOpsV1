@@ -385,6 +385,41 @@ def _one(context: StepContext, state_key: str, what: str) -> tuple[str, Fraction
     return found[0]
 
 
+def _require_bus(
+    context: StepContext, required: tuple[tuple[str, str, str | None], ...]
+) -> None:
+    """Refuse a run whose frozen arrangement does not connect what this serves.
+
+    The resolver serves the addressed loads and moves energy through the
+    addressed inverter and PCS on one bus. That is only true when the frozen
+    inputs say each is attached to the same bus; a run frozen without the
+    attachment (an earlier record, or a Site that did not connect it) is
+    refused rather than executed as if it were connected.
+    """
+    attached = {
+        (item.role, item.component_id): item for item in context.bus_attachments
+    }
+    buses = {item.bus_component_id for item in context.bus_attachments}
+    if len(buses) > 1:
+        raise CouplingRefused(
+            "TOPOLOGY_INCONSISTENT",
+            "topology",
+            "this model runs one bus and the frozen run attaches components "
+            f"to {sorted(buses)}",
+        )
+    for role, component_id, via in required:
+        item = attached.get((role, component_id))
+        if item is None or item.via_component_id != via:
+            raise CouplingRefused(
+                "TOPOLOGY_INCONSISTENT",
+                component_id,
+                f"the frozen run does not connect {component_id} "
+                f"({role.lower().replace('_', ' ')}) to the bus"
+                + ("" if via is None else f" through {via}")
+                + ", so this model will not serve or feed it",
+            )
+
+
 def _plant(context: StepContext) -> _Plant:
     pv, rated = _one(context, PV_RATED_POWER, "PV array")
     inverter, limit = _one(context, INVERTER_LIMIT, "PV inverter")
@@ -439,6 +474,15 @@ def _plant(context: StepContext) -> _Plant:
             "the source priority must name this run's PV array and battery",
             f"it names {list(sources_control.members)}",
         )
+
+    _require_bus(
+        context,
+        (
+            ("PV_SOURCE", _component(pv), _component(inverter)),
+            ("STORAGE", battery_id, _component(pcs)),
+            *(("LOAD", load, None) for load in loads_control.members),
+        ),
+    )
 
     return _Plant(
         pv=_component(pv),

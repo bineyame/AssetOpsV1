@@ -445,6 +445,7 @@ class TestReportingDropoutChangesNoPhysics:
             "coefficients",
             "exposures",
             "site_controls",
+            "bus_attachments",
         }
         view_names = {field.name for field in fields(ControllerView)}
         assert view_names == {"at_offset_minutes", "for_until_offset", "entries"}
