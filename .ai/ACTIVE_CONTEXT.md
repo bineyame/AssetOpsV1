@@ -37,7 +37,7 @@ decision above is **made**: `D-2026-09-29-run-store-libyaml` adopts
 finishes a Draft; T022's offset-1545 demonstration is in `.ai/CODE_STATE.md`.
 
 **`EXECUTION_CONTRACT_VERSION` is 8 and the publication profile is version 2
-on `main`** (9 and 3 on the T024 branch), and the two were one move. `REPORTING_RULES` answers what a version-seven
+on `main` before T024** (9 and 3 from T024), and the two were one move. `REPORTING_RULES` answers what a version-seven
 implementation could have answered any way it liked - when a sample is due, what
 a forced gap does to one, how long an outage of each declared shape lasts, what a
 consumer sees when nothing fresh arrived, and whether a publication failure is
@@ -80,12 +80,11 @@ required, API 5-6x faster at 223 runs, but **the 1 s Runs budget is missed on th
 dev server, so T022A criterion 2 stays open**. The deep-nesting crash is an
 owner-accepted risk carried until a database.
 
-**T024 is built and in review** on `task/T024-daytime-mini-grid-runtime`
-(packet `.agent/T024-review-packet.md`; `USER_REVIEW_REQUIRED: true`): a Kobo
+**T024 is complete and merged** (independent and owner review 2026-09-29): a Kobo
 Site runs PV, a battery and three addressed loads through a controller, a
 declared-cascade resolver and exact balances, under contract **9**, Option C
 and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
-Record in `.ai/CODE_STATE.md`. T025 is next after review.
+Record in `.ai/CODE_STATE.md`. **T025 is next.**
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -97,7 +96,7 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **`tasks/T024-daytime-mini-grid-runtime.md`** (in review); T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
+1. **`tasks/T025-generator-policy-and-healthy-reference.md`** once activated; T024, T022B, T023, T022 and T022A in `tasks/completed/` as regression evidence.
 2. `.ai/CODE_STATE.md`: the T024, T022B and T023 entries, then T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_T020A_T023.md`: Contract Versions And Retirements, which

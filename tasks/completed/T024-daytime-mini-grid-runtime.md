@@ -1,6 +1,6 @@
 # T024 - Daytime PV, storage and addressed load service
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A, first electrical demonstration.
@@ -111,4 +111,27 @@ No AC network solver, general optimizer or battery electrochemistry.
 The owner changes a forcing and judges the visible physical response.
 The Reviewer checks balance, addressing and controller/physics separation.
 This advances A; T025 is its completion checkpoint.
-Review outcome: pending.
+Review outcome: accepted on independent review and on owner review 2026-09-29.
+
+**Independent review.** Codex returned R1 (scenario initialization could supply
+or mask a model-owned Foundation need), R2 (declared topology neither
+constrained execution nor entered the frozen inputs) and R3 (Foundation
+validity recorded but not enforced). Fixed in a fresh Sonnet round; R2 took the
+coordinator-directed refusal route (single-bus arrangement validated at setup
+and frozen). A fresh Claude `assetops-reviewer` verification pass accepted R1-R3
+with two low findings, F1 (false "none needed" bus-attachment provenance row)
+and F2 (a run-owned test that tested nothing); both were fixed at the owner's
+request and accepted on a Sonnet verification pass. Reviews:
+`.agent/T024-codex-review.md`, `.agent/T024-claude-verification-round2.md`,
+`.agent/T024-claude-verification-round3.md`. Carried: one
+array/inverter/battery/PCS, once-per-step controller decisions, baseline-only
+priority lists, undirected connections, validity enforced for model needs and
+controls only, electrical observations not yet published (T026). The frontend
+suite and build after the fix rounds rest on the build's green run; no frontend
+code changed after it.
+
+**Owner review, 2026-09-29.** Recorded by the coordinator relaying the owner,
+who stated in session: "hands-on verification was done and came out
+successful!" The check covered the three shipped Kobo scenarios on
+2026-09-30 06:00-18:00 Addis, the overcast reserve override, the proposed demo
+values and the battery-first reading, per the packet's user-review focus.
