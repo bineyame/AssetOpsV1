@@ -121,7 +121,8 @@ The owner steps a run and judges whether it responds. The Reviewer checks that
 strictness, identity and concurrency are unchanged and that the measurement was
 taken at the real store size.
 Review outcome: accepted on independent review; **merged at the owner's
-instruction with the owner's own review outstanding.**
+instruction; owner hands-on review accepted 2026-09-29. Criterion 2 (libyaml)
+remains the owner's open decision.**
 
 **Independent review.** A Claude backup reviewer under `.ai/ROLE_CONFIG.md`'s
 verification routing, Codex being spared to conserve quota. It accepted the core
@@ -151,3 +152,8 @@ this merge. The sharpened form of criterion 2: `CSafeLoader` and `safe_load`
 produce equal documents for all 216 stored runs, so the constructor and resolver
 are settled; what is unsettled is what the two scanners **refuse**, and a corpus
 of valid documents cannot establish that.
+
+**Owner review, 2026-09-29.** Recorded by the coordinator relaying the owner,
+who stated in session: "hands-on review of T022 and T022A is OK", and then
+explicitly authorised recording it. Criterion 9 is closed by that review.
+Criterion 2 - the libyaml decision - was not addressed and stays open.
