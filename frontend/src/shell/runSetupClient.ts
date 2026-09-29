@@ -397,6 +397,85 @@ export type RunExecutionResult =
     }
   | { status: "unavailable"; message: string | null };
 
+/**
+ * One staged canonical source envelope, as the gated inspector receives it.
+ *
+ * `canonical` is the exact persisted text of the envelope - the bytes a later
+ * ingestion will parse - and every other field is that same envelope's metadata
+ * split out so a screen can put source time and publication time in separate
+ * cells without parsing JSON. `value` is exact decimal text, never a number.
+ */
+export interface RunStagedEnvelope {
+  canonical: string;
+  message_id: string;
+  sequence: number;
+  device_id: string;
+  signal_id: string;
+  mapping_set_id: string;
+  mapping_version: number;
+  schema_version: number;
+  source_time: string;
+  published_at: string;
+  measurement: string;
+  value: string | null;
+  unit: string;
+  quality: string;
+  unavailable_reason: string | null;
+  interval_start: string | null;
+  interval_end: string | null;
+}
+
+/** One allowlisted signal in the mapping a stage froze. */
+export interface RunStageMappingEntry {
+  device_id: string;
+  signal_id: string;
+  measurement: string;
+  unit: string;
+  publishes_unavailable: boolean;
+}
+
+export interface RunStageMapping {
+  mapping_set_id: string;
+  mapping_version: number;
+  publication_latency_seconds: number;
+  entries: RunStageMappingEntry[];
+}
+
+/**
+ * One Draft's staged source envelopes, re-read from persistence and verified.
+ *
+ * `status` is `NOT_STAGED`, `STAGED` or `STAGE_UNREADABLE`; `statement` is the
+ * backend's sentence for it. `release_eligible` is a condition a later Commit
+ * will require, and nothing in this build releases anything.
+ */
+export interface RunStage {
+  run_id: string;
+  status: string;
+  statement: string;
+  execution_status: string;
+  release_eligible: boolean;
+  release_blockers: { kind: string; statement: string }[];
+  unreadable_detail: string | null;
+  envelope_schema_id: string;
+  envelope_schema_version: number;
+  stage_schema_version: number;
+  integrity_digest: string | null;
+  /** How many of its run's boundaries the stage records as published. */
+  boundaries_total: number | null;
+  published_through: number | null;
+  site_id: string | null;
+  source_id: string | null;
+  gateway_id: string | null;
+  mapping: RunStageMapping | null;
+  refused_publications: { message_id: string; kind: string }[];
+  envelopes: RunStagedEnvelope[];
+}
+
+export type RunStageResult =
+  | { status: "loaded"; stage: RunStage }
+  | { status: "not_found" }
+  | { status: "unavailable"; message: string | null };
+
 /** What a step request says: how far, and from where it believes the run is. */
 export interface RunStepRequest {
   boundaries: number;
@@ -427,6 +506,11 @@ export interface RunSetupClient {
     request: RunStepRequest,
   ): Promise<RunExecutionResult>;
   runExecutionToEnd(runId: string): Promise<RunExecutionResult>;
+  /**
+   * This Draft's staged source envelopes. A read, and the only stage call:
+   * there is no client method that edits, releases or commits one.
+   */
+  getStage(runId: string): Promise<RunStageResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -733,6 +817,93 @@ export function isRunExecution(value: unknown): value is RunExecution {
   );
 }
 
+function isStagedEnvelope(value: unknown): value is RunStagedEnvelope {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.canonical === "string" &&
+    typeof value.message_id === "string" &&
+    typeof value.sequence === "number" &&
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.mapping_set_id === "string" &&
+    typeof value.mapping_version === "number" &&
+    typeof value.schema_version === "number" &&
+    typeof value.source_time === "string" &&
+    typeof value.published_at === "string" &&
+    typeof value.measurement === "string" &&
+    isNullableString(value.value) &&
+    typeof value.unit === "string" &&
+    typeof value.quality === "string" &&
+    isNullableString(value.unavailable_reason) &&
+    isNullableString(value.interval_start) &&
+    isNullableString(value.interval_end)
+  );
+}
+
+function isStageMapping(value: unknown): value is RunStageMapping {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.mapping_set_id === "string" &&
+    typeof value.mapping_version === "number" &&
+    typeof value.publication_latency_seconds === "number" &&
+    Array.isArray(value.entries) &&
+    value.entries.every(
+      (entry) =>
+        isRecord(entry) &&
+        typeof entry.device_id === "string" &&
+        typeof entry.signal_id === "string" &&
+        typeof entry.measurement === "string" &&
+        typeof entry.unit === "string" &&
+        typeof entry.publishes_unavailable === "boolean",
+    )
+  );
+}
+
+/** Whether a body is a whole stage view; half of one is not rendered. */
+export function isRunStage(value: unknown): value is RunStage {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.run_id === "string" &&
+    typeof value.status === "string" &&
+    typeof value.statement === "string" &&
+    typeof value.execution_status === "string" &&
+    typeof value.release_eligible === "boolean" &&
+    Array.isArray(value.release_blockers) &&
+    value.release_blockers.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.kind === "string" &&
+        typeof item.statement === "string",
+    ) &&
+    isNullableString(value.unreadable_detail) &&
+    typeof value.envelope_schema_id === "string" &&
+    typeof value.envelope_schema_version === "number" &&
+    typeof value.stage_schema_version === "number" &&
+    isNullableString(value.integrity_digest) &&
+    isNullableNumber(value.boundaries_total) &&
+    isNullableNumber(value.published_through) &&
+    isNullableString(value.site_id) &&
+    isNullableString(value.source_id) &&
+    isNullableString(value.gateway_id) &&
+    (value.mapping === null || isStageMapping(value.mapping)) &&
+    Array.isArray(value.refused_publications) &&
+    value.refused_publications.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.message_id === "string" &&
+        typeof item.kind === "string",
+    ) &&
+    Array.isArray(value.envelopes) &&
+    value.envelopes.every(isStagedEnvelope)
+  );
+}
+
 /**
  * Build a run setup client over the two API paths.
  *
@@ -905,6 +1076,37 @@ export function createRunSetupClient(
         `${executionPath(runsPath, runId)}/run-to-end`,
         "POST",
       );
+    },
+
+    async getStage(runId: string): Promise<RunStageResult> {
+      let response: Response;
+      try {
+        response = await fetch(
+          `${runsPath}/${encodeURIComponent(runId)}/stage`,
+        );
+      } catch {
+        return { status: "unavailable", message: null };
+      }
+      let parsed: Record<string, unknown> | null = null;
+      try {
+        parsed = (await response.json()) as Record<string, unknown>;
+      } catch {
+        parsed = null;
+      }
+      if (response.status === 404) {
+        return { status: "not_found" };
+      }
+      if (response.ok && isRunStage(parsed?.stage)) {
+        return { status: "loaded", stage: parsed.stage as RunStage };
+      }
+      const detail = parsed?.detail;
+      return {
+        status: "unavailable",
+        message:
+          isRecord(detail) && typeof detail.message === "string"
+            ? detail.message
+            : null,
+      };
     },
   };
 }

@@ -7,9 +7,11 @@ kernel are different things to replace.
 
 ## What may and may not cross it
 
-Two record families and no third. Going in: `SimulationRun`, which is the
-product's own frozen record. Coming back: `LabProjection`, which lives in the
-dependency-neutral contracts. Nothing simulator-shaped appears in either
+Going in: `SimulationRun`, which is the product's own frozen record. Coming
+back: `LabProjection`, and since T023 `SourceStageView` - the verified staged
+source envelopes - and both live in the dependency-neutral contracts. A staged
+envelope is not accepted evidence, which is why only the gated Lab surface may
+import the stage contract at all. Nothing simulator-shaped appears in either
 direction - no `PrivateTrajectory`, no `BoundaryState`, no `ModelSpec`, no
 `DeviceObservation` - and that is the criterion "the backend consumes the neutral
 port/projection contract, not simulator types" as a signature rather than as a
@@ -57,6 +59,7 @@ from typing import Protocol, runtime_checkable
 
 from assetops_backend.runs.models import SimulationRun
 from assetops_contracts.lab_projection import LabProjection
+from assetops_contracts.source_stage import SourceStageView
 
 
 @runtime_checkable
@@ -103,4 +106,19 @@ class LabExecutionPort(Protocol):
 
     def run_to_end(self, run: SimulationRun) -> LabProjection:
         """Advance a started execution until its interval is covered."""
+        ...
+
+    def staged_envelopes(self, run: SimulationRun) -> SourceStageView:
+        """This Draft's staged canonical source envelopes, verified, or why not.
+
+        A read, and never a refusal: a Draft nothing executed answers
+        `NOT_STAGED`, and a stage that fails its integrity check answers
+        `STAGE_UNREADABLE` with the reason. What comes back is re-read from
+        persistence rather than taken from a live handle, so it is the same
+        whether or not the execution that staged it is still running.
+
+        v4 section 3.3 names this method. It returns the neutral stage view
+        rather than a bare sequence because the inspector also has to say
+        which mapping the stage froze and whether it is eligible for release.
+        """
         ...

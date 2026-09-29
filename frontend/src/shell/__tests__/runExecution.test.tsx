@@ -618,7 +618,7 @@ describe("the execution controls", () => {
 });
 
 describe("what executing a draft still is not", () => {
-  it("states that nothing was staged, committed or written to a site", async () => {
+  it("states that nothing was released, committed or written to a site", async () => {
     renderAt(READY_URL, client({ status: "loaded", execution: COMPLETED }));
     await settledScreen();
 
@@ -626,9 +626,13 @@ describe("what executing a draft still is not", () => {
       .getByRole("heading", { name: "What this run is not" })
       .closest("section") as HTMLElement;
 
+    // T023 stages envelopes, so "nothing has been staged" stopped being true
+    // and was replaced rather than kept: what stays true is that a staged
+    // envelope has not been released, received or accepted.
     expect(spacedText(panel)).toMatch(
-      /nothing has been staged for a gateway/i,
+      /None has been released, received or accepted/i,
     );
+    expect(spacedText(panel)).toMatch(/not evidence about anywhere/i);
     expect(spacedText(panel)).toMatch(/it cannot be committed/i);
     expect(spacedText(panel)).toMatch(/writes to no site/i);
   });

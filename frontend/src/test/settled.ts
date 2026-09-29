@@ -10,9 +10,12 @@ import { waitFor } from "@testing-library/react";
  * gone. A screen whose second read was not listed would settle on the first, and
  * an assertion about a reading would then be made against a screen that has not
  * got one yet. That is the same race this helper exists for, one read along.
+ *
+ * T023 added a THIRD read, the Draft's staged source envelopes, and its
+ * sentence is listed for the same reason.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run)\./;
+  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes)\./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.

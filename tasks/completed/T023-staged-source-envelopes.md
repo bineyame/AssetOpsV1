@@ -1,6 +1,6 @@
 # T023 - Persist and inspect canonical staged source envelopes
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: B preparation; does not complete A or B.
@@ -113,4 +113,24 @@ bus. Keep the persisted source contract suitable for normal ingestion in T027.
 
 The owner inspects source versus publication time and reloads the exact payload.
 The Reviewer verifies strictness, immutability and truth isolation.
-Review outcome: pending.
+Review outcome: accepted on independent review and on owner review 2026-09-29.
+
+**Independent review.** Three passes over two fix rounds. Codex returned R1:
+release eligibility did not establish that staging through completion
+succeeded - a failed final write with the session live, or a caught
+`EnvelopeRejected`, left an incomplete stage eligible. The fix added a
+published-through watermark and the `STAGING_INCOMPLETE` blocker, moving the
+stage schema to 2 (envelope schema unchanged). Codex's resumed review closed R1
+and returned R4 (the blocker text asserted a failure on a healthy running stage)
+and R5 (records claimed the persisted execution is never ahead of its stage,
+false after a caught refusal). A fresh Claude `assetops-reviewer` verification
+pass accepted `9d26ccd`: R4 and R5 closed, nothing else moved. Reviews are at
+`.agent/T023-codex-review.md`, `.agent/T023-codex-review-round2.md` and
+`.agent/T023-claude-verification-round3.md`. R2 (two corrupted-stage inputs
+return HTTP 500 rather than `STAGE_UNREADABLE`) and R3 (identifier and unit
+checks accept a trailing newline) are carried in
+`.ai/MILESTONE_REVIEW_BACKLOG.md`. Full suites, the build, guard probes and
+browser layout evidence after the fix rounds rest on the Implementer's report.
+
+**Owner review, 2026-09-29.** Recorded by the coordinator relaying the owner,
+who stated in session: "UI review looks OK".

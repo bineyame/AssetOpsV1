@@ -1184,6 +1184,79 @@ gitignore risk is already carried in T021's entry about `.agent/`.
 about what evidence means here, which is the same reason `layout-evidence.mjs`
 is not wired into the architecture check.
 
+## Carried from T023
+
+### A message id is the publication's, so two Drafts of one Site share ids
+
+`envelope_message_id` covers Site, gateway, source, device, signal and source
+time and deliberately not the run. Inside one stage that is what makes a retry
+recognisable. Two Drafts against one Site publishing the same device at the same
+simulated instant produce the same id with (usually) different content - a real
+collision that T027's Commit or ingestion must decide about (refuse, scope by
+commit, or treat as a conflicting report). Not decided here because nothing
+crosses a stage yet.
+
+### Interval envelopes and typed unavailability are proved on fixtures only
+
+The shipped allowlist is the fuel level sensor, a state signal that always has a
+value, so the shipped run exercises neither `INTERVAL_MEAN` nor `UNAVAILABLE`.
+Both are proved by `simulator/tests/test_gateway_publication.py`. T026's
+allowlist extension is where they first meet a real run.
+
+### A stage is rewritten whole on every step
+
+`JsonSourceStages.admit` re-reads and rewrites the stage, and the host
+republishes the whole series every step: quadratic per run. About 110 KB and
+150 envelopes at completion today. An append-only format belongs with T026's
+larger allowlist if it matters.
+
+### Release eligibility rests on a publication watermark, not a seal
+
+Corrected in the T023 fix round. This entry first said write order made
+eligibility honest; the independent review (R1) showed it did not - a failed
+final stage write with the process alive, and a publication refusal caught in
+`_stage`, both read as ELIGIBLE. The stage now records `published_through`
+against `boundaries_total`, advanced only by a successful write, and a short
+watermark blocks release (`STAGING_INCOMPLETE`). What remains carried: the
+watermark proves publication through the run's end, not that the stage is
+sealed against later change. Sealing is Commit's (T027).
+
+### Some corrupted stages answer HTTP 500 rather than STAGE_UNREADABLE (review R2)
+
+`host/source_stages.py` decodes UTF-8 outside the `StageUnreadable` wrapper, and
+`source_envelope._exact_value` calls `Fraction(value)` without translating a
+zero denominator, which `parse_stage_text` does not catch. A stage replaced by
+byte `0xff`, and one whose envelope value is `"1/0"`, both return HTTP 500 from
+the stage route instead of `STAGE_UNREADABLE` / `INTEGRITY_FAILURE` (reproduced
+again after the fix round). Fails closed - the frontend shows the stage as
+unavailable, never as content - but loses the integrity diagnosis. Carried as a
+localized exception-translation gap: widen the negative corpus and translate
+both when parser robustness is next touched.
+
+### Identifier and unit validation accept a trailing newline (review R3)
+
+`_IDENTIFIER` and `_UNIT` in `source_envelope.py` are anchored with `$` and
+applied with `match`, and Python's `$` matches before a final newline. An
+otherwise valid envelope with device id `"fuel-level-sensor\n"` and a correctly
+recomputed message id is accepted by `parse_source_envelope`. Narrow against
+criterion 4; the shipped allowlist does not admit that id and generated
+identities are unaffected. Fix with `fullmatch` (or `\Z`) for both patterns and
+a trailing-newline negative case.
+
+### The stage's integrity digest is redundant with its canonical-form check
+
+A guard probe removed the digest comparison and every damage case was still
+refused, by the final check that re-renders the whole text including a
+recomputed digest. Only the REASON changed, which a test now asserts. Harmless
+duplication; a later reader simplifying it should keep one of the two and the
+reason assertion.
+
+### Stage selection buttons scale with the stage
+
+The inspector renders one "Show envelope N" button per envelope (154 at the end
+of the browser run). Utilitarian by instruction; a later slice with thousands of
+envelopes needs paging, not polish now.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

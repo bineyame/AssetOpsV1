@@ -341,8 +341,61 @@ const MEASURE = `(() => {
   const digestLeaves = Array.from(document.querySelectorAll("main dd"))
     .map((node) => (node.textContent || "").trim())
     .filter((value) => /^[0-9a-f]{64}$/.test(value));
+  // T023: the stage inspector. Read off its own attributes and cells, because
+  // a source time and a publication time three seconds apart sit side by side
+  // and a text match would hold with the two columns swapped.
+  const stageNode = document.querySelector("[data-stage-statement]");
+  const stageStatus = stageNode ? stageNode.getAttribute("data-stage-status") : null;
+  const stageCount = stageNode
+    ? Number(stageNode.getAttribute("data-stage-count"))
+    : null;
+  const stageReleaseNode = document.querySelector("[data-stage-release]");
+  const stageRelease = stageReleaseNode
+    ? stageReleaseNode.getAttribute("data-stage-release")
+    : null;
+  const stagedRows = Array.from(
+    document.querySelectorAll("[data-staged-envelope]"),
+  ).map((row) => ({
+    id: row.getAttribute("data-staged-envelope"),
+    sourceTime: cellText(row, "data-staged-source-time"),
+    publishedAt: cellText(row, "data-staged-published-at"),
+    value: cellText(row, "data-staged-value"),
+  }));
+  // The exact canonical text. Its box is measured, not only its presence: a
+  // single line several hundred characters long with break opportunities only
+  // at punctuation is exactly the content that pushes a page sideways, and a
+  // pre that rendered with no box would be exact text nobody can read.
+  const canonicalNode = document.querySelector("pre.canonical-text");
+  let canonical = null;
+  if (canonicalNode) {
+    const box = canonicalNode.getBoundingClientRect();
+    const text = canonicalNode.textContent || "";
+    const lineHeight = parseFloat(getComputedStyle(canonicalNode).lineHeight) || 20;
+    let parses = false;
+    try {
+      JSON.parse(text);
+      parses = true;
+    } catch (error) {
+      parses = false;
+    }
+    canonical = {
+      id: canonicalNode.getAttribute("data-stage-canonical"),
+      text,
+      length: text.length,
+      width: Math.round(box.width),
+      height: Math.round(box.height),
+      overflows: canonicalNode.scrollWidth > canonicalNode.clientWidth,
+      wraps: box.height > 2 * lineHeight,
+      parses,
+    };
+  }
   const railLeftAfterAll = rail ? Math.round(rail.getBoundingClientRect().left) : null;
   return {
+    stageStatus,
+    stageCount,
+    stageRelease,
+    stagedRows,
+    canonical,
     scrollers,
     diagrams,
     diagramRefusals,
@@ -1508,19 +1561,28 @@ for (const [label, width, height] of [
   // the server, so the second width re-measures the same instant rather than
   // stepping again - which advanced 208 boundaries of 165, finished the run,
   // and left the next block's control correctly disabled.
+  // Both waits require the readings AND the stage, because the screen reads
+  // them separately and the stage is re-read after the step returns. Waiting on
+  // the readings alone would measure a stage inspector still showing the stage
+  // from before the step.
   const stepped = await visit(
     cdp,
     readyHref,
     width,
     height,
-    "[data-observation]",
+    width === 1280
+      ? "[data-observation]"
+      : "main:has([data-observation]) [data-staged-envelope]",
     width === 1280
       ? {
           script: STEP_ACROSS_THE_FUEL_EVENT,
-          waitFor: "[data-observation-quality='STALE']",
+          waitFor:
+            "main:has([data-observation-quality='STALE']) " +
+            "[data-stage-count]:not([data-stage-count='0'])",
         }
       : undefined,
   );
+  const newestStaged = stepped.stagedRows[stepped.stagedRows.length - 1];
   const fuel = stepped.observationRows.find(
     (row) => row.signal === "fuel-level-sensor:fuel-level",
   );
@@ -1583,6 +1645,58 @@ for (const [label, width, height] of [
         `${stepped.sampleAttemptRows} attempts`,
       ],
       [
+        // T023. The non-empty set first, so every stage claim below is about
+        // rows a browser actually drew.
+        "the stage inspector draws every staged envelope, and there are some",
+        stepped.stageStatus === "STAGED" &&
+          stepped.stagedRows.length > 0 &&
+          stepped.stagedRows.length === stepped.stageCount,
+        `${stepped.stageStatus}, ${stepped.stagedRows.length} rows drawn of ${stepped.stageCount} staged`,
+      ],
+      [
+        "the newest staged envelope is the last reading before the gap, published after its source time",
+        newestStaged !== undefined &&
+          newestStaged.sourceTime < "2026-09-22T00:50" &&
+          newestStaged.publishedAt > newestStaged.sourceTime &&
+          (newestStaged.value ?? "").startsWith("373.52"),
+        newestStaged === undefined
+          ? "no staged row"
+          : `source ${newestStaged.sourceTime}, published ${newestStaged.publishedAt}, value ${newestStaged.value}`,
+      ],
+      [
+        "no envelope is staged at an instant inside the reporting gap",
+        stepped.stagedRows.every(
+          (row) =>
+            !(
+              row.sourceTime >= "2026-09-22T00:50" &&
+              row.sourceTime < "2026-09-22T02:20"
+            ),
+        ),
+        `${stepped.stagedRows.filter((row) => row.sourceTime >= "2026-09-22T00:50").length} rows at or after the gap opened`,
+      ],
+      [
+        "the exact canonical text is drawn, parses, wraps, and stays inside its box",
+        stepped.canonical !== null &&
+          newestStaged !== undefined &&
+          stepped.canonical.id === newestStaged.id &&
+          stepped.canonical.width > 0 &&
+          stepped.canonical.height > 0 &&
+          stepped.canonical.parses &&
+          stepped.canonical.wraps &&
+          !stepped.canonical.overflows,
+        stepped.canonical === null
+          ? "no canonical text drawn"
+          : `${stepped.canonical.length} characters in ${stepped.canonical.width}x${stepped.canonical.height}px, ` +
+            `${stepped.canonical.parses ? "parses" : "DOES NOT PARSE"}, ` +
+            `${stepped.canonical.wraps ? "wraps" : "one line"}, ` +
+            `${stepped.canonical.overflows ? "OVERFLOWS" : "contained"}`,
+      ],
+      [
+        "a stage whose execution is still running is not eligible for release",
+        stepped.stageRelease === "NOT_ELIGIBLE",
+        `release ${stepped.stageRelease}`,
+      ],
+      [
         "the page does not scroll horizontally",
         !stepped.pageScrollsHorizontally,
         `scrollWidth ${stepped.pageScrollWidth} vs clientWidth ${stepped.pageClientWidth}`,
@@ -1619,7 +1733,11 @@ const finished = await visit(
   "[data-execution-status]",
   {
     script: clickControl("Run to the end"),
-    waitFor: "[data-execution-status='COMPLETED']",
+    // The stage is re-read after the control returns, so wait for the stage
+    // to say its execution completed as well as the execution panel.
+    waitFor:
+      "main:has([data-execution-status='COMPLETED']) " +
+      "[data-stage-execution='COMPLETED']",
   },
 );
 allPass =
@@ -1644,16 +1762,76 @@ allPass =
       finished.privateStateRows.map((r) => r.text).join(" | ") || "no rows",
     ],
     [
-      "a terminal run offers no enabled control",
-      finished.buttons.length > 0 && finished.buttons.every((b) => b.disabled),
+      // The EXECUTION controls. Since T023 the stage inspector renders one
+      // enabled button per staged envelope, and it chooses which envelope's
+      // exact text to read - it changes nothing on the server. They are
+      // excluded by their exact label shape, so any other enabled button still
+      // fails this claim.
+      "a terminal run offers no enabled execution control",
+      finished.buttons.some((b) => !/^Show envelope \d+$/.test(b.label)) &&
+        finished.buttons
+          .filter((b) => !/^Show envelope \d+$/.test(b.label))
+          .every((b) => b.disabled),
       finished.buttons
+        .filter((b) => !/^Show envelope \d+$/.test(b.label))
         .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
-        .join(", ") || "no button rendered",
+        .join(", ") || "no execution control rendered",
+    ],
+    [
+      "a completed run's verified stage is eligible for release",
+      finished.stageRelease === "ELIGIBLE" && finished.stagedRows.length > 100,
+      `release ${finished.stageRelease}, ${finished.stagedRows.length} envelopes`,
     ],
     [
       "the page does not scroll horizontally",
       !finished.pageScrollsHorizontally,
       `scrollWidth ${finished.pageScrollWidth} vs clientWidth ${finished.pageClientWidth}`,
+    ],
+  ]) && allPass;
+
+// A fresh page load, at the narrow width: nothing the screen held survives a
+// navigation, so what it shows is what the persisted stage reads back as. The
+// owner's "reload the exact payload", made by a browser.
+const reloaded = await visit(
+  cdp,
+  readyHref,
+  640,
+  700,
+  "main:has([data-execution-status='COMPLETED']) [data-staged-envelope]",
+);
+allPass =
+  report("Draft run stage reloaded at 640x700", reloaded, [
+    [
+      "the reloaded stage holds the same envelopes",
+      reloaded.stagedRows.length === finished.stagedRows.length &&
+        reloaded.stagedRows.every(
+          (row, index) => row.id === finished.stagedRows[index]?.id,
+        ),
+      `${reloaded.stagedRows.length} rows after reload vs ${finished.stagedRows.length} before`,
+    ],
+    [
+      "the reloaded exact text is byte for byte the text shown before",
+      reloaded.canonical !== null &&
+        finished.canonical !== null &&
+        reloaded.canonical.text === finished.canonical.text,
+      reloaded.canonical === null
+        ? "no canonical text drawn"
+        : `${reloaded.canonical.length} characters, ` +
+          `${reloaded.canonical.text === finished.canonical?.text ? "identical" : "DIFFERENT"}`,
+    ],
+    [
+      "the long canonical text stays inside its box at 640px",
+      reloaded.canonical !== null &&
+        reloaded.canonical.wraps &&
+        !reloaded.canonical.overflows,
+      reloaded.canonical === null
+        ? "no canonical text drawn"
+        : `${reloaded.canonical.width}x${reloaded.canonical.height}px`,
+    ],
+    [
+      "the page does not scroll horizontally",
+      !reloaded.pageScrollsHorizontally,
+      `scrollWidth ${reloaded.pageScrollWidth} vs clientWidth ${reloaded.pageClientWidth}`,
     ],
   ]) && allPass;
 

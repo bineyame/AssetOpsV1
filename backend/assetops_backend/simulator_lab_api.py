@@ -47,12 +47,15 @@ The scenario routes T017 adds are reads, through the
 `ScenarioDefinitionRepository` port. They serve saved `ScenarioDefinition`
 records: what a simulated interval is intended to do, before any run exists.
 
-No route here stages, commits, releases an envelope, ingests, resets, injects an
-event or replays anything, and none of them returns an assessment, a
-source-health result, a confidence, a severity, or a Finding, because none of
-those has a truthful source. Starting a run left that list in T022 and the rest of
-it did not: a started run produces private truth and the readings a configured
-device would have published, and neither is evidence about anywhere.
+No route here commits, releases an envelope, ingests, resets, injects an event
+or replays anything, and none of them returns an assessment, a source-health
+result, a confidence, a severity, or a Finding, because none of those has a
+truthful source. Starting a run left that list in T022 and staging in T023: a
+started run produces private truth, the readings a configured device would have
+published, and - through the simulated gateway - staged canonical source
+envelopes, which one read route here serves for inspection. None of the three is
+evidence about anywhere, and a staged envelope becomes one only after a Commit and
+ingestion that no slice has built yet.
 
 The scenario detail route carries the private test-oracle expectations in a
 section of its own, built by a payload function that never reads any public
@@ -153,6 +156,16 @@ from assetops_contracts.observation import (
     SAMPLE_OUTCOME_STATEMENTS,
     exact_decimal_text,
 )
+from assetops_contracts.source_envelope import (
+    SOURCE_ENVELOPE_SCHEMA_ID,
+    SOURCE_ENVELOPE_SCHEMA_VERSION,
+    canonical_envelope_json,
+)
+from assetops_contracts.source_stage import (
+    RELEASE_BLOCKER_STATEMENTS,
+    SOURCE_STAGE_SCHEMA_VERSION,
+    SourceStageView,
+)
 
 SIMULATOR_LAB_API_PREFIX = "/api/simulator-lab"
 
@@ -173,6 +186,11 @@ RUN_EXECUTION_ROUTE = "/runs/{run_id}/execution"
 RUN_EXECUTION_START_ROUTE = "/runs/{run_id}/execution/start"
 RUN_EXECUTION_STEP_ROUTE = "/runs/{run_id}/execution/step"
 RUN_EXECUTION_END_ROUTE = "/runs/{run_id}/execution/run-to-end"
+
+# The stage inspector's one route, and it is a read. There is no route that
+# edits, deletes, releases or commits a staged envelope: staging happens as a run
+# is stepped, and a staged record is immutable.
+RUN_STAGE_ROUTE = "/runs/{run_id}/stage"
 
 # Refusal codes. The message is the product copy a user reads; the code is what
 # a client switches on, so neither has to be parsed out of the other.
@@ -875,6 +893,106 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
     }
 
 
+def stage_payload(view: SourceStageView) -> dict[str, object]:
+    """One Draft's staged source envelopes on the wire, for the gated inspector.
+
+    Each envelope travels twice, deliberately: `canonical` is its exact persisted
+    text, byte for byte what the stage holds and what a later ingestion will
+    parse, and the fields beside it are that same text's metadata split out so a
+    screen can show source time and publication time in separate cells without
+    parsing anything. The fields are derived from the parsed envelope; the text
+    is the envelope's own canonical serialization of it; so the two cannot
+    disagree.
+
+    Nothing here is accepted evidence, and the payload says so in its own
+    statement rather than leaving a screen to.
+    """
+    stage = view.stage
+    return {
+        "run_id": view.run_id,
+        "status": view.status,
+        "statement": view.statement,
+        "execution_status": view.execution_status,
+        "release_eligible": view.release_eligible,
+        "release_blockers": [
+            {"kind": kind, "statement": RELEASE_BLOCKER_STATEMENTS[kind]}
+            for kind in view.release_blockers
+        ],
+        "unreadable_detail": view.unreadable_detail,
+        "envelope_schema_id": SOURCE_ENVELOPE_SCHEMA_ID,
+        "envelope_schema_version": SOURCE_ENVELOPE_SCHEMA_VERSION,
+        "stage_schema_version": SOURCE_STAGE_SCHEMA_VERSION,
+        "integrity_digest": view.integrity_digest,
+        # How far the stage records its run as published. Eligibility needs
+        # this to reach the total; a completed execution alone cannot vouch
+        # for what the stage holds.
+        "boundaries_total": None if stage is None else stage.boundaries_total,
+        "published_through": None if stage is None else stage.published_through,
+        "site_id": None if stage is None else stage.site_id,
+        "source_id": None if stage is None else stage.source_id,
+        "gateway_id": None if stage is None else stage.gateway_id,
+        "mapping": (
+            None
+            if stage is None
+            else {
+                "mapping_set_id": stage.mapping.mapping_set_id,
+                "mapping_version": stage.mapping.mapping_version,
+                "publication_latency_seconds": (
+                    stage.mapping.publication_latency_seconds
+                ),
+                "entries": [
+                    {
+                        "device_id": entry.device_id,
+                        "signal_id": entry.signal_id,
+                        "measurement": entry.measurement,
+                        "unit": entry.unit,
+                        "publishes_unavailable": entry.publishes_unavailable,
+                    }
+                    for entry in stage.mapping.entries
+                ],
+            }
+        ),
+        "refused_publications": (
+            []
+            if stage is None
+            else [
+                {"message_id": item.message_id, "kind": item.kind}
+                for item in stage.refused
+            ]
+        ),
+        "envelopes": (
+            []
+            if stage is None
+            else [
+                {
+                    "canonical": canonical_envelope_json(envelope),
+                    "message_id": envelope.message_id,
+                    "sequence": envelope.sequence,
+                    "device_id": envelope.device_id,
+                    "signal_id": envelope.signal_id,
+                    "mapping_set_id": envelope.mapping_set_id,
+                    "mapping_version": envelope.mapping_version,
+                    "schema_version": envelope.schema_version,
+                    "source_time": envelope.source_time,
+                    "published_at": envelope.published_at,
+                    "measurement": envelope.measurement,
+                    "value": (
+                        None
+                        if envelope.value is None
+                        else exact_decimal_text(envelope.value)
+                    ),
+                    "unit": envelope.unit,
+                    "quality": envelope.quality,
+                    "unavailable_reason": envelope.unavailable_reason,
+                    "interval_start": envelope.interval_start,
+                    "interval_end": envelope.interval_end,
+                }
+                for envelope in stage.envelopes
+            ]
+        ),
+    }
+
+
 def run_summary(record: SimulationRun) -> dict[str, object]:
     """One Draft run: its identity, what it froze, and why it may not run.
 
@@ -1512,6 +1630,17 @@ def build_simulator_lab_router(
         except LabControlRefused as error:
             raise _refused(error) from error
         return {"execution": execution_payload(projection)}
+
+    @router.get(RUN_STAGE_ROUTE)
+    def read_run_stage(run_id: str) -> dict[str, object]:
+        """This Draft's staged source envelopes, re-read and verified.
+
+        A read, served only behind the gate, and the only stage route: nothing
+        here edits, deletes, releases or commits a staged envelope.
+        """
+        port = _port()
+        record = _run_or_404(run_id)
+        return {"stage": stage_payload(port.staged_envelopes(record))}
 
     @router.post(RUN_EXECUTION_START_ROUTE)
     def start_run_execution(run_id: str) -> dict[str, object]:

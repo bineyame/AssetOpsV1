@@ -10,7 +10,7 @@ reads a document, opens a file, or reaches a store: these are the versioned
 rules and the record shapes, and resolving either against a Site or a scenario
 belongs to the product domain on one side and to the host adapter on the other.
 
-Seven modules:
+Nine modules:
 
 - `execution_contract` - the versioned semantics: canonical units, half-open
   dispatch, the boundary cycle, what a timestamped reading describes, whether a
@@ -27,6 +27,13 @@ Seven modules:
 - `failures` - why an execution stopped, as a vocabulary distinct from run
   setup's refusals, a Draft's blocking reasons and a refused control;
 - `identity` - the BLAKE2b-256 identity domain and its canonical encoding.
+- `source_envelope` - the canonical source envelope, the one simulator payload
+  normal ingestion may accept: its strict parser, its canonical text and the
+  gateway mapping that says what publishes, versioned independently of the
+  execution contract;
+- `source_stage` - a Draft's staged envelopes, the append-only admission rule,
+  the persisted stage document and its integrity check. Staged is not accepted,
+  and only the gated Lab surface may import this one.
 """
 
 __all__: list[str] = []

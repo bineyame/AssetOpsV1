@@ -2901,3 +2901,52 @@ established. `D-2026-09-22-milestone-speed-over-purity` governs.
 Affected files: `tasks/README.md`, `tasks/T026A`, `T027` (guidance only),
 `T033`, `T035`, `T036`, `.ai/FEATURE_MAP.md` and `.ai/ACTIVE_CONTEXT.md`.
 No implementation code changed. T020A remains active and unaffected.
+
+## 2026-09-29
+
+Decision: `D-2026-09-29-source-envelope-schema-v1`. **The canonical source
+envelope is schema `assetops.source-envelope` version 1, versioned
+independently of the execution contract, and compatibility is equality.**
+
+Recorded by the T023 Implementer because the task's criterion 14 requires the
+schema and its refusal behaviour to be written down, and because T027's
+ingestion will parse exactly what this fixes. The schema itself lives in
+`contracts/assetops_contracts/source_envelope.py`; this entry records the
+choices a later slice must not reopen by accident.
+
+- **Independent version.** `SOURCE_ENVELOPE_SCHEMA_VERSION` (1) does not move
+  with `EXECUTION_CONTRACT_VERSION` (8) and vice versa. The execution contract
+  says what a frozen Draft means when it runs; the envelope schema says what a
+  published message looks like. The persisted stage document has its own
+  `stage_schema_version` (2 since the T023 fix round added the publication
+  watermark; 1 never left the branch) for the same reason.
+- **Compatibility is equality.** A parser of version 1 refuses any other
+  version as `SCHEMA_UNSUPPORTED` and never reads it "as close enough". A later
+  version that must accept version-1 envelopes does so by an explicit reader of
+  version 1, not by loosening the check.
+- **Exact key sets at every level and no free-text field.** An unknown field is
+  refused wherever it appears. Identities are validated identifiers, categories
+  are closed vocabularies (`STATE_AT_INSTANT`/`INTERVAL_MEAN`,
+  `GOOD`/`UNAVAILABLE`, `NO_COMPLETED_INTERVAL`/`NO_MEASUREMENT`), values are
+  canonical exact decimal text, times are UTC instants. This is what makes the
+  truth barrier structural at the boundary: a private field has nowhere to go.
+- **The message id is derived, and content is not in it.** BLAKE2b-256 over
+  Site, gateway, source, device, signal and source time, recomputed by the
+  parser. A retry carries the same id by construction; same id with different
+  content is a conflict the stage refuses rather than an overwrite.
+- **`received_at` is not a field.** It is ingestion's (Evidence Loop
+  Boundaries), and a document carrying one is refused as an unknown field.
+- **A sample that was never published has no envelope.** A reporting gap or a
+  dropped publication produces nothing; only a sample that was taken and had no
+  value may produce a typed `UNAVAILABLE` envelope, and only where the mapping
+  says the signal publishes unavailability. `STALE` is a consumer's conclusion
+  and is not an envelope quality.
+- **Mappings are versioned and frozen into the stage.** The stage persists the
+  whole mapping it was staged under and is read under that mapping, never the
+  current one. The shipped allowlist is the fuel level sensor alone
+  (`simulator-lab-gateway-fuel` v1); T026 extends it.
+
+Affected: `contracts/assetops_contracts/source_envelope.py` and
+`source_stage.py`, `simulator/assetops_simulator/gateway/`, `host/lab_execution.py`
+and `host/source_stages.py`. No execution-contract or publication-profile
+version moved.

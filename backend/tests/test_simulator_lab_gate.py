@@ -30,6 +30,7 @@ RUN_EXECUTION_STEP_PATH = "/api/simulator-lab/runs/{run_id}/execution/step"
 RUN_EXECUTION_END_PATH = (
     "/api/simulator-lab/runs/{run_id}/execution/run-to-end"
 )
+RUN_STAGE_PATH = "/api/simulator-lab/runs/{run_id}/stage"
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
 # added the two template paths, T006 added the create path, T017 added the
@@ -44,6 +45,10 @@ RUN_EXECUTION_END_PATH = (
 # build with no execution port composed behind them says so in a typed refusal
 # rather than by not serving them. Whether a port is composed is not the gate's
 # question, so it may not change the route set.
+#
+# T023 adds the stage inspector's one path, and it is a READ: it serves a Draft's
+# staged source envelopes behind the gate and nowhere else. Closed, it does not
+# exist; the operator surface gains nothing.
 SIMULATOR_LAB_SERVED_PATHS = {
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
@@ -58,6 +63,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_EXECUTION_START_PATH,
     RUN_EXECUTION_STEP_PATH,
     RUN_EXECUTION_END_PATH,
+    RUN_STAGE_PATH,
 }
 
 # The same four, with a concrete run identity, for the request-level assertions.
@@ -82,6 +88,7 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     RUN_PROFILES_PATH,
     CREATE_RUN_PATH,
     *RUN_EXECUTION_REQUEST_PATHS,
+    "/api/simulator-lab/runs/run-1/stage",
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",

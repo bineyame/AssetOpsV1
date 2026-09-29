@@ -2,6 +2,9 @@ import type {
   RunExecution,
   RunExecutionResult,
   RunSetupClient,
+  RunStage,
+  RunStageResult,
+  RunStagedEnvelope,
   RunStepRequest,
 } from "../runSetupClient";
 
@@ -275,16 +278,171 @@ export const ARTIFACT_UNREADABLE: RunExecution = {
 };
 
 /**
- * The four execution methods a fake client needs, answering one projection.
+ * Three staged envelopes, copied byte for byte from a real stage.
+ *
+ * Read off `host/lab_execution.py` staging the shipped Fuel Loss Event against
+ * MG-001 to offset 1545: sequences 89 to 91 are the fuel sensor's last three
+ * publications before the reporting gap opened, the last one at 00:45:00Z and
+ * published three seconds later. Nothing after it is staged, because nothing
+ * after it was published - which is the gap, seen from the boundary.
+ */
+function staged(
+  sequence: number,
+  messageId: string,
+  sourceTime: string,
+  publishedAt: string,
+): RunStagedEnvelope {
+  return {
+    canonical:
+      `{"mapping":{"mapping_set_id":"simulator-lab-gateway-fuel","mapping_version":1},` +
+      `"message":{"message_id":"${messageId}","sequence":${sequence}},` +
+      `"payload":{"interval_end":null,"interval_start":null,"measurement":"STATE_AT_INSTANT",` +
+      `"quality":"GOOD","unavailable_reason":null,"unit":"L","value":"373.52"},` +
+      `"schema":{"id":"assetops.source-envelope","version":1},` +
+      `"source":{"device_id":"fuel-level-sensor","gateway_id":"simulator-lab-gateway",` +
+      `"signal_id":"fuel-level","site_id":"MG-001","source_id":"simulator-lab-source"},` +
+      `"timing":{"published_at":"${publishedAt}","source_time":"${sourceTime}"}}`,
+    message_id: messageId,
+    sequence,
+    device_id: "fuel-level-sensor",
+    signal_id: "fuel-level",
+    mapping_set_id: "simulator-lab-gateway-fuel",
+    mapping_version: 1,
+    schema_version: 1,
+    source_time: sourceTime,
+    published_at: publishedAt,
+    measurement: "STATE_AT_INSTANT",
+    value: "373.52",
+    unit: "L",
+    quality: "GOOD",
+    unavailable_reason: null,
+    interval_start: null,
+    interval_end: null,
+  };
+}
+
+const MAPPING: RunStage["mapping"] = {
+  mapping_set_id: "simulator-lab-gateway-fuel",
+  mapping_version: 1,
+  publication_latency_seconds: 3,
+  entries: [
+    {
+      device_id: "fuel-level-sensor",
+      signal_id: "fuel-level",
+      measurement: "STATE_AT_INSTANT",
+      unit: "L",
+      publishes_unavailable: true,
+    },
+  ],
+};
+
+export const NOT_STAGED: RunStage = {
+  run_id: "run-a",
+  status: "NOT_STAGED",
+  statement:
+    "No source envelope has been staged for this draft. Envelopes are staged as an execution publishes readings, so a draft nothing has executed has none.",
+  execution_status: "NOT_STARTED",
+  release_eligible: false,
+  release_blockers: [
+    { kind: "NOTHING_STAGED", statement: "There is nothing staged to release." },
+    {
+      kind: "EXECUTION_NOT_COMPLETED",
+      statement:
+        "The execution that publishes into this stage has not completed, so the stage may still be missing envelopes a completed run would have published.",
+    },
+  ],
+  unreadable_detail: null,
+  envelope_schema_id: "assetops.source-envelope",
+  envelope_schema_version: 1,
+  stage_schema_version: 2,
+  integrity_digest: null,
+  boundaries_total: null,
+  published_through: null,
+  site_id: null,
+  source_id: null,
+  gateway_id: null,
+  mapping: null,
+  refused_publications: [],
+  envelopes: [],
+};
+
+export const STAGED_IN_THE_GAP: RunStage = {
+  ...NOT_STAGED,
+  status: "STAGED",
+  statement:
+    "These are the canonical source envelopes the simulated gateway published for this draft, exactly as persisted and re-read from the stage. They are staged, not released: nothing has been committed, nothing has reached ingestion, and no site history, evidence or finding has been written from them.",
+  execution_status: "RUNNING",
+  release_blockers: [
+    NOT_STAGED.release_blockers[1],
+    {
+      kind: "STAGING_INCOMPLETE",
+      statement:
+        "The stage has not yet recorded publication through the last boundary of its run. That is expected while the run is still executing; after it has finished, it can mean a stage write failed or a publication was refused. Either way the stage may not hold every envelope the run publishes, and a stage that may be incomplete is not releasable.",
+    },
+  ],
+  integrity_digest:
+    "27bccb8e5da84e80e41291d5211ff337cad675ee5a755d4c6f51c31ab8920ab7",
+  boundaries_total: 165,
+  published_through: 104,
+  site_id: "MG-001",
+  source_id: "simulator-lab-source",
+  gateway_id: "simulator-lab-gateway",
+  mapping: MAPPING,
+  envelopes: [
+    staged(
+      89,
+      "7bb4f91a0c124591beff1b44dbfe680024da0a99ab30d2dc66c390429934ee5b",
+      "2026-09-22T00:15:00Z",
+      "2026-09-22T00:15:03Z",
+    ),
+    staged(
+      90,
+      "1d38b354cafb5aeb8272d632f03abc40c248363594a76a57d80d833d1c890074",
+      "2026-09-22T00:30:00Z",
+      "2026-09-22T00:30:03Z",
+    ),
+    staged(
+      91,
+      "52c9a7f22a1e4893fb07b4663fdd22fa1d3c56885d5fb3b9c57a0a42d7f8b77e",
+      "2026-09-22T00:45:00Z",
+      "2026-09-22T00:45:03Z",
+    ),
+  ],
+};
+
+export const STAGE_UNREADABLE: RunStage = {
+  ...NOT_STAGED,
+  status: "STAGE_UNREADABLE",
+  statement:
+    "A stage exists for this draft and it failed its integrity check, so none of its content is presented as releasable. The stage is left exactly as it is; the detail names what failed.",
+  execution_status: "COMPLETED",
+  release_blockers: [
+    {
+      kind: "INTEGRITY_FAILURE",
+      statement:
+        "The persisted stage failed its integrity check, and content that cannot be verified is not releasable.",
+    },
+  ],
+  unreadable_detail:
+    "its integrity digest does not match its content, so the content was changed after it was staged",
+};
+
+/**
+ * The execution methods, and the stage read, a fake client needs.
  *
  * Spelled once here rather than in five test files, because a fake that drifts
  * from the interface is a test asserting against a screen no build produces.
  */
 export function executionMethods(
   answer: RunExecutionResult = { status: "loaded", execution: NOT_STARTED },
+  stage: RunStageResult = { status: "loaded", stage: NOT_STAGED },
 ): Pick<
   RunSetupClient,
-  "getExecution" | "startExecution" | "stepExecution" | "runExecutionToEnd"
+  | "getExecution"
+  | "startExecution"
+  | "stepExecution"
+  | "runExecutionToEnd"
+  | "getStage"
 > {
   return {
     getExecution: () => Promise.resolve(answer),
@@ -292,5 +450,6 @@ export function executionMethods(
     stepExecution: (_runId: string, _request: RunStepRequest) =>
       Promise.resolve(answer),
     runExecutionToEnd: () => Promise.resolve(answer),
+    getStage: () => Promise.resolve(stage),
   };
 }

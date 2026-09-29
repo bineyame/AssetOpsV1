@@ -3877,3 +3877,112 @@ document rather than to whichever path sorted first. Unreachable through
   (Claude backup) and `.agent/T022A-codex-review.md` (incomplete); the
   criterion-9 harness and its pre-change baseline server at
   `.agent/T022A-step-evidence.mjs` and `.agent/T022A-before-app.py`.
+
+## T023 - Staged canonical source envelopes
+
+The first canonical evidence boundary, staging only. Executing a Draft in the Lab
+now also publishes, through a simulated gateway, the canonical source envelopes a
+later Commit would release, persists them as an immutable stage, and shows them
+exactly as persisted on the Draft's own screen. Nothing is committed, received,
+ingested or accepted; no Site history changes.
+
+### What it settled in code
+
+- **`contracts/assetops_contracts/source_envelope.py` is the one crossing.**
+  Schema `assetops.source-envelope` **v1**, independent of
+  `EXECUTION_CONTRACT_VERSION` (still 8) - `D-2026-09-29-source-envelope-schema-v1`
+  records the choices. Exact key sets at every level, no free-text field, exact
+  decimal text for values, `YYYY-MM-DDTHH:MM:SSZ` instants, `published_at >=
+  source_time`, `received_at` refused as an unknown field. `SourceEnvelope`
+  validates in `__post_init__`, so an invalid one cannot be constructed, and
+  `parse_canonical_envelope_json` refuses text that is not already canonical.
+- **The message id is derived and content is not in it**: BLAKE2b-256 over Site,
+  gateway, source, device, signal and source time, recomputed by the parser. A
+  retry is the same id by construction; same id with different content is a
+  `StageConflict`, never an overwrite.
+- **Stock versus interval survives**: `STATE_AT_INSTANT` names no interval;
+  `INTERVAL_MEAN` carries `interval_start`/`interval_end` with the end equal to
+  `source_time`, the span read off the interval's real boundaries.
+- **What is not published has no envelope.** `SUPPRESSED_BY_GAP` and `DROPPED`
+  publish nothing; `NO_PRECEDING_INTERVAL`/`NO_VALUE_AT_BOUNDARY` become a typed
+  `UNAVAILABLE` envelope only where the mapping says the signal publishes
+  unavailability. The suppression sentence (which names the scenario's event)
+  never crosses.
+- **The gateway is `simulator/assetops_simulator/gateway/`**, a component beside
+  the transform. It reads `DeviceObservation`s only. The shipped allowlist is
+  `simulator-lab-gateway-fuel` v1: the fuel level sensor alone, 3 s declared
+  publication latency. The generator's power signal is generated and NOT
+  published - T026 extends the allowlist.
+- **`contracts/assetops_contracts/source_stage.py` is the stage**: admission
+  appends only, the whole mapping is frozen into the stage and read back from
+  it, a refused conflict is recorded by id and kind and blocks release, and the
+  persisted document is canonical JSON carrying each envelope as its own
+  canonical text plus a BLAKE2b-256 integrity digest. Anything that fails to
+  verify is `STAGE_UNREADABLE`, and an unreadable stage is never overwritten.
+- **`host/source_stages.py` persists under `var/stages/<run_id>.json`**, atomic
+  via a `.partial` sibling and `os.replace`. Gitignored user data, safe to
+  delete; a missing stage reads `NOT_STAGED`.
+- **`host/lab_execution.py` stages on start and on every step, before writing
+  the execution artifact**. That order only means a stage write that RAISES
+  aborts the step before the artifact is written; a publication refusal caught
+  in `_stage` (by design) is followed by the artifact write, so a persisted
+  execution CAN be ahead of the stage's watermark (review R5: 106 vs 105).
+  **Write order does NOT make eligibility honest** - the first
+  packet said it did, and the independent review (R1) disproved it: a failed
+  final stage write with the process still alive, and a publication refusal
+  caught in `_stage`, both read as ELIGIBLE. What does is the stage's own
+  watermark: a stage (schema **2**) records `boundaries_total` and
+  `published_through`, the latter moving only when a stage write succeeds, and
+  `published_through < boundaries_total` is the `STAGING_INCOMPLETE` blocker -
+  after a reload too. Measured by `TestEligibilityRequiresStagingThroughCompletion`
+  without `forget`, and by guard probes P13/P14. It is a progress record, not
+  T027's seal. Every step
+  republishes the whole series, which is the idempotent-retry case by
+  construction. The session freezes the gateway mapping at start.
+- **The port gained one READ, `staged_envelopes(run) -> SourceStageView`** (v4
+  3.3's name), which re-reads and verifies the persisted stage and never reads a
+  live session. Route `GET /api/simulator-lab/runs/{run_id}/stage`, gated, no
+  write verb. `PORT_NOT_COMPOSED` answers 503 like the execution routes.
+- **Only `simulator_lab_api.py` and `runs/execution_ports.py` may import the
+  stage contract** in the product; `tools/checks/dependency-direction.ps1`
+  enforces it with an anti-vacuity count. The envelope schema is deliberately
+  NOT restricted: T027's ingestion must parse it.
+- **The inspector** (`RunFrame.tsx`, panels "Staged source envelopes" onward)
+  shows status, eligibility and blockers, schema versions, frozen mapping and
+  allowlist, integrity digest, one row per envelope with source and publication
+  time in separate cells, and the selected envelope's canonical text byte for
+  byte in `pre.canonical-text`. It is re-read after every control. It has no
+  input and no control but "Show envelope N". `settledScreen` knows its loading
+  sentence.
+
+### The demonstration, in numbers
+
+Shipped Fuel Loss Event against MG-001 (host suite): stepped to offset 1545 the
+stage holds 91 envelopes, the newest at source time `2026-09-22T00:45:00Z`,
+published `00:45:03Z`, value 373.52 L, and none inside the gap; completed, 147,
+eligible. In the browser against `fuel-loss-event-mg006` the draws differ: 97
+staged at 1545, newest `00:30:00Z`/`00:30:03Z`, 154 when complete, and a fresh
+page load at 640px shows the same 154 and the same 643 characters of canonical
+text. Quote the relationship, not the count: which samples drop is the draw.
+
+### What this leaves open
+
+- **Two Drafts of one Site produce the same message ids** for the same device
+  and source time, because the id is the publication's and not the run's. Within
+  a stage that is correct; across runs it is a real collision T027's commit or
+  ingestion must decide about.
+- **The shipped allowlist has no interval signal**, so `INTERVAL_MEAN` and the
+  typed-unavailable path are proved by the gateway suite's fixtures, not by the
+  shipped run. T026 is where they meet real data.
+- **A stage is rewritten whole on every step** (about 110 KB at completion), so
+  staging a run is quadratic in its envelope count. Fine at 150; not at T026's
+  scale without an append format.
+- **Eligibility rests on the publication watermark, not a seal.** It says
+  every boundary was published into the stage; sealing is Commit's (T027).
+- **The integrity digest is redundant with the canonical-form check**; a probe
+  found the digest comparison removable with every damage case still refused.
+  Both stay; the reason is now asserted.
+- `var/stages` grows by one stage per layout-evidence run, beside the four Drafts
+  `var/runs` gains.
+- Guard probes: `.agent/T023-guard-probes.py` (12 of 12 CAUGHT); browser log
+  `.agent/T023-layout-evidence.log`.
