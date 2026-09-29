@@ -168,8 +168,13 @@ class TestShippedCatalog:
         # things: an archetype with a single fuel tank cannot demonstrate a
         # component selector, because an unqualified reference and an
         # addressed one resolve to the same component on it.
+        #
+        # Three since T024: the Kobo archetype with three addressed loads,
+        # the electrical properties the daytime model needs, and typed Site
+        # Controls.
         assert [t.template_id for t in templates] == [
             "hybrid-mini-grid-100kw",
+            "kobo-mini-grid-60kw",
             "twin-tank-mini-grid-150kw",
         ]
 

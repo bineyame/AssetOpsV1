@@ -258,6 +258,7 @@
                 "signal_id": "bus-voltage"
               }
             ],
+            "site_controls": null,
             "summary": "A site used by tests only.",
             "topology": {
               "connections": [
@@ -424,6 +425,7 @@
             "control_assumptions": null,
             "devices": null,
             "signal_mappings": null,
+            "site_controls": null,
             "summary": "A site used by tests only.",
             "topology": null,
             "valid_from": "2026-01-01T00:00:00Z",
@@ -541,6 +543,7 @@
                 "signal_id": "bus-voltage"
               }
             ],
+            "site_controls": null,
             "summary": "A site used by tests only.",
             "topology": {
               "connections": [

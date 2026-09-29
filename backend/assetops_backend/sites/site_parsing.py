@@ -273,6 +273,7 @@ def render_site_document(record: SiteRecord) -> dict[str, Any]:
                     devices=record.foundation.devices,
                     signal_mappings=record.foundation.signal_mappings,
                     control_assumptions=record.foundation.control_assumptions,
+                    site_controls=record.foundation.site_controls,
                 )
             ),
         },
@@ -461,6 +462,10 @@ def _parse_foundation(raw: Any, *, source: str) -> SiteFoundation:
     content = parse_foundation_content(
         raw,
         component_ids=frozenset(seen),
+        component_types={
+            component.component_id: component.component_type
+            for component in parsed
+        },
         where="site.foundation",
         source=source,
         invalid=_invalid,
@@ -475,6 +480,7 @@ def _parse_foundation(raw: Any, *, source: str) -> SiteFoundation:
         devices=content.devices,
         signal_mappings=content.signal_mappings,
         control_assumptions=content.control_assumptions,
+        site_controls=content.site_controls,
     )
 
 
