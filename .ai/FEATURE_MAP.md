@@ -8,6 +8,13 @@ Re-derived on 2026-09-24 from only
 v4 governs simulator mechanisms; the roadmap governs demo outcomes and order.
 Built-state evidence is in `.ai/CODE_STATE.md` and `tasks/completed/`.
 
+2026-09-30 scoped addition: the owner explicitly commissioned review of
+`Docs/lab-cockpit-proposal.md` (aeb4c99) alongside those sources. It adds
+Lab inspection features, not a new physics/evidence authority. The owner
+accepted the two-slice priority on 2026-09-30; the recommendations are in
+[the Lab cockpit handoff](PLANNING_HANDOFF_LAB_COCKPIT.md). v4 mechanisms,
+the roadmap's demo outcomes and later adopted queue decisions still govern.
+
 This replaces the previous Blocks A-J plan, its two-roadmap precedence claim,
 and its fuel-first Finding decision. Earlier revamps and alignment reviews are
 not direction for this plan. The former "(1)" roadmap is not a second authority.
@@ -27,11 +34,14 @@ Roadmap slices below are outcomes, not nine implementation tasks.
 | Shipped Fuel Loss scenario, scenario inspection and executable-document contract | T017-T018 |
 | Frozen Draft run setup, profile resolution, Runs inventory and Draft detail | T019-T020 |
 
-All are complete. The shipped Fuel Loss scenario still produces a `BLOCKED`
-Draft; T020's `READY` proof uses a fixture. The simulator is a scaffold.
-There is no execution, generated observation, gateway staging, Commit,
-ingestion, accepted history, analytic, Finding, financial bridge or verification.
-Configured PV/battery/load components are not functioning electrical models.
+The table is the original configuration foundation. As of this 2026-09-30
+handoff, T001-T025b are complete and merged, and the owner has accepted A.
+The Lab executes a causal mini-grid with PV, battery, addressed loads,
+generator/policy behavior, generated readings and initial fuel staging.
+Electrical summary series and generator steps/transitions already persist;
+complete chart/timeline history does not. T025c/T025d are next, then T026's
+dispatch staging extension. Commit, ingestion, accepted history,
+Findings, financial translation and verification remain future work.
 
 ## Delivery Sequence
 
@@ -51,8 +61,9 @@ residential/critical/productive demand, battery SOC/power, generator and named
 energy flows. Change a forcing or policy and see a coherent physical change;
 requested control and physically accepted output remain independently visible.
 
-**Build from today:** complete the Foundation/property and addressed-binding
-work, align the execution contract, then make the narrow Fuel Loss kernel and
+**Implementation path (complete through T025b):** complete the
+Foundation/property and addressed-binding work, align the execution contract,
+then make the narrow Fuel Loss kernel and
 Lab execution real. Extend that causal path to PV, load profiles, battery
 SOC/limits, physical generator state, typed Site Controls, controller view,
 `ControlIntent` and the deterministic resolver/`AcceptedFlowSet`.
@@ -205,6 +216,10 @@ the other five stories do not automatically supply them.
 
 ## Next Work And Unowned Requirements
 
+The Lab cockpit is assigned at feature level in the section below. The owner
+accepted the recommended priority on 2026-09-30; T025c/T025d are planned
+before T026, without activating implementation.
+
 **Done: the Planner recreated the queue and the Architect reviewed it on
 2026-09-24.** `tasks/README.md` holds the order; `.ai/ACTIVE_CONTEXT.md` routes
 the active task. v4 sections 2.1 and 24's starter order survived the review as
@@ -225,8 +240,8 @@ checklist, so a later replan can re-verify coverage rather than assume it.
 
 | Gap to assign | First outcome / Planner responsibility |
 | --- | --- |
-| Addressed bindings through scenario/profile/frozen initialization; component control properties using the carrier | A starter: current T020A explicitly excludes StateRef; assign the immediate follow-on cut and control-property coverage |
-| PV/load/battery/generator models, discrete-state contract, Site Controls, controller and accepted flows | A completion: no current task covers the credible electrical world; require repeated-load addressing and healthy/policy-change demonstrations |
+| Addressed bindings through scenario/profile/frozen initialization; component control properties using the carrier | Built in A starter T020A/T020A1; retain as regression coverage |
+| PV/load/battery/generator models, discrete-state contract, Site Controls, controller and accepted flows | Built in T024/T025a/T025b; A accepted. Cockpit presents this behavior without reopening its acceptance |
 | Dispatch-capable publication profile, mappings and evidence types; Commit and ingestion; Site Overview | B completion beyond initial T023 staging; prove reconstruction and timestamp semantics |
 | Gateway fault, buffering, recovery and delivery realism | B hardening after the first Finding, unscheduled and a prerequisite of nothing; must not re-prove the envelope contract |
 | Dispatch reconstruction/classification, confidence/claim ceilings, indicative fuel quantity, Finding and Evidence | C; include missing-capability and degraded-evidence cases, not only the successful recipe |
@@ -237,6 +252,48 @@ checklist, so a later replan can re-verify coverage rather than assume it.
 | Battery stress initialization, evidence-derived trajectory and replacement exposure | G |
 | Configuration change, Action/Maintenance link, target/guardrail verification and Finding history | H |
 | Independent portfolio recipes, service/start-failure assessment and Lab truth-versus-inference validation | I; v4 sections 17, 20, 25 |
+| Reloadable Lab history, charts, SLD overlays, timeline and playback | T025c (L1a), T025d (L1b), then conditional L2 additions in their mechanism-owning slices |
+
+## Lab Cockpit - Inspection Across A-I (Accepted Sequence)
+
+This supports A's physical review, B's boundary explanation and I's final
+truth-versus-inference reveal; it is not a tenth product milestone. A remains
+complete. The motivation is to let a reader inspect coherent physical behavior
+and evidence gaps before C/D feedback, using the existing developer shell.
+See the [handoff](PLANNING_HANDOFF_LAB_COCKPIT.md) for mechanisms, exact
+acceptance-level results, seam proofs and T026-T036 amendments.
+
+| Feature | Causal prerequisite | Demonstrable result / ownership |
+| --- | --- | --- |
+| C1 Runtime SLD | Run-bound configured topology plus addressed accepted flows/stocks/discrete state; shared SLD presentation slots | Select an interval and see actual branch direction, battery state and each load's service; L1b |
+| C2 Time-series inspection | Complete persisted Lab history, exact units/addresses and state-versus-interval semantics | Healthy/policy-varied curves, truth versus reported gaps, historical selection and identical reload; L1a |
+| C3 Event/transition timeline | Recorded applied events, bounds, discrete transitions and reporting outcomes with phase/time | Explain a change by its recorded cause, distinguish scheduled from applied and reporting loss from physical failure; L1b |
+| C4 Requested/accepted control | Historical ControlIntent/AcceptedFlowSet and effective controls | Inspect one constrained request, accepted output and recorded limiting reason at the same interval as the charts; L1b |
+| C5 Playback | Existing guarded step port and live host session | Play/pause/resume with wall pacing only, no double advance or change to deterministic result; L1b |
+| C6 Identity/progress | Frozen run metadata and actual execution boundary counts | Inspect simulated window/time, progress, seed/versions and distinct execution/playback state; L1a |
+| C7 Publication lane | Existing stage inspector; T026's richer canonical reports/mappings | Existing inspector stays accessible; later side-by-side report/envelope inspection retains source versus publication time. Enrichment is feedback-selected L3 |
+| C8 Health/log inspection | T027 release/ingestion records and accepted source-health backing; T026A for extra delivery faults when scheduled | Trace actual outcomes without treating stage or playback as Online. Broad dashboard is conditional L3, no demo gate |
+| C9 Setup/authoring | Existing frozen setup for a wizard; new versioned authoring write path for New/Edit | Separate future scoped features, only if feedback requires them; no implied general authoring commitment |
+
+The owner accepted L1a (T025c: durable history/charts/header), then L1b
+(T025d: SLD/timeline/control/playback) sequentially before T026 on 2026-09-30.
+`tasks/README.md` holds the authoritative order.
+L2 updates the relevant cockpit view when a slice adds a physical/reporting/
+intervention fact; pure product analytics and economics do not require new
+private plots. L3 follows feedback, normally after T036; T026A stays unscheduled.
+
+Protected seams: host-owned private history served only through gated neutral
+Lab projections; accepted evidence alone feeds product conclusions; old
+artifacts never silently re-execute; topology binds to the run; missingness
+never becomes zero or carried-forward fresh samples; auto-play cannot mutate
+the timestep or frozen inputs. Detailed inspectors remain available, and the
+shared SLD substrate imports no Lab types or gate. An artifact-schema addition
+does not by itself alter the execution contract.
+
+The handoff's Motivation annotation corrects one-second step/100x promises,
+live injection, unsupported Online status and default cold-room physics, plus
+other unsourced screenshot values. These apply established rules, not new
+mockup-derived requirements. Operator v6.9 presentation remains its own path.
 
 ## Decisions At Their Point Of Use
 

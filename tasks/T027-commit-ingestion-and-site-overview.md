@@ -88,6 +88,13 @@ runtime and coverage. Unsupported/unobserved metrics are unavailable.
     Dependency guards still reject backend/simulator cross-imports.
 17. Current Foundation edits cannot rewrite historic interpretation.
     Evidence retains the configuration/time basis originally accepted.
+18. Run status keeps Commit/release and ingestion acceptance separate. After
+    Commit, an Open in AssetOps link targets the correct Site, selected window
+    and accepted-history context and displays actual release/acceptance outcome;
+    it never implies every record was accepted.
+19. With Lab gated off, every new Lab history/series route and private payload
+    is inaccessible. Rebuild product views with Lab routes and private execution
+    artifacts unavailable; accepted evidence alone supplies operator views.
 
 ## Proof
 
@@ -106,6 +113,7 @@ Persist the evidence needed to repeat it without the Lab runtime.
 | Disable Lab | Operator history and evidence remain |
 | Remove private artifacts and rebuild | Same accepted operating result |
 | Change current configuration | Historic evidence basis unchanged |
+| Commit with partial rejection; follow Open in AssetOps | Correct Site/window, actual accepted coverage |
 
 Run ingestion/repository/read-model tests, neutral host integration, frontend
 tests, shared checks and layout evidence on populated and empty Overview.

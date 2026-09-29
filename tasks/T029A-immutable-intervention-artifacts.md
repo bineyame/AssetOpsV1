@@ -62,6 +62,10 @@ The pre-change run, its artifacts and its history remain intact and re-runnable.
 9. The Lab control is utilitarian: declare, freeze, inspect, run, compare to the
    baseline run by identity. No experiment dashboard, template library or
    scheduling UI.
+10. Persist declared and applied POLICY_CHANGE markers and the effective and
+    reversion spans from immutable artifact/ledger provenance. After reload,
+    selecting a marker selects its resolved interval in the cockpit C4 panel;
+    auto-play supplies no live intervention channel.
 
 ## Proof
 

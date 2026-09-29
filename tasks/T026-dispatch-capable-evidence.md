@@ -4,7 +4,7 @@ Status: planned
 USER_REVIEW_REQUIRED: true
 
 Map: B extension beyond initial fuel staging.
-Depends on: T023 and completed A in T025.
+Depends on: T023, completed A in T025 and T025c/T025d Lab history.
 Next: T027.
 Branch: task/T026-dispatch-capable-evidence
 Sizing: publication/gateway boundary extension.
@@ -38,6 +38,7 @@ this thinning refuses.
 - Roadmap sections 3.2-3.3 and 7/B-C.
 - FEATURE_MAP B's dispatch evidence extension.
 - Shared checks and exclusions: tasks/README.md.
+- T025c history contract and T025d cockpit inspection.
 
 ## Deliver and acceptance
 
@@ -66,7 +67,8 @@ this thinning refuses.
    delayed case makes visibly differ. No ingestion received_at exists in stage
    content; T027 assigns it.
 8. A discrete generator status is carried as an enum and is never numerically
-   noised. Dropout, stale and duplicate handling for it is T026A.
+   noised. Retain T025b's built reported-status gap/stale behavior; T026A owns
+   further gateway dropout, retry and duplicate delivery behavior.
 9. Exact canonical payloads and mapping/profile versions survive persistence.
    T023's retry, conflicting-identity and corrupt-artifact rules still hold and
    are not re-proved here.
@@ -77,6 +79,12 @@ this thinning refuses.
     dispatch datasets. Private recipe labels/oracles stay outside payloads.
 12. Expanding the allowlist preserves strict refusal of arbitrary world/trace
     content and leaves Site accepted history unchanged.
+13. Record new numeric/enum report attempts and policy/operational effective-
+    time markers in T025c's persisted history. After reload, the appropriate
+    addressed chart/timeline/inspector shows actual source time, quality,
+    absence and publication delay; it does not infer a report from truth.
+14. When staging support lands, remove any Lab disclosure that still says these
+    reports or markers await staging, without claiming Commit or acceptance.
 
 ## Proof
 
@@ -95,6 +103,8 @@ Repeat with a discharge-capability gap and a missing override record.
 Prove that the gap and the delay change reporting/publication only, with an
 identical world trajectory and identical controller decisions under the same
 physical inputs.
+Prove cockpit reload exposes the added reports and policy/record markers while
+the stage inspector retains distinct source and publication times.
 Run simulator/host, strict envelope and inspector tests, shared checks and
 layout evidence where the new evidence inspector changes layout.
 

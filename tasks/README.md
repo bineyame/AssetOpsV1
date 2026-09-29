@@ -4,6 +4,7 @@ Recreated from main a7417dd and D-2026-09-24-v4-roadmap-replan.
 All tasks are planned; this file does not activate implementation.
 Direction: [feature map](../.ai/FEATURE_MAP.md),
 [starter handoff](../.ai/PLANNING_HANDOFF_T020A_T023.md),
+[Lab cockpit handoff](../.ai/PLANNING_HANDOFF_LAB_COCKPIT.md),
 [v4](../Docs/simulator_design_v4.md), and
 [demo roadmap](../Docs/mini-grid-demo-architecture-and-roadmap.md).
 The six existing starter files are replacements, not amendments.
@@ -17,6 +18,10 @@ T022B precedes T024 under `D-2026-09-29-run-store-libyaml` and owns
 T022A's outstanding inventory-cost criterion 2.
 T025 is split into T025a then T025b under
 `D-2026-09-29-t025-generator-policy-package`; T025b is A's acceptance checkpoint.
+The owner accepted `D-2026-09-30-lab-cockpit-cadence`,
+`D-2026-09-30-lab-cockpit-history` and
+`D-2026-09-30-lab-cockpit-presentation` on 2026-09-30. T025c (L1a) then
+T025d (L1b) run sequentially before T026; A remains accepted.
 
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
@@ -32,26 +37,31 @@ T025 is split into T025a then T025b under
 | 10 | T024 | A | Daytime PV/storage serves three addressed loads |
 | 11 | [T025a](T025a-healthy-generator-runtime.md) | A | Healthy full-site generator physics and contract-9 reproduction |
 | 12 | T025b | A completion | Policy recipes, reported status and owner acceptance of A |
-| 13 | T026 | B | Dispatch evidence with one gap and one delayed publication |
-| 14 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 15 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 16 | T029 | D | Versioned assumptions translate quantity into money |
-| 17 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 18 | T034 | H | Policy action -> post-action evidence -> verification |
-| 19 | T030 | E | Fuel balance with separate delivery/dip records |
-| 20 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 21 | T032 | F completion | Paired load addition with isolated comparison history |
-| 22 | T033 | G | Battery stress trajectory and replacement exposure |
-| 23 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 24 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 13 | [T025c](T025c-persisted-lab-history-and-charts.md) | Lab cockpit L1a | Reloadable addressed history, charts and run identity |
+| 14 | [T025d](T025d-lab-cockpit-inspection-and-playback.md) | Lab cockpit L1b | Run-bound SLD, causal inspection and guarded playback |
+| 15 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 16 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
+| 17 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
+| 18 | T029 | D | Versioned assumptions translate quantity into money |
+| 19 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 20 | T034 | H | Policy action -> post-action evidence -> verification |
+| 21 | T030 | E | Fuel balance with separate delivery/dip records |
+| 22 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 23 | T032 | F completion | Paired load addition with isolated comparison history |
+| 24 | T033 | G | Battery stress trajectory and replacement exposure |
+| 25 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 26 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 | - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.
 The order above is the intended delivery order; a user checkpoint may redirect
 later tasks. T021A stays after T021 and is not a kernel prerequisite.
 T023 is preparatory B work; A completes before B's internal demo.
+L3's C7 enrichment, C8 health/log breadth and C9 setup/authoring are
+feedback-selected after their prerequisites, normally after T036. No L3 task
+or demo gate is allocated now.
 
-**Rows 22 and 23 are an interchangeable pair.** T033 and T035 consume nothing
+**Rows 24 and 25 are an interchangeable pair.** T033 and T035 consume nothing
 from each other; both depend only on T027's evidence, T029's assumptions and
 T034's rule set. Which runs first is a product-priority call taken from
 T028/T029 feedback - backup failure and unserved customers may matter more to
@@ -133,6 +143,16 @@ Record any non-default base URL, exact command and final result.
 Unavailable browser/server prerequisites mean unverified layout, not a pass.
 Measurements must establish that the measured set contains rendered content.
 Include task-specific causal/boundary proofs in addition to these checks.
+
+Under the accepted conditional L2 rule: a slice adding a physical state,
+accepted flow, reported signal, transition, reporting/publication behavior or
+intervention updates its applicable Lab history and chart/SLD/timeline/inspector
+in the same slice. Show addressed identity, time/interval, units, provenance
+and missingness; prove reload and gate isolation. A slice with no new Lab facts
+records that applicability in its packet. This does not create telemetry or
+operator health from truth. See the [Lab cockpit handoff](../.ai/PLANNING_HANDOFF_LAB_COCKPIT.md)
+and the 2026-09-30 Lab cockpit decisions in
+[DECISIONS](../.ai/DECISIONS.md).
 
 ## Shared scope and protected seams
 

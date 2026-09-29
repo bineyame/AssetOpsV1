@@ -76,6 +76,11 @@ feedback is worth having. See `Docs/queue-review-feedback-verbatim.md` and
 15. Document the repeatable local demo commands, fixture identities, selected
     windows and supported limitations in the implementation review packet.
     Loading the demo twice does not double-ingest or duplicate Sites.
+16. Use reloadable gated cockpit records for the final truth-versus-inference
+    reveal, joined to product results by run/window/evidence reference. Private
+    truth flows only into that Lab comparison. The operator walkthrough works
+    with Lab off; include the successful and claim-limited cases. L3 and T026A
+    remain optional.
 
 ## Proof
 

@@ -26,17 +26,21 @@ queue review resequenced it on 2026-09-24 under
 `D-2026-09-29-run-store-libyaml`: the run store moves to libyaml in its own
 slice T022B, now complete as a partial improvement. **T024 is complete**
 (daytime PV, storage and three addressed loads, contract 9); T025a and
-T025b are complete and the owner accepted A; **T026 is next**, then the order
-in `tasks/README.md`.
+T025b are complete and the owner accepted A. On 2026-09-30 the owner accepted
+the Lab cockpit cadence: **T025c (L1a) is next**, followed sequentially by
+T025d (L1b), then T026 and the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
+`.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and
 `.ai/PLANNING_HANDOFF_T020A_T023.md`.
 
 This replaces the former "recreate the queue first" routing.
 `D-2026-09-24-v4-roadmap-replan` records the new source basis and sequence.
-The only direction sources are `Docs/simulator_design_v4.md` (mechanisms) and
-`Docs/mini-grid-demo-architecture-and-roadmap.md` (demo path). Earlier planning
-reviews and the former second roadmap are not additional authorities.
+The mechanism/demo direction sources are `Docs/simulator_design_v4.md` and
+`Docs/mini-grid-demo-architecture-and-roadmap.md`; the owner also authorized
+`Docs/lab-cockpit-proposal.md` as scoped Lab inspection input on 2026-09-30.
+Earlier planning reviews and the former second roadmap are not additional
+authorities.
 
 ## Current Route
 

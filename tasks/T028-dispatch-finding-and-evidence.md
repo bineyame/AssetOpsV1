@@ -103,6 +103,9 @@ versioned; do not seek a general optimization framework.
 Tests must check classification/limits and evidence references, not just the
 presence of a Finding card. Run backend analytic/read-model tests, frontend
 navigation tests, shared checks and populated layout evidence.
+The cockpit may validate the Lab recipe during review, but its private series
+never enters classification or indicative fuel quantity. The Finding panels
+remain reconstructible from accepted evidence with Lab disabled.
 
 ## Scope limits
 

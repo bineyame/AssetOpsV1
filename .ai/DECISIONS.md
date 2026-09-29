@@ -6,6 +6,15 @@ Use this index to find only the decisions relevant to the active task. Keep
 newest task-routing state in `.ai/ACTIVE_CONTEXT.md`; keep full decision
 rationale in the dated entries below.
 
+Lab cockpit decisions (owner accepted 2026-09-30):
+
+- `D-2026-09-30-lab-cockpit-cadence`: L1a then L1b, sequentially before T026;
+  conditional L2 in each owning slice and feedback-selected L3.
+- `D-2026-09-30-lab-cockpit-history`: persisted host-owned history and gated
+  projections; no implicit re-execution on read.
+- `D-2026-09-30-lab-cockpit-presentation`: accepted timing, missingness, SLD
+  reuse, playback and mockup annotations under existing seams.
+
 Current direction correction: `D-2026-09-24-v4-roadmap-replan` supersedes the
 old demo readiness/sequence and ambiguous sampling shorthand identified below.
 Earlier dated entries remain history; `.ai/CODE_STATE.md` records what shipped.
@@ -3096,3 +3105,107 @@ executes only what the Site's frozen policy declares:
 Demo values, reviewed again at T025b's hands-on check: start 35 %, stop 90 %
 (prolonged) against 60 % (changed policy), minimum runtime 30 min, 40 kW,
 0.3 L/kWh, tank 400 L starting at 300 L.
+
+## 2026-09-30
+
+Decision: `D-2026-09-30-lab-cockpit-cadence`.
+
+Status: **ACCEPTED by the owner, 2026-09-30.** The owner requested
+Architect consideration of `Docs/lab-cockpit-proposal.md` (aeb4c99) and
+accepted the resulting cadence and conditional L2 rule.
+It is a scoped addition to the planning basis in
+`D-2026-09-24-v4-roadmap-replan`: v4 still governs mechanisms and the corrected
+roadmap plus adopted queue decisions govern demo outcomes/order. Motivation
+images remain Lab presentation guidance, not capability or operator-navigation
+authority. The untracked technical walkthrough is explanatory context only.
+
+Adopt L1/L2/L3 now that T025b is complete and A accepted. Split L1 into
+two reviewable vertical slices: L1a durable history/charts/header (C2/C6), then
+L1b runtime SLD/timeline/requested-versus-accepted/playback (C1/C3/C4/C5).
+Place both before T026, sequentially. They touch the same host, observation
+and projection seams as T026, and the shared checkout permits one editor.
+Parallel implementation is not justified by frontend separation alone.
+
+L2 is conditional: a slice adding runtime, reporting or intervention facts
+updates their appropriate cockpit representation and persistence proof. Pure
+product analytics/economics need no new private chart. C7's existing inspector
+continues; its richer layout, C8 health/log breadth and C9 authoring remain
+feedback-selected L3, normally after T036. T026A remains unscheduled and a
+prerequisite of nothing. B/C/D/H and the four demo points keep their meanings.
+
+Reason: SLDs and day curves make existing physics and evidence loss reviewable
+before domain-expert feedback. Complete history is a real storage/readback
+change, so "one presentation slice" understates L1. Deferring health/authoring
+breadth protects the first Finding path.
+
+The owner accepted the delay of T026 and conditional L2 on 2026-09-30.
+The Planner's task/sequence amendment follows
+`.ai/PLANNING_HANDOFF_LAB_COCKPIT.md`; implementation is not activated here.
+
+Decision: `D-2026-09-30-lab-cockpit-history`.
+
+Status: **ACCEPTED by the owner, 2026-09-30.** Persisted history is option (a)
+for the cockpit slices; reading never re-executes an old run.
+
+Persist complete compact Lab history with the host-owned execution artifact,
+and expose it through a neutral gated Lab projection. Do not re-execute on
+read. Existing T024 electrical summaries and T025 generator series/transitions
+are retained; add missing per-address interval detail, stock samples, complete
+observation attempts and applied-event/bound history. The capped recent-report
+tail and latest-only controls/flows are not substitutes for historical data.
+
+Use an explicit history/artifact schema, lossless numbers, typed enums,
+address/time/unit provenance, recorded coverage and integrity bound to the
+run/version manifest. Each fact is stored once rather than persisting a
+cumulative snapshot at every boundary. COMPLETED and FAILED results reload
+with their recorded extent. L1 introduces no durable resumable execution;
+lost live sessions retain INTERRUPTED semantics. Old artifacts retain their
+recorded series and disclose absent history rather than generating it anew.
+Unknown or damaged schemas remain unreadable without overwrite.
+
+Reason: frozen inputs and determinism cannot supply an old kernel/profile
+implementation that is no longer present. A read must preserve the result
+actually recorded. Private storage belongs to the composition leaf, not a
+product repository or evidence schema. Single-run history must not recreate
+T022A's whole-store read cost. Detailed readback/size and version-transition
+guidance is in the handoff; an artifact addition alone does not move the
+execution contract under `D-2026-09-22-contract-version-scope`.
+
+Decision: `D-2026-09-30-lab-cockpit-presentation`.
+
+Status: **ACCEPTED by the owner with the cadence, 2026-09-30.** The underlying truth,
+timing and source-health seams are already settled; no new owner domain choice
+is needed to apply them.
+
+Use one selected boundary/interval across charts, timeline, SLD and control
+inspection. Preserve stock-at-T versus preceding-interval measurements and
+generator state-at-T versus state-for-step. Plot reports at their actual
+source time; stale retained values are labelled inspection context, never new
+samples. Missingness breaks reported traces, not the physical series. Units
+and addresses remain distinct and exact values remain inspectable.
+
+Reuse the configured SLD substrate through presentation slots, with run-bound
+topology and verified address/path mapping. Lab overlays are composed outside
+the shared renderer; it imports no simulator, Lab contract, shell or gate.
+Unknown topology or branch values remain unavailable. Arrows represent
+accepted branch transfer, not invented electrical detail.
+
+Auto-play schedules guarded Step requests sequentially in the browser.
+Pacing changes wall delay only. Pause stops future requests; an in-flight
+accepted step may finish. Refusal/error stops scheduling and refreshes the
+authoritative position before explicit resume. No catch-up bursts, live
+injection, mutable timestep, reset or server clock is added.
+
+Record a text companion beside the Motivation images using the handoff's
+annotation: replace one-second/100x promises with frozen boundary/pacing;
+replace live Quick Actions with T029A's declare/freeze/new-run mechanism;
+separate device quality from accepted-evidence source health; omit default
+cold-room physics and all unbacked voltage/breaker/weather values. Distinguish
+staging from Commit/acceptance. Screens 4-5 authoring and 8-9 dashboards remain
+conditional followers. These corrections implement canonical fidelity, not
+pixel fidelity to known errors.
+
+Reason: an attractive cockpit must not silently change what its timestamps,
+values, arrows or controls claim. Product conclusions continue to consume
+only accepted evidence, while later gated comparison may read those product
+results beside private truth without supplying truth to analytics.
