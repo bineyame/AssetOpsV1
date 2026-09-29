@@ -173,9 +173,21 @@ async function inventoryByNavigation(cdp) {
   const mark = await cdp.value("window.__marks.runsRows");
   const api = await cdp.value(`(() => {
     const e = performance.getEntriesByType("resource").find((r) => r.name.endsWith("/api/simulator-lab/runs"));
-    return e ? { start: e.startTime, duration: e.duration } : null;
+    return e ? { start: e.startTime, duration: e.duration, end: e.responseEnd } : null;
   })()`);
-  return { ms: mark.t, rows: mark.count, expected, api };
+  // Where the rest of the wait went: the document's own milestones, so the
+  // part the run store owns (the API) can be told apart from page boot and
+  // rendering.
+  const page = await cdp.value(`(() => {
+    const nav = performance.getEntriesByType("navigation")[0];
+    const scripts = performance.getEntriesByType("resource").filter((r) => r.initiatorType === "script");
+    return {
+      domContentLoaded: nav ? nav.domContentLoadedEventEnd : null,
+      scripts: scripts.length,
+      lastScriptEnd: scripts.length ? Math.max(...scripts.map((s) => s.responseEnd)) : null,
+    };
+  })()`);
+  return { ms: mark.t, rows: mark.count, expected, api, page };
 }
 
 async function inventoryInApp(cdp) {
@@ -189,7 +201,14 @@ async function inventoryInApp(cdp) {
     const t0 = performance.now();
     const done = () => {
       const count = document.querySelectorAll(selector).length;
-      if (count > 0) { observer.disconnect(); resolve({ ms: performance.now() - t0, rows: count }); }
+      if (count > 0) {
+        observer.disconnect();
+        const ms = performance.now() - t0;
+        const e = performance.getEntriesByType("resource").filter(
+          (r) => r.name.endsWith("/api/simulator-lab/runs") && r.startTime >= t0)[0];
+        resolve({ ms, rows: count,
+          apiStart: e ? e.startTime - t0 : null, apiEnd: e ? e.responseEnd - t0 : null });
+      }
     };
     const observer = new MutationObserver(done);
     observer.observe(document, { subtree: true, childList: true });
@@ -310,6 +329,8 @@ try {
       `${i === 0 ? "first " : "sample"} ${i}: inventory nav ${Math.round(navigation.ms)} ms ` +
         `(${navigation.rows}/${navigation.expected} rows, api ${navigation.api ? Math.round(navigation.api.duration) : "?"} ms)` +
         ` | in-app ${inApp.ms === null ? inApp.note : Math.round(inApp.ms) + " ms"}` +
+        ` (api ${inApp.apiStart == null ? "?" : Math.round(inApp.apiStart)}->${inApp.apiEnd == null ? "?" : Math.round(inApp.apiEnd)} ms)` +
+        ` | page boot dcl ${navigation.page?.domContentLoaded == null ? "?" : Math.round(navigation.page.domContentLoaded)} ms` +
         ` | setup ${created.ms === null ? created.note : Math.round(created.ms) + " ms"} ${created.status ?? ""}` +
         ` | detail ${detail ? Math.round(detail.ms) + " ms" : "-"}`,
     );
@@ -332,6 +353,9 @@ const summary = {
     inventoryNavigation: stats(quiet.map((s) => s.navigation.ms)),
     inventoryApi: stats(quiet.map((s) => s.navigation.api?.duration)),
     inventoryInApp: stats(quiet.map((s) => s.inApp.ms)),
+    inventoryInAppApiEnd: stats(quiet.map((s) => s.inApp.apiEnd)),
+    inventoryInAppAfterApi: stats(quiet.map((s) =>
+      s.inApp.ms != null && s.inApp.apiEnd != null ? s.inApp.ms - s.inApp.apiEnd : null)),
     setup: stats(quiet.map((s) => s.setup.ms)),
     runDetail: stats(quiet.map((s) => s.detail?.ms)),
   },
