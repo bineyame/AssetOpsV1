@@ -1566,6 +1566,33 @@ def _freeze_model_needs(
                 )
             )
 
+    # Run-start states the model needs the scenario to answer. Not frozen here
+    # - the scenario's own initialization row is the answer - only checked, so
+    # a scenario that states none blocks with the address named instead of a
+    # READY Draft whose kernel stops at the hole.
+    for state_key in model.initialization_needs:
+        supported = model.supported(state_key)
+        carrier = None if supported is None else supported.component_type
+        for component in foundation.components:
+            if component.component_type != carrier:
+                continue
+            ref = component_state(state_key, component.component_id)
+            if ref.addressed_key in already:
+                continue
+            reasons.append(
+                BlockingReason(
+                    kind="INITIAL_VALUE_NOT_RESOLVED",
+                    subject=ref.addressed_key,
+                    statement=(
+                        f"{declared_by.capitalize()} needs {ref.addressed_key} "
+                        "initialized at run start, and this scenario states no "
+                        "value for it. A run-start condition is the "
+                        "scenario's or the run's to state; it is never "
+                        "inferred from a reserve, a capacity or a default."
+                    ),
+                )
+            )
+
     controls: list[FrozenSiteControl] = []
     for control_key in model.site_control_needs:
         declared_control = next(

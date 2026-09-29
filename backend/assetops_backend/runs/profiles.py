@@ -310,6 +310,13 @@ class ModelProfile:
     foundation_needs: tuple[str, ...] = ()
     #: The typed Site Controls this model's controller needs, by control key.
     site_control_needs: tuple[str, ...] = ()
+    #: Run-start dynamic states this model needs the SCENARIO (or the run) to
+    #: initialize at every component of the state's carrier type - a battery's
+    #: state of charge. v4 section 10.1 makes a run-start condition the
+    #: scenario's to answer, so the model does not answer it; it says it needs
+    #: one, and a Draft whose scenario states none is BLOCKED with the address
+    #: named rather than executing until the kernel meets the hole.
+    initialization_needs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         for need in self.foundation_needs:
@@ -325,6 +332,18 @@ class ModelProfile:
                     "from the Foundation and does not declare it as a "
                     "component-scoped CAUSAL_INPUT state with a Foundation "
                     "binding. A need names the binding that answers it."
+                )
+        for need in self.initialization_needs:
+            state = self.supported(need)
+            if (
+                state is None
+                or state.component_type is None
+                or "CAUSAL_INPUT" not in state.supported_roles
+            ):
+                raise ValueError(
+                    f"Model profile {self.model_profile_id!r} needs {need!r} "
+                    "initialized and does not declare it as a CAUSAL_INPUT "
+                    "state with a carrier component type."
                 )
         for state in self.supported_states:
             if state.state_key in REPORTING_PATH_STATES:
@@ -922,6 +941,7 @@ DAYTIME_MINI_GRID_MODEL = ModelProfile(
         "battery-reserve-state-of-charge",
     ),
     site_control_needs=("source-priority", "critical-load-priority"),
+    initialization_needs=("battery-state-of-charge",),
 )
 
 #: The publication profile the Lab publishes through.

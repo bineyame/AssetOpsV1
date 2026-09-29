@@ -1488,3 +1488,33 @@ describe("typed component properties read back as declared configuration", () =>
     expect(terms).toContain("PV array");
   });
 });
+
+describe("typed Site Controls render as declared order (T024)", () => {
+  it("shows each control's order first to last by component name", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    const table = container.querySelector(
+      'table[aria-labelledby="foundation-site-controls-heading"]',
+    );
+    expect(table).not.toBeNull();
+    const cells = Array.from(table?.querySelectorAll("tbody td, tbody th") ?? []).map(
+      (cell) => cell.textContent,
+    );
+    expect(cells).toContain("Source priority");
+    expect(cells).toContain("PV array, then Battery energy storage");
+    expect(cells).toContain("Template version 2");
+  });
+
+  it("states the absence for a foundation that declares none", async () => {
+    const { container } = renderConfiguration(USER_SIMULATED_SITE);
+    await settledScreen();
+
+    expect(
+      container.querySelector(
+        'table[aria-labelledby="foundation-site-controls-heading"]',
+      ),
+    ).toBeNull();
+    expect(factValue(container, "Site Controls")).toMatch(/^Not declared\./);
+  });
+});

@@ -1,0 +1,675 @@
+{
+  "run_id": "run-kobo-pcs-22",
+  "status": "RUNNING",
+  "statement": "This execution has reached the instant shown and has not finished. Everything below is the world and the readings at that instant; the rest of the interval has not happened.",
+  "boundaries_completed": 1,
+  "boundaries_total": 49,
+  "offset_minutes": 0,
+  "simulation_time": "2026-09-22T03:00:00Z",
+  "interval_start_time": "2026-09-22T03:00:00Z",
+  "interval_end_time": "2026-09-22T15:00:00Z",
+  "timestep_minutes": 15,
+  "seed": 20260929,
+  "kernel_version": 1,
+  "model_profile_id": "daytime-mini-grid",
+  "model_profile_version": 1,
+  "publication_profile_id": "simulator-lab-publication",
+  "publication_profile_version": 3,
+  "numeric_policy": "EXACT_RATIONAL",
+  "numeric_policy_version": 1,
+  "execution_contract_version": 9,
+  "inputs_identity": "f93b6e133f0150ffbbb1b9d8b4ab400e214018f0dc98837e33dbccf155dc6481",
+  "content_digest": null,
+  "observation_series_digest": "b10a0621c48fa81bd65d84e3350cbf3648e96f2f96dcfd1f51d85ea46e021301",
+  "reported_count": 1,
+  "suppressed_by_gap_count": 0,
+  "dropped_count": 0,
+  "notes": [],
+  "failure": null,
+  "private_state": [
+    {
+      "address": "battery-state-of-charge@battery",
+      "state_key": "battery-state-of-charge",
+      "value": "55",
+      "canonical_unit": "%",
+      "kind": "STOCK"
+    }
+  ],
+  "observations": [
+    {
+      "address": "battery-state-of-charge@battery",
+      "state_key": "battery-state-of-charge",
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "reading_class": "STATE_SIGNAL",
+      "at_offset_minutes": 0,
+      "simulation_time": "2026-09-22T03:00:00Z",
+      "canonical_unit": "%",
+      "true_value": "55",
+      "reported_value": "55",
+      "reported_source_time": "2026-09-22T03:00:00Z",
+      "reported_at_offset_minutes": 0,
+      "quality": "GOOD",
+      "quality_statement": "A reading was published at this instant. It is the device's value and not the world's, and the true value beside it is what the world held.",
+      "due": true,
+      "outcome": "REPORTED",
+      "outcome_statement": "The sample was due, the reporting path was carrying readings, and the device published a value. The value is what the device reported and not what the world held: a declared bias is already in it.",
+      "suppression_reason": null,
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 20
+    },
+    {
+      "address": "battery-ac-power@battery-pcs",
+      "state_key": "battery-ac-power",
+      "device_id": "battery-pcs-controller",
+      "signal_id": "ac-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "simulation_time": "2026-09-22T03:00:00Z",
+      "canonical_unit": "kW",
+      "true_value": null,
+      "reported_value": null,
+      "reported_source_time": null,
+      "reported_at_offset_minutes": null,
+      "quality": "UNAVAILABLE",
+      "quality_statement": "No reading has been published on this signal at or before this instant, so there is nothing to retain and nothing to show.",
+      "due": true,
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for ac-power to summarise.",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0
+    },
+    {
+      "address": "pv-ac-power@pv-inverter",
+      "state_key": "pv-ac-power",
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "simulation_time": "2026-09-22T03:00:00Z",
+      "canonical_unit": "kW",
+      "true_value": null,
+      "reported_value": null,
+      "reported_source_time": null,
+      "reported_at_offset_minutes": null,
+      "quality": "UNAVAILABLE",
+      "quality_statement": "No reading has been published on this signal at or before this instant, so there is nothing to retain and nothing to show.",
+      "due": true,
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for ac-power to summarise.",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0
+    },
+    {
+      "address": "load-served-power@load-res",
+      "state_key": "load-served-power",
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "simulation_time": "2026-09-22T03:00:00Z",
+      "canonical_unit": "kW",
+      "true_value": null,
+      "reported_value": null,
+      "reported_source_time": null,
+      "reported_at_offset_minutes": null,
+      "quality": "UNAVAILABLE",
+      "quality_statement": "No reading has been published on this signal at or before this instant, so there is nothing to retain and nothing to show.",
+      "due": true,
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for active-power to summarise.",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0
+    },
+    {
+      "address": "load-served-power@load-clinic",
+      "state_key": "load-served-power",
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "simulation_time": "2026-09-22T03:00:00Z",
+      "canonical_unit": "kW",
+      "true_value": null,
+      "reported_value": null,
+      "reported_source_time": null,
+      "reported_at_offset_minutes": null,
+      "quality": "UNAVAILABLE",
+      "quality_statement": "No reading has been published on this signal at or before this instant, so there is nothing to retain and nothing to show.",
+      "due": true,
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for active-power to summarise.",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0
+    },
+    {
+      "address": "load-served-power@load-mill",
+      "state_key": "load-served-power",
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "simulation_time": "2026-09-22T03:00:00Z",
+      "canonical_unit": "kW",
+      "true_value": null,
+      "reported_value": null,
+      "reported_source_time": null,
+      "reported_at_offset_minutes": null,
+      "quality": "UNAVAILABLE",
+      "quality_statement": "No reading has been published on this signal at or before this instant, so there is nothing to retain and nothing to show.",
+      "due": true,
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for active-power to summarise.",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0
+    }
+  ],
+  "signals": [
+    {
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "address": "battery-state-of-charge@battery",
+      "state_key": "battery-state-of-charge",
+      "reading_class": "STATE_SIGNAL",
+      "canonical_unit": "%",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 20,
+      "statement": "The PCS controller publishes the battery's state of charge every fifteen minutes, sampled after that instant's events. One sample in fifty does not arrive."
+    },
+    {
+      "device_id": "battery-pcs-controller",
+      "signal_id": "ac-power",
+      "address": "battery-ac-power@battery-pcs",
+      "state_key": "battery-ac-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "canonical_unit": "kW",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0,
+      "statement": "The PCS controller publishes the mean AC power over the span that just ended: positive while discharging to the bus, negative while charging from it."
+    },
+    {
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "address": "pv-ac-power@pv-inverter",
+      "state_key": "pv-ac-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "canonical_unit": "kW",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0,
+      "statement": "The PV inverter publishes the mean AC power it delivered over the span that just ended - what was used, not what the array could have offered."
+    },
+    {
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "address": "load-served-power@load-res",
+      "state_key": "load-served-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "canonical_unit": "kW",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0,
+      "statement": "The residential feeder meter publishes the mean power served to the feeder over the span that just ended."
+    },
+    {
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "address": "load-served-power@load-clinic",
+      "state_key": "load-served-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "canonical_unit": "kW",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0,
+      "statement": "The clinic meter publishes the mean power served to the clinic over the span that just ended."
+    },
+    {
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "address": "load-served-power@load-mill",
+      "state_key": "load-served-power",
+      "reading_class": "INTERVAL_SIGNAL",
+      "canonical_unit": "kW",
+      "cadence_minutes": 15,
+      "bias": "0",
+      "dropout_per_thousand": 0,
+      "statement": "The mill meter publishes the mean power served to the mill over the span that just ended."
+    }
+  ],
+  "reporting_gaps": [],
+  "recent_reports": [
+    {
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "address": "battery-state-of-charge@battery",
+      "reading_class": "STATE_SIGNAL",
+      "at_offset_minutes": 0,
+      "source_sample_time": "2026-09-22T03:00:00Z",
+      "outcome": "REPORTED",
+      "outcome_statement": "The sample was due, the reporting path was carrying readings, and the device published a value. The value is what the device reported and not what the world held: a declared bias is already in it.",
+      "reported_value": "55",
+      "canonical_unit": "%",
+      "suppression_reason": null
+    },
+    {
+      "device_id": "battery-pcs-controller",
+      "signal_id": "ac-power",
+      "address": "battery-ac-power@battery-pcs",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "source_sample_time": "2026-09-22T03:00:00Z",
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "reported_value": null,
+      "canonical_unit": "kW",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for ac-power to summarise."
+    },
+    {
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "address": "pv-ac-power@pv-inverter",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "source_sample_time": "2026-09-22T03:00:00Z",
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "reported_value": null,
+      "canonical_unit": "kW",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for ac-power to summarise."
+    },
+    {
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "address": "load-served-power@load-res",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "source_sample_time": "2026-09-22T03:00:00Z",
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "reported_value": null,
+      "canonical_unit": "kW",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for active-power to summarise."
+    },
+    {
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "address": "load-served-power@load-clinic",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "source_sample_time": "2026-09-22T03:00:00Z",
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "reported_value": null,
+      "canonical_unit": "kW",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for active-power to summarise."
+    },
+    {
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "address": "load-served-power@load-mill",
+      "reading_class": "INTERVAL_SIGNAL",
+      "at_offset_minutes": 0,
+      "source_sample_time": "2026-09-22T03:00:00Z",
+      "outcome": "NO_PRECEDING_INTERVAL",
+      "outcome_statement": "An interval reading was due at the run's first boundary, where no span has completed. It is unavailable rather than zero and rather than the first step's own value: both would attribute a number to a span the run never covered.",
+      "reported_value": null,
+      "canonical_unit": "kW",
+      "suppression_reason": "No interval has completed at this instant, so there is no span for active-power to summarise."
+    }
+  ],
+  "electrical": {
+    "battery_address": "battery-state-of-charge@battery",
+    "coupling_rules": [
+      {
+        "rule_id": "controller-view-is-local",
+        "display_name": "The controller reads a local view at T",
+        "statement": "The controller's view at T is built from its declared local inputs after T's events: the state of charge, the reserve in effect, the irradiance and each load's demand in effect at T. It is never a published reading and is not derived from one, so a reporting cadence, a dropout or a gap changes no controller decision. The view is an immutable record; nothing the controller does can change the world."
+      },
+      {
+        "rule_id": "intent-and-acceptance-are-two-records",
+        "display_name": "Intent and acceptance are two records",
+        "statement": "The controller emits requests for [T, T+dt) - for example a battery discharge of 30 kW. The resolver accepts what the installation allows - 22 kW through a 22 kW PCS - and records why. Both numbers are kept. Only accepted flows move a stock or reach a later reading; a request never does."
+      },
+      {
+        "rule_id": "resolver-is-a-declared-cascade",
+        "display_name": "The resolver is a declared cascade",
+        "statement": "PV potential is rated power times irradiance over 1000 W/m2, capped by the inverter. Sources serve load in the Site's source priority, and loads are served in its critical-load priority: a load is served in full before the next one gets anything. The battery discharges no faster than the PCS limit and the request allow and not below the reserve in effect; it charges from PV surplus no faster than the PCS limit and the request allow and not above full. PV nobody can use is curtailed. There is no iterative solver and no tolerance."
+      },
+      {
+        "rule_id": "a-step-splits-where-its-inputs-change",
+        "display_name": "A step is evaluated in segments where inputs change",
+        "statement": "Where a forcing's window starts or ends inside a step, the resolver evaluates that step as consecutive segments split at those instants, each with the values in effect across it, and the state of charge carried from one segment to the next. No value is applied early, stretched across the step or averaged."
+      },
+      {
+        "rule_id": "energy-balance-is-exact",
+        "display_name": "The energy balance is exact",
+        "statement": "Every step's accepted flows satisfy their balances exactly in rational arithmetic: PV potential equals PV to load, PV to battery, curtailment and inverter clipping; energy taken into the battery equals energy stored plus charging loss; energy taken out equals energy delivered plus discharging loss; demand equals service plus unserved load, for each load and in total; and the stored-energy change equals what was stored less what was taken out. A balance that does not hold fails the run as BALANCE_IDENTITY_VIOLATION. Nothing is absorbed by a tolerance."
+      }
+    ],
+    "steps": [
+      {
+        "from_offset": 0,
+        "to_offset": 15,
+        "simulation_time": "2026-09-22T03:00:00Z",
+        "soc_start": "55",
+        "soc_end": "990/19",
+        "reserve": "30",
+        "reserve_origin": "BASELINE",
+        "pv_potential": "9",
+        "pv_output": "9",
+        "curtailed": "0",
+        "clipped": "0",
+        "battery_power": "22",
+        "requested_battery_power": "30",
+        "limited_by": [
+          "pcs-discharge-limit 22 kW"
+        ],
+        "demand": "39",
+        "served": "31",
+        "unserved": "8"
+      }
+    ],
+    "latest_view": [
+      {
+        "name": "state-of-charge",
+        "address": "battery-state-of-charge@battery",
+        "value": "55",
+        "unit": "%"
+      },
+      {
+        "name": "reserve-in-effect",
+        "address": "battery-reserve-state-of-charge@battery",
+        "value": "30",
+        "unit": "%"
+      },
+      {
+        "name": "irradiance",
+        "address": "site:plane-of-array-irradiance",
+        "value": "150",
+        "unit": "W/m2"
+      },
+      {
+        "name": "pv-available",
+        "address": "pv-ac-power@pv-inverter",
+        "value": "9",
+        "unit": "kW"
+      },
+      {
+        "name": "load-demand",
+        "address": "load-demand@load-clinic",
+        "value": "8",
+        "unit": "kW"
+      },
+      {
+        "name": "load-demand",
+        "address": "load-demand@load-res",
+        "value": "25",
+        "unit": "kW"
+      },
+      {
+        "name": "load-demand",
+        "address": "load-demand@load-mill",
+        "value": "6",
+        "unit": "kW"
+      },
+      {
+        "name": "source-priority-rank",
+        "address": "pv-array",
+        "value": "1",
+        "unit": "rank"
+      },
+      {
+        "name": "source-priority-rank",
+        "address": "battery",
+        "value": "2",
+        "unit": "rank"
+      }
+    ],
+    "latest_requests": [
+      {
+        "address": "battery-state-of-charge@battery",
+        "quantity": "battery-power",
+        "requested": "30",
+        "unit": "kW",
+        "reason": "discharge the 30 kW deficit: demand 39 kW exceeds available PV 9 kW and the state of charge 55 % is above the reserve 30 %"
+      }
+    ],
+    "latest_controls": [
+      {
+        "address": "battery-state-of-charge@battery",
+        "quantity": "battery-power",
+        "requested": "30",
+        "accepted": "22",
+        "unit": "kW",
+        "limited_by": [
+          "pcs-discharge-limit 22 kW"
+        ]
+      }
+    ],
+    "latest_loads": [
+      {
+        "address": "load-demand@load-clinic",
+        "priority_rank": 1,
+        "demand_power": "8",
+        "served_power": "8",
+        "unserved_power": "0",
+        "demand_energy": "2",
+        "served_energy": "2",
+        "unserved_energy": "0"
+      },
+      {
+        "address": "load-demand@load-res",
+        "priority_rank": 2,
+        "demand_power": "25",
+        "served_power": "23",
+        "unserved_power": "2",
+        "demand_energy": "6.25",
+        "served_energy": "5.75",
+        "unserved_energy": "0.5"
+      },
+      {
+        "address": "load-demand@load-mill",
+        "priority_rank": 3,
+        "demand_power": "6",
+        "served_power": "0",
+        "unserved_power": "6",
+        "demand_energy": "1.5",
+        "served_energy": "0",
+        "unserved_energy": "1.5"
+      }
+    ],
+    "latest_flows": [
+      {
+        "flow_id": "pv_potential",
+        "from_address": "pv-array",
+        "to_address": "pv-inverter",
+        "energy": "2.25",
+        "mean_power": "9"
+      },
+      {
+        "flow_id": "inverter_clipping",
+        "from_address": "pv-inverter",
+        "to_address": "clipped",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "pv_to_load",
+        "from_address": "pv-inverter",
+        "to_address": "loads",
+        "energy": "2.25",
+        "mean_power": "9"
+      },
+      {
+        "flow_id": "pv_to_battery",
+        "from_address": "pv-inverter",
+        "to_address": "battery-pcs",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "curtailed_pv",
+        "from_address": "pv-inverter",
+        "to_address": "curtailed",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "battery_charge_stored",
+        "from_address": "battery-pcs",
+        "to_address": "battery",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "charge_loss",
+        "from_address": "battery-pcs",
+        "to_address": "losses",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "battery_discharge_taken",
+        "from_address": "battery",
+        "to_address": "battery-pcs",
+        "energy": "110/19",
+        "mean_power": "440/19"
+      },
+      {
+        "flow_id": "battery_to_load",
+        "from_address": "battery-pcs",
+        "to_address": "loads",
+        "energy": "5.5",
+        "mean_power": "22"
+      },
+      {
+        "flow_id": "discharge_loss",
+        "from_address": "battery-pcs",
+        "to_address": "losses",
+        "energy": "11/38",
+        "mean_power": "22/19"
+      },
+      {
+        "flow_id": "load_demand",
+        "from_address": "loads",
+        "to_address": "demand",
+        "energy": "9.75",
+        "mean_power": "39"
+      },
+      {
+        "flow_id": "unserved_load",
+        "from_address": "demand",
+        "to_address": "unserved",
+        "energy": "2",
+        "mean_power": "8"
+      },
+      {
+        "flow_id": "demand:load-clinic",
+        "from_address": "load-clinic",
+        "to_address": "demand",
+        "energy": "2",
+        "mean_power": "8"
+      },
+      {
+        "flow_id": "served:load-clinic",
+        "from_address": "loads",
+        "to_address": "load-clinic",
+        "energy": "2",
+        "mean_power": "8"
+      },
+      {
+        "flow_id": "unserved:load-clinic",
+        "from_address": "load-clinic",
+        "to_address": "unserved",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "demand:load-res",
+        "from_address": "load-res",
+        "to_address": "demand",
+        "energy": "6.25",
+        "mean_power": "25"
+      },
+      {
+        "flow_id": "served:load-res",
+        "from_address": "loads",
+        "to_address": "load-res",
+        "energy": "5.75",
+        "mean_power": "23"
+      },
+      {
+        "flow_id": "unserved:load-res",
+        "from_address": "load-res",
+        "to_address": "unserved",
+        "energy": "0.5",
+        "mean_power": "2"
+      },
+      {
+        "flow_id": "demand:load-mill",
+        "from_address": "load-mill",
+        "to_address": "demand",
+        "energy": "1.5",
+        "mean_power": "6"
+      },
+      {
+        "flow_id": "served:load-mill",
+        "from_address": "loads",
+        "to_address": "load-mill",
+        "energy": "0",
+        "mean_power": "0"
+      },
+      {
+        "flow_id": "unserved:load-mill",
+        "from_address": "load-mill",
+        "to_address": "unserved",
+        "energy": "1.5",
+        "mean_power": "6"
+      }
+    ],
+    "latest_effective_controls": [
+      {
+        "address": "battery-reserve-state-of-charge@battery",
+        "from_offset": 0,
+        "to_offset": 15,
+        "value": "30",
+        "unit": "%",
+        "origin": "BASELINE",
+        "provenance": "frozen Foundation answer (reserve-state-of-charge)"
+      }
+    ],
+    "latest_balances": [
+      "pv-potential",
+      "battery-charge",
+      "battery-discharge",
+      "load-service",
+      "served-by-load",
+      "site-sources-and-sinks",
+      "load:load-clinic",
+      "load:load-res",
+      "load:load-mill"
+    ],
+    "latest_segments": [
+      [
+        0,
+        15
+      ]
+    ],
+    "notes": [
+      "source priority names generator, which this model does not run; it is skipped (T025 adds the generator)"
+    ]
+  }
+}

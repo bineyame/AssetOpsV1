@@ -67,7 +67,7 @@ def kobo_site(
 
 
 def component(document: dict[str, Any], component_id: str) -> dict[str, Any]:
-    for item in document["site"]["foundation"]["components"]:
+    for item in document["foundation"]["components"]:
         if item["component_id"] == component_id:
             return item
     raise KeyError(component_id)

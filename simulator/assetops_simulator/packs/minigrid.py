@@ -557,6 +557,13 @@ def view(context: StepContext) -> ControllerView:
         entries.append(
             ViewEntry("load-demand", address, _required_level(context, address, at), "kW")
         )
+    # The source priority, as ranks the controller can read: which of the
+    # sources this model runs serves load first.
+    for rank, source in enumerate(plant.source_order, start=1):
+        component_id = plant.pv if source == "pv" else plant.battery
+        entries.append(
+            ViewEntry("source-priority-rank", component_id, Fraction(rank), "rank")
+        )
     return ControllerView(
         at_offset_minutes=at,
         for_until_offset=context.to_offset,
@@ -575,6 +582,34 @@ def decide(view: ControllerView) -> ControlIntent:
         Fraction(0),
     )
     net = demand - available
+    ranks = {
+        item.address: item.value
+        for item in view.entries
+        if item.name == "source-priority-rank"
+    }
+    battery_id = soc_entry.address.split("@", 1)[1]
+    battery_first = ranks.get(battery_id, Fraction(2)) == 1
+    if battery_first and demand > 0 and soc > reserve:
+        # The Site's source priority puts the battery ahead of PV, so the
+        # controller asks the battery for the whole demand and PV serves what
+        # the battery cannot.
+        return ControlIntent(
+            from_offset=view.at_offset_minutes,
+            to_offset=view.for_until_offset,
+            requests=(
+                ControlRequest(
+                    address=soc_entry.address,
+                    quantity="battery-power",
+                    requested=demand,
+                    unit="kW",
+                    reason=(
+                        f"discharge {demand} kW, the whole demand: the source "
+                        "priority puts the battery ahead of PV and the state of "
+                        f"charge {soc} % is above the reserve {reserve} %"
+                    ),
+                ),
+            ),
+        )
     if net > 0:
         if soc > reserve:
             requested, reason = net, (
