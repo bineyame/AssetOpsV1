@@ -33,11 +33,15 @@ every step would cost the square of the boundary count for nothing.
 `history_digest` is a blake2b over the canonical JSON of the whole document
 with the digest field itself removed: the manifest (run, frozen-input
 identity, every version, window, timestep, seed, outcome, recorded extent,
-trajectory and observation digests, coverage) and every record. It is a
+trajectory and observation digests, coverage, and `projection_binding`) and
+every record. `projection_binding` (schema 2) is a blake2b over the stored
+projection's `signals`, `reporting_gaps` and whole `electrical` view, the
+projection-owned data the cockpit draws; editing any of them after the write
+makes the history unreadable even though the history text is unchanged. It is a
 different digest from the trajectory's `content_digest`, which it carries
 rather than replaces: a projected subset cannot claim to be the canonical
-trajectory. A reader recomputes it, checks the manifest against the projection
-it was stored with, and validates ordering, window membership, units, types
+trajectory. A reader recomputes it, checks the manifest and `projection_binding`
+against the projection it was stored with, and validates ordering, window membership, units, types
 and declared coverage before returning anything.
 """
 

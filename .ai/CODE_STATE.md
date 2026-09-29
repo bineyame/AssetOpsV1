@@ -4247,7 +4247,8 @@ kept: an artifact-only addition, no execution-contract bump.
 ### What it settled in code
 
 - **History contract** `contracts/assetops_contracts/lab_history.py`
-  (`LAB_HISTORY_SCHEMA_VERSION = 1`): manifest, five families (`state_samples`,
+  (`LAB_HISTORY_SCHEMA_VERSION = 2`; 1 existed only before the R1 fix and now
+  reads as an unknown schema): manifest, five families (`state_samples`,
   `intervals`, `observation_attempts`, `timeline`, `drawing`), each
   `RECORDED`/`NOT_APPLICABLE`/`UNAVAILABLE`; sources `LIVE_SESSION`,
   `PERSISTED`, `LEGACY_ARTIFACT`, `NOT_RECORDED`, `WRITE_FAILED`,
@@ -4259,7 +4260,9 @@ kept: an artifact-only addition, no execution-contract bump.
   projection document is byte-identical; a TERMINAL artifact appends
   `--- # assetops-lab-history` and one line of canonical JSON with a blake2b
   `history_digest` (distinct from the trajectory digest), written by one atomic
-  rename. `read()` never parses it; `read_history()` is strict and writes
+  rename. The digest covers a manifest `projection_binding` over the
+  projection's `signals`, `reporting_gaps` and `electrical` view, so an edit to
+  the projection alone reads back as `HISTORY_UNREADABLE` (R1 fix). `read()` never parses it; `read_history()` is strict and writes
   nothing. RUNNING artifacts carry none. **Any tool that `yaml.safe_load`s a
   terminal artifact whole now fails on the second document** - split at
   `HISTORY_MARKER` first.
