@@ -14,19 +14,17 @@ and the verified intervention (H). E, F, G and I follow.
 
 Planning status:
 
-T001-T021 are complete. Sites, Foundation, scenario inspection and frozen Draft
-setup/readback exist, the shipped Fuel Loss Event reaches READY through the
-product path, and **T021 executes one**: a frozen Draft runs in the simulator and
-produces a private trajectory. No execution is visible on any screen yet.
-**T021A is built and in review**: a reported observation declares no execution
-requirement, and the execution contract is at version 7.
+T001-T023 are complete. Sites, Foundation, scenario inspection and frozen Draft
+setup/readback exist; the shipped Fuel Loss Event reaches READY, executes in the
+Lab where somebody can step and watch it, and stages canonical source envelopes
+inspected on the Draft's own screen. There is still no Commit, ingestion or
+Finding.
 
 The Planner recreated the task queue, the Architect reviewed it, and the user's
 queue review resequenced it on 2026-09-24 under
-`D-2026-09-24-queue-resequenced-for-demo`: verification moved ahead of analytic
-breadth, T026 was thinned, and T036 is the last of four demo points rather than
-the first client-facing one. **T021A is built and in review**, unaffected by that
-resequencing; T022 is next, then the order in `tasks/README.md`.
+`D-2026-09-24-queue-resequenced-for-demo`. On 2026-09-29 the owner approved
+`D-2026-09-29-run-store-libyaml`: the run store moves to libyaml in its own
+slice **T022B, next, before T024**; then the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
 `.ai/PLANNING_HANDOFF_T020A_T023.md`.

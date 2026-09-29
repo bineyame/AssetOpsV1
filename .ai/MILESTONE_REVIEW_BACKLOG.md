@@ -1038,6 +1038,10 @@ to it in the same slice, not after something has written to it.
 
 ### Reading the run store still costs the whole store, twice
 
+**Routed 2026-09-29:** the parser half goes to T022B under
+`D-2026-09-29-run-store-libyaml`; the O(n) scans themselves stay carried with
+the triggers that decision names.
+
 **This is the entry three documents already claimed existed.** T022A's packet,
 `.ai/CODE_STATE.md` and the task file each said the run store's O(n) cost was
 "already carried" here. It was not: the only mention in this file was a pointer

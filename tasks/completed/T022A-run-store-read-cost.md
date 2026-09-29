@@ -157,3 +157,8 @@ of valid documents cannot establish that.
 who stated in session: "hands-on review of T022 and T022A is OK", and then
 explicitly authorised recording it. Criterion 9 is closed by that review.
 Criterion 2 - the libyaml decision - was not addressed and stays open.
+
+**Criterion 2 disposition, 2026-09-29.** The owner approved adopting libyaml
+under `D-2026-09-29-run-store-libyaml` and assigned criterion 2 to its own
+slice, T022B, before T024. It is not passed here; T022B's measurements against
+the agreed budgets settle it.
