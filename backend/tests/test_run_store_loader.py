@@ -297,11 +297,13 @@ class TestTheDeclaredDifferences:
         """RECORDED, NOT ENDORSED: an open decision, found by T022B.
 
         PyYAML's compiled `CParser` composes nodes recursively in C without
-        consulting Python's recursion limit. Somewhere between 2,500 and 3,000
-        levels of flow nesting - a document of a few kilobytes, far inside
-        `MAX_DOCUMENT_BYTES` - it overflows the native stack and the
-        interpreter dies before the domain's depth bound can refuse the
-        document. The baseline raised `RecursionError` and the process
+        consulting Python's recursion limit. Past a depth set by the native
+        stack - measured between 2,500 and 3,000 levels on Windows (1 MB main
+        thread stack) and between 20,000 and 30,000 on Linux x86-64 (8 MB),
+        both far inside `MAX_DOCUMENT_BYTES` - it overflows the native stack
+        and the interpreter dies before the domain's depth bound can refuse
+        the document. The case below uses 100,000 levels (about 200 KB) so it
+        reproduces on both. The baseline raised `RecursionError` and the process
         survived. No document either reader could read is affected: both
         refuse such nesting. But a hand-placed file of this shape in the run
         store now takes down the process serving the inventory rather than
@@ -314,7 +316,7 @@ class TestTheDeclaredDifferences:
         """
         record = a_run()
         path = tmp_path / f"{record.run_id}{DOCUMENT_SUFFIX}"
-        deep = "[" * 10_000 + "]" * 10_000
+        deep = "[" * 100_000 + "]" * 100_000
         path.write_text(
             stored_text(record) + f"extra_field: {deep}\n", encoding="utf-8"
         )
