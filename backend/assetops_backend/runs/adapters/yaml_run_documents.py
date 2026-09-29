@@ -8,6 +8,40 @@ crosses the seam.
 Documents are located by scanning and parsed before anything is keyed on them,
 so a `run_id` never becomes a path. An identity that never touches the
 filesystem cannot traverse it - the same rule the two Site stores hold.
+
+## One loader, and it is libyaml's
+
+Every run document is loaded here, with `yaml.load(text, Loader=CSafeLoader)`,
+and nowhere else: the inventory, a single read, the fallback scan and the
+write-time readback of a staged document all pass through `read_run_record`,
+so they cannot disagree about whether the same bytes are a run. That is
+`D-2026-09-29-run-store-libyaml`, and three consequences of it are deliberate:
+
+1.  **The C extension is required, and its absence is an import failure.**
+    `CSafeLoader` accepts and refuses some documents the pure-Python
+    `SafeLoader` does not, so a silent fallback would let two installations
+    answer the same store differently. There is no fallback: an installation
+    without libyaml cannot import this module, and says why.
+2.  **This is not lexical equivalence with the pure-Python loader.** The
+    differences found so far are declared and pinned by
+    `backend/tests/test_run_store_loader.py`: a literal tab after a colon and a
+    tab inside a flow sequence are now accepted; the literal escapes
+    `\\uD800` and `\\U00110000` are refused as invalid YAML; flow nesting
+    deep enough to exhaust the pure-Python composer's recursion now reaches
+    the run parser's own depth bound instead of escaping as `RecursionError`.
+    One difference is recorded and NOT accepted: flow nesting a few thousand
+    levels deep overflows the compiled parser's native stack and ends the
+    process, where the baseline raised `RecursionError`. Whether to bound
+    nesting before loading is an open Architect/owner decision (T022B review
+    packet). What a run MEANS - its frozen values, identity,
+    status and domain refusals - is decided by `parse_run_document`, which did
+    not change.
+3.  **Only the run store moved.** Site, scenario, execution-artifact and stage
+    readers keep their own loaders.
+
+Text is still decoded as UTF-8 before YAML sees it, so the change does not also
+introduce a second input encoding, and documents are still written with
+`safe_dump`.
 """
 
 from __future__ import annotations
@@ -33,6 +67,33 @@ MAX_DOCUMENT_BYTES = 256 * 1024
 MAX_DOCUMENTS = 2_000
 
 DOCUMENT_SUFFIX = ".yaml"
+
+
+class LibyamlUnavailable(ImportError):
+    """PyYAML is installed without its libyaml C extension.
+
+    An `ImportError` because that is what it is: the run store cannot be
+    imported on this installation, which makes the missing extension an
+    install-time failure rather than a behaviour discovered on the first read.
+    """
+
+
+try:
+    from yaml import CSafeLoader
+except ImportError as missing:
+    raise LibyamlUnavailable(
+        "The run store requires PyYAML's libyaml C extension "
+        "(yaml.CSafeLoader), and the PyYAML "
+        f"{getattr(yaml, '__version__', '(unknown version)')} installed at "
+        f"{getattr(yaml, '__file__', '(unknown location)')} was built without "
+        "it. Run documents are read only with libyaml "
+        "(D-2026-09-29-run-store-libyaml): the pure-Python loader accepts and "
+        "refuses different documents, so it is not a fallback. Reinstall "
+        "PyYAML from a binary wheel that bundles libyaml, for example "
+        "`python -m pip install --force-reinstall --only-binary=pyyaml "
+        "pyyaml`, or build it against the libyaml headers, then check with "
+        "`python tools/run-store-evidence.py runtime`."
+    ) from missing
 
 
 def document_paths(root: Path) -> list[Path]:
@@ -86,7 +147,7 @@ def read_run_record(path: Path) -> SimulationRun:
         ) from error
 
     try:
-        document = yaml.safe_load(text)
+        document = yaml.load(text, Loader=CSafeLoader)
     except yaml.YAMLError as error:
         raise RunConfigurationInvalid(
             f"Run document {path.name} is not valid YAML"

@@ -1042,6 +1042,20 @@ to it in the same slice, not after something has written to it.
 `D-2026-09-29-run-store-libyaml`; the O(n) scans themselves stay carried with
 the triggers that decision names.
 
+**T022B result (2026-09-29, pending review):** libyaml is in and the refusal
+comparison was done (four declared differences plus one found; one more
+difference is an open decision, entry below). At 223 records the composed API
+went from 4.1 s to 0.73 s (inventory) and 9.4 s to 1.6 s (setup), but the Runs
+screen on the dev server still takes ~1.3-1.5 s on a quiet machine: **the 1 s
+budget is missed and T022A criterion 2 stays open.** Remaining cost at 223:
+~0.65 s React development-build rendering of the rows, ~0.37 s PyYAML building
+Python nodes over libyaml, ~0.07 s domain parsing. At the server, 223 records /
+1,504,668 B met both budgets; 300 generated records / 2,305,440 B breached both
+(warm medians 1.09 s / 2.26 s); the threshold between them is not established.
+Setup through populated run detail in the browser at 223: median 1.86 s, 2 of 7
+samples over 2 s. Deferred triggers (caching, indexing, create's scans) are now
+live; see `.agent/T022B-review-packet.md`.
+
 **This is the entry three documents already claimed existed.** T022A's packet,
 `.ai/CODE_STATE.md` and the task file each said the run store's O(n) cost was
 "already carried" here. It was not: the only mention in this file was a pointer
@@ -1092,6 +1106,48 @@ pass over valid documents cannot answer. Settling it means comparing them on
 invalid inputs. Until somebody does that, or the owner accepts the trade, both
 costs stand. T027 is the internal architecture demo and the Runs screen is on
 the way to every run.
+
+### Deep flow nesting in a run document kills the process under libyaml
+
+Found by T022B. PyYAML's compiled `CParser` composes recursively in C, so a run
+document with flow nesting past ~2,500-3,000 levels (Windows) or ~20-30k
+(Linux x86-64) overflows the native stack and the interpreter dies with no
+Python exception - before the run parser's own depth bound (12) can refuse it,
+and well inside the 256 KiB size bound. The pure-Python loader raised
+`RecursionError` and the process survived. Pinned as found by
+`test_flow_nesting_a_few_thousand_deep_ends_the_process`.
+
+**Owner decision, 2026-09-29: accepted risk, carried until the run store moves
+to a database** (recorded by the coordinator). No database is scheduled in the
+queue, so this stays open until one is. Reopen sooner if the store starts
+accepting run files from anything but its own writer, or the Lab runs on a
+shared or unattended server.
+
+*Why it needed a decision:* the store's own writer cannot
+produce such a document, so only a hand-placed or hostile file triggers it; but
+one such file in `var/runs` takes the Lab server down on every Runs visit and
+every create, because both read the whole store.
+
+*What would change the answer:* an Architect/owner call on a pre-load bound
+(for example refusing a document whose raw `[`/`{` depth exceeds a few hundred
+as `RunConfigurationInvalid`). That is a new refusal rule the libyaml decision
+did not approve, which is why T022B did not add it.
+
+### Construction-time `ValueError`s still cross the run store seam untranslated
+
+Recorded by T022B, identical under both loaders and so not a compatibility
+difference: an impossible date (`2026-02-30`), an integer past Python's digit
+limit, or a bad explicit `!!float`/`!!int` tag anywhere in a run document raise
+`ValueError` from PyYAML's constructor, which is not a `yaml.YAMLError`, so
+`read_run_record` lets it through. The inventory then fails as a 500 rather
+than as `RunConfigurationInvalid`.
+
+*Safe to carry* because the store's writer never emits such a scalar and the
+failure is a refusal either way, only an untranslated one.
+
+*What would change the answer:* the next slice that touches the run reader;
+translating `ValueError`/`OverflowError` from the load call is a two-line change
+with a test already written (`EQUAL_CASES`, whose expectation would flip).
 
 ### The shape check and the identity comparison are two barriers, not one
 

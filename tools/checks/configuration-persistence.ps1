@@ -445,5 +445,65 @@ function Invoke-ConfigurationPersistenceCheck {
         }
     }
 
+    # 7. The run store reads with libyaml, at one load point, with no fallback.
+    #
+    #    T022B, under D-2026-09-29-run-store-libyaml. `CSafeLoader` and the
+    #    pure-Python `SafeLoader` accept and refuse different documents, so a
+    #    second loader anywhere in the run adapters - a `safe_load`, an
+    #    `except ImportError` that picks `SafeLoader`, a branch on
+    #    `__with_libyaml__` - would let two installations, or two read paths,
+    #    disagree about whether the same bytes are a run. Only the run domain
+    #    is held to this: Site, scenario, artifact and stage readers keep their
+    #    own loaders by the same decision.
+    $runAdapters = "$backendRoot/runs/adapters"
+    $runDocuments = "$runAdapters/yaml_run_documents.py"
+    $otherLoader = @(
+        '\bsafe_load(?:_all)?\s*\(',
+        '\b(?:full|unsafe)_load(?:_all)?\s*\(',
+        '\bload_all\s*\(',
+        'yaml\.(?:Safe|Full|Unsafe|Base)?Loader\b',
+        'from\s+yaml\s+import\s+.*\b(?:SafeLoader|FullLoader|UnsafeLoader|BaseLoader|Loader)\b',
+        'Loader\s*=\s*(?!CSafeLoader\b)\w',
+        'yaml\.load\((?!.*Loader\s*=\s*CSafeLoader\))',
+        '__with_libyaml__'
+    )
+    $cImportSeen = $false
+    $cLoadSeen = 0
+
+    foreach ($module in $backendModules) {
+        if (-not $module.Path.StartsWith("$runAdapters/")) { continue }
+
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($module.Path -eq $runDocuments -and $line -match '^\s*from\s+yaml\s+import\s+CSafeLoader\s*$') {
+                $cImportSeen = $true
+            }
+            if ($line -match '=\s*yaml\.load\(.*Loader\s*=\s*CSafeLoader\)') {
+                $cLoadSeen++
+            }
+            foreach ($pattern in $otherLoader) {
+                if ($line -notmatch $pattern) { continue }
+                $failures.Add(("A second YAML load policy in the run store, " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()). Run documents " +
+                    "are loaded only by yaml.load(text, Loader=CSafeLoader) in " +
+                    "$runDocuments, with no fallback " +
+                    "(D-2026-09-29-run-store-libyaml).")) | Out-Null
+                break
+            }
+        }
+    }
+
+    if (-not $cImportSeen) {
+        $failures.Add(("$runDocuments does not import CSafeLoader from yaml, so the " +
+            "run store's libyaml requirement is no longer enforced at import. " +
+            "Update the check, do not delete it.")) | Out-Null
+    }
+    if ($cLoadSeen -ne 1) {
+        $failures.Add(("The run adapters hold $cLoadSeen load call(s) of the form " +
+            "'= yaml.load(..., Loader=CSafeLoader)'; there must be exactly one, " +
+            "the shared load point in $runDocuments.")) | Out-Null
+    }
+
     return $failures
 }

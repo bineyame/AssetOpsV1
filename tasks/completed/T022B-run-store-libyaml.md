@@ -1,6 +1,6 @@
 # T022B - Responsive Runs inventory and Draft setup
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A hardening; keeps the Lab entry path usable before the broader runtime.
@@ -128,4 +128,29 @@ The owner opens Runs and creates a Draft on the demo machine and judges usabilit
 Report T022A criterion 2 explicitly against the budgets: if they are missed,
 record partial improvement, leave that criterion open and profile the remaining
 cost before proposing a bounded successor. A parser speedup alone is not completion.
-Review outcome: pending.
+Review outcome: accepted on independent review; **closed at the owner's
+instruction 2026-09-29 as a partial improvement. T022A criterion 2 stays open.**
+
+**Independent review.** Codex returned three findings. R1: deep flow nesting
+kills the process under the C parser. R2: the setup timer stopped at the created
+summary, not populated run detail. R3: the recorded 300-record envelope
+overstated the evidence. R2 and R3 were corrected; a fresh Claude
+`assetops-reviewer` verification pass (Codex spared at the owner's instruction)
+accepted them, with one packet line fixed by the coordinator. Reviews:
+`.agent/T022B-codex-review.md`, `.agent/T022B-claude-verification-round2.md`.
+
+**Budgets.** Runs inventory misses 1 s in the browser (about 1.3-1.5 s quiet,
+dev server). Setup through populated run detail meets 2 s by median only (1.86 s,
+range 1.73-2.37 s, 2 of 7 over), and misses both under load. Measured on the
+owner's workstation, assumed to be the demo machine; the owner did not confirm
+that. The follow-up for the inventory miss (render cost, caching, create's two
+scans) is carried, not chosen.
+
+**Owner decisions, 2026-09-29**, recorded by the coordinator relaying the
+owner:
+- R1: "accept the risk and carry it until the database". No code change; the
+  child-process test pins the behaviour. See
+  `D-2026-09-29-run-store-libyaml` and the backlog entry.
+- R2: measure setup through populated run detail, as specified.
+- Closure: "lets close T022B". The owner gave no separate usability verdict,
+  so none is recorded.
