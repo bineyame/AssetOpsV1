@@ -3922,11 +3922,18 @@ ingested or accepted; no Site history changes.
 - **`host/source_stages.py` persists under `var/stages/<run_id>.json`**, atomic
   via a `.partial` sibling and `os.replace`. Gitignored user data, safe to
   delete; a missing stage reads `NOT_STAGED`.
-- **`host/lab_execution.py` stages on start and on every step, BEFORE writing
-  the execution artifact.** Release eligibility requires a `COMPLETED` execution,
-  so a crash between the two writes leaves the run `INTERRUPTED` rather than an
-  incomplete stage beside a completed run. Measured by
-  `test_the_stage_is_written_before_the_execution_artifact`. Every step
+- **`host/lab_execution.py` stages on start and on every step, before writing
+  the execution artifact**, so a persisted execution record is never ahead of
+  its stage. **Write order does NOT make eligibility honest** - the first
+  packet said it did, and the independent review (R1) disproved it: a failed
+  final stage write with the process still alive, and a publication refusal
+  caught in `_stage`, both read as ELIGIBLE. What does is the stage's own
+  watermark: a stage (schema **2**) records `boundaries_total` and
+  `published_through`, the latter moving only when a stage write succeeds, and
+  `published_through < boundaries_total` is the `STAGING_INCOMPLETE` blocker -
+  after a reload too. Measured by `TestEligibilityRequiresStagingThroughCompletion`
+  without `forget`, and by guard probes P13/P14. It is a progress record, not
+  T027's seal. Every step
   republishes the whole series, which is the idempotent-retry case by
   construction. The session freezes the gateway mapping at start.
 - **The port gained one READ, `staged_envelopes(run) -> SourceStageView`** (v4
@@ -3967,7 +3974,8 @@ text. Quote the relationship, not the count: which samples drop is the draw.
 - **A stage is rewritten whole on every step** (about 110 KB at completion), so
   staging a run is quadratic in its envelope count. Fine at 150; not at T026's
   scale without an append format.
-- **Eligibility rests on write order, not a seal.** Sealing is Commit's (T027).
+- **Eligibility rests on the publication watermark, not a seal.** It says
+  every boundary was published into the stage; sealing is Commit's (T027).
 - **The integrity digest is redundant with the canonical-form check**; a probe
   found the digest comparison removable with every damage case still refused.
   Both stay; the reason is now asserted.

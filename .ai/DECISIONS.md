@@ -2918,7 +2918,8 @@ choices a later slice must not reopen by accident.
   with `EXECUTION_CONTRACT_VERSION` (8) and vice versa. The execution contract
   says what a frozen Draft means when it runs; the envelope schema says what a
   published message looks like. The persisted stage document has its own
-  `stage_schema_version` (1) for the same reason.
+  `stage_schema_version` (2 since the T023 fix round added the publication
+  watermark; 1 never left the branch) for the same reason.
 - **Compatibility is equality.** A parser of version 1 refuses any other
   version as `SCHEMA_UNSUPPORTED` and never reads it "as close enough". A later
   version that must accept version-1 envelopes does so by an explicit reader of

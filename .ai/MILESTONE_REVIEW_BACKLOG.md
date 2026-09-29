@@ -1210,10 +1210,38 @@ republishes the whole series every step: quadratic per run. About 110 KB and
 150 envelopes at completion today. An append-only format belongs with T026's
 larger allowlist if it matters.
 
-### Release eligibility rests on write order, not a seal
+### Release eligibility rests on a publication watermark, not a seal
 
-The stage is written before the execution artifact, and a test measures it. A
-stage has no "complete" marker of its own; sealing is Commit's (T027).
+Corrected in the T023 fix round. This entry first said write order made
+eligibility honest; the independent review (R1) showed it did not - a failed
+final stage write with the process alive, and a publication refusal caught in
+`_stage`, both read as ELIGIBLE. The stage now records `published_through`
+against `boundaries_total`, advanced only by a successful write, and a short
+watermark blocks release (`STAGING_INCOMPLETE`). What remains carried: the
+watermark proves publication through the run's end, not that the stage is
+sealed against later change. Sealing is Commit's (T027).
+
+### Some corrupted stages answer HTTP 500 rather than STAGE_UNREADABLE (review R2)
+
+`host/source_stages.py` decodes UTF-8 outside the `StageUnreadable` wrapper, and
+`source_envelope._exact_value` calls `Fraction(value)` without translating a
+zero denominator, which `parse_stage_text` does not catch. A stage replaced by
+byte `0xff`, and one whose envelope value is `"1/0"`, both return HTTP 500 from
+the stage route instead of `STAGE_UNREADABLE` / `INTEGRITY_FAILURE` (reproduced
+again after the fix round). Fails closed - the frontend shows the stage as
+unavailable, never as content - but loses the integrity diagnosis. Carried as a
+localized exception-translation gap: widen the negative corpus and translate
+both when parser robustness is next touched.
+
+### Identifier and unit validation accept a trailing newline (review R3)
+
+`_IDENTIFIER` and `_UNIT` in `source_envelope.py` are anchored with `$` and
+applied with `match`, and Python's `$` matches before a final newline. An
+otherwise valid envelope with device id `"fuel-level-sensor\n"` and a correctly
+recomputed message id is accepted by `parse_source_envelope`. Narrow against
+criterion 4; the shipped allowlist does not admit that id and generated
+identities are unaffected. Fix with `fullmatch` (or `\Z`) for both patterns and
+a trailing-newline negative case.
 
 ### The stage's integrity digest is redundant with its canonical-form check
 
