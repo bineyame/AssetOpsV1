@@ -2995,3 +2995,41 @@ raised `RecursionError`. The owner decided to add no pre-load bound. No database
 is scheduled; the backlog entry names the triggers that reopen this sooner.
 Setup is measured through populated run detail. T022B closed as a partial
 improvement; T022A criterion 2 stays open.
+
+## 2026-09-29
+
+Decision: `D-2026-09-29-t024-option-c-and-reserve-override`. **T024 adopts
+Option C with frozen effective Site Controls, and a scenario changes policy by
+a temporary, reverting override of the battery reserve.**
+
+Decided by the owner on 2026-09-29, recorded by the coordinator, on the
+Architect's recommendation (Codex as Architect,
+`.agent/T024-architect-recommendation.md`, from the Implementer's plan at
+`.agent/T024-implementer-plan-phase1.md`). The owner approved each point:
+
+- **Option C.** The new electrical profile declares the Foundation values its
+  laws need; setup resolves them per addressed component and freezes each in
+  the run's deterministic identity with provenance (need/profile, address,
+  typed value and unit, Foundation version/valid_from, TEMPLATE/SITE source).
+  Absent or ambiguous answers BLOCK with the address named. Effective Site
+  Controls are frozen the same way. Foundation gains an optional typed Site
+  Controls collection whose priority lists name explicit component identities;
+  existing documents without controls stay readable. Execution contract
+  **8 -> 9**; older Drafts read but are refused execution. Initial SOC stays
+  scenario-owned. Not authorized: a generic dependency/plugin framework,
+  migrating Fuel Loss to C, scenario-owned physical defaults, or a policy
+  editor/history platform.
+- **Policy change (criterion 5).** A scenario-authored numeric forcing on the
+  battery's typed reserve CONTROL address replaces the frozen baseline inside
+  `[start, end)` and the baseline applies again at `end`. Absolute replacement,
+  not an increment or a Foundation edit. Genuine overlap on one address is
+  refused; adjacent windows are valid. Within-step changes split evaluation, not
+  averaged. A reserve above current SOC creates no energy. Priority lists stay
+  baseline-only in T024, disclosed. The general "forcing outside its window is
+  unavailable" rule is unchanged. Not operator evidence or a verified
+  intervention.
+- **Demo values** (fixture ratings, priority order, baseline reserve, override
+  window and value) are proposed by the Implementer and reviewed by the owner
+  at the hands-on check.
+- Already settled: T024 is one slice; ship `kobo-daytime` plus overcast and
+  larger-mill variants.
