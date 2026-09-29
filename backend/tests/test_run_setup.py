@@ -1632,6 +1632,12 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenSiteControl", "foundation_valid_from"),
             ("FrozenSiteControl", "source"),
             ("FrozenSiteControl", "source_version"),
+            # T024 fix round: every field of a bus attachment is on its row.
+            ("FrozenBusAttachment", "role"),
+            ("FrozenBusAttachment", "component_id"),
+            ("FrozenBusAttachment", "via_component_id"),
+            ("FrozenBusAttachment", "bus_component_id"),
+            ("FrozenBusAttachment", "connection_ids"),
         }
 
         # Frozen and inspectable through the structured identity, and

@@ -652,6 +652,16 @@ def frozen_inputs(
             )
         )
 
+    if not identity.bus_attachments:
+        rows.append(
+            FrozenInput(
+                identity_field="bus_attachments",
+                field="Bus attachments",
+                value="none needed by this profile",
+                answered_by="MODEL_PROFILE",
+                answered_by_detail=profile_detail,
+            )
+        )
     for attachment in identity.bus_attachments:
         via = (
             "directly"
