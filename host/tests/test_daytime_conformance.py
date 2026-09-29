@@ -18,6 +18,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from lab_history import HISTORY_MARKER
+
 from assetops_backend.runs.profiles import (
     DAYTIME_MINI_GRID_MODEL as DAYTIME_PROFILE,
     MINIMAL_FUEL_TANK_MODEL,
@@ -150,7 +152,7 @@ class TestTheLabShowsTheElectricalWorld:
         assert reloaded.status == "COMPLETED"
         assert reloaded.electrical == finished.electrical
         document = yaml.safe_load(
-            (tmp_path / f"{run.run_id}.yaml").read_text(encoding="utf-8")
+            (tmp_path / f"{run.run_id}.yaml").read_text(encoding="utf-8").partition(HISTORY_MARKER)[0]
         )
         # T025a: schema four is written only when a generator is recorded;
         # T025b: five only when a typed discrete reading is.
@@ -170,7 +172,9 @@ class TestTheLabShowsTheElectricalWorld:
         port.run_to_end(run)
         port.forget(run.run_id)
         path = tmp_path / f"{run.run_id}.yaml"
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(
+            path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0]
+        )
         assert "electrical" in document
         del document["electrical"]
         document["artifact_schema_version"] = 2
@@ -189,7 +193,9 @@ class TestTheLabShowsTheElectricalWorld:
         port.run_to_end(run)
         port.forget(run.run_id)
         path = tmp_path / f"{run.run_id}.yaml"
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        document = yaml.safe_load(
+            path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0]
+        )
         del document["electrical"]
         path.write_text(yaml.safe_dump(document), encoding="utf-8")
 

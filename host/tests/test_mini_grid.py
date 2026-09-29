@@ -14,6 +14,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from lab_history import HISTORY_MARKER
+
 from assetops_backend.runs.profiles import MINI_GRID_MODEL as MINI_GRID_PROFILE
 from assetops_backend.simulator_lab_api import electrical_payload
 from assetops_contracts.control import DISCRETE_UNIT
@@ -569,7 +571,7 @@ class TestReproductionAndReadback:
         assert reloaded.content_digest == finished.content_digest
         assert [t.next for t in generator.transitions][:2] == ["STARTING", "RUNNING"]
         document = yaml.safe_load(
-            (tmp_path / f"{run.run_id}.yaml").read_text(encoding="utf-8")
+            (tmp_path / f"{run.run_id}.yaml").read_text(encoding="utf-8").partition(HISTORY_MARKER)[0]
         )
         # T025b: a generator record with no discrete reading keeps schema 4;
         # five is written only when a typed status reading is recorded.
@@ -638,7 +640,9 @@ class TestClosedTypedEnumsSurviveReadback:
         port.start(run)
         port.run_to_end(run)
         path = tmp_path / f"{run.run_id}.yaml"
-        return run, path, yaml.safe_load(path.read_text(encoding="utf-8"))
+        return run, path, yaml.safe_load(
+            path.read_text(encoding="utf-8").partition(HISTORY_MARKER)[0]
+        )
 
     def test_a_valid_artifact_round_trips_every_slot(self, tmp_path: Path) -> None:
         run, path, document = self._written(tmp_path)
