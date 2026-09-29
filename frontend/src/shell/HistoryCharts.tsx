@@ -496,6 +496,24 @@ function stateClass(value: string): string {
   return "history-state";
 }
 
+/**
+ * Whether a reported member's label fits before the next change of member. A
+ * label that would collide is left out; the marker's tooltip and the exact
+ * value table still name it.
+ */
+function roomForLabel(
+  reported: RunHistoryAttempt[],
+  index: number,
+  axis: Axis,
+): boolean {
+  const here = reported[index];
+  const next = reported
+    .slice(index + 1)
+    .find((a) => a.reported_value !== here.reported_value);
+  const end = next === undefined ? axis.plotRight : axis.x(next.at_offset_minutes);
+  return end - axis.x(here.at_offset_minutes) >= 60;
+}
+
 function StateChart({
   panel,
   model,
@@ -600,7 +618,8 @@ function StateChart({
                     >
                       <title>{attemptTitle(track, attempt)}</title>
                     </circle>
-                    {i === 0 || reported[i - 1].reported_value !== attempt.reported_value ? (
+                    {(i === 0 || reported[i - 1].reported_value !== attempt.reported_value) &&
+                    roomForLabel(reported, i, axis) ? (
                       <text
                         className="history-state__text"
                         x={axis.x(attempt.at_offset_minutes) + 5}
