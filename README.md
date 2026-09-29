@@ -163,7 +163,17 @@ backend imports the neutral contracts:
 
 ```
 .venv\Scripts\python.exe -m pip install -e backend -e contracts -e simulator
+.venv\Scripts\python.exe tools/run-store-evidence.py runtime
 ```
+
+The second line is the installation check for the run store's one hard
+runtime requirement: PyYAML **with its libyaml C extension**
+(`D-2026-09-29-run-store-libyaml`). It prints the OS, Python, PyYAML and libyaml
+versions and exits non-zero when the extension is missing. The binary PyYAML
+wheels for Windows, manylinux and macOS bundle it; a source build without the
+libyaml headers does not, and then the run store refuses to import, with a
+message saying how to reinstall. There is deliberately no pure-Python fallback:
+the two parsers accept and refuse different documents.
 
 `host/` is deliberately not installed. Nothing imports it, which is the rule that
 keeps the crossing between the product and the simulator in one place; its tests

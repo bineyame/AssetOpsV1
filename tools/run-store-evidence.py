@@ -405,6 +405,12 @@ def command_measure(args: argparse.Namespace) -> int:
                     setup = time.perf_counter() - began
                     if created.status_code != 201:
                         raise SystemExit(f"Setup failed: {created.status_code} {created.text[:400]}")
+                    if not args.keep_created:
+                        # Hold the store at its measured size, so every sample
+                        # reads the same N - and a 2,000-record store is not
+                        # pushed past MAX_DOCUMENTS by its own measurement.
+                        run_id = created.json()["run"]["run_id"]
+                        (env / "runs" / f"{run_id.casefold()}.yaml").unlink()
             raw.append(
                 {"round": round_index, "loader": name, "rows": rows,
                  "inventory_s": inventory, "setup_s": setup}
@@ -418,6 +424,7 @@ def command_measure(args: argparse.Namespace) -> int:
     result: dict[str, Any] = {
         "boundary": "in-process ASGI request through the composed app (TestClient); "
         "inventory = GET /api/simulator-lab/runs, setup = POST /api/simulator-lab/runs",
+        "store_held_constant": not args.keep_created,
         "start": start,
         "end": describe(env),
         "runtime": runtime_report(),
@@ -486,6 +493,10 @@ def main() -> int:
     measure.add_argument("env")
     measure.add_argument("--rounds", type=int, default=6)
     measure.add_argument("--inventory-only", action="store_true")
+    measure.add_argument(
+        "--keep-created", action="store_true",
+        help="keep each Draft a setup sample creates (the store then grows by one per sample)",
+    )
     measure.add_argument("--json")
     measure.set_defaults(run=command_measure)
 
