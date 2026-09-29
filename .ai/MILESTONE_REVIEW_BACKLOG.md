@@ -1419,6 +1419,36 @@ Trigger: when T026 extends the gateway for status staging, validate an
 allowlisted observation's enum compatibility before skipping a missing attempt,
 with an all-dropped and an all-suppressed case.
 
+## Carried from T025c: four cockpit findings from the first review
+
+Codex first review, 2026-09-30, findings C1-C4 (`.agent/T025c-codex-review.md`).
+Carried under `D-2026-09-22-milestone-speed-over-purity`: each is a local
+presentation, reporting or parser change with no persisted-identity or
+contract migration. R1 from the same review was blocking and is fixed in
+T025c itself.
+
+- **C1, stale reading labelled with the selected interval.**
+  `frontend/src/shell/HistoryCharts.tsx` `inspectorRows` labels a held STALE
+  reading with the selected offset's interval rather than the reading's own
+  support (stop-60 run, offset 80: PV row says `[75, 80)` for a reading
+  describing `[70, 75)`). Source time and STALE are shown; the plot is right.
+- **C2, legacy chart fallback unreachable.** A real legacy artifact returns
+  `boundaries=[]`, so `HistoryInspector` never mounts `HistoryCharts` and zero
+  panels draw; the frontend test keeps the modern boundary list and misses it.
+  Tables remain. The T025c packet's fallback claim is wrong for this path.
+- **C3, live session hides a history write failure.** `host/lab_execution.py`
+  `history()` prefers the retained session and returns `LIVE_SESSION` even
+  when the terminal artifact recorded `WRITE_FAILED`; only a restarted host
+  shows it. No false durability claim is made.
+- **C4, strict reader narrower than claimed.** `host/lab_history.py` accepts
+  re-signed documents with an empty RECORDED family, a malformed address, an
+  unknown unit and an out-of-window timestamp; a short coverage row raises
+  `IndexError` instead of `HistoryUnreadable`.
+
+Trigger: T025d touches the same inspector, history reader and live history
+capture; close C1 and C3 there if the change is local, and C2/C4 when the
+legacy path or reader is next changed.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline
