@@ -1,6 +1,6 @@
 # T022B - Responsive Runs inventory and Draft setup
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A hardening; keeps the Lab entry path usable before the broader runtime.
