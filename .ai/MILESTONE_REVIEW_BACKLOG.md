@@ -1449,6 +1449,18 @@ Trigger: T025d touches the same inspector, history reader and live history
 capture; close C1 and C3 there if the change is local, and C2/C4 when the
 legacy path or reader is next changed.
 
+Claude verification of the R1 fix, 2026-09-30
+(`.agent/T025c-claude-verification.md`), carried the same way:
+
+- **K1, no committed agreement test.** Nothing committed asserts that the
+  chart's `electrical.steps` PV/battery values match the recorded interval
+  flows; it holds (96/96 in the verifier's probe) because one run writes both.
+  Trigger: any change to the history writer or the electrical view.
+- **K3, fixture label.** The Kobo stop-60 frontend fixture still says history
+  schema 1; display-only. Trigger: next regeneration of that fixture.
+
+K2 (stale schema-1 records) was fixed before merge in `ef408a5`.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline
