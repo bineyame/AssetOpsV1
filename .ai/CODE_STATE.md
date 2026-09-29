@@ -4238,3 +4238,62 @@ properties; demo on a Site created from the current template. Content digests
 differ across separately created Drafts (run metadata); reproduction is
 trajectory/step equality. Generator status staging is T026's; start-failure
 causes are T035's. Demo values await the owner's hands-on check.
+
+## T025c - Persisted Lab history, addressed charts and run identity (L1a)
+
+In review (`.agent/T025c-review-packet.md`); USER_REVIEW_REQUIRED. Contract 9
+kept: an artifact-only addition, no execution-contract bump.
+
+### What it settled in code
+
+- **History contract** `contracts/assetops_contracts/lab_history.py`
+  (`LAB_HISTORY_SCHEMA_VERSION = 1`): manifest, five families (`state_samples`,
+  `intervals`, `observation_attempts`, `timeline`, `drawing`), each
+  `RECORDED`/`NOT_APPLICABLE`/`UNAVAILABLE`; sources `LIVE_SESSION`,
+  `PERSISTED`, `LEGACY_ARTIFACT`, `NOT_RECORDED`, `WRITE_FAILED`,
+  `HISTORY_UNREADABLE`. Sample phases `POST_EVENT`, `FOR_STEP`,
+  `PRECEDING_INTERVAL` (interval samples are kWh over the step in "model unit").
+  Only the backend's `simulator_lab_api.py` and `execution_ports.py` may import
+  it (`dependency-direction.ps1`, with an anti-vacuity count).
+- **Artifact layout** (`host/lab_execution.py`, `host/lab_history.py`): the
+  projection document is byte-identical; a TERMINAL artifact appends
+  `--- # assetops-lab-history` and one line of canonical JSON with a blake2b
+  `history_digest` (distinct from the trajectory digest), written by one atomic
+  rename. `read()` never parses it; `read_history()` is strict and writes
+  nothing. RUNNING artifacts carry none. **Any tool that `yaml.safe_load`s a
+  terminal artifact whole now fails on the second document** - split at
+  `HISTORY_MARKER` first.
+- **Port/route**: `HostLabExecution.history(run)` / `LabExecutionPort.history`;
+  gated `GET /runs/{run_id}/execution/history` (`history_payload`). A live
+  session answers `LIVE_SESSION` (no digest) even after it completed; the
+  artifact answers `PERSISTED` only when no session is held, i.e. after a
+  restart. The simulator gained read-only `Execution.applied_events` and
+  `bounded_transitions`.
+- **Frontend**: `runHistory.ts` (types/guard/fetch), `HistoryInspector.tsx`
+  (coverage + records at one boundary), `historyChartModel.ts` (pure chart
+  model, stale rule mirroring `reading_at`), `HistoryCharts.tsx` (the only other
+  module allowed an `<svg>`, inside `.history-chart__scroll`), `RunHeader.tsx`.
+  PV potential/accepted/curtailed/clipped and battery signed power are read
+  from the execution projection's `electrical.steps` (host sums); loads,
+  SOC, reserve/stop threshold, generator output, fuel and generator state from
+  the history. `--series-1..4` tokens added. One selection drives the range
+  input, every chart cursor, the exact-value table and the boundary select.
+- **Guards/evidence**: `shell-overflow.ps1` admits `HistoryCharts.tsx` under its
+  own region rule (three new failure modes, proven). `layout-evidence.mjs` adds
+  the T025c section and a `--readback <file>` pass for after a host restart
+  (`ASSETOPS_EVIDENCE_ENV` hashes the artifact). Fixture generator
+  `host/tests/make_history_fixtures.py`.
+
+### What this leaves open
+
+- The single-run history payload is ~1 MB for the 8 h mini-grid window; full
+  wire kept (a selection re-render ~55-65 ms). First paint of the whole run
+  screen after a host restart was 1.6-3.2 s after the history response,
+  dominated by the page's other panels, not measured in isolation.
+- Live history is recomputed on every read; T025d's auto-play must not fetch it
+  per step. The history read re-parses the projection YAML.
+- Charts are keyed by this model family's state keys (`pv-ac-power`,
+  `load-served-power@<load>`, `battery-*`, `generator-*`, unit `L`/`%`); an
+  unmatched reported signal is listed as not charted rather than dropped.
+- SLD overlays, the causal timeline, requested/accepted panel and playback are
+  T025d's; `bus_attachments` is recorded for it.

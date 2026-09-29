@@ -27,7 +27,7 @@ queue review resequenced it on 2026-09-24 under
 slice T022B, now complete as a partial improvement. **T024 is complete**
 (daytime PV, storage and three addressed loads, contract 9); T025a and
 T025b are complete and the owner accepted A. On 2026-09-30 the owner accepted
-the Lab cockpit cadence: **T025c (L1a) is next**, followed sequentially by
+the Lab cockpit cadence: **T025c (L1a) is built and in review**, followed sequentially by
 T025d (L1b), then T026 and the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and

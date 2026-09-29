@@ -1,6 +1,6 @@
 # T025c - Persisted Lab history, addressed charts and run identity (L1a)
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: Lab cockpit C2/C6; inspection of accepted A before B.
