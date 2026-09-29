@@ -2950,3 +2950,39 @@ Affected: `contracts/assetops_contracts/source_envelope.py` and
 `source_stage.py`, `simulator/assetops_simulator/gateway/`, `host/lab_execution.py`
 and `host/source_stages.py`. No execution-contract or publication-profile
 version moved.
+
+## 2026-09-29
+
+Decision: `D-2026-09-29-run-store-libyaml`. **The run store reads its YAML
+documents with PyYAML's `CSafeLoader` (libyaml), in its own slice T022B before
+T024, with the C extension required.**
+
+Decided by the owner on 2026-09-29, recorded by the coordinator, on the
+Architect's recommendation (Codex as Architect,
+`.agent/libyaml-architect-recommendation.md`). The owner chose each of four
+points explicitly:
+
+- **Adopt `CSafeLoader` for the run store, accepting known refusal
+  differences.** Over 223 stored runs both loaders gave equal domain records,
+  and the adapter's full inventory read measured 6.6x faster (medians 5.40 s
+  against 0.81 s, three samples, one process - a ratio, not a budget). Of 24
+  malformed probes the two loaders disagreed on 4 (a literal tab after a
+  colon, a tab inside a flow sequence, a literal surrogate escape, an
+  out-of-range escape). These differences are accepted, declared and tested;
+  exact lexical equivalence with the pure-Python loader is **not** claimed.
+  Domain validation, identity, bounds, ordering, whole-inventory failure,
+  fallback, locking and atomic publication are unchanged. Only the run store's
+  load point changes; Site, scenario, artifact and stage readers do not.
+- **T022B comes before T024.** It owns T022A's criterion 2. T022A stays
+  completed.
+- **The C extension is required**, checked at install/CI and diagnosed
+  clearly when absent. No machine silently reads with different refusal rules.
+  Pure-Python-only installs are not supported for this path.
+- **Budgets on the demo machine at its actual store size:** Runs inventory
+  usable within 1 s and a successful Draft setup visible within 2 s, reported
+  as median and range; the owner judges usability. If the parser change misses
+  them it is a partial improvement, not criterion-2 completion.
+
+Deferred with triggers, per the recommendation: removing `create_run`'s two
+identity scans, caching/indexing/storage changes, and T023's whole-stage
+rewrite (with T026). None is authorized here.

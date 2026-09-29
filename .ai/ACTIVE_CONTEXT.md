@@ -31,9 +31,9 @@ envelopes (envelope schema 1, stage schema 2, under
 whose `STAGING_INCOMPLETE` blocker keeps an incomplete stage ineligible,
 inspected on the Draft's own screen. Accepted on independent review (two Codex
 passes, one Claude verification) and on owner review 2026-09-29. The owner's
-review of T022 and T022A is also recorded, 2026-09-29. **Still open and not
-parked: the libyaml decision above**, now with the Architect for a
-recommendation to the owner.
+review of T022 and T022A is also recorded, 2026-09-29. The libyaml
+decision above is **made**: `D-2026-09-29-run-store-libyaml` adopts
+`CSafeLoader` for the run store in its own slice **T022B, before T024**.
 
 **Something runs, and somebody can watch it.** The Lab starts a frozen Draft,
 steps it, and runs it to the end, and the Draft's own screen shows the world at
@@ -83,7 +83,7 @@ and T022A seven. Five `float(value)` overflow sites are open, the inventory AND
 layout-evidence run. T022A had to WRITE the run-store entry three documents
 already cited: a residual living only in a packet is one nobody reads first.
 
-**T024 is next** per `tasks/README.md`; it is not yet activated.
+**T022B is next** (being planned), then T024 per `tasks/README.md`.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -95,7 +95,7 @@ and `Docs/mini-grid-demo-architecture-and-roadmap.md` for the demo path, under
 
 ## Read For The Active Task
 
-1. **`tasks/T024-daytime-mini-grid-runtime.md`** once activated; T023, T022 and
+1. **T022B** once planned, then `tasks/T024-daytime-mini-grid-runtime.md`; T023, T022 and
    T022A in `tasks/completed/` as regression evidence.
 2. `.ai/CODE_STATE.md`: the T023 entry, then T022, T021A, T021 and T020B.
    Completed tasks are regression evidence, not direction.
