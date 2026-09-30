@@ -1,6 +1,6 @@
 # T025e - Lab cockpit organisation and live playback (L1c)
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: Lab cockpit L1c. Depends on: completed T025d and T025c. Next: T026.

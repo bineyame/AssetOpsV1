@@ -85,7 +85,7 @@ Site runs PV, a battery and three addressed loads through a controller, a
 declared-cascade resolver and exact balances, under contract **9**, Option C
 and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
 Record in `.ai/CODE_STATE.md`. **T025a is complete and merged** (`mini-grid` v1,
-contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T025c (L1a) is complete** (owner accepted 2026-09-30); **T025d (L1b) is complete** (owner accepted 2026-09-30); **T025e (cockpit organisation and live playback) is next**, planned in `tasks/T025e-cockpit-organisation-and-live-playback.md`, then T026.
+contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T025c (L1a) is complete** (owner accepted 2026-09-30); **T025d (L1b) is complete** (owner accepted 2026-09-30); **T025e (cockpit organisation and live playback) is in review** (all three phases built; packet `.agent/T025e-review-packet.md`, discovery review next, `USER_REVIEW_REQUIRED`), then T026.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.

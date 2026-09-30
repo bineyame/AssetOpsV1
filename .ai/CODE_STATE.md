@@ -4345,3 +4345,43 @@ Contract 9 and history schema 2 kept: wire additions only, no persisted change.
 - Trajectory digest is run-bound, so pacing equality across Drafts is shown on
   the reading digest and inputs identity; same-run pacing is host-tested.
 - Backlog C2, C4, K1, K3 untouched.
+
+## T025e - Lab cockpit organisation and live playback (L1c)
+
+In review (packet `.agent/T025e-review-packet.md`, evidence
+`.agent/T025e-layout-evidence.txt`). Contract 9 and history schema 2 kept;
+`contract9_gate` unedited. Three phases; handoffs in `.agent/`.
+
+### What it settled in code
+
+- **Wire** `?since_boundary=n` on the gated history read: append families
+  (`HISTORY_APPEND_FAMILY_KEYS`, `simulator_lab_api.py`) keyed by the boundary
+  that records the row (intervals, exposures and `electrical_steps` on
+  `from_offset`); static families empty; `delta` envelope; typed refusals.
+  Prefix stability proved per family in `host/tests/test_lab_history_prefix.py`.
+- **Option R** `LabHistory.electrical_steps`: the projection's own
+  `ElectricalStepRow`s, joined only where intervals are recorded (live
+  projection or the binding-verified stored one); never persisted in the
+  history document. Charts read `pv_output` and signed `battery_power` from it.
+- **Client** `liveHistory.ts` pure merge + slice index; `runFrameState.ts` one
+  owner (execution, history, fullReadDue, cursor); `RunFrame.commit` one read
+  and one dispatch per answer; `PlaybackScheduler` awaits `show`.
+- **Layout** control strip (`data-control-strip`), then `HistoryCockpit`
+  (drawing beside inspection in a fixed row, cursor, charts, timeline, all
+  reserved before the first boundary); nine closed `Disclosure`s (new `ui/`
+  primitive, `data-disclosure`). Drawing, inspection and raw records are
+  memoised on slice/row references; chart points cached per row (WeakMap);
+  playing status is one sentence, in-flight on `data-playback-in-flight`.
+- **Evidence** `tools/layout-evidence.mjs` opens disclosures before measuring
+  and has a T025e section (per-frame sampling, pinned MutationObserver, delta
+  bytes, server p95 at boundary 96, `run-frame-commit` measures).
+
+### What this leaves open
+
+- Server delta p95 45.9 ms against 50 ms (within 8 %); capture memoisation
+  (the named stop) not taken.
+- Charts start below an 800 px first viewport; the charts region grows once at
+  the first recorded interval (panels derive from recorded rows).
+- A second tab stepping the run can make recorded > clock until the next
+  answer (not clipped). The screen-test fake history has no intervals.
+- Backlog C2, C4, K1, K3 untouched; T026 adds dispatch panels here.
