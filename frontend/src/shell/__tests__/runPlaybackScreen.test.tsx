@@ -13,8 +13,10 @@ import type {
   RunStepRequest,
   RunSummary,
 } from "../runSetupClient";
+import type { RunHistory, RunHistoryDeltaResult, RunHistoryResult } from "../runHistory";
 import {
   INTERRUPTED,
+  NOT_RECORDED,
   RUNNING_IN_THE_GAP,
   executionMethods,
 } from "./executionFixtures";
@@ -48,11 +50,50 @@ const READY_RUN: RunSummary = {
 
 const TOTAL = 107;
 
+/**
+ * T025e: the history a live session has recorded after `count` boundaries -
+ * one boundary per completed step, as the host records it. `since` narrows it
+ * to a delta exactly as the route does.
+ */
+function recordedHistory(
+  start: RunExecution,
+  count: number,
+  status: string,
+  since = 0,
+): RunHistory {
+  const step = start.timestep_minutes;
+  const boundaries = Array.from({ length: count - since }, (_, i) => ({
+    step_index: since + i,
+    offset_minutes: (since + i) * step,
+    simulation_time: `boundary ${since + i}`,
+    has_preceding_interval: since + i > 0,
+  }));
+  return {
+    ...NOT_RECORDED,
+    run_id: start.run_id,
+    inputs_identity: start.inputs_identity,
+    status,
+    source: "LIVE_SESSION",
+    statement: "Recorded by the live session.",
+    boundaries_total: TOTAL,
+    boundaries_recorded: count,
+    recorded_through_offset_minutes: count === 0 ? null : (count - 1) * step,
+    boundaries,
+  };
+}
+
 /** A host with one live execution, stepped only from where it is. */
 function host(start: RunExecution = RUNNING_IN_THE_GAP) {
   let position = start.boundaries_completed;
   let status = start.status;
-  const log = { steps: [] as number[], historyReads: 0, stageReads: 0 };
+  const log = {
+    steps: [] as number[],
+    historyReads: 0,
+    deltaReads: [] as number[],
+    stageReads: 0,
+  };
+  /** Delta reads (by their since count) that answer as unavailable. */
+  const failDeltasFrom = new Set<number>();
   const now = (): RunExecutionResult => ({
     status: "loaded",
     execution: {
@@ -100,9 +141,26 @@ function host(start: RunExecution = RUNNING_IN_THE_GAP) {
       log.stageReads += 1;
       return base.getStage(runId);
     },
-    getExecutionHistory: (runId) => {
+    getExecutionHistory: (): Promise<RunHistoryResult> => {
       log.historyReads += 1;
-      return base.getExecutionHistory(runId);
+      return Promise.resolve({
+        status: "loaded",
+        history: recordedHistory(start, position, status),
+      });
+    },
+    getExecutionHistorySince: (_runId: string, since: number): Promise<RunHistoryDeltaResult> => {
+      log.deltaReads.push(since);
+      if (failDeltasFrom.has(since)) {
+        return Promise.resolve({ status: "unavailable", message: null });
+      }
+      return Promise.resolve({
+        status: "loaded",
+        history: {
+          ...recordedHistory(start, position, status, since),
+          coverage: NOT_RECORDED.coverage,
+        },
+        delta: { since_boundary: since, through_boundary: position },
+      });
     },
   };
   return {
@@ -112,6 +170,7 @@ function host(start: RunExecution = RUNNING_IN_THE_GAP) {
     advanceElsewhere: () => {
       position += 1;
     },
+    failDeltasFrom,
   };
 }
 
@@ -166,11 +225,12 @@ describe("auto-play on the run screen", () => {
     expect(h.log.steps).toEqual([]);
   });
 
-  it("plays one guarded step at a time to the end, then stops and re-reads the records once", async () => {
+  it("plays one guarded step at a time to the end, following the history by deltas and one terminal read", async () => {
     const h = host();
     renderAt(h.client);
     await settled();
-    const readsBefore = h.log.historyReads;
+    // The one full read on load.
+    await waitFor(() => expect(h.log.historyReads).toBe(1));
     fastest();
     fireEvent.click(screen.getByRole("button", { name: "Play" }));
     // Manual controls cannot race it.
@@ -183,8 +243,13 @@ describe("auto-play on the run screen", () => {
     );
     expect(h.log.steps).toEqual([104, 105, 106]);
     expect(executionStatus()).toBe("COMPLETED");
-    // The history was not read per step: once, after auto-play stopped.
-    await waitFor(() => expect(h.log.historyReads).toBe(readsBefore + 1));
+    // T025e: a delta per RUNNING answer, and one full read at the terminal
+    // answer - none between the first step and the terminal.
+    expect(h.log.deltaReads).toEqual([104, 105]);
+    expect(h.log.historyReads).toBe(2);
+    expect(document.querySelector("[data-history-recorded]")?.textContent).toBe(
+      "107 of 107",
+    );
     expect(screen.queryByRole("button", { name: /Play|Resume/ })).toBeDisabled();
   });
 
@@ -284,5 +349,95 @@ describe("auto-play on the run screen", () => {
     const sent = h.log.steps.length;
     await new Promise((resolve) => setTimeout(resolve, 600));
     expect(h.log.steps).toHaveLength(sent);
+  });
+});
+
+function recordedCount(): string | null {
+  return document.querySelector("[data-history-recorded]")?.textContent ?? null;
+}
+
+function lag(): HTMLElement {
+  const found = document.querySelector<HTMLElement>("[data-history-lag]");
+  if (found === null) {
+    throw new Error("no lag slot");
+  }
+  return found;
+}
+
+describe("live follow on the run screen (T025e AC4-AC7)", () => {
+  it("each auto-played step commits its history with it, and a failed read never stops play", async () => {
+    const h = host({ ...RUNNING_IN_THE_GAP, boundaries_completed: 100 });
+    h.failDeltasFrom.add(101);
+    renderAt(h.client);
+    await settled();
+    await waitFor(() => expect(recordedCount()).toBe("100 of 107"));
+    fastest();
+    fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    // The delta after 101 fails: the last frame stays, and the lag is stated.
+    await waitFor(() =>
+      expect(lag().textContent).toBe(
+        "History recorded through boundary 101; execution at 102.",
+      ),
+    );
+    expect(recordedCount()).toBe("101 of 107");
+    // Play went on, and the next tick made one full read, not the same delta.
+    await waitFor(
+      () => expect(playback().getAttribute("data-playback-reason")).toBe("TERMINAL"),
+      { timeout: 4000 },
+    );
+    expect(h.log.steps).toEqual([100, 101, 102, 103, 104, 105, 106]);
+    expect(h.log.deltaReads).toEqual([100, 101, 103, 104, 105]);
+    // Load, the recovery after the failed delta, and the terminal read.
+    expect(h.log.historyReads).toBe(3);
+    expect(recordedCount()).toBe("107 of 107");
+    expect(lag().getAttribute("data-history-lag")).toBe("none");
+  });
+
+  it("a pinned cursor holds while play continues, and Return to live resumes following", async () => {
+    const h = host({ ...RUNNING_IN_THE_GAP, boundaries_completed: 100 });
+    renderAt(h.client);
+    await settled();
+    await waitFor(() => expect(recordedCount()).toBe("100 of 107"));
+    const range = document.getElementById("history-cursor-range") as HTMLInputElement;
+    // Pin boundary 97 (offset 97 x 15 min).
+    fireEvent.change(range, { target: { value: "97" } });
+    const pinned = String(97 * RUNNING_IN_THE_GAP.timestep_minutes);
+    expect(document.querySelector("[data-cursor-offset]")?.getAttribute("data-cursor-offset")).toBe(pinned);
+    expect(screen.getByRole("button", { name: /Return to live \(2 boundaries behind live\)/ })).toBeEnabled();
+
+    fastest();
+    fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    await waitFor(() => expect(recordedCount()).toBe("103 of 107"), { timeout: 3000 });
+    fireEvent.click(screen.getByRole("button", { name: "Pause" }));
+    await waitFor(() =>
+      expect(playback().getAttribute("data-playback-reason")).toBe("PAUSED"),
+    );
+    // Neither the ticks nor the pause moved the pinned cursor, on any view.
+    expect(document.querySelector("[data-cursor-offset]")?.getAttribute("data-cursor-offset")).toBe(pinned);
+    expect(document.querySelector("[data-history-selected]")?.getAttribute("data-history-selected")).toBe(pinned);
+    const recorded = Number(recordedCount()?.split(" ")[0]);
+    expect(
+      screen.getByRole("button", {
+        name: `Return to live (${recorded - 98} boundaries behind live)`,
+      }),
+    ).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: /Return to live/ }));
+    const live = String((recorded - 1) * RUNNING_IN_THE_GAP.timestep_minutes);
+    expect(document.querySelector("[data-cursor-offset]")?.getAttribute("data-cursor-offset")).toBe(live);
+    expect(document.querySelector("[data-history-cursor]")?.getAttribute("data-history-cursor")).toBe("live");
+    expect(screen.queryByRole("button", { name: /Return to live/ })).toBeNull();
+  });
+
+  it("a manual Step commits the same way: one delta, no full read", async () => {
+    const h = host({ ...RUNNING_IN_THE_GAP, boundaries_completed: 100 });
+    renderAt(h.client);
+    await settled();
+    await waitFor(() => expect(recordedCount()).toBe("100 of 107"));
+    fireEvent.click(screen.getByRole("button", { name: "Step" }));
+    await waitFor(() => expect(recordedCount()).toBe("101 of 107"));
+    expect(h.log.deltaReads).toEqual([100]);
+    expect(h.log.historyReads).toBe(1);
+    expect(document.querySelector("[data-history-cursor]")?.getAttribute("data-history-cursor")).toBe("live");
   });
 });

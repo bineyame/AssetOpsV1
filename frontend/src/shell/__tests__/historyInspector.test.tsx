@@ -79,10 +79,10 @@ function all(selector: string): HTMLElement[] {
 }
 
 function select(offset: number): void {
-  const control = document.querySelector(
-    "[data-history-boundary-select]",
-  ) as HTMLSelectElement;
-  fireEvent.change(control, { target: { value: String(offset) } });
+  // T025e: the one history cursor; the raw records have no select of their own.
+  const index = HISTORY.boundaries.findIndex((b) => b.offset_minutes === offset);
+  const range = document.getElementById("history-cursor-range") as HTMLInputElement;
+  fireEvent.change(range, { target: { value: String(index) } });
 }
 
 describe("the recorded-history inspector", () => {

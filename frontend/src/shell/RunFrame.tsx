@@ -9,13 +9,22 @@ import {
   DEFAULT_PLAYBACK_DELAY_MS,
   PLAYBACK_DELAYS_MS,
   PlaybackScheduler,
-  laterExecution,
   type PlaybackState,
   type PlaybackStopReason,
 } from "./runPlayback";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteDetailResult } from "../sites/siteReadModel";
-import type { RunHistoryResult } from "./runHistory";
+import {
+  INITIAL,
+  boundariesBehindLive,
+  historyLag,
+  historyRequest,
+  selectedOffset,
+  runFrameReducer,
+  type HistoryAnswer,
+  type RunFrameAction,
+  type RunFrameState,
+} from "./runFrameState";
 import type {
   RunDetailResult,
   RunExecutionResult,
@@ -104,11 +113,30 @@ export function RunFrame({
 }: RunFrameProps) {
   const { runId } = useParams<{ runId: string }>();
   const [result, setResult] = useState<RunDetailResult | null>(null);
-  const [execution, setExecution] = useState<RunExecutionResult | null>(null);
+  // T025e: execution, history, the full-read flag and the history cursor are
+  // one state, and every answer is one commit (`runFrameState.ts`). The ref
+  // mirrors it so an answer arriving later decides its read from what is held
+  // now, not from the render that sent it.
+  const [frameState, setFrameState] = useState<RunFrameState>(INITIAL);
+  const held = useRef<RunFrameState>(INITIAL);
+  const dispatch = useCallback((action: RunFrameAction) => {
+    held.current = runFrameReducer(held.current, action);
+    setFrameState(held.current);
+  }, []);
+  const execution = frameState.execution;
+  // The one history cursor (T025e AC7): the reader pins or returns to live.
+  const select = useCallback(
+    (offset: number) => dispatch({ type: "SELECT", offset }),
+    [dispatch],
+  );
+  const returnToLive = useCallback(
+    () => dispatch({ type: "RETURN_TO_LIVE" }),
+    [dispatch],
+  );
   const [pending, setPending] = useState(false);
   const [boundaries, setBoundaries] = useState("1");
   const [stage, setStage] = useState<RunStageResult | null>(null);
-  const [history, setHistory] = useState<RunHistoryResult | null>(null);
+  const history = frameState.history;
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [drawingSite, setDrawingSite] = useState<SiteDetailResult | null>(null);
   const [playback, setPlayback] = useState<PlaybackState>({
@@ -120,16 +148,55 @@ export function RunFrame({
   const scheduler = useRef<PlaybackScheduler | null>(null);
   const delayRef = useRef<number>(DEFAULT_PLAYBACK_DELAY_MS);
 
-  // T025d: the recorded history and the stage are re-read after a control and
-  // whenever auto-play stops - never per auto-played step, because the live
-  // history is recomputed per read and grows with the run.
-  const rereadRecords = useCallback(async () => {
+  // The stage is re-read after a control and whenever auto-play stops, never
+  // per auto-played step. T025e: the history is no longer re-read on stop; it
+  // follows each answer through `commit` below.
+  const rereadStage = useCallback(async () => {
     if (runId === undefined) {
       return;
     }
     setStage(await runSetup.getStage(runId));
-    setHistory(await runSetup.getExecutionHistory(runId));
   }, [runSetup, runId]);
+
+  // One history request at a time, never two in parallel: each commit waits
+  // for the one before it, then decides its read from what that one left.
+  const commits = useRef<Promise<void>>(Promise.resolve());
+  /**
+   * Commit one execution answer with the history read it needs, in one
+   * transition. `base` forces a whole read (a Start: the live session's first
+   * record). Resolves after the commit; never rejects - a history failure is
+   * not a step failure, it only leaves the history behind the clock.
+   */
+  const commit = useCallback(
+    (answer: RunExecutionResult, base = false): Promise<void> => {
+      const next = commits.current.then(async () => {
+        if (runId === undefined) {
+          return;
+        }
+        const request = base ? { kind: "full" as const } : historyRequest(held.current, answer);
+        let read: HistoryAnswer = { kind: "none" };
+        try {
+          if (request.kind === "full") {
+            read = { kind: "full", result: await runSetup.getExecutionHistory(runId) };
+          } else if (request.kind === "delta") {
+            read = {
+              kind: "delta",
+              result: await runSetup.getExecutionHistorySince(runId, request.since),
+            };
+          }
+        } catch {
+          read =
+            request.kind === "full"
+              ? { kind: "full", result: { status: "unavailable", message: null } }
+              : { kind: "delta", result: { status: "unavailable", message: null } };
+        }
+        dispatch({ type: "TICK_COMMITTED", execution: answer, history: read });
+      });
+      commits.current = next.catch(() => undefined);
+      return commits.current;
+    },
+    [runSetup, runId, dispatch],
+  );
 
   // One scheduler per run page. Leaving the page (or changing run) disposes
   // it, which stops scheduling and shows nothing further; a reload builds a
@@ -142,10 +209,10 @@ export function RunFrame({
       step: (fromBoundary) =>
         runSetup.stepExecution(runId, { boundaries: 1, fromBoundary }),
       read: () => runSetup.getExecution(runId),
-      show: (answer) => setExecution((previous) => laterExecution(previous, answer)),
+      show: (answer) => commit(answer),
       onState: setPlayback,
       onStopped: () => {
-        void rereadRecords();
+        void rereadStage();
       },
       stepTimeoutMs: playbackStepTimeoutMs,
     });
@@ -165,7 +232,7 @@ export function RunFrame({
         scheduler.current = null;
       }
     };
-  }, [runSetup, runId, rereadRecords, playbackStepTimeoutMs]);
+  }, [runSetup, runId, rereadStage, commit, playbackStepTimeoutMs]);
 
   useEffect(() => {
     delayRef.current = delayMs;
@@ -213,9 +280,10 @@ export function RunFrame({
         setResult(loaded);
       }
     });
+    dispatch({ type: "RESET" });
     void runSetup.getExecution(runId).then((loaded) => {
       if (active) {
-        setExecution(loaded);
+        dispatch({ type: "EXECUTION_READ", execution: loaded });
       }
     });
     void runSetup.getStage(runId).then((loaded) => {
@@ -223,16 +291,18 @@ export function RunFrame({
         setStage(loaded);
       }
     });
+    // The one full history read on load. Reload starts live at the last
+    // recorded boundary; the cursor is not persisted.
     void runSetup.getExecutionHistory(runId).then((loaded) => {
       if (active) {
-        setHistory(loaded);
+        dispatch({ type: "HISTORY_READ", result: loaded });
       }
     });
 
     return () => {
       active = false;
     };
-  }, [runSetup, runId]);
+  }, [runSetup, runId, dispatch]);
 
   /**
    * Run one control and replace the execution with what came back.
@@ -245,18 +315,19 @@ export function RunFrame({
    * from being bypassed.
    */
   const control = useCallback(
-    async (act: () => Promise<RunExecutionResult>) => {
+    async (act: () => Promise<RunExecutionResult>, base = false) => {
       setPending(true);
       const answer = await act();
-      setExecution(answer);
+      // T025e: the same commit path as auto-play - the answer with its
+      // history read (a Start's is the whole base the live session starts
+      // from; a Step's a delta; a terminal answer's the one full read).
+      await commit(answer, base);
       // A control may have staged envelopes, so the stage is re-read from
       // persistence after it rather than patched from the control's answer.
-      // T025c: the recorded history is re-read the same way - a read that
-      // executes nothing, of what the control just recorded.
-      await rereadRecords();
+      await rereadStage();
       setPending(false);
     },
-    [rereadRecords],
+    [commit, rereadStage],
   );
 
   const backLinks = (
@@ -569,8 +640,9 @@ export function RunFrame({
                       projection.status !== "NOT_STARTED"
                     }
                     onClick={() => {
-                      void control(() =>
-                        runSetup.startExecution(run.run_id),
+                      void control(
+                        () => runSetup.startExecution(run.run_id),
+                        true,
                       );
                     }}
                   >
@@ -909,7 +981,11 @@ export function RunFrame({
 
       <HistoryInspector
         result={history}
-        steps={projection?.electrical?.steps ?? null}
+        selected={selectedOffset(frameState)}
+        behindLive={boundariesBehindLive(frameState)}
+        lag={historyLag(frameState)}
+        onSelect={select}
+        onReturnToLive={returnToLive}
         timestepMinutes={projection?.timestep_minutes ?? null}
         site={drawingSite}
       />
@@ -1278,7 +1354,7 @@ function PlaybackControls({
     >
       <h3 id="run-playback-heading">Auto-play</h3>
       <p className="action-list__reason">
-        {`Auto-play sends one guarded Step of one boundary (${timestepMinutes} simulated minutes, the run's frozen timestep), waits for its answer, then waits the wall delay below before the next. The delay changes wall time only: every step is the same request as the Step button, so the run's physics, seed and ordering do not depend on it. Recorded history and staged envelopes are re-read when auto-play stops, not per step.`}
+        {`Auto-play sends one guarded Step of one boundary (${timestepMinutes} simulated minutes, the run's frozen timestep), waits for its answer, then waits the wall delay below before the next. The delay changes wall time only: every step is the same request as the Step button, so the run's physics, seed and ordering do not depend on it. The recorded history follows each step in the same update as the clock; staged envelopes are re-read when auto-play stops, not per step.`}
       </p>
       <p>
         <label htmlFor="run-playback-delay">Wall delay between steps</label>{" "}

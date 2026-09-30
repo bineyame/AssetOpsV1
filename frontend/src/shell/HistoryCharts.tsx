@@ -14,7 +14,6 @@ import {
   reportedRuns,
 } from "./historyChartModel";
 import type { RunHistory, RunHistoryAttempt } from "./runHistory";
-import type { RunElectricalStep } from "./runSetupClient";
 
 /**
  * Addressed day curves over one run's recorded history (T025c phase 2).
@@ -91,6 +90,29 @@ export function niceTicks(min: number, max: number): number[] {
     ticks.push(Number(t.toFixed(6)));
   }
   return ticks;
+}
+
+/** Headroom above the recorded extreme when no range is declared. */
+const HEADROOM = 1.25;
+
+/**
+ * The value axis of one panel (T025e AC8). Where the frozen inputs declare a
+ * range (state of charge 0-100 %, a held rating) that range is the axis,
+ * widened only if a recorded value lies outside it. Otherwise the axis is a
+ * "nice" ratchet with headroom over the recorded extremes. Because a live
+ * history only grows at its end, the extremes - and so the axis - only ever
+ * widen, in the same commit as the point that widened them; never shrink.
+ */
+export function valueTicks(
+  panel: { bound?: { min: number; max: number } },
+  values: number[],
+): number[] {
+  const low = Math.min(0, ...values);
+  const high = Math.max(0, ...values);
+  if (panel.bound !== undefined) {
+    return niceTicks(Math.min(panel.bound.min, low), Math.max(panel.bound.max, high));
+  }
+  return niceTicks(low * HEADROOM, Math.max(low + 1, high * HEADROOM));
 }
 
 function hours(offset: number): string {
@@ -385,9 +407,7 @@ function NumericChart({
         .map((a) => plotted(a.reported_value ?? "")),
     ),
   ].filter((v) => Number.isFinite(v));
-  const min = Math.min(0, ...values);
-  const max = Math.max(min + 1, ...values);
-  const ticks = niceTicks(min, max);
+  const ticks = valueTicks(panel, values);
   const lo = ticks[0];
   const hi = ticks[ticks.length - 1];
   const bottom = HEIGHT - MARGIN.bottom;
@@ -828,26 +848,26 @@ function inspectorRows(
 
 export function HistoryCharts({
   history,
-  steps,
   timestepMinutes,
   selected,
   onSelect,
 }: {
   history: RunHistory;
-  steps: RunElectricalStep[] | null;
+  /** The run's frozen timestep; the curves themselves are the history's. */
   timestepMinutes: number | null;
   selected: number;
   onSelect: (offset: number) => void;
 }) {
+  // T025e (closes C3): every curve comes from the recorded history alone, so
+  // no fresh per-step execution data can run ahead of the rest.
   const model = useMemo(
-    () => chartModel(history, steps, timestepMinutes),
-    [history, steps, timestepMinutes],
+    () => chartModel(history, timestepMinutes),
+    [history, timestepMinutes],
   );
   const [ref, width] = useWidth();
   const axis = timeAxis(model, width);
   const offsets = history.boundaries.map((b) => b.offset_minutes);
-  const index = Math.max(0, offsets.indexOf(selected));
-  const boundary = history.boundaries[index];
+  const boundary = history.boundaries[Math.max(0, offsets.indexOf(selected))];
   // The last recorded boundary, or the end of the last recorded step decided
   // at it, whichever is later: a step decided at the last boundary is recorded.
   const recordedThrough = Math.max(
@@ -890,22 +910,6 @@ export function HistoryCharts({
         <p data-charts-empty>No boundary is recorded, so there is nothing to chart.</p>
       ) : (
         <>
-          <div className="history-cursor">
-            <label htmlFor="history-cursor-range">Selected boundary</label>
-            <input
-              id="history-cursor-range"
-              type="range"
-              min={0}
-              max={offsets.length - 1}
-              step={1}
-              value={index}
-              aria-valuetext={`${selected} min, ${boundary?.simulation_time ?? ""}`}
-              onChange={(event) => onSelect(offsets[Number(event.target.value)])}
-            />
-            <span data-cursor-offset={selected}>
-              {`offset ${selected} min, ${boundary?.simulation_time ?? ""}`}
-            </span>
-          </div>
           <p className="cell-secondary">
             {`The time axis is the offset from the interval start, over the whole window; each step is ${model.timestep} min. The shaded band is the step that ended at the selected boundary: an interval report at T describes it, while a control accepted at T governs the next step.`}
           </p>

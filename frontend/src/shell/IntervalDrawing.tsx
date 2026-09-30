@@ -19,12 +19,40 @@ export function IntervalDrawing({
   history,
   offset,
   site,
+  onSelect,
 }: {
   history: RunHistory;
   offset: number;
   site: SiteDetailResult | null;
+  /**
+   * T025e: move the one history cursor. Arrow keys on the drawing step it a
+   * recorded boundary back or forward; Home and End go to the first and the
+   * last (End follows live). Lab-side: the shared drawing is not touched.
+   */
+  onSelect?: (offset: number) => void;
 }) {
   const binding = bindDrawing(history.drawing_context, site);
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (onSelect === undefined) {
+      return;
+    }
+    const offsets = history.boundaries.map((b) => b.offset_minutes);
+    const at = offsets.indexOf(offset);
+    const target =
+      event.key === "ArrowLeft"
+        ? offsets[Math.max(0, at - 1)]
+        : event.key === "ArrowRight"
+          ? offsets[Math.min(offsets.length - 1, at + 1)]
+          : event.key === "Home"
+            ? offsets[0]
+            : event.key === "End"
+              ? offsets[offsets.length - 1]
+              : undefined;
+    if (target !== undefined) {
+      event.preventDefault();
+      onSelect(target);
+    }
+  };
 
   return (
     <Panel heading="Single line diagram at the selected boundary" headingId={HEADING_ID}>
@@ -36,7 +64,12 @@ export function IntervalDrawing({
           {`The drawing is unavailable for this run: ${binding.statement} The recorded values remain in the tables and charts.`}
         </p>
       ) : (
-        <div data-drawing-bound={binding.site.site_id}>
+        <div
+          data-drawing-bound={binding.site.site_id}
+          tabIndex={onSelect === undefined ? undefined : 0}
+          aria-label="Single line diagram; arrow keys move the history cursor"
+          onKeyDown={onKeyDown}
+        >
           <ConfiguredSingleLineDrawing
             site={binding.site}
             slots={drawingSlots(binding, history, offset)}

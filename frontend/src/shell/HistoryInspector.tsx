@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { DataTable, Fact, FactList, Panel } from "../ui";
 import type { SiteDetailResult } from "../sites/siteReadModel";
 import { HistoryCharts } from "./HistoryCharts";
@@ -7,7 +5,6 @@ import { HistoryTimeline } from "./HistoryTimeline";
 import { IntervalDrawing } from "./IntervalDrawing";
 import { IntervalInspection } from "./IntervalInspection";
 import type { RunHistory, RunHistoryResult } from "./runHistory";
-import type { RunElectricalStep } from "./runSetupClient";
 
 /**
  * One exact value, shown exactly. Unlike the summary panels' `ExactQuantity`,
@@ -50,13 +47,26 @@ function ExactQuantity({ value, unit }: { value: string | null; unit?: string })
  */
 export function HistoryInspector({
   result,
-  steps = null,
+  selected,
+  behindLive = 0,
+  lag = null,
+  onSelect,
+  onReturnToLive,
   timestepMinutes = null,
   site = null,
 }: {
   result: RunHistoryResult | null;
-  /** The execution projection's electrical steps, when the model has them. */
-  steps?: RunElectricalStep[] | null;
+  /**
+   * T025e: the one history cursor's boundary, owned by the run page (live:
+   * the last recorded boundary; pinned: the reader's). Null when none.
+   */
+  selected: number | null;
+  /** Recorded boundaries after a pinned cursor; 0 while live. */
+  behindLive?: number;
+  /** The recorded count and the execution clock when the history lags it. */
+  lag?: { recorded: number; clock: number } | null;
+  onSelect: (offset: number) => void;
+  onReturnToLive: () => void;
   timestepMinutes?: number | null;
   /**
    * T025d: the Site read for the run-bound drawing, or null while it is in
@@ -87,32 +97,98 @@ export function HistoryInspector({
   return (
     <LoadedHistory
       history={result.history}
-      steps={steps}
+      selected={selected}
+      behindLive={behindLive}
+      lag={lag}
+      onSelect={onSelect}
+      onReturnToLive={onReturnToLive}
       timestepMinutes={timestepMinutes}
       site={site}
     />
   );
 }
 
+/**
+ * The one history cursor (T025e AC7), kept apart from the execution clock.
+ *
+ * The range selects a recorded boundary: an earlier one pins the cursor, the
+ * last one (or `End`) follows live. Return to live has a reserved slot beside
+ * the label, so pinning moves nothing; the lag statement has one too.
+ */
+function HistoryCursor({
+  history,
+  selected,
+  behindLive,
+  lag,
+  onSelect,
+  onReturnToLive,
+}: {
+  history: RunHistory;
+  selected: number;
+  behindLive: number;
+  lag: { recorded: number; clock: number } | null;
+  onSelect: (offset: number) => void;
+  onReturnToLive: () => void;
+}) {
+  const offsets = history.boundaries.map((b) => b.offset_minutes);
+  const index = Math.max(0, offsets.indexOf(selected));
+  const boundary = history.boundaries[index];
+  return (
+    <div
+      className="history-cursor"
+      data-history-cursor={behindLive > 0 ? "pinned" : "live"}
+    >
+      <label htmlFor="history-cursor-range">History cursor</label>
+      <input
+        id="history-cursor-range"
+        type="range"
+        min={0}
+        max={offsets.length - 1}
+        step={1}
+        value={index}
+        aria-valuetext={`${selected} min, ${boundary?.simulation_time ?? ""}`}
+        onChange={(event) => onSelect(offsets[Number(event.target.value)])}
+      />
+      <span data-cursor-offset={selected}>
+        {`offset ${selected} min, ${boundary?.simulation_time ?? ""}`}
+      </span>
+      <span className="history-cursor__live" data-return-to-live-slot>
+        {behindLive > 0 ? (
+          <button type="button" className="action" onClick={onReturnToLive}>
+            {`Return to live (${behindLive} ${behindLive === 1 ? "boundary" : "boundaries"} behind live)`}
+          </button>
+        ) : (
+          "Following live"
+        )}
+      </span>
+      <span data-history-lag={lag === null ? "none" : "behind"}>
+        {lag === null
+          ? ""
+          : `History recorded through boundary ${lag.recorded}; execution at ${lag.clock}.`}
+      </span>
+    </div>
+  );
+}
+
 function LoadedHistory({
   history,
-  steps,
+  selected,
+  behindLive,
+  lag,
+  onSelect,
+  onReturnToLive,
   timestepMinutes,
   site,
 }: {
   history: RunHistory;
-  steps: RunElectricalStep[] | null;
+  selected: number | null;
+  behindLive: number;
+  lag: { recorded: number; clock: number } | null;
+  onSelect: (offset: number) => void;
+  onReturnToLive: () => void;
   timestepMinutes: number | null;
   site: SiteDetailResult | null;
 }) {
-  const last = history.boundaries[history.boundaries.length - 1];
-  const [chosen, setChosen] = useState<number | null>(null);
-  const selected =
-    chosen !== null &&
-    history.boundaries.some((b) => b.offset_minutes === chosen)
-      ? chosen
-      : (last?.offset_minutes ?? null);
-
   return (
     <>
       <Panel heading="Recorded history" headingId="run-history-heading">
@@ -186,12 +262,22 @@ function LoadedHistory({
       </Panel>
 
       {selected === null ? null : (
+        <HistoryCursor
+          history={history}
+          selected={selected}
+          behindLive={behindLive}
+          lag={lag}
+          onSelect={onSelect}
+          onReturnToLive={onReturnToLive}
+        />
+      )}
+
+      {selected === null ? null : (
         <HistoryCharts
           history={history}
-          steps={steps}
           timestepMinutes={timestepMinutes}
           selected={selected}
-          onSelect={setChosen}
+          onSelect={onSelect}
         />
       )}
 
@@ -202,18 +288,19 @@ function LoadedHistory({
         */}
       {selected === null ? null : (
         <>
-          <IntervalDrawing history={history} offset={selected} site={site} />
+          <IntervalDrawing
+            history={history}
+            offset={selected}
+            site={site}
+            onSelect={onSelect}
+          />
           <IntervalInspection history={history} offset={selected} />
-          <HistoryTimeline history={history} offset={selected} />
+          <HistoryTimeline history={history} offset={selected} onSelect={onSelect} />
         </>
       )}
 
       {selected === null ? null : (
-        <BoundaryRecords
-          history={history}
-          offset={selected}
-          onSelect={setChosen}
-        />
+        <BoundaryRecords history={history} offset={selected} />
       )}
     </>
   );
@@ -222,11 +309,9 @@ function LoadedHistory({
 function BoundaryRecords({
   history,
   offset,
-  onSelect,
 }: {
   history: RunHistory;
   offset: number;
-  onSelect: (offset: number) => void;
 }) {
   const boundary = history.boundaries.find((b) => b.offset_minutes === offset);
   const samples = history.samples.filter((s) => s.offset_minutes === offset);
@@ -264,21 +349,8 @@ function BoundaryRecords({
         heading="Records at one boundary"
         headingId="run-history-boundary-heading"
       >
-        <label>
-          Boundary{" "}
-          <select
-            data-history-boundary-select
-            value={String(offset)}
-            onChange={(event) => onSelect(Number(event.target.value))}
-          >
-            {history.boundaries.map((b) => (
-              <option key={b.offset_minutes} value={String(b.offset_minutes)}>
-                {`${b.offset_minutes} min - ${b.simulation_time}`}
-              </option>
-            ))}
-          </select>
-        </label>
         <p data-history-selected={offset}>
+          {`At the history cursor: interval decided at ${offset} min. `}
           {boundary === undefined
             ? ""
             : `${boundary.simulation_time}. `}

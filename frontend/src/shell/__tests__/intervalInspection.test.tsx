@@ -296,11 +296,11 @@ async function renderWith(site: SiteDetailResult) {
   await settledScreen();
 }
 
-function select(offset: number) {
-  const select = document.querySelector<HTMLSelectElement>(
-    "[data-history-boundary-select]",
-  );
-  fireEvent.change(select!, { target: { value: String(offset) } });
+function select(offset: number): void {
+  // T025e: the one history cursor; the raw records have no select of their own.
+  const index = HISTORY.boundaries.findIndex((b) => b.offset_minutes === offset);
+  const range = document.getElementById("history-cursor-range") as HTMLInputElement;
+  fireEvent.change(range, { target: { value: String(index) } });
 }
 
 function one(selector: string): HTMLElement {

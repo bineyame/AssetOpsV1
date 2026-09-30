@@ -1520,6 +1520,22 @@ button:focus-visible {
   min-width: 0;
 }
 
+/* T025e: Return to live and the lag statement keep reserved slots, so
+   pinning the cursor or a failed history read moves nothing around them. */
+.history-cursor__live {
+  display: inline-flex;
+  align-items: center;
+  min-width: 18rem;
+  min-height: 2.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-cursor [data-history-lag] {
+  flex-basis: 100%;
+  min-height: 1.5em;
+  font-variant-numeric: tabular-nums;
+}
+
 .history-chart__figure {
   margin: 0 0 var(--space-4);
 }
