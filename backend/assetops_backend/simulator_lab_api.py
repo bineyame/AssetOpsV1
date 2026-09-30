@@ -227,10 +227,14 @@ HISTORY_APPEND_FAMILY_KEYS: dict[str, str] = {
     "applied_events": "at_offset_minutes",
     "bounded_transitions": "at_offset_minutes",
     "discrete_transitions": "at_offset_minutes",
+    # Owner approved 2026-09-30 after phase 1 measured a 71,935 B one-boundary
+    # delta, 57,443 B of it `exposures` sent whole: an exposure is recorded at
+    # the boundary its window opens, and the prefix guard proves it append-only.
+    "exposures": "from_offset",
 }
 # Frozen with the run: sent by the full read only, empty (or null) in a delta,
-# and kept by the client from its base. `exposures`, `coverage` and the
-# manifest scalars are neither: they are sent whole in every delta.
+# and kept by the client from its base. `coverage` and the manifest scalars
+# are neither: they are sent whole in every delta.
 HISTORY_STATIC_FAMILIES = (
     "signals",
     "bus_attachments",
@@ -1401,7 +1405,7 @@ def history_delta_payload(
     family narrowed to rows whose recording boundary lies after boundary
     `since_boundary`, the static families empty (`drawing_context` null), and
     the manifest - `boundaries_recorded`, `recorded_through_offset_minutes`,
-    status, digests, coverage, notes, failure - and `exposures` whole. A delta
+    status, digests, coverage, notes, failure - whole. A delta
     is not a verifiable document, so its `history_digest` is always null. The
     route has already refused a `since_boundary` past what is recorded.
     """

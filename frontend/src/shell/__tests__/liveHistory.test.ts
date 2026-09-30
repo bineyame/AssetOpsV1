@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  APPEND_FAMILY_KEYS,
   appendFrame,
   appendHistory,
   extendSliceIndex,
@@ -126,15 +127,7 @@ describe("appendHistory accepts what the backend sends, in order", () => {
   it("an empty delta at the edge is accepted and changes no family", () => {
     const held = folded(7);
     const empty = copy(fixture.deltas[6].history);
-    for (const family of [
-      "boundaries",
-      "samples",
-      "intervals",
-      "attempts",
-      "applied_events",
-      "bounded_transitions",
-      "discrete_transitions",
-    ] as const) {
+    for (const family of Object.keys(APPEND_FAMILY_KEYS) as (keyof typeof APPEND_FAMILY_KEYS)[]) {
       (empty[family] as unknown[]) = [];
     }
     const next = accepted(
@@ -178,9 +171,12 @@ describe("appendHistory never mutates and shares what did not change", () => {
     // A whole-sent field that did not change keeps the base's identity.
     expect(next.coverage).toEqual(base.coverage);
     expect(next.coverage).toBe(base.coverage);
-    // Exposures arrive whole; the ones already held keep their identity.
+    // Exposures are append-class (owner approved 2026-09-30): the delta
+    // carries only the new ones, and the ones already held keep identity.
+    expect(read.history.exposures.length).toBeGreaterThan(0);
+    expect(read.history.exposures.length).toBeLessThan(base.exposures.length);
     base.exposures.forEach((row, i) => expect(next.exposures[i]).toBe(row));
-    expect(next.exposures).toEqual(read.history.exposures);
+    expect(next.exposures).toEqual(base.exposures.concat(read.history.exposures));
     // A family the delta adds nothing to keeps its array.
     for (const family of ["bounded_transitions", "discrete_transitions"] as const) {
       if (read.history[family].length === 0) {

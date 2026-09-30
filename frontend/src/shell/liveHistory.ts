@@ -12,7 +12,7 @@
  * `HISTORY_APPEND_FAMILY_KEYS`): append families grow only at their end
  * (proven per boundary by `host/tests/test_lab_history_prefix.py`), static
  * families come with the full read alone, and everything else - the manifest,
- * `coverage`, `notes`, `failure`, `exposures` - arrives whole in each delta.
+ * `coverage`, `notes`, `failure` - arrives whole in each delta.
  */
 
 import type {
@@ -40,6 +40,9 @@ export const APPEND_FAMILY_KEYS = {
   applied_events: "at_offset_minutes",
   bounded_transitions: "at_offset_minutes",
   discrete_transitions: "at_offset_minutes",
+  // Append-class by owner approval (2026-09-30) after phase 1 measured a
+  // 71,935 B one-boundary delta with `exposures` sent whole.
+  exposures: "from_offset",
 } as const;
 
 export type AppendFamily = keyof typeof APPEND_FAMILY_KEYS;
@@ -69,7 +72,6 @@ const WHOLE_FIELDS = [
   "notes",
   "failure",
   "coverage",
-  "exposures",
 ] as const;
 
 export type AppendRefusalReason =

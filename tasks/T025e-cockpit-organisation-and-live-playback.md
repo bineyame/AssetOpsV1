@@ -41,9 +41,10 @@ A fresh Implementer per phase; each ends with committed work and
    optional `since_boundary=n` and answers the same `history` document plus
    sibling `delta: {since_boundary, through_boundary}`. Append families
    (boundaries, samples, intervals, attempts, applied events, bounded and
-   discrete transitions) carry only rows whose recorded time key is after n;
-   manifest scalars, coverage, content/observation digests and `exposures` are
-   whole; static families (signals, bus attachments, frozen reporting gaps,
+   discrete transitions, `exposures`) carry only rows whose recorded time key
+   is after n (`exposures` append-class: owner approved 2026-09-30 after phase
+   1 measured 71,935 B); manifest scalars, coverage and content/observation
+   digests are whole; static families (signals, bus attachments, frozen reporting gaps,
    drawing context, sample phases) are empty or null; `history_digest` is null.
    It is a backend-route selection over the port's `LabHistory`, computing
    nothing. Without the parameter the read is unchanged and has no `delta`.

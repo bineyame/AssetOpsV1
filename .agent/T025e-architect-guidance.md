@@ -274,6 +274,8 @@ Shape of the addition:
     `failure`, `notes`, `coverage`, `content_digest`,
     `observation_series_digest`, and `exposures`, which is deduplicated on
     first sight at `lab_history.py:188` and has no reliable boundary key.
+    Superseded for `exposures`: append-class keyed on `from_offset`
+    (owner approved 2026-09-30 after phase 1 measured 71,935 B).
   - **Static families** are not re-sent. They are `signals`,
     `bus_attachments`, `reporting_gaps` (the frozen `reporting.gaps`),
     `drawing_context` and `sample_phases`. The delta sends them as empty lists

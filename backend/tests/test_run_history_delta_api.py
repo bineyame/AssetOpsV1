@@ -2,7 +2,7 @@
 
 `?since_boundary=n` is a selection over the `LabHistory` the port hands the
 route: every append family narrowed to the rows recorded after the caller's n
-boundaries, the static families left out, the manifest and `exposures` whole,
+boundaries, the static families left out, the manifest whole,
 and a sibling `delta` envelope. The composing proof over a real live session -
 every boundary, every family, folded back to the full read - is in
 `host/tests/test_lab_history_prefix.py`.
@@ -77,6 +77,10 @@ def a_growing_history(run_id: str) -> LabHistory:
         exposures=(
             ForcingExposure("pv-irradiance@site", "e-1", "irradiance",
                             Fraction(1), 0, 5),
+            ForcingExposure("pv-irradiance@site", "e-2", "irradiance",
+                            Fraction(2), 5, 10),
+            ForcingExposure("pv-irradiance@site", "e-3", "irradiance",
+                            Fraction(3), 10, 15),
         ),
         signals=(
             DeviceSignalSpec("pv-meter", "ac-power", "pv-ac-power@pv-inverter", "pv-ac-power",
@@ -129,11 +133,11 @@ class TestTheDeltaRead:
         after = None if since == 0 else full["boundaries"][since - 1]["offset_minutes"]
         for family in HISTORY_APPEND_FAMILY_KEYS:
             assert delta[family] == selected(full, family, after), family
-        # The manifest, coverage and exposures are whole, the digest is not.
+        # The manifest and coverage are whole, the digest is not.
         whole = set(full) - set(HISTORY_APPEND_FAMILY_KEYS) - set(
             HISTORY_STATIC_FAMILIES
         ) - {"history_digest"}
-        assert "exposures" in whole and "boundaries_recorded" in whole
+        assert "exposures" not in whole and "boundaries_recorded" in whole
         for key in whole:
             assert delta[key] == full[key], key
         assert full["history_digest"] == "should-never-reach-a-delta"
@@ -151,6 +155,8 @@ class TestTheDeltaRead:
         delta = read(client, record, "?since_boundary=1").json()["history"]
 
         assert [i["from_offset"] for i in delta["intervals"]] == [5]
+        # Owner approved 2026-09-30: exposures are append-class, keyed the same.
+        assert [x["event_id"] for x in delta["exposures"]] == ["e-2", "e-3"]
         assert [b["offset_minutes"] for b in delta["boundaries"]] == [5, 10]
         assert delta["boundaries_recorded"] == 3
         assert delta["recorded_through_offset_minutes"] == 10
