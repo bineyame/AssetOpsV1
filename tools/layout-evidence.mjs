@@ -847,6 +847,180 @@ const mountNote = (reads) =>
     .map((r) => `${r.historyBytes} B history; first chart ${Math.round((r.chartsAt ?? 0) - (r.historyResponseEnd ?? 0))} ms after its response (page render, informational)`)
     .join("; ");
 
+// --- T025d: the run-bound drawing, the interval inspection and auto-play ----
+//
+// Read from data attributes only. The drawing's value labels are measured
+// against every node box and every other label, because label placement at a
+// polyline's midpoint was the one geometry claim phase 1 left unmeasured.
+const READ_INSPECTION = `(() => {
+  const all = (s) => Array.from(document.querySelectorAll(s));
+  const rect = (el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
+  const overlap = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > 0.5 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 0.5;
+  const bound = document.querySelector('[data-drawing-bound]');
+  const svg = bound ? bound.querySelector('svg') : null;
+  const labels = svg ? Array.from(svg.querySelectorAll('[data-sld-connection-value]')) : [];
+  const boxes = svg ? Array.from(svg.querySelectorAll('.sld-node__box')).map(rect) : [];
+  const labelRects = labels.map(rect);
+  const svgBox = svg ? svg.getBoundingClientRect() : null;
+  const collisions = [];
+  labelRects.forEach((l, i) => {
+    boxes.forEach((b, j) => { if (overlap(l, b)) collisions.push(labels[i].getAttribute('data-sld-connection-value') + '~node' + j); });
+    labelRects.forEach((m, k) => { if (k > i && overlap(l, m)) collisions.push(labels[i].getAttribute('data-sld-connection-value') + '~' + labels[k].getAttribute('data-sld-connection-value')); });
+  });
+  const clipped = svgBox === null ? [] : labels.filter((el) => {
+    const r = el.getBoundingClientRect();
+    return r.left < svgBox.left - 0.5 || r.right > svgBox.right + 0.5 || r.top < svgBox.top - 0.5 || r.bottom > svgBox.bottom + 0.5;
+  }).map((el) => el.getAttribute('data-sld-connection-value'));
+  const directions = {};
+  labels.forEach((el) => { directions[el.getAttribute('data-sld-connection-value')] = el.getAttribute('data-sld-direction'); });
+  const region = (id) => {
+    const el = document.querySelector('.data-table__scroll[aria-labelledby="' + id + '"]');
+    return el === null ? null : { overflows: el.scrollWidth > el.clientWidth, focusable: el.getAttribute('tabindex') === '0' };
+  };
+  const tableRegions = all('.data-table__scroll').map((el) => el.getAttribute('aria-labelledby') || '');
+  const timelineIds = tableRegions.filter((id) => id.startsWith('run-timeline-'));
+  const controls = all('[data-interval-control]').map((el) => el.getAttribute('data-interval-control') + ':' + el.getAttribute('data-accepted-differs'));
+  const balances = all('[data-interval-balance]').map((el) => el.getAttribute('data-balance-holds'));
+  const text = (el) => (el ? (el.textContent || '').replace(/\\s+/g, ' ').trim() : '');
+  const statement = document.querySelector('[data-execution-statement]');
+  const playback = document.querySelector('[data-playback-state]');
+  const factValue = (term) => {
+    const dt = all('dt').find((d) => text(d) === term);
+    return dt && dt.nextElementSibling ? text(dt.nextElementSibling) : null;
+  };
+  const play = all('main button').find((b) => /^(Play|Resume)$/.test(text(b)));
+  return {
+    drawingBoundary: document.querySelector('[data-drawing-boundary]')?.getAttribute('data-drawing-boundary') ?? null,
+    drawingBound: bound ? bound.getAttribute('data-drawing-bound') : null,
+    drawingUnavailable: text(document.querySelector('[data-drawing-unavailable]')),
+    labels: labels.length,
+    labelTexts: labels.map((el) => text(el)),
+    collisions,
+    clipped,
+    directions,
+    controls,
+    balances,
+    timelineRows: all('[data-phase]').length,
+    timelineIds,
+    timelineRegions: timelineIds.map(region),
+    balanceRegion: region('run-interval-balance-heading'),
+    controlRegion: region('run-interval-control-heading'),
+    pageScrolls: document.scrollingElement.scrollWidth > document.scrollingElement.clientWidth,
+    selected: document.querySelector('[data-history-selected]')?.getAttribute('data-history-selected') ?? null,
+    status: statement ? statement.getAttribute('data-execution-status') : null,
+    playbackState: playback ? playback.getAttribute('data-playback-state') : null,
+    playbackReason: playback ? playback.getAttribute('data-playback-reason') : null,
+    playEnabled: play ? !play.disabled : null,
+    boundaries: factValue('Boundaries covered'),
+    trajectory: factValue('Trajectory digest'),
+    readings: factValue('Reading series digest'),
+    inputs: factValue('Frozen inputs identity'),
+    steps: window.__t025dSteps ?? null,
+    fingerprint: JSON.stringify([
+      document.querySelector('[data-drawing-boundary]')?.getAttribute('data-drawing-boundary'),
+      labels.map((el) => el.getAttribute('data-sld-connection-value') + '=' + el.getAttribute('data-sld-direction') + ':' + text(el)),
+      controls,
+      all('[data-interval-load]').map((el) => text(el)),
+      all('[data-interval-balance]').map((el) => text(el)),
+    ]),
+  };
+})()`;
+
+/** Count guarded step requests, and how many were ever in flight at once. */
+const STEP_COUNTER = `window.__t025dSteps = { count: 0, open: 0, maxOpen: 0, historyReads: 0 };
+(() => {
+  const original = window.fetch;
+  window.fetch = async (...args) => {
+    const url = String(args[0] && args[0].url ? args[0].url : args[0]);
+    const step = url.endsWith('/execution/step');
+    if (url.endsWith('/execution/history')) window.__t025dSteps.historyReads += 1;
+    if (step) {
+      window.__t025dSteps.count += 1;
+      window.__t025dSteps.open += 1;
+      window.__t025dSteps.maxOpen = Math.max(window.__t025dSteps.maxOpen, window.__t025dSteps.open);
+    }
+    try { return await original(...args); } finally { if (step) window.__t025dSteps.open -= 1; }
+  };
+})();`;
+
+async function readInspection(cdp) {
+  return (await cdp.send("Runtime.evaluate", { expression: READ_INSPECTION, returnByValue: true }))
+    .result.value;
+}
+
+/** Move the history cursor to a boundary index and time the drawing's follow. */
+async function selectBoundary(cdp, index, offset) {
+  return (
+    await cdp.send("Runtime.evaluate", {
+      expression: `(() => {
+        const range = document.getElementById('history-cursor-range');
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+        const t0 = performance.now();
+        setter.call(range, '${index}');
+        range.dispatchEvent(new Event('input', { bubbles: true }));
+        return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() =>
+          resolve({
+            ms: Math.round(performance.now() - t0),
+            follows: document.querySelector('[data-drawing-boundary]')?.getAttribute('data-drawing-boundary') === '${offset}',
+          }))));
+      })()`,
+      awaitPromise: true,
+      returnByValue: true,
+    })
+  ).result.value;
+}
+
+const selectDelay = (value) => `(() => {
+  const select = document.getElementById('run-playback-delay');
+  if (!select) return 'controls-missing';
+  const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
+  setter.call(select, '${value}');
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+})()`;
+
+function inspectionClaims(read, width) {
+  return [
+    [
+      "the drawing is bound to the frozen Site and follows the history cursor",
+      read.drawingBound !== null && read.drawingBoundary !== null,
+      `bound ${read.drawingBound}; boundary ${read.drawingBoundary}; ${read.drawingUnavailable}`,
+    ],
+    [
+      "the drawing carries value labels, so the geometry claims below are not vacuous",
+      read.labels >= 5,
+      `${read.labels} labels`,
+    ],
+    [
+      "no value label overlaps a component box or another label",
+      read.collisions.length === 0,
+      read.collisions.join(", ") || "none",
+    ],
+    [
+      "no value label is clipped by the drawing's own bounds",
+      read.clipped.length === 0,
+      read.clipped.join(", ") || "none",
+    ],
+    [
+      "every balance identity at the selected interval holds, and there are some",
+      read.balances.length > 0 && read.balances.every((holds) => holds === "yes"),
+      `${read.balances.length} identities: ${read.balances.join(",")}`,
+    ],
+    [
+      "the applied timeline has rows and each lane is a focusable table region",
+      read.timelineRows > 0 &&
+        read.timelineRegions.length > 0 &&
+        read.timelineRegions.every((r) => r !== null && r.focusable),
+      `${read.timelineRows} rows in ${read.timelineIds.join(", ")}`,
+    ],
+    [
+      "the page itself never scrolls sideways",
+      !read.pageScrolls,
+      `width ${width}`,
+    ],
+  ];
+}
+
 const EXPECTED_PANELS =
   "pv,load-load-clinic,load-load-res,load-load-mill,soc-battery,battery-power,generator-output,fuel-fuel-tank,state-generator";
 
@@ -980,6 +1154,37 @@ if (READBACK_ARG > 0) {
         `cursor move to 240 in ${moved.ms} ms; ${mountNote(reads)}`,
       ],
     ]) && allPass;
+  if (saved.t025d !== undefined) {
+    // T025d after the restart: the same interval inspection, from the
+    // persisted record, and a run that was live before is no longer playable.
+    await visit(cdp, saved.href, 1280, 800, "[data-drawing-boundary]");
+    await settledCockpit(cdp);
+    await selectBoundary(cdp, 13, 65);
+    await sleep(300);
+    const again = await readInspection(cdp);
+    let live = null;
+    if (saved.t025d.live !== undefined) {
+      await visit(cdp, saved.t025d.live, 1280, 800, "[data-execution-status]");
+      await sleep(500);
+      live = await readInspection(cdp);
+    }
+    allPass =
+      report("T025d readback after a host restart", null, [
+        [
+          "the drawing, control panel, loads and balance at [60, 65) are the ones shown before the restart",
+          again.fingerprint === saved.t025d.inspection,
+          `${again.fingerprint.length} characters; before ${saved.t025d.inspection.length}`,
+        ],
+        [
+          "a run that was RUNNING before the restart is INTERRUPTED, paused, and cannot be played",
+          live !== null &&
+            live.status === "INTERRUPTED" &&
+            live.playbackState === "stopped" &&
+            live.playEnabled === false,
+          live === null ? "no live run was recorded" : `${live.status}; playback ${live.playbackState}; Play ${live.playEnabled}`,
+        ],
+      ]) && allPass;
+  }
   console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
   ws.close();
   chrome.kill();
@@ -1751,11 +1956,12 @@ for (const [state, href, expectBlockedTable] of [
               // three real ones. The claim moves with it: a closed set by NAME,
               // and at least one of them enabled - because a ready draft whose
               // controls were all disabled would satisfy a count and assert
-              // nothing about a Lab that can execute.
-              "a ready draft offers exactly the three execution controls, at least one enabled",
-              run.buttons.length === 3 &&
+              // nothing about a Lab that can execute. T025d adds exactly two:
+              // auto-play of the guarded Step, and its pause.
+              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled",
+              run.buttons.length === 5 &&
                 run.buttons.map((b) => b.label).join("|") ===
-                  "Start this run|Step|Run to the end" &&
+                  "Start this run|Step|Run to the end|Play|Pause" &&
                 run.buttons.some((b) => !b.disabled),
               run.buttons
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
@@ -2809,6 +3015,247 @@ allPass =
     }),
   );
   console.log(`\n  T025c: recorded ${href} for the --readback pass in ${READBACK_FILE}`);
+}
+
+// --- T025d: one selected interval explained, and guarded auto-play ----------
+//
+// On the completed stop-60 run: the interval that ended at 65, [60, 65), is a
+// PCS-limited discharge inside the reporting gap; [130, 135) is a PCS-limited
+// charge. The drawing, the control panel and the timeline are measured at
+// three widths there, the battery branch is checked to reverse, and the
+// keyboard moves the whole inspection. Then a fresh Draft of the same recipe is
+// auto-played, paused, reloaded and run to the end, and its digests compared
+// with the completed run's.
+const t025d = {};
+{
+  const href = v2Runs["kobo-mini-grid-stop-60"];
+  const reads = [];
+  for (const [label, width, height] of [
+    ["1280x800, the committed minimum", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    await visit(cdp, href, width, height, "[data-drawing-boundary]");
+    await settledCockpit(cdp);
+    const moved = await selectBoundary(cdp, 13, 65);
+    await sleep(300);
+    const read = await readInspection(cdp);
+    reads.push(read);
+    allPass =
+      report(`T025d the interval [60, 65) of the completed stop-60 run at ${label}`, null, [
+        ...inspectionClaims(read, width),
+        [
+          "the selected boundary is 65 on the cursor, the inspector and the drawing",
+          moved.follows && read.selected === "65" && read.drawingBoundary === "65",
+          `inspector ${read.selected}; drawing ${read.drawingBoundary}`,
+        ],
+        [
+          "the battery request differs from what was accepted (the PCS limit), and says so",
+          read.controls.some((c) => c.startsWith("battery-power at battery-state-of-charge@battery:") && c.endsWith(":yes")),
+          read.controls.join("; "),
+        ],
+        [
+          "the PCS branch is drawn with a direction at this interval",
+          ["ALONG", "AGAINST"].includes(read.directions["pcs-to-bus"]),
+          `pcs-to-bus ${read.directions["pcs-to-bus"]}`,
+        ],
+        ...(width <= 640
+          ? [
+              [
+                "at 640 the timeline or balance tables overflow their own regions, so the containment claim is not vacuous",
+                read.timelineRegions.some((r) => r && r.overflows) ||
+                  (read.balanceRegion !== null && read.balanceRegion.overflows),
+                `timeline ${read.timelineRegions.map((r) => (r && r.overflows ? "overflows" : "fits")).join(",")}; balance ${read.balanceRegion && read.balanceRegion.overflows ? "overflows" : "fits"}`,
+              ],
+            ]
+          : []),
+      ]) && allPass;
+  }
+  t025d.inspection = reads[0].fingerprint;
+  const discharge = reads[0];
+  const charge = (await selectBoundary(cdp, 27, 135), await sleep(300), await readInspection(cdp));
+  await selectBoundary(cdp, 13, 65);
+  await sleep(200);
+  await pressOnCursor(cdp, "ArrowRight", 39);
+  const next = await readInspection(cdp);
+  const cost = await selectBoundary(cdp, 48, 240);
+  allPass =
+    report("T025d reversal, keyboard and cost on the completed run", null, [
+      [
+        "the battery branch reverses between [60, 65) and [130, 135)",
+        ["ALONG", "AGAINST"].includes(discharge.directions["pcs-to-bus"]) &&
+          ["ALONG", "AGAINST"].includes(charge.directions["pcs-to-bus"]) &&
+          discharge.directions["pcs-to-bus"] !== charge.directions["pcs-to-bus"],
+        `pcs-to-bus ${discharge.directions["pcs-to-bus"]} then ${charge.directions["pcs-to-bus"]}`,
+      ],
+      [
+        "ArrowRight on the cursor moves the drawing and the control panel to [65, 70), the reserve-limited interval",
+        next.drawingBoundary === "70" &&
+          next.selected === "70" &&
+          next.controls.some((c) => c.startsWith("battery-power at battery-state-of-charge@battery:") && c.endsWith(":yes")) &&
+          next.fingerprint !== discharge.fingerprint,
+        `drawing ${next.drawingBoundary}; ${next.controls.join("; ")}`,
+      ],
+      [
+        "browsing did not move the run",
+        next.status === "COMPLETED" && next.boundaries === discharge.boundaries,
+        `${next.status}; ${next.boundaries}`,
+      ],
+      [
+        "render cost: one selection re-renders the drawing, panels and charts within 250 ms",
+        cost.follows && cost.ms < 250,
+        `${cost.ms} ms to boundary 240`,
+      ],
+    ]) && allPass;
+  t025d.completed = { trajectory: discharge.trajectory, readings: discharge.readings, inputs: discharge.inputs };
+}
+
+{
+  // A fresh Draft of the same recipe and window, auto-played.
+  await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: STEP_COUNTER });
+  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-stop-60/run-setup", 1280, 800, "form", {
+    script: submitV2Setup("2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"),
+    waitFor: ".data-table__scroll",
+  });
+  const listed = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const href = listed.runRows.find((row) => row.status === "READY")?.href ?? null;
+  if (href === null || Object.values(v2Runs).includes(href)) {
+    throw new Error("No new READY stop-60 Draft was found for the T025d auto-play pass.");
+  }
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Start this run"),
+    waitFor: "[data-execution-status='RUNNING']",
+  });
+  const fresh = await readInspection(cdp);
+  await cdp.send("Runtime.evaluate", { expression: selectDelay(250) });
+  await sleep(200);
+  const historyBefore = (await readInspection(cdp)).steps.historyReads;
+  await cdp.send("Runtime.evaluate", { expression: clickControl("Play") });
+  await sleep(300);
+  const playing = await readInspection(cdp);
+  const manualDisabled = (
+    await cdp.send("Runtime.evaluate", {
+      expression: `Array.from(document.querySelectorAll('main button')).filter((b) => ['Step', 'Run to the end'].includes((b.textContent || '').trim())).every((b) => b.disabled)`,
+      returnByValue: true,
+    })
+  ).result.value;
+  await sleep(2500);
+  const midway = await readInspection(cdp);
+  await cdp.send("Runtime.evaluate", { expression: clickControl("Pause") });
+  await waitForSelector(cdp, "[data-playback-reason='PAUSED']");
+  await sleep(300);
+  const paused = await readInspection(cdp);
+  await sleep(1500);
+  const later = await readInspection(cdp);
+  allPass =
+    report("T025d auto-play of a fresh stop-60 Draft (0.25 s wall delay)", null, [
+      [
+        "a page that has not been told to play is paused, over a RUNNING execution",
+        fresh.playbackState === "stopped" && fresh.playbackReason === "" && fresh.status === "RUNNING",
+        `playback ${fresh.playbackState}/${fresh.playbackReason || "none"}; execution ${fresh.status}`,
+      ],
+      [
+        "while it plays, Step and Run to the end are unavailable",
+        playing.playbackState === "playing" && manualDisabled === true,
+        `playback ${playing.playbackState}; manual disabled ${manualDisabled}`,
+      ],
+      [
+        "it sent several steps, never more than one in flight",
+        midway.steps.count >= 3 && midway.steps.maxOpen === 1,
+        `${midway.steps.count} steps; at most ${midway.steps.maxOpen} in flight`,
+      ],
+      [
+        "the recorded history was not read per step",
+        midway.steps.historyReads === historyBefore,
+        `${historyBefore} history reads before play; ${midway.steps.historyReads} while playing`,
+      ],
+      [
+        "pause stops scheduling: nothing is sent and the position holds",
+        paused.playbackReason === "PAUSED" &&
+          later.steps.count === paused.steps.count &&
+          later.boundaries === paused.boundaries &&
+          later.status === "RUNNING",
+        `paused at ${paused.boundaries} after ${paused.steps.count} steps; 1.5 s later ${later.boundaries}, ${later.steps.count} steps`,
+      ],
+      [
+        "stopping re-read the recorded history once",
+        later.steps.historyReads === historyBefore + 1,
+        `${later.steps.historyReads} history reads`,
+      ],
+    ]) && allPass;
+
+  await visit(cdp, href, 1280, 800, "[data-execution-status]");
+  await settledCockpit(cdp).catch(() => null);
+  const reloaded = await readInspection(cdp);
+  allPass =
+    report("T025d a reload starts paused and the host still holds the run", null, [
+      [
+        "after reload: paused, at the paused position, and Play is offered because the execution is live",
+        reloaded.playbackState === "stopped" &&
+          reloaded.playbackReason === "" &&
+          reloaded.status === "RUNNING" &&
+          reloaded.boundaries === paused.boundaries &&
+          reloaded.playEnabled === true &&
+          reloaded.steps.count === 0,
+        `${reloaded.playbackState}/${reloaded.playbackReason || "none"}; ${reloaded.status} at ${reloaded.boundaries}; Play ${reloaded.playEnabled}; ${reloaded.steps.count} steps sent`,
+      ],
+    ]) && allPass;
+
+  // Paced differently (auto-play, then one Run to the end) from the completed
+  // run (Run to the end at once): same frozen recipe, so same digests.
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Run to the end"),
+    waitFor: "[data-execution-status='COMPLETED']",
+  });
+  await settledCockpit(cdp).catch(() => null);
+  const finished = await readInspection(cdp);
+  allPass =
+    report("T025d pacing changes nothing physical or observed", null, [
+      // The trajectory digest is bound to the run identity, so two Drafts
+      // never share one; the same run paced three ways is compared on it in
+      // host/tests/test_lab_cockpit_window.py. Across Drafts the frozen
+      // inputs identity and the reading series digest are run-independent.
+      [
+        "the two Drafts froze the same inputs, so the comparison below is meaningful",
+        /^[0-9a-f]{64}$/.test(finished.inputs ?? "") && finished.inputs === t025d.completed.inputs,
+        `${finished.inputs} vs ${t025d.completed.inputs}`,
+      ],
+      [
+        "the auto-played run's reading series digest equals the run completed in one request",
+        /^[0-9a-f]{64}$/.test(finished.readings ?? "") && finished.readings === t025d.completed.readings,
+        `${finished.readings} vs ${t025d.completed.readings}`,
+      ],
+      [
+        "both reached an outcome with a trajectory digest (run-bound, compared per run on the host)",
+        /^[0-9a-f]{64}$/.test(finished.trajectory ?? "") && /^[0-9a-f]{64}$/.test(t025d.completed.trajectory ?? ""),
+        `${finished.trajectory}; ${t025d.completed.trajectory}`,
+      ],
+    ]) && allPass;
+  t025d.played = href;
+}
+
+{
+  // A third Draft, left RUNNING, for the --readback pass: after the host is
+  // restarted it must read INTERRUPTED with Play unavailable.
+  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-stop-60/run-setup", 1280, 800, "form", {
+    script: submitV2Setup("2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"),
+    waitFor: ".data-table__scroll",
+  });
+  const listed = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const href = listed.runRows.find((row) => row.status === "READY")?.href ?? null;
+  if (href !== null) {
+    await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+      script: clickControl("Start this run"),
+      waitFor: "[data-execution-status='RUNNING']",
+    });
+    t025d.live = href;
+  }
+}
+
+{
+  const saved = JSON.parse(readFileSync(READBACK_FILE, "utf-8"));
+  saved.t025d = { inspection: t025d.inspection, live: t025d.live, played: t025d.played };
+  writeFileSync(READBACK_FILE, JSON.stringify(saved));
 }
 
 console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
