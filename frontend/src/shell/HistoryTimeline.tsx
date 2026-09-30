@@ -42,7 +42,11 @@ export function HistoryTimeline({
 
   return (
     <Panel heading="Applied timeline" headingId="run-timeline-heading" flush>
-      <fieldset className="timeline-scope" data-timeline-scope={scope}>
+      <fieldset
+        className="timeline-scope"
+        data-timeline-scope={scope}
+        data-timeline-boundary={offset}
+      >
         <legend>Show</legend>
         <label>
           <input

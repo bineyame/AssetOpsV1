@@ -37,7 +37,7 @@ export const IntervalInspection = memo(function IntervalInspection({
         heading="Requested and accepted control"
         headingId="run-interval-control-heading"
       >
-        <p data-interval-none={offset}>
+        <p data-interval-none={offset} data-inspection-boundary={offset}>
           {`No resolved interval ended at ${offset} min, so there is no request, acceptance, service or balance to show here. ` +
             "An interval is recorded from the boundary that decides it to the boundary that ends it."}
         </p>
@@ -59,6 +59,7 @@ export const IntervalInspection = memo(function IntervalInspection({
         <p
           className="run-cockpit__caption"
           data-interval-span={`${interval.from_offset}-${interval.to_offset}`}
+          data-inspection-boundary={offset}
         >
           {`Interval ${span} min, ended here: decided at ${interval.from_offset} min. Mean kW; kWh over the interval.`}
         </p>

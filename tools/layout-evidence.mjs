@@ -147,6 +147,8 @@ class Cdp {
 
 /** Runs in the page. Returns measurements, never judgements. */
 const MEASURE = `(() => {
+  // T025e: a closed <details> measures as zero, so every disclosure is opened first.
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
   const doc = document.scrollingElement;
   const rail = document.querySelector(".app-frame__side");
   const scroller = document.querySelector(".data-table__scroll");
@@ -694,6 +696,8 @@ const READBACK_FILE =
 const EVIDENCE_ENV = process.env.ASSETOPS_EVIDENCE_ENV ?? null;
 
 const READ_CHARTS = `(() => {
+  // T025e: a closed <details> measures as zero, so every disclosure is opened first.
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
   const text = (element) => (element ? (element.textContent || '').trim() : null);
   const all = (selector, scope) => Array.from((scope || document).querySelectorAll(selector));
   const panels = all('[data-chart-panel]').map((figure) => {
@@ -853,6 +857,8 @@ const mountNote = (reads) =>
 // against every node box and every other label, because label placement at a
 // polyline's midpoint was the one geometry claim phase 1 left unmeasured.
 const READ_INSPECTION = `(() => {
+  // T025e: a closed <details> measures as zero, so every disclosure is opened first.
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
   const all = (s) => Array.from(document.querySelectorAll(s));
   const rect = (el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
   const overlap = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > 0.5 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 0.5;
@@ -933,7 +939,9 @@ const STEP_COUNTER = `window.__t025dSteps = { count: 0, open: 0, maxOpen: 0, his
   window.fetch = async (...args) => {
     const url = String(args[0] && args[0].url ? args[0].url : args[0]);
     const step = url.endsWith('/execution/step');
+    // A full read; a T025e delta carries '?since_boundary=' and is counted apart.
     if (url.endsWith('/execution/history')) window.__t025dSteps.historyReads += 1;
+    if (url.includes('/execution/history?since_boundary=')) window.__t025dSteps.deltaReads = (window.__t025dSteps.deltaReads || 0) + 1;
     if (step) {
       window.__t025dSteps.count += 1;
       window.__t025dSteps.open += 1;
@@ -3165,9 +3173,9 @@ const t025d = {};
         `${midway.steps.count} steps; at most ${midway.steps.maxOpen} in flight`,
       ],
       [
-        "the recorded history was not read per step",
-        midway.steps.historyReads === historyBefore,
-        `${historyBefore} history reads before play; ${midway.steps.historyReads} while playing`,
+        "T025e: the recorded history follows each step by a delta, never a full read per step",
+        midway.steps.historyReads === historyBefore && (midway.steps.deltaReads || 0) >= midway.steps.count - 1,
+        `${historyBefore} full reads before play, ${midway.steps.historyReads} while playing; ${midway.steps.deltaReads || 0} delta reads for ${midway.steps.count} steps`,
       ],
       [
         "pause stops scheduling: nothing is sent and the position holds",
@@ -3178,9 +3186,9 @@ const t025d = {};
         `paused at ${paused.boundaries} after ${paused.steps.count} steps; 1.5 s later ${later.boundaries}, ${later.steps.count} steps`,
       ],
       [
-        "stopping re-read the recorded history once",
-        later.steps.historyReads === historyBefore + 1,
-        `${later.steps.historyReads} history reads`,
+        "T025e: stopping makes no history read (read-on-stop retired by live follow)",
+        later.steps.historyReads === historyBefore,
+        `${later.steps.historyReads} full history reads`,
       ],
     ]) && allPass;
 
@@ -3232,6 +3240,354 @@ const t025d = {};
       ],
     ]) && allPass;
   t025d.played = href;
+}
+
+// --- T025e: the organised cockpit, live follow and no intermediate frames ---
+//
+// AC12. A fresh stop-60 Draft (97 boundaries, 5 min) is auto-played at the
+// 0.25 s delay for at least 20 steps with the history cursor live, sampled on
+// every animation frame; then with the cursor pinned, watched by a
+// MutationObserver. Delta bytes, the client commit time and the server's
+// delta time at the window's last live boundary are measured over HTTP on the
+// running app. Disclosures are opened before anything is measured.
+
+/** Sample the cockpit on every animation frame and summarise in the page. */
+const T025E_SAMPLER = `(() => {
+  const S = window.__t025e = { running: true, frames: 0, cockpit: new Set(), stage: new Set(), cursorBox: new Set(),
+    charts: new Set(), xTicks: new Set(), yTicks: {}, disagree: 0, disagreeExample: null, empty: 0,
+    drawingBoundaries: new Set(), firstRecorded: null, lastRecorded: null };
+  const box = (el) => { if (!el) return 'none'; const b = el.getBoundingClientRect();
+    return [Math.round(b.top + window.scrollY), Math.round(b.height), Math.round(b.left), Math.round(b.width)].join(','); };
+  const attr = (sel, name) => { const el = document.querySelector(sel); return el ? el.getAttribute(name) : null; };
+  const tick = () => {
+    if (!S.running) return;
+    S.frames += 1;
+    S.cockpit.add(box(document.querySelector('[data-cockpit]')));
+    S.stage.add(box(document.querySelector('.run-cockpit__drawing')) + '|' + box(document.querySelector('.run-cockpit__inspection')));
+    S.cursorBox.add(box(document.querySelector('[data-history-cursor]')));
+    const panels = Array.from(document.querySelectorAll('[data-chart-panel]'));
+    S.charts.add(panels.map((f) => f.getAttribute('data-chart-panel') + ':' + box(f)).join('|'));
+    S.xTicks.add(panels.map((f) => Array.from(f.querySelectorAll('text.history-chart__label[text-anchor="middle"]')).map((t) => t.textContent).join(',')).join('|'));
+    for (const f of panels) {
+      const id = f.getAttribute('data-chart-panel');
+      const y = Array.from(f.querySelectorAll('text.history-chart__label[text-anchor="end"]')).map((t) => t.textContent).join(',');
+      const seen = S.yTicks[id] || (S.yTicks[id] = { last: y, changes: [] });
+      if (seen.last !== y) { seen.changes.push(seen.last + ' -> ' + y); seen.last = y; }
+    }
+    const four = [attr('[data-drawing-boundary]', 'data-drawing-boundary'), attr('[data-chart-cursor]', 'data-chart-cursor'),
+      attr('[data-timeline-boundary]', 'data-timeline-boundary'), attr('[data-inspection-boundary]', 'data-inspection-boundary')];
+    if (four.some((v) => v === null) || new Set(four).size !== 1) { S.disagree += 1; if (S.disagreeExample === null) S.disagreeExample = four.join('/'); }
+    S.drawingBoundaries.add(four[0]);
+    const paths = Array.from(document.querySelectorAll('[data-chart-series]')).filter((p) => (p.getAttribute('d') || '').length > 0).length;
+    if (paths === 0 || document.querySelector('[data-drawing-bound] svg') === null) S.empty += 1;
+    const recorded = (document.querySelector('[data-history-recorded]') || {}).textContent || null;
+    if (S.firstRecorded === null) S.firstRecorded = recorded;
+    S.lastRecorded = recorded;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  return true;
+})()`;
+
+const T025E_STOP_SAMPLER = `(() => {
+  const S = window.__t025e; S.running = false;
+  const list = (set) => Array.from(set);
+  const yChanges = Object.fromEntries(Object.entries(S.yTicks).map(([id, v]) => [id, v.changes]));
+  return { frames: S.frames, cockpit: list(S.cockpit), stage: list(S.stage), cursorBox: list(S.cursorBox), charts: list(S.charts).length,
+    chartsFirst: list(S.charts)[0], xTicks: list(S.xTicks).length, yChanges, disagree: S.disagree, disagreeExample: S.disagreeExample,
+    empty: S.empty, drawingBoundaries: S.drawingBoundaries.size, firstRecorded: S.firstRecorded, lastRecorded: S.lastRecorded };
+})()`;
+
+/** Watch the pinned drawing and inspection, and the charts as a control. */
+const T025E_OBSERVE_PINNED = `(() => {
+  const P = window.__t025ePinned = { sld: 0, inspection: 0, charts: 0 };
+  const watch = (sel, key) => new MutationObserver((m) => { P[key] += m.length; })
+    .observe(document.querySelector(sel), { subtree: true, childList: true, attributes: true, characterData: true });
+  watch('.run-cockpit__drawing', 'sld');
+  watch('.run-cockpit__inspection', 'inspection');
+  watch('.run-cockpit__charts', 'charts');
+  return true;
+})()`;
+
+/** Timings and bytes the page recorded, read once. */
+const T025E_TIMINGS = `(() => {
+  const deltas = performance.getEntriesByType('resource').filter((e) => e.name.includes('since_boundary='));
+  const commits = performance.getEntriesByName('run-frame-commit').map((e) => e.duration);
+  return {
+    deltaBytes: deltas.map((e) => e.decodedBodySize),
+    deltaTransfer: deltas.map((e) => e.transferSize),
+    deltaUrl: deltas.length ? deltas[deltas.length - 1].name : null,
+    commits,
+    steps: window.__t025dSteps,
+  };
+})()`;
+
+const percentile = (values, p) => {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)];
+};
+
+const setStepCount = (count) => `(() => {
+  const size = document.getElementById('run-step-boundaries');
+  if (!size) return 'controls-missing';
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+  setter.call(size, '${count}');
+  size.dispatchEvent(new Event('input', { bubbles: true }));
+  return true;
+})()`;
+
+async function evaluate(expression, awaitPromise = false) {
+  return (await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise })).result.value;
+}
+
+async function waitUntil(expression, timeoutMs) {
+  const until = Date.now() + timeoutMs;
+  while (Date.now() < until) {
+    if ((await evaluate(expression)) === true) return true;
+    await sleep(100);
+  }
+  return false;
+}
+
+async function clickAndWait(label) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const answer = await evaluate(clickControl(label));
+    if (answer === true) return true;
+    if (answer === "controls-missing") return false;
+    await sleep(150);
+  }
+  return false;
+}
+
+const clock = `Number(document.querySelector('[data-execution-clock]')?.getAttribute('data-execution-clock') ?? -1)`;
+
+{
+  await cdp.send("Page.addScriptToEvaluateOnNewDocument", {
+    source: "try { performance.setResourceTimingBufferSize(10000); } catch (e) {}",
+  });
+  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-stop-60/run-setup", 1280, 800, "form", {
+    script: submitV2Setup("2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"),
+    waitFor: ".data-table__scroll",
+  });
+  const listed = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const href = listed.runRows.find((row) => row.status === "READY")?.href ?? null;
+  if (href === null || Object.values(v2Runs).includes(href) || href === t025d.played) {
+    throw new Error("No new READY stop-60 Draft was found for the T025e pass.");
+  }
+  await visit(cdp, href, 1280, 800, "[data-execution-status]");
+  await waitForSelector(cdp, "[data-cockpit]");
+  const geometry = `(() => {
+    const box = (sel) => { const el = document.querySelector(sel); if (!el) return null; const b = el.getBoundingClientRect();
+      return { top: Math.round(b.top + window.scrollY), height: Math.round(b.height) }; };
+    const main = document.querySelector('main');
+    const strip = box('[data-control-strip]');
+    return { cockpit: box('[data-cockpit]'), strip, stage: box('.run-cockpit__stage'), cursor: box('[data-history-cursor]'),
+      charts: box('.run-cockpit__charts'), timeline: box('.run-cockpit__timeline'),
+      mainTop: main ? Math.round(main.getBoundingClientRect().top + window.scrollY) : null,
+      viewport: window.innerHeight,
+      openDisclosures: Array.from(document.querySelectorAll('details')).filter((d) => d.open).length,
+      disclosures: document.querySelectorAll('details[data-disclosure]').length };
+  })()`;
+  // `visit` opened every disclosure to measure it; the first viewport is
+  // judged as a reader first sees it, with every disclosure closed.
+  await evaluate("document.querySelectorAll('details').forEach((d) => { d.open = false; }); true");
+  await sleep(200);
+  const beforeStart = await evaluate(geometry);
+  await clickAndWait("Start this run");
+  await waitForSelector(cdp, "[data-execution-status='RUNNING']");
+  await sleep(600);
+  const afterStart = await evaluate(geometry);
+  await evaluate(setStepCount(1));
+  await clickAndWait("Step");
+  await waitUntil(`${clock} >= 2`, 15000);
+  await sleep(600);
+  const afterFirst = await evaluate(geometry);
+  await clickAndWait("Step");
+  await waitUntil(`${clock} >= 3`, 15000);
+  await sleep(600);
+  const afterSecond = await evaluate(geometry);
+  allPass =
+    report("T025e the first viewport at 1280 is the organised cockpit", null, [
+      [
+        "the page opens with every disclosure closed, and there are some",
+        beforeStart.openDisclosures === 0 && beforeStart.disclosures >= 8,
+        `${beforeStart.disclosures} disclosures, ${beforeStart.openDisclosures} open`,
+      ],
+      [
+        "the control strip and the drawing-and-inspection row start inside the first 800 px viewport, the history cursor right under them",
+        afterStart.strip !== null && afterStart.stage !== null && afterStart.cursor !== null &&
+          afterStart.strip.top < 800 && afterStart.stage.top < 800 &&
+          afterStart.cursor.top - (afterStart.stage.top + afterStart.stage.height) < 40,
+        `strip at ${afterStart.strip?.top} (${afterStart.strip?.height} px); stage at ${afterStart.stage?.top} (${afterStart.stage?.height} px); cursor at ${afterStart.cursor?.top}; charts at ${afterStart.charts?.top}`,
+      ],
+      [
+        "Start, the first step and the second step do not move the cockpit, its drawing row or the cursor",
+        [afterStart, afterFirst, afterSecond].every(
+          (g) => g.cockpit.top === beforeStart.cockpit.top && g.stage.top === beforeStart.stage.top &&
+            g.stage.height === beforeStart.stage.height && g.cursor.top === beforeStart.cursor.top,
+        ),
+        [beforeStart, afterStart, afterFirst, afterSecond].map((g) => `cockpit ${g.cockpit.top}, stage ${g.stage.top}+${g.stage.height}, cursor ${g.cursor.top}, charts ${g.charts.height}, timeline ${g.timeline.top}`).join(" | "),
+      ],
+    ]) && allPass;
+
+  // Live: at least 20 auto-played steps at 0.25 s, every animation frame,
+  // with every disclosure open - the harder case: their per-step tables grow
+  // below the cockpit and "How playback works" sits inside the strip.
+  await evaluate("document.querySelectorAll('details').forEach((d) => { d.open = true; }); true");
+  await sleep(300);
+  await evaluate(selectDelay(250));
+  await sleep(200);
+  await evaluate("performance.clearMeasures('run-frame-commit'); true");
+  const fullBefore = (await evaluate("window.__t025dSteps.historyReads"));
+  const stepsBefore = (await evaluate("window.__t025dSteps.count"));
+  await evaluate(T025E_SAMPLER);
+  await clickAndWait("Play");
+  const reached = await waitUntil(`window.__t025dSteps.count >= ${stepsBefore + 22}`, 90000);
+  await clickAndWait("Pause");
+  await waitForSelector(cdp, "[data-playback-reason='PAUSED']");
+  await sleep(400);
+  const live = await evaluate(T025E_STOP_SAMPLER);
+  const liveTimings = await evaluate(T025E_TIMINGS);
+  const liveSteps = liveTimings.steps.count - stepsBefore;
+  const yWorst = Math.max(0, ...Object.values(live.yChanges).map((c) => c.length));
+  allPass =
+    report("T025e live follow at 0.25 s, sampled on every animation frame", null, [
+      [
+        "at least 20 steps were auto-played and the cursor followed through them, so the claims below are not vacuous",
+        reached && liveSteps >= 20 && live.drawingBoundaries >= 20 && live.frames > liveSteps,
+        `${liveSteps} steps; ${live.drawingBoundaries} distinct drawing boundaries; ${live.frames} frames; recorded ${live.firstRecorded} -> ${live.lastRecorded}`,
+      ],
+      [
+        "the cockpit's top edge and height never moved",
+        live.cockpit.length === 1,
+        live.cockpit.join(" ; "),
+      ],
+      [
+        "the drawing and inspection boxes and the history cursor never moved",
+        live.stage.length === 1 && live.cursorBox.length === 1,
+        `${live.stage.join(" ; ")} / ${live.cursorBox.join(" ; ")}`,
+      ],
+      [
+        "no chart box moved",
+        live.charts === 1,
+        `${live.charts} distinct chart layouts; ${live.chartsFirst}`,
+      ],
+      [
+        "the x-axis ticks were identical in every frame",
+        live.xTicks === 1,
+        `${live.xTicks} distinct x tick sets`,
+      ],
+      [
+        "the y-axis ticks changed only at logged ratchets, at most 3 per panel",
+        yWorst <= 3,
+        Object.entries(live.yChanges).filter(([, c]) => c.length > 0).map(([id, c]) => `${id}: ${c.join(" ; ")}`).join(" | ") || "no ratchet",
+      ],
+      [
+        "the drawing, chart cursor, timeline and inspection named the same boundary in every frame",
+        live.disagree === 0,
+        live.disagree === 0 ? `${live.frames} frames agree` : `${live.disagree} frames disagree, e.g. ${live.disagreeExample}`,
+      ],
+      [
+        "no frame had an empty drawing or empty charts",
+        live.empty === 0,
+        `${live.empty} empty frames`,
+      ],
+      [
+        "no full history read between the first step and the terminal answer",
+        liveTimings.steps.historyReads === fullBefore,
+        `${fullBefore} full reads before play; ${liveTimings.steps.historyReads} after ${liveSteps} steps`,
+      ],
+    ]) && allPass;
+
+  // Pinned: an earlier boundary held while play continues.
+  await evaluate(`(() => {
+    const range = document.getElementById('history-cursor-range');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(range, '5');
+    range.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  })()`);
+  await sleep(400);
+  const pinnedAt = await evaluate("document.querySelector('[data-drawing-boundary]')?.getAttribute('data-drawing-boundary')");
+  await evaluate(T025E_OBSERVE_PINNED);
+  const pinnedFrom = await evaluate("window.__t025dSteps.count");
+  await clickAndWait("Resume");
+  await waitUntil(`window.__t025dSteps.count >= ${pinnedFrom + 6}`, 30000);
+  await clickAndWait("Pause");
+  await waitForSelector(cdp, "[data-playback-reason='PAUSED']");
+  await sleep(400);
+  const pinned = await evaluate(`({ ...window.__t025ePinned, at: document.querySelector('[data-drawing-boundary]')?.getAttribute('data-drawing-boundary'),
+    mode: document.querySelector('[data-history-cursor]')?.getAttribute('data-history-cursor') })`);
+  const pinnedSteps = (await evaluate("window.__t025dSteps.count")) - pinnedFrom;
+  allPass =
+    report("T025e a pinned cursor holds while play continues", null, [
+      [
+        "play went on while pinned, and the charts did change (so the observer was live)",
+        pinnedSteps >= 5 && pinned.charts > 0 && pinned.mode === "pinned" && pinned.at === pinnedAt,
+        `${pinnedSteps} steps pinned at ${pinnedAt}; ${pinned.charts} chart mutations; cursor ${pinned.mode} at ${pinned.at}`,
+      ],
+      [
+        "zero mutations on the pinned drawing and inspection nodes",
+        pinned.sld === 0 && pinned.inspection === 0,
+        `${pinned.sld} drawing, ${pinned.inspection} inspection mutations`,
+      ],
+    ]) && allPass;
+
+  // Every delta so far covered one boundary: auto-played or a Step of one.
+  const followed = await evaluate(T025E_TIMINGS);
+  // To the window's last live boundary, then the server's delta time there.
+  const at = await evaluate(clock);
+  await evaluate("document.querySelector('[data-return-to-live-slot] button')?.click(); true");
+  await evaluate(setStepCount(96 - at));
+  await clickAndWait("Step");
+  await waitUntil(`${clock} === 96`, 60000);
+  await sleep(800);
+  const server = await evaluate(`(async () => {
+    const recorded = Number((document.querySelector('[data-history-recorded]').textContent || '').split(' ')[0]);
+    const url = performance.getEntriesByType('resource').filter((e) => e.name.includes('since_boundary=')).pop().name.replace(/since_boundary=[0-9]+/, 'since_boundary=' + (recorded - 1));
+    const wall = [];
+    let bytes = 0;
+    for (let i = 0; i < 40; i += 1) {
+      const t0 = performance.now();
+      const response = await fetch(url);
+      const body = await response.text();
+      wall.push(performance.now() - t0);
+      bytes = body.length;
+    }
+    const entries = performance.getEntriesByType('resource').filter((e) => e.name === url).slice(-40);
+    return { recorded, url, wall, ttfb: entries.map((e) => e.responseStart - e.requestStart), bytes };
+  })()`, true);
+  await clickAndWait("Step");
+  await waitForSelector(cdp, "[data-execution-status='COMPLETED']");
+  await sleep(1500);
+  const done = await evaluate(T025E_TIMINGS);
+  const oneBoundary = followed.deltaBytes.filter((b) => b > 0);
+  const commits = liveTimings.commits;
+  const serverP95 = percentile(server.wall, 95);
+  allPass =
+    report("T025e budgets, measured over HTTP on the running production build", null, [
+      [
+        "every delta response is at most 32 KB (32,768 B), and there are some",
+        oneBoundary.length >= 20 && Math.max(...oneBoundary) <= 32768,
+        `${oneBoundary.length} one-boundary deltas; max ${Math.max(...oneBoundary)} B; median ${percentile(oneBoundary, 50)} B (decoded); transfer max ${Math.max(...followed.deltaTransfer)} B`,
+      ],
+      [
+        "the server answers a delta at the window's last live boundary in at most 50 ms at p95",
+        server.recorded === 96 && serverP95 !== null && serverP95 <= 50,
+        `boundary ${server.recorded}; 40 reads of ${server.bytes} B; wall p50 ${percentile(server.wall, 50)?.toFixed(1)} ms, p95 ${serverP95?.toFixed(1)} ms, max ${Math.max(...server.wall).toFixed(1)} ms; server wait (responseStart - requestStart) p95 ${percentile(server.ttfb, 95)?.toFixed(1)} ms`,
+      ],
+      [
+        "a tick commits in at most 50 ms at p95 and 100 ms at worst",
+        commits.length >= 20 && percentile(commits, 95) <= 50 && Math.max(...commits) <= 100,
+        `${commits.length} commits; p50 ${percentile(commits, 50)?.toFixed(1)} ms, p95 ${percentile(commits, 95)?.toFixed(1)} ms, max ${Math.max(...commits).toFixed(1)} ms`,
+      ],
+      [
+        "the terminal answer made exactly one full read, and none happened between the first step and it",
+        done.steps.historyReads === fullBefore + 1,
+        `${fullBefore} full reads before play; ${done.steps.historyReads} after the terminal step`,
+      ],
+    ]) && allPass;
 }
 
 {
