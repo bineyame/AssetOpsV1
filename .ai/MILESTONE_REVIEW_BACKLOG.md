@@ -1501,11 +1501,16 @@ criteria 3, 5 and 6 is qualified by these.
   the history cached at the last stop, so PV and battery power run ahead of
   loads, SOC, fuel and generator; stopping restores agreement. Repair: plot
   the electrical summary captured with the same history, or clip it to that
-  history's coverage.
+  history's coverage. Trigger: T025e (Architect item 2 closes it there).
 
 Also noted, unmeasured: the SLD's node slots (PV, inverter, PCS) carry full
 sentences in one SVG text element in a 200 px node; the layout tool measures
 connection labels only. Checked at the owner's hands-on review.
+
+Found at the owner's hands-on check, 2026-09-30: T025d was accepted as
+functionally OK, but the page is poorly organised and flickers during
+playback. Routed to T025e (frontend only), guidance
+`.agent/T025e-architect-guidance.md`; not a T025d defect.
 
 Trigger: before playback is shown externally at T028/T029, or when T026 next
 changes the run screen's refresh path, whichever comes first.

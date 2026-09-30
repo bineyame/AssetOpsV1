@@ -21,7 +21,8 @@ T025 is split into T025a then T025b under
 The owner accepted `D-2026-09-30-lab-cockpit-cadence`,
 `D-2026-09-30-lab-cockpit-history` and
 `D-2026-09-30-lab-cockpit-presentation` on 2026-09-30. T025c (L1a) then
-T025d (L1b) run sequentially before T026; A remains accepted.
+T025d (L1b) and T025e (organisation and playback smoothness, added after the
+owner's T025d hands-on check) run sequentially before T026; A remains accepted.
 
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
@@ -38,19 +39,20 @@ T025d (L1b) run sequentially before T026; A remains accepted.
 | 11 | [T025a](T025a-healthy-generator-runtime.md) | A | Healthy full-site generator physics and contract-9 reproduction |
 | 12 | T025b | A completion | Policy recipes, reported status and owner acceptance of A |
 | 13 | [T025c](completed/T025c-persisted-lab-history-and-charts.md) | Lab cockpit L1a | Reloadable addressed history, charts and run identity |
-| 14 | [T025d](T025d-lab-cockpit-inspection-and-playback.md) | Lab cockpit L1b | Run-bound SLD, causal inspection and guarded playback |
-| 15 | T026 | B | Dispatch evidence with one gap and one delayed publication |
-| 16 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 17 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 18 | T029 | D | Versioned assumptions translate quantity into money |
-| 19 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 20 | T034 | H | Policy action -> post-action evidence -> verification |
-| 21 | T030 | E | Fuel balance with separate delivery/dip records |
-| 22 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 23 | T032 | F completion | Paired load addition with isolated comparison history |
-| 24 | T033 | G | Battery stress trajectory and replacement exposure |
-| 25 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 26 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 14 | [T025d](completed/T025d-lab-cockpit-inspection-and-playback.md) | Lab cockpit L1b | Run-bound SLD, causal inspection and guarded playback |
+| 15 | T025e (awaiting planning; guidance `.agent/T025e-architect-guidance.md`) | Lab cockpit L1c | Organised cockpit layout and smooth playback |
+| 16 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 17 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
+| 18 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
+| 19 | T029 | D | Versioned assumptions translate quantity into money |
+| 20 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 21 | T034 | H | Policy action -> post-action evidence -> verification |
+| 22 | T030 | E | Fuel balance with separate delivery/dip records |
+| 23 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 24 | T032 | F completion | Paired load addition with isolated comparison history |
+| 25 | T033 | G | Battery stress trajectory and replacement exposure |
+| 26 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 27 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 | - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.

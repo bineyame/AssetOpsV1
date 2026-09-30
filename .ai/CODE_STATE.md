@@ -4303,7 +4303,7 @@ kept: an artifact-only addition, no execution-contract bump.
 
 ## T025d - Lab SLD, causal inspection and playback (L1b)
 
-In review (packet `.agent/T025d-review-packet.md`, user review required).
+Complete; owner accepted 2026-09-30 (packet `.agent/T025d-review-packet.md`).
 Contract 9 and history schema 2 kept: wire additions only, no persisted change.
 
 ### What it settled in code
