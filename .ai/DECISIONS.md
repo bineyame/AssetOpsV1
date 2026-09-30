@@ -3171,6 +3171,12 @@ T022A's whole-store read cost. Detailed readback/size and version-transition
 guidance is in the handoff; an artifact addition alone does not move the
 execution contract under `D-2026-09-22-contract-version-scope`.
 
+Clarified 2026-09-30 (T025e Addendum B; Architect: Claude under the temporary
+binding): charts read quantities the host recorded. When a chart needs a derived
+total, the host records it and the chart reads it. The client never computes it.
+For PV output and signed battery power, the host already records both in the
+projection's electrical steps, and the gated history carries those rows as-is.
+
 Decision: `D-2026-09-30-lab-cockpit-presentation`.
 
 Status: **ACCEPTED by the owner with the cadence, 2026-09-30.** The underlying truth,

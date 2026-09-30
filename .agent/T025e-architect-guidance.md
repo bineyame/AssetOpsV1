@@ -557,3 +557,218 @@ the new mechanism.
 change, the Planner may cut it into T025f (layout organisation, items 5-7)
 after T025e. Live follow and the no-flicker guarantees stay in T025e. The owner
 must agree to that cut, because the decision names one slice.
+
+## Addendum B: recorded totals
+
+Architect pass, 2026-09-30. **Produced by Claude** (`assetops-architect`) under
+the temporary binding in `.ai/ROLE_CONFIG.md` (Architect is Claude until the
+Codex reset at 2026-10-03 21:23). A later reader may send this back to Codex.
+Evidence is code reading on `task/T025e-cockpit-organisation-and-live-playback`
+at `1dda35c`. Nothing was run.
+
+**Trigger.** Phase 2 moved the charts to read the history only. The history
+carried neither `pv_output` (pv_to_load + pv_to_battery) nor the signed
+`battery_power` (battery_to_load - pv_to_battery - generator_to_battery). Phase 2
+therefore replaced those two curves with per-flow component curves (phase-2
+handoff, deviation 1).
+
+**Owner direction, 2026-09-30.** The charts keep reading host-owned numbers, and
+the component curves stay as detail. Later the same day the owner asked for a
+second option to be weighed: a declared series definition (a "mapper") that the
+charts apply generically. B5 compares the two options. The owner chooses.
+
+### B1. The totals are already recorded; only the path to the charts is missing
+
+The host already computes and persists both totals.
+
+- `electrical_view` (`host/lab_execution.py:780-791`) writes them into
+  `ElectricalStepRow`, one row per resolved step. These rows are
+  `LabProjection.electrical.steps`.
+- Those rows are persisted in the projection document of the execution artifact
+  (T024).
+- The history manifest's `projection_binding` (`host/lab_history.py:302-321`)
+  already digests the whole `electrical` view. Its docstring says the reader
+  takes "the chart's PV and battery values (the electrical steps) from the
+  projection".
+
+What is missing is the path, not the record: the electrical steps never reached
+the gated `LabHistory`, which is the only document the charts now read.
+
+### B2. Recommended (option R): a joined append family, `electrical_steps`, keyed by `from_offset`
+
+- **Contract.** `LabHistory` (`contracts/assetops_contracts/lab_history.py`)
+  gains `electrical_steps: tuple[ElectricalStepRow, ...] = ()`.
+  - It is `ElectricalStepRow` verbatim: no subset, no new type, no renamed
+    field.
+- **Host.** Fill it from the same `ElectricalView.steps` that the projection
+  carries, the way `signals` and `reporting_gaps` are already joined from the
+  projection (`host/lab_history.py:274-275`).
+  - The live capture uses the live projection's rows.
+  - The persisted read uses the stored projection's rows, which
+    `projection_binding` has already verified.
+  - The history path never repeats the flow sums. `electrical_view` stays the
+    formula's one owner.
+- **Filled only when `intervals` is recorded.** It stays empty for
+  `LEGACY_ARTIFACT`, `NOT_RECORDED`, `WRITE_FAILED` and `HISTORY_UNREADABLE`,
+  and for the fuel model, which has no controller.
+  - The existing `intervals` coverage row discloses why.
+  - It gets no coverage row and no `HISTORY_FAMILIES` entry of its own, because
+    it is not a persisted history family.
+- **Delta.** Add `"electrical_steps": "from_offset"` to
+  `HISTORY_APPEND_FAMILY_KEYS` (`backend/assetops_backend/simulator_lab_api.py:222`)
+  and to the client's `APPEND_FAMILY_KEYS` (`frontend/src/shell/liveHistory.ts`).
+  - A step row belongs to the boundary that decided it, as an interval does.
+  - The prefix guard (`host/tests/test_lab_history_prefix.py`) reads that table,
+    so it covers the new family on both fixtures.
+  - A row is built only from its own boundary's control step, so it cannot
+    change once recorded.
+- **Charts.**
+  - **PV panel:** gains "Accepted" (`pv_output`) as the primary solid curve.
+  - **Battery panel:** `battery_power` becomes the primary signed curve. The
+    panel becomes `signed: true` and states the existing convention (positive
+    is discharging).
+  - **Matching and detail:** both curves are read from
+    `history.electrical_steps` and matched by `from_offset`, like the interval
+    curves. The component flow curves stay as secondary detail.
+  - The chart code adds, subtracts and re-signs nothing.
+
+**Seam check.** "Charts read, never recompute" (`D-2026-09-30-lab-cockpit-history`)
+holds unchanged. The one clarification is now recorded in `.ai/DECISIONS.md`: a
+derived quantity the charts need is recorded by the host, not computed
+client-side.
+
+### B3. Versioning verdict for option R: neither a history schema move nor a contract move
+
+- **The history schema stays at 2.** The persisted history document does not
+  change by a byte: `render_history` gains nothing, and the rows come from the
+  projection document stored beside it.
+  - `parse_history`'s strict `schema == 2` check is unchanged, and so are
+    `history_digest` and the `projection_binding` check.
+  - The binding already covers every field the new family exposes. Editing the
+    projection's steps after the write already makes the history unreadable,
+    which is the T025c R1 guarantee. The digest therefore binds the totals
+    themselves, not only their inputs.
+- **Old schema-2 artifacts show the totals.** Both totals were recorded at write
+  time (T024 onward) and are verified by the binding. Showing them reads a
+  recorded value; it does not generate one.
+  - Pre-history (`LEGACY_ARTIFACT`) runs have no intervals and still disclose
+    absence.
+- **The execution contract does not move.** Under
+  `D-2026-09-22-contract-version-scope`, no outcome of an already-valid document
+  changes.
+  - The kernel, the trajectory, the projection artifact and every executable
+    path are untouched. Only the gated read projection is widened.
+  - `D-2026-09-30-lab-cockpit-history` already says that adding an artifact does
+    not move the contract. This change adds even less than that.
+- **`contract9_gate` is unaffected.** It compares the artifact text and the
+  stored history (`host/tests/contract9_gate/test_contract9_gate.py:75-86`), and
+  neither of those changes.
+  - The gate must stay green with no edits.
+  - If it needs an edit, the change has leaked into persistence and is to be
+    stopped.
+
+**Rejected sub-variant:** copying the two totals into the history document's
+`intervals` rows.
+
+- It needs schema 2 to 3, with a reader for both schemas that discloses absence
+  for schema 2.
+- It stores each total twice, once in the projection and once in the history,
+  which breaks "each fact stored once".
+- It freezes a subset of `ElectricalStepRow`.
+
+Revisit it only if the projection's electrical steps ever stop being persisted.
+
+### B4. Scope guard: other minimum panels lost in phase 2
+
+This list is checked against the C2 minimum-panel list in
+`.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and against
+`frontend/src/shell/historyChartModel.ts`.
+
+- **Lost: PV accepted** (`historyChartModel.ts:229-248`). Fixed by B2.
+- **Lost: battery signed power** (`historyChartModel.ts:344-366`, now
+  `signed: false`). Fixed by B2.
+- **Lost as a side effect: truth-versus-report pairing on those two panels.**
+  C2 pairs a report only with the same measured quantity.
+  - `pv-ac-power`, the reported inverter AC output, now sits on a panel that has
+    no total-output truth curve.
+  - `battery-ac-power`, a reported signed power, now sits on an unsigned panel of
+    component flows.
+  - Restoring the totals restores both pairs. Phase 3 confirms that each
+    reported track is drawn against its total, not against a component.
+- **Intact:**
+  - PV potential, curtailed and clipped, as distinct curves;
+  - each load's demand, served and unserved, from recorded per-load service;
+  - SOC at T, with the reserve in effect and the generator stop threshold;
+  - fuel volume at T;
+  - the generator's physical state at T and over the step;
+  - generator output.
+
+Nothing else in the minimum list depended on a host sum. The site-wide `served`
+total is also a sum, but C2 asks for per-load service, which is recorded.
+
+### B5. The owner's alternative (option D): a declared series definition that the charts apply
+
+**Proposal.** The host or the Site configuration declares, for example,
+`pv_accepted = pv_to_load + pv_to_battery`. The declaration is published with
+the history, and the chart layer evaluates it generically over the recorded
+flows.
+
+**Does such a model exist?** No. Checked:
+
+- `historyChartModel.ts`: hard-coded panels and flow ids.
+- The history's signal descriptors (`DeviceSignalSpec`): address, unit and
+  cadence, with no arithmetic.
+- The SLD mapping (`intervalDrawingModel.ts:59-63`): a flow-to-drawing-kind
+  classification, with no arithmetic.
+- Site and profile configuration: nothing declares a derived series.
+- The only executable formulas in the contracts are the two dispatch formulas
+  (`execution_contract.py:1566`).
+
+Option D would therefore introduce a new metadata model, an evaluator for it,
+and a place to persist it.
+
+| Criterion | R: joined recorded rows | D: declared definition |
+|---|---|---|
+| One owner of meaning | `electrical_view`, unchanged. The charts receive its output. | One owner only if `electrical_view` is rewritten to evaluate the same declaration. Until then there are two copies, and a test can only prove them equal on the fixtures. |
+| Integrity | `projection_binding` already binds the totals themselves. | The inputs (flows in `intervals`) are digest-bound, but the declaration is not. It must be frozen with the run and bound too. Otherwise a later edit silently redraws old runs. T025a already changed `battery_power`'s definition (it added `- generator_to_battery`), so drift is a demonstrated risk, not a hypothetical one. |
+| "Never recompute" seam | Held. | Broken as written: the client does arithmetic over recorded flows. It needs an owner amendment of `D-2026-09-30-lab-cockpit-history`. The client must also do exact rational arithmetic, or its curves and tooltips can disagree with the host's exact `Fraction`s. |
+| Versioning | None: history schema 2, no contract move, `contract9_gate` untouched. | Freezing the declaration per run means persisting it, so the history schema moves 2 to 3 (or the projection schema moves). Schema-2 runs have no frozen declaration. They must either disclose absence or apply today's declaration, which would be regeneration. |
+| Phase 3 size | Small: one contract field, a host join (two sites), one key in each of two append tables, two chart curves, tests. | Large: a declaration contract, an evaluator on the host and on the client, persistence and binding, a schema move with a two-schema reader, a host refactor of `electrical_view` onto the evaluator, and equality tests. It is its own slice, not a phase-3 item. |
+| Consistency with `lab_execution.py:780-791` | Identical by construction: the same rows. | Equal only if the host evaluates the declaration (a refactor of the T024 builder, whose output is persisted and bound) or by test on fixtures. |
+| What it buys | The two curves now. | Generic derived series later, without host code for each one. Nothing the minimum panels need now. |
+
+A third source was noted and set aside. `intervals` already records
+`interval_energies`, the signed energy per address over the step. Turning that
+into mean power needs a client-side division by the step length. That is still
+a recompute, and it would need an equality proof against `battery_power`.
+
+**Recommendation: R for phase 3.**
+
+- It is the smaller change.
+- It keeps the seam and the versioning intact.
+- The totals it shows are exactly the ones the host recorded and bound.
+
+D is a legitimate future design for generic derived series. It is worth taking
+only when a series is needed that the host does not already record, and then as
+its own slice with its own decision. It must not be a phase-3 addition. If the
+owner chooses D, the conditions are these:
+
+- The declaration is the single source the host's `electrical_view` also
+  evaluates. A test alone is not enough.
+- The declaration is persisted per run and bound by the digest.
+- Schema-2 runs disclose absence.
+- The seam decision is amended first.
+
+### B6. Phase-3 notes (option R)
+
+- **Size.** The family adds one small row per boundary to each delta, well
+  inside the 32 KB budget beside the measured 15,747 B worst case. Measure it as
+  part of AC12's HTTP measurement, not separately.
+- **Tests.**
+  - The prefix guard covers the new key.
+  - A delta test selects only the new step rows.
+  - A chart test shows that "Accepted" and the signed battery curve equal the
+    recorded `pv_output` and `battery_power`, and that the battery panel is
+    signed.
+  - No test re-derives the sum in TypeScript. That would recreate the second
+    owner this addendum avoids.
