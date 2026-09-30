@@ -1,10 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import { ElectricalPanels, ExactQuantity } from "./ElectricalPanels";
 import { HistoryInspector } from "./HistoryInspector";
 import { RunHeader } from "./RunHeader";
+import {
+  DEFAULT_PLAYBACK_DELAY_MS,
+  PLAYBACK_DELAYS_MS,
+  PlaybackScheduler,
+  laterExecution,
+  type PlaybackState,
+  type PlaybackStopReason,
+} from "./runPlayback";
+import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { SiteDetailResult } from "../sites/siteReadModel";
 import type { RunHistoryResult } from "./runHistory";
 import type {
   RunDetailResult,
@@ -27,9 +37,12 @@ import type {
  * configured device reported about that world.
  *
  * The absences that remain are still absences rather than disabled controls.
- * There is no pause, no reset, no event injection, no truth overlay on an
- * operator screen, no commit, no release and no bridge into the operator
- * product, and none of them appears here in any form. The rule
+ * There is no reset, no event injection, no truth overlay on an operator
+ * screen, no commit, no release and no bridge into the operator product, and
+ * none of them appears here in any form. Since T025d there is auto-play and a
+ * pause, but only of the browser's own scheduling of the guarded Step
+ * (`runPlayback.ts`): pausing stops the next request and does nothing to the
+ * run, and there is still no server clock, speed field or jump. The rule
  * (`D-2026-09-20-scenario-detail-affordances`) is that a disabled control appears
  * only when the action is native to the object and the missing prerequisite is the
  * next named causal capability - and none of those is.
@@ -64,6 +77,14 @@ export interface RunFrameProps {
   runSetup: RunSetupClient;
   runsPath: string;
   simulatorLabPath: string;
+  /**
+   * T025d: reads the Site the run froze, so its recorded values can be drawn
+   * on that Site's configured diagram once the Foundation version is checked.
+   * Absent, the drawing states it is unavailable and the rest is unchanged.
+   */
+  siteDetail?: SiteDetailClient;
+  /** T025d: how long one auto-play step may take. Tests shorten it. */
+  playbackStepTimeoutMs?: number;
 }
 
 /**
@@ -78,6 +99,8 @@ export function RunFrame({
   runSetup,
   runsPath,
   simulatorLabPath,
+  siteDetail,
+  playbackStepTimeoutMs,
 }: RunFrameProps) {
   const { runId } = useParams<{ runId: string }>();
   const [result, setResult] = useState<RunDetailResult | null>(null);
@@ -87,6 +110,95 @@ export function RunFrame({
   const [stage, setStage] = useState<RunStageResult | null>(null);
   const [history, setHistory] = useState<RunHistoryResult | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [drawingSite, setDrawingSite] = useState<SiteDetailResult | null>(null);
+  const [playback, setPlayback] = useState<PlaybackState>({
+    kind: "stopped",
+    reason: null,
+    message: null,
+  });
+  const [delayMs, setDelayMs] = useState<number>(DEFAULT_PLAYBACK_DELAY_MS);
+  const scheduler = useRef<PlaybackScheduler | null>(null);
+  const delayRef = useRef<number>(DEFAULT_PLAYBACK_DELAY_MS);
+
+  // T025d: the recorded history and the stage are re-read after a control and
+  // whenever auto-play stops - never per auto-played step, because the live
+  // history is recomputed per read and grows with the run.
+  const rereadRecords = useCallback(async () => {
+    if (runId === undefined) {
+      return;
+    }
+    setStage(await runSetup.getStage(runId));
+    setHistory(await runSetup.getExecutionHistory(runId));
+  }, [runSetup, runId]);
+
+  // One scheduler per run page. Leaving the page (or changing run) disposes
+  // it, which stops scheduling and shows nothing further; a reload builds a
+  // new one that starts stopped.
+  useEffect(() => {
+    if (runId === undefined) {
+      return undefined;
+    }
+    const created = new PlaybackScheduler({
+      step: (fromBoundary) =>
+        runSetup.stepExecution(runId, { boundaries: 1, fromBoundary }),
+      read: () => runSetup.getExecution(runId),
+      show: (answer) => setExecution((previous) => laterExecution(previous, answer)),
+      onState: setPlayback,
+      onStopped: () => {
+        void rereadRecords();
+      },
+      stepTimeoutMs: playbackStepTimeoutMs,
+    });
+    created.setDelay(delayRef.current);
+    scheduler.current = created;
+    setPlayback(created.current());
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        created.hidden();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      created.dispose();
+      if (scheduler.current === created) {
+        scheduler.current = null;
+      }
+    };
+  }, [runSetup, runId, rereadRecords, playbackStepTimeoutMs]);
+
+  useEffect(() => {
+    delayRef.current = delayMs;
+    scheduler.current?.setDelay(delayMs);
+  }, [delayMs]);
+
+  // T025d: read the Site the history's drawing context names, once per Site.
+  // The binding check itself is `bindDrawing`'s; this only fetches.
+  const drawingSiteId =
+    history !== null &&
+    history.status === "loaded" &&
+    history.history.drawing_context !== null &&
+    history.history.drawing_context.status === "VERIFIED"
+      ? history.history.drawing_context.site_id
+      : null;
+  useEffect(() => {
+    let active = true;
+    if (drawingSiteId === null) {
+      return undefined;
+    }
+    if (siteDetail === undefined) {
+      setDrawingSite({ status: "unavailable" });
+      return undefined;
+    }
+    void siteDetail.getSite(drawingSiteId).then((loaded) => {
+      if (active) {
+        setDrawingSite(loaded);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [siteDetail, drawingSiteId]);
 
   useEffect(() => {
     let active = true;
@@ -139,15 +251,12 @@ export function RunFrame({
       setExecution(answer);
       // A control may have staged envelopes, so the stage is re-read from
       // persistence after it rather than patched from the control's answer.
-      if (runId !== undefined) {
-        setStage(await runSetup.getStage(runId));
-        // T025c: the recorded history is re-read the same way - a read that
-        // executes nothing, of what the control just recorded.
-        setHistory(await runSetup.getExecutionHistory(runId));
-      }
+      // T025c: the recorded history is re-read the same way - a read that
+      // executes nothing, of what the control just recorded.
+      await rereadRecords();
       setPending(false);
     },
-    [runSetup, runId],
+    [rereadRecords],
   );
 
   const backLinks = (
@@ -204,6 +313,10 @@ export function RunFrame({
     execution !== null && execution.status === "loaded"
       ? execution.execution
       : null;
+  // Manual Step and Run to the end cannot race auto-play: while it schedules
+  // (or awaits a step it already sent) they are unavailable, and while a
+  // manual control is in flight Play is.
+  const autoPlaying = playback.kind !== "stopped";
   const requested = Number.parseInt(boundaries, 10);
   const stepSize = Number.isNaN(requested) ? 0 : requested;
 
@@ -450,7 +563,11 @@ export function RunFrame({
                   <button
                     type="button"
                     className="action"
-                    disabled={pending || projection.status !== "NOT_STARTED"}
+                    disabled={
+                      pending ||
+                      autoPlaying ||
+                      projection.status !== "NOT_STARTED"
+                    }
                     onClick={() => {
                       void control(() =>
                         runSetup.startExecution(run.run_id),
@@ -476,6 +593,7 @@ export function RunFrame({
                     className="action"
                     disabled={
                       pending ||
+                      autoPlaying ||
                       projection.status !== "RUNNING" ||
                       stepSize < 1
                     }
@@ -500,7 +618,11 @@ export function RunFrame({
                   <button
                     type="button"
                     className="action"
-                    disabled={pending || projection.status !== "RUNNING"}
+                    disabled={
+                      pending ||
+                      autoPlaying ||
+                      projection.status !== "RUNNING"
+                    }
                     onClick={() => {
                       void control(() =>
                         runSetup.runExecutionToEnd(run.run_id),
@@ -511,6 +633,27 @@ export function RunFrame({
                   </button>
                 </li>
               </ul>
+            )}
+
+            {blocked ? null : (
+              <PlaybackControls
+                state={playback}
+                delayMs={delayMs}
+                timestepMinutes={projection.timestep_minutes}
+                canPlay={
+                  !pending &&
+                  !autoPlaying &&
+                  projection.status === "RUNNING"
+                }
+                executionStatus={projection.status}
+                onDelay={setDelayMs}
+                onPlay={() => {
+                  scheduler.current?.play(projection);
+                }}
+                onPause={() => {
+                  scheduler.current?.pause();
+                }}
+              />
             )}
 
             {CONTROLLABLE.has(projection.status) ? null : (
@@ -768,6 +911,7 @@ export function RunFrame({
         result={history}
         steps={projection?.electrical?.steps ?? null}
         timestepMinutes={projection?.timestep_minutes ?? null}
+        site={drawingSite}
       />
 
       <Panel
@@ -1062,5 +1206,121 @@ function StagedEnvelopes({
         </DataTable>
       </Panel>
     </>
+  );
+}
+
+/** What each stop reason says. The reason is also on an attribute. */
+const STOP_STATEMENTS: Record<PlaybackStopReason, string> = {
+  PAUSED:
+    "Paused. No further step is sent; a step already sent was allowed to finish and is shown.",
+  TERMINAL: "Stopped: the run reached a status that accepts no further step.",
+  REFUSED:
+    "Stopped: the host refused the step. The position was re-read; resume explicitly.",
+  STEP_ALREADY_APPLIED:
+    "Stopped: the run was no longer where this page believed (another tab or a late step moved it). The position was re-read; resume explicitly.",
+  TIMEOUT:
+    "Stopped: a step did not answer in time. The position was re-read; resume explicitly. Nothing was retried.",
+  NETWORK:
+    "Stopped: a step request did not complete. The position was re-read; resume explicitly. Nothing was retried.",
+  NOT_FOUND:
+    "Stopped: the execution surface did not answer for this run (the Lab may have been disabled).",
+  HIDDEN: "Paused because this tab was hidden. Resume explicitly.",
+};
+
+function playbackStatement(state: PlaybackState): string {
+  if (state.kind === "playing") {
+    return state.inFlight
+      ? "Playing: one step has been sent and its answer is awaited."
+      : "Playing: waiting the wall delay before the next step.";
+  }
+  if (state.kind === "pausing") {
+    return "Pausing: no further step will be sent; the step already sent is awaited and will be shown.";
+  }
+  if (state.reason === null) {
+    return "Paused. Auto-play has not been started on this page; a reload always starts paused.";
+  }
+  return STOP_STATEMENTS[state.reason];
+}
+
+/**
+ * T025d: auto-play of the guarded Step, and nothing else.
+ *
+ * Playback state is its own fact, kept apart from the execution status above,
+ * the selected history cursor below and the stage: a paused page over a
+ * RUNNING execution is the ordinary case, and a run that stops being RUNNING
+ * stops auto-play rather than the other way round.
+ */
+function PlaybackControls({
+  state,
+  delayMs,
+  timestepMinutes,
+  canPlay,
+  executionStatus,
+  onDelay,
+  onPlay,
+  onPause,
+}: {
+  state: PlaybackState;
+  delayMs: number;
+  timestepMinutes: number;
+  canPlay: boolean;
+  executionStatus: string;
+  onDelay: (ms: number) => void;
+  onPlay: () => void;
+  onPause: () => void;
+}) {
+  const reason = state.kind === "stopped" ? state.reason : null;
+  return (
+    <section
+      aria-labelledby="run-playback-heading"
+      data-playback-state={state.kind}
+      data-playback-reason={reason ?? ""}
+    >
+      <h3 id="run-playback-heading">Auto-play</h3>
+      <p className="action-list__reason">
+        {`Auto-play sends one guarded Step of one boundary (${timestepMinutes} simulated minutes, the run's frozen timestep), waits for its answer, then waits the wall delay below before the next. The delay changes wall time only: every step is the same request as the Step button, so the run's physics, seed and ordering do not depend on it. Recorded history and staged envelopes are re-read when auto-play stops, not per step.`}
+      </p>
+      <p>
+        <label htmlFor="run-playback-delay">Wall delay between steps</label>{" "}
+        <select
+          id="run-playback-delay"
+          value={String(delayMs)}
+          onChange={(event) => onDelay(Number(event.target.value))}
+        >
+          {PLAYBACK_DELAYS_MS.map((ms) => (
+            <option key={ms} value={String(ms)}>
+              {`${ms / 1000} s`}
+            </option>
+          ))}
+        </select>{" "}
+        <button
+          type="button"
+          className="action"
+          disabled={!canPlay}
+          onClick={onPlay}
+        >
+          {reason === null ? "Play" : "Resume"}
+        </button>{" "}
+        <button
+          type="button"
+          className="action"
+          disabled={state.kind !== "playing"}
+          onClick={onPause}
+        >
+          Pause
+        </button>
+      </p>
+      <p data-playback-statement role="status">
+        <strong>Playback:</strong> {playbackStatement(state)}
+        {state.kind === "stopped" && state.message !== null
+          ? ` ${state.message}`
+          : ""}
+      </p>
+      {executionStatus === "RUNNING" || state.kind !== "stopped" ? null : (
+        <p className="action-list__reason">
+          {`Auto-play needs a RUNNING execution this host still holds; this one is ${executionStatus}.`}
+        </p>
+      )}
+    </section>
   );
 }

@@ -339,6 +339,7 @@ export function simulatorLabRoutes(
           runSetup={runSetup}
           runsPath={RUNS_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
+          siteDetail={siteDetail}
         />,
       ),
     },

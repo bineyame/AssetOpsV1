@@ -4300,3 +4300,48 @@ kept: an artifact-only addition, no execution-contract bump.
   unmatched reported signal is listed as not charted rather than dropped.
 - SLD overlays, the causal timeline, requested/accepted panel and playback are
   T025d's; `bus_attachments` is recorded for it.
+
+## T025d - Lab SLD, causal inspection and playback (L1b)
+
+Complete; owner accepted 2026-09-30 (packet `.agent/T025d-review-packet.md`).
+Contract 9 and history schema 2 kept: wire additions only, no persisted change.
+
+### What it settled in code
+
+- **Wire** `simulator_lab_api.py` `history_payload(history, run)`: per-interval
+  `balance_identities` (exact source/sink sums, residual), `reporting_gaps`,
+  and `drawing_context` (`VERIFIED | NOT_RECORDED | DISAGREES` against the
+  run's frozen bus attachments; attachments with connection ids only when
+  VERIFIED). Live `history()` reports `WRITE_FAILED` (backlog C3, closed).
+- **Shared SLD slots** `sites/SiteSingleLineDiagram.tsx` `SldSlotContent`:
+  node and connection slots (`ALONG|AGAINST|NONE`, text, detail, optional short
+  `label`), arrow marker, contents table, headless `ConfiguredSingleLineDrawing`.
+  No slots = Foundation screen unchanged. Labels are short and centred; full
+  statement in `<title>` and the table (sentences overlapped boxes, measured).
+- **Lab composition** (shell): `intervalDrawingModel.ts` (`bindDrawing`,
+  `drawingSlots`, `FLOW_ROLES` keyed by mini-grid flow ids, `drawnValue`),
+  `IntervalDrawing`, `IntervalInspection` (C4), `historyTimelineModel` +
+  `HistoryTimeline` (C3). One selection = the interval that ENDED at T.
+  `HistoryCharts` labels a held reading with its own support (backlog C1, closed).
+- **Playback** `shell/runPlayback.ts` `PlaybackScheduler`: one one-boundary
+  guarded Step in flight, next only after its answer plus a wall delay
+  (0.25/1/2/5 s); stops on pause, terminal, refusal, 404, network error,
+  timeout (20 s, re-read), hidden tab, unmount; `laterExecution` never moves the
+  display backwards. `RunFrame` disables Step/Run to end while it schedules and
+  re-reads history/stage only when it stops. Reload starts paused.
+- **Proof** `host/tests/test_lab_cockpit_window.py` (window [55,135) derived
+  from template and scenario: event phase, gap, PCS- and reserve-limited
+  requests, reversal, balance; duplicate step, restart, pacing digests, reload
+  with the kernel unreachable). `layout-evidence.mjs` T025d section + readback.
+
+### What this leaves open
+
+- Drawing binding needs the current Site read to be the frozen Foundation
+  version; a future Foundation edit path would make old runs "unavailable"
+  (no presentation snapshot is persisted). `DISAGREES` is unit-tested only.
+- Flow roles are frontend-keyed; a new model family needs its own roles.
+- History read ~1.15 MB for the 8 h window; first chart 3.7 s after the
+  response on a cold reload (informational); selection re-render 118-143 ms.
+- Trajectory digest is run-bound, so pacing equality across Drafts is shown on
+  the reading digest and inputs identity; same-run pacing is host-tested.
+- Backlog C2, C4, K1, K3 untouched.

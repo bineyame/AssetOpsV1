@@ -71,6 +71,7 @@ storage. This module names no file, no path, and no serialization format.
 
 from __future__ import annotations
 
+from fractions import Fraction
 from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
@@ -1095,7 +1096,9 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
     }
 
 
-def history_payload(history: LabHistory) -> dict[str, object]:
+def history_payload(
+    history: LabHistory, run: SimulationRun | None = None
+) -> dict[str, object]:
     """One run's recorded Lab history on the wire (T025c), gated.
 
     Exact quantities as exact text and discrete members as themselves, like
@@ -1239,9 +1242,30 @@ def history_payload(history: LabHistory) -> dict[str, object]:
                     for e in i.step.accepted.effective_controls
                 ],
                 "balances": [b.identity_id for b in i.step.accepted.balances],
+                "balance_identities": [
+                    _balance_identity_payload(b, i.step.accepted.flows, exact)
+                    for b in i.step.accepted.balances
+                ],
                 "notes": list(i.step.accepted.notes),
             }
             for i in history.intervals
+        ],
+        # T025d: the reporting-path windows the run declared and resolved, so
+        # the reporting lane of the timeline reads them from the same recorded
+        # result as everything else. The same fields as `execution_payload`'s.
+        "reporting_gaps": [
+            {
+                "event_id": window.event_id,
+                "condition_address": window.condition_address,
+                "device_id": window.device_id,
+                "signal_id": window.signal_id,
+                "address": window.address,
+                "timing_shape": window.timing_shape,
+                "declared_offset_minutes": window.offset_minutes,
+                "start_offset_minutes": window.start_offset_minutes,
+                "end_offset_minutes": window.end_offset_minutes,
+            }
+            for window in history.reporting_gaps
         ],
         "exposures": [
             {
@@ -1329,6 +1353,104 @@ def history_payload(history: LabHistory) -> dict[str, object]:
                 "bus_component_id": a.bus_component_id,
             }
             for a in history.bus_attachments
+        ],
+        "drawing_context": _drawing_context_payload(history, run),
+    }
+
+
+def _balance_identity_payload(
+    balance: Any, flows: Any, exact: Any
+) -> dict[str, object]:
+    """One recorded balance identity with the exact sums of its named flows.
+
+    T025d. The kernel checks every identity exactly and records only which
+    flows it names; the screen needs the numbers to show the balance holding.
+    This sums the recorded flow energies by id - it resolves nothing and
+    computes no physics. A named flow the interval does not carry leaves the
+    sums absent rather than partial.
+    """
+    energies = {flow.flow_id: flow.energy for flow in flows}
+    named = (*balance.sources, *balance.sinks)
+    complete = all(flow_id in energies for flow_id in named)
+    source_energy = (
+        sum((energies[f] for f in balance.sources), Fraction(0)) if complete else None
+    )
+    sink_energy = (
+        sum((energies[f] for f in balance.sinks), Fraction(0)) if complete else None
+    )
+    return {
+        "identity_id": balance.identity_id,
+        "sources": list(balance.sources),
+        "sinks": list(balance.sinks),
+        "source_energy": exact(source_energy),
+        "sink_energy": exact(sink_energy),
+        "residual": None
+        if source_energy is None or sink_energy is None
+        else exact(source_energy - sink_energy),
+    }
+
+
+#: What each drawing-context status means, stated once for the wire.
+DRAWING_CONTEXT_STATEMENTS = {
+    "VERIFIED": (
+        "The bus attachments this run executed against are the ones its frozen "
+        "identity records, with the declared connections that carry them. A "
+        "drawing may bind to them only on the Foundation version named here."
+    ),
+    "NOT_RECORDED": (
+        "This run's history records no bus attachments, so there is no "
+        "drawing bound to this run to put its values on."
+    ),
+    "DISAGREES": (
+        "The attachments this run's history records differ from the ones its "
+        "frozen identity records, so neither is a safe basis for a drawing."
+    ),
+}
+
+
+def _drawing_context_payload(
+    history: LabHistory, run: SimulationRun | None
+) -> dict[str, object] | None:
+    """The run-bound basis for drawing this history on the configured SLD.
+
+    T025d. The history records which attachments the run EXECUTED against;
+    the frozen run identity records the same attachments with the declared
+    connections that carry each, and the Site and Foundation version they were
+    frozen from. Both must agree before a screen may bind recorded values to a
+    drawing, and the screen must still check the Site it reads is that version.
+    """
+    if run is None:
+        return None
+    identity = run.deterministic_identity
+    frozen = identity.bus_attachments
+    if history.availability("drawing") != "RECORDED" or not frozen:
+        status = "NOT_RECORDED"
+    elif tuple(
+        (a.role, a.component_id, a.via_component_id, a.bus_component_id)
+        for a in history.bus_attachments
+    ) != tuple(
+        (a.role, a.component_id, a.via_component_id, a.bus_component_id)
+        for a in frozen
+    ):
+        status = "DISAGREES"
+    else:
+        status = "VERIFIED"
+    return {
+        "site_id": identity.site.site_id,
+        "foundation_version": identity.site.foundation_version,
+        "status": status,
+        "statement": DRAWING_CONTEXT_STATEMENTS[status],
+        "attachments": []
+        if status != "VERIFIED"
+        else [
+            {
+                "role": a.role,
+                "component_id": a.component_id,
+                "via_component_id": a.via_component_id,
+                "bus_component_id": a.bus_component_id,
+                "connection_ids": list(a.connection_ids),
+            }
+            for a in frozen
         ],
     }
 
@@ -2092,7 +2214,7 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
-        return {"history": history_payload(port.history(record))}
+        return {"history": history_payload(port.history(record), record)}
 
     @router.post(RUN_EXECUTION_START_ROUTE)
     def start_run_execution(run_id: str) -> dict[str, object]:

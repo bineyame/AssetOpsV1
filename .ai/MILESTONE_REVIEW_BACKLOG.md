@@ -1432,6 +1432,8 @@ T025c itself.
   reading with the selected offset's interval rather than the reading's own
   support (stop-60 run, offset 80: PV row says `[75, 80)` for a reading
   describing `[70, 75)`). Source time and STALE are shown; the plot is right.
+  **Closed in T025d phase 1** (3395e5c, test 2bf69d7): `reportedApplies`
+  labels the row with the reading's own source time and support.
 - **C2, legacy chart fallback unreachable.** A real legacy artifact returns
   `boundaries=[]`, so `HistoryInspector` never mounts `HistoryCharts` and zero
   panels draw; the frontend test keeps the modern boundary list and misses it.
@@ -1440,6 +1442,8 @@ T025c itself.
   `history()` prefers the retained session and returns `LIVE_SESSION` even
   when the terminal artifact recorded `WRITE_FAILED`; only a restarted host
   shows it. No false durability claim is made.
+  **Closed in T025d phase 1** (9a6b980): `LabSession.history_write_failure`;
+  the live `history()` answers `WRITE_FAILED`, tested on the same host.
 - **C4, strict reader narrower than claimed.** `host/lab_history.py` accepts
   re-signed documents with an empty RECORDED family, a malformed address, an
   unknown unit and an out-of-window timestamp; a short coverage row raises
@@ -1470,6 +1474,46 @@ Found at the owner's hands-on check, 2026-09-30:
   and explained; the default is the problem. Options: the scenario declares its
   timestep, or the form proposes the largest step dividing the declared
   lifecycle timings. Trigger: T025d or a fast-lane fix, owner's choice.
+
+## Carried from T025d: three cockpit findings from the first review
+
+Codex first review, 2026-09-30, verdict ACCEPT WITH CARRIES
+(`.agent/T025d-codex-review.md`). Carried under
+`D-2026-09-22-milestone-speed-over-purity`: each is a local frontend repair
+with no persisted-format, contract or physical change. The packet's "Met" for
+criteria 3, 5 and 6 is qualified by these.
+
+- **C1, timeout recovery re-enables controls before the re-read lands.**
+  `frontend/src/shell/runPlayback.ts` `stop()` marks `stopped` before awaiting
+  the recovery read, and that read is not tied to its playback generation, so
+  a resume can send a stale `from_boundary` guard (probe: `[10, 11, 11]`). The
+  host lock and guard refuse it, so no double advancement. Repair: a recovering
+  state that keeps mutating controls disabled, generation checks on the read,
+  and history/stage sync when a late Step answer lands.
+- **C2, whole-run timeline shows unreached declared reporting gaps as
+  applied.** `historyTimelineModel.ts` `allEntries()`/`runTimeline()` include
+  every declared reporting window regardless of recorded coverage (a run at
+  boundary 0 lists its `[60,90)` status gap as a reporting condition). The
+  selected-boundary view is correct. Repair: label unreached windows as
+  declared context, or restrict to the recorded span.
+- **C3, live playback mixes fresh and cached coverage.** `RunFrame.tsx` passes
+  each Step's fresh `electrical.steps` to charts whose other series come from
+  the history cached at the last stop, so PV and battery power run ahead of
+  loads, SOC, fuel and generator; stopping restores agreement. Repair: plot
+  the electrical summary captured with the same history, or clip it to that
+  history's coverage. Trigger: T025e (Architect item 2 closes it there).
+
+Also noted, unmeasured: the SLD's node slots (PV, inverter, PCS) carry full
+sentences in one SVG text element in a 200 px node; the layout tool measures
+connection labels only. Checked at the owner's hands-on review.
+
+Found at the owner's hands-on check, 2026-09-30: T025d was accepted as
+functionally OK, but the page is poorly organised and flickers during
+playback. Routed to T025e (frontend only), guidance
+`.agent/T025e-architect-guidance.md`; not a T025d defect.
+
+Trigger: before playback is shown externally at T028/T029, or when T026 next
+changes the run screen's refresh path, whichever comes first.
 
 ## Tracked elsewhere, listed so the review finds them
 

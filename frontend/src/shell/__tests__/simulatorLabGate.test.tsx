@@ -272,9 +272,16 @@ const INTERACTIVE_SELECTOR = [
  * A closed set rather than a pattern, and the reason is the one this file learnt
  * the hard way: a ban written over what a control SAYS is a ban the next
  * violation walks past using a word nobody listed. A fourth control here has to
- * be added deliberately.
+ * be added deliberately. T025d added two: auto-play of the guarded Step and
+ * its pause, which stop and start the browser's scheduling and nothing else.
  */
-const EXECUTION_CONTROLS = ["Start this run", "Step", "Run to the end"];
+const EXECUTION_CONTROLS = [
+  "Start this run",
+  "Step",
+  "Run to the end",
+  "Play",
+  "Pause",
+];
 
 const RUN_ACTION_PATTERN =
   /\b(run|runs|rerun|re-run|start|stop|execute|execution|simulate|simulation|playback|replay|compare|comparison|truth|inspect|commit|publish|stage|staging|ingest)\b/i;
@@ -639,7 +646,9 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
         const description = controlDescription(control).trim();
         if (
           EXECUTION_CONTROLS.includes(description) ||
-          control.id === "run-step-boundaries"
+          control.id === "run-step-boundaries" ||
+          // T025d: auto-play's wall delay, which changes wall time only.
+          control.id === "run-playback-delay"
         ) {
           continue;
         }

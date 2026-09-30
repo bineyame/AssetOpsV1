@@ -1,6 +1,6 @@
 # T025d - Lab SLD, causal inspection and playback (L1b)
 
-Status: planned
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: Lab cockpit C1/C3/C4/C5; inspection of accepted A before B.
@@ -95,3 +95,15 @@ operator conclusion is part of this slice.
 The owner reviews whether one selected interval explains physical behavior
 and evidence loss. The Reviewer checks SLD/run binding, timeline causality,
 historical controls and guarded playback. Review outcome: pending.
+
+## Review Outcome
+
+Accepted by the owner on 2026-09-30 after a hands-on check: functional
+behaviour is OK. The owner found the page poorly organised and flickering
+during playback; that is routed to T025e (Lab cockpit organisation and
+playback smoothness, frontend only) per `.agent/T025e-architect-guidance.md`
+and is not a T025d defect.
+
+Independent review: Codex first review 2026-09-30, ACCEPT WITH CARRIES
+(`.agent/T025d-codex-review.md`); C1-C3 carried to
+`.ai/MILESTONE_REVIEW_BACKLOG.md`, C3 closing in T025e.
