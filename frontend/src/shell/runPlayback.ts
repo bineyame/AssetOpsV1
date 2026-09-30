@@ -60,8 +60,14 @@ export interface PlaybackDeps {
   step(fromBoundary: number): Promise<RunExecutionResult>;
   /** A read of the authoritative position; executes nothing. */
   read(): Promise<RunExecutionResult>;
-  /** Show an execution answer (a step's, or a re-read's). */
-  show(result: RunExecutionResult): void;
+  /**
+   * Show an execution answer (a step's, or a re-read's). T025e: it may return
+   * a promise - the page's commit of the answer with its history - and the
+   * scheduler arms the next delay, or resolves a pending pause, only after it
+   * settles. Whatever the promise does, it is never a step failure: a
+   * rejection is ignored here, because the step it follows did happen.
+   */
+  show(result: RunExecutionResult): void | Promise<void>;
   /** Called whenever the playback state changes. */
   onState(state: PlaybackState): void;
   /** Called once each time scheduling stops, after any re-read. */
@@ -102,6 +108,18 @@ export function laterExecution(
     return previous;
   }
   return next;
+}
+
+/** `deps.show`, awaited, never rejecting: a commit failure is not a step's. */
+function shown(
+  show: PlaybackDeps["show"],
+  answer: RunExecutionResult,
+): Promise<void> {
+  try {
+    return Promise.resolve(show(answer)).catch(() => undefined);
+  } catch {
+    return Promise.resolve();
+  }
 }
 
 export class PlaybackScheduler {
@@ -225,7 +243,7 @@ export class PlaybackScheduler {
         // still a fact, so it is shown; `laterExecution` keeps it from
         // moving the display backwards.
         if (answer.status === "loaded") {
-          this.deps.show(answer);
+          void shown(this.deps.show, answer);
         }
         return;
       }
@@ -237,22 +255,40 @@ export class PlaybackScheduler {
 
   private handle(answer: RunExecutionResult, generation: number): void {
     if (answer.status === "loaded") {
-      this.deps.show(answer);
-      this.position = answer.execution.boundaries_completed;
-      if (answer.execution.status !== "RUNNING") {
-        this.stop("TERMINAL", null, false);
-        return;
-      }
-      if (this.state.kind === "pausing") {
-        const reason = this.hiddenWhileInFlight ? "HIDDEN" : "PAUSED";
-        this.stop(reason, null, false);
-        return;
-      }
-      this.setState({ kind: "playing", inFlight: false });
-      this.pending = this.timers.set(() => {
-        this.pending = null;
-        this.tick(generation);
-      }, this.delayMs);
+      // The answer is committed (with its history) before anything else is
+      // decided: the delay runs from the commit, and a pause asked for while
+      // the commit was in flight resolves after it.
+      void shown(this.deps.show, answer).then(() => {
+        if (this.disposed || generation !== this.generation) {
+          return;
+        }
+        this.afterShown(answer.execution, generation);
+      });
+      return;
+    }
+    this.handleStopped(answer);
+  }
+
+  private afterShown(execution: RunExecution, generation: number): void {
+    this.position = execution.boundaries_completed;
+    if (execution.status !== "RUNNING") {
+      this.stop("TERMINAL", null, false);
+      return;
+    }
+    if (this.state.kind === "pausing") {
+      const reason = this.hiddenWhileInFlight ? "HIDDEN" : "PAUSED";
+      this.stop(reason, null, false);
+      return;
+    }
+    this.setState({ kind: "playing", inFlight: false });
+    this.pending = this.timers.set(() => {
+      this.pending = null;
+      this.tick(generation);
+    }, this.delayMs);
+  }
+
+  private handleStopped(answer: RunExecutionResult): void {
+    if (answer.status === "loaded") {
       return;
     }
     if (answer.status === "refused") {
@@ -291,13 +327,16 @@ export class PlaybackScheduler {
       this.deps.onStopped?.(reason);
       return;
     }
-    void this.deps.read().then((position) => {
+    void this.deps.read().then(async (position) => {
       if (this.disposed) {
         return;
       }
-      this.deps.show(position);
       if (position.status === "loaded") {
         this.position = position.execution.boundaries_completed;
+      }
+      await shown(this.deps.show, position);
+      if (this.disposed) {
+        return;
       }
       this.deps.onStopped?.(reason);
     });
