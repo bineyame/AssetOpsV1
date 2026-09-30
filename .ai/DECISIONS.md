@@ -3209,3 +3209,14 @@ Reason: an attractive cockpit must not silently change what its timestamps,
 values, arrows or controls claim. Product conclusions continue to consume
 only accepted evidence, while later gated comparison may read those product
 results beside private truth without supplying truth to analytics.
+
+## 2026-09-30
+
+Decision: `D-2026-09-30-architect-reviewer-claude-until-reset`. Codex hit its
+usage limit during the Architect review of the T025d cockpit layout and
+playback flicker, with reset at 2026-10-03 21:23. The user set Architect and
+Reviewer to Claude until that reset; Planner stays Codex. Passes produced under
+this exception say so in their report. Revert the bindings in
+`.ai/ROLE_CONFIG.md` once the reset has passed.
+
+Affected files: `.ai/ROLE_CONFIG.md`.
