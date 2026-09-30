@@ -29,7 +29,12 @@
  * Collapsing them into one "it did not work" would lose exactly that.
  */
 
-import { fetchRunHistory, type RunHistoryResult } from "./runHistory";
+import {
+  fetchRunHistory,
+  fetchRunHistorySince,
+  type RunHistoryDeltaResult,
+  type RunHistoryResult,
+} from "./runHistory";
 
 /** One state a model profile can model, and in which execution roles. */
 export interface RunSupportedState {
@@ -680,6 +685,15 @@ export interface RunSetupClient {
    * nothing: a run with no recorded history is a `loaded` history saying why.
    */
   getExecutionHistory(runId: string): Promise<RunHistoryResult>;
+  /**
+   * What this Draft's execution recorded after the first `sinceBoundary`
+   * boundaries (T025e live follow): a delta for `appendHistory`, never a
+   * history to render alone. A read that executes nothing.
+   */
+  getExecutionHistorySince(
+    runId: string,
+    sinceBoundary: number,
+  ): Promise<RunHistoryDeltaResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1460,6 +1474,13 @@ export function createRunSetupClient(
 
     getExecutionHistory(runId: string): Promise<RunHistoryResult> {
       return fetchRunHistory(runsPath, runId);
+    },
+
+    getExecutionHistorySince(
+      runId: string,
+      sinceBoundary: number,
+    ): Promise<RunHistoryDeltaResult> {
+      return fetchRunHistorySince(runsPath, runId, sinceBoundary);
     },
 
     async getStage(runId: string): Promise<RunStageResult> {

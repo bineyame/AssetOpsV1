@@ -26,6 +26,7 @@ sys.path.insert(0, str(HERE.parent))
 
 from assetops_backend.simulator_lab_api import (  # noqa: E402
     execution_payload,
+    history_delta_payload,
     history_payload,
 )
 from assetops_backend.sites_api import site_detail  # noqa: E402
@@ -74,6 +75,7 @@ def main() -> None:
         encoding="utf-8",
     )
     prolonged_prefix()
+    live_deltas()
 
 
 def prolonged_prefix() -> None:
@@ -93,6 +95,47 @@ def prolonged_prefix() -> None:
         json.dumps(history_payload(lab.history(run), run), separators=(",", ":")),
         encoding="utf-8",
     )
+
+
+def live_deltas() -> None:
+    """`kobo-mini-grid-history-deltas.json`: live follow on the wire (T025e).
+
+    The prolonged recipe's full read after start, the `since_boundary` delta
+    read after each of 7 single steps, one delta covering all 7 at once, and
+    the full read at the end - each exactly the route's answer - so the
+    client's merge is tested against deltas the backend produces.
+    """
+    run = mini_grid_draft(PROLONGED)
+    lab = a_lab(Path(tempfile.mkdtemp()))
+    projection = lab.start(run)
+    base = history_payload(lab.history(run), run)
+    held = base["boundaries_recorded"]
+    deltas = []
+    for _ in range(7):
+        projection = lab.step(
+            run, boundaries=1, from_boundary=projection.boundaries_completed
+        )
+        history = lab.history(run)
+        deltas.append(delta_read(history, held, run))
+        held = len(history.boundaries)
+    history = lab.history(run)
+    document = {
+        "base": base,
+        "deltas": deltas,
+        "jump": delta_read(history, base["boundaries_recorded"], run),
+        "full": history_payload(history, run),
+    }
+    (OUT / "kobo-mini-grid-history-deltas.json").write_text(
+        json.dumps(document, separators=(",", ":")), encoding="utf-8"
+    )
+
+
+def delta_read(history, since: int, run) -> dict:
+    """The route's `?since_boundary=` answer, envelope and all."""
+    return {
+        "history": history_delta_payload(history, since, run),
+        "delta": {"since_boundary": since, "through_boundary": len(history.boundaries)},
+    }
 
 
 if __name__ == "__main__":

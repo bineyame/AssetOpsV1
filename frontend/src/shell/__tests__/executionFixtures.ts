@@ -496,6 +496,7 @@ export function executionMethods(
   | "runExecutionToEnd"
   | "getStage"
   | "getExecutionHistory"
+  | "getExecutionHistorySince"
 > {
   return {
     getExecution: () => Promise.resolve(answer),
@@ -505,5 +506,9 @@ export function executionMethods(
     runExecutionToEnd: () => Promise.resolve(answer),
     getStage: () => Promise.resolve(stage),
     getExecutionHistory: () => Promise.resolve(history),
+    // T025e phase 1 adds the live-follow read; no screen calls it yet, so a
+    // fixture that has not been given deltas says the read is unavailable.
+    getExecutionHistorySince: () =>
+      Promise.resolve({ status: "unavailable", message: null }),
   };
 }
