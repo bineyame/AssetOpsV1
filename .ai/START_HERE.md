@@ -28,7 +28,7 @@ slice T022B, now complete as a partial improvement. **T024 is complete**
 (daytime PV, storage and three addressed loads, contract 9); T025a and
 T025b are complete and the owner accepted A. On 2026-09-30 the owner accepted
 the Lab cockpit cadence: **T025c (L1a) is complete** (owner accepted 2026-09-30);
-**T025d (L1b) is next**, then T026 and the order in `tasks/README.md`.
+**T025d (L1b) is built and in review**, then T026 and the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
 `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and

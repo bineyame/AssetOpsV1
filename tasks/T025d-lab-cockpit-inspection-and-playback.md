@@ -1,6 +1,6 @@
 # T025d - Lab SLD, causal inspection and playback (L1b)
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: Lab cockpit C1/C3/C4/C5; inspection of accepted A before B.

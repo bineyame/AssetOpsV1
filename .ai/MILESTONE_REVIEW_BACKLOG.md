@@ -1432,6 +1432,8 @@ T025c itself.
   reading with the selected offset's interval rather than the reading's own
   support (stop-60 run, offset 80: PV row says `[75, 80)` for a reading
   describing `[70, 75)`). Source time and STALE are shown; the plot is right.
+  **Closed in T025d phase 1** (3395e5c, test 2bf69d7): `reportedApplies`
+  labels the row with the reading's own source time and support.
 - **C2, legacy chart fallback unreachable.** A real legacy artifact returns
   `boundaries=[]`, so `HistoryInspector` never mounts `HistoryCharts` and zero
   panels draw; the frontend test keeps the modern boundary list and misses it.
@@ -1440,6 +1442,8 @@ T025c itself.
   `history()` prefers the retained session and returns `LIVE_SESSION` even
   when the terminal artifact recorded `WRITE_FAILED`; only a restarted host
   shows it. No false durability claim is made.
+  **Closed in T025d phase 1** (9a6b980): `LabSession.history_write_failure`;
+  the live `history()` answers `WRITE_FAILED`, tested on the same host.
 - **C4, strict reader narrower than claimed.** `host/lab_history.py` accepts
   re-signed documents with an empty RECORDED family, a malformed address, an
   unknown unit and an out-of-window timestamp; a short coverage row raises
