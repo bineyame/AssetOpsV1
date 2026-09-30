@@ -765,6 +765,29 @@ button:focus-visible {
   stroke-dasharray: 2 4;
 }
 
+/*
+ * A caller's value on a connection (T025d). The label states the direction in
+ * words and the arrowhead repeats it; neither depends on colour. The halo keeps
+ * the label legible where it crosses a run.
+ */
+.sld-run__value {
+  font-size: var(--text-xs);
+  fill: var(--text-primary);
+  paint-order: stroke;
+  stroke: var(--surface-raised);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.sld-run__arrow path {
+  fill: var(--text-primary);
+}
+
+.sld-node__slot[data-sld-slot="filled"] {
+  font-style: normal;
+  fill: var(--text-primary);
+}
+
 .sld-legend {
   display: flex;
   flex-wrap: wrap;

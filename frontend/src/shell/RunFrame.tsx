@@ -5,6 +5,8 @@ import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import { ElectricalPanels, ExactQuantity } from "./ElectricalPanels";
 import { HistoryInspector } from "./HistoryInspector";
 import { RunHeader } from "./RunHeader";
+import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { SiteDetailResult } from "../sites/siteReadModel";
 import type { RunHistoryResult } from "./runHistory";
 import type {
   RunDetailResult,
@@ -64,6 +66,12 @@ export interface RunFrameProps {
   runSetup: RunSetupClient;
   runsPath: string;
   simulatorLabPath: string;
+  /**
+   * T025d: reads the Site the run froze, so its recorded values can be drawn
+   * on that Site's configured diagram once the Foundation version is checked.
+   * Absent, the drawing states it is unavailable and the rest is unchanged.
+   */
+  siteDetail?: SiteDetailClient;
 }
 
 /**
@@ -78,6 +86,7 @@ export function RunFrame({
   runSetup,
   runsPath,
   simulatorLabPath,
+  siteDetail,
 }: RunFrameProps) {
   const { runId } = useParams<{ runId: string }>();
   const [result, setResult] = useState<RunDetailResult | null>(null);
@@ -87,6 +96,35 @@ export function RunFrame({
   const [stage, setStage] = useState<RunStageResult | null>(null);
   const [history, setHistory] = useState<RunHistoryResult | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [drawingSite, setDrawingSite] = useState<SiteDetailResult | null>(null);
+
+  // T025d: read the Site the history's drawing context names, once per Site.
+  // The binding check itself is `bindDrawing`'s; this only fetches.
+  const drawingSiteId =
+    history !== null &&
+    history.status === "loaded" &&
+    history.history.drawing_context !== null &&
+    history.history.drawing_context.status === "VERIFIED"
+      ? history.history.drawing_context.site_id
+      : null;
+  useEffect(() => {
+    let active = true;
+    if (drawingSiteId === null) {
+      return undefined;
+    }
+    if (siteDetail === undefined) {
+      setDrawingSite({ status: "unavailable" });
+      return undefined;
+    }
+    void siteDetail.getSite(drawingSiteId).then((loaded) => {
+      if (active) {
+        setDrawingSite(loaded);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [siteDetail, drawingSiteId]);
 
   useEffect(() => {
     let active = true;
@@ -768,6 +806,7 @@ export function RunFrame({
         result={history}
         steps={projection?.electrical?.steps ?? null}
         timestepMinutes={projection?.timestep_minutes ?? null}
+        site={drawingSite}
       />
 
       <Panel

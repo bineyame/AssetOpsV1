@@ -474,6 +474,8 @@ export const NOT_RECORDED: RunHistory = {
   bounded_transitions: [],
   discrete_transitions: [],
   bus_attachments: [],
+  reporting_gaps: [],
+  drawing_context: null,
 };
 
 /**

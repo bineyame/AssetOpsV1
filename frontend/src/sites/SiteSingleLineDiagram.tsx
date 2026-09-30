@@ -103,6 +103,44 @@ export const SITE_SLD_UNAVAILABLE_NOTE =
   "archetype has no lane for is not evidence that the site has no configured " +
   "assets.";
 
+/**
+ * Which way a value slot on a connection says something moved along it,
+ * relative to the connection's declared `from` and `to` nodes. `NONE` is a
+ * stated zero or an undirected value, never an absent one: an absent value is
+ * no slot content at all.
+ */
+export type SldSlotDirection = "ALONG" | "AGAINST" | "NONE";
+
+/** Content for one component's slot: a short line on the box, the rest in the table. */
+export interface SldNodeSlotContent {
+  text: string;
+  detail: string[];
+}
+
+/** Content for one connection's slot: a direction, a short label and its detail. */
+export interface SldConnectionSlotContent {
+  direction: SldSlotDirection;
+  text: string;
+  detail: string[];
+}
+
+/**
+ * Content a caller puts in the drawing's neutral value slots.
+ *
+ * The drawing does not know what the content is or where it came from: the
+ * caller states that in `statement`, which replaces the drawing's own
+ * "nothing on it is a measurement" description, and says in `unfilled` what a
+ * slot it left empty means. Keys are component ids and connection ids from
+ * the Site's own topology; a key the drawing does not have is ignored, and a
+ * drawn item without a key shows `unfilled`.
+ */
+export interface SldSlotContent {
+  statement: string;
+  unfilled: string;
+  nodes: ReadonlyMap<string, SldNodeSlotContent>;
+  connections: ReadonlyMap<string, SldConnectionSlotContent>;
+}
+
 /** The layout lattice, in CSS pixels. The one thing this module decides. */
 const PADDING = 28;
 const COLUMN_PITCH = 260;
@@ -307,8 +345,15 @@ function Glyph({ symbol, x, y }: { symbol: SldNodeView["symbol"]; x: number; y: 
 }
 
 /** One drawn component: its shape, its declared name and rating, its slot. */
-function SldNode({ node }: { node: SldNodeView }) {
+function SldNode({
+  node,
+  slots,
+}: {
+  node: SldNodeView;
+  slots: SldSlotContent | null;
+}) {
   const box = boxFor(node);
+  const content = slots?.nodes.get(node.componentId) ?? null;
 
   return (
     <g
@@ -359,8 +404,13 @@ function SldNode({ node }: { node: SldNodeView }) {
           Proposed treatment
         </text>
       )}
-      <text className="sld-node__slot" x={box.x + 14} y={box.y + NODE_HEIGHT - 10}>
-        {AWAITING_RUNTIME_OR_EVIDENCE}
+      <text
+        className="sld-node__slot"
+        data-sld-slot={content === null ? "unfilled" : "filled"}
+        x={box.x + 14}
+        y={box.y + NODE_HEIGHT - 10}
+      >
+        {content?.text ?? slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
       </text>
     </g>
   );
@@ -370,24 +420,75 @@ function SldNode({ node }: { node: SldNodeView }) {
 function SldRun({
   connection,
   boxes,
+  slot,
+  markerId,
 }: {
   connection: SldConnectionView;
   boxes: Map<string, Box>;
+  slot: SldConnectionSlotContent | null;
+  markerId: string;
 }) {
   const from = boxes.get(connection.fromNodeId);
   const to = boxes.get(connection.toNodeId);
   if (from === undefined || to === undefined) return null;
 
-  return (
+  const points = runPoints(from, to, connection.route.turn);
+  const marker = `url(#${markerId})`;
+  const line = (
     <polyline
       className={`sld-run sld-run--${connection.medium.toLowerCase()}`}
       data-sld-connection={connection.connectionId}
       data-sld-stroke={connection.route.stroke}
       data-sld-turn={connection.route.turn}
-      points={runPoints(from, to, connection.route.turn)}
+      points={points}
       fill="none"
+      markerEnd={slot?.direction === "ALONG" ? marker : undefined}
+      markerStart={slot?.direction === "AGAINST" ? marker : undefined}
     />
   );
+  if (slot === null) return line;
+
+  // The label says the direction in words as well as the arrow drawing it,
+  // so no reading of the drawing depends on seeing the marker or its colour.
+  const middle = midpointOf(points);
+  return (
+    <>
+      {line}
+      <text
+        className="sld-run__value"
+        data-sld-connection-value={connection.connectionId}
+        data-sld-direction={slot.direction}
+        x={middle.x + 6}
+        y={middle.y - 6}
+      >
+        {slot.text}
+      </text>
+    </>
+  );
+}
+
+/** The point half way along a polyline, where its value label sits. */
+function midpointOf(points: string): { x: number; y: number } {
+  const vertices = points
+    .split(" ")
+    .map((pair) => pair.split(",").map(Number) as [number, number]);
+  const lengths = vertices
+    .slice(1)
+    .map(([x, y], index) =>
+      Math.hypot(x - vertices[index][0], y - vertices[index][1]),
+    );
+  let remaining = lengths.reduce((sum, length) => sum + length, 0) / 2;
+  for (let index = 0; index < lengths.length; index += 1) {
+    const [x0, y0] = vertices[index];
+    const [x1, y1] = vertices[index + 1];
+    if (remaining <= lengths[index] || index === lengths.length - 1) {
+      const t =
+        lengths[index] === 0 ? 0 : Math.min(1, remaining / lengths[index]);
+      return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t };
+    }
+    remaining -= lengths[index];
+  }
+  return { x: vertices[0][0], y: vertices[0][1] };
 }
 
 /**
@@ -400,7 +501,19 @@ function SldRun({
  * duplicating them into one long sentence would be worse for the reader who
  * needs them most.
  */
-function SldDrawing({ diagram, siteName }: { diagram: SldDiagramView; siteName: string }) {
+function SldDrawing({
+  diagram,
+  siteName,
+  slots = null,
+  idPrefix = "foundation-sld",
+  labelledBy = SITE_SLD_HEADING_ID,
+}: {
+  diagram: SldDiagramView;
+  siteName: string;
+  slots?: SldSlotContent | null;
+  idPrefix?: string;
+  labelledBy?: string;
+}) {
   const boxes = new Map<string, Box>();
   for (const node of diagram.nodes) {
     boxes.set(node.nodeId, boxFor(node));
@@ -409,8 +522,9 @@ function SldDrawing({ diagram, siteName }: { diagram: SldDiagramView; siteName: 
   const width = PADDING * 2 + (diagram.extent.columns - 1) * COLUMN_PITCH + NODE_WIDTH;
   const height = PADDING * 2 + (diagram.extent.rows - 1) * ROW_PITCH + NODE_HEIGHT;
 
-  const titleId = "foundation-sld-title";
-  const descriptionId = "foundation-sld-description";
+  const titleId = `${idPrefix}-title`;
+  const descriptionId = `${idPrefix}-description`;
+  const markerId = `${idPrefix}-direction`;
 
   const media = [...new Set(diagram.connections.map((run) => run.medium))];
 
@@ -419,7 +533,7 @@ function SldDrawing({ diagram, siteName }: { diagram: SldDiagramView; siteName: 
       <div
         className="sld__scroll"
         role="region"
-        aria-labelledby={SITE_SLD_HEADING_ID}
+        aria-labelledby={labelledBy}
         tabIndex={0}
       >
         <svg
@@ -435,19 +549,39 @@ function SldDrawing({ diagram, siteName }: { diagram: SldDiagramView; siteName: 
             Configured single line diagram for {siteName}
           </title>
           <desc id={descriptionId}>
-            Drawn from this site&apos;s declared topology. Every component,
-            connection, device and signal it draws is listed in the tables in
-            this section; nothing on it is a measurement.
+            {slots === null
+              ? "Drawn from this site's declared topology. Every component, " +
+                "connection, device and signal it draws is listed in the " +
+                "tables in this section; nothing on it is a measurement."
+              : `Drawn from this site's declared topology. ${slots.statement}`}
           </desc>
+          {slots === null ? null : (
+            <defs>
+              <marker
+                id={markerId}
+                className="sld-run__arrow"
+                viewBox="0 0 10 10"
+                refX={9}
+                refY={5}
+                markerWidth={8}
+                markerHeight={8}
+                orient="auto-start-reverse"
+              >
+                <path d="M0,0 L10,5 L0,10 z" />
+              </marker>
+            </defs>
+          )}
           {diagram.connections.map((connection) => (
             <SldRun
               key={connection.connectionId}
               connection={connection}
               boxes={boxes}
+              slot={slots?.connections.get(connection.connectionId) ?? null}
+              markerId={markerId}
             />
           ))}
           {diagram.nodes.map((node) => (
-            <SldNode key={node.nodeId} node={node} />
+            <SldNode key={node.nodeId} node={node} slots={slots} />
           ))}
         </svg>
       </div>
@@ -535,20 +669,37 @@ function SldUnplaced({ diagram }: { diagram: SldDiagramView }) {
  * the drawing itself would either crowd it or be truncated, and a truncated
  * label is a hidden fact wearing a tidy layout.
  */
-function SldContents({ diagram }: { diagram: SldDiagramView }) {
+function SldContents({
+  diagram,
+  slots = null,
+  headingId = SITE_SLD_CONTENTS_ID,
+}: {
+  diagram: SldDiagramView;
+  slots?: SldSlotContent | null;
+  headingId?: string;
+}) {
   return (
     <>
-      <h4 className="subsection__subheading" id={SITE_SLD_CONTENTS_ID}>
+      <h4 className="subsection__subheading" id={headingId}>
         What the diagram draws
       </h4>
-      <DataTable labelledBy={SITE_SLD_CONTENTS_ID}>
-        <caption>
-          Every component the diagram draws, with the devices configured
-          against it and the signals this site&apos;s foundation declares are
-          available about it. The runtime and evidence column is the slot each
-          drawn component carries: both are empty in this build, for every
-          component, and neither holds a reading.
-        </caption>
+      <DataTable labelledBy={headingId}>
+        {slots === null ? (
+          <caption>
+            Every component the diagram draws, with the devices configured
+            against it and the signals this site&apos;s foundation declares are
+            available about it. The runtime and evidence column is the slot
+            each drawn component carries: both are empty in this build, for
+            every component, and neither holds a reading.
+          </caption>
+        ) : (
+          <caption>
+            {"Every component the diagram draws, with the devices configured " +
+              "against it and the signals this site's foundation declares are " +
+              "available about it. The value column is the slot each drawn " +
+              `component carries. ${slots.statement}`}
+          </caption>
+        )}
         <thead>
           <tr>
             <th scope="col">Component</th>
@@ -556,7 +707,7 @@ function SldContents({ diagram }: { diagram: SldDiagramView }) {
             <th scope="col">Declared rating</th>
             <th scope="col">Devices attached</th>
             <th scope="col">Signals available</th>
-            <th scope="col">Runtime and evidence</th>
+            <th scope="col">{slots === null ? "Runtime and evidence" : "Value"}</th>
             <th scope="col">Node ID</th>
           </tr>
         </thead>
@@ -590,10 +741,106 @@ function SldContents({ diagram }: { diagram: SldDiagramView }) {
                   </ul>
                 )}
               </td>
-              <td>{AWAITING_RUNTIME_OR_EVIDENCE}</td>
+              <td data-sld-row-slot={node.componentId}>
+                <SlotCell
+                  content={slots?.nodes.get(node.componentId) ?? null}
+                  unfilled={slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
+                />
+              </td>
               <td>{node.nodeId}</td>
             </tr>
           ))}
+        </tbody>
+      </DataTable>
+      {slots === null ? null : (
+        <SldConnectionContents
+          diagram={diagram}
+          slots={slots}
+          headingId={`${headingId}-connections`}
+        />
+      )}
+    </>
+  );
+}
+
+function SlotCell({
+  content,
+  unfilled,
+}: {
+  content: SldNodeSlotContent | SldConnectionSlotContent | null;
+  unfilled: string;
+}) {
+  if (content === null) return <>{unfilled}</>;
+  return (
+    <ul className="cell-list">
+      {[content.text, ...content.detail].map((line, index) => (
+        <li key={`${index}-${line}`}>{line}</li>
+      ))}
+    </ul>
+  );
+}
+
+/** The words for a connection slot's direction, so no reading needs the arrow. */
+const SLOT_DIRECTION_WORDS: Record<SldSlotDirection, string> = {
+  ALONG: "from -> to, in the declared order",
+  AGAINST: "to -> from, against the declared order",
+  NONE: "no direction",
+};
+
+/** What each drawn connection's slot holds, in text, when a caller filled any. */
+function SldConnectionContents({
+  diagram,
+  slots,
+  headingId,
+}: {
+  diagram: SldDiagramView;
+  slots: SldSlotContent;
+  headingId: string;
+}) {
+  const names = new Map(
+    diagram.nodes.map((node) => [node.nodeId, node.displayName]),
+  );
+  return (
+    <>
+      <h4 className="subsection__subheading" id={headingId}>
+        What each drawn connection carries
+      </h4>
+      <DataTable labelledBy={headingId}>
+        <thead>
+          <tr>
+            <th scope="col">Connection</th>
+            <th scope="col">Declared from</th>
+            <th scope="col">Declared to</th>
+            <th scope="col">Direction</th>
+            <th scope="col">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {diagram.connections.map((connection) => {
+            const content =
+              slots.connections.get(connection.connectionId) ?? null;
+            return (
+              <tr
+                key={connection.connectionId}
+                data-sld-connection-row={connection.connectionId}
+                data-sld-direction={content?.direction ?? "UNFILLED"}
+              >
+                <th scope="row">{connection.connectionId}</th>
+                <td>
+                  {names.get(connection.fromNodeId) ?? connection.fromNodeId}
+                </td>
+                <td>{names.get(connection.toNodeId) ?? connection.toNodeId}</td>
+                <td>
+                  {content === null
+                    ? "none stated"
+                    : SLOT_DIRECTION_WORDS[content.direction]}
+                </td>
+                <td>
+                  <SlotCell content={content} unfilled={slots.unfilled} />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </DataTable>
     </>
@@ -683,6 +930,52 @@ function SldOpenQuestions({ diagram }: { diagram: SldDiagramView | null }) {
         </div>
       </dl>
     </div>
+  );
+}
+
+/**
+ * The configured drawing alone, with a caller's content in its value slots.
+ *
+ * The same view model, geometry and tables as the Foundation's diagram
+ * section, without that section's heading, introduction or review questions:
+ * the caller names what it is showing, states in `slots.statement` what the
+ * values are, and composes whatever else belongs beside it. The drawing binds
+ * nothing itself - which Site, which version and which values are the
+ * caller's to establish before passing them in.
+ */
+export function ConfiguredSingleLineDrawing({
+  site,
+  slots,
+  headingId,
+  idPrefix,
+}: {
+  site: SiteDetailReadModel;
+  slots: SldSlotContent;
+  /** The caller's heading, which names the drawing's scroll region. */
+  headingId: string;
+  /** Distinguishes this drawing's element ids from any other on the page. */
+  idPrefix: string;
+}) {
+  const view: SiteSldView = deriveSiteSldView(site);
+  if (view.status !== "compatible") {
+    return <SldUnavailable reason={view.reason} />;
+  }
+  return (
+    <>
+      <SldDrawing
+        diagram={view.diagram}
+        siteName={site.display_name}
+        slots={slots}
+        idPrefix={idPrefix}
+        labelledBy={headingId}
+      />
+      <SldUnplaced diagram={view.diagram} />
+      <SldContents
+        diagram={view.diagram}
+        slots={slots}
+        headingId={`${idPrefix}-contents-heading`}
+      />
+    </>
   );
 }
 

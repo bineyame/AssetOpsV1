@@ -702,6 +702,31 @@ function reportedCell(track: ReportedTrack, offset: number): React.ReactNode {
   );
 }
 
+/**
+ * What the reading a reported row shows applies to: its OWN support.
+ *
+ * T025d (backlog C1). A held STALE reading describes the instant or interval
+ * of its own source time, not the selected boundary's; labelling it with the
+ * selected interval put a reading about `[70, 75)` under `[75, 80)`.
+ */
+function reportedApplies(
+  track: ReportedTrack,
+  offset: number,
+  timestep: number,
+): string {
+  const held = readingAt(track, offset);
+  const reading = held.kind === "reported" ? held.attempt : held.last;
+  if (reading === null) {
+    return "nothing has been reported yet";
+  }
+  const at = reading.at_offset_minutes;
+  const own =
+    at === offset ? "" : "; the held reading's own support, not the selected boundary's";
+  return track.reading_class === "INTERVAL_SIGNAL"
+    ? `source time ${reading.source_sample_time}; describes the step [${at - timestep}, ${at}) that ended at ${at} min${own}`
+    : `source time ${reading.source_sample_time}; state at that instant, ${at} min${own}`;
+}
+
 function inspectorRows(
   model: ChartModel,
   offset: number,
@@ -760,10 +785,7 @@ function inspectorRows(
         key: `${panel.id}-${track.device_id}-${track.signal_id}`,
         panel: `${panel.title} (${panel.unit})`,
         series: `Reported by ${track.device_id} ${track.signal_id}`,
-        applies:
-          track.reading_class === "INTERVAL_SIGNAL"
-            ? `source time T; describes the ${ended}`
-            : "source time T; state at that instant",
+        applies: reportedApplies(track, offset, timestep),
         value: reportedCell(track, offset),
       });
     }
@@ -796,7 +818,7 @@ function inspectorRows(
         key: `${panel.id}-${track.device_id}-${track.signal_id}`,
         panel: panel.title,
         series: `Reported by ${track.device_id} ${track.signal_id}`,
-        applies: "source time T; state at that instant",
+        applies: reportedApplies(track, offset, timestep),
         value: reportedCell(track, offset),
       });
     }

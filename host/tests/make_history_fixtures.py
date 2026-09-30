@@ -32,6 +32,8 @@ from assetops_backend.sites_api import site_detail  # noqa: E402
 from kobo import kobo_document, kobo_site  # noqa: E402
 from test_generator_observation import CHANGED, draft, silenced  # noqa: E402
 from test_lab_history import a_lab  # noqa: E402
+from test_mini_grid_v2 import PROLONGED  # noqa: E402
+from test_mini_grid_v2 import draft as mini_grid_draft  # noqa: E402
 
 OUT = HERE.parents[1] / "frontend" / "src" / "shell" / "__tests__"
 SILENCE_FROM = 60
@@ -69,6 +71,26 @@ def main() -> None:
     )
     (OUT / "kobo-policy-execution-prefix.json").write_text(
         json.dumps(execution_payload(projection), separators=(",", ":")),
+        encoding="utf-8",
+    )
+    prolonged_prefix()
+
+
+def prolonged_prefix() -> None:
+    """`kobo-mini-grid-history-prefix.json`: the prolonged recipe, 7 boundaries.
+
+    T025c wrote this payload by hand-run script; T025d regenerates it here so
+    the wire's later additions are the backend's own, never hand-edited.
+    """
+    run = mini_grid_draft(PROLONGED)
+    lab = a_lab(Path(tempfile.mkdtemp()))
+    projection = lab.start(run)
+    while projection.boundaries_completed < 7:
+        projection = lab.step(
+            run, boundaries=1, from_boundary=projection.boundaries_completed
+        )
+    (OUT / "kobo-mini-grid-history-prefix.json").write_text(
+        json.dumps(history_payload(lab.history(run), run), separators=(",", ":")),
         encoding="utf-8",
     )
 

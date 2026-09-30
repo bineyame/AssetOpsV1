@@ -88,7 +88,55 @@ export interface RunHistoryInterval {
   flows: RunHistoryFlow[];
   effective_controls: RunHistoryEffectiveControl[];
   balances: string[];
+  /**
+   * T025d: each balance identity with the exact sums of the flows it names.
+   * The sums are absent (`null`) when a named flow is missing, never partial.
+   */
+  balance_identities: RunHistoryBalance[];
   notes: string[];
+}
+
+export interface RunHistoryBalance {
+  identity_id: string;
+  sources: string[];
+  sinks: string[];
+  source_energy: string | null;
+  sink_energy: string | null;
+  residual: string | null;
+}
+
+/** T025d: one resolved reporting-path window - a reporting condition, never a physical outage. */
+export interface RunHistoryReportingGap {
+  event_id: string;
+  condition_address: string;
+  device_id: string;
+  signal_id: string;
+  address: string;
+  timing_shape: string;
+  declared_offset_minutes: number;
+  start_offset_minutes: number;
+  end_offset_minutes: number;
+}
+
+export interface RunHistoryBoundAttachment {
+  role: string;
+  component_id: string;
+  via_component_id: string | null;
+  bus_component_id: string;
+  connection_ids: string[];
+}
+
+/**
+ * T025d: the run-bound basis for drawing this history on the configured SLD.
+ * `VERIFIED` only when the recorded attachments are the frozen ones; the
+ * screen must still find the Site at `foundation_version` before binding.
+ */
+export interface RunHistoryDrawingContext {
+  site_id: string;
+  foundation_version: number;
+  status: "VERIFIED" | "NOT_RECORDED" | "DISAGREES";
+  statement: string;
+  attachments: RunHistoryBoundAttachment[];
 }
 
 export interface RunHistoryAttempt {
@@ -195,6 +243,8 @@ export interface RunHistory {
   bounded_transitions: RunHistoryBoundedTransition[];
   discrete_transitions: RunHistoryDiscreteTransition[];
   bus_attachments: RunHistoryAttachment[];
+  reporting_gaps: RunHistoryReportingGap[];
+  drawing_context: RunHistoryDrawingContext | null;
 }
 
 export type RunHistoryResult =
@@ -274,7 +324,13 @@ export function isRunHistory(value: unknown): value is RunHistory {
         Array.isArray(item.loads) &&
         Array.isArray(item.flows) &&
         Array.isArray(item.controls) &&
-        Array.isArray(item.requests),
+        Array.isArray(item.requests) &&
+        every(
+          item.balance_identities,
+          (balance) =>
+            typeof balance.identity_id === "string" &&
+            isNullable(balance.residual, "string"),
+        ),
     ) &&
     every(
       value.attempts,
@@ -288,7 +344,36 @@ export function isRunHistory(value: unknown): value is RunHistory {
     Array.isArray(value.bounded_transitions) &&
     Array.isArray(value.discrete_transitions) &&
     Array.isArray(value.bus_attachments) &&
-    Array.isArray(value.exposures)
+    Array.isArray(value.exposures) &&
+    every(
+      value.reporting_gaps,
+      (item) =>
+        typeof item.event_id === "string" &&
+        typeof item.start_offset_minutes === "number" &&
+        typeof item.end_offset_minutes === "number",
+    ) &&
+    (value.drawing_context === null || isDrawingContext(value.drawing_context))
+  );
+}
+
+function isDrawingContext(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.site_id === "string" &&
+    typeof value.foundation_version === "number" &&
+    (value.status === "VERIFIED" ||
+      value.status === "NOT_RECORDED" ||
+      value.status === "DISAGREES") &&
+    typeof value.statement === "string" &&
+    every(
+      value.attachments,
+      (item) =>
+        typeof item.component_id === "string" &&
+        isNullable(item.via_component_id, "string") &&
+        typeof item.bus_component_id === "string" &&
+        Array.isArray(item.connection_ids) &&
+        item.connection_ids.every((id) => typeof id === "string"),
+    )
   );
 }
 

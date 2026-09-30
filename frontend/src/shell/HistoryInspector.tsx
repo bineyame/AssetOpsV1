@@ -1,7 +1,11 @@
 import { useState } from "react";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
+import type { SiteDetailResult } from "../sites/siteReadModel";
 import { HistoryCharts } from "./HistoryCharts";
+import { HistoryTimeline } from "./HistoryTimeline";
+import { IntervalDrawing } from "./IntervalDrawing";
+import { IntervalInspection } from "./IntervalInspection";
 import type { RunHistory, RunHistoryResult } from "./runHistory";
 import type { RunElectricalStep } from "./runSetupClient";
 
@@ -48,11 +52,18 @@ export function HistoryInspector({
   result,
   steps = null,
   timestepMinutes = null,
+  site = null,
 }: {
   result: RunHistoryResult | null;
   /** The execution projection's electrical steps, when the model has them. */
   steps?: RunElectricalStep[] | null;
   timestepMinutes?: number | null;
+  /**
+   * T025d: the Site read for the run-bound drawing, or null while it is in
+   * flight or not asked for. The drawing binds only if it is the Site and
+   * Foundation version the run froze.
+   */
+  site?: SiteDetailResult | null;
 }) {
   if (result === null) {
     return (
@@ -78,6 +89,7 @@ export function HistoryInspector({
       history={result.history}
       steps={steps}
       timestepMinutes={timestepMinutes}
+      site={site}
     />
   );
 }
@@ -86,10 +98,12 @@ function LoadedHistory({
   history,
   steps,
   timestepMinutes,
+  site,
 }: {
   history: RunHistory;
   steps: RunElectricalStep[] | null;
   timestepMinutes: number | null;
+  site: SiteDetailResult | null;
 }) {
   const last = history.boundaries[history.boundaries.length - 1];
   const [chosen, setChosen] = useState<number | null>(null);
@@ -179,6 +193,19 @@ function LoadedHistory({
           selected={selected}
           onSelect={setChosen}
         />
+      )}
+
+      {/*
+        * T025d: the drawing, the control inspection and the timeline all read
+        * the one selection above - the interval that ended at the selected
+        * boundary - from the recorded history, never the latest step.
+        */}
+      {selected === null ? null : (
+        <>
+          <IntervalDrawing history={history} offset={selected} site={site} />
+          <IntervalInspection history={history} offset={selected} />
+          <HistoryTimeline history={history} offset={selected} />
+        </>
       )}
 
       {selected === null ? null : (
