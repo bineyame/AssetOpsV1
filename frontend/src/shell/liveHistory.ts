@@ -41,7 +41,8 @@ export const APPEND_FAMILY_KEYS = {
   bounded_transitions: "at_offset_minutes",
   discrete_transitions: "at_offset_minutes",
   // Append-class by owner approval (2026-09-30) after phase 1 measured a
-  // 71,935 B one-boundary delta with `exposures` sent whole.
+  // 71,935 B one-boundary delta with `exposures` sent whole. Recorded by the
+  // step it lies in, not at `from_offset`: see `STEP_OWNED_FAMILIES`.
   exposures: "from_offset",
   // Addendum B (option R, owner chose 2026-09-30): the projection's step row
   // for the interval a boundary decided, keyed like the interval.
@@ -49,6 +50,15 @@ export const APPEND_FAMILY_KEYS = {
 } as const;
 
 export type AppendFamily = keyof typeof APPEND_FAMILY_KEYS;
+
+/**
+ * Families whose row belongs to the boundary whose step holds its
+ * `from_offset` (a forcing window may open between two boundaries), so a
+ * delta's rows lie at or after its first new boundary's offset, with no upper
+ * bound the delta itself can state. The server's twin is
+ * `HISTORY_STEP_OWNED_FAMILIES`.
+ */
+const STEP_OWNED_FAMILIES: ReadonlySet<AppendFamily> = new Set(["exposures"]);
 
 const APPEND_FAMILIES = Object.keys(APPEND_FAMILY_KEYS) as AppendFamily[];
 
@@ -222,8 +232,32 @@ export function appendHistory(
     );
   }
   for (const family of APPEND_FAMILIES) {
+    const stepOwned = STEP_OWNED_FAMILIES.has(family);
+    const rows = delta[family] as Row[];
+    if (stepOwned) {
+      const first = added.length > 0 ? added[0].offset_minutes : null;
+      let previous = first;
+      for (const row of rows) {
+        const key = keyOf(family, row);
+        if (first === null || key < first) {
+          return refuse(
+            "ROW_NOT_AFTER_RECORDED",
+            `A ${family} row at ${key} belongs to a step already held, ` +
+              `before the first new boundary ${first}.`,
+          );
+        }
+        if (previous !== null && key < previous) {
+          return refuse(
+            "ROW_OUT_OF_ORDER",
+            `A ${family} row at ${key} follows one at ${previous}.`,
+          );
+        }
+        previous = key;
+      }
+      continue;
+    }
     let previous = after;
-    for (const row of delta[family] as Row[]) {
+    for (const row of rows) {
       const key = keyOf(family, row);
       if (after !== null && key <= after) {
         return refuse(

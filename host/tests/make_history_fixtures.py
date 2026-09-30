@@ -76,6 +76,7 @@ def main() -> None:
     )
     prolonged_prefix()
     live_deltas()
+    mid_step_deltas()
 
 
 def prolonged_prefix() -> None:
@@ -126,6 +127,59 @@ def live_deltas() -> None:
         "full": history_payload(history, run),
     }
     (OUT / "kobo-mini-grid-history-deltas.json").write_text(
+        json.dumps(document, separators=(",", ":")), encoding="utf-8"
+    )
+
+
+def mid_step_deltas() -> None:
+    """`kobo-fuel-mid-step-deltas.json`: a forcing window that opens mid-step.
+
+    The fuel gate run with `generator-run-window` moved to offset 7, between
+    the 5 and 10 boundaries, so its exposure is recorded by boundary 5 while
+    its own offset lies after it (T025e R1 finding 1). The full read after
+    start, the delta after each of 4 single steps, and a second base - the full
+    read after the first step, which already holds that exposure - with the
+    delta after the step that follows it.
+    """
+    from assetops_backend.runs.adapters.yaml_run_documents import read_run_record
+
+    gate = HERE / "contract9_gate" / "runs" / "run-c9000000000000000000000000000102.yaml"
+    text = gate.read_text(encoding="utf-8")
+    moved = text.replace("    offset_minutes: 1080" + chr(10), "    offset_minutes: 7" + chr(10))
+    assert moved != text
+    scratch = Path(tempfile.mkdtemp()) / "mid-step-run.yaml"
+    scratch.write_text(moved, encoding="utf-8")
+    run = read_run_record(scratch)
+    lab = a_lab(Path(tempfile.mkdtemp()))
+    projection = lab.start(run)
+    base = history_payload(lab.history(run), run)
+    held = base["boundaries_recorded"]
+    deltas = []
+    rebased = None
+    rebased_base = None
+    for index in range(4):
+        projection = lab.step(
+            run, boundaries=1, from_boundary=projection.boundaries_completed
+        )
+        history = lab.history(run)
+        if index == 2:
+            rebased = {
+                "base": rebased_base,
+                "read": delta_read(history, len(rebased_boundaries), run),
+            }
+        deltas.append(delta_read(history, held, run))
+        held = len(history.boundaries)
+        if index == 1:
+            rebased_base = history_payload(history, run)
+            rebased_boundaries = history.boundaries
+    history = lab.history(run)
+    document = {
+        "base": base,
+        "deltas": deltas,
+        "rebased": rebased,
+        "full": history_payload(history, run),
+    }
+    (OUT / "kobo-fuel-mid-step-deltas.json").write_text(
         json.dumps(document, separators=(",", ":")), encoding="utf-8"
     )
 

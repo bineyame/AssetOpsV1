@@ -13,6 +13,7 @@ import {
 } from "../liveHistory";
 import type { RunHistory, RunHistoryDeltaEnvelope } from "../runHistory";
 import wire from "./kobo-mini-grid-history-deltas.json";
+import midStepWire from "./kobo-fuel-mid-step-deltas.json";
 
 /**
  * The live-follow merge (T025e AC3), against the backend's own answers.
@@ -347,5 +348,49 @@ describe("the slice index", () => {
     const empty = copy(fixture.deltas[6].history);
     empty.boundaries = [];
     expect(extendSliceIndex(index, empty, 35)).toBe(index);
+  });
+});
+
+/**
+ * R1 finding 1 (T025e review): a forcing window that opens between two
+ * boundaries. `kobo-fuel-mid-step-deltas.json` is the fuel gate run with its
+ * window moved to offset 7, so the exposure at 7 is recorded by boundary 5.
+ */
+const midStep = midStepWire as unknown as {
+  base: RunHistory;
+  deltas: DeltaRead[];
+  rebased: { base: RunHistory; read: DeltaRead };
+  full: RunHistory;
+};
+
+describe("an exposure that opens between boundaries (step-owned)", () => {
+  it("the fixture has an exposure whose offset is not a boundary's", () => {
+    const offsets = new Set(midStep.full.boundaries.map((b) => b.offset_minutes));
+    expect(midStep.full.exposures.some((e) => !offsets.has(e.from_offset))).toBe(true);
+  });
+
+  it("accepts every delta, and folding them equals the full read", () => {
+    let held = copy(midStep.base);
+    for (const read of midStep.deltas) {
+      held = accepted(appendHistory(held, copy(read.history), read.delta));
+    }
+    expect(held.exposures).toEqual(midStep.full.exposures);
+    expect(held.boundaries).toEqual(midStep.full.boundaries);
+  });
+
+  it("a delta after a full-read base adds no duplicate of the held exposure", () => {
+    const { base, read } = midStep.rebased;
+    expect(base.exposures.map((e) => e.from_offset)).toEqual([7]);
+    const next = accepted(appendHistory(copy(base), copy(read.history), read.delta));
+    expect(next.exposures.map((e) => e.from_offset)).toEqual([7, 10]);
+  });
+
+  it("refuses an exposure that belongs to a step already held", () => {
+    const { base, read } = midStep.rebased;
+    const again = copy(read);
+    again.history.exposures.unshift(copy(base.exposures[0]));
+    expect(refusal(appendHistory(copy(base), again.history, again.delta))).toBe(
+      "ROW_NOT_AFTER_RECORDED",
+    );
   });
 });
