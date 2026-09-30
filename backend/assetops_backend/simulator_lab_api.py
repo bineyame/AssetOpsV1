@@ -229,14 +229,22 @@ HISTORY_APPEND_FAMILY_KEYS: dict[str, str] = {
     "bounded_transitions": "at_offset_minutes",
     "discrete_transitions": "at_offset_minutes",
     # Owner approved 2026-09-30 after phase 1 measured a 71,935 B one-boundary
-    # delta, 57,443 B of it `exposures` sent whole: an exposure is recorded at
-    # the boundary its window opens, and the prefix guard proves it append-only.
+    # delta, 57,443 B of it `exposures` sent whole. Its row is recorded by the
+    # boundary whose step it lies in, not at its own `from_offset`: see
+    # `HISTORY_STEP_OWNED_FAMILIES`.
     "exposures": "from_offset",
     # T025e addendum B (option R, owner chose 2026-09-30): the projection's
     # electrical step row for the interval a boundary decided, keyed like the
     # interval itself; built from that boundary's control step only.
     "electrical_steps": "from_offset",
 }
+# Families whose row is recorded by the boundary whose step contains its
+# `from_offset` - the last boundary at or before it - not at `from_offset`
+# itself. An exposure is the span of a forcing window inside one step, and a
+# window may open between two boundaries (R1 finding 1, T025e review). Its
+# rows after a held prefix of `since` boundaries are those at or after
+# boundary `since`'s offset; selected on recorded offsets, nothing computed.
+HISTORY_STEP_OWNED_FAMILIES = frozenset({"exposures"})
 # Frozen with the run: sent by the full read only, empty (or null) in a delta,
 # and kept by the client from its base. `coverage` and the manifest scalars
 # are neither: they are sent whole in every delta.
@@ -1447,6 +1455,11 @@ def history_delta_payload(
         if after is None:
             return rows
         key = HISTORY_APPEND_FAMILY_KEYS[family]
+        if family in HISTORY_STEP_OWNED_FAMILIES:
+            if since_boundary >= len(history.boundaries):
+                return ()
+            first_new = history.boundaries[since_boundary].offset_minutes
+            return tuple(row for row in rows if getattr(row, key) >= first_new)
         return tuple(row for row in rows if getattr(row, key) > after)
 
     selected = replace(
