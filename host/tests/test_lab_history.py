@@ -347,8 +347,13 @@ class TestFailuresStayInspectable:
             raise RuntimeError("disk said no")
 
         monkeypatch.setattr(lab_execution, "render_history", broken)
-        finished, _ = finish(run, tmp_path)
+        finished, live = finish(run, tmp_path)
         monkeypatch.undo()
+        # The same host, still holding the session, answers what the artifact
+        # says rather than a complete-looking in-memory history (backlog C3).
+        assert live.source == "WRITE_FAILED"
+        assert "disk said no" in live.notes[0]
+        assert live.samples == () and live.intervals == ()
         lab = a_lab(tmp_path)
         assert lab.projection(run).status == "COMPLETED"
         history = lab.history(run)

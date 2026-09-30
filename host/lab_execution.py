@@ -516,6 +516,11 @@ class LabSession:
     #: What staging had to say, e.g. a refused conflicting publication. Mutable,
     #: because it accrues as the run is stepped.
     staging_notes: list[str] = field(default_factory=list)
+    #: Why this session's terminal history could not be recorded, once the
+    #: write recorded a WRITE_FAILED document instead (T025d, backlog C3).
+    #: Held here so the live session answers what the artifact says, rather
+    #: than a complete-looking in-memory history only a restart would contradict.
+    history_write_failure: str | None = None
 
 
 def _state_key_of(address: str) -> str:
@@ -2171,11 +2176,12 @@ class HostLabExecution:
         try:
             return render_history(self._captured(session, projection), projection)
         except Exception as error:  # noqa: BLE001 - the failure is the record
-            return write_failed_document(
-                projection,
+            reason = (
                 f"The history of {projection.run_id} could not be recorded: "
-                f"{type(error).__name__}: {error}",
+                f"{type(error).__name__}: {error}"
             )
+            session.history_write_failure = reason
+            return write_failed_document(projection, reason)
 
     def history(self, run: SimulationRun) -> LabHistory:
         """What this Draft's execution recorded, without executing anything.
@@ -2188,6 +2194,14 @@ class HostLabExecution:
         with self._lock_for(run.run_id):
             session = self._sessions.get(run.run_id)
             if session is not None:
+                if session.history_write_failure is not None:
+                    # The artifact says the history was not recorded, and the
+                    # live session must not answer otherwise (backlog C3).
+                    return without_history(
+                        project(session),
+                        "WRITE_FAILED",
+                        session.history_write_failure,
+                    )
                 return self._captured(session, project(session))
             try:
                 stored = self._artifacts.read(run.run_id)

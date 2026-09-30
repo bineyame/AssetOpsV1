@@ -8,7 +8,7 @@ It executes the policy-varied Kobo recipe (`kobo-mini-grid-stop-60`, mini-grid
 v2, publication profile 4, 5-minute step) with the generator controller's
 status silenced for 30 minutes from offset 60, steps a live session to offset
 150, and writes the backend's own `history_payload` and `execution_payload` of
-that prefix. Nothing is edited after serialization, so every value a frontend
+that prefix, with the Kobo Site detail the run froze (T025d). Nothing is edited after serialization, so every value a frontend
 test asserts is one the backend produces.
 """
 
@@ -28,7 +28,8 @@ from assetops_backend.simulator_lab_api import (  # noqa: E402
     execution_payload,
     history_payload,
 )
-from kobo import kobo_document  # noqa: E402
+from assetops_backend.sites_api import site_detail  # noqa: E402
+from kobo import kobo_document, kobo_site  # noqa: E402
 from test_generator_observation import CHANGED, draft, silenced  # noqa: E402
 from test_lab_history import a_lab  # noqa: E402
 
@@ -57,7 +58,13 @@ def main() -> None:
         )
     assert projection.offset_minutes == THROUGH, projection.offset_minutes
     (OUT / "kobo-policy-history-prefix.json").write_text(
-        json.dumps(history_payload(lab.history(run)), separators=(",", ":")),
+        json.dumps(history_payload(lab.history(run), run), separators=(",", ":")),
+        encoding="utf-8",
+    )
+    # T025d: the Site the run froze, as the Site detail read serves it, so the
+    # run-bound drawing is checked against the same Foundation the run used.
+    (OUT / "kobo-site-detail.json").write_text(
+        json.dumps(site_detail(kobo_site()), separators=(",", ":")),
         encoding="utf-8",
     )
     (OUT / "kobo-policy-execution-prefix.json").write_text(
