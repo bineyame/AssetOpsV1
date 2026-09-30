@@ -1515,6 +1515,49 @@ playback. Routed to T025e (frontend only), guidance
 Trigger: before playback is shown externally at T028/T029, or when T026 next
 changes the run screen's refresh path, whichever comes first.
 
+## Carried from T025e: five findings from the first review
+
+Claude discovery review, 2026-09-30, verdict REJECT on finding 1
+(`.agent/T025e-claude-review.md`); findings 1, 2, 4 and 5 were fixed in fix
+round R1. These five are carried under
+`D-2026-09-22-milestone-speed-over-purity`: each is local, reversible and
+cannot mislead an Implementer. Line anchors are as of the review commit.
+
+- **C1 (finding 3), recorded can exceed the clock.** `runFrameState.ts:124-127`
+  (`recorded >= clock` leads to `none`) and `:254-270` (`historyLag` states only
+  `recorded < clock`). If another tab steps between this tab's answer and its
+  delta read, the cursor and drawing show a boundary past the execution clock
+  with no statement; a manual Step keeps it until the next control. AC5's
+  "cursor <= recorded <= clock" does not hold in that window. Repair: one
+  execution read when a delta records more than the answer's clock, or state it.
+  Trigger: before playback is shown to a second operator, or when multi-tab use
+  is first exercised.
+- **C2 (finding 6), server delta cost scales with window length; timing scope.**
+  `RunFrame.tsx:90-111` and `tools/layout-evidence.mjs` (T025e budgets). Every
+  delta read does a full `capture`, so cost grows with boundary count; 45.9 ms
+  is within 8 % of the 50 ms budget at 97 boundaries and a 288-boundary window
+  would likely miss it. Repair: memoise capture per session and boundary count.
+  Trigger: before any longer demo window (T028/T029 scripts).
+- **C3 (finding 7), evidence gaps.** `tools/layout-evidence.mjs`
+  `T025E_OBSERVE_PINNED`, `T025E_SAMPLER`. Pinned geometry is not measured
+  across the pin and Return-to-live transition (AC7's "nothing moves" is proved
+  by jsdom structure only), and the empty-frame check counts series paths
+  page-wide, so one blank panel among drawing ones is missed. Repair: sample
+  cockpit and cursor boxes across the transitions; count empty panels per
+  panel. Trigger: the next change to the cockpit layout or the cursor strip.
+- **C4 (finding 8), the Lab gate never iterates the cursor controls.**
+  `frontend/src/shell/__tests__/simulatorLabGate.test.tsx`: the fake client
+  renders no recorded history, so "offers exactly the named execution controls"
+  is vacuous over the timeline buttons, SLD arrows, Return to live and chart
+  clicks (the layout evidence exempts them by label). Repair: a recorded-history
+  fixture and a named allowance for cursor movers (reads that execute nothing).
+  Trigger: the next slice that adds a control to the run surface.
+- **C5 (finding 9), performance entries accumulate.** `RunFrame.tsx:90-111`:
+  `run-frame-commit` marks and measures are never cleared in production (about
+  two per tick; unbounded but negligible at 97 boundaries). Repair: clear the
+  mark after measuring, or cap. Trigger: any run longer than a few hundred
+  boundaries, or when the instrumentation is next touched.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

@@ -117,6 +117,13 @@ backdated in the copy only); `vite build` then `vite preview --port 5317`
 | tick commit p95 / max | 50 / 100 ms | 10.6 / 11.9 ms (22 commits; p50 8.2) |
 | full reads between first step and terminal | 0 | 0 |
 
+What each figure covers: "tick commit" is the `TICK_COMMITTED` dispatch to the
+next layout effect (React scheduling, render and commit), not the step, the
+history fetch, or the browser's style, layout and paint. "Server delta" is wall
+time through the preview proxy from 40 sequential re-reads while paused, not
+under a concurrent step, and every delta does a full `capture`, so it grows with
+window length (carried, backlog C2).
+
 The first evidence run failed 11 claims, all fixed in c1ca871: sideways scroll
 at 640 (the clock's 26rem reserved width), cockpit height 5,956-6,728 px (the
 exact-values column), and the timeline's cursor buttons counted as execution
@@ -170,3 +177,52 @@ controls by an older claim.
 
 Discovery review (`.ai/ROLE_CONFIG.md`) of the whole slice is next; the report
 names its reviewer.
+
+## R1 fix round (after the Claude discovery review, verdict REJECT)
+
+Owner decisions 2026-09-30. Findings closed:
+
+- **1 (HIGH), exposures keyed on a non-recording field.** Exposures are now
+  selected by the step that recorded them. Server: `HISTORY_STEP_OWNED_FAMILIES`
+  in `simulator_lab_api.py`; a delta after `since` boundaries keeps exposures
+  with `from_offset >= boundaries[since].offset_minutes` (none when `since` is
+  the recorded count). Uses only recorded offsets, computes nothing. Client:
+  `liveHistory.ts` `STEP_OWNED_FAMILIES`; a delta's exposures must lie at or
+  after its first new boundary's offset and be in order (no upper bound is
+  stateable from the delta). Exposures stay in the append class. Intervals and
+  `electrical_steps` are untouched: the prefix test passes for them on the new
+  fixture.
+  Tests: host `test_lab_history_prefix.py` gains the `fuel-mid-step-window`
+  fixture (gate run, window moved 1080 to 1082; prefix guard, fold and
+  per-base fold all cover it, plus a non-vacuity test); frontend
+  `kobo-fuel-mid-step-deltas.json` (window at 7) with four client tests (every
+  delta accepted so no full read, fold equals full, no duplicate after a
+  full-read base, refusal of a held-step exposure).
+- **2 (MEDIUM), hung history read.** `RunFrame.tsx` `withinTimeout` bounds each
+  history read (`historyTimeoutMs`, default the step timeout, 20 s); expiry is
+  the existing `unavailable` path (last frame kept, lag line, one full read at
+  the next tick). Screen test: a never-answering delta.
+- **4 (LOW), load reads.** The load's history read now takes a slot in the
+  commit chain, and the reducer discards a load execution older than a held one
+  (`laterExecution`) and a load history recording less than the held one.
+- **5 (LOW), unrecorded terminal history.** `historyLag` gains `kind`; a
+  terminal run with a whole read that still lags shows "History not recorded for
+  this run; execution reached boundary N." with `data-history-lag="unrecorded"`.
+
+Carried (backlog, T025e section): findings 3, 6 (scaling; timing scope is
+stated in the budget section above), 7, 8, 9.
+
+Commits: 6d1c7ab-range on the branch after 63046eb (see `git log 63046eb..`):
+server exposures, client exposures plus fixture, findings 2/4/5, records.
+
+Checks: host `test_lab_history_prefix.py` + `test_lab_history.py` 71 passed (was
+57); `contract9_gate` 23 passed, unedited; backend delta 19 passed; frontend
+`src/shell` 29 files, 648 passed; `tsc --noEmit` clean; architecture and workflow
+checks passed. Full suites and layout evidence were not rerun (state logic only;
+no layout or rendering change).
+
+Mutations (committed first, reverted): server selection back to `> after` fails
+the fold test on the mid-step fixture; client `STEP_OWNED_FAMILIES` emptied
+fails 2 client tests; timeout disabled fails the hung-read screen test; load
+execution guard, history guard and unrecorded kind each removed together fail 2
+reducer tests.
