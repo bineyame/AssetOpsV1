@@ -71,10 +71,12 @@ storage. This module names no file, no path, and no serialization format.
 
 from __future__ import annotations
 
+import re
+from dataclasses import replace
 from fractions import Fraction
 from typing import Any
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, Query
 
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.models import SimulationRun, readiness_disclosure
@@ -206,6 +208,38 @@ RUN_STAGE_ROUTE = "/runs/{run_id}/stage"
 # thousands of rows, and a step response carrying it would ship the whole run
 # again at every boundary.
 RUN_EXECUTION_HISTORY_ROUTE = "/runs/{run_id}/execution/history"
+
+# T025e live follow. `?since_boundary=n` answers the same `history` document
+# with each APPEND family narrowed to the rows recorded after the client's n
+# boundaries, plus a sibling `delta` envelope. It is a selection over the
+# `LabHistory` the port returns and computes no quantity. Each append family
+# is keyed by the offset of the boundary that records its row: an interval
+# belongs to the boundary that decided it (`from_offset`), not the one that
+# closes it, because that is where the capture records it. That every family
+# only ever grows at its end is proven per boundary in
+# `host/tests/test_lab_history_prefix.py`; a family that failed it would move
+# out of this table into the sent-whole class, never be patched by a client.
+HISTORY_APPEND_FAMILY_KEYS: dict[str, str] = {
+    "boundaries": "offset_minutes",
+    "samples": "offset_minutes",
+    "intervals": "from_offset",
+    "attempts": "at_offset_minutes",
+    "applied_events": "at_offset_minutes",
+    "bounded_transitions": "at_offset_minutes",
+    "discrete_transitions": "at_offset_minutes",
+}
+# Frozen with the run: sent by the full read only, empty (or null) in a delta,
+# and kept by the client from its base. `exposures`, `coverage` and the
+# manifest scalars are neither: they are sent whole in every delta.
+HISTORY_STATIC_FAMILIES = (
+    "signals",
+    "bus_attachments",
+    "reporting_gaps",
+    "drawing_context",
+    "sample_phases",
+)
+REFUSAL_HISTORY_SINCE_AHEAD = "HISTORY_SINCE_AHEAD"
+_WHOLE_NUMBER = re.compile(r"[0-9]+")
 
 # Refusal codes. The message is the product copy a user reads; the code is what
 # a client switches on, so neither has to be parsed out of the other.
@@ -1358,6 +1392,85 @@ def history_payload(
     }
 
 
+def history_delta_payload(
+    history: LabHistory, since_boundary: int, run: SimulationRun | None = None
+) -> dict[str, object]:
+    """The rows `history` recorded after its first `since_boundary` boundaries.
+
+    T025e. The `history` document of `history_payload`, with every append
+    family narrowed to rows whose recording boundary lies after boundary
+    `since_boundary`, the static families empty (`drawing_context` null), and
+    the manifest - `boundaries_recorded`, `recorded_through_offset_minutes`,
+    status, digests, coverage, notes, failure - and `exposures` whole. A delta
+    is not a verifiable document, so its `history_digest` is always null. The
+    route has already refused a `since_boundary` past what is recorded.
+    """
+    if not 0 <= since_boundary <= len(history.boundaries):
+        raise ValueError(
+            f"since_boundary {since_boundary} is outside the "
+            f"{len(history.boundaries)} boundaries recorded."
+        )
+    after = (
+        None
+        if since_boundary == 0
+        else history.boundaries[since_boundary - 1].offset_minutes
+    )
+
+    def newer(family: str) -> tuple:
+        rows = getattr(history, family)
+        if after is None:
+            return rows
+        key = HISTORY_APPEND_FAMILY_KEYS[family]
+        return tuple(row for row in rows if getattr(row, key) > after)
+
+    selected = replace(
+        history,
+        history_digest=None,
+        signals=(),
+        reporting_gaps=(),
+        bus_attachments=(),
+        **{family: newer(family) for family in HISTORY_APPEND_FAMILY_KEYS},
+    )
+    payload = history_payload(selected, run)
+    payload["boundaries_recorded"] = len(history.boundaries)
+    payload["recorded_through_offset_minutes"] = history.recorded_through_offset
+    payload["sample_phases"] = []
+    payload["drawing_context"] = None
+    return payload
+
+
+def _parse_since_boundary(raw: str, history: LabHistory) -> int:
+    """A delta read's `since_boundary`, or a typed refusal.
+
+    A whole number of boundaries the caller already holds: not negative, not a
+    fraction or a word, and not more than this run has recorded. The last is
+    a different fact - the request was well formed and the run is not there -
+    so it is a 409 with its own code, like a control refusal.
+    """
+    if not _WHOLE_NUMBER.fullmatch(raw):
+        raise HTTPException(
+            status_code=422,
+            detail=_refusal(
+                REFUSAL_EXECUTION_REQUEST_INVALID,
+                "A history read's 'since_boundary' is the whole number of "
+                f"boundaries already held, and this one is {raw!r}.",
+            ),
+        )
+    since = int(raw)
+    recorded = len(history.boundaries)
+    if since > recorded:
+        raise HTTPException(
+            status_code=409,
+            detail=_refusal(
+                REFUSAL_HISTORY_SINCE_AHEAD,
+                f"This run has recorded {recorded} boundaries, so there is "
+                f"nothing after boundary {since} to send. Read the whole "
+                "history instead.",
+            ),
+        )
+    return since
+
+
 def _balance_identity_payload(
     balance: Any, flows: Any, exact: Any
 ) -> dict[str, object]:
@@ -2205,16 +2318,32 @@ def build_simulator_lab_router(
         return {"stage": stage_payload(port.staged_envelopes(record))}
 
     @router.get(RUN_EXECUTION_HISTORY_ROUTE)
-    def read_run_execution_history(run_id: str) -> dict[str, object]:
+    def read_run_execution_history(
+        run_id: str, since_boundary: str | None = Query(default=None)
+    ) -> dict[str, object]:
         """What this Draft's execution recorded, re-read, never re-executed.
 
         T025c. A read served only behind the gate. It scans no other run and
         changes no artifact; a run with no recorded history answers with the
         stated reason and no records rather than an error.
+
+        T025e. With `since_boundary=n` it answers only what was recorded after
+        the caller's n boundaries, and says so in a sibling `delta` envelope; a
+        read without it is unchanged and carries no `delta`.
         """
         port = _port()
         record = _run_or_404(run_id)
-        return {"history": history_payload(port.history(record), record)}
+        history = port.history(record)
+        if since_boundary is None:
+            return {"history": history_payload(history, record)}
+        since = _parse_since_boundary(since_boundary, history)
+        return {
+            "history": history_delta_payload(history, since, record),
+            "delta": {
+                "since_boundary": since,
+                "through_boundary": len(history.boundaries),
+            },
+        }
 
     @router.post(RUN_EXECUTION_START_ROUTE)
     def start_run_execution(run_id: str) -> dict[str, object]:

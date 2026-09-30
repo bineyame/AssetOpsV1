@@ -1,0 +1,151 @@
+"""T025e AC1-AC2: a live history only ever grows at its end.
+
+The live-follow read (`since_boundary`) sends only the rows of each append
+family recorded after the client's last boundary, and the client appends them
+to what it holds. That is sound only if the capture at a later boundary m,
+restricted to time keys at or before an earlier boundary k, is exactly the
+capture at k - row by row and in order - and every row past k's time sits
+after that prefix. A family that failed this would have to be sent whole on
+every read; none may be patched on the client.
+
+The property is checked between every pair of consecutive boundaries of two
+fixture live sessions, which by transitivity covers every k < m. Between them
+the fixtures exercise every append family: a controlled mini-grid (intervals,
+discrete transitions) and a fuel run with a reporting gap, a windowed removal
+and a bounded delivery (suppressed attempts, applied events, a bounded
+transition). The time keys are the backend's own table, so this guard binds
+the selection the route actually makes.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from assetops_backend.runs.adapters.yaml_run_documents import read_run_record
+from assetops_backend.simulator_lab_api import (
+    HISTORY_APPEND_FAMILY_KEYS,
+    HISTORY_STATIC_FAMILIES,
+    history_delta_payload,
+    history_payload,
+)
+from lab_execution import HostLabExecution, YamlExecutionArtifacts, project
+from source_stages import JsonSourceStages
+
+from test_mini_grid_v2 import PROLONGED, draft
+
+GATE_RUNS = Path(__file__).resolve().parent / "contract9_gate" / "runs"
+FUEL_WITH_GAP = GATE_RUNS / "run-c9000000000000000000000000000102.yaml"
+FIXTURES = ("mini-grid", "fuel-with-gap")
+
+
+def a_run(name: str):
+    return draft(PROLONGED) if name == "mini-grid" else read_run_record(FUEL_WITH_GAP)
+
+
+def a_lab(root: Path) -> HostLabExecution:
+    return HostLabExecution(
+        artifacts=YamlExecutionArtifacts(root),
+        stages=JsonSourceStages(root / "stages"),
+    )
+
+
+def key_of(family: str):
+    attribute = HISTORY_APPEND_FAMILY_KEYS[family]
+    return lambda row: getattr(row, attribute)
+
+
+def live_captures(run, root: Path):
+    """Every capture of one live session, one per boundary, start to end.
+
+    Advanced on the execution handle directly: the prefix property is about
+    `capture`, and going through `step` would restage the whole series each
+    boundary for nothing this test reads.
+    """
+    lab = a_lab(root)
+    lab.start(run)
+    session = lab._sessions[run.run_id]
+    execution = session.execution
+    captures = [lab._captured(session, project(session))]
+    while not execution.is_terminal:
+        execution.advance(1)
+        captures.append(lab._captured(session, project(session)))
+    return run, captures
+
+
+@pytest.fixture(scope="module", params=FIXTURES)
+def session(request, tmp_path_factory):
+    return live_captures(
+        a_run(request.param), tmp_path_factory.mktemp(f"prefix-{request.param}")
+    )
+
+
+@pytest.mark.parametrize("family", sorted(HISTORY_APPEND_FAMILY_KEYS))
+def test_each_append_family_grows_only_at_its_end(session, family) -> None:
+    _, captures = session
+    key = key_of(family)
+    assert len(captures) > 2
+    for earlier, later in zip(captures, captures[1:]):
+        # None before the first boundary is recorded: nothing is held yet.
+        through = earlier.recorded_through_offset
+        held = (lambda row: False) if through is None else (lambda row: key(row) <= through)
+        before = getattr(earlier, family)
+        after = getattr(later, family)
+        restricted = tuple(row for row in after if held(row))
+        assert restricted == before, (family, through)
+        assert after[: len(before)] == before, (family, through)
+        assert not any(held(row) for row in after[len(before) :]), (family, through)
+
+
+def test_the_fixtures_exercise_every_append_family(tmp_path_factory) -> None:
+    """Non-vacuity: between them the two sessions record a row of each family."""
+    seen: set[str] = set()
+    for name in FIXTURES:
+        run = a_run(name)
+        lab = a_lab(tmp_path_factory.mktemp(f"coverage-{name}"))
+        lab.start(run)
+        lab.run_to_end(run)
+        history = lab.history(run)
+        seen |= {f for f in HISTORY_APPEND_FAMILY_KEYS if getattr(history, f)}
+    assert seen == set(HISTORY_APPEND_FAMILY_KEYS)
+
+
+def test_folding_every_delta_reproduces_the_full_read(session) -> None:
+    """AC1 composed: the delta read at each boundary, appended in order to the
+    first full read, is the full read at the end - every append family row for
+    row, and the whole-sent fields as the last delta states them."""
+    run, captures = session
+    held = history_payload(captures[0], run)
+    for capture in captures[1:]:
+        since = held["boundaries_recorded"]
+        delta = history_delta_payload(capture, since, run)
+        assert delta["history_digest"] is None
+        assert delta["drawing_context"] is None
+        for family in set(HISTORY_STATIC_FAMILIES) - {"drawing_context"}:
+            assert delta[family] == [], family
+        for family in HISTORY_APPEND_FAMILY_KEYS:
+            held[family] = held[family] + delta[family]
+        for key, value in delta.items():
+            if key not in HISTORY_APPEND_FAMILY_KEYS and key not in HISTORY_STATIC_FAMILIES:
+                held[key] = value
+    full = history_payload(captures[-1], run)
+    assert held == full
+
+
+def test_a_delta_read_of_a_persisted_run_changes_no_byte(tmp_path) -> None:
+    run = a_run("fuel-with-gap")
+    lab = a_lab(tmp_path)
+    lab.start(run)
+    lab.run_to_end(run)
+    path = tmp_path / f"{run.run_id}.yaml"
+    before = path.read_bytes()
+
+    reloaded = a_lab(tmp_path).history(run)
+    assert reloaded.source == "PERSISTED", reloaded.notes
+    assert reloaded.history_digest is not None
+    delta = history_delta_payload(reloaded, 10, run)
+
+    assert delta["history_digest"] is None
+    assert delta["boundaries"][0]["step_index"] == 10
+    assert path.read_bytes() == before
