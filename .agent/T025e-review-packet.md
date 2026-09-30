@@ -188,15 +188,17 @@ Owner decisions 2026-09-30. Findings closed:
   with `from_offset >= boundaries[since].offset_minutes` (none when `since` is
   the recorded count). Uses only recorded offsets, computes nothing. Client:
   `liveHistory.ts` `STEP_OWNED_FAMILIES`; a delta's exposures must lie at or
-  after its first new boundary's offset and be in order (no upper bound is
-  stateable from the delta). Exposures stay in the append class. Intervals and
+  after its first new boundary's offset and be in non-decreasing owning-step order (corrected in R2: R1 checked raw
+  `from_offset` order, which refused valid multi-address deltas; no upper bound
+  is stateable from the delta). Exposures stay in the append class. Intervals and
   `electrical_steps` are untouched: the prefix test passes for them on the new
   fixture.
   Tests: host `test_lab_history_prefix.py` gains the `fuel-mid-step-window`
   fixture (gate run, window moved 1080 to 1082; prefix guard, fold and
   per-base fold all cover it, plus a non-vacuity test); frontend
   `kobo-fuel-mid-step-deltas.json` (window at 7) with four client tests (every
-  delta accepted so no full read, fold equals full, no duplicate after a
+  delta accepted so no full read, on the single-address fixtures only; R2 adds
+  the multi-address case, fold equals full, no duplicate after a
   full-read base, refusal of a held-step exposure).
 - **2 (MEDIUM), hung history read.** `RunFrame.tsx` `withinTimeout` bounds each
   history read (`historyTimeoutMs`, default the step timeout, 20 s); expiry is
@@ -225,3 +227,38 @@ the fold test on the mid-step fixture; client `STEP_OWNED_FAMILIES` emptied
 fails 2 client tests; timeout disabled fails the hung-read screen test; load
 execution guard, history guard and unrecorded kind each removed together fail 2
 reducer tests.
+
+## R2 fix round (after the Claude re-review of R1, verdict REJECT narrow)
+
+Closed:
+
+- **R1-1 (MEDIUM).** The R1 client check required raw `from_offset` ascending
+  within a delta, but the kernel records exposures by `(address, from_offset)`
+  (`execute.py:1937`), so a mid-step window at a non-last address was refused
+  (`ROW_OUT_OF_ORDER`) and forced a mid-play full read. The R1 claim "every
+  delta accepted" held only for single-address fixtures. **Rule chosen: order by
+  owning step** (the last new boundary at or before the row's `from_offset`,
+  non-decreasing), not dropping the check: it stays strict about a row from an
+  earlier step after a later step's, and still refuses a held-step row
+  (`>= first new boundary`, which also excludes duplicates). Server selection
+  and the host prefix guard already key exposures by owning step, so they
+  agree; no server change.
+  Tests: host `mini-grid-multi-window` fixture (`multi_window_edit`: mill
+  window 1 to 62 minutes, window 2 at 62) joins the prefix guard, fold and
+  per-base fold; frontend `kobo-mini-grid-multi-window-deltas.json` with four
+  tests (fixture has an unordered delta, every delta accepted and fold equals
+  full, no duplicate after a full-read base, earlier-step-after-later refused).
+  The delta since 12 carries `60, 60, 62, 60, 60`.
+  Mutation (committed first, reverted): restoring the raw-offset comparison
+  fails the accept-every-delta and no-duplicate tests.
+- **R1-4 (nit).** The host test's scratch run is written under `tmp_path`.
+
+Carried (backlog T025e section): **C6** (R1-2, load-history guard lacks a
+`run_id` check) and **C7** (R1-3). Residual risk named here too: a timed-out
+history read is not aborted, so repeated hangs can exhaust the browser's six
+per-host connections and queue later reads and steps in the browser; play stays
+honest and it is bounded by the step timeout.
+
+Checks: host prefix+history+contract9_gate 105 passed (prefix file 47); backend delta/history 32 passed;
+frontend `src/shell` 652 passed; tsc clean; architecture and workflow checks passed.
+Commits: R1-1 and R1-4 fix (first R2 commit), then backlog and packet record.

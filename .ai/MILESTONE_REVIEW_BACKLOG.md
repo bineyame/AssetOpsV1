@@ -1515,7 +1515,7 @@ playback. Routed to T025e (frontend only), guidance
 Trigger: before playback is shown externally at T028/T029, or when T026 next
 changes the run screen's refresh path, whichever comes first.
 
-## Carried from T025e: five findings from the first review
+## Carried from T025e: five findings from the first review, two from the R1 re-review
 
 Claude discovery review, 2026-09-30, verdict REJECT on finding 1
 (`.agent/T025e-claude-review.md`); findings 1, 2, 4 and 5 were fixed in fix
@@ -1557,6 +1557,24 @@ cannot mislead an Implementer. Line anchors are as of the review commit.
   two per tick; unbounded but negligible at 97 boundaries). Repair: clear the
   mark after measuring, or cap. Trigger: any run longer than a few hundred
   boundaries, or when the instrumentation is next touched.
+- **C6 (R1-2), the load-history guard compares counts across runs.**
+  `runFrameState.ts:189-199`. The `HISTORY_READ` guard discards a load read that
+  records fewer boundaries than the held history but, unlike `laterExecution`
+  (`runPlayback.ts:104`), does not check `run_id`. If `runId` changes on one
+  `RunFrame` while a commit is in flight (old `TICK_COMMITTED`, `RESET`, new
+  load), an old run with more boundaries makes the guard drop the new run's
+  history. Reachable only through browser history between two run pages (no
+  in-app run-to-run navigation). Repair: compare `run_id` first, as
+  `laterExecution` does. Trigger: any in-app run-to-run navigation, or the next
+  change to the load path.
+- **C7 (R1-3), a timed-out history read is ignored, not cancelled.**
+  `RunFrame.tsx:137` (`withinTimeout`). The fetch keeps running after expiry and
+  the next tick makes a full read, so repeated hangs can hold open the
+  browser's six per-host HTTP/1.1 connections and queue later reads and steps
+  in the browser (bounded by the step timeout; play stays honest). Repair: pass
+  an `AbortSignal` through `getExecutionHistory` and `getExecutionHistorySince`
+  and abort on expiry. Trigger: a host that can hang a read, or any longer
+  unattended playback.
 
 ## Tracked elsewhere, listed so the review finds them
 
