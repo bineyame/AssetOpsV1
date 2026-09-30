@@ -11,6 +11,7 @@ import {
 import { RunHeader } from "./RunHeader";
 import {
   DEFAULT_PLAYBACK_DELAY_MS,
+  DEFAULT_STEP_TIMEOUT_MS,
   PLAYBACK_DELAYS_MS,
   PlaybackScheduler,
   type PlaybackState,
@@ -122,6 +123,31 @@ export interface RunFrameProps {
   siteDetail?: SiteDetailClient;
   /** T025d: how long one auto-play step may take. Tests shorten it. */
   playbackStepTimeoutMs?: number;
+  /** R1 finding 2: how long a history read may take before it counts as failed. */
+  historyTimeoutMs?: number;
+}
+
+/** A history read is a read on the same host lock a step takes: same bound. */
+const DEFAULT_HISTORY_TIMEOUT_MS = DEFAULT_STEP_TIMEOUT_MS;
+
+/**
+ * `read`, or `expired` when it has not settled within `ms`. The late answer is
+ * ignored: the caller commits the failure path and reads again at the next tick.
+ */
+function withinTimeout<T>(read: Promise<T>, ms: number, expired: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const timer = setTimeout(() => resolve(expired), ms);
+    read.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(expired);
+      },
+    );
+  });
 }
 
 /**
@@ -138,6 +164,7 @@ export function RunFrame({
   simulatorLabPath,
   siteDetail,
   playbackStepTimeoutMs,
+  historyTimeoutMs = DEFAULT_HISTORY_TIMEOUT_MS,
 }: RunFrameProps) {
   const { runId } = useParams<{ runId: string }>();
   const [result, setResult] = useState<RunDetailResult | null>(null);
@@ -221,27 +248,32 @@ export function RunFrame({
         }
         const request = base ? { kind: "full" as const } : historyRequest(held.current, answer);
         let read: HistoryAnswer = { kind: "none" };
-        try {
-          if (request.kind === "full") {
-            read = { kind: "full", result: await runSetup.getExecutionHistory(runId) };
-          } else if (request.kind === "delta") {
-            read = {
-              kind: "delta",
-              result: await runSetup.getExecutionHistorySince(runId, request.since),
-            };
-          }
-        } catch {
-          read =
-            request.kind === "full"
-              ? { kind: "full", result: { status: "unavailable", message: null } }
-              : { kind: "delta", result: { status: "unavailable", message: null } };
+        const failed = { status: "unavailable" as const, message: null };
+        if (request.kind === "full") {
+          read = {
+            kind: "full",
+            result: await withinTimeout(
+              runSetup.getExecutionHistory(runId),
+              historyTimeoutMs,
+              failed,
+            ),
+          };
+        } else if (request.kind === "delta") {
+          read = {
+            kind: "delta",
+            result: await withinTimeout(
+              runSetup.getExecutionHistorySince(runId, request.since),
+              historyTimeoutMs,
+              failed,
+            ),
+          };
         }
         dispatch({ type: "TICK_COMMITTED", execution: answer, history: read });
       });
       commits.current = next.catch(() => undefined);
       return commits.current;
     },
-    [runSetup, runId, dispatch],
+    [runSetup, runId, dispatch, historyTimeoutMs],
   );
 
   // One scheduler per run page. Leaving the page (or changing run) disposes
@@ -327,28 +359,41 @@ export function RunFrame({
       }
     });
     dispatch({ type: "RESET" });
-    void runSetup.getExecution(runId).then((loaded) => {
-      if (active) {
-        dispatch({ type: "EXECUTION_READ", execution: loaded });
-      }
-    });
     void runSetup.getStage(runId).then((loaded) => {
       if (active) {
         setStage(loaded);
       }
     });
-    // The one full history read on load. Reload starts live at the last
-    // recorded boundary; the cursor is not persisted.
-    void runSetup.getExecutionHistory(runId).then((loaded) => {
+    // The load's execution and whole history reads take their place in the
+    // commit chain, so they never run beside a commit's history read, and
+    // the reducer keeps whatever a newer commit already holds (R1 finding 4).
+    // Reload starts live at the last recorded boundary; the cursor is not
+    // persisted.
+    const loading = commits.current.then(async () => {
+      if (!active) {
+        return;
+      }
+      const failed = { status: "unavailable" as const, message: null };
+      void runSetup.getExecution(runId).then((loaded) => {
+        if (active) {
+          dispatch({ type: "EXECUTION_READ", execution: loaded });
+        }
+      });
+      const history = await withinTimeout(
+        runSetup.getExecutionHistory(runId),
+        historyTimeoutMs,
+        failed,
+      );
       if (active) {
-        dispatch({ type: "HISTORY_READ", result: loaded });
+        dispatch({ type: "HISTORY_READ", result: history });
       }
     });
+    commits.current = loading.catch(() => undefined);
 
     return () => {
       active = false;
     };
-  }, [runSetup, runId, dispatch]);
+  }, [runSetup, runId, dispatch, historyTimeoutMs]);
 
   /**
    * Run one control and replace the execution with what came back.

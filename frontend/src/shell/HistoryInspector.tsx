@@ -8,7 +8,7 @@ import { IntervalDrawing } from "./IntervalDrawing";
 import { IntervalInspection } from "./IntervalInspection";
 import { completedIntervalAt } from "./intervalDrawingModel";
 import type { BoundarySlice } from "./liveHistory";
-import type { HeldHistory } from "./runFrameState";
+import type { HeldHistory, HistoryLag } from "./runFrameState";
 import type { RunHistory, RunHistoryInterval, RunHistorySample } from "./runHistory";
 
 /**
@@ -69,7 +69,7 @@ export function HistoryCockpit({
   /** Recorded boundaries after a pinned cursor; 0 while live. */
   behindLive?: number;
   /** The recorded count and the execution clock when the history lags it. */
-  lag?: { recorded: number; clock: number } | null;
+  lag?: HistoryLag | null;
   onSelect: (offset: number) => void;
   onReturnToLive: () => void;
   timestepMinutes?: number | null;
@@ -387,7 +387,7 @@ function HistoryCursor({
   history: RunHistory | null;
   selected: number | null;
   behindLive: number;
-  lag: { recorded: number; clock: number } | null;
+  lag: HistoryLag | null;
   onSelect: (offset: number) => void;
   onReturnToLive: () => void;
 }) {
@@ -426,10 +426,16 @@ function HistoryCursor({
           "Following live"
         )}
       </span>
-      <span data-history-lag={lag === null ? "none" : "behind"}>
+      <span
+        data-history-lag={
+          lag === null ? "none" : lag.kind === "unrecorded" ? "unrecorded" : "behind"
+        }
+      >
         {lag === null
           ? ""
-          : `History recorded through boundary ${lag.recorded}; execution at ${lag.clock}.`}
+          : lag.kind === "unrecorded"
+            ? `History not recorded for this run; execution reached boundary ${lag.clock}.`
+            : `History recorded through boundary ${lag.recorded}; execution at ${lag.clock}.`}
       </span>
     </div>
   );

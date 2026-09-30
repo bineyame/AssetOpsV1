@@ -181,9 +181,25 @@ export function runFrameReducer(
     case "RESET":
       return INITIAL;
     case "EXECUTION_READ":
-      return { ...state, execution: action.execution };
-    case "HISTORY_READ":
+      // A load read never replaces a newer commit's execution (R1 finding 4).
+      return {
+        ...state,
+        execution: laterExecution(state.execution, action.execution),
+      };
+    case "HISTORY_READ": {
+      // Nor does it replace a history that already records more.
+      const held = state.history;
+      if (
+        action.result.status === "loaded" &&
+        held !== null &&
+        held.status === "loaded" &&
+        action.result.history.boundaries_recorded <
+          held.history.boundaries_recorded
+      ) {
+        return state;
+      }
       return wholeRead(state, action.result);
+    }
     case "TICK_COMMITTED": {
       const withExecution: RunFrameState = {
         ...state,
@@ -249,11 +265,18 @@ export function boundariesBehindLive(state: RunFrameState): number {
 
 /**
  * The recorded count and the execution clock when the history lags it - the
- * honest statement after a failed read - or null when it does not.
+ * honest statement after a failed read - or null when it does not. `kind` is
+ * `unrecorded` when the lag can never close: a terminal run whose whole
+ * history was read (R1 finding 5), so the statement is that nothing was
+ * recorded, not that the record is behind.
  */
-export function historyLag(
-  state: RunFrameState,
-): { recorded: number; clock: number } | null {
+export interface HistoryLag {
+  recorded: number;
+  clock: number;
+  kind: "behind" | "unrecorded";
+}
+
+export function historyLag(state: RunFrameState): HistoryLag | null {
   const held = state.history;
   const execution = state.execution;
   if (
@@ -266,5 +289,9 @@ export function historyLag(
   }
   const recorded = held.history.boundaries_recorded;
   const clock = execution.execution.boundaries_completed;
-  return recorded < clock ? { recorded, clock } : null;
+  if (recorded >= clock) {
+    return null;
+  }
+  const settled = !NOT_TERMINAL.has(execution.execution.status) && held.full;
+  return { recorded, clock, kind: settled ? "unrecorded" : "behind" };
 }

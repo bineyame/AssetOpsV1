@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
+import { RunFrame } from "../RunFrame";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
@@ -111,6 +112,8 @@ function host(start: RunExecution = RUNNING_IN_THE_GAP) {
   };
   /** Delta reads (by their since count) that answer as unavailable. */
   const failDeltasFrom = new Set<number>();
+  /** Delta reads (by their since count) that never answer. */
+  const hangDeltasFrom = new Set<number>();
   const now = (): RunExecutionResult => ({
     status: "loaded",
     execution: {
@@ -167,6 +170,9 @@ function host(start: RunExecution = RUNNING_IN_THE_GAP) {
     },
     getExecutionHistorySince: (_runId: string, since: number): Promise<RunHistoryDeltaResult> => {
       log.deltaReads.push(since);
+      if (hangDeltasFrom.has(since)) {
+        return new Promise(() => undefined);
+      }
       if (failDeltasFrom.has(since)) {
         return Promise.resolve({ status: "unavailable", message: null });
       }
@@ -188,6 +194,7 @@ function host(start: RunExecution = RUNNING_IN_THE_GAP) {
       position += 1;
     },
     failDeltasFrom,
+    hangDeltasFrom,
   };
 }
 
@@ -456,6 +463,71 @@ describe("live follow on the run screen (T025e AC4-AC7)", () => {
     expect(h.log.deltaReads).toEqual([100]);
     expect(h.log.historyReads).toBe(1);
     expect(document.querySelector("[data-history-cursor]")?.getAttribute("data-history-cursor")).toBe("live");
+  });
+});
+
+describe("a history read that never answers (R1 finding 2)", () => {
+  it("expires into the failure path: play goes on, the lag is stated, one full read follows", async () => {
+    const h = host({ ...RUNNING_IN_THE_GAP, boundaries_completed: 100 });
+    h.hangDeltasFrom.add(101);
+    render(
+      <MemoryRouter initialEntries={[URL]}>
+        <Routes>
+          <Route
+            path="/simulator-lab/runs/:runId"
+            element={
+              <RunFrame
+                runSetup={h.client}
+                runsPath="/simulator-lab/runs"
+                simulatorLabPath="/simulator-lab"
+                historyTimeoutMs={120}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settled();
+    await waitFor(() => expect(recordedCount()).toBe("100 of 107"));
+    fastest();
+    fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    await waitFor(() =>
+      expect(lag().textContent).toBe(
+        "History recorded through boundary 101; execution at 102.",
+      ),
+    );
+    await waitFor(
+      () => expect(playback().getAttribute("data-playback-reason")).toBe("TERMINAL"),
+      { timeout: 6000 },
+    );
+    expect(h.log.steps).toEqual([100, 101, 102, 103, 104, 105, 106]);
+    // The hung delta was asked once, never again; the next tick read whole.
+    expect(h.log.deltaReads.filter((since) => since === 101)).toHaveLength(1);
+    expect(h.log.historyReads).toBe(3);
+    expect(recordedCount()).toBe("107 of 107");
+  });
+});
+
+describe("a terminal run whose history was never recorded (R1 finding 5)", () => {
+  it("states that nothing was recorded, not that the record is behind", async () => {
+    const start = { ...RUNNING_IN_THE_GAP, status: "COMPLETED", boundaries_completed: TOTAL };
+    const h = host(start);
+    const client: RunSetupClient = {
+      ...h.client,
+      getExecutionHistory: () =>
+        Promise.resolve({
+          status: "loaded",
+          history: { ...recordedHistory(start, 0, "COMPLETED"), boundaries_recorded: 0 },
+        }),
+    };
+    renderAt(client);
+    await settled();
+    await waitFor(() =>
+      expect(lag().getAttribute("data-history-lag")).toBe("unrecorded"),
+    );
+    expect(lag().textContent).toBe(
+      `History not recorded for this run; execution reached boundary ${TOTAL}.`,
+    );
   });
 });
 

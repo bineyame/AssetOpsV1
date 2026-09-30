@@ -150,7 +150,7 @@ describe("honest lag and bounded requests (AC5)", () => {
       history: { kind: "delta", result: { status: "unavailable", message: null } },
     });
     expect(failed.history).toBe(before.history);
-    expect(historyLag(failed)).toEqual({ recorded: 3, clock: 4 });
+    expect(historyLag(failed)).toEqual({ recorded: 3, clock: 4, kind: "behind" });
     // Never the same delta again: one full read at the next tick.
     expect(historyRequest(failed, execution(5))).toEqual({ kind: "full" });
   });
@@ -181,7 +181,7 @@ describe("honest lag and bounded requests (AC5)", () => {
       history: { kind: "full", result: { status: "unavailable", message: null } },
     });
     expect(recorded(state)).toBe(3);
-    expect(historyLag(state)).toEqual({ recorded: 3, clock: 5 });
+    expect(historyLag(state)).toEqual({ recorded: 3, clock: 5, kind: "behind" });
     expect(historyRequest(state, execution(6))).toEqual({ kind: "delta", since: 3 });
   });
 
@@ -283,5 +283,42 @@ describe("one cursor, live or pinned (AC7)", () => {
     const last = held.history.boundaries[held.history.boundaries.length - 1];
     expect(selectedOffset(state)).toBeLessThanOrEqual(last.offset_minutes);
     expect(recorded(state)).toBeLessThanOrEqual(clock(state));
+  });
+});
+
+describe("R1 finding 4: a load read never regresses a newer commit", () => {
+  it("keeps a later execution and a history that records more", () => {
+    const state = followed(4);
+    const after = reduce(
+      state,
+      { type: "EXECUTION_READ", execution: execution(1) },
+      { type: "HISTORY_READ", result: loaded(fixture.base) },
+    );
+    expect(clock(after)).toBe(4);
+    expect(recorded(after)).toBe(4);
+    expect(historyLag(after)).toBeNull();
+    expect(after.history).toBe(state.history);
+  });
+});
+
+describe("R1 finding 5: a terminal run whose history was never recorded", () => {
+  it("states that nothing was recorded, not that the record is behind", () => {
+    const unrecorded = { ...copy(fixture.base), boundaries_recorded: 0 };
+    const state = reduce(
+      INITIAL,
+      { type: "EXECUTION_READ", execution: execution(7, "COMPLETED") },
+      { type: "HISTORY_READ", result: loaded(unrecorded) },
+    );
+    expect(historyLag(state)).toEqual({ recorded: 0, clock: 7, kind: "unrecorded" });
+  });
+
+  it("still says behind while the run is live, and after a delta on a terminal answer", () => {
+    expect(historyLag(reduce(followed(3), { type: "EXECUTION_READ", execution: execution(5) }))?.kind).toBe("behind");
+    const terminal = runFrameReducer(followed(3), {
+      type: "TICK_COMMITTED",
+      execution: execution(7, "COMPLETED"),
+      history: { kind: "delta", result: { status: "unavailable", message: null } },
+    });
+    expect(historyLag(terminal)?.kind).toBe("behind");
   });
 });
