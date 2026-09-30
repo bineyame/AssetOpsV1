@@ -1575,6 +1575,17 @@ cannot mislead an Implementer. Line anchors are as of the review commit.
   an `AbortSignal` through `getExecutionHistory` and `getExecutionHistorySince`
   and abort on expiry. Trigger: a host that can hang a read, or any longer
   unattended playback.
+- **C8 (R2-1, nit), fixture docstring states the wrong order.**
+  `host/tests/make_history_fixtures.py:195` says `load-mill@62` follows
+  `load-res@60`; the fixture has it before, which is the case under test.
+  Repair: reword the line. Trigger: next edit to that file.
+- **C9 (R2-2, nit), fixture regeneration is not byte-stable.** Regenerating
+  rewrites five fixture JSONs whose only change is a fresh random `run_id`; no
+  test pins it. Repair: pin the `run_id` or say so in the docstring. Trigger:
+  next fixture regeneration. Also seen in R2 verification: the frontend
+  `src/shell` suite failed 3 and errored 31 while running alongside host
+  pytest (153 s), then passed 652 alone (49 s); failure detail not captured,
+  load-induced timeouts inferred. Run the suites serially until investigated.
 
 ## Tracked elsewhere, listed so the review finds them
 
