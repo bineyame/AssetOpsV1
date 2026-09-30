@@ -58,6 +58,7 @@ from __future__ import annotations
 from typing import Protocol, runtime_checkable
 
 from assetops_backend.runs.models import SimulationRun
+from assetops_contracts.lab_history import LabHistory
 from assetops_contracts.lab_projection import LabProjection
 from assetops_contracts.source_stage import SourceStageView
 
@@ -120,5 +121,17 @@ class LabExecutionPort(Protocol):
         v4 section 3.3 names this method. It returns the neutral stage view
         rather than a bare sequence because the inspector also has to say
         which mapping the stage froze and whether it is eligible for release.
+        """
+        ...
+
+    def history(self, run: SimulationRun) -> LabHistory:
+        """What this Draft's execution recorded, without executing anything.
+
+        T025c. A read, and never a refusal. A live run answers with its
+        in-memory prefix; a finished or failed run with its persisted history,
+        verified, or with the stated reason it has none (written before
+        history existed, a failed history write, an unreadable one). A Draft
+        never executed, or one whose live session ended, answers NOT_RECORDED
+        with no records: nothing is re-run to fill it.
         """
         ...

@@ -40,6 +40,7 @@ each other.
 
 from __future__ import annotations
 
+import json
 import threading
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
@@ -110,6 +111,17 @@ from assetops_simulator.gateway.publish import publish
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
 from assetops_simulator.packs.mini_grid import GENERATOR_LIFECYCLE, RUN, STOP
 
+from lab_history import (
+    HISTORY_MARKER,
+    HistoryUnreadable,
+    capture as capture_history,
+    history_text,
+    parse_history,
+    render_history,
+    without_history,
+    write_failed_document,
+)
+from assetops_contracts.lab_history import LabHistory
 from execution_adapter import (
     FrozenRunNotReconstructible,
     RunNotExecutable,
@@ -1756,25 +1768,66 @@ class YamlExecutionArtifacts:
     def _path(self, run_id: str) -> Path:
         return self._root / f"{run_id}.yaml"
 
-    def write(self, projection: LabProjection) -> None:
+    def write(
+        self, projection: LabProjection, history: dict | None = None
+    ) -> None:
+        """Replace this run's artifact whole: the projection, then its history.
+
+        The projection document is byte-for-byte what every earlier build
+        wrote. A terminal run's history follows it after `HISTORY_MARKER` as a
+        second document (T025c), so the pair is replaced by one rename and a
+        reader never sees a projection with another write's history.
+        """
         self._root.mkdir(parents=True, exist_ok=True)
         path = self._path(projection.run_id)
         temporary = path.with_suffix(".yaml.partial")
-        temporary.write_text(
-            yaml.safe_dump(
-                render_projection(projection), sort_keys=False, allow_unicode=True
-            ),
-            encoding="utf-8",
+        text = yaml.safe_dump(
+            render_projection(projection), sort_keys=False, allow_unicode=True
         )
+        if history is not None:
+            text += history_text(history)
+        temporary.write_text(text, encoding="utf-8")
         temporary.replace(path)
 
-    def read(self, run_id: str) -> LabProjection | None:
+    def _texts(self, run_id: str) -> tuple[str, str | None] | None:
         path = self._path(run_id)
         if not path.exists():
             return None
-        return parse_projection(
-            yaml.safe_load(path.read_text(encoding="utf-8"))
+        head, marker, tail = path.read_text(encoding="utf-8").partition(
+            HISTORY_MARKER
         )
+        return head, (tail if marker else None)
+
+    def read(self, run_id: str) -> LabProjection | None:
+        """The projection alone. A history after it is never parsed here."""
+        texts = self._texts(run_id)
+        if texts is None:
+            return None
+        return parse_projection(yaml.safe_load(texts[0]))
+
+    def read_history(self, run_id: str, projection: LabProjection) -> LabHistory:
+        """This run's persisted history, strictly verified, or why there is none.
+
+        Reads and never writes: an unreadable history is reported as
+        HISTORY_UNREADABLE and left on disk exactly as it was.
+        """
+        texts = self._texts(run_id)
+        if texts is None or texts[1] is None:
+            return without_history(projection, "LEGACY_ARTIFACT")
+        try:
+            document = json.loads(texts[1])
+        except ValueError as error:
+            return without_history(
+                projection,
+                "HISTORY_UNREADABLE",
+                f"The history of {run_id} is not a readable document: {error}",
+            )
+        try:
+            return parse_history(document, projection)
+        except HistoryUnreadable as unreadable:
+            return without_history(
+                projection, "HISTORY_UNREADABLE", str(unreadable)
+            )
 
     def note_running(self, projection: LabProjection) -> None:
         """Record that a run is in flight, and nothing about its world.
@@ -2014,7 +2067,12 @@ class HostLabExecution:
             # exists - and has frozen its mapping - from the run's first instant.
             self._stage(session)
             projection = project(session)
-            self._artifacts.note_running(projection)
+            if projection.is_terminal:
+                self._artifacts.write(
+                    projection, self._history_document(session, projection)
+                )
+            else:
+                self._artifacts.note_running(projection)
             return projection
 
     def step(
@@ -2079,8 +2137,74 @@ class HostLabExecution:
         # that divergence from reading as releasable.
         self._stage(session)
         projection = project(session)
-        self._artifacts.write(projection)
+        self._artifacts.write(
+            projection, self._history_document(session, projection)
+        )
         return projection
+
+    def _captured(
+        self, session: LabSession, projection: LabProjection
+    ) -> LabHistory:
+        return capture_history(
+            session.execution,
+            session.reporting,
+            generate_observations(session.execution.boundaries, session.reporting),
+            run_id=session.run_id,
+            status=projection.status,
+            content_digest=projection.content_digest,
+            observation_series_digest=projection.observation_series_digest,
+        )
+
+    def _history_document(
+        self, session: LabSession, projection: LabProjection
+    ) -> dict | None:
+        """The history a terminal artifact carries, or the record that it failed.
+
+        None for a run still going: a RUNNING artifact is never read back, so a
+        history in it would be rewritten at every step for nobody. A history
+        that cannot be built is written as a WRITE_FAILED record with its
+        reason, so the result reads back as finished with its history stated
+        missing - never as a durable complete cockpit.
+        """
+        if not projection.is_terminal:
+            return None
+        try:
+            return render_history(self._captured(session, projection), projection)
+        except Exception as error:  # noqa: BLE001 - the failure is the record
+            return write_failed_document(
+                projection,
+                f"The history of {projection.run_id} could not be recorded: "
+                f"{type(error).__name__}: {error}",
+            )
+
+    def history(self, run: SimulationRun) -> LabHistory:
+        """What this Draft's execution recorded, without executing anything.
+
+        A live session answers with its in-memory prefix. A terminal artifact
+        answers with its persisted history, verified, or says it has none.
+        Anything else - never executed, interrupted, unreadable - has no
+        history and says which.
+        """
+        with self._lock_for(run.run_id):
+            session = self._sessions.get(run.run_id)
+            if session is not None:
+                return self._captured(session, project(session))
+            try:
+                stored = self._artifacts.read(run.run_id)
+            except ExecutionArtifactUnreadable as unreadable:
+                return without_history(
+                    self._artifact_unreadable(run, unreadable),
+                    "HISTORY_UNREADABLE",
+                    str(unreadable),
+                )
+            if stored is not None and stored.is_terminal:
+                return self._artifacts.read_history(run.run_id, stored)
+            if stored is not None:
+                return without_history(self._interrupted(run), "NOT_RECORDED")
+            return without_history(
+                not_started(run, self._reporting_for(run), self._notes(run)),
+                "NOT_RECORDED",
+            )
 
     def _stage(self, session: LabSession) -> None:
         """Publish the reading series so far through the gateway, into the stage.

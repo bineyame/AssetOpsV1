@@ -7,6 +7,7 @@ import type {
   RunStagedEnvelope,
   RunStepRequest,
 } from "../runSetupClient";
+import type { RunHistory, RunHistoryResult } from "../runHistory";
 
 /**
  * Execution projections shaped like the ones the backend actually sends.
@@ -429,6 +430,53 @@ export const STAGE_UNREADABLE: RunStage = {
 };
 
 /**
+ * A run with no recorded history, as the host states it (T025c): nothing has
+ * executed it, so every family is UNAVAILABLE for that one reason.
+ */
+export const NOT_RECORDED: RunHistory = {
+  run_id: "run-00000000000000000000000000000001",
+  status: "NOT_STARTED",
+  source: "NOT_RECORDED",
+  statement:
+    "This run has no recorded history: it has not been executed, or its live session ended with the process that ran it.",
+  history_schema_version: null,
+  boundaries_total: 0,
+  boundaries_recorded: 0,
+  recorded_through_offset_minutes: null,
+  inputs_identity: "",
+  content_digest: null,
+  observation_series_digest: null,
+  history_digest: null,
+  notes: [],
+  failure: null,
+  coverage: [
+    "state_samples",
+    "intervals",
+    "observation_attempts",
+    "timeline",
+    "drawing",
+  ].map((family) => ({
+    family,
+    availability: "UNAVAILABLE",
+    availability_statement:
+      "Not recorded for this run; nothing is shown in its place.",
+    statement:
+      "This run has no recorded history: it has not been executed, or its live session ended with the process that ran it.",
+  })),
+  sample_phases: [],
+  boundaries: [],
+  samples: [],
+  intervals: [],
+  exposures: [],
+  attempts: [],
+  signals: [],
+  applied_events: [],
+  bounded_transitions: [],
+  discrete_transitions: [],
+  bus_attachments: [],
+};
+
+/**
  * The execution methods, and the stage read, a fake client needs.
  *
  * Spelled once here rather than in five test files, because a fake that drifts
@@ -437,6 +485,7 @@ export const STAGE_UNREADABLE: RunStage = {
 export function executionMethods(
   answer: RunExecutionResult = { status: "loaded", execution: NOT_STARTED },
   stage: RunStageResult = { status: "loaded", stage: NOT_STAGED },
+  history: RunHistoryResult = { status: "loaded", history: NOT_RECORDED },
 ): Pick<
   RunSetupClient,
   | "getExecution"
@@ -444,6 +493,7 @@ export function executionMethods(
   | "stepExecution"
   | "runExecutionToEnd"
   | "getStage"
+  | "getExecutionHistory"
 > {
   return {
     getExecution: () => Promise.resolve(answer),
@@ -452,5 +502,6 @@ export function executionMethods(
       Promise.resolve(answer),
     runExecutionToEnd: () => Promise.resolve(answer),
     getStage: () => Promise.resolve(stage),
+    getExecutionHistory: () => Promise.resolve(history),
   };
 }

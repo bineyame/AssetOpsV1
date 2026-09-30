@@ -221,6 +221,47 @@ function Invoke-DependencyDirectionCheck {
             "check is vacuous. Update the check, do not delete it.")) | Out-Null
     }
 
+    # --- Recorded Lab history is private truth (T025c) --------------------------
+    #
+    # `D-2026-09-30-lab-cockpit-history`: a run's recorded history - every stock,
+    # every resolved interval, every observation attempt - reaches the product
+    # only through the gated Lab port, and no operator view consumes it. Same
+    # rule and same two importers as the stage above, for the same reason: the
+    # gate guards URLs, and an operator module importing the history contract
+    # could render private truth as Site history without touching one.
+    $historyImport = @(
+        '^\s*(?:from|import)\s+assetops_contracts\.lab_history(?:\s|$)',
+        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\blab_history\b',
+        'import_module\(\s*["'']assetops_contracts\.lab_history'
+    )
+    $historyImporters = 0
+    foreach ($module in $backendModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $historyImport) {
+                if ($line -match $pattern) {
+                    if ($mayImportStage -contains $module.Path) {
+                        $historyImporters++
+                    }
+                    else {
+                        $failures.Add(("Recorded Lab history imported outside the gated Lab " +
+                            "surface at $($module.Path):${lineNumber}: $($line.Trim()). Private " +
+                            "execution history is not operator evidence; only " +
+                            "$($mayImportStage -join ' and ') may read the history contract.")) | Out-Null
+                    }
+                    break
+                }
+            }
+        }
+    }
+    if ($historyImporters -lt $mayImportStage.Count) {
+        $failures.Add(("The recorded-history check matched $historyImporters of the " +
+            "$($mayImportStage.Count) modules allowed to import the history contract, " +
+            "so its pattern no longer matches how it is imported and the check is " +
+            "vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+
     # --- The shared kernel knows no electrical pack (T024) ----------------------
     #
     # v4 section 16: the shared kernel may not import a pack implementation or

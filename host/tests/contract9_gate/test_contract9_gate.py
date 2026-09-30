@@ -14,6 +14,16 @@ Stored artifacts (`stored-executions/`, written by the pre-change Lab, schema
 3 - the only layout that code wrote) must read back and render to the same
 document, and a COMPLETED or FAILED one is byte-equal to the re-execution of
 its Draft. A RUNNING one is a mid-run record and is held to its own status.
+
+**The one artifact-byte transition, T025c.** A terminal artifact written from
+T025c on is the pre-change projection document, byte for byte, followed by
+`HISTORY_MARKER` and the run's recorded history (history schema 2). The gate
+therefore compares the projection document exactly as before and holds the
+appended history to its own proof: it is present exactly when the run is
+terminal, it passes the strict reader against the projection it was written
+with (manifest, digest, ordering, window), and its manifest carries the same
+trajectory and observation digests the gate already pins. No physical or
+observation expectation changed, and no fixture was rewritten.
 """
 
 from __future__ import annotations
@@ -28,6 +38,7 @@ from assetops_backend.runs.adapters.yaml_run_documents import read_run_record
 
 from gate import execute_through_the_lab
 from lab_execution import YamlExecutionArtifacts, render_projection
+from lab_history import HISTORY_MARKER
 
 HERE = Path(__file__).resolve().parent
 EXPECTED = json.loads((HERE / "expected.json").read_text(encoding="utf-8"))
@@ -61,9 +72,21 @@ def test_a_pre_change_draft_reproduces_exactly(path: Path, tmp_path: Path) -> No
     result = execute_through_the_lab(run, tmp_path)
     artifact = result.pop("artifact_text")
     assert result == EXPECTED[run.run_id]
-    assert artifact == (HERE / "pre-change-artifacts" / path.name).read_text(
-        encoding="utf-8"
-    )
+    projection_text, marker, history = artifact.partition(HISTORY_MARKER)
+    assert projection_text == (
+        HERE / "pre-change-artifacts" / path.name
+    ).read_text(encoding="utf-8")
+    if not projection_text:
+        return
+    # The appended history (T025c): there exactly when the run finished, and
+    # verified by the strict reader against the projection it follows.
+    stored = YamlExecutionArtifacts(tmp_path / "executions")
+    projection = stored.read(run.run_id)
+    assert bool(marker) == projection.is_terminal
+    recorded = stored.read_history(run.run_id, projection)
+    assert recorded.source == "PERSISTED", recorded.notes
+    assert recorded.content_digest == EXPECTED[run.run_id]["content_digest"]
+    assert len(recorded.boundaries) == EXPECTED[run.run_id]["boundaries"]
 
 
 @pytest.mark.parametrize("path", STORED, ids=lambda path: path.stem)

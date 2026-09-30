@@ -1746,6 +1746,20 @@ class Execution:
         return tuple(self._world.discrete_transitions)
 
     @property
+    def applied_events(self) -> tuple[AppliedEvent, ...]:
+        """T025c. The ledger's applied events so far, in the order applied.
+
+        The same entries `trajectory()` carries, readable mid-flight so the Lab
+        can record a live run's history prefix without a second ledger.
+        """
+        return tuple(self._world.applied)
+
+    @property
+    def bounded_transitions(self) -> tuple[BoundedTransition, ...]:
+        """T025c. Every bounded transition so far, in the order applied."""
+        return tuple(self._world.bounded)
+
+    @property
     def handlers_exercised(self) -> tuple[str, ...]:
         return self._world.ledger.handlers
 

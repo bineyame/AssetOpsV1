@@ -1438,3 +1438,193 @@ button:focus-visible {
   overflow-wrap: anywhere;
   color: var(--text-primary);
 }
+
+/*
+ * Recorded day curves (T025c). The Lab's history charts are the second kind of
+ * drawing with an intrinsic width, so they get the diagram's answer: each chart
+ * sits in its own region that owns its inline overflow. `overflow-x: auto` here
+ * is asserted by tools/checks/shell-overflow.ps1 beside the table and diagram
+ * rules. The charts and the exact-value table sit side by side where there is
+ * room and stack where there is not; the table is the chart's text equivalent
+ * and the relief for the two lighter series colours.
+ */
+.history-chart__scroll {
+  overflow-x: auto;
+}
+
+.history-chart {
+  display: block;
+  cursor: crosshair;
+}
+
+.history-cockpit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 1200px) {
+  .history-cockpit {
+    grid-template-columns: minmax(0, 3fr) minmax(18rem, 2fr);
+    align-items: start;
+  }
+
+  .history-cockpit__values {
+    position: sticky;
+    top: var(--space-2);
+  }
+}
+
+.history-cockpit__charts,
+.history-cockpit__values {
+  min-width: 0;
+}
+
+.history-cockpit__heading {
+  font-size: var(--text-base);
+  margin: 0 0 var(--space-2);
+}
+
+.history-cursor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.history-cursor input[type="range"] {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.history-chart__figure {
+  margin: 0 0 var(--space-4);
+}
+
+.history-chart__caption {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-1);
+}
+
+.history-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  list-style: none;
+  margin: 0 0 var(--space-1);
+  padding: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.history-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.history-legend__swatch {
+  display: inline-block;
+  width: 1.5rem;
+  border-top-width: 2px;
+  border-top-style: solid;
+}
+
+.history-legend__swatch--dashed {
+  border-top-style: dashed;
+}
+
+.history-legend__swatch--dotted,
+.history-legend__swatch--dashdot {
+  border-top-style: dotted;
+  border-top-width: 3px;
+}
+
+.history-legend__ring {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1.5px solid var(--text-primary);
+  border-radius: 50%;
+}
+
+.history-legend__glyph {
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.history-chart__line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.history-chart__reported-line {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 1;
+}
+
+.history-chart__reported {
+  fill: var(--surface-raised);
+  stroke: var(--text-primary);
+  stroke-width: 1.5;
+}
+
+.history-chart__glyph {
+  font-size: 13px;
+  font-weight: var(--weight-bold);
+  fill: var(--text-primary);
+}
+
+.history-chart__grid {
+  stroke: var(--border-subtle);
+  stroke-width: 1;
+}
+
+.history-chart__zero,
+.history-chart__axis {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.history-chart__tick {
+  stroke: var(--border-strong);
+}
+
+.history-chart__label,
+.history-chart__note {
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+
+.history-chart__cursor {
+  stroke: var(--text-primary);
+  stroke-width: 1.5;
+}
+
+.history-chart__ended {
+  fill: var(--accent-weak);
+}
+
+.history-chart__unrecorded {
+  fill: var(--surface-sunken);
+}
+
+.history-state {
+  fill: var(--surface-sunken);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.history-state--running {
+  fill: color-mix(in srgb, var(--series-1) 30%, var(--surface-raised));
+}
+
+.history-state--starting {
+  fill: color-mix(in srgb, var(--series-4) 30%, var(--surface-raised));
+}
+
+.history-state__text {
+  font-size: 11px;
+  fill: var(--text-primary);
+}

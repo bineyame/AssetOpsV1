@@ -148,6 +148,11 @@ from assetops_backend.sites.service import (
 from assetops_backend.sites.site_parsing import parse_create_site_request
 from assetops_backend.sites_api import site_summary
 from assetops_contracts.execution_contract import DISCRETE_STATE_RULES
+from assetops_contracts.lab_history import (
+    FAMILY_AVAILABILITY_STATEMENTS,
+    SAMPLE_PHASES,
+    LabHistory,
+)
 from assetops_contracts.lab_projection import (
     LAB_CONTROL_REFUSAL_STATEMENTS,
     ElectricalView,
@@ -195,6 +200,11 @@ RUN_EXECUTION_END_ROUTE = "/runs/{run_id}/execution/run-to-end"
 # edits, deletes, releases or commits a staged envelope: staging happens as a run
 # is stepped, and a staged record is immutable.
 RUN_STAGE_ROUTE = "/runs/{run_id}/stage"
+
+# T025c. What a run recorded, as a read of its own: a history is tens of
+# thousands of rows, and a step response carrying it would ship the whole run
+# again at every boundary.
+RUN_EXECUTION_HISTORY_ROUTE = "/runs/{run_id}/execution/history"
 
 # Refusal codes. The message is the product copy a user reads; the code is what
 # a client switches on, so neither has to be parsed out of the other.
@@ -1085,6 +1095,244 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
     }
 
 
+def history_payload(history: LabHistory) -> dict[str, object]:
+    """One run's recorded Lab history on the wire (T025c), gated.
+
+    Exact quantities as exact text and discrete members as themselves, like
+    `execution_payload`; an absent value is `null`, never zero. Every record
+    carries its own offset and address, and every sample its phase, so the
+    screen never infers when a value applies from where it sits in a list.
+    """
+
+    def exact(value: object) -> str | None:
+        if isinstance(value, str):
+            return value
+        return None if value is None else exact_decimal_text(value)
+
+    failure = history.failure
+    return {
+        "run_id": history.run_id,
+        "status": history.status,
+        "source": history.source,
+        "statement": history.statement,
+        "history_schema_version": history.history_schema_version,
+        "boundaries_total": history.boundaries_total,
+        "boundaries_recorded": len(history.boundaries),
+        "recorded_through_offset_minutes": history.recorded_through_offset,
+        "inputs_identity": history.inputs_identity,
+        "content_digest": history.content_digest,
+        "observation_series_digest": history.observation_series_digest,
+        "history_digest": history.history_digest,
+        "notes": list(history.notes),
+        "failure": None
+        if failure is None
+        else {
+            "kind": failure.kind,
+            "subject": failure.subject,
+            "statement": failure.statement,
+            "at_offset_minutes": failure.at_offset_minutes,
+            "detail": list(failure.detail),
+        },
+        "coverage": [
+            {
+                "family": entry.family,
+                "availability": entry.availability,
+                "availability_statement": FAMILY_AVAILABILITY_STATEMENTS[
+                    entry.availability
+                ],
+                "statement": entry.statement,
+            }
+            for entry in history.coverage
+        ],
+        "sample_phases": [
+            {"phase": phase, "statement": statement}
+            for phase, statement in SAMPLE_PHASES.items()
+        ],
+        "boundaries": [
+            {
+                "step_index": b.step_index,
+                "offset_minutes": b.offset_minutes,
+                "simulation_time": b.simulation_time,
+                "has_preceding_interval": b.has_preceding_interval,
+            }
+            for b in history.boundaries
+        ],
+        "samples": [
+            {
+                "offset_minutes": s.offset_minutes,
+                "address": s.address,
+                "state_key": s.state_key,
+                "phase": s.phase,
+                "unit": s.unit,
+                "value": exact(s.value),
+            }
+            for s in history.samples
+        ],
+        "intervals": [
+            {
+                "from_offset": i.from_offset,
+                "to_offset": i.to_offset,
+                "segments": [list(segment) for segment in i.step.accepted.segments],
+                "view": [
+                    {
+                        "name": e.name,
+                        "address": e.address,
+                        "value": exact(e.value),
+                        "unit": e.unit,
+                    }
+                    for e in i.step.view.entries
+                ],
+                "requests": [
+                    {
+                        "address": r.address,
+                        "quantity": r.quantity,
+                        "requested": exact(r.requested),
+                        "unit": r.unit,
+                        "reason": r.reason,
+                    }
+                    for r in i.step.intent.requests
+                ],
+                "controls": [
+                    {
+                        "address": c.address,
+                        "quantity": c.quantity,
+                        "requested": exact(c.requested),
+                        "accepted": exact(c.accepted),
+                        "unit": c.unit,
+                        "limited_by": list(c.limited_by),
+                    }
+                    for c in i.step.accepted.controls
+                ],
+                "loads": [
+                    {
+                        "address": l.address,
+                        "priority_rank": l.priority_rank,
+                        "demand_energy": exact(l.demand_energy),
+                        "served_energy": exact(l.served_energy),
+                        "unserved_energy": exact(l.unserved_energy),
+                        "demand_power": exact(l.demand_power),
+                        "served_power": exact(l.served_power),
+                        "unserved_power": exact(l.unserved_power),
+                    }
+                    for l in i.step.accepted.loads
+                ],
+                "flows": [
+                    {
+                        "flow_id": f.flow_id,
+                        "from_address": f.from_address,
+                        "to_address": f.to_address,
+                        "energy": exact(f.energy),
+                        "mean_power": exact(f.mean_power),
+                    }
+                    for f in i.step.accepted.flows
+                ],
+                "effective_controls": [
+                    {
+                        "address": e.address,
+                        "from_offset": e.from_offset,
+                        "to_offset": e.to_offset,
+                        "value": exact(e.value),
+                        "unit": e.unit,
+                        "origin": e.origin,
+                        "provenance": e.provenance,
+                    }
+                    for e in i.step.accepted.effective_controls
+                ],
+                "balances": [b.identity_id for b in i.step.accepted.balances],
+                "notes": list(i.step.accepted.notes),
+            }
+            for i in history.intervals
+        ],
+        "exposures": [
+            {
+                "address": x.address,
+                "event_id": x.event_id,
+                "parameter_id": x.parameter_id,
+                "value": exact(x.value),
+                "from_offset": x.from_offset,
+                "to_offset": x.to_offset,
+            }
+            for x in history.exposures
+        ],
+        "attempts": [
+            {
+                "at_offset_minutes": o.at_offset_minutes,
+                "address": o.address,
+                "device_id": o.device_id,
+                "signal_id": o.signal_id,
+                "state_key": o.state_key,
+                "reading_class": o.reading_class,
+                "source_sample_time": o.source_sample_time,
+                "outcome": o.outcome,
+                "reported_value": exact(o.reported_value),
+                "canonical_unit": o.canonical_unit,
+                "suppression_reason": o.suppression_reason,
+            }
+            for o in history.attempts
+        ],
+        "signals": [
+            {
+                "address": g.address,
+                "device_id": g.device_id,
+                "signal_id": g.signal_id,
+                "reading_class": g.reading_class,
+                "canonical_unit": g.canonical_unit,
+                "cadence_minutes": g.cadence_minutes,
+            }
+            for g in history.signals
+        ],
+        "applied_events": [
+            {
+                "event_id": e.event_id,
+                "address": e.address,
+                "direction": e.direction,
+                "at_offset_minutes": e.at_offset_minutes,
+                "share": exact(e.share),
+                "declared": exact(e.declared),
+                "origin": e.origin,
+                "phase_id": e.phase_id,
+            }
+            for e in history.applied_events
+        ],
+        "bounded_transitions": [
+            {
+                "address": t.address,
+                "at_offset_minutes": t.at_offset_minutes,
+                "bound_case_id": t.bound_case_id,
+                "bound_kind": t.bound_kind,
+                "bound_value": exact(t.bound_value),
+                "requested": exact(t.requested),
+                "accepted": exact(t.accepted),
+                "refused": exact(t.refused),
+                "event_ids": list(t.event_ids),
+            }
+            for t in history.bounded_transitions
+        ],
+        "discrete_transitions": [
+            {
+                "address": t.address,
+                "state_key": t.state_key,
+                "previous": t.previous,
+                "next": t.next,
+                "phase": t.phase,
+                "cause": t.cause,
+                "at_offset_minutes": t.at_offset_minutes,
+                "simulation_time": t.simulation_time,
+            }
+            for t in history.discrete_transitions
+        ],
+        "bus_attachments": [
+            {
+                "role": a.role,
+                "component_id": a.component_id,
+                "via_component_id": a.via_component_id,
+                "bus_component_id": a.bus_component_id,
+            }
+            for a in history.bus_attachments
+        ],
+    }
+
+
 def stage_payload(view: SourceStageView) -> dict[str, object]:
     """One Draft's staged source envelopes on the wire, for the gated inspector.
 
@@ -1833,6 +2081,18 @@ def build_simulator_lab_router(
         port = _port()
         record = _run_or_404(run_id)
         return {"stage": stage_payload(port.staged_envelopes(record))}
+
+    @router.get(RUN_EXECUTION_HISTORY_ROUTE)
+    def read_run_execution_history(run_id: str) -> dict[str, object]:
+        """What this Draft's execution recorded, re-read, never re-executed.
+
+        T025c. A read served only behind the gate. It scans no other run and
+        changes no artifact; a run with no recorded history answers with the
+        stated reason and no records rather than an error.
+        """
+        port = _port()
+        record = _run_or_404(run_id)
+        return {"history": history_payload(port.history(record))}
 
     @router.post(RUN_EXECUTION_START_ROUTE)
     def start_run_execution(run_id: str) -> dict[str, object]:

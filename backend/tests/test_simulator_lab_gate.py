@@ -31,6 +31,9 @@ RUN_EXECUTION_END_PATH = (
     "/api/simulator-lab/runs/{run_id}/execution/run-to-end"
 )
 RUN_STAGE_PATH = "/api/simulator-lab/runs/{run_id}/stage"
+RUN_EXECUTION_HISTORY_PATH = (
+    "/api/simulator-lab/runs/{run_id}/execution/history"
+)
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
 # added the two template paths, T006 added the create path, T017 added the
@@ -49,6 +52,9 @@ RUN_STAGE_PATH = "/api/simulator-lab/runs/{run_id}/stage"
 # T023 adds the stage inspector's one path, and it is a READ: it serves a Draft's
 # staged source envelopes behind the gate and nowhere else. Closed, it does not
 # exist; the operator surface gains nothing.
+#
+# T025c adds the recorded-history path, also a READ: a run's persisted private
+# history behind the gate and nowhere else. Closed, it does not exist.
 SIMULATOR_LAB_SERVED_PATHS = {
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
@@ -64,6 +70,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_EXECUTION_STEP_PATH,
     RUN_EXECUTION_END_PATH,
     RUN_STAGE_PATH,
+    RUN_EXECUTION_HISTORY_PATH,
 }
 
 # The same four, with a concrete run identity, for the request-level assertions.
@@ -89,6 +96,7 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     CREATE_RUN_PATH,
     *RUN_EXECUTION_REQUEST_PATHS,
     "/api/simulator-lab/runs/run-1/stage",
+    "/api/simulator-lab/runs/run-1/execution/history",
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",

@@ -29,6 +29,8 @@
  * Collapsing them into one "it did not work" would lose exactly that.
  */
 
+import { fetchRunHistory, type RunHistoryResult } from "./runHistory";
+
 /** One state a model profile can model, and in which execution roles. */
 export interface RunSupportedState {
   state_key: string;
@@ -673,6 +675,11 @@ export interface RunSetupClient {
    * there is no client method that edits, releases or commits one.
    */
   getStage(runId: string): Promise<RunStageResult>;
+  /**
+   * What this Draft's execution recorded (T025c). A read that executes
+   * nothing: a run with no recorded history is a `loaded` history saying why.
+   */
+  getExecutionHistory(runId: string): Promise<RunHistoryResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1449,6 +1456,10 @@ export function createRunSetupClient(
         `${executionPath(runsPath, runId)}/run-to-end`,
         "POST",
       );
+    },
+
+    getExecutionHistory(runId: string): Promise<RunHistoryResult> {
+      return fetchRunHistory(runsPath, runId);
     },
 
     async getStage(runId: string): Promise<RunStageResult> {

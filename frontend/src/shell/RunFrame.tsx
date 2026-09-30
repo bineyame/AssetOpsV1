@@ -3,6 +3,9 @@ import { Link, useParams } from "react-router-dom";
 
 import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import { ElectricalPanels, ExactQuantity } from "./ElectricalPanels";
+import { HistoryInspector } from "./HistoryInspector";
+import { RunHeader } from "./RunHeader";
+import type { RunHistoryResult } from "./runHistory";
 import type {
   RunDetailResult,
   RunExecutionResult,
@@ -82,6 +85,7 @@ export function RunFrame({
   const [pending, setPending] = useState(false);
   const [boundaries, setBoundaries] = useState("1");
   const [stage, setStage] = useState<RunStageResult | null>(null);
+  const [history, setHistory] = useState<RunHistoryResult | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -105,6 +109,11 @@ export function RunFrame({
     void runSetup.getStage(runId).then((loaded) => {
       if (active) {
         setStage(loaded);
+      }
+    });
+    void runSetup.getExecutionHistory(runId).then((loaded) => {
+      if (active) {
+        setHistory(loaded);
       }
     });
 
@@ -132,6 +141,9 @@ export function RunFrame({
       // persistence after it rather than patched from the control's answer.
       if (runId !== undefined) {
         setStage(await runSetup.getStage(runId));
+        // T025c: the recorded history is re-read the same way - a read that
+        // executes nothing, of what the control just recorded.
+        setHistory(await runSetup.getExecutionHistory(runId));
       }
       setPending(false);
     },
@@ -197,6 +209,13 @@ export function RunFrame({
 
   return frame(
     <>
+      <RunHeader
+        run={run}
+        execution={execution}
+        history={history}
+        stage={stage}
+      />
+
       <Panel heading="This run" headingId="run-identity-heading">
         <FactList>
           <Fact term="Run ID">{run.run_id}</Fact>
@@ -744,6 +763,12 @@ export function RunFrame({
           </DataTable>
         </Panel>
       )}
+
+      <HistoryInspector
+        result={history}
+        steps={projection?.electrical?.steps ?? null}
+        timestepMinutes={projection?.timestep_minutes ?? null}
+      />
 
       <Panel
         heading="Staged source envelopes"

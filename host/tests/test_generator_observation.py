@@ -17,6 +17,7 @@ from fractions import Fraction
 
 import pytest
 import yaml
+from lab_history import HISTORY_MARKER
 
 from assetops_backend.runs.profiles import (
     LAB_PUBLICATION_PROFILE,
@@ -385,7 +386,7 @@ class TestTheGatedLab:
             if row.reported_quality == "GOOD"
         )
 
-        document = yaml.safe_load((tmp_path / f"{run.run_id}.yaml").read_text("utf-8"))
+        document = yaml.safe_load((tmp_path / f"{run.run_id}.yaml").read_text("utf-8").partition(HISTORY_MARKER)[0])
         assert document["artifact_schema_version"] == 5
         port.forget(run.run_id)
         reloaded = lab(tmp_path).projection(run)
@@ -415,7 +416,7 @@ class TestTheGatedLab:
             GENERATOR_REPORTED_STATUS_PENDING
         )
         assert all(row.reported_quality is None for row in finished.electrical.generator.steps)
-        document = yaml.safe_load((tmp_path / f"{run.run_id}.yaml").read_text("utf-8"))
+        document = yaml.safe_load((tmp_path / f"{run.run_id}.yaml").read_text("utf-8").partition(HISTORY_MARKER)[0])
         assert document["artifact_schema_version"] == 4
         assert "reported_state" not in document["electrical"]["generator"]["steps"][0]
 
@@ -428,7 +429,7 @@ class TestTheGatedLab:
         port.run_to_end(run)
         port.forget(run.run_id)
         path = tmp_path / f"{run.run_id}.yaml"
-        document = yaml.safe_load(path.read_text("utf-8"))
+        document = yaml.safe_load(path.read_text("utf-8").partition(HISTORY_MARKER)[0])
         document["artifact_schema_version"] = 4
         path.write_text(yaml.safe_dump(document, sort_keys=False), "utf-8")
         reloaded = lab(tmp_path).projection(run)
