@@ -212,8 +212,7 @@ Owner decisions 2026-09-30. Findings closed:
 Carried (backlog, T025e section): findings 3, 6 (scaling; timing scope is
 stated in the budget section above), 7, 8, 9.
 
-Commits: 6d1c7ab-range on the branch after 63046eb (see `git log 63046eb..`):
-server exposures, client exposures plus fixture, findings 2/4/5, records.
+Commits: b7d521a (server exposures), e3f0c3a (client exposures, fixture), 696fc21 (findings 2, 4, 5), then this record.
 
 Checks: host `test_lab_history_prefix.py` + `test_lab_history.py` 71 passed (was
 57); `contract9_gate` 23 passed, unedited; backend delta 19 passed; frontend
