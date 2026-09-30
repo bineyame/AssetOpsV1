@@ -1495,6 +1495,10 @@ button:focus-visible {
   .history-cockpit__values {
     position: sticky;
     top: var(--space-2);
+    /* T025e: the exact values scroll inside a column no taller than the
+       viewport, so their changing text never sets the cockpit's height. */
+    max-height: calc(100vh - var(--space-4));
+    overflow-y: auto;
   }
 }
 
@@ -1525,7 +1529,7 @@ button:focus-visible {
 .history-cursor__live {
   display: inline-flex;
   align-items: center;
-  min-width: 18rem;
+  min-width: min(18rem, 100%);
   min-height: 2.25rem;
   font-variant-numeric: tabular-nums;
 }
@@ -1738,7 +1742,7 @@ button:focus-visible {
 }
 
 .control-strip__clock {
-  min-width: 26rem;
+  min-width: min(26rem, 100%);
 }
 
 .control-strip__count {
@@ -1794,6 +1798,15 @@ button:focus-visible {
 
 .run-cockpit__charts {
   min-height: 40rem;
+}
+
+/* Below the two-column width the exact values sit under the charts: a fixed
+   height, scrolling inside, for the same reason. */
+@media (max-width: 1199px) {
+  .history-cockpit__values {
+    height: 30rem;
+    overflow-y: auto;
+  }
 }
 
 .run-cockpit__timeline {

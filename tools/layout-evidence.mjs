@@ -2289,14 +2289,15 @@ allPass =
       // enabled button per staged envelope, and it chooses which envelope's
       // exact text to read - it changes nothing on the server. They are
       // excluded by their exact label shape, so any other enabled button still
-      // fails this claim.
+      // fails this claim. T025e: the Applied timeline's "at T min" buttons
+      // move the history cursor (a read); they are excluded the same way.
       "a terminal run offers no enabled execution control",
-      finished.buttons.some((b) => !/^Show envelope \d+$/.test(b.label)) &&
+      finished.buttons.some((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label)) &&
         finished.buttons
-          .filter((b) => !/^Show envelope \d+$/.test(b.label))
+          .filter((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label))
           .every((b) => b.disabled),
       finished.buttons
-        .filter((b) => !/^Show envelope \d+$/.test(b.label))
+        .filter((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label))
         .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
         .join(", ") || "no execution control rendered",
     ],
