@@ -117,11 +117,21 @@ export interface SldNodeSlotContent {
   detail: string[];
 }
 
-/** Content for one connection's slot: a direction, a short label and its detail. */
+/**
+ * Content for one connection's slot: a direction, its statement and detail,
+ * and optionally the few characters drawn on the line itself.
+ *
+ * `label` is kept short on purpose: the lattice's gaps are 32 px between rows
+ * and 60 px between columns, and a sentence drawn there overlaps the boxes it
+ * connects (measured, T025d). The full `text` is the line's accessible title
+ * and its row in the contents table. Without a `label` nothing is drawn on the
+ * line, and the table still says what the slot holds.
+ */
 export interface SldConnectionSlotContent {
   direction: SldSlotDirection;
   text: string;
   detail: string[];
+  label?: string;
 }
 
 /**
@@ -446,10 +456,12 @@ function SldRun({
       markerStart={slot?.direction === "AGAINST" ? marker : undefined}
     />
   );
-  if (slot === null) return line;
+  if (slot === null || slot.label === undefined) return line;
 
-  // The label says the direction in words as well as the arrow drawing it,
-  // so no reading of the drawing depends on seeing the marker or its colour.
+  // A short label centred on the line's midpoint, where the route runs in a
+  // gap of the lattice. Its title is the full statement, which says the
+  // direction in words, and the contents table repeats it with the direction
+  // column: no reading depends on the marker or its colour.
   const middle = midpointOf(points);
   return (
     <>
@@ -458,10 +470,13 @@ function SldRun({
         className="sld-run__value"
         data-sld-connection-value={connection.connectionId}
         data-sld-direction={slot.direction}
-        x={middle.x + 6}
-        y={middle.y - 6}
+        x={middle.x}
+        y={middle.y}
+        textAnchor="middle"
+        dominantBaseline="central"
       >
-        {slot.text}
+        <title>{`${slot.text} (${SLOT_DIRECTION_WORDS[slot.direction]})`}</title>
+        {slot.label}
       </text>
     </>
   );

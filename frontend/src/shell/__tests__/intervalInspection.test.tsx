@@ -23,6 +23,7 @@ import { intervalTimeline, runTimeline } from "../historyTimelineModel";
 import {
   bindDrawing,
   completedIntervalAt,
+  drawnValue,
   drawingSlots,
 } from "../intervalDrawingModel";
 import type { RunHistory, RunHistoryDrawingContext } from "../runHistory";
@@ -317,7 +318,16 @@ describe("one selected interval on the run screen", () => {
     expect(one("[data-drawing-boundary]").dataset.drawingBoundary).toBe("135");
     const branch = one('[data-sld-connection-value="pcs-to-bus"]');
     expect(branch.dataset.sldDirection).toBe("AGAINST");
-    expect(branch.textContent).toMatch(/^30 kW to /);
+    // The drawn label is short (it has to fit a lattice gap); the full
+    // statement is its title and its row in the contents table.
+    const drawn = Array.from(branch.childNodes)
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent)
+      .join("");
+    expect(drawn).toBe("30 kW");
+    expect(branch.querySelector("title")?.textContent).toMatch(
+      /^30 kW to .*, against the declared order\)$/,
+    );
     expect(one('[data-sld-connection-row="pcs-to-bus"]').textContent).toContain(
       "against the declared order",
     );
@@ -380,5 +390,15 @@ describe("one selected interval on the run screen", () => {
     expect(row).toBeDefined();
     expect(row!.textContent).toContain("state at that instant, 45 min");
     expect(row!.textContent).toContain("the held reading's own support");
+  });
+});
+
+describe("the value drawn on a line", () => {
+  it("is exact when short and marked approximate otherwise", () => {
+    expect(drawnValue(parseExact("30")!)).toBe("30");
+    expect(drawnValue(parseExact("12.5")!)).toBe("12.5");
+    // 600/19 kW: the exact text would overlap the boxes a 60 px gap separates.
+    expect(drawnValue(parseExact("600/19")!)).toBe("~31.6");
+    expect(drawnValue(parseExact("0.123456")!)).toBe("~0.1");
   });
 });

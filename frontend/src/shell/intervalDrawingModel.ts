@@ -10,6 +10,7 @@ import type {
 import {
   abs,
   type Exact,
+  exactText,
   negate,
   parseExact,
   readable,
@@ -510,11 +511,24 @@ function connectionSlot(
     `Mean over ${span} from: ${contributing.map(flowLine).join("; ")}`,
   ];
   if (sign(net) === 0) {
-    return { direction: "NONE", text: "0 kW", detail };
+    return { direction: "NONE", text: "0 kW", detail, label: "0 kW" };
   }
   return {
     direction: towards === toComponent ? "ALONG" : "AGAINST",
     text: `${readable(net)} kW to ${name(towards)}`,
     detail,
+    label: `${drawnValue(net)} kW`,
   };
+}
+
+/**
+ * The value drawn on a line: exact when it is a short decimal, otherwise
+ * marked approximate to one decimal. A lattice gap is 60 px wide, and an
+ * exact fraction drawn there overlaps the boxes either side (measured,
+ * T025d). The exact value stays in the line's title and the contents table.
+ */
+export function drawnValue(a: Exact): string {
+  const text = exactText(a);
+  if (!text.includes("/") && text.length <= 5) return text;
+  return `~${(Number(a.n) / Number(a.d)).toFixed(1)}`;
 }
