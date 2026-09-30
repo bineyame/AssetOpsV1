@@ -1399,7 +1399,7 @@ DRAWING_CONTEXT_STATEMENTS = {
     ),
     "NOT_RECORDED": (
         "This run's history records no bus attachments, so there is no "
-        "run-bound drawing to put its values on."
+        "drawing bound to this run to put its values on."
     ),
     "DISAGREES": (
         "The attachments this run's history records differ from the ones its "
