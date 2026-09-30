@@ -1461,6 +1461,16 @@ Claude verification of the R1 fix, 2026-09-30
 
 K2 (stale schema-1 records) was fixed before merge in `ef408a5`.
 
+Found at the owner's hands-on check, 2026-09-30:
+
+- **Run setup's 15-minute default blocks every mini-grid v2 recipe.**
+  `frontend/src/shell/RunSetupFrame.tsx` `DEFAULT_TIMESTEP_MINUTES = 15`, while
+  the v2 recipes' 5-minute generator start delay needs a 5-minute step, so an
+  untouched form yields `LIFECYCLE_TIMING_NOT_ALIGNED`. The refusal is correct
+  and explained; the default is the problem. Options: the scenario declares its
+  timestep, or the form proposes the largest step dividing the declared
+  lifecycle timings. Trigger: T025d or a fast-lane fix, owner's choice.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

@@ -85,7 +85,7 @@ Site runs PV, a battery and three addressed loads through a controller, a
 declared-cascade resolver and exact balances, under contract **9**, Option C
 and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
 Record in `.ai/CODE_STATE.md`. **T025a is complete and merged** (`mini-grid` v1,
-contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T025c (L1a) is built and in review** on its branch (packet `.agent/T025c-review-packet.md`, user review required), then T025d (L1b), then T026.
+contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T025c (L1a) is complete** (owner accepted 2026-09-30); **T025d (L1b) is next**, then T026.
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -97,7 +97,7 @@ input: `Docs/lab-cockpit-proposal.md`; handoff: `.ai/PLANNING_HANDOFF_LAB_COCKPI
 
 ## Read For The Active Task
 
-1. **`tasks/T025c-persisted-lab-history-and-charts.md`** (in review), then `tasks/T025d-lab-cockpit-inspection-and-playback.md`, then T026; T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
+1. **`tasks/T025d-lab-cockpit-inspection-and-playback.md`**, then T026; T025c/T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
 2. `.ai/CODE_STATE.md`: the T025c, T025b, T025a and T024 entries, then T022B, T023, T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and its three 2026-09-30 decisions;

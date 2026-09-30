@@ -4241,7 +4241,7 @@ causes are T035's. Demo values await the owner's hands-on check.
 
 ## T025c - Persisted Lab history, addressed charts and run identity (L1a)
 
-In review (`.agent/T025c-review-packet.md`); USER_REVIEW_REQUIRED. Contract 9
+Complete; owner accepted 2026-09-30 (packet `.agent/T025c-review-packet.md`). Contract 9
 kept: an artifact-only addition, no execution-contract bump.
 
 ### What it settled in code

@@ -1,6 +1,6 @@
 # T025c - Persisted Lab history, addressed charts and run identity (L1a)
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: Lab cockpit C2/C6; inspection of accepted A before B.
@@ -104,3 +104,19 @@ ingestion, C8 dashboard or C9 authoring is introduced.
 The owner reviews whether addressed behavior and evidence loss are legible
 after reload. The Reviewer checks record integrity, timing, gate isolation and
 that chart values agree with recorded history. Review outcome: pending.
+
+## Review Outcome
+
+Accepted by the owner on 2026-09-30 after a hands-on check in a demo
+environment (`.demo/T025c/`, not tracked): completed mini-grid v2 runs on
+KOBO-001 were inspected, the host restarted and the runs read back PERSISTED
+with their charts, values and identity intact.
+
+Independent review: Codex first review 2026-09-30, RETURN with one blocking
+finding (R1, projection-backed cockpit data outside the history digest) and
+four carries (`.agent/T025c-codex-review.md`). R1 fixed in 761b1b4/40d9515
+(history schema 2, `projection_binding`); Claude verification review ACCEPT
+(`.agent/T025c-claude-verification.md`). K2 fixed in ef408a5; C1-C4, K1 and K3
+carried to `.ai/MILESTONE_REVIEW_BACKLOG.md`. The full ~1 MB-per-8-hours
+single-run history payload and the two-document artifact layout stand, as the
+Codex review found acceptable; T025d accounts for live recapture cost.

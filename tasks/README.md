@@ -37,7 +37,7 @@ T025d (L1b) run sequentially before T026; A remains accepted.
 | 10 | T024 | A | Daytime PV/storage serves three addressed loads |
 | 11 | [T025a](T025a-healthy-generator-runtime.md) | A | Healthy full-site generator physics and contract-9 reproduction |
 | 12 | T025b | A completion | Policy recipes, reported status and owner acceptance of A |
-| 13 | [T025c](T025c-persisted-lab-history-and-charts.md) | Lab cockpit L1a | Reloadable addressed history, charts and run identity |
+| 13 | [T025c](completed/T025c-persisted-lab-history-and-charts.md) | Lab cockpit L1a | Reloadable addressed history, charts and run identity |
 | 14 | [T025d](T025d-lab-cockpit-inspection-and-playback.md) | Lab cockpit L1b | Run-bound SLD, causal inspection and guarded playback |
 | 15 | T026 | B | Dispatch evidence with one gap and one delayed publication |
 | 16 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
