@@ -43,6 +43,9 @@ export const APPEND_FAMILY_KEYS = {
   // Append-class by owner approval (2026-09-30) after phase 1 measured a
   // 71,935 B one-boundary delta with `exposures` sent whole.
   exposures: "from_offset",
+  // Addendum B (option R, owner chose 2026-09-30): the projection's step row
+  // for the interval a boundary decided, keyed like the interval.
+  electrical_steps: "from_offset",
 } as const;
 
 export type AppendFamily = keyof typeof APPEND_FAMILY_KEYS;

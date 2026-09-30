@@ -8,6 +8,8 @@
  * stopped holding - and an absent value is `null`, never zero.
  */
 
+import type { RunElectricalStep } from "./runSetupClient";
+
 export interface RunHistoryCoverage {
   family: string;
   availability: string;
@@ -245,6 +247,12 @@ export interface RunHistory {
   bus_attachments: RunHistoryAttachment[];
   reporting_gaps: RunHistoryReportingGap[];
   drawing_context: RunHistoryDrawingContext | null;
+  /**
+   * T025e addendum B: the projection's recorded step rows, joined by the host
+   * where intervals are recorded. `pv_output` and `battery_power` are the
+   * host's totals; the charts read them and never re-sum the flows.
+   */
+  electrical_steps: RunElectricalStep[];
 }
 
 export type RunHistoryResult =
@@ -366,6 +374,14 @@ export function isRunHistory(value: unknown): value is RunHistory {
     Array.isArray(value.discrete_transitions) &&
     Array.isArray(value.bus_attachments) &&
     Array.isArray(value.exposures) &&
+    every(
+      value.electrical_steps,
+      (item) =>
+        typeof item.from_offset === "number" &&
+        typeof item.to_offset === "number" &&
+        typeof item.pv_output === "string" &&
+        typeof item.battery_power === "string",
+    ) &&
     every(
       value.reporting_gaps,
       (item) =>

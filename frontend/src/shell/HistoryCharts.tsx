@@ -453,8 +453,13 @@ function NumericChart({
         {panel.series.map((series) => (
           <path
             key={series.id}
-            className="history-chart__line"
+            className={
+              series.detail === true
+                ? "history-chart__line history-chart__line--detail"
+                : "history-chart__line"
+            }
             data-chart-series={series.id}
+            data-series-role={series.detail === true ? "detail" : "total"}
             data-points={
               series.kind === "instant" ? series.points.length : series.values.length
             }

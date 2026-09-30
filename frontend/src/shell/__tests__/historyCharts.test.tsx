@@ -167,6 +167,53 @@ describe("the chart model reads the record and adds nothing", () => {
     expect(compared).toBeGreaterThan(7 * 12);
   });
 
+  it("draws accepted PV and signed battery power as the host recorded them (addendum B)", () => {
+    // The totals are the host's own step rows, matched by `from_offset`; the
+    // test reads the recorded field and never re-sums a flow.
+    const panel = (id: string) => model.panels.find((p) => p.id === id)!;
+    const total = (panelId: string, id: string) => {
+      const found = panel(panelId).series.find((s) => s.id === id);
+      if (found === undefined || found.kind === "instant") {
+        throw new Error(`no interval series ${panelId}/${id}`);
+      }
+      return found;
+    };
+    expect(HISTORY.electrical_steps.length).toBe(HISTORY.intervals.length);
+    for (const [panelId, id, field] of [
+      ["pv", "pv-accepted", "pv_output"],
+      ["battery-power", "battery-power", "battery_power"],
+    ] as const) {
+      const series = total(panelId, id);
+      expect(series.detail).toBeUndefined();
+      expect(series.values.map((v) => [v.from, v.to, v.exact])).toEqual(
+        HISTORY.electrical_steps.map((row) => [row.from_offset, row.to_offset, row[field]]),
+      );
+    }
+    expect(panel("battery-power").signed).toBe(true);
+    expect(HISTORY.electrical_steps.some((row) => row.battery_power.startsWith("-"))).toBe(true);
+    // The components stay, as detail.
+    expect(total("battery-power", "battery-to-load").detail).toBe(true);
+    expect(total("pv", "pv-to-load").detail).toBe(true);
+    // Each reported track sits on the panel of the total it measures.
+    expect(panel("pv").reported.map((t) => t.address)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^pv-ac-power@/)]),
+    );
+    expect(panel("battery-power").reported.map((t) => t.address)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^battery-ac-power@/)]),
+    );
+  });
+
+  it("draws no total for a step whose interval is not recorded", () => {
+    const partial = chartModel(
+      { ...HISTORY, intervals: HISTORY.intervals.slice(0, 3) },
+      EXECUTION.timestep_minutes,
+    );
+    const accepted = partial.panels
+      .find((p) => p.id === "pv")!
+      .series.find((s) => s.id === "pv-accepted")!;
+    expect(accepted.kind === "interval" && accepted.values.length).toBe(3);
+  });
+
   it("builds nothing from a history with no recorded interval", () => {
     const empty = chartModel({ ...HISTORY, intervals: [] }, EXECUTION.timestep_minutes);
     expect(empty.panels.map((p) => p.id)).not.toContain("pv");

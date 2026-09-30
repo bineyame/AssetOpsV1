@@ -177,6 +177,16 @@ describe("appendHistory never mutates and shares what did not change", () => {
     expect(read.history.exposures.length).toBeLessThan(base.exposures.length);
     base.exposures.forEach((row, i) => expect(next.exposures[i]).toBe(row));
     expect(next.exposures).toEqual(base.exposures.concat(read.history.exposures));
+    // Addendum B: the recorded step rows are append-class too, one per new
+    // interval, keyed on `from_offset`; the held ones keep identity.
+    expect(read.history.electrical_steps.map((r) => r.from_offset)).toEqual(
+      read.history.intervals.map((i) => i.from_offset),
+    );
+    expect(read.history.electrical_steps.length).toBeGreaterThan(0);
+    base.electrical_steps.forEach((row, i) => expect(next.electrical_steps[i]).toBe(row));
+    expect(next.electrical_steps).toEqual(
+      base.electrical_steps.concat(read.history.electrical_steps),
+    );
     // A family the delta adds nothing to keeps its array.
     for (const family of ["bounded_transitions", "discrete_transitions"] as const) {
       if (read.history[family].length === 0) {

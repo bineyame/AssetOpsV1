@@ -53,6 +53,8 @@ export interface IntervalValue {
 export interface SeriesStyle {
   slot: 1 | 2 | 3 | 4;
   dash: "solid" | "dashed" | "dotted" | "dashdot";
+  /** A component drawn as secondary detail beside the panel's recorded total. */
+  detail?: boolean;
 }
 
 export type TruthSeries =
@@ -184,6 +186,27 @@ function fromFlow(history: RunHistory, flowId: string): IntervalValue[] {
   );
 }
 
+/**
+ * T025e addendum B: one recorded total per step, read from the host's own
+ * electrical step rows and matched to the recorded intervals by `from_offset`.
+ * The total is the host's number (`electrical_view` owns the sum); nothing is
+ * added, subtracted or re-signed here.
+ */
+function fromStep(
+  history: RunHistory,
+  field: "pv_output" | "battery_power",
+): IntervalValue[] {
+  const decided = new Set(history.intervals.map((i) => i.from_offset));
+  return history.electrical_steps
+    .filter((row) => decided.has(row.from_offset))
+    .map((row) => ({
+      from: row.from_offset,
+      to: row.to_offset,
+      exact: row[field],
+      value: plotted(row[field]),
+    }));
+}
+
 /** The largest value a frozen input holds under `name`, or null. */
 function heldRating(history: RunHistory, name: string): number | null {
   const values = history.intervals
@@ -200,9 +223,10 @@ function heldRating(history: RunHistory, name: string): number | null {
  * Build the chart model from what was recorded - the history alone.
  *
  * T025e (closes carry C3): no per-step execution data reaches a chart, so no
- * curve can run ahead of the history the others are drawn from. PV and the
- * battery are drawn as the host's own recorded flows, one curve per flow;
- * nothing is summed or recomputed here.
+ * curve can run ahead of the history the others are drawn from. PV output and
+ * signed battery power are the host's recorded totals (`electrical_steps`,
+ * addendum B); the recorded flows beside them are secondary detail. Nothing is
+ * summed or recomputed here.
  */
 export function chartModel(
   history: RunHistory,
@@ -234,12 +258,13 @@ export function chartModel(
       title: "PV power",
       unit: "kW",
       statement:
-        "Mean power over each step, one curve per recorded flow. Potential is what the array offered; the inverter delivered the rest to loads and to the battery; curtailed was refused by the controller and clipped exceeded the inverter's rating - two different losses.",
+        "Mean power over each step. Accepted is the inverter's recorded AC output; the flows are detail. Curtailed and clipped are different losses.",
       signed: false,
       series: [
+        { kind: "interval", id: "pv-accepted", label: "Accepted", slot: 1, dash: "solid", values: fromStep(history, "pv_output") },
         { kind: "interval", id: "pv-potential", label: "Potential", slot: 1, dash: "dashed", values: pvPotential },
-        { kind: "interval", id: "pv-to-load", label: "To loads", slot: 2, dash: "solid", values: fromFlow(history, "pv_to_load") },
-        { kind: "interval", id: "pv-to-battery", label: "To the battery", slot: 2, dash: "dashdot", values: fromFlow(history, "pv_to_battery") },
+        { kind: "interval", id: "pv-to-load", label: "To loads", slot: 2, dash: "solid", detail: true, values: fromFlow(history, "pv_to_load") },
+        { kind: "interval", id: "pv-to-battery", label: "To the battery", slot: 2, dash: "dashdot", detail: true, values: fromFlow(history, "pv_to_battery") },
         { kind: "interval", id: "pv-curtailed", label: "Curtailed", slot: 3, dash: "dotted", values: fromFlow(history, "curtailed_pv") },
         { kind: "interval", id: "pv-clipped", label: "Clipped", slot: 4, dash: "dashdot", values: fromFlow(history, "inverter_clipping") },
       ],
@@ -346,20 +371,21 @@ export function chartModel(
   const batteryToLoad = fromFlow(history, "battery_to_load");
   if (batteryToLoad.length > 0) {
     const series: TruthSeries[] = [
-      { kind: "interval", id: "battery-to-load", label: "Discharged to loads", slot: 1, dash: "solid", values: batteryToLoad },
-      { kind: "interval", id: "pv-to-battery", label: "Charged from PV", slot: 2, dash: "dashed", values: fromFlow(history, "pv_to_battery") },
+      { kind: "interval", id: "battery-power", label: "Battery power (+ discharging)", slot: 1, dash: "solid", values: fromStep(history, "battery_power") },
+      { kind: "interval", id: "battery-to-load", label: "Discharged to loads", slot: 2, dash: "dashed", detail: true, values: batteryToLoad },
+      { kind: "interval", id: "pv-to-battery", label: "Charged from PV", slot: 3, dash: "dashed", detail: true, values: fromFlow(history, "pv_to_battery") },
     ];
     const fromGenerator = fromFlow(history, "generator_to_battery");
     if (fromGenerator.length > 0) {
-      series.push({ kind: "interval", id: "generator-to-battery", label: "Charged from the generator", slot: 3, dash: "dotted", values: fromGenerator });
+      series.push({ kind: "interval", id: "generator-to-battery", label: "Charged from the generator", slot: 4, dash: "dotted", detail: true, values: fromGenerator });
     }
     panels.push({
       id: "battery-power",
       title: "Battery power",
       unit: "kW",
       statement:
-        "Mean AC power over each step at the battery's converter, one curve per recorded flow: what it discharged to loads and what it took in to charge.",
-      signed: false,
+        "Mean AC power at the battery's converter over each step: positive is discharging, negative is charging. The flows are detail.",
+      signed: true,
       series,
       reported: claim((t) => stateKey(t.address) === "battery-ac-power"),
     });

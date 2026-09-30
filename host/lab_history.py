@@ -82,7 +82,7 @@ from assetops_contracts.lab_history import (
     LabHistory,
     unavailable_coverage,
 )
-from assetops_contracts.lab_projection import LabProjection
+from assetops_contracts.lab_projection import ElectricalView, LabProjection
 from assetops_contracts.observation import (
     SAMPLE_OUTCOMES,
     DeviceObservation,
@@ -131,8 +131,14 @@ def capture(
     status: str,
     content_digest: str | None,
     observation_series_digest: str | None,
+    electrical: ElectricalView | None,
 ) -> LabHistory:
-    """The history an execution has recorded so far, each fact once."""
+    """The history an execution has recorded so far, each fact once.
+
+    `electrical` is the live projection's own electrical view: its step rows
+    are joined as `electrical_steps` when intervals are recorded, never
+    re-summed here (`electrical_view` owns the totals).
+    """
     inputs = execution.inputs
     units: dict[str, str] = {}
 
@@ -246,7 +252,21 @@ def capture(
         bounded_transitions=execution.bounded_transitions,
         discrete_transitions=execution.discrete_transitions,
         bus_attachments=attachments,
+        electrical_steps=_joined_steps(coverage, electrical),
     )
+
+
+def _joined_steps(
+    coverage: tuple[FamilyCoverage, ...], electrical: ElectricalView | None
+) -> tuple:
+    """The projection's electrical step rows, only where intervals are recorded."""
+    recorded = any(
+        entry.family == "intervals" and entry.availability == "RECORDED"
+        for entry in coverage
+    )
+    if not recorded or electrical is None:
+        return ()
+    return electrical.steps
 
 
 def _recorded(family: str) -> FamilyCoverage:
@@ -859,6 +879,7 @@ def _parse_records(
         bounded_transitions=bounded,
         discrete_transitions=discrete,
         bus_attachments=attachments,
+        electrical_steps=_joined_steps(coverage, projection.electrical),
     )
 
 

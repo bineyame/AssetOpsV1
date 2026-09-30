@@ -1597,6 +1597,12 @@ button:focus-visible {
   stroke-width: 2;
 }
 
+/* T025e addendum B: component flows are detail beside the recorded total. */
+.history-chart__line--detail {
+  stroke-width: 1.25;
+  opacity: 0.7;
+}
+
 .history-chart__reported-line {
   fill: none;
   stroke: var(--text-secondary);

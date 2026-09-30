@@ -476,6 +476,7 @@ export const NOT_RECORDED: RunHistory = {
   bus_attachments: [],
   reporting_gaps: [],
   drawing_context: null,
+  electrical_steps: [],
 };
 
 /**

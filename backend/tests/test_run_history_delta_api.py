@@ -30,6 +30,7 @@ from assetops_contracts.lab_history import (
     HistorySample,
     LabHistory,
 )
+from assetops_contracts.lab_projection import ElectricalStepRow
 from assetops_contracts.observation import DeviceObservation, DeviceSignalSpec
 
 from test_run_history_api import a_history, an_interval
@@ -43,6 +44,19 @@ def an_attempt(at: int) -> DeviceObservation:
         reading_class="INTERVAL_SIGNAL", at_offset_minutes=at,
         source_sample_time=f"2026-09-22T03:{at:02d}:00Z", outcome="REPORTED",
         reported_value=Fraction(at), canonical_unit="kW",
+    )
+
+
+def a_step_row(at: int) -> ElectricalStepRow:
+    """A recorded step row; its totals are fixed numbers, never a sum here."""
+    return ElectricalStepRow(
+        from_offset=at, to_offset=at + 5,
+        simulation_time=f"2026-09-22T03:{at:02d}:00Z",
+        soc_start=Fraction(50), soc_end=Fraction(51), reserve=Fraction(20),
+        reserve_origin="PROFILE", pv_potential=Fraction(9), pv_output=Fraction(7),
+        curtailed=Fraction(1), clipped=Fraction(1), battery_power=Fraction(-3),
+        requested_battery_power=Fraction(-4), limited_by=("soc",),
+        demand=Fraction(4), served=Fraction(4), unserved=Fraction(0),
     )
 
 
@@ -74,6 +88,7 @@ def a_growing_history(run_id: str) -> LabHistory:
         ),
         attempts=tuple(an_attempt(at) for at in (0, 5, 10)),
         intervals=(first, second),
+        electrical_steps=(a_step_row(0), a_step_row(5)),
         exposures=(
             ForcingExposure("pv-irradiance@site", "e-1", "irradiance",
                             Fraction(1), 0, 5),
@@ -157,6 +172,11 @@ class TestTheDeltaRead:
         assert [i["from_offset"] for i in delta["intervals"]] == [5]
         # Owner approved 2026-09-30: exposures are append-class, keyed the same.
         assert [x["event_id"] for x in delta["exposures"]] == ["e-2", "e-3"]
+        # Addendum B: a step row belongs to the boundary that decided it too,
+        # and crosses with the host's own totals.
+        assert [r["from_offset"] for r in delta["electrical_steps"]] == [5]
+        assert delta["electrical_steps"][0]["pv_output"] == "7"
+        assert delta["electrical_steps"][0]["battery_power"] == "-3"
         assert [b["offset_minutes"] for b in delta["boundaries"]] == [5, 10]
         assert delta["boundaries_recorded"] == 3
         assert delta["recorded_through_offset_minutes"] == 10

@@ -158,6 +158,7 @@ from assetops_contracts.lab_history import (
 )
 from assetops_contracts.lab_projection import (
     LAB_CONTROL_REFUSAL_STATEMENTS,
+    ElectricalStepRow,
     ElectricalView,
     GeneratorView,
     LabControlRefused,
@@ -231,6 +232,10 @@ HISTORY_APPEND_FAMILY_KEYS: dict[str, str] = {
     # delta, 57,443 B of it `exposures` sent whole: an exposure is recorded at
     # the boundary its window opens, and the prefix guard proves it append-only.
     "exposures": "from_offset",
+    # T025e addendum B (option R, owner chose 2026-09-30): the projection's
+    # electrical step row for the interval a boundary decided, keyed like the
+    # interval itself; built from that boundary's control step only.
+    "electrical_steps": "from_offset",
 }
 # Frozen with the run: sent by the full read only, empty (or null) in a delta,
 # and kept by the client from its base. `coverage` and the manifest scalars
@@ -789,6 +794,38 @@ def run_inventory_row(record: SimulationRun) -> dict[str, object]:
     }
 
 
+def electrical_step_payload(row: ElectricalStepRow) -> dict[str, object]:
+    """One resolved step's mean powers on the wire (T024), exact text.
+
+    Shared by the execution payload's `electrical.steps` and, since T025e
+    addendum B, the gated history's `electrical_steps`: the same recorded row
+    in the same shape on both reads.
+    """
+
+    def exact(value: object) -> str | None:
+        return None if value is None else exact_decimal_text(value)
+
+    return {
+        "from_offset": row.from_offset,
+        "to_offset": row.to_offset,
+        "simulation_time": row.simulation_time,
+        "soc_start": exact(row.soc_start),
+        "soc_end": exact(row.soc_end),
+        "reserve": exact(row.reserve),
+        "reserve_origin": row.reserve_origin,
+        "pv_potential": exact(row.pv_potential),
+        "pv_output": exact(row.pv_output),
+        "curtailed": exact(row.curtailed),
+        "clipped": exact(row.clipped),
+        "battery_power": exact(row.battery_power),
+        "requested_battery_power": exact(row.requested_battery_power),
+        "limited_by": list(row.limited_by),
+        "demand": exact(row.demand),
+        "served": exact(row.served),
+        "unserved": exact(row.unserved),
+    }
+
+
 def electrical_payload(view: ElectricalView | None) -> dict[str, object] | None:
     """The electrical world of one execution on the wire (T024).
 
@@ -819,28 +856,7 @@ def electrical_payload(view: ElectricalView | None) -> dict[str, object] | None:
             }
             for rule in COUPLING_RULES
         ],
-        "steps": [
-            {
-                "from_offset": row.from_offset,
-                "to_offset": row.to_offset,
-                "simulation_time": row.simulation_time,
-                "soc_start": exact(row.soc_start),
-                "soc_end": exact(row.soc_end),
-                "reserve": exact(row.reserve),
-                "reserve_origin": row.reserve_origin,
-                "pv_potential": exact(row.pv_potential),
-                "pv_output": exact(row.pv_output),
-                "curtailed": exact(row.curtailed),
-                "clipped": exact(row.clipped),
-                "battery_power": exact(row.battery_power),
-                "requested_battery_power": exact(row.requested_battery_power),
-                "limited_by": list(row.limited_by),
-                "demand": exact(row.demand),
-                "served": exact(row.served),
-                "unserved": exact(row.unserved),
-            }
-            for row in view.steps
-        ],
+        "steps": [electrical_step_payload(row) for row in view.steps],
         "latest_view": [
             {
                 "name": item.name,
@@ -1391,6 +1407,12 @@ def history_payload(
                 "bus_component_id": a.bus_component_id,
             }
             for a in history.bus_attachments
+        ],
+        # T025e addendum B: the projection's recorded step rows, joined by the
+        # host where intervals are recorded; `pv_output` and `battery_power`
+        # are the host's own totals, which the charts read and never re-sum.
+        "electrical_steps": [
+            electrical_step_payload(row) for row in history.electrical_steps
         ],
         "drawing_context": _drawing_context_payload(history, run),
     }
