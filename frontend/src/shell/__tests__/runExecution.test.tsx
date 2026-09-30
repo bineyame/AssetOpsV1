@@ -648,10 +648,14 @@ describe("what executing a draft still is not", () => {
     // A closed list rather than a word ban. A new control has to be added here
     // deliberately, which is the lesson a word ban learnt the hard way when
     // "Execute this run now" walked past one.
+    // T025d adds exactly two: auto-play of the guarded Step and its pause,
+    // which stops the browser's scheduling and does nothing to the run.
     expect(controls).toEqual([
       "Start this run",
       "Step",
       "Run to the end",
+      "Play",
+      "Pause",
       "Back to Runs",
       "Back to the Simulator Lab",
     ]);
