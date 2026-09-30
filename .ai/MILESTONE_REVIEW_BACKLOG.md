@@ -1475,6 +1475,41 @@ Found at the owner's hands-on check, 2026-09-30:
   timestep, or the form proposes the largest step dividing the declared
   lifecycle timings. Trigger: T025d or a fast-lane fix, owner's choice.
 
+## Carried from T025d: three cockpit findings from the first review
+
+Codex first review, 2026-09-30, verdict ACCEPT WITH CARRIES
+(`.agent/T025d-codex-review.md`). Carried under
+`D-2026-09-22-milestone-speed-over-purity`: each is a local frontend repair
+with no persisted-format, contract or physical change. The packet's "Met" for
+criteria 3, 5 and 6 is qualified by these.
+
+- **C1, timeout recovery re-enables controls before the re-read lands.**
+  `frontend/src/shell/runPlayback.ts` `stop()` marks `stopped` before awaiting
+  the recovery read, and that read is not tied to its playback generation, so
+  a resume can send a stale `from_boundary` guard (probe: `[10, 11, 11]`). The
+  host lock and guard refuse it, so no double advancement. Repair: a recovering
+  state that keeps mutating controls disabled, generation checks on the read,
+  and history/stage sync when a late Step answer lands.
+- **C2, whole-run timeline shows unreached declared reporting gaps as
+  applied.** `historyTimelineModel.ts` `allEntries()`/`runTimeline()` include
+  every declared reporting window regardless of recorded coverage (a run at
+  boundary 0 lists its `[60,90)` status gap as a reporting condition). The
+  selected-boundary view is correct. Repair: label unreached windows as
+  declared context, or restrict to the recorded span.
+- **C3, live playback mixes fresh and cached coverage.** `RunFrame.tsx` passes
+  each Step's fresh `electrical.steps` to charts whose other series come from
+  the history cached at the last stop, so PV and battery power run ahead of
+  loads, SOC, fuel and generator; stopping restores agreement. Repair: plot
+  the electrical summary captured with the same history, or clip it to that
+  history's coverage.
+
+Also noted, unmeasured: the SLD's node slots (PV, inverter, PCS) carry full
+sentences in one SVG text element in a 200 px node; the layout tool measures
+connection labels only. Checked at the owner's hands-on review.
+
+Trigger: before playback is shown externally at T028/T029, or when T026 next
+changes the run screen's refresh path, whichever comes first.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

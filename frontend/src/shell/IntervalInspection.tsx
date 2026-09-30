@@ -48,7 +48,7 @@ export function IntervalInspection({
         flush
       >
         <p
-         
+
           data-interval-span={`${interval.from_offset}-${interval.to_offset}`}
         >
           {`The interval ${span} min that ended at the selected boundary: decided at ${interval.from_offset} min from the controller's view there, and completed at ${interval.to_offset} min. Power is the mean over the interval in kW; energy is over the interval in kWh.`}
