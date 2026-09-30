@@ -326,8 +326,15 @@ describe("one draft run", () => {
 
     // A closed set rather than a count. A fourth control fails whatever it is
     // called, which is the lesson a word ban learnt when "Execute this run now"
-    // walked past one.
-    expect(buttons).toEqual(["Start this run", "Step", "Run to the end"]);
+    // walked past one. T025d adds exactly two: auto-play of the guarded Step
+    // and its pause, which stops the browser's scheduling and nothing else.
+    expect(buttons).toEqual([
+      "Start this run",
+      "Step",
+      "Run to the end",
+      "Play",
+      "Pause",
+    ]);
   });
 
   it("offers no run action at all on a blocked draft", async () => {
@@ -381,9 +388,9 @@ describe("one draft run", () => {
     await settledScreen();
 
     const main = screen.getByRole("main");
+    // T025d: "Pause" and "Resume" are now truthful of the browser's auto-play
+    // (the closed set above admits exactly Play and Pause); they pause no run.
     for (const banned of [
-      /pause/i,
-      /resume/i,
       /reset/i,
       /rerun/i,
       /replay/i,
