@@ -302,6 +302,27 @@ function interactiveControls(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(INTERACTIVE_SELECTOR));
 }
 
+/**
+ * T025e: a closed `<details>` from the shared Disclosure primitive, or its
+ * summary, on a run surface. It reveals content already on the page and does
+ * nothing to a run; the controls inside it are still iterated one by one, so
+ * nothing can hide behind one.
+ */
+function isRunSurfaceDisclosure(url: string, control: HTMLElement): boolean {
+  if (!RUN_SURFACE_URLS.includes(url)) {
+    return false;
+  }
+  if (control.tagName === "DETAILS") {
+    return control.hasAttribute("data-disclosure");
+  }
+  return (
+    control.tagName === "SUMMARY" &&
+    control.parentElement !== null &&
+    control.parentElement.tagName === "DETAILS" &&
+    control.parentElement.hasAttribute("data-disclosure")
+  );
+}
+
 function controlDescription(control: HTMLElement): string {
   return [
     control.textContent ?? "",
@@ -597,7 +618,10 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
           EXECUTION_CONTROLS.includes(description.trim());
 
         expect(
-          isNavigation || isDisabledWithReason || isNamedExecutionControl,
+          isNavigation ||
+            isDisabledWithReason ||
+            isNamedExecutionControl ||
+            isRunSurfaceDisclosure(url, control),
           `${url} offers "${description}" as something other than a ` +
             "destination, a disabled control with a reason, or one of the " +
             "three named execution controls",
@@ -646,6 +670,7 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
         const description = controlDescription(control).trim();
         if (
           EXECUTION_CONTROLS.includes(description) ||
+          isRunSurfaceDisclosure(url, control) ||
           control.id === "run-step-boundaries" ||
           // T025d: auto-play's wall delay, which changes wall time only.
           control.id === "run-playback-delay"

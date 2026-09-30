@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
@@ -20,6 +20,23 @@ import {
   RUNNING_IN_THE_GAP,
   executionMethods,
 } from "./executionFixtures";
+
+/**
+ * T025e AC11: every render of the run-bound drawing binds its Site once, so
+ * counting `bindDrawing` counts the drawing's renders - a memo hit calls
+ * nothing. The real function still answers.
+ */
+const drawingRenders = vi.hoisted(() => ({ count: 0 }));
+vi.mock("../intervalDrawingModel", async (importOriginal) => {
+  const real = await importOriginal<typeof import("../intervalDrawingModel")>();
+  return {
+    ...real,
+    bindDrawing: (...args: Parameters<typeof real.bindDrawing>) => {
+      drawingRenders.count += 1;
+      return real.bindDrawing(...args);
+    },
+  };
+});
 
 /**
  * T025d criteria 5-7 on the run screen: auto-play composed over the real
@@ -439,5 +456,62 @@ describe("live follow on the run screen (T025e AC4-AC7)", () => {
     expect(h.log.deltaReads).toEqual([100]);
     expect(h.log.historyReads).toBe(1);
     expect(document.querySelector("[data-history-cursor]")?.getAttribute("data-history-cursor")).toBe("live");
+  });
+});
+
+describe("no intermediate frames (T025e AC11)", () => {
+  it("a pinned cursor re-renders no drawing across ticks; a live one re-renders it each tick", async () => {
+    const h = host({ ...RUNNING_IN_THE_GAP, boundaries_completed: 100 });
+    renderAt(h.client);
+    await settled();
+    await waitFor(() => expect(recordedCount()).toBe("100 of 107"));
+    const range = document.getElementById("history-cursor-range") as HTMLInputElement;
+    fireEvent.change(range, { target: { value: "97" } });
+    const drawing = document.querySelector("[data-drawing-boundary]") as HTMLElement;
+
+    const pinnedFrom = drawingRenders.count;
+    fastest();
+    fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    await waitFor(() => expect(recordedCount()).toBe("103 of 107"), { timeout: 3000 });
+    // Three ticks committed history, and the pinned drawing did not render.
+    expect(drawingRenders.count).toBe(pinnedFrom);
+    // Nor was it replaced: the same node, at the same boundary.
+    expect(document.querySelector("[data-drawing-boundary]")).toBe(drawing);
+
+    fireEvent.click(screen.getByRole("button", { name: /Return to live/ }));
+    const liveFrom = drawingRenders.count;
+    await waitFor(() => expect(recordedCount()).toBe("105 of 107"), { timeout: 3000 });
+    // Live, the drawing follows: it rendered at least once per tick.
+    expect(drawingRenders.count - liveFrom).toBeGreaterThanOrEqual(2);
+    expect(document.querySelector("[data-drawing-boundary]")).toBe(drawing);
+  });
+
+  it("plays under one stable status sentence; in flight is an attribute, not a second text", async () => {
+    const h = host({ ...RUNNING_IN_THE_GAP, boundaries_completed: 100 });
+    renderAt(h.client);
+    await settled();
+    const status = document.querySelector("[data-playback-statement]") as HTMLElement;
+    const texts = new Set<string>();
+    const inFlight = new Set<string>();
+    const observer = new MutationObserver(() => {
+      texts.add(status.textContent ?? "");
+      inFlight.add(status.getAttribute("data-playback-in-flight") ?? "");
+    });
+    observer.observe(status, { attributes: true, childList: true, characterData: true, subtree: true });
+    fastest();
+    fireEvent.click(screen.getByRole("button", { name: "Play" }));
+    await waitFor(() => expect(recordedCount()).toBe("104 of 107"), { timeout: 3000 });
+    fireEvent.click(screen.getByRole("button", { name: "Pause" }));
+    await waitFor(() =>
+      expect(playback().getAttribute("data-playback-reason")).toBe("PAUSED"),
+    );
+    observer.disconnect();
+    const playing = [...texts].filter((t) => t.includes("Playing"));
+    expect(playing).toEqual(["Playback: Playing: one step, its record, then the wall delay."]);
+    // The attribute did flip, so the observer saw the ticks.
+    expect(inFlight).toContain("yes");
+    expect(inFlight).toContain("no");
+    // The same node throughout: nothing remounted.
+    expect(document.querySelector("[data-playback-statement]")).toBe(status);
   });
 });

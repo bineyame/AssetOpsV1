@@ -1673,3 +1673,135 @@ button:focus-visible {
   font-size: 11px;
   fill: var(--text-primary);
 }
+
+/* --- T025e: disclosures, the control strip and the cockpit ----------------- */
+
+/* Secondary content, one click away. Closed by default; the content stays
+   mounted so its hooks and headings survive (AC10). */
+.disclosure {
+  margin: 0 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--surface-raised);
+}
+
+.disclosure__summary {
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  font-weight: var(--weight-bold);
+}
+
+.disclosure__body {
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+/* Numbers never change a column's width from one tick to the next (F6). */
+.data-table td,
+.data-table th,
+.history-chart__label,
+.control-strip,
+.run-cockpit__caption {
+  font-variant-numeric: tabular-nums;
+}
+
+.run-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.control-strip {
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  padding: var(--space-2) var(--space-4);
+}
+
+.control-strip__heading {
+  font-size: var(--text-base);
+  margin: 0 0 var(--space-1);
+}
+
+.control-strip__subheading {
+  display: inline;
+  font-size: var(--text-base);
+  margin: 0 var(--space-2) 0 0;
+}
+
+.control-strip__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.control-strip__clock {
+  min-width: 26rem;
+}
+
+.control-strip__count {
+  width: 4.5rem;
+}
+
+.control-strip__playback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+/* Reserved slots: the playing sentence is one stable line for the whole of
+   play, and two lines are reserved so a stop or refusal message does not
+   move the cockpit below it either. */
+.control-strip__status,
+.control-strip__slot {
+  flex-basis: 100%;
+  margin: 0;
+  min-height: 3em;
+}
+
+.run-cockpit__heading {
+  font-size: var(--text-base);
+  margin: 0 0 var(--space-2);
+}
+
+.run-cockpit__caption {
+  margin: 0 0 var(--space-2);
+}
+
+/* The drawing beside the interval inspection, in a region of fixed height:
+   each side owns its overflow, so a tick never changes the cockpit's size. */
+.run-cockpit__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.run-cockpit__drawing,
+.run-cockpit__inspection {
+  min-width: 0;
+  height: 34rem;
+  overflow: auto;
+}
+
+@media (min-width: 1100px) {
+  .run-cockpit__stage {
+    grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+  }
+}
+
+.run-cockpit__charts {
+  min-height: 40rem;
+}
+
+.run-cockpit__timeline {
+  height: 26rem;
+  overflow: auto;
+}
+
+.run-not-line {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+}

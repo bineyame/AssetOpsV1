@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { DataTable, Panel } from "../ui";
+import { DataTable, Disclosure, Panel } from "../ui";
 import {
   type ChartModel,
   type ChartPanel,
@@ -894,14 +894,24 @@ export function HistoryCharts({
 
   return (
     <Panel heading="Recorded day curves" headingId="run-history-charts-heading">
-      <p>
-        Every curve below is read from this run&apos;s recorded history; none is
-        recomputed here. Reported readings are rings at their source time; a
-        thin line joins consecutive readings of one signal only to show that no
-        due attempt failed between them, and is not a value between them. Choosing a boundary moves the cursor on every chart
-        and the exact values beside them. It reads the record and never
-        advances the run.
+      <p className="run-cockpit__caption">
+        Read from the recorded history; nothing is recomputed. Rings are reports
+        at their source time.
       </p>
+      <Disclosure name="charts-how-to-read" summary="How to read these curves">
+        <p>
+          Every curve below is read from this run&apos;s recorded history; none is
+          recomputed here. Reported readings are rings at their source time; a
+          thin line joins consecutive readings of one signal only to show that no
+          due attempt failed between them, and is not a value between them.
+          Choosing a boundary moves the history cursor on every chart and the
+          exact values beside them. It reads the record and never advances the
+          run.
+        </p>
+        <p>
+          {`The time axis is the offset from the interval start, over the whole window; each step is ${model.timestep} min. The shaded band is the step that ended at the selected boundary: an interval report at T describes it, while a control accepted at T governs the next step. Past the last recorded boundary the window is not recorded yet.`}
+        </p>
+      </Disclosure>
       {unavailable.length === 0 ? null : (
         <ul className="cell-list" data-charts-unavailable>
           {unavailable.map((c) => (
@@ -915,9 +925,6 @@ export function HistoryCharts({
         <p data-charts-empty>No boundary is recorded, so there is nothing to chart.</p>
       ) : (
         <>
-          <p className="cell-secondary">
-            {`The time axis is the offset from the interval start, over the whole window; each step is ${model.timestep} min. The shaded band is the step that ended at the selected boundary: an interval report at T describes it, while a control accepted at T governs the next step.`}
-          </p>
           <div className="history-cockpit">
             <div className="history-cockpit__charts" ref={ref}>
               {model.panels.map((panel) => (

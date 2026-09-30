@@ -1,7 +1,12 @@
-import { DataTable, Panel } from "../ui";
+import { memo } from "react";
+
+import { DataTable, Disclosure, Panel } from "../ui";
 import { parseExact, readable } from "./exactArithmetic";
-import { completedIntervalAt } from "./intervalDrawingModel";
-import type { RunHistory, RunHistoryControl, RunHistoryRequest } from "./runHistory";
+import type {
+  RunHistoryControl,
+  RunHistoryInterval,
+  RunHistoryRequest,
+} from "./runHistory";
 
 /**
  * Requested versus accepted control for one recorded interval (T025d, C4).
@@ -14,15 +19,18 @@ import type { RunHistory, RunHistoryControl, RunHistoryRequest } from "./runHist
  * balance identities. Nothing is taken from the latest step, and nothing is
  * explained by comparing numbers: a reason shown is a reason recorded.
  */
-export function IntervalInspection({
-  history,
+export const IntervalInspection = memo(function IntervalInspection({
+  interval,
   offset,
 }: {
-  history: RunHistory;
+  /**
+   * T025e AC11: the recorded interval that ended at `offset`, by reference -
+   * the page passes the history's own row, so a tick that leaves the cursor
+   * pinned re-renders nothing here.
+   */
+  interval: RunHistoryInterval | null;
   offset: number;
 }) {
-  const interval = completedIntervalAt(history, offset);
-
   if (interval === null) {
     return (
       <Panel
@@ -39,6 +47,7 @@ export function IntervalInspection({
 
   const span = `[${interval.from_offset}, ${interval.to_offset})`;
   const rows = controlRows(interval.requests, interval.controls);
+  const verdict = balanceVerdict(interval);
 
   return (
     <>
@@ -48,10 +57,10 @@ export function IntervalInspection({
         flush
       >
         <p
-
+          className="run-cockpit__caption"
           data-interval-span={`${interval.from_offset}-${interval.to_offset}`}
         >
-          {`The interval ${span} min that ended at the selected boundary: decided at ${interval.from_offset} min from the controller's view there, and completed at ${interval.to_offset} min. Power is the mean over the interval in kW; energy is over the interval in kWh.`}
+          {`Interval ${span} min, ended here: decided at ${interval.from_offset} min. Mean kW; kWh over the interval.`}
         </p>
         <DataTable labelledBy="run-interval-control-heading">
           <thead>
@@ -103,45 +112,6 @@ export function IntervalInspection({
       </Panel>
 
       <Panel
-        heading="Effective controls over the interval"
-        headingId="run-interval-effective-heading"
-        flush
-      >
-        {interval.effective_controls.length === 0 ? (
-          <p data-interval-no-effective>
-            No effective control is recorded for this interval.
-          </p>
-        ) : (
-          <DataTable labelledBy="run-interval-effective-heading">
-            <thead>
-              <tr>
-                <th scope="col">Address</th>
-                <th scope="col">Value</th>
-                <th scope="col">In effect over</th>
-                <th scope="col">Origin</th>
-                <th scope="col">Provenance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {interval.effective_controls.map((e) => (
-                <tr
-                  key={`${e.address}-${e.from_offset}`}
-                  data-interval-effective={e.address}
-                  data-origin={e.origin}
-                >
-                  <th scope="row">{e.address}</th>
-                  <td>{quantity(e.value, e.unit)}</td>
-                  <td>{`[${e.from_offset}, ${e.to_offset}) min`}</td>
-                  <td>{e.origin}</td>
-                  <td>{e.provenance}</td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        )}
-      </Panel>
-
-      <Panel
         heading="Each load's service over the interval"
         headingId="run-interval-loads-heading"
         flush
@@ -179,45 +149,133 @@ export function IntervalInspection({
         headingId="run-interval-balance-heading"
         flush
       >
-        <p>
-          Each identity the model checked, with the exact sums of the recorded
-          flow energies it names. The residual is sources minus sinks.
+        <p className="run-cockpit__caption" data-balance-verdict={verdict.code}>
+          {verdict.text}
         </p>
-        <DataTable labelledBy="run-interval-balance-heading">
-          <thead>
-            <tr>
-              <th scope="col">Identity</th>
-              <th scope="col">Sources</th>
-              <th scope="col">Sinks</th>
-              <th scope="col">Residual</th>
-            </tr>
-          </thead>
-          <tbody>
-            {interval.balance_identities.map((b) => (
-              <tr
-                key={b.identity_id}
-                data-interval-balance={b.identity_id}
-                data-balance-holds={
-                  b.residual === null ? "unknown" : b.residual === "0" ? "yes" : "no"
-                }
-              >
-                <th scope="row">{b.identity_id}</th>
-                <td>{`${b.sources.join(" + ")} = ${quantity(b.source_energy, "kWh")}`}</td>
-                <td>{`${b.sinks.join(" + ")} = ${quantity(b.sink_energy, "kWh")}`}</td>
-                <td>
-                  {b.residual === null
-                    ? "not computable: a named flow is not recorded"
-                    : b.residual === "0"
-                      ? "0 kWh - holds exactly"
-                      : `${quantity(b.residual, "kWh")} - does not hold`}
-                </td>
+        <Disclosure
+          name="interval-balance"
+          summary="The balance identities (sources, sinks, residual)"
+        >
+          <p>
+            Each identity the model checked, with the exact sums of the recorded
+            flow energies it names. The residual is sources minus sinks.
+          </p>
+          <DataTable labelledBy="run-interval-balance-heading">
+            <thead>
+              <tr>
+                <th scope="col">Identity</th>
+                <th scope="col">Sources</th>
+                <th scope="col">Sinks</th>
+                <th scope="col">Residual</th>
               </tr>
-            ))}
-          </tbody>
-        </DataTable>
+            </thead>
+            <tbody>
+              {interval.balance_identities.map((b) => (
+                <tr
+                  key={b.identity_id}
+                  data-interval-balance={b.identity_id}
+                  data-balance-holds={
+                    b.residual === null
+                      ? "unknown"
+                      : b.residual === "0"
+                        ? "yes"
+                        : "no"
+                  }
+                >
+                  <th scope="row">{b.identity_id}</th>
+                  <td>{`${b.sources.join(" + ")} = ${quantity(b.source_energy, "kWh")}`}</td>
+                  <td>{`${b.sinks.join(" + ")} = ${quantity(b.sink_energy, "kWh")}`}</td>
+                  <td>
+                    {b.residual === null
+                      ? "not computable: a named flow is not recorded"
+                      : b.residual === "0"
+                        ? "0 kWh - holds exactly"
+                        : `${quantity(b.residual, "kWh")} - does not hold`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Disclosure>
       </Panel>
+
+      <Disclosure
+        name="interval-effective"
+        summary="Effective controls over the interval"
+      >
+        <Panel
+          heading="Effective controls over the interval"
+          headingId="run-interval-effective-heading"
+          flush
+        >
+          {interval.effective_controls.length === 0 ? (
+            <p data-interval-no-effective>
+              No effective control is recorded for this interval.
+            </p>
+          ) : (
+            <DataTable labelledBy="run-interval-effective-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Address</th>
+                  <th scope="col">Value</th>
+                  <th scope="col">In effect over</th>
+                  <th scope="col">Origin</th>
+                  <th scope="col">Provenance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {interval.effective_controls.map((e) => (
+                  <tr
+                    key={`${e.address}-${e.from_offset}`}
+                    data-interval-effective={e.address}
+                    data-origin={e.origin}
+                  >
+                    <th scope="row">{e.address}</th>
+                    <td>{quantity(e.value, e.unit)}</td>
+                    <td>{`[${e.from_offset}, ${e.to_offset}) min`}</td>
+                    <td>{e.origin}</td>
+                    <td>{e.provenance}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          )}
+        </Panel>
+      </Disclosure>
     </>
   );
+});
+
+/** One line for the balance identities: every one holds, or which do not. */
+function balanceVerdict(interval: RunHistoryInterval): {
+  code: string;
+  text: string;
+} {
+  const all = interval.balance_identities;
+  const failing = all.filter((b) => b.residual !== null && b.residual !== "0");
+  const unknown = all.filter((b) => b.residual === null);
+  if (all.length === 0) {
+    return {
+      code: "none",
+      text: "No balance identity is recorded for this interval.",
+    };
+  }
+  if (failing.length > 0) {
+    return {
+      code: "fails",
+      text: `Balance does not hold exactly for ${failing.map((b) => b.identity_id).join(", ")}.`,
+    };
+  }
+  if (unknown.length > 0) {
+    return {
+      code: "unknown",
+      text: `${all.length - unknown.length} of ${all.length} identities hold exactly; ${unknown.length} not computable (a named flow is not recorded).`,
+    };
+  }
+  return {
+    code: "holds",
+    text: `Balance holds exactly: all ${all.length} identities have residual 0 kWh.`,
+  };
 }
 
 /** Exact text for a recorded quantity; a discrete member as itself. */
@@ -239,7 +297,11 @@ function controlRows(
 }[] {
   const rows = new Map<
     string,
-    { key: string; request: RunHistoryRequest | null; control: RunHistoryControl | null }
+    {
+      key: string;
+      request: RunHistoryRequest | null;
+      control: RunHistoryControl | null;
+    }
   >();
   for (const request of requests) {
     const key = `${request.quantity} at ${request.address}`;

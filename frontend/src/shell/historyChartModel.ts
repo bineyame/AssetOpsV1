@@ -170,20 +170,52 @@ function tracks(history: RunHistory): ReportedTrack[] {
 }
 
 /**
+ * T025e AC11: the chart model is extended, not rebuilt. The live history
+ * keeps every row it already held by reference (`liveHistory.ts`), so each
+ * row's points are computed once, cached on the row, and reused by every
+ * later tick: a tick parses only the rows it added. A whole read replaces
+ * the rows, and the cache with them.
+ */
+const pointCache = new WeakMap<object, Map<string, unknown>>();
+
+function cached<T>(row: object, key: string, build: () => T): T {
+  let byKey = pointCache.get(row);
+  if (byKey === undefined) {
+    byKey = new Map();
+    pointCache.set(row, byKey);
+  }
+  if (!byKey.has(key)) {
+    byKey.set(key, build());
+  }
+  return byKey.get(key) as T;
+}
+
+/**
  * One recorded flow's mean power over each step, read as the host recorded
  * it: never summed with another flow here, so the curve is the record's own.
  */
 function fromFlow(history: RunHistory, flowId: string): IntervalValue[] {
   return history.intervals.flatMap((interval) =>
-    interval.flows
-      .filter((flow) => flow.flow_id === flowId)
-      .map((flow) => ({
-        from: interval.from_offset,
-        to: interval.to_offset,
-        exact: flow.mean_power,
-        value: plotted(flow.mean_power),
-      })),
+    cached(interval, `flow:${flowId}`, () =>
+      interval.flows
+        .filter((flow) => flow.flow_id === flowId)
+        .map((flow) => ({
+          from: interval.from_offset,
+          to: interval.to_offset,
+          exact: flow.mean_power,
+          value: plotted(flow.mean_power),
+        })),
+    ),
   );
+}
+
+/** A state sample as a chart point, once per sample row. */
+function point(sample: { offset_minutes: number; value: string }): InstantPoint {
+  return cached(sample, "point", () => ({
+    offset: sample.offset_minutes,
+    exact: sample.value,
+    value: plotted(sample.value),
+  }));
 }
 
 /**
@@ -199,12 +231,14 @@ function fromStep(
   const decided = new Set(history.intervals.map((i) => i.from_offset));
   return history.electrical_steps
     .filter((row) => decided.has(row.from_offset))
-    .map((row) => ({
-      from: row.from_offset,
-      to: row.to_offset,
-      exact: row[field],
-      value: plotted(row[field]),
-    }));
+    .map((row) =>
+      cached(row, field, () => ({
+        from: row.from_offset,
+        to: row.to_offset,
+        exact: row[field],
+        value: plotted(row[field]),
+      })),
+    );
 }
 
 /** The largest value a frozen input holds under `name`, or null. */
@@ -287,14 +321,16 @@ export function chartModel(
       field: "demand_power" | "served_power" | "unserved_power",
     ): IntervalValue[] =>
       history.intervals.flatMap((interval) =>
-        interval.loads
-          .filter((load) => load.address === address)
-          .map((load) => ({
-            from: interval.from_offset,
-            to: interval.to_offset,
-            exact: load[field],
-            value: plotted(load[field]),
-          })),
+        cached(interval, `load:${address}:${field}`, () =>
+          interval.loads
+            .filter((load) => load.address === address)
+            .map((load) => ({
+              from: interval.from_offset,
+              to: interval.to_offset,
+              exact: load[field],
+              value: plotted(load[field]),
+            })),
+        ),
       );
     panels.push({
       id: `load-${component(address)}`,
@@ -324,14 +360,16 @@ export function chartModel(
   ];
   const governing = (prefix: string): IntervalValue[] =>
     history.intervals.flatMap((interval) =>
-      interval.effective_controls
-        .filter((control) => stateKey(control.address) === prefix)
-        .map((control) => ({
-          from: control.from_offset,
-          to: control.to_offset,
-          exact: control.value,
-          value: plotted(control.value),
-        })),
+      cached(interval, `governing:${prefix}`, () =>
+        interval.effective_controls
+          .filter((control) => stateKey(control.address) === prefix)
+          .map((control) => ({
+            from: control.from_offset,
+            to: control.to_offset,
+            exact: control.value,
+            value: plotted(control.value),
+          })),
+      ),
     );
   for (const address of socAddresses) {
     const reserve = governing("battery-reserve-state-of-charge");
@@ -345,7 +383,7 @@ export function chartModel(
         dash: "solid",
         points: history.samples
           .filter((s) => s.address === address && s.phase === "POST_EVENT")
-          .map((s) => ({ offset: s.offset_minutes, exact: s.value, value: plotted(s.value) })),
+          .map(point),
       },
     ];
     if (reserve.length > 0) {
@@ -359,7 +397,7 @@ export function chartModel(
       title: `Battery state of charge (${component(address)})`,
       unit: "%",
       statement:
-        "State of charge sampled at each boundary after its events; lines join samples. The reserve and the stop threshold are the controls in effect over each step.",
+        "A stock at each boundary, after its events; reserve and stop threshold are controls over each step.",
       signed: false,
       // A state of charge is a percentage of capacity: 0-100 % is declared.
       bound: { min: 0, max: 100 },
@@ -391,17 +429,7 @@ export function chartModel(
     });
   }
 
-  const generatorOutput: IntervalValue[] = history.intervals.flatMap(
-    (interval) =>
-      interval.flows
-        .filter((flow) => flow.flow_id === "generator_output")
-        .map((flow) => ({
-          from: interval.from_offset,
-          to: interval.to_offset,
-          exact: flow.mean_power,
-          value: plotted(flow.mean_power),
-        })),
-  );
+  const generatorOutput: IntervalValue[] = fromFlow(history, "generator_output");
   const generatorRating = heldRating(history, "generator-rated-power");
   if (generatorOutput.length > 0) {
     panels.push({
@@ -442,7 +470,7 @@ export function chartModel(
           dash: "solid",
           points: history.samples
             .filter((s) => s.address === address && s.phase === "POST_EVENT")
-            .map((s) => ({ offset: s.offset_minutes, exact: s.value, value: plotted(s.value) })),
+            .map(point),
         },
       ],
       reported: claim((t) => t.address === address),

@@ -1,8 +1,14 @@
+import { memo } from "react";
+
 import { ConfiguredSingleLineDrawing } from "../sites/SiteSingleLineDiagram";
 import type { SiteDetailResult } from "../sites/siteReadModel";
 import { Panel } from "../ui";
 import { bindDrawing, drawingSlots } from "./intervalDrawingModel";
-import type { RunHistory } from "./runHistory";
+import type {
+  RunHistoryDrawingContext,
+  RunHistoryInterval,
+  RunHistorySample,
+} from "./runHistory";
 
 const HEADING_ID = "run-drawing-heading";
 
@@ -15,49 +21,53 @@ const HEADING_ID = "run-drawing-heading";
  * and why - the charts, the timeline and the control tables beside it are
  * unaffected, and no old value is put on a different diagram.
  */
-export function IntervalDrawing({
-  history,
+export const IntervalDrawing = memo(function IntervalDrawing({
+  drawingContext,
   offset,
+  ended,
+  samplesAt,
+  samplesFrom,
   site,
-  onSelect,
+  onKey,
 }: {
-  history: RunHistory;
+  drawingContext: RunHistoryDrawingContext | null;
+  /** The history cursor's boundary. */
   offset: number;
+  /** The recorded interval that ended at `offset`, or null. */
+  ended: RunHistoryInterval | null;
+  /** The samples the boundary slice at `offset` holds. */
+  samplesAt: RunHistorySample[];
+  /** The samples the slice at the ended interval's decision boundary holds. */
+  samplesFrom: RunHistorySample[];
   site: SiteDetailResult | null;
   /**
    * T025e: move the one history cursor. Arrow keys on the drawing step it a
    * recorded boundary back or forward; Home and End go to the first and the
-   * last (End follows live). Lab-side: the shared drawing is not touched.
+   * last (End follows live). Lab-side: the shared drawing is not touched. A
+   * stable callback, so a tick that leaves the cursor pinned leaves this
+   * drawing's props - all per-boundary slice references - unchanged (AC11).
    */
-  onSelect?: (offset: number) => void;
+  onKey?: (key: string) => boolean;
 }) {
-  const binding = bindDrawing(history.drawing_context, site);
+  const binding = bindDrawing(drawingContext, site);
   const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (onSelect === undefined) {
-      return;
-    }
-    const offsets = history.boundaries.map((b) => b.offset_minutes);
-    const at = offsets.indexOf(offset);
-    const target =
-      event.key === "ArrowLeft"
-        ? offsets[Math.max(0, at - 1)]
-        : event.key === "ArrowRight"
-          ? offsets[Math.min(offsets.length - 1, at + 1)]
-          : event.key === "Home"
-            ? offsets[0]
-            : event.key === "End"
-              ? offsets[offsets.length - 1]
-              : undefined;
-    if (target !== undefined) {
+    if (onKey !== undefined && onKey(event.key)) {
       event.preventDefault();
-      onSelect(target);
     }
+  };
+  const record = {
+    intervals: ended === null ? [] : [ended],
+    samples:
+      samplesFrom === samplesAt ? samplesAt : [...samplesFrom, ...samplesAt],
   };
 
   return (
-    <Panel heading="Single line diagram at the selected boundary" headingId={HEADING_ID}>
-      <p data-drawing-boundary={offset}>
-        {`Selected history boundary: ${offset} min. This is the history cursor, not the execution clock; moving it reads the record and executes nothing.`}
+    <Panel
+      heading="Single line diagram at the selected boundary"
+      headingId={HEADING_ID}
+    >
+      <p className="run-cockpit__caption" data-drawing-boundary={offset}>
+        {`History cursor at ${offset} min - the record, not the execution clock.`}
       </p>
       {binding.status === "unavailable" ? (
         <p data-drawing-unavailable={binding.code}>
@@ -66,13 +76,13 @@ export function IntervalDrawing({
       ) : (
         <div
           data-drawing-bound={binding.site.site_id}
-          tabIndex={onSelect === undefined ? undefined : 0}
+          tabIndex={onKey === undefined ? undefined : 0}
           aria-label="Single line diagram; arrow keys move the history cursor"
           onKeyDown={onKeyDown}
         >
           <ConfiguredSingleLineDrawing
             site={binding.site}
-            slots={drawingSlots(binding, history, offset)}
+            slots={drawingSlots(binding, record, offset)}
             headingId={HEADING_ID}
             idPrefix="run-sld"
           />
@@ -80,4 +90,4 @@ export function IntervalDrawing({
       )}
     </Panel>
   );
-}
+});

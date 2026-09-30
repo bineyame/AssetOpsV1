@@ -56,6 +56,12 @@ export function RunHeader({
           <span data-header-run>{`${run.run_id} on Site ${run.site_id}`}</span>
           {`, scenario ${run.scenario_id} v${run.scenario_version}`}
         </Fact>
+        {/* T025e AC10: "This run" merged here, each fact once. */}
+        <Fact term="Lifecycle and readiness">
+          <span data-header-lifecycle={run.lifecycle_status}>
+            {`${run.lifecycle_status}; ${run.execution_status}; set up ${run.created_at}`}
+          </span>
+        </Fact>
         <Fact term="Frozen inputs">
           <span data-header-provenance>{provenance}</span>
           {projection === null || projection.inputs_identity === ""
