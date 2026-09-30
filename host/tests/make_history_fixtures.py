@@ -33,6 +33,7 @@ from assetops_backend.sites_api import site_detail  # noqa: E402
 from kobo import kobo_document, kobo_site  # noqa: E402
 from test_generator_observation import CHANGED, draft, silenced  # noqa: E402
 from test_lab_history import a_lab  # noqa: E402
+from test_lab_history_prefix import multi_window_edit  # noqa: E402
 from test_mini_grid_v2 import PROLONGED  # noqa: E402
 from test_mini_grid_v2 import draft as mini_grid_draft  # noqa: E402
 
@@ -77,6 +78,7 @@ def main() -> None:
     prolonged_prefix()
     live_deltas()
     mid_step_deltas()
+    multi_window_deltas()
 
 
 def prolonged_prefix() -> None:
@@ -180,6 +182,49 @@ def mid_step_deltas() -> None:
         "full": history_payload(history, run),
     }
     (OUT / "kobo-fuel-mid-step-deltas.json").write_text(
+        json.dumps(document, separators=(",", ":")), encoding="utf-8"
+    )
+
+
+def multi_window_deltas() -> None:
+    """`kobo-mini-grid-multi-window-deltas.json`: several forcing addresses, one
+    window opening mid-step at a non-last address (T025e R2, finding R1-1).
+
+    The prolonged recipe with the mill's second demand window opening at 62.
+    The kernel records exposures by `(address, from_offset)`, so the step
+    holding 62 lists `load-mill@62` after `load-res@60`-style rows that start
+    earlier. The full read after start, the delta after each of 14 single
+    steps, and a second base - the full read after 12 steps - with the delta
+    after the step that follows.
+    """
+    run = mini_grid_draft(PROLONGED, document_edit=multi_window_edit)
+    lab = a_lab(Path(tempfile.mkdtemp()))
+    projection = lab.start(run)
+    base = history_payload(lab.history(run), run)
+    held = base["boundaries_recorded"]
+    deltas = []
+    rebased_base = None
+    rebased = None
+    for index in range(14):
+        projection = lab.step(
+            run, boundaries=1, from_boundary=projection.boundaries_completed
+        )
+        history = lab.history(run)
+        if index == 12:
+            rebased = {"base": rebased_base, "read": delta_read(history, rebased_held, run)}
+        deltas.append(delta_read(history, held, run))
+        held = len(history.boundaries)
+        if index == 11:
+            rebased_base = history_payload(history, run)
+            rebased_held = held
+    history = lab.history(run)
+    document = {
+        "base": base,
+        "deltas": deltas,
+        "rebased": rebased,
+        "full": history_payload(history, run),
+    }
+    (OUT / "kobo-mini-grid-multi-window-deltas.json").write_text(
         json.dumps(document, separators=(",", ":")), encoding="utf-8"
     )
 

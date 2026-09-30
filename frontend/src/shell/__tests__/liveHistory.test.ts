@@ -14,6 +14,7 @@ import {
 import type { RunHistory, RunHistoryDeltaEnvelope } from "../runHistory";
 import wire from "./kobo-mini-grid-history-deltas.json";
 import midStepWire from "./kobo-fuel-mid-step-deltas.json";
+import multiWire from "./kobo-mini-grid-multi-window-deltas.json";
 
 /**
  * The live-follow merge (T025e AC3), against the backend's own answers.
@@ -392,5 +393,61 @@ describe("an exposure that opens between boundaries (step-owned)", () => {
     expect(refusal(appendHistory(copy(base), again.history, again.delta))).toBe(
       "ROW_NOT_AFTER_RECORDED",
     );
+  });
+});
+
+/**
+ * R2 (review R1-1): several forcing addresses and a window that opens mid-step
+ * at a non-last address. The kernel records exposures by (address,
+ * from_offset), so the delta since 12 carries `60, 60, 62, 60, 60`.
+ * `kobo-mini-grid-multi-window-deltas.json` is the prolonged recipe with the
+ * mill's second demand window opening at 62.
+ */
+const multi = multiWire as unknown as typeof midStep;
+
+describe("exposures of several addresses with a mid-step window", () => {
+  it("the fixture has a delta whose exposures are not ascending by offset", () => {
+    const unordered = multi.deltas.filter((d) => {
+      const f = d.history.exposures.map((e) => e.from_offset);
+      return f.some((v, i) => i > 0 && v < f[i - 1]);
+    });
+    expect(unordered.length).toBeGreaterThan(0);
+  });
+
+  it("accepts every delta, and folding them equals the full read", () => {
+    let held = copy(multi.base);
+    for (const read of multi.deltas) {
+      held = accepted(appendHistory(held, copy(read.history), read.delta));
+    }
+    expect(held.exposures).toEqual(multi.full.exposures);
+    expect(held.boundaries).toEqual(multi.full.boundaries);
+  });
+
+  it("a delta after a full-read base adds no duplicate", () => {
+    const { base, read } = multi.rebased;
+    const next = accepted(appendHistory(copy(base), copy(read.history), read.delta));
+    const keys = next.exposures.map((e) => `${e.address}|${e.from_offset}`);
+    expect(new Set(keys).size).toBe(keys.length);
+    const folded = multi.deltas.slice(0, 13).reduce(
+      (h, r) => accepted(appendHistory(h, copy(r.history), r.delta)),
+      copy(multi.base),
+    );
+    expect(next.exposures).toEqual(folded.exposures);
+  });
+
+  it("still refuses a row of an earlier step after a later step's", () => {
+    const [a, b] = [copy(multi.deltas[11]), copy(multi.deltas[12])];
+    const joined = copy(b.history);
+    joined.boundaries = [...a.history.boundaries, ...b.history.boundaries];
+    joined.exposures = [...b.history.exposures, ...a.history.exposures];
+    const envelope = {
+      since_boundary: a.delta.since_boundary,
+      through_boundary: b.delta.through_boundary,
+    };
+    const held = multi.deltas.slice(0, 11).reduce(
+      (h, r) => accepted(appendHistory(h, copy(r.history), r.delta)),
+      copy(multi.base),
+    );
+    expect(refusal(appendHistory(held, joined, envelope))).toBe("ROW_OUT_OF_ORDER");
   });
 });

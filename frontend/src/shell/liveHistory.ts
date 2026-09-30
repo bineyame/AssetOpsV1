@@ -236,7 +236,10 @@ export function appendHistory(
     const rows = delta[family] as Row[];
     if (stepOwned) {
       const first = added.length > 0 ? added[0].offset_minutes : null;
-      let previous = first;
+      // The kernel records these by (address, from_offset), so `from_offset`
+      // alone is not ascending within a step. Order is by owning step: the
+      // last new boundary at or before the row's own offset.
+      let previousStep = -1;
       for (const row of rows) {
         const key = keyOf(family, row);
         if (first === null || key < first) {
@@ -246,13 +249,21 @@ export function appendHistory(
               `before the first new boundary ${first}.`,
           );
         }
-        if (previous !== null && key < previous) {
+        let step = 0;
+        while (
+          step + 1 < added.length &&
+          added[step + 1].offset_minutes <= key
+        ) {
+          step += 1;
+        }
+        if (step < previousStep) {
           return refuse(
             "ROW_OUT_OF_ORDER",
-            `A ${family} row at ${key} follows one at ${previous}.`,
+            `A ${family} row at ${key} belongs to an earlier step than the ` +
+              `row before it.`,
           );
         }
-        previous = key;
+        previousStep = step;
       }
       continue;
     }
