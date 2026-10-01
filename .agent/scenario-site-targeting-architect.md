@@ -232,7 +232,12 @@ before T026)**
 - Shipped scenarios move to v2 without `target_site`. Add the pinned-digest
   guard for shipped scenarios.
 - Freeze template lineage on the site binding.
-- `EXECUTION_CONTRACT_VERSION` moves (§6).
+- `EXECUTION_CONTRACT_VERSION` stays at 9 (§6, revision 3; pending owner
+  sign-off).
+- Observation-source resolution retires with target resolution
+  (`resolve_observation_sources`, its states, the detail service's
+  `SiteRepository` and the `observation_source_resolutions` payload). Without a
+  site it could only report NOT_CONFIGURED.
 - Frontend:
   - the site picker with no pre-selection in `RunSetupFrame`, which today
     derives the site from `targetResolution`;
@@ -284,32 +289,82 @@ the run-setup outcome.
 
 ## 6. Contract-version reading (`D-2026-09-22-contract-version-scope`)
 
-Revision 1 said S1 does not move the version. **That is withdrawn.**
+**Revision 3 ruling (2026-10-01, after T025g phase 1 stopped): S1 does not move
+`EXECUTION_CONTRACT_VERSION`. It stays at 9.** This reverses revision 2 and the
+contract clause of the owner-accepted `D-2026-10-01-run-binds-scenario-to-site`,
+so it needs owner sign-off. I recommend the owner gives it.
 
-- **S1 moves `EXECUTION_CONTRACT_VERSION` from 9 to 10.** The test is whether a
-  change can alter the outcome for a document that was already valid. S1 does,
-  on the executable path:
-  - every valid `DECLARED_SITE` document paired with another site changes from
-    `TARGET_TOPOLOGY_UNSUPPORTED` to READY or BLOCKED;
-  - every valid `TEMPLATE_DERIVED` document changes from refused to set up.
+**What revision 2 claimed, and why it was false.** Revision 2 said "every
+persisted run keeps its frozen 9 and regenerates identically", so moving the
+version was cheap. The code says otherwise (T025g phase 1, verified by the
+Implementer):
 
-  These are widenings, but not "off every executable path", which is the only
-  kind of widening the decision exempts. The document shape also changes:
-  `target_site` stops being required and is ignored when present. The move is
-  cheap. The kernel is unchanged, every persisted run keeps its frozen 9 and
-  regenerates identically, and the move only marks that run setup's accepted
-  space changed.
-- **S2 depends on the refuse-or-label choice.**
-  - **Label:** no move. Documents valid before carry no assumptions, so their
-    outcome cannot change. New documents gain a label, not a different
-    outcome. This is a pure widening, and labels sit off the kernel path.
-  - **Refuse or BLOCK:** moves again, because a new BLOCKED reason narrows
-    outcomes.
-  - **S1 and S2 folded into one slice:** one move covers both, whichever
-    treatment is chosen.
+- `refuse_incompatible_execution` (`execution_contract.py:428`) refuses any
+  frozen version other than the build's.
+- The contract-9 gate runs its 15 Drafts through that check
+  (`host/execution_adapter.py:223`, `:620`). After a move to 10, every READY
+  gate Draft is refused before it executes.
+- Re-stamping the Drafts changes `frozen_inputs_identity`, because the version
+  is hashed (`trajectory.py:496`), and with it the pinned digests.
+- The Lab artifacts also embed the build version (`lab_execution.py:712`,
+  `:1267`).
 
-This reading is the kind of judgement `ROLE_CONFIG.md` sends to Codex. Confirm
-it in S1's first review.
+So a move does not leave version-9 runs regenerating. It makes every one of
+them unexecutable while the kernel is unchanged.
+
+**Why no move is the right reading, not only the cheap one.** I applied the
+decision's test to the wrong object.
+- **The test is about frozen artifacts.** The decision says the number serves
+  "an older frozen run replayed against a newer build", and that a narrowing
+  matters because an artifact frozen against a document "cannot be
+  re-derived".
+- **Under that test, S1 is a pure widening.**
+  - With legacy acceptance, no existing document stops parsing or changes
+    meaning.
+  - Every run frozen under the old rule joined a scenario to its declared
+    site. That join is still allowed, and it freezes identical world inputs.
+  - `target_site` was never a kernel input and never entered
+    `FrozenWorldInputs`.
+- **The carve-out does not apply.** It covers a new construct on an executable
+  path that changes how an existing one is read. S1 adds no executed construct.
+  It deletes a run-setup refusal of requests, and no frozen artifact ever
+  passed through that refusal into the kernel.
+- **Revision 2's "refused becomes READY" argument was the one the decision
+  already rejects.** Under a strict parser every change flips refuse/run for
+  *some* request, so that "separates nothing". Direction is the axis, and S1
+  only widens.
+- **A move would make the refusal message false.** It says execution is refused
+  because these rules would apply "to inputs resolved under different ones".
+  For a version-9 Draft that is untrue.
+
+**The other options, ranked.**
+- **(1) Redesign the gate.** The fallback if the owner keeps the move.
+  - The gate would assert that version-9 Drafts read back whole and are refused
+    with the version named.
+  - It would prove the kernel unchanged by executing with the build version
+    pinned to 9 through a test-only monkeypatch in three modules.
+  - This works, but it edits the contract-9 gate's method, so it needs owner
+    sign-off too. Its cost is the false refusal described above.
+- **(2) Accept both 9 and 10.** Rejected. It empties the refusal rule, and the
+  number then marks nothing.
+- **(4) Re-capture the gate at 10.** Rejected. It destroys the pre-change
+  baseline the gate exists to keep.
+
+**Guardrail this ruling adds (T025g AC3).** The frozen template lineage is run
+provenance on the site binding. It must stay out of `FrozenWorldInputs` and out
+of `frozen_inputs_identity`; otherwise adding it would itself change the gate's
+pinned digests. The contract-9 gate reproducing unchanged is the proof of both.
+
+**S2 is unchanged.** If a purpose assumption that does not hold only labels the
+run (the decision's choice), adding assumptions is a widening and there is no
+move.
+
+*Revision 2's text, kept for the record:* "S1 moves `EXECUTION_CONTRACT_VERSION`
+from 9 to 10 ... every persisted run keeps its frozen 9 and regenerates
+identically." The second half of that sentence is false, as shown above.
+
+This ruling is Claude's under the exception. It still goes to Codex in T025g's
+retrospective review.
 
 ## 7. Owner decisions still open
 
@@ -350,8 +405,10 @@ run is the only join, no default site) and keeping or renaming `DECLARED_SITE`
   for those that gain assumptions in S2.
 - **Parser.** Was unchanged in S1. Now `target_site` is legacy-accepted, no
   longer required, and ignored; this is needed to keep the catalog alive.
-- **Contract version.** Was no move for S1. Now S1 moves it to 10, and S2 moves
-  it only if assumptions refuse rather than label.
+- **Contract version.** Revision 1 said no move for S1, and revision 2 said 9 to
+  10. **Revision 3 returns to no move** (§6), because revision 2's claim that
+  version-9 runs regenerate was false. Owner sign-off is needed. S2 moves it
+  only if assumptions refuse rather than label.
 - **Frozen fields.** Were lineage plus suggested-site flag. Now lineage only in
   S1, plus assumption results in S2.
 - **Verified since revision 1.** The store holds one version per scenario, run

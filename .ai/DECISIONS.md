@@ -24,7 +24,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
-| `D-2026-10-01-run-binds-scenario-to-site` | 2026-10-01 | A run is the only join of a scenario version and a site version; `target_site` retired with legacy acceptance; no template hint; assumptions label; content change bumps version under a fingerprint guard; contract 9 -> 10 in T025g. |
+| `D-2026-10-01-run-binds-scenario-to-site` | 2026-10-01 | A run is the only join of a scenario version and a site version; `target_site` retired with legacy acceptance; no template hint; assumptions label; content change bumps version under a fingerprint guard. Contract clause amended 2026-10-01: no move, version stays 9 (pending owner sign-off). |
 | `D-2026-09-24-v4-roadmap-replan` | 2026-09-24 | Corrected two-source basis; roadmap A-I, dispatch first, immediate component addressing; Planner recreates unfinished tasks. |
 | `D-2026-09-24-task-spec-size-ceilings` | 2026-09-24 | Task-spec size bands become ceilings with no minimum, plus a cold-start test. `.ai/WORKFLOW.md` is their only owner. |
 | `D-2026-09-11-stack` | 2026-09-11 | M1 uses the preferred MVP stack from the product specification. |
@@ -3303,6 +3303,45 @@ change, so every shipped scenario moves to v2 in T025g.
 were already valid, so T025g moves `EXECUTION_CONTRACT_VERSION` 9 -> 10 under
 `D-2026-09-22-contract-version-scope`. Codex confirms the reading in T025g's
 first review.
+
+**Contract clause amended, 2026-10-01: no move. PENDING OWNER SIGN-OFF.** T025g
+phase 1 stopped before writing code because the clause above cannot hold
+together with T025g's own acceptance criteria. The Architect (Claude under the
+same exception) rules that the version stays at 9, and recommends the owner
+sign the reversal.
+
+- **The premise was false.** The Architect's revision 2 said every version-9
+  run "regenerates identically" after a move.
+  - In fact, `refuse_incompatible_execution` refuses any frozen version other
+    than the build's, so all 15 contract-9 gate Drafts would be refused before
+    they execute.
+  - Re-stamping them changes `frozen_inputs_identity`, because the version is
+    hashed, and the Lab artifacts embed the build version.
+  - So the move would make every existing run unexecutable while the kernel is
+    unchanged.
+- **The reading was also wrong on its own terms.**
+  `D-2026-09-22-contract-version-scope` measures the frozen artifact replayed
+  against a newer build. Under that test this slice is a pure widening:
+  - with legacy acceptance, no existing document stops parsing or changes
+    meaning;
+  - every run frozen under the old rule joined a scenario to its declared
+    site, a join that is still allowed and that freezes identical world inputs;
+  - `target_site` was never a kernel input.
+- **"Refused becomes READY" is not a move signal.** The earlier argument relied
+  on run setup now accepting requests it used to refuse. That decision already
+  rejects this as a test, because under a strict parser every change flips
+  refuse/run for some request.
+- **Rejected alternatives:**
+  - accepting both 9 and 10 empties the refusal rule;
+  - re-capturing the gate at 10 destroys its baseline;
+  - redesigning the gate to pin 9 in a test-only patch works, and is the
+    fallback if the owner keeps the move, but it edits the contract-9 gate and
+    leaves a refusal message that is false for version-9 Drafts.
+- **Guardrail.** Frozen template lineage stays out of `FrozenWorldInputs` and
+  `frozen_inputs_identity`. The unchanged contract-9 gate is the proof.
+
+The purpose-assumption clause above is unaffected: labels do not move the
+version. Codex still reviews this reading retrospectively.
 
 **Sequence.** T025f (template versioning) and T025g (the run is the only join)
 before T026; T025h (compatibility status in the picker, a dry-run of the same
