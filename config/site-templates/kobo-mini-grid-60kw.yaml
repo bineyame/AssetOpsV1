@@ -23,9 +23,17 @@
 #
 # Everything here is component truth about the template and never evidence.
 # Templates copy; they never migrate an existing Site.
+#
+# Version 2 (T025f, D-2026-10-01-run-binds-scenario-to-site): T025a and T025b
+# added the four generator properties, the generator status signal and its
+# mapping in place at version 1. Those four properties carry `source_version:
+# 2`; everything that was in the first version 1 keeps 1. Signals and mappings
+# carry no per-entity provenance, so the bump itself is what records them. Any
+# later content change bumps this version again; the pinned fingerprint in
+# `backend/tests/test_site_template_fingerprints.py` fails until it does.
 
 template_id: kobo-mini-grid-60kw
-template_version: 1
+template_version: 2
 display_name: Kobo Mini-Grid (60 kWp, three loads)
 
 foundation:
@@ -136,22 +144,22 @@ foundation:
           value: 35
           unit: "%"
           source: TEMPLATE
-          source_version: 1
+          source_version: 2
         - property_key: stop-soc-threshold
           value: 90
           unit: "%"
           source: TEMPLATE
-          source_version: 1
+          source_version: 2
         - property_key: start-delay
           value: 5
           unit: min
           source: TEMPLATE
-          source_version: 1
+          source_version: 2
         - property_key: generator-rated-power
           value: 40
           unit: kW
           source: TEMPLATE
-          source_version: 1
+          source_version: 2
     - component_id: fuel-tank
       component_type: FUEL_TANK
       display_name: Generator fuel tank
