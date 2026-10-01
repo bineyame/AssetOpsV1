@@ -23,6 +23,13 @@ The owner accepted `D-2026-09-30-lab-cockpit-cadence`,
 `D-2026-09-30-lab-cockpit-presentation` on 2026-09-30. T025c (L1a) then
 T025d (L1b) and T025e (organisation and playback smoothness, added after the
 owner's T025d hands-on check) run sequentially before T026; A remains accepted.
+Under `D-2026-10-01-run-binds-scenario-to-site` (owner accepted 2026-10-01),
+the scenario-site contract slices S0-S2 are T025f (template versioning) and
+T025g (the run is the only join) before T026, T025h (picker compatibility)
+after T026, and T025i (purpose assumptions) after T026 and before T036. T025h
+gates nothing and may float later; T025i may move earlier if the owner wants
+its label in the C/D demo. The T025 letters say where the slices were cut, not
+when they run, as with T022B.
 
 | Order | Task | Map | Reviewable result |
 | --- | --- | --- | --- |
@@ -41,18 +48,22 @@ owner's T025d hands-on check) run sequentially before T026; A remains accepted.
 | 13 | [T025c](completed/T025c-persisted-lab-history-and-charts.md) | Lab cockpit L1a | Reloadable addressed history, charts and run identity |
 | 14 | [T025d](completed/T025d-lab-cockpit-inspection-and-playback.md) | Lab cockpit L1b | Run-bound SLD, causal inspection and guarded playback |
 | 15 | [T025e](completed/T025e-cockpit-organisation-and-live-playback.md) | Lab cockpit L1c | Organised cockpit layout and smooth playback |
-| 16 | T026 | B | Dispatch evidence with one gap and one delayed publication |
-| 17 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 18 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 19 | T029 | D | Versioned assumptions translate quantity into money |
-| 20 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 21 | T034 | H | Policy action -> post-action evidence -> verification |
-| 22 | T030 | E | Fuel balance with separate delivery/dip records |
-| 23 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 24 | T032 | F completion | Paired load addition with isolated comparison history |
-| 25 | T033 | G | Battery stress trajectory and replacement exposure |
-| 26 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 27 | T036 | I completion | Independent six-site portfolio and client walkthrough |
+| 16 | [T025f](T025f-template-versioning.md) | A/B hardening | Template v2 and site lineage staleness note |
+| 17 | [T025g](T025g-run-binds-scenario-to-site.md) | A/B hardening | User picks the site; shipped scenario READY or BLOCKED by contract |
+| 18 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 19 | T025h | A/B hardening | Compatibility status per site in the run-setup picker (awaiting planning) |
+| 20 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
+| 21 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
+| 22 | T029 | D | Versioned assumptions translate quantity into money |
+| 23 | T029A | H prerequisite | Frozen policy intervention changes a run |
+| 24 | T034 | H | Policy action -> post-action evidence -> verification |
+| 25 | T030 | E | Fuel balance with separate delivery/dip records |
+| 26 | T031 | F | Evidence-backed recurring headroom opportunity |
+| 27 | T032 | F completion | Paired load addition with isolated comparison history |
+| 28 | T033 | G | Battery stress trajectory and replacement exposure |
+| 29 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
+| 30 | T025i | Scenario contract | Purpose assumptions label a run whose site breaks them (awaiting planning) |
+| 31 | T036 | I completion | Independent six-site portfolio and client walkthrough |
 | - | T026A | B hardening | Gateway outage, recovery and delivery realism |
 
 Task dependency declarations identify the required artifacts.
@@ -63,7 +74,7 @@ L3's C7 enrichment, C8 health/log breadth and C9 setup/authoring are
 feedback-selected after their prerequisites, normally after T036. No L3 task
 or demo gate is allocated now.
 
-**Rows 24 and 25 are an interchangeable pair.** T033 and T035 consume nothing
+**Rows 28 and 29 are an interchangeable pair.** T033 and T035 consume nothing
 from each other; both depend only on T027's evidence, T029's assumptions and
 T034's rule set. Which runs first is a product-priority call taken from
 T028/T029 feedback - backup failure and unserved customers may matter more to
@@ -82,10 +93,10 @@ the first credible client milestone is the mistake this queue now avoids.
 
 | Point | Task | What it is |
 | --- | --- | --- |
-| 23 | T027 | Internal architecture demo |
+| 1 | T027 | Internal architecture demo |
 | 2 | T028 / T029 | Domain-expert and early-prospect demo: one site, one strong Finding, its evidence, its money |
-| 24 | T034 | Strong product demo: Finding -> action -> verification |
-| 25 | T036 | Full portfolio and polished client demo |
+| 3 | T034 | Strong product demo: Finding -> action -> verification |
+| 4 | T036 | Full portfolio and polished client demo |
 
 Seek domain-expert feedback at point 2, before the portfolio exists. A former
 mini-grid operator does not need six sites to tell you whether the Finding is
