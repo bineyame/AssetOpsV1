@@ -67,8 +67,9 @@ from __future__ import annotations
 #:   nothing is known about the Site's time zone. Deliberately not the same
 #:   fact as the one above.
 #: - `TARGET_TOPOLOGY_UNSUPPORTED`: the selected Site cannot host this
-#:   scenario - it is not the Site the scenario declares, or its Foundation
-#:   declares no topology for the scenario's causes to sit in.
+#:   scenario because its Foundation declares no topology for the scenario's
+#:   causes to sit in. Since `D-2026-10-01-run-binds-scenario-to-site` a site
+#:   is never refused for not being one the scenario document names.
 #: - `COMPONENT_OR_SIGNAL_UNRESOLVED`: a declared observation source names a
 #:   device or a signal this Site's Foundation does not configure.
 #: - `INITIALIZATION_INPUT_MISSING`: an initial world value whose DECLARED

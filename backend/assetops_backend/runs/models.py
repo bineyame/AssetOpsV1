@@ -288,12 +288,29 @@ BLOCKING_REASON_KINDS = frozenset(
 )
 
 @dataclass(frozen=True)
+class FrozenTemplateLineage:
+    """The template the bound Site was created from, as it was at setup.
+
+    Run provenance only (T025g AC3). Both fields are `None` for a Site that
+    was created from no template: that is a recorded answer, distinct from a
+    run persisted before lineage was frozen, whose binding carries no lineage
+    at all. It never enters `FrozenWorldInputs` or `frozen_inputs_identity`.
+    """
+
+    template_id: str | None
+    template_version: int | None
+
+
+@dataclass(frozen=True)
 class FrozenSiteBinding:
     """Which Site and which Foundation version this run is bound to.
 
     An identity and a version, and nothing a screen would call a name. A run
     that carried the site's name would carry a value that can change under it
     while the identity it froze stayed the same.
+
+    `template_lineage` is `None` for a run persisted before T025g froze it:
+    "not recorded", never inferred from the Site as it is now.
     """
 
     site_id: str
@@ -301,6 +318,7 @@ class FrozenSiteBinding:
     foundation_valid_from: str
     site_type: str
     timezone: str
+    template_lineage: FrozenTemplateLineage | None = None
 
 
 @dataclass(frozen=True)

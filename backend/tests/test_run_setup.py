@@ -253,14 +253,58 @@ class TestRefusalsAllocateNoRun:
         assert error.kind == "VERSION_UNAVAILABLE"
         assert store.written == []
 
-    def test_a_site_the_scenario_does_not_target_is_refused(self) -> None:
-        error, store = refuse(
-            setup_request(site_id="MG-901"),
-            sites=FakeSites((site(), site(site_id="MG-901"))),
-        )
+    def test_a_legacy_declared_site_does_not_bind_the_run(self) -> None:
+        """T025g AC6a: the run is the only join of scenario and site.
 
-        assert error.kind == "TARGET_TOPOLOGY_UNSUPPORTED"
-        assert store.written == []
+        The fixture document still carries a legacy `target_site` naming
+        MG-900. The user picks MG-901, and the Draft binds MG-901: run setup
+        ignores the declaration, refuses nothing for it, and rewrites
+        neither document.
+        """
+        legacy = scenario()
+        assert legacy.target_site is not None
+        assert legacy.target_site.site_id == "MG-900"
+
+        setup, store = service(
+            sites=FakeSites((site(), site(site_id="MG-901"))),
+            scenarios=FakeScenarios((legacy,)),
+        )
+        record = setup.create_draft_run(setup_request(site_id="MG-901"))
+
+        assert record.execution_status == "READY"
+        assert record.deterministic_identity.site.site_id == "MG-901"
+        assert store.written == [record]
+
+    def test_a_legacy_template_derived_scenario_sets_up(self) -> None:
+        """The other legacy policy no longer refuses either."""
+        legacy = scenario(
+            target_site={
+                "policy": "TEMPLATE_DERIVED",
+                "site_id": None,
+                "template_id": "hybrid-mini-grid-100kw",
+                "requirement": "A site built from the hybrid archetype.",
+            }
+        )
+        setup, _ = service(scenarios=FakeScenarios((legacy,)))
+
+        record = setup.create_draft_run(setup_request())
+
+        assert record.execution_status == "READY"
+        assert record.deterministic_identity.site.site_id == "MG-900"
+
+    def test_a_scenario_that_names_no_site_sets_up(self) -> None:
+        document = scenario_document()
+        del document["target_site"]
+        unnamed = parse_scenario_document(
+            document, source="a test", origin="SHIPPED"
+        )
+        assert unnamed.target_site is None
+        setup, _ = service(scenarios=FakeScenarios((unnamed,)))
+
+        record = setup.create_draft_run(setup_request())
+
+        assert record.execution_status == "READY"
+        assert record.deterministic_identity.site.site_id == "MG-900"
 
     def test_a_foundation_with_no_topology_is_refused(self) -> None:
         error, store = refuse(
@@ -1679,6 +1723,12 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenModelNeed", "canonical_value"),
             ("FrozenModelNeed", "canonical_unit"),
             ("FrozenModelNeed", "dimension"),
+            # T025g phase 1 freezes and stores the site's template lineage as
+            # run provenance; phase 2 (AC9) renders it on run detail and the
+            # Lab header, and moves these three into `rendered` then.
+            ("FrozenSiteBinding", "template_lineage"),
+            ("FrozenTemplateLineage", "template_id"),
+            ("FrozenTemplateLineage", "template_version"),
         }
 
         from dataclasses import is_dataclass
