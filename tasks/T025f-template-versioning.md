@@ -1,6 +1,6 @@
 # T025f - Template versioning and site lineage staleness (S0)
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: false
 
 Map: A/B hardening; scenario-site contract S0. Depends on: T025b template

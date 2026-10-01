@@ -4385,3 +4385,39 @@ Complete; owner accepted 2026-10-01 (packet `.agent/T025e-review-packet.md`, evi
 - A second tab stepping the run can make recorded > clock until the next
   answer (not clipped). The screen-test fake history has no intervals.
 - Backlog C2, C4, K1, K3 untouched; T026 adds dispatch panels here.
+
+## T025f - Template versioning and site lineage staleness (S0)
+
+Built, `in_review` (fast lane; packet `.agent/T025f-review-packet.md`). No
+contract move; no Site record rewritten; no run reads a template.
+
+### What it settled in code
+
+- **Template v2.** `kobo-mini-grid-60kw` is `template_version: 2`; the four
+  generator properties T025a added (`2f076d3`) carry `source_version: 2`.
+  T025b's status signal and mapping (`0dc42c0`) have no per-entity provenance
+  field, so only the bump records them.
+- **Fingerprint guard** `backend/tests/test_site_template_fingerprints.py`:
+  `PINNED_TEMPLATE_FINGERPRINTS[(id, version)]` = SHA-256 of the parsed
+  document as sorted canonical JSON (comments and order are not content).
+  Changed content at a pinned version fails naming the template and the bump;
+  an unpinned version fails asking for its pin. Kobo v1 is deliberately
+  unpinned (it named two contents).
+- **Lineage read** `sites/lineage.py` `assess_template_lineage`: `CURRENT`,
+  `BEHIND`, `NOT_SHIPPED`, `NO_TEMPLATE`, `UNRECOGNISED_VERSION`, computed on
+  read. Served only at gated `GET /api/simulator-lab/site-template-lineage`
+  (the catalog is gated; `create_app` must not touch it when closed). The
+  operator `/api/sites` shapes are unchanged.
+- **UI** `sites/siteTemplateLineage.ts` (client, `templateLineageNote`,
+  `useSiteTemplateLineage`) and `sites/TemplateProvenanceText.tsx`: a
+  `cell-secondary` line under "Created from template" on the Sites index,
+  Overview and Foundation ("Created from v1; current template is v2"). The
+  client is handed out only by `simulatorLabSiteTemplateLineage(flags)`,
+  resolved once in `App`; closed gate, no read and no note.
+
+### What this leaves open
+
+- The note appears only with the Lab gate open (AC4's gated-surface rule).
+- A lineage read that fails shows the recorded provenance alone (no note),
+  not an "unknown" note.
+- Scenario fingerprints are T025g's; the same digest shape is reusable.
