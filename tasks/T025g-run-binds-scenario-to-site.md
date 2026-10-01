@@ -107,8 +107,10 @@ Not here: picker compatibility status (T025h, after T026); purpose assumptions
 Stop and report if the legacy acceptance cannot keep the catalog alive without
 editing `var/`, or if the contract reading proves wrong in review.
 
-First review: **Codex discovery review** (owner direction 2026-10-01), which
-also confirms the 9 -> 10 reading. The owner then checks hands-on that the
+First review: a discovery review that also confirms the 9 -> 10 reading. Per
+the owner on 2026-10-01 it does not wait for Codex: a fresh Claude reviewer
+reviews when the slice is ready, and Codex reviews it retrospectively after its
+reset (see `.ai/ROLE_CONFIG.md`). The owner then checks hands-on that the
 shipped prolonged scenario runs READY on a current Kobo site and BLOCKS with
 named reasons on an old one, with the site chosen only at setup.
 Review outcome: pending.

@@ -39,6 +39,14 @@ this exception, so a later reader can decide whether a judgement should go back
 to Codex. Reviewer independence still applies: a fresh reviewer instance, never
 the implementer.
 
+**Nothing waits for Codex** (owner, 2026-10-01): "we do not wait for codex
+review, codex will review what is available to review when it returns." Every
+round in this window, first reviews and contract moves included, goes to a fresh
+Claude reviewer and the slice proceeds. After the reset Codex reviews,
+retrospectively, the slices reviewed only by Claude here: T025e (live-follow
+delta and merge mechanism), T025f (template fingerprints and lineage) and T025g
+(scenario-site contract, including the contract 9 -> 10 reading).
+
 ## Architect Was Temporarily Claude, And Is Codex Again
 
 On 2026-09-24 the user set Architect to Claude because Codex had exhausted its
