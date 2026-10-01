@@ -32,6 +32,12 @@ import type { SiteDetailReadModel } from "./siteReadModel";
 import { SiteSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { useSiteRecord } from "./useSiteRecord";
 import {
+  useSiteTemplateLineage,
+  type SiteTemplateLineageClient,
+  type SiteTemplateLineageReadModel,
+} from "./siteTemplateLineage";
+import { TemplateProvenanceText } from "./TemplateProvenanceText";
+import {
   CONTROL_PROPERTIES_ARE_NOT_CONTROLS,
   FOUNDATION_DEVICE_METADATA_LIMITS,
   deriveSiteConfigurationView,
@@ -120,6 +126,12 @@ export interface SiteConfigurationProps {
    * it rather than the way the address did.
    */
   parentTrail?: (siteId: string) => Crumb[];
+  /**
+   * The gated template-lineage read, passed only when the composing shell's
+   * gate is open. Absent, "Created from template" shows the recorded lineage
+   * alone; present, it adds the advisory note when the record is behind.
+   */
+  templateLineage?: SiteTemplateLineageClient;
 }
 
 export function SiteConfiguration({
@@ -127,8 +139,10 @@ export function SiteConfiguration({
   detail,
   tabs,
   parentTrail,
+  templateLineage,
 }: SiteConfigurationProps) {
   const result = useSiteRecord(siteId, detail);
+  const lineage = useSiteTemplateLineage(templateLineage);
 
   if (result === null) {
     return (
@@ -194,6 +208,7 @@ export function SiteConfiguration({
       site={result.site}
       tabs={tabs}
       parentTrail={parentTrail}
+      lineage={lineage?.get(result.site.site_id)}
     />
   );
 }
@@ -210,12 +225,15 @@ export interface SiteConfigurationFactsProps {
   tabs?: ReactNode;
   /** See `SiteConfigurationProps.parentTrail`. */
   parentTrail?: (siteId: string) => Crumb[];
+  /** This site's lineage answer, if the shell supplied a lineage read. */
+  lineage?: SiteTemplateLineageReadModel;
 }
 
 export function SiteConfigurationFacts({
   site,
   tabs,
   parentTrail,
+  lineage,
 }: SiteConfigurationFactsProps) {
   const view = deriveSiteConfigurationView(site);
 
@@ -278,7 +296,13 @@ export function SiteConfigurationFacts({
           <Fact term="Configuration origin">
             <Badge tone="origin">{view.configurationOrigin}</Badge>
           </Fact>
-          <Fact term="Created from template">{view.templateProvenance}</Fact>
+          <Fact term="Created from template">
+            <TemplateProvenanceText
+              site={site}
+              provenance={view.templateProvenance}
+              lineage={lineage}
+            />
+          </Fact>
         </FactList>
         <p>{view.foundationValiditySemantics}</p>
         <p>

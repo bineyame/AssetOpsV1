@@ -4,6 +4,7 @@ import type { FeatureFlags } from "../config/featureFlags";
 import { PageHeader } from "../ui";
 import { SitesIndex } from "../sites/SitesIndex";
 import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
+import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { siteDetailHref } from "./operatorSiteRoutes";
 import { simulatorLabCreateSiteEntryPoints } from "./simulatorLabRoutes";
 
@@ -42,9 +43,15 @@ import { simulatorLabCreateSiteEntryPoints } from "./simulatorLabRoutes";
 export interface SitesFrameProps {
   flags: FeatureFlags;
   directory: SiteDirectoryClient;
+  /**
+   * The gated template-lineage read. The app resolves it from the gate with
+   * `simulatorLabSiteTemplateLineage`, so it is absent when the gate is
+   * closed; this frame only passes it to the substrate.
+   */
+  templateLineage?: SiteTemplateLineageClient;
 }
 
-export function SitesFrame({ flags, directory }: SitesFrameProps) {
+export function SitesFrame({ flags, directory, templateLineage }: SitesFrameProps) {
   const createEntryPoints = simulatorLabCreateSiteEntryPoints(flags);
 
   return (
@@ -82,7 +89,11 @@ export function SitesFrame({ flags, directory }: SitesFrameProps) {
         ))}
       />
 
-      <SitesIndex directory={directory} siteHref={siteDetailHref} />
+      <SitesIndex
+        directory={directory}
+        siteHref={siteDetailHref}
+        templateLineage={templateLineage}
+      />
     </main>
   );
 }

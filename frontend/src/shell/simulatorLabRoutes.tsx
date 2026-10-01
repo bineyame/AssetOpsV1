@@ -32,6 +32,10 @@ import {
   createSiteDirectoryClient,
   type SiteDetailClient,
 } from "../sites/siteDirectoryClient";
+import {
+  createSiteTemplateLineageClient,
+  type SiteTemplateLineageClient,
+} from "../sites/siteTemplateLineage";
 
 /**
  * The gated Simulator Lab route table and workspace entry-point table.
@@ -105,6 +109,10 @@ export const CREATE_SITE_API_PATH = "/api/simulator-lab/sites";
 export const SCENARIOS_API_PATH = "/api/simulator-lab/scenarios";
 export const RUN_PROFILES_API_PATH = "/api/simulator-lab/run-profiles";
 export const RUNS_API_PATH = "/api/simulator-lab/runs";
+/** T025f: each site's recorded template lineage against the shipped catalog.
+ *  Gated because the catalog is. */
+export const SITE_TEMPLATE_LINEAGE_API_PATH =
+  "/api/simulator-lab/site-template-lineage";
 
 /**
  * The workspace utility entry-point label from the v6.9 product document
@@ -146,6 +154,10 @@ const defaultSiteTemplateCatalog = createSiteTemplateCatalogClient(
 );
 
 const defaultSiteCreation = createSiteCreationClient(CREATE_SITE_API_PATH);
+
+const defaultSiteTemplateLineage = createSiteTemplateLineageClient(
+  SITE_TEMPLATE_LINEAGE_API_PATH,
+);
 
 const defaultScenarioCatalog = createScenarioCatalogClient(SCENARIOS_API_PATH);
 
@@ -451,6 +463,23 @@ export function simulatorLabSiteActions(
         "and neither exists in this build.",
     },
   ];
+}
+
+/**
+ * The template-lineage read the operator site surfaces may show, or nothing.
+ *
+ * T025f's advisory note ("created from v1; current template is v2") compares a
+ * site's record against the shipped template catalog, and that catalog is a
+ * Simulator Lab surface. So the read is handed out here, from the one gated
+ * module, and with the gate closed this returns `undefined`: the site surfaces
+ * then show the recorded template and version alone, as they always have, and
+ * never touch the catalog. The note is never a reason to widen the gate.
+ */
+export function simulatorLabSiteTemplateLineage(
+  flags: FeatureFlags,
+  client: SiteTemplateLineageClient = defaultSiteTemplateLineage,
+): SiteTemplateLineageClient | undefined {
+  return flags.simulatorLab.enabled ? client : undefined;
 }
 
 export function simulatorLabWorkspaceEntryPoints(

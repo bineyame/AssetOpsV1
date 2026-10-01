@@ -5,6 +5,7 @@ import {
   SiteConfiguration,
 } from "../sites/SiteConfiguration";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { siteDetailHref } from "./operatorSiteRoutes";
 
@@ -58,11 +59,18 @@ import { siteDetailHref } from "./operatorSiteRoutes";
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
   sitesPath: string;
+  /**
+   * The gated template-lineage read. The app resolves it from the gate with
+   * `simulatorLabSiteTemplateLineage`, so it is absent when the gate is
+   * closed; this frame only passes it to the substrate.
+   */
+  templateLineage?: SiteTemplateLineageClient;
 }
 
 export function SiteFoundationFrame({
   detail,
   sitesPath,
+  templateLineage,
 }: SiteFoundationFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
 
@@ -71,6 +79,7 @@ export function SiteFoundationFrame({
       <SiteConfiguration
         siteId={siteId}
         detail={detail}
+        templateLineage={templateLineage}
         tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
         parentTrail={(canonicalSiteId) => [
           { label: "Sites", to: sitesPath },

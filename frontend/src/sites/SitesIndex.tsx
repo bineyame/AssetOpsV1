@@ -5,6 +5,14 @@ import { Badge, DataTable, Panel } from "../ui";
 import type { SiteDirectoryClient } from "./siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
+import {
+  useSiteTemplateLineage,
+  type SiteTemplateLineageClient,
+  type SiteTemplateLineageReadModel,
+} from "./siteTemplateLineage";
+import { TemplateProvenanceText } from "./TemplateProvenanceText";
+
+type LineageAnswers = ReadonlyMap<string, SiteTemplateLineageReadModel> | null;
 
 /**
  * The Sites index, presented from the shared substrate.
@@ -64,10 +72,21 @@ export interface SitesIndexProps {
   directory: SiteDirectoryClient;
   /** The address of one site's page, built from its identity. */
   siteHref: (siteId: string) => string;
+  /**
+   * The gated template-lineage read, passed only when the composing shell's
+   * gate is open. Absent, "Created from template" shows the recorded lineage
+   * alone; present, it adds the advisory note when the record is behind.
+   */
+  templateLineage?: SiteTemplateLineageClient;
 }
 
-export function SitesIndex({ directory, siteHref }: SitesIndexProps) {
+export function SitesIndex({
+  directory,
+  siteHref,
+  templateLineage,
+}: SitesIndexProps) {
   const [result, setResult] = useState<SiteListResult | null>(null);
+  const lineage = useSiteTemplateLineage(templateLineage);
 
   useEffect(() => {
     let active = true;
@@ -113,7 +132,7 @@ export function SitesIndex({ directory, siteHref }: SitesIndexProps) {
 
   return (
     <Panel heading="Configured sites" headingId="sites-list-heading" flush>
-      <SiteFilters sites={result.sites} siteHref={siteHref} />
+      <SiteFilters sites={result.sites} siteHref={siteHref} lineage={lineage} />
     </Panel>
   );
 }
@@ -134,9 +153,10 @@ export function SitesIndex({ directory, siteHref }: SitesIndexProps) {
 interface SiteFiltersProps {
   sites: SiteSummary[];
   siteHref: (siteId: string) => string;
+  lineage: LineageAnswers;
 }
 
-function SiteFilters({ sites, siteHref }: SiteFiltersProps) {
+function SiteFilters({ sites, siteHref, lineage }: SiteFiltersProps) {
   const [search, setSearch] = useState("");
   const [siteType, setSiteType] = useState(ANY);
   const [mode, setMode] = useState(ANY);
@@ -221,7 +241,7 @@ function SiteFilters({ sites, siteHref }: SiteFiltersProps) {
           .
         </p>
       ) : (
-        <SiteTable sites={matching} siteHref={siteHref} />
+        <SiteTable sites={matching} siteHref={siteHref} lineage={lineage} />
       )}
     </>
   );
@@ -275,6 +295,8 @@ function SiteFilter({
 export interface SiteTableProps {
   sites: SiteSummary[];
   siteHref: (siteId: string) => string;
+  /** Lineage answers by `site_id`; see `SitesIndexProps.templateLineage`. */
+  lineage?: LineageAnswers;
 }
 
 /**
@@ -307,7 +329,7 @@ const COLUMNS = [
   "Actions",
 ] as const;
 
-export function SiteTable({ sites, siteHref }: SiteTableProps) {
+export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
   return (
     <DataTable labelledBy="sites-list-heading">
       <thead>
@@ -321,7 +343,12 @@ export function SiteTable({ sites, siteHref }: SiteTableProps) {
       </thead>
       <tbody>
         {sites.map((site) => (
-          <SiteRow key={site.site_id} site={site} siteHref={siteHref} />
+          <SiteRow
+            key={site.site_id}
+            site={site}
+            siteHref={siteHref}
+            lineage={lineage?.get(site.site_id)}
+          />
         ))}
       </tbody>
     </DataTable>
@@ -331,9 +358,10 @@ export function SiteTable({ sites, siteHref }: SiteTableProps) {
 export interface SiteRowProps {
   site: SiteSummary;
   siteHref: (siteId: string) => string;
+  lineage?: SiteTemplateLineageReadModel;
 }
 
-export function SiteRow({ site, siteHref }: SiteRowProps) {
+export function SiteRow({ site, siteHref, lineage }: SiteRowProps) {
   const view = deriveSiteView(site);
 
   return (
@@ -373,7 +401,13 @@ export function SiteRow({ site, siteHref }: SiteRowProps) {
       <td>
         <Badge tone="origin">{view.configurationOrigin}</Badge>
       </td>
-      <td>{view.templateProvenance}</td>
+      <td>
+        <TemplateProvenanceText
+          site={site}
+          provenance={view.templateProvenance}
+          lineage={lineage}
+        />
+      </td>
       {/*
        * Evidence-derived, and there is no evidence. `--` is v6.9's rendering
        * for a site with no data in the window, not a placeholder for a
