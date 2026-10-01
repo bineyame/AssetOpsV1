@@ -7,7 +7,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 | Role | Default agent | Purpose |
 | --- | --- | --- |
 | Architect | Claude until Codex reset 2026-10-03 21:23, then Codex (see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
-| Planner | Codex | Converts reviewed feature guidance into small UI-verifiable task definitions. |
+| Planner | Claude until Codex reset 2026-10-03 21:23, then Codex (see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Claude until Codex reset 2026-10-03 21:23 (see below) | Reviews work independently from the author. |
 
@@ -23,16 +23,18 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
   acting so they can either run the role or prepare a handoff for the configured
   agent.
 
-## Architect And Reviewer Are Claude Until 2026-10-03 21:23
+## Architect, Reviewer And Planner Are Claude Until 2026-10-03 21:23
 
 On 2026-09-30 Codex hit its usage limit during an Architect review of the T025d
 cockpit layout and playback flicker, with reset at 2026-10-03 21:23. The user
 set **Architect** and **Reviewer** to Claude until that reset:
 `assetops-architect` and a fresh `assetops-reviewer` subagent do the work
-directly. Planner is unchanged and stays Codex.
+directly. Later the same day the user extended this to **Planner**:
+`assetops-planner` does the work directly, following the same guidance a Codex
+Planner would (this file, `.ai/PLANNING_GUIDANCE.md`, the task conventions).
 
-Revert both rows in the table above when the reset has passed. Until then,
-every Architect pass and review report states it was produced by Claude under
+Revert all three rows in the table above when the reset has passed. Until then,
+every Architect pass, Planner task definition and review report states it was produced by Claude under
 this exception, so a later reader can decide whether a judgement should go back
 to Codex. Reviewer independence still applies: a fresh reviewer instance, never
 the implementer.

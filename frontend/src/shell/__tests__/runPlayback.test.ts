@@ -84,7 +84,9 @@ function harness(readAnswer: RunExecutionResult = loaded(0)) {
       reads += 1;
       return Promise.resolve(readAnswer);
     },
-    show: (answer) => shown.push(answer),
+    show: (answer) => {
+      shown.push(answer);
+    },
     onState: (state) => states.push(state),
     onStopped: (reason) => stopped.push(reason),
     timers,
@@ -289,5 +291,86 @@ describe("which execution answer is displayed", () => {
       message: "m",
     };
     expect(laterExecution(loaded(12), refused)).toEqual(refused);
+  });
+});
+
+/**
+ * T025e AC4: `show` is the page's commit of an answer with its history. The
+ * scheduler awaits it: the next delay is armed, and a pause resolves, only
+ * after the commit, and a commit that fails is never a step failure.
+ */
+describe("the scheduler awaits the commit of each answer", () => {
+  function committing() {
+    const timers = new ManualTimers();
+    const steps: Deferred[] = [];
+    const commits: { answer: RunExecutionResult; done(ok?: boolean): void }[] = [];
+    const states: PlaybackState[] = [];
+    const stopped: PlaybackStopReason[] = [];
+    const scheduler = new PlaybackScheduler({
+      step: (from) =>
+        new Promise<RunExecutionResult>((resolve) => {
+          steps.push({ from, resolve });
+        }),
+      read: () => Promise.resolve(loaded(0)),
+      show: (answer) =>
+        new Promise<void>((resolve, reject) => {
+          commits.push({
+            answer,
+            done: (ok = true) => (ok ? resolve() : reject(new Error("history"))),
+          });
+        }),
+      onState: (state) => states.push(state),
+      onStopped: (reason) => stopped.push(reason),
+      timers,
+      stepTimeoutMs: TIMEOUT,
+    });
+    scheduler.setDelay(1000);
+    return { scheduler, timers, steps, commits, states, stopped };
+  }
+
+  it("arms no next step before the commit settles", async () => {
+    const h = committing();
+    h.scheduler.play(at(10));
+    h.steps[0].resolve(loaded(11));
+    await flush();
+    expect(h.commits).toHaveLength(1);
+    // Not committed yet: no delay is armed, so nothing can fire.
+    h.timers.fire(1000);
+    expect(h.steps).toHaveLength(1);
+    expect(h.scheduler.current()).toEqual({ kind: "playing", inFlight: true });
+    h.commits[0].done();
+    await flush();
+    h.timers.fire(1000);
+    expect(h.steps.map((s) => s.from)).toEqual([10, 11]);
+  });
+
+  it("a failed commit neither stops play nor reports a refusal", async () => {
+    const h = committing();
+    h.scheduler.play(at(10));
+    h.steps[0].resolve(loaded(11));
+    await flush();
+    h.commits[0].done(false);
+    await flush();
+    h.timers.fire(1000);
+    expect(h.steps.map((s) => s.from)).toEqual([10, 11]);
+    expect(h.stopped).toEqual([]);
+    expect(h.scheduler.current().kind).toBe("playing");
+  });
+
+  it("a pause asked for during the commit resolves PAUSED after it", async () => {
+    const h = committing();
+    h.scheduler.play(at(10));
+    h.steps[0].resolve(loaded(11));
+    await flush();
+    h.scheduler.pause();
+    expect(h.scheduler.current()).toEqual({ kind: "pausing" });
+    await flush();
+    expect(h.stopped).toEqual([]);
+    h.commits[0].done();
+    await flush();
+    expect(h.stopped).toEqual(["PAUSED"]);
+    expect(h.scheduler.current()).toMatchObject({ kind: "stopped", reason: "PAUSED" });
+    h.timers.fire(1000);
+    expect(h.steps).toHaveLength(1);
   });
 });

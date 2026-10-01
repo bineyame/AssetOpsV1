@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { DataTable, Panel } from "../ui";
+import { DataTable, Disclosure, Panel } from "../ui";
 import {
   type ChartModel,
   type ChartPanel,
@@ -14,7 +14,6 @@ import {
   reportedRuns,
 } from "./historyChartModel";
 import type { RunHistory, RunHistoryAttempt } from "./runHistory";
-import type { RunElectricalStep } from "./runSetupClient";
 
 /**
  * Addressed day curves over one run's recorded history (T025c phase 2).
@@ -91,6 +90,29 @@ export function niceTicks(min: number, max: number): number[] {
     ticks.push(Number(t.toFixed(6)));
   }
   return ticks;
+}
+
+/** Headroom above the recorded extreme when no range is declared. */
+const HEADROOM = 1.25;
+
+/**
+ * The value axis of one panel (T025e AC8). Where the frozen inputs declare a
+ * range (state of charge 0-100 %, a held rating) that range is the axis,
+ * widened only if a recorded value lies outside it. Otherwise the axis is a
+ * "nice" ratchet with headroom over the recorded extremes. Because a live
+ * history only grows at its end, the extremes - and so the axis - only ever
+ * widen, in the same commit as the point that widened them; never shrink.
+ */
+export function valueTicks(
+  panel: { bound?: { min: number; max: number } },
+  values: number[],
+): number[] {
+  const low = Math.min(0, ...values);
+  const high = Math.max(0, ...values);
+  if (panel.bound !== undefined) {
+    return niceTicks(Math.min(panel.bound.min, low), Math.max(panel.bound.max, high));
+  }
+  return niceTicks(low * HEADROOM, Math.max(low + 1, high * HEADROOM));
 }
 
 function hours(offset: number): string {
@@ -385,9 +407,7 @@ function NumericChart({
         .map((a) => plotted(a.reported_value ?? "")),
     ),
   ].filter((v) => Number.isFinite(v));
-  const min = Math.min(0, ...values);
-  const max = Math.max(min + 1, ...values);
-  const ticks = niceTicks(min, max);
+  const ticks = valueTicks(panel, values);
   const lo = ticks[0];
   const hi = ticks[ticks.length - 1];
   const bottom = HEIGHT - MARGIN.bottom;
@@ -433,8 +453,13 @@ function NumericChart({
         {panel.series.map((series) => (
           <path
             key={series.id}
-            className="history-chart__line"
+            className={
+              series.detail === true
+                ? "history-chart__line history-chart__line--detail"
+                : "history-chart__line"
+            }
             data-chart-series={series.id}
+            data-series-role={series.detail === true ? "detail" : "total"}
             data-points={
               series.kind === "instant" ? series.points.length : series.values.length
             }
@@ -828,26 +853,26 @@ function inspectorRows(
 
 export function HistoryCharts({
   history,
-  steps,
   timestepMinutes,
   selected,
   onSelect,
 }: {
   history: RunHistory;
-  steps: RunElectricalStep[] | null;
+  /** The run's frozen timestep; the curves themselves are the history's. */
   timestepMinutes: number | null;
   selected: number;
   onSelect: (offset: number) => void;
 }) {
+  // T025e (closes C3): every curve comes from the recorded history alone, so
+  // no fresh per-step execution data can run ahead of the rest.
   const model = useMemo(
-    () => chartModel(history, steps, timestepMinutes),
-    [history, steps, timestepMinutes],
+    () => chartModel(history, timestepMinutes),
+    [history, timestepMinutes],
   );
   const [ref, width] = useWidth();
   const axis = timeAxis(model, width);
   const offsets = history.boundaries.map((b) => b.offset_minutes);
-  const index = Math.max(0, offsets.indexOf(selected));
-  const boundary = history.boundaries[index];
+  const boundary = history.boundaries[Math.max(0, offsets.indexOf(selected))];
   // The last recorded boundary, or the end of the last recorded step decided
   // at it, whichever is later: a step decided at the last boundary is recorded.
   const recordedThrough = Math.max(
@@ -869,14 +894,24 @@ export function HistoryCharts({
 
   return (
     <Panel heading="Recorded day curves" headingId="run-history-charts-heading">
-      <p>
-        Every curve below is read from this run&apos;s recorded history; none is
-        recomputed here. Reported readings are rings at their source time; a
-        thin line joins consecutive readings of one signal only to show that no
-        due attempt failed between them, and is not a value between them. Choosing a boundary moves the cursor on every chart
-        and the exact values beside them. It reads the record and never
-        advances the run.
+      <p className="run-cockpit__caption">
+        Read from the recorded history; nothing is recomputed. Rings are reports
+        at their source time.
       </p>
+      <Disclosure name="charts-how-to-read" summary="How to read these curves">
+        <p>
+          Every curve below is read from this run&apos;s recorded history; none is
+          recomputed here. Reported readings are rings at their source time; a
+          thin line joins consecutive readings of one signal only to show that no
+          due attempt failed between them, and is not a value between them.
+          Choosing a boundary moves the history cursor on every chart and the
+          exact values beside them. It reads the record and never advances the
+          run.
+        </p>
+        <p>
+          {`The time axis is the offset from the interval start, over the whole window; each step is ${model.timestep} min. The shaded band is the step that ended at the selected boundary: an interval report at T describes it, while a control accepted at T governs the next step. Past the last recorded boundary the window is not recorded yet.`}
+        </p>
+      </Disclosure>
       {unavailable.length === 0 ? null : (
         <ul className="cell-list" data-charts-unavailable>
           {unavailable.map((c) => (
@@ -890,25 +925,6 @@ export function HistoryCharts({
         <p data-charts-empty>No boundary is recorded, so there is nothing to chart.</p>
       ) : (
         <>
-          <div className="history-cursor">
-            <label htmlFor="history-cursor-range">Selected boundary</label>
-            <input
-              id="history-cursor-range"
-              type="range"
-              min={0}
-              max={offsets.length - 1}
-              step={1}
-              value={index}
-              aria-valuetext={`${selected} min, ${boundary?.simulation_time ?? ""}`}
-              onChange={(event) => onSelect(offsets[Number(event.target.value)])}
-            />
-            <span data-cursor-offset={selected}>
-              {`offset ${selected} min, ${boundary?.simulation_time ?? ""}`}
-            </span>
-          </div>
-          <p className="cell-secondary">
-            {`The time axis is the offset from the interval start, over the whole window; each step is ${model.timestep} min. The shaded band is the step that ended at the selected boundary: an interval report at T describes it, while a control accepted at T governs the next step.`}
-          </p>
           <div className="history-cockpit">
             <div className="history-cockpit__charts" ref={ref}>
               {model.panels.map((panel) => (

@@ -39,6 +39,7 @@ from fractions import Fraction
 
 from assetops_contracts.control import DISCRETE_UNIT, ControlStep
 from assetops_contracts.failures import ExecutionFailure
+from assetops_contracts.lab_projection import ElectricalStepRow
 from assetops_contracts.observation import (
     DeviceObservation,
     DeviceSignalSpec,
@@ -243,6 +244,13 @@ class LabHistory:
     bounded_transitions: tuple[BoundedTransition, ...] = ()
     discrete_transitions: tuple[DiscreteTransition, ...] = ()
     bus_attachments: tuple[BusAttachmentInput, ...] = ()
+    #: T025e addendum B (option R). The projection's own electrical step rows
+    #: (`ElectricalView.steps`), joined the way `signals` and `reporting_gaps`
+    #: are: the recorded PV output and signed battery power, never re-summed on
+    #: the history path. Not a persisted history family (no coverage row, no
+    #: `HISTORY_FAMILIES` entry): filled only when `intervals` is recorded, and
+    #: bound through the manifest's `projection_binding`.
+    electrical_steps: tuple[ElectricalStepRow, ...] = ()
     notes: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:

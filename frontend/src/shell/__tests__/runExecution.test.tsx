@@ -143,9 +143,15 @@ describe("the execution panel", () => {
     renderAt(READY_URL, client());
     await settledScreen();
 
-    const panel = executionPanel();
-
-    expect(within(panel).getByText("RUNNING")).toBeInTheDocument();
+    // T025e: the badge and the execution clock are in the control strip; the
+    // execution facts are in its provenance disclosure, still on the page.
+    expect(within(executionPanel()).getByText("RUNNING")).toBeInTheDocument();
+    expect(
+      (document.querySelector("[data-execution-clock]") as HTMLElement).textContent,
+    ).toBe("Execution clock: boundary 104 of 165, 2026-09-22T01:45:00Z");
+    const panel = document.querySelector(
+      '[data-disclosure="execution-provenance"]',
+    ) as HTMLElement;
     expect(within(panel).getByText("2026-09-22T01:45:00Z")).toBeInTheDocument();
     expect(within(panel).getByText("1545 minutes")).toBeInTheDocument();
     expect(within(panel).getByText("104 of 165")).toBeInTheDocument();

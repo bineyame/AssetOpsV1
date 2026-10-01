@@ -3171,6 +3171,12 @@ T022A's whole-store read cost. Detailed readback/size and version-transition
 guidance is in the handoff; an artifact addition alone does not move the
 execution contract under `D-2026-09-22-contract-version-scope`.
 
+Clarified 2026-09-30 (T025e Addendum B; Architect: Claude under the temporary
+binding): charts read quantities the host recorded. When a chart needs a derived
+total, the host records it and the chart reads it. The client never computes it.
+For PV output and signed battery power, the host already records both in the
+projection's electrical steps, and the gated history carries those rows as-is.
+
 Decision: `D-2026-09-30-lab-cockpit-presentation`.
 
 Status: **ACCEPTED by the owner with the cadence, 2026-09-30.** The underlying truth,
@@ -3218,5 +3224,19 @@ playback flicker, with reset at 2026-10-03 21:23. The user set Architect and
 Reviewer to Claude until that reset; Planner stays Codex. Passes produced under
 this exception say so in their report. Revert the bindings in
 `.ai/ROLE_CONFIG.md` once the reset has passed.
+
+Affected files: `.ai/ROLE_CONFIG.md`.
+
+Decision: `D-2026-09-30-planner-claude-until-reset`. The user extended the
+temporary Claude binding to Planner until the Codex reset at 2026-10-03 21:23,
+following the same planning guidance. Revert with Architect and Reviewer.
+
+Decision: `D-2026-09-30-t025e-live-follow`. The owner accepted T025d and chose a
+dedicated slice T025e before T026 for cockpit organisation and playback
+smoothness (`.agent/T025e-architect-guidance.md`). The owner also decided that
+T025e **includes live follow**: the SLD, interval inspection, charts and
+timeline stay current during playback, with high-quality state updates and no
+flicker. This replaces the T025d read-history-on-stop policy; the mechanism is
+set by the Architect addendum to the guidance file.
 
 Affected files: `.ai/ROLE_CONFIG.md`.

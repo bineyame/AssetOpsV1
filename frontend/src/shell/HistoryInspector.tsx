@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useCallback, useRef } from "react";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
 import type { SiteDetailResult } from "../sites/siteReadModel";
@@ -6,8 +6,10 @@ import { HistoryCharts } from "./HistoryCharts";
 import { HistoryTimeline } from "./HistoryTimeline";
 import { IntervalDrawing } from "./IntervalDrawing";
 import { IntervalInspection } from "./IntervalInspection";
-import type { RunHistory, RunHistoryResult } from "./runHistory";
-import type { RunElectricalStep } from "./runSetupClient";
+import { completedIntervalAt } from "./intervalDrawingModel";
+import type { BoundarySlice } from "./liveHistory";
+import type { HeldHistory, HistoryLag } from "./runFrameState";
+import type { RunHistory, RunHistoryInterval, RunHistorySample } from "./runHistory";
 
 /**
  * One exact value, shown exactly. Unlike the summary panels' `ExactQuantity`,
@@ -36,27 +38,40 @@ function ExactQuantity({ value, unit }: { value: string | null; unit?: string })
 }
 
 /**
- * The recorded history of one run, as coverage and exact values (T025c).
+ * The recorded cockpit (T025e AC9): the run-bound drawing beside the interval
+ * inspection, the one history cursor, the day curves and the Applied timeline,
+ * all at the history cursor's boundary and all read from the recorded history.
  *
- * A simple inspector, deliberately: it states where the history came from and
- * which families were recorded, then shows every record at ONE selected
- * boundary - the addressed samples with their phase, the interval decided
- * there, each observation attempt and each timeline entry. Selecting a
- * boundary reads the record; it executes nothing and moves no run.
- *
- * Absence is shown as absence. A family that was not recorded says so with its
- * reason; an attempt without a reading says which outcome it had; the first
- * boundary shows no preceding-interval sample because none exists.
+ * Its geometry does not depend on the tick: before a boundary is recorded
+ * every region is already laid out (the cursor disabled, the drawing and
+ * inspection saying nothing is recorded yet, the curves' region reserved), so
+ * the first recorded boundary fills regions rather than adding them. The
+ * drawing, the inspection and the raw records are memoised on the boundary
+ * slices (`HeldHistory.frame.slices`), so a tick that leaves the cursor pinned
+ * re-renders only the cursor's slots, the charts and the timeline (AC11).
  */
-export function HistoryInspector({
-  result,
-  steps = null,
+export function HistoryCockpit({
+  held,
+  selected,
+  behindLive = 0,
+  lag = null,
+  onSelect,
+  onReturnToLive,
   timestepMinutes = null,
   site = null,
 }: {
-  result: RunHistoryResult | null;
-  /** The execution projection's electrical steps, when the model has them. */
-  steps?: RunElectricalStep[] | null;
+  held: HeldHistory | null;
+  /**
+   * T025e: the one history cursor's boundary, owned by the run page (live:
+   * the last recorded boundary; pinned: the reader's). Null when none.
+   */
+  selected: number | null;
+  /** Recorded boundaries after a pinned cursor; 0 while live. */
+  behindLive?: number;
+  /** The recorded count and the execution clock when the history lags it. */
+  lag?: HistoryLag | null;
+  onSelect: (offset: number) => void;
+  onReturnToLive: () => void;
   timestepMinutes?: number | null;
   /**
    * T025d: the Site read for the run-bound drawing, or null while it is in
@@ -65,54 +80,221 @@ export function HistoryInspector({
    */
   site?: SiteDetailResult | null;
 }) {
-  if (result === null) {
+  const loaded = held !== null && held.status === "loaded" ? held : null;
+  const history = loaded === null ? null : loaded.history;
+  const at = loaded === null || selected === null ? null : atCursor(loaded, selected);
+
+  // Arrow keys on the drawing move the cursor. The handler is stable and
+  // reads the latest boundaries through a ref, so it never breaks the
+  // drawing's memo.
+  const latest = useRef({ offsets: [] as number[], selected, onSelect });
+  latest.current = {
+    offsets: history === null ? [] : history.boundaries.map((b) => b.offset_minutes),
+    selected,
+    onSelect,
+  };
+  const onKey = useCallback((key: string): boolean => {
+    const { offsets, selected: now, onSelect: select } = latest.current;
+    if (offsets.length === 0 || now === null) {
+      return false;
+    }
+    const index = offsets.indexOf(now);
+    const target =
+      key === "ArrowLeft"
+        ? offsets[Math.max(0, index - 1)]
+        : key === "ArrowRight"
+          ? offsets[Math.min(offsets.length - 1, index + 1)]
+          : key === "Home"
+            ? offsets[0]
+            : key === "End"
+              ? offsets[offsets.length - 1]
+              : undefined;
+    if (target === undefined) {
+      return false;
+    }
+    select(target);
+    return true;
+  }, []);
+
+  return (
+    <section
+      className="run-cockpit__record"
+      aria-labelledby="run-cockpit-heading"
+      data-cockpit-record
+    >
+      <h2 id="run-cockpit-heading" className="run-cockpit__heading">
+        Recorded history at the history cursor
+      </h2>
+      {held === null ? (
+        <p className="run-cockpit__caption" data-history-reading>
+          Reading the recorded history.
+        </p>
+      ) : held.status !== "loaded" ? (
+        <p className="run-cockpit__caption" data-history-unavailable>
+          The recorded history could not be read
+          {held.status === "unavailable" && held.message !== null
+            ? `: ${held.message}`
+            : "."}
+        </p>
+      ) : null}
+      <div className="run-cockpit__stage">
+        <div className="run-cockpit__drawing">
+          {history === null || at === null ? (
+            <Panel
+              heading="Single line diagram at the selected boundary"
+              headingId="run-drawing-heading"
+            >
+              <p className="run-cockpit__caption" data-drawing-empty>
+                No boundary is recorded yet; the drawing fills at the first one.
+              </p>
+            </Panel>
+          ) : (
+            <IntervalDrawing
+              drawingContext={history.drawing_context}
+              offset={at.offset}
+              ended={at.ended}
+              samplesAt={at.samplesAt}
+              samplesFrom={at.samplesFrom}
+              site={site}
+              onKey={onKey}
+            />
+          )}
+        </div>
+        <div className="run-cockpit__inspection">
+          {at === null ? (
+            <Panel
+              heading="Requested and accepted control"
+              headingId="run-interval-control-heading"
+            >
+              <p className="run-cockpit__caption" data-interval-empty>
+                No interval is recorded yet.
+              </p>
+            </Panel>
+          ) : (
+            <IntervalInspection interval={at.ended} offset={at.offset} />
+          )}
+        </div>
+      </div>
+      <HistoryCursor
+        history={history}
+        selected={selected}
+        behindLive={behindLive}
+        lag={lag}
+        onSelect={onSelect}
+        onReturnToLive={onReturnToLive}
+      />
+      <div className="run-cockpit__charts">
+        {history === null || selected === null ? (
+          <Panel heading="Recorded day curves" headingId="run-history-charts-heading">
+            <p data-charts-empty>
+              No boundary is recorded yet; the curves fill from the first one.
+            </p>
+          </Panel>
+        ) : (
+          <HistoryCharts
+            history={history}
+            timestepMinutes={timestepMinutes}
+            selected={selected}
+            onSelect={onSelect}
+          />
+        )}
+      </div>
+      <div className="run-cockpit__timeline">
+        {history === null || selected === null ? (
+          <Panel heading="Applied timeline" headingId="run-timeline-heading">
+            <p data-timeline-empty="all">No boundary is recorded yet.</p>
+          </Panel>
+        ) : (
+          <HistoryTimeline history={history} offset={selected} onSelect={onSelect} />
+        )}
+      </div>
+    </section>
+  );
+}
+
+interface AtCursor {
+  offset: number;
+  slice: BoundarySlice | null;
+  ended: RunHistoryInterval | null;
+  samplesAt: RunHistorySample[];
+  samplesFrom: RunHistorySample[];
+}
+
+const NO_SAMPLES: RunHistorySample[] = [];
+
+/**
+ * What the cursor's boundary reads, by reference: its slice, the slice of the
+ * boundary before it (which decided the interval that ended here), and that
+ * interval. Every value is a row or array the held history already owns, so a
+ * memoised consumer sees the same references until the cursor moves or a
+ * whole read replaces the history.
+ */
+function atCursor(
+  loaded: Extract<HeldHistory, { status: "loaded" }>,
+  offset: number,
+): AtCursor {
+  const { history, frame } = loaded;
+  const index = history.boundaries.findIndex((b) => b.offset_minutes === offset);
+  const slice =
+    index < 0 ? null : (frame.slices.get(history.boundaries[index].step_index) ?? null);
+  const previous =
+    index < 1
+      ? null
+      : (frame.slices.get(history.boundaries[index - 1].step_index) ?? null);
+  const decidedBefore = previous === null ? null : previous.interval;
+  const ended =
+    decidedBefore !== null && decidedBefore.to_offset === offset
+      ? decidedBefore
+      : completedIntervalAt(history, offset);
+  return {
+    offset,
+    slice,
+    ended,
+    samplesAt: slice === null ? NO_SAMPLES : slice.samples,
+    samplesFrom: previous === null ? NO_SAMPLES : previous.samples,
+  };
+}
+
+/**
+ * The raw records at the cursor, for the page's closed disclosure (T025e
+ * AC10). They follow the one cursor and are memoised on its boundary slice.
+ */
+export function HistoryRecordsAtCursor({
+  held,
+  selected,
+}: {
+  held: HeldHistory | null;
+  selected: number | null;
+}) {
+  if (held === null || held.status !== "loaded" || selected === null) {
+    return <p>No boundary is recorded, so there is no record to show.</p>;
+  }
+  const at = atCursor(held, selected);
+  return <BoundaryRecords slice={at.slice} offset={selected} />;
+}
+
+/** The history's provenance and coverage, for a closed disclosure. */
+export function HistoryFacts({ held }: { held: HeldHistory | null }) {
+  if (held === null) {
     return (
       <Panel heading="Recorded history" headingId="run-history-heading">
         <p>Loading the recorded history.</p>
       </Panel>
     );
   }
-  if (result.status !== "loaded") {
+  if (held.status !== "loaded") {
     return (
       <Panel heading="Recorded history" headingId="run-history-heading">
-        <p data-history-unavailable>
+        <p>
           The recorded history could not be read
-          {result.status === "unavailable" && result.message !== null
-            ? `: ${result.message}`
+          {held.status === "unavailable" && held.message !== null
+            ? `: ${held.message}`
             : "."}
         </p>
       </Panel>
     );
   }
-  return (
-    <LoadedHistory
-      history={result.history}
-      steps={steps}
-      timestepMinutes={timestepMinutes}
-      site={site}
-    />
-  );
-}
-
-function LoadedHistory({
-  history,
-  steps,
-  timestepMinutes,
-  site,
-}: {
-  history: RunHistory;
-  steps: RunElectricalStep[] | null;
-  timestepMinutes: number | null;
-  site: SiteDetailResult | null;
-}) {
-  const last = history.boundaries[history.boundaries.length - 1];
-  const [chosen, setChosen] = useState<number | null>(null);
-  const selected =
-    chosen !== null &&
-    history.boundaries.some((b) => b.offset_minutes === chosen)
-      ? chosen
-      : (last?.offset_minutes ?? null);
-
+  const history = held.history;
   return (
     <>
       <Panel heading="Recorded history" headingId="run-history-heading">
@@ -138,9 +320,6 @@ function LoadedHistory({
           </Fact>
           <Fact term="History digest">
             <code data-history-digest>{history.history_digest ?? "none"}</code>
-          </Fact>
-          <Fact term="Trajectory digest">
-            <code>{history.content_digest ?? "none"}</code>
           </Fact>
           {history.failure === null ? null : (
             <Fact term="Recorded failure">
@@ -184,72 +363,119 @@ function LoadedHistory({
           </tbody>
         </DataTable>
       </Panel>
-
-      {selected === null ? null : (
-        <HistoryCharts
-          history={history}
-          steps={steps}
-          timestepMinutes={timestepMinutes}
-          selected={selected}
-          onSelect={setChosen}
-        />
-      )}
-
-      {/*
-        * T025d: the drawing, the control inspection and the timeline all read
-        * the one selection above - the interval that ended at the selected
-        * boundary - from the recorded history, never the latest step.
-        */}
-      {selected === null ? null : (
-        <>
-          <IntervalDrawing history={history} offset={selected} site={site} />
-          <IntervalInspection history={history} offset={selected} />
-          <HistoryTimeline history={history} offset={selected} />
-        </>
-      )}
-
-      {selected === null ? null : (
-        <BoundaryRecords
-          history={history}
-          offset={selected}
-          onSelect={setChosen}
-        />
-      )}
     </>
   );
 }
 
-function BoundaryRecords({
+/**
+ * The one history cursor (T025e AC7), kept apart from the execution clock.
+ *
+ * The range selects a recorded boundary: an earlier one pins the cursor, the
+ * last one (or `End`) follows live. Return to live has a reserved slot beside
+ * the label, so pinning moves nothing; the lag statement has one too. Before
+ * a boundary is recorded the cursor is present and disabled, so the first
+ * recorded boundary adds nothing to the layout.
+ */
+function HistoryCursor({
   history,
-  offset,
+  selected,
+  behindLive,
+  lag,
   onSelect,
+  onReturnToLive,
 }: {
-  history: RunHistory;
-  offset: number;
+  history: RunHistory | null;
+  selected: number | null;
+  behindLive: number;
+  lag: HistoryLag | null;
   onSelect: (offset: number) => void;
+  onReturnToLive: () => void;
 }) {
-  const boundary = history.boundaries.find((b) => b.offset_minutes === offset);
-  const samples = history.samples.filter((s) => s.offset_minutes === offset);
-  const attempts = history.attempts.filter(
+  const boundaries = history === null ? [] : history.boundaries;
+  const offsets = boundaries.map((b) => b.offset_minutes);
+  const index = selected === null ? 0 : Math.max(0, offsets.indexOf(selected));
+  const boundary = boundaries[index];
+  const empty = selected === null || offsets.length === 0;
+  const when = boundary === undefined ? "" : boundary.simulation_time;
+  return (
+    <div
+      className="history-cursor"
+      data-history-cursor={behindLive > 0 ? "pinned" : "live"}
+    >
+      <label htmlFor="history-cursor-range">History cursor</label>
+      <input
+        id="history-cursor-range"
+        type="range"
+        min={0}
+        max={Math.max(0, offsets.length - 1)}
+        step={1}
+        value={index}
+        disabled={empty}
+        aria-valuetext={empty ? "no boundary recorded" : `${selected} min, ${when}`}
+        onChange={(event) => onSelect(offsets[Number(event.target.value)])}
+      />
+      <span className="history-cursor__at" data-cursor-offset={selected ?? ""}>
+        {empty ? "no boundary recorded yet" : `offset ${selected} min, ${when}`}
+      </span>
+      <span className="history-cursor__live" data-return-to-live-slot>
+        {behindLive > 0 ? (
+          <button type="button" className="action" onClick={onReturnToLive}>
+            {`Return to live (${behindLive} ${behindLive === 1 ? "boundary" : "boundaries"} behind live)`}
+          </button>
+        ) : (
+          "Following live"
+        )}
+      </span>
+      <span
+        data-history-lag={
+          lag === null ? "none" : lag.kind === "unrecorded" ? "unrecorded" : "behind"
+        }
+      >
+        {lag === null
+          ? ""
+          : lag.kind === "unrecorded"
+            ? `History not recorded for this run; execution reached boundary ${lag.clock}.`
+            : `History recorded through boundary ${lag.recorded}; execution at ${lag.clock}.`}
+      </span>
+    </div>
+  );
+}
+
+const BoundaryRecords = memo(function BoundaryRecords({
+  slice,
+  offset,
+}: {
+  /** The cursor boundary's slice: the rows it owns, by reference. */
+  slice: BoundarySlice | null;
+  offset: number;
+}) {
+  const boundary = slice === null ? undefined : slice.boundary;
+  const samples = (slice === null ? [] : slice.samples).filter(
+    (s) => s.offset_minutes === offset,
+  );
+  const attempts = (slice === null ? [] : slice.attempts).filter(
     (a) => a.at_offset_minutes === offset,
   );
-  const decided = history.intervals.find((i) => i.from_offset === offset);
+  const decided =
+    slice !== null && slice.interval !== null && slice.interval.from_offset === offset
+      ? slice.interval
+      : undefined;
   const events = [
-    ...history.applied_events
+    ...(slice === null ? [] : slice.applied_events)
       .filter((e) => e.at_offset_minutes === offset)
       .map((e) => ({
         key: `applied-${e.event_id}-${e.address}-${e.phase_id}`,
         lane: "Applied event",
         text: `${e.event_id} ${e.direction} ${e.address}, share ${e.share} of ${e.declared}, phase ${e.phase_id} (${e.origin})`,
       })),
-    ...history.bounded_transitions
+    ...(slice === null ? [] : slice.bounded_transitions)
       .filter((t) => t.at_offset_minutes === offset)
       .map((t) => ({
         key: `bounded-${t.address}-${t.bound_case_id}`,
         lane: "Bounded transition",
         text: `${t.address} ${t.bound_kind} ${t.bound_value}: requested ${t.requested}, accepted ${t.accepted}, refused ${t.refused}`,
       })),
-    ...history.discrete_transitions
+    ...(slice === null ? [] : slice.discrete_transitions)
       .filter((t) => t.at_offset_minutes === offset)
       .map((t) => ({
         key: `discrete-${t.address}-${t.next}-${t.phase}`,
@@ -264,21 +490,8 @@ function BoundaryRecords({
         heading="Records at one boundary"
         headingId="run-history-boundary-heading"
       >
-        <label>
-          Boundary{" "}
-          <select
-            data-history-boundary-select
-            value={String(offset)}
-            onChange={(event) => onSelect(Number(event.target.value))}
-          >
-            {history.boundaries.map((b) => (
-              <option key={b.offset_minutes} value={String(b.offset_minutes)}>
-                {`${b.offset_minutes} min - ${b.simulation_time}`}
-              </option>
-            ))}
-          </select>
-        </label>
         <p data-history-selected={offset}>
+          {`At the history cursor: interval decided at ${offset} min. `}
           {boundary === undefined
             ? ""
             : `${boundary.simulation_time}. `}
@@ -467,4 +680,4 @@ function BoundaryRecords({
       </Panel>
     </>
   );
-}
+});

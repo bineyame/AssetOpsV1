@@ -85,7 +85,7 @@ export function flowRole(
 
 /** The resolved interval that ended at a boundary, or null when none did. */
 export function completedIntervalAt(
-  history: RunHistory,
+  history: Pick<RunHistory, "intervals">,
   offset: number,
 ): RunHistoryInterval | null {
   return history.intervals.find((i) => i.to_offset === offset) ?? null;
@@ -251,7 +251,7 @@ function namer(site: SiteDetailReadModel): (id: string) => string {
  */
 export function drawingSlots(
   binding: Extract<DrawingBinding, { status: "bound" }>,
-  history: RunHistory,
+  history: Pick<RunHistory, "intervals" | "samples">,
   offset: number,
 ): SldSlotContent {
   const { site, attachments } = binding;

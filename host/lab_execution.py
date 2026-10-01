@@ -2158,6 +2158,7 @@ class HostLabExecution:
             status=projection.status,
             content_digest=projection.content_digest,
             observation_series_digest=projection.observation_series_digest,
+            electrical=projection.electrical,
         )
 
     def _history_document(

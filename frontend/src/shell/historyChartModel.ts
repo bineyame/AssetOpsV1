@@ -1,8 +1,8 @@
 /**
  * The chart model of one run's recorded Lab history (T025c phase 2).
  *
- * Every value here is a recorded one, read off the history or the execution
- * projection's electrical steps. Nothing is resolved, interpolated or filled:
+ * Every value here is a recorded one, read off the history alone (T025e: no
+ * longer the execution projection's steps). Nothing is resolved, interpolated or filled:
  * this module decides only WHERE a recorded value is drawn and what it is
  * called, and it keeps the exact text beside the number it plots so an
  * inspector can show what was recorded rather than what was drawn.
@@ -21,7 +21,6 @@
  * was not due has no attempt at all and breaks nothing.
  */
 
-import type { RunElectricalStep } from "./runSetupClient";
 import type {
   RunHistory,
   RunHistoryAttempt,
@@ -54,6 +53,8 @@ export interface IntervalValue {
 export interface SeriesStyle {
   slot: 1 | 2 | 3 | 4;
   dash: "solid" | "dashed" | "dotted" | "dashdot";
+  /** A component drawn as secondary detail beside the panel's recorded total. */
+  detail?: boolean;
 }
 
 export type TruthSeries =
@@ -90,6 +91,11 @@ export interface ChartPanel {
   reported: ReportedTrack[];
   /** Draw a zero line: the series is signed. */
   signed: boolean;
+  /**
+   * T025e: a value range the frozen inputs declare (state of charge 0-100 %,
+   * a held rating), or absent when none is declared and the axis ratchets.
+   */
+  bound?: { min: number; max: number };
 }
 
 export interface StateRun {
@@ -163,30 +169,101 @@ function tracks(history: RunHistory): ReportedTrack[] {
   return [...bySignal.values()];
 }
 
-function fromSteps(
-  steps: RunElectricalStep[],
-  pick: (step: RunElectricalStep) => string,
-): IntervalValue[] {
-  return steps.map((step) => ({
-    from: step.from_offset,
-    to: step.to_offset,
-    exact: pick(step),
-    value: plotted(pick(step)),
+/**
+ * T025e AC11: the chart model is extended, not rebuilt. The live history
+ * keeps every row it already held by reference (`liveHistory.ts`), so each
+ * row's points are computed once, cached on the row, and reused by every
+ * later tick: a tick parses only the rows it added. A whole read replaces
+ * the rows, and the cache with them.
+ */
+const pointCache = new WeakMap<object, Map<string, unknown>>();
+
+function cached<T>(row: object, key: string, build: () => T): T {
+  let byKey = pointCache.get(row);
+  if (byKey === undefined) {
+    byKey = new Map();
+    pointCache.set(row, byKey);
+  }
+  if (!byKey.has(key)) {
+    byKey.set(key, build());
+  }
+  return byKey.get(key) as T;
+}
+
+/**
+ * One recorded flow's mean power over each step, read as the host recorded
+ * it: never summed with another flow here, so the curve is the record's own.
+ */
+function fromFlow(history: RunHistory, flowId: string): IntervalValue[] {
+  return history.intervals.flatMap((interval) =>
+    cached(interval, `flow:${flowId}`, () =>
+      interval.flows
+        .filter((flow) => flow.flow_id === flowId)
+        .map((flow) => ({
+          from: interval.from_offset,
+          to: interval.to_offset,
+          exact: flow.mean_power,
+          value: plotted(flow.mean_power),
+        })),
+    ),
+  );
+}
+
+/** A state sample as a chart point, once per sample row. */
+function point(sample: { offset_minutes: number; value: string }): InstantPoint {
+  return cached(sample, "point", () => ({
+    offset: sample.offset_minutes,
+    exact: sample.value,
+    value: plotted(sample.value),
   }));
 }
 
 /**
- * Build the chart model from what was recorded.
+ * T025e addendum B: one recorded total per step, read from the host's own
+ * electrical step rows and matched to the recorded intervals by `from_offset`.
+ * The total is the host's number (`electrical_view` owns the sum); nothing is
+ * added, subtracted or re-signed here.
+ */
+function fromStep(
+  history: RunHistory,
+  field: "pv_output" | "battery_power",
+): IntervalValue[] {
+  const decided = new Set(history.intervals.map((i) => i.from_offset));
+  return history.electrical_steps
+    .filter((row) => decided.has(row.from_offset))
+    .map((row) =>
+      cached(row, field, () => ({
+        from: row.from_offset,
+        to: row.to_offset,
+        exact: row[field],
+        value: plotted(row[field]),
+      })),
+    );
+}
+
+/** The largest value a frozen input holds under `name`, or null. */
+function heldRating(history: RunHistory, name: string): number | null {
+  const values = history.intervals
+    .flatMap((interval) =>
+      interval.view
+        .filter((entry) => entry.name === name && entry.value !== null)
+        .map((entry) => plotted(entry.value ?? "")),
+    )
+    .filter((v) => Number.isFinite(v) && v > 0);
+  return values.length === 0 ? null : Math.max(...values);
+}
+
+/**
+ * Build the chart model from what was recorded - the history alone.
  *
- * `steps` are the execution projection's electrical steps: the host's own
- * per-step PV and battery summary, computed once from the same accepted flows
- * the history records. The screen adds nothing to them - accepted PV and the
- * battery's signed power are sums the host already made, so they are read,
- * not recomputed here.
+ * T025e (closes carry C3): no per-step execution data reaches a chart, so no
+ * curve can run ahead of the history the others are drawn from. PV output and
+ * signed battery power are the host's recorded totals (`electrical_steps`,
+ * addendum B); the recorded flows beside them are secondary detail. Nothing is
+ * summed or recomputed here.
  */
 export function chartModel(
   history: RunHistory,
-  steps: RunElectricalStep[] | null,
   timestepMinutes: number | null,
 ): ChartModel {
   const offsets = history.boundaries.map((b) => b.offset_minutes);
@@ -208,19 +285,22 @@ export function chartModel(
 
   const panels: ChartPanel[] = [];
 
-  if (steps !== null && steps.length > 0) {
+  const pvPotential = fromFlow(history, "pv_potential");
+  if (pvPotential.length > 0) {
     panels.push({
       id: "pv",
       title: "PV power",
       unit: "kW",
       statement:
-        "Mean power over each step. Potential is what the array offered; accepted is what the inverter delivered to loads and the battery; curtailed was refused by the controller and clipped exceeded the inverter's rating - two different losses.",
+        "Mean power over each step. Accepted is the inverter's recorded AC output; the flows are detail. Curtailed and clipped are different losses.",
       signed: false,
       series: [
-        { kind: "interval", id: "pv-potential", label: "Potential", slot: 1, dash: "dashed", values: fromSteps(steps, (s) => s.pv_potential) },
-        { kind: "interval", id: "pv-accepted", label: "Accepted", slot: 2, dash: "solid", values: fromSteps(steps, (s) => s.pv_output) },
-        { kind: "interval", id: "pv-curtailed", label: "Curtailed", slot: 3, dash: "dotted", values: fromSteps(steps, (s) => s.curtailed) },
-        { kind: "interval", id: "pv-clipped", label: "Clipped", slot: 4, dash: "dashdot", values: fromSteps(steps, (s) => s.clipped) },
+        { kind: "interval", id: "pv-accepted", label: "Accepted", slot: 1, dash: "solid", values: fromStep(history, "pv_output") },
+        { kind: "interval", id: "pv-potential", label: "Potential", slot: 1, dash: "dashed", values: pvPotential },
+        { kind: "interval", id: "pv-to-load", label: "To loads", slot: 2, dash: "solid", detail: true, values: fromFlow(history, "pv_to_load") },
+        { kind: "interval", id: "pv-to-battery", label: "To the battery", slot: 2, dash: "dashdot", detail: true, values: fromFlow(history, "pv_to_battery") },
+        { kind: "interval", id: "pv-curtailed", label: "Curtailed", slot: 3, dash: "dotted", values: fromFlow(history, "curtailed_pv") },
+        { kind: "interval", id: "pv-clipped", label: "Clipped", slot: 4, dash: "dashdot", values: fromFlow(history, "inverter_clipping") },
       ],
       reported: claim((t) => stateKey(t.address) === "pv-ac-power"),
     });
@@ -241,14 +321,16 @@ export function chartModel(
       field: "demand_power" | "served_power" | "unserved_power",
     ): IntervalValue[] =>
       history.intervals.flatMap((interval) =>
-        interval.loads
-          .filter((load) => load.address === address)
-          .map((load) => ({
-            from: interval.from_offset,
-            to: interval.to_offset,
-            exact: load[field],
-            value: plotted(load[field]),
-          })),
+        cached(interval, `load:${address}:${field}`, () =>
+          interval.loads
+            .filter((load) => load.address === address)
+            .map((load) => ({
+              from: interval.from_offset,
+              to: interval.to_offset,
+              exact: load[field],
+              value: plotted(load[field]),
+            })),
+        ),
       );
     panels.push({
       id: `load-${component(address)}`,
@@ -278,14 +360,16 @@ export function chartModel(
   ];
   const governing = (prefix: string): IntervalValue[] =>
     history.intervals.flatMap((interval) =>
-      interval.effective_controls
-        .filter((control) => stateKey(control.address) === prefix)
-        .map((control) => ({
-          from: control.from_offset,
-          to: control.to_offset,
-          exact: control.value,
-          value: plotted(control.value),
-        })),
+      cached(interval, `governing:${prefix}`, () =>
+        interval.effective_controls
+          .filter((control) => stateKey(control.address) === prefix)
+          .map((control) => ({
+            from: control.from_offset,
+            to: control.to_offset,
+            exact: control.value,
+            value: plotted(control.value),
+          })),
+      ),
     );
   for (const address of socAddresses) {
     const reserve = governing("battery-reserve-state-of-charge");
@@ -299,7 +383,7 @@ export function chartModel(
         dash: "solid",
         points: history.samples
           .filter((s) => s.address === address && s.phase === "POST_EVENT")
-          .map((s) => ({ offset: s.offset_minutes, exact: s.value, value: plotted(s.value) })),
+          .map(point),
       },
     ];
     if (reserve.length > 0) {
@@ -313,39 +397,40 @@ export function chartModel(
       title: `Battery state of charge (${component(address)})`,
       unit: "%",
       statement:
-        "State of charge sampled at each boundary after its events; lines join samples. The reserve and the stop threshold are the controls in effect over each step.",
+        "A stock at each boundary, after its events; reserve and stop threshold are controls over each step.",
       signed: false,
+      // A state of charge is a percentage of capacity: 0-100 % is declared.
+      bound: { min: 0, max: 100 },
       series,
       reported: claim((t) => t.address === address),
     });
   }
 
-  if (steps !== null && steps.length > 0) {
+  const batteryToLoad = fromFlow(history, "battery_to_load");
+  if (batteryToLoad.length > 0) {
+    const series: TruthSeries[] = [
+      { kind: "interval", id: "battery-power", label: "Battery power (+ discharging)", slot: 1, dash: "solid", values: fromStep(history, "battery_power") },
+      { kind: "interval", id: "battery-to-load", label: "Discharged to loads", slot: 2, dash: "dashed", detail: true, values: batteryToLoad },
+      { kind: "interval", id: "pv-to-battery", label: "Charged from PV", slot: 3, dash: "dashed", detail: true, values: fromFlow(history, "pv_to_battery") },
+    ];
+    const fromGenerator = fromFlow(history, "generator_to_battery");
+    if (fromGenerator.length > 0) {
+      series.push({ kind: "interval", id: "generator-to-battery", label: "Charged from the generator", slot: 4, dash: "dotted", detail: true, values: fromGenerator });
+    }
     panels.push({
       id: "battery-power",
       title: "Battery power",
       unit: "kW",
       statement:
-        "Signed mean AC power over each step: positive while the battery discharges, negative while it charges.",
+        "Mean AC power at the battery's converter over each step: positive is discharging, negative is charging. The flows are detail.",
       signed: true,
-      series: [
-        { kind: "interval", id: "battery-power", label: "Signed power", slot: 1, dash: "solid", values: fromSteps(steps, (s) => s.battery_power) },
-      ],
+      series,
       reported: claim((t) => stateKey(t.address) === "battery-ac-power"),
     });
   }
 
-  const generatorOutput: IntervalValue[] = history.intervals.flatMap(
-    (interval) =>
-      interval.flows
-        .filter((flow) => flow.flow_id === "generator_output")
-        .map((flow) => ({
-          from: interval.from_offset,
-          to: interval.to_offset,
-          exact: flow.mean_power,
-          value: plotted(flow.mean_power),
-        })),
-  );
+  const generatorOutput: IntervalValue[] = fromFlow(history, "generator_output");
+  const generatorRating = heldRating(history, "generator-rated-power");
   if (generatorOutput.length > 0) {
     panels.push({
       id: "generator-output",
@@ -353,6 +438,7 @@ export function chartModel(
       unit: "kW",
       statement: "Accepted generator output, mean power over each step.",
       signed: false,
+      ...(generatorRating === null ? {} : { bound: { min: 0, max: generatorRating } }),
       series: [
         { kind: "interval", id: "generator-output", label: "Output", slot: 1, dash: "solid", values: generatorOutput },
       ],
@@ -384,7 +470,7 @@ export function chartModel(
           dash: "solid",
           points: history.samples
             .filter((s) => s.address === address && s.phase === "POST_EVENT")
-            .map((s) => ({ offset: s.offset_minutes, exact: s.value, value: plotted(s.value) })),
+            .map(point),
         },
       ],
       reported: claim((t) => t.address === address),

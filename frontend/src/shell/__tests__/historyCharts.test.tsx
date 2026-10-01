@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, screen as rtl } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -6,7 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
-import { niceTicks } from "../HistoryCharts";
+import { niceTicks, valueTicks } from "../HistoryCharts";
 import { chartModel, plotted, readingAt, reportedRuns } from "../historyChartModel";
 import type { RunHistory, RunHistoryResult } from "../runHistory";
 import type {
@@ -35,7 +35,6 @@ import historyPrefix from "./kobo-policy-history-prefix.json";
 
 const HISTORY = historyPrefix as unknown as RunHistory;
 const EXECUTION = executionPrefix as unknown as RunExecution;
-const STEPS = EXECUTION.electrical?.steps ?? [];
 const RUN_ID = HISTORY.run_id;
 const URL = `/simulator-lab/runs/${RUN_ID}`;
 
@@ -113,7 +112,7 @@ function valueRow(key: string): HTMLElement {
 }
 
 describe("the chart model reads the record and adds nothing", () => {
-  const model = chartModel(HISTORY, STEPS, EXECUTION.timestep_minutes);
+  const model = chartModel(HISTORY, EXECUTION.timestep_minutes);
 
   it("keeps kW, % and L apart and each load addressed", () => {
     expect(model.panels.map((p) => `${p.id}:${p.unit}`)).toEqual([
@@ -133,28 +132,92 @@ describe("the chart model reads the record and adds nothing", () => {
     expect(model.unpaired).toEqual([]);
   });
 
-  it("draws the host's electrical steps and agrees with the history's own flows", () => {
-    // The PV panel reads the host's per-step summary; the history records the
-    // flows it came from. They are one fact, so they must agree at every step.
-    const pv = model.panels[0];
-    const potential = pv.series.find((s) => s.id === "pv-potential");
-    const curtailed = pv.series.find((s) => s.id === "pv-curtailed");
-    const clipped = pv.series.find((s) => s.id === "pv-clipped");
+  it("draws PV and the battery from the history's own flows, one curve per flow (T025e, C3)", () => {
+    // No execution step reaches a chart: every PV and battery point is one
+    // recorded flow's mean power, exactly as the history holds it.
+    const series = (panel: string, id: string) => {
+      const found = model.panels
+        .find((p) => p.id === panel)
+        ?.series.find((s) => s.id === id);
+      if (found === undefined || found.kind === "instant") {
+        throw new Error(`no interval series ${panel}/${id}`);
+      }
+      return found;
+    };
+    const pairs: [string, string, string][] = [
+      ["pv", "pv-potential", "pv_potential"],
+      ["pv", "pv-to-load", "pv_to_load"],
+      ["pv", "pv-to-battery", "pv_to_battery"],
+      ["pv", "pv-curtailed", "curtailed_pv"],
+      ["pv", "pv-clipped", "inverter_clipping"],
+      ["battery-power", "battery-to-load", "battery_to_load"],
+      ["battery-power", "pv-to-battery", "pv_to_battery"],
+    ];
     let compared = 0;
-    for (const interval of HISTORY.intervals) {
-      const flow = (id: string) =>
-        interval.flows.find((f) => f.flow_id === id)?.mean_power;
-      const at = (series: typeof potential) =>
-        series?.kind === "instant"
-          ? undefined
-          : series?.values.find((v) => v.from === interval.from_offset)?.exact;
-      expect(at(potential)).toBe(flow("pv_potential"));
-      expect(at(curtailed)).toBe(flow("curtailed_pv"));
-      expect(at(clipped)).toBe(flow("inverter_clipping"));
-      compared += 1;
+    for (const [panel, id, flowId] of pairs) {
+      const values = series(panel, id).values;
+      expect(values).toHaveLength(HISTORY.intervals.length);
+      HISTORY.intervals.forEach((interval, i) => {
+        const flow = interval.flows.find((f) => f.flow_id === flowId);
+        expect(values[i].from).toBe(interval.from_offset);
+        expect(values[i].exact).toBe(flow?.mean_power);
+        compared += 1;
+      });
     }
-    expect(compared).toBe(HISTORY.intervals.length);
-    expect(compared).toBeGreaterThan(12);
+    expect(compared).toBeGreaterThan(7 * 12);
+  });
+
+  it("draws accepted PV and signed battery power as the host recorded them (addendum B)", () => {
+    // The totals are the host's own step rows, matched by `from_offset`; the
+    // test reads the recorded field and never re-sums a flow.
+    const panel = (id: string) => model.panels.find((p) => p.id === id)!;
+    const total = (panelId: string, id: string) => {
+      const found = panel(panelId).series.find((s) => s.id === id);
+      if (found === undefined || found.kind === "instant") {
+        throw new Error(`no interval series ${panelId}/${id}`);
+      }
+      return found;
+    };
+    expect(HISTORY.electrical_steps.length).toBe(HISTORY.intervals.length);
+    for (const [panelId, id, field] of [
+      ["pv", "pv-accepted", "pv_output"],
+      ["battery-power", "battery-power", "battery_power"],
+    ] as const) {
+      const series = total(panelId, id);
+      expect(series.detail).toBeUndefined();
+      expect(series.values.map((v) => [v.from, v.to, v.exact])).toEqual(
+        HISTORY.electrical_steps.map((row) => [row.from_offset, row.to_offset, row[field]]),
+      );
+    }
+    expect(panel("battery-power").signed).toBe(true);
+    expect(HISTORY.electrical_steps.some((row) => row.battery_power.startsWith("-"))).toBe(true);
+    // The components stay, as detail.
+    expect(total("battery-power", "battery-to-load").detail).toBe(true);
+    expect(total("pv", "pv-to-load").detail).toBe(true);
+    // Each reported track sits on the panel of the total it measures.
+    expect(panel("pv").reported.map((t) => t.address)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^pv-ac-power@/)]),
+    );
+    expect(panel("battery-power").reported.map((t) => t.address)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^battery-ac-power@/)]),
+    );
+  });
+
+  it("draws no total for a step whose interval is not recorded", () => {
+    const partial = chartModel(
+      { ...HISTORY, intervals: HISTORY.intervals.slice(0, 3) },
+      EXECUTION.timestep_minutes,
+    );
+    const accepted = partial.panels
+      .find((p) => p.id === "pv")!
+      .series.find((s) => s.id === "pv-accepted")!;
+    expect(accepted.kind === "interval" && accepted.values.length).toBe(3);
+  });
+
+  it("builds nothing from a history with no recorded interval", () => {
+    const empty = chartModel({ ...HISTORY, intervals: [] }, EXECUTION.timestep_minutes);
+    expect(empty.panels.map((p) => p.id)).not.toContain("pv");
+    expect(empty.panels.map((p) => p.id)).not.toContain("battery-power");
   });
 
   it("plots each report once, at its own source time", () => {
@@ -219,7 +282,7 @@ describe("the value axis contains every value it draws", () => {
   });
 
   it("holds for every panel of the recorded run", () => {
-    const model = chartModel(HISTORY, STEPS, EXECUTION.timestep_minutes);
+    const model = chartModel(HISTORY, EXECUTION.timestep_minutes);
     for (const panel of model.panels) {
       const values = panel.series.flatMap((s) =>
         s.kind === "instant" ? s.points.map((p) => p.value) : s.values.map((v) => v.value),
@@ -229,8 +292,64 @@ describe("the value axis contains every value it draws", () => {
           t.attempts.filter((a) => a.reported_value !== null).map((a) => plotted(a.reported_value!)),
         ),
       );
-      const ticks = niceTicks(Math.min(0, ...values), Math.max(1, ...values));
+      const ticks = valueTicks(panel, values);
       expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(Math.max(...values));
+      expect(ticks[0]).toBeLessThanOrEqual(Math.min(...values));
+    }
+  });
+});
+
+describe("the value axis is declared or ratchets, never shrinks (T025e AC8)", () => {
+  it("uses the declared 0-100 % for a state of charge and the held generator rating", () => {
+    const model = chartModel(HISTORY, EXECUTION.timestep_minutes);
+    const soc = model.panels.find((p) => p.id === "soc-battery")!;
+    expect(soc.bound).toEqual({ min: 0, max: 100 });
+    const ticks = valueTicks(soc, [37.5]);
+    expect(ticks[0]).toBe(0);
+    expect(ticks[ticks.length - 1]).toBe(100);
+    const generator = model.panels.find((p) => p.id === "generator-output")!;
+    expect(generator.bound?.max).toBeGreaterThan(0);
+    // A load has no declared range: it ratchets.
+    expect(model.panels.find((p) => p.id === "load-load-mill")!.bound).toBeUndefined();
+  });
+
+  it("is the same axis at every boundary of a live run until a value outgrows it", () => {
+    const model = chartModel(HISTORY, EXECUTION.timestep_minutes);
+    for (const panel of model.panels) {
+      let top = -Infinity;
+      let bottom = Infinity;
+      let widened = 0;
+      for (let k = 1; k <= HISTORY.boundaries.length; k += 1) {
+        const through = HISTORY.boundaries[k - 1].offset_minutes;
+        const values = panel.series.flatMap((s) =>
+          s.kind === "instant"
+            ? s.points.filter((p) => p.offset <= through).map((p) => p.value)
+            : s.values.filter((v) => v.from <= through).map((v) => v.value),
+        );
+        const ticks = valueTicks(panel, values);
+        const [lo, hi] = [ticks[0], ticks[ticks.length - 1]];
+        if (k > 1) {
+          expect(hi).toBeGreaterThanOrEqual(top);
+          expect(lo).toBeLessThanOrEqual(bottom);
+          if (hi !== top || lo !== bottom) {
+            widened += 1;
+          }
+        }
+        top = hi;
+        bottom = lo;
+      }
+      expect(widened, panel.id).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("never lowers its top as a series grows", () => {
+    let top = 0;
+    const values: number[] = [];
+    for (let v = 0; v < 500; v += 0.37) {
+      values.push(v);
+      const ticks = valueTicks({}, values);
+      expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(top);
+      top = ticks[ticks.length - 1];
     }
   });
 });
@@ -310,10 +429,12 @@ describe("the recorded day curves on the run screen", () => {
     expect(document.querySelector("[data-cursor-offset]")?.textContent).toContain(
       "2026-09-22T04:20:00Z",
     );
-    // And the boundary select drives the charts the other way.
-    fireEvent.change(
-      document.querySelector("[data-history-boundary-select]") as HTMLSelectElement,
-      { target: { value: "40" } },
+    // T025e: one cursor - the raw records have no boundary select of their
+    // own; the Applied timeline drives the charts the other way.
+    expect(document.querySelector("[data-history-boundary-select]")).toBeNull();
+    fireEvent.click(rtl.getByLabelText("The whole recorded run"));
+    fireEvent.click(
+      document.querySelector('[data-timeline-go="40"]') as HTMLButtonElement,
     );
     expect(
       new Set(all("[data-chart-cursor]").map((c) => c.getAttribute("data-chart-cursor"))),
@@ -369,7 +490,7 @@ describe("the recorded day curves on the run screen", () => {
     await settledScreen();
 
     cursorTo(0);
-    const accepted = valueRow("pv-pv-accepted");
+    const accepted = valueRow("pv-pv-to-load");
     expect(accepted.textContent).toContain("absent: no interval has completed yet");
     expect(accepted.querySelector("[data-exact]")).toBeNull();
     const reportedAtZero = valueRow("pv-pv-inverter-controller-ac-power");

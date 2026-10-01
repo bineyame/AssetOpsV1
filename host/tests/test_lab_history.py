@@ -67,6 +67,7 @@ def records(history):
         history.bounded_transitions,
         history.discrete_transitions,
         history.bus_attachments,
+        history.electrical_steps,
     )
 
 
@@ -226,6 +227,23 @@ class TestACompletedRunReloadsWithoutExecuting:
         assert history.bus_attachments and "LOAD" in {r.upper() for r in roles}
 
 
+class TestTheRecordedTotalsAreTheProjectionsOwnRows:
+    """T025e addendum B (option R): `electrical_steps` is joined, never re-summed."""
+
+    def test_live_and_persisted_carry_the_projection_step_rows(
+        self, mini_grid
+    ) -> None:
+        run, root, projection, live = mini_grid
+        assert projection.electrical is not None and projection.electrical.steps
+        assert live.electrical_steps == projection.electrical.steps
+        reloaded = a_lab(root).history(run)
+        assert reloaded.source == "PERSISTED"
+        assert reloaded.electrical_steps == a_lab(root).projection(run).electrical.steps
+        assert [r.from_offset for r in reloaded.electrical_steps] == [
+            i.from_offset for i in reloaded.intervals
+        ]
+
+
 class TestTheArtifactLayout:
     def test_the_projection_document_is_unchanged_and_never_parses_history(
         self, mini_grid
@@ -262,7 +280,7 @@ class TestTheArtifactLayout:
         history = a_lab(tmp_path).history(run)
         assert history.status == "INTERRUPTED"
         assert history.source == "NOT_RECORDED"
-        assert records(history) == ((),) * 9
+        assert records(history) == ((),) * 10
         assert {c.availability for c in history.coverage} == {"UNAVAILABLE"}
 
     def test_a_draft_never_executed_has_no_history(self, tmp_path) -> None:
@@ -296,6 +314,8 @@ class TestOldAndDamagedArtifacts:
         assert [c.family for c in history.coverage] == list(HISTORY_FAMILIES)
         assert {c.availability for c in history.coverage} == {"UNAVAILABLE"}
         assert history.samples == () and history.attempts == ()
+        # Addendum B: the step rows join only where intervals are recorded.
+        assert history.electrical_steps == ()
 
     @pytest.mark.parametrize(
         "damage",
@@ -401,6 +421,7 @@ class TestFailuresStayInspectable:
             run_id=run.run_id, status="FAILED",
             content_digest=projection.content_digest,
             observation_series_digest=projection.observation_series_digest,
+            electrical=projection.electrical,
         )
         YamlExecutionArtifacts(tmp_path).write(
             projection, render_history(live, projection)
@@ -429,6 +450,7 @@ class TestAFuelRunWithAReportingGap:
         assert history.availability("intervals") == "NOT_APPLICABLE"
         assert history.availability("drawing") == "NOT_APPLICABLE"
         assert history.applied_events
+        assert history.electrical_steps == ()
 
 
 def test_parse_refuses_a_history_that_names_another_run(mini_grid) -> None:

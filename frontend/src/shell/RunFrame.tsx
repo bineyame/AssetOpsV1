@@ -1,21 +1,35 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { Badge, DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, Fact, FactList, PageHeader, Panel } from "../ui";
 import { ElectricalPanels, ExactQuantity } from "./ElectricalPanels";
-import { HistoryInspector } from "./HistoryInspector";
+import {
+  HistoryCockpit,
+  HistoryFacts,
+  HistoryRecordsAtCursor,
+} from "./HistoryInspector";
 import { RunHeader } from "./RunHeader";
 import {
   DEFAULT_PLAYBACK_DELAY_MS,
+  DEFAULT_STEP_TIMEOUT_MS,
   PLAYBACK_DELAYS_MS,
   PlaybackScheduler,
-  laterExecution,
   type PlaybackState,
   type PlaybackStopReason,
 } from "./runPlayback";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteDetailResult } from "../sites/siteReadModel";
-import type { RunHistoryResult } from "./runHistory";
+import {
+  INITIAL,
+  boundariesBehindLive,
+  historyLag,
+  historyRequest,
+  selectedOffset,
+  runFrameReducer,
+  type HistoryAnswer,
+  type RunFrameAction,
+  type RunFrameState,
+} from "./runFrameState";
 import type {
   RunDetailResult,
   RunExecutionResult,
@@ -73,6 +87,30 @@ import type {
  * deliberately utilitarian and it is read-only: a staged record cannot be edited
  * here, and nothing here releases or commits one.
  */
+/** T025e AC12: the tick commit timing the layout evidence reads. */
+const TICK_MARK = "run-frame-tick";
+let tickMarked = false;
+
+function markTick(): void {
+  if (typeof performance === "undefined" || typeof performance.mark !== "function") {
+    return;
+  }
+  performance.mark(TICK_MARK);
+  tickMarked = true;
+}
+
+function measureTick(): void {
+  if (!tickMarked || typeof performance.measure !== "function") {
+    return;
+  }
+  tickMarked = false;
+  try {
+    performance.measure("run-frame-commit", TICK_MARK);
+  } catch {
+    // A measurement is evidence, never a reason for the page to fail.
+  }
+}
+
 export interface RunFrameProps {
   runSetup: RunSetupClient;
   runsPath: string;
@@ -85,6 +123,31 @@ export interface RunFrameProps {
   siteDetail?: SiteDetailClient;
   /** T025d: how long one auto-play step may take. Tests shorten it. */
   playbackStepTimeoutMs?: number;
+  /** R1 finding 2: how long a history read may take before it counts as failed. */
+  historyTimeoutMs?: number;
+}
+
+/** A history read is a read on the same host lock a step takes: same bound. */
+const DEFAULT_HISTORY_TIMEOUT_MS = DEFAULT_STEP_TIMEOUT_MS;
+
+/**
+ * `read`, or `expired` when it has not settled within `ms`. The late answer is
+ * ignored: the caller commits the failure path and reads again at the next tick.
+ */
+function withinTimeout<T>(read: Promise<T>, ms: number, expired: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const timer = setTimeout(() => resolve(expired), ms);
+    read.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(expired);
+      },
+    );
+  });
 }
 
 /**
@@ -101,14 +164,42 @@ export function RunFrame({
   simulatorLabPath,
   siteDetail,
   playbackStepTimeoutMs,
+  historyTimeoutMs = DEFAULT_HISTORY_TIMEOUT_MS,
 }: RunFrameProps) {
   const { runId } = useParams<{ runId: string }>();
   const [result, setResult] = useState<RunDetailResult | null>(null);
-  const [execution, setExecution] = useState<RunExecutionResult | null>(null);
+  // T025e: execution, history, the full-read flag and the history cursor are
+  // one state, and every answer is one commit (`runFrameState.ts`). The ref
+  // mirrors it so an answer arriving later decides its read from what is held
+  // now, not from the render that sent it.
+  const [frameState, setFrameState] = useState<RunFrameState>(INITIAL);
+  const held = useRef<RunFrameState>(INITIAL);
+  const dispatch = useCallback((action: RunFrameAction) => {
+    held.current = runFrameReducer(held.current, action);
+    if (action.type === "TICK_COMMITTED") {
+      // T025e AC12: the tick's commit is measured from this dispatch to the
+      // layout effect below, in the production build, by the layout evidence.
+      markTick();
+    }
+    setFrameState(held.current);
+  }, []);
+  useLayoutEffect(() => {
+    measureTick();
+  }, [frameState]);
+  const execution = frameState.execution;
+  // The one history cursor (T025e AC7): the reader pins or returns to live.
+  const select = useCallback(
+    (offset: number) => dispatch({ type: "SELECT", offset }),
+    [dispatch],
+  );
+  const returnToLive = useCallback(
+    () => dispatch({ type: "RETURN_TO_LIVE" }),
+    [dispatch],
+  );
   const [pending, setPending] = useState(false);
   const [boundaries, setBoundaries] = useState("1");
   const [stage, setStage] = useState<RunStageResult | null>(null);
-  const [history, setHistory] = useState<RunHistoryResult | null>(null);
+  const history = frameState.history;
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [drawingSite, setDrawingSite] = useState<SiteDetailResult | null>(null);
   const [playback, setPlayback] = useState<PlaybackState>({
@@ -118,18 +209,72 @@ export function RunFrame({
   });
   const [delayMs, setDelayMs] = useState<number>(DEFAULT_PLAYBACK_DELAY_MS);
   const scheduler = useRef<PlaybackScheduler | null>(null);
+  // T025e AC11: the status line whose `data-playback-in-flight` attribute the
+  // scheduler's in-flight changes write, so they cost no render.
+  const statusRef = useRef<HTMLParagraphElement>(null);
+  const onPlaybackState = useCallback((next: PlaybackState) => {
+    statusRef.current?.setAttribute(
+      "data-playback-in-flight",
+      next.kind === "playing" && next.inFlight ? "yes" : "no",
+    );
+    setPlayback((previous) => shownPlayback(previous, next));
+  }, []);
   const delayRef = useRef<number>(DEFAULT_PLAYBACK_DELAY_MS);
 
-  // T025d: the recorded history and the stage are re-read after a control and
-  // whenever auto-play stops - never per auto-played step, because the live
-  // history is recomputed per read and grows with the run.
-  const rereadRecords = useCallback(async () => {
+  // The stage is re-read after a control and whenever auto-play stops, never
+  // per auto-played step. T025e: the history is no longer re-read on stop; it
+  // follows each answer through `commit` below.
+  const rereadStage = useCallback(async () => {
     if (runId === undefined) {
       return;
     }
     setStage(await runSetup.getStage(runId));
-    setHistory(await runSetup.getExecutionHistory(runId));
   }, [runSetup, runId]);
+
+  // One history request at a time, never two in parallel: each commit waits
+  // for the one before it, then decides its read from what that one left.
+  const commits = useRef<Promise<void>>(Promise.resolve());
+  /**
+   * Commit one execution answer with the history read it needs, in one
+   * transition. `base` forces a whole read (a Start: the live session's first
+   * record). Resolves after the commit; never rejects - a history failure is
+   * not a step failure, it only leaves the history behind the clock.
+   */
+  const commit = useCallback(
+    (answer: RunExecutionResult, base = false): Promise<void> => {
+      const next = commits.current.then(async () => {
+        if (runId === undefined) {
+          return;
+        }
+        const request = base ? { kind: "full" as const } : historyRequest(held.current, answer);
+        let read: HistoryAnswer = { kind: "none" };
+        const failed = { status: "unavailable" as const, message: null };
+        if (request.kind === "full") {
+          read = {
+            kind: "full",
+            result: await withinTimeout(
+              runSetup.getExecutionHistory(runId),
+              historyTimeoutMs,
+              failed,
+            ),
+          };
+        } else if (request.kind === "delta") {
+          read = {
+            kind: "delta",
+            result: await withinTimeout(
+              runSetup.getExecutionHistorySince(runId, request.since),
+              historyTimeoutMs,
+              failed,
+            ),
+          };
+        }
+        dispatch({ type: "TICK_COMMITTED", execution: answer, history: read });
+      });
+      commits.current = next.catch(() => undefined);
+      return commits.current;
+    },
+    [runSetup, runId, dispatch, historyTimeoutMs],
+  );
 
   // One scheduler per run page. Leaving the page (or changing run) disposes
   // it, which stops scheduling and shows nothing further; a reload builds a
@@ -142,16 +287,16 @@ export function RunFrame({
       step: (fromBoundary) =>
         runSetup.stepExecution(runId, { boundaries: 1, fromBoundary }),
       read: () => runSetup.getExecution(runId),
-      show: (answer) => setExecution((previous) => laterExecution(previous, answer)),
-      onState: setPlayback,
+      show: (answer) => commit(answer),
+      onState: onPlaybackState,
       onStopped: () => {
-        void rereadRecords();
+        void rereadStage();
       },
       stepTimeoutMs: playbackStepTimeoutMs,
     });
     created.setDelay(delayRef.current);
     scheduler.current = created;
-    setPlayback(created.current());
+    onPlaybackState(created.current());
     const onVisibility = () => {
       if (document.visibilityState === "hidden") {
         created.hidden();
@@ -165,7 +310,7 @@ export function RunFrame({
         scheduler.current = null;
       }
     };
-  }, [runSetup, runId, rereadRecords, playbackStepTimeoutMs]);
+  }, [runSetup, runId, rereadStage, commit, playbackStepTimeoutMs, onPlaybackState]);
 
   useEffect(() => {
     delayRef.current = delayMs;
@@ -213,26 +358,42 @@ export function RunFrame({
         setResult(loaded);
       }
     });
-    void runSetup.getExecution(runId).then((loaded) => {
-      if (active) {
-        setExecution(loaded);
-      }
-    });
+    dispatch({ type: "RESET" });
     void runSetup.getStage(runId).then((loaded) => {
       if (active) {
         setStage(loaded);
       }
     });
-    void runSetup.getExecutionHistory(runId).then((loaded) => {
+    // The load's execution and whole history reads take their place in the
+    // commit chain, so they never run beside a commit's history read, and
+    // the reducer keeps whatever a newer commit already holds (R1 finding 4).
+    // Reload starts live at the last recorded boundary; the cursor is not
+    // persisted.
+    const loading = commits.current.then(async () => {
+      if (!active) {
+        return;
+      }
+      const failed = { status: "unavailable" as const, message: null };
+      void runSetup.getExecution(runId).then((loaded) => {
+        if (active) {
+          dispatch({ type: "EXECUTION_READ", execution: loaded });
+        }
+      });
+      const history = await withinTimeout(
+        runSetup.getExecutionHistory(runId),
+        historyTimeoutMs,
+        failed,
+      );
       if (active) {
-        setHistory(loaded);
+        dispatch({ type: "HISTORY_READ", result: history });
       }
     });
+    commits.current = loading.catch(() => undefined);
 
     return () => {
       active = false;
     };
-  }, [runSetup, runId]);
+  }, [runSetup, runId, dispatch, historyTimeoutMs]);
 
   /**
    * Run one control and replace the execution with what came back.
@@ -245,18 +406,19 @@ export function RunFrame({
    * from being bypassed.
    */
   const control = useCallback(
-    async (act: () => Promise<RunExecutionResult>) => {
+    async (act: () => Promise<RunExecutionResult>, base = false) => {
       setPending(true);
       const answer = await act();
-      setExecution(answer);
+      // T025e: the same commit path as auto-play - the answer with its
+      // history read (a Start's is the whole base the live session starts
+      // from; a Step's a delta; a terminal answer's the one full read).
+      await commit(answer, base);
       // A control may have staged envelopes, so the stage is re-read from
       // persistence after it rather than patched from the control's answer.
-      // T025c: the recorded history is re-read the same way - a read that
-      // executes nothing, of what the control just recorded.
-      await rereadRecords();
+      await rereadStage();
       setPending(false);
     },
-    [rereadRecords],
+    [commit, rereadStage],
   );
 
   const backLinks = (
@@ -322,76 +484,6 @@ export function RunFrame({
 
   return frame(
     <>
-      <RunHeader
-        run={run}
-        execution={execution}
-        history={history}
-        stage={stage}
-      />
-
-      <Panel heading="This run" headingId="run-identity-heading">
-        <FactList>
-          <Fact term="Run ID">{run.run_id}</Fact>
-          <Fact term="Lifecycle status">{run.lifecycle_status}</Fact>
-          <Fact term="Execution status">{run.execution_status}</Fact>
-          <Fact term="Site">{run.site_id}</Fact>
-          <Fact term="Scenario">{run.scenario_id}</Fact>
-          <Fact term="Scenario version">{String(run.scenario_version)}</Fact>
-          <Fact term="Set up">{run.created_at}</Fact>
-        </FactList>
-        <p>
-          Nothing on this screen releases a source envelope, commits anything,
-          or writes to any site. Executing a draft produces private simulator
-          truth, the readings a configured device would have published from it,
-          and the canonical source envelopes the simulated gateway staged from
-          those readings - and all three stay in this workspace.
-        </p>
-      </Panel>
-
-      {run.readiness_disclosure === null ? null : (
-        <Panel
-          heading="What ready does not assert"
-          headingId="run-disclosure-heading"
-        >
-          <p>{run.readiness_disclosure}</p>
-        </Panel>
-      )}
-
-      <Panel heading="The frozen inputs" headingId="run-frozen-heading" flush>
-        <DataTable labelledBy="run-frozen-heading">
-          <thead>
-            <tr>
-              <th scope="col">Input</th>
-              <th scope="col">Frozen value</th>
-              <th scope="col">Answered by</th>
-              <th scope="col">Which record answered</th>
-            </tr>
-          </thead>
-          <tbody>
-            {run.frozen_inputs.map((row) => (
-              <tr key={`${row.identity_field}-${row.field}`}>
-                <th scope="row">{row.field}</th>
-                <td>{row.value}</td>
-                <td>{row.answered_by}</td>
-                <td className="cell-secondary">
-                  {row.answered_by_detail}
-                  {/*
-                    Beside the value it is about, not only in the table
-                    below. Two same-type assets make two rows that differ by
-                    a component id and two reasons that differ the same way,
-                    and pairing them by eye across two tables is the work
-                    this saves.
-                  */}
-                  {row.blocking_statement === null ? null : (
-                    <span className="cell-note">{row.blocking_statement}</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
-      </Panel>
-
       {blocked ? (
         <Panel
           heading="Why this draft cannot be executed"
@@ -418,59 +510,276 @@ export function RunFrame({
           </DataTable>
         </Panel>
       ) : null}
-
-      {run.unsupported_optional_inputs.length === 0 ? null : (
-        <Panel
-          heading="Optional inputs this profile does not support"
-          headingId="run-optional-heading"
+      {/*
+        T025e AC9: the cockpit. The control strip on the execution clock, then
+        the record at the history cursor. Nothing above it grows per tick, and
+        nothing inside it changes size with a tick: every region is reserved.
+      */}
+      <div className="run-cockpit" data-cockpit>
+        <section
+          className="control-strip"
+          aria-labelledby="run-execution-heading"
+          data-control-strip
         >
-          <ul className="cell-list">
-            {run.unsupported_optional_inputs.map((item) => (
-              <li key={`${item.state_key}-${item.execution_role}`}>
-                {item.statement}
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
-
-      <Panel heading="Executing this run" headingId="run-execution-heading">
-        {execution === null ? (
-          <p>Loading the execution of the persisted run.</p>
-        ) : execution.status === "not_found" ? (
-          <p>
-            No execution surface answered for this run identity, so there is
-            nothing to start and nothing to show.
-          </p>
-        ) : execution.status === "unavailable" ? (
-          <p data-execution-unavailable>
-            {execution.message ??
-              "The execution surface could not be reached, so nothing is known about whether this draft has been executed."}
-          </p>
-        ) : null}
-
-        {/*
-          A refused control, in its own region and never mixed with the blocking
-          reasons above. Criterion 4: a start, step or run-to-end that was refused
-          is a different fact from a draft that was never eligible, and a reader
-          has to be able to tell which they are looking at.
-        */}
-        {execution !== null && execution.status === "refused" ? (
-          <p data-control-refusal>
-            <strong>{execution.refusalKind ?? "Refused"}.</strong>{" "}
-            {execution.message}
-          </p>
-        ) : null}
-
-        {projection === null ? null : (
-          <>
-            <p>
-              <Badge tone="lifecycle">{projection.status}</Badge>
+          <h2 id="run-execution-heading" className="control-strip__heading">
+            Executing this run
+          </h2>
+          {execution === null ? (
+            <p className="control-strip__slot">Loading the execution of the persisted run.</p>
+          ) : execution.status === "not_found" ? (
+            <p className="control-strip__slot">
+              No execution surface answered for this run identity, so there is
+              nothing to start and nothing to show.
             </p>
+          ) : execution.status === "unavailable" ? (
+            <p className="control-strip__slot" data-execution-unavailable>
+              {execution.message ??
+                "The execution surface could not be reached, so nothing is known about whether this draft has been executed."}
+            </p>
+          ) : null}
+
+          {projection === null ? null : (
+            <>
+              <div className="control-strip__row">
+                <Badge tone="lifecycle">{projection.status}</Badge>
+                <span
+                  className="control-strip__clock"
+                  data-execution-clock={projection.boundaries_completed}
+                >
+                  {`Execution clock: boundary ${projection.boundaries_completed} of ${projection.boundaries_total}, ${projection.simulation_time}`}
+                </span>
+              </div>
+              {blocked ? null : (
+                <div className="control-strip__row control-strip__controls">
+                  <button
+                    type="button"
+                    className="action"
+                    disabled={
+                      pending ||
+                      autoPlaying ||
+                      projection.status !== "NOT_STARTED"
+                    }
+                    onClick={() => {
+                      void control(
+                        () => runSetup.startExecution(run.run_id),
+                        true,
+                      );
+                    }}
+                  >
+                    Start this run
+                  </button>
+                  <span className="control-strip__group">
+                    <label htmlFor="run-step-boundaries">
+                      Boundaries to advance
+                    </label>{" "}
+                    <input
+                      id="run-step-boundaries"
+                      className="control-strip__count"
+                      type="number"
+                      min={1}
+                      value={boundaries}
+                      onChange={(event) => setBoundaries(event.target.value)}
+                    />{" "}
+                    <button
+                      type="button"
+                      className="action"
+                      disabled={
+                        pending ||
+                        autoPlaying ||
+                        projection.status !== "RUNNING" ||
+                        stepSize < 1
+                      }
+                      onClick={() => {
+                        void control(() =>
+                          runSetup.stepExecution(run.run_id, {
+                            boundaries: stepSize,
+                            fromBoundary: projection.boundaries_completed,
+                          }),
+                        );
+                      }}
+                    >
+                      Step
+                    </button>
+                  </span>
+                  <button
+                    type="button"
+                    className="action"
+                    disabled={
+                      pending ||
+                      autoPlaying ||
+                      projection.status !== "RUNNING"
+                    }
+                    onClick={() => {
+                      void control(() =>
+                        runSetup.runExecutionToEnd(run.run_id),
+                      );
+                    }}
+                  >
+                    Run to the end
+                  </button>
+                  <PlaybackControls
+                    state={playback}
+                    delayMs={delayMs}
+                    canPlay={
+                      !pending &&
+                      !autoPlaying &&
+                      projection.status === "RUNNING"
+                    }
+                    onDelay={setDelayMs}
+                    onPlay={() => {
+                      scheduler.current?.play(projection);
+                    }}
+                    onPause={() => {
+                      scheduler.current?.pause();
+                    }}
+                    statusRef={statusRef}
+                    executionStatus={projection.status}
+                  />
+                </div>
+              )}
+              <Disclosure name="how-playback-works" summary="How playback works">
+                <p className="action-list__reason">
+                  A step advances the simulated clock by that many boundaries
+                  and says which boundary it is advancing from, so the same
+                  step submitted twice advances once.
+                </p>
+                <p className="action-list__reason">
+                  {`Auto-play sends one guarded Step of one boundary (${projection.timestep_minutes} simulated minutes, the run's frozen timestep), waits for its answer and its recorded history, then waits the wall delay before the next. The delay changes wall time only: every step is the same request as the Step button, so the run's physics, seed and ordering do not depend on it. Pausing stops the next request and does nothing to the run. Staged envelopes are re-read when auto-play stops, not per step.`}
+                </p>
+                <p className="action-list__reason">
+                  The execution clock is where the run is. The history cursor
+                  below is which recorded boundary the cockpit shows: it
+                  follows live, or holds a boundary you pin, and moving it
+                  reads the record and executes nothing.
+                </p>
+              </Disclosure>
+            </>
+          )}
+          {/*
+            One reserved slot for the one message a control can leave: a
+            refusal (criterion 4: never mixed with the blocking reasons), a
+            failure, or the contract's own statement for a run that accepts no
+            further control.
+          */}
+          <p className="control-strip__slot" data-control-message>
+            {execution !== null && execution.status === "refused" ? (
+              <span data-control-refusal>
+                <strong>{execution.refusalKind ?? "Refused"}.</strong>{" "}
+                {execution.message}
+              </span>
+            ) : projection === null ? (
+              ""
+            ) : projection.failure !== null ? (
+              <span data-execution-failure>
+                <strong>{projection.failure.kind}</strong> at{" "}
+                {projection.failure.subject}. {projection.failure.statement}
+              </span>
+            ) : blocked ? (
+              "This draft is blocked, so there is no execution control to offer; the reasons are above."
+            ) : CONTROLLABLE.has(projection.status) ? (
+              ""
+            ) : projection.status === "COMPLETED" ? (
+              "This execution accepts no further control: a finished run is a record, not a handle."
+            ) : (
+              [projection.statement, ...projection.notes].join(" ")
+            )}
+          </p>
+        </section>
+
+        <HistoryCockpit
+          held={history}
+          selected={selectedOffset(frameState)}
+          behindLive={boundariesBehindLive(frameState)}
+          lag={historyLag(frameState)}
+          onSelect={select}
+          onReturnToLive={returnToLive}
+          timestepMinutes={projection?.timestep_minutes ?? null}
+          site={drawingSite}
+        />
+      </div>
+
+      <p className="run-not-line" data-run-not-line>
+        What this run is not: a draft of private simulator truth and staged
+        envelopes - nothing released, committed, accepted or concluded, and no
+        site written.
+      </p>
+
+      <Disclosure
+        name="run-identity"
+        summary={<span id="run-identity-heading">Run identity and frozen inputs</span>}
+      >
+        <RunHeader
+          run={run}
+          execution={execution}
+          history={history}
+          stage={stage}
+        />
+        {run.readiness_disclosure === null ? null : (
+          <Panel
+            heading="What ready does not assert"
+            headingId="run-disclosure-heading"
+          >
+            <p>{run.readiness_disclosure}</p>
+          </Panel>
+        )}
+        <Panel heading="The frozen inputs" headingId="run-frozen-heading" flush>
+          <DataTable labelledBy="run-frozen-heading">
+            <thead>
+              <tr>
+                <th scope="col">Input</th>
+                <th scope="col">Frozen value</th>
+                <th scope="col">Answered by</th>
+                <th scope="col">Which record answered</th>
+              </tr>
+            </thead>
+            <tbody>
+              {run.frozen_inputs.map((row) => (
+                <tr key={`${row.identity_field}-${row.field}`}>
+                  <th scope="row">{row.field}</th>
+                  <td>{row.value}</td>
+                  <td>{row.answered_by}</td>
+                  <td className="cell-secondary">
+                    {row.answered_by_detail}
+                    {/*
+                      Beside the value it is about, not only in the table
+                      below. Two same-type assets make two rows that differ by
+                      a component id and two reasons that differ the same way,
+                      and pairing them by eye across two tables is the work
+                      this saves.
+                    */}
+                    {row.blocking_statement === null ? null : (
+                      <span className="cell-note">{row.blocking_statement}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Panel>
+        {run.unsupported_optional_inputs.length === 0 ? null : (
+          <Panel
+            heading="Optional inputs this profile does not support"
+            headingId="run-optional-heading"
+          >
+            <ul className="cell-list">
+              {run.unsupported_optional_inputs.map((item) => (
+                <li key={`${item.state_key}-${item.execution_role}`}>
+                  {item.statement}
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        )}
+      </Disclosure>
+
+      <Disclosure name="execution-provenance" summary="Execution provenance">
+        {projection === null ? (
+          <p>No execution is loaded.</p>
+        ) : (
+          <>
             {/*
               The status on an attribute as well as in the badge, so a browser
-              measurement can wait for a run to reach one. A tool that waited for
-              text would be matching the sentence rather than the state.
+              measurement can wait for a run to reach one.
             */}
             <p
               data-execution-statement
@@ -534,14 +843,6 @@ export function RunFrame({
                 {String(projection.dropped_count)}
               </Fact>
             </FactList>
-
-            {projection.failure === null ? null : (
-              <p data-execution-failure>
-                <strong>{projection.failure.kind}</strong> at{" "}
-                {projection.failure.subject}. {projection.failure.statement}
-              </p>
-            )}
-
             {projection.notes.length === 0 ? null : (
               <ul className="cell-list">
                 {projection.notes.map((note) => (
@@ -549,556 +850,449 @@ export function RunFrame({
                 ))}
               </ul>
             )}
-
-            {blocked ? (
-              <p className="action-list__reason">
-                This draft is blocked, so there is no execution control to
-                offer. The reasons above are what stands in the way; a blocked
-                draft stops being blocked by setting a new one up, not by
-                being executed anyway.
-              </p>
-            ) : (
-              <ul className="action-list">
-                <li className="action-list__item">
-                  <button
-                    type="button"
-                    className="action"
-                    disabled={
-                      pending ||
-                      autoPlaying ||
-                      projection.status !== "NOT_STARTED"
-                    }
-                    onClick={() => {
-                      void control(() =>
-                        runSetup.startExecution(run.run_id),
-                      );
-                    }}
-                  >
-                    Start this run
-                  </button>
-                </li>
-                <li className="action-list__item">
-                  <label htmlFor="run-step-boundaries">
-                    Boundaries to advance
-                  </label>{" "}
-                  <input
-                    id="run-step-boundaries"
-                    type="number"
-                    min={1}
-                    value={boundaries}
-                    onChange={(event) => setBoundaries(event.target.value)}
-                  />{" "}
-                  <button
-                    type="button"
-                    className="action"
-                    disabled={
-                      pending ||
-                      autoPlaying ||
-                      projection.status !== "RUNNING" ||
-                      stepSize < 1
-                    }
-                    onClick={() => {
-                      void control(() =>
-                        runSetup.stepExecution(run.run_id, {
-                          boundaries: stepSize,
-                          fromBoundary: projection.boundaries_completed,
-                        }),
-                      );
-                    }}
-                  >
-                    Step
-                  </button>
-                  <p className="action-list__reason">
-                    A step advances the simulated clock by that many boundaries
-                    and says which boundary it is advancing from, so the same
-                    step submitted twice advances once.
-                  </p>
-                </li>
-                <li className="action-list__item">
-                  <button
-                    type="button"
-                    className="action"
-                    disabled={
-                      pending ||
-                      autoPlaying ||
-                      projection.status !== "RUNNING"
-                    }
-                    onClick={() => {
-                      void control(() =>
-                        runSetup.runExecutionToEnd(run.run_id),
-                      );
-                    }}
-                  >
-                    Run to the end
-                  </button>
-                </li>
-              </ul>
-            )}
-
-            {blocked ? null : (
-              <PlaybackControls
-                state={playback}
-                delayMs={delayMs}
-                timestepMinutes={projection.timestep_minutes}
-                canPlay={
-                  !pending &&
-                  !autoPlaying &&
-                  projection.status === "RUNNING"
-                }
-                executionStatus={projection.status}
-                onDelay={setDelayMs}
-                onPlay={() => {
-                  scheduler.current?.play(projection);
-                }}
-                onPause={() => {
-                  scheduler.current?.pause();
-                }}
-              />
-            )}
-
-            {CONTROLLABLE.has(projection.status) ? null : (
-              <p className="action-list__reason">
-                This execution accepts no further control. A finished, failed or
-                interrupted run is a record rather than a handle, and advancing
-                one would mean producing a second result under the first one's
-                identity.
-              </p>
-            )}
           </>
         )}
-      </Panel>
+      </Disclosure>
 
-      {projection === null || projection.private_state.length === 0 ? null : (
-        <Panel
-          heading="What the world holds"
-          headingId="run-private-heading"
-          flush
-        >
-          <DataTable labelledBy="run-private-heading">
-            <thead>
-              <tr>
-                <th scope="col">State</th>
-                <th scope="col">True value</th>
-                <th scope="col">Unit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projection.private_state.map((row) => (
-                <tr key={row.address} data-private-state={row.address}>
-                  <th scope="row">{row.address}</th>
-                  <td>
-                    <ExactQuantity value={row.value} />
-                  </td>
-                  <td>{row.canonical_unit}</td>
+      <Disclosure
+        name="latest-step"
+        summary="Latest step on the execution clock: the world, electrical and generator panels, readings"
+      >
+        {projection === null || projection.private_state.length === 0 ? null : (
+          <Panel
+            heading="What the world holds"
+            headingId="run-private-heading"
+            flush
+          >
+            <DataTable labelledBy="run-private-heading">
+              <thead>
+                <tr>
+                  <th scope="col">State</th>
+                  <th scope="col">True value</th>
+                  <th scope="col">Unit</th>
                 </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        </Panel>
-      )}
+              </thead>
+              <tbody>
+                {projection.private_state.map((row) => (
+                  <tr key={row.address} data-private-state={row.address}>
+                    <th scope="row">{row.address}</th>
+                    <td>
+                      <ExactQuantity value={row.value} />
+                    </td>
+                    <td>{row.canonical_unit}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </Panel>
+        )}
+        {projection === null || projection.electrical === null ? null : (
+          <ElectricalPanels electrical={projection.electrical} />
+        )}
+        {projection === null || projection.observations.length === 0 ? null : (
+          <Panel
+            heading="What each device reported"
+            headingId="run-observations-heading"
+            flush
+          >
+            <DataTable labelledBy="run-observations-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Device and signal</th>
+                  <th scope="col">State</th>
+                  <th scope="col">True value</th>
+                  <th scope="col">Reported value</th>
+                  <th scope="col">Source sample time</th>
+                  <th scope="col">Quality</th>
+                  <th scope="col">This instant</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projection.observations.map((row) => (
+                  <tr
+                    key={`${row.device_id}-${row.signal_id}`}
+                    data-observation={`${row.device_id}:${row.signal_id}`}
+                  >
+                    <th scope="row">{`${row.device_id} / ${row.signal_id}`}</th>
+                    <td>{row.address}</td>
+                    <td data-observation-true>
+                      {row.true_value === null ? (
+                        "not measured here"
+                      ) : (
+                        <ExactQuantity
+                          value={row.true_value}
+                          unit={row.canonical_unit}
+                        />
+                      )}
+                    </td>
+                    <td data-observation-reported>
+                      {row.reported_value === null ? (
+                        "no reading"
+                      ) : (
+                        <ExactQuantity
+                          value={row.reported_value}
+                          unit={row.canonical_unit}
+                        />
+                      )}
+                    </td>
+                    <td data-observation-source-time>
+                      {row.reported_source_time ?? "no reading"}
+                    </td>
+                    <td data-observation-quality={row.quality}>{row.quality}</td>
+                    <td
+                      className="cell-secondary"
+                      data-observation-outcome={
+                        row.due ? row.outcome ?? "DUE" : "NOT_DUE"
+                      }
+                    >
+                      {row.due ? row.outcome ?? "due" : "not due"}
+                      {row.suppression_reason === null ? null : (
+                        <span className="cell-note">
+                          {row.suppression_reason}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </Panel>
+        )}
+        {projection === null ||
+        projection.recent_reports.length === 0 ? null : (
+          <Panel
+            heading="The newest sample attempts"
+            headingId="run-reports-heading"
+            flush
+          >
+            <DataTable labelledBy="run-reports-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Taken at</th>
+                  <th scope="col">Device and signal</th>
+                  <th scope="col">Outcome</th>
+                  <th scope="col">Reported value</th>
+                  <th scope="col">Why not</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projection.recent_reports.map((report) => (
+                  <tr
+                    key={`${report.device_id}-${report.signal_id}-${report.at_offset_minutes}`}
+                    data-sample-attempt={`${report.device_id}:${report.signal_id}:${report.at_offset_minutes}`}
+                  >
+                    <th scope="row">{report.source_sample_time}</th>
+                    <td>{`${report.device_id} / ${report.signal_id}`}</td>
+                    <td>{report.outcome}</td>
+                    <td>
+                      {report.reported_value === null ? (
+                        "nothing published"
+                      ) : report.canonical_unit === "state" ? (
+                        // T025b: a status member is text, never "RUNNING state".
+                        <ExactQuantity
+                          value={report.reported_value}
+                          unit={report.canonical_unit}
+                        />
+                      ) : (
+                        `${report.reported_value} ${report.canonical_unit}`
+                      )}
+                    </td>
+                    <td className="cell-secondary">
+                      {report.suppression_reason ?? ""}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </Panel>
+        )}
+      </Disclosure>
 
-      {projection === null || projection.electrical === null ? null : (
-        <ElectricalPanels electrical={projection.electrical} />
-      )}
+      <Disclosure name="reporting-paths" summary="Reporting paths and declared gaps">
+        {projection === null || projection.signals.length === 0 ? null : (
+          <Panel
+            heading="The configured reporting paths"
+            headingId="run-signals-heading"
+            flush
+          >
+            <DataTable labelledBy="run-signals-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Device and signal</th>
+                  <th scope="col">Reads</th>
+                  <th scope="col">Publishes every</th>
+                  <th scope="col">Bias</th>
+                  <th scope="col">Samples lost per thousand</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projection.signals.map((signal) => (
+                  <tr
+                    key={`${signal.device_id}-${signal.signal_id}`}
+                    data-signal={`${signal.device_id}:${signal.signal_id}`}
+                  >
+                    <th scope="row">
+                      {`${signal.device_id} / ${signal.signal_id}`}
+                    </th>
+                    <td>
+                      {`${signal.address} (${signal.reading_class})`}
+                    </td>
+                    <td>{`${signal.cadence_minutes} minutes`}</td>
+                    <td>{`${signal.bias} ${signal.canonical_unit}`}</td>
+                    <td>{String(signal.dropout_per_thousand)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </Panel>
+        )}
+        {projection === null ||
+        projection.reporting_gaps.length === 0 ? null : (
+          <Panel
+            heading="Declared reporting gaps"
+            headingId="run-gaps-heading"
+            flush
+          >
+            <DataTable labelledBy="run-gaps-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Declared by</th>
+                  <th scope="col">Silences</th>
+                  <th scope="col">Declared as</th>
+                  <th scope="col">Declared at offset</th>
+                  <th scope="col">Covers from offset</th>
+                  <th scope="col">Up to offset</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projection.reporting_gaps.map((gap) => (
+                  <tr
+                    key={`${gap.event_id}-${gap.device_id}-${gap.signal_id}`}
+                    data-reporting-gap={gap.event_id}
+                  >
+                    <th scope="row">{gap.event_id}</th>
+                    <td>{`${gap.device_id} / ${gap.signal_id}`}</td>
+                    {/*
+                      The shape the document declared, the instant it declared,
+                      and the span that instant resolved to - three columns,
+                      because for a POINT the declared instant is not where the
+                      outage starts. One column showing the resolved start under
+                      the heading "From offset" read as the authored number and
+                      was not it.
+                    */}
+                    <td data-reporting-gap-shape={gap.timing_shape}>
+                      {gap.timing_shape}
+                    </td>
+                    <td data-reporting-gap-declared-at>
+                      {String(gap.declared_offset_minutes)}
+                    </td>
+                    <td>{String(gap.start_offset_minutes)}</td>
+                    <td>{String(gap.end_offset_minutes)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </Panel>
+        )}
+      </Disclosure>
 
-      {projection === null || projection.observations.length === 0 ? null : (
+      <Disclosure name="history-facts" summary="Recorded history: source, digest and coverage">
+        <HistoryFacts held={history} />
+      </Disclosure>
+
+      <Disclosure name="raw-records" summary="Raw records at the history cursor">
+        <HistoryRecordsAtCursor held={history} selected={selectedOffset(frameState)} />
+      </Disclosure>
+
+      <Disclosure name="stage" summary="Stage and staged envelopes">
         <Panel
-          heading="What each device reported"
-          headingId="run-observations-heading"
-          flush
+          heading="Staged source envelopes"
+          headingId="run-stage-heading"
         >
-          <DataTable labelledBy="run-observations-heading">
-            <thead>
-              <tr>
-                <th scope="col">Device and signal</th>
-                <th scope="col">State</th>
-                <th scope="col">True value</th>
-                <th scope="col">Reported value</th>
-                <th scope="col">Source sample time</th>
-                <th scope="col">Quality</th>
-                <th scope="col">This instant</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projection.observations.map((row) => (
-                <tr
-                  key={`${row.device_id}-${row.signal_id}`}
-                  data-observation={`${row.device_id}:${row.signal_id}`}
-                >
-                  <th scope="row">{`${row.device_id} / ${row.signal_id}`}</th>
-                  <td>{row.address}</td>
-                  <td data-observation-true>
-                    {row.true_value === null ? (
-                      "not measured here"
-                    ) : (
-                      <ExactQuantity
-                        value={row.true_value}
-                        unit={row.canonical_unit}
-                      />
-                    )}
-                  </td>
-                  <td data-observation-reported>
-                    {row.reported_value === null ? (
-                      "no reading"
-                    ) : (
-                      <ExactQuantity
-                        value={row.reported_value}
-                        unit={row.canonical_unit}
-                      />
-                    )}
-                  </td>
-                  <td data-observation-source-time>
-                    {row.reported_source_time ?? "no reading"}
-                  </td>
-                  <td data-observation-quality={row.quality}>{row.quality}</td>
-                  <td
-                    className="cell-secondary"
-                    data-observation-outcome={
-                      row.due ? row.outcome ?? "DUE" : "NOT_DUE"
+          {/* T025b: a typed status is observed and not staged - envelope schema 1
+              carries numbers only. Each such signal is named here with the
+              profile's own sentence, so the stage is not read as the whole of
+              what the run reports. */}
+          {projection === null
+            ? null
+            : projection.signals
+                .filter((signal) => signal.canonical_unit === "state")
+                .map((signal) => (
+                  <p
+                    key={`${signal.device_id}-${signal.signal_id}`}
+                    className="note"
+                    data-stage-unstaged-signal={`${signal.device_id}:${signal.signal_id}`}
+                  >
+                    <strong>{`${signal.device_id} / ${signal.signal_id} is observed, not staged.`}</strong>{" "}
+                    {signal.statement}
+                  </p>
+                ))}
+          {stage === null ? (
+            <p>Loading the staged source envelopes.</p>
+          ) : stage.status === "not_found" ? (
+            <p>No stage surface answered for this run identity.</p>
+          ) : stage.status === "unavailable" ? (
+            <p data-stage-unavailable>
+              {stage.message ??
+                "The stage could not be read, so nothing is known about what was staged."}
+            </p>
+          ) : (
+            <>
+              <p
+                data-stage-statement
+                data-stage-status={stage.stage.status}
+                data-stage-count={stage.stage.envelopes.length}
+                data-stage-execution={stage.stage.execution_status}
+              >
+                {stage.stage.statement}
+              </p>
+              {stage.stage.unreadable_detail === null ? null : (
+                <p data-stage-unreadable>
+                  <strong>Integrity check failed.</strong>{" "}
+                  {stage.stage.unreadable_detail}
+                </p>
+              )}
+              <FactList>
+                <Fact term="Stage status">{stage.stage.status}</Fact>
+                <Fact term="Release eligibility">
+                  <span
+                    data-stage-release={
+                      stage.stage.release_eligible ? "ELIGIBLE" : "NOT_ELIGIBLE"
                     }
                   >
-                    {row.due ? row.outcome ?? "due" : "not due"}
-                    {row.suppression_reason === null ? null : (
-                      <span className="cell-note">
-                        {row.suppression_reason}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        </Panel>
-      )}
-
-      {projection === null || projection.signals.length === 0 ? null : (
-        <Panel
-          heading="The configured reporting paths"
-          headingId="run-signals-heading"
-          flush
-        >
-          <DataTable labelledBy="run-signals-heading">
-            <thead>
-              <tr>
-                <th scope="col">Device and signal</th>
-                <th scope="col">Reads</th>
-                <th scope="col">Publishes every</th>
-                <th scope="col">Bias</th>
-                <th scope="col">Samples lost per thousand</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projection.signals.map((signal) => (
-                <tr
-                  key={`${signal.device_id}-${signal.signal_id}`}
-                  data-signal={`${signal.device_id}:${signal.signal_id}`}
-                >
-                  <th scope="row">
-                    {`${signal.device_id} / ${signal.signal_id}`}
-                  </th>
-                  <td>
-                    {`${signal.address} (${signal.reading_class})`}
-                  </td>
-                  <td>{`${signal.cadence_minutes} minutes`}</td>
-                  <td>{`${signal.bias} ${signal.canonical_unit}`}</td>
-                  <td>{String(signal.dropout_per_thousand)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        </Panel>
-      )}
-
-      {projection === null ||
-      projection.reporting_gaps.length === 0 ? null : (
-        <Panel
-          heading="Declared reporting gaps"
-          headingId="run-gaps-heading"
-          flush
-        >
-          <DataTable labelledBy="run-gaps-heading">
-            <thead>
-              <tr>
-                <th scope="col">Declared by</th>
-                <th scope="col">Silences</th>
-                <th scope="col">Declared as</th>
-                <th scope="col">Declared at offset</th>
-                <th scope="col">Covers from offset</th>
-                <th scope="col">Up to offset</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projection.reporting_gaps.map((gap) => (
-                <tr
-                  key={`${gap.event_id}-${gap.device_id}-${gap.signal_id}`}
-                  data-reporting-gap={gap.event_id}
-                >
-                  <th scope="row">{gap.event_id}</th>
-                  <td>{`${gap.device_id} / ${gap.signal_id}`}</td>
-                  {/*
-                    The shape the document declared, the instant it declared,
-                    and the span that instant resolved to - three columns,
-                    because for a POINT the declared instant is not where the
-                    outage starts. One column showing the resolved start under
-                    the heading "From offset" read as the authored number and
-                    was not it.
-                  */}
-                  <td data-reporting-gap-shape={gap.timing_shape}>
-                    {gap.timing_shape}
-                  </td>
-                  <td data-reporting-gap-declared-at>
-                    {String(gap.declared_offset_minutes)}
-                  </td>
-                  <td>{String(gap.start_offset_minutes)}</td>
-                  <td>{String(gap.end_offset_minutes)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        </Panel>
-      )}
-
-      {projection === null ||
-      projection.recent_reports.length === 0 ? null : (
-        <Panel
-          heading="The newest sample attempts"
-          headingId="run-reports-heading"
-          flush
-        >
-          <DataTable labelledBy="run-reports-heading">
-            <thead>
-              <tr>
-                <th scope="col">Taken at</th>
-                <th scope="col">Device and signal</th>
-                <th scope="col">Outcome</th>
-                <th scope="col">Reported value</th>
-                <th scope="col">Why not</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projection.recent_reports.map((report) => (
-                <tr
-                  key={`${report.device_id}-${report.signal_id}-${report.at_offset_minutes}`}
-                  data-sample-attempt={`${report.device_id}:${report.signal_id}:${report.at_offset_minutes}`}
-                >
-                  <th scope="row">{report.source_sample_time}</th>
-                  <td>{`${report.device_id} / ${report.signal_id}`}</td>
-                  <td>{report.outcome}</td>
-                  <td>
-                    {report.reported_value === null ? (
-                      "nothing published"
-                    ) : report.canonical_unit === "state" ? (
-                      // T025b: a status member is text, never "RUNNING state".
-                      <ExactQuantity
-                        value={report.reported_value}
-                        unit={report.canonical_unit}
-                      />
-                    ) : (
-                      `${report.reported_value} ${report.canonical_unit}`
-                    )}
-                  </td>
-                  <td className="cell-secondary">
-                    {report.suppression_reason ?? ""}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        </Panel>
-      )}
-
-      <HistoryInspector
-        result={history}
-        steps={projection?.electrical?.steps ?? null}
-        timestepMinutes={projection?.timestep_minutes ?? null}
-        site={drawingSite}
-      />
-
-      <Panel
-        heading="Staged source envelopes"
-        headingId="run-stage-heading"
-      >
-        {/* T025b: a typed status is observed and not staged - envelope schema 1
-            carries numbers only. Each such signal is named here with the
-            profile's own sentence, so the stage is not read as the whole of
-            what the run reports. */}
-        {projection === null
-          ? null
-          : projection.signals
-              .filter((signal) => signal.canonical_unit === "state")
-              .map((signal) => (
-                <p
-                  key={`${signal.device_id}-${signal.signal_id}`}
-                  className="note"
-                  data-stage-unstaged-signal={`${signal.device_id}:${signal.signal_id}`}
-                >
-                  <strong>{`${signal.device_id} / ${signal.signal_id} is observed, not staged.`}</strong>{" "}
-                  {signal.statement}
-                </p>
-              ))}
-        {stage === null ? (
-          <p>Loading the staged source envelopes.</p>
-        ) : stage.status === "not_found" ? (
-          <p>No stage surface answered for this run identity.</p>
-        ) : stage.status === "unavailable" ? (
-          <p data-stage-unavailable>
-            {stage.message ??
-              "The stage could not be read, so nothing is known about what was staged."}
-          </p>
-        ) : (
-          <>
-            <p
-              data-stage-statement
-              data-stage-status={stage.stage.status}
-              data-stage-count={stage.stage.envelopes.length}
-              data-stage-execution={stage.stage.execution_status}
-            >
-              {stage.stage.statement}
-            </p>
-            {stage.stage.unreadable_detail === null ? null : (
-              <p data-stage-unreadable>
-                <strong>Integrity check failed.</strong>{" "}
-                {stage.stage.unreadable_detail}
-              </p>
-            )}
-            <FactList>
-              <Fact term="Stage status">{stage.stage.status}</Fact>
-              <Fact term="Release eligibility">
-                <span
-                  data-stage-release={
-                    stage.stage.release_eligible ? "ELIGIBLE" : "NOT_ELIGIBLE"
-                  }
-                >
-                  {stage.stage.release_eligible
-                    ? "Eligible. Nothing in this build releases it: Commit and ingestion do not exist yet."
-                    : "Not eligible"}
-                </span>
-              </Fact>
-              <Fact term="Envelope schema">
-                {`${stage.stage.envelope_schema_id} v${stage.stage.envelope_schema_version}`}
-              </Fact>
-              <Fact term="Stage schema">
-                {`v${stage.stage.stage_schema_version}`}
-              </Fact>
-              {stage.stage.mapping === null ? null : (
-                <>
-                  <Fact term="Frozen mapping">
-                    {`${stage.stage.mapping.mapping_set_id} v${stage.stage.mapping.mapping_version}`}
-                  </Fact>
-                  <Fact term="Publication latency">
-                    {`${stage.stage.mapping.publication_latency_seconds} seconds after the sample`}
-                  </Fact>
-                </>
-              )}
-              {stage.stage.site_id === null ? null : (
-                <Fact term="Site, source and gateway">
-                  {`${stage.stage.site_id} / ${stage.stage.source_id ?? ""} / ${stage.stage.gateway_id ?? ""}`}
-                </Fact>
-              )}
-              {stage.stage.published_through === null ? null : (
-                <Fact term="Published through">
-                  <span data-stage-published-through>
-                    {`boundary ${stage.stage.published_through} of ${stage.stage.boundaries_total ?? "?"}`}
+                    {stage.stage.release_eligible
+                      ? "Eligible. Nothing in this build releases it: Commit and ingestion do not exist yet."
+                      : "Not eligible"}
                   </span>
                 </Fact>
+                <Fact term="Envelope schema">
+                  {`${stage.stage.envelope_schema_id} v${stage.stage.envelope_schema_version}`}
+                </Fact>
+                <Fact term="Stage schema">
+                  {`v${stage.stage.stage_schema_version}`}
+                </Fact>
+                {stage.stage.mapping === null ? null : (
+                  <>
+                    <Fact term="Frozen mapping">
+                      {`${stage.stage.mapping.mapping_set_id} v${stage.stage.mapping.mapping_version}`}
+                    </Fact>
+                    <Fact term="Publication latency">
+                      {`${stage.stage.mapping.publication_latency_seconds} seconds after the sample`}
+                    </Fact>
+                  </>
+                )}
+                {stage.stage.site_id === null ? null : (
+                  <Fact term="Site, source and gateway">
+                    {`${stage.stage.site_id} / ${stage.stage.source_id ?? ""} / ${stage.stage.gateway_id ?? ""}`}
+                  </Fact>
+                )}
+                {stage.stage.published_through === null ? null : (
+                  <Fact term="Published through">
+                    <span data-stage-published-through>
+                      {`boundary ${stage.stage.published_through} of ${stage.stage.boundaries_total ?? "?"}`}
+                    </span>
+                  </Fact>
+                )}
+                <Fact term="Envelopes staged">
+                  {String(stage.stage.envelopes.length)}
+                </Fact>
+                <Fact term="Integrity digest">
+                  {stage.stage.integrity_digest ?? "none"}
+                </Fact>
+              </FactList>
+              {stage.stage.release_blockers.length === 0 ? null : (
+                <ul className="cell-list" data-stage-blockers>
+                  {stage.stage.release_blockers.map((blocker) => (
+                    <li key={blocker.kind} data-stage-blocker={blocker.kind}>
+                      <strong>{blocker.kind}.</strong> {blocker.statement}
+                    </li>
+                  ))}
+                </ul>
               )}
-              <Fact term="Envelopes staged">
-                {String(stage.stage.envelopes.length)}
-              </Fact>
-              <Fact term="Integrity digest">
-                {stage.stage.integrity_digest ?? "none"}
-              </Fact>
-            </FactList>
-            {stage.stage.release_blockers.length === 0 ? null : (
-              <ul className="cell-list" data-stage-blockers>
-                {stage.stage.release_blockers.map((blocker) => (
-                  <li key={blocker.kind} data-stage-blocker={blocker.kind}>
-                    <strong>{blocker.kind}.</strong> {blocker.statement}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {stage.stage.refused_publications.length === 0 ? null : (
-              <ul className="cell-list">
-                {stage.stage.refused_publications.map((item) => (
-                  <li key={item.message_id}>
-                    {`${item.kind}: ${item.message_id}`}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
-        )}
-      </Panel>
-
-      {stage === null ||
-      stage.status !== "loaded" ||
-      stage.stage.mapping === null ? null : (
-        <Panel
-          heading="The allowlist this stage froze"
-          headingId="run-stage-mapping-heading"
-          flush
-        >
-          <DataTable labelledBy="run-stage-mapping-heading">
-            <thead>
-              <tr>
-                <th scope="col">Device and signal</th>
-                <th scope="col">Published as</th>
-                <th scope="col">Unit</th>
-                <th scope="col">Publishes unavailability</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stage.stage.mapping.entries.map((entry) => (
-                <tr key={`${entry.device_id}-${entry.signal_id}`}>
-                  <th scope="row">{`${entry.device_id} / ${entry.signal_id}`}</th>
-                  <td>{entry.measurement}</td>
-                  <td>{entry.unit}</td>
-                  <td>{entry.publishes_unavailable ? "yes" : "no"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
+              {stage.stage.refused_publications.length === 0 ? null : (
+                <ul className="cell-list">
+                  {stage.stage.refused_publications.map((item) => (
+                    <li key={item.message_id}>
+                      {`${item.kind}: ${item.message_id}`}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
         </Panel>
-      )}
 
-      {stage === null ||
-      stage.status !== "loaded" ||
-      stage.stage.envelopes.length === 0 ? null : (
-        <StagedEnvelopes
-          envelopes={stage.stage.envelopes}
-          selected={selectedMessage}
-          onSelect={setSelectedMessage}
-        />
-      )}
+        {stage === null ||
+        stage.status !== "loaded" ||
+        stage.stage.mapping === null ? null : (
+          <Panel
+            heading="The allowlist this stage froze"
+            headingId="run-stage-mapping-heading"
+            flush
+          >
+            <DataTable labelledBy="run-stage-mapping-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Device and signal</th>
+                  <th scope="col">Published as</th>
+                  <th scope="col">Unit</th>
+                  <th scope="col">Publishes unavailability</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stage.stage.mapping.entries.map((entry) => (
+                  <tr key={`${entry.device_id}-${entry.signal_id}`}>
+                    <th scope="row">{`${entry.device_id} / ${entry.signal_id}`}</th>
+                    <td>{entry.measurement}</td>
+                    <td>{entry.unit}</td>
+                    <td>{entry.publishes_unavailable ? "yes" : "no"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </Panel>
+        )}
 
-      <Panel heading="What this run is not" headingId="run-not-heading">
-        <ul className="cell-list">
-          <li>
-            What it produced is private simulator truth and the readings a
-            configured device would have published from it. Neither is evidence,
-            and nothing here has entered ingestion.
-          </li>
-          <li>
-            Its staged source envelopes are staged and nothing more. None has
-            been released, received or accepted, and a staged envelope is not
-            evidence about anywhere.
-          </li>
-          <li>
-            It is a draft and it cannot be committed. Committing is what makes
-            simulated history permanent and releases evidence from it, and no
-            slice in this build can do either.
-          </li>
-          <li>
-            No evidence has been accepted from it, and no operator surface shows
-            anything because of it. Executing a draft writes to no site.
-          </li>
-          <li>
-            No conclusion has been drawn from it. A reading a run generated is
-            what a sensor would have said, not a finding about anywhere.
-          </li>
-        </ul>
-      </Panel>
+        {stage === null ||
+        stage.status !== "loaded" ||
+        stage.stage.envelopes.length === 0 ? null : (
+          <StagedEnvelopes
+            envelopes={stage.stage.envelopes}
+            selected={selectedMessage}
+            onSelect={setSelectedMessage}
+          />
+        )}
+      </Disclosure>
+
+      <Disclosure name="run-not" summary="What this run is not, in full">
+        <Panel heading="What this run is not" headingId="run-not-heading">
+          <ul className="cell-list">
+            <li>
+              What it produced is private simulator truth and the readings a
+              configured device would have published from it. Neither is evidence,
+              and nothing here has entered ingestion.
+            </li>
+            <li>
+              Its staged source envelopes are staged and nothing more. None has
+              been released, received or accepted, and a staged envelope is not
+              evidence about anywhere.
+            </li>
+            <li>
+              It is a draft and it cannot be committed. Committing is what makes
+              simulated history permanent and releases evidence from it, and no
+              slice in this build can do either.
+            </li>
+            <li>
+              No evidence has been accepted from it, and no operator surface shows
+              anything because of it. Executing a draft writes to no site.
+            </li>
+            <li>
+              No conclusion has been drawn from it. A reading a run generated is
+              what a sensor would have said, not a finding about anywhere.
+            </li>
+          </ul>
+        </Panel>
+      </Disclosure>
     </>,
   );
 }
@@ -1229,12 +1423,12 @@ const STOP_STATEMENTS: Record<PlaybackStopReason, string> = {
 
 function playbackStatement(state: PlaybackState): string {
   if (state.kind === "playing") {
-    return state.inFlight
-      ? "Playing: one step has been sent and its answer is awaited."
-      : "Playing: waiting the wall delay before the next step.";
+    // T025e AC11: one stable sentence for the whole of play. Whether a step
+    // is in flight is an attribute on this line, not a second text per tick.
+    return "Playing: one step, its record, then the wall delay.";
   }
   if (state.kind === "pausing") {
-    return "Pausing: no further step will be sent; the step already sent is awaited and will be shown.";
+    return "Pausing: the step already sent is awaited and will be shown.";
   }
   if (state.reason === null) {
     return "Paused. Auto-play has not been started on this page; a reload always starts paused.";
@@ -1243,84 +1437,113 @@ function playbackStatement(state: PlaybackState): string {
 }
 
 /**
+ * The playback state as the page renders it. Whether a step is in flight is
+ * dropped: it changes twice per tick and is written onto the status line's
+ * `data-playback-in-flight` attribute directly, so it costs no render.
+ */
+export function shownPlayback(
+  previous: PlaybackState,
+  next: PlaybackState,
+): PlaybackState {
+  if (next.kind === "playing") {
+    return previous.kind === "playing" && !previous.inFlight
+      ? previous
+      : { kind: "playing", inFlight: false };
+  }
+  if (
+    next.kind === previous.kind &&
+    (next.kind === "pausing" ||
+      (previous.kind === "stopped" &&
+        next.kind === "stopped" &&
+        next.reason === previous.reason &&
+        next.message === previous.message))
+  ) {
+    return previous;
+  }
+  return next;
+}
+
+/**
  * T025d: auto-play of the guarded Step, and nothing else.
  *
  * Playback state is its own fact, kept apart from the execution status above,
  * the selected history cursor below and the stage: a paused page over a
  * RUNNING execution is the ordinary case, and a run that stops being RUNNING
- * stops auto-play rather than the other way round.
+ * stops auto-play rather than the other way round. T025e: compact, in the
+ * control strip; its status sentence sits in a fixed slot.
  */
 function PlaybackControls({
   state,
   delayMs,
-  timestepMinutes,
   canPlay,
-  executionStatus,
   onDelay,
   onPlay,
   onPause,
+  statusRef,
+  executionStatus,
 }: {
   state: PlaybackState;
   delayMs: number;
-  timestepMinutes: number;
   canPlay: boolean;
-  executionStatus: string;
   onDelay: (ms: number) => void;
   onPlay: () => void;
   onPause: () => void;
+  statusRef: React.RefObject<HTMLParagraphElement>;
+  executionStatus: string;
 }) {
   const reason = state.kind === "stopped" ? state.reason : null;
   return (
     <section
+      className="control-strip__playback"
       aria-labelledby="run-playback-heading"
       data-playback-state={state.kind}
       data-playback-reason={reason ?? ""}
     >
-      <h3 id="run-playback-heading">Auto-play</h3>
-      <p className="action-list__reason">
-        {`Auto-play sends one guarded Step of one boundary (${timestepMinutes} simulated minutes, the run's frozen timestep), waits for its answer, then waits the wall delay below before the next. The delay changes wall time only: every step is the same request as the Step button, so the run's physics, seed and ordering do not depend on it. Recorded history and staged envelopes are re-read when auto-play stops, not per step.`}
-      </p>
-      <p>
-        <label htmlFor="run-playback-delay">Wall delay between steps</label>{" "}
-        <select
-          id="run-playback-delay"
-          value={String(delayMs)}
-          onChange={(event) => onDelay(Number(event.target.value))}
-        >
-          {PLAYBACK_DELAYS_MS.map((ms) => (
-            <option key={ms} value={String(ms)}>
-              {`${ms / 1000} s`}
-            </option>
-          ))}
-        </select>{" "}
-        <button
-          type="button"
-          className="action"
-          disabled={!canPlay}
-          onClick={onPlay}
-        >
-          {reason === null ? "Play" : "Resume"}
-        </button>{" "}
-        <button
-          type="button"
-          className="action"
-          disabled={state.kind !== "playing"}
-          onClick={onPause}
-        >
-          Pause
-        </button>
-      </p>
-      <p data-playback-statement role="status">
+      <h3 id="run-playback-heading" className="control-strip__subheading">
+        Auto-play
+      </h3>
+      <label htmlFor="run-playback-delay">Wall delay between steps</label>{" "}
+      <select
+        id="run-playback-delay"
+        value={String(delayMs)}
+        onChange={(event) => onDelay(Number(event.target.value))}
+      >
+        {PLAYBACK_DELAYS_MS.map((ms) => (
+          <option key={ms} value={String(ms)}>
+            {`${ms / 1000} s`}
+          </option>
+        ))}
+      </select>{" "}
+      <button
+        type="button"
+        className="action"
+        disabled={!canPlay}
+        onClick={onPlay}
+      >
+        {reason === null ? "Play" : "Resume"}
+      </button>{" "}
+      <button
+        type="button"
+        className="action"
+        disabled={state.kind !== "playing"}
+        onClick={onPause}
+      >
+        Pause
+      </button>
+      <p
+        ref={statusRef}
+        className="control-strip__status"
+        data-playback-statement
+        role="status"
+      >
         <strong>Playback:</strong> {playbackStatement(state)}
         {state.kind === "stopped" && state.message !== null
           ? ` ${state.message}`
           : ""}
+        {executionStatus === "RUNNING" || state.kind !== "stopped"
+          ? ""
+          : ` Auto-play needs a RUNNING execution this host still holds; this one is ${executionStatus}.`}
       </p>
-      {executionStatus === "RUNNING" || state.kind !== "stopped" ? null : (
-        <p className="action-list__reason">
-          {`Auto-play needs a RUNNING execution this host still holds; this one is ${executionStatus}.`}
-        </p>
-      )}
     </section>
   );
 }

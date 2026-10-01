@@ -24,17 +24,29 @@ const LANES: TimelineLane[] = ["APPLIED", "PHYSICAL", "REPORTING"];
 export function HistoryTimeline({
   history,
   offset,
+  onSelect,
 }: {
   history: RunHistory;
   offset: number;
+  /** T025e: move the one history cursor to an entry's recorded boundary. */
+  onSelect?: (offset: number) => void;
 }) {
+  const recorded = new Set(history.boundaries.map((b) => b.offset_minutes));
+  const goTo =
+    onSelect === undefined
+      ? undefined
+      : (at: number) => (recorded.has(at) ? () => onSelect(at) : undefined);
   const [scope, setScope] = useState<"interval" | "run">("interval");
   const entries =
     scope === "interval" ? intervalTimeline(history, offset) : runTimeline(history);
 
   return (
     <Panel heading="Applied timeline" headingId="run-timeline-heading" flush>
-      <fieldset className="timeline-scope" data-timeline-scope={scope}>
+      <fieldset
+        className="timeline-scope"
+        data-timeline-scope={scope}
+        data-timeline-boundary={offset}
+      >
         <legend>Show</legend>
         <label>
           <input
@@ -65,6 +77,7 @@ export function HistoryTimeline({
           key={lane}
           lane={lane}
           entries={entries.filter((e) => e.lane === lane)}
+          goTo={goTo}
         />
       ))}
     </Panel>
@@ -74,9 +87,11 @@ export function HistoryTimeline({
 function TimelineLaneTable({
   lane,
   entries,
+  goTo,
 }: {
   lane: TimelineLane;
   entries: TimelineEntry[];
+  goTo?: (at: number) => (() => void) | undefined;
 }) {
   const headingId = `run-timeline-${lane.toLowerCase()}-heading`;
   return (
@@ -118,9 +133,7 @@ function TimelineLaneTable({
                 <td>{entry.origin ?? "none"}</td>
                 <td>{entry.share ?? "none"}</td>
                 <td>
-                  {entry.span[0] === entry.span[1]
-                    ? `at ${entry.span[0]} min`
-                    : `[${entry.span[0]}, ${entry.span[1]}) min`}
+                  <TimelineWhen span={entry.span} go={goTo?.(entry.span[0])} />
                 </td>
                 <td>{entry.applies}</td>
                 <td>
@@ -137,5 +150,30 @@ function TimelineLaneTable({
         </DataTable>
       )}
     </div>
+  );
+}
+
+/** An entry's time; a button to its boundary when the cursor can go there. */
+function TimelineWhen({
+  span,
+  go,
+}: {
+  span: [number, number];
+  go: (() => void) | undefined;
+}) {
+  const text =
+    span[0] === span[1] ? `at ${span[0]} min` : `[${span[0]}, ${span[1]}) min`;
+  if (go === undefined) {
+    return <>{text}</>;
+  }
+  return (
+    <button
+      type="button"
+      className="action"
+      data-timeline-go={span[0]}
+      onClick={go}
+    >
+      {text}
+    </button>
   );
 }

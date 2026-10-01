@@ -8,6 +8,8 @@
  * stopped holding - and an absent value is `null`, never zero.
  */
 
+import type { RunElectricalStep } from "./runSetupClient";
+
 export interface RunHistoryCoverage {
   family: string;
   availability: string;
@@ -245,10 +247,37 @@ export interface RunHistory {
   bus_attachments: RunHistoryAttachment[];
   reporting_gaps: RunHistoryReportingGap[];
   drawing_context: RunHistoryDrawingContext | null;
+  /**
+   * T025e addendum B: the projection's recorded step rows, joined by the host
+   * where intervals are recorded. `pv_output` and `battery_power` are the
+   * host's totals; the charts read them and never re-sum the flows.
+   */
+  electrical_steps: RunElectricalStep[];
 }
 
 export type RunHistoryResult =
   | { status: "loaded"; history: RunHistory }
+  | { status: "not_found" }
+  | { status: "unavailable"; message: string | null };
+
+/**
+ * The envelope of a live-follow read (T025e): the answer holds only what was
+ * recorded after the caller's `since_boundary` boundaries, through
+ * `through_boundary`. A full read has none.
+ */
+export interface RunHistoryDeltaEnvelope {
+  since_boundary: number;
+  through_boundary: number;
+}
+
+/**
+ * A live-follow read. `refused` is the route's typed answer to a count it
+ * cannot serve from (ahead of the record, or not a whole count); the caller
+ * answers it with one full read, never a retry of the same delta.
+ */
+export type RunHistoryDeltaResult =
+  | { status: "loaded"; history: RunHistory; delta: RunHistoryDeltaEnvelope }
+  | { status: "refused"; code: string; message: string | null }
   | { status: "not_found" }
   | { status: "unavailable"; message: string | null };
 
@@ -346,6 +375,14 @@ export function isRunHistory(value: unknown): value is RunHistory {
     Array.isArray(value.bus_attachments) &&
     Array.isArray(value.exposures) &&
     every(
+      value.electrical_steps,
+      (item) =>
+        typeof item.from_offset === "number" &&
+        typeof item.to_offset === "number" &&
+        typeof item.pv_output === "string" &&
+        typeof item.battery_power === "string",
+    ) &&
+    every(
       value.reporting_gaps,
       (item) =>
         typeof item.event_id === "string" &&
@@ -410,4 +447,67 @@ export async function fetchRunHistory(
         ? detail.message
         : null,
   };
+}
+
+function isDeltaEnvelope(value: unknown): value is RunHistoryDeltaEnvelope {
+  return (
+    isRecord(value) &&
+    Number.isInteger(value.since_boundary) &&
+    Number.isInteger(value.through_boundary)
+  );
+}
+
+/**
+ * The gated history read narrowed to what was recorded after `sinceBoundary`
+ * boundaries (T025e live follow). A read: it changes nothing and executes
+ * nothing. The answer is a delta to append with `appendHistory`, never a
+ * history to render on its own - its static families are empty.
+ */
+export async function fetchRunHistorySince(
+  runsPath: string,
+  runId: string,
+  sinceBoundary: number,
+): Promise<RunHistoryDeltaResult> {
+  let response: Response;
+  try {
+    response = await fetch(
+      `${runsPath}/${encodeURIComponent(runId)}/execution/history` +
+        `?since_boundary=${encodeURIComponent(String(sinceBoundary))}`,
+    );
+  } catch {
+    return { status: "unavailable", message: null };
+  }
+  let parsed: Record<string, unknown> | null = null;
+  try {
+    parsed = (await response.json()) as Record<string, unknown>;
+  } catch {
+    parsed = null;
+  }
+  if (response.status === 404) {
+    return { status: "not_found" };
+  }
+  if (
+    response.ok &&
+    isRunHistory(parsed?.history) &&
+    isDeltaEnvelope(parsed?.delta)
+  ) {
+    return {
+      status: "loaded",
+      history: parsed.history as RunHistory,
+      delta: parsed.delta as RunHistoryDeltaEnvelope,
+    };
+  }
+  const detail = parsed?.detail;
+  const message =
+    isRecord(detail) && typeof detail.message === "string"
+      ? detail.message
+      : null;
+  if (
+    (response.status === 409 || response.status === 422) &&
+    isRecord(detail) &&
+    typeof detail.code === "string"
+  ) {
+    return { status: "refused", code: detail.code, message };
+  }
+  return { status: "unavailable", message };
 }
