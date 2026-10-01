@@ -1,4 +1,4 @@
-# Scenario site targeting - Architect recommendation (advisory, revision 2)
+# Scenario site targeting - Architect recommendation (advisory, revision 3)
 
 Date: 2026-10-01. Produced by **Claude under the `.ai/ROLE_CONFIG.md`
 exception** (Architect bound to Claude until the Codex reset on 2026-10-03
@@ -232,8 +232,8 @@ before T026)**
 - Shipped scenarios move to v2 without `target_site`. Add the pinned-digest
   guard for shipped scenarios.
 - Freeze template lineage on the site binding.
-- `EXECUTION_CONTRACT_VERSION` stays at 9 (§6, revision 3; pending owner
-  sign-off).
+- `EXECUTION_CONTRACT_VERSION` stays at 9 (§6, revision 3; owner signed off
+  2026-10-01).
 - Observation-source resolution retires with target resolution
   (`resolve_observation_sources`, its states, the detail service's
   `SiteRepository` and the `observation_source_resolutions` payload). Without a
