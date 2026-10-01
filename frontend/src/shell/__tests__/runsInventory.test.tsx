@@ -126,6 +126,7 @@ const READY_RUN: RunSummary = {
   frozen_inputs: FROZEN_INPUTS,
   blocking_reasons: [],
   unsupported_optional_inputs: [],
+  template_lineage: { state: "RECORDED", template_id: "hybrid-mini-grid-100kw", template_version: 2 },
 };
 
 const BLOCKED_RUN: RunSummary = {

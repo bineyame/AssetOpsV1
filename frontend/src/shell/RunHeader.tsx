@@ -1,9 +1,10 @@
 import { Fact, FactList, Panel } from "../ui";
 import type { RunHistoryResult } from "./runHistory";
-import type {
-  RunExecutionResult,
-  RunStageResult,
-  RunSummary,
+import {
+  templateLineageText,
+  type RunExecutionResult,
+  type RunStageResult,
+  type RunSummary,
 } from "./runSetupClient";
 
 /**
@@ -55,6 +56,12 @@ export function RunHeader({
         <Fact term="Run and Site">
           <span data-header-run>{`${run.run_id} on Site ${run.site_id}`}</span>
           {`, scenario ${run.scenario_id} v${run.scenario_version}`}
+        </Fact>
+        {/* T025g AC9: frozen at setup; never re-read from the site. */}
+        <Fact term="Site template lineage">
+          <span data-header-template-lineage={run.template_lineage.state}>
+            {templateLineageText(run.template_lineage)}
+          </span>
         </Fact>
         {/* T025e AC10: "This run" merged here, each fact once. */}
         <Fact term="Lifecycle and readiness">

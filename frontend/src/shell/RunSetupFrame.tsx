@@ -23,11 +23,12 @@ import type {
   ScenarioDetailResult,
   ScenarioParameter,
 } from "./scenarioCatalogClient";
-import type {
-  CreateRunResult,
-  RunProfilesResult,
-  RunSetupClient,
-  RunSummary,
+import {
+  templateLineageText,
+  type CreateRunResult,
+  type RunProfilesResult,
+  type RunSetupClient,
+  type RunSummary,
 } from "./runSetupClient";
 
 /**
@@ -1073,6 +1074,9 @@ function CreatedDraft({ run }: { run: RunSummary }) {
           <Fact term="Lifecycle status">{run.lifecycle_status}</Fact>
           <Fact term="Execution status">{run.execution_status}</Fact>
           <Fact term="Created">{run.created_at}</Fact>
+          <Fact term="Site template lineage">
+            {templateLineageText(run.template_lineage)}
+          </Fact>
         </FactList>
         <p>
           The run identity is its own. It is not the site identity, not the

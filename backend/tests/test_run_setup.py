@@ -1589,6 +1589,13 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenSiteBinding", "foundation_valid_from"),
             ("FrozenSiteBinding", "site_type"),
             ("FrozenSiteBinding", "timezone"),
+            # T025g AC9: run provenance, not a frozen-input row. Rendered by
+            # the run payload's `template_lineage` on run detail and the Lab
+            # run header; `test_run_binds_scenario_to_site.py` proves the
+            # payload carries it, so this classification is not hand-waved.
+            ("FrozenSiteBinding", "template_lineage"),
+            ("FrozenTemplateLineage", "template_id"),
+            ("FrozenTemplateLineage", "template_version"),
             ("FrozenScenarioBinding", "scenario_id"),
             ("FrozenScenarioBinding", "scenario_version"),
             ("FrozenScenarioBinding", "resolved_parameters"),
@@ -1723,12 +1730,6 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenModelNeed", "canonical_value"),
             ("FrozenModelNeed", "canonical_unit"),
             ("FrozenModelNeed", "dimension"),
-            # T025g phase 1 freezes and stores the site's template lineage as
-            # run provenance; phase 2 (AC9) renders it on run detail and the
-            # Lab header, and moves these three into `rendered` then.
-            ("FrozenSiteBinding", "template_lineage"),
-            ("FrozenTemplateLineage", "template_id"),
-            ("FrozenTemplateLineage", "template_version"),
         }
 
         from dataclasses import is_dataclass

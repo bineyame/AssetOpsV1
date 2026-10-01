@@ -200,6 +200,7 @@ const READY_RUN: RunSummary = {
   frozen_inputs: FROZEN_INPUTS,
   blocking_reasons: [],
   unsupported_optional_inputs: [],
+  template_lineage: { state: "RECORDED", template_id: "hybrid-mini-grid-100kw", template_version: 2 },
 };
 
 const BLOCKED_RUN: RunSummary = {
@@ -228,6 +229,7 @@ const BLOCKED_RUN: RunSummary = {
     },
   ],
   unsupported_optional_inputs: [],
+  template_lineage: { state: "RECORDED", template_id: "hybrid-mini-grid-100kw", template_version: 2 },
 };
 
 function scenarioClient(
@@ -980,6 +982,8 @@ describe("the run setup screen makes no downstream claim", () => {
       "Default, chosen by this form: Simulator Lab publication profile",
       READY_RUN.run_id,
       READY_RUN.created_at,
+      // T025g AC9: the frozen lineage on the setup summary.
+      "hybrid-mini-grid-100kw v2",
       String(SCENARIO_DETAIL.version.scenario_version),
       String(SITE.foundation.version),
       SITE.site_id,

@@ -129,11 +129,55 @@ export interface RunSummary {
   readiness_disclosure: string | null;
   created_at: string;
   site_id: string;
+  /** The site's template lineage as run setup froze it (T025g AC9). */
+  template_lineage: RunTemplateLineage;
   scenario_id: string;
   scenario_version: number;
   frozen_inputs: RunFrozenInput[];
   blocking_reasons: RunBlockingReason[];
   unsupported_optional_inputs: RunUnsupportedOptionalInput[];
+}
+
+/**
+ * The site's template lineage, frozen at run setup as provenance.
+ *
+ * `NOT_RECORDED` is a run stored before T025g froze lineage; it is never
+ * inferred from the site today. `NO_TEMPLATE` is a site created from no
+ * template.
+ */
+export interface RunTemplateLineage {
+  state: "RECORDED" | "NO_TEMPLATE" | "NOT_RECORDED";
+  template_id: string | null;
+  template_version: number | null;
+}
+
+/** The lineage as a person reads it, the same words on every surface. */
+export function templateLineageText(lineage: RunTemplateLineage): string {
+  switch (lineage.state) {
+    case "RECORDED":
+      return `${lineage.template_id} v${lineage.template_version}`;
+    case "NO_TEMPLATE":
+      return "Not created from a template";
+    default:
+      return "Not recorded";
+  }
+}
+
+function isTemplateLineage(value: unknown): value is RunTemplateLineage {
+  if (!isRecord(value)) {
+    return false;
+  }
+  if (value.state === "RECORDED") {
+    return (
+      typeof value.template_id === "string" &&
+      typeof value.template_version === "number"
+    );
+  }
+  return (
+    (value.state === "NO_TEMPLATE" || value.state === "NOT_RECORDED") &&
+    value.template_id === null &&
+    value.template_version === null
+  );
 }
 
 /** One value the run supplies because the scenario says the run owns it. */
@@ -823,6 +867,7 @@ export function isRunSummary(value: unknown): value is RunSummary {
     isNullableString(value.readiness_disclosure) &&
     typeof value.created_at === "string" &&
     typeof value.site_id === "string" &&
+    isTemplateLineage(value.template_lineage) &&
     typeof value.scenario_id === "string" &&
     typeof value.scenario_version === "number" &&
     Array.isArray(value.frozen_inputs) &&

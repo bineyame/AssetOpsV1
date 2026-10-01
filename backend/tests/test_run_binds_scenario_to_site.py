@@ -390,3 +390,49 @@ def test_a_document_without_a_site_renders_a_null_legacy_declaration() -> None:
 
     assert summary["target_site"] is None
     assert summary["site_contract"] is None
+
+
+# --- AC9: the run readback shows the frozen lineage ---------------------------
+
+
+class TestTheRunPayloadCarriesTheLineage:
+    """The lineage is rendered from the frozen record, never re-resolved."""
+
+    def payload(self, record):
+        from assetops_backend.simulator_lab_api import run_summary
+
+        return run_summary(record)
+
+    def test_a_recorded_lineage_is_served(self) -> None:
+        record = draft(sites=FakeSites((site(template=KOBO_LINEAGE),)))
+        body = self.payload(record)
+
+        expected = {
+            "state": "RECORDED",
+            "template_id": KOBO_LINEAGE.template_id,
+            "template_version": KOBO_LINEAGE.template_version,
+        }
+        assert body["template_lineage"] == expected
+        assert body["deterministic_identity"]["site"]["template_lineage"] == expected
+
+    def test_a_site_with_no_template_says_so(self) -> None:
+        record = draft(sites=FakeSites((site(),)))
+        assert record.deterministic_identity.site.template_lineage is not None
+        assert self.payload(record)["template_lineage"] == {
+            "state": "NO_TEMPLATE",
+            "template_id": None,
+            "template_version": None,
+        }
+
+    def test_a_run_stored_before_t025g_is_not_recorded(self) -> None:
+        record = draft(sites=FakeSites((site(template=KOBO_LINEAGE),)))
+        identity = record.deterministic_identity
+        older = replace(
+            record,
+            deterministic_identity=replace(
+                identity, site=replace(identity.site, template_lineage=None)
+            ),
+        )
+        body = self.payload(older)
+        assert body["template_lineage"]["state"] == "NOT_RECORDED"
+        assert body["template_lineage"]["template_id"] is None

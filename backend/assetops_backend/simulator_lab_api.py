@@ -79,7 +79,11 @@ from typing import Any
 from fastapi import APIRouter, Body, HTTPException, Query
 
 from assetops_backend.runs.execution_ports import LabExecutionPort
-from assetops_backend.runs.models import SimulationRun, readiness_disclosure
+from assetops_backend.runs.models import (
+    FrozenTemplateLineage,
+    SimulationRun,
+    readiness_disclosure,
+)
 from assetops_backend.runs.ports import (
     RunConfigurationInvalid,
     RunIdentityConflict,
@@ -1728,6 +1732,31 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
     }
 
 
+#: The three things a run's frozen template lineage can say. `NOT_RECORDED` is
+#: a run stored before T025g froze lineage; `NO_TEMPLATE` is a site created
+#: from no template; `RECORDED` carries the template and version.
+TEMPLATE_LINEAGE_STATES = ("RECORDED", "NO_TEMPLATE", "NOT_RECORDED")
+
+
+def template_lineage_payload(
+    lineage: FrozenTemplateLineage | None,
+) -> dict[str, object]:
+    """The frozen template lineage, with its state named rather than implied.
+
+    `None` is "not recorded" and stays that: nothing reads the site to fill it
+    in, because readback never re-resolves a persisted run.
+    """
+    if lineage is None:
+        return {"state": "NOT_RECORDED", "template_id": None, "template_version": None}
+    if lineage.template_id is None:
+        return {"state": "NO_TEMPLATE", "template_id": None, "template_version": None}
+    return {
+        "state": "RECORDED",
+        "template_id": lineage.template_id,
+        "template_version": lineage.template_version,
+    }
+
+
 def run_summary(record: SimulationRun) -> dict[str, object]:
     """One Draft run: its identity, what it froze, and why it may not run.
 
@@ -1747,6 +1776,12 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
         "readiness_disclosure": readiness_disclosure(record.execution_status),
         "created_at": record.created_at,
         "site_id": identity.site.site_id,
+        # T025g AC9: the site's template lineage as run setup froze it. Run
+        # provenance, never a frozen input; a run stored before T025g reads
+        # back NOT_RECORDED and is never inferred.
+        "template_lineage": template_lineage_payload(
+            identity.site.template_lineage
+        ),
         "scenario_id": identity.scenario.scenario_id,
         "scenario_version": identity.scenario.scenario_version,
         "deterministic_identity": {
@@ -1756,6 +1791,9 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
                 "foundation_valid_from": identity.site.foundation_valid_from,
                 "site_type": identity.site.site_type,
                 "timezone": identity.site.timezone,
+                "template_lineage": template_lineage_payload(
+                    identity.site.template_lineage
+                ),
             },
             "scenario": {
                 "scenario_id": identity.scenario.scenario_id,

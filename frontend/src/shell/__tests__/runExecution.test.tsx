@@ -68,6 +68,7 @@ const READY_RUN: RunSummary = {
   ],
   blocking_reasons: [],
   unsupported_optional_inputs: [],
+  template_lineage: { state: "RECORDED", template_id: "hybrid-mini-grid-100kw", template_version: 2 },
 };
 
 const BLOCKED_RUN: RunSummary = {
@@ -665,5 +666,40 @@ describe("what executing a draft still is not", () => {
       "Back to Runs",
       "Back to the Simulator Lab",
     ]);
+  });
+});
+
+describe("the run header shows the frozen template lineage (T025g AC9)", () => {
+  it.each([
+    [
+      "a recorded lineage",
+      READY_RUN.template_lineage,
+      "hybrid-mini-grid-100kw v2",
+    ],
+    [
+      "a site created from no template",
+      { state: "NO_TEMPLATE", template_id: null, template_version: null },
+      "Not created from a template",
+    ],
+    [
+      "a run stored before lineage was frozen",
+      { state: "NOT_RECORDED", template_id: null, template_version: null },
+      "Not recorded",
+    ],
+  ] as const)("renders %s", async (_label, lineage, text) => {
+    renderAt(
+      READY_URL,
+      client(undefined, {
+        status: "loaded",
+        run: { ...READY_RUN, template_lineage: { ...lineage } },
+      }),
+    );
+    await settledScreen();
+
+    const fact = document.querySelector("[data-header-template-lineage]");
+    expect(fact?.getAttribute("data-header-template-lineage")).toBe(
+      lineage.state,
+    );
+    expect(fact?.textContent).toBe(text);
   });
 });
