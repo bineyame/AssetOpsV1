@@ -1587,6 +1587,45 @@ cannot mislead an Implementer. Line anchors are as of the review commit.
   pytest (153 s), then passed 652 alone (49 s); failure detail not captured,
   load-induced timeouts inferred. Run the suites serially until investigated.
 
+## Carried from T025f: three findings, one decision wording, two residual risks
+
+Claude discovery review, fresh reviewer under the temporary binding, verdict
+ACCEPT WITH CARRIES (`.agent/T025f-claude-review.md`, commit `24f53f2`). Every
+finding is carried under `D-2026-09-22-milestone-speed-over-purity`: each is
+local, reversible and cannot mislead an Implementer. Line anchors are as of the
+review commit.
+
+- **F1 (Low), no frontend test for the UNRECOGNISED_VERSION note.**
+  `frontend/src/sites/siteTemplateLineage.ts:118`. The branch that words a
+  record whose template version the shipped table does not know is never
+  exercised by a frontend test. Carried: the note is advisory and the backend
+  states the case. Repair: one frontend test with an unrecognised version.
+  Trigger: next edit to `siteTemplateLineage.ts`.
+- **F2 (Low), the "records unchanged" assertion cannot fail.**
+  `backend/tests/test_site_template_lineage.py:130,158-159`. It compares a
+  shallow copy against the same objects. The read-only repository that raises
+  on `create_site` is the real proof that nothing is written. Carried: the real
+  guard exists. Repair: compare deep copies or serialised records, or drop the
+  assertion. Trigger: next edit to that test file.
+- **F3 (Info), the exported state type is unused and `state` is `string`.**
+  `siteTemplateLineage.ts:22-33`. `SiteTemplateLineageState` is exported but
+  nothing uses it. Carried: no behavioural effect. Repair: type `state` with it.
+  Trigger: next edit to that file.
+- **Decision wording, routed to the Architect.** The Versioning clause of
+  `D-2026-10-01-run-binds-scenario-to-site` says a bump sets `supersedes` and a
+  new valid-from, but shipped templates have neither field. Either narrow the
+  clause to scenarios, or plan a template schema change. Carried: T025f
+  needed neither. Trigger: T025g, or the next template bump.
+- **Residual risk, one bad site record blanks every note.** One unparseable
+  site record makes the whole lineage read return 503, and every site loses
+  its note. Carried: the note is advisory and the sites list still loads.
+  Trigger: first hand-edited or migrated site record, or any change to how the
+  lineage read walks records.
+- **Residual risk, the fingerprint pin table can be edited in place.** It can
+  be changed at the same version, and only review of the pin diff catches that.
+  T025g's scenario pins share the weakness. Carried: no automatic guard is
+  proportionate yet. Trigger: T025g, or any edit to a pin table.
+
 ## Superseded scenario versions survive only in git
 
 Recorded 2026-10-01 by the Planner (Claude under

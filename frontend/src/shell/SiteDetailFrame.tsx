@@ -7,6 +7,7 @@ import {
   SiteQuickAction,
 } from "../sites/SiteDetails";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
 
@@ -58,12 +59,19 @@ export interface SiteDetailFrameProps {
   detail: SiteDetailClient;
   sitesPath: string;
   flags: FeatureFlags;
+  /**
+   * The gated template-lineage read. The app resolves it from the gate with
+   * `simulatorLabSiteTemplateLineage`, so it is absent when the gate is
+   * closed; this frame only passes it to the substrate.
+   */
+  templateLineage?: SiteTemplateLineageClient;
 }
 
 export function SiteDetailFrame({
   detail,
   sitesPath,
   flags,
+  templateLineage,
 }: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
 
@@ -72,6 +80,7 @@ export function SiteDetailFrame({
       <SiteDetails
         siteId={siteId}
         detail={detail}
+        templateLineage={templateLineage}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
         parentTrail={() => [{ label: "Sites", to: sitesPath }]}
         quickActions={simulatorLabSiteActions(flags).map((action) => (

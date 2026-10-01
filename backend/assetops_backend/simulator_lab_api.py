@@ -133,6 +133,7 @@ from assetops_backend.scenarios.service import (
     ScenarioCatalogService,
     ScenarioDetailService,
 )
+from assetops_backend.sites.lineage import assess_template_lineage
 from assetops_backend.sites.models import SiteTemplate
 from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
@@ -146,6 +147,7 @@ from assetops_backend.sites.ports import (
 )
 from assetops_backend.sites.service import (
     SiteCreationService,
+    SiteDirectoryService,
     SiteTemplateCatalogService,
 )
 from assetops_backend.sites.site_parsing import parse_create_site_request
@@ -184,6 +186,11 @@ SIMULATOR_LAB_API_PREFIX = "/api/simulator-lab"
 
 SITE_TEMPLATES_ROUTE = "/site-templates"
 SITE_TEMPLATE_DETAIL_ROUTE = "/site-templates/{template_id}"
+#: T025f: each configured Site's recorded template lineage against the current
+#: shipped template. Gated because the template catalog is: a closed gate must
+#: not touch the catalog (`main.create_app`), so the operator Sites routes
+#: cannot answer this and do not try.
+SITE_TEMPLATE_LINEAGE_ROUTE = "/site-template-lineage"
 CREATE_SITE_ROUTE = "/sites"
 SCENARIOS_ROUTE = "/scenarios"
 SCENARIO_DETAIL_ROUTE = "/scenarios/{scenario_id}"
@@ -1869,6 +1876,7 @@ def build_simulator_lab_router(
     """
     service = SiteTemplateCatalogService(catalog)
     creation = SiteCreationService(repository, catalog)
+    directory = SiteDirectoryService(repository)
     scenario_catalog = ScenarioCatalogService(scenarios)
     scenario_detail = ScenarioDetailService(scenarios, repository)
     run_inventory = RunInventoryService(runs)
@@ -1928,6 +1936,45 @@ def build_simulator_lab_router(
             raise HTTPException(status_code=503, detail=str(error)) from error
 
         return _detail(template)
+
+    @router.get(SITE_TEMPLATE_LINEAGE_ROUTE)
+    def list_site_template_lineage() -> dict[str, object]:
+        """State, per configured Site, whether its template record is behind.
+
+        Computed on every read from the Site's recorded provenance and the
+        shipped catalog; nothing is written to the Site. A Site created from
+        no template, or from a template no longer shipped, says so rather than
+        reading as current. Either store failing is a 503, never a silent
+        "current".
+        """
+        try:
+            sites = directory.list_sites()
+        except (
+            SiteIdentityConflict,
+            SiteConfigurationInvalid,
+            SiteStoreUnavailable,
+        ) as error:
+            raise HTTPException(status_code=503, detail=str(error)) from error
+        try:
+            templates = service.list_templates()
+        except (
+            SiteTemplateConfigurationInvalid,
+            SiteTemplateStoreUnavailable,
+        ) as error:
+            raise HTTPException(status_code=503, detail=str(error)) from error
+
+        entries: list[dict[str, object]] = []
+        for site in sites:
+            lineage = assess_template_lineage(site.template, templates)
+            entries.append(
+                {
+                    "site_id": site.site_id,
+                    "template": site_summary(site)["template"],
+                    "state": lineage.state,
+                    "current_template_version": lineage.current_template_version,
+                }
+            )
+        return {"sites": entries}
 
     @router.post(CREATE_SITE_ROUTE, status_code=201)
     def create_site(request: Any = Body(default=None)) -> dict[str, object]:

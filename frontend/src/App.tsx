@@ -17,9 +17,13 @@ import {
 } from "./shell/operatorSiteRoutes";
 import type { RunSetupClient } from "./shell/runSetupClient";
 import type { ScenarioCatalogClient } from "./shell/scenarioCatalogClient";
-import { simulatorLabRoutes } from "./shell/simulatorLabRoutes";
+import {
+  simulatorLabRoutes,
+  simulatorLabSiteTemplateLineage,
+} from "./shell/simulatorLabRoutes";
 import type { SiteCreationClient } from "./shell/siteCreationClient";
 import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
+import type { SiteTemplateLineageClient } from "./sites/siteTemplateLineage";
 import {
   createSiteDirectoryClient,
   type SiteDetailClient,
@@ -89,6 +93,8 @@ export interface AppProps {
   siteCreation?: SiteCreationClient;
   scenarioCatalog?: ScenarioCatalogClient;
   runSetup?: RunSetupClient;
+  /** Overrides the gated template-lineage client; still gated by `flags`. */
+  siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
   now?: () => Date;
 }
@@ -101,8 +107,16 @@ export function App({
   siteCreation,
   scenarioCatalog,
   runSetup,
+  siteTemplateLineage,
   now,
 }: AppProps) {
+  // Resolved once from the gate: closed, the site surfaces get no lineage read
+  // and show the recorded template alone.
+  const templateLineage = simulatorLabSiteTemplateLineage(
+    flags,
+    siteTemplateLineage,
+  );
+
   return (
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
@@ -110,7 +124,13 @@ export function App({
           <Route path="/" element={<OperatorShellFrame />} />
           <Route
             path={SITES_PATH}
-            element={<SitesFrame flags={flags} directory={siteDirectory} />}
+            element={
+              <SitesFrame
+                flags={flags}
+                directory={siteDirectory}
+                templateLineage={templateLineage}
+              />
+            }
           />
           <Route
             path={SITE_DETAIL_ROUTE_PATH}
@@ -119,6 +139,7 @@ export function App({
                 detail={siteDetail}
                 sitesPath={SITES_PATH}
                 flags={flags}
+                templateLineage={templateLineage}
               />
             }
           />
@@ -128,6 +149,7 @@ export function App({
               <SiteFoundationFrame
                 detail={siteDetail}
                 sitesPath={SITES_PATH}
+                templateLineage={templateLineage}
               />
             }
           />

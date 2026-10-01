@@ -34,6 +34,7 @@ RUN_STAGE_PATH = "/api/simulator-lab/runs/{run_id}/stage"
 RUN_EXECUTION_HISTORY_PATH = (
     "/api/simulator-lab/runs/{run_id}/execution/history"
 )
+SITE_TEMPLATE_LINEAGE_PATH = "/api/simulator-lab/site-template-lineage"
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
 # added the two template paths, T006 added the create path, T017 added the
@@ -55,6 +56,10 @@ RUN_EXECUTION_HISTORY_PATH = (
 #
 # T025c adds the recorded-history path, also a READ: a run's persisted private
 # history behind the gate and nowhere else. Closed, it does not exist.
+#
+# T025f adds the site template lineage path, a READ that compares each Site's
+# recorded template version with the shipped catalog. It is gated because the
+# catalog is; the operator Sites routes gain nothing.
 SIMULATOR_LAB_SERVED_PATHS = {
     SIMULATOR_LAB_STATUS_PATH,
     SITE_TEMPLATES_PATH,
@@ -71,6 +76,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_EXECUTION_END_PATH,
     RUN_STAGE_PATH,
     RUN_EXECUTION_HISTORY_PATH,
+    SITE_TEMPLATE_LINEAGE_PATH,
 }
 
 # The same four, with a concrete run identity, for the request-level assertions.
@@ -97,6 +103,7 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     *RUN_EXECUTION_REQUEST_PATHS,
     "/api/simulator-lab/runs/run-1/stage",
     "/api/simulator-lab/runs/run-1/execution/history",
+    SITE_TEMPLATE_LINEAGE_PATH,
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
     "/api/simulator",

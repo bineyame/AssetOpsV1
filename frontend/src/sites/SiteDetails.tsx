@@ -12,6 +12,12 @@ import {
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import { useSiteRecord } from "./useSiteRecord";
+import {
+  useSiteTemplateLineage,
+  type SiteTemplateLineageClient,
+  type SiteTemplateLineageReadModel,
+} from "./siteTemplateLineage";
+import { TemplateProvenanceText } from "./TemplateProvenanceText";
 import { deriveSiteDetailView, type SiteUnavailableFact } from "./siteViewModel";
 
 /**
@@ -85,6 +91,12 @@ export interface SiteDetailsProps {
    * and on the Lab entry point, and this module may import neither.
    */
   quickActions?: ReactNode;
+  /**
+   * The gated template-lineage read, passed only when the composing shell's
+   * gate is open. Absent, "Created from template" shows the recorded lineage
+   * alone; present, it adds the advisory note when the record is behind.
+   */
+  templateLineage?: SiteTemplateLineageClient;
 }
 
 export function SiteDetails({
@@ -93,8 +105,10 @@ export function SiteDetails({
   tabs,
   parentTrail,
   quickActions,
+  templateLineage,
 }: SiteDetailsProps) {
   const result = useSiteRecord(siteId, detail);
+  const lineage = useSiteTemplateLineage(templateLineage);
 
   if (result === null) {
     return (
@@ -148,6 +162,7 @@ export function SiteDetails({
       tabs={tabs}
       parentTrail={parentTrail}
       quickActions={quickActions}
+      lineage={lineage?.get(result.site.site_id)}
     />
   );
 }
@@ -181,6 +196,8 @@ export interface SiteDetailFactsProps {
   parentTrail?: (siteId: string) => Crumb[];
   /** See `SiteDetailsProps.quickActions`. */
   quickActions?: ReactNode;
+  /** This site's lineage answer, if the shell supplied a lineage read. */
+  lineage?: SiteTemplateLineageReadModel;
 }
 
 export function SiteDetailFacts({
@@ -188,6 +205,7 @@ export function SiteDetailFacts({
   tabs,
   parentTrail,
   quickActions,
+  lineage,
 }: SiteDetailFactsProps) {
   const view = deriveSiteDetailView(site);
 
@@ -279,7 +297,13 @@ export function SiteDetailFacts({
           <Fact term="Configuration origin">
             <Badge tone="origin">{view.configurationOrigin}</Badge>
           </Fact>
-          <Fact term="Created from template">{view.templateProvenance}</Fact>
+          <Fact term="Created from template">
+            <TemplateProvenanceText
+              site={site}
+              provenance={view.templateProvenance}
+              lineage={lineage}
+            />
+          </Fact>
         </FactList>
         <p>
           These are separate facts about a site and none is derived from
