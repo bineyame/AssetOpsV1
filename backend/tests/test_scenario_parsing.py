@@ -369,7 +369,7 @@ def test_a_misplaced_private_expectation_field_is_refused(
 
 
 MALFORMED_TARGET_SITE_DECLARATIONS: list[Any] = [
-    pytest.param(lambda d: d.update(target_site=None), id="absent"),
+    pytest.param(lambda d: d.update(target_site=None), id="null"),
     pytest.param(lambda d: d.update(target_site="MG-900"), id="not-an-object"),
     pytest.param(
         lambda d: d["target_site"].update(site_id="../../etc/passwd"),

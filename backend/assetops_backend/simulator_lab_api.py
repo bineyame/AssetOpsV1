@@ -642,12 +642,19 @@ def scenario_public_summary(scenario: ScenarioDefinition) -> dict[str, object]:
             "version_valid_from": scenario.version.version_valid_from,
             "supersedes": scenario.version.supersedes,
         },
-        "target_site": {
-            "policy": scenario.target_site.policy,
-            "site_id": scenario.target_site.site_id,
-            "template_id": scenario.target_site.template_id,
-            "requirement": scenario.target_site.requirement,
-        },
+        # Legacy declaration, optional since T025g phase 1. A document without
+        # one renders null here; the payload's shape and its client change
+        # together in T025g phase 2 (AC8). No shipped document lacks it yet.
+        "target_site": (
+            None
+            if scenario.target_site is None
+            else {
+                "policy": scenario.target_site.policy,
+                "site_id": scenario.target_site.site_id,
+                "template_id": scenario.target_site.template_id,
+                "requirement": scenario.target_site.requirement,
+            }
+        ),
     }
 
 

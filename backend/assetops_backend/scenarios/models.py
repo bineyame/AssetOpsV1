@@ -654,7 +654,15 @@ class PrivateExpectation:
 
 @dataclass(frozen=True)
 class ScenarioTargetSite:
-    """Which Site this scenario needs, as a declaration rather than a link.
+    """A LEGACY declaration of which Site this scenario needs.
+
+    Retired by `D-2026-10-01-run-binds-scenario-to-site`: a scenario names no
+    site, and a run is the only join of a scenario version and a site version.
+    A well-formed declaration on a document already written is still parsed
+    and carried, so those documents stay readable, but nothing binds a run by
+    it: run setup ignores it entirely. It is no longer required.
+
+    Original meaning, kept for the legacy reader:
 
     Exactly one of `site_id` and `template_id` is set, decided by `policy`. The
     parser enforces that shape; it never looks a Site up, because whether a
@@ -671,6 +679,19 @@ class ScenarioTargetSite:
     site_id: str | None
     template_id: str | None
     requirement: str
+
+
+@dataclass(frozen=True)
+class ScenarioSiteContract:
+    """What this scenario needs of whichever site a run binds it to.
+
+    `description` is prose that explains the contract to a reader. It is never
+    evaluated: what run setup checks is derived from the document's causes,
+    observation sources and the chosen profile, not from this text. It names
+    no site and no template (`D-2026-10-01-run-binds-scenario-to-site`).
+    """
+
+    description: str | None
 
 
 @dataclass(frozen=True)
@@ -714,11 +735,12 @@ class ScenarioDefinition:
     purpose: str
     origin: str
     version: ScenarioVersion
-    target_site: ScenarioTargetSite
+    target_site: ScenarioTargetSite | None
     observation_sources: tuple[ObservationSource, ...]
     timeline: tuple[TimelineEntry, ...]
     public_parameters: tuple[ScenarioParameter, ...]
     private_expectations: tuple[PrivateExpectation, ...]
+    site_contract: ScenarioSiteContract | None = None
 
 
 @dataclass(frozen=True)

@@ -154,6 +154,7 @@ from assetops_backend.scenarios.models import (
     PrivateExpectation,
     ScenarioDefinition,
     ScenarioParameter,
+    ScenarioSiteContract,
     ScenarioTargetSite,
     ScenarioVersion,
     StateEffect,
@@ -170,7 +171,9 @@ SCENARIO_KEYS = frozenset(
         "display_name",
         "purpose",
         "version",
+        # Legacy, optional (`D-2026-10-01-run-binds-scenario-to-site`).
         "target_site",
+        "site_contract",
         "observation_sources",
         "timeline",
         "public_parameters",
@@ -181,6 +184,9 @@ VERSION_KEYS = frozenset(
     {"scenario_version", "version_valid_from", "supersedes"}
 )
 TARGET_SITE_KEYS = frozenset({"policy", "site_id", "template_id", "requirement"})
+# What a scenario says about the site a run binds it to. Prose only for now;
+# no site and no template is ever named here.
+SITE_CONTRACT_KEYS = frozenset({"description"})
 OBSERVATION_SOURCE_KEYS = frozenset(
     {
         "source_id",
@@ -359,7 +365,18 @@ def parse_scenario_document(
     )
 
     version = _parse_version(document.get("version"), source=source)
-    target_site = _parse_target_site(document.get("target_site"), source=source)
+    # A legacy declaration: optional, parsed when present so a malformed one
+    # is still refused, and never used to bind a run.
+    target_site = (
+        _parse_target_site(document["target_site"], source=source)
+        if "target_site" in document
+        else None
+    )
+    site_contract = (
+        _parse_site_contract(document["site_contract"], source=source)
+        if "site_contract" in document
+        else None
+    )
     observation_sources = _parse_observation_sources(
         document.get("observation_sources"), source=source
     )
@@ -382,6 +399,7 @@ def parse_scenario_document(
         timeline=timeline,
         public_parameters=public_parameters,
         private_expectations=private_expectations,
+        site_contract=site_contract,
     )
 
     _validate_execution_contract(scenario, source=source)
@@ -449,8 +467,44 @@ def _parse_version(raw: Any, *, source: str) -> ScenarioVersion:
     )
 
 
+def _parse_site_contract(raw: Any, *, source: str) -> ScenarioSiteContract:
+    """What the scenario needs of a site, as prose that is never evaluated.
+
+    Strict like every other block: an unknown key is refused, so a template
+    hint or a site id cannot ride in here (`D-2026-10-01-run-binds-scenario-to-site`).
+    `description` may be absent; when present it is free text.
+    """
+    if not isinstance(raw, Mapping):
+        raise ScenarioConfigurationInvalid(
+            f"'scenario.site_contract' must be an object describing what this "
+            f"scenario needs of a site, in {source}"
+        )
+
+    _reject_unknown_keys(
+        raw, SITE_CONTRACT_KEYS, where="scenario.site_contract", source=source
+    )
+
+    description = (
+        _require_free_text(
+            raw,
+            "description",
+            max_length=MAX_REQUIREMENT_LENGTH,
+            where="scenario.site_contract",
+            source=source,
+        )
+        if "description" in raw
+        else None
+    )
+    return ScenarioSiteContract(description=description)
+
+
 def _parse_target_site(raw: Any, *, source: str) -> ScenarioTargetSite:
-    """The target-site declaration: shape only, never a lookup.
+    """The LEGACY target-site declaration: shape only, never a lookup.
+
+    Retired by `D-2026-10-01-run-binds-scenario-to-site` and no longer
+    required. A document that still carries one is accepted when it is well
+    formed, so documents already written stay readable; nothing binds a run by
+    it. A malformed one is still refused.
 
     Both halves are refused here. A malformed declaration is one whose fields
     are the wrong type or absent. An invalid policy shape is one whose fields

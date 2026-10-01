@@ -114,6 +114,20 @@ class ScenarioDetailService:
         """
         target = scenario.target_site
 
+        if target is None:
+            # Phase 1 of T025g: a document without the legacy declaration
+            # names no site, so there is nothing to resolve. This whole
+            # resolution retires with its payload in T025g phase 2 (AC8).
+            return ScenarioTargetResolution(
+                state="NOT_APPLICABLE",
+                site_id=None,
+                display_name=None,
+                reason=(
+                    "This scenario names no site. A run binds it to the site "
+                    "chosen at run setup."
+                ),
+            )
+
         if target.policy != "DECLARED_SITE" or target.site_id is None:
             return ScenarioTargetResolution(
                 state="NOT_APPLICABLE",
@@ -193,7 +207,11 @@ class ScenarioDetailService:
         unavailable = False
         no_target = False
 
-        if target.policy == "DECLARED_SITE" and target.site_id is not None:
+        if (
+            target is not None
+            and target.policy == "DECLARED_SITE"
+            and target.site_id is not None
+        ):
             try:
                 site = self._sites.get_site(target.site_id)
             except SiteNotFound:
