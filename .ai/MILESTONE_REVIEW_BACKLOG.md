@@ -1587,6 +1587,32 @@ cannot mislead an Implementer. Line anchors are as of the review commit.
   pytest (153 s), then passed 652 alone (49 s); failure detail not captured,
   load-induced timeouts inferred. Run the suites serially until investigated.
 
+## Superseded scenario versions survive only in git
+
+Recorded 2026-10-01 by the Planner (Claude under
+`D-2026-09-30-planner-claude-until-reset`), from
+`D-2026-10-01-run-binds-scenario-to-site` and the Architect advisory
+`.agent/scenario-site-targeting-architect.md` section 3.
+
+The scenario store holds exactly one document per `scenario_id` (the port has
+only `list_scenarios` and `get_scenario(id)`; a duplicate id raises
+`ScenarioIdentityConflict`). When T025g moves the seven shipped scenarios to v2,
+v1 leaves the store. What survives of v1 is git history and the frozen runs
+that used it, which freeze resolved parameters, causes and forcings but not the
+`purpose` text. A run setup naming v1 is refused by the existing version check.
+
+*Safe to carry* because run readback never re-reads the scenario document: the
+run header renders `scenario <id> v<n>` from the frozen record, and execution
+uses only frozen inputs. Nothing on a product path resolves an old version to
+content.
+
+*What would change the answer:* a screen or analysis that needs an old run's
+purpose text or document beside it (for example a comparison across scenario
+versions, or Replay showing the authored intent), or the owner wanting to set
+up a new run against a superseded version. The repair is a store that retains
+superseded versions keyed by `(scenario_id, scenario_version)`; T025f's and
+T025g's fingerprint pins already name every version that has existed.
+
 ## Tracked elsewhere, listed so the review finds them
 
 2026-09-24 routing correction: the old three-question count, Block F deadline

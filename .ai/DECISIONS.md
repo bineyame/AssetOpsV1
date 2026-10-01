@@ -24,6 +24,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-01-run-binds-scenario-to-site` | 2026-10-01 | A run is the only join of a scenario version and a site version; `target_site` retired with legacy acceptance; no template hint; assumptions label; content change bumps version under a fingerprint guard; contract 9 -> 10 in T025g. |
 | `D-2026-09-24-v4-roadmap-replan` | 2026-09-24 | Corrected two-source basis; roadmap A-I, dispatch first, immediate component addressing; Planner recreates unfinished tasks. |
 | `D-2026-09-24-task-spec-size-ceilings` | 2026-09-24 | Task-spec size bands become ceilings with no minimum, plus a cold-start test. `.ai/WORKFLOW.md` is their only owner. |
 | `D-2026-09-11-stack` | 2026-09-11 | M1 uses the preferred MVP stack from the product specification. |
@@ -47,7 +48,7 @@ the forecast was removed; relative version guidance is now in
 | `D-2026-09-20-scenario-definition-model` | 2026-09-20 | ScenarioDefinition is the saved, versioned scenario artifact; events are saved sub-artifacts inside a scenario version. |
 | `D-2026-09-20-scenario-definition-storage` | 2026-09-20 | ScenarioDefinitions use composed shipped and writable stores behind a domain port, with one disjoint scenario_id space. |
 | `D-2026-09-20-run-scoped-event-injection` | 2026-09-20 | Future event injection is run-scoped intervention history, not authored scenario content. |
-| `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. |
+| `D-2026-09-20-scenario-detail-affordances` | 2026-09-20 | Scenario detail renders only native controls; Run is disabled with a named prerequisite and downstream controls are absent. `Open target Site` removed by `D-2026-10-01-run-binds-scenario-to-site`. |
 | `D-2026-09-21-scenario-authoring-semantics` | 2026-09-21 | The T017 checkpoint settles scenario versioning fields, the event taxonomy, and the public/private parameter boundary. |
 | `D-2026-09-21-causal-runtime-before-golden-traces` | 2026-09-21 | A minimal executable causal runtime precedes authoritative golden traces; manual traces cannot establish scenario causality. |
 | `D-2026-09-21-scenario-execution-contract` | 2026-09-21 | The T018 checkpoint settles execution roles, initialization and cadence ownership, timing and bound semantics, and that an unreached reading is stated rather than resolved. Amended by `D-2026-09-21-scenario-execution-contract-amendment-1`. |
@@ -1268,6 +1269,9 @@ rendered disabled with visible reason text naming the missing run setup / Draft
 `SimulationRun` prerequisite. `Open target Site` is the only product bridge: it
 is enabled only when the declared target Site resolves, otherwise absent or
 disabled with an accessible reason.
+
+Amended 2026-10-01: `Open target Site` is removed by
+`D-2026-10-01-run-binds-scenario-to-site`; a scenario names no site.
 
 `Commit`, `Open in AssetOps`, runtime controls, gateway output, ingestion,
 Replay, Findings, and product analytics are absent from the scenario detail
@@ -3240,3 +3244,88 @@ flicker. This replaces the T025d read-history-on-stop policy; the mechanism is
 set by the Architect addendum to the guidance file.
 
 Affected files: `.ai/ROLE_CONFIG.md`.
+
+## 2026-10-01
+
+Decision: `D-2026-10-01-run-binds-scenario-to-site`.
+
+Status: **ACCEPTED by the owner, 2026-10-01**, adopting the Architect's
+recommendations in `.agent/scenario-site-targeting-architect.md` (revision 2).
+Recorded by the Planner, Claude under `D-2026-09-30-planner-claude-until-reset`;
+the Architect advisory was also Claude under the matching exception, and its
+contract-version reading goes back to Codex in T025g's first review.
+
+**Trigger.** T025a and T025b added generator properties, a status signal and
+its mapping to `kobo-mini-grid-60kw` in place at `template_version: 1`. A site
+created from the earlier v1 (KOBO-001) and one created from the later v1
+(GONDAR-01) carry the same lineage and different content, and the shipped
+`kobo-mini-grid-prolonged` named KOBO-001, the site that cannot honour it. The
+only workaround was an untracked scenario copy naming a different site.
+
+**The rule.** A run binds a scenario version to a site version. A scenario
+version declares the contract a site must honour - the addresses and sources it
+acts on and reads, the site controls it relies on, and (later) checked purpose
+assumptions - and never names a site, not even as a default. A site never names
+a scenario. The user chooses the site at run setup. Run setup never infers,
+substitutes or defaults either side; it evaluates the contract (document, the
+chosen model profile's bindings, assumptions) against the chosen site, freezes
+what it found, and rewrites neither document. Whether a site can honour a
+scenario is asked of a (scenario version, profile version) pair.
+
+**Retirement and legacy acceptance.** `target_site`, `DECLARED_SITE` and
+`TEMPLATE_DERIVED` are retired from new and shipped documents; a guard over
+`config/scenarios` keeps them out. A well-formed legacy `target_site` stays
+accepted on existing documents, is no longer required, is labelled "legacy, not
+used to bind runs" and is ignored by run setup. Every other key stays strict.
+Without this the owner's `var/scenarios` copies would take the whole catalog
+down. Acceptance continues until the owner retires those copies; no agent edits
+or deletes `var/` data (KOBO-001, the scenario copies, runs).
+
+**No template hint.** A scenario carries no template id or archetype field: a
+template is the origin of a family of sites, so ranking or filtering sites by
+it would choose by lineage rather than contract, and KOBO-001 had the right
+lineage and the wrong content. `purpose` prose may still mention an archetype.
+
+**Purpose assumptions label, they do not refuse.** When a later authored purpose
+assumption does not hold on the chosen site, the run is labelled, not refused
+or blocked. That slice (T025i) is therefore a pure widening and does not move
+the execution contract.
+
+**Versioning.** Any content change to a shipped template or shipped scenario
+bumps its version (`supersedes` set, new valid-from), enforced by a pinned
+fingerprint per `(id, version)`: changed content at an unchanged version fails.
+`kobo-mini-grid-60kw` moves to v2 now (T025f). GONDAR-01 is left as it is: it
+holds v2 content but records v1, and it is local data; the staleness label will
+call it stale, which is true of its record. Removing `target_site` is a content
+change, so every shipped scenario moves to v2 in T025g.
+
+**Contract.** Removing the target refusal changes the outcome of documents that
+were already valid, so T025g moves `EXECUTION_CONTRACT_VERSION` 9 -> 10 under
+`D-2026-09-22-contract-version-scope`. Codex confirms the reading in T025g's
+first review.
+
+**Sequence.** T025f (template versioning) and T025g (the run is the only join)
+before T026; T025h (compatibility status in the picker, a dry-run of the same
+setup resolution, never a second matcher) after T026; T025i (purpose
+assumptions) after T026 and before T036, or earlier if the owner wants the label
+for the C/D demo.
+
+**Supersedes and amends.**
+
+- The T019 run-setup site rule ("a run is not the place to retarget a
+  scenario"; run setup does not choose a site for a template-derived scenario),
+  which lived only in `runs/service.py` `_refuse_unsupported_target`: superseded
+  by the rule above. T025g removes it and keeps the no-topology refusal.
+- `D-2026-09-20-scenario-detail-affordances`: amended. `Open target Site` is
+  removed because a scenario has no target; the detail screen shows what the
+  scenario needs of a site instead. Compatibility is shown only in run setup,
+  where a profile is chosen. The rest of that decision stands.
+
+**Known gap, carried.** The scenario store holds one document per
+`scenario_id`, so a superseded scenario version survives only in git and in the
+frozen runs that used it (which freeze parameters, causes and forcings, not the
+purpose text). Recorded in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+
+Affected scope: scenario parser and models, run setup, `EXECUTION_CONTRACT_VERSION`,
+shipped templates and scenarios, scenario detail and run setup screens, tasks
+T025f-T025i, `tasks/README.md`.

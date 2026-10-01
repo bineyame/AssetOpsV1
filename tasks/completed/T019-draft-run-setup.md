@@ -9,6 +9,9 @@ end of the list below. Evidence is in `.agent/T019-review-packet.md`,
 including the layout measurement, the deliberate violations that prove each
 guard, and the disposition of the fourteen independent review findings.
 
+Superseded in part 2026-10-01: its declared-target refusal is replaced by
+`D-2026-10-01-run-binds-scenario-to-site` (the user picks the site; T025g).
+
 Intended branch: `task/T019-draft-run-setup`
 
 ## Feature
