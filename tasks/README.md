@@ -47,7 +47,7 @@ when they run, as with T022B.
 | 12 | T025b | A completion | Policy recipes, reported status and owner acceptance of A |
 | 13 | [T025c](completed/T025c-persisted-lab-history-and-charts.md) | Lab cockpit L1a | Reloadable addressed history, charts and run identity |
 | 14 | [T025d](completed/T025d-lab-cockpit-inspection-and-playback.md) | Lab cockpit L1b | Run-bound SLD, causal inspection and guarded playback |
-| 15 | [T025e](T025e-cockpit-organisation-and-live-playback.md) | Lab cockpit L1c | Organised cockpit layout and smooth playback |
+| 15 | [T025e](completed/T025e-cockpit-organisation-and-live-playback.md) | Lab cockpit L1c | Organised cockpit layout and smooth playback |
 | 16 | [T025f](T025f-template-versioning.md) | A/B hardening | Template v2 and site lineage staleness note |
 | 17 | [T025g](T025g-run-binds-scenario-to-site.md) | A/B hardening | User picks the site; shipped scenario READY or BLOCKED by contract |
 | 18 | T026 | B | Dispatch evidence with one gap and one delayed publication |

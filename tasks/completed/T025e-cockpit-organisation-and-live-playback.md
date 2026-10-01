@@ -1,9 +1,9 @@
 # T025e - Lab cockpit organisation and live playback (L1c)
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
-Map: Lab cockpit L1c. Depends on: completed T025d and T025c. Next: T026.
+Map: Lab cockpit L1c. Depends on: completed T025d and T025c. Next: T025f then T025g (planned on `plan/scenario-site-contract`), then T026.
 Branch: task/T025e-cockpit-organisation-and-live-playback
 Sizing: beyond one focused change; three phases per `.ai/ROLE_CONFIG.md`.
 Planner: Claude under `D-2026-09-30-planner-claude-until-reset`.
@@ -159,3 +159,15 @@ surface, reset or jump (T029A); T026 owns dispatch report panels.
 First review is a **discovery** review (`.ai/ROLE_CONFIG.md`: new mechanism and
 wire addition) of the whole slice after phase 3; the report names its reviewer.
 The owner judges organisation and flicker-free current playback. Outcome: pending.
+
+## Review Outcome
+
+Accepted by the owner on 2026-10-01 after a hands-on check ("T025e hands on
+check is fine"). All reviews were by Claude under the temporary binding.
+
+- Discovery review (`.agent/T025e-claude-review.md`): REJECT; fixed in R1.
+- R1 re-review (`.agent/T025e-claude-review-r1.md`): REJECT; fixed in R2.
+- R2 verification (`.agent/T025e-claude-review-r2.md`): ACCEPT WITH CARRIES.
+
+Carries C1-C9 are in `.ai/MILESTONE_REVIEW_BACKLOG.md`. Next: T025f then T025g,
+planned on `plan/scenario-site-contract`, run before T026.
