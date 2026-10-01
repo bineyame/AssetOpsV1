@@ -1,7 +1,7 @@
 # Shipped scenario (T025b): the prolonged-runtime recipe. A Kobo-like full
 # mini-grid through a dark, loaded morning into a sunny midday,
-# run against a Site created from the kobo-mini-grid-60kw template with site
-# ID KOBO-001.
+# run against a Site built from the current kobo-mini-grid-60kw template,
+# chosen at run setup.
 #
 # Set a run up with the mini-grid model profile VERSION 2, an interval of 480
 # minutes (06:00 to 14:00 local time is the intended reading) and a 5-minute
@@ -25,15 +25,18 @@ purpose: >-
   A dark start draws the battery down to the Site start threshold, so the generator is requested and runs. The mill then starts at full demand under a thin sun: with the battery held at its reserve and the generator at its rating, part of the load goes unserved for that hour - a visible reserve and service consequence, not a failure. Irradiance then recovers and the mill eases off: from mid-morning PV alone covers every load and the battery is well above its reserve, so both recover their capability - yet the Site stop policy (90 %) keeps the generator requested, charging the battery beside PV until the state of charge reaches the stop threshold. The runtime follows from the frozen policy and the causes above; this document authors no generator output.
 
 version:
-  scenario_version: 1
-  version_valid_from: '2026-09-29T00:00:00Z'
-  supersedes: null
+  # T025g: v2 drops the retired `target_site` (a scenario names no site;
+  # `D-2026-10-01-run-binds-scenario-to-site`). Its requirement prose
+  # moved, unchanged, into `site_contract.description`.
+  scenario_version: 2
+  version_valid_from: '2026-10-01T00:00:00Z'
+  supersedes: 1
 
-target_site:
-  policy: DECLARED_SITE
-  site_id: KOBO-001
-  template_id: null
-  requirement: >-
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
     A mini-grid created from the kobo-mini-grid-60kw template: one PV array
     behind one inverter, one battery behind one PCS, one generator on the bus
     fed by one fuel tank, and three addressed loads - load-res, load-clinic

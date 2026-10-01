@@ -570,7 +570,7 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
                 "site_id": "MG-001",
                 "foundation_version": 1,
                 "scenario_id": "fuel-loss-event",
-                "scenario_version": 1,
+                "scenario_version": 2,
                 "interval": {
                     "start_time": "2026-09-21T00:00:00Z",
                     "end_time": "2026-09-22T17:00:00Z",
@@ -848,7 +848,7 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
                 "site_id": "MG-001",
                 "foundation_version": 1,
                 "scenario_id": "fuel-loss-event",
-                "scenario_version": 1,
+                "scenario_version": 2,
                 "interval": {
                     "start_time": "2026-09-21T00:00:00Z",
                     "end_time": "2026-09-22T17:00:00Z",
@@ -1012,7 +1012,7 @@ class TestTheShippedFuelLossEventAgainstAPropertylessFoundation:
                 "site_id": "MG-001",
                 "foundation_version": 1,
                 "scenario_id": "fuel-loss-event",
-                "scenario_version": 1,
+                "scenario_version": 2,
                 "interval": {
                     "start_time": "2026-09-21T00:00:00Z",
                     "end_time": "2026-09-22T17:00:00Z",

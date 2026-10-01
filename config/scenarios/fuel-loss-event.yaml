@@ -36,8 +36,9 @@
 # semantic key plus the thing it is about: `fuel-tank-volume@fuel-tank` is the
 # stored volume IN THAT TANK, and `site:site-load-demand` is a fact about the
 # installation that no single component owns. The component identities come
-# from MG-001's own foundation, which this document already declares it
-# targets; a scenario naming no concrete site would have nothing to address.
+# from MG-001's foundation, which the document was authored against; since
+# T025g the document names no site and run setup checks the addresses against
+# whichever site is chosen.
 #
 # Nothing here uses the unqualified form, and that is a choice rather than a
 # requirement. `fuel-tank-volume` alone would resolve on a site with one tank
@@ -103,25 +104,28 @@ purpose: >-
   imperfect record of it.
 
 version:
-  scenario_version: 1
-  version_valid_from: '2026-09-20T00:00:00Z'
-  supersedes: null
+  # T025g: v2 drops the retired `target_site` (a scenario names no site;
+  # `D-2026-10-01-run-binds-scenario-to-site`). Its requirement prose
+  # moved, unchanged, into `site_contract.description`.
+  scenario_version: 2
+  version_valid_from: '2026-10-01T00:00:00Z'
+  supersedes: 1
 
-target_site:
-  policy: DECLARED_SITE
-  site_id: MG-001
-  template_id: null
-  requirement: >-
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
     A mini-grid whose foundation declares a fuel-storage component feeding a
     generator, a device that can report a fuel level in litres from that
     component, and a metered distribution load.
 
 # Where every reading in this scenario arrives through.
 #
-# The device source names a device and a signal the target site's foundation
-# configures. The scenario validates the shape of those identities and nothing
-# more; whether this installation has them is resolved against the site store
-# and reported beside the scenario, exactly as the declared target site is.
+# The device source names a device and a signal the chosen site's foundation
+# must configure. The scenario validates the shape of those identities and
+# nothing more; whether a site has them is checked at run setup, against the
+# site chosen there (T025g).
 #
 # Neither source declares a cadence, and neither may. A foundation declares
 # that a signal CAN report and declares its unit; it declares no rate. Nothing

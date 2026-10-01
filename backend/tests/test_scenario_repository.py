@@ -318,7 +318,10 @@ class TestTheShippedStore:
 
         assert record.display_name == "Fuel Loss Event"
         assert record.origin == "SHIPPED"
-        assert record.target_site.policy == "DECLARED_SITE"
-        assert record.target_site.site_id == "MG-001"
+        # T025g: shipped v2 names no site; its requirement prose is the
+        # site contract's description.
+        assert record.target_site is None
+        assert record.site_contract is not None
+        assert record.version.scenario_version == 2
         assert len(record.timeline) > 0
         assert len(record.private_expectations) > 0

@@ -1,5 +1,5 @@
 # Shipped scenario (T024). A Kobo-like daytime operating story, run against a
-# Site created from the kobo-mini-grid-60kw template with site ID KOBO-001.
+# Site built from the current kobo-mini-grid-60kw template, chosen at run setup.
 #
 # Set a run up with the daytime-mini-grid model profile, an interval of 720
 # minutes (twelve hours: 06:00 to 18:00 local time is the intended reading)
@@ -20,15 +20,18 @@ purpose: >-
   The same day under heavy cloud: irradiance at about a third of the sunny reference. The battery covers the deficit until it reaches its reserve, then supply falls short and the critical-load priority decides who is served - the clinic first. From 16:00 to 18:00 a temporary override lowers the reserve to 15 %, and the baseline reserve applies again at 18:00.
 
 version:
-  scenario_version: 1
-  version_valid_from: '2026-09-29T00:00:00Z'
-  supersedes: null
+  # T025g: v2 drops the retired `target_site` (a scenario names no site;
+  # `D-2026-10-01-run-binds-scenario-to-site`). Its requirement prose
+  # moved, unchanged, into `site_contract.description`.
+  scenario_version: 2
+  version_valid_from: '2026-10-01T00:00:00Z'
+  supersedes: 1
 
-target_site:
-  policy: DECLARED_SITE
-  site_id: KOBO-001
-  template_id: null
-  requirement: >-
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
     A mini-grid created from the kobo-mini-grid-60kw template: one PV array
     behind one inverter, one battery behind one PCS, and three addressed loads
     - load-res, load-clinic and load-mill - with typed source-priority and

@@ -1,6 +1,6 @@
 # Shipped scenario (T025a). A Kobo-like full mini-grid from midday into the
-# evening, run against a Site created from the kobo-mini-grid-60kw template
-# with site ID KOBO-001.
+# evening, run against a Site built from the current kobo-mini-grid-60kw
+# template, chosen at run setup.
 #
 # Set a run up with the mini-grid model profile, an interval of 480 minutes
 # (12:00 to 20:00 local time is the intended reading) and a 5-minute
@@ -25,15 +25,18 @@ purpose: >-
   The healthy full-site reference: PV serves the loads and tops up the battery at midday, PV falls away through the afternoon, the battery carries the late afternoon until the state of charge reaches the Site start threshold, and the generator is requested, spends its start delay STARTING with no output, then runs. In the Site source priority (PV, battery, generator) the battery still serves ahead of the generator, so the generator carries what the battery cannot above its reserve and charges it only while it is not discharging. No load goes unserved.
 
 version:
-  scenario_version: 1
-  version_valid_from: '2026-09-29T00:00:00Z'
-  supersedes: null
+  # T025g: v2 drops the retired `target_site` (a scenario names no site;
+  # `D-2026-10-01-run-binds-scenario-to-site`). Its requirement prose
+  # moved, unchanged, into `site_contract.description`.
+  scenario_version: 2
+  version_valid_from: '2026-10-01T00:00:00Z'
+  supersedes: 1
 
-target_site:
-  policy: DECLARED_SITE
-  site_id: KOBO-001
-  template_id: null
-  requirement: >-
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
     A mini-grid created from the kobo-mini-grid-60kw template: one PV array
     behind one inverter, one battery behind one PCS, one generator on the bus
     fed by one fuel tank, and three addressed loads - load-res, load-clinic

@@ -155,17 +155,48 @@ class TestTheParser:
 # --- AC10: the catalog stays alive -------------------------------------------
 
 
+#: The v1 identity and legacy declaration of every shipped scenario, frozen
+#: here as the owner's `var/scenarios` copies were taken from them. Shipped v2
+#: (T025g AC5) carries neither, so the owner's shape is rebuilt from this sample
+#: rather than read off the shipped document. The requirement prose is the
+#: shipped `site_contract.description`, which v2 moved unchanged.
+FROZEN_V1_SAMPLE = {
+    "fuel-loss-event": ("MG-001", "2026-09-20T00:00:00Z"),
+    "kobo-daytime": ("KOBO-001", "2026-09-29T00:00:00Z"),
+    "kobo-daytime-overcast": ("KOBO-001", "2026-09-29T00:00:00Z"),
+    "kobo-daytime-larger-mill": ("KOBO-001", "2026-09-29T00:00:00Z"),
+    "kobo-mini-grid-evening": ("KOBO-001", "2026-09-29T00:00:00Z"),
+    "kobo-mini-grid-prolonged": ("KOBO-001", "2026-09-29T00:00:00Z"),
+    "kobo-mini-grid-stop-60": ("KOBO-001", "2026-09-29T00:00:00Z"),
+}
+
+
 def owner_shaped_copy(path: Path) -> dict:
     """A shipped document copied the way the owner copied one into `var/`.
 
     The owner's workaround (`D-2026-10-01-run-binds-scenario-to-site`,
-    Trigger) was a copy of a shipped scenario under a new identity naming a
-    different site through the legacy `DECLARED_SITE` declaration.
+    Trigger) was a copy of a shipped v1 scenario under a new identity naming a
+    different site through the legacy `DECLARED_SITE` declaration. The copy
+    is rebuilt in that v1 shape: v1 version identity, a legacy `target_site`
+    and no `site_contract`.
     """
     document = copy.deepcopy(yaml.safe_load(path.read_text(encoding="utf-8")))
+    declared, valid_from = FROZEN_V1_SAMPLE[document["scenario_id"]]
+    assert "target_site" not in document
+    requirement = document.pop("site_contract")["description"]
     document["scenario_id"] = f"{document['scenario_id']}-copy"
-    assert document["target_site"]["policy"] == "DECLARED_SITE"
-    document["target_site"]["site_id"] = "GONDAR-01"
+    document["version"] = {
+        "scenario_version": 1,
+        "version_valid_from": valid_from,
+        "supersedes": None,
+    }
+    assert declared != "GONDAR-01"
+    document["target_site"] = {
+        "policy": "DECLARED_SITE",
+        "site_id": "GONDAR-01",
+        "template_id": None,
+        "requirement": requirement,
+    }
     return document
 
 
@@ -174,6 +205,7 @@ SHIPPED_DOCUMENTS = sorted(SHIPPED_SCENARIOS.glob("*.yaml"))
 
 def test_the_shipped_documents_were_found() -> None:
     assert len(SHIPPED_DOCUMENTS) >= 7, "nothing to copy, so AC10 proves nothing"
+    assert {path.stem for path in SHIPPED_DOCUMENTS} == set(FROZEN_V1_SAMPLE)
 
 
 @pytest.mark.parametrize(
