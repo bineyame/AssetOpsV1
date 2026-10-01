@@ -4348,7 +4348,7 @@ Contract 9 and history schema 2 kept: wire additions only, no persisted change.
 
 ## T025e - Lab cockpit organisation and live playback (L1c)
 
-In review (packet `.agent/T025e-review-packet.md`, evidence
+Complete; owner accepted 2026-10-01 (packet `.agent/T025e-review-packet.md`, evidence
 `.agent/T025e-layout-evidence.txt`). Contract 9 and history schema 2 kept;
 `contract9_gate` unedited. Three phases; handoffs in `.agent/`.
 
