@@ -4388,7 +4388,7 @@ Complete; owner accepted 2026-10-01 (packet `.agent/T025e-review-packet.md`, evi
 
 ## T025f - Template versioning and site lineage staleness (S0)
 
-Built, `in_review` (fast lane; packet `.agent/T025f-review-packet.md`). No
+Complete (fast lane; packet `.agent/T025f-review-packet.md`; Claude review ACCEPT WITH CARRIES). No
 contract move; no Site record rewritten; no run reads a template.
 
 ### What it settled in code

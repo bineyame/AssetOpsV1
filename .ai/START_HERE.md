@@ -29,8 +29,9 @@ slice T022B, now complete as a partial improvement. **T024 is complete**
 T025b are complete and the owner accepted A. On 2026-09-30 the owner accepted
 the Lab cockpit cadence: **T025c (L1a) is complete** (owner accepted 2026-09-30);
 **T025d (L1b) is complete** (owner accepted 2026-09-30); **T025e (cockpit
-organisation and live playback) is complete** (owner accepted 2026-10-01); next is
-**T025f then T025g** (scenario-site contract under
+organisation and live playback) is complete** (owner accepted 2026-10-01); **T025f
+(template versioning) is complete** (fast lane, Claude review ACCEPT WITH CARRIES);
+next is **T025g** (`tasks/T025g-run-binds-scenario-to-site.md`, scenario-site contract under
 `D-2026-10-01-run-binds-scenario-to-site`), then T026 and the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and

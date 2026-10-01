@@ -1,6 +1,6 @@
 # T025f - Template versioning and site lineage staleness (S0)
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: false
 
 Map: A/B hardening; scenario-site contract S0. Depends on: T025b template
@@ -70,3 +70,18 @@ will truthfully say its record is stale.
 Fast lane: no owner review. The first review is a discovery review under
 `.ai/ROLE_CONFIG.md` (Codex, or a fresh Claude reviewer while the reset
 exception stands).
+
+## Review Outcome
+
+Fast lane: `USER_REVIEW_REQUIRED: false`, so no owner review was required and the
+slice merges on the reviewer's verdict.
+
+- Claude review (`.agent/T025f-claude-review.md`, commit `24f53f2`), a fresh
+  Claude reviewer under the temporary binding: ACCEPT WITH CARRIES.
+- Under `D-2026-09-22-milestone-speed-over-purity` every finding is carried, not
+  fixed. Carries (F1 no frontend test for UNRECOGNISED_VERSION, F2 the "records
+  unchanged" assertion cannot fail, F3 unused state type), the decision-wording
+  question routed to the Architect and two residual risks are in
+  `.ai/MILESTONE_REVIEW_BACKLOG.md` under "Carried from T025f".
+
+Next: T025g, then T026.
