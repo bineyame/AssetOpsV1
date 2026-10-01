@@ -4421,3 +4421,46 @@ contract move; no Site record rewritten; no run reads a template.
 - A lineage read that fails shows the recorded provenance alone (no note),
   not an "unknown" note.
 - Scenario fingerprints are T025g's; the same digest shape is reusable.
+
+## T025g - The run is the only join of scenario and site (S1)
+
+In review (packet `.agent/T025g-review-packet.md`; `USER_REVIEW_REQUIRED: true`).
+Rule `D-2026-10-01-run-binds-scenario-to-site`; contract stays 9 (gate unedited).
+
+### What it settled in code
+
+- **Parser.** `target_site` optional legacy (parsed only when present; null or
+  malformed refused); `site_contract: {description}` only (`scenarios/parsing.py`).
+- **Run setup** binds the site in the request; only the no-topology refusal
+  remains (`runs/service.py` `_refuse_site_without_topology`); legacy
+  `target_site` ignored.
+- **Lineage** `FrozenSiteBinding.template_lineage` (`runs/models.py`), frozen
+  from `SiteRecord.template`; `None` = not recorded (pre-T025g runs). Outside
+  `FrozenWorldInputs`. Served as `template_lineage {state RECORDED |
+  NO_TEMPLATE | NOT_RECORDED, template_id, template_version}` on `run_summary`
+  (top level and `deterministic_identity.site`); `RunHeader` and the setup
+  summary render it (`templateLineageText`).
+- **Scenario domain reads no site.** `ScenarioDetailService(repository)`;
+  resolution code, state sets and payloads gone. Detail payload carries
+  `scenario.site_needs {addresses[], device_sources[]}` from
+  `scenario_site_needs()`. AST guard in `test_run_binds_scenario_to_site.py`
+  allows only `validate_site_id` and `SiteConfigurationInvalid` from `sites`.
+- **Picker** (`RunSetupFrame` `SitePicker`): list + per-site `getSite` + gated
+  lineage client; nothing preselected; Create disabled until picked.
+- **Shipped scenarios v2** (no `target_site`, `site_contract.description`).
+  `test_scenario_fingerprints.py` pins `(scenario_id, version)` via the shared
+  `backend/tests/content_fingerprint.py` (T025f's guard uses it too) and fails
+  on site-naming keys.
+- **Join proof** `host/tests/test_t025g_join.py` (READY current Kobo, BLOCKED
+  pre-T025a content, v1 refused).
+
+### What this leaves open
+
+- A missing status source does not block (publication declaration only); the
+  Draft records its absence. Known deviation in the packet.
+- Scenario detail and run setup scroll the page at 375 px (shared FactList and
+  PageHeader); below the measured widths.
+- `tools/layout-evidence.mjs` cannot complete on an isolated `var/` (needs the
+  owner's MG-006 scenario).
+- Superseded scenario versions are not retained in the store (git only).
+- Picker reads one site detail per site; a summary field would be needed at scale.

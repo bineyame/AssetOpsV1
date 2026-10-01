@@ -1,6 +1,6 @@
 # T025g - The run is the only join of scenario and site (S1)
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: A/B hardening; scenario-site contract S1. Depends on: T025f. Next: T026.
