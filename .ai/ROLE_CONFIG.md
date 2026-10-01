@@ -45,7 +45,8 @@ round in this window, first reviews and contract moves included, goes to a fresh
 Claude reviewer and the slice proceeds. After the reset Codex reviews,
 retrospectively, the slices reviewed only by Claude here: T025e (live-follow
 delta and merge mechanism), T025f (template fingerprints and lineage) and T025g
-(scenario-site contract, including the contract 9 -> 10 reading).
+(scenario-site contract, including the no-move contract reading that reversed
+the earlier 9 -> 10 clause).
 
 ## Architect Was Temporarily Claude, And Is Codex Again
 

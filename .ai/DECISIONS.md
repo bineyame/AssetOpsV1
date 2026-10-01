@@ -24,7 +24,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
-| `D-2026-10-01-run-binds-scenario-to-site` | 2026-10-01 | A run is the only join of a scenario version and a site version; `target_site` retired with legacy acceptance; no template hint; assumptions label; content change bumps version under a fingerprint guard. Contract clause amended 2026-10-01: no move, version stays 9 (pending owner sign-off). |
+| `D-2026-10-01-run-binds-scenario-to-site` | 2026-10-01 | A run is the only join of a scenario version and a site version; `target_site` retired with legacy acceptance; no template hint; assumptions label; content change bumps version under a fingerprint guard. Contract clause amended 2026-10-01: no move, version stays 9 (owner signed off 2026-10-01). |
 | `D-2026-09-24-v4-roadmap-replan` | 2026-09-24 | Corrected two-source basis; roadmap A-I, dispatch first, immediate component addressing; Planner recreates unfinished tasks. |
 | `D-2026-09-24-task-spec-size-ceilings` | 2026-09-24 | Task-spec size bands become ceilings with no minimum, plus a cold-start test. `.ai/WORKFLOW.md` is their only owner. |
 | `D-2026-09-11-stack` | 2026-09-11 | M1 uses the preferred MVP stack from the product specification. |
@@ -3304,7 +3304,7 @@ were already valid, so T025g moves `EXECUTION_CONTRACT_VERSION` 9 -> 10 under
 `D-2026-09-22-contract-version-scope`. Codex confirms the reading in T025g's
 first review.
 
-**Contract clause amended, 2026-10-01: no move. PENDING OWNER SIGN-OFF.** T025g
+**Contract clause amended, 2026-10-01: no move. Owner signed off 2026-10-01 ("proceed").** T025g
 phase 1 stopped before writing code because the clause above cannot hold
 together with T025g's own acceptance criteria. The Architect (Claude under the
 same exception) rules that the version stays at 9, and recommends the owner

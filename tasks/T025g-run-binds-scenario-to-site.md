@@ -76,7 +76,7 @@ the running backend.
    only widens run setup's accepted requests, and no existing document or
    frozen artifact changes meaning (Architect section 6, revision 3, and the
    2026-10-01 amendment to `D-2026-10-01-run-binds-scenario-to-site`). This is
-   **pending owner sign-off**. The contract-9 gate (`host/tests/contract9_gate`)
+   **owner signed off 2026-10-01**. The contract-9 gate (`host/tests/contract9_gate`)
    reproduces unchanged: same Drafts, same `expected.json` digests and
    byte-equal artifacts, with no edit to the gate.
    *Corrected claim.* This criterion first said the version moves to 10 and
@@ -149,8 +149,8 @@ Not here: picker compatibility status (T025h, after T026); purpose assumptions
 Stop and report if the legacy acceptance cannot keep the catalog alive without
 editing `var/`, or if the contract reading proves wrong in review.
 Phase 1 may resume on AC1-AC3, AC6a and AC10 now. AC4 needs no code under the
-no-move reading; the coordinator records the owner's sign-off before phase 1
-closes. If the owner keeps the move, stop and re-plan AC4 as option 1.
+no-move reading; the owner signed it off on 2026-10-01, so AC4 is the no-move
+reading and option 1 is not built.
 
 First review: a discovery review that also confirms the no-move contract reading. Per
 the owner on 2026-10-01 it does not wait for Codex: a fresh Claude reviewer
