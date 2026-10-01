@@ -4,10 +4,9 @@ Four things are proved here:
 
 - the catalog and the detail route serve records, with every field coming from
   a scenario document rather than from this module or from the route;
-- the target-site resolution states are all four reachable, and each is a
-  different fact: a resolvable target enables `Open target Site`, an
-  unresolvable one produces a control state with an accessible reason, and an
-  unreadable Site store is neither of those;
+- the detail route resolves no site (T025g): it serves what the scenario
+  needs of a site, derived from the document, and the Site store's state
+  cannot reach its body;
 - private test-oracle expectations are separated by the payload builders, not
   by a caller's discretion;
 - nothing on either payload is an assessment, a health result, a confidence, a
@@ -333,104 +332,76 @@ class TestTheDetailRoute:
         assert response.json()["detail"]["code"] == "SCENARIO_NOT_FOUND"
 
 
-class TestTargetSiteResolution:
-    def test_a_resolvable_target_resolves(self) -> None:
-        body = client(sites=FakeSites((site("MG-900"),))).get(
-            f"{SCENARIOS_PATH}/example-scenario"
-        ).json()
+class TestTheDetailResolvesNoSite:
+    """T025g AC8: the scenario domain resolves no site.
 
-        resolution = body["target_resolution"]
-        assert resolution["state"] == "RESOLVED"
-        assert resolution["site_id"] == "MG-900"
-        assert resolution["display_name"] == "Configured mini-grid"
-        assert resolution["reason"]
+    The detail route reads the scenario and derives what it needs of a site
+    from the document alone. `D-2026-10-01-run-binds-scenario-to-site`.
+    """
 
-    def test_the_stored_spelling_of_the_site_comes_back(self) -> None:
-        """A link is built from what is configured, not from what the scenario
-        document happened to capitalise."""
-        body = client(sites=FakeSites((site("mg-900"),))).get(
-            f"{SCENARIOS_PATH}/example-scenario"
-        ).json()
+    def test_the_detail_payload_carries_no_site_resolution(self) -> None:
+        body = client().get(f"{SCENARIOS_PATH}/example-scenario").json()
 
-        assert body["scenario"]["target_site"]["site_id"] == "MG-900"
-        assert body["target_resolution"]["site_id"] == "mg-900"
+        assert set(body) == {"scenario", "private_expectations"}
+        assert "target_resolution" not in body
+        assert "observation_source_resolutions" not in body
 
-    def test_an_unconfigured_target_is_a_screen_state_not_a_failure(self) -> None:
-        response = client(sites=FakeSites(())).get(
-            f"{SCENARIOS_PATH}/example-scenario"
-        )
+    def test_an_unreadable_site_store_changes_nothing(self) -> None:
+        """No site is read, so the site store's state cannot reach the body."""
+        healthy = client().get(f"{SCENARIOS_PATH}/example-scenario").json()
+        unreadable = client(
+            sites=FakeSites(failure=SiteStoreUnavailable("unreadable"))
+        ).get(f"{SCENARIOS_PATH}/example-scenario")
 
-        assert response.status_code == 200
-        resolution = response.json()["target_resolution"]
-        assert resolution["state"] == "NOT_CONFIGURED"
-        assert resolution["site_id"] is None
-        assert "MG-900" in resolution["reason"]
+        assert unreadable.status_code == 200
+        assert unreadable.json() == healthy
 
-    def test_the_scenario_still_reads_when_its_target_is_missing(self) -> None:
-        """The whole point of the parser/service split.
-
-        If resolution happened in the parser, removing a Site would make a
-        scenario document unreadable and take the catalog with it.
-        """
-        body = client(sites=FakeSites(())).get(
-            f"{SCENARIOS_PATH}/example-scenario"
-        ).json()
-
-        assert len(body["scenario"]["timeline"]) == 4
-
-    @pytest.mark.parametrize(
-        "failure",
-        [
-            SiteStoreUnavailable("unreadable"),
-            SiteIdentityConflict("two documents, one identity"),
-        ],
-    )
-    def test_an_unreadable_site_store_is_unknown_not_absent(
-        self, failure: Exception
+    def test_the_needs_are_the_addresses_and_device_sources_it_names(
+        self,
     ) -> None:
-        """"We could not look" and "it is not there" are different facts."""
-        body = client(sites=FakeSites(failure=failure)).get(
-            f"{SCENARIOS_PATH}/example-scenario"
-        ).json()
+        needs = (
+            client().get(f"{SCENARIOS_PATH}/example-scenario").json()
+        )["scenario"]["site_needs"]
 
-        resolution = body["target_resolution"]
-        assert resolution["state"] == "UNAVAILABLE"
-        assert resolution["site_id"] is None
-        assert "unknown" in resolution["reason"]
-
-    def test_a_template_derived_target_has_no_site_to_resolve(self) -> None:
-        derived = scenario(
-            target_site={
-                "policy": "TEMPLATE_DERIVED",
-                "site_id": None,
-                "template_id": "hybrid-mini-grid-100kw",
-                "requirement": "A site built from the hybrid archetype.",
-            }
+        by_address = {item["address"]: item for item in needs["addresses"]}
+        assert by_address["example-stored-volume@example-store"][
+            "component_id"
+        ] == "example-store"
+        assert by_address["site:example-demand"]["scope"] == "SITE"
+        assert by_address["site:example-demand"]["component_id"] is None
+        assert "FORCING_INPUT" in by_address["site:example-demand"][
+            "execution_roles"
+        ]
+        assert [item["address"] for item in needs["addresses"]] == sorted(
+            by_address
         )
+        # Device sources only: a hand record reads through no device.
+        assert needs["device_sources"] == [
+            {
+                "source_id": "example-device-reading",
+                "device_id": "example-sensor",
+                "signal_id": "example-level",
+            }
+        ]
 
-        body = client(scenarios=FakeScenarios((derived,))).get(
+    def test_a_legacy_declaration_is_rendered_and_a_missing_one_is_null(
+        self,
+    ) -> None:
+        legacy = client().get(f"{SCENARIOS_PATH}/example-scenario").json()
+        assert legacy["scenario"]["target_site"]["site_id"] == "MG-900"
+
+        document = scenario_document()
+        del document["target_site"]
+        document["site_contract"] = {"description": "Any tank-fed site."}
+        bare = parse_scenario_document(
+            document, source="a test", origin="SHIPPED"
+        )
+        body = client(scenarios=FakeScenarios((bare,))).get(
             f"{SCENARIOS_PATH}/example-scenario"
-        ).json()
-
-        resolution = body["target_resolution"]
-        assert resolution["state"] == "NOT_APPLICABLE"
-        assert resolution["site_id"] is None
-        assert resolution["reason"]
-
-    def test_every_unresolved_state_carries_a_reason(self) -> None:
-        """A control that is unavailable without a visible reason is a dead
-        end, so the reason is part of the payload rather than a UI string."""
-        for sites in (
-            FakeSites(()),
-            FakeSites(failure=SiteStoreUnavailable("unreadable")),
-        ):
-            resolution = (
-                client(sites=sites)
-                .get(f"{SCENARIOS_PATH}/example-scenario")
-                .json()["target_resolution"]
-            )
-            assert resolution["state"] != "RESOLVED"
-            assert len(resolution["reason"]) > 0
+        ).json()["scenario"]
+        assert body["target_site"] is None
+        assert body["site_contract"] == {"description": "Any tank-fed site."}
+        assert legacy["scenario"]["site_contract"] is None
 
     def test_no_scenario_route_writes_a_site(self) -> None:
         """`FakeSites.create_site` raises. Reaching the detail route at all
@@ -564,7 +535,7 @@ class TestTheShippedDefinitionThroughTheRealComposition:
 
         body = served.get(f"{SCENARIOS_PATH}/fuel-loss-event").json()
         assert body["scenario"]["display_name"] == "Fuel Loss Event"
-        assert body["target_resolution"]["state"] == "RESOLVED"
+        assert "target_resolution" not in body
         assert len(body["scenario"]["timeline"]) == 8
         # Five since T021 added the computed trajectory as a private oracle.
         # Asserted by kind rather than only by count, because a count is the one
@@ -761,95 +732,6 @@ class TestTheExecutionContractOnThePayload:
                 "canonical_unit": "L",
             }
         ]
-
-
-class TestObservationSourceResolution:
-    """The same parser/service split the target Site declaration uses."""
-
-    def test_a_configured_device_and_signal_resolve(self) -> None:
-        body = client(
-            sites=FakeSites((site_with_the_fuel_sensor("MG-900"),))
-        ).get(f"{SCENARIOS_PATH}/example-scenario").json()
-
-        resolutions = {
-            item["source_id"]: item
-            for item in body["observation_source_resolutions"]
-        }
-
-        device = resolutions["example-device-reading"]
-        assert device["state"] == "RESOLVED"
-        assert device["device_display_name"] == "Stored level sensor"
-        assert device["signal_display_name"] == "Stored level"
-
-    def test_an_operator_record_resolves_to_no_device_on_purpose(self) -> None:
-        body = client(
-            sites=FakeSites((site_with_the_fuel_sensor("MG-900"),))
-        ).get(f"{SCENARIOS_PATH}/example-scenario").json()
-
-        hand = next(
-            item
-            for item in body["observation_source_resolutions"]
-            if item["source_id"] == "example-hand-record"
-        )
-
-        assert hand["state"] == "NOT_APPLICABLE"
-        assert hand["device_display_name"] is None
-        assert "person" in hand["reason"]
-
-    def test_a_site_declaring_no_devices_is_not_configured_rather_than_empty(
-        self,
-    ) -> None:
-        body = client().get(f"{SCENARIOS_PATH}/example-scenario").json()
-
-        device = next(
-            item
-            for item in body["observation_source_resolutions"]
-            if item["source_id"] == "example-device-reading"
-        )
-
-        assert device["state"] == "NOT_CONFIGURED"
-
-    @pytest.mark.parametrize(
-        "failure",
-        [
-            SiteStoreUnavailable("unreadable"),
-            SiteIdentityConflict("two documents, one identity"),
-        ],
-    )
-    def test_an_unreadable_site_store_is_unknown_not_absent(
-        self, failure: Exception
-    ) -> None:
-        body = client(sites=FakeSites(failure=failure)).get(
-            f"{SCENARIOS_PATH}/example-scenario"
-        ).json()
-
-        device = next(
-            item
-            for item in body["observation_source_resolutions"]
-            if item["source_id"] == "example-device-reading"
-        )
-
-        assert device["state"] == "UNAVAILABLE"
-        assert "not a statement that the device is absent" in device["reason"]
-
-    def test_no_resolution_states_a_cadence(self) -> None:
-        """The statement is about ownership and never about a rate.
-
-        Checked by looking for a digit: a cadence is a number, and a sentence
-        with no number in it cannot be one.
-        """
-        body = client(
-            sites=FakeSites((site_with_the_fuel_sensor("MG-900"),))
-        ).get(f"{SCENARIOS_PATH}/example-scenario").json()
-
-        resolutions = body["observation_source_resolutions"]
-        assert resolutions
-
-        for item in resolutions:
-            assert item["cadence_statement"].strip()
-            assert not any(
-                character.isdigit() for character in item["cadence_statement"]
-            ), item["cadence_statement"]
 
 
 class TestTheReportingRulesOnThePayload:

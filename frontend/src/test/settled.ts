@@ -15,7 +15,7 @@ import { waitFor } from "@testing-library/react";
  * sentence is listed for the same reason.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured site|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history)\./;
+  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history)\./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.

@@ -340,14 +340,14 @@ EXPECTATION_KINDS = frozenset(
     {"DETECTION", "MAGNITUDE", "TIMING", "NO_FALSE_POSITIVE", "TRAJECTORY"}
 )
 
-# How a scenario declares which Site it needs.
+# The two policies a legacy `target_site` declaration may carry.
 #
-# `DECLARED_SITE` names a concrete `site_id` the scenario expects to exist.
-# `TEMPLATE_DERIVED` names the archetype a Site would have to be built from,
-# and carries no `site_id` at all, because no Site has been chosen yet. The
-# parser checks the shape of the declaration; whether a declared `site_id`
-# resolves to a configured Site is a detail-screen state, decided by the
-# service against the Site repository, and never a parser failure.
+# Retired by `D-2026-10-01-run-binds-scenario-to-site` (T025g): a scenario names
+# no site, and a run is the only join of a scenario version and a site version.
+# A well-formed legacy declaration is still parsed so documents written before
+# the retirement stay readable, and it is shown as "Legacy site declaration;
+# not used to bind runs". Nothing resolves it against the Site store and run
+# setup ignores it.
 TARGET_SITE_POLICIES = frozenset({"DECLARED_SITE", "TEMPLATE_DERIVED"})
 
 # Where this scenario's definition DOCUMENT came from: did the product ship it
@@ -358,23 +358,6 @@ TARGET_SITE_POLICIES = frozenset({"DECLARED_SITE", "TEMPLATE_DERIVED"})
 # It is supplied by the store rather than declared by the document, so a user
 # document cannot claim to be shipped.
 SCENARIO_ORIGINS = frozenset({"SHIPPED", "USER"})
-
-# The states the scenario detail read model can report about the declared
-# target Site. Four, and they are four different facts: the Site resolved, no
-# such Site is configured, this scenario names no concrete Site to resolve, and
-# the Site store could not be read so nothing is known.
-TARGET_RESOLUTION_STATES = frozenset(
-    {"RESOLVED", "NOT_CONFIGURED", "NOT_APPLICABLE", "UNAVAILABLE"}
-)
-
-# The states an observation source's declared device and signal can be in on
-# this installation. The same four facts as a target Site, for the same reason:
-# a scenario declares what it needs, and what this installation has is a read
-# against the Site store that must not make a readable scenario unreadable.
-OBSERVATION_SOURCE_RESOLUTION_STATES = frozenset(
-    {"RESOLVED", "NOT_CONFIGURED", "NOT_APPLICABLE", "UNAVAILABLE"}
-)
-
 
 @dataclass(frozen=True)
 class ParameterOwnership:
@@ -744,44 +727,31 @@ class ScenarioDefinition:
 
 
 @dataclass(frozen=True)
-class ScenarioTargetResolution:
-    """What the detail read model found when it resolved the declared target.
+class ScenarioAddressNeed:
+    """One address a scenario version names, and the roles it names it in.
 
-    A detail-screen state, produced by the service against the `SiteRepository`
-    port. An unresolvable target Site is one of these, never a parser failure
-    and never an unreadable scenario.
-
-    `site_id` carries the store's canonical spelling when the Site resolved, so
-    a link is built from what is configured rather than from what the scenario
-    document happened to capitalise. `reason` is the accessible text a disabled
-    or absent control carries; it is always present, because a control that is
-    unavailable without a visible reason is a dead end.
+    Derived from the document and nothing else (T025g,
+    `D-2026-10-01-run-binds-scenario-to-site`): it states what a site must
+    declare for this scenario to act on or read it, and it is never resolved
+    against a site here. Whether a chosen site honours it is run setup's
+    question, asked once a site and a model profile are chosen.
     """
 
-    state: str
-    site_id: str | None
-    display_name: str | None
-    reason: str
+    address: str
+    scope: str
+    component_id: str | None
+    state_key: str
+    execution_roles: tuple[str, ...]
 
 
 @dataclass(frozen=True)
-class ObservationSourceResolution:
-    """What a declared observation source resolved to on this installation.
+class ScenarioSiteNeeds:
+    """What a scenario version needs of whichever site a run binds it to.
 
-    Beside the source rather than inside it, for the same reason a target-site
-    resolution is beside the scenario: it is what this installation's Site
-    store answered, not something the document says about itself.
-
-    `device_display_name` and `signal_display_name` come from Foundation when
-    the source resolved, so a screen names the configured device rather than
-    echoing the identity the scenario typed. `cadence_statement` is always
-    present and always says who owns the cadence; it never states one, because
-    Foundation declares none and nothing here may invent one.
+    `addresses` are the canonical addresses its entries and parameters name,
+    sorted. `device_sources` are its device observation sources, as
+    `(source_id, device_id, signal_id)`. Neither names a site.
     """
 
-    source_id: str
-    state: str
-    device_display_name: str | None
-    signal_display_name: str | None
-    reason: str
-    cadence_statement: str
+    addresses: tuple[ScenarioAddressNeed, ...]
+    device_sources: tuple[ObservationSource, ...]

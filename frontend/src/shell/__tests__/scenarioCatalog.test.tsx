@@ -18,18 +18,15 @@ import type {
   ScenarioDetail,
   ScenarioDetailResult,
   ScenarioListResult,
-  ScenarioTargetResolution,
 } from "../scenarioCatalogClient";
 import {
-  NOT_APPLICABLE_TARGET,
-  OBSERVATION_SOURCE_RESOLUTIONS,
+  LEGACY_SCENARIO_DETAIL,
+  LEGACY_TARGET_SITE,
   PRIVATE_EXPECTATIONS,
-  RESOLVED_TARGET,
   SCENARIO_DETAIL,
   SCENARIO_SUMMARY,
   SCENARIO_DETAIL_FALLBACKS,
-  UNAVAILABLE_TARGET,
-  UNCONFIGURED_TARGET,
+  cadenceStatementFor,
   recordRenderedStrings,
 } from "./scenarioFixtures";
 
@@ -63,16 +60,12 @@ function catalogOf(
 }
 
 function loadedDetail(
-  targetResolution: ScenarioTargetResolution = RESOLVED_TARGET,
   scenario: ScenarioDetail = SCENARIO_DETAIL,
   privateExpectations = PRIVATE_EXPECTATIONS,
-  observationSourceResolutions = OBSERVATION_SOURCE_RESOLUTIONS,
 ): ScenarioDetailResult {
   return {
     status: "loaded",
     scenario,
-    targetResolution,
-    observationSourceResolutions,
     privateExpectations,
   };
 }
@@ -149,7 +142,7 @@ describe("the scenario catalog is gated", () => {
 });
 
 describe("the scenario catalog renders records", () => {
-  it("lists the saved scenario with its identity, version and declared target", async () => {
+  it("lists the saved scenario with its identity and version, and no site", async () => {
     renderAt(SCENARIOS_URL);
     await settledScreen();
 
@@ -162,7 +155,12 @@ describe("the scenario catalog renders records", () => {
     ).toHaveAttribute("href", SCENARIO_URL);
     expect(within(row).getByText("fuel-loss-event")).toBeInTheDocument();
     expect(within(row).getByText("SHIPPED")).toBeInTheDocument();
-    expect(within(row).getByText("MG-001")).toBeInTheDocument();
+    // T025g: a scenario names no site, so the catalog has no site column.
+    expect(
+      within(tableNamed("Saved scenarios")).queryByRole("columnheader", {
+        name: /site/i,
+      }),
+    ).toBeNull();
   });
 
   it("states an unreadable store rather than an empty catalog", async () => {
@@ -518,12 +516,9 @@ describe("the detail screen says where each reading comes from", () => {
     );
 
     expect(within(row).getByText("DEVICE_SIGNAL")).toBeInTheDocument();
-    expect(
-      within(row).getByText("fuel-level-sensor, Fuel level sensor"),
-    ).toBeInTheDocument();
-    expect(
-      within(row).getByText("fuel-level, Fuel level"),
-    ).toBeInTheDocument();
+    // The identities the document declares; no site was read for names.
+    expect(within(row).getByText("fuel-level-sensor")).toBeInTheDocument();
+    expect(within(row).getByText("fuel-level")).toBeInTheDocument();
   });
 
   it("gives the hand-recorded source an identity and no device", async () => {
@@ -552,9 +547,10 @@ describe("the detail screen says where each reading comes from", () => {
 
     // A cadence is a number. Every digit in this panel has to be one the
     // record supplies, and none of the cadence statements supplies one.
-    for (const resolution of OBSERVATION_SOURCE_RESOLUTIONS) {
-      expect(resolution.cadence_statement).not.toMatch(/\d/);
-      expect(text).toContain(resolution.cadence_statement);
+    for (const deviceId of ["fuel-level-sensor", null]) {
+      const statement = cadenceStatementFor(deviceId);
+      expect(statement).not.toMatch(/\d/);
+      expect(text).toContain(statement);
     }
   });
 });
@@ -648,7 +644,7 @@ describe("the scenario detail screen states no product outcome", () => {
     expect(spacedText(screen.getByRole("main"))).not.toMatch(BANNED);
   });
 
-  it("renders no enabled control except the two links that lead somewhere", async () => {
+  it("renders no enabled control except the links that lead somewhere", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();
 
@@ -669,7 +665,6 @@ describe("the scenario detail screen states no product outcome", () => {
         .getAllByRole("link")
         .map((link) => link.textContent),
     ).toEqual([
-      "Open target site",
       "Create Draft Run",
       "Back to Scenarios",
       "Back to the Simulator Lab",
@@ -697,7 +692,7 @@ describe("the scenario detail screen states no product outcome", () => {
     // a string the record supplies, or it carries no digit at all.
     const main = screen.getByRole("main");
     const expected = new Set(
-      recordRenderedStrings(SCENARIO_DETAIL, RESOLVED_TARGET),
+      recordRenderedStrings(SCENARIO_DETAIL),
     );
     const leaves = textNodes(main);
     const withDigits = leaves.filter((leaf) => /\d/.test(leaf));
@@ -737,19 +732,14 @@ describe("the scenario detail screen states no product outcome", () => {
       SCENARIO_URL,
       ENABLED,
       catalogOf(
-        loadedDetail(NOT_APPLICABLE_TARGET, SCENARIO_DETAIL_FALLBACKS, [], []),
+        loadedDetail(SCENARIO_DETAIL_FALLBACKS, []),
       ),
     );
     await settledScreen();
 
     const main = screen.getByRole("main");
     const expected = new Set(
-      recordRenderedStrings(
-        SCENARIO_DETAIL_FALLBACKS,
-        NOT_APPLICABLE_TARGET,
-        [],
-        [],
-      ),
+      recordRenderedStrings(SCENARIO_DETAIL_FALLBACKS, []),
     );
     const leaves = textNodes(main);
 
@@ -770,15 +760,31 @@ describe("the scenario detail screen states no product outcome", () => {
     expect(leaves).toContain("This scenario declares no expectation.");
     expect(leaves).toContain("This scenario declares no observation source.");
     expect(leaves).toContain("This scenario declares no initial world value.");
+    expect(leaves).toContain(
+      "This scenario carries no site contract description.",
+    );
+    expect(leaves).toContain("This scenario names no address.");
+    expect(leaves).toContain("This scenario reads through no device.");
+  });
+
+  it("renders no digit that is not a record value on a legacy document", async () => {
+    renderAt(SCENARIO_URL, ENABLED, catalogOf(loadedDetail(LEGACY_SCENARIO_DETAIL)));
+    await settledScreen();
+
+    const expected = new Set(recordRenderedStrings(LEGACY_SCENARIO_DETAIL));
+    const leaves = textNodes(screen.getByRole("main"));
+    for (const leaf of leaves.filter((value) => /\d/.test(value))) {
+      expect(expected).toContain(leaf);
+    }
+    // Non-vacuous: the legacy declaration's site ID is a digit-bearing leaf.
+    expect(leaves).toContain("DECLARED_SITE, MG-001");
   });
 });
 
 describe("the scenario detail screen's next-step controls", () => {
-  it("opens run setup when the declared target resolves", async () => {
-    // T019 built the surface this control waited for, so the control leads to
-    // it. A disabled control here would now be claiming run setup does not
-    // exist, which is the kind of sentence a screen may not assert once the
-    // code says otherwise.
+  it("always opens run setup, where the site is chosen", async () => {
+    // T025g: a scenario names no site, so there is no target to resolve and
+    // nothing for this control to wait on. The site is chosen at run setup.
     renderAt(SCENARIO_URL);
     await settledScreen();
 
@@ -790,54 +796,77 @@ describe("the scenario detail screen's next-step controls", () => {
     );
   });
 
-  it("keeps Create Draft Run disabled when there is no site to bind to", async () => {
-    renderAt(
-      SCENARIO_URL,
-      ENABLED,
-      catalogOf(loadedDetail(UNCONFIGURED_TARGET)),
-    );
+  it.each([
+    ["a document without a site", SCENARIO_DETAIL],
+    ["a legacy document naming one", LEGACY_SCENARIO_DETAIL],
+  ])("offers no Open target site control for %s", async (_label, detail) => {
+    renderAt(SCENARIO_URL, ENABLED, catalogOf(loadedDetail(detail)));
     await settledScreen();
 
-    const control = screen.getByRole("button", { name: "Create Draft Run" });
-
-    expect(control).toBeDisabled();
-
-    const reasonId = control.getAttribute("aria-describedby");
-    expect(reasonId).not.toBeNull();
-    const reason = document.getElementById(reasonId as string);
-    expect(reason?.textContent).toContain(UNCONFIGURED_TARGET.reason);
-    expect(reason?.textContent).toMatch(/bound to a concrete site/i);
+    expect(screen.queryByRole("link", { name: /target site/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /target site/i })).toBeNull();
+    expect(screen.queryAllByRole("link", { name: /MG-001/ })).toEqual([]);
   });
+});
 
-  it("opens the target site when the declared target resolves", async () => {
+describe("the scenario detail screen says what the scenario needs of a site", () => {
+  it("lists every address the scenario names, from the payload", async () => {
     renderAt(SCENARIO_URL);
     await settledScreen();
 
-    expect(
-      screen.getByRole("link", { name: "Open target site" }),
-    ).toHaveAttribute("href", "/sites/MG-001");
+    const table = tableNamed("Addresses it names");
+    const rows = within(table).getAllByRole("row").slice(1);
+    expect(rows.map((row) => within(row).getAllByRole("cell")[0].textContent)).toEqual(
+      SCENARIO_DETAIL.site_needs.addresses.map((need) => need.address),
+    );
+    expect(rows.length).toBeGreaterThan(0);
   });
 
-  it.each([
-    ["an unconfigured target", UNCONFIGURED_TARGET],
-    ["an unreadable site store", UNAVAILABLE_TARGET],
-    ["a template-derived target", NOT_APPLICABLE_TARGET],
-  ])(
-    "disables the target site control for %s, with an accessible reason",
-    async (_label, resolution) => {
-      renderAt(SCENARIO_URL, ENABLED, catalogOf(loadedDetail(resolution)));
-      await settledScreen();
+  it("lists the devices it reads through", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
 
-      expect(screen.queryByRole("link", { name: "Open target site" })).toBeNull();
+    const table = tableNamed("Devices it reads through");
+    expect(
+      within(table).getByRole("row", { name: /fuel-level-sensor-reading/ }),
+    ).toBeInTheDocument();
+    expect(SCENARIO_DETAIL.site_needs.device_sources.length).toBeGreaterThan(0);
+  });
 
-      const control = screen.getByRole("button", { name: "Open target site" });
-      expect(control).toBeDisabled();
+  it("shows the site contract description and the Site Controls statement", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
 
-      const reasonId = control.getAttribute("aria-describedby");
-      const reason = document.getElementById(reasonId as string);
-      expect(reason?.textContent).toBe(resolution.reason);
-    },
-  );
+    const panel = panelNamed("What this scenario needs of a site");
+    const text = spacedText(panel);
+    expect(text).toContain(SCENARIO_DETAIL.site_contract?.description ?? "");
+    expect(text).toMatch(/declares no Site Control/);
+    expect(text).toMatch(/names no site/);
+    // No compatibility list: nothing says which sites can honour it.
+    expect(text).not.toMatch(/can honour this scenario:|compatible sites/i);
+  });
+
+  it("labels a legacy site declaration as not used to bind runs", async () => {
+    renderAt(SCENARIO_URL, ENABLED, catalogOf(loadedDetail(LEGACY_SCENARIO_DETAIL)));
+    await settledScreen();
+
+    const panel = panelNamed("What this scenario needs of a site");
+    expect(
+      within(panel).getByText(
+        "Legacy site declaration; not used to bind runs",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      panel.querySelector("[data-legacy-target-site]")?.textContent,
+    ).toBe(`${LEGACY_TARGET_SITE.policy}, ${LEGACY_TARGET_SITE.site_id}`);
+  });
+
+  it("shows no legacy label for a document without a declaration", async () => {
+    renderAt(SCENARIO_URL);
+    await settledScreen();
+
+    expect(screen.queryByText(/Legacy site declaration/)).toBeNull();
+  });
 });
 
 describe("the accepted T017 semantics are no longer marked provisional", () => {

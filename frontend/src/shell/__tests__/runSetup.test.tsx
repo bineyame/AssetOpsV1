@@ -9,6 +9,7 @@ import type {
   SiteDirectoryClient,
 } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
+import type { SiteTemplateLineageClient } from "../../sites/siteTemplateLineage";
 import { settledScreen } from "../../test/settled";
 import { spacedText, textNodes } from "../../test/text";
 import type {
@@ -25,11 +26,8 @@ import type {
 } from "../runSetupClient";
 import { executionMethods } from "./executionFixtures";
 import {
-  RESOLVED_TARGET,
   SCENARIO_DETAIL,
   SCENARIO_SUMMARY,
-  UNCONFIGURED_TARGET,
-  OBSERVATION_SOURCE_RESOLUTIONS,
   PRIVATE_EXPECTATIONS,
 } from "./scenarioFixtures";
 
@@ -82,6 +80,34 @@ const SITE: SiteDetailReadModel = {
 const SITE_DETAIL_CLIENT: SiteDetailClient = {
   getSite: () => Promise.resolve({ status: "loaded", site: SITE }),
 };
+
+/** One configured site. The picker must still select nothing on its own. */
+const SITE_DIRECTORY: SiteDirectoryClient = {
+  listSites: () => Promise.resolve({ status: "loaded", sites: [SITE] }),
+};
+
+/** The lineage answer for `SITE`: current, so no staleness note. */
+const CURRENT_LINEAGE: SiteTemplateLineageClient = {
+  listLineage: () =>
+    Promise.resolve({
+      status: "loaded",
+      sites: [
+        {
+          site_id: SITE.site_id,
+          template: SITE.template,
+          state: "CURRENT",
+          current_template_version: 1,
+        },
+      ],
+    }),
+};
+
+/** The radio for `SITE` in the picker. */
+const SITE_CHOICE = `${SITE.display_name} (${SITE.site_id})`;
+
+function chooseSite(name: string = SITE_CHOICE): void {
+  fireEvent.click(screen.getByRole("radio", { name }));
+}
 
 const PROFILES: RunProfilesResult = {
   status: "loaded",
@@ -215,14 +241,11 @@ function scenarioClient(
 }
 
 function loadedScenario(
-  targetResolution = RESOLVED_TARGET,
   scenario: ScenarioDetail = SCENARIO_DETAIL,
 ): ScenarioDetailResult {
   return {
     status: "loaded",
     scenario,
-    targetResolution,
-    observationSourceResolutions: OBSERVATION_SOURCE_RESOLUTIONS,
     privateExpectations: PRIVATE_EXPECTATIONS,
   };
 }
@@ -253,13 +276,19 @@ const TODAY = new Date("2026-09-22T11:32:00Z");
 function renderSetup(
   runSetup: RunSetupClient,
   catalog: ScenarioCatalogClient = scenarioClient(),
+  sites: {
+    directory?: SiteDirectoryClient;
+    detail?: SiteDetailClient;
+    lineage?: SiteTemplateLineageClient;
+  } = {},
 ) {
   return render(
     <MemoryRouter initialEntries={[RUN_SETUP_URL]}>
       <App
         flags={ENABLED}
-        siteDirectory={EMPTY_SITE_DIRECTORY}
-        siteDetail={SITE_DETAIL_CLIENT}
+        siteDirectory={sites.directory ?? SITE_DIRECTORY}
+        siteDetail={sites.detail ?? SITE_DETAIL_CLIENT}
+        siteTemplateLineage={sites.lineage ?? CURRENT_LINEAGE}
         scenarioCatalog={catalog}
         runSetup={runSetup}
         now={() => TODAY}
@@ -289,6 +318,7 @@ const SCENARIO_LAST_MOMENT = SCENARIO_DETAIL.timeline.reduce(
  * deterministic identity and the model profile decides the outcome.
  */
 async function fillAndSubmit(): Promise<void> {
+  chooseSite();
   fireEvent.change(screen.getByLabelText("Interval start"), {
     target: { value: "2026-09-21T00:00:00Z" },
   });
@@ -324,6 +354,7 @@ describe("the run setup screen before anything is submitted", () => {
   it("shows the versions the scenario and the site already fix", async () => {
     renderSetup(runClient({ status: "created", run: READY_RUN }).client);
     await settledScreen();
+    chooseSite();
 
     const facts = screen.getByRole("main");
 
@@ -437,7 +468,7 @@ describe("the run setup screen before anything is submitted", () => {
 
     renderSetup(
       runClient({ status: "created", run: READY_RUN }).client,
-      scenarioClient(loadedScenario(RESOLVED_TARGET, scenario)),
+      scenarioClient(loadedScenario(scenario)),
     );
     await settledScreen();
 
@@ -576,6 +607,7 @@ describe("nothing on this screen is chosen for the person", () => {
     });
     renderSetup(client);
     await settledScreen();
+    chooseSite();
 
     fireEvent.change(screen.getByLabelText("Model profile"), {
       target: { value: "" },
@@ -612,7 +644,7 @@ describe("nothing on this screen is chosen for the person", () => {
       run: READY_RUN,
     });
 
-    renderSetup(client, scenarioClient(loadedScenario(RESOLVED_TARGET, scenario)));
+    renderSetup(client, scenarioClient(loadedScenario(scenario)));
     await settledScreen();
 
     fireEvent.change(
@@ -655,18 +687,9 @@ describe("when a read the screen depends on fails", () => {
       status: "created",
       run: READY_RUN,
     });
-    render(
-      <MemoryRouter initialEntries={[RUN_SETUP_URL]}>
-        <App
-          flags={ENABLED}
-          siteDirectory={EMPTY_SITE_DIRECTORY}
-          siteDetail={FAILING_SITE}
-          scenarioCatalog={scenarioClient()}
-          runSetup={client}
-        />
-      </MemoryRouter>,
-    );
+    renderSetup(client, scenarioClient(), { detail: FAILING_SITE });
     await settledScreen();
+    chooseSite();
 
     const submit = screen.getByRole("button", { name: "Create draft run" });
     expect(submit).toBeDisabled();
@@ -960,6 +983,8 @@ describe("the run setup screen makes no downstream claim", () => {
       String(SCENARIO_DETAIL.version.scenario_version),
       String(SITE.foundation.version),
       SITE.site_id,
+      `Foundation version ${SITE.foundation.version}`,
+      `${SITE.template?.template_id} v${SITE.template?.template_version}`,
       "2026-09-21T00:00:00Z",
       "2026-09-22T17:00:00Z",
       "15",
@@ -1009,27 +1034,169 @@ describe("the run setup screen makes no downstream claim", () => {
   });
 });
 
-describe("the run setup screen without a configured site", () => {
-  it("offers no form and says why", async () => {
-    const { client, calls } = runClient({
-      status: "created",
-      run: READY_RUN,
-    });
-    renderSetup(client, scenarioClient(loadedScenario(UNCONFIGURED_TARGET)));
+describe("the site is chosen at run setup and nowhere else", () => {
+  it("opens with no site selected, even with one site, and Create disabled", async () => {
+    const { client, calls } = runClient({ status: "created", run: READY_RUN });
+    renderSetup(client);
     await settledScreen();
 
-    expect(
-      screen.getByRole("heading", {
-        name: "No configured site to bind this run to",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Create draft run" }),
-    ).toBeNull();
-    expect(calls).toEqual([]);
-    expect(spacedText(screen.getByRole("main"))).toContain(
-      UNCONFIGURED_TARGET.reason,
+    const radios = within(
+      screen.getByRole("group", { name: "Site" }),
+    ).getAllByRole("radio");
+    // Non-vacuous: there is a site to choose, and it is not chosen.
+    expect(radios).toHaveLength(1);
+    for (const radio of radios) {
+      expect(radio).not.toBeChecked();
+    }
+
+    const submit = screen.getByRole("button", { name: "Create draft run" });
+    expect(submit).toBeDisabled();
+    const reasonId = submit.getAttribute("aria-describedby");
+    expect(document.getElementById(reasonId as string)?.textContent).toMatch(
+      /Choose the site this run binds to first/,
     );
+    expect(spacedText(screen.getByRole("main"))).toMatch(/Not chosen yet/);
+    expect(calls).toEqual([]);
+  });
+
+  it("enables Create once a site is picked, and sends the picked site", async () => {
+    const { client, calls } = runClient({ status: "created", run: READY_RUN });
+    renderSetup(client);
+    await settledScreen();
+
+    chooseSite();
+    expect(screen.getByRole("radio", { name: SITE_CHOICE })).toBeChecked();
+    expect(
+      screen.getByRole("button", { name: "Create draft run" }),
+    ).toBeEnabled();
+
+    await fillAndSubmit();
+    await screen.findByText("Run ID");
+    expect(calls[0]?.site_id).toBe(SITE.site_id);
+    expect(calls[0]?.foundation_version).toBe(SITE.foundation.version);
+  });
+
+  it("does not derive the site from a legacy declaration the scenario carries", async () => {
+    const legacy: ScenarioDetail = {
+      ...SCENARIO_DETAIL,
+      target_site: {
+        policy: "DECLARED_SITE",
+        site_id: SITE.site_id,
+        template_id: null,
+        requirement: "A legacy declaration naming the only configured site.",
+      },
+    };
+    renderSetup(
+      runClient({ status: "created", run: READY_RUN }).client,
+      scenarioClient(loadedScenario(legacy)),
+    );
+    await settledScreen();
+
+    expect(screen.getByRole("radio", { name: SITE_CHOICE })).not.toBeChecked();
+    expect(
+      screen.getByRole("button", { name: "Create draft run" }),
+    ).toBeDisabled();
+  });
+
+  it("lists each site with its Foundation version and template lineage", async () => {
+    const OTHER: SiteDetailReadModel = {
+      ...SITE,
+      site_id: "KOBO-001",
+      display_name: "Kobo",
+      template: { template_id: "kobo-mini-grid-60kw", template_version: 1 },
+      foundation: { ...SITE.foundation, version: 3 },
+    };
+    const directory: SiteDirectoryClient = {
+      listSites: () =>
+        Promise.resolve({ status: "loaded", sites: [SITE, OTHER] }),
+    };
+    const detail: SiteDetailClient = {
+      getSite: (siteId: string) =>
+        Promise.resolve({
+          status: "loaded",
+          site: siteId === OTHER.site_id ? OTHER : SITE,
+        }),
+    };
+    const lineage: SiteTemplateLineageClient = {
+      listLineage: () =>
+        Promise.resolve({
+          status: "loaded",
+          sites: [
+            {
+              site_id: SITE.site_id,
+              template: SITE.template,
+              state: "CURRENT",
+              current_template_version: 1,
+            },
+            {
+              site_id: OTHER.site_id,
+              template: OTHER.template,
+              state: "BEHIND",
+              current_template_version: 2,
+            },
+          ],
+        }),
+    };
+    renderSetup(
+      runClient({ status: "created", run: READY_RUN }).client,
+      scenarioClient(),
+      { directory, detail, lineage },
+    );
+    await settledScreen();
+    await screen.findByText("Created from v1; current template is v2");
+
+    const row = (siteId: string) =>
+      document.querySelector(
+        `[data-site-picker-row="${siteId}"]`,
+      ) as HTMLElement;
+    expect(spacedText(row("MG-001"))).toMatch(/Foundation version 1/);
+    expect(spacedText(row("MG-001"))).toMatch(/hybrid-mini-grid-100kw v1/);
+    expect(
+      row("MG-001").querySelector("[data-template-lineage-note]"),
+    ).toBeNull();
+    expect(spacedText(row("KOBO-001"))).toMatch(/Foundation version 3/);
+    expect(spacedText(row("KOBO-001"))).toMatch(/kobo-mini-grid-60kw v1/);
+    expect(
+      row("KOBO-001").querySelector("[data-template-lineage-note]")
+        ?.textContent,
+    ).toBe("Created from v1; current template is v2");
+    // Nothing is chosen, and no row is disabled: a site that cannot honour
+    // the scenario still gives a truthful BLOCKED draft.
+    for (const radio of screen.getAllByRole("radio")) {
+      expect(radio).not.toBeChecked();
+      expect(radio).toBeEnabled();
+    }
+  });
+
+  it("keeps a site whose Foundation could not be read selectable, with Create disabled", async () => {
+    renderSetup(
+      runClient({ status: "created", run: READY_RUN }).client,
+      scenarioClient(),
+      { detail: { getSite: () => Promise.resolve({ status: "unavailable" }) } },
+    );
+    await settledScreen();
+
+    const radio = screen.getByRole("radio", { name: SITE_CHOICE });
+    expect(radio).toBeEnabled();
+    chooseSite();
+    expect(
+      screen.getByRole("button", { name: "Create draft run" }),
+    ).toBeDisabled();
+  });
+
+  it("says so when no site is configured", async () => {
+    const { client, calls } = runClient({ status: "created", run: READY_RUN });
+    renderSetup(client, scenarioClient(), { directory: EMPTY_SITE_DIRECTORY });
+    await settledScreen();
+
+    expect(spacedText(screen.getByRole("main"))).toMatch(
+      /No site is configured/,
+    );
+    expect(screen.queryAllByRole("radio")).toEqual([]);
+    expect(
+      screen.getByRole("button", { name: "Create draft run" }),
+    ).toBeDisabled();
+    expect(calls).toEqual([]);
   });
 
   it("says so for an unsaved scenario too", async () => {

@@ -1,4 +1,4 @@
-"""T025g phase 1: the run is the only join of a scenario and a site.
+"""T025g: the run is the only join of a scenario and a site.
 
 `D-2026-10-01-run-binds-scenario-to-site`. Proved here and in
 `test_run_setup.py`:
@@ -308,21 +308,85 @@ class TestTemplateLineage:
         assert frozen_inputs(identity) == frozen_inputs(without)
 
 
-# --- Phase-1 transitional: the detail read model survives a document without
-# --- a site. Both the resolution and this payload retire in phase 2 (AC8).
+# --- AC8: the scenario domain resolves no site -------------------------------
+
+SCENARIO_PACKAGE = (
+    REPOSITORY_ROOT / "backend" / "assetops_backend" / "scenarios"
+)
+
+#: What the scenario domain may import from the Site domain: the rule for how a
+#: legacy `target_site.site_id` is spelled, and the error that rule raises.
+#: Neither reads a site. Anything else from `assetops_backend.sites` (a port, a
+#: record, a repository) would let a scenario resolve one.
+ALLOWED_SITE_IMPORTS = {
+    ("assetops_backend.sites.identity", "validate_site_id"),
+    ("assetops_backend.sites.ports", "SiteConfigurationInvalid"),
+}
 
 
-def test_the_detail_service_resolves_nothing_for_a_document_without_a_site() -> None:
-    from assetops_backend.scenarios.service import ScenarioDetailService
+def site_imports(path: Path) -> list[tuple[str, str]]:
+    import ast
+
+    found: list[tuple[str, str]] = []
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
+            "assetops_backend.sites"
+        ):
+            found.extend((node.module, alias.name) for alias in node.names)
+        elif isinstance(node, ast.Import):
+            found.extend(
+                (alias.name, "*")
+                for alias in node.names
+                if alias.name.startswith("assetops_backend.sites")
+            )
+    return found
+
+
+def test_the_scenario_package_cannot_read_a_site() -> None:
+    offenders = [
+        f"{path.relative_to(REPOSITORY_ROOT)}: {module}.{name}"
+        for path in sorted(SCENARIO_PACKAGE.rglob("*.py"))
+        for module, name in site_imports(path)
+        if (module, name) not in ALLOWED_SITE_IMPORTS
+    ]
+    assert offenders == [], (
+        "The scenario domain resolves no site "
+        "(D-2026-10-01-run-binds-scenario-to-site); run setup is the only "
+        f"component that holds a scenario and a site together: {offenders}"
+    )
+
+
+def test_the_detail_service_holds_no_site_port() -> None:
+    import inspect
+
+    from assetops_backend.scenarios import service
+
+    parameters = inspect.signature(
+        service.ScenarioDetailService.__init__
+    ).parameters
+    assert list(parameters) == ["self", "repository"]
+    for retired in (
+        "resolve_target_site",
+        "resolve_observation_sources",
+    ):
+        assert not hasattr(service.ScenarioDetailService, retired)
+    from assetops_backend.scenarios import models
+
+    for retired in (
+        "TARGET_RESOLUTION_STATES",
+        "OBSERVATION_SOURCE_RESOLUTION_STATES",
+        "ScenarioTargetResolution",
+        "ObservationSourceResolution",
+    ):
+        assert not hasattr(models, retired)
+
+
+def test_a_document_without_a_site_renders_a_null_legacy_declaration() -> None:
     from assetops_backend.simulator_lab_api import scenario_public_summary
 
     document = scenario_document()
     del document["target_site"]
-    unnamed = parse(document)
-    detail = ScenarioDetailService(FakeScenarios((unnamed,)), FakeSites((site(),)))
+    summary = scenario_public_summary(parse(document))
 
-    assert detail.resolve_target_site(unnamed).state == "NOT_APPLICABLE"
-    assert {
-        item.state for item in detail.resolve_observation_sources(unnamed)
-    } <= {"NOT_CONFIGURED", "NOT_APPLICABLE"}
-    assert scenario_public_summary(unnamed)["target_site"] is None
+    assert summary["target_site"] is None
+    assert summary["site_contract"] is None

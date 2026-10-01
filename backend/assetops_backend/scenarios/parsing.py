@@ -51,12 +51,12 @@ value to mean two things at once:
   enforce end to end, because it is the only one decidable without executing
   anything.
 
-It does **not** decide whether a declared target `site_id` names a Site that
-exists. That is resolved by `ScenarioDetailService` against the `SiteRepository`
-port and reported as a target-resolution state for the screen. The separation is
-load-bearing in both directions: a shipped scenario naming a Site nobody has
-configured must still be readable on a fresh checkout, and a scenario that
-became unreadable because somebody removed a Site would take the catalog down
+It does **not** decide whether a legacy `target_site.site_id` names a Site that
+exists, and nothing else does either: a scenario names no site
+(`D-2026-10-01-run-binds-scenario-to-site`), the declaration is legacy and
+never resolved, and run setup ignores it. A shipped scenario must be readable on
+a fresh checkout whatever Sites are configured, and a scenario that became
+unreadable because somebody removed a Site would take the catalog down
 with it. So this module validates the *shape* of the declaration and nothing
 else, and it never reaches into Site storage.
 

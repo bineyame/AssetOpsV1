@@ -11,7 +11,6 @@ import { SimulatorLabFrame } from "./SimulatorLabFrame";
 import { SimulatorLabShell } from "./SimulatorLabShell";
 import { SiteTemplateFrame } from "./SiteTemplateFrame";
 import { SiteTemplatesFrame } from "./SiteTemplatesFrame";
-import { siteDetailHref } from "./operatorSiteRoutes";
 import {
   createScenarioCatalogClient,
   type ScenarioCatalogClient,
@@ -31,6 +30,7 @@ import {
 import {
   createSiteDirectoryClient,
   type SiteDetailClient,
+  type SiteDirectoryClient,
 } from "../sites/siteDirectoryClient";
 import {
   createSiteTemplateLineageClient,
@@ -163,9 +163,10 @@ const defaultScenarioCatalog = createScenarioCatalogClient(SCENARIOS_API_PATH);
 
 const defaultRunSetup = createRunSetupClient(RUN_PROFILES_API_PATH, RUNS_API_PATH);
 
-/** The operator Sites API, read by run setup for the foundation version a run
- *  freezes. It is not a simulator path and is not gated; the client is built
- *  here only because this module composes the frames. */
+/** The operator Sites API, read by run setup for the site picker and the
+ *  foundation version a run freezes. It is not a simulator path and is not
+ *  gated; the client is built here only because this module composes the
+ *  frames. */
 const defaultSiteDetail = createSiteDirectoryClient();
 
 export function siteTemplateHref(templateId: string): string {
@@ -250,6 +251,8 @@ export function simulatorLabRoutes(
   runSetup: RunSetupClient = defaultRunSetup,
   siteDetail: SiteDetailClient = defaultSiteDetail,
   now?: () => Date,
+  siteDirectory: SiteDirectoryClient = defaultSiteDetail,
+  templateLineage?: SiteTemplateLineageClient,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -320,15 +323,12 @@ export function simulatorLabRoutes(
     {
       path: SCENARIO_DETAIL_PATH,
       element: inLabShell(
-        // `siteHref` is handed in from the operator route module rather than
-        // built here. A scenario's target site is an operator surface, and
-        // this module owns simulator addresses only; deciding where a site
-        // lives is not its call.
+        // A scenario names no site (T025g), so the detail screen links to no
+        // site; the site is chosen at run setup.
         <ScenarioFrame
           catalog={scenarios}
           scenariosPath={SCENARIOS_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
-          siteHref={siteDetailHref}
           runSetupHref={runSetupHref}
         />,
       ),
@@ -360,7 +360,9 @@ export function simulatorLabRoutes(
       element: inLabShell(
         <RunSetupFrame
           catalog={scenarios}
+          siteDirectory={siteDirectory}
           siteDetail={siteDetail}
+          {...(templateLineage === undefined ? {} : { templateLineage })}
           runSetup={runSetup}
           scenariosPath={SCENARIOS_PATH}
           simulatorLabPath={SIMULATOR_LAB_PATH}
