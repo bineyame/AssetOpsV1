@@ -468,3 +468,33 @@ class TestTheRunPayloadCarriesTheLineage:
         body = self.payload(older)
         assert body["template_lineage"]["state"] == "NOT_RECORDED"
         assert body["template_lineage"]["template_id"] is None
+
+
+#: The wire shape of an empty `site_contract: {}` block, shared with the
+#: frontend, which validates the same file with its own list check. Neither
+#: side imports the other; the file is the only crossing.
+EMPTY_CONTRACT_FIXTURE = (
+    Path(__file__).resolve().parents[2]
+    / "contract-fixtures"
+    / "scenario-empty-site-contract.json"
+)
+
+
+def test_an_empty_site_contract_crosses_the_seam_as_no_contract() -> None:
+    """The parser accepts `site_contract: {}`; the screen must accept its wire form."""
+    import json
+    import os
+
+    from assetops_backend.simulator_lab_api import scenario_public_summary
+
+    document = scenario_document()
+    document["site_contract"] = {}
+    summary = scenario_public_summary(parse(document))
+
+    assert summary["site_contract"] is None
+    captured = json.dumps(summary, indent=2, sort_keys=True) + "\n"
+    if os.environ.get("ASSETOPS_UPDATE_CONTRACT_FIXTURE") == "1":
+        EMPTY_CONTRACT_FIXTURE.write_text(captured, encoding="utf-8")
+    assert EMPTY_CONTRACT_FIXTURE.read_text(encoding="utf-8") == captured, (
+        "regenerate with ASSETOPS_UPDATE_CONTRACT_FIXTURE=1 and read the diff"
+    )

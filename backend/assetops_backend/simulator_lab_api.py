@@ -647,9 +647,13 @@ def scenario_public_summary(scenario: ScenarioDefinition) -> dict[str, object]:
                 "requirement": scenario.target_site.requirement,
             }
         ),
+        # An empty block carries nothing to show, so it reads as no contract.
+        # The client requires a string description wherever a contract is
+        # present; a null here would fail that check for the whole catalog.
         "site_contract": (
             None
             if scenario.site_contract is None
+            or scenario.site_contract.description is None
             else {"description": scenario.site_contract.description}
         ),
     }
