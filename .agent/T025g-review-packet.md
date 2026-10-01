@@ -292,3 +292,20 @@ Hands-on, with the Lab enabled on the owner's own `var/`:
    labelled "Legacy site declaration; not used to bind runs".
 6. A run detail should show "Site template lineage". Runs created before this
    slice read "Not recorded".
+
+## R1 (fix round after the first Claude review)
+
+- **F1 fixed.** Option chosen: the backend serialises `site_contract` as null
+  when the block has no description (`simulator_lab_api.py`, summary). Why: the
+  parser keeps accepting `site_contract: {}`, the client check stays strict,
+  and one such document can no longer blank the catalog. The detail screen
+  already reads a null contract as "none".
+- **Seam test.** `test_an_empty_site_contract_crosses_the_seam_as_no_contract`
+  writes and compares `contract-fixtures/scenario-empty-site-contract.json`;
+  `frontend/src/shell/__tests__/scenarioEmptyContractSeam.test.ts` runs
+  `isScenarioSummary` on that file. Mutation-proved both ways (backend fix
+  removed: backend test fails; fixture set to `{"description": null}`: frontend
+  test fails); both reverted with `git checkout`.
+- **F5 fixed** (`.agent/scenario-site-targeting-architect.md`).
+- **Carried** to `.ai/MILESTONE_REVIEW_BACKLOG.md`: F2, F3, F4, F6 and the two
+  residual risks. F2 awaits the owner or Planner on AC6b's wording.
