@@ -205,3 +205,34 @@ class TestTheGatedRoute:
             create_app(DISABLED, site_repository=ReadOnlyRepository(records))
         )
         assert client.get(LINEAGE_PATH).status_code == 404
+
+
+def test_a_site_created_now_from_the_shipped_kobo_template_is_current() -> None:
+    """AC outcome: a Site created after this slice records v2 and is current.
+
+    The real shipped catalog, read only; the Site lands in an in-memory store.
+    """
+    from assetops_backend.sites.composition import build_site_template_catalog
+    from test_site_parsing import valid_create_request
+
+    repository = FakeSiteRepository()
+    client = TestClient(
+        create_app(
+            ENABLED,
+            site_template_catalog=build_site_template_catalog(),
+            site_repository=repository,
+        )
+    )
+    request = valid_create_request()
+    request["template_id"] = "kobo-mini-grid-60kw"
+    request["site_id"] = "MG-NEW"
+    created = client.post("/api/simulator-lab/sites", json=request)
+    assert created.status_code == 201, created.text
+
+    (entry,) = client.get(LINEAGE_PATH).json()["sites"]
+    assert entry == {
+        "site_id": "MG-NEW",
+        "template": {"template_id": "kobo-mini-grid-60kw", "template_version": 2},
+        "state": "CURRENT",
+        "current_template_version": 2,
+    }
