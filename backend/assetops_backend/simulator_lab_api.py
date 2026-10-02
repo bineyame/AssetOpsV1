@@ -1663,7 +1663,13 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
         ],
         "unreadable_detail": view.unreadable_detail,
         "envelope_schema_id": SOURCE_ENVELOPE_SCHEMA_ID,
-        "envelope_schema_version": SOURCE_ENVELOPE_SCHEMA_VERSION,
+        # T026: the schema this stage's frozen mapping publishes; a stage
+        # staged under schema 1 still says 1.
+        "envelope_schema_version": (
+            SOURCE_ENVELOPE_SCHEMA_VERSION
+            if stage is None
+            else stage.mapping.envelope_schema_version
+        ),
         "stage_schema_version": SOURCE_STAGE_SCHEMA_VERSION,
         "integrity_digest": view.integrity_digest,
         # How far the stage records its run as published. Eligibility needs
@@ -1687,9 +1693,15 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
                     {
                         "device_id": entry.device_id,
                         "signal_id": entry.signal_id,
-                        "measurement": entry.measurement,
+                        # A record channel has no measurement class; its
+                        # family stands in the column (phase 3 refines it).
+                        "measurement": entry.measurement or entry.family,
                         "unit": entry.unit,
                         "publishes_unavailable": entry.publishes_unavailable,
+                        "family": entry.family,
+                        "members": (
+                            None if entry.members is None else list(entry.members)
+                        ),
                     }
                     for entry in stage.mapping.entries
                 ],
@@ -1718,14 +1730,18 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
                     "schema_version": envelope.schema_version,
                     "source_time": envelope.source_time,
                     "published_at": envelope.published_at,
-                    "measurement": envelope.measurement,
+                    "family": envelope.family,
+                    "measurement": envelope.measurement or envelope.family,
                     "value": (
                         None
                         if envelope.value is None
+                        else envelope.value
+                        if isinstance(envelope.value, str)
                         else exact_decimal_text(envelope.value)
                     ),
                     "unit": envelope.unit,
-                    "quality": envelope.quality,
+                    # A record is present or absent, never of a quality.
+                    "quality": envelope.quality or "RECORDED",
                     "unavailable_reason": envelope.unavailable_reason,
                     "interval_start": envelope.interval_start,
                     "interval_end": envelope.interval_end,

@@ -135,7 +135,7 @@ class TestTheValidEnvelope:
         }
         assert doc["schema"] == {
             "id": "assetops.source-envelope",
-            "version": SOURCE_ENVELOPE_SCHEMA_VERSION,
+            "version": 1,
         }
         assert set(doc["message"]) == {"message_id", "sequence"}
         assert doc["timing"] == {
@@ -157,7 +157,7 @@ class TestTheValidEnvelope:
     ) -> None:
         # Independent numbers. If they happen to coincide one day that is not a
         # coupling, but this build proves they are not the same constant.
-        assert SOURCE_ENVELOPE_SCHEMA_VERSION == 1
+        assert SOURCE_ENVELOPE_SCHEMA_VERSION == 2
         assert EXECUTION_CONTRACT_VERSION == 9
 
 
@@ -322,7 +322,7 @@ class TestIdentityAndStructure:
 
     def test_another_schema_version_is_refused_not_reinterpreted(self) -> None:
         candidate = document()
-        candidate["schema"]["version"] = 2
+        candidate["schema"]["version"] = 3
         rejected(candidate, "SCHEMA_UNSUPPORTED", "schema.version")
 
     def test_another_schema_id_is_refused(self) -> None:
@@ -543,7 +543,7 @@ def test_every_rejection_kind_is_reached_by_this_corpus() -> None:
     probe(lambda d: d["timing"].update(received_at="x"))
     probe(lambda d: d["payload"].pop("unit"))
     probe(lambda d: d["payload"].update(value=1.5))
-    probe(lambda d: d["schema"].update(version=2))
+    probe(lambda d: d["schema"].update(version=3))
     probe(lambda d: d["message"].update(message_id="0" * 64))
     probe(lambda d: d["timing"].update(source_time="later"))
     probe(lambda d: d["payload"].update(quality="STALE"))

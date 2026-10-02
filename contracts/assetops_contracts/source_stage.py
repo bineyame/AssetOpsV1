@@ -56,8 +56,8 @@ from typing import Any, Sequence
 
 from assetops_contracts.identity import DIGEST_NAME, identity_digest
 from assetops_contracts.source_envelope import (
+    READABLE_ENVELOPE_SCHEMA_VERSIONS,
     SOURCE_ENVELOPE_SCHEMA_ID,
-    SOURCE_ENVELOPE_SCHEMA_VERSION,
     EnvelopeRejected,
     SourceEnvelope,
     SourceMappingSet,
@@ -356,9 +356,11 @@ def stage_integrity_digest(stage: SourceStage) -> str:
 def stage_document(stage: SourceStage) -> dict[str, Any]:
     return {
         "stage_schema_version": SOURCE_STAGE_SCHEMA_VERSION,
+        # T026: the schema the stage's frozen mapping publishes, so a stage
+        # staged under schema 1 is written - and verifies - as it always was.
         "envelope_schema": {
             "id": SOURCE_ENVELOPE_SCHEMA_ID,
-            "version": SOURCE_ENVELOPE_SCHEMA_VERSION,
+            "version": stage.mapping.envelope_schema_version,
         },
         "run_id": stage.run_id,
         "site_id": stage.site_id,
@@ -447,15 +449,16 @@ def parse_stage_text(text: str, run_id: str) -> SourceStage:
             f"it states stage schema {document['stage_schema_version']!r} and "
             f"this build reads {SOURCE_STAGE_SCHEMA_VERSION} only",
         )
-    if document["envelope_schema"] != {
-        "id": SOURCE_ENVELOPE_SCHEMA_ID,
-        "version": SOURCE_ENVELOPE_SCHEMA_VERSION,
-    }:
+    stated_envelope = document["envelope_schema"]
+    if not isinstance(stated_envelope, dict) or stated_envelope not in [
+        {"id": SOURCE_ENVELOPE_SCHEMA_ID, "version": version}
+        for version in sorted(READABLE_ENVELOPE_SCHEMA_VERSIONS)
+    ]:
         raise StageUnreadable(
             run_id,
-            f"it states envelope schema {document['envelope_schema']!r} and this "
-            f"build reads {SOURCE_ENVELOPE_SCHEMA_ID} "
-            f"v{SOURCE_ENVELOPE_SCHEMA_VERSION} only",
+            f"it states envelope schema {stated_envelope!r} and this build "
+            f"reads {SOURCE_ENVELOPE_SCHEMA_ID} "
+            f"v{sorted(READABLE_ENVELOPE_SCHEMA_VERSIONS)} only",
         )
     if document["run_id"] != run_id:
         raise StageUnreadable(
@@ -463,6 +466,12 @@ def parse_stage_text(text: str, run_id: str) -> SourceStage:
         )
     try:
         mapping = parse_mapping_set(document["mapping"])
+        if mapping.envelope_schema_version != stated_envelope["version"]:
+            raise StageUnreadable(
+                run_id,
+                f"it states envelope schema {stated_envelope['version']} and "
+                f"its mapping publishes schema {mapping.envelope_schema_version}",
+            )
         envelopes = document["envelopes"]
         refused = document["refused"]
         if not isinstance(envelopes, list) or not isinstance(refused, list):

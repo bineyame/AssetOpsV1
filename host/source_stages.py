@@ -30,6 +30,7 @@ from assetops_contracts.source_envelope import SourceEnvelope, SourceMappingSet
 from assetops_contracts.source_stage import (
     Admission,
     SourceStage,
+    StageUnreadable,
     StageConflict,
     admit,
     parse_stage_text,
@@ -62,7 +63,15 @@ class JsonSourceStages:
         path = self.path(run_id)
         if not path.is_file():
             return None
-        return parse_stage_text(path.read_text(encoding="utf-8"), run_id)
+        try:
+            text = path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError as error:
+            # Review R2: a stage that is not UTF-8 is damaged content, read as
+            # unreadable with its reason - never an unhandled 500.
+            raise StageUnreadable(
+                run_id, f"the persisted stage is not UTF-8 text ({error.reason})"
+            ) from error
+        return parse_stage_text(text, run_id)
 
     def _write(self, stage: SourceStage) -> None:
         self._root.mkdir(parents=True, exist_ok=True)
