@@ -46,13 +46,21 @@ once a truthful surface exists behind it. So the client never sees ten rail
 items. They see the four that carry the story, in the order the story earns
 them.
 
-**Root menu for the client demo:** `Portfolio | Sites | Findings | Actions`,
-plus `Assets` once Battery health exists. Within the canonical Business and
-Assurance groups, Financials and Evidence keep their **site-owned** tabs
-prominent. Their global roll-ups enter the rail only if the six-site portfolio
-needs them. Incidents, Maintenance and Reports stay canonical but are not demo
-material. Simulator Lab stays a separate gated workspace, reached from the
-utility menu and opened last as proof.
+**Target rail:** v6.9's grouped menu, unchanged: OPERATE (Portfolio, Sites,
+Assets), INTELLIGENCE (Findings), WORK (Actions, Incidents, Maintenance),
+ASSURANCE (Evidence), BUSINESS (Financials, Reports P1). See the appendix for
+why, and for the one item (global Financials) whose place in it is doubtful.
+
+**Root menu for the client demo:** that grouped menu, filtered to items with a
+truthful destination, in canonical order and under canonical group headers
+(a header appears only over at least one live item). Concretely:
+OPERATE `Portfolio | Sites` (+ `Assets` once Battery health exists),
+INTELLIGENCE `Findings`, WORK `Actions`, and at T036 ASSURANCE `Evidence` if
+the six-site capability matrix has real cross-site gaps. Financials and
+Evidence keep their **site-owned** tabs prominent; the portfolio financial
+roll-up stays Portfolio's value column. Incidents, Maintenance and Reports stay
+canonical but are not demo material. Simulator Lab stays a separate gated
+workspace, reached from the utility menu and opened last as proof.
 
 **Site structure:** keep the eight tabs, but give them three tiers:
 
@@ -103,14 +111,19 @@ The tag after each item says when it becomes a truthful destination. Items
 marked "not demo" stay canonical and may arrive later. They are not removed
 from the model.
 
+The rail uses v6.9's group headers (OPERATE, INTELLIGENCE, WORK, ASSURANCE,
+BUSINESS) in canonical order. A header renders only over at least one live
+item, and headers appear once two groups are populated (T028). The tree below
+lists items in rail order; the group is shown in brackets.
+
 ```
-OPERATOR SHELL (left rail; highlights the root object's class)
+OPERATOR SHELL (left rail; grouped; highlights the root object's class)
 |
-|-- Portfolio ............ root; landing page        [Portfolio-lite, after T034]
+|-- [OPERATE] Portfolio .. root; landing page        [Portfolio-lite, after T034]
 |     lenses: Attention | Opportunities | Evidence gaps (filters, not tabs)
 |     the value column is the Financials roll-up; the evidence-gap column is the Evidence roll-up
 |
-|-- Sites ................ root; index               [built; gains Assessment /
+|-- [OPERATE] Sites ...... root; index               [built; gains Assessment /
 |     |                                               Top issue / Evidence /
 |     |                                               Last analysed at T027-T028]
 |     `-- Site (root object)
@@ -128,21 +141,23 @@ OPERATOR SHELL (left rail; highlights the root object's class)
 |           |   Definition | Topology | Controls | Changes | Readiness
 |           Health .......... supporting              [T033; labelled in place until then]
 |
-|-- Findings ............. root; global index        [T028]
+|-- [OPERATE] Assets ..... root; thin index          [T033, first Asset Detail]
+|     `-- Asset: Battery > Health (others when evidenced)
+|
+|-- [INTELLIGENCE] Findings  root; global index      [T028]
 |     lenses: All | Opportunities | Risks | Awaiting verification
 |     `-- Finding (root object)
 |           Overview | Evidence | Alternatives | Recommendation | History
 |           (claim evidence drawer opens from any claim; never changes root)
 |
-|-- Actions .............. root; global index        [T034]
+|-- [WORK] Actions ....... root; global index        [T034]
 |     `-- Action (root object)
 |           Overview | Plan | Execution | Evidence | Verification | History
 |
-|-- Assets ............... root; thin index          [T033, first Asset Detail]
-|     `-- Asset: Battery > Health (others when evidenced)
-|
-|-- Financials / Evidence  global roll-ups           [only if T036 needs them; else not demo]
-|-- Incidents, Maintenance, Reports                  [not demo; canonical, deferred]
+|-- [WORK] Incidents, Maintenance                    [not demo; canonical, arrive with a pilot]
+|-- [ASSURANCE] Evidence . portfolio roll-up          [T036, if the cross-site gap matrix has content]
+|-- [BUSINESS] Financials  portfolio roll-up          [not demo; Portfolio's value column covers it]
+|-- [BUSINESS] Reports ... P1                         [not demo; canonical, deferred]
 
 UTILITY MENU
 `-- Open Simulator Lab -> SIMULATOR LAB WORKSPACE (separate shell, gated)
@@ -160,7 +175,7 @@ attention, and how sure are we?". Without them it is a list of names.
 
 | Kind | Members | Rule |
 | --- | --- | --- |
-| Root navigation | Portfolio, Sites, Findings, Actions, (Assets) | A class the user manages across sites, or reaches as a decision object. It appears only when its root object has a real detail page. |
+| Root navigation | OPERATE: Portfolio, Sites, (Assets); INTELLIGENCE: Findings; WORK: Actions; (ASSURANCE: Evidence at T036) | A class the user manages across sites, or reaches as a decision object. It appears only when its root object has a real detail page, under its canonical group header, in canonical order. |
 | Contextual tabs | Site's eight; Finding's five; Action's six | Aspects of one root object. A tab may be labelled in place before its content exists. It may not be disabled. |
 | Scoped indexes | Site > Findings, Site > Work | A filter over a global class, with no KPI strip and no status model of its own. Clicking a row changes the root. v6.9 2.3's test: remove the tab and lose nothing except a filter. |
 | First-class detail roots | Finding, Action, Asset (Incident, Maintenance later) | Starting work on one of these changes the root and the rail highlight. The breadcrumb keeps the Site so Back is predictable. |
@@ -172,7 +187,8 @@ How each concept the request names is placed:
   different stories. Its job is prioritisation, not monitoring, so it earns
   the root.
 - **Sites.** Root. It is the operator's mental anchor and is already built.
-- **Assets.** Root, but late, and with a thin index. The navigation invariant
+- **Assets.** Root in the OPERATE group, directly after Sites (canonical
+  order), but late, and with a thin index. The navigation invariant
   needs Assets in the rail once Battery > Health is a root page (v6.9 8.27).
   A rich asset inventory is deferred under roadmap section 8. Until T033,
   asset condition lives under Site > Health, which remains labelled in place.
@@ -196,12 +212,19 @@ How each concept the request names is placed:
   here and what evidence would raise the ceiling), plus the
   **claim-specific** evidence drawer on every material number. The portfolio
   roll-up stays a column on Portfolio ("evidence gaps") until the gap matrix
-  across sites has real content.
+  across sites has real content. That is expected at T036, when six sites have
+  different claim ceilings (Genda's fuel records, Bahir's backup chain), and
+  global Evidence then joins the rail as the ASSURANCE group's one item. It is
+  the first global roll-up to earn a place, because claim honesty across sites
+  is a differentiator a monitoring dashboard does not have.
 - **Financials.** Primarily **site-owned** (Site > Financials, the bridge from
   technical findings to economics), and quoted on Finding detail and the
   Overview. The portfolio roll-up is the value column of Portfolio Value &
-  Operations (roadmap section 4). A separate global Financials page is
-  optional, at T036 at the earliest.
+  Operations (roadmap section 4). A separate global Financials page stays out
+  of the demo rail: v6.9 2.3 forbids it re-deriving site bridges, so its only
+  content would be the cross-site aggregation Portfolio already shows. It
+  stays canonical; whether it should remain a root at all is an owner question
+  (appendix).
 - **Simulator Lab.** A separate workspace. This is not open: it is settled by
   `ARCHITECTURE.md` Shells And Navigation and by the 2026-09-13 decisions.
 
@@ -210,7 +233,9 @@ How each concept the request names is placed:
 Site > Work stays a scoped index, but at first with **one** subtab, Actions.
 Showing `Actions | Incidents | Maintenance` with two of them permanently empty
 would make the product read as a ticketing system. The other two subtabs
-appear when their classes have content.
+appear when their classes have content. This keeps v6.9 2.3's rule that the
+subtab row "mirrors the WORK nav group exactly": the demo WORK group holds
+only Actions, so the mirror holds only Actions.
 
 ---
 
@@ -544,8 +569,8 @@ The following stay as they are and are not shown to clients early:
 - **T036, portfolio and client demo.** Rescope it to *completing* a Portfolio
   that already exists:
   - add the remaining sites;
-  - add global Financials and Evidence roll-ups only if the six-site walk
-    needs them;
+  - add global Evidence (ASSURANCE) if the cross-site gap matrix has real
+    content; keep the financial roll-up as Portfolio's value column;
   - build the Lab truth-versus-inference reveal;
   - write and rehearse the walkthrough.
 
@@ -609,7 +634,8 @@ The following stay as they are and are not shown to clients early:
   if the reveal's playback visibly stutters.
 - **L3 cockpit enrichment** (C7-C9), until after T036.
 - **Replay mode** and a broad source-health dashboard.
-- **Global Evidence, Financials and Reports pages**, unless T036 needs them.
+- **Global Financials and Reports pages.** Global Evidence is deferred to
+  T036, not past it.
 - **Incidents and Maintenance** indexes and subtabs.
 - **Asset Warranty**, and any asset inventory beyond the battery.
 - **Cold-chain and e-mobility** implementation, and any pack registry.
@@ -633,7 +659,7 @@ The following stay as they are and are not shown to clients early:
 | 9 | T030: Genda fuel reconciliation | Accountability: a residual with uncertainty, record versus physical delivery |
 | 10 | T035: Bahir service and backup failure | Reliability: unserved energy and a backup chain with missing links |
 | 11 | T033: Arsi battery trajectory, Health tab and Assets | Asset value: stress trajectory and bounded replacement exposure |
-| 12 | T036 (rescoped): six sites complete, Lab truth-vs-inference reveal, rehearsal | **Polished client demo** |
+| 12 | T036 (rescoped): six sites complete, global Evidence (ASSURANCE) if earned, Lab truth-vs-inference reveal, rehearsal | **Polished client demo** |
 
 Steps 8-11 each add a site, which appears on the Portfolio as it lands, so
 each one is demonstrable as a new opening-screen story and not only as a deep
@@ -646,13 +672,23 @@ page.
 Only decisions that change navigation ownership, domain structure, the demo
 story or sequencing.
 
-- **D1. Root navigation growth.**
-  - **Proposal:** Findings joins the rail at T028, Actions at T034, Portfolio
-    becomes the landing page at Portfolio-lite, and Assets joins at T033.
-    Global Evidence and Financials, Incidents, Maintenance and Reports stay
-    out of the demo rail.
-  - **Consequence:** the rail grows to four or five canonical items rather
-    than ten. The model is unchanged.
+- **D1. Root navigation growth** (revised 2026-10-02 after the owner's
+  grouped-menu question; see the appendix).
+  - **Target:** v6.9's grouped rail is the end-state menu, unchanged:
+    OPERATE, INTELLIGENCE, WORK, ASSURANCE, BUSINESS.
+  - **Proposal for the demo:** the rail is that grouped menu filtered to live
+    destinations, in canonical order, with a group header only over a live
+    item and headers shown from T028. Findings (INTELLIGENCE) joins at T028,
+    Actions (WORK) at T034, Portfolio (OPERATE) becomes the landing page at
+    Portfolio-lite, Assets (OPERATE, after Sites) at T033, and global
+    Evidence (ASSURANCE) at T036 if the cross-site gap matrix has content.
+    Global Financials, Incidents, Maintenance and Reports stay out of the
+    demo rail; no BUSINESS header appears in the demo.
+  - **Consequence:** the client sees four groups and five or six items rather
+    than five groups and ten items. The model is unchanged.
+  - **Separate owner question, not decided here:** whether the portfolio
+    financial roll-up should stay a BUSINESS root in the canonical model or
+    become a Portfolio lens. Changing it would amend frozen v6.9.
 - **D2. Add Portfolio-lite after T034, and rescope T036 to completing it.**
   This is the largest sequencing change here. It also needs one extra site
   (Meki, the healthy reference) before the other stories exist.
@@ -683,9 +719,10 @@ story or sequencing.
 
 ## Self-Check Against The Request's Quality Bar
 
-1. **Mental models, not features.** Yes. The rail shows the four classes a
-   manager uses (where to look, which site, what's wrong, what we did). Six
-   canonical classes wait for content or a pilot.
+1. **Mental models, not features.** Yes. The rail shows the classes a
+   manager uses (where to look, which site, what's wrong, what we did, what
+   we can claim) under v6.9's own group headers. The remaining canonical
+   classes wait for content or a pilot.
 2. **Global versus contextual.** Yes. Section 2.2 places every named concept,
    and Findings, Financials, Evidence and Work each get an explicit
    global-versus-site treatment.
@@ -710,4 +747,122 @@ story or sequencing.
    technical, which is accepted because it directly enables step 6.
 10. **Intelligence, not monitoring or CMMS.** Yes. Ranking is by
     consequence-bearing Findings, Verified is kept distinct from Completed,
-    and Incidents, Maintenance and Reports are kept out of the demo rail.
+    Incidents, Maintenance and Reports are kept out of the demo rail, and no
+    group header is shown over empty items.
+
+---
+
+## Appendix: Comparison With A Grouped Root Menu (Owner Question, 2026-10-02)
+
+Produced by Claude as Architect under the same ROLE_CONFIG exception.
+
+**The question.** Why not this structure instead of `Portfolio | Sites |
+Findings | Actions (+ Assets)`?
+
+```
+OPERATE       Portfolio | Sites | Assets
+INTELLIGENCE  Findings
+WORK          Actions | Incidents | Maintenance
+ASSURANCE     Evidence
+BUSINESS      Financials (questionable as a root) | Reports (later / P1)
+```
+
+**First, a correction to the body as first written.** This is not an
+alternative to the canonical model. It is the canonical model: v6.9 section 2's
+table uses exactly these five groups, with these members in this order and
+Reports marked P1, and the v6.9 screen mock-ups draw the rail with these
+headers. My recommendation said "keep v6.9's grammar exactly" but dropped the
+group headers and reordered Assets after Actions without saying so. That was
+an omission, not a deliberate position, and the body is now corrected
+(sections 1, 2.1, 2.2, 2.3, 6.2, 6.5, 7, D1 and the self-check).
+
+So the real question is narrower: (a) is the grouped menu the right target,
+and (b) should the client see the whole of it at every demo milestone?
+
+### A.1 Target product navigation: adopt the grouped menu
+
+Yes. What the grouping gets right:
+
+- **The headers read as the product's causal chain.** Operate -> Intelligence
+  -> Work -> Assurance -> Business follows v6.9's backbone (evidence -> finding
+  -> action -> verification -> financial impact). A flat list of ten nouns
+  reads as modules; the grouped list reads as a loop from operations to money.
+  That is the "operational-economic intelligence" positioning in the menu.
+- **INTELLIGENCE and ASSURANCE name what a monitoring dashboard lacks.**
+  Findings as the unit of value, and Evidence as an explicit statement of what
+  can be claimed, are the two things a SCADA view or a CMMS does not have. A
+  header that names them earns its space.
+- **It scales without reshuffling.** Each later class has a fixed home, so
+  adding Incidents or Reports never moves anything the client already learned.
+- **It anchors v6.9 2.3's mirror rule.** Site > Work's subtab row mirrors the
+  WORK group, which only makes sense if the group is visible.
+
+Where I would still question it, as an owner decision and not a change made
+here:
+
+- **Global Financials as a BUSINESS root.** I agree with the owner's question
+  mark. v6.9 2.3 bars the global page from re-deriving site bridges, so its
+  content is cross-site aggregation and value drivers, which is what Portfolio
+  Value & Operations already ranks by. A root whose whole content is another
+  root's value column is a candidate to become a Portfolio lens. Amending this
+  changes frozen v6.9, so it needs the owner. It is not needed for any demo
+  milestone, so it can wait for pilot feedback.
+- **Reports (P1).** Keep it as P1. Reports have no analytical status of their
+  own (v6.9 section 2); they package what other pages already say, and they
+  matter for a buyer's procurement, not for the demo story.
+
+### A.2 What the client sees at each demo milestone: the filtered grouped menu
+
+The grouped menu is the target, but showing all of it in the demo would
+break two rules this project already holds:
+
+- **A navigation item appears only when a truthful surface exists behind it.**
+  Seven of the ten items have no surface yet, and four (Incidents,
+  Maintenance, global Financials, Reports) have none planned before T036.
+- **The positioning.** A WORK group showing `Actions | Incidents |
+  Maintenance` reads as a CMMS, and an empty Incidents or Maintenance page in
+  front of a client is the fastest way to make it one. A BUSINESS group over a
+  thin Financials page would undersell the money story, which lives on Site >
+  Financials and the Finding panel, where its causal basis is visible.
+
+So the demo shows the grouped menu filtered to live items, in canonical order,
+with a header only over at least one live item:
+
+| Milestone | Client rail |
+| --- | --- |
+| T027 | Sites (no headers; one item) |
+| T028-T029A | OPERATE: Sites; INTELLIGENCE: Findings |
+| T034 | OPERATE: Sites; INTELLIGENCE: Findings; WORK: Actions |
+| Portfolio-lite to T035 | OPERATE: Portfolio, Sites; INTELLIGENCE: Findings; WORK: Actions |
+| T033 | OPERATE gains Assets after Sites |
+| T036 | ASSURANCE: Evidence joins if the six-site gap matrix has content |
+
+Headers start at T028 because "INTELLIGENCE: Findings" is the first moment the
+rail can state the product's category. A header over a single item is a small
+visual cost against that.
+
+### A.3 Item by item
+
+| Item | Group | Target | Demo | Why |
+| --- | --- | --- | --- | --- |
+| Portfolio | OPERATE | Keep | Landing at Portfolio-lite | Prioritisation by consequence, not monitoring |
+| Sites | OPERATE | Keep | From now | The operator's anchor; already built |
+| Assets | OPERATE | Keep | T033, thin, after Sites | Root only once Battery > Health is a real page; order corrected to canonical |
+| Findings | INTELLIGENCE | Keep | T028 | The unit of value; Opportunities are a lens, not a class |
+| Actions | WORK | Keep | T034 | The closed loop: Verified, not just Completed |
+| Incidents | WORK | Keep | Defer | No incident subsystem planned (T035 rules it out); empty page reads as ticketing |
+| Maintenance | WORK | Keep | Defer | Arrives with a pilot's work requests; before that it is what makes a product feel like a CMMS |
+| Evidence (global) | ASSURANCE | Keep | T036, conditional | Cross-site claim ceilings are a differentiator once six sites differ; site-owned Evidence carries it before then |
+| Financials (global) | BUSINESS | Keep, flagged | Defer | Content duplicates Portfolio's value column; owner question whether it stays a root |
+| Reports | BUSINESS | Keep as P1 | Defer | No analytical status of its own; procurement material, not story |
+| Group headers | all | Adopt | Only over live items, from T028 | They state the category; empty groups would contradict it |
+
+### A.4 Net change to the recommendation
+
+Partly changed. Adopted: the grouped menu as the explicit target rail, its
+headers in the demo rail, canonical order (Assets in OPERATE after Sites), and
+global Evidence as a T036 candidate under ASSURANCE rather than an
+undifferentiated "only if needed" roll-up. Unchanged: growth by truthful
+destination, Incidents, Maintenance, global Financials and Reports out of the
+demo, Site > Work with Actions only, Simulator Lab as a separate shell. D1 is
+revised accordingly; D2-D8 are unaffected.
