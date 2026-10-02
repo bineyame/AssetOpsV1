@@ -34,9 +34,12 @@ import type {
   RunDetailResult,
   RunExecutionResult,
   RunSetupClient,
+  RunStageMapping,
+  RunStageMappingEntry,
   RunStageResult,
   RunStagedEnvelope,
 } from "./runSetupClient";
+import type { RunHistoryPublication } from "./runHistory";
 
 /**
  * One Draft run: what it froze, what executing it produced, and what it is not.
@@ -1109,14 +1112,22 @@ export function RunFrame({
           heading="Staged source envelopes"
           headingId="run-stage-heading"
         >
-          {/* T025b: a typed status is observed and not staged - envelope schema 1
-              carries numbers only. Each such signal is named here with the
-              profile's own sentence, so the stage is not read as the whole of
-              what the run reports. */}
-          {projection === null
+          {/* T025b, narrowed by T026 AC14: a typed status the run observes is
+              named here only when the mapping this stage froze leaves it out,
+              so the stage is not read as the whole of what the run reports.
+              A mapping that stages it says nothing of the kind, and nothing
+              here claims Commit or acceptance. */}
+          {projection === null ||
+          stage === null ||
+          stage.status !== "loaded" ||
+          stage.stage.mapping === null
             ? null
             : projection.signals
-                .filter((signal) => signal.canonical_unit === "state")
+                .filter(
+                  (signal) =>
+                    signal.canonical_unit === "state" &&
+                    !stagedSignal(stage.stage.mapping, signal),
+                )
                 .map((signal) => (
                   <p
                     key={`${signal.device_id}-${signal.signal_id}`}
@@ -1243,7 +1254,9 @@ export function RunFrame({
                 {stage.stage.mapping.entries.map((entry) => (
                   <tr key={`${entry.device_id}-${entry.signal_id}`}>
                     <th scope="row">{`${entry.device_id} / ${entry.signal_id}`}</th>
-                    <td>{entry.measurement}</td>
+                    <td data-stage-mapping-family={entry.family ?? "MEASUREMENT"}>
+                      {publishedAs(entry)}
+                    </td>
                     <td>{entry.unit}</td>
                     <td>{entry.publishes_unavailable ? "yes" : "no"}</td>
                   </tr>
@@ -1258,6 +1271,11 @@ export function RunFrame({
         stage.stage.envelopes.length === 0 ? null : (
           <StagedEnvelopes
             envelopes={stage.stage.envelopes}
+            publications={
+              history !== null && history.status === "loaded"
+                ? history.history.publications
+                : null
+            }
             selected={selectedMessage}
             onSelect={setSelectedMessage}
           />
@@ -1308,16 +1326,20 @@ export function RunFrame({
  */
 function StagedEnvelopes({
   envelopes,
+  publications,
   selected,
   onSelect,
 }: {
   envelopes: RunStagedEnvelope[];
+  /** The held history's publication rows; null while no history is held. */
+  publications: RunHistoryPublication[] | null;
   selected: string | null;
   onSelect: (messageId: string) => void;
 }) {
   const shown =
     envelopes.find((item) => item.message_id === selected) ??
     envelopes[envelopes.length - 1];
+  const arrival = envelopeArrival(shown, publications);
 
   return (
     <>
@@ -1341,10 +1363,15 @@ function StagedEnvelopes({
           <Fact term="Published at">
             <span data-stage-selected-published-at>{shown.published_at}</span>
           </Fact>
-          <Fact term="Measurement">
-            {shown.interval_start === null
-              ? shown.measurement
-              : `${shown.measurement} over ${shown.interval_start} to ${shown.interval_end ?? ""}`}
+          <Fact term="Arrival">
+            <span data-stage-selected-arrival={arrival.kind}>{arrival.text}</span>
+          </Fact>
+          <Fact term={isRecord(shown) ? "Record" : "Measurement"}>
+            {isRecord(shown)
+              ? `${shown.family} record: present, so it has no quality`
+              : shown.interval_start === null
+                ? shown.measurement
+                : `${shown.measurement} over ${shown.interval_start} to ${shown.interval_end ?? ""}`}
           </Fact>
         </FactList>
         <pre
@@ -1383,7 +1410,9 @@ function StagedEnvelopes({
                     ? `no value (${item.unavailable_reason ?? "unavailable"})`
                     : `${item.value} ${item.unit}`}
                 </td>
-                <td>{item.quality}</td>
+                <td data-staged-quality={isRecord(item) ? "RECORD" : item.quality}>
+                  {isRecord(item) ? `${item.family} record` : item.quality}
+                </td>
                 <td>
                   <button
                     type="button"
@@ -1401,6 +1430,80 @@ function StagedEnvelopes({
       </Panel>
     </>
   );
+}
+
+/** T026: a policy or operational record, which has no measurement or quality. */
+function isRecord(envelope: RunStagedEnvelope): boolean {
+  return envelope.family !== undefined && envelope.family !== "MEASUREMENT";
+}
+
+/** Whether a stage's frozen mapping carries a signal. */
+function stagedSignal(
+  mapping: RunStageMapping | null,
+  signal: { device_id: string; signal_id: string },
+): boolean {
+  return (
+    mapping !== null &&
+    mapping.entries.some(
+      (entry) =>
+        entry.device_id === signal.device_id && entry.signal_id === signal.signal_id,
+    )
+  );
+}
+
+/** What a mapping entry publishes, in words: a measurement class, an enum, a record. */
+function publishedAs(entry: RunStageMappingEntry): string {
+  if (entry.family !== undefined && entry.family !== "MEASUREMENT") {
+    return `${entry.family} record`;
+  }
+  if (entry.members !== undefined && entry.members !== null) {
+    return `${entry.measurement}, one of ${entry.members.join(", ")}`;
+  }
+  return entry.measurement;
+}
+
+/**
+ * T026 AC10: how the selected envelope arrived, told apart from a sensor gap.
+ *
+ * A publication delay is read from the history's held row for this envelope
+ * (same device, signal and source time), whose `held_minutes` is the host's;
+ * nothing here subtracts times. An `UNAVAILABLE` envelope is a sensor gap: no
+ * fresh reading existed to publish.
+ */
+function envelopeArrival(
+  envelope: RunStagedEnvelope,
+  publications: RunHistoryPublication[] | null,
+): { kind: string; text: string } {
+  const held =
+    publications?.find(
+      (p) =>
+        p.device_id === envelope.device_id &&
+        p.signal_id === envelope.signal_id &&
+        p.source_time === envelope.source_time,
+    ) ?? null;
+  if (held !== null) {
+    return {
+      kind: "DELAYED",
+      text:
+        `Publication delay: held ${held.held_minutes} min by ${held.delay_event_id}. ` +
+        "The source time is unchanged; only the publication time is later. Not a sensor gap.",
+    };
+  }
+  if (envelope.quality === "UNAVAILABLE") {
+    return {
+      kind: "SENSOR_GAP",
+      text:
+        `Sensor gap: no fresh reading existed (${envelope.unavailable_reason ?? "unavailable"}). ` +
+        "Not a publication delay.",
+    };
+  }
+  if (publications === null) {
+    return {
+      kind: "UNKNOWN",
+      text: "No history is held, so whether a delay held it is not shown.",
+    };
+  }
+  return { kind: "ON_TIME", text: "No publication delay is recorded for it." };
 }
 
 /** What each stop reason says. The reason is also on an attribute. */

@@ -9,7 +9,13 @@ import { IntervalInspection } from "./IntervalInspection";
 import { completedIntervalAt } from "./intervalDrawingModel";
 import type { BoundarySlice } from "./liveHistory";
 import type { HeldHistory, HistoryLag } from "./runFrameState";
-import type { RunHistory, RunHistoryInterval, RunHistorySample } from "./runHistory";
+import type {
+  RunHistory,
+  RunHistoryAttempt,
+  RunHistoryInterval,
+  RunHistoryPublication,
+  RunHistorySample,
+} from "./runHistory";
 
 /**
  * One exact value, shown exactly. Unlike the summary panels' `ExactQuantity`,
@@ -270,7 +276,13 @@ export function HistoryRecordsAtCursor({
     return <p>No boundary is recorded, so there is no record to show.</p>;
   }
   const at = atCursor(held, selected);
-  return <BoundaryRecords slice={at.slice} offset={selected} />;
+  return (
+    <BoundaryRecords
+      slice={at.slice}
+      offset={selected}
+      publications={held.history.publications}
+    />
+  );
 }
 
 /** The history's provenance and coverage, for a closed disclosure. */
@@ -441,14 +453,53 @@ function HistoryCursor({
   );
 }
 
+/**
+ * T026 AC10: how one attempt's reading reached publication. A missing reading
+ * is a sensor or reporting gap - nothing existed to publish. A reading a delay
+ * held is a publication delay - it exists, keeps its source time and was
+ * published later, by the host-recorded `held_minutes`. A reading with no held
+ * row was not held, as far as the recorded history reaches.
+ */
+function attemptArrival(
+  attempt: RunHistoryAttempt,
+  publications: RunHistoryPublication[],
+): { kind: "SENSOR_GAP" | "DELAYED" | "NOT_HELD"; text: string } {
+  if (attempt.reported_value === null) {
+    return {
+      kind: "SENSOR_GAP",
+      text: "Sensor gap: no reading existed, so nothing was published.",
+    };
+  }
+  const held = publications.find(
+    (p) =>
+      p.kind === "READING" &&
+      p.device_id === attempt.device_id &&
+      p.signal_id === attempt.signal_id &&
+      p.source_offset_minutes === attempt.at_offset_minutes,
+  );
+  return held === undefined
+    ? { kind: "NOT_HELD", text: "No publication delay recorded." }
+    : {
+        kind: "DELAYED",
+        text:
+          `Publication delay: source ${held.source_time}, published ` +
+          `${held.published_at}, held ${held.held_minutes} min. Not a sensor gap.`,
+      };
+}
+
 const BoundaryRecords = memo(function BoundaryRecords({
   slice,
   offset,
+  publications,
 }: {
   /** The cursor boundary's slice: the rows it owns, by reference. */
   slice: BoundarySlice | null;
   offset: number;
+  /** Every held publication recorded so far, to tell a delay from a gap. */
+  publications: RunHistoryPublication[];
 }) {
+  const records = slice === null ? [] : slice.records;
+  const released = slice === null ? [] : slice.publications;
   const boundary = slice === null ? undefined : slice.boundary;
   const samples = (slice === null ? [] : slice.samples).filter(
     (s) => s.offset_minutes === offset,
@@ -629,6 +680,7 @@ const BoundaryRecords = memo(function BoundaryRecords({
                 <th scope="col">Address</th>
                 <th scope="col">Outcome</th>
                 <th scope="col">Reported</th>
+                <th scope="col">Publication</th>
               </tr>
             </thead>
             <tbody>
@@ -653,10 +705,50 @@ const BoundaryRecords = memo(function BoundaryRecords({
                       />
                     )}
                   </td>
+                  <PublicationCell arrival={attemptArrival(a, publications)} />
                 </tr>
               ))}
             </tbody>
           </DataTable>
+        )}
+      </Panel>
+
+      <Panel
+        heading="Records and released publications here"
+        headingId="run-history-records-heading"
+      >
+        {records.length === 0 && released.length === 0 ? (
+          <p data-history-no-records>
+            No policy or operational record occurred here, and no held
+            publication was released here.
+          </p>
+        ) : (
+          <ul>
+            {records.map((r, index) => (
+              <li
+                key={`record-${index}`}
+                data-history-record={`${r.device_id}:${r.signal_id}`}
+                data-outcome={r.outcome}
+              >
+                {`${r.family === "POLICY" ? "Policy record" : "Operational record"} ` +
+                  `${r.device_id} ${r.signal_id}, occurred ${r.source_time}, effective from ` +
+                  `${r.effective_start}${r.effective_end === null ? "" : ` to ${r.effective_end}`}: ` +
+                  (r.outcome === "REPORTED"
+                    ? `published, ${r.control} ${r.value ?? (r.members ?? []).join(", ")} ${r.unit}`.trimEnd()
+                    : "none observed - its channel was silenced; that never establishes that nothing was commanded")}
+              </li>
+            ))}
+            {released.map((p, index) => (
+              <li
+                key={`released-${index}`}
+                data-history-released={`${p.device_id}:${p.signal_id}`}
+              >
+                {`Released here: the ${p.kind === "RECORD" ? "record" : "reading"} ` +
+                  `${p.device_id} ${p.signal_id} from source ${p.source_time}, ` +
+                  `published ${p.published_at}, held ${p.held_minutes} min by ${p.delay_event_id}.`}
+              </li>
+            ))}
+          </ul>
         )}
       </Panel>
 
@@ -681,3 +773,11 @@ const BoundaryRecords = memo(function BoundaryRecords({
     </>
   );
 });
+
+function PublicationCell({
+  arrival,
+}: {
+  arrival: { kind: string; text: string };
+}) {
+  return <td data-history-publication={arrival.kind}>{arrival.text}</td>;
+}

@@ -214,7 +214,8 @@ describe("the recorded-history inspector", () => {
       ),
     ).toBe("NOT_RECORDED");
     const families = all("[data-history-family]");
-    expect(families).toHaveLength(5);
+    // T026: history schema 3 adds `records` and `publications`.
+    expect(families).toHaveLength(7);
     expect(
       families.every((row) => row.dataset.availability === "UNAVAILABLE"),
     ).toBe(true);

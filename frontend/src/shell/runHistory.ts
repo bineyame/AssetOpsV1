@@ -198,6 +198,50 @@ export interface RunHistoryDiscreteTransition {
   simulation_time: string;
 }
 
+/**
+ * T026 AC13: one policy or operational record, at the instant it occurred.
+ *
+ * `outcome` is `REPORTED` (its channel published it) or `SUPPRESSED_BY_GAP`
+ * (its channel was silenced: none observed, never "no record"). A future
+ * effective time is a field, never the row's key.
+ */
+export interface RunHistoryRecord {
+  family: string;
+  device_id: string;
+  signal_id: string;
+  at_offset_minutes: number;
+  source_time: string;
+  outcome: string;
+  control: string;
+  component_id: string | null;
+  value: string | null;
+  members: string[] | null;
+  unit: string;
+  effective_start: string;
+  effective_end: string | null;
+  policy_version: number | null;
+  policy_source: string | null;
+  record_kind: string | null;
+  actor: string | null;
+  event_id: string | null;
+}
+
+/**
+ * T026 AC13: one publication a delay window held, at the boundary that
+ * released it. `held_minutes` is the host's; the screen never derives it.
+ */
+export interface RunHistoryPublication {
+  kind: string;
+  device_id: string;
+  signal_id: string;
+  source_offset_minutes: number;
+  source_time: string;
+  released_offset_minutes: number;
+  published_at: string;
+  held_minutes: number;
+  delay_event_id: string;
+}
+
 export interface RunHistoryAttachment {
   role: string;
   component_id: string;
@@ -253,6 +297,10 @@ export interface RunHistory {
    * host's totals; the charts read them and never re-sum the flows.
    */
   electrical_steps: RunElectricalStep[];
+  /** T026 AC13 (history schema 3): records at occurrence. */
+  records: RunHistoryRecord[];
+  /** T026 AC13 (history schema 3): held publications at release. */
+  publications: RunHistoryPublication[];
 }
 
 export type RunHistoryResult =
@@ -381,6 +429,39 @@ export function isRunHistory(value: unknown): value is RunHistory {
         typeof item.to_offset === "number" &&
         typeof item.pv_output === "string" &&
         typeof item.battery_power === "string",
+    ) &&
+    every(
+      value.records,
+      (item) =>
+        typeof item.family === "string" &&
+        typeof item.device_id === "string" &&
+        typeof item.signal_id === "string" &&
+        typeof item.at_offset_minutes === "number" &&
+        typeof item.source_time === "string" &&
+        typeof item.outcome === "string" &&
+        typeof item.control === "string" &&
+        isNullable(item.value, "string") &&
+        (item.members === null ||
+          (Array.isArray(item.members) &&
+            item.members.every((member) => typeof member === "string"))) &&
+        typeof item.unit === "string" &&
+        typeof item.effective_start === "string" &&
+        isNullable(item.effective_end, "string") &&
+        isNullable(item.policy_version, "number") &&
+        isNullable(item.record_kind, "string") &&
+        isNullable(item.actor, "string"),
+    ) &&
+    every(
+      value.publications,
+      (item) =>
+        typeof item.kind === "string" &&
+        typeof item.device_id === "string" &&
+        typeof item.signal_id === "string" &&
+        typeof item.source_offset_minutes === "number" &&
+        typeof item.source_time === "string" &&
+        typeof item.released_offset_minutes === "number" &&
+        typeof item.published_at === "string" &&
+        typeof item.held_minutes === "number",
     ) &&
     every(
       value.reporting_gaps,

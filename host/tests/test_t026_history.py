@@ -348,3 +348,31 @@ def test_a_profile_without_record_channels_states_records_not_applicable(
     reloaded = a_lab(tmp_path).history(run)
     assert reloaded.source == "PERSISTED", reloaded.notes
     assert reloaded.availability("records") == "NOT_APPLICABLE"
+
+
+# --- AC14: no Lab disclosure says a staged status awaits staging -------------
+
+
+def test_a_run_that_stages_its_status_no_longer_says_it_awaits_staging(
+    tmp_path,
+) -> None:
+    from assetops_contracts.lab_projection import (
+        GENERATOR_STATUS_REPORTED_NOT_STAGED,
+        GENERATOR_STATUS_REPORTED_STAGED,
+    )
+
+    run = draft(DEGRADED)
+    lab = a_lab(tmp_path)
+    lab.start(run)
+    generator = lab.run_to_end(run).electrical.generator
+    assert generator.reported_status == GENERATOR_STATUS_REPORTED_STAGED
+    assert generator.reported_status != GENERATOR_STATUS_REPORTED_NOT_STAGED
+    assert "T026" not in generator.reported_status
+    assert "not yet staged" not in generator.reported_status
+    # Staged is not committed or accepted, and it does not claim to be.
+    assert "not committed or accepted" in generator.reported_status
+    staged = {
+        (e.device_id, e.signal_id)
+        for e in lab.staged_envelopes(run).stage.envelopes
+    }
+    assert ("generator-controller", "status") in staged

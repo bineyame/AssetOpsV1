@@ -15,7 +15,9 @@ import type {
  *
  * Everything here is read from the ledger. There is no planned lane: a frozen
  * event the run never reached is not in `applied_events`, so nothing here can
- * label a plan as applied.
+ * label a plan as applied. Declared reporting gaps are frozen whole, so they
+ * are clipped to the recorded extent (T025d C2). Records and held
+ * publications (T026) are reported evidence and sit in the REPORTING lane.
  *
  * Phases are the execution contract's boundary-cycle phases. What each one
  * governs is stated per entry, and a discrete transition is checked against
@@ -202,7 +204,14 @@ function allEntries(history: RunHistory): TimelineEntry[] {
     });
   });
 
+  // T025d C2 (carried by T026): a declared gap is a whole-window declaration
+  // frozen with the run, so only the part the run has recorded is shown as
+  // applied. A gap the run has not reached is not an entry at all.
+  const through = history.recorded_through_offset_minutes;
   history.reporting_gaps.forEach((g, index) => {
+    if (through === null || g.start_offset_minutes > through) return;
+    const end = Math.min(g.end_offset_minutes, through);
+    const clipped = end < g.end_offset_minutes;
     entries.push({
       key: `gap-${index}`,
       lane: "REPORTING",
@@ -212,8 +221,10 @@ function allEntries(history: RunHistory): TimelineEntry[] {
       phase: null,
       origin: g.timing_shape,
       share: null,
-      span: [g.start_offset_minutes, g.end_offset_minutes],
-      applies: `readings of ${g.address} over [${g.start_offset_minutes}, ${g.end_offset_minutes}) min`,
+      span: [g.start_offset_minutes, end],
+      applies: clipped
+        ? `readings of ${g.address} from ${g.start_offset_minutes} min, through the recorded extent at ${end} min`
+        : `readings of ${g.address} over [${g.start_offset_minutes}, ${end}) min`,
       detail:
         "The reporting path carries no reading; the physical state it would have described is unaffected.",
       agrees: null,
@@ -245,6 +256,68 @@ function allEntries(history: RunHistory): TimelineEntry[] {
     });
   });
 
+  // T026 AC13: policy and operational records, at the instant they occurred.
+  // A record the channel did not publish is none observed - never "no record".
+  history.records.forEach((r, index) => {
+    const what =
+      r.value !== null
+        ? `${r.control} ${r.value} ${r.unit}`
+        : r.members !== null
+          ? `${r.control} ${r.members.join(", ")}`
+          : r.control;
+    const provenance = [
+      r.policy_version === null ? null : `Foundation version ${r.policy_version}`,
+      r.record_kind,
+      r.actor === null ? null : `actor ${r.actor}`,
+    ]
+      .filter((part) => part !== null)
+      .join(", ");
+    entries.push({
+      key: `record-${index}`,
+      lane: "REPORTING",
+      kind: r.family === "POLICY" ? "Policy record" : "Operational record",
+      source: `${r.device_id} ${r.signal_id}`,
+      address: r.component_id ?? r.control,
+      phase: null,
+      origin: r.outcome,
+      share: null,
+      span: [r.at_offset_minutes, r.at_offset_minutes],
+      applies:
+        `occurred ${r.source_time}; effective from ${r.effective_start}` +
+        (r.effective_end === null ? "" : ` to ${r.effective_end}`),
+      detail:
+        r.outcome === "REPORTED"
+          ? `published: ${what}${provenance === "" ? "" : ` (${provenance})`}`
+          : "None observed: its channel was silenced by a reporting gap. That " +
+            "never establishes that nothing was commanded.",
+      agrees: null,
+      count: 1,
+    });
+  });
+
+  // T026 AC13/AC10: a held publication spans its source time to the boundary
+  // that released it. The reading or record exists; only its arrival is late.
+  history.publications.forEach((p, index) => {
+    entries.push({
+      key: `publication-${index}`,
+      lane: "REPORTING",
+      kind: "Publication delay",
+      source: `${p.delay_event_id}: ${p.device_id} ${p.signal_id}`,
+      address: `${p.device_id} ${p.signal_id}`,
+      phase: null,
+      origin: p.kind,
+      share: null,
+      span: [p.source_offset_minutes, p.released_offset_minutes],
+      applies: `source time ${p.source_time}; published ${p.published_at}`,
+      detail:
+        `Held ${p.held_minutes} min by a publication delay: the ` +
+        `${p.kind === "RECORD" ? "record" : "reading"} keeps its source time and ` +
+        "was published later. Not a sensor gap.",
+      agrees: null,
+      count: 1,
+    });
+  });
+
   return entries;
 }
 
@@ -267,6 +340,8 @@ export function intervalTimeline(
       return from <= offset && to > (start ?? offset - 1);
     }
     if (entry.kind === "Observation attempt") return from === offset;
+    // At its source boundary and at the boundary that released it.
+    if (entry.kind === "Publication delay") return from === offset || to === offset;
     if (from === to) {
       // An instant: at T, or the step decision at the interval's start.
       return (

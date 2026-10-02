@@ -68,6 +68,7 @@ from assetops_contracts.control import (
 )
 from assetops_contracts.lab_projection import (
     GENERATOR_STATUS_REPORTED_NOT_STAGED,
+    GENERATOR_STATUS_REPORTED_STAGED,
     LAB_EXECUTION_STATUS_STATEMENTS,
     ElectricalStepRow,
     ElectricalView,
@@ -637,8 +638,12 @@ def with_reported_generator_status(
     electrical: ElectricalView | None,
     reporting: FrozenReportingInputs,
     observations: tuple[DeviceObservation, ...],
+    mapping: SourceMappingSet | None = None,
 ) -> ElectricalView | None:
     """T025b: put the REPORTED generator status beside the physical one.
+
+    T026 AC14: the statement says the status is staged only when `mapping`,
+    the run's frozen gateway mapping, carries its device and signal.
 
     Only when the run publishes a discrete status reading about the generator's
     state address (publication profile 4, on a Site that configures it). Each
@@ -678,7 +683,16 @@ def with_reported_generator_status(
         generator=replace(
             generator,
             steps=tuple(steps),
-            reported_status=GENERATOR_STATUS_REPORTED_NOT_STAGED,
+            reported_status=(
+                GENERATOR_STATUS_REPORTED_STAGED
+                if mapping is not None
+                and any(
+                    (entry.device_id, entry.signal_id)
+                    == (status.device_id, status.signal_id)
+                    for entry in mapping.entries
+                )
+                else GENERATOR_STATUS_REPORTED_NOT_STAGED
+            ),
         ),
     )
 
@@ -741,7 +755,10 @@ def project(session: LabSession) -> LabProjection:
         failure=execution.failure,
         notes=session.notes + tuple(session.staging_notes) + execution.notes,
         electrical=with_reported_generator_status(
-            electrical_view(execution), session.reporting, observations
+            electrical_view(execution),
+            session.reporting,
+            observations,
+            session.mapping,
         ),
     )
 

@@ -455,6 +455,8 @@ export const NOT_RECORDED: RunHistory = {
     "observation_attempts",
     "timeline",
     "drawing",
+    "records",
+    "publications",
   ].map((family) => ({
     family,
     availability: "UNAVAILABLE",
@@ -477,6 +479,8 @@ export const NOT_RECORDED: RunHistory = {
   reporting_gaps: [],
   drawing_context: null,
   electrical_steps: [],
+  records: [],
+  publications: [],
 };
 
 /**

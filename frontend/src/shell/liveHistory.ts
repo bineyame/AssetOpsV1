@@ -24,6 +24,8 @@ import type {
   RunHistoryDeltaEnvelope,
   RunHistoryDiscreteTransition,
   RunHistoryInterval,
+  RunHistoryPublication,
+  RunHistoryRecord,
   RunHistorySample,
 } from "./runHistory";
 
@@ -47,6 +49,11 @@ export const APPEND_FAMILY_KEYS = {
   // Addendum B (option R, owner chose 2026-09-30): the projection's step row
   // for the interval a boundary decided, keyed like the interval.
   electrical_steps: "from_offset",
+  // T026 AC13 (history schema 3). A record at the boundary it occurred at (a
+  // future effective time is only a field); a held publication at the
+  // boundary that released it, never as an edit to its source row.
+  records: "at_offset_minutes",
+  publications: "released_offset_minutes",
 } as const;
 
 export type AppendFamily = keyof typeof APPEND_FAMILY_KEYS;
@@ -329,6 +336,10 @@ export interface BoundarySlice {
   applied_events: RunHistoryAppliedEvent[];
   bounded_transitions: RunHistoryBoundedTransition[];
   discrete_transitions: RunHistoryDiscreteTransition[];
+  /** T026: records that occurred at or before this boundary since the last. */
+  records: RunHistoryRecord[];
+  /** T026: held publications this boundary released. */
+  publications: RunHistoryPublication[];
 }
 
 /** Boundary slices by `step_index`, in boundary order. */
@@ -340,6 +351,8 @@ const SLICED = [
   "applied_events",
   "bounded_transitions",
   "discrete_transitions",
+  "records",
+  "publications",
 ] as const;
 
 /**
@@ -359,6 +372,8 @@ function slicesFor(
     applied_events: [],
     bounded_transitions: [],
     discrete_transitions: [],
+    records: [],
+    publications: [],
   }));
   if (slices.length === 0) {
     return slices;

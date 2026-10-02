@@ -335,6 +335,19 @@ GENERATOR_STATUS_REPORTED_NOT_STAGED = (
 )
 
 
+#: T026 AC14. The same status, when the run's frozen gateway mapping stages it
+#: (publication profile 5): staged in the run's own envelopes, and no more than
+#: that - nothing is committed, ingested or accepted as Site evidence.
+GENERATOR_STATUS_REPORTED_STAGED = (
+    "Reported generator status comes from the generator controller's status "
+    "reading, through the observation path: it can be missing, or a retained "
+    "STALE reading, while the physical state carries on. This run's gateway "
+    "mapping stages it as a typed member in the run's source envelopes; staged "
+    "is not committed or accepted as Site evidence. The state columns are the "
+    "simulator's private physical state."
+)
+
+
 @dataclass(frozen=True)
 class GeneratorStepRow:
     """One resolved step of the generator, for the gated Lab (T025a).
