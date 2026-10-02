@@ -325,6 +325,16 @@ coordinator's:
   anchors, what is next, open risks); the coordinator dispatches a fresh agent
   for the next phase from that file. Full suites and the packet belong to the
   last phase.
+- **Hand off at about 120k context.** Set by the owner on 2026-10-02 after
+  usage showed 66% of tokens spent above 150k context and 67% in implementer
+  subagents. An implementer that nears 120k commits what is safe, writes its
+  handoff and stops, even mid-phase; a fresh agent continues from the handoff.
+  The coordinator plans phases so that none is expected to reach that size,
+  splitting a phase into sub-phases (2a, 2b) rather than letting one run long.
+- **Mechanical sub-steps run on Sonnet.** Work fixed by an agreed contract or
+  handoff - tests written against a settled interface, an AC-by-AC evidence
+  pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.
+  Steps that decide a design stay on the session model.
 
 ## Updating Bindings
 

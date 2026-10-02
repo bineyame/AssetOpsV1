@@ -54,7 +54,10 @@ again. Keep the context small by construction:
 - **Tests: targeted while building, full once at the end.** Run the test file
   you are changing; run the full backend/host/simulator/frontend suites once
   after the build is committed, and again only if code changed after that.
-  Always trim output (`| tail -n 30`, or failures only).
+  Always trim output (`| tail -n 30`, or failures only). Never let a full
+  suite log, build log or measurement dump into context: filter to failures
+  and the summary line, and if more is needed, write the log to a file and
+  read the part you need with bounded reads.
 - **Layout evidence once, at the end**, not per iteration.
 - **Long jobs in the background.** Start servers and measurements with
   `run_in_background` and act on the completion notification; do not poll with
@@ -68,6 +71,11 @@ again. Keep the context small by construction:
   anchors the next phase needs, what is next, open risks. Keep it short; a
   fresh agent builds the next phase from it. When starting a later phase, read
   the previous handoff instead of re-surveying.
+- **Stop at about 120k context.** When your context nears 120k tokens, stop
+  starting new work: commit what is safe, write the phase handoff (marking it
+  partial and naming exactly where to resume), and end your turn. A fresh
+  agent continues more cheaply than you can, because every further turn
+  re-reads everything you hold.
 
 ## Work standard
 
