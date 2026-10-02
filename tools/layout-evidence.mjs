@@ -3825,6 +3825,13 @@ const READ_T027_EVIDENCE = `(() => {
     detail: document.querySelector('[data-evidence-record-detail]') !== null,
     times: all('[data-record-time]').map((t) => ({ kind: t.getAttribute('data-record-time'), text: (t.textContent || '').trim() })),
     currentTab: (document.querySelector('.site-tabs__list [aria-current="page"]')?.textContent || '').trim(),
+    // What sets the page wider than the viewport, if anything: the innermost
+    // elements past the right edge that are not inside a table scroll region.
+    wide: all('main *')
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1 && !e.closest('.data-table__scroll'))
+      .filter((e) => !Array.from(e.children).some((c) => c.getBoundingClientRect().right > document.documentElement.clientWidth + 1))
+      .slice(0, 3)
+      .map((e) => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (e.className && typeof e.className === 'string' ? '.' + e.className.split(' ')[0] : '')),
   };
 })()`;
 
@@ -3959,7 +3966,7 @@ if (t027.run === null) {
           [
             "the page does not scroll horizontally",
             !page.pageScrollsHorizontally,
-            `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+            `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}; past the edge: ${read.wide.join(", ") || "nothing"}`,
           ],
         ]) && allPass;
     }
@@ -3974,9 +3981,13 @@ if (t027.run === null) {
     allPass =
       report(`T027 Site > Evidence empty, ${SITE}, at ${label}`, page, [
         [
-          "the empty state renders, with no source or coverage rows",
-          read.state === "empty" && read.sources === 0 && read.coverage.length === 0,
-          `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows`,
+          // The needed-signal coverage still lists what the Site needs, every
+          // row NOT_REPORTED: nothing was accepted, and the gap is the point.
+          "the empty state renders: no source rows, and every needed signal reads not reported",
+          read.state === "empty" &&
+            read.sources === 0 &&
+            read.coverage.every((r) => r.status === "NOT_REPORTED"),
+          `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported`,
         ],
         [
           "exactly Overview|Foundation|Evidence, Evidence current",
