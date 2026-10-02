@@ -10,7 +10,9 @@ Swapping the store is therefore one new adapter module plus one line here.
 
 from __future__ import annotations
 
+from assetops_backend.runs.adapters.json_commit_store import JsonCommitStore
 from assetops_backend.runs.adapters.yaml_run_store import YamlRunStore
+from assetops_backend.runs.commit_ports import CommittedArtifactStore
 from assetops_backend.runs.ports import SimulationRunRepository
 
 
@@ -22,3 +24,8 @@ def build_run_repository() -> SimulationRunRepository:
     installation did.
     """
     return YamlRunStore()
+
+
+def build_commit_store() -> CommittedArtifactStore:
+    """Choose the adapter that files sealed Commit artifacts (T027, D4)."""
+    return JsonCommitStore()

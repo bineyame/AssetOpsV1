@@ -31,7 +31,8 @@ from assetops_backend.evidence.composition import build_evidence_store
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.service import Clock, IngestionService, system_clock
 from assetops_backend.evidence_api import build_evidence_router
-from assetops_backend.runs.composition import build_run_repository
+from assetops_backend.runs.commit_ports import CommittedArtifactStore
+from assetops_backend.runs.composition import build_commit_store, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
 from assetops_backend.runs.profiles import (
@@ -71,6 +72,7 @@ def create_app(
     execution: LabExecutionPort | None = None,
     evidence_store: EvidenceStore | None = None,
     clock: Clock | None = None,
+    commit_store: CommittedArtifactStore | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -116,6 +118,11 @@ def create_app(
     `clock` is ingestion's clock (it assigns `received_at`). The service is
     exposed as `app.state.ingestion` so the gated Commit route can release
     through the same `ingest` method rather than a second path.
+
+    The commit store (T027, D4) is built only when the gate is open, like the
+    run store: committing a run's stage is a Lab act, so a closed build never
+    opens the directory sealed artifacts are filed in. Accepted evidence does
+    not depend on it - the Evidence routes read the evidence store alone.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -145,6 +152,7 @@ def create_app(
             else scenario_repository
         )
         runs = build_run_repository() if run_repository is None else run_repository
+        commits = build_commit_store() if commit_store is None else commit_store
         app.include_router(
             build_simulator_lab_router(
                 catalog,
@@ -154,6 +162,7 @@ def create_app(
                 MODEL_PROFILES,
                 PUBLICATION_PROFILES,
                 execution,
+                commits,
             )
         )
 
