@@ -1317,13 +1317,15 @@ for (const [label, width, height] of [
         `scrollWidth ${foundation.pageScrollWidth} vs clientWidth ${foundation.pageClientWidth}`,
       ],
       [
-        "the Site tab row still carries all eight",
-        siteTabs.length === 8,
+        // D-2026-10-02-rendered-tabs-per-capability (T027 AC23): only the
+        // tabs whose capability exists render.
+        "the Site tab row is exactly Overview, Foundation, Evidence",
+        siteTabs.join("|") === "Overview|Foundation|Evidence",
         siteTabs.join(" | "),
       ],
       [
-        "the Foundation subtab row is the four, without Changes",
-        subtabs.length === 4 && !subtabs.includes("Changes"),
+        "the Foundation subtab row is exactly Definition, Topology, Controls",
+        subtabs.join("|") === "Definition|Topology|Controls",
         subtabs.join(" | "),
       ],
       [
