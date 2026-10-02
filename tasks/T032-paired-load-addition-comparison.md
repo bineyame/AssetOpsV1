@@ -2,11 +2,12 @@
 
 Status: planned
 USER_REVIEW_REQUIRED: true
+Planner: Claude under the Codex-reset exception (`.ai/ROLE_CONFIG.md`).
 
 Map: F completion.
-Depends on: T031, T027 evidence path, T029 BusinessContext and T029A
-immutable intervention artifacts.
-Delivery order: after T031; next T033. T034 no longer waits on this slice:
+Depends on: T031 (and its Desta seed), T027 evidence path, T029
+BusinessContext and T029A immutable intervention artifacts.
+Delivery order: after T031; next T030. T034 no longer waits on this slice:
 `D-2026-09-24-queue-resequenced-for-demo` moved the mechanism into T029A.
 Branch: task/T032-paired-load-addition-comparison
 Sizing: comparison-history boundary over an existing intervention mechanism.
@@ -106,6 +107,11 @@ Context routing belongs to release/ingestion metadata, not simulator truth.
     the timeline. Links retain experiment/side context; product paired metrics
     remain accepted-evidence comparisons. No general multi-run Lab chart is
     required.
+20. The comparison is a drill-down from Desta > Performance > Renewable and
+    its opportunity Finding, not a Site tab. It emits no Finding, so it adds
+    no capability-declaration entry. Desta's seed (T031) gains this pair,
+    reproducible under `D-2026-10-02-demo-point-seed-rule`; Portfolio and
+    Desta's ordinary rows are unchanged by it (AC10).
 
 ## Proof
 
@@ -129,7 +135,10 @@ Test exact-path comparison with unrelated changes hidden in the same version
 update. A test comparing only version ids does not satisfy this slice.
 
 Run simulator/host, ingestion-context, comparison and UI tests, shared checks
-and layout evidence on the comparison.
+and `node tools/layout-evidence.mjs` on the comparison. Rail and Site tabs
+unchanged from T031. *UI check (recommendation 5.1 step 8):* on the seed with
+Lab off, Portfolio -> Desta > Renewable -> comparison shows the five
+quantities with comparability proof.
 The review packet records the selected history context in every release/query
 path so isolation is demonstrated beyond a UI filter.
 

@@ -2,15 +2,18 @@
 
 Status: planned
 USER_REVIEW_REQUIRED: true
+Planner: Claude under the Codex-reset exception (`.ai/ROLE_CONFIG.md`).
 
 Map: G.
-Depends on: A battery model, T027 evidence, T029 assumptions, C Finding views
-and T034's versioned verification rule set.
-Delivery order: after T032, interchangeable with T035, then T036.
+Depends on: A battery model, T027 evidence, T029 assumptions, C Finding views,
+T034's versioned verification rule set and T034A Portfolio and seed.
+Delivery order: after T035 by default (service before battery,
+`tasks/README.md`), interchangeable with it; next T025i, then T036.
 T033 and T035 consume nothing from each other: both depend only on T027's
-evidence, T029's assumptions and T034's rule set, and whichever runs second is
-unaffected by the choice. Which comes first is a product-priority call taken
-from T028/T029 feedback, not a sequencing constraint.
+evidence, T029's assumptions, T034's rule set and T034A's Portfolio, and
+whichever runs second is unaffected by the choice. Which comes first is a
+product-priority call taken from T028/T029 feedback, not a sequencing
+constraint.
 Under schedule pressure this is the first major story to move behind early
 client feedback - see `Docs/queue-review-feedback-verbatim.md` and
 `D-2026-09-24-queue-resequenced-for-demo`. Deferring it does not weaken the
@@ -77,6 +80,21 @@ this slice adds battery stress to H's existing versioned guardrail set.
     state, and plot any new actual reported signals with their source time and
     gaps in gated Lab. Keep the product's evidence-derived trajectory distinct;
     private accumulation is never relabelled as measured SoH.
+18. Site > Health renders as the eighth Site tab, between Foundation and
+    Performance, with physical condition and source health as separate blocks;
+    a gateway being Online never stands in for a battery being Healthy.
+    **Assets** enters the rail under OPERATE after Sites, leading to the
+    Battery asset root whose Health view is AC10's (recommendation 2.1, 2.4,
+    section 3 Asset Lifecycle; `D-2026-10-02-rendered-tabs-per-capability`).
+19. The stress analytic joins the capability declaration
+    (`D-2026-10-02-presentation-profile-and-capability-declaration`), giving
+    it its Site > Evidence capability row and the Battery Overview card's
+    assessment slot; AC16's rule joins T034's versioned rule set there.
+20. Arsi joins the Portfolio: Arsi's reproducible recipe and seed (AC15; T036
+    AC1's Arsi recipe, pulled forward) under
+    `D-2026-10-02-demo-point-seed-rule`, its own Site through normal
+    ingestion, extending the point-3 seed command. Replacement exposure stays
+    a separate consequence type (T034A AC5).
 
 ## Proof
 
@@ -95,7 +113,15 @@ this slice adds battery stress to H's existing versioned guardrail set.
 Use independently calculated throughput and one exposure-window case.
 Check that product queries cannot access private accumulator objects.
 Run simulator/host, publication/ingestion, analytic/financial and UI tests,
-shared checks and layout evidence for Battery Health and Financials.
+shared checks and `node tools/layout-evidence.mjs` for Site > Health, Battery
+Health, Financials and Portfolio. Rendered rail at the end: OPERATE:
+Portfolio, Sites, Assets; INTELLIGENCE: Findings; WORK: Actions. Site tabs
+(eight): Overview, Foundation, Health, Performance, Findings, Work,
+Financials, Evidence. Navigation-truthfulness tests cover both.
+
+*UI check (recommendation 5.1 step 9):* on the seed with Lab off, Portfolio
+shows Arsi; open Arsi > Health, then Assets > Arsi battery > Health with its
+trajectory, reference band and bounded replacement exposure.
 
 ## Scope limits
 
