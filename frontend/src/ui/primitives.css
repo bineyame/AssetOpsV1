@@ -336,8 +336,7 @@ button:focus-visible {
   display: flex;
 }
 
-.site-tabs__link,
-.site-tabs__label {
+.site-tabs__link {
   display: block;
   padding: var(--space-2) var(--space-3);
   margin-bottom: -1px;
@@ -369,37 +368,6 @@ button:focus-visible {
 .site-tabs__link[aria-current="page"] {
   font-weight: var(--weight-semibold);
   border-bottom-color: var(--accent);
-}
-
-/*
- * A label is not a quieter link. It is a different kind of thing, so it is set
- * in the body colour scale rather than the link one, and it never moves under
- * the pointer.
- */
-.site-tabs__label {
-  color: var(--text-muted);
-  font-weight: var(--weight-regular);
-}
-
-/* Where the destinations end and the labels begin. */
-.site-tabs__item--group-start {
-  margin-left: var(--space-3);
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--border-strong);
-}
-
-/*
- * The second signal, and the one that survives greyscale, a colour-vision
- * difference, and a reader who does not know that grey means unbuilt here.
- *
- * It is derived from the tab inventory, so it cannot contradict the row above
- * it, and it describes this build rather than a later one.
- */
-.site-tabs__aspects {
-  margin: var(--space-2) 0 0;
-  padding: 0 var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
 }
 
 /* Panel ------------------------------------------------------------------- */
@@ -1310,21 +1278,6 @@ button:focus-visible {
 
 .section-nav__link:hover {
   text-decoration: underline;
-}
-
-/*
- * A section this build does not have. Same two-state rule as the tab row: not
- * a link, not a control, and never disabled - it is not switched off, it is
- * not built.
- */
-.section-nav__absent {
-  color: var(--text-muted);
-}
-
-.section-nav__note {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
 }
 
 /*
