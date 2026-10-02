@@ -122,6 +122,7 @@ from assetops_backend.runs.timezones import (
     validate_iana_timezone,
 )
 from assetops_contracts.control import DISCRETE_UNIT
+from assetops_contracts.observation import ReportingPathWindow
 from assetops_contracts.execution_contract import (
     MODEL_NEED_ONLY_UNITS,
     canonical_model_need_quantity,
@@ -3338,15 +3339,25 @@ OVERRIDE_COMMAND_STATES = frozenset(
 def _held_span(
     condition: FrozenReportingPathCondition, duration: int, timestep: int
 ) -> tuple[int, int]:
-    """A condition's half-open span, by the observation contract's shape rule."""
-    if condition.timing_shape == "WINDOW":
-        return condition.offset_minutes, condition.offset_minutes + (
-            condition.duration_minutes or 0
-        )
-    if condition.timing_shape == "INTERVAL_WIDE":
-        return condition.offset_minutes, duration
-    start = (condition.offset_minutes // timestep) * timestep
-    return start, min(start + timestep, duration)
+    """A condition's half-open span, by `ReportingPathWindow`'s own shape rule.
+
+    The same rule the host resolves a delay window with, so setup's refusal and
+    the release it guards cannot disagree (T026 review C7). The window's
+    identity fields do not enter the span arithmetic.
+    """
+    window = ReportingPathWindow(
+        event_id=condition.event_id,
+        condition_address=condition.addressed_key,
+        device_id="",
+        signal_id="",
+        address="",
+        timing_shape=condition.timing_shape,
+        offset_minutes=condition.offset_minutes,
+        duration_minutes=condition.duration_minutes,
+        interval_minutes=duration,
+        timestep_minutes=timestep,
+    )
+    return window.start_offset_minutes, window.end_offset_minutes
 
 
 def _refuse_a_delay_that_reorders(

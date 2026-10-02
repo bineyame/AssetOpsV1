@@ -229,8 +229,9 @@ REPORTING_PATH_STATES = frozenset(
 )
 
 #: T026. The reporting-path states whose condition DELAYS publication rather than
-#: silencing it. A scenario entry forcing one names its delay as a parameter in
-#: minutes; the value and source time of what it delays never change.
+#: silencing it. A scenario entry forcing one declares a window and carries no
+#: duration parameter: the window's end is the release, so anything due inside it
+#: is published when the window ends. The value and source time never change.
 PUBLICATION_DELAY_STATES = frozenset(
     {"battery-soc-publication-delay", "override-record-publication-delay"}
 )
@@ -1644,8 +1645,10 @@ LAB_PUBLICATION_PROFILE_V5 = replace(
             supported_roles=frozenset({"FORCING_INPUT"}),
             statement=(
                 "A state-of-charge publication due in a declared window can be "
-                "held back by a declared number of minutes. Its value and "
-                "source time are unchanged; only its publication time moves."
+                "held back for a declared window: it is published when the "
+                "window ends, and there is no separate duration parameter. "
+                "Its value and source time are unchanged; only its "
+                "publication time moves."
             ),
             delays=(("battery-pcs-controller", "state-of-charge"),),
         ),
@@ -1655,8 +1658,9 @@ LAB_PUBLICATION_PROFILE_V5 = replace(
             supported_roles=frozenset({"FORCING_INPUT"}),
             statement=(
                 "An override command record occurring in a declared window can "
-                "be held back by a declared number of minutes; its occurrence "
-                "and effective times are unchanged."
+                "be held back for a declared window: it is published when the "
+                "window ends, and there is no separate duration parameter. "
+                "Its occurrence and effective times are unchanged."
             ),
             delays=(
                 ("generator-controller", "override-command"),
