@@ -335,7 +335,9 @@ describe("the stage is read from the stage route, and only behind the gate", () 
 
     const release = document.querySelector("[data-stage-release]");
     expect(release?.getAttribute("data-stage-release")).toBe("ELIGIBLE");
-    expect(release?.textContent).toMatch(/Nothing in this build releases it/);
+    expect(release?.textContent).toMatch(
+      /Commit seals this stage and releases it through ingestion/,
+    );
   });
 
   it("a draft nothing executed has an empty stage and says so", async () => {

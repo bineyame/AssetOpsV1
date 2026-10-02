@@ -625,7 +625,7 @@ describe("the execution controls", () => {
 });
 
 describe("what executing a draft still is not", () => {
-  it("states that nothing was released, committed or written to a site", async () => {
+  it("states that staging releases nothing and only a Commit does", async () => {
     renderAt(READY_URL, client({ status: "loaded", execution: COMPLETED }));
     await settledScreen();
 
@@ -633,18 +633,16 @@ describe("what executing a draft still is not", () => {
       .getByRole("heading", { name: "What this run is not" })
       .closest("section") as HTMLElement;
 
-    // T023 stages envelopes, so "nothing has been staged" stopped being true
-    // and was replaced rather than kept: what stays true is that a staged
-    // envelope has not been released, received or accepted.
-    expect(spacedText(panel)).toMatch(
-      /None has been released, received or accepted/i,
-    );
+    // T027 makes Commit real, so "it cannot be committed" stopped being true
+    // and was replaced rather than kept: what stays true is that staging
+    // releases nothing and only a Commit, through ingestion, does.
+    expect(spacedText(panel)).toMatch(/Staging releases nothing/i);
     expect(spacedText(panel)).toMatch(/not evidence about anywhere/i);
-    expect(spacedText(panel)).toMatch(/it cannot be committed/i);
+    expect(spacedText(panel)).toMatch(/Only a Commit releases them/i);
     expect(spacedText(panel)).toMatch(/writes to no site/i);
   });
 
-  it("offers no commit, stage, release, replay or reset control anywhere", async () => {
+  it("offers no stage, replay or reset control, and Commit only as T027 built it", async () => {
     renderAt(READY_URL, client({ status: "loaded", execution: COMPLETED }));
     await settledScreen();
 
@@ -657,12 +655,15 @@ describe("what executing a draft still is not", () => {
     // "Execute this run now" walked past one.
     // T025d adds exactly two: auto-play of the guarded Step and its pause,
     // which stops the browser's scheduling and does nothing to the run.
+    // T027 adds Commit and release, disabled here because this stage is not
+    // release-eligible.
     expect(controls).toEqual([
       "Start this run",
       "Step",
       "Run to the end",
       "Play",
       "Pause",
+      "Commit and release",
       "Back to Runs",
       "Back to the Simulator Lab",
     ]);

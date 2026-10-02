@@ -10,6 +10,7 @@ import {
   stagedSignal,
   unavailableArrival,
 } from "./HistoryInspector";
+import { RunCommitPanel } from "./RunCommitPanel";
 import { RunHeader } from "./RunHeader";
 import {
   DEFAULT_PLAYBACK_DELAY_MS,
@@ -703,9 +704,9 @@ export function RunFrame({
       </div>
 
       <p className="run-not-line" data-run-not-line>
-        What this run is not: a draft of private simulator truth and staged
-        envelopes - nothing released, committed, accepted or concluded, and no
-        site written.
+        What this run is not: evidence. It is a draft of private simulator
+        truth and staged envelopes; only a Commit releases them, through
+        ingestion, and only what ingestion accepts reaches a site.
       </p>
 
       <Disclosure
@@ -1121,7 +1122,8 @@ export function RunFrame({
               named here only when the mapping this stage froze leaves it out,
               so the stage is not read as the whole of what the run reports.
               A mapping that stages it says nothing of the kind, and nothing
-              here claims Commit or acceptance. */}
+              here claims Commit or acceptance: those are the Commit panel's
+              facts (T027), read from the Commit and from ingestion. */}
           {projection === null ||
           stage === null ||
           stage.status !== "loaded" ||
@@ -1177,7 +1179,7 @@ export function RunFrame({
                     }
                   >
                     {stage.stage.release_eligible
-                      ? "Eligible. Nothing in this build releases it: Commit and ingestion do not exist yet."
+                      ? "Eligible. Commit seals this stage and releases it through ingestion; see Commit and release."
                       : "Not eligible"}
                   </span>
                 </Fact>
@@ -1287,27 +1289,33 @@ export function RunFrame({
         )}
       </Disclosure>
 
+      {runId === undefined ? null : (
+        <RunCommitPanel runId={runId} runSetup={runSetup} stage={stage} />
+      )}
+
       <Disclosure name="run-not" summary="What this run is not, in full">
         <Panel heading="What this run is not" headingId="run-not-heading">
           <ul className="cell-list">
             <li>
               What it produced is private simulator truth and the readings a
               configured device would have published from it. Neither is evidence,
-              and nothing here has entered ingestion.
+              and none of the private truth ever enters ingestion.
             </li>
             <li>
-              Its staged source envelopes are staged and nothing more. None has
-              been released, received or accepted, and a staged envelope is not
-              evidence about anywhere.
+              Its staged source envelopes are staged and nothing more. Staging
+              releases nothing, and a staged envelope is not evidence about
+              anywhere.
             </li>
             <li>
-              It is a draft and it cannot be committed. Committing is what makes
-              simulated history permanent and releases evidence from it, and no
-              slice in this build can do either.
+              Only a Commit releases them: it seals the eligible stage as an
+              immutable artifact and sends it through ingestion. Whether this
+              draft was committed, and what ingestion accepted, rejected or
+              found duplicate, is reported under Commit and release, separately.
             </li>
             <li>
-              No evidence has been accepted from it, and no operator surface shows
-              anything because of it. Executing a draft writes to no site.
+              Executing a draft writes to no site. An operator surface shows
+              only what ingestion accepted from a Commit, never the stage or
+              the run.
             </li>
             <li>
               No conclusion has been drawn from it. A reading a run generated is

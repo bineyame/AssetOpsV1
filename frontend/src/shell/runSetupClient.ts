@@ -669,8 +669,10 @@ export interface RunStageMapping {
  * One Draft's staged source envelopes, re-read from persistence and verified.
  *
  * `status` is `NOT_STAGED`, `STAGED` or `STAGE_UNREADABLE`; `statement` is the
- * backend's sentence for it. `release_eligible` is a condition a later Commit
- * will require, and nothing in this build releases anything.
+ * backend's sentence for it. `release_eligible` is the condition Commit
+ * requires (T027); the stage itself releases nothing, and whether this Draft
+ * was committed and what ingestion accepted is `getCommit`'s answer, not the
+ * stage's.
  */
 export interface RunStage {
   run_id: string;
@@ -698,6 +700,72 @@ export interface RunStage {
 export type RunStageResult =
   | { status: "loaded"; stage: RunStage }
   | { status: "not_found" }
+  | { status: "unavailable"; message: string | null };
+
+/**
+ * One ingestion batch as ingestion reports it (T027). `status` is
+ * `IN_PROGRESS`, `COMPLETED` or `REFUSED`; the counts are ingestion's, never
+ * inferred from the stage, so `accepted` may be less than `total`.
+ */
+export interface ReleaseBatch {
+  batch_id: string;
+  site_id: string;
+  source_id: string;
+  gateway_id: string;
+  source_mode: string;
+  status: string;
+  total: number;
+  processed: number;
+  accepted: number;
+  duplicates: number;
+  rejected: number;
+  conflicts: number;
+  refusal: { kind: string; detail: string } | null;
+  started_at: string;
+  completed_at: string | null;
+  window_start: string | null;
+  window_end: string | null;
+}
+
+/** The sealed artifact a Commit filed for this Draft. */
+export interface CommitSummary {
+  artifact_id: string;
+  integrity_digest: string;
+  envelope_count: number;
+  sealed_at: string;
+  run_id: string;
+  site_id: string;
+}
+
+/** Where a release's accepted content can be read, by the operator route. */
+export interface OpenInAssetOps {
+  site_id: string;
+  window_start: string;
+  window_end: string;
+  batch_id: string;
+  href: string;
+}
+
+/**
+ * Whether this Draft is committed and, separately, what ingestion did with it.
+ * `release_error` is set only on a Commit answer whose release was interrupted.
+ */
+export interface RunCommit {
+  commit: "NOT_COMMITTED" | CommitSummary;
+  release: ReleaseBatch | null;
+  open_in_assetops: OpenInAssetOps | null;
+  release_error: string | null;
+}
+
+export type RunCommitResult =
+  | { status: "loaded"; commit: RunCommit }
+  | { status: "not_found" }
+  | {
+      status: "refused";
+      code: string | null;
+      message: string;
+      releaseBlockers: { kind: string; statement: string }[];
+    }
   | { status: "unavailable"; message: string | null };
 
 /** What a step request says: how far, and from where it believes the run is. */
@@ -731,10 +799,17 @@ export interface RunSetupClient {
   ): Promise<RunExecutionResult>;
   runExecutionToEnd(runId: string): Promise<RunExecutionResult>;
   /**
-   * This Draft's staged source envelopes. A read, and the only stage call:
-   * there is no client method that edits, releases or commits one.
+   * This Draft's staged source envelopes. A read: there is no client method
+   * that edits a stage. Releasing one is `commit`, which seals it first.
    */
   getStage(runId: string): Promise<RunStageResult>;
+  /** Whether this Draft is committed and what ingestion did. A read (T027). */
+  getCommit(runId: string): Promise<RunCommitResult>;
+  /**
+   * Seal this Draft's eligible stage once and release it through ingestion.
+   * Posting again after an interrupted release resumes the same batch.
+   */
+  commit(runId: string): Promise<RunCommitResult>;
   /**
    * What this Draft's execution recorded (T025c). A read that executes
    * nothing: a run with no recorded history is a `loaded` history saying why.
@@ -1545,6 +1620,20 @@ export function createRunSetupClient(
       return fetchRunHistorySince(runsPath, runId, sinceBoundary);
     },
 
+    getCommit(runId: string): Promise<RunCommitResult> {
+      return commitRequest(
+        `${runsPath}/${encodeURIComponent(runId)}/commit`,
+        "GET",
+      );
+    },
+
+    commit(runId: string): Promise<RunCommitResult> {
+      return commitRequest(
+        `${runsPath}/${encodeURIComponent(runId)}/commit`,
+        "POST",
+      );
+    },
+
     async getStage(runId: string): Promise<RunStageResult> {
       let response: Response;
       try {
@@ -1576,6 +1665,92 @@ export function createRunSetupClient(
       };
     },
   };
+}
+
+function isRunCommit(value: unknown): value is RunCommit {
+  if (!isRecord(value)) {
+    return false;
+  }
+  const commit = value.commit;
+  const release = value.release;
+  return (
+    (commit === "NOT_COMMITTED" ||
+      (isRecord(commit) &&
+        typeof commit.artifact_id === "string" &&
+        typeof commit.envelope_count === "number")) &&
+    (release === null ||
+      (isRecord(release) &&
+        typeof release.status === "string" &&
+        typeof release.total === "number" &&
+        typeof release.processed === "number" &&
+        typeof release.accepted === "number")) &&
+    (value.open_in_assetops === null ||
+      (isRecord(value.open_in_assetops) &&
+        typeof value.open_in_assetops.href === "string"))
+  );
+}
+
+/**
+ * The Commit read or the Commit itself, outcomes kept apart: 404 a run that is
+ * not there, 409 a refusal (with the stage's blockers when it is
+ * `COMMIT_REFUSED`), anything else did not complete.
+ */
+async function commitRequest(
+  path: string,
+  method: "GET" | "POST",
+): Promise<RunCommitResult> {
+  let response: Response;
+  try {
+    response = await fetch(path, { method });
+  } catch {
+    return { status: "unavailable", message: null };
+  }
+  let parsed: Record<string, unknown> | null = null;
+  try {
+    parsed = (await response.json()) as Record<string, unknown>;
+  } catch {
+    parsed = null;
+  }
+  if (response.status === 404) {
+    return { status: "not_found" };
+  }
+  if (response.ok) {
+    if (!isRunCommit(parsed)) {
+      return { status: "unavailable", message: null };
+    }
+    return {
+      status: "loaded",
+      commit: {
+        ...parsed,
+        release_error:
+          typeof parsed.release_error === "string" ? parsed.release_error : null,
+      },
+    };
+  }
+  const detail = parsed?.detail;
+  const message =
+    isRecord(detail) && typeof detail.message === "string"
+      ? detail.message
+      : null;
+  if (response.status === 409) {
+    const blockers =
+      isRecord(detail) && Array.isArray(detail.release_blockers)
+        ? detail.release_blockers.filter(
+            (item): item is { kind: string; statement: string } =>
+              isRecord(item) &&
+              typeof item.kind === "string" &&
+              typeof item.statement === "string",
+          )
+        : [];
+    return {
+      status: "refused",
+      code:
+        isRecord(detail) && typeof detail.code === "string" ? detail.code : null,
+      message: message ?? "The Commit was refused.",
+      releaseBlockers: blockers,
+    };
+  }
+  return { status: "unavailable", message };
 }
 
 function executionPath(runsPath: string, runId: string): string {
