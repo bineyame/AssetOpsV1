@@ -36,6 +36,7 @@ from datetime import datetime, timedelta, timezone
 
 from assetops_contracts.observation import (
     DeviceObservation,
+    HeldPublication,
     PublicationDelayWindow,
     publication_delay_minutes,
 )
@@ -337,3 +338,98 @@ def publish(
             )
         )
     return tuple(published)
+
+
+def _held(
+    delays: tuple[PublicationDelayWindow, ...],
+    device_id: str,
+    signal_id: str,
+    offset_minutes: int,
+) -> PublicationDelayWindow | None:
+    held = publication_delay_minutes(delays, device_id, signal_id, offset_minutes)
+    if not held:
+        return None
+    return next(
+        window
+        for window in delays
+        if window.key == (device_id, signal_id) and window.covers(offset_minutes)
+    )
+
+
+def held_publications(
+    observations: tuple[DeviceObservation, ...],
+    mapping: SourceMappingSet,
+    *,
+    delays: tuple[PublicationDelayWindow, ...] = (),
+    records: tuple[RecordObservation, ...] = (),
+    reached_offset_minutes: int,
+) -> tuple[HeldPublication, ...]:
+    """T026 AC13. Every publication `publish` holds back, once it is released.
+
+    The same envelopes `publish` would emit with a delayed `published_at`, by
+    the same rules (a path off the allowlist, a suppressed or dropped attempt,
+    an unpublished absence and a missing record publish nothing, so nothing
+    of theirs is held), and only those released by the boundary the run has
+    reached: a publication still held is not yet a fact. Ordered by release,
+    then source time, then path, so a later boundary only appends.
+    """
+    held: list[HeldPublication] = []
+
+    def note(kind, device_id, signal_id, offset, source_time) -> None:
+        window = _held(delays, device_id, signal_id, offset)
+        if window is None or window.end_offset_minutes > reached_offset_minutes:
+            return
+        held.append(
+            HeldPublication(
+                kind=kind,
+                device_id=device_id,
+                signal_id=signal_id,
+                source_offset_minutes=offset,
+                source_time=source_time,
+                released_offset_minutes=window.end_offset_minutes,
+                published_at=_published_at(
+                    mapping, delays, device_id, signal_id, source_time, offset
+                ),
+                held_minutes=window.end_offset_minutes - offset,
+                delay_event_id=window.event_id,
+            )
+        )
+
+    for item in observations:
+        entry = mapping.entry(item.device_id, item.signal_id)
+        if entry is None or entry.family != "MEASUREMENT":
+            continue
+        if item.outcome in NOT_PUBLISHED:
+            continue
+        if item.outcome != "REPORTED" and not entry.publishes_unavailable:
+            continue
+        note(
+            "READING",
+            item.device_id,
+            item.signal_id,
+            item.at_offset_minutes,
+            item.source_sample_time,
+        )
+    for record in records:
+        entry = mapping.entry(record.device_id, record.signal_id)
+        if entry is None or entry.family != record.family:
+            continue
+        if record.outcome != "REPORTED":
+            continue
+        note(
+            "RECORD",
+            record.device_id,
+            record.signal_id,
+            record.at_offset_minutes,
+            record.source_time,
+        )
+    held.sort(
+        key=lambda row: (
+            row.released_offset_minutes,
+            row.source_offset_minutes,
+            row.kind,
+            row.device_id,
+            row.signal_id,
+        )
+    )
+    return tuple(held)

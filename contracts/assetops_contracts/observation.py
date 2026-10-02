@@ -665,6 +665,49 @@ def publication_delay_minutes(
     return covering[0] if covering else 0
 
 
+#: What a held publication carried: a device reading or a policy/operational
+#: record. Distinct, because a record is not telemetry (T026 AC4).
+HELD_PUBLICATION_KINDS = frozenset({"READING", "RECORD"})
+
+
+@dataclass(frozen=True)
+class HeldPublication:
+    """T026 AC13. One publication a delay window held, at the instant it went out.
+
+    The gateway's fact, recorded in Lab history at the boundary that RELEASED it
+    (`released_offset_minutes`), never as an edit to the attempt or record row
+    at its source time. `held_minutes` is the gateway's own derivation (window
+    end minus source offset), so no reader computes it; `published_at` adds the
+    mapping's latency exactly as the envelope does. `delay_event_id` names the
+    scenario window and is Lab-only, like a suppression's event.
+    """
+
+    kind: str
+    device_id: str
+    signal_id: str
+    source_offset_minutes: int
+    source_time: str
+    released_offset_minutes: int
+    published_at: str
+    held_minutes: int
+    delay_event_id: str
+
+    def __post_init__(self) -> None:
+        if self.kind not in HELD_PUBLICATION_KINDS:
+            raise ValueError(f"{self.kind!r} is not a held publication kind.")
+        if self.held_minutes <= 0 or (
+            self.released_offset_minutes
+            != self.source_offset_minutes + self.held_minutes
+        ):
+            raise ValueError(
+                f"Held publication {self.device_id}/{self.signal_id} at offset "
+                f"{self.source_offset_minutes} is released at "
+                f"{self.released_offset_minutes} after {self.held_minutes} "
+                "minutes; a hold is positive and the release is the source "
+                "offset plus the hold."
+            )
+
+
 @dataclass(frozen=True)
 class FrozenReportingInputs:
     """Everything the observation transform consumes, and no world quantity.

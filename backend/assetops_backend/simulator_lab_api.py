@@ -248,6 +248,12 @@ HISTORY_APPEND_FAMILY_KEYS: dict[str, str] = {
     # electrical step row for the interval a boundary decided, keyed like the
     # interval itself; built from that boundary's control step only.
     "electrical_steps": "from_offset",
+    # T026 AC13 (history schema 3). A record is recorded at its occurrence -
+    # a future effective time is a field, never the key - and a held
+    # publication at the boundary that released it, as a new row: the attempt
+    # or record row at its source time is never edited.
+    "records": "at_offset_minutes",
+    "publications": "released_offset_minutes",
 }
 # Families whose row is recorded by the boundary whose step contains its
 # `from_offset` - the last boundary at or before it - not at `from_offset`
@@ -1450,6 +1456,48 @@ def history_payload(
         # are the host's own totals, which the charts read and never re-sum.
         "electrical_steps": [
             electrical_step_payload(row) for row in history.electrical_steps
+        ],
+        # T026 AC13: policy and operational records at their occurrence, with
+        # whether their channel published them (an unpublished record is
+        # none observed, never no record).
+        "records": [
+            {
+                "family": r.family,
+                "device_id": r.device_id,
+                "signal_id": r.signal_id,
+                "at_offset_minutes": r.at_offset_minutes,
+                "source_time": r.source_time,
+                "outcome": r.outcome,
+                "control": r.control,
+                "component_id": r.component_id,
+                "value": exact(r.value),
+                "members": None if r.members is None else list(r.members),
+                "unit": r.unit,
+                "effective_start": r.effective_start,
+                "effective_end": r.effective_end,
+                "policy_version": r.policy_version,
+                "policy_source": r.policy_source,
+                "record_kind": r.record_kind,
+                "actor": r.actor,
+                "event_id": r.event_id,
+            }
+            for r in history.records
+        ],
+        # T026 AC13: each held publication at the boundary that released it;
+        # `held_minutes` is the host's, never derived by a reader.
+        "publications": [
+            {
+                "kind": p.kind,
+                "device_id": p.device_id,
+                "signal_id": p.signal_id,
+                "source_offset_minutes": p.source_offset_minutes,
+                "source_time": p.source_time,
+                "released_offset_minutes": p.released_offset_minutes,
+                "published_at": p.published_at,
+                "held_minutes": p.held_minutes,
+                "delay_event_id": p.delay_event_id,
+            }
+            for p in history.publications
         ],
         "drawing_context": _drawing_context_payload(history, run),
     }

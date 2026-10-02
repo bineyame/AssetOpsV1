@@ -91,7 +91,12 @@ class TestACompletedRunReloadsWithoutExecuting:
         assert reloaded.content_digest == projection.content_digest
         assert reloaded.history_digest is not None
         assert reloaded.history_digest != projection.content_digest
-        assert [c.availability for c in reloaded.coverage] == ["RECORDED"] * 5
+        # T026: this profile has no record channel; held publications are
+        # recorded (none here).
+        assert [c.availability for c in reloaded.coverage] == ["RECORDED"] * 5 + [
+            "NOT_APPLICABLE",
+            "RECORDED",
+        ]
 
     def test_reading_invokes_no_kernel_and_changes_no_byte(
         self, mini_grid, monkeypatch
@@ -330,7 +335,7 @@ class TestOldAndDamagedArtifacts:
         if damage == "value":
             document["samples"][3][4] = "1/3"
         elif damage == "schema":
-            document["history_schema_version"] = 3
+            document["history_schema_version"] = 4  # T026: 3 is current
         elif damage == "digest":
             document["manifest"]["history_digest"] = "0" * 64
         elif damage == "order":

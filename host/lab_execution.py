@@ -112,7 +112,7 @@ from assetops_simulator.gateway.mappings import (
 )
 from assetops_simulator.observation.records import generate_records
 from assetops_contracts.operational_records import FrozenRecordInputs
-from assetops_simulator.gateway.publish import publish
+from assetops_simulator.gateway.publish import held_publications, publish
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
 from assetops_simulator.packs.mini_grid import GENERATOR_LIFECYCLE, RUN, STOP
 
@@ -2180,15 +2180,41 @@ class HostLabExecution:
     def _captured(
         self, session: LabSession, projection: LabProjection
     ) -> LabHistory:
+        boundaries = session.execution.boundaries
+        observations = generate_observations(boundaries, session.reporting)
+        # T026 AC13: records are a family only where the frozen mapping has a
+        # record channel; held publications are recorded for every run.
+        has_record_channel = any(
+            entry.family != "MEASUREMENT" for entry in session.mapping.entries
+        )
+        records = (
+            generate_records(boundaries, session.records)
+            if session.records is not None
+            else ()
+        )
+        publications = (
+            held_publications(
+                observations,
+                session.mapping,
+                delays=session.reporting.delays
+                + (() if session.records is None else session.records.delays),
+                records=records,
+                reached_offset_minutes=boundaries[-1].offset_minutes,
+            )
+            if boundaries
+            else ()
+        )
         return capture_history(
             session.execution,
             session.reporting,
-            generate_observations(session.execution.boundaries, session.reporting),
+            observations,
             run_id=session.run_id,
             status=projection.status,
             content_digest=projection.content_digest,
             observation_series_digest=projection.observation_series_digest,
             electrical=projection.electrical,
+            records=records if has_record_channel else None,
+            publications=publications,
         )
 
     def _history_document(
