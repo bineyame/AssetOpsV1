@@ -262,6 +262,59 @@ function Invoke-DependencyDirectionCheck {
             "vacuous. Update the check, do not delete it.")) | Out-Null
     }
 
+    # --- Accepted evidence reads accepted content only (T027) -----------------
+    #
+    # `.ai/ARCHITECTURE.md` Evidence Loop Boundaries and T027 AC8/AC15: the
+    # evidence package (ingestion, its store and the Site > Evidence read model)
+    # and its router derive everything from what ingestion accepted. They may not
+    # reach the simulator, the host leaf, the stage, recorded Lab history, the
+    # LabProjection, raw observations, the run domain or the Lab surface - any of
+    # those would let staged, private or runtime content become operator
+    # evidence without crossing ingestion, and would make rebuild-without-the-Lab
+    # (AC15) depend on Lab objects.
+    #
+    # Anti-vacuity: the evidence tree must be scanned and non-empty, and the
+    # router module must be found.
+    $evidenceMayNotImport = @(
+        '^\s*(?:from|import)\s+assetops_simulator(?:[.\s]|$)',
+        '^\s*(?:from|import)\s+host(?:[.\s]|$)',
+        '^\s*(?:from|import)\s+assetops_contracts\.(?:source_stage|lab_history|lab_projection|observation)(?:[.\s]|$)',
+        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\b(?:source_stage|lab_history|lab_projection|observation)\b',
+        '^\s*(?:from|import)\s+assetops_backend\.(?:runs|simulator_lab_api)(?:[.\s]|$)',
+        '^\s*from\s+assetops_backend\s+import\s+[^#]*\b(?:runs|simulator_lab_api)\b',
+        'import_module\(\s*["''](?:assetops_simulator|host|assetops_contracts\.(?:source_stage|lab_history|lab_projection|observation)|assetops_backend\.(?:runs|simulator_lab_api))'
+    )
+    $evidenceModules = @($backendModules | Where-Object {
+        $_.Path.StartsWith("backend/assetops_backend/evidence/") -or
+        $_.Path -eq "backend/assetops_backend/evidence_api.py"
+    })
+    $evidencePackageModules = @($evidenceModules | Where-Object {
+        $_.Path.StartsWith("backend/assetops_backend/evidence/") -and $_.Path.EndsWith(".py") -and
+        -not $_.Path.EndsWith("__init__.py")
+    })
+    $evidenceRouterScanned = @($evidenceModules | Where-Object {
+        $_.Path -eq "backend/assetops_backend/evidence_api.py"
+    }).Count -eq 1
+    if ($evidencePackageModules.Count -eq 0 -or -not $evidenceRouterScanned) {
+        $failures.Add(("No module was scanned under backend/assetops_backend/evidence/ " +
+            "(or evidence_api.py is missing), so the accepted-evidence import check " +
+            "is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    foreach ($module in $evidenceModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $evidenceMayNotImport) {
+                if ($line -match $pattern) {
+                    $failures.Add(("Accepted evidence imports a Lab, simulator or runtime " +
+                        "module at $($module.Path):${lineNumber}: $($line.Trim()). The " +
+                        "evidence package and its router read accepted content only.")) | Out-Null
+                    break
+                }
+            }
+        }
+    }
+
     # --- The shared kernel knows no electrical pack (T024) ----------------------
     #
     # v4 section 16: the shared kernel may not import a pack implementation or

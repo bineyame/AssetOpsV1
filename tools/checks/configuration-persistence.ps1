@@ -73,6 +73,16 @@ function Invoke-ConfigurationPersistenceCheck {
             Writer      = "$backendRoot/runs/adapters/yaml_run_store.py"
             UserRootVar = "RUN_STORE_ROOT"
             UserRootOwner = "$backendRoot/runs/adapters/yaml_run_store.py"
+        },
+        @{
+            # T027: accepted evidence and its immutable configuration/mapping
+            # registries. Written only by ingestion through the JSON adapter.
+            Name        = "evidence"
+            Package     = "$backendRoot/evidence"
+            Composition = "$backendRoot/evidence/composition.py"
+            Writer      = "$backendRoot/evidence/adapters/json_evidence_store.py"
+            UserRootVar = "EVIDENCE_STORE_ROOT"
+            UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"
         }
     )
 
