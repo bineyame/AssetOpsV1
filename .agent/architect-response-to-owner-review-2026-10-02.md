@@ -36,7 +36,7 @@ to reference. T028 is where that contract is born, and it is the same contract
 that Site > Evidence part B (point 3) needs.
 
 **Verdict:** the document is ready to be planning input. It needs a short list
-of corrections (section 4). The Planner can carry them as constraints; they do
+of corrections (section 5). The Planner can carry them as constraints; they do
 not need another architecture round.
 
 ---
@@ -403,7 +403,7 @@ though. It needs three reproducible sites:
 
 It also pulls in T036 AC4-AC6 (priority and no-fake-total). That makes it a
 real slice, not a thin one. The Planner should size it honestly and give it its
-own seed (see 3.2).
+own seed (section 4, item 4).
 
 ### D3, Kobo detect to verify uninterrupted: **agree with a caveat**
 
