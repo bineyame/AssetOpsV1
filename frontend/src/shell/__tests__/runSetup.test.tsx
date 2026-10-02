@@ -942,7 +942,8 @@ describe("the run setup screen makes no downstream claim", () => {
     // are the sentences a reader gets.
     expect(words).toMatch(/It has not been executed/i);
     expect(words).toMatch(/Nothing has been staged for a gateway/i);
-    expect(words).toMatch(/it cannot be committed/i);
+    expect(words).toMatch(/it has not been committed/i);
+    expect(words).not.toMatch(/cannot be committed/i);
     expect(words).toMatch(/No evidence has been accepted/i);
     expect(words).toMatch(/No conclusion has been drawn/i);
 
