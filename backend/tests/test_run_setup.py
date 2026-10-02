@@ -1697,6 +1697,10 @@ class TestEveryFrozenValueNamesAnAnswerer:
         # Frozen and inspectable through the structured identity, and
         # deliberately not given a row of its own, with the reason.
         not_rendered = {
+            # T026 C1: the scenario's declaration of who issued a forced
+            # change. It decides only whether a publication profile reports an
+            # operator command; the scenario surface that declares it owns it.
+            ("FrozenForcing", "issued_by"),
             # The parameter identity already names it on its row.
             ("FrozenInitializationInput", "parameter_id"),
             # A canonical restatement of the value beside it. One number
