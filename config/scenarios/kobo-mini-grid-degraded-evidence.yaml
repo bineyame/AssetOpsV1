@@ -332,6 +332,9 @@ timeline:
     execution_role: FORCING_INPUT
     state_key: generator-stop-soc-threshold@generator
     execution_requirement: REQUIRED
+    # The scenario says an operator issued this change; a publication profile
+    # that records commands then publishes it (T026 C1).
+    issued_by: OPERATOR
     timing:
       shape: WINDOW
       duration_minutes: 240

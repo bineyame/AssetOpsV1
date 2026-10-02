@@ -31,7 +31,7 @@ from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import (
 PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
     # T026: a new scenario id at version 1, naming no site.
     ("kobo-mini-grid-degraded-evidence", 1): (
-        "225ede15645c1e42baffdf3068b786dfe98eb5f1d66d60486e3b3a6c12e16633"
+        "0fc92f6dda17664c17e6550dea1d5c4c881016333433d656b970e1f85e82e06e"
     ),
     ("fuel-loss-event", 2): (
         "37eb209e9edf796df7dc432d734cdd6e08ca6e058decca11807c226ccd0d6039"

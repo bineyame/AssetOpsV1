@@ -138,6 +138,7 @@ from assetops_backend.scenarios.execution import (
     initialization_inputs,
 )
 from assetops_backend.scenarios.models import (
+    OPERATOR_COMMANDABLE_STATES,
     REQUIREMENT_BEARING_ROLES,
     ScenarioDefinition,
     ScenarioParameter,
@@ -2278,6 +2279,7 @@ def _freeze_causal_projection(
                     offset_minutes=entry.offset_minutes,
                     duration_minutes=entry.timing.duration_minutes,
                     execution_requirement=parameter.execution_requirement,
+                    issued_by=entry.issued_by,
                 )
             )
 
@@ -3329,11 +3331,11 @@ def executable_inputs(scenario: ScenarioDefinition) -> Sequence[ExecutableInput]
 # --- T026: publication delays ------------------------------------------------
 
 
-#: The CONTROL states whose scenario override window is executed as an operator
-#: command, and so occurs as an override record. Mirrors the host's projection.
-OVERRIDE_COMMAND_STATES = frozenset(
-    {"generator-stop-soc-threshold", "battery-reserve-state-of-charge"}
-)
+#: The CONTROL states an entry may declare operator-issued, and so publish as an
+#: override record. A forcing is an operator command only when its entry says
+#: so (`D-2026-10-02-scenario-states-override-issuer`). The host's projection
+#: names the same states; a test asserts the two agree.
+OVERRIDE_COMMAND_STATES = OPERATOR_COMMANDABLE_STATES
 
 
 def _held_span(
@@ -3382,7 +3384,7 @@ def _refuse_a_delay_that_reorders(
     overrides = sorted(
         item.offset_minutes
         for item in forcings
-        if item.state_ref.state_key in OVERRIDE_COMMAND_STATES
+        if item.issued_by == "OPERATOR"
     )
     for condition in reporting:
         if condition.state_ref.state_key not in PUBLICATION_DELAY_STATES:

@@ -847,9 +847,11 @@ POLICY_CHANNEL_OF_SITE_CONTROL = {
     "critical-load-priority": ("site-controller", "policy-critical-load-priority"),
 }
 
-#: The CONTROL overrides executed as operator commands, and the device whose
-#: override channel records them. The backend's `OVERRIDE_COMMAND_STATES` names
-#: the same keys; a test asserts the two agree.
+#: The CONTROL states whose forcing may be an operator command, and the device
+#: whose override channel records it. A forcing is published as one only when
+#: its scenario entry declares `issued_by: OPERATOR`
+#: (`D-2026-10-02-scenario-states-override-issuer`). The backend's
+#: `OVERRIDE_COMMAND_STATES` names the same keys; a test asserts the two agree.
 OVERRIDE_CHANNEL_OF_STATE = {
     "generator-stop-soc-threshold": ("generator-controller", "override-command"),
     "battery-reserve-state-of-charge": ("battery-pcs-controller", "override-command"),
@@ -927,6 +929,8 @@ def record_inputs(
 
     overrides: list[OverrideCommand] = []
     for forcing in identity.forcings:
+        if forcing.issued_by != "OPERATOR":
+            continue
         channel = OVERRIDE_CHANNEL_OF_STATE.get(forcing.state_ref.state_key)
         if channel is None or channel not in channels:
             continue

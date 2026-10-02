@@ -251,6 +251,11 @@ INITIALIZATION_OWNERS = frozenset(
 #: The distinction is validated rather than conventional: a point with a length
 #: and a window without one are both refused, and a rate may only be applied
 #: over a window, because a rate at an instant moves nothing.
+#: The issuers an entry may declare, and the CONTROL states that may declare one.
+ENTRY_ISSUERS = frozenset({"OPERATOR"})
+OPERATOR_COMMANDABLE_STATES = frozenset(
+    {"generator-stop-soc-threshold", "battery-reserve-state-of-charge"}
+)
 TIMING_SHAPES = frozenset({"POINT", "WINDOW", "INTERVAL_WIDE"})
 
 #: Which way a causal entry moves the state it names.
@@ -599,6 +604,10 @@ class TimelineEntry:
     timing: EntryTiming
     state_effect: StateEffect | None
     observation: ObservationBinding | None
+    # T026 C1 (`D-2026-10-02-scenario-states-override-issuer`): who issued the
+    # change this entry forces, when the entry says so. Only `OPERATOR` exists;
+    # absent means the scenario claims no operator command.
+    issued_by: str | None = None
 
     @property
     def state_key(self) -> str | None:

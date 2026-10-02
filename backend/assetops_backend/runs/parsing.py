@@ -91,6 +91,7 @@ from assetops_backend.scenarios.identity import validate_scenario_id
 from assetops_backend.scenarios.models import (
     BOUND_KINDS,
     CADENCE_OWNERSHIP,
+    ENTRY_ISSUERS,
     EXECUTION_REQUIREMENTS,
     OBSERVATION_SOURCE_KINDS,
     PARAMETER_UNITS,
@@ -733,6 +734,11 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                     "offset_minutes": item.offset_minutes,
                     "duration_minutes": item.duration_minutes,
                     "execution_requirement": item.execution_requirement,
+                    **(
+                        {"issued_by": item.issued_by}
+                        if item.issued_by is not None
+                        else {}
+                    ),
                 }
                 for item in identity.forcings
             ],
@@ -1545,6 +1551,13 @@ def _parse_frozen_forcing(entry: Any) -> FrozenForcing:
             "execution_requirement",
             where="frozen_forcing",
             allowed=EXECUTION_REQUIREMENTS,
+        ),
+        issued_by=(
+            _choice(
+                raw, "issued_by", where="frozen_forcing", allowed=ENTRY_ISSUERS
+            )
+            if "issued_by" in raw
+            else None
         ),
     )
 

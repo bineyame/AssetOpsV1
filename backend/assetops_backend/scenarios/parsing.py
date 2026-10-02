@@ -146,6 +146,8 @@ from assetops_backend.scenarios.models import (
     TARGET_SITE_POLICIES,
     TIMELINE_ENTRY_KINDS,
     TIMING_SHAPES,
+    ENTRY_ISSUERS,
+    OPERATOR_COMMANDABLE_STATES,
     EntryTiming,
     ObservationBinding,
     ObservationSource,
@@ -212,6 +214,7 @@ TIMELINE_ENTRY_KEYS = frozenset(
         "timing",
         "state_effect",
         "observation",
+        "issued_by",
     }
 )
 TIMING_KEYS = frozenset({"shape", "duration_minutes"})
@@ -740,6 +743,11 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
         source=source,
     )
 
+    issued_by = _parse_issued_by(
+        raw, execution_role=execution_role, state_ref=state_ref,
+        where=where, source=source,
+    )
+
     return TimelineEntry(
         event_id=event_id,
         sequence=sequence,
@@ -754,7 +762,45 @@ def _parse_timeline_entry(raw: Any, *, index: int, source: str) -> TimelineEntry
         timing=timing,
         state_effect=state_effect,
         observation=observation,
+        issued_by=issued_by,
     )
+
+
+def _parse_issued_by(
+    raw: Mapping[str, Any],
+    *,
+    execution_role: str,
+    state_ref: Any,
+    where: str,
+    source: str,
+) -> str | None:
+    """An optional declaration that an operator issued this forced change.
+
+    Refused on anything but a forcing of a state an operator can command: who
+    issued a change is a fact about the world and is only meaningful where the
+    publication layer can report it (`D-2026-10-02-scenario-states-override-issuer`).
+    """
+    if "issued_by" not in raw:
+        return None
+    value = raw["issued_by"]
+    if not isinstance(value, str) or value not in ENTRY_ISSUERS:
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.issued_by' must be one of {sorted(ENTRY_ISSUERS)} in "
+            f"{source}, got {value!r}."
+        )
+    state_key = None if state_ref is None else state_ref.state_key
+    if (
+        execution_role != "FORCING_INPUT"
+        or state_key not in OPERATOR_COMMANDABLE_STATES
+    ):
+        raise ScenarioConfigurationInvalid(
+            f"'{where}.issued_by' is declared on a {execution_role} entry for "
+            f"{state_key!r} in {source}. Only a forced "
+            f"{sorted(OPERATOR_COMMANDABLE_STATES)} can be declared "
+            "operator-issued; no other state is published as an override "
+            "command."
+        )
+    return value
 
 
 def _parse_public_parameters(

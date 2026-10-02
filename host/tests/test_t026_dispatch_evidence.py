@@ -452,6 +452,52 @@ def test_the_override_states_agree_between_setup_and_host() -> None:
     assert set(OVERRIDE_CHANNEL_OF_STATE) == OVERRIDE_COMMAND_STATES
 
 
+def _override_ids(run):
+    from execution_adapter import record_inputs
+
+    return [item.event_id for item in record_inputs(run).overrides]
+
+
+def test_an_override_publishes_only_when_its_entry_declares_the_operator() -> None:
+    # T026 C1: the same stop-threshold override shape publishes a record when the
+    # scenario says an operator issued it, and none when it does not.
+    assert _override_ids(draft(DEGRADED)) == ["stop-threshold-override"]
+
+    def undeclare(document):
+        for entry in document["timeline"]:
+            entry.pop("issued_by", None)
+
+    assert _override_ids(draft(DEGRADED, document_edit=undeclare)) == []
+
+
+def test_stop_60_publishes_no_override_record_under_profile_5() -> None:
+    run = draft("kobo-mini-grid-stop-60")
+    assert any(
+        item.state_key == "generator-stop-soc-threshold" for item in run.deterministic_identity.forcings
+    )
+    assert _override_ids(run) == []
+
+
+def test_an_issuer_is_refused_outside_the_operator_commandable_forcings() -> None:
+    from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid
+
+    def declare(document):
+        for entry in document["timeline"]:
+            if entry["event_id"] == "irradiance-1":
+                entry["issued_by"] = "OPERATOR"
+
+    with pytest.raises(ScenarioConfigurationInvalid, match="issued_by"):
+        draft(DEGRADED, document_edit=declare)
+
+    def wrong_value(document):
+        for entry in document["timeline"]:
+            if entry["event_id"] == "stop-threshold-override":
+                entry["issued_by"] = "TECHNICIAN"
+
+    with pytest.raises(ScenarioConfigurationInvalid, match="issued_by"):
+        draft(DEGRADED, document_edit=wrong_value)
+
+
 def test_the_degraded_scenario_names_no_site() -> None:
     document = kobo_document(DEGRADED)
     assert "target_site" not in document
