@@ -167,3 +167,35 @@ evidence, the attribution of the three blocked-table FAILs.
   only evidence of the 60 % window; in the shipped degraded run that record is
   missing, so C sees an open-ended 90 % policy over 08:00-12:00. Correct by
   AC4's rule, but T028 must not treat an open policy end as "no override".
+
+## Re-review (fix round 1)
+
+Range `1ef1073..HEAD`. Suite numbers taken from the dispatch (not re-run); I
+read the diff and cross-checked the mapping against the simulator.
+
+**Verdict: accept.** No new block findings.
+
+- **B1 resolved.** `HistoryInspector.tsx` `attemptArrival` now branches on
+  `outcome` and the frozen mapping: SUPPRESSED_BY_GAP -> sensor gap; held row ->
+  DELAYED; no stage -> UNKNOWN; signal absent from mapping -> NOT_STAGED;
+  DROPPED -> lost in transit; typed absence -> "Published as UNAVAILABLE
+  (reason)". `UNAVAILABLE_REASON_OF_OUTCOME` matches
+  `simulator/.../gateway/publish.py:64-67` exactly. `unavailableArrival` is shared
+  with the stage's `envelopeArrival`, so one cursor now says one thing; only
+  REPORTING_PATH_UNAVAILABLE is a sensor gap. New tests cover boundary 0,
+  DROPPED, unmapped signal and the stage-side envelope; the implementer
+  reports a non-vacuity check.
+- **B2 resolved.** Both profile-5 statements and the comment now say the window
+  end is the release with no duration parameter; no version guard fired.
+- **C7 (shared span rule)** is correctly done via `ReportingPathWindow`.
+
+New carry (not blocking):
+
+- **C8.** `HistoryInspector.tsx` `attemptArrival`: the final `NOT_HELD` branch
+  ("No publication delay recorded") is still asserted for a mapped, valued
+  reading with no held row, including a reading held but not yet released (the
+  earlier C2 case). Scenario: live cursor inside a hold shows no delay for the
+  held reading. Unchanged from C2, still open.
+- **C1, C2, C3, C4** from the first review remain open as carry (C4: layout
+  evidence not re-run after B1 changed Arrival text; the owner's hands-on check
+  should look at the Publication column width).
