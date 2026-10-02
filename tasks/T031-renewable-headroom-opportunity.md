@@ -62,7 +62,9 @@ It establishes electrical capacity, not local market demand.
     `D-2026-10-02-demo-point-seed-rule`, its own Site through normal
     ingestion, extending the point-3 seed command. Portfolio's opportunity
     lens now renders (T034A AC8), and the opportunity Finding stays a
-    separate consequence type, scenario-labelled (T034A AC5).
+    separate consequence type, scenario-labelled (T034A AC5). The priority
+    rule gains a new version weighting opportunity, shown on the page
+    (T034A AC4).
 
 ## Proof
 

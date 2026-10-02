@@ -1,4 +1,4 @@
-# T029B - Sites ranks by assessment and evidence, and becomes the landing page
+# T029B - Sites ranks by assessment and evidence
 
 Status: planned
 USER_REVIEW_REQUIRED: true
@@ -15,11 +15,11 @@ Created 2026-10-02 under `D-2026-10-02-demo-led-recommendation`
 
 ## Outcome
 
-The app opens on Sites, and Sites asks "which site needs attention, and how
-sure are we?" instead of listing names. Four columns - Last analysed, Evidence
-coverage, Assessment, Top issue - rank sites by assessment and evidence, each
-linked to the object it summarises. The T002 `Operator home` placeholder is
-retired. Sites keeps the landing until T034A Portfolio-lite takes it.
+Sites, already the landing since T027 phase 1, asks "which site needs
+attention, and how sure are we?" instead of listing names. Four columns - Last
+analysed, Evidence coverage, Assessment, Top issue - rank sites by assessment
+and evidence, each linked to the object it summarises. Sites keeps the landing
+until T034A Portfolio-lite takes it.
 
 ## Why this exists separately
 
@@ -29,8 +29,7 @@ Financials; the presenter opens Sites from the rail), so they moved out of
 T027 and T028.
 
 Ownership test (`D-2026-10-02-grammar-ownership-test`). **Lost if removed:**
-the only cross-site view that compares assessment and evidence on one screen,
-and a first screen that is a real destination rather than a placeholder.
+the only cross-site view that compares assessment and evidence on one screen.
 **What duplicates it:** nothing. Each cell's content is owned elsewhere for
 one site (Overview card, Site > Evidence, Findings), and the global Findings
 index lists Findings, not sites; neither ranks sites nor shows coverage. At
@@ -39,7 +38,7 @@ index.
 
 ## Read for detail
 
-- Recommendation 2.1 (root rail by milestone, the `Operator home` note).
+- Recommendation 2.1 (root rail by milestone).
 - `D-2026-10-02-presentation-profile-and-capability-declaration` rule 3: a
   gap is shown only from backend state.
 - T027 AC10 (coverage) and T028 (assessment, Finding, capability declaration).
@@ -51,10 +50,9 @@ index.
   (today `--` for every site) and add `Evidence coverage`, `Assessment` and
   `Top issue`. Each reads a backend-served model already built by T027/T028;
   no new analytic, coverage calculation or assessment.
-- `/` lands on the Sites index as the declared landing (T027 phase 1 already
-  removed the `Operator home` rail item and redirects `/` to `/sites`); here
-  confirm no `Operator home` remnant remains in `OperatorShellLayout.tsx`, the
-  rail-label tests or the `tools/layout-evidence.mjs` scenario.
+- The landing is inherited: T027 phase 1 removed `Operator home` and redirects
+  `/` to `/sites` (T027 AC23). Here, only confirm the landing still opens the
+  Sites index with the new columns.
 - **Rendered at the end of T029B.** Rail: OPERATE: Sites; INTELLIGENCE:
   Findings (recommendation 2.1 row "T028-T029A"). Site tabs unchanged from
   T029, six: `Overview | Foundation | Performance | Findings | Financials |
@@ -71,16 +69,21 @@ index.
 3. **Assessment:** the same assessment word and one-line reason the Overview's
    assessed card shows (T028; dispatch is the only analytic), linking to the
    Overview. "No assessment yet" when none exists.
-4. **Top issue:** the site's highest-priority open Finding (title and
-   classification), linking to Finding detail; "No open Finding" otherwise.
+4. **Top issue:** the site's top open Finding (title and classification),
+   linking to Finding detail; "No open Finding" otherwise. Within a site:
+   Candidate Avoidable before Indeterminate before Necessary, then latest
+   window.
 5. Sites are ordered by a stated rule: a site with an open Finding before one
-   without; then lower evidence coverage first; then name. The rule is shown
-   on the page. Unanalysed sites are listed, never hidden.
+   without; among those, stronger claim level first (Candidate Avoidable,
+   then Indeterminate), then lower evidence coverage, then name; then sites
+   with no open Finding by lower coverage, then name. The rule is shown on the
+   page and is an interim, replaced by T034A's versioned priority rule.
+   Unanalysed sites are listed, never hidden.
 6. Every cell reads backend state; the presentation profile cannot create a
    cell value or a gap (rule 3). The four cells for a site agree with its
    Overview, Evidence and Findings at the same moment.
-7. Opening the app lands on Sites; `Operator home` no longer renders or
-   routes (removed in T027 phase 1; confirmed here), and no other route breaks (breadcrumbs and Back still work).
+7. Opening the app lands on Sites (T027 AC23 removed `Operator home`); no
+   route breaks, and breadcrumbs and Back still work.
 8. Lab gate off: the landing, rail and columns are unchanged.
 
 ## Proof

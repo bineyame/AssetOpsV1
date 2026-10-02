@@ -6,7 +6,7 @@ Planner: Claude under the Codex-reset exception (`.ai/ROLE_CONFIG.md`).
 
 Map: I, first slice; with T034, demo point 3 (the strong product demo).
 Depends on: T034 (Actions, verification states, Kobo post-action seed), T029
-(Site Financials consequence, point-2 seed), T029B (Sites ranking and landing,
+(Site Financials consequence, point-2 seed), T029B (Sites ranking, landing from T027,
 which this slice takes over), T028 (Findings, capability declaration), T027
 (ingestion, presentation profile) and T026's degraded-evidence scenario.
 Delivery order: directly after T034; next T031. Point 3 completes here.
@@ -54,11 +54,12 @@ it never reads simulator or private flows.
 **Portfolio page** (`/` becomes Portfolio): scope sentence, ranked Findings,
 lenses, "What changed". A row leads to the Finding (root changes) or its
 Site. **Rail:** OPERATE: Portfolio, Sites; INTELLIGENCE: Findings; WORK:
-Actions (2.1, `D-2026-10-02-grammar-ownership-test`). Portfolio replaces
-Sites as landing (T029B); Sites keeps its ranking. **Site tabs** unchanged at
+Actions (2.1, `D-2026-10-02-grammar-ownership-test`). Portfolio replaces Sites
+as landing (set by T027, ranked by T029B); Sites keeps its ranking. **Site
+tabs** unchanged at
 seven: Overview, Foundation, Performance, Findings, Work, Financials,
 Evidence. Anchors: `frontend/src/shell/OperatorShellLayout.tsx`
-(`operatorRoutes`), the landing route T029B set, `tools/layout-evidence.mjs`.
+(`operatorRoutes`), the landing route T027 set, `tools/layout-evidence.mjs`.
 
 **Seed, three sites** (`D-2026-10-02-demo-point-seed-rule`): extend the
 point-2/point-3 seed command T029 and T034 own, so one command loads point 3.

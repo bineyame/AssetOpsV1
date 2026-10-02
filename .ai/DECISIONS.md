@@ -3663,6 +3663,7 @@ approved recommendation 5.2.
   healthy and prolonged-runtime windows); point 3: T034 (Kobo's post-action
   window) and T034A Portfolio-lite (three sites); point 4: T036 (whatever
   sites remain). Breadth slices T030, T031/T032, T033 and T035 each own the
-  recipe and seed of their own site.
+  recipe and seed of their own site (Architect reading, planner guide
+  section 5; the "never hand-staged" wording above is Planner wording).
 
 Affected scope: T029, T034, T034A, T030-T033, T035, T036.

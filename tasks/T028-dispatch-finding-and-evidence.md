@@ -24,14 +24,13 @@ This is the first valuable Finding. It precedes fuel reconciliation and does
 not require priced Financials or a portfolio.
 
 With T029 this is a legitimate external-feedback and early-prospect demo, not a
-rehearsal for one. One site, one strong Finding, its evidence and its money is
+rehearsal for one: one site, one strong Finding, its evidence and its money is
 enough to learn from a real operator. `Docs/queue-review-feedback-verbatim.md`
-is explicit that waiting for the portfolio wastes the feedback.
+says waiting for the portfolio wastes the feedback.
 
 ## Read for detail
 
-- Roadmap sections 3.3, 4, 7/C and 13.2.
-- FEATURE_MAP C.
+- Roadmap sections 3.3, 4, 7/C and 13.2; FEATURE_MAP C.
 - v4 sections 3, 11-12, 17 and 25 for evidence/recipe boundaries.
 - `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` 3 "Finding Detail"/"Evidence", 4.3, 6.2.
 - Decisions: `D-2026-10-02-presentation-profile-and-capability-declaration`,
@@ -189,9 +188,10 @@ phase, covering a one-item rail group from phase 2.
 | Profile drift (unknown id, unserved id) | Renders with default; orphan flagged |
 
 `kobo-mini-grid-degraded-evidence` supplies the partial-capability, delayed
-and absent-override cases through normal ingestion. Tests must check classification/limits and evidence references, not just the
-presence of a Finding card. Run backend analytic/read-model tests, frontend
-navigation tests, shared checks and populated layout evidence.
+and absent-override cases through normal ingestion. Tests must check
+classification/limits and evidence references, not just the presence of a
+Finding card. Run backend analytic/read-model tests, frontend navigation tests,
+shared checks and populated layout evidence.
 The cockpit may validate the Lab recipe during review, but its private series
 never enters classification or indicative fuel quantity. The Finding panels
 remain reconstructible from accepted evidence with Lab disabled.
@@ -201,8 +201,8 @@ remain reconstructible from accepted evidence with Lab disabled.
 T029 adds priced consequence. T030 adds FuelBalanceWindow.
 No financial ranking, optimal-dispatch solver or portfolio readiness claim.
 Full Replay and broad (cross-site) source-health UI are not prerequisites.
-Sites columns Assessment and Top issue and Sites-as-landing are T029B
-(point-2 protection). No seed: T029 owns it (`D-2026-10-02-demo-point-seed-rule`).
+Sites columns are T029B (point-2 protection); Sites is already the landing (T027).
+No seed: T029 owns it (`D-2026-10-02-demo-point-seed-rule`).
 
 ## Review
 

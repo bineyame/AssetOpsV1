@@ -62,7 +62,7 @@ when they run, as with T022B.
 | 19 | [T027](T027-commit-ingestion-and-site-overview.md) (phase 1, phase 2) | B completion | Phase 1: Commit -> ingestion -> Site > Evidence with record drill-down; three real Site tabs. Phase 2: mini-grid Site Overview |
 | 20 | [T028](T028-dispatch-finding-and-evidence.md) (phased) | C | Dispatch -> Finding -> drawer; Findings root; capability declaration; Evidence capability table (one row) |
 | 21 | [T029](T029-bounded-dispatch-financials.md) | D | Site Financials with live editable assumptions; point-2 seed |
-| 22 | [T029B](T029B-sites-ranking-and-landing.md) | B/C presentation | Sites ranks by assessment and evidence; Sites as landing |
+| 22 | [T029B](T029B-sites-ranking-and-landing.md) | B/C presentation | Sites ranks by assessment and evidence (landing inherited from T027) |
 | 23 | [T029A](T029A-immutable-intervention-artifacts.md) | H prerequisite | Frozen policy intervention changes a run |
 | 24 | [T034](T034-policy-action-and-verification.md) | H | Recommendation -> Action -> Foundation > Changes -> Verification; point-3 seed |
 | 25 | [T034A](T034A-portfolio-lite.md) | Strong product demo | Portfolio lands, three seeded sites, ranked Findings |
@@ -132,7 +132,7 @@ Journey per point (recommendation 5.2):
 4. The full recommendation 5.1 journey: Kobo runs uninterrupted from detect to
    verify, breadth after, Lab last.
 
-Every point ships an idempotent, rehearsed seed checked with the Lab gate off
+Every point from 2 onward ships an idempotent, rehearsed seed checked with the Lab gate off
 (`D-2026-10-02-demo-point-seed-rule`).
 
 Seek domain-expert feedback at point 2, before the portfolio exists. A former

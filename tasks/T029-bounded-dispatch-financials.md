@@ -94,7 +94,11 @@ actually said, rather than treating T029B-T036 as immutable.
     BusinessContext version through the strict parser and an atomic write
     (AC1, AC6); it never overwrites a prior version. Before saving, the form
     states the effective time the edit applies from and which assessed windows
-    it therefore reprices. Invalid input (missing price, mixed currency or
+    it therefore reprices. The effective time defaults to the start of the
+    BusinessContext version it supersedes (so the seeded windows reprice) and
+    may be earlier than the edit; it is stored beside the recorded time, so the
+    prior pair stays inspectable (AC6). The UI check edits with a time covering
+    the seeded prolonged-runtime window. Invalid input (missing price, mixed currency or
     unit, malformed effective time) is refused with a reason and leaves the
     store unchanged.
 13. BusinessContext belongs to one site; another site's consequence never
@@ -138,7 +142,7 @@ No global Financials page and no portfolio-shared assumption set (see the
 revisit trigger above).
 Tariff scenario revenue for productive load belongs to T032.
 Battery replacement exposure belongs to T033.
-Sites assessment columns and Sites-as-landing belong to T029B.
+Sites assessment columns belong to T029B.
 Do not label candidate consequence as realized savings.
 
 ## Review

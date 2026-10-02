@@ -144,9 +144,12 @@ Screens (rendered sets per `D-2026-10-02-rendered-tabs-per-capability`):
     Verification`, Actions under WORK, Site > Work with no subtab row,
     Foundation > Changes linking to post-action configuration evidence. Site
     tabs render seven; nothing is labelled in place; the navigation check
-    passes with the Changes ban lifted.
-19. **Point-3 seed.** Extending T029's Kobo seed: the accepted Action (effective
-    before the later window), its frozen intervention, and Kobo's post-action
+    passes with the Changes ban lifted. The Recommendation tab of an accepted
+    Finding shows the accepted state, links to its Action and offers no second
+    Accept.
+19. **Point-3 seed.** Extending T029's Kobo seed: the accepted Action (created
+    through the same Accept API as a live accept, effective before the later
+    window; it is not evidence), its frozen intervention, and Kobo's post-action
     window ("two weeks later") already in accepted history through normal
     ingestion, so verification in the demo needs no Lab detour. Same seed-rule
     properties as T029's: idempotent, verified with the Lab gate off,
@@ -157,7 +160,7 @@ Screens (rendered sets per `D-2026-10-02-rendered-tabs-per-capability`):
 
 | Case | Required outcome |
 | --- | --- |
-| Mark work completed, no later evidence | Finding unresolved; "Completed", not "Verified"; verification unavailable |
+| Completed, no later evidence | Unresolved; "Completed", not "Verified"; verification unavailable |
 | Target improves, all guardrails pass | Verified with supporting references |
 | Target unchanged despite adequate coverage | Ineffective |
 | Runtime falls, critical service deteriorates | Not Verified; failed guardrail visible |
@@ -178,7 +181,7 @@ shared checks and `node tools/layout-evidence.mjs` for the full
 Finding-to-verification path, including the WORK rail group and Site > Work.
 
 *UI check:* recommendation 5.2 row 3 from Kobo onward, on the seed with the
-Lab gate off: Kobo -> Finding -> money -> Recommendation -> Action ->
+Lab gate off: Kobo -> Finding -> money -> Recommendation (accepted state) -> Action ->
 Foundation > Changes -> Action > Verification (Verified, target and guardrails
 together) -> the Finding's History.
 

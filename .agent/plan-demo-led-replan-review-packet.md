@@ -118,7 +118,7 @@ plan branch supersedes it.
 Line ceilings are from `.ai/WORKFLOW.md`: 120 for UI/content, 160 for
 boundary, and 220 for analytics, Finding semantics or write paths.
 
-### T027 (220 / 220; rec 6.2, section 3 Evidence and Site Overview, 2.4, 4.3, D6)
+### T027 (220 / 220 after fix round 1; rec 6.2, section 3 Evidence and Site Overview, 2.4, 4.3, D6)
 
 **Changes.** One file with a Phases section; the 220 ceiling held, so it was
 not split.
@@ -137,12 +137,12 @@ not split.
   - AC22: the profile keyed by `site_type`.
 - **Removed:** nothing.
 - **Scope:** the broad cross-site source-health dashboard stays deferred;
-  site-scoped source health is in scope. The Sites columns and
-  Sites-as-landing moved to T029B. No seed.
+  site-scoped source health is in scope. The Sites columns moved to T029B;
+  Sites-as-landing is T027 phase 1 (AC23, after the Architect ruling). No seed.
 
 **Phase assignment:**
 
-- Phase 1: ACs 1-9, 12, 16-18, 20 and 21 in full, plus the evidence parts of
+- Phase 1: ACs 1-9, 12, 16-18, 20, 21 and 23 in full, plus the evidence parts of
   10, 13, 14, 15 and 19.
 - Phase 2: ACs 11 and 22, plus the Overview parts of 10, 12, 13, 14, 15
   and 19.
@@ -198,7 +198,7 @@ phase 1.
 
 **Rail from phase 2:** OPERATE: Sites; INTELLIGENCE: Findings. Five Site tabs.
 
-### T029 (149 / 220; rec 6.2, 2.4, 2.5, 3 Financial Consequence, 5.2)
+### T029 (153 / 220; rec 6.2, 2.4, 2.5, 3 Financial Consequence, 5.2)
 
 - Financials is a destination with `Overview | Assumptions` and no assessment
   status. Six Site tabs.
@@ -217,10 +217,10 @@ phase 1.
 - AC10 and roadmap 12.1 are unchanged.
 - UI check: the full point-2 journey on the seed, changing the price live.
 
-### T029B (new, 109 / 120; rec 6.2, 6.4, 2.1, 9 item 4)
+### T029B (new, 111 / 120; rec 6.2, 6.4, 2.1, 9 item 4)
 
-- The four Sites columns, ranking, and Sites as the landing page, which
-  retires the T002 `Operator home` placeholder until T034A takes the landing.
+- The four Sites columns and ranking. The landing and the retirement of the
+  T002 `Operator home` placeholder are inherited from T027 phase 1 (AC23).
 - The file applies the ownership test: it states what would be lost and that
   nothing duplicates it.
 - Uses T029's seed.
@@ -231,7 +231,7 @@ phase 1.
 
 ### T029A (99): Delivery order only: "after T029 (and T029B); next T034".
 
-### T034 (205 / 220; rec 6.2, 2.1, 2.4, section 3 Action / Verification, 5.1, D7)
+### T034 (208 / 220; rec 6.2, 2.1, 2.4, section 3 Action / Verification, 5.1, D7)
 
 - **Screens:**
   - an Action root with `Overview | Verification`;
@@ -396,8 +396,8 @@ The guide matches the task files with two exceptions:
 - T034 AC19: the seed includes the accepted Action and its frozen
   intervention, so the demo walks an already-accepted Action. A live Accept is
   exercised in review.
-- T029B ordering: sites with an open Finding first, then lower coverage, then
-  name. T034A replaces this.
+- T029B ordering (as tightened in fix round 1): open-Finding sites first, by
+  claim level, then lower coverage, then name. T034A replaces this.
 - T032 adds no capability-declaration entry, because it emits no Finding.
 - T034A's Meki is the healthy reference T028/T029 already use, or a Meki
   scenario if T036 AC7 needs observed service; the Implementer chooses.
@@ -438,7 +438,7 @@ The Planner recommends keeping both.
 - T027 and T028 are each exactly 220 and T032 exactly 160, which leaves no
   headroom for review edits. Further additions mean a split or moving text
   into decisions.
-- T034 is 205 / 220.
+- T034 is 208 / 220 after fix round 1.
 - T028 phase 1's UI check is weak, because two of its outcomes are visible
   only at read-model URLs.
 
@@ -466,4 +466,41 @@ The Planner recommends keeping both.
 Evidence part A with the record-inspector drill-down, and the tab rule). It
 runs on `task/T027-commit-ingestion-and-site-overview`, cut from `main` after
 this plan merges. It is ready once the reviewer and owner accept the plan,
-**subject to open question 1**, which changes only T027's rail statement.
+and open question 1 is answered (Operator home leaves in phase 1, T027 AC23).
+
+## Fix round 1 (Planner, Claude under the Codex-reset exception)
+
+Review: `.agent/plan-demo-led-replan-claude-review.md` (accept with fixes).
+No product decision in `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` was changed;
+nothing was deferred.
+
+| Finding | Fix |
+| --- | --- |
+| B1 T025h status | `tasks/T025h-picker-compatibility.md:3` now `Status: planned`; the parked position line and README row "-" are kept. |
+| B2 T027 contradiction | New AC23 (`T027:122-124`) removes `Operator home` and its frame, redirects `/` to `/sites`, rail Sites only; assigned to phase 1 (`T027:~133` (phase 1 line)). Anchors added: `OperatorShellLayout.tsx:34`, `OperatorShellFrame.tsx` and its test, five route tests (`operatorRouteFrames`, `simulatorLabWorkspaceEntryPoint`, `siteDetailRoute`, `siteFoundationRoute`, `sitesIndexRoute`) and the `/` visit in `tools/layout-evidence.mjs` (a report labelled "Operator home" at line 1272; the review said no scenario existed, but this one does and needs relabelling). Scope-limits sentence now reads "Sites columns are T029B; the Sites index content is unchanged here (only `/` now redirects to it)". |
+| B3 line ceilings | T027 221 to 220 and T028 220 stays 220, both counted with `wc -l` at normal wrap, no lines joined. T028's 128-character line was rewrapped (+1) and paid for by merging two Read-for-detail bullets and tightening one Outcome sentence. T027 was held by wording cuts only. Moved here (nothing else moved): the AC18 rationale and the "No sites are configured" reason (below). |
+| N1 T029 effective time | `T029:93-101` (AC12): defaults to the start of the BusinessContext version it supersedes, may be earlier than the edit, stored beside its recorded time (AC6), and the UI check edits with a time covering the seeded prolonged-runtime window. |
+| N2 T034 seed and Recommendation | `T034` AC19: the seed creates the Action through the same Accept API and the Action is not evidence. AC18: an accepted Finding's Recommendation tab shows the accepted state, links its Action, offers no second Accept. UI check says "Recommendation (accepted state)". |
+| N3 T029B ranking | AC4 (within-site order: Candidate Avoidable, Indeterminate, Necessary, then latest) and AC5 (open-Finding sites by claim level, then coverage, then name; shown as an interim replaced by T034A). |
+| N4 T031 opportunity weight | T031 AC12 ends: "The priority rule gains a new version weighting opportunity, shown on the page (T034A AC4)." |
+| N5 stale text | T029B title, Outcome, ownership test, Read-for-detail, Deliver landing bullet and AC7 rewritten; no layout-evidence remnant check. README row 22 and this packet (sections 4, 10) updated. T028 and T029 scope lines and T034A lines 9, 58, 61 also said T029B owns the landing and now say T027. |
+| N6 README seed sentence | `tasks/README.md:135`: "Every point from 2 onward ...". |
+| N7 seed-rule decision | `.ai/DECISIONS.md` seed-rule entry marks the breadth-slice sentence "Architect reading, planner guide section 5" and the hand-staged wording as Planner wording. |
+| N8 long lines | T028 (192), T029B (83) and T036 (34) rewrapped or rewritten. T034:160 (a table row) shortened. Remaining over-96 lines are two table rows (T027 Proof, T034 Proof), which cannot wrap. |
+
+Moved to this packet from T027 (the rationale only, not scope): AC18 lands on
+Site > Evidence in both phases because that page shows actual accepted coverage
+and rejections and the Overview frame does not exist until phase 2. Phase 1
+removes `Operator home` because its frame says "No sites are configured",
+false once Commit exists (recommendation 2.1; Architect ruling `58d756b`).
+
+Residual-risk items from the review are carried into T027: AC21 now says the
+`Changes` ban stays until T034, and the rendered-after-each-phase paragraph
+runs layout evidence on `/` as well as on Evidence.
+
+Line counts after fix round 1: T027 220, T028 220, T029 153, T029B 111,
+T034 208, T034A 172, T036 135, T031 102, T025h unchanged.
+
+Checks after fix round 1 (run with `-ExecutionPolicy Bypass`):
+`tools/check-agent-workflow.ps1` passed; `tools/check-architecture.ps1`
+passed.

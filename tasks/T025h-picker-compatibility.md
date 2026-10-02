@@ -1,6 +1,6 @@
 # T025h - Compatibility status per site in the run-setup picker (S1b)
 
-Status: parked
+Status: planned
 USER_REVIEW_REQUIRED: true
 
 Map: A/B hardening; scenario-site contract S1b. Depends on: T025g, T026.

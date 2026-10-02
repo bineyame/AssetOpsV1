@@ -22,8 +22,7 @@ This is the internal architecture checkpoint, not the client-demo finish line.
 
 ## Read for detail
 
-- v4 sections 3, 11, 21 and 25.
-- Roadmap sections 3.2, 7/B and 13.1.
+- v4 sections 3, 11, 21 and 25; roadmap sections 3.2, 7/B and 13.1.
 - `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` 3 "Site Overview"/"Evidence", 5.2, 6.2.
 - `.ai/ARCHITECTURE.md`: Evidence Loop Boundaries, Configuration Persistence,
   Presentation Honesty, Shared Presentation Substrate.
@@ -85,8 +84,8 @@ links. Unsupported/unobserved metrics are unavailable.
 11. Site Overview exposes window/context, metrics with units and evidence links
     into the record inspector. With no analytic, every card shows a neutral
     "No assessment yet"; the healthy reference shows no material current
-    Finding without inventing an analytic result before T028. "Unknown" is not
-    used for lack of an analytic.
+    Finding without inventing an analytic result before T028; "Unknown" is
+    never used for lack of an analytic.
 12. Evidence inspection shows source/device/signal, mapping/config version,
     quality, original values/units, normalized values and all three timestamps.
     The inspector opens from Site > Evidence source and signal rows (and, in
@@ -107,33 +106,33 @@ links. Unsupported/unobserved metrics are unavailable.
     and accepted-history context and displays actual release/acceptance outcome;
     it never implies every record was accepted. It lands on Site > Evidence.
 19. With Lab gated off, every new Lab history/series route and private payload
-    is inaccessible. Rebuild product views with Lab routes and private execution
-    artifacts unavailable; accepted evidence alone supplies operator views.
+    is inaccessible; product views rebuild from accepted evidence alone.
 20. Site > Evidence renders source/connector health per source, per-signal
     coverage for the selected window and the mapping/configuration basis, and
     nothing about capability readiness or claim ceilings.
 21. Site tabs follow `D-2026-10-02-rendered-tabs-per-capability`: one canonical
     inventory filtered by capability renders Overview, Foundation, Evidence;
-    Foundation renders `Definition | Topology | Controls` with no Readiness.
+    Foundation renders `Definition | Topology | Controls`, no Readiness.
     No operator tab or subtab is labelled in place or disabled; the
-    `navigation-truthfulness` check is updated without loosening.
+    `navigation-truthfulness` check is updated without loosening (the
+    `Changes` ban stays until T034).
 22. The mini-grid presentation profile is substrate data keyed by `site_type`
     and owns only which Overview cards exist and their order (Service,
     Dispatch, Battery, Fuel, Renewable). Card state never comes from it.
+23. Phase 1 removes the T002 `Operator home` rail item and its placeholder
+    frame; `/` redirects to `/sites`; the rail renders Sites only, with no
+    group header; no route, breadcrumb or Back link breaks (ruling `58d756b`).
 
 ## Phases
 
-One file (it fits 220 lines; phase 1 need not merge alone), one branch. Each
-phase ends with committed work, an owner UI check and
-`.agent/T027-phase-N-handoff.md` (`.ai/ROLE_CONFIG.md` "Build large slices in
-phases"). Full suites and the packet belong to phase 2.
+One file, one branch. Each phase ends with committed work, an owner UI check
+and `.agent/T027-phase-N-handoff.md` (`.ai/ROLE_CONFIG.md` "Build large slices
+in phases"). Full suites and the packet belong to phase 2.
 
 **Phase 1: Commit, ingestion, Site > Evidence (part A), tab rule.**
-ACs 1-9, 12, 16-18, 20, 21 in full; 10, 13, 14, 15, 19 for evidence and
+ACs 1-9, 12, 16-18, 20, 21, 23 in full; 10, 13, 14, 15, 19 for evidence and
 Site > Evidence (coverage per signal; Evidence survives gate-off and rebuild).
-AC18 lands on Site > Evidence for the committed window, because that page is
-where actual accepted coverage and rejections are visible and the Overview
-frame does not exist until phase 2; it stays there in phase 2.
+AC18 lands on Site > Evidence in both phases (rationale in the packet).
 Tab-rule anchors (in `frontend/src/`): `shell/operatorSiteTabs.tsx`
 (`labelled_in_place` entries, `OperatorSiteLabelledTab`,
 `labelledAspectsSentence`, module comment), `sites/FoundationSubtabs.tsx`
@@ -144,6 +143,11 @@ Tab-rule anchors (in `frontend/src/`): `shell/operatorSiteTabs.tsx`
 `tools/checks/navigation-truthfulness.ps1`, whose "labelled in place, never
 disabled" messages become: not rendered, never disabled, never labelled in
 place in operator views.
+Landing anchors (AC23, in `frontend/src/`): `shell/OperatorShellLayout.tsx:34`;
+`shell/OperatorShellFrame.tsx` and its test (placeholder copy); the rail-label
+pins in `shell/__tests__/` `operatorRouteFrames`,
+`simulatorLabWorkspaceEntryPoint`, `siteDetailRoute`, `siteFoundationRoute`,
+`sitesIndexRoute`; the `/` visit in `tools/layout-evidence.mjs`.
 *UI check:* Lab run -> Commit -> Open in AssetOps -> Site > Evidence shows
 source health, coverage and a record drill-down with three timestamps; Lab
 off, it stays.
@@ -160,11 +164,9 @@ timeline (demand, PV, generator, SOC) is context, not a status source.
 Lab run -> stage -> Commit -> Sites -> Kobo Overview -> Evidence -> Lab off,
 history stays.
 
-Rendered after each phase: rail Sites, no group header (phase 1 removes the T002 `Operator home`
-item from `frontend/src/shell/OperatorShellLayout.tsx`, redirects `/` to `/sites`,
-and updates the rail-label tests; its "No sites are configured" copy is false once Commit exists; rec. 2.1);
-Site tabs Overview, Foundation, Evidence. Run `node tools/layout-evidence.mjs`
-per phase (Evidence, then Overview; populated and empty).
+Rendered after each phase: rail Sites, no group header; Site tabs Overview,
+Foundation, Evidence. Run `node tools/layout-evidence.mjs` per phase (`/` and
+Evidence, then Overview; populated and empty).
 
 ## Proof
 
@@ -195,23 +197,20 @@ normal ingestion -> persistent Site Overview. Do not turn this into a
 generalized ingestion reliability project.** Resumability, for example, can be
 simple and correct rather than production-scale.
 
-The acceptance criteria above are kept in substance and none of them is
-optional: they sit on a protected seam, which is why this slice is watched for
-scope growth rather than trimmed. Satisfy each one at the smallest honest
-implementation that holds, and stop there. Round two of
-`Docs/queue-review-feedback-verbatim.md` is the source of this instruction.
+No acceptance criterion is optional (protected seam; watched for scope growth,
+not trimmed): satisfy each at the smallest honest implementation. Source: round
+two of `Docs/queue-review-feedback-verbatim.md`.
 
 No dispatch classification, capability declaration, capability table or claim
 ceiling yet; T028 owns them.
 No full Replay UI and no broad (cross-site) source-health dashboard. The
 site-scoped source-health section of Site > Evidence is in scope (AC20).
-Sites columns (Last analysed, Evidence coverage) and Sites as the landing page
-are T029B, per the point-2 protection rule; the Sites index is unchanged here.
+Sites columns are T029B (point-2 protection rule); the Sites index content is
+unchanged here (only `/` now redirects to it).
 No seed: demo point 1 is a live run (`D-2026-10-02-demo-point-seed-rule`).
-Shared-window paired experiments must wait for T032's separate comparison
-history context; ordinary Site history is not a place to merge both sides.
-Gateway outage, buffering, retry and out-of-order recovery are T026A and are
-not prerequisites for this checkpoint.
+Shared-window paired experiments wait for T032's comparison history context.
+Gateway outage, buffering, retry and out-of-order recovery are T026A, not
+prerequisites for this checkpoint.
 
 ## Review
 
