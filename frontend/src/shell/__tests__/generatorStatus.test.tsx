@@ -11,9 +11,10 @@ import {
   isRunGenerator,
   type RunExecution,
   type RunSetupClient,
+  type RunStage,
   type RunSummary,
 } from "../runSetupClient";
-import { executionMethods } from "./executionFixtures";
+import { executionMethods, STAGED_IN_THE_GAP } from "./executionFixtures";
 import runningPayload from "./kobo-mini-grid-running-execution.json";
 import stopSixtyPayload from "./kobo-mini-grid-stop-60-execution.json";
 
@@ -67,13 +68,13 @@ function asExecution(value: unknown): RunExecution {
   return value;
 }
 
-function renderWith(execution: RunExecution) {
+function renderWith(execution: RunExecution, stage: RunStage = STAGED_IN_THE_GAP) {
   const runSetup: RunSetupClient = {
     listProfiles: () => Promise.resolve({ status: "unavailable" }),
     createRun: () => Promise.resolve({ status: "unavailable", message: null }),
     listRuns: () => Promise.resolve({ status: "loaded", runs: [] }),
     getRun: () => Promise.resolve({ status: "loaded", run: READY_RUN }),
-    ...executionMethods({ status: "loaded", execution }),
+    ...executionMethods({ status: "loaded", execution }, { status: "loaded", stage }),
   };
   return render(
     <MemoryRouter initialEntries={[`/simulator-lab/runs/${RUN_ID}`]}>
@@ -192,6 +193,38 @@ describe("a profile-4 generator run on the Draft run screen", () => {
       "generator-controller:status",
     ]);
     expect(unstaged[0]?.textContent).toContain("T026");
+  });
+
+  it("names no unstaged status once the stage's frozen mapping carries it (T026 AC14)", async () => {
+    const mapping = STAGED_IN_THE_GAP.mapping!;
+    renderWith(asExecution(stopSixtyPayload), {
+      ...STAGED_IN_THE_GAP,
+      mapping: {
+        ...mapping,
+        entries: [
+          ...mapping.entries,
+          {
+            device_id: "generator-controller",
+            signal_id: "status",
+            measurement: "STATE",
+            unit: "state",
+            publishes_unavailable: true,
+            family: "MEASUREMENT",
+            members: ["STOPPED", "STARTING", "RUNNING", "FAILED"],
+          },
+        ],
+      },
+    });
+    await settledScreen();
+
+    expect(document.querySelectorAll("[data-stage-unstaged-signal]").length).toBe(0);
+    expect(document.body.textContent).not.toMatch(/observed, not staged/);
+    expect(
+      document.querySelector('[data-stage-mapping-family="MEASUREMENT"]'),
+    ).not.toBeNull();
+    expect(document.body.textContent).toContain(
+      "STATE, one of STOPPED, STARTING, RUNNING, FAILED",
+    );
   });
 
   it("keeps a profile-3 run's table and says it publishes no status", async () => {

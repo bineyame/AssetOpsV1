@@ -130,10 +130,21 @@ export function RunHeader({
               {recorded.recorded_through_offset_minutes === null
                 ? ""
                 : ` through offset ${recorded.recorded_through_offset_minutes} min`}
+              {/* T026: a family the run's mapping has no channel for (records
+                  under a profile without one) is not applicable, not missing. */}
               {`; families recorded ${
                 recorded.coverage.filter((c) => c.availability === "RECORDED")
                   .length
-              } of ${recorded.coverage.length}`}
+              } of ${
+                recorded.coverage.filter((c) => c.availability !== "NOT_APPLICABLE")
+                  .length
+              }`}
+              {recorded.coverage.some((c) => c.availability === "NOT_APPLICABLE")
+                ? ` (${
+                    recorded.coverage.filter((c) => c.availability === "NOT_APPLICABLE")
+                      .length
+                  } not applicable)`
+                : ""}
               {recorded.source === "PERSISTED" && recorded.history_digest !== null
                 ? `; verified artifact, history digest ${recorded.history_digest}`
                 : recorded.source === "LIVE_SESSION"

@@ -636,6 +636,13 @@ export interface RunStagedEnvelope {
   unavailable_reason: string | null;
   interval_start: string | null;
   interval_end: string | null;
+  /**
+   * T026: `MEASUREMENT`, `POLICY` or `OPERATIONAL_RECORD`. A record has no
+   * measurement class and no quality; the API puts its family in the
+   * `measurement` column and `RECORDED` in `quality`, and a screen reads this
+   * field rather than those. Absent on a stage served before T026.
+   */
+  family?: string;
 }
 
 /** One allowlisted signal in the mapping a stage froze. */
@@ -645,6 +652,10 @@ export interface RunStageMappingEntry {
   measurement: string;
   unit: string;
   publishes_unavailable: boolean;
+  /** T026: as on an envelope; absent on a stage served before T026. */
+  family?: string;
+  /** T026: an enum signal's declared members; null for a number or record. */
+  members?: string[] | null;
 }
 
 export interface RunStageMapping {
@@ -1277,7 +1288,8 @@ function isStagedEnvelope(value: unknown): value is RunStagedEnvelope {
     typeof value.quality === "string" &&
     isNullableString(value.unavailable_reason) &&
     isNullableString(value.interval_start) &&
-    isNullableString(value.interval_end)
+    isNullableString(value.interval_end) &&
+    (value.family === undefined || typeof value.family === "string")
   );
 }
 
@@ -1297,7 +1309,12 @@ function isStageMapping(value: unknown): value is RunStageMapping {
         typeof entry.signal_id === "string" &&
         typeof entry.measurement === "string" &&
         typeof entry.unit === "string" &&
-        typeof entry.publishes_unavailable === "boolean",
+        typeof entry.publishes_unavailable === "boolean" &&
+        (entry.family === undefined || typeof entry.family === "string") &&
+        (entry.members === undefined ||
+          entry.members === null ||
+          (Array.isArray(entry.members) &&
+            entry.members.every((member) => typeof member === "string"))),
     )
   );
 }

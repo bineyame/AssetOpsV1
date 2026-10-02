@@ -106,10 +106,20 @@ describe("the recorded-history inspector", () => {
       "observation_attempts",
       "timeline",
       "drawing",
+      "records",
+      "publications",
     ]);
-    expect(families.every((row) => row.dataset.availability === "RECORDED")).toBe(
-      true,
-    );
+    // T026: a profile-4 run's mapping has no record channel, so records are
+    // not applicable rather than missing; publications are recorded (none held).
+    expect(families.map((row) => row.dataset.availability)).toEqual([
+      "RECORDED",
+      "RECORDED",
+      "RECORDED",
+      "RECORDED",
+      "RECORDED",
+      "NOT_APPLICABLE",
+      "RECORDED",
+    ]);
   });
 
   it("opens at the last recorded boundary and shows its exact values", async () => {
@@ -214,7 +224,8 @@ describe("the recorded-history inspector", () => {
       ),
     ).toBe("NOT_RECORDED");
     const families = all("[data-history-family]");
-    expect(families).toHaveLength(5);
+    // T026: history schema 3 adds `records` and `publications`.
+    expect(families).toHaveLength(7);
     expect(
       families.every((row) => row.dataset.availability === "UNAVAILABLE"),
     ).toBe(true);

@@ -29,6 +29,10 @@ from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import (
 
 #: (scenario_id, scenario_version) -> SHA-256 of the canonical parsed document.
 PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
+    # T026: a new scenario id at version 1, naming no site.
+    ("kobo-mini-grid-degraded-evidence", 1): (
+        "0fc92f6dda17664c17e6550dea1d5c4c881016333433d656b970e1f85e82e06e"
+    ),
     ("fuel-loss-event", 2): (
         "37eb209e9edf796df7dc432d734cdd6e08ca6e058decca11807c226ccd0d6039"
     ),
@@ -107,7 +111,7 @@ def site_naming_failure(path_name: str, document: dict[str, Any]) -> str | None:
 
 def test_the_shipped_scenarios_were_found() -> None:
     documents = shipped_documents()
-    assert len(documents) == 7, [path.name for path, _ in documents]
+    assert len(documents) == 8, [path.name for path, _ in documents]
 
 
 def test_every_shipped_scenario_matches_its_pinned_fingerprint() -> None:
@@ -137,9 +141,17 @@ def test_no_shipped_scenario_names_a_site() -> None:
     assert not failures, "\n".join(failures)
 
 
+#: T026: scenarios first shipped after the T025g v2 bump start at version 1.
+NEW_SINCE_T025G = {"kobo-mini-grid-degraded-evidence"}
+
+
 def test_every_shipped_scenario_is_v2_superseding_v1() -> None:
     for path, document in shipped_documents():
         version = document["version"]
+        if document["scenario_id"] in NEW_SINCE_T025G:
+            assert version["scenario_version"] == 1, path.name
+            assert "supersedes" not in version, path.name
+            continue
         assert version["scenario_version"] == 2, path.name
         assert version["supersedes"] == 1, path.name
         assert version["version_valid_from"] == "2026-10-01T00:00:00Z", path.name

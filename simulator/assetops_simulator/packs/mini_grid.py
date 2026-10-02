@@ -1021,3 +1021,67 @@ MINI_GRID_V2_MODEL = replace(
     measured_interval_states=MINI_GRID_MODEL.measured_interval_states
     | {GENERATOR_OUTPUT_POWER},
 )
+
+
+# --- `mini-grid` v3 (T026) ------------------------------------------------
+
+#: What the PV inverter reports it COULD deliver over the completed step: the
+#: array's potential after the inverter's own limit. Not what was used - that is
+#: `pv-ac-power` - so a consumer can see curtailment without reading a flow.
+PV_AVAILABLE_POWER = "pv-available-power"
+
+#: What the battery's management system reports it could discharge over the
+#: completed step, as AC power at the PCS: the PCS limit, or less when the
+#: energy stored at the step's start could not sustain it. It knows nothing of
+#: the Site's reserve policy - that is a control, published as a policy record.
+BATTERY_DISCHARGE_CAPABILITY = "battery-discharge-capability"
+
+
+def resolve_v3(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v2's resolution, plus the two capability measurements a device reports.
+
+    Measurements only: no flow, stock, control or decision changes, so a v3 run
+    and a v2 run of one document accept the same flows and decide the same
+    requests. v1 and v2 are untouched; their interval measurements and digests
+    are what they were (`D-2026-09-22-contract-version-scope`).
+    """
+    accepted = resolve_v2(context, intent)
+    plant, _ = _both(context)
+    energy = {flow.flow_id: flow.energy for flow in accepted.flows}
+    available = energy["pv_potential"] - energy["inverter_clipping"]
+    hours = Fraction(context.to_offset - context.from_offset, 60)
+    stored = context.stock(plant.soc_address) * plant.capacity / 100
+    deliverable = max(stored, Fraction(0)) * plant.efficiency / hours
+    capability = min(plant.discharge_limit, deliverable)
+    return replace(
+        accepted,
+        interval_energies=tuple(
+            sorted(
+                accepted.interval_energies
+                + (
+                    (f"{PV_AVAILABLE_POWER}@{plant.inverter}", available),
+                    (
+                        f"{BATTERY_DISCHARGE_CAPABILITY}@{plant.pcs}",
+                        capability * hours,
+                    ),
+                )
+            )
+        ),
+    )
+
+
+MINI_GRID_V3_COUPLING = replace(MINI_GRID_V2_COUPLING, resolve=resolve_v3)
+
+MINI_GRID_V3_MODEL = replace(
+    MINI_GRID_V2_MODEL,
+    model_profile_version=3,
+    statement=(
+        MINI_GRID_V2_MODEL.statement
+        + " It also measures, over each completed step, the PV inverter's "
+        "available power and the battery's discharge capability, so a device "
+        "can report capability beside output."
+    ),
+    coupling=MINI_GRID_V3_COUPLING,
+    measured_interval_states=MINI_GRID_V2_MODEL.measured_interval_states
+    | {PV_AVAILABLE_POWER, BATTERY_DISCHARGE_CAPABILITY},
+)

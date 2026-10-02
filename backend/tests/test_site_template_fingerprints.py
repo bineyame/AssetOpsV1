@@ -39,6 +39,11 @@ PINNED_TEMPLATE_FINGERPRINTS: dict[tuple[str, int], str] = {
     ("kobo-mini-grid-60kw", 2): (
         "43ede0213293914efaaa14e48fa69f56ab4a07565b8a84e7f90d89f7aae786bf"
     ),
+    # T026: the two capability signals and mappings
+    # (`D-2026-10-02-template-bump-record`).
+    ("kobo-mini-grid-60kw", 3): (
+        "d5c404b64136292bac4578b276d7958ba68b838ee6f0f92873992c389938c4a8"
+    ),
     ("twin-tank-mini-grid-150kw", 1): (
         "0c271c9fad0138dd38a5e9dc4e64329e2aadbd54a7e07f9997f588abc9577a93"
     ),
@@ -109,14 +114,25 @@ def test_every_shipped_template_matches_its_pinned_fingerprint() -> None:
     assert not failures, "\n".join(failures)
 
 
-def test_kobo_template_is_version_two_with_the_t025_additions_at_two() -> None:
-    """AC1: the T025a/T025b generator properties carry 2; the rest keep 1."""
+def test_kobo_template_is_version_three_with_the_t025_additions_at_two() -> None:
+    """T025f AC1: the T025a/T025b generator properties carry 2; the rest keep 1.
+
+    T026 bumped the template to 3 for two signals and mappings, which carry no
+    per-entity provenance; no property moved.
+    """
     document = yaml.safe_load(
         (SHIPPED_SITE_TEMPLATE_ROOT / "kobo-mini-grid-60kw.yaml").read_text(
             encoding="utf-8"
         )
     )
-    assert document["template_version"] == 2
+    assert document["template_version"] == 3
+    signals = {
+        (device["device_id"], signal["signal_id"])
+        for device in document["foundation"]["devices"]
+        for signal in device["signals"]
+    }
+    assert ("pv-inverter-controller", "available-power") in signals
+    assert ("battery-pcs-controller", "discharge-capability") in signals
 
     added = {
         "start-soc-threshold",

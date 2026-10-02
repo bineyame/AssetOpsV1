@@ -31,9 +31,15 @@
 # carry no per-entity provenance, so the bump itself is what records them. Any
 # later content change bumps this version again; the pinned fingerprint in
 # `backend/tests/test_site_template_fingerprints.py` fails until it does.
+#
+# Version 3 (T026, D-2026-10-02-template-bump-record): two capability signals
+# and their mappings - the PV inverter's available power and the battery PCS's
+# discharge capability - so publication profile 5 can report capability beside
+# output. Version, pin and this note record the bump; templates carry no
+# supersedes or valid-from. Sites created from version 2 read BEHIND.
 
 template_id: kobo-mini-grid-60kw
-template_version: 2
+template_version: 3
 display_name: Kobo Mini-Grid (60 kWp, three loads)
 
 foundation:
@@ -276,6 +282,9 @@ foundation:
         - signal_id: ac-power
           display_name: AC output power
           unit: kW
+        - signal_id: available-power
+          display_name: Available AC power
+          unit: kW
     - device_id: pv-irradiance-sensor
       device_type: SENSOR
       display_name: Plane-of-array irradiance sensor
@@ -295,6 +304,9 @@ foundation:
         - signal_id: state-of-charge
           display_name: Battery state of charge
           unit: "%"
+        - signal_id: discharge-capability
+          display_name: Battery discharge capability
+          unit: kW
     - device_id: generator-controller
       device_type: CONTROLLER
       display_name: Generator controller
@@ -344,6 +356,10 @@ foundation:
       device_id: pv-inverter-controller
       signal_id: ac-power
       component_id: pv-inverter
+    - mapping_id: pv-inverter-available-power
+      device_id: pv-inverter-controller
+      signal_id: available-power
+      component_id: pv-inverter
     - mapping_id: pv-array-irradiance
       device_id: pv-irradiance-sensor
       signal_id: irradiance
@@ -356,6 +372,10 @@ foundation:
       device_id: battery-pcs-controller
       signal_id: state-of-charge
       component_id: battery
+    - mapping_id: battery-pcs-discharge-capability
+      device_id: battery-pcs-controller
+      signal_id: discharge-capability
+      component_id: battery-pcs
     - mapping_id: generator-ac-power
       device_id: generator-controller
       signal_id: ac-power

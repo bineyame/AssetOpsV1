@@ -120,6 +120,11 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         "INITIALIZATION_INPUT_MISSING",
         "UNIT_INVALID",
         "EXECUTION_REQUIREMENT_CONFLICT",
+        # T026 (`D-2026-10-02-delay-is-a-reporting-path-cause`). A declared
+        # publication hold that would hold more than one publication of a path
+        # and release them together. Release order, buffering and recovery are
+        # T026A's, so such a hold is refused rather than modelled.
+        "PUBLICATION_DELAY_REFUSED",
     }
 )
 

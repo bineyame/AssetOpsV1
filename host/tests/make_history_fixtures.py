@@ -79,6 +79,7 @@ def main() -> None:
     live_deltas()
     mid_step_deltas()
     multi_window_deltas()
+    degraded_evidence_deltas()
 
 
 def prolonged_prefix() -> None:
@@ -225,6 +226,45 @@ def multi_window_deltas() -> None:
         "full": history_payload(history, run),
     }
     (OUT / "kobo-mini-grid-multi-window-deltas.json").write_text(
+        json.dumps(document, separators=(",", ":")), encoding="utf-8"
+    )
+
+
+def degraded_evidence_deltas() -> None:
+    """`kobo-degraded-evidence-deltas.json`: records and a held publication (T026).
+
+    The degraded-evidence recipe (publication profile 5, mini-grid v3): its
+    battery state of charge sampled at 240 is held by a publication delay and
+    released at 250, and its records start at offset 0. The full read after
+    start, one delta to 235 (before the hold), the delta after each single
+    step through 255 (source, hold, release, after), and the full read at the
+    end - so the client folds both new families from the backend's own rows.
+    """
+    from test_t026_dispatch_evidence import DEGRADED
+    from test_t026_dispatch_evidence import draft as t026_draft
+
+    run = t026_draft(DEGRADED)
+    lab = a_lab(Path(tempfile.mkdtemp()))
+    projection = lab.start(run)
+    base = history_payload(lab.history(run), run)
+    held = base["boundaries_recorded"]
+    deltas = []
+    while projection.offset_minutes < 255:
+        boundaries = 47 if projection.offset_minutes == 0 else 1
+        projection = lab.step(
+            run, boundaries=boundaries, from_boundary=projection.boundaries_completed
+        )
+        history = lab.history(run)
+        deltas.append(delta_read(history, held, run))
+        held = len(history.boundaries)
+    history = lab.history(run)
+    assert history.publications and history.records, "nothing to fold"
+    document = {
+        "base": base,
+        "deltas": deltas,
+        "full": history_payload(history, run),
+    }
+    (OUT / "kobo-degraded-evidence-deltas.json").write_text(
         json.dumps(document, separators=(",", ":")), encoding="utf-8"
     )
 

@@ -1697,6 +1697,10 @@ class TestEveryFrozenValueNamesAnAnswerer:
         # Frozen and inspectable through the structured identity, and
         # deliberately not given a row of its own, with the reason.
         not_rendered = {
+            # T026 C1: the scenario's declaration of who issued a forced
+            # change. It decides only whether a publication profile reports an
+            # operator command; the scenario surface that declares it owns it.
+            ("FrozenForcing", "issued_by"),
             # The parameter identity already names it on its row.
             ("FrozenInitializationInput", "parameter_id"),
             # A canonical restatement of the value beside it. One number
@@ -2067,9 +2071,67 @@ class TestEveryRefusalKindIsReachable:
             )[0].kind,
             self._missing_initialization_input().kind,
             self._requirement_conflict().kind,
+            self._publication_hold_batches().kind,
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
+
+    def _publication_hold_batches(self) -> RunSetupRefused:
+        """T026: a hold longer than the delayed path's cadence batches releases."""
+        from assetops_backend.runs.profiles import (
+            DeviceSignalDeclaration,
+            SupportedReportingState,
+        )
+
+        publication = replace(
+            publication_profile(),
+            supported_reporting_states=(
+                    SupportedReportingState(
+                        state_key="battery-soc-publication-delay",
+                        scope="COMPONENT",
+                        supported_roles=frozenset({"FORCING_INPUT"}),
+                        statement="A hold can be declared.",
+                        delays=(("example-sensor", "example-level"),),
+                    ),
+            ),
+            device_signals=(
+                DeviceSignalDeclaration(
+                    device_id="example-sensor",
+                    signal_id="example-level",
+                    state_key="example-stored-volume",
+                    reading_class="STATE_SIGNAL",
+                    canonical_unit="L",
+                    cadence_minutes=15,
+                    bias=0.0,
+                    dropout_per_thousand=0,
+                    statement="The level every fifteen minutes.",
+                ),
+            ),
+        )
+        document = scenario_document()
+        document["timeline"].append(
+            {
+                "event_id": "held-too-long",
+                "sequence": len(document["timeline"]) + 1,
+                "offset_minutes": 0,
+                "entry_kind": "EVENT",
+                "category": "DATA_QUALITY",
+                "description": "Publications are held for half an hour.",
+                "execution_role": "FORCING_INPUT",
+                "state_key": "battery-soc-publication-delay@example-store",
+                "execution_requirement": "REQUIRED",
+                "timing": {"shape": "WINDOW", "duration_minutes": 30},
+            }
+        )
+        error, store = refuse(
+            setup_request(),
+            scenarios=FakeScenarios(
+                (parse_scenario_document(document, source="a test", origin="SHIPPED"),)
+            ),
+            publication=publication,
+        )
+        assert store.written == []
+        return error
 
     def _requirement_conflict(self) -> RunSetupRefused:
         """Two spellings of one asset, declared at two requirement levels.

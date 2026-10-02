@@ -442,7 +442,10 @@ class TestTheGatedLab:
 
 class TestStatusIsNotStaged:
     def test_schema_one_and_the_fuel_only_mapping_are_unchanged(self) -> None:
-        assert SOURCE_ENVELOPE_SCHEMA_VERSION == 1
+        # T026: the build writes schema 2 for new mappings; the fuel-only
+        # mapping a profile-3/4 Draft stages under still publishes schema 1.
+        assert SOURCE_ENVELOPE_SCHEMA_VERSION == 2
+        assert SIMULATOR_LAB_GATEWAY_MAPPINGS.envelope_schema_version == 1
         assert SIMULATOR_LAB_GATEWAY_MAPPINGS.mapping_version == 1
         assert [e.key for e in SIMULATOR_LAB_GATEWAY_MAPPINGS.entries] == [
             ("fuel-level-sensor", "fuel-level")
@@ -458,7 +461,7 @@ class TestStatusIsNotStaged:
                 publishes_unavailable=True,
             )
         assert refused.value.kind == "MAPPING_INCOMPATIBLE"
-        assert "not yet staged" in str(refused.value)
+        assert "schema 1 carries numbers only" in str(refused.value)
 
     def test_an_allowlisted_status_is_refused_not_omitted_or_disguised(
         self, changed

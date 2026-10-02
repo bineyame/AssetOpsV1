@@ -30,6 +30,7 @@ from assetops_contracts.source_envelope import SourceEnvelope, SourceMappingSet
 from assetops_contracts.source_stage import (
     Admission,
     SourceStage,
+    StageUnreadable,
     StageConflict,
     admit,
     parse_stage_text,
@@ -49,6 +50,13 @@ class JsonSourceStages:
 
     def __init__(self, root: Path = STAGE_ROOT) -> None:
         self._root = root
+        #: T026: the exact text this store last verified or wrote per run, and
+        #: the stage it parses to. A read whose bytes equal it reuses that
+        #: stage instead of re-verifying every envelope; any other bytes - an
+        #: edit, a truncation, another writer - are parsed and verified in
+        #: full. Measured at the 8 h window: re-verification was most of a
+        #: step's staging cost (`.agent/T026-phase-1-handoff.md`).
+        self._verified: dict[str, tuple[str, SourceStage]] = {}
 
     def path(self, run_id: str) -> Path:
         return self._root / f"{run_id}.json"
@@ -62,14 +70,29 @@ class JsonSourceStages:
         path = self.path(run_id)
         if not path.is_file():
             return None
-        return parse_stage_text(path.read_text(encoding="utf-8"), run_id)
+        try:
+            text = path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError as error:
+            # Review R2: a stage that is not UTF-8 is damaged content, read as
+            # unreadable with its reason - never an unhandled 500.
+            raise StageUnreadable(
+                run_id, f"the persisted stage is not UTF-8 text ({error.reason})"
+            ) from error
+        cached = self._verified.get(run_id)
+        if cached is not None and cached[0] == text:
+            return cached[1]
+        stage = parse_stage_text(text, run_id)
+        self._verified[run_id] = (text, stage)
+        return stage
 
     def _write(self, stage: SourceStage) -> None:
         self._root.mkdir(parents=True, exist_ok=True)
         path = self.path(stage.run_id)
         partial = path.with_name(path.name + ".partial")
-        partial.write_text(stage_text(stage), encoding="utf-8")
+        text = stage_text(stage)
+        partial.write_bytes(text.encode("utf-8"))
         os.replace(partial, path)
+        self._verified[stage.run_id] = (text, stage)
 
     def admit(
         self,

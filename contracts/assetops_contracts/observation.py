@@ -600,6 +600,115 @@ class ReportingPathWindow:
 
 
 @dataclass(frozen=True)
+class PublicationDelayWindow:
+    """T026. A span across which one path's publications are held back.
+
+    `D-2026-10-02-delay-is-a-reporting-path-cause`: the scenario declares the
+    window, the publication profile declares that it can model it, and the
+    gateway applies it. The window IS the delay: a publication due inside it is
+    held and released at the window's end. A scenario parameter may not carry a
+    duration (the scenario parser's rule), and needs none: the hold is the
+    entry's own timing, exactly as a gap's outage is.
+
+    It moves publication time ONLY. The value and the source time are the
+    observation transform's and never change, so the reading series - and its
+    digest - are identical with and without it. Run setup has already refused a
+    window that would hold more than one publication of a path, which would be a
+    batch release (buffering is T026A's).
+
+    Resolved to half-open offsets by the host from the frozen condition's own
+    shape (`ReportingPathWindow`'s rule), so the gateway reads two numbers.
+    """
+
+    event_id: str
+    device_id: str
+    signal_id: str
+    start_offset_minutes: int
+    end_offset_minutes: int
+
+    def __post_init__(self) -> None:
+        if not self.start_offset_minutes < self.end_offset_minutes:
+            raise ValueError(
+                f"Publication delay {self.event_id!r} holds nothing: its window "
+                "covers no time."
+            )
+
+    @property
+    def key(self) -> tuple[str, str]:
+        return (self.device_id, self.signal_id)
+
+    def covers(self, offset_minutes: int) -> bool:
+        return self.start_offset_minutes <= offset_minutes < self.end_offset_minutes
+
+
+def publication_delay_minutes(
+    delays: tuple[PublicationDelayWindow, ...],
+    device_id: str,
+    signal_id: str,
+    offset_minutes: int,
+) -> int:
+    """How long one path's publication due at one instant is held, or zero.
+
+    Held until the covering window ends. Two windows covering one instant on
+    one path would be two answers, and this raises rather than choose.
+    """
+    covering = [
+        window.end_offset_minutes - offset_minutes
+        for window in delays
+        if window.key == (device_id, signal_id) and window.covers(offset_minutes)
+    ]
+    if len(covering) > 1:
+        raise ValueError(
+            f"{device_id}/{signal_id} at offset {offset_minutes} is covered by "
+            f"{len(covering)} publication delays; one instant has one delay."
+        )
+    return covering[0] if covering else 0
+
+
+#: What a held publication carried: a device reading or a policy/operational
+#: record. Distinct, because a record is not telemetry (T026 AC4).
+HELD_PUBLICATION_KINDS = frozenset({"READING", "RECORD"})
+
+
+@dataclass(frozen=True)
+class HeldPublication:
+    """T026 AC13. One publication a delay window held, at the instant it went out.
+
+    The gateway's fact, recorded in Lab history at the boundary that RELEASED it
+    (`released_offset_minutes`), never as an edit to the attempt or record row
+    at its source time. `held_minutes` is the gateway's own derivation (window
+    end minus source offset), so no reader computes it; `published_at` adds the
+    mapping's latency exactly as the envelope does. `delay_event_id` names the
+    scenario window and is Lab-only, like a suppression's event.
+    """
+
+    kind: str
+    device_id: str
+    signal_id: str
+    source_offset_minutes: int
+    source_time: str
+    released_offset_minutes: int
+    published_at: str
+    held_minutes: int
+    delay_event_id: str
+
+    def __post_init__(self) -> None:
+        if self.kind not in HELD_PUBLICATION_KINDS:
+            raise ValueError(f"{self.kind!r} is not a held publication kind.")
+        if self.held_minutes <= 0 or (
+            self.released_offset_minutes
+            != self.source_offset_minutes + self.held_minutes
+        ):
+            raise ValueError(
+                f"Held publication {self.device_id}/{self.signal_id} at offset "
+                f"{self.source_offset_minutes} is released at "
+                f"{self.released_offset_minutes} after {self.held_minutes} "
+                "minutes; a hold is positive and the release is the source "
+                "offset plus the hold."
+            )
+
+
+@dataclass(frozen=True)
 class FrozenReportingInputs:
     """Everything the observation transform consumes, and no world quantity.
 
@@ -623,6 +732,9 @@ class FrozenReportingInputs:
     interval: FrozenInterval
     signals: tuple[DeviceSignalSpec, ...]
     gaps: tuple[ReportingPathWindow, ...]
+    #: T026. Declared publication delays; empty for every run frozen before
+    #: T026 and for any profile that declares no delay capability.
+    delays: tuple[PublicationDelayWindow, ...] = ()
 
     def __post_init__(self) -> None:
         seen: set[tuple[str, str, str]] = set()

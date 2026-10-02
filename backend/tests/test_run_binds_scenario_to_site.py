@@ -200,12 +200,23 @@ def owner_shaped_copy(path: Path) -> dict:
     return document
 
 
-SHIPPED_DOCUMENTS = sorted(SHIPPED_SCENARIOS.glob("*.yaml"))
+#: Shipped after T025g at version 1 and never shipped in the v1 shape, so no
+#: owner copy of it exists to rebuild (T026).
+NEVER_SHIPPED_AS_V1 = {"kobo-mini-grid-degraded-evidence"}
+
+SHIPPED_DOCUMENTS = sorted(
+    path
+    for path in SHIPPED_SCENARIOS.glob("*.yaml")
+    if path.stem not in NEVER_SHIPPED_AS_V1
+)
 
 
 def test_the_shipped_documents_were_found() -> None:
     assert len(SHIPPED_DOCUMENTS) >= 7, "nothing to copy, so AC10 proves nothing"
     assert {path.stem for path in SHIPPED_DOCUMENTS} == set(FROZEN_V1_SAMPLE)
+    assert {
+        path.stem for path in SHIPPED_SCENARIOS.glob("*.yaml")
+    } == set(FROZEN_V1_SAMPLE) | NEVER_SHIPPED_AS_V1
 
 
 @pytest.mark.parametrize(

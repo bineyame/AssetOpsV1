@@ -302,7 +302,11 @@ export function chartModel(
         { kind: "interval", id: "pv-curtailed", label: "Curtailed", slot: 3, dash: "dotted", values: fromFlow(history, "curtailed_pv") },
         { kind: "interval", id: "pv-clipped", label: "Clipped", slot: 4, dash: "dashdot", values: fromFlow(history, "inverter_clipping") },
       ],
-      reported: claim((t) => stateKey(t.address) === "pv-ac-power"),
+      // T026 AC15: the inverter's reported available power joins the PV
+      // curve it bounds; it is a capability, drawn as its own reported track.
+      reported: claim((t) =>
+        ["pv-ac-power", "pv-available-power"].includes(stateKey(t.address)),
+      ),
     });
   }
 
@@ -425,7 +429,13 @@ export function chartModel(
         "Mean AC power at the battery's converter over each step: positive is discharging, negative is charging. The flows are detail.",
       signed: true,
       series,
-      reported: claim((t) => stateKey(t.address) === "battery-ac-power"),
+      // T026 AC15: the converter's reported discharge capability joins the
+      // battery power curve, as its own reported track.
+      reported: claim((t) =>
+        ["battery-ac-power", "battery-discharge-capability"].includes(
+          stateKey(t.address),
+        ),
+      ),
     });
   }
 

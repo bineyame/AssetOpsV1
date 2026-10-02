@@ -43,8 +43,10 @@ from assetops_contracts.lab_projection import ElectricalStepRow
 from assetops_contracts.observation import (
     DeviceObservation,
     DeviceSignalSpec,
+    HeldPublication,
     ReportingPathWindow,
 )
+from assetops_contracts.operational_records import RecordObservation
 from assetops_contracts.trajectory import (
     AppliedEvent,
     BoundedTransition,
@@ -57,10 +59,22 @@ from assetops_contracts.world_inputs import BusAttachmentInput
 #: execution contract, the kernel, the publication profile and the projection
 #: artifact's own schema: adding a recorded family is an artifact change, not a
 #: change to what a frozen Draft means (`D-2026-09-22-contract-version-scope`).
-LAB_HISTORY_SCHEMA_VERSION = 2
+LAB_HISTORY_SCHEMA_VERSION = 3
 #: Schema 2 adds the manifest's `projection_binding`. Schema 1 existed only on
 #: the T025c branch (never released); a schema-1 artifact reads as an unknown
 #: schema: unreadable, disclosed and never overwritten, like any other.
+#: Schema 3 (T026 AC13) adds `records` and `publications`. A schema-2 artifact
+#: still reads, verified as written, and discloses those two families as not
+#: recorded (`SCHEMA_2_UNRECORDED_STATEMENT`); nothing is reconstructed.
+READABLE_LAB_HISTORY_SCHEMA_VERSIONS = (2, 3)
+
+#: The families schema 3 added, and what a schema-2 artifact says about them.
+SCHEMA_3_FAMILIES = ("records", "publications")
+SCHEMA_2_UNRECORDED_STATEMENT = (
+    "This run's history was written under history schema 2, before policy and "
+    "operational records and held publications were recorded. They were never "
+    "written and are not reconstructed."
+)
 
 #: The recorded families, in the order a reader meets them.
 HISTORY_FAMILIES = (
@@ -69,6 +83,8 @@ HISTORY_FAMILIES = (
     "observation_attempts",
     "timeline",
     "drawing",
+    "records",
+    "publications",
 )
 
 HISTORY_FAMILY_STATEMENTS = {
@@ -95,6 +111,18 @@ HISTORY_FAMILY_STATEMENTS = {
     "drawing": (
         "The run's frozen bus attachments: the component, converter and bus "
         "identities this run executed against, not the Site's current topology."
+    ),
+    "records": (
+        "Every policy and operational record that occurred by the boundary "
+        "reached, at its occurrence, with whether its channel published it. A "
+        "future effective time is a field of the row, not when it is recorded; "
+        "an unpublished record is none observed, never no record."
+    ),
+    "publications": (
+        "Every publication a declared delay held back, at the boundary that "
+        "released it, with its unchanged source time and its later publication "
+        "time. A publication still held is not listed; the attempt or record "
+        "row at its source time is never edited."
     ),
 }
 
@@ -251,6 +279,11 @@ class LabHistory:
     #: `HISTORY_FAMILIES` entry): filled only when `intervals` is recorded, and
     #: bound through the manifest's `projection_binding`.
     electrical_steps: tuple[ElectricalStepRow, ...] = ()
+    #: T026 AC13 (schema 3). Policy and operational records, appended at their
+    #: occurrence; held publications, appended at the boundary that released
+    #: them.
+    records: tuple[RecordObservation, ...] = ()
+    publications: tuple[HeldPublication, ...] = ()
     notes: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:

@@ -45,3 +45,106 @@ SIMULATOR_LAB_GATEWAY_MAPPINGS = SourceMappingSet(
         ),
     ),
 )
+
+
+# --- T026: the dispatch-capable mapping, envelope schema 2 -------------------
+#
+# Publication profile 5's allowlist. Every telemetry path profile 5 declares,
+# including the two capability signals (template v3) and generator status as a
+# typed member, plus two record families: the Foundation policy the controller
+# runs under, and operator override commands. Record channels are declared here
+# against existing components' devices, not as template signals
+# (`D-2026-10-02-template-bump-record`); Site Controls have no device, so the
+# gateway publishes them as `site-controller`, with no component.
+#
+# Profiles 3 and 4 keep the fuel-only schema-1 mapping above, so a Draft frozen
+# under either stages exactly what it staged before T026.
+
+#: The members a generator status reading may carry: the lifecycle the
+#: mini-grid model declares. A member outside this list is refused at the stage.
+GENERATOR_STATUS_MEMBERS = ("STOPPED", "STARTING", "RUNNING", "FAILED")
+
+
+def _reading(device_id, signal_id, measurement, unit, members=None):
+    return SourceMappingEntry(
+        device_id=device_id,
+        signal_id=signal_id,
+        measurement=measurement,
+        unit=unit,
+        publishes_unavailable=True,
+        family="MEASUREMENT",
+        members=members,
+        envelope_schema_version=2,
+    )
+
+
+def _record(device_id, signal_id, family, unit):
+    return SourceMappingEntry(
+        device_id=device_id,
+        signal_id=signal_id,
+        measurement=None,
+        unit=unit,
+        publishes_unavailable=False,
+        family=family,
+        envelope_schema_version=2,
+    )
+
+
+SIMULATOR_LAB_DISPATCH_MAPPINGS = SourceMappingSet(
+    mapping_set_id="simulator-lab-gateway-dispatch",
+    mapping_version=1,
+    publication_latency_seconds=3,
+    envelope_schema_version=2,
+    entries=(
+        _reading("fuel-level-sensor", "fuel-level", "STATE_AT_INSTANT", "L"),
+        _reading("generator-controller", "ac-power", "INTERVAL_MEAN", "kW"),
+        _reading(
+            "generator-controller",
+            "status",
+            "STATE_AT_INSTANT",
+            "state",
+            GENERATOR_STATUS_MEMBERS,
+        ),
+        _reading("battery-pcs-controller", "state-of-charge", "STATE_AT_INSTANT", "%"),
+        _reading("battery-pcs-controller", "ac-power", "INTERVAL_MEAN", "kW"),
+        _reading(
+            "battery-pcs-controller", "discharge-capability", "INTERVAL_MEAN", "kW"
+        ),
+        _reading("pv-inverter-controller", "ac-power", "INTERVAL_MEAN", "kW"),
+        _reading("pv-inverter-controller", "available-power", "INTERVAL_MEAN", "kW"),
+        _reading("residential-meter", "active-power", "INTERVAL_MEAN", "kW"),
+        _reading("clinic-meter", "active-power", "INTERVAL_MEAN", "kW"),
+        _reading("mill-meter", "active-power", "INTERVAL_MEAN", "kW"),
+        _record("generator-controller", "policy-start-soc-threshold", "POLICY", "%"),
+        _record("generator-controller", "policy-stop-soc-threshold", "POLICY", "%"),
+        _record("generator-controller", "policy-minimum-runtime", "POLICY", "min"),
+        _record("battery-pcs-controller", "policy-reserve-soc", "POLICY", "%"),
+        _record("site-controller", "policy-source-priority", "POLICY", "order"),
+        _record(
+            "site-controller", "policy-critical-load-priority", "POLICY", "order"
+        ),
+        _record(
+            "generator-controller", "override-command", "OPERATIONAL_RECORD", "%"
+        ),
+        _record(
+            "battery-pcs-controller", "override-command", "OPERATIONAL_RECORD", "%"
+        ),
+    ),
+)
+
+#: Which frozen mapping a run publishes through, by the publication profile it
+#: froze. A profile not listed publishes through the fuel-only mapping, which
+#: is what every Draft frozen before T026 did.
+_MAPPING_BY_PUBLICATION_PROFILE = {
+    ("simulator-lab-publication", 5): SIMULATOR_LAB_DISPATCH_MAPPINGS,
+}
+
+
+def gateway_mapping_for(
+    publication_profile_id: str, publication_profile_version: int
+) -> SourceMappingSet:
+    """The gateway mapping a run frozen under this publication profile uses."""
+    return _MAPPING_BY_PUBLICATION_PROFILE.get(
+        (publication_profile_id, publication_profile_version),
+        SIMULATOR_LAB_GATEWAY_MAPPINGS,
+    )

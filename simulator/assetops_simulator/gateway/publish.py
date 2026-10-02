@@ -34,7 +34,13 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from assetops_contracts.observation import DeviceObservation
+from assetops_contracts.observation import (
+    DeviceObservation,
+    HeldPublication,
+    PublicationDelayWindow,
+    publication_delay_minutes,
+)
+from assetops_contracts.operational_records import RecordObservation
 from assetops_contracts.source_envelope import (
     EnvelopeRejected,
     SourceEnvelope,
@@ -62,8 +68,16 @@ UNAVAILABLE_REASON_OF_OUTCOME = {
 
 
 def _parse(instant: str) -> datetime:
-    return datetime.strptime(instant, "%Y-%m-%dT%H:%M:%SZ").replace(
-        tzinfo=timezone.utc
+    # Read by slice: the transform writes this one spelling, and `strptime` was
+    # a large share of a stage write at the 8 h window (T026).
+    return datetime(
+        int(instant[0:4]),
+        int(instant[5:7]),
+        int(instant[8:10]),
+        int(instant[11:13]),
+        int(instant[14:16]),
+        int(instant[17:19]),
+        tzinfo=timezone.utc,
     )
 
 
@@ -84,6 +98,26 @@ def _span_start(interval: FrozenInterval, at_offset_minutes: int) -> str | None:
     )
 
 
+def _published_at(
+    mapping: SourceMappingSet,
+    delays: tuple[PublicationDelayWindow, ...],
+    device_id: str,
+    signal_id: str,
+    source_time: str,
+    offset_minutes: int,
+) -> str:
+    """Source time plus the declared latency plus any declared delay.
+
+    T026: a delay moves this instant and nothing else - the value and the
+    source time are the transform's - which is why it is applied here.
+    """
+    held = publication_delay_minutes(delays, device_id, signal_id, offset_minutes)
+    return instant_text(
+        _parse(source_time)
+        + timedelta(seconds=mapping.publication_latency_seconds, minutes=held)
+    )
+
+
 def publish(
     observations: tuple[DeviceObservation, ...],
     mapping: SourceMappingSet,
@@ -92,6 +126,10 @@ def publish(
     site_id: str,
     source_id: str,
     gateway_id: str,
+    delays: tuple[PublicationDelayWindow, ...] = (),
+    records: tuple[RecordObservation, ...] = (),
+    memo: dict | None = None,
+    reached_offset_minutes: int | None = None,
 ) -> tuple[SourceEnvelope, ...]:
     """Every envelope the gateway publishes for a reading series, in order.
 
@@ -112,13 +150,26 @@ def publish(
                 f"else, not {type(item).__name__}",
             )
         entry = mapping.entry(item.device_id, item.signal_id)
-        if entry is None or item.outcome in NOT_PUBLISHED:
+        if entry is None:
             continue
-        # T025b: an allowlisted enum signal is refused, not converted - schema
-        # 1 has no way to carry `RUNNING` - whatever unit the entry claims.
+        # T026 (backlog T025b C1): compatibility is checked BEFORE a missing
+        # attempt is skipped, so a mapping disguising an enum as a number is
+        # refused even when every attempt was dropped or suppressed.
+        # T025b: an allowlisted enum signal under schema 1 is refused, not
+        # converted - schema 1 has no way to carry `RUNNING`.
         refuse_an_enum_under_schema_1(
-            item.device_id, item.signal_id, item.canonical_unit
+            item.device_id,
+            item.signal_id,
+            item.canonical_unit,
+            mapping.envelope_schema_version,
         )
+        if entry.family != "MEASUREMENT":
+            raise EnvelopeRejected(
+                "MAPPING_INCOMPATIBLE",
+                "payload.family",
+                f"{item.device_id}/{item.signal_id} is a device reading and is "
+                f"mapped as a {entry.family} record channel",
+            )
         measurement = MEASUREMENT_OF_READING_CLASS[item.reading_class]
         if measurement != entry.measurement:
             raise EnvelopeRejected(
@@ -134,6 +185,8 @@ def publish(
                 f"{item.device_id}/{item.signal_id} reports in "
                 f"{item.canonical_unit!r} and is mapped as {entry.unit!r}",
             )
+        if item.outcome in NOT_PUBLISHED:
+            continue
 
         if item.outcome == "REPORTED":
             quality, value, reason = "GOOD", item.reported_value, None
@@ -151,6 +204,39 @@ def publish(
 
         key = (item.device_id, item.signal_id)
         sequences[key] = sequences.get(key, 0) + 1
+        published_at = _published_at(
+            mapping,
+            delays,
+            item.device_id,
+            item.signal_id,
+            item.source_sample_time,
+            item.at_offset_minutes,
+        )
+        # T026: a pure memo of the conversion. The same observation at the same
+        # sequence under the same mapping, identities and publication time is
+        # the same envelope, so a caller republishing a series (the retry case)
+        # need not rebuild and re-validate its prefix. Admission still compares.
+        memo_key = (
+            item,
+            sequences[key],
+            mapping.mapping_set_id,
+            mapping.mapping_version,
+            site_id,
+            source_id,
+            gateway_id,
+            published_at,
+        )
+        if _withheld(
+            delays,
+            item.device_id,
+            item.signal_id,
+            item.at_offset_minutes,
+            reached_offset_minutes,
+        ):
+            continue
+        if memo is not None and memo_key in memo:
+            published.append(memo[memo_key])
+            continue
         published.append(
             SourceEnvelope(
                 message_id=envelope_message_id(
@@ -170,10 +256,7 @@ def publish(
                 mapping_set_id=mapping.mapping_set_id,
                 mapping_version=mapping.mapping_version,
                 source_time=item.source_sample_time,
-                published_at=instant_text(
-                    _parse(item.source_sample_time)
-                    + timedelta(seconds=mapping.publication_latency_seconds)
-                ),
+                published_at=published_at,
                 measurement=measurement,
                 value=value,
                 unit=entry.unit,
@@ -181,6 +264,211 @@ def publish(
                 unavailable_reason=reason,
                 interval_start=interval_start,
                 interval_end=interval_end,
+                schema_version=mapping.envelope_schema_version,
+            )
+        )
+        if memo is not None:
+            memo[memo_key] = published[-1]
+    for record in records:
+        if type(record) is not RecordObservation:
+            raise EnvelopeRejected(
+                "NOT_AN_ENVELOPE",
+                "envelope",
+                "the gateway converts RecordObservation records and nothing "
+                f"else, not {type(record).__name__}",
+            )
+        entry = mapping.entry(record.device_id, record.signal_id)
+        if entry is None:
+            continue
+        if entry.family != record.family:
+            raise EnvelopeRejected(
+                "MAPPING_INCOMPATIBLE",
+                "payload.family",
+                f"{record.device_id}/{record.signal_id} is a {record.family} "
+                f"and is mapped as {entry.family}",
+            )
+        if record.unit != entry.unit:
+            raise EnvelopeRejected(
+                "UNIT_INCOMPATIBLE",
+                "payload.unit",
+                f"{record.device_id}/{record.signal_id} carries "
+                f"{record.unit!r} and is mapped as {entry.unit!r}",
+            )
+        if record.outcome != "REPORTED":
+            # The missing case: the record occurred and nothing is published.
+            continue
+        key = (record.device_id, record.signal_id)
+        sequences[key] = sequences.get(key, 0) + 1
+        if _withheld(
+            delays,
+            record.device_id,
+            record.signal_id,
+            record.at_offset_minutes,
+            reached_offset_minutes,
+        ):
+            continue
+        published.append(
+            SourceEnvelope(
+                message_id=envelope_message_id(
+                    site_id=site_id,
+                    gateway_id=gateway_id,
+                    source_id=source_id,
+                    device_id=record.device_id,
+                    signal_id=record.signal_id,
+                    source_time=record.source_time,
+                ),
+                sequence=sequences[key],
+                site_id=site_id,
+                source_id=source_id,
+                gateway_id=gateway_id,
+                device_id=record.device_id,
+                signal_id=record.signal_id,
+                mapping_set_id=mapping.mapping_set_id,
+                mapping_version=mapping.mapping_version,
+                source_time=record.source_time,
+                published_at=_published_at(
+                    mapping,
+                    delays,
+                    record.device_id,
+                    record.signal_id,
+                    record.source_time,
+                    record.at_offset_minutes,
+                ),
+                measurement=None,
+                value=record.value,
+                unit=record.unit,
+                quality=None,
+                unavailable_reason=None,
+                interval_start=None,
+                interval_end=None,
+                schema_version=mapping.envelope_schema_version,
+                family=record.family,
+                control=record.control,
+                component_id=record.component_id,
+                members=record.members,
+                policy_version=record.policy_version,
+                policy_source=record.policy_source,
+                effective_start=record.effective_start,
+                effective_end=record.effective_end,
+                record_kind=record.record_kind,
+                actor=record.actor,
             )
         )
     return tuple(published)
+
+
+def _still_held(window: PublicationDelayWindow, reached_offset_minutes: int) -> bool:
+    """The one release rule: a held publication is released at its window's end."""
+    return window.end_offset_minutes > reached_offset_minutes
+
+
+def _withheld(
+    delays: tuple[PublicationDelayWindow, ...],
+    device_id: str,
+    signal_id: str,
+    offset_minutes: int,
+    reached_offset_minutes: int | None,
+) -> bool:
+    """T026: `publish` given the boundary the run has reached leaves out an
+    envelope whose hold has not ended - it is not yet a fact (nor a stage row).
+    Its sequence number is still spent, so the release keeps its final sequence.
+    """
+    if reached_offset_minutes is None:
+        return False
+    window = _held(delays, device_id, signal_id, offset_minutes)
+    return window is not None and _still_held(window, reached_offset_minutes)
+
+
+def _held(
+    delays: tuple[PublicationDelayWindow, ...],
+    device_id: str,
+    signal_id: str,
+    offset_minutes: int,
+) -> PublicationDelayWindow | None:
+    held = publication_delay_minutes(delays, device_id, signal_id, offset_minutes)
+    if not held:
+        return None
+    return next(
+        window
+        for window in delays
+        if window.key == (device_id, signal_id) and window.covers(offset_minutes)
+    )
+
+
+def held_publications(
+    observations: tuple[DeviceObservation, ...],
+    mapping: SourceMappingSet,
+    *,
+    delays: tuple[PublicationDelayWindow, ...] = (),
+    records: tuple[RecordObservation, ...] = (),
+    reached_offset_minutes: int,
+) -> tuple[HeldPublication, ...]:
+    """T026 AC13. Every publication `publish` holds back, once it is released.
+
+    The same envelopes `publish` would emit with a delayed `published_at`, by
+    the same rules (a path off the allowlist, a suppressed or dropped attempt,
+    an unpublished absence and a missing record publish nothing, so nothing
+    of theirs is held), and only those released by the boundary the run has
+    reached: a publication still held is not yet a fact. Ordered by release,
+    then source time, then path, so a later boundary only appends.
+    """
+    held: list[HeldPublication] = []
+
+    def note(kind, device_id, signal_id, offset, source_time) -> None:
+        window = _held(delays, device_id, signal_id, offset)
+        if window is None or _still_held(window, reached_offset_minutes):
+            return
+        held.append(
+            HeldPublication(
+                kind=kind,
+                device_id=device_id,
+                signal_id=signal_id,
+                source_offset_minutes=offset,
+                source_time=source_time,
+                released_offset_minutes=window.end_offset_minutes,
+                published_at=_published_at(
+                    mapping, delays, device_id, signal_id, source_time, offset
+                ),
+                held_minutes=window.end_offset_minutes - offset,
+                delay_event_id=window.event_id,
+            )
+        )
+
+    for item in observations:
+        entry = mapping.entry(item.device_id, item.signal_id)
+        if entry is None or entry.family != "MEASUREMENT":
+            continue
+        if item.outcome in NOT_PUBLISHED:
+            continue
+        if item.outcome != "REPORTED" and not entry.publishes_unavailable:
+            continue
+        note(
+            "READING",
+            item.device_id,
+            item.signal_id,
+            item.at_offset_minutes,
+            item.source_sample_time,
+        )
+    for record in records:
+        entry = mapping.entry(record.device_id, record.signal_id)
+        if entry is None or entry.family != record.family:
+            continue
+        if record.outcome != "REPORTED":
+            continue
+        note(
+            "RECORD",
+            record.device_id,
+            record.signal_id,
+            record.at_offset_minutes,
+            record.source_time,
+        )
+    held.sort(
+        key=lambda row: (
+            row.released_offset_minutes,
+            row.source_offset_minutes,
+            row.kind,
+            row.device_id,
+            row.signal_id,
+        )
+    )
+    return tuple(held)

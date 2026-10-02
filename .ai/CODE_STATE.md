@@ -4464,3 +4464,74 @@ Rule `D-2026-10-01-run-binds-scenario-to-site`; contract stays 9 (gate unedited)
   owner's MG-006 scenario).
 - Superseded scenario versions are not retained in the store (git only).
 - Picker reads one site detail per site; a summary field would be needed at scale.
+
+## T026 - Dispatch-capable evidence (B extension)
+
+Complete; owner accepted 2026-10-02 after hands-on check (Claude review ACCEPT after fix rounds 1-2; Codex retrospective pending).
+
+Branch `task/T026-dispatch-capable-evidence`; packet `.agent/T026-review-packet.md`,
+handoffs `.agent/T026-phase-{1,2,3a}-handoff.md`. Contract stays 9
+(`host/tests/contract9_gate` green, execution_contract.py untouched); every change
+reaches new Drafts only.
+
+### What is settled in code
+
+- **Schemas.** Envelope schema 2 (families MEASUREMENT / STATE enum member /
+  POLICY / OPERATIONAL records; schema 1 still readable, stage schema stays 2,
+  `envelope_schema` is the frozen mapping's version). Publication profile 5,
+  `mini-grid` v3, site template v3, scenario `kobo-mini-grid-degraded-evidence`.
+  Profiles 3/4 keep the fuel-only schema-1 mapping.
+- **Evidence.** Capability signals (`pv-inverter-controller/available-power`,
+  `battery-pcs-controller/discharge-capability`) exist only under v3; policy
+  records (Foundation version, valid-from, source), override records from the
+  scenario CONTROL overrides, generator status staged as a typed member. Two
+  imperfections: one reporting gap and one hold (`PublicationDelayWindow`: a
+  publication due inside the window is released at its end; refused if it would
+  reorder, `PUBLICATION_DELAY_REFUSED`). A held envelope enters the stage only
+  at its release (`publish(reached_offset_minutes)`, `_still_held`).
+- **History schema 3** (`lab_history.py`): append families `records`
+  (key occurrence) and `publications` (key release, `HeldPublication`); 7
+  coverage rows; schema 2 reads and discloses both UNAVAILABLE; prefix proof
+  `test_lab_history_prefix.py` covers both.
+- **Screen.** Frontend mirrors both append keys (`liveHistory.ts`); records,
+  declared gaps clipped to recorded time and `Publication delay` entries in
+  the Applied timeline REPORTING lane; inspector "Publication" column
+  (sensor gap / delay / none recorded); stage "Arrival" fact; capability tracks
+  join PV and battery curves (second reported track = square marks, dashed
+  join); "observed, not staged" shown only when the frozen mapping lacks the
+  signal, host statement `GENERATOR_STATUS_REPORTED_STAGED` otherwise.
+- **Layout evidence** follows the run's mapping (`EXPECT_UNSTAGED` by profile),
+  T025e AC12 section now measures a profile-5 degraded Draft, new T026 section.
+
+### Measurements (this machine, 2026-10-02)
+
+- Delta bytes max 20,249 B (limit 32,768); tick commit p95 30.5 ms max 34.6.
+- Server delta p95 at boundary 96 **misses 50 ms**: 108-134 ms through the
+  preview proxy on profile 5, 131.7 ms on the T025e profile-4 stop-60 run on
+  the same day; in-process (`delta_ms` method, packet) pre-T026 tree 68-93 ms,
+  head profile 4 84-95, head profile 5 95-97. T025e's 45.9 ms is not
+  reproducible on this machine today; T026 adds roughly 0-15 %.
+  Memoisation (backlog T025e C2) NOT taken, owner/Architect to rule.
+- Stage: 329-333 envelopes, 267 KB final, per-control write ~36-47 ms CPU.
+
+- **Override issuer (fix round 2, C1,
+  `D-2026-10-02-scenario-states-override-issuer`).** Optional `issued_by: OPERATOR`
+  on scenario EVENT entries (`TimelineEntry`/`FrozenForcing.issued_by`, in the
+  frozen identity only when set); refused except on the stop-threshold and
+  battery-reserve forcings. Host `record_inputs` and backend delay refusal read
+  it; degraded-evidence v1 declares it (re-pinned, no bump); stop-60 unchanged
+  and publishes no override record under profile 5.
+
+### What this leaves open
+
+- Carried to the backlog: AC15 delta p95 misses 50 ms before T026 too
+  (performance task, T025e C2); T028 to decide whether stop-60's policy change
+  is a policy record.
+- Stage order in a stepped run is arrival order (pre-existing); a run stopped
+  inside a hold shows "No publication delay recorded" for that reading.
+- `kobo-degraded-evidence-deltas.json` fixture is 1.38 MB.
+- `tools/layout-evidence.mjs` needs `ASSETOPS_LAYOUT_SITE=MG-006`, a store of
+  `.demo/T025c` runs with no executions, and backdated Site `valid_from`; with
+  that, 3 pre-existing "blocked table" claims fail (run-setup against MG-006 is
+  READY, no blocked table) - environment, not T026.
+- No shipped world curtails PV (available == output); T026A owns bias/noise.

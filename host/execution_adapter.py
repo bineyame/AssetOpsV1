@@ -65,10 +65,12 @@ determined, so it is refused here, where both rows are still visible.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from fractions import Fraction
 
 from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.profiles import (
+    PUBLICATION_DELAY_STATES,
     PUBLICATION_PROFILES,
     PublicationProfile,
     find_publication_profile,
@@ -82,7 +84,14 @@ from assetops_contracts.execution_contract import (
 from assetops_contracts.observation import (
     DeviceSignalSpec,
     FrozenReportingInputs,
+    PublicationDelayWindow,
     ReportingPathWindow,
+)
+from assetops_contracts.operational_records import (
+    FrozenRecordInputs,
+    OverrideCommand,
+    PolicyDeclaration,
+    RecordGap,
 )
 from assetops_contracts.control import DISCRETE_UNIT
 from assetops_contracts.trajectory import PrivateTrajectory
@@ -101,7 +110,11 @@ from assetops_contracts.world_inputs import (
 from assetops_simulator.kernel.execute import execute
 from assetops_simulator.kernel.model import ModelSpec
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
-from assetops_simulator.packs.mini_grid import MINI_GRID_MODEL, MINI_GRID_V2_MODEL
+from assetops_simulator.packs.mini_grid import (
+    MINI_GRID_MODEL,
+    MINI_GRID_V2_MODEL,
+    MINI_GRID_V3_MODEL,
+)
 from assetops_simulator.packs.minigrid import DAYTIME_MINI_GRID_MODEL
 
 #: Every model this build can execute, by the profile identity a run freezes.
@@ -113,6 +126,7 @@ EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
     MINI_GRID_V2_MODEL,
+    MINI_GRID_V3_MODEL,
 )
 
 
@@ -670,10 +684,25 @@ def reporting_inputs(
         (signal.device_id, signal.signal_id): signal for signal in signals
     }
     gaps: list[ReportingPathWindow] = []
+    delays: list[PublicationDelayWindow] = []
     for condition in identity.reporting_path_conditions:
         declared = profile.supported_reporting(condition.state_ref.state_key)
         if declared is None:
             continue
+        # T026: a delay condition holds publications back; it suppresses none.
+        for device_id, signal_id in declared.delays:
+            signal = by_signal.get((device_id, signal_id))
+            if signal is None:
+                continue
+            if (
+                condition.state_ref.component_id is not None
+                and condition.state_ref.component_id
+                != components[(device_id, signal_id)]
+            ):
+                continue
+            delays.append(
+                _delay_window(condition, device_id, signal_id, signal.address, interval)
+            )
         for device_id, signal_id in declared.silences:
             signal = by_signal.get((device_id, signal_id))
             if signal is None:
@@ -717,6 +746,7 @@ def reporting_inputs(
         interval=interval,
         signals=tuple(signals),
         gaps=tuple(gaps),
+        delays=tuple(delays),
     )
 
 
@@ -760,3 +790,216 @@ def run_to_end(
     refuse_a_model_the_run_did_not_select(run, model)
     inputs = frozen_world_inputs(run)
     return HostExecution(inputs=inputs, trajectory=execute(inputs, model))
+
+
+# --- T026: delays and records ---------------------------------------------------
+
+
+def _resolved_span(condition, address: str, device_id: str, signal_id: str,
+                   interval: FrozenInterval) -> tuple[int, int]:
+    """A frozen condition's half-open span, by `ReportingPathWindow`'s own rule."""
+    window = ReportingPathWindow(
+        event_id=condition.event_id,
+        condition_address=condition.addressed_key,
+        device_id=device_id,
+        signal_id=signal_id,
+        address=address,
+        timing_shape=condition.timing_shape,
+        offset_minutes=condition.offset_minutes,
+        duration_minutes=condition.duration_minutes,
+        interval_minutes=interval.duration_minutes,
+        timestep_minutes=interval.timestep_minutes,
+    )
+    return window.start_offset_minutes, window.end_offset_minutes
+
+
+def _delay_window(condition, device_id: str, signal_id: str, address: str,
+                  interval: FrozenInterval) -> PublicationDelayWindow:
+    start, end = _resolved_span(condition, address, device_id, signal_id, interval)
+    return PublicationDelayWindow(
+        event_id=condition.event_id,
+        device_id=device_id,
+        signal_id=signal_id,
+        start_offset_minutes=start,
+        end_offset_minutes=end,
+    )
+
+
+#: Which Foundation answer is published as which policy record: the frozen
+#: model need's state key, to the device and channel the gateway mapping
+#: declares for it.
+POLICY_CHANNEL_OF_NEED = {
+    "generator-start-soc-threshold": (
+        "generator-controller",
+        "policy-start-soc-threshold",
+    ),
+    "generator-stop-soc-threshold": (
+        "generator-controller",
+        "policy-stop-soc-threshold",
+    ),
+    "generator-minimum-runtime": ("generator-controller", "policy-minimum-runtime"),
+    "battery-reserve-state-of-charge": ("battery-pcs-controller", "policy-reserve-soc"),
+}
+
+#: Which Site Control is published on which site-controller channel.
+POLICY_CHANNEL_OF_SITE_CONTROL = {
+    "source-priority": ("site-controller", "policy-source-priority"),
+    "critical-load-priority": ("site-controller", "policy-critical-load-priority"),
+}
+
+#: The CONTROL states whose forcing may be an operator command, and the device
+#: whose override channel records it. A forcing is published as one only when
+#: its scenario entry declares `issued_by: OPERATOR`
+#: (`D-2026-10-02-scenario-states-override-issuer`). The backend's
+#: `OVERRIDE_COMMAND_STATES` names the same keys; a test asserts the two agree.
+OVERRIDE_CHANNEL_OF_STATE = {
+    "generator-stop-soc-threshold": ("generator-controller", "override-command"),
+    "battery-reserve-state-of-charge": ("battery-pcs-controller", "override-command"),
+}
+
+
+def _instant(text: str) -> str:
+    moment = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def record_inputs(
+    run: SimulationRun, profile: PublicationProfile | None = None
+) -> FrozenRecordInputs:
+    """Project one frozen Draft into the record transform's input (T026).
+
+    Only for a profile that declares record channels; any other answers with no
+    records, so every Draft frozen before T026 publishes exactly what it did.
+    Policy records carry the Foundation answers the run froze; override
+    commands are the run's frozen CONTROL override windows. A channel the
+    profile does not declare publishes nothing.
+    """
+    if profile is None:
+        profile = publication_profile_for(run)
+    identity = run.deterministic_identity
+    interval = FrozenInterval(
+        start_time=identity.interval.start_time,
+        end_time=identity.interval.end_time,
+        duration_minutes=identity.interval.duration_minutes,
+        timestep_minutes=identity.interval.timestep_minutes,
+    )
+    channels = set(profile.record_channels)
+    if not channels:
+        return FrozenRecordInputs(run_id=run.run_id, interval=interval)
+
+    policies: list[PolicyDeclaration] = []
+    for need in identity.model_needs:
+        channel = POLICY_CHANNEL_OF_NEED.get(need.state_ref.state_key)
+        if channel is None or channel not in channels or need.canonical_value is None:
+            continue
+        policies.append(
+            PolicyDeclaration(
+                device_id=channel[0],
+                signal_id=channel[1],
+                control=need.state_ref.state_key,
+                component_id=need.state_ref.component_id,
+                value=normalize_authored_float(need.canonical_value),
+                members=None,
+                unit=need.canonical_unit,
+                policy_version=need.foundation_version,
+                policy_source="FOUNDATION",
+                effective_start=_instant(need.foundation_valid_from),
+            )
+        )
+    for control in identity.site_controls:
+        channel = POLICY_CHANNEL_OF_SITE_CONTROL.get(control.control_key)
+        if channel is None or channel not in channels or not control.members:
+            continue
+        policies.append(
+            PolicyDeclaration(
+                device_id=channel[0],
+                signal_id=channel[1],
+                control=control.control_key,
+                component_id=None,
+                value=None,
+                members=tuple(control.members),
+                unit="order",
+                policy_version=control.foundation_version,
+                policy_source="FOUNDATION",
+                effective_start=_instant(control.foundation_valid_from),
+            )
+        )
+
+    overrides: list[OverrideCommand] = []
+    for forcing in identity.forcings:
+        if forcing.issued_by != "OPERATOR":
+            continue
+        channel = OVERRIDE_CHANNEL_OF_STATE.get(forcing.state_ref.state_key)
+        if channel is None or channel not in channels:
+            continue
+        start, end = _resolved_span(
+            forcing, forcing.addressed_key, channel[0], channel[1], interval
+        )
+        overrides.append(
+            OverrideCommand(
+                event_id=forcing.event_id,
+                device_id=channel[0],
+                signal_id=channel[1],
+                control=forcing.state_ref.state_key,
+                component_id=forcing.state_ref.component_id,
+                value=_fraction(
+                    forcing.canonical_value, f"the override {forcing.parameter_id}"
+                ),
+                unit=forcing.canonical_unit,
+                occurrence_offset_minutes=start,
+                effective_start_offset_minutes=start,
+                effective_end_offset_minutes=end,
+            )
+        )
+
+    gaps: list[RecordGap] = []
+    delays: list[PublicationDelayWindow] = []
+    for condition in identity.reporting_path_conditions:
+        declared = profile.supported_reporting(condition.state_ref.state_key)
+        if declared is None:
+            continue
+        for device_id, signal_id in declared.silences + declared.delays:
+            if (device_id, signal_id) not in channels:
+                continue
+            # A condition on one component's path does not reach another's:
+            # the generator's override channel is not the battery's.
+            component = condition.state_ref.component_id
+            if component is not None and not any(
+                (command.device_id, command.signal_id) == (device_id, signal_id)
+                and command.component_id == component
+                for command in overrides
+            ):
+                continue
+            start, end = _resolved_span(
+                condition, condition.addressed_key, device_id, signal_id, interval
+            )
+            if condition.state_ref.state_key in PUBLICATION_DELAY_STATES:
+                delays.append(
+                    PublicationDelayWindow(
+                        event_id=condition.event_id,
+                        device_id=device_id,
+                        signal_id=signal_id,
+                        start_offset_minutes=start,
+                        end_offset_minutes=end,
+                    )
+                )
+            else:
+                gaps.append(
+                    RecordGap(
+                        event_id=condition.event_id,
+                        device_id=device_id,
+                        signal_id=signal_id,
+                        start_offset_minutes=start,
+                        end_offset_minutes=end,
+                    )
+                )
+    return FrozenRecordInputs(
+        run_id=run.run_id,
+        interval=interval,
+        policies=tuple(policies),
+        overrides=tuple(overrides),
+        gaps=tuple(gaps),
+        delays=tuple(delays),
+    )

@@ -74,7 +74,10 @@ from assetops_contracts.lab_history import (
     HISTORY_FAMILY_STATEMENTS,
     LAB_HISTORY_SCHEMA_VERSION,
     LAB_HISTORY_SOURCES,
+    READABLE_LAB_HISTORY_SCHEMA_VERSIONS,
     SAMPLE_PHASES,
+    SCHEMA_2_UNRECORDED_STATEMENT,
+    SCHEMA_3_FAMILIES,
     FamilyCoverage,
     HistoryBoundary,
     HistoryInterval,
@@ -87,7 +90,9 @@ from assetops_contracts.observation import (
     SAMPLE_OUTCOMES,
     DeviceObservation,
     FrozenReportingInputs,
+    HeldPublication,
 )
+from assetops_contracts.operational_records import RecordObservation
 from assetops_contracts.trajectory import (
     AppliedEvent,
     BoundedTransition,
@@ -132,12 +137,19 @@ def capture(
     content_digest: str | None,
     observation_series_digest: str | None,
     electrical: ElectricalView | None,
+    records: tuple[RecordObservation, ...] | None = None,
+    publications: tuple[HeldPublication, ...] = (),
 ) -> LabHistory:
     """The history an execution has recorded so far, each fact once.
 
     `electrical` is the live projection's own electrical view: its step rows
     are joined as `electrical_steps` when intervals are recorded, never
     re-summed here (`electrical_view` owns the totals).
+
+    T026 AC13: `records` is the record transform's series so far, or None for
+    a run whose publication profile has no record channel (NOT_APPLICABLE).
+    `publications` is the gateway's held publications already released; it is
+    recorded for every run, and empty where no delay was declared.
     """
     inputs = execution.inputs
     units: dict[str, str] = {}
@@ -227,6 +239,15 @@ def capture(
             "This run froze no bus attachments, so there is no run-bound "
             "electrical topology to draw.",
         ),
+        _recorded("records")
+        if records is not None
+        else FamilyCoverage(
+            "records",
+            "NOT_APPLICABLE",
+            "This run's publication profile has no policy or operational record "
+            "channel, so no record was published or withheld.",
+        ),
+        _recorded("publications"),
     )
     return LabHistory(
         run_id=run_id,
@@ -253,6 +274,8 @@ def capture(
         discrete_transitions=execution.discrete_transitions,
         bus_attachments=attachments,
         electrical_steps=_joined_steps(coverage, electrical),
+        records=tuple(records or ()),
+        publications=tuple(publications),
     )
 
 
@@ -497,6 +520,24 @@ def render_history(history: LabHistory, projection: LabProjection) -> dict:
             [a.role, a.component_id, a.via_component_id, a.bus_component_id]
             for a in history.bus_attachments
         ],
+        "records": [
+            [
+                r.family, r.device_id, r.signal_id, r.at_offset_minutes,
+                r.source_time, r.outcome, r.control, r.component_id,
+                _typed(r.value), None if r.members is None else list(r.members),
+                r.unit, r.effective_start, r.effective_end, r.policy_version,
+                r.policy_source, r.record_kind, r.actor, r.event_id,
+            ]
+            for r in history.records
+        ],
+        "publications": [
+            [
+                p.kind, p.device_id, p.signal_id, p.source_offset_minutes,
+                p.source_time, p.released_offset_minutes, p.published_at,
+                p.held_minutes, p.delay_event_id,
+            ]
+            for p in history.publications
+        ],
     }
     document["manifest"]["history_digest"] = history_digest(document)
     return document
@@ -622,10 +663,10 @@ def parse_history(document: object, projection: LabProjection) -> LabHistory:
     if not isinstance(document, dict):
         raise _fail("The history is not a document.")
     schema = document.get("history_schema_version")
-    if schema != LAB_HISTORY_SCHEMA_VERSION:
+    if type(schema) is not int or schema not in READABLE_LAB_HISTORY_SCHEMA_VERSIONS:
         raise _fail(
-            f"The history is schema {schema!r} and this build reads schema "
-            f"{LAB_HISTORY_SCHEMA_VERSION}."
+            f"The history is schema {schema!r} and this build reads schemas "
+            f"{list(READABLE_LAB_HISTORY_SCHEMA_VERSIONS)}."
         )
     if "write_failed" in document:
         failed = document["write_failed"]
@@ -656,7 +697,7 @@ def parse_history(document: object, projection: LabProjection) -> LabHistory:
             "written with; it was changed after the history was written."
         )
     try:
-        return _parse_records(document, manifest, projection, stored_digest)
+        return _parse_records(document, manifest, projection, stored_digest, schema)
     except HistoryUnreadable:
         raise
     except (ValueError, TypeError, KeyError) as error:
@@ -664,7 +705,11 @@ def parse_history(document: object, projection: LabProjection) -> LabHistory:
 
 
 def _parse_records(
-    document: dict, manifest: dict, projection: LabProjection, digest: str
+    document: dict,
+    manifest: dict,
+    projection: LabProjection,
+    digest: str,
+    schema: int = LAB_HISTORY_SCHEMA_VERSION,
 ) -> LabHistory:
     timestep = projection.timestep_minutes
     last_offset = (projection.boundaries_total - 1) * timestep
@@ -832,8 +877,22 @@ def _parse_records(
         for row in _rows(document, "bus_attachments", 4)
     )
 
+    if schema >= 3:
+        records = _parse_record_rows(document, in_window)
+        publications = _parse_publications(document, in_window)
+        written = HISTORY_FAMILIES
+    else:
+        # Schema 2 wrote neither key; one appearing is not schema 2.
+        for key in ("records", "publications"):
+            if key in document:
+                raise _fail(
+                    f"A schema-2 history carries {key!r}, which schema 2 never wrote."
+                )
+        records, publications = (), ()
+        written = tuple(f for f in HISTORY_FAMILIES if f not in SCHEMA_3_FAMILIES)
+
     coverage_rows = manifest.get("coverage")
-    if not isinstance(coverage_rows, list) or len(coverage_rows) != len(HISTORY_FAMILIES):
+    if not isinstance(coverage_rows, list) or len(coverage_rows) != len(written):
         raise _fail("The manifest does not state coverage for every family.")
     coverage = tuple(
         FamilyCoverage(
@@ -841,15 +900,24 @@ def _parse_records(
         )
         for row in coverage_rows
     )
+    if tuple(entry.family for entry in coverage) != written:
+        raise _fail("The manifest states coverage for other families than it wrote.")
     stated = {entry.family: entry.availability for entry in coverage}
     for family, present in (
         ("intervals", bool(intervals)),
         ("drawing", bool(attachments)),
+        ("records", bool(records)),
     ):
-        if stated.get(family) != "RECORDED" and present:
+        if family in stated and stated[family] != "RECORDED" and present:
             raise _fail(f"The manifest says {family} is not recorded and records exist.")
     if any(value == "UNAVAILABLE" for value in stated.values()):
         raise _fail("A persisted history declares a family it did not record.")
+    if schema < 3:
+        # Disclosed, not reconstructed: what this artifact never wrote.
+        coverage = coverage + tuple(
+            FamilyCoverage(family, "UNAVAILABLE", SCHEMA_2_UNRECORDED_STATEMENT)
+            for family in SCHEMA_3_FAMILIES
+        )
 
     failure = _parse_failure(manifest.get("failure"))
     if (projection.status == "FAILED") != (failure is not None):
@@ -860,7 +928,7 @@ def _parse_records(
         status=projection.status,
         source="PERSISTED",
         statement=LAB_HISTORY_SOURCES["PERSISTED"],
-        history_schema_version=LAB_HISTORY_SCHEMA_VERSION,
+        history_schema_version=schema,
         boundaries_total=projection.boundaries_total,
         inputs_identity=projection.inputs_identity,
         content_digest=projection.content_digest,
@@ -880,7 +948,71 @@ def _parse_records(
         discrete_transitions=discrete,
         bus_attachments=attachments,
         electrical_steps=_joined_steps(coverage, projection.electrical),
+        records=records,
+        publications=publications,
     )
+
+
+def _optional_int(value: object, where: str) -> int | None:
+    return None if value is None else _int(value, where)
+
+
+def _parse_record_rows(document: dict, in_window) -> tuple[RecordObservation, ...]:
+    """Schema 3's policy and operational records, strictly."""
+    records = []
+    for index, row in enumerate(_rows(document, "records", 18)):
+        where = f"records[{index}]"
+        members = row[9]
+        if members is not None:
+            members = _strs(members, where)
+            if not members:
+                raise _fail(f"{where} has an empty member list.")
+        records.append(
+            RecordObservation(
+                family=_str(row[0], where),
+                device_id=_str(row[1], where),
+                signal_id=_str(row[2], where),
+                at_offset_minutes=in_window(row[3], where),
+                source_time=_str(row[4], where),
+                outcome=_str(row[5], where),
+                control=_str(row[6], where),
+                component_id=_str(row[7], where, optional=True),
+                value=None if row[8] is None else _exact(row[8], where),
+                members=members,
+                unit=_str(row[10], where),
+                effective_start=_str(row[11], where),
+                effective_end=_str(row[12], where, optional=True),
+                policy_version=_optional_int(row[13], where),
+                policy_source=_str(row[14], where, optional=True),
+                record_kind=_str(row[15], where, optional=True),
+                actor=_str(row[16], where, optional=True),
+                event_id=_str(row[17], where, optional=True),
+            )
+        )
+    _check_order([r.at_offset_minutes for r in records], "record")
+    return tuple(records)
+
+
+def _parse_publications(document: dict, in_window) -> tuple[HeldPublication, ...]:
+    """Schema 3's held publications, strictly: released inside the window."""
+    rows = []
+    for index, row in enumerate(_rows(document, "publications", 9)):
+        where = f"publications[{index}]"
+        rows.append(
+            HeldPublication(
+                kind=_str(row[0], where),
+                device_id=_str(row[1], where),
+                signal_id=_str(row[2], where),
+                source_offset_minutes=in_window(row[3], where),
+                source_time=_str(row[4], where),
+                released_offset_minutes=in_window(row[5], where),
+                published_at=_str(row[6], where),
+                held_minutes=_int(row[7], where),
+                delay_event_id=_str(row[8], where),
+            )
+        )
+    _check_order([p.released_offset_minutes for p in rows], "held publication")
+    return tuple(rows)
 
 
 def _intervals(document: dict) -> list[dict]:

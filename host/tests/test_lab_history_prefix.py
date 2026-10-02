@@ -36,6 +36,7 @@ from lab_execution import HostLabExecution, YamlExecutionArtifacts, project
 from source_stages import JsonSourceStages
 
 from test_mini_grid_v2 import PROLONGED, draft
+from test_t026_dispatch_evidence import DEGRADED, draft as t026_draft
 
 GATE_RUNS = Path(__file__).resolve().parent / "contract9_gate" / "runs"
 FUEL_WITH_GAP = GATE_RUNS / "run-c9000000000000000000000000000102.yaml"
@@ -44,6 +45,10 @@ FIXTURES = (
     "fuel-with-gap",
     "fuel-mid-step-window",
     "mini-grid-multi-window",
+    # T026 AC13: profile 5 on mini-grid v3 - policy records at boundary 0, an
+    # override record suppressed by its gap, a capability gap and one held SOC
+    # publication released at a later boundary (records, publications).
+    "degraded-evidence",
 )
 
 
@@ -61,6 +66,8 @@ def multi_window_edit(document) -> None:
 
 
 def a_run(name: str, scratch_dir: Path):
+    if name == "degraded-evidence":
+        return t026_draft(DEGRADED)
     if name == "mini-grid":
         return draft(PROLONGED)
     if name == "mini-grid-multi-window":
@@ -155,6 +162,20 @@ def test_the_fixtures_exercise_every_append_family(tmp_path_factory) -> None:
         history = lab.history(run)
         seen |= {f for f in HISTORY_APPEND_FAMILY_KEYS if getattr(history, f)}
     assert seen == set(HISTORY_APPEND_FAMILY_KEYS)
+
+
+def test_every_listed_wire_family_is_classified(session) -> None:
+    """T026 AC13: a row family on the wire is append (with its key), or static.
+
+    A new persisted family that is in neither table would be sent whole on
+    every delta by accident; this names it instead.
+    """
+    run, captures = session
+    payload = history_payload(captures[-1], run)
+    listed = {key for key, value in payload.items() if isinstance(value, list)}
+    unclassified = listed - set(HISTORY_APPEND_FAMILY_KEYS) - set(HISTORY_STATIC_FAMILIES)
+    # `coverage` and `notes` are whole-sent statements, not row families.
+    assert unclassified == {"coverage", "notes"}, unclassified
 
 
 def test_folding_every_delta_reproduces_the_full_read(session) -> None:

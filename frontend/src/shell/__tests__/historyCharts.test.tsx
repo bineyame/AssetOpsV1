@@ -550,7 +550,7 @@ describe("the run header", () => {
     );
     expect(header.querySelector("[data-header-execution]")?.getAttribute("data-header-execution")).toBe("RUNNING");
     expect(header.querySelector("[data-header-history]")?.textContent).toContain(
-      "LIVE_SESSION: 31 of 97 boundaries recorded through offset 150 min; families recorded 5 of 5; read from the live session, so no persisted digest is claimed",
+      "LIVE_SESSION: 31 of 97 boundaries recorded through offset 150 min; families recorded 6 of 6 (1 not applicable); read from the live session, so no persisted digest is claimed",
     );
     expect(header.querySelector("[data-header-stage]")?.getAttribute("data-header-stage")).toBe("NOT_STAGED");
     expect(header.textContent).toContain(String(EXECUTION.seed));

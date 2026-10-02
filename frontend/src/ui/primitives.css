@@ -1613,6 +1613,17 @@ button:focus-visible {
   stroke-width: 1;
 }
 
+/* T026 AC15: a second reported track in one panel (a capability beside its
+   output) - square marks and a dashed join, so shape, not colour, tells them
+   apart. */
+.history-chart__reported-line--alt {
+  stroke-dasharray: 3 2;
+}
+
+.history-legend__ring--alt {
+  border-radius: 0;
+}
+
 .history-chart__reported {
   fill: var(--surface-raised);
   stroke: var(--text-primary);

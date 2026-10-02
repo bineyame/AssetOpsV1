@@ -1616,6 +1616,8 @@ review commit.
   new valid-from, but shipped templates have neither field. Either narrow the
   clause to scenarios, or plan a template schema change. Carried: T025f
   needed neither. Trigger: T025g, or the next template bump.
+  **RESOLVED 2026-10-02** by `D-2026-10-02-template-bump-record` (owner
+  signed off): the clause applies to scenarios only.
 - **Residual risk, one bad site record blanks every note.** One unparseable
   site record makes the whole lineage read return 503, and every site loses
   its note. Carried: the note is advisory and the sites list still loads.
@@ -1670,6 +1672,19 @@ fix round R1 and are not carried. The rest are carried under
   `backend/tests/test_scenario_fingerprints.py:143`
   (`test_every_shipped_scenario_is_v2_superseding_v1`). The next bump must edit
   it as well as the pin. Intended friction. Trigger: T025i.
+
+## Carried from T026: two items
+
+Recorded 2026-10-02 by the T026 Implementer after owner ruling on C1.
+
+- **AC15, server delta p95 misses 50 ms before T026 too.** Quiet machine,
+  interleaved: pre-T026 p95 about 62 ms, profile 5 about 73 ms (packet "AC15
+  re-measure"). To be fixed by a separate performance task taking T025e C2
+  memoisation, not by T026.
+- **For T028: should stop-60's policy change appear as a policy record (AC3)
+  under profile 5?** Since `D-2026-10-02-scenario-states-override-issuer` its
+  override publishes no record there; whether it surfaces as a policy record
+  (version, effective interval, source) is T028's question.
 
 ## Superseded scenario versions survive only in git
 

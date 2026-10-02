@@ -328,9 +328,12 @@ function Legend({
           {item.label}
         </li>
       ))}
-      {reported.map((track) => (
+      {reported.map((track, index) => (
         <li key={`${track.device_id}-${track.signal_id}-${track.address}`}>
-          <span className="history-legend__ring" aria-hidden="true" />
+          <span
+            className={`history-legend__ring${index > 0 ? " history-legend__ring--alt" : ""}`}
+            aria-hidden="true"
+          />
           {`Reported by ${track.device_id} ${track.signal_id}`}
           {track.cadence_minutes === null
             ? ""
@@ -474,15 +477,16 @@ function NumericChart({
             strokeDasharray={DASH[series.dash]}
           />
         ))}
-        {panel.reported.map((track) => (
+        {panel.reported.map((track, index) => (
           <g
             key={`${track.device_id}-${track.signal_id}`}
             data-chart-reported={track.address}
+            data-chart-reported-mark={index > 0 ? "square" : "ring"}
           >
             {reportedRuns(track).map((run) => (
               <path
                 key={`run-${run[0].at_offset_minutes}`}
-                className="history-chart__reported-line"
+                className={`history-chart__reported-line${index > 0 ? " history-chart__reported-line--alt" : ""}`}
                 data-chart-reported-run={`${run[0].at_offset_minutes}-${run[run.length - 1].at_offset_minutes}`}
                 d={run
                   .map(
@@ -494,19 +498,36 @@ function NumericChart({
             ))}
             {track.attempts
               .filter((a) => a.outcome === "REPORTED" && a.reported_value !== null)
-              .map((attempt) => (
-                <circle
-                  key={attempt.at_offset_minutes}
-                  className="history-chart__reported"
-                  data-chart-report={attempt.at_offset_minutes}
-                  data-value={attempt.reported_value ?? ""}
-                  cx={axis.x(attempt.at_offset_minutes)}
-                  cy={y(plotted(attempt.reported_value ?? ""))}
-                  r={3.5}
-                >
-                  <title>{attemptTitle(track, attempt)}</title>
-                </circle>
-              ))}
+              .map((attempt) =>
+                // T026 AC15: a second reported track in one panel (a
+                // capability beside its output) is told apart by shape.
+                index > 0 ? (
+                  <rect
+                    key={attempt.at_offset_minutes}
+                    className="history-chart__reported"
+                    data-chart-report={attempt.at_offset_minutes}
+                    data-value={attempt.reported_value ?? ""}
+                    x={axis.x(attempt.at_offset_minutes) - 3}
+                    y={y(plotted(attempt.reported_value ?? "")) - 3}
+                    width={6}
+                    height={6}
+                  >
+                    <title>{attemptTitle(track, attempt)}</title>
+                  </rect>
+                ) : (
+                  <circle
+                    key={attempt.at_offset_minutes}
+                    className="history-chart__reported"
+                    data-chart-report={attempt.at_offset_minutes}
+                    data-value={attempt.reported_value ?? ""}
+                    cx={axis.x(attempt.at_offset_minutes)}
+                    cy={y(plotted(attempt.reported_value ?? ""))}
+                    r={3.5}
+                  >
+                    <title>{attemptTitle(track, attempt)}</title>
+                  </circle>
+                ),
+              )}
             <MissingGlyphs track={track} axis={axis} y={bottom - 4} />
           </g>
         ))}

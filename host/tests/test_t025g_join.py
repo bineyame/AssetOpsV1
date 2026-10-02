@@ -109,9 +109,10 @@ def test_ready_on_a_site_built_from_the_current_template() -> None:
     ]
     lineage = run.deterministic_identity.site.template_lineage
     assert lineage is not None
+    # T026 bumped the template to 3 (capability signals).
     assert (lineage.template_id, lineage.template_version) == (
         "kobo-mini-grid-60kw",
-        2,
+        3,
     )
 
 

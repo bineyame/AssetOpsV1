@@ -248,6 +248,12 @@ HISTORY_APPEND_FAMILY_KEYS: dict[str, str] = {
     # electrical step row for the interval a boundary decided, keyed like the
     # interval itself; built from that boundary's control step only.
     "electrical_steps": "from_offset",
+    # T026 AC13 (history schema 3). A record is recorded at its occurrence -
+    # a future effective time is a field, never the key - and a held
+    # publication at the boundary that released it, as a new row: the attempt
+    # or record row at its source time is never edited.
+    "records": "at_offset_minutes",
+    "publications": "released_offset_minutes",
 }
 # Families whose row is recorded by the boundary whose step contains its
 # `from_offset` - the last boundary at or before it - not at `from_offset`
@@ -1451,6 +1457,48 @@ def history_payload(
         "electrical_steps": [
             electrical_step_payload(row) for row in history.electrical_steps
         ],
+        # T026 AC13: policy and operational records at their occurrence, with
+        # whether their channel published them (an unpublished record is
+        # none observed, never no record).
+        "records": [
+            {
+                "family": r.family,
+                "device_id": r.device_id,
+                "signal_id": r.signal_id,
+                "at_offset_minutes": r.at_offset_minutes,
+                "source_time": r.source_time,
+                "outcome": r.outcome,
+                "control": r.control,
+                "component_id": r.component_id,
+                "value": exact(r.value),
+                "members": None if r.members is None else list(r.members),
+                "unit": r.unit,
+                "effective_start": r.effective_start,
+                "effective_end": r.effective_end,
+                "policy_version": r.policy_version,
+                "policy_source": r.policy_source,
+                "record_kind": r.record_kind,
+                "actor": r.actor,
+                "event_id": r.event_id,
+            }
+            for r in history.records
+        ],
+        # T026 AC13: each held publication at the boundary that released it;
+        # `held_minutes` is the host's, never derived by a reader.
+        "publications": [
+            {
+                "kind": p.kind,
+                "device_id": p.device_id,
+                "signal_id": p.signal_id,
+                "source_offset_minutes": p.source_offset_minutes,
+                "source_time": p.source_time,
+                "released_offset_minutes": p.released_offset_minutes,
+                "published_at": p.published_at,
+                "held_minutes": p.held_minutes,
+                "delay_event_id": p.delay_event_id,
+            }
+            for p in history.publications
+        ],
         "drawing_context": _drawing_context_payload(history, run),
     }
 
@@ -1663,7 +1711,13 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
         ],
         "unreadable_detail": view.unreadable_detail,
         "envelope_schema_id": SOURCE_ENVELOPE_SCHEMA_ID,
-        "envelope_schema_version": SOURCE_ENVELOPE_SCHEMA_VERSION,
+        # T026: the schema this stage's frozen mapping publishes; a stage
+        # staged under schema 1 still says 1.
+        "envelope_schema_version": (
+            SOURCE_ENVELOPE_SCHEMA_VERSION
+            if stage is None
+            else stage.mapping.envelope_schema_version
+        ),
         "stage_schema_version": SOURCE_STAGE_SCHEMA_VERSION,
         "integrity_digest": view.integrity_digest,
         # How far the stage records its run as published. Eligibility needs
@@ -1687,9 +1741,15 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
                     {
                         "device_id": entry.device_id,
                         "signal_id": entry.signal_id,
-                        "measurement": entry.measurement,
+                        # A record channel has no measurement class; its
+                        # family stands in the column (phase 3 refines it).
+                        "measurement": entry.measurement or entry.family,
                         "unit": entry.unit,
                         "publishes_unavailable": entry.publishes_unavailable,
+                        "family": entry.family,
+                        "members": (
+                            None if entry.members is None else list(entry.members)
+                        ),
                     }
                     for entry in stage.mapping.entries
                 ],
@@ -1718,14 +1778,18 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
                     "schema_version": envelope.schema_version,
                     "source_time": envelope.source_time,
                     "published_at": envelope.published_at,
-                    "measurement": envelope.measurement,
+                    "family": envelope.family,
+                    "measurement": envelope.measurement or envelope.family,
                     "value": (
                         None
                         if envelope.value is None
+                        else envelope.value
+                        if isinstance(envelope.value, str)
                         else exact_decimal_text(envelope.value)
                     ),
                     "unit": envelope.unit,
-                    "quality": envelope.quality,
+                    # A record is present or absent, never of a quality.
+                    "quality": envelope.quality or "RECORDED",
                     "unavailable_reason": envelope.unavailable_reason,
                     "interval_start": envelope.interval_start,
                     "interval_end": envelope.interval_end,

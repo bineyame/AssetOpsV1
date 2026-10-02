@@ -627,6 +627,10 @@ class FrozenForcing:
     offset_minutes: int
     duration_minutes: int | None
     execution_requirement: str
+    # T026 C1: the scenario entry's declared issuer (`OPERATOR`), or None. It is
+    # in the frozen identity only when declared, so a run frozen without one
+    # keeps the identity it had.
+    issued_by: str | None = None
 
     @property
     def state_key(self) -> str:
