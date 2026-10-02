@@ -1616,6 +1616,8 @@ review commit.
   new valid-from, but shipped templates have neither field. Either narrow the
   clause to scenarios, or plan a template schema change. Carried: T025f
   needed neither. Trigger: T025g, or the next template bump.
+  **RESOLVED 2026-10-02** by `D-2026-10-02-template-bump-record` (owner
+  signed off): the clause applies to scenarios only.
 - **Residual risk, one bad site record blanks every note.** One unparseable
   site record makes the whole lineage read return 503, and every site loses
   its note. Carried: the note is advisory and the sites list still loads.
