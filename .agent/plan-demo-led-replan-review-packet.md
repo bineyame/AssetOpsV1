@@ -253,7 +253,7 @@ phase 1.
 
 ### T034A Portfolio-lite (new, 171 / 220; rec 6.4, section 3 Portfolio, 2.1, 5.2, D2)
 
-- Portfolio becomes the landing page, taking it from T029B, and joins the rail
+- Portfolio becomes the landing page, taking it from T027, and joins the rail
   with an OPERATE header before Sites.
 - A backend Portfolio read model with no new analytic.
 - **Pulled forward from T036:**
@@ -504,3 +504,19 @@ T034 208, T034A 172, T036 135, T031 102, T025h unchanged.
 Checks after fix round 1 (run with `-ExecutionPolicy Bypass`):
 `tools/check-agent-workflow.ps1` passed; `tools/check-architecture.ps1`
 passed.
+
+## Fix round 2 (R1-R4)
+
+Planner (Claude) fixes for the four notes in
+`.agent/plan-demo-led-replan-claude-rereview.md`. Wording only; no product
+decision changed.
+
+- R1: T029 AC2 and AC12 say a tie between the default effective time and the
+  superseded version's start resolves to the later recorded time.
+- R2: `tasks/README.md:17` and this packet's T034A section now credit the
+  landing to T027, not T029B.
+- R3: T027 AC19 restores "private execution artifacts unavailable"; the AC
+  stays two lines, so T027 is still 220 lines.
+- R4: T029B AC5 ranks a site whose only open Findings are Necessary in the
+  no-open-Finding group (coverage, then name), after every Candidate Avoidable
+  or Indeterminate site, consistent with AC4's within-site order.

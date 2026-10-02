@@ -76,7 +76,10 @@ index.
 5. Sites are ordered by a stated rule: a site with an open Finding before one
    without; among those, stronger claim level first (Candidate Avoidable,
    then Indeterminate), then lower evidence coverage, then name; then sites
-   with no open Finding by lower coverage, then name. The rule is shown on the
+   with no open Finding by lower coverage, then name. A site whose only open
+   Findings are Necessary ranks in this last group (by coverage, then name),
+   after every site with a Candidate Avoidable or Indeterminate Finding, yet
+   shows its top Necessary issue (AC4). The rule is shown on the
    page and is an interim, replaced by T034A's versioned priority rule.
    Unanalysed sites are listed, never hidden.
 6. Every cell reads backend state; the presentation profile cannot create a

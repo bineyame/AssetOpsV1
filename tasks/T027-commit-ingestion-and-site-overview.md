@@ -105,8 +105,8 @@ links. Unsupported/unobserved metrics are unavailable.
     Commit, an Open in AssetOps link targets the correct Site, selected window
     and accepted-history context and displays actual release/acceptance outcome;
     it never implies every record was accepted. It lands on Site > Evidence.
-19. With Lab gated off, every new Lab history/series route and private payload
-    is inaccessible; product views rebuild from accepted evidence alone.
+19. With Lab gated off, new Lab history/series routes, private payloads and
+    private execution artifacts unavailable; accepted evidence alone feeds views.
 20. Site > Evidence renders source/connector health per source, per-signal
     coverage for the selected window and the mapping/configuration basis, and
     nothing about capability readiness or claim ceilings.

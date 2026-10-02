@@ -14,7 +14,7 @@ The six existing starter files are replacements, not amendments.
 Replanned on 2026-10-02 under `D-2026-10-02-demo-led-recommendation`: the
 owner-approved `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` (section 7) sets the
 order from T027 onward and supersedes the 2026-09-24 order for those rows.
-T027 and T028 are phased; T029B (thin follow-on, Sites ranking and landing)
+T027 and T028 are phased; T029B (thin follow-on, Sites ranking; landing from T027)
 and T034A (Portfolio-lite) are new; T025h is parked; the breadth order (rows
 26-30) was set by the Planner's T030 -> T031 dependency check
 (recommendation 6.3), which found no content coupling.

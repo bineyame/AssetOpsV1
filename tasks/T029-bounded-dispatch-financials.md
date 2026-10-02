@@ -69,7 +69,8 @@ actually said, rather than treating T029B-T036 as immutable.
    maintenance accrual assumption. Keep assumptions separate from physical
    Foundation ratings.
 2. Resolve the assumption version appropriate to the assessed period and retain
-   the technical assessment/version on each consequence.
+   the technical assessment/version on each consequence. Where two versions
+   share an effective time (AC12 default), the later recorded time wins.
 3. Display the technical runtime/fuel range independently of the monetary range,
    including measured/modelled/scenario basis and uncertainty.
 4. Maintenance consequence names its runtime/start/service accrual basis.
@@ -96,7 +97,8 @@ actually said, rather than treating T029B-T036 as immutable.
     states the effective time the edit applies from and which assessed windows
     it therefore reprices. The effective time defaults to the start of the
     BusinessContext version it supersedes (so the seeded windows reprice) and
-    may be earlier than the edit; it is stored beside the recorded time, so the
+    may be earlier than the edit; a tie with the superseded version resolves to
+    the later recorded time (AC2). It is stored beside the recorded time, so the
     prior pair stays inspectable (AC6). The UI check edits with a time covering
     the seeded prolonged-runtime window. Invalid input (missing price, mixed currency or
     unit, malformed effective time) is refused with a reason and leaves the
