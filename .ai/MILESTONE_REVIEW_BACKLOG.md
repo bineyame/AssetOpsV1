@@ -1633,16 +1633,16 @@ Claude discovery review, verdict ACCEPT WITH CARRIES
 fix round R1 and are not carried. The rest are carried under
 `D-2026-09-22-milestone-speed-over-purity`. Line anchors are as of the review.
 
-- **F2 (Medium, wording), AC6b names a status-source reason the build does not
-  give.** `host/tests/test_t025g_join.py:125,135`. A missing status source is
+- **F2 (Medium, wording), RESOLVED 2026-10-02 by amending AC6b, owner-approved,
+  AC6b names a status-source reason the build does not give.** `host/tests/test_t025g_join.py:125,135`. A missing status source is
   recorded (no `generator-status` mapping frozen) but does not block, by
   design: blocking it would narrow currently-READY requests and argue for a
   contract version move. Carried: the engineering call is right; only the
   acceptance text disagrees. Routed to the owner or Planner to amend AC6b to
   "BLOCKED naming the four missing generator properties; the absent status
-  source is recorded, not blocking". The coordinator is asking the owner.
-  Trigger: the owner's answer; if they want it blocking, a later slice with
-  its own contract reading.
+  source is recorded, not blocking". Resolved: the owner approved the amendment
+  on 2026-10-02 and AC6b now reads that way; blocking would need a later slice
+  with its own contract reading.
 - **F3 (Low), shipped Kobo `site_contract.description` still states template
   lineage as the requirement.** Six documents, for example
   `config/scenarios/kobo-mini-grid-prolonged.yaml:40`, `kobo-daytime.yaml:35`,

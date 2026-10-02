@@ -4424,7 +4424,7 @@ contract move; no Site record rewritten; no run reads a template.
 
 ## T025g - The run is the only join of scenario and site (S1)
 
-In review (packet `.agent/T025g-review-packet.md`; `USER_REVIEW_REQUIRED: true`).
+Complete; owner accepted 2026-10-02 (packet `.agent/T025g-review-packet.md`; `USER_REVIEW_REQUIRED: true`).
 Rule `D-2026-10-01-run-binds-scenario-to-site`; contract stays 9 (gate unedited).
 
 ### What it settled in code

@@ -1,6 +1,6 @@
 # T025g - The run is the only join of scenario and site (S1)
 
-Status: in_review
+Status: complete
 USER_REVIEW_REQUIRED: true
 
 Map: A/B hardening; scenario-site contract S1. Depends on: T025f. Next: T026.
@@ -101,9 +101,12 @@ the running backend.
    (b) Phase 2: in process, `kobo-mini-grid-prolonged` v2 with the shipped
    profiles reaches READY on a site built from the current
    Kobo template and BLOCKED on a site built from the pre-T025a Kobo content,
-   with named reasons covering the missing generator property and status
-   source. A v1 request against the v2 store is refused by the existing
-   version check.
+   naming the four missing generator properties. A missing generator-status
+   source does not block a run: the reading publishes nothing, and the run
+   records the absence (no `generator-status` mapping is frozen). Blocking it
+   would turn READY Drafts BLOCKED, which the no-move contract reading
+   excludes. A v1 request against the v2 store is refused by the existing
+   version check. (Wording amended 2026-10-02, owner-approved, review F2.)
 7. **Picker.** `RunSetupFrame` stops deriving the site from the scenario. It
    opens with no site selected, never auto-selects (even with one site), keeps
    Create disabled until a site is picked, and lists each site with its
@@ -158,4 +161,24 @@ reviews when the slice is ready, and Codex reviews it retrospectively after its
 reset (see `.ai/ROLE_CONFIG.md`). The owner then checks hands-on that the
 shipped prolonged scenario runs READY on a current Kobo site and BLOCKS with
 named reasons on an old one, with the site chosen only at setup.
-Review outcome: pending.
+
+## Review Outcome
+
+Owner review required and done: on 2026-10-02 the owner reported the hands-on
+check done and passed, and accepted T025g.
+
+- First Claude review (`.agent/T025g-claude-review.md`, commit `3c37d60`), a
+  fresh Claude reviewer under the temporary binding: ACCEPT WITH CARRIES.
+- Fix round R1 fixed F1 (an empty `site_contract` serialises as no contract)
+  and F5 (architect guidance is revision 3, owner signed off).
+- R1 verification review (`.agent/T025g-claude-review-r1.md`, commit `36a27c7`):
+  ACCEPT WITH CARRIES, nothing new.
+- F2 resolved by amending AC6b's wording to the built behaviour (owner-approved
+  2026-10-02): a missing generator-status source is recorded, not blocking.
+- Remaining carries (F3, F4, F6 and residual risks) are in
+  `.ai/MILESTONE_REVIEW_BACKLOG.md` under "Carried from T025g".
+- All reviews were by Claude under the temporary binding. Codex reviews T025g
+  retrospectively after its reset, as listed in `.ai/ROLE_CONFIG.md`.
+
+Next: T026 (`tasks/T026-dispatch-capable-evidence.md`, status planned; task file
+to be confirmed by the Planner before build).
