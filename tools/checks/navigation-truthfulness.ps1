@@ -217,10 +217,23 @@ function Get-OperatorSiteTabFailures {
                     $failures.Add(("Disabled affordance in the operator Site " +
                         "tab row at $($module.Path):${lineNumber}: " +
                         "$($line.Trim()). A tab the product cannot open is " +
-                        "labelled in place, never disabled: these are not " +
-                        "switched off, they are not built.")) | Out-Null
+                        "not rendered, never disabled, never labelled in " +
+                        "place in operator views " +
+                        "(D-2026-10-02-rendered-tabs-per-capability): these " +
+                        "are not switched off, they are not built.")) | Out-Null
                     break
                 }
+            }
+
+            if ($line -match 'labelled_in_place' -or $line -match 'kind\s*:\s*[""'']labelled') {
+                $failures.Add(("Labelled-in-place tab kind in the operator " +
+                    "Site tab row at $($module.Path):${lineNumber}: " +
+                    "$($line.Trim()). A tab the product cannot open is not " +
+                    "rendered, never disabled, never labelled in place in " +
+                    "operator views " +
+                    "(D-2026-10-02-rendered-tabs-per-capability). The row " +
+                    "renders the canonical inventory filtered by " +
+                    "capability.")) | Out-Null
             }
         }
     }
@@ -241,6 +254,8 @@ function Get-FoundationSubtabFailures {
     $inventoryName = "FOUNDATION_SUBTABS"
     $substrateRoot = "frontend/src/sites"
 
+    # v6.9 line 2117 lists five; `Readiness` is also not rendered (claim
+    # readiness lives on Site > Evidence only), enforced below.
     # v6.9 line 2117 lists five. `Changes` is filtered out by the accepted T008
     # checkpoint: lines 2149 and 2225-2228 make it a real intervention and
     # change-effect capability rather than the mockup's `Version History`, no
@@ -252,8 +267,9 @@ function Get-FoundationSubtabFailures {
     # they must not come back as a Foundation subtab row.
     $supersededVocabulary = @("Summary", "Components", "Control Logic", "Settings")
 
-    # A subtab this build cannot open is labelled, never disabled. Same rule as
-    # the tab row above, same reason.
+    # A subtab this build cannot open is not rendered, never disabled, never
+    # labelled in place in operator views. Same rule as the tab row above, same
+    # reason (D-2026-10-02-rendered-tabs-per-capability).
     $disabledAffordance = @(
         '\bdisabled\s*[=:]',
         'aria-disabled\s*=',
@@ -330,9 +346,28 @@ function Get-FoundationSubtabFailures {
                     $failures.Add(("Disabled affordance in the Foundation " +
                         "subtab row at $($module.Path):${lineNumber}: " +
                         "$($line.Trim()). A subtab this build cannot open is " +
-                        "labelled in place, never disabled.")) | Out-Null
+                        "not rendered, never disabled, never labelled in " +
+                        "place in operator views.")) | Out-Null
                     break
                 }
+            }
+
+            if ($line -match 'labelled_in_place' -or $line -match 'kind\s*:\s*[""'']labelled') {
+                $failures.Add(("Labelled-in-place subtab kind in the " +
+                    "Foundation subtab row at $($module.Path):${lineNumber}: " +
+                    "$($line.Trim()). A subtab this build cannot open is not " +
+                    "rendered, never disabled, never labelled in place in " +
+                    "operator views " +
+                    "(D-2026-10-02-rendered-tabs-per-capability).")) | Out-Null
+            }
+
+            if ($line -match "label\s*:\s*[""']Readiness[""']") {
+                $failures.Add(("'Readiness' is declared as a Foundation " +
+                    "subtab at $($module.Path):${lineNumber}: " +
+                    "$($line.Trim()). Claim readiness lives on Site > " +
+                    "Evidence only, so Readiness is not rendered in the " +
+                    "Foundation subtab list " +
+                    "(D-2026-10-02-rendered-tabs-per-capability).")) | Out-Null
             }
         }
     }

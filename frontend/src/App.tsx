@@ -1,10 +1,10 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { featureFlags, type FeatureFlags } from "./config/featureFlags";
 import { LegacySiteConfigurationRedirect } from "./shell/LegacySiteConfigurationRedirect";
-import { OperatorShellFrame } from "./shell/OperatorShellFrame";
 import { OperatorShellLayout } from "./shell/OperatorShellLayout";
 import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
+import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
 import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
 import { SitesFrame } from "./shell/SitesFrame";
@@ -13,6 +13,7 @@ import {
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
   SITES_PATH,
   SITE_DETAIL_ROUTE_PATH,
+  SITE_EVIDENCE_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
 import type { RunSetupClient } from "./shell/runSetupClient";
@@ -49,8 +50,8 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * 1. `WorkspaceShellLayout` is workspace-level chrome. It owns the gated
  *    developer workspace entry point and nothing else.
  * 2. `OperatorShellLayout` is the operator workspace: operator navigation and
- *    the operator route frames (shell home, Sites, and, under one site, that
- *    site's page and its Foundation). It is flag-free and served in both
+ *    the operator route frames (Sites, and, under one site, that site's page,
+ *    its Foundation and its Evidence; `/` redirects to Sites). It is flag-free and served in both
  *    gate states, because the Simulator Lab gate controls simulator surfaces
  *    and execution only.
  * 3. Simulator Lab is a separate developer workspace. Its routes come from
@@ -121,7 +122,7 @@ export function App({
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>
-          <Route path="/" element={<OperatorShellFrame />} />
+          <Route path="/" element={<Navigate to={SITES_PATH} replace />} />
           <Route
             path={SITES_PATH}
             element={
@@ -151,6 +152,12 @@ export function App({
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
               />
+            }
+          />
+          <Route
+            path={SITE_EVIDENCE_ROUTE_PATH}
+            element={
+              <SiteEvidenceFrame detail={siteDetail} sitesPath={SITES_PATH} />
             }
           />
           <Route

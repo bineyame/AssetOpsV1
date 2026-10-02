@@ -418,8 +418,10 @@ export function simulatorLabAddSiteEntryPoints(
  *
  * Not a `WorkspaceEntryPoint`: an entry point has a `to`, and these have
  * nowhere to go. That is the point of them. They are the third affordance
- * state - rendered, disabled, and carrying the reason - as opposed to a tab
- * labelled in place, which names an aspect and is not a control at all.
+ * state - rendered, disabled, and carrying the reason. A tab labelled in place
+ * (a label with no control) is not used in operator views, per
+ * `D-2026-10-02-rendered-tabs-per-capability`; an aspect without a capability
+ * is simply not rendered.
  */
 export interface GatedSiteAction {
   label: string;

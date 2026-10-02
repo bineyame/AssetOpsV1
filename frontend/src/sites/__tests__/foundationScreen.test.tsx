@@ -250,7 +250,6 @@ const V69_FOUNDATION_SUBTABS = [
   "Definition",
   "Topology",
   "Controls",
-  "Readiness",
 ];
 
 /** The mockup-derived names T013 replaced. */
@@ -271,7 +270,7 @@ function subtabRow(): HTMLElement {
 }
 
 describe("the Foundation subtab row is v6.9's, filtered", () => {
-  it("renders Definition, Topology, Controls and Readiness in that order", async () => {
+  it("renders Definition, Topology, Controls and nothing else, in that order", async () => {
     renderFoundation();
     await settledScreen();
 
@@ -388,12 +387,17 @@ describe("the Foundation subtab row is v6.9's, filtered", () => {
     expect(row.querySelectorAll('[aria-current]')).toHaveLength(0);
   });
 
-  it("gives Readiness no link, no control, and no section to point at", async () => {
+  it("does not render Readiness, labelled or otherwise", async () => {
     const { container } = renderFoundation();
     await settledScreen();
 
     const row = subtabRow();
 
+    // D-2026-10-02-rendered-tabs-per-capability: claim readiness lives on
+    // Site > Evidence only, and no subtab is labelled in place.
+    expect(within(row).queryByText("Readiness")).toBeNull();
+    expect(row.querySelector(".section-nav__absent, .section-nav__note")).toBeNull();
+    expect(spacedText(row)).not.toMatch(/readiness/i);
     expect(
       within(row).queryByRole("link", { name: "Readiness" }),
     ).toBeNull();
@@ -402,8 +406,7 @@ describe("the Foundation subtab row is v6.9's, filtered", () => {
       row.querySelectorAll("[disabled], [aria-disabled], [title], [tabindex]"),
     ).toHaveLength(0);
 
-    // And no empty panel kept warm for it. A heading with nothing under it is
-    // the layout form of a fabricated value.
+    // And no empty panel kept warm for it.
     const headings = Array.from(container.querySelectorAll("h2, h3")).map(
       (heading) => heading.textContent,
     );

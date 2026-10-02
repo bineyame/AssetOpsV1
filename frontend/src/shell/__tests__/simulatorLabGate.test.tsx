@@ -533,12 +533,16 @@ describe("simulator lab gate: enabled", () => {
       within(navigation).queryByRole("link", { name: /simulator/i }),
     ).toBeNull();
 
-    const entryPoint = screen.getByRole("link", { name: /simulator lab/i });
+    // `/` redirects to the Sites index (T027), whose own gated create entry
+    // also names the Lab, so the workspace entry point is picked by address.
+    const entryPoint = screen
+      .getAllByRole("link", { name: /simulator lab/i })
+      .find((link) => link.getAttribute("href") === "/simulator-lab");
 
-    expect(navigation.contains(entryPoint)).toBe(false);
-    expect(entryPoint).toHaveAttribute("href", "/simulator-lab");
+    expect(entryPoint).toBeDefined();
+    expect(navigation.contains(entryPoint as HTMLElement)).toBe(false);
 
-    fireEvent.click(entryPoint);
+    fireEvent.click(entryPoint as HTMLElement);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),

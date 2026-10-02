@@ -95,7 +95,7 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
  * an identified replacement. Nothing took either place, because a navigation
  * item cannot name which site it would open.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -211,9 +211,9 @@ describe("a site is opened from a Sites row", () => {
     // Sites", and it stays pinned: the point of the assertion is that the site
     // page grows destinations one reviewed slice at a time. T011A replaces
     // T008's plain `Site configuration` link with the canonical Site tab row,
-    // so the destinations are now Overview and Foundation. All of it is
-    // navigation, none of it is an action on the site, and the six
-    // labelled-in-place tabs add nothing here because they are not links.
+    // so the destinations are Overview and Foundation, and T027 adds
+    // Evidence. All of it is navigation, none of it is an action on the site,
+    // and aspects without a capability are not rendered at all.
     expect(
       within(main)
         .getAllByRole("link")
@@ -222,6 +222,7 @@ describe("a site is opened from a Sites row", () => {
       ["/sites", "Sites"],
       ["/sites/MG-002", "Overview"],
       ["/sites/MG-002/foundation", "Foundation"],
+      ["/sites/MG-002/evidence", "Evidence"],
     ]);
   });
 

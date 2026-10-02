@@ -436,6 +436,7 @@ const MEASURE = `(() => {
     pageScrollsVertically: doc.scrollHeight > doc.clientHeight,
     pageScrollHeight: doc.scrollHeight,
     pageClientHeight: doc.clientHeight,
+    finalPathname: window.location.pathname,
     railLeftBefore,
     railLeftAfter,
     scrollerOverflows,
@@ -1246,8 +1247,11 @@ for (const [label, width, height] of [
         `scrollWidth ${site.pageScrollWidth} vs clientWidth ${site.pageClientWidth}`,
       ],
       [
-        "all eight tabs are rendered",
-        site.tabLabels.length === 8,
+        // D-2026-10-02-rendered-tabs-per-capability: Overview, Foundation and
+        // Evidence render, and nothing else.
+        "exactly three tabs are rendered: Overview, Foundation, Evidence",
+        site.tabLabels.length === 3 &&
+          site.tabLabels.join("|") === "Overview|Foundation|Evidence",
         site.tabLabels.join(" | "),
       ],
       [
@@ -1269,7 +1273,12 @@ for (const [label, width, height] of [
 
 const short = await visit(cdp, "/", 1280, 800, ".app-frame");
 allPass =
-  report("Operator home at 1280x800, gate open, short page", short, [
+  report("Landing at / (redirects to /sites) at 1280x800, gate open, short page", short, [
+    [
+      "/ lands on the Sites index",
+      short.finalPathname === "/sites",
+      `final pathname ${short.finalPathname}`,
+    ],
     [
       "the page does not scroll vertically",
       !short.pageScrollsVertically,

@@ -374,9 +374,10 @@ export function SiteDetailUnavailableFact({
  *
  * Every action on this screen is disabled, and each one says what would make
  * it work. That is the third affordance state, and this is the screen where it
- * earns its keep: a labelled-in-place tab names an aspect of a Site, while a
- * disabled control names an action the product can sequence but cannot yet
- * perform. Blurring those two is how a UI starts promising things.
+ * earns its keep: an aspect of a Site with no capability is not rendered
+ * as a tab at all, while a disabled control names an action the product can
+ * sequence but cannot yet perform. Blurring those two is how a UI starts
+ * promising things.
  *
  * `View Live Data` is owned here because it is not a simulator surface: live
  * data is an operator capability, it is unavailable for the same reason

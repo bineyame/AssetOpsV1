@@ -59,6 +59,14 @@ export function siteFoundationHref(siteId: string): string {
   return `${siteDetailHref(siteId)}/foundation`;
 }
 
+/** The route pattern for one site's Evidence. */
+export const SITE_EVIDENCE_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/evidence`;
+
+/** The address of one site's Evidence, built from the site's own address. */
+export function siteEvidenceHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/evidence`;
+}
+
 /**
  * The address T008 served this surface at, kept working and nothing else.
  *

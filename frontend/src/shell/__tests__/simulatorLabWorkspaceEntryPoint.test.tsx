@@ -43,7 +43,7 @@ const OPERATOR_ROUTES = ["/", "/sites"];
  * site. The gate assertion is unchanged in strength - the list is still pinned
  * exactly, and it is still the same list in both flag states.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites"];
 
 /** Injected and empty: placement assertions must not depend on a store. */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {

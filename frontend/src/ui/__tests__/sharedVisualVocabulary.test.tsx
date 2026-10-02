@@ -146,7 +146,7 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
       within(operatorRail)
         .getAllByRole("link")
         .map((link) => link.getAttribute("href")),
-    ).toEqual(["/", SITES_PATH]);
+    ).toEqual([SITES_PATH]);
     expect(
       screen.queryByRole("navigation", { name: "Simulator Lab routes" }),
     ).toBeNull();

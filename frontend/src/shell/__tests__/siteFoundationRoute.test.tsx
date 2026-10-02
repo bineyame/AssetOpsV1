@@ -115,7 +115,7 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
 ];
 
 /** Operator navigation after T008, in order. T011A does not change it. */
-const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
