@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 
+import { SiteEvidence } from "../sites/SiteEvidence";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import { useSiteRecord } from "../sites/useSiteRecord";
 import { Breadcrumbs, PageHeader, Panel } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
@@ -17,16 +19,21 @@ export const SITE_EVIDENCE_HEADING_ID = "site-evidence-heading";
  * statement of absence rather than an Evidence page for a site that does not
  * exist. Like every operator route it is never gated.
  *
- * The body is a placeholder: sub-phase 1c of T027 replaces it with the real
- * Evidence body (source health, per-signal coverage, record drill-down). Until
- * then it says only what is true, that nothing accepted is shown yet.
+ * The body is `SiteEvidence` (T027 part A): source health, per-signal
+ * coverage, the mapping and configuration basis, rejections and the record
+ * inspector drill-down, all read from accepted evidence only.
  */
 export interface SiteEvidenceFrameProps {
   detail: SiteDetailClient;
+  evidence: SiteEvidenceClient;
   sitesPath: string;
 }
 
-export function SiteEvidenceFrame({ detail, sitesPath }: SiteEvidenceFrameProps) {
+export function SiteEvidenceFrame({
+  detail,
+  evidence,
+  sitesPath,
+}: SiteEvidenceFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
   const result = useSiteRecord(siteId, detail);
 
@@ -95,12 +102,7 @@ export function SiteEvidenceFrame({ detail, sitesPath }: SiteEvidenceFrameProps)
         subtitle={`${site.display_name} · ${site.site_id}`}
       />
       <OperatorSiteTabs siteId={siteId} current="Evidence" />
-      <Panel heading="Accepted evidence" headingId="site-evidence-body-heading">
-        <p>
-          Accepted evidence for this Site appears here once a source batch has
-          been ingested.
-        </p>
-      </Panel>
+      <SiteEvidence siteId={site.site_id} client={evidence} />
     </main>
   );
 }

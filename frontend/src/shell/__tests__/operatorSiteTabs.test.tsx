@@ -12,6 +12,7 @@ import type {
   SiteDetailReadModel,
   SiteSummary,
 } from "../../sites/siteReadModel";
+import { EMPTY_EVIDENCE_CLIENT } from "../../sites/__tests__/evidenceFixtures";
 import { settledScreen } from "../../test/settled";
 import {
   OPERATOR_SITE_TABS,
@@ -132,6 +133,7 @@ function renderAt(path: string, flags: FeatureFlags = ENABLED) {
         flags={flags}
         siteDirectory={directoryWith([SITE])}
         siteDetail={detailClientFor([SITE_DETAIL])}
+        siteEvidence={EMPTY_EVIDENCE_CLIENT}
       />
     </MemoryRouter>,
   );
@@ -331,7 +333,7 @@ describe("the tab row is an operator capability and is never gated", () => {
 });
 
 describe("the Site Evidence route", () => {
-  it("renders Evidence as the current tab with a truthful placeholder body", async () => {
+  it("renders Evidence as the current tab with a truthful empty body", async () => {
     renderAt("/sites/MG-002/evidence", DISABLED);
     await settledScreen();
 
@@ -342,7 +344,7 @@ describe("the Site Evidence route", () => {
       within(tabRow()).getByRole("link", { current: "page" }),
     ).toHaveTextContent("Evidence");
     expect(
-      screen.getByText(/Accepted evidence for this Site appears here once/),
+      screen.getByText(/No source batch has been accepted for this site/),
     ).toBeInTheDocument();
   });
 });

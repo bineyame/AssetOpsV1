@@ -26,6 +26,10 @@ import type { SiteCreationClient } from "./shell/siteCreationClient";
 import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
 import type { SiteTemplateLineageClient } from "./sites/siteTemplateLineage";
 import {
+  createSiteEvidenceClient,
+  type SiteEvidenceClient,
+} from "./sites/siteEvidenceClient";
+import {
   createSiteDirectoryClient,
   type SiteDetailClient,
   type SiteDirectoryClient,
@@ -41,6 +45,7 @@ export { SITES_PATH };
  * the store would be re-read in a loop.
  */
 const defaultSiteDirectory = createSiteDirectoryClient();
+const defaultSiteEvidence = createSiteEvidenceClient();
 
 /**
  * Route table.
@@ -82,7 +87,7 @@ const defaultSiteDirectory = createSiteDirectoryClient();
  * product now uses.
  *
  * `siteTemplateCatalog`, `siteDirectory`, `siteDetail`, `siteCreation`,
- * `scenarioCatalog`, and `runSetup` are injection points for tests. The default clients read
+ * `scenarioCatalog`, `runSetup` and `siteEvidence` are injection points for tests. The default clients read
  * the real APIs; a test supplies fakes so a UI assertion is about what the
  * screen renders from a record rather than about network timing.
  */
@@ -94,6 +99,8 @@ export interface AppProps {
   siteCreation?: SiteCreationClient;
   scenarioCatalog?: ScenarioCatalogClient;
   runSetup?: RunSetupClient;
+  /** Site > Evidence reads (T027). Operator, never gated. */
+  siteEvidence?: SiteEvidenceClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -108,6 +115,7 @@ export function App({
   siteCreation,
   scenarioCatalog,
   runSetup,
+  siteEvidence = defaultSiteEvidence,
   siteTemplateLineage,
   now,
 }: AppProps) {
@@ -157,7 +165,11 @@ export function App({
           <Route
             path={SITE_EVIDENCE_ROUTE_PATH}
             element={
-              <SiteEvidenceFrame detail={siteDetail} sitesPath={SITES_PATH} />
+              <SiteEvidenceFrame
+                detail={siteDetail}
+                evidence={siteEvidence}
+                sitesPath={SITES_PATH}
+              />
             }
           />
           <Route
