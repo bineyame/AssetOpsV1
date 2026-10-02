@@ -220,8 +220,16 @@ def _instant(value: object, field: str) -> datetime:
             f"{value!r} is not a UTC instant written YYYY-MM-DDTHH:MM:SSZ",
         )
     try:
-        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(
-            tzinfo=timezone.utc
+        # The pattern fixed every position, so the fields are read by slice:
+        # `strptime` was most of a stage write's cost at the 8 h window (T026).
+        return datetime(
+            int(value[0:4]),
+            int(value[5:7]),
+            int(value[8:10]),
+            int(value[11:13]),
+            int(value[14:16]),
+            int(value[17:19]),
+            tzinfo=timezone.utc,
         )
     except ValueError as error:
         raise EnvelopeRejected(
@@ -809,7 +817,19 @@ class SourceEnvelope:
                     "exactly one",
                 )
             if self.members is not None:
-                _members(self.members, "payload.members")
+                # An ordered list of component identities (a priority).
+                if type(self.members) is not tuple or not self.members:
+                    raise EnvelopeRejected(
+                        "INVALID_PAYLOAD",
+                        "payload.members",
+                        "an ordered member list is a non-empty list",
+                    )
+                for member in self.members:
+                    _identifier(member, "payload.members")
+                if len(set(self.members)) != len(self.members):
+                    raise EnvelopeRejected(
+                        "INVALID_PAYLOAD", "payload.members", "a member is listed twice"
+                    )
                 if self.unit != ORDER_UNIT:
                     raise EnvelopeRejected(
                         "UNIT_INCOMPATIBLE",

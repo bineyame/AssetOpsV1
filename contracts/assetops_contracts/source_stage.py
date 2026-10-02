@@ -298,9 +298,12 @@ def admit(
         check_against_mapping(candidate, stage.mapping)
         existing = staged.get(candidate.message_id)
         if existing is not None:
-            if canonical_envelope_json(existing) == canonical_envelope_json(
-                candidate
-            ):
+            # Equal records have equal canonical text, so equality answers the
+            # retry case without rendering both (T026, measured at 8 h); only
+            # unequal ones are compared as bytes.
+            if existing == candidate or canonical_envelope_json(
+                existing
+            ) == canonical_envelope_json(candidate):
                 repeated += 1
                 continue
             raise StageConflict(

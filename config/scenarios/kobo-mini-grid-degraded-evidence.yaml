@@ -1,0 +1,392 @@
+# Shipped scenario (T026): the degraded-evidence world. The causes and run-start
+# states of kobo-mini-grid-prolonged, plus one operator override of the
+# generator's stop threshold, and three reporting-path conditions that change
+# what is PUBLISHED and nothing that happens:
+#
+# - a gap: the battery's discharge-capability path carries no readings for an
+#   hour (no capability is substituted for the missing readings);
+# - a delay: one state-of-charge publication is held ten minutes, until its
+#   declared window ends (its value and source time are unchanged; only its
+#   publication time moves);
+# - a missing record: the override command's record never reaches the gateway.
+#   The override still holds in the world - its absence says "none observed",
+#   never "none commanded".
+#
+# Set a run up with the mini-grid model profile VERSION 3 and publication
+# profile VERSION 5, an interval of 480 minutes (06:00 to 14:00 local time)
+# and a 5-minute timestep, against a Site created from kobo-mini-grid-60kw
+# version 3, chosen at run setup. Under an earlier publication profile the run
+# is BLOCKED naming that profile, which cannot model these conditions.
+#
+# Demonstration values proposed by the T026 Implementer for the owner's
+# hands-on review, not a recommendation for any real site.
+scenario_id: kobo-mini-grid-degraded-evidence
+display_name: Kobo mini-grid (degraded evidence)
+purpose: >-
+  The prolonged-runtime world with an operator override of the generator stop threshold to 60 % from 08:00 to 12:00, observed through an imperfect reporting path: the battery's discharge capability goes unreported for an hour, one state-of-charge publication arrives ten minutes late, and the override command's record is never published. The world and every controller decision are those the causes and the override determine; only what the evidence shows differs.
+
+version:
+  # T026: a new scenario, so version 1 with nothing to supersede.
+  scenario_version: 1
+  version_valid_from: '2026-10-02T00:00:00Z'
+
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
+    A mini-grid created from the kobo-mini-grid-60kw template: one PV array
+    behind one inverter, one battery behind one PCS, one generator on the bus
+    fed by one fuel tank, and three addressed loads - load-res, load-clinic
+    and load-mill - with typed source-priority and critical-load-priority Site
+    Controls and the generator's start/stop policy on the Foundation.
+
+observation_sources: []
+
+public_parameters:
+  # The battery's state of charge at run start, stated explicitly.
+  - parameter_id: starting-state-of-charge
+    display_name: Battery state of charge at the start of the interval
+    value: 40
+    unit: "%"
+    execution_role: CAUSAL_INPUT
+    state_key: battery-state-of-charge@battery
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+  # The fuel in the tank at run start. Scenario-owned physical state.
+  - parameter_id: starting-fuel
+    display_name: Fuel in the tank at the start of the interval
+    value: 300
+    unit: L
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume@fuel-tank
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+  # The generator's lifecycle state at run start: a typed member, not a
+  # number. STOPPED or FAILED only.
+  - parameter_id: starting-generator-state
+    display_name: Generator state at the start of the interval
+    value: STOPPED
+    unit: state
+    execution_role: CAUSAL_INPUT
+    state_key: generator-state@generator
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+
+timeline:
+  - event_id: irradiance-1
+    sequence: 1
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 06:00 to 07:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 60
+    parameters:
+      - parameter_id: irradiance-1-level
+        display_name: Plane-of-array irradiance
+        value: 0
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-2
+    sequence: 2
+    offset_minutes: 60
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 07:00 to 08:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 60
+    parameters:
+      - parameter_id: irradiance-2-level
+        display_name: Plane-of-array irradiance
+        value: 150
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-3
+    sequence: 3
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 08:00 to 10:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: irradiance-3-level
+        display_name: Plane-of-array irradiance
+        value: 450
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-4
+    sequence: 4
+    offset_minutes: 240
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 10:00 to 14:00.
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 240
+    parameters:
+      - parameter_id: irradiance-4-level
+        display_name: Plane-of-array irradiance
+        value: 550
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-1
+    sequence: 5
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential demand from 06:00 to 08:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 120
+    parameters:
+      - parameter_id: residential-demand-1-level
+        display_name: Residential demand
+        value: 10
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-2
+    sequence: 6
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential demand from 08:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 360
+    parameters:
+      - parameter_id: residential-demand-2-level
+        display_name: Residential demand
+        value: 8
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-1
+    sequence: 7
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 06:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 480
+    parameters:
+      - parameter_id: clinic-demand-1-level
+        display_name: Clinic demand
+        value: 5
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-1
+    sequence: 8
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Mill demand from 06:00 to 07:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 60
+    parameters:
+      - parameter_id: mill-demand-1-level
+        display_name: Mill demand
+        value: 0
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-2
+    sequence: 9
+    offset_minutes: 60
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Mill demand from 07:00 to 08:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 60
+    parameters:
+      - parameter_id: mill-demand-2-level
+        display_name: Mill demand
+        value: 40
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-3
+    sequence: 10
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Mill demand from 08:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 360
+    parameters:
+      - parameter_id: mill-demand-3-level
+        display_name: Mill demand
+        value: 10
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  # The one operator command: the generator stop threshold to 60 % on
+  # [08:00, 12:00), step-aligned. Outside it the Foundation baseline applies.
+  - event_id: stop-threshold-override
+    sequence: 11
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: EQUIPMENT
+    description: >-
+      From 08:00 to 12:00 an operator overrides the generator stop threshold to 60 %. The Foundation baseline applies again when the window ends.
+    execution_role: FORCING_INPUT
+    state_key: generator-stop-soc-threshold@generator
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 240
+    parameters:
+      - parameter_id: stop-threshold-level
+        display_name: Generator stop threshold while the override holds
+        value: 60
+        unit: "%"
+        execution_role: FORCING_INPUT
+        state_key: generator-stop-soc-threshold@generator
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  # The override's record is never published: a missing record, not a
+  # missing override.
+  - event_id: override-record-missing
+    sequence: 12
+    offset_minutes: 120
+    entry_kind: EVENT
+    category: DATA_QUALITY
+    description: >-
+      The record of the 08:00 override command does not reach the gateway.
+    execution_role: FORCING_INPUT
+    state_key: override-record-reporting-availability@generator
+    execution_requirement: REQUIRED
+    timing:
+      shape: POINT
+  # One reporting gap: the discharge-capability path is down for an hour.
+  - event_id: discharge-capability-gap
+    sequence: 13
+    offset_minutes: 180
+    entry_kind: EVENT
+    category: DATA_QUALITY
+    description: >-
+      The battery's discharge-capability readings are not carried from 09:00 to 10:00.
+    execution_role: FORCING_INPUT
+    state_key: battery-discharge-capability-reporting-availability@battery-pcs
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 60
+  # One delayed publication: the 10:00 state-of-charge sample is held until
+  # the window ends, ten minutes later. The hold is the entry's own window, and
+  # shorter than the 15-minute cadence, so it holds exactly one publication.
+  - event_id: soc-publication-delay
+    sequence: 14
+    offset_minutes: 240
+    entry_kind: EVENT
+    category: DATA_QUALITY
+    description: >-
+      The 10:00 state-of-charge publication is held until 10:10.
+    execution_role: FORCING_INPUT
+    state_key: battery-soc-publication-delay@battery
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 10

@@ -103,6 +103,7 @@ from assetops_backend.runs.parsing import (
 )
 from assetops_backend.runs.ports import SimulationRunRepository
 from assetops_backend.runs.profiles import (
+    PUBLICATION_DELAY_STATES,
     REPORTING_PATH_STATES,
     FoundationBinding,
     ModelProfile,
@@ -900,6 +901,14 @@ class RunSetupService:
             supplied=supplied,
             addresses=addresses,
             initialization=initialization,
+        )
+        _refuse_a_delay_that_reorders(
+            scenario,
+            reporting,
+            forcings,
+            publication,
+            request.duration_minutes,
+            request.timestep_minutes,
         )
 
         return DeterministicIdentity(
@@ -3313,3 +3322,88 @@ def _publication_reasons(
 def executable_inputs(scenario: ScenarioDefinition) -> Sequence[ExecutableInput]:
     """The executable inputs of one scenario, exposed for tests and callers."""
     return _executable_inputs(scenario)
+
+
+
+# --- T026: publication delays ------------------------------------------------
+
+
+#: The CONTROL states whose scenario override window is executed as an operator
+#: command, and so occurs as an override record. Mirrors the host's projection.
+OVERRIDE_COMMAND_STATES = frozenset(
+    {"generator-stop-soc-threshold", "battery-reserve-state-of-charge"}
+)
+
+
+def _held_span(
+    condition: FrozenReportingPathCondition, duration: int, timestep: int
+) -> tuple[int, int]:
+    """A condition's half-open span, by the observation contract's shape rule."""
+    if condition.timing_shape == "WINDOW":
+        return condition.offset_minutes, condition.offset_minutes + (
+            condition.duration_minutes or 0
+        )
+    if condition.timing_shape == "INTERVAL_WIDE":
+        return condition.offset_minutes, duration
+    start = (condition.offset_minutes // timestep) * timestep
+    return start, min(start + timestep, duration)
+
+
+def _refuse_a_delay_that_reorders(
+    scenario: ScenarioDefinition,
+    reporting: list[FrozenReportingPathCondition],
+    forcings: list[FrozenForcing],
+    publication: PublicationProfile,
+    interval_minutes: int,
+    timestep_minutes: int,
+) -> None:
+    """Refuse a declared hold that would batch or reorder one path's publications.
+
+    A publication due inside a delay window is released at the window's end
+    (`PublicationDelayWindow`). One held publication is a delay. Two held on one
+    path are released together - a batch release - and anything longer than the
+    path's cadence is the release-order, buffering and recovery behaviour
+    T026A owns (`D-2026-09-24-queue-resequenced-for-demo`). So a window that
+    could hold more than one publication of a path it delays is refused at
+    setup rather than modelled. A path the profile does not declare is the
+    existing STATE_NOT_SUPPORTED block's to report, not this refusal's.
+    """
+    overrides = sorted(
+        item.offset_minutes
+        for item in forcings
+        if item.state_ref.state_key in OVERRIDE_COMMAND_STATES
+    )
+    for condition in reporting:
+        if condition.state_ref.state_key not in PUBLICATION_DELAY_STATES:
+            continue
+        declared = publication.supported_reporting(condition.state_ref.state_key)
+        if declared is None:
+            continue
+        start, end = _held_span(condition, interval_minutes, timestep_minutes)
+        for device_id, signal_id in declared.delays:
+            signal = publication.device_signal(device_id, signal_id)
+            if signal is not None:
+                held = end - start
+                if held > signal.cadence_minutes:
+                    raise refuse(
+                        "PUBLICATION_DELAY_REFUSED",
+                        f"Scenario {scenario.scenario_id} holds "
+                        f"{device_id}/{signal_id} for {held} minutes in "
+                        f"{condition.event_id}, and that path publishes every "
+                        f"{signal.cadence_minutes} minutes under "
+                        f"{publication.publication_profile_id} version "
+                        f"{publication.publication_profile_version}. More than "
+                        "one publication would be held and released together; "
+                        "release order and buffering are not modelled (T026A). "
+                        "Declare a hold no longer than the cadence.",
+                    )
+                continue
+            inside = [offset for offset in overrides if start <= offset < end]
+            if len(inside) > 1:
+                raise refuse(
+                    "PUBLICATION_DELAY_REFUSED",
+                    f"Scenario {scenario.scenario_id} holds override records "
+                    f"in {condition.event_id} across offsets {start} to {end}, "
+                    f"and overrides occur at {inside} inside it: they would be "
+                    "released together. Release order is not modelled (T026A).",
+                )

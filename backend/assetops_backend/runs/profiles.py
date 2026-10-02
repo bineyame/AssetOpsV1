@@ -218,7 +218,21 @@ REPORTING_PATH_STATES = frozenset(
     {
         "fuel-level-reporting-availability",
         "generator-status-reporting-availability",
+        # T026, publication profile 5 only. Two availability paths (a telemetry
+        # gap, a missing record) and two delay paths
+        # (`D-2026-10-02-delay-is-a-reporting-path-cause`).
+        "battery-discharge-capability-reporting-availability",
+        "battery-soc-publication-delay",
+        "override-record-reporting-availability",
+        "override-record-publication-delay",
     }
+)
+
+#: T026. The reporting-path states whose condition DELAYS publication rather than
+#: silencing it. A scenario entry forcing one names its delay as a parameter in
+#: minutes; the value and source time of what it delays never change.
+PUBLICATION_DELAY_STATES = frozenset(
+    {"battery-soc-publication-delay", "override-record-publication-delay"}
 )
 
 
@@ -260,8 +274,19 @@ class SupportedReportingState:
     supported_roles: frozenset[str]
     statement: str
     silences: tuple[tuple[str, str], ...] = ()
+    #: T026. The paths a delay condition on this state holds back. A state is
+    #: a delay state or an availability state, never both.
+    delays: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self) -> None:
+        if bool(self.delays) != (self.state_key in PUBLICATION_DELAY_STATES) or (
+            self.delays and self.silences
+        ):
+            raise ValueError(
+                f"Publication profile state {self.state_key!r} must declare the "
+                "paths it delays exactly when it is a publication-delay state, "
+                "and a delay state silences nothing."
+            )
         if self.scope not in STATE_SCOPES:
             raise ValueError(
                 f"Publication profile state {self.state_key!r} is claimed at "
@@ -577,6 +602,9 @@ class PublicationProfile:
     gateway_id: str | None
     supported_reporting_states: tuple[SupportedReportingState, ...] = ()
     device_signals: tuple[DeviceSignalDeclaration, ...] = ()
+    #: T026. The record channels (policy and override) this profile publishes,
+    #: as (device, channel). Not device signals: no cadence, no bias, no draw.
+    record_channels: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self) -> None:
         seen: set[tuple[str, str]] = set()
@@ -589,9 +617,10 @@ class PublicationProfile:
                     "and dropout apply to it."
                 )
             seen.add(declaration.signal_key)
+        paths = seen | set(self.record_channels)
         for state in self.supported_reporting_states:
-            for silenced in state.silences:
-                if silenced not in seen:
+            for silenced in state.silences + state.delays:
+                if silenced not in paths:
                     raise ValueError(
                         f"Publication profile {self.publication_profile_id!r} "
                         f"says {state.state_key!r} silences {silenced}, which it "
@@ -1227,6 +1256,22 @@ MINI_GRID_V2_MODEL = replace(
     step_aligned_forcings=("generator-stop-soc-threshold",),
 )
 
+#: T026. `mini-grid` v3: v2 unchanged beside it, plus two measured interval
+#: states - the PV inverter's available power and the battery's discharge
+#: capability - so publication profile 5 can report capability beside output.
+#: Measurements only: v3 accepts the same flows and decides the same requests as
+#: v2 for one document. A new version rather than an edit of v2, because adding
+#: state to an existing profile's trajectory would change frozen runs' digests.
+MINI_GRID_V3_MODEL = replace(
+    MINI_GRID_V2_MODEL,
+    model_profile_version=3,
+    statement=(
+        MINI_GRID_V2_MODEL.statement
+        + " Version three also measures, over each completed step, the PV "
+        "inverter's available power and the battery's discharge capability."
+    ),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -1536,16 +1581,162 @@ LAB_PUBLICATION_PROFILE_V4 = replace(
     ),
 )
 
+#: ## Version five since T026, beside three and four
+#:
+#: The dispatch-capable profile. Four changes, each reaching new Drafts only:
+#:
+#: - two capability signals, `pv-inverter-controller/available-power` and
+#:   `battery-pcs-controller/discharge-capability`, mean kW over the completed
+#:   step. Configured by template v3 only; a model that does not measure them
+#:   (anything before `mini-grid` v3) makes them no reporting path at all, so
+#:   capability is left unreported rather than inferred;
+#: - generator status is STAGED: the gateway mapping profile 5 publishes
+#:   through carries it as a typed member under envelope schema 2;
+#: - record channels: the Foundation policy the controller runs under, and
+#:   operator override commands;
+#: - four reporting-path states: a discharge-capability gap, a missing override
+#:   record, and a publication delay on the state of charge and on override
+#:   records.
+LAB_PUBLICATION_PROFILE_V5 = replace(
+    LAB_PUBLICATION_PROFILE_V4,
+    publication_profile_version=5,
+    statement=(
+        LAB_PUBLICATION_PROFILE.statement
+        + " Version five publishes everything version four observes - "
+        "generator status included, as a typed member - plus the PV inverter's "
+        "available power and the battery's discharge capability, the frozen "
+        "Foundation policy and operator override commands as records; and a "
+        "run may declare a capability reporting gap, a missing override record "
+        "or a delayed publication."
+    ),
+    supported_reporting_states=LAB_PUBLICATION_PROFILE_V4.supported_reporting_states
+    + (
+        SupportedReportingState(
+            state_key="battery-discharge-capability-reporting-availability",
+            scope="COMPONENT",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            statement=(
+                "Whether the battery management system's discharge-capability "
+                "path is carrying readings can be forced across a declared "
+                "window. Nothing about the battery changes; no capability is "
+                "substituted for the readings that do not exist."
+            ),
+            silences=(("battery-pcs-controller", "discharge-capability"),),
+        ),
+        SupportedReportingState(
+            state_key="override-record-reporting-availability",
+            scope="COMPONENT",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            statement=(
+                "Whether an override command record reaches the gateway can be "
+                "forced off across a declared window. The override still holds "
+                "in the world; only its record is missing, and a missing record "
+                "never says that nothing was commanded."
+            ),
+            silences=(
+                ("generator-controller", "override-command"),
+                ("battery-pcs-controller", "override-command"),
+            ),
+        ),
+        SupportedReportingState(
+            state_key="battery-soc-publication-delay",
+            scope="COMPONENT",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            statement=(
+                "A state-of-charge publication due in a declared window can be "
+                "held back by a declared number of minutes. Its value and "
+                "source time are unchanged; only its publication time moves."
+            ),
+            delays=(("battery-pcs-controller", "state-of-charge"),),
+        ),
+        SupportedReportingState(
+            state_key="override-record-publication-delay",
+            scope="COMPONENT",
+            supported_roles=frozenset({"FORCING_INPUT"}),
+            statement=(
+                "An override command record occurring in a declared window can "
+                "be held back by a declared number of minutes; its occurrence "
+                "and effective times are unchanged."
+            ),
+            delays=(
+                ("generator-controller", "override-command"),
+                ("battery-pcs-controller", "override-command"),
+            ),
+        ),
+    ),
+    device_signals=tuple(
+        replace(
+            declaration,
+            statement=(
+                "The generator controller publishes the generator's lifecycle "
+                "state every fifteen minutes as the member it is - STOPPED, "
+                "STARTING, RUNNING or FAILED - sampled at that instant after the "
+                "transitions already due there. One sample in twenty-five does "
+                "not arrive. Staged as a typed member, never a number."
+            ),
+        )
+        if declaration.signal_key == ("generator-controller", "status")
+        else declaration
+        for declaration in LAB_PUBLICATION_PROFILE_V4.device_signals
+    )
+    + (
+        DeviceSignalDeclaration(
+            device_id="pv-inverter-controller",
+            signal_id="available-power",
+            state_key="pv-available-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The PV inverter publishes the mean AC power it could have "
+                "delivered over the span that just ended - the array's "
+                "potential within the inverter's limit - beside what it did "
+                "deliver. Capability, not output."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id="battery-pcs-controller",
+            signal_id="discharge-capability",
+            state_key="battery-discharge-capability",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=15,
+            bias=0.0,
+            dropout_per_thousand=0,
+            statement=(
+                "The battery management system publishes the mean AC power the "
+                "PCS could have discharged over the span that just ended: its "
+                "limit, or less when the stored energy could not sustain it. It "
+                "knows nothing of the Site reserve policy."
+            ),
+        ),
+    ),
+    record_channels=(
+        ("generator-controller", "policy-start-soc-threshold"),
+        ("generator-controller", "policy-stop-soc-threshold"),
+        ("generator-controller", "policy-minimum-runtime"),
+        ("battery-pcs-controller", "policy-reserve-soc"),
+        ("site-controller", "policy-source-priority"),
+        ("site-controller", "policy-critical-load-priority"),
+        ("generator-controller", "override-command"),
+        ("battery-pcs-controller", "override-command"),
+    ),
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
     MINI_GRID_V2_MODEL,
+    MINI_GRID_V3_MODEL,
 )
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     LAB_PUBLICATION_PROFILE,
     LAB_PUBLICATION_PROFILE_V4,
+    LAB_PUBLICATION_PROFILE_V5,
 )
 
 

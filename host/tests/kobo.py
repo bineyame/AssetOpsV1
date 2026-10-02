@@ -23,8 +23,10 @@ from assetops_backend.runs.profiles import (
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
     MINI_GRID_V2_MODEL,
+    MINI_GRID_V3_MODEL,
     LAB_PUBLICATION_PROFILE,
     LAB_PUBLICATION_PROFILE_V4,
+    LAB_PUBLICATION_PROFILE_V5,
     MINIMAL_FUEL_TANK_MODEL,
 )
 from assetops_backend.runs.service import RunSetupService
@@ -126,6 +128,7 @@ def kobo_draft(
         DAYTIME_MINI_GRID_MODEL,
         MINI_GRID_MODEL,
         MINI_GRID_V2_MODEL,
+        MINI_GRID_V3_MODEL,
     )
     profile = next(
         p
@@ -138,7 +141,11 @@ def kobo_draft(
         FakeSites((site,)),
         FakeScenarios((definition,)),
         model_profiles=profiles,
-        publication_profiles=(LAB_PUBLICATION_PROFILE, LAB_PUBLICATION_PROFILE_V4),
+        publication_profiles=(
+            LAB_PUBLICATION_PROFILE,
+            LAB_PUBLICATION_PROFILE_V4,
+            LAB_PUBLICATION_PROFILE_V5,
+        ),
         now=lambda: "2026-09-29T09:00:00Z",
     )
     return setup.create_draft_run(

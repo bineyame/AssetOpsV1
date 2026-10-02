@@ -106,7 +106,12 @@ from assetops_contracts.source_stage import (
     release_blockers,
     stage_integrity_digest,
 )
-from assetops_simulator.gateway.mappings import SIMULATOR_LAB_GATEWAY_MAPPINGS
+from assetops_simulator.gateway.mappings import (
+    SIMULATOR_LAB_GATEWAY_MAPPINGS,
+    gateway_mapping_for,
+)
+from assetops_simulator.observation.records import generate_records
+from assetops_contracts.operational_records import FrozenRecordInputs
 from assetops_simulator.gateway.publish import publish
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
 from assetops_simulator.packs.mini_grid import GENERATOR_LIFECYCLE, RUN, STOP
@@ -128,6 +133,7 @@ from execution_adapter import (
     frozen_world_inputs,
     model_for,
     refuse_a_model_the_run_did_not_select,
+    record_inputs,
     reporting_inputs,
     unconfigured_signals,
 )
@@ -513,6 +519,11 @@ class LabSession:
     source_id: str = ""
     gateway_id: str = ""
     mapping: SourceMappingSet = SIMULATOR_LAB_GATEWAY_MAPPINGS
+    #: T026: the policy and override records this run publishes, projected
+    #: once at start. Empty for every profile without record channels.
+    records: FrozenRecordInputs | None = None
+    #: T026: the gateway's conversion memo for this session (`publish`).
+    envelope_memo: dict = field(default_factory=dict)
     #: What staging had to say, e.g. a refused conflicting publication. Mutable,
     #: because it accrues as the run is stepped.
     staging_notes: list[str] = field(default_factory=list)
@@ -1868,7 +1879,10 @@ class HostLabExecution:
         publication_profile: PublicationProfile | None = None,
         artifacts: YamlExecutionArtifacts | None = None,
         stages: JsonSourceStages | None = None,
-        gateway_mapping: SourceMappingSet = SIMULATOR_LAB_GATEWAY_MAPPINGS,
+        # T026: None stages each run under the mapping its frozen publication
+        # profile publishes through (`gateway_mapping_for`); a test may inject
+        # one, which then applies to every run.
+        gateway_mapping: SourceMappingSet | None = None,
     ) -> None:
         self._model = model
         self._publication_profile = publication_profile
@@ -2057,6 +2071,21 @@ class HostLabExecution:
 
             reporting = self._reporting_for(run)
             publication = run.deterministic_identity.publication
+            profiles = run.deterministic_identity.profiles
+            mapping = (
+                gateway_mapping_for(
+                    profiles.publication_profile_id,
+                    profiles.publication_profile_version,
+                )
+                if self._gateway_mapping is None
+                else self._gateway_mapping
+            )
+            try:
+                records = record_inputs(run, self._publication_profile)
+            except FrozenRunNotReconstructible as broken:
+                raise LabControlRefused(
+                    "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id
+                ) from broken
             session = LabSession(
                 run_id=run.run_id,
                 execution=start(inputs, model),
@@ -2065,7 +2094,8 @@ class HostLabExecution:
                 site_id=run.deterministic_identity.site.site_id,
                 source_id=publication.simulator_source_id or "",
                 gateway_id=publication.gateway_id or "",
-                mapping=self._gateway_mapping,
+                mapping=mapping,
+                records=records,
             )
             self._sessions[run.run_id] = session
             # Staged before the artifact says the run is running, so the stage
@@ -2238,6 +2268,11 @@ class HostLabExecution:
         observations = generate_observations(
             session.execution.boundaries, session.reporting
         )
+        records = (
+            ()
+            if session.records is None
+            else generate_records(session.execution.boundaries, session.records)
+        )
         try:
             envelopes = publish(
                 observations,
@@ -2246,6 +2281,10 @@ class HostLabExecution:
                 site_id=session.site_id,
                 source_id=session.source_id,
                 gateway_id=session.gateway_id,
+                delays=session.reporting.delays
+                + (() if session.records is None else session.records.delays),
+                records=records,
+                memo=session.envelope_memo,
             )
             self._stages.admit(
                 run_id=session.run_id,
