@@ -1,149 +1,124 @@
 # Architect Recommendation: Demo-Led Navigation, Content And Sequencing
 
-**Status: review input, pending owner sign-off.** This is not the roadmap and
-does not replace it. It answers the owner's request of 2026-10-02 (saved
-verbatim at `.agent/architect-demo-roadmap-request.md` on
-`task/T025h-picker-compatibility`). Nothing here changes `tasks/README.md`,
-any task file, `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md` or
-`Docs/mini-grid-demo-architecture-and-roadmap.md`. Once the owner has reviewed
-it, the Planner updates the roadmap and queue from whatever the owner accepts.
-Queue changes below are **proposals**.
+**Status: Final version for owner review, 2026-10-02.** This is a
+recommendation input, not the roadmap. It does not change `tasks/README.md`,
+any task file, `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`, `.ai/ARCHITECTURE.md`
+or `Docs/mini-grid-demo-architecture-and-roadmap.md`. Once the owner approves
+it, the Architect briefs the Planner, and the Planner applies it to the queue
+and the planning records. Everything below that touches the queue is a
+**proposal for the Planner**, and items marked **[Planner verifies]** must be
+checked against the task files, not assumed.
+
+It answers the owner's request of 2026-10-02 (saved verbatim at
+`.agent/architect-demo-roadmap-request.md` on
+`task/T025h-picker-compatibility`). It carries the owner's review of the same
+day: the owner's rules are quoted verbatim where the owner set them, and the
+D1-D8 dispositions are in section 8 as the owner worded them.
 
 Produced by Claude as Architect under the ROLE_CONFIG exception in force until
 the Codex reset on 2026-10-03 21:23. A later reader may send any judgement here
-back to Codex.
-
-## Owner review, 2026-10-02
-
-The owner's verbatim review is saved at
-`.agent/owner-review-architect-recommendation-2026-10-02.md` and is the
-authoritative source. Verdict: a strong recommendation; accept most of it, but
-not unchanged. This revision applies the owner's five push-backs, using the
-owner's wording where it states a rule (quoted in sections 1, 2.2, 3, 4.3 and
-6.3). Dispositions, as the owner worded them:
-
-| Decision | Owner feedback |
-| --- | --- |
-| D1 filtered grouped root menu | Accept, but don't promise the full v6.9 end-state can never change |
-| D2 Portfolio-lite after T034 | Strong accept |
-| D3 Kobo detect->verify uninterrupted | Strong accept |
-| D4 opportunity before fuel; service before battery | Accept as priority intent, dependency-check before exact reorder |
-| D5 static mini-grid archetype descriptor | Accept with narrower authority |
-| D6 Site Evidence at T027 | Accept, but T027 = source/coverage; analytic claim readiness matures from T028 |
-| D7 Action + Foundation Changes representation | Accept; very coherent |
-| D8 park T025h | Accept |
-
-**Still open:** global Financials as a BUSINESS root versus a Portfolio lens.
-
-**Kept intact, as the owner called out as especially right:** the Site
-Overview hierarchy (section 3), the Finding Detail hierarchy (section 3),
-Completed versus Verified as a visible product concept (section 3, Action /
-Verification), and global Financials kept out of the demo rail with economics
-in Site Financials, Finding consequence and Portfolio's value column
-(sections 1 and 2.2).
-
-Owner framing: "With those changes, I think this is strong enough to become
-planning input rather than another round of architecture exploration."
+back to Codex. A Planner pass that runs after that time is Codex-bound and will
+inherit this document as Claude-authored input.
 
 Sources: v6.9 canonical screens (sections 2, 4-8), roadmap sections 3-5, 8 and
 13, `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md` (Shells And Navigation, Shared
-Presentation Substrate, Domain Reuse Boundary), `.ai/FEATURE_MAP.md`,
-`tasks/README.md`, the T027-T036 task files, T025h (on its branch), CODE_STATE
-T011A/T012/T026, and the backlog items carried from T026.
+Presentation Substrate, Presentation Honesty, Domain Reuse Boundary),
+`.ai/DECISIONS.md` (2026-09-13 and 2026-09-17 navigation entries),
+`.ai/FEATURE_MAP.md`, `tasks/README.md`, the T027-T036 task files, T025h (on
+its branch), CODE_STATE T011A/T012/T026, and the backlog items carried from
+T026.
 
-**Built state these proposals start from.** A is accepted. Lab cockpit
-L1a-L1c are built. Template v3 and T026's dispatch evidence are merged. That
-evidence (capability signals, policy and override records, one gap, one held
+**Built state these proposals start from.** A is accepted. Lab cockpit L1a-L1c
+are built. Template v3 and T026's dispatch evidence are merged. That evidence
+(capability signals, policy and override records, one gap, one held
 publication) is **staged, never committed**. The operator shell has two
 navigation items (`Operator home`, `Sites`). A Site has two tab destinations
 (Overview showing identity only, and Foundation) and six tabs labelled in
-place. There are no Findings, Financials, Actions or accepted history yet, so
-**every client-visible surface the demo needs is still ahead of us**. That is
-why sequencing now has more effect on demo value than anything else.
+place; Foundation's `Readiness` subtab is also labelled in place. There are no
+Findings, Financials, Actions or accepted history yet, so **every
+client-visible surface the demo needs is still ahead of us**. That is why
+sequencing now has more effect on demo value than anything else.
 
 ---
 
 ## 1. Executive Recommendation
 
-**Navigation philosophy (owner's wording): "Preserve v6.9's grammar unless the
-demo/product reasoning reveals a genuine ownership problem."** Grow it by demo
-value. The v6.9 end-state is the reference, not something that can never
-change. Global
-Financials is the first probable exception (its content overlaps Portfolio
-Value & Operations); it stays out of the demo rail and its place stays an open
-owner decision. Otherwise the ten root object classes, the eight Site tabs, the "at most one subtab row"
-invariant and the scoped-index rule (v6.9 sections 2.1-2.4) are sound. They
-already separate the canonical object, the menu item, the contextual tab and
-the drill-down, which is what the request asks for. What they lack is an
-order of prominence. This recommendation supplies that order and, apart from the
-flagged exception, nothing else about the model.
+**Navigation philosophy.** The owner's principle: **"Preserve v6.9's grammar
+unless the demo/product reasoning reveals a genuine ownership problem."** v6.9
+is the reference, not a frozen end-state. Its ten root classes, its grouped
+menu, its eight Site tabs, the "at most one subtab row" invariant and the
+scoped-index rule (v6.9 sections 2.1-2.4) already separate the canonical
+object, the menu item, the contextual tab and the drill-down. What they lack is
+an order of prominence, and this recommendation supplies it.
 
-The project's own rule already decides when a navigation item may appear: only
-once a truthful surface exists behind it. So the client never sees ten rail
-items. They see the four that carry the story, in the order the story earns
-them.
+"Genuine ownership problem" is given a test so it cannot become a loophole for
+demo preferences (section 2.2): a place keeps its slot only if it owns
+something no other place shows, and an exception must name what is lost by
+removing it and what already duplicates it. Every exception gets a
+`DECISIONS.md` entry. Global Financials is the one candidate so far, and it is
+still open (section 2.5).
 
-**Target rail:** v6.9's grouped menu, unchanged: OPERATE (Portfolio, Sites,
+**One truthfulness rule governs the rail and the tabs.** A navigation item or a
+tab appears only once a truthful surface exists behind it. For tabs this is the
+owner's rule: **"The canonical tab set defines ownership and future placement;
+the rendered tab set contains only meaningful destinations unless absence
+itself communicates something useful."** It is applied **per capability, not
+per site**: once this build has a truthful surface for an aspect, its tab
+renders on every site it applies to, and a site that lacks the evidence shows
+the gap inside the tab. Adopting this retires "labelled in place" in operator
+views, which needs a decision record and an `ARCHITECTURE.md` edit and lands in
+T027 phase 1 (section 2.4).
+
+**Root menu.** Target: v6.9's grouped menu, OPERATE (Portfolio, Sites,
 Assets), INTELLIGENCE (Findings), WORK (Actions, Incidents, Maintenance),
-ASSURANCE (Evidence), BUSINESS (Financials, Reports P1). See the appendix for
-why, and for the one item (global Financials) whose place in it is doubtful.
-
-**Root menu for the client demo:** that grouped menu, filtered to items with a
-truthful destination, in canonical order and under canonical group headers
-(a header appears only over at least one live item). Concretely:
-OPERATE `Portfolio | Sites` (+ `Assets` once Battery health exists),
-INTELLIGENCE `Findings`, WORK `Actions`, and at T036 ASSURANCE `Evidence` if
-the six-site capability matrix has real cross-site gaps. Financials and
-Evidence keep their **site-owned** tabs prominent; the portfolio financial
-roll-up stays Portfolio's value column. Incidents, Maintenance and Reports stay
-canonical but are not demo material. Simulator Lab stays a separate gated
+ASSURANCE (Evidence), BUSINESS (Financials, Reports P1). The client sees it
+filtered to live items, in canonical order, with a group header only over a
+live item: Sites now; Findings from T028; Actions from T034; Portfolio as the
+landing page at Portfolio-lite; Assets at T033; global Evidence at T036 if it
+passes the ownership test. Global Financials, Incidents, Maintenance and
+Reports stay out of the demo rail. Simulator Lab stays a separate gated
 workspace, reached from the utility menu and opened last as proof.
 
-**Site structure:** the canonical set stays eight tabs and defines ownership
-and future placement. The **rendered** tab set holds only tabs with real
-content at each milestone (section 2.2). Give the eight three tiers:
+**Site structure.** The canonical eight tabs define ownership; the rendered set
+grows from three at T027 to eight at T033, always in canonical order. Three
+tiers:
 
 - **Hero tabs:** Overview, Performance (with domain subtabs) and Financials.
-- **Trust tab:** Evidence, which is site-owned claim readiness.
+- **Trust tab:** Evidence, site-owned: source health and coverage from T027,
+  claim readiness from T028.
 - **Supporting tabs:** Foundation (with Changes as the record of an
-  intervention), Findings and Work (scoped indexes), and Health (only once
+  intervention), Findings and Work (scoped indexes), and Health (once
   lifecycle evidence exists).
 
-**Domain-pack recommendation:** introduce one **`DomainPresentationProfile`**.
-It is static data, written for mini-grid only, and owns presentation only:
-
-- the Overview assessment domains;
-- the Performance views (subtabs);
-- the health emphasis (which assets Health foregrounds);
-- labels and vocabulary;
-- consequence presentation.
-
-Backend and domain modules stay authoritative for which Findings exist, what
-evidence an analytic requires, and what verification rules exist. The profile
-may reference those capabilities, never own them (section 4.3). Shared
-machinery reads the profile through the existing substrate extension slots.
-Cold-chain and e-mobility are tested against it on paper (section 4), not in
-code. This is not a pack framework.
+**Domain seam.** One static **`DomainPresentationProfile`** per archetype,
+mini-grid only for now. It is substrate data keyed by the Site's `site_type`,
+and it owns presentation only: overview domains, performance views, health
+emphasis, labels and vocabulary, consequence presentation. Backend and domain
+modules stay authoritative for which Findings exist, what evidence an analytic
+requires, what verification rules exist, and the consequence categories. The
+profile references backend capabilities through a named contract born in T028,
+the **analytic capability declaration** (section 4.3). Cold-chain and
+e-mobility are tested on paper, not in code. This is not a pack framework.
 
 **Major sequencing recommendations:**
 
 1. Keep the spine: T027 -> T028 -> T029 -> T029A -> T034.
-2. Rescope the UI outcome of each spine slice so that it lands a canonical
-   surface. For example, T027's evidence inspector becomes Site > Evidence
-   (source records and coverage only; claim readiness follows at T028+)
-   rather than a one-off panel.
-3. Add a **thin Portfolio command center right after T034**, over the sites
-   whose stories already exist. This moves the opening screen of the final demo
-   forward from last to fifth.
-4. After that, add each further story (opportunity, fuel, service, battery) as
-   one Site that joins the Portfolio, so every slice changes the opening screen.
-   The order is priority intent (opportunity before fuel if dependency cost is low;
-   service before battery unless feedback says otherwise), set
-   exactly by the Planner (section 6.3).
-5. Move T025h off the path, to after T029, and leave its pending ruling until
-   then. It is developer ergonomics that a client never sees.
-6. Fold a reproducible demo seed into T029, so demo point 2 can be repeated
-   rather than staged by hand.
+2. Rescope each spine slice so it lands a canonical surface: Site > Evidence
+   and the Overview frame at T027; Dispatch, Finding detail and the Findings
+   root at T028; Site Financials at T029; Action, Verification and Foundation >
+   Changes at T034.
+3. **Protect demo point 2** (T028-T029, the expert checkpoint that reshapes
+   everything after it). Anything not on its journey can move to a thin
+   follow-on slice. Phase T027 and T028.
+4. Add a **Portfolio-lite slice right after T034**, sized as a real slice, so
+   the strong product demo opens the way the final one does.
+5. After that, add each further story as one Site that joins the Portfolio.
+   The order is the owner's priority intent (opportunity before fuel if
+   dependency cost is low; service before battery unless feedback says
+   otherwise), set exactly by the Planner after a dependency check.
+6. **Every demo point ships with an idempotent, rehearsed seed**, owned by the
+   slice that creates the point.
+7. Park T025h until after T029. It is developer ergonomics a client never sees.
 
 ---
 
@@ -152,39 +127,38 @@ code. This is not a pack framework.
 ### 2.1 Proposed client-facing tree
 
 The tag after each item says when it becomes a truthful destination. Items
-marked "not demo" stay canonical and may arrive later. They are not removed
-from the model.
-
-The rail uses v6.9's group headers (OPERATE, INTELLIGENCE, WORK, ASSURANCE,
-BUSINESS) in canonical order. A header renders only over at least one live
-item, and headers appear once two groups are populated (T028). The tree below
-lists items in rail order; the group is shown in brackets.
+marked "not demo" stay canonical and may arrive later; they are not removed
+from the model. Site tabs are listed in v6.9's canonical order (`Overview |
+Foundation | Health | Performance | Findings | Work | Financials | Evidence`,
+v6.9 line 464); new tabs insert in that order, so a returning audience finds
+earlier tabs where they left them.
 
 ```
 OPERATOR SHELL (left rail; grouped; highlights the root object's class)
 |
 |-- [OPERATE] Portfolio .. root; landing page        [Portfolio-lite, after T034]
 |     lenses: Attention | Opportunities | Evidence gaps (filters, not tabs)
-|     the value column is the Financials roll-up; the evidence-gap column is the Evidence roll-up
+|     value column = the cross-site financial roll-up
+|     evidence-gap column = the cross-site Evidence roll-up (until T036)
 |
-|-- [OPERATE] Sites ...... root; index               [built; gains Assessment /
-|     |                                               Top issue / Evidence /
-|     |                                               Last analysed at T027-T028]
+|-- [OPERATE] Sites ...... root; index               [built; assessment columns
+|     |                                               at T027-T028 or follow-on]
 |     `-- Site (root object)
 |           Overview ........ HERO, site-owned        [T027]
+|           Foundation ...... supporting, site-owned  [built; Changes at T034]
+|           |   Definition | Topology | Controls (+ Changes at T034)
+|           |   (Readiness not rendered; claim readiness lives on Evidence)
+|           Health .......... supporting              [T033]
 |           Performance ..... HERO, site-owned        [T028: Dispatch]
 |           |   mini-grid: Dispatch | Service | Renewable | Fuel | Backup
-|           |   (subtab appears only when it has content)
+|           |   (each subtab appears when its analytic exists in the build)
+|           Findings ........ scoped index            [T028]
+|           Work ............ scoped index            [T034: Actions, no subtab row]
 |           Financials ...... HERO, site-owned        [T029]
 |           |   Overview | Assumptions (later: Drivers | Scenarios)
-|           Evidence ........ TRUST, site-owned       [T027: source records + coverage]
-|           |   source records, coverage, timestamps, mapping basis (T027)
-|           |   + capability readiness and claim ceilings (T028+)
-|           Findings ........ scoped index            [T028]
-|           Work ............ scoped index            [T034: Actions only]
-|           Foundation ...... supporting, site-owned  [built; Changes at T034]
-|           |   Definition | Topology | Controls | Changes | Readiness
-|           Health .......... supporting              [T033; not rendered until then]
+|           Evidence ........ TRUST, site-owned       [T027: source health + coverage]
+|               + capability readiness table above it (T028+)
+|               record inspector = drill-down from a source or signal row
 |
 |-- [OPERATE] Assets ..... root; thin index          [T033, first Asset Detail]
 |     `-- Asset: Battery > Health (others when evidenced)
@@ -199,149 +173,267 @@ OPERATOR SHELL (left rail; grouped; highlights the root object's class)
 |-- [WORK] Actions ....... root; global index        [T034]
 |     `-- Action (root object)
 |           canonical: Overview | Plan | Execution | Evidence | Verification | History
-|           rendered at T034: Overview | Verification (others as they get content)
+|           rendered at T034: Overview | Verification (others when they have content)
 |
-|-- [WORK] Incidents, Maintenance                    [not demo; canonical, arrive with a pilot]
-|-- [ASSURANCE] Evidence . portfolio roll-up          [T036, if the cross-site gap matrix has content]
-|-- [BUSINESS] Financials  portfolio roll-up          [not demo; Portfolio's value column covers it]
-|-- [BUSINESS] Reports ... P1                         [not demo; canonical, deferred]
+|-- [WORK] Incidents, Maintenance                    [not demo; arrive with a pilot]
+|-- [ASSURANCE] Evidence . cross-site roll-up         [T036, if it passes the ownership test]
+|-- [BUSINESS] Financials  cross-site roll-up         [open owner question; not demo]
+|-- [BUSINESS] Reports ... P1                         [not demo; deferred]
 
 UTILITY MENU
 `-- Open Simulator Lab -> SIMULATOR LAB WORKSPACE (separate shell, gated)
-      Home | Sites | Simulator Lab | Scenarios | Site Templates | Runs ...
       run cockpit, stage inspector, truth vs AssetOps evidence (proof only)
 ```
 
-`Operator home` is a placeholder from T002. It should go once Sites becomes
-the landing page (T027). Sites then hands the landing to Portfolio when
-Portfolio-lite ships. Until then Sites is the first screen, which is why the
-assessment columns matter: with them the first screen asks "which site needs
-attention, and how sure are we?". Without them it is a list of names.
+`Operator home` is a T002 placeholder. It goes when Sites becomes the landing
+page, and Sites hands the landing to Portfolio when Portfolio-lite ships.
+While Sites is the first screen, its assessment columns are what make it ask
+"which site needs attention, and how sure are we?" instead of listing names.
+Their timing is a point-2 protection question (section 6.2).
 
-### 2.2 The five kinds of place, and why each concept sits where it does
+**Root rail by milestone:**
+
+| Milestone | Client rail |
+| --- | --- |
+| T027 | Sites (one item, no header) |
+| T028-T029A | OPERATE: Sites; INTELLIGENCE: Findings |
+| T034 | OPERATE: Sites; INTELLIGENCE: Findings; WORK: Actions |
+| Portfolio-lite onward | OPERATE: Portfolio, Sites; INTELLIGENCE: Findings; WORK: Actions |
+| T033 | OPERATE gains Assets after Sites |
+| T036 | ASSURANCE: Evidence joins if it passes the ownership test |
+
+Headers start at T028, because "INTELLIGENCE: Findings" is the first moment the
+rail can state the product's category. Several groups hold one item for a long
+time (OPERATE over Sites, INTELLIGENCE over Findings); the layout check should
+cover a one-item group so the header does not look heavy.
+
+**Why the grouped menu is the right target.** Its headers read as the
+product's causal chain: Operate -> Intelligence -> Work -> Assurance ->
+Business follows v6.9's backbone (evidence -> finding -> action ->
+verification -> financial impact). A flat list of ten nouns reads as modules;
+the grouped list reads as a loop from operations to money. INTELLIGENCE and
+ASSURANCE name the two things a SCADA view or CMMS lacks. Each later class
+already has a fixed home, so adding one never moves what a client learned. And
+v6.9 2.3's rule that Site > Work mirrors the WORK group only makes sense if the
+group is visible.
+
+**Why the demo shows it filtered.** Seven of the ten items have no surface yet,
+and four (Incidents, Maintenance, global Financials, Reports) have none planned
+before T036. A WORK group showing `Actions | Incidents | Maintenance` reads as
+a CMMS, and an empty Incidents page in front of a client is the fastest way to
+make it one. A BUSINESS group over a thin Financials page would undersell the
+money story, which lives on Site > Financials and the Finding panel, where its
+causal basis is visible.
+
+### 2.2 The five kinds of place, and the ownership test
 
 | Kind | Members | Rule |
 | --- | --- | --- |
 | Root navigation | OPERATE: Portfolio, Sites, (Assets); INTELLIGENCE: Findings; WORK: Actions; (ASSURANCE: Evidence at T036) | A class the user manages across sites, or reaches as a decision object. It appears only when its root object has a real detail page, under its canonical group header, in canonical order. |
-| Contextual tabs | Site's eight; Finding's five; Action's six (canonical sets) | Aspects of one root object. **Owner's rule: "The canonical tab set defines ownership and future placement; the rendered tab set contains only meaningful destinations unless absence itself communicates something useful."** No "labelled in place" or disabled placeholders in client-facing views. The one sparing exception is named in 2.4. |
-| Scoped indexes | Site > Findings, Site > Work | A filter over a global class, with no KPI strip and no status model of its own. Clicking a row changes the root. v6.9 2.3's test: remove the tab and lose nothing except a filter. |
+| Contextual tabs | Site's eight; Finding's five; Action's six (canonical sets) | Aspects of one root object. The canonical set defines ownership and future placement; the rendered set holds only meaningful destinations, decided per capability (2.4). |
+| Scoped indexes | Site > Findings, Site > Work | A filter over a global class, with no KPI strip and no status model of its own. Clicking a row changes the root. |
 | First-class detail roots | Finding, Action, Asset (Incident, Maintenance later) | Starting work on one of these changes the root and the rail highlight. The breadcrumb keeps the Site so Back is predictable. |
 | Technical workspace | Simulator Lab | A separate shell behind the gate. In the demo it is proof, never navigation. |
 
-How each concept the request names is placed:
+**The ownership test for grammar exceptions.** v6.9 2.3 already tests site
+tabs with "remove the tab and lose nothing except a filter". Generalised:
+
+- a place in the grammar keeps its slot only if it **owns** something that no
+  other place shows: objects, a workflow, or site-owned content;
+- a proposed exception must name what would be lost by removing or moving the
+  item, and what currently duplicates it;
+- every exception gets a `DECISIONS.md` entry, and any task that cites v6.9
+  screen text where a decision has overridden it cites that decision too, so
+  v6.9 is not used as an acceptance oracle against an owner ruling.
+
+**How each concept the request names is placed:**
 
 - **Portfolio.** Root, and the landing page once at least three sites have
-  different stories. Its job is prioritisation, not monitoring, so it earns
-  the root.
-- **Sites.** Root. It is the operator's mental anchor and is already built.
-- **Assets.** Root in the OPERATE group, directly after Sites (canonical
-  order), but late, and with a thin index. The navigation invariant
-  needs Assets in the rail once Battery > Health is a root page (v6.9 8.27).
-  A rich asset inventory is deferred under roadmap section 8. Until T033,
-  asset condition lives under Site > Health, which is not rendered until it
-  has content.
-- **Findings.** Root, from T028. A Finding is the product's unit of value, so
-  hiding it inside a Site would make the decision object hard to find. The
-  model v6.9 2.3 describes is right: a global index, plus a scoped Site
-  filter, plus Finding detail as its own root. **Opportunities are a lens on
-  Findings, not a new class**, so the productive-use story needs no new
-  object.
-- **Actions.** Root, from T034. An accepted change, its owner and its
-  verification outlive the Finding view. The pair "Finding resolved" and
-  "Action verified" is the product's closed loop, and each half needs its own
-  place.
-- **Incidents and Maintenance.** Canonical, but not demo material. The first
+  different stories. Its job is prioritisation, not monitoring.
+- **Sites.** Root. The operator's anchor; already built.
+- **Assets.** Root in OPERATE after Sites, but late and with a thin index. The
+  navigation invariant needs Assets in the rail once Battery > Health is a root
+  page (v6.9 8.27). A rich inventory is deferred (roadmap section 8). Until
+  T033, asset condition has no rendered surface.
+- **Findings.** Root from T028. A Finding is the product's unit of value;
+  hiding it inside a Site would bury the decision object. The model is v6.9
+  2.3's: a global index, a scoped Site filter, and Finding detail as its own
+  root. **Opportunities are a lens on Findings, not a new class.**
+- **Actions.** Root from T034. An accepted change, its owner and its
+  verification outlive the Finding view. "Finding resolved" and "Action
+  verified" are the two halves of the closed loop, and each needs its place.
+- **Incidents and Maintenance.** Canonical, not demo material. The first
   verification story is a policy change, which is an Action. T035's backup
-  failure can stand as a Finding without an incident subsystem: T035's spec
-  already rules that subsystem out, and this recommendation agrees.
-  Maintenance is what makes a product feel like a CMMS. It should arrive when
-  a pilot needs work requests, not before.
-- **Evidence.** Primarily **site-owned** (Site > Evidence: which source
-  records were accepted and how good their coverage is from T027; what can be
-  claimed here and what evidence would raise the ceiling from T028), plus the
-  **claim-specific** evidence drawer on every material number. The portfolio
-  roll-up stays a column on Portfolio ("evidence gaps") until the gap matrix
-  across sites has real content. That is expected at T036, when six sites have
-  different claim ceilings (Genda's fuel records, Bahir's backup chain), and
-  global Evidence then joins the rail as the ASSURANCE group's one item. It is
-  the first global roll-up to earn a place, because claim honesty across sites
-  is a differentiator a monitoring dashboard does not have.
+  failure stands as a Finding without an incident subsystem (T035 rules that
+  subsystem out). Maintenance should arrive when a pilot needs work requests.
+- **Evidence.** Primarily **site-owned** (Site > Evidence), plus the
+  **claim-specific** evidence drawer on every material number. The cross-site
+  roll-up is Portfolio's evidence-gap column until T036, when six sites have
+  different claim ceilings (Genda's fuel records, Bahir's backup chain).
+  Global Evidence then joins the rail only if it passes the ownership test
+  explicitly. It should: cross-site instrumentation prioritisation is a
+  decision workflow that creates Actions (v6.9 8.8, 8.35), which nothing else
+  owns.
 - **Financials.** Primarily **site-owned** (Site > Financials, the bridge from
-  technical findings to economics), and quoted on Finding detail and the
-  Overview. The portfolio roll-up is the value column of Portfolio Value &
-  Operations (roadmap section 4). A separate global Financials page stays out
-  of the demo rail: v6.9 2.3 forbids it re-deriving site bridges, so its only
-  content would be the cross-site aggregation Portfolio already shows. It
-  stays canonical; whether it should remain a root at all is an owner question
-  (appendix).
-- **Simulator Lab.** A separate workspace. This is not open: it is settled by
-  `ARCHITECTURE.md` Shells And Navigation and by the 2026-09-13 decisions.
+  technical Findings to money), quoted on Finding detail and the Overview. The
+  cross-site roll-up is Portfolio's value column. Global Financials stays out
+  of the demo rail. Whether it stays a BUSINESS root at all is open (2.5).
+- **Work.** Site > Work is a scoped index mirroring the WORK group (2.4).
+- **Simulator Lab.** A separate workspace. Settled by `ARCHITECTURE.md` Shells
+  And Navigation and the 2026-09-13 decisions.
 
-### 2.3 The Work question
+### 2.3 First-class objects versus scoped views
 
-Site > Work stays a scoped index, but at first with **one** subtab, Actions.
-Showing `Actions | Incidents | Maintenance` with two of them permanently empty
-would make the product read as a ticketing system. The other two subtabs
-appear when their classes have content. This keeps v6.9 2.3's rule that the
-subtab row "mirrors the WORK nav group exactly": the demo WORK group holds
-only Actions, so the mirror holds only Actions.
+| Concept | Global | Contextual | Detail root |
+| --- | --- | --- | --- |
+| Findings | Findings index with lenses (T028) | Site > Findings, a filter (T028) | Finding (T028) |
+| Work | Actions index (T034) | Site > Work, Actions only, no subtab row while WORK has one item | Action (T034) |
+| Evidence | Portfolio evidence-gap column; global Evidence at T036 if earned | Site > Evidence, site-owned content | none; the drawer opens from any claim and never changes root |
+| Financials | Portfolio value column; global page open (2.5) | Site > Financials, site-owned content | none; consequence panel on the Finding |
 
-### 2.4 Rendered tabs, and the one exception
+### 2.4 Rendered tabs: the rule, its scope, and what it retires
 
-The truthfulness rule that governs the rail also governs contextual tabs. Each
-milestone renders only the tabs with real content, for example:
+**The rule (owner's wording):** "The canonical tab set defines ownership and
+future placement; the rendered tab set contains only meaningful destinations
+unless absence itself communicates something useful."
+
+**It is decided per capability, not per site.** "Meaningful destination" means
+this build has a truthful surface for this aspect. It does not mean this site
+has data for it. Deciding per site would make tab bars differ between sites in
+the same Portfolio session (Arsi with a Health tab, Kobo without), and it would
+hide the very tab that should say "we cannot assess battery condition here".
+
+**That is where "absence communicates" belongs.** Once a capability exists in
+the build, its tab renders on every applicable site, and a site without the
+evidence shows the gap inside the tab. In-page gaps (a coverage gap on Site >
+Evidence, a domain card without an assessment) are not an exception to the tab
+rule. They are ordinary claim discipline ("Unknown, never Healthy"; T027's
+"Coverage gap, no fabricated value").
+
+**Applicability is a separate filter from rendering.** Site > Health does not
+apply to a cold room's battery, for example. Applicability comes from the
+presentation profile and the backend capability declaration (4.3), never from
+data presence.
+
+**Rendered Site tabs by milestone** (one canonical inventory filtered by
+capability, never per-milestone lists; shown in canonical order):
+
+| Milestone | Site tabs rendered |
+| --- | --- |
+| T027 | 3: Overview, Foundation, Evidence |
+| T028 | 5: Overview, Foundation, Performance, Findings, Evidence |
+| T029 | 6: + Financials |
+| T034 | 7: + Work |
+| T033 | 8: + Health (between Foundation and Performance) |
+
+Within one demo the set is stable. Growth is visible only to a returning
+audience (expert at point 2, then point 3), and to them it reads as progress,
+which is honest. `frontend/src/shell/operatorSiteTabs.tsx` already keeps one
+inventory, so this is a change to its filter, not its structure.
+
+**Other contextual tab sets:**
 
 - Finding detail at T028: Overview | Evidence | Alternatives. Recommendation
   and History appear at T034.
-- Site at T027: Overview, Evidence, Foundation. Performance and Findings
-  arrive at T028, Financials at T029, Work at T034, Health at T033.
-- Action at T034: Overview | Verification; Plan, Execution, Evidence and
-  History appear as they get content.
+- Action at T034: Overview | Verification. Plan, Execution, Evidence and
+  History appear when they have content.
+- Foundation: Definition | Topology | Controls, plus Changes at T034.
+  Readiness is not rendered: configuration readiness has no source contract,
+  and claim readiness lands on Site > Evidence only, so the same readiness
+  statement never appears in two places.
+- **Site > Work:** while the WORK group holds only Actions, Site > Work renders
+  the Actions index with **no subtab row**. The row appears when a second WORK
+  class goes live. This still satisfies v6.9 2.3's "mirrors the WORK nav group
+  exactly" and the "at most one subtab row" invariant; a row with one entry is
+  noise.
 
-**Named exception, used sparingly ("unless absence itself communicates
-something useful"):** inside Site > Evidence (as a coverage gap in the source
-records at T027) and on the Overview domain cards, a source or domain with no
-accepted evidence is shown as an explicit gap (Unknown, with the missing
-evidence named), because that absence is itself the useful statement. This is a
-gap inside a rendered page, not an empty tab. No tab is kept as an empty
-placeholder.
+**What this retires, and where it lands.** "Labelled in place" is one of the
+three Presentation Honesty treatments in `.ai/ARCHITECTURE.md`. The 2026-09-13
+decision adopted it from v6.9's own "Warranty (P1)" usage, and the 2026-09-17
+Site-tab decision applied it to six Site tabs and Foundation > Readiness.
+`tools/checks/navigation-truthfulness.ps1` enforces it, and
+`operatorSiteTabs.tsx` (with `FOUNDATION_SUBTABS` and its tests) ships it.
+The owner's rule is the better rule, but without a record an Implementer
+following `ARCHITECTURE.md` and a Reviewer running the check would both rule
+against it. So:
+
+- **Planner step 0:** a `DECISIONS.md` entry and an `ARCHITECTURE.md`
+  Presentation Honesty edit. **Recommended form: "labelled in place" is not
+  used in operator views**; the other two treatments (not rendered; disabled
+  with a stated reason) stand unchanged. Whether to narrow it like this or
+  retire it everywhere is the owner's call (section 9).
+- **T027 phase 1:** remove the six Site labels and the Readiness label, change
+  the filter, and update the check and its tests. It is small, and T027 makes
+  Evidence a destination anyway.
+
+### 2.5 Global Financials: still open
+
+**Recommendation, not a decision:** treat the cross-site financial roll-up as
+part of Portfolio for now, and promote it to a BUSINESS root only when a
+portfolio-owned financial object exists. Decide after T036; it is on no demo
+path.
+
+Under the ownership test, a global Financials root owns, on today's content,
+only aggregation: v6.9 8.9 gives it cross-site consequence lines by
+non-overlapping category, each clicking through to Site Financials or a
+Finding, and "the global page never re-derives site bridges". Portfolio Value
+& Operations already carries that as its value column.
+
+**What would make it pass:** a portfolio-owned financial object. The most
+likely one is a shared assumption set: a realistic operator has one diesel
+contract across sites. If BusinessContext becomes portfolio-shared, with its
+own versions and effective times, a global Financials root owns it. Budgets or
+exportable financial reports would do the same. **T029 decides BusinessContext
+scope** (its spec does not say per site or portfolio-wide). Site-scoped is
+recommended, because the live price change on Site > Financials > Assumptions
+is the point-2 demo moment; "shared or portfolio assumption sets" is recorded
+as the trigger to revisit this question.
+
+| Option | Cost |
+| --- | --- |
+| BUSINESS root (v6.9 as written) | No grammar change. One more page whose only content duplicates Portfolio's value column, so two surfaces must apply identical non-overlap and basis rules, with consistency tests between them. A BUSINESS group with one weak item (Reports is P1). Clients see a "finance module" that adds nothing. |
+| Portfolio view or section | A recorded deviation from v6.9 (DECISIONS entry, note on the canonical reference). It cannot be a lens on Portfolio's subtab row (v6.1 keeps that row to interpretation lenses), so it is a view or section. A finance persona loses an obvious menu entry. Promoting it later is a route and navigation move, cheap if the view has a stable address from the start. |
 
 ---
 
 ## 3. Page Hierarchy And Content
 
-Each page below has a role, the decision it helps the user make, and an
-information hierarchy (what comes first, what supports it, where it leads).
-Widget-level layout belongs to v6.9 section 8 and the Planner, not here.
+Each page has a role, the decision it helps the user make, and an information
+hierarchy. Widget-level layout belongs to v6.9 section 8 and the Planner.
 
 ### Portfolio Value & Operations (the opening screen)
 
 - **Decision:** where management attention and capital go first.
 - **Hierarchy:**
-  1. One sentence of scope: window, number of sites, mode (SIMULATED stated
-     as provenance).
-  2. **Ranked Findings across sites.** Each row shows the site, the bounded
-     claim, a value or consequence carrying its basis (measured, modelled or
-     scenario), confidence, and the action state. The value can be an OPEX,
-     service, asset or opportunity figure, each kept separate.
-  3. Three short lenses: attention, opportunities, evidence gaps.
+  1. One sentence of scope: window, number of sites, mode (SIMULATED stated as
+     provenance).
+  2. **Ranked Findings across sites.** Each row: site, bounded claim, a value
+     or consequence with its basis (measured, modelled or scenario),
+     confidence, action state. OPEX, service, asset and opportunity figures
+     stay separate.
+  3. Three lenses: attention, opportunities, evidence gaps.
   4. "What changed": verified, reopened, or closed without proof.
-- **What makes it intelligence rather than a dashboard:** the ranking unit is
-  a *Finding with its consequence*, not a site's alarm count. No figure is
-  totalled across consequence types, and a site that is healthy because its
-  evidence is adequate is visibly different from a site we cannot assess.
+- **Intelligence, not dashboard:** the ranking unit is a Finding with its
+  consequence, not a site's alarm count. No figure is totalled across
+  consequence types, and a site that is healthy on adequate evidence is
+  visibly different from a site we cannot assess.
 - **Leads to:** a Finding (root changes), or a Site.
 
-### Site Overview (mini-grid: "Is this site meeting its operating objective, and what matters now?")
+### Site Overview ("Is this site meeting its operating objective, and what matters now?")
 
 - **Decision:** which aspect of this site to open.
 - **Hierarchy:**
   1. The objective strip: site assessment, service delivered, confidence.
-  2. **One assessment card per domain**, taken from the presentation profile. For
-     mini-grid these are Service, Dispatch, Battery, Fuel and Renewable. Each
-     shows an assessment word plus a one-line reason, or Unknown with the
-     missing evidence named. Before T028 no card claims an assessment; cards
-     show measured metrics and their coverage (T027 AC11).
+  2. **One assessment card per domain.** The profile decides which cards exist
+     and their order (mini-grid: Service, Dispatch, Battery, Fuel, Renewable).
+     The **state** on each card is backend output, never the profile's.
+     - **At T027, no analytic exists:** cards show measured metrics, their
+       coverage, and a neutral **"No assessment yet"**.
+     - **From T028:** a card whose analytic exists shows an assessment word and
+       a one-line reason.
+     - **"Unknown"** is reserved for an assessment that exists but cannot
+       conclude, or a site with no data in the window (v6.9 8.2), with the
+       missing evidence named.
   3. The **selected-day energy timeline** (demand, PV, generator, SOC) as
      context, not as a status source.
   4. Top Findings, each linking to the Performance subtab that produced it.
@@ -354,13 +446,13 @@ Widget-level layout belongs to v6.9 section 8 and the Planner, not here.
 - **Dispatch.** Decision: was the generator needed? A timeline of intervals
   classified Necessary, Candidate avoidable or Indeterminate (grey). Selecting
   an interval shows the binding constraint or the missing evidence, then leads
-  to its Finding. This is the page where a domain expert decides whether the
-  product understands their site, so it must show policy, reserve and
-  capability at the interval's own time.
-- **Renewable.** Decision: is there capacity being wasted that could be
-  used? Recurring headroom windows after demand, reserve, storage and policy
-  are checked. From an opportunity, "Evaluate intervention" opens the paired
-  comparison (T032) as a drill-down. It is not a tab.
+  to its Finding. This is where a domain expert decides whether the product
+  understands their site, so it shows policy, reserve and capability at the
+  interval's own time.
+- **Renewable.** Decision: is capacity being wasted that could be used?
+  Recurring headroom windows after demand, reserve, storage and policy are
+  checked. "Evaluate intervention" opens the paired comparison (T032) as a
+  drill-down, not a tab.
 - **Fuel, Service and Backup** follow v6.9 8.20-8.24 when their slices land.
   Fuel shows an unexplained residual with uncertainty and never an
   accusation. Service shows unserved energy and coverage. Backup shows the
@@ -369,98 +461,110 @@ Widget-level layout belongs to v6.9 section 8 and the Planner, not here.
 ### Finding Detail (the trust-defining page)
 
 - **Decision:** do I believe this, and what would I do about it?
-- **Hierarchy (Overview tab):**
+- **Overview tab hierarchy:**
   1. The bounded claim in one sentence.
-  2. Observed facts kept separate from inference.
+  2. Observed facts, kept separate from inference.
   3. Confidence and its basis, kept separate from coverage.
   4. The claim ceiling ("13 min capability gap limits this").
-  5. The consequence, as a technical quantity first and money second.
+  5. The consequence: technical quantity first, money second.
   6. The next step.
-- **Other tabs:**
-  - Evidence: a claim-by-claim list that opens the drawer.
-  - Alternatives: the competing explanations and why each was ruled out or
-    left open.
-  - Recommendation (T034): the change and its declared success criterion.
-  - History (T034): assessment revisions, verification and reopening.
-  - Recommendation and History are not rendered before T034.
+- **Other tabs:** Evidence (claim-by-claim list that opens the drawer);
+  Alternatives (competing explanations, and why each was ruled out or left
+  open); Recommendation and History from T034 (the change and its declared
+  success criterion; assessment revisions, verification and reopening).
 
 ### Financial Consequence (Finding panel plus Site > Financials)
 
 - **Decision:** does this matter enough to act on, under *our* assumptions?
-- **Hierarchy:**
-  1. Technical quantity (runtime hours, litres range).
-  2. Assumptions in use (versioned fuel price, maintenance accrual).
-  3. Money range, with its basis and a window or extrapolation label.
-  4. A link back to the source Finding.
-- **The demo moment:** change the price and the money moves, while physics
-  and confidence stay where they are.
-- **What the page carries no status for:** financial pages hold no
-  assessment (v6.9 8.36).
+- **Hierarchy:** technical quantity (runtime hours, litres range); assumptions
+  in use (versioned fuel price, maintenance accrual); money range with basis
+  and a window or extrapolation label; link back to the source Finding.
+- **The demo moment:** change the price and the money moves, while physics and
+  confidence stay where they are.
+- Financial pages carry no assessment status (v6.9 8.36).
 
 ### Productive-Use Opportunity (Renewable plus the paired comparison)
 
 - **Decision:** is it worth trialling a productive load in that window?
-- **Hierarchy:**
-  1. The physical headroom: when it occurs, how much, how often it recurs, and
-     what constrains it.
-  2. The candidate load (owner's choice, roadmap 12.2).
-  3. Baseline against intervention: PV use, curtailment, diesel, energy served,
-     and revenue labelled as scenario.
-  4. Explicit limit: market demand is not established.
+- **Hierarchy:** the physical headroom (when, how much, how often, what
+  constrains it); the candidate load (owner's choice, roadmap 12.2); baseline
+  against intervention (PV use, curtailment, diesel, energy served, revenue
+  labelled as scenario); the explicit limit that market demand is not
+  established.
 
 ### Asset Lifecycle / Health
 
-- **Site > Health** answers whether any asset is on a harmful trajectory. It
-  shows two separate blocks, physical condition and source health, and a
-  gateway being Online never stands in for a battery being Healthy.
-- **Battery > Health** (Asset root) shows current evidenced state, stress
-  recurrence against a reference band, and the bounded replacement exposure.
-  It never gives a failure date.
+- **Site > Health:** is any asset on a harmful trajectory? Two separate blocks,
+  physical condition and source health. A gateway being Online never stands in
+  for a battery being Healthy.
+- **Battery > Health** (Asset root): current evidenced state, stress
+  recurrence against a reference band, bounded replacement exposure. Never a
+  failure date.
 
 ### Action / Verification (the closed-loop differentiator)
 
 - **Decision:** did the change work without unacceptable side effects?
 - **Hierarchy:**
-  1. The managed-object header: owner, due, state, source Finding, success
+  1. Managed-object header: owner, due, state, source Finding, success
      criterion.
-  2. The **declared target and guardrails, shown together.**
-  3. The before window against the post-action window, with comparability
-     limits.
-  4. The outcome: Verified, Ineffective or Inconclusive, with reasons.
+  2. **Declared target and guardrails, shown together.**
+  3. Before window against post-action window, with comparability limits.
+  4. Outcome: Verified, Ineffective or Inconclusive, with reasons.
   5. What happened to the Finding: resolved, or kept open.
 - **Wording:** "Completed" and "Verified" are visibly different words. That
   difference is the CMMS contrast the demo makes.
-- **Composition:** the same policy change also appears on Foundation >
-  Changes, as an auditable record of what changed in the world and when.
+- **Composition:** the accepted change also appears on Foundation > Changes as
+  the record of the product decision. In a simulated site the world's actual
+  change is evidenced by post-action configuration evidence through the normal
+  path (T034 AC4); Changes links to that evidence and does not stand in for it.
 
-### Evidence (Site > Evidence plus the claim drawer)
+### Evidence (Site > Evidence, the record inspector, and the claim drawer)
 
-- **Site > Evidence** holds two different things (owner's framing), shipped in
-  two steps:
-  - **A. "what records have been accepted and their quality/coverage"**
-    - **T027:** source records, coverage, timestamps (all three: source,
-      publication, receipt), mapping/config basis. It makes no claim about
-      what AssetOps can conclude.
-  - **B. "what claims AssetOps can make given those records"**
-    - **T028+:** capability readiness, claim ceilings, missing evidence for
-      specific analytic claims (plus the next-best evidence). Full, Limited
-      or None by capability is the eventual form of this, and is not shown
-      before a real analytic claim exists for it to qualify. T027 must not
-      "pretend it already knows rich claim readiness before a real claim
-      exists."
-- **The drawer** answers why a particular number is true. It shows the window,
-  the evidence references, coverage, configuration at the time, and the
-  mapping and algorithm versions. Opening it never changes the root.
+Site > Evidence holds two different things, in the owner's words:
+
+- **A. "what records have been accepted and their quality/coverage".**
+- **B. "what claims AssetOps can make given those records".**
+
+**At T027 (A only), the tab body is v6.9 8.35's lower section:** source and
+connector health per source (data quality, not asset health), per-signal
+coverage for the selected window, and the mapping and configuration basis.
+Coverage here names the signals the Overview metrics need, not signals an
+analytic requires, because no analytic exists yet. It makes no claim about
+what AssetOps can conclude.
+
+**The record inspector is a drill-down, not the tab body.** It opens from a
+source or signal row and from the Overview metrics' evidence links (T027
+AC11), and shows source, device, signal, mapping or config version, quality,
+original and normalised values and the three timestamps (source, publication,
+receipt; T027 AC12). Opening it does not change the root. Because it is not
+the tab body, T028 never displaces it, T028's claim drawer reuses it, and
+T030 AC17's "separate source-record inspector" for delivery and hand-dip
+records has a stable home to extend.
+
+**From T028 (B), a capability table is added above the source-health
+section:** capability readiness, the claim ceiling and the missing evidence
+for each analytic claim. It is the backend's analytic capability declaration
+(4.3) scored against accepted coverage, so it has exactly one row per analytic
+that exists: at T028, one row (dispatch). Full, Limited or None is its form,
+and nothing in it appears before a real analytic claim exists for it to
+qualify. T027 must not "pretend it already knows rich claim readiness before a
+real claim exists" (owner).
+
+**The drawer** answers why a particular number is true: window, evidence
+references, coverage, configuration at the time, mapping and algorithm
+versions. "The drawer is claim-specific lineage; the Evidence page is
+capability readiness" (v6.9 8.37). Opening it never changes the root.
+
+The page therefore grows in the shape v6.9 already drew, and nothing moves.
 
 ### Simulator Proof (Lab, last)
 
 - **Decision:** is the analytic inferring, or reading a script?
-- **Hierarchy:**
-  1. Private physical truth beside what was reported.
-  2. The staged envelopes, then the committed ones.
-  3. Truth against the product's conclusion, by run, window and evidence
-     reference, including one case where the claim was limited.
-- **What this shows the client:** the simulator was not the source of the
+- **Hierarchy:** private physical truth beside what was reported; staged
+  envelopes, then committed ones; truth against the product's conclusion by
+  run, window and evidence reference, including one case where the claim was
+  limited.
+- **What it shows the client:** the simulator was not the source of the
   answer.
 
 ---
@@ -469,15 +573,20 @@ Widget-level layout belongs to v6.9 section 8 and the Planner, not here.
 
 ### 4.1 What is common and what changes
 
-| Common shell (never branches on domain) | Changes by domain (presentation-profile content, plus backend capabilities the profile references) |
-| --- | --- |
-| Root navigation, Site tab set, subtab-row invariant | The **list** of Performance subtabs and their order |
-| Finding, Action and Verification objects; status vocabulary; claim discipline | Which Finding types exist and what each may claim (**backend-owned**; the profile only labels and orders them) |
-| Evidence drawer, capability coverage, the three timestamps | The evidence capabilities a domain's claims need (**backend-owned**; the profile may reference them) |
-| Financial bridge (quantity x versioned assumption; no overlapping totals) | Consequence categories (fuel, energy, service, product exposure, asset) |
-| Site Overview frame (objective strip, assessment cards, timeline, top Findings) | The objective sentence, the assessment domains and the timeline series |
-| Health frame (physical condition kept apart from source health) | Which assets are emphasised |
-| Verification frame (target plus guardrails, comparable windows) | Target and guardrail templates per intervention type (**backend-owned** rules; the profile presents them) |
+| Common shell (never branches on domain) | Changes by domain | Owner of the change |
+| --- | --- | --- |
+| Root navigation, Site tab set, subtab-row invariant | List and order of Performance subtabs | Profile |
+| Finding, Action, Verification objects; status vocabulary; claim discipline | Which Finding types exist and what each may claim | **Backend** (profile labels and orders them) |
+| Evidence drawer, record inspector, capability coverage, the three timestamps | Evidence a domain's claims need | **Backend** (profile may reference) |
+| Financial bridge (quantity x versioned assumption; no overlapping totals) | Consequence categories (fuel, energy, service, product exposure, asset) | **Backend**, with the financial model; profile owns their presentation |
+| Site Overview frame (objective strip, cards, timeline, top Findings) | Objective sentence, which domain cards exist and their order, timeline series | Profile (card **state** is backend) |
+| Health frame (physical condition apart from source health) | Which assets are emphasised | Profile |
+| Verification frame (target plus guardrails, comparable windows) | Target and guardrail rules per intervention type | **Backend** (T034's versioned rule set); profile presents them |
+
+Consequence categories are backend-owned because the no-double-counting rule
+depends on them: v6.9 says "only non-overlapping categories aggregate", and
+T030 AC13 forbids counting modelled generator use as both dispatch consequence
+and fuel loss.
 
 ### 4.2 Mini-grid and cold-chain side by side
 
@@ -492,72 +601,98 @@ Widget-level layout belongs to v6.9 section 8 and the Planner, not here.
 | Evidence needs | PV capability, BMS capability, policy and override records, tank and delivery records | Chamber and ambient temperatures, door and loading records, compressor state, grid and transfer state |
 | Intervention -> verification | Policy change -> runtime down with reserve and service guardrails | Defrost or setpoint change, or a compressor repair -> recovery time back in band, with an energy guardrail |
 
-These read as different products to an operator even though the screens are
-built from the same frames. That is the right outcome. Relabelling one domain's
-cards to fit the other would not get there, because the Overview domains, the
-subtabs and the consequence types all differ.
+These read as different products to an operator, built from the same frames.
+Relabelling one domain's cards would not get there, because the Overview
+domains, the subtabs and the consequence types all differ.
 
-**E-mobility as a third test:**
+**E-mobility as a third test:** objective, charging sessions served at an
+acceptable energy cost; Performance subtabs Sessions, Availability, Energy
+cost (Swap/Battery pool); Findings such as missed sessions, demand-charge
+exposure, charger availability. The profile holds the presentation; Finding,
+evidence and verification rules live in backend modules. A session log or swap
+queue cannot live in the profile: those are **extension-slot screens**, which
+the substrate already allows. That is the expected edge of the seam, not a
+reason to make it more generic.
 
-- Objective: charging sessions served at an acceptable energy cost.
-- Performance subtabs: Sessions, Availability, Energy cost, (Swap/Battery
-  pool).
-- Typical Findings: missed sessions, demand-charge exposure, charger
-  availability.
-- The presentation profile holds the presentation of all this; the Finding, evidence and verification rules live in backend modules.
+### 4.3 The seam: a presentation profile plus a backend capability declaration
 
-One thing the profile cannot hold is a session log or swap queue. Those
-are **extension-slot screens**, which the substrate already allows. That is
-the expected edge of the seam, not a reason to make it more generic.
+**`DomainPresentationProfile`** (one per archetype, mini-grid only now). It is
+**static presentation data**, and it **owns only** (owner's boundary):
 
-### 4.3 The seam: a presentation profile, not a pack framework
-
-**Recommended:** one `DomainPresentationProfile` per archetype, holding
-**static presentation data** and selected by the Site's archetype (which the
-template already records). It **owns only**:
-
-- the Overview assessment domains;
-- the Performance views (subtab list and order);
-- the health emphasis (which assets Health foregrounds);
+- overview domains (which cards exist, and their order);
+- performance views (subtab list and order);
+- health emphasis;
 - labels and vocabulary;
 - consequence presentation.
 
-The shared frames iterate over it.
+**Placement.** The profile is **substrate data**, selected from the read
+model's `site_type`. `ARCHITECTURE.md` (Shared Presentation Substrate) says
+vocabulary "live[s] in the substrate and nowhere else" and that the substrate
+carries no shell, mode or variant discriminant. So the profile is not a shell
+module or a separate pack package, and **`site_type` is domain data, not a
+shell or mode discriminant**. A Reviewer seeing `profileFor(site.siteType)`
+should read it as data selection, not a variant branch.
 
-**What it does not own (owner's boundary).** Backend and domain modules remain
-authoritative about:
-
-- what findings actually exist;
-- what evidence an analytic requires;
-- what verification rules exist.
-
+**What it does not own.** Backend and domain modules remain authoritative
+about "what findings actually exist", "what evidence an analytic requires" and
+"what verification rules exist" (owner), and about consequence categories.
 "The descriptor can reference those capabilities, but shouldn't become the
-canonical source for them." So Finding types, evidence capabilities and
-verification templates, which the earlier draft placed in the descriptor, move
-out of it. The profile may *reference* them by name, for example to label a
-Finding type or order a card.
+canonical source for them." The failure this prevents, in the owner's words:
+"frontend pack says this Finding exists / backend analytic says something
+different".
 
-**The failure this prevents (owner's words):** "frontend pack says this Finding
-exists / backend analytic says something different". The client would see a
-claim AssetOps cannot make. With the seam as stated, a profile entry that
-references a capability the backend does not provide renders nothing, or
-renders the explicit gap in 2.4, and never an invented Finding.
+**The contract it references: the analytic capability declaration (born in
+T028).** Nothing in the code owns Finding types, evidence requirements or
+verification rules yet: `backend/assetops_backend` has `sites`, `runs`,
+`scenarios` and the two APIs, and no evidence, analytic, finding or
+verification module. The seam is born in two places: T028 (the first
+analytic, Finding type and evidence requirement) and T034 (the first
+verification rule set; T034 AC6 "Version these rules with the assessment").
+
+Each analytic module declares:
+
+- its id and the site types it applies to;
+- the Finding type it may emit;
+- its required and optional evidence (signals or capabilities);
+- its claim levels (for dispatch: Necessary, Candidate avoidable,
+  Indeterminate).
+
+The backend serves the evaluated, site-scoped version as a read model. The
+precedent for rigour is the simulator's model-profile pattern (required versus
+optional input, unsupported recorded, enforced by a `tools/checks` guard). The
+product side copies that rigour, **not its data**: `EXECUTION_REQUIREMENTS` in
+`backend/assetops_backend/runs/profiles.py` describes what the simulator can
+model, and product analytics may not read private or simulator flows (T031 AC2;
+`ARCHITECTURE.md`).
+
+The profile then holds only `id -> label / order / grouping / emphasis`, under
+three rules:
+
+1. A backend id the profile does not know **still renders**, with the
+   backend's display name in a default position. Drift is never silent.
+2. A profile id the backend does not serve **renders nothing**, and a test
+   flags the orphan.
+3. **A gap is shown only from backend state**, never from the profile. A gap
+   is honest only when the backend says "this capability exists for this site
+   and its evidence is insufficient".
+
+The same declaration is what Site > Evidence part B scores against coverage,
+and what decides tab and subtab applicability (2.4). That is why the domain
+seam and the Evidence split converge on T028.
 
 **Not recommended now:** registration, plugin loading, a cross-domain
-assessment interface, or a cold-chain implementation. Roadmap section 8 and
-`ARCHITECTURE.md`'s Domain Reuse Boundary already defer them, and nothing in
-the demo needs them.
+assessment interface, a cold-chain implementation. Roadmap section 8 and the
+Domain Reuse Boundary defer them, and nothing in the demo needs them.
 
-**Cost and timing:** write the mini-grid profile the first time a second
-Overview card or second Performance subtab appears (T027/T028), so that card
-and subtab lists are never hard-coded inside shared frames. This is a code
-placement rule, not a task.
+**Timing:** write the mini-grid profile the first time a second Overview card
+or second Performance subtab appears (T027/T028), so card and subtab lists are
+never hard-coded in shared frames. That is a code placement rule, not a task.
 
 ---
 
 ## 5. Client-Facing Demo Journey
 
-### 5.1 The recommended full journey (polished, about 15 minutes)
+### 5.1 The full journey (polished, about 15 minutes)
 
 | # | Screen | Client question | Role |
 | --- | --- | --- | --- |
@@ -567,35 +702,43 @@ placement rule, not a task.
 | 4 | Finding detail + evidence drawer | Why are you saying this, and what limits the claim? | **Hero** (trust) |
 | 5 | Finding consequence -> Site Financials | Does it matter? Change the price live. | Supporting |
 | 6 | Recommendation -> Action -> Foundation > Changes | What do we change? | Supporting |
-| 7 | Action > Verification | Did it work, without hurting service or reserve? | **Hero** (differentiator) |
+| 7 | Action > Verification ("two weeks later", pre-seeded) | Did it work, without hurting service or reserve? | **Hero** (differentiator) |
 | 8 | Portfolio -> Desta > Renewable -> comparison | Where could we earn or use more? | Supporting (breadth: growth) |
 | 9 | Arsi > Battery > Health | What is becoming expensive before it fails? | Supporting (breadth: asset value) |
 | 10 | Genda > Fuel (optional) | Does fuel reconcile? | Optional (accountability) |
 | 11 | Simulator Lab: truth vs inference | How do we know this is not scripted? | **Technical proof** |
 
-**One deliberate change from roadmap section 5:** the Kobo intervention and
-its verification (steps 6-7) follow Kobo's money directly, instead of coming
-after Desta and Arsi. One unbroken story (detect, explain, monetise,
-intervene, verify) is the product promise. Breadth then shows that the same
-loop covers growth and asset value. Splitting Kobo's story around two
-breadth detours weakens the claim the demo exists to make. This is an owner
-decision (section 8, D3).
+**Kobo runs uninterrupted.** Detect, explain, monetise, intervene and verify
+(steps 2-7) follow each other directly, and breadth comes after. This changes
+roadmap section 5, which put Desta and Arsi between Kobo's money and its
+verification. One unbroken story is the product promise; breadth then shows
+the same loop covers growth and asset value.
+
+**The live mechanics of step 7.** T034's outcome is "simulate the later
+operating window and ingest the new evidence", so between Accept and
+Verification a later window must exist. Running it live would be a Lab detour
+mid-story, contradicting "Lab last, as proof". So the post-action window is
+**already in accepted history from the seed** ("two weeks later"), and the Lab
+appears only at step 11.
 
 ### 5.2 The journey at each earlier demo point
 
-| Demo point | Journey | What it must persuade |
-| --- | --- | --- |
-| Internal (T027) | Lab run -> stage -> Commit -> Sites -> Kobo Overview -> Evidence tab (source records and coverage) -> Lab off, history stays | That the product boundary is real |
-| Expert / early prospect (T028-T029) | Sites -> Kobo Overview -> Dispatch -> Finding -> drawer -> Financials (change price) | "Is this real in your operation, and would you trust it?" (roadmap 13.2) |
-| Strong product (T034 + Portfolio-lite) | Portfolio (three sites) -> Kobo -> Finding -> money -> Action -> Verification -> Lab proof | The closed loop, opened the way the final demo opens |
-| Polished (T036) | The full section 5.1 journey | All six stories |
+| Demo point | Journey | What it must persuade | Seed owned by |
+| --- | --- | --- | --- |
+| Internal (T027) | Lab run -> stage -> Commit -> Sites -> Kobo Overview -> Evidence (source health, coverage, record drill-down) -> Lab off, history stays | That the product boundary is real | (live run; no seed needed) |
+| Expert / early prospect (T028-T029) | Sites -> Kobo Overview -> Dispatch -> Finding -> drawer -> Financials (change price) | "Is this real in your operation, and would you trust it?" (roadmap 13.2) | T029 |
+| Strong product (T034 + Portfolio-lite) | Portfolio (three sites) -> Kobo -> Finding -> money -> Action -> Verification -> Lab proof | The closed loop, opened the way the final demo opens | T034 (post-action window), Portfolio-lite (three sites) |
+| Polished (T036) | The full 5.1 journey | All six stories | T036 |
+
+**Seed rule:** each demo point ships with an idempotent, rehearsed seed, owned
+by the slice that creates the point, checked with the Lab gate off. Today only
+T036 has reproducible recipes and documented demo commands (T036 AC1, AC15);
+without this rule point 2 and point 3 would be staged by hand.
 
 ### 5.3 What is not early-demo material
 
-The following stay as they are and are not shown to clients early:
-
-- Sites index detail, Foundation Definition and Topology, the Site Findings
-  and Work scoped indexes, and Runs inventory;
+- Sites index detail, Foundation Definition and Topology, the Site Findings and
+  Work scoped indexes, Runs inventory;
 - Lab setup, the picker, run history, and the cockpit beyond the final reveal;
 - Incidents, Maintenance and Reports.
 
@@ -603,146 +746,215 @@ The following stay as they are and are not shown to clients early:
 
 ## 6. Implementation And Task Impact
 
-### 6.1 Stay as they are (position and outcome)
+Per task: **keep**, **rescope** (same position, different UI or content
+outcome), **move**, **new** or **defer**, with the client capability it
+unlocks. **[Planner verifies]** marks a claim the Planner checks against the
+task files before relying on it.
 
-- **T029A, before T034.** This is the minimal immutable-intervention
-  mechanism. It is Lab-side and enables the verification story.
+### 6.0 Planner step 0 (records, before T027 starts)
+
+- `DECISIONS.md` entries: the ownership test for grammar exceptions (2.2);
+  the rendered-tab rule, per capability, and the narrowing or retirement of
+  "labelled in place" in operator views (2.4); the presentation profile and
+  analytic capability declaration seam (4.3); the seed rule (5.2); the
+  owner's D1-D8 dispositions.
+- `ARCHITECTURE.md`: the Presentation Honesty edit (2.4), and a note in Shared
+  Presentation Substrate that the profile is substrate data keyed by
+  `site_type` (4.3).
+- Update `tasks/README.md` and the roadmap's demo story (5.1) and demo-point
+  table (5.2), adding Portfolio-lite.
+- Run the post-T034 dependency check (6.3) and set the exact order.
+- Tasks citing v6.9 text that these decisions override cite the decision too.
+
+### 6.1 Keep
+
+- **T029A, before T034.** Minimal immutable-intervention mechanism, Lab-side.
+  Unlocks nothing visible on its own; it is what makes step 7 possible.
 - **T026A** stays unscheduled and gates nothing.
-- **T034's position** directly after T029A. Its UI outcome is sharpened in
-  6.2.
-- The **demo-point table** in `tasks/README.md`, extended by Portfolio-lite
-  (6.4).
+- **T034's position** directly after T029A (outcome rescoped in 6.2).
+- **T033 and T035 as an interchangeable pair.** `tasks/README.md` and both
+  task files already say so, and neither consumes the other.
 
-### 6.2 Same position, UI and content outcome changes
+### 6.2 Rescope (same position)
 
-- **T027, Commit -> ingestion -> Site Overview.** Keep every acceptance
-  criterion, because this is a protected seam. Change what the screen
-  delivers:
-  - (a) The evidence inspector lands as **Site > Evidence**, a tab
-    destination for part (A) only: accepted source records with three
-    timestamps, coverage, and the mapping and configuration basis. It does
-    **not** show Full/Limited/None by capability or any claim ceiling, because
-    no real analytic claim exists yet.
-  - (b) The Overview is built in the v6.9 8.18 frame, with domain cards from
-    the mini-grid presentation profile. Cards show measured metrics and coverage, and
-    Unknown wherever no assessment exists.
-  - (c) The Sites index gains Last analysed and Evidence coverage, and
-    becomes the landing page in place of `Operator home`.
+**Protecting point 2.** Every spine slice gains UI from this recommendation,
+and `tasks/README.md` already says T027 is "watched for scope growth". Point 2
+(T028-T029) is the expert checkpoint where feedback reshapes everything after
+it, so the Planner protects its journey (Sites -> Kobo Overview -> Dispatch ->
+Finding -> drawer -> Financials). Anything not on it can move to a thin
+follow-on slice placed after T029. **First candidates: the Sites assessment
+columns and the Sites-as-landing change**, which the point-2 journey does not
+need (the presenter can open Sites from the rail). The Planner decides;
+section 9 asks the owner to confirm the principle.
 
-  Planner note: T027 is large. Phase it as (1) Commit, ingestion and the
-  Evidence tab (demonstrable: "Lab off, history stays"), then (2) the Overview
-  composition and the Sites columns. Each phase ends in something visible.
-- **T028, the dispatch Finding.**
-  - **Site > Evidence gains part (B):** capability readiness, claim ceilings
-    and missing evidence for the dispatch claim, now that a real analytic
-    claim exists. Further capabilities are added as later analytics land.
-  - Performance becomes a destination with a **Dispatch** subtab only.
-  - **Findings** enters the rail with its global index.
-  - Finding detail renders **Overview | Evidence | Alternatives**.
-    Recommendation and History are not rendered until T034.
-  - Site > Findings becomes a scoped index.
-  - The Overview's Dispatch card shows a real assessment.
-  - The Sites index gains Assessment and Top issue.
-
-  The carried question about whether stop-60's policy change appears as a
-  policy record stays with T028.
-- **T029, bounded financials.**
-  - **Site > Financials** becomes a destination with Overview and Assumptions
-    subtabs. Assumptions are editable in the UI, because changing the price
-    live is the demo moment.
+- **T027, Commit -> ingestion -> Site Overview. Rescope and phase.** Keep
+  every acceptance criterion: this is a protected seam.
+  - **Phase 1: Commit, ingestion, Site > Evidence (A), tab rule.**
+    - Site > Evidence becomes a destination. Its body is source and connector
+      health per source, per-signal coverage for the selected window, and the
+      mapping and configuration basis. No capability readiness, no claim
+      ceiling.
+    - The record inspector (AC12) is a drill-down from source and signal rows.
+    - Remove the six labelled-in-place Site tabs and Foundation's Readiness
+      label; filter the one inventory by capability; update
+      `navigation-truthfulness.ps1` and the tab tests (after step 0's record).
+    - **AC10 clarification [Planner verifies the wording]:** "required
+      signals" means the signals the Overview metrics need, not signals an
+      analytic requires.
+    - *Client capability:* a site's history is real; accepted records, three
+      timestamps, mapping basis and coverage survive the Lab being off.
+  - **Phase 2: the mini-grid Site Overview.** The v6.9 8.18 frame, cards from
+    the profile, measured metrics with coverage and **"No assessment yet"**,
+    the selected-day timeline, evidence links into the record inspector
+    (AC11).
+    - *Client capability:* a site page that answers "how is it operating?"
+      from evidence. **Internal architecture demo.**
+  - Sites columns (Last analysed, Evidence coverage) and Sites-as-landing:
+    phase 2 or the thin follow-on, per point-2 protection.
+- **T028, the dispatch Finding. Rescope and phase.** It now lands the
+  analytic, the analytic capability declaration, the Finding, the drawer, the
+  Findings root and global index, the scoped index, Performance > Dispatch,
+  Overview card state and the Evidence capability table. Suggested phases (the
+  Planner sets them):
+  1. The dispatch analytic and the **analytic capability declaration**
+     (backend contract and site-scoped read model, with its `tools/checks`
+     guard), the Finding, and versioned assessment revision (T028 already
+     states "Changed accepted evidence creates an inspectable assessment
+     revision").
+  2. Performance > Dispatch (the only subtab), Finding detail (Overview |
+     Evidence | Alternatives), the drawer reusing the record inspector,
+     **Findings** in the rail with its global index, Site > Findings as a
+     scoped index, the Dispatch card showing a real assessment.
+  3. **Site > Evidence part B:** the capability table with one row
+     (dispatch). Sites columns Assessment and Top issue, unless moved to the
+     follow-on.
+  - The carried question whether stop-60's policy change appears as a policy
+    record stays with T028.
+  - *Client capability:* the first conclusion a practitioner can challenge,
+    with what limits it.
+- **T029, bounded financials. Rescope.**
+  - Site > Financials becomes a destination with Overview and Assumptions
+    subtabs. Assumptions are **editable in the UI**: changing the price live is
+    the demo moment.
   - The Finding's consequence panel and the Overview's value line read the
     same model.
-  - **Add:** a reproducible demo seed for point 2. It loads one Kobo site,
-    commits a healthy window and a prolonged-runtime window, is idempotent,
-    and is checked with the gate off and rehearsed. Today only T036 (AC15)
-    has a seed, so point 2 would be staged by hand.
-- **T034, policy action and verification.**
-  - The Finding's **Recommendation** tab leads to Accept, which creates an
-    **Action** root (Actions enters the rail).
-  - The Action renders Overview and Verification. Plan, Execution, Evidence
-    and History are not rendered until they have content.
-  - The Finding's Recommendation and History tabs appear now.
-  - The accepted change appears on **Foundation > Changes**.
-  - Site > Work becomes a scoped index with Actions only.
-  - The Finding's History shows verification and reopening, and the Findings
-    index gains its "Awaiting verification" lens.
-- **T036, portfolio and client demo.** Rescope it to *completing* a Portfolio
-  that already exists:
-  - add the remaining sites;
-  - add global Evidence (ASSURANCE) if the cross-site gap matrix has real
-    content; keep the financial roll-up as Portfolio's value column;
-  - build the Lab truth-versus-inference reveal;
-  - write and rehearse the walkthrough.
-
-  Its acceptance criteria are otherwise unchanged.
+  - **Decide BusinessContext scope** (site-scoped recommended; record "shared
+    or portfolio assumption sets" as the trigger to revisit global
+    Financials, 2.5).
+  - **Add the point-2 seed:** one Kobo site, a healthy window and a
+    prolonged-runtime window committed, idempotent, checked with the gate
+    off, rehearsed.
+  - *Client capability:* **first highly useful demo**: one site, one strong
+    Finding, its evidence, its money, under the client's own price.
+- **T034, policy action and verification. Rescope.**
+  - The Finding's Recommendation tab leads to Accept, which creates an
+    **Action** root; **Actions** enters the rail (WORK header).
+  - The Action renders Overview and Verification only.
+  - The Finding's Recommendation and History tabs appear; the Findings index
+    gains "Awaiting verification".
+  - **Foundation > Changes** appears, linking to the post-action configuration
+    evidence (T034 AC4) rather than standing in for it.
+  - Site > Work renders the Actions index with no subtab row.
+  - The verification rule set is versioned and backend-owned (T034 AC6, AC7);
+    the profile only presents it.
+  - **Add the point-3 seed:** Kobo's post-action window already in accepted
+    history.
+  - *Client capability:* detect, explain, monetise, intervene, verify;
+    Completed visibly distinct from Verified.
+- **T036, portfolio and client demo. Rescope** to completing a Portfolio that
+  already exists: add the remaining sites; add global Evidence (ASSURANCE)
+  only if it passes the ownership test explicitly; keep the financial roll-up
+  as Portfolio's value column; build the Lab truth-versus-inference reveal;
+  write and rehearse the walkthrough. Its other acceptance criteria are
+  unchanged, minus AC1's Meki recipe and AC4-AC6, which Portfolio-lite pulls
+  forward. *Client capability:* **polished client demo.**
 
 ### 6.3 Move
 
-- **T025h moves later, to after T029** (or into a Lab-ergonomics bucket
-  alongside the delta-latency performance task carried from T025e and T026).
-  - *Why:* it improves run setup for developers; a client never sees it.
-    Template-version drift can be avoided for the demo by having the seed
-    create v3 sites.
-  - *Its pending ruling:* whether the status depends on the whole form or
-    only on (scenario, profile). This can wait until T025h is scheduled. If
-    the owner wants it settled now, the spec's whole-form reading is the
-    honest one: a preview of Create must depend on everything Create reads.
-    Ruling either way costs nothing.
-- **Post-T034 order is priority intent, not a fixed sequence.** Owner's
-  wording: "Priority intent: Opportunity before fuel if dependency cost is low.
-  Service before battery unless feedback says otherwise." The owner approves
-  the priority logic, "but not hard-freeze the exact task order until Planner
-  verifies what T030 actually provides that T031 consumes."
-
-  The exact order is set by the Planner after the dependency check below. For
-  orientation only, today's order is T030 -> T031 -> T032 -> T033 -> T035, and
-  the intent points toward T031/T032 and T035 moving ahead of T030 and T033.
-  - **Why opportunity first.** It is the only story that is not a loss, and it
-    is the most different from dispatch: it turns the client's question from
-    cost to growth. Fuel reconciliation is a second loss story with the same
-    shape as dispatch, so it adds the least new persuasion per slice.
-  - **Why service before battery.** Unserved customers are an operator's first
-    concern, and T033 is already the named first deferral.
-  - *Dependency check the Planner must run before fixing the order:*
-    - What T030 actually provides that T031 consumes. T031's stated T030
-      dependency appears to be ordering only, but this is unverified.
-    - Whether T031 must supply a PV-curtailing world. CODE_STATE T026 records
-      that **no shipped world curtails PV yet**, so T031's headroom story has
-      nothing to find unless it owns one.
-    - If the dependency cost of opportunity-first is high, fuel stays first.
+- **T025h, to after T029** (or a Lab-ergonomics bucket with the delta-latency
+  task carried from T025e and T026). A client never sees it; template-version
+  drift is avoided for the demo by seeding v3 sites. Its pending ruling (does
+  the status depend on the whole form, or only on scenario and profile) waits
+  until it is scheduled. If the owner wants it settled now, the whole-form
+  reading is the honest one: a preview of Create must depend on everything
+  Create reads.
+- **Post-T034 breadth slices: priority intent, order set by the Planner.**
+  Owner: "Priority intent: Opportunity before fuel if dependency cost is low.
+  Service before battery unless feedback says otherwise", "but not
+  hard-freeze the exact task order until Planner verifies what T030 actually
+  provides that T031 consumes."
+  - **Why opportunity first:** it is the only story that is not a loss, and
+    it turns the client's question from cost to growth. Fuel reconciliation is
+    a second loss story shaped like dispatch.
+  - **Why service before battery:** unserved customers are an operator's
+    first concern, and T033 is already the named first deferral.
+  - **Opportunity-first costs two slices, not one.** It means T031 **and**
+    T032 before T030: T031's headroom is a physical quantity with no money,
+    and the growth story the demo wants (Desta's paired comparison with a
+    scenario value) arrives only with T032, the heavier slice. So "dependency
+    cost is low" should be read as "dependency cost is low; slice cost is
+    two". That may still be right, because fuel adds the least new
+    persuasion.
+  - **Dependency check [Planner verifies before fixing the order]:**
+    - T031's header says `Depends on: T027-T030 and A's curtailment/dispatch
+      model` and `Delivery order: after T030`. Its acceptance criteria
+      consume T027 evidence and T028 dispatch inputs (AC3), C's evidence and
+      claim structure (AC7, T028), price and tariff invariance (T029), and a
+      curtailing world that **T031 owns itself** (AC1, AC2). None names a T030
+      artifact; "T027-T030" reads like range shorthand from the old linear
+      queue. T032 depends on T031, T029 and T029A, not T030.
+    - Rule out three possible couplings:
+      - (a) **T030 AC9** (a late record revises an accepted assessment, with
+        history kept). If T030 were the first slice to build assessment
+        revision, T031 AC9 ("deterministic/versioned and avoids duplicate
+        Findings") could rely on it. T028 already states that changed accepted
+        evidence creates an inspectable assessment revision, so no coupling
+        is expected; confirm.
+      - (b) **T030 AC13** (Site Financials without double-counting). T031 adds
+        no money, so none is expected.
+      - (c) **T030 AC2** (extending T026's operational-record family). T031
+        uses no operational records, so none is expected.
+    - No shipped world curtails PV yet (CODE_STATE T026). T031 supplies one
+      (recipe, possibly a new signal, the L2 check): that is slice size, not a
+      dependency.
+    - If a real coupling is found and costly, fuel stays first.
   - Subject throughout to the T028/T029 expert feedback, as
     `tasks/README.md` already requires.
 
 ### 6.4 New
 
-- **Portfolio-lite, directly after T034.**
-  - **What it is:** a thin Portfolio command center becomes the landing page.
-    It ranks Findings with their consequence and basis, and has attention and
-    evidence-gap lenses.
-  - **Which sites:** at least three whose stories exist by then:
-    - Meki, the healthy reference;
-    - Kobo, prolonged runtime and verified;
-    - one evidence-limited site, built from T026's
-      `kobo-mini-grid-degraded-evidence` scenario, so the claim ceiling shows
-      at portfolio level.
-  - **Already planned work it pulls forward:** the priority rule and the
-    no-fake-total rule from T036 AC4-AC6. Each later story slice then adds
-    its site and its lens content to this page.
-  - **Why it is worth adding:** the strong product demo then opens the way
-    the final one does. Every later slice changes the first screen a client
-    sees, instead of all of that arriving at T036.
-- **No other new tasks.** The presentation profile is a placement rule
-  (4.3), and the demo seed is folded into T029.
+- **Portfolio-lite, directly after T034. A real slice; size it honestly.**
+  - **What it is:** a thin Portfolio becomes the landing page and enters the
+    rail (OPERATE header, before Sites). It ranks Findings with consequence
+    and basis, with attention and evidence-gap lenses.
+  - **What it needs:** three reproducible sites with their own seed:
+    - **Meki, healthy:** pulls T036 AC1's Meki recipe forward;
+    - **Kobo, with post-action history:** from T034's seed;
+    - **an evidence-limited site** on which T028's analytic runs and limits
+      its claim, built from T026's `kobo-mini-grid-degraded-evidence`
+      scenario [Planner verifies that the analytic produces a limited claim
+      on it].
+  - **Planned work it pulls forward:** T036 AC4-AC6 (priority rule and
+    no-fake-total rule) [Planner verifies the AC numbers].
+  - **Why:** the strong product demo opens the way the final one does, and
+    every later slice adds its site to the first screen a client sees.
+  - *Client capability:* **strong product demo**, opening on Portfolio.
+- **Thin follow-on slice (conditional):** only if the Planner moves the Sites
+  columns and Sites-as-landing out of T027/T028 to protect point 2. Placed
+  after T029. *Client capability:* the Sites index ranks sites by assessment
+  and evidence until Portfolio-lite takes the landing.
+- **No other new tasks.** The profile is a placement rule (4.3); the seeds are
+  folded into the slices that create each demo point.
 
 ### 6.5 Defer
 
-- **T025h** (see 6.3).
-- **The delta p95 performance task.** Run it before the T036 rehearsal only
-  if the reveal's playback visibly stutters.
+- **T025h** (6.3).
+- **The delta p95 performance task:** run before the T036 rehearsal only if
+  the reveal's playback visibly stutters.
 - **L3 cockpit enrichment** (C7-C9), until after T036.
 - **Replay mode** and a broad source-health dashboard.
-- **Global Financials and Reports pages.** Global Evidence is deferred to
-  T036, not past it.
+- **Global Financials** (open, 2.5) and **Reports**. Global Evidence is a T036
+  candidate, not deferred past it.
 - **Incidents and Maintenance** indexes and subtabs.
 - **Asset Warranty**, and any asset inventory beyond the battery.
 - **Cold-chain and e-mobility** implementation, and any pack registry.
@@ -754,240 +966,160 @@ The following stay as they are and are not shown to clients early:
 
 | Step | Slice | What the client can newly see |
 | --- | --- | --- |
-| 0 | Owner dispositions recorded (top of document); Planner updates queue and roadmap, and runs the T030/T031 dependency check; T025h parked | (none) |
-| 1 | T027 phase 1: Commit, ingestion, **Site > Evidence (source records and coverage only)** | A site's history is real: accepted records, three timestamps, mapping basis and coverage that survive the Lab being off. No capability readiness or claim ceilings yet |
-| 2 | T027 phase 2: **Mini-grid Site Overview** + Sites columns + Sites as landing | A site page that answers "how is it operating?" from evidence. **Internal architecture demo.** |
-| 3 | T028: **Dispatch -> Finding -> evidence drawer**, Findings in the rail, **Site > Evidence gains capability readiness and claim ceilings** | The first conclusion a practitioner can challenge, with what limits it. Finding renders Overview, Evidence, Alternatives |
-| 4 | T029: **Site Financials** with live assumptions + demo seed | **First highly useful demo** (expert and early prospect): one site, one strong Finding, its evidence, its money. *Feedback checkpoint; reassess steps 8-11.* |
-| 5 | T029A: frozen intervention (Lab) | Technical: a policy change alters the simulated world from a declared time |
-| 6 | T034: **Recommendation -> Action -> Foundation Changes -> Verification**, Actions in the rail; Finding gains Recommendation and History tabs | Detect, explain, monetise, intervene, verify |
-| 7 | **Portfolio-lite** (new) | **Strong product demo**, opening on the Portfolio: three sites, a ranked Finding with its value, an evidence-limited site, a verified action |
-| 8-11 | **Priority intent, order set by the Planner:** opportunity (T031 -> T032: Desta headroom, Opportunities lens, paired comparison) before fuel (T030: Genda reconciliation) if dependency cost is low; service (T035: Bahir service and backup failure) before battery (T033: Arsi trajectory, Health tab and Assets) unless feedback says otherwise | Growth: unused renewable capacity and a trial load. Accountability: a residual with uncertainty. Reliability: unserved energy and a backup chain with missing links. Asset value: stress trajectory and bounded replacement exposure |
-| 12 | T036 (rescoped): six sites complete, global Evidence (ASSURANCE) if earned, Lab truth-vs-inference reveal, rehearsal | **Polished client demo** |
+| 0 | Planner step 0 (6.0): records, queue, roadmap, dependency check; T025h parked | (none) |
+| 1 | T027 phase 1: Commit, ingestion, **Site > Evidence (source health and coverage)**, record inspector drill-down, labelled-in-place tabs removed | A site's history is real: accepted records, three timestamps, mapping basis and coverage that survive the Lab being off. Three Site tabs, all real |
+| 2 | T027 phase 2: **mini-grid Site Overview** ("No assessment yet" cards with measured metrics and coverage) | A site page that answers "how is it operating?" from evidence. **Internal architecture demo** |
+| 3 | T028 (phased): **Dispatch -> Finding -> evidence drawer**, Findings in the rail, analytic capability declaration, **Site > Evidence capability table (one row)** | The first conclusion a practitioner can challenge, with what limits it |
+| 4 | T029: **Site Financials** with live assumptions, BusinessContext scope decided, **point-2 seed** | **First highly useful demo** (expert and early prospect): one site, one strong Finding, its evidence, its money. *Feedback checkpoint; reassess steps 9-12* |
+| 5 | Thin follow-on (if moved): Sites assessment columns, Sites as landing | The first screen ranks sites by assessment and evidence |
+| 6 | T029A: frozen intervention (Lab) | Technical: a policy change alters the simulated world from a declared time |
+| 7 | T034: **Recommendation -> Action -> Foundation > Changes -> Verification**, Actions in the rail, **point-3 seed** | Detect, explain, monetise, intervene, verify; Verified distinct from Completed |
+| 8 | **Portfolio-lite** (new), with its three-site seed | **Strong product demo**, opening on Portfolio: three sites, a ranked Finding with its value, an evidence-limited site, a verified action |
+| 9-12 | **Priority intent, order set by the Planner after the 6.3 check:** opportunity (T031 -> T032: Desta headroom, Opportunities lens, paired comparison) before fuel (T030: Genda reconciliation) if dependency cost is low; service (T035: Bahir service and backup failure) before battery (T033: Arsi trajectory, Health tab, Assets root) unless feedback says otherwise | Growth: unused renewable capacity and a trial load. Accountability: a residual with uncertainty. Reliability: unserved energy and a backup chain with missing links. Asset value: stress trajectory and bounded replacement exposure |
+| 13 | T036 (rescoped): six sites complete, global Evidence if it passes the ownership test, Lab truth-vs-inference reveal, rehearsal | **Polished client demo** |
 
-Steps 8-11 are four slices in a Planner-set order. Each adds a site, which appears on the Portfolio as it lands, so
-each one is demonstrable as a new opening-screen story and not only as a deep
-page.
+Each of steps 9-12 adds a site that appears on the Portfolio as it lands, so
+each is demonstrable as a new opening-screen story, not only as a deep page.
+Step 6 (T029A) is the one technical step, accepted because it directly enables
+step 7.
 
 ---
 
-## 8. Decisions For The Owner
+## 8. Decisions
 
-Only decisions that change navigation ownership, domain structure, the demo
-story or sequencing. Each carries the owner's disposition of 2026-10-02.
+### 8.1 The owner's dispositions, 2026-10-02 (verbatim)
 
-- **D1. Root navigation growth: ACCEPTED**, "but don't promise the full v6.9
-  end-state can never change." The v6.9 end-state is the reference, not
-  frozen.
-  - **Target:** v6.9's grouped rail: OPERATE, INTELLIGENCE, WORK, ASSURANCE,
-    BUSINESS. It is preserved unless demo or product reasoning reveals a
-    genuine ownership problem.
-  - **Demo rail:** that grouped menu filtered to live destinations, in
-    canonical order, with a group header only over a live item and headers
-    shown from T028. Findings (INTELLIGENCE) joins at T028, Actions (WORK) at
-    T034, Portfolio (OPERATE) becomes the landing page at Portfolio-lite,
-    Assets (OPERATE, after Sites) at T033, and global Evidence (ASSURANCE) at
-    T036 if the cross-site gap matrix has content. Global Financials,
-    Incidents, Maintenance and Reports stay out of the demo rail; no BUSINESS
-    header appears in the demo.
-  - **Rendered tabs follow the same truthfulness rule** (2.2, 2.4): canonical
-    tab sets define ownership; rendered tabs are only meaningful destinations.
-  - **Still open:** whether global Financials stays a BUSINESS root or becomes
-    a Portfolio lens. It is the first probable exception to v6.9's grammar
-    (content overlaps Portfolio Value & Operations). Not needed for any demo
-    milestone; can wait for pilot feedback.
-- **D2. Portfolio-lite after T034, T036 rescoped to completing it: STRONG
-  ACCEPT.** It needs one extra site (Meki, the healthy reference) before the
-  other stories exist.
-- **D3. Demo story order: STRONG ACCEPT.** Kobo's detect, explain, monetise,
-  intervene and verify run uninterrupted; opportunity and lifecycle follow as
-  breadth. Roadmap section 5 ordered it the other way.
-- **D4. Post-T034 order: ACCEPTED AS PRIORITY INTENT.** "Opportunity before fuel
-  if dependency cost is low. Service before battery unless feedback says
-  otherwise." The Planner verifies what T030 provides that T031 consumes
-  and whether T031 must supply a PV-curtailing world, then sets the exact
-  order. No fixed sequence is adopted by this document.
-- **D5. Domain seam: ACCEPTED WITH NARROWER AUTHORITY.** A static
-  `DomainPresentationProfile` for mini-grid only, owning overview domains,
-  performance views, health emphasis, labels and vocabulary, and consequence
-  presentation. Backend and domain modules stay authoritative for which
-  Findings exist, evidence requirements and verification rules; the profile
-  may reference them, never source them (4.3). Cold-chain and e-mobility are
-  tested on paper, with no pack framework. Also confirm that **no cold-chain
-  screens are in the polished demo**, so that roadmap section 8 and
-  PRODUCT.md's deferral stand.
-- **D6. T027's UI outcome: ACCEPTED**, with "T027 = source/coverage; analytic
-  claim readiness matures from T028." Site > Evidence is a tab
-  destination and the Sites index replaces `Operator home` as the landing
-  page. T027 ships source records, coverage, timestamps and the mapping and
-  configuration basis (A). Capability readiness, claim ceilings and missing
-  evidence for specific analytic claims (B) arrive from T028, when a real
-  claim exists.
-- **D7. Intervention ownership in navigation: ACCEPTED** ("very coherent"). An accepted policy
-  change appears both as an Action (with verification) and on Foundation >
-  Changes (as the world record). Foundation takes no direct edits: changes
-  arrive only through an accepted Action.
-- **D8. Park T025h: ACCEPTED**, with its pending ruling, until after T029.
+| Decision | Owner feedback |
+| --- | --- |
+| D1 filtered grouped root menu | Accept, but don't promise the full v6.9 end-state can never change |
+| D2 Portfolio-lite after T034 | Strong accept |
+| D3 Kobo detect→verify uninterrupted | Strong accept |
+| D4 opportunity before fuel; service before battery | Accept as priority intent, dependency-check before exact reorder |
+| D5 static mini-grid archetype descriptor | Accept with narrower authority |
+| D6 Site Evidence at T027 | Accept, but T027 = source/coverage; analytic claim readiness matures from T028 |
+| D7 Action + Foundation Changes representation | Accept; very coherent |
+| D8 park T025h | Accept |
+
+Owner's summary: "Adopt the sequencing and product-surface recommendations,
+but loosen unnecessary loyalty to rendered canonical navigation, narrow the
+domain descriptor's authority, and distinguish source-evidence readiness at
+T027 from claim-capability readiness that emerges with analytics at T028+."
+
+### 8.2 How this version carries each
+
+- **D1.** The grouped menu is the target and the reference, not frozen;
+  changes pass the ownership test (2.2) and get a DECISIONS entry. Demo rail
+  filtered to live items, headers from T028 (2.1).
+- **D2.** Portfolio-lite after T034, sized as a real slice with its own
+  three-site seed (6.4); T036 rescoped to completing it.
+- **D3.** Kobo runs detect to verify uninterrupted, with a pre-seeded
+  post-action window so the Lab stays last (5.1).
+- **D4.** Priority intent only; the Planner runs the 6.3 check and sets the
+  order. Opportunity-first moves two slices ahead of fuel.
+- **D5.** The profile owns presentation only, as substrate data keyed by
+  `site_type`; the backend owns Findings, evidence requirements, verification
+  rules and consequence categories through the T028 analytic capability
+  declaration, with the three rendering rules (4.3).
+- **D6.** T027's Evidence body is source health and coverage, the record
+  inspector is a drill-down, Overview cards say "No assessment yet"; claim
+  readiness arrives at T028 as a one-row capability table (section 3,
+  Evidence).
+- **D7.** Action plus Foundation > Changes, with Changes linking to
+  post-action configuration evidence (section 3, Action / Verification).
+- **D8.** T025h parked until after T029, with its pending ruling (6.3).
+
+The owner also called these especially right, and they are kept as they were:
+the Site Overview hierarchy, the Finding Detail hierarchy, Completed versus
+Verified as a visible product concept, and global Financials kept out of the
+demo rail with economics in Site Financials, Finding consequence and
+Portfolio's value column.
+
+---
+
+## 9. For The Owner To Decide Or Confirm
+
+1. **Global Financials (still open).** Recommendation: keep the cross-site
+   roll-up in Portfolio for now and promote it to a BUSINESS root only when a
+   portfolio-owned financial object exists, such as shared assumption sets.
+   Decide after T036 (2.5).
+2. **BusinessContext scope in T029.** Recommendation: site-scoped, with
+   "shared or portfolio assumption sets" recorded as the trigger to revisit
+   item 1. Confirm, or rule portfolio-shared now, which would reopen item 1
+   earlier.
+3. **Your tab rule overturns recorded decisions.** It does not change any of
+   your rulings; it changes the 2026-09-13 and 2026-09-17 entries in
+   `DECISIONS.md`, `ARCHITECTURE.md` Presentation Honesty, a build check and
+   shipped tests. Confirm the form: **recommended, "labelled in place" is not
+   used in operator views** (narrowed), or retired everywhere. Also confirm
+   that it is applied per capability, not per site (2.4).
+4. **Protecting demo point 2.** Confirm the principle that work not on the
+   point-2 journey may move to a thin follow-on after T029, starting with the
+   Sites assessment columns and Sites-as-landing. This changes the T027 and
+   T028 content the earlier D6 proposal described, not your D6 ruling.
+5. **The cost of opportunity-first.** Confirm you read D4's "dependency cost
+   is low" with the stated slice cost: T031 and T032 both move ahead of T030.
+6. **No cold-chain screens in the polished demo.** Confirm, so that roadmap
+   section 8 and PRODUCT.md's deferral stand.
+
+Nothing else in this version changes an owner ruling.
 
 ---
 
 ## Self-Check Against The Request's Quality Bar
 
-1. **Mental models, not features.** Yes. The rail shows the classes a
-   manager uses (where to look, which site, what's wrong, what we did, what
-   we can claim) under v6.9's own group headers. The remaining canonical
-   classes wait for content or a pilot.
-2. **Global versus contextual.** Yes. Section 2.2 places every named concept,
-   and Findings, Financials, Evidence and Work each get an explicit
-   global-versus-site treatment.
-3. **Hierarchy serves the promise.** Yes. Each hero page's first item is a
-   bounded operational or economic claim with its basis, and evidence is
-   always one click away. Site > Evidence never shows a capability verdict
-   before an analytic claim exists (T027 is records and coverage only).
+1. **Mental models, not features.** Yes. The rail shows the classes a manager
+   uses, under v6.9's group headers, filtered to live surfaces. Canonical
+   classes without content wait.
+2. **Global versus contextual.** Yes. Sections 2.2 and 2.3 place every named
+   concept; Findings, Financials, Evidence and Work each have an explicit
+   global, contextual and detail-root treatment.
+3. **Hierarchy serves the promise.** Yes. Each hero page leads with a bounded
+   operational or economic claim and its basis, and evidence is one click
+   away. Site > Evidence never shows claim readiness before an analytic claim
+   exists, and Overview cards say "No assessment yet" until one does.
 4. **Coherent for mini-grid and cold-chain.** Yes. The same frames carry
    different domains, subtabs and consequence presentation (4.2), while
-   Finding, evidence and verification rules stay backend-owned (4.3).
-   E-mobility shows where the seam's edge is.
+   Finding, evidence, verification and consequence rules stay backend-owned
+   behind a named contract (4.3). E-mobility shows the seam's edge.
 5. **Domain differences visible.** Yes. Overview domains, Performance
-   subtabs, consequence types and claim limits differ per domain, and product
+   subtabs, consequence types and claim limits differ per domain; product
    exposure is a chip, not a card.
 6. **Demo value early.** Yes. A canonical client surface lands at every spine
-   step, and Portfolio-lite brings the opening screen forward to step 7.
-7. **Canonical concepts reused.** Yes. There are no new object classes.
-   Opportunities are a lens, the comparison is a drill-down, and the
-   presentation profile is configuration of existing frames. The one candidate
-   amendment to v6.9 (global Financials) is flagged, not made.
+   step, point 2 is protected from scope growth, every demo point has a seed,
+   and Portfolio-lite brings the opening screen forward to step 8.
+7. **Canonical concepts reused.** Yes. No new object classes. Opportunities
+   are a lens, the comparison is a drill-down, the profile configures existing
+   frames. Deviations from v6.9 (the tab rule, Site > Work without a subtab
+   row, the possible global Financials change) pass a stated ownership test
+   and get decision records.
 8. **Low-value purity off the critical path.** Yes. T025h is parked, the
-   performance task deferred, and there is no pack framework or naming work.
-   Ingestion acceptance criteria are kept as protected seams, not polished.
-9. **Each slice demonstrable.** Yes, with one exception: step 5 (T029A) is
-   technical, which is accepted because it directly enables step 6.
+   performance task deferred, no pack framework, and the tab-rule change is a
+   filter change landing inside T027 phase 1. Ingestion acceptance criteria
+   stay as protected seams.
+9. **Each slice demonstrable.** Yes, except T029A (step 6), which is technical
+   and accepted because it directly enables step 7. T027 and T028 phases each
+   end in something visible.
 10. **Intelligence, not monitoring or CMMS.** Yes. Ranking is by
-    consequence-bearing Findings, Verified is kept distinct from Completed,
-    Incidents, Maintenance and Reports are kept out of the demo rail, no
-    group header is shown over empty items, and no empty tab is rendered.
-11. **Truthful surfaces everywhere.** Yes. The rail, the rendered tabs (2.4),
-    Site > Evidence (A before B) and the profile seam (4.3) all follow the same
-    rule: nothing is shown that the backend cannot back.
-12. **Sequencing is intent where evidence is missing.** Yes. Post-T034 order is
-    priority intent pending the Planner's dependency check (6.3, D4).
+    consequence-bearing Findings, Verified is distinct from Completed,
+    Incidents, Maintenance and Reports stay out of the demo rail, no header
+    sits over empty items, no empty tab renders, and nothing is shown that the
+    backend cannot back.
 
 ---
 
-## Appendix: Comparison With A Grouped Root Menu (Owner Question, 2026-10-02)
+## How This Version Was Reached
 
-Produced by Claude as Architect under the same ROLE_CONFIG exception.
+- First draft answering the owner's request, then an appendix comparing a
+  grouped root menu (owner question), folded in at `a28479f`.
+- The owner's verbatim review, with five pushbacks and the D1-D8 rulings:
+  `.agent/owner-review-architect-recommendation-2026-10-02.md`. Applied at
+  `b12ae86`.
+- The Architect's response to that review, agreeing with all five pushbacks
+  and listing six corrections and further material items:
+  `.agent/architect-response-to-owner-review-2026-10-02.md` (`3178d55`,
+  `0884026`).
+- The owner's instruction to produce this final version:
+  `.agent/owner-instruction-final-recommendation-2026-10-02.md` (`e5efd17`).
 
-**The question.** Why not this structure instead of `Portfolio | Sites |
-Findings | Actions (+ Assets)`?
-
-```
-OPERATE       Portfolio | Sites | Assets
-INTELLIGENCE  Findings
-WORK          Actions | Incidents | Maintenance
-ASSURANCE     Evidence
-BUSINESS      Financials (questionable as a root) | Reports (later / P1)
-```
-
-**First, a correction to the body as first written.** This is not an
-alternative to the canonical model. It is the canonical model: v6.9 section 2's
-table uses exactly these five groups, with these members in this order and
-Reports marked P1, and the v6.9 screen mock-ups draw the rail with these
-headers. My recommendation said "keep v6.9's grammar exactly" (since loosened, see
-section 1) but dropped the
-group headers and reordered Assets after Actions without saying so. That was
-an omission, not a deliberate position, and the body is now corrected
-(sections 1, 2.1, 2.2, 2.3, 6.2, 6.5, 7, D1 and the self-check).
-
-So the real question is narrower: (a) is the grouped menu the right target,
-and (b) should the client see the whole of it at every demo milestone?
-
-### A.1 Target product navigation: adopt the grouped menu
-
-Yes. What the grouping gets right:
-
-- **The headers read as the product's causal chain.** Operate -> Intelligence
-  -> Work -> Assurance -> Business follows v6.9's backbone (evidence -> finding
-  -> action -> verification -> financial impact). A flat list of ten nouns
-  reads as modules; the grouped list reads as a loop from operations to money.
-  That is the "operational-economic intelligence" positioning in the menu.
-- **INTELLIGENCE and ASSURANCE name what a monitoring dashboard lacks.**
-  Findings as the unit of value, and Evidence as an explicit statement of what
-  can be claimed, are the two things a SCADA view or a CMMS does not have. A
-  header that names them earns its space.
-- **It scales without reshuffling.** Each later class has a fixed home, so
-  adding Incidents or Reports never moves anything the client already learned.
-- **It anchors v6.9 2.3's mirror rule.** Site > Work's subtab row mirrors the
-  WORK group, which only makes sense if the group is visible.
-
-Where I would still question it, as an owner decision and not a change made
-here:
-
-- **Global Financials as a BUSINESS root.** I agree with the owner's question
-  mark. v6.9 2.3 bars the global page from re-deriving site bridges, so its
-  content is cross-site aggregation and value drivers, which is what Portfolio
-  Value & Operations already ranks by. A root whose whole content is another
-  root's value column is a candidate to become a Portfolio lens. Amending this
-  departs from the v6.9 end-state, which the owner has confirmed is a
-  reference and not frozen, but it is still an owner decision. It is not needed for any demo
-  milestone, so it can wait for pilot feedback.
-- **Reports (P1).** Keep it as P1. Reports have no analytical status of their
-  own (v6.9 section 2); they package what other pages already say, and they
-  matter for a buyer's procurement, not for the demo story.
-
-### A.2 What the client sees at each demo milestone: the filtered grouped menu
-
-The grouped menu is the target, but showing all of it in the demo would
-break two rules this project already holds:
-
-- **A navigation item appears only when a truthful surface exists behind it.**
-  Seven of the ten items have no surface yet, and four (Incidents,
-  Maintenance, global Financials, Reports) have none planned before T036.
-- **The positioning.** A WORK group showing `Actions | Incidents |
-  Maintenance` reads as a CMMS, and an empty Incidents or Maintenance page in
-  front of a client is the fastest way to make it one. A BUSINESS group over a
-  thin Financials page would undersell the money story, which lives on Site >
-  Financials and the Finding panel, where its causal basis is visible.
-
-So the demo shows the grouped menu filtered to live items, in canonical order,
-with a header only over at least one live item:
-
-| Milestone | Client rail |
-| --- | --- |
-| T027 | Sites (no headers; one item) |
-| T028-T029A | OPERATE: Sites; INTELLIGENCE: Findings |
-| T034 | OPERATE: Sites; INTELLIGENCE: Findings; WORK: Actions |
-| Portfolio-lite to T035 | OPERATE: Portfolio, Sites; INTELLIGENCE: Findings; WORK: Actions |
-| T033 | OPERATE gains Assets after Sites |
-| T036 | ASSURANCE: Evidence joins if the six-site gap matrix has content |
-
-Headers start at T028 because "INTELLIGENCE: Findings" is the first moment the
-rail can state the product's category. A header over a single item is a small
-visual cost against that.
-
-### A.3 Item by item
-
-| Item | Group | Target | Demo | Why |
-| --- | --- | --- | --- | --- |
-| Portfolio | OPERATE | Keep | Landing at Portfolio-lite | Prioritisation by consequence, not monitoring |
-| Sites | OPERATE | Keep | From now | The operator's anchor; already built |
-| Assets | OPERATE | Keep | T033, thin, after Sites | Root only once Battery > Health is a real page; order corrected to canonical |
-| Findings | INTELLIGENCE | Keep | T028 | The unit of value; Opportunities are a lens, not a class |
-| Actions | WORK | Keep | T034 | The closed loop: Verified, not just Completed |
-| Incidents | WORK | Keep | Defer | No incident subsystem planned (T035 rules it out); empty page reads as ticketing |
-| Maintenance | WORK | Keep | Defer | Arrives with a pilot's work requests; before that it is what makes a product feel like a CMMS |
-| Evidence (global) | ASSURANCE | Keep | T036, conditional | Cross-site claim ceilings are a differentiator once six sites differ; site-owned Evidence carries it before then |
-| Financials (global) | BUSINESS | Keep, flagged | Defer | Content duplicates Portfolio's value column; owner question whether it stays a root |
-| Reports | BUSINESS | Keep as P1 | Defer | No analytical status of its own; procurement material, not story |
-| Group headers | all | Adopt | Only over live items, from T028 | They state the category; empty groups would contradict it |
-
-### A.4 Net change to the recommendation
-
-Partly changed. Adopted: the grouped menu as the explicit target rail, its
-headers in the demo rail, canonical order (Assets in OPERATE after Sites), and
-global Evidence as a T036 candidate under ASSURANCE rather than an
-undifferentiated "only if needed" roll-up. Unchanged: growth by truthful
-destination, Incidents, Maintenance, global Financials and Reports out of the
-demo, Site > Work with Actions only, Simulator Lab as a separate shell. D1 is
-revised accordingly; D2-D8 were unaffected by the appendix (they were later
-revised by the 2026-10-02 owner review, see the top of the document).
+This version integrates all of those rounds into the body. `git log` on this
+file shows the earlier states.
