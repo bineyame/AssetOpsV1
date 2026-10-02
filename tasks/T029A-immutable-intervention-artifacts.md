@@ -5,7 +5,7 @@ USER_REVIEW_REQUIRED: true
 
 Map: H prerequisite, reused by F.
 Depends on: T025 typed Controls and generator policy, T022 frozen execution.
-Delivery order: after T029; next T034. Only T025 and T022 are technical
+Delivery order: after T029 (and T029B); next T034. Only T025 and T022 are technical
 prerequisites, so the T028 feedback checkpoint may move it.
 Branch: task/T029A-immutable-intervention-artifacts
 Sizing: first intervention write path and world-input boundary.

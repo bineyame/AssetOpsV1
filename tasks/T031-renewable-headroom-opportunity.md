@@ -2,10 +2,17 @@
 
 Status: planned
 USER_REVIEW_REQUIRED: true
+Planner: Claude under the Codex-reset exception (`.ai/ROLE_CONFIG.md`).
 
 Map: F, evidence-backed opportunity before load-addition comparison.
-Depends on: T027-T030 and A's curtailment/dispatch model.
-Delivery order: after T030; next T032 completes F.
+Depends on: T026/T027 evidence and envelope path (AC2, AC3), A's
+curtailment/dispatch physics (AC1, AC3), T028's Finding/evidence/claim
+structure and capability declaration (AC7), T027 Site Overview and profile
+(AC7), T029 price context (Proof's price-invariance check only), T034A
+Portfolio and seed, and the Lab cockpit's PV/load curves. Not T030: the
+Planner's dependency check found no T030 artifact consumed.
+Delivery order: after T034A; next T032 completes F. Opportunity runs before
+fuel at a cost of two slices (T031, T032) ahead of T030 (`tasks/README.md`).
 Branch: task/T031-renewable-headroom-opportunity
 Sizing: bounded opportunity analytic and product composition.
 
@@ -45,6 +52,19 @@ It establishes electrical capacity, not local market demand.
 9. Repeated analysis is deterministic/versioned and avoids duplicate Findings.
 10. T032's evaluation entry appears only when that workflow is implemented;
     this task does not ship a placeholder action.
+11. The headroom analytic joins the capability declaration
+    (`D-2026-10-02-presentation-profile-and-capability-declaration`), which
+    gives it its Site > Evidence capability row, Performance > Renewable and
+    the Renewable Overview card's assessment slot. Opportunities are a lens on
+    Findings, not a new class (`D-2026-10-02-grammar-ownership-test`).
+12. Desta joins the Portfolio: Desta's reproducible recipe and seed
+    (T036 AC1's Desta recipe, pulled forward) under
+    `D-2026-10-02-demo-point-seed-rule`, its own Site through normal
+    ingestion, extending the point-3 seed command. Portfolio's opportunity
+    lens now renders (T034A AC8), and the opportunity Finding stays a
+    separate consequence type, scenario-labelled (T034A AC5). The priority
+    rule gains a new version weighting opportunity, shown on the page
+    (T034A AC4).
 
 ## Proof
 
@@ -60,12 +80,20 @@ Reuse the cockpit's existing PV/load curves to inspect the Lab recipe. If
 criterion 2 adds a reported signal, apply README's L2 history/view/reload
 check; otherwise record that this analytic adds no new cockpit data.
 
-Run relevant simulator/host and analytic/UI tests, shared checks and layout
-evidence on populated and evidence-limited Renewable views.
+Run relevant simulator/host and analytic/UI tests, shared checks and
+`node tools/layout-evidence.mjs` on populated and evidence-limited Renewable
+views and on Portfolio with the opportunity lens. Rail unchanged (OPERATE:
+Portfolio, Sites; INTELLIGENCE: Findings; WORK: Actions); Site tabs unchanged
+at seven, with Performance gaining its Renewable subtab.
+
+*UI check (recommendation 5.1 step 8):* on the seed with Lab off, Portfolio
+shows Desta with its opportunity Finding under the opportunity lens; open it
+to Desta > Performance > Renewable and the Finding's evidence and limits.
 
 ## Scope limits
 
-No immutable interventions or paired runs yet; T032 owns them together.
+No load-addition artifact or paired runs; T029A owns the immutable artifact
+mechanism and T032 adds the load-addition kind and the comparison.
 No demand forecast, market viability score or cold-chain domain model.
 Financial upside remains scenario-based when T032 adds a tariff comparison.
 

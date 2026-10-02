@@ -2,12 +2,15 @@
 
 Status: planned
 USER_REVIEW_REQUIRED: true
+Planner: Claude under the Codex-reset exception (`.ai/ROLE_CONFIG.md`).
 
 Map: E.
-Depends on: T027-T029 and the existing Fuel Loss causal world.
-Delivery order: after T034; next T031. The analytic-breadth group T030-T033
-now follows the first verification story, and the T028 checkpoint may reorder
-it again - see `D-2026-09-24-queue-resequenced-for-demo`.
+Depends on: T027-T029, T034A Portfolio and seed, and the existing Fuel Loss
+causal world.
+Delivery order: after T032; next T035. Opportunity (T031, T032) runs first
+under `D-2026-10-02-demo-led-recommendation`; the Planner's dependency check
+found no T030 artifact consumed by T031/T032 (`tasks/README.md`). Point-2
+feedback may reorder the breadth slices again.
 Branch: task/T030-fuel-records-and-reconciliation
 Sizing: operational-record evidence and fuel analytic.
 
@@ -69,6 +72,18 @@ remains an unexplained residual rather than an accusation.
     show delivery and hand-dip records in the separate source-record inspector
     with occurrence, publication and effective times. A missing record is not
     an absent physical delivery, and the timeline makes no theft inference.
+18. The source-record inspector in AC17 extends T027's Site > Evidence record
+    inspector rather than adding a second one (recommendation section 3
+    Evidence).
+19. The fuel-balance analytic joins the capability declaration
+    (`D-2026-10-02-presentation-profile-and-capability-declaration`), giving
+    it its Site > Evidence capability row, Performance > Fuel and the Fuel
+    Overview card's assessment slot.
+20. Genda joins the Portfolio: Genda's reproducible recipe and seed (T036
+    AC1's Genda recipe, pulled forward) under
+    `D-2026-10-02-demo-point-seed-rule`, its own Site through normal
+    ingestion, extending the point-3 seed command. Its consequence stays a
+    separate type from Kobo's dispatch consequence (T034A AC5).
 
 ## Proof
 
@@ -90,7 +105,13 @@ Then vary records while holding physical movement fixed.
 Include an acceptance fixture where residual is inside uncertainty and one
 where it is materially outside. Neither fixture can assert theft.
 Run simulator/host operational-record tests, ingestion/analytic/frontend tests,
-shared checks and Fuel/Finding layout evidence.
+shared checks and `node tools/layout-evidence.mjs` on Fuel, Finding and
+Portfolio. Rail unchanged; Site tabs unchanged at seven, with Performance
+gaining its Fuel subtab.
+
+*UI check (recommendation 5.1 step 10, optional in the journey):* on the seed
+with Lab off, Portfolio shows Genda's fuel Finding; open Genda > Performance >
+Fuel and the late record's revision with its original provenance.
 
 ## Scope limits
 
