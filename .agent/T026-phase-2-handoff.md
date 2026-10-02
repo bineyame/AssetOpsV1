@@ -111,3 +111,31 @@ document, `FrozenWorldInputs` or any existing reporting-path cause.
   publication time. Reviewer/phase 3 to decide whether the stage should also
   withhold it until release (stage content, AC7/AC10 territory).
 - A run stopped inside a hold window never records its publication row.
+
+## Stage withholding fix
+
+An envelope now appears in the stage only once the run has reached its release.
+Commits: the fix and tests (two commits after `2928e8c`).
+
+- `simulator/assetops_simulator/gateway/publish.py`: `publish(...,
+  reached_offset_minutes=None)` leaves out a publication whose hold has not
+  ended (`_withheld`); the sequence is still spent so a release keeps its final
+  sequence. The one release rule is `_still_held` (window end > reached), used
+  by both `_withheld` and `held_publications` - shared code, not a second copy.
+- `host/lab_execution.py` `_stage` passes the last boundary's offset (0 before
+  any boundary). Contract untouched (still 9); `var/` untouched.
+- Tests in `host/tests/test_t026_history.py`: mid-hold stage read lacks the
+  delayed SOC envelope (240..245), the 250 boundary stages it at 07:10:03Z, a
+  stepped run ends with the same set as a one-shot run; one-shot final stage is
+  329 envelopes with the pre-change repr digest `0774c78e...87d` (captured
+  before the change). Non-vacuous: with the rule disabled the mid-hold
+  assertion fails at offset 240.
+- Surprise: a stepped run's stage ORDER is arrival order, which already differed
+  from a one-shot run's (readings then records) before this change; now the
+  released envelope also arrives at its release. Contents and sequences equal.
+- Measurement (`.agent/T026-stage-measure.py`, profile 5, 8 h, 97 steps): stage
+  write last-10 mean 35.9 ms, max/p95 46.9 ms CPU (was 39-47): not materially
+  changed. Step p95 359 ms, final stage 267177 bytes.
+- Checks: host 590 passed (588 + 2 new), simulator 244 passed (run from
+  `simulator/`; from repo root pytest has a collection conflict), architecture
+  and agent-workflow checks passed.
