@@ -4535,3 +4535,36 @@ reaches new Drafts only.
   that, 3 pre-existing "blocked table" claims fail (run-setup against MG-006 is
   READY, no blocked table) - environment, not T026.
 - No shipped world curtails PV (available == output); T026A owns bias/noise.
+
+## T027 phase 1 - Commit, ingestion and Site > Evidence
+
+Packet `.agent/T027-phase-1-review-packet.md`; handoff `.agent/T027-phase-1-handoff.md`.
+In review (phase 1); phase 2 (Overview, AC11, AC22) not started.
+
+- Commit: a release-eligible stage seals once into `var/commits` (contracts
+  `committed_artifact.py`; `runs/adapters/json_commit_store.py`); a filed artifact
+  is never rewritten, a changed stage is refused, a tampered one reads unreadable.
+  `RUN_COMMIT_ROUTE` exists only when the Lab gate is open.
+- Release goes through the one product ingest (`evidence/service.py`,
+  `ingestion_batch.py`); `received_at` is ingestion's; duplicates idempotent,
+  same id/other content a conflict keeping the original, reused batch id with
+  other content `BATCH_ID_CONFLICT`; an unknown-Site batch is refused, not stored.
+  Store: `var/evidence`, one JSON per Site rewritten per 64-record chunk,
+  single-process lock.
+- Read model `evidence/read_model.py`: accepted content only; coverage over
+  `NEEDED_SIGNALS` keyed by `site_type` (MINIGRID); routes `evidence_api.py`,
+  served gate open or closed. Rebuild from artifact text matches (in-process).
+- UI: Site > Evidence (`sites/SiteEvidence.tsx`; inspector state in
+  `?signal=`/`?source=` + `&record=`; `?batch=` only highlights). Lab
+  `RunCommitPanel.tsx` keeps Commit and release apart; Open in AssetOps ->
+  `/sites/{id}/evidence`.
+- Tabs per `D-2026-10-02-rendered-tabs-per-capability`: Overview|Foundation|Evidence,
+  Definition|Topology|Controls; `/` -> `/sites`; rail Sites only.
+- Checks: evidence dependency rule (`dependency-direction.ps1`), evidence and
+  commit domains (`configuration-persistence.ps1`), navigation-truthfulness
+  messages "not rendered, never disabled, never labelled in place"; all proven
+  by mutation (no Pester tests for navigation-truthfulness).
+- Layout evidence needs T026's isolated method (packet); 3 "blocked table" and
+  the T025e delta-budget claims fail for environment reasons.
+- Open: AC15 rebuild not proven without host/simulator on `sys.path`; the
+  profile-5 run stages no fuel-level envelopes (Fuel NOT_REPORTED).

@@ -85,7 +85,7 @@ Site runs PV, a battery and three addressed loads through a controller, a
 declared-cascade resolver and exact balances, under contract **9**, Option C
 and a reverting reserve override (`D-2026-09-29-t024-option-c-and-reserve-override`).
 Record in `.ai/CODE_STATE.md`. **T025a is complete and merged** (`mini-grid` v1,
-contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T025c (L1a) is complete** (owner accepted 2026-09-30); **T025d (L1b) is complete** (owner accepted 2026-09-30); **T025e (cockpit organisation and live playback) is complete** (owner accepted 2026-10-01); **T025f (template versioning) is complete** (fast lane, Claude review ACCEPT WITH CARRIES, no owner review required); **T025g (scenario-site contract, `D-2026-10-01-run-binds-scenario-to-site`) is complete** (owner accepted 2026-10-02; Claude reviews ACCEPT WITH CARRIES, Codex retrospective pending); **T026 (dispatch-capable evidence) is complete** (owner accepted 2026-10-02 after hands-on check; Claude review ACCEPT, Codex retrospective pending; `tasks/completed/T026-dispatch-capable-evidence.md`, CODE_STATE `T026`; contract still 9; AC15 server delta p95 miss predates T026 and is carried to a separate performance task, `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T026"). Next is **T027 phase 1** per `tasks/README.md`, replanned under `D-2026-10-02-demo-led-recommendation` (`.ai/ARCHITECT_DEMO_RECOMMENDATION.md`); **T025h is parked** (not before T029; gates nothing).
+contract 9 kept, gate `host/tests/contract9_gate`). **T025b is complete**; owner accepted A 2026-09-29. **T025c (L1a) is complete** (owner accepted 2026-09-30); **T025d (L1b) is complete** (owner accepted 2026-09-30); **T025e (cockpit organisation and live playback) is complete** (owner accepted 2026-10-01); **T025f (template versioning) is complete** (fast lane, Claude review ACCEPT WITH CARRIES, no owner review required); **T025g (scenario-site contract, `D-2026-10-01-run-binds-scenario-to-site`) is complete** (owner accepted 2026-10-02; Claude reviews ACCEPT WITH CARRIES, Codex retrospective pending); **T026 (dispatch-capable evidence) is complete** (owner accepted 2026-10-02 after hands-on check; Claude review ACCEPT, Codex retrospective pending; `tasks/completed/T026-dispatch-capable-evidence.md`, CODE_STATE `T026`; contract still 9; AC15 server delta p95 miss predates T026 and is carried to a separate performance task, `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T026"). **T027 phase 1 is built and in review** (Commit, ingestion, Site > Evidence, rendered-tab rule; packet `.agent/T027-phase-1-review-packet.md`, handoff `.agent/T027-phase-1-handoff.md`, CODE_STATE `T027 phase 1`); next is the owner's phase-1 UI check, then **T027 phase 2** (Overview), under `D-2026-10-02-demo-led-recommendation`; **T025h is parked** (not before T029; gates nothing).
 
 `tasks/README.md` is authoritative for the queue: what the resequencing changed,
 which two positions are deliberately not load-bearing, and the four demo points.
@@ -97,7 +97,7 @@ input: `Docs/lab-cockpit-proposal.md`; handoff: `.ai/PLANNING_HANDOFF_LAB_COCKPI
 
 ## Read For The Active Task
 
-1. **T027 phase 1** (next; `tasks/T027-commit-ingestion-and-site-overview.md`, with `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` sections 2.4 and 3 Evidence; T025h parked); `tasks/completed/T026-dispatch-capable-evidence.md` (CODE_STATE `T026`), `tasks/completed/T025g-run-binds-scenario-to-site.md` (CODE_STATE `T025g`), `tasks/completed/T025f-template-versioning.md` (CODE_STATE `T025f`), `tasks/completed/T025e-cockpit-organisation-and-live-playback.md`, T025d/T025c/T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
+1. **T027** (phase 1 in review, phase 2 next from `.agent/T027-phase-1-handoff.md`; `tasks/T027-commit-ingestion-and-site-overview.md`, with `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` sections 2.4 and 3 Evidence; T025h parked); `tasks/completed/T026-dispatch-capable-evidence.md` (CODE_STATE `T026`), `tasks/completed/T025g-run-binds-scenario-to-site.md` (CODE_STATE `T025g`), `tasks/completed/T025f-template-versioning.md` (CODE_STATE `T025f`), `tasks/completed/T025e-cockpit-organisation-and-live-playback.md`, T025d/T025c/T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
 2. `.ai/CODE_STATE.md`: the T025d, T025c, T025b, T025a and T024 entries, then T022B, T023, T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and its three 2026-09-30 decisions;
@@ -127,8 +127,8 @@ handle, a separate observation transform, a reading series with its own identity
 a private artifact per run, and a gated screen that starts, steps and finishes a
 run and shows truth beside what was reported. **T023 adds the
 gateway, the canonical envelope and an immutable stage** with a gated inspector.
-There is still **no Commit, no ingestion, no accepted history, no analytics and
-no Findings**, and nothing an execution produces reaches an operator surface.
+T027 phase 1 adds **Commit, ingestion and accepted evidence on Site > Evidence**;
+there are still **no analytics and no Findings**.
 
 The shipped scenario lives in `config/scenarios/fuel-loss-event.yaml`.
 Shipped and writable stores have disjoint identities; the scenario store ships

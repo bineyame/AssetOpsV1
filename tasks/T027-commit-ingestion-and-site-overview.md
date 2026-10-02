@@ -1,6 +1,6 @@
 # T027 - Commit through normal ingestion to Site Overview
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 
 Map: B completion; internal architecture demo (demo point 1).
@@ -217,4 +217,5 @@ prerequisites for this checkpoint.
 The owner runs the internal architecture demonstration with Lab disabled for
 the final operator inspection. The Reviewer independently exercises recovery,
 idempotence and reconstruction without simulator objects.
-Review outcome: pending.
+Review outcome: pending. Phase 1 built and in review
+(`.agent/T027-phase-1-review-packet.md`); phase 2 not started.
