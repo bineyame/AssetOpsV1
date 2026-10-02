@@ -636,7 +636,9 @@ function RecordDetail({
       aria-labelledby="site-evidence-record-heading"
       data-evidence-record-detail={item.message_id}
     >
-      <h3 id="site-evidence-record-heading">{`Record ${item.message_id}`}</h3>
+      <h3 id="site-evidence-record-heading" className="identity-heading">
+        {`Record ${item.message_id}`}
+      </h3>
       <FactList>
         <Fact term="Source, device and signal">
           {`${item.source_id} / ${item.device_id} / ${item.signal_id}`}

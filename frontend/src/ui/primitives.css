@@ -1829,3 +1829,13 @@ button:focus-visible {
   margin: 0 0 var(--space-3);
   color: var(--text-secondary);
 }
+
+/*
+ * A heading that carries a machine identity (a 64-character record digest)
+ * has no break opportunity, so at a narrow width it would set the page's
+ * minimum width. It breaks inside its column instead (T027 layout evidence,
+ * Site > Evidence record inspector at 640px).
+ */
+.identity-heading {
+  overflow-wrap: anywhere;
+}
