@@ -16,8 +16,10 @@ import `host/`, so an execution port arrives here as an argument or not at all:
 serves the execution routes answering that no port is composed. The composed
 entry point is the leaf's own application module.
 
-No ingestion, analytics, configuration editing, or Findings are served, and no
-endpoint here implies that operational evidence exists.
+Ingestion and the Site > Evidence read model (T027) are mounted in both gate
+states: accepted evidence is a product capability, and the gate covers
+simulator surfaces only. No analytics, configuration editing, or Findings are
+served.
 """
 
 from __future__ import annotations
@@ -25,6 +27,10 @@ from __future__ import annotations
 from fastapi import APIRouter, FastAPI
 
 from assetops_backend.config import FeatureFlags, load_feature_flags
+from assetops_backend.evidence.composition import build_evidence_store
+from assetops_backend.evidence.ports import EvidenceStore
+from assetops_backend.evidence.service import Clock, IngestionService, system_clock
+from assetops_backend.evidence_api import build_evidence_router
 from assetops_backend.runs.composition import build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
@@ -63,6 +69,8 @@ def create_app(
     scenario_repository: ScenarioDefinitionRepository | None = None,
     run_repository: SimulationRunRepository | None = None,
     execution: LabExecutionPort | None = None,
+    evidence_store: EvidenceStore | None = None,
+    clock: Clock | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -101,6 +109,13 @@ def create_app(
     gate is open, which is what makes a closed build unable to reach a kernel
     however it was composed - the gate covers execution, so a closed gate hands
     the router nothing.
+
+    The evidence store and the ingestion service are built in both gate
+    states: ingestion is the one path that writes accepted evidence, for any
+    source, and Site > Evidence must stay readable with the Lab gated off.
+    `clock` is ingestion's clock (it assigns `received_at`). The service is
+    exposed as `app.state.ingestion` so the gated Commit route can release
+    through the same `ingest` method rather than a second path.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -109,6 +124,14 @@ def create_app(
 
     repository = build_site_repository() if site_repository is None else site_repository
     app.include_router(build_sites_router(repository))
+
+    ingestion = IngestionService(
+        build_evidence_store() if evidence_store is None else evidence_store,
+        repository,
+        system_clock if clock is None else clock,
+    )
+    app.state.ingestion = ingestion
+    app.include_router(build_evidence_router(ingestion, repository))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (
