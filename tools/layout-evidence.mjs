@@ -1979,9 +1979,13 @@ for (const [state, href, expectBlockedTable] of [
               // A blocked draft cannot be run for a second, prior reason, so
               // the same disabled button on both would say the two are the
               // same distance from working.
-              "a blocked draft offers no run action at all",
-              run.buttons.length === 0,
-              run.buttons.map((b) => b.label).join(", ") || "no button rendered",
+              // T027: the Commit control renders on every Draft and is
+              // disabled with its reason until the run completes; it is not a
+              // run action, so it is held to "disabled" rather than "absent".
+              "a blocked draft offers no run action at all, and Commit is disabled",
+              run.buttons.every((b) => b.label === "Commit and release" && b.disabled),
+              run.buttons.map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`).join(", ") ||
+                "no button rendered",
             ]
           : [
               // T022 replaced the one disabled "Run this draft" control with
@@ -1990,11 +1994,13 @@ for (const [state, href, expectBlockedTable] of [
               // controls were all disabled would satisfy a count and assert
               // nothing about a Lab that can execute. T025d adds exactly two:
               // auto-play of the guarded Step, and its pause.
-              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled",
-              run.buttons.length === 5 &&
-                run.buttons.map((b) => b.label).join("|") ===
-                  "Start this run|Step|Run to the end|Play|Pause" &&
-                run.buttons.some((b) => !b.disabled),
+              // T027 adds the Commit control, disabled until the run completes.
+              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit",
+              run.buttons.filter((b) => b.label !== "Commit and release").map((b) => b.label).join("|") ===
+                "Start this run|Step|Run to the end|Play|Pause" &&
+                run.buttons.some((b) => b.label !== "Commit and release" && !b.disabled) &&
+                run.buttons.filter((b) => b.label === "Commit and release").length === 1 &&
+                run.buttons.every((b) => b.label !== "Commit and release" || b.disabled),
               run.buttons
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
                 .join(", ") || "no button rendered",
@@ -2315,13 +2321,15 @@ allPass =
       // excluded by their exact label shape, so any other enabled button still
       // fails this claim. T025e: the Applied timeline's "at T min" buttons
       // move the history cursor (a read); they are excluded the same way.
+      // T027: Commit and release is the commit act a completed run offers,
+      // not an execution control; the T027 section measures it.
       "a terminal run offers no enabled execution control",
-      finished.buttons.some((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label)) &&
+      finished.buttons.some((b) => !/^(Show envelope \d+|at \d+ min|Commit and release)$/.test(b.label)) &&
         finished.buttons
-          .filter((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label))
+          .filter((b) => !/^(Show envelope \d+|at \d+ min|Commit and release)$/.test(b.label))
           .every((b) => b.disabled),
       finished.buttons
-        .filter((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label))
+        .filter((b) => !/^(Show envelope \d+|at \d+ min|Commit and release)$/.test(b.label))
         .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
         .join(", ") || "no execution control rendered",
     ],
@@ -3824,7 +3832,7 @@ if (t027.run === null) {
   throw new Error("The T026 pass left no completed run for T027 to commit.");
 }
 {
-  await visit(cdp, t027.run, 1280, 800, "[data-run-commit]", {
+  await visit(cdp, t027.run, 1280, 800, "[data-commit-state='NOT_COMMITTED']", {
     script: clickControl("Commit and release"),
     waitFor: "[data-commit-open-in-assetops]",
   });
