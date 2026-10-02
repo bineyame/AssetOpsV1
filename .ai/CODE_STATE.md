@@ -4512,8 +4512,19 @@ reaches new Drafts only.
   Memoisation (backlog T025e C2) NOT taken, owner/Architect to rule.
 - Stage: 329-333 envelopes, 267 KB final, per-control write ~36-47 ms CPU.
 
+- **Override issuer (fix round 2, C1,
+  `D-2026-10-02-scenario-states-override-issuer`).** Optional `issued_by: OPERATOR`
+  on scenario EVENT entries (`TimelineEntry`/`FrozenForcing.issued_by`, in the
+  frozen identity only when set); refused except on the stop-threshold and
+  battery-reserve forcings. Host `record_inputs` and backend delay refusal read
+  it; degraded-evidence v1 declares it (re-pinned, no bump); stop-60 unchanged
+  and publishes no override record under profile 5.
+
 ### What this leaves open
 
+- Carried to the backlog: AC15 delta p95 misses 50 ms before T026 too
+  (performance task, T025e C2); T028 to decide whether stop-60's policy change
+  is a policy record.
 - Stage order in a stepped run is arrival order (pre-existing); a run stopped
   inside a hold shows "No publication delay recorded" for that reading.
 - `kobo-degraded-evidence-deltas.json` fixture is 1.38 MB.

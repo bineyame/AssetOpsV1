@@ -212,3 +212,30 @@ roughly a sixth more than the pre-existing cost, and the p5 p95 exceeds the
 50 ms budget by about 45 %. The earlier packet's "0-15 %" is consistent with
 this (+16.5 % at p95, a little above it). Quiet-machine absolute values are
 lower than the earlier busy-machine in-process reads (68-97 ms).
+
+## Fix round 2 (C1)
+
+Owner ruling 2026-10-02: Architect option (b'), `.agent/T026-C1-architect-note.md`,
+decision `D-2026-10-02-scenario-states-override-issuer`.
+
+- Parser: optional `issued_by: OPERATOR` on scenario EVENT entries
+  (`scenarios/parsing.py _parse_issued_by`), refused unless the entry is a
+  FORCING_INPUT on `generator-stop-soc-threshold` or
+  `battery-reserve-state-of-charge`. Carried as `TimelineEntry.issued_by` and
+  `FrozenForcing.issued_by`; written to the frozen identity only when set, so
+  earlier frozen identities are unchanged.
+- Host `record_inputs` publishes an override record only for `issued_by ==
+  OPERATOR`; backend delay refusal reads the same field. `OVERRIDE_COMMAND_STATES`
+  is now the parser's commandable set; the host/backend agreement test stays.
+- degraded-evidence v1 declares it; pin re-taken in-branch (no bump):
+  `0fc92f6d...e82e06e`. stop-60 byte-unchanged, same fingerprint; under profile 5
+  its override publishes no record.
+- Tests (`host/tests/test_t026_dispatch_evidence.py`): declared vs undeclared
+  publication, stop-60 publishes none, refusal on another state and on a bad
+  value; existing present/missing record cases pass unchanged. Non-vacuity:
+  disabling the `issued_by` check made the declared/undeclared and stop-60 tests
+  fail (2 failed), then `git checkout --` restored it.
+- History fixtures: not regenerated (no change needed). Contract stays 9;
+  `execution_contract.py` and the contract-9 gate untouched.
+- Backlog: AC15 (pre-existing miss) and the T028 policy-record question recorded
+  in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
