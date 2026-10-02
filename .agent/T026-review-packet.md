@@ -172,3 +172,43 @@ Reviewer checks C's required evidence has real owners and that nothing of T026A
 - Suites: frontend 1041, typecheck and build clean, host 591, backend 1375,
   simulator 244, check-architecture and check-agent-workflow pass. Layout
   evidence not re-run (B1 changed the Arrival text; C4 remains open).
+
+## AC15 re-measure (quiet machine, interleaved, 2026-10-02)
+
+Machine load: overall CPU 6 % (CIM), Get-Counter samples 21/10/12 % before and
+34/6/12/7/6 % after the runs; top CPU-time processes were long-lived desktop
+apps (claude, UCAlarm, mintty, Notepad), nothing busy. No process was killed.
+
+Method: in-process delta read at boundary 96 of 97 (`delta_ms.py`, T025e's
+`since_boundary=95` read via TestClient, 40 reads per run, 8 h / 5 min, site
+KOBO-V3, seed 20260929), run interleaved A B C x 4 rounds, nothing concurrent.
+A = pre-T026 worktree `3bbcf65`, `mini-grid` v2 / profile 4, scenario
+`kobo-mini-grid-prolonged`. B = this branch, same inputs. C = this branch,
+`mini-grid` v3 / profile 5, `kobo-mini-grid-degraded-evidence` (the AC15 run).
+
+| Round | A pre p4 p50/p95/max | B head p4 p50/p95/max | C head p5 p50/p95/max |
+| --- | --- | --- | --- |
+| 1 | 44.7 / 62.0 / 64.2 | 43.8 / 54.9 / 70.8 | 54.9 / 73.1 / 76.6 |
+| 2 | 45.8 / 66.9 / 78.6 | 45.4 / 61.6 / 64.1 | 54.2 / 73.7 / 95.8 |
+| 3 | 47.1 / 60.2 / 77.7 | 46.1 / 66.6 / 71.0 | 54.7 / 72.8 / 90.9 |
+| 4 | 45.2 / 60.0 / 65.7 | 46.6 / 65.8 / 68.9 | 54.0 / 70.6 / 83.0 |
+| mean | 45.7 / 62.3 / 71.6 | 45.5 / 62.2 / 68.7 | 54.5 / 72.6 / 86.6 |
+
+Payload: A 13,555 B, B 14,227 B, C 14,691 B.
+
+T025e's own harness (`layout-evidence.mjs` through the preview proxy, 45.9 ms)
+was NOT re-run: it needs a built frontend, `vite preview`, the run-store server
+and Chrome for each tree, and the pre-T026 tree would need its own install and
+build. The 108-134 ms proxy numbers above stand as the only through-proxy
+measurement today.
+
+Conclusion (numbers only): the miss is present on the pre-T026 tree under the
+same conditions. Pre-T026 p95 is 60.0-66.9 ms (mean 62.3) against 50 ms, and
+its p50 (44.7-47.1) is already at the budget. Branch profile 4 is
+indistinguishable from pre-T026 (p95 mean 62.2, p50 45.5). The profile-5
+degraded run adds about +8.8 ms p50 (+19 %) and +10.3 ms p95 (+16.5 %) over
+pre-T026, 70.6-73.7 ms p95 in every round, so T026's profile-5 content costs
+roughly a sixth more than the pre-existing cost, and the p5 p95 exceeds the
+50 ms budget by about 45 %. The earlier packet's "0-15 %" is consistent with
+this (+16.5 % at p95, a little above it). Quiet-machine absolute values are
+lower than the earlier busy-machine in-process reads (68-97 ms).
