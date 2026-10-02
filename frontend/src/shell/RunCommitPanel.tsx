@@ -109,7 +109,7 @@ function CommitBody({
       stage !== null && stage.status === "loaded" ? stage.stage.release_blockers : [];
     return (
       <>
-        <p data-commit-state="NOT_COMMITTED">
+        <p id="run-commit-reason" data-commit-state="NOT_COMMITTED">
           {eligible
             ? "Not committed. Commit seals this draft's stage as an immutable artifact and releases it through ingestion; what ingestion accepts is reported here separately."
             : "Not committed. Commit is available only when the stage is eligible for release, and this stage is not."}
@@ -124,7 +124,12 @@ function CommitBody({
           </ul>
         )}
         <p>
-          <button type="button" disabled={!eligible || pending} onClick={onCommit}>
+          <button
+            type="button"
+            disabled={!eligible || pending}
+            aria-describedby={eligible ? undefined : "run-commit-reason"}
+            onClick={onCommit}
+          >
             Commit and release
           </button>
         </p>

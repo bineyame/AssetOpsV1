@@ -181,6 +181,10 @@ describe("the Commit panel", () => {
 
     const button = within(panel()).getByRole("button", { name: "Commit and release" });
     expect(button).toBeDisabled();
+    const reason = document.getElementById(
+      button.getAttribute("aria-describedby") ?? "",
+    );
+    expect(reason?.textContent).toMatch(/only when the stage is eligible/);
     const blockers = Array.from(
       panel().querySelectorAll("[data-commit-blocker]"),
     ).map((item) => item.getAttribute("data-commit-blocker"));
