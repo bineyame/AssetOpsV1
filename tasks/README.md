@@ -11,6 +11,14 @@ The six existing starter files are replacements, not amendments.
 
 ## Order and observable checkpoints
 
+Replanned on 2026-10-02 under `D-2026-10-02-demo-led-recommendation`: the
+owner-approved `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` (section 7) sets the
+order from T027 onward and supersedes the 2026-09-24 order for those rows.
+T027 and T028 are phased; T029B (thin follow-on, Sites ranking and landing)
+and T034A (Portfolio-lite) are new; T025h is parked; the breadth order (rows
+26-30) was set by the Planner's T030 -> T031 dependency check
+(recommendation 6.3), which found no content coupling.
+
 Resequenced on 2026-09-24 from `Docs/queue-review-feedback-verbatim.md`, then
 adjusted again from its round-two section. See
 `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
@@ -26,7 +34,7 @@ owner's T025d hands-on check) run sequentially before T026; A remains accepted.
 Under `D-2026-10-01-run-binds-scenario-to-site` (owner accepted 2026-10-01),
 the scenario-site contract slices S0-S2 are T025f (template versioning) and
 T025g (the run is the only join) before T026, T025h (picker compatibility)
-after T026, and T025i (purpose assumptions) after T026 and before T036. T025h
+after T026 (parked on 2026-10-02), and T025i (purpose assumptions) after T026 and before T036. T025h
 gates nothing and may float later; T025i may move earlier if the owner wants
 its label in the C/D demo. The T025 letters say where the slices were cut, not
 when they run, as with T022B.
@@ -51,20 +59,22 @@ when they run, as with T022B.
 | 16 | [T025f](completed/T025f-template-versioning.md) | A/B hardening | Template v2 and site lineage staleness note |
 | 17 | [T025g](completed/T025g-run-binds-scenario-to-site.md) | A/B hardening | User picks the site; shipped scenario READY or BLOCKED by contract |
 | 18 | [T026](completed/T026-dispatch-capable-evidence.md) | B | Dispatch evidence with one gap and one delayed publication |
-| 19 | T025h | A/B hardening | Compatibility status per site in the run-setup picker (awaiting planning) |
-| 20 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
-| 21 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
-| 22 | T029 | D | Versioned assumptions translate quantity into money |
-| 23 | T029A | H prerequisite | Frozen policy intervention changes a run |
-| 24 | T034 | H | Policy action -> post-action evidence -> verification |
-| 25 | T030 | E | Fuel balance with separate delivery/dip records |
-| 26 | T031 | F | Evidence-backed recurring headroom opportunity |
-| 27 | T032 | F completion | Paired load addition with isolated comparison history |
-| 28 | T033 | G | Battery stress trajectory and replacement exposure |
-| 29 | T035 | I prerequisite | Bahir start failure and bounded service assessment |
-| 30 | T025i | Scenario contract | Purpose assumptions label a run whose site breaks them (awaiting planning) |
-| 31 | T036 | I completion | Independent six-site portfolio and client walkthrough |
-| - | T026A | B hardening | Gateway outage, recovery and delivery realism |
+| 19 | [T027](T027-commit-ingestion-and-site-overview.md) (phase 1, phase 2) | B completion | Phase 1: Commit -> ingestion -> Site > Evidence with record drill-down; three real Site tabs. Phase 2: mini-grid Site Overview |
+| 20 | [T028](T028-dispatch-finding-and-evidence.md) (phased) | C | Dispatch -> Finding -> drawer; Findings root; capability declaration; Evidence capability table (one row) |
+| 21 | [T029](T029-bounded-dispatch-financials.md) | D | Site Financials with live editable assumptions; point-2 seed |
+| 22 | [T029B](T029B-sites-ranking-and-landing.md) | B/C presentation | Sites ranks by assessment and evidence; Sites as landing |
+| 23 | [T029A](T029A-immutable-intervention-artifacts.md) | H prerequisite | Frozen policy intervention changes a run |
+| 24 | [T034](T034-policy-action-and-verification.md) | H | Recommendation -> Action -> Foundation > Changes -> Verification; point-3 seed |
+| 25 | [T034A](T034A-portfolio-lite.md) | Strong product demo | Portfolio lands, three seeded sites, ranked Findings |
+| 26 | [T031](T031-renewable-headroom-opportunity.md) | F | Desta: evidence-backed recurring headroom opportunity; appears on Portfolio |
+| 27 | [T032](T032-paired-load-addition-comparison.md) | F completion | Paired load addition with isolated comparison history |
+| 28 | [T030](T030-fuel-records-and-reconciliation.md) | E | Genda: fuel balance with separate delivery/dip records; appears on Portfolio |
+| 29 | [T035](T035-start-failure-and-service-assessment.md) | I prerequisite | Bahir: start failure and bounded service assessment; appears on Portfolio |
+| 30 | [T033](T033-battery-stress-and-replacement-exposure.md) | G | Arsi: battery stress trajectory and replacement exposure; appears on Portfolio |
+| 31 | T025i | Scenario contract | Unchanged: after T026, before T036 (awaiting planning) |
+| 32 | [T036](T036-portfolio-and-client-demo.md) (rescoped) | I completion | Six sites, conditional global Evidence, Lab reveal, rehearsal |
+| - | T026A | B hardening | Unchanged: unscheduled, gates nothing |
+| - | [T025h](T025h-picker-compatibility.md) | A/B hardening | **Parked**: not before T029; gates nothing |
 
 Task dependency declarations identify the required artifacts.
 The order above is the intended delivery order; a user checkpoint may redirect
@@ -74,12 +84,25 @@ L3's C7 enrichment, C8 health/log breadth and C9 setup/authoring are
 feedback-selected after their prerequisites, normally after T036. No L3 task
 or demo gate is allocated now.
 
-**Rows 28 and 29 are an interchangeable pair.** T033 and T035 consume nothing
+**Rows 29 and 30 are an interchangeable pair.** T033 and T035 consume nothing
 from each other; both depend only on T027's evidence, T029's assumptions and
-T034's rule set. Which runs first is a product-priority call taken from
-T028/T029 feedback - backup failure and unserved customers may matter more to
-an operator than battery degradation - and whichever runs second is unaffected.
-Neither order is strategy. Every other row's position is load-bearing.
+T034's rule set. The default is the owner's priority intent, "Service before
+battery unless feedback says otherwise" (recommendation 6.3), and whichever
+runs second is unaffected.
+
+**Breadth order is priority intent, not strategy.** The spine (rows 19-25)
+is load-bearing. Rows 26-30 follow the owner's priority intent after the 6.3
+dependency check: opportunity (T031, T032) before fuel (T030), at a cost of
+two slices ahead of fuel. Keeping the opportunity/fuel pair before the
+service/battery pair is the existing group order kept as a default, not a
+decision. Point-2 feedback may redirect any of rows 26-30. Each breadth
+slice adds its own seeded site to the Portfolio as it lands
+(`D-2026-10-02-demo-point-seed-rule`).
+
+**Delta p95 performance task (carried, no task file).** The server delta p95
+miss carried from T025e/T026 (`.ai/MILESTONE_REVIEW_BACKLOG.md`, "Carried
+from T026") runs before the T036 rehearsal only if playback visibly
+stutters (recommendation 6.5).
 
 **T026A has no position and is a prerequisite of nothing**, including T036.
 Run it before or after the portfolio demo as feedback and time decide. It is
@@ -93,10 +116,24 @@ the first credible client milestone is the mistake this queue now avoids.
 
 | Point | Task | What it is |
 | --- | --- | --- |
-| 1 | T027 | Internal architecture demo |
-| 2 | T028 / T029 | Domain-expert and early-prospect demo: one site, one strong Finding, its evidence, its money |
-| 3 | T034 | Strong product demo: Finding -> action -> verification |
-| 4 | T036 | Full portfolio and polished client demo |
+| 1 | T027 | Internal architecture demo (live run; no seed) |
+| 2 | T028 / T029 | Domain-expert and early-prospect demo: one site, one strong Finding, its evidence, its money; seed owned by T029 |
+| 3 | T034 + T034A Portfolio-lite | Strong product demo, opening on Portfolio; seeds owned by T034 (post-action window) and T034A (three sites) |
+| 4 | T036 | Full portfolio and polished client demo; seed owned by T036 |
+
+Journey per point (recommendation 5.2):
+
+1. Lab run -> stage -> Commit -> Sites -> Kobo Overview -> Evidence (source
+   health, coverage, record drill-down) -> Lab off, history stays.
+2. Sites -> Kobo Overview -> Dispatch -> Finding -> drawer -> Financials
+   (change price).
+3. Portfolio (three sites) -> Kobo -> Finding -> money -> Action ->
+   Verification -> Lab proof.
+4. The full recommendation 5.1 journey: Kobo runs uninterrupted from detect to
+   verify, breadth after, Lab last.
+
+Every point ships an idempotent, rehearsed seed checked with the Lab gate off
+(`D-2026-10-02-demo-point-seed-rule`).
 
 Seek domain-expert feedback at point 2, before the portfolio exists. A former
 mini-grid operator does not need six sites to tell you whether the Finding is
