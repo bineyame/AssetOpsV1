@@ -1,6 +1,6 @@
 # T026 - Dispatch-capable evidence
 
-Status: planned; confirmed against T025e-T025g, stops ruled (2026-10-02)
+Status: in_review (built 2026-10-02; Architect rulings 2026-10-02 stand)
 USER_REVIEW_REQUIRED: true
 
 Map: B extension beyond initial fuel staging. Next: T025h (floats), then T027.
