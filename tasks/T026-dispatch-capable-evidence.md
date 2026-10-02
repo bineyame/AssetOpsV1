@@ -1,16 +1,14 @@
 # T026 - Dispatch-capable evidence
 
-Status: planned; confirmed 2026-10-02 against T025e-T025g, build not started
+Status: planned; confirmed against T025e-T025g, stops ruled (2026-10-02)
 USER_REVIEW_REQUIRED: true
 
-Map: B extension beyond initial fuel staging.
-Depends on: T023 (stage), A in T025a/T025b (status signal, profile 4), T025c-e
-(history, cockpit, live follow), T025f/g (template v2; run binds scenario+site).
-Next: T025h (floats, gates nothing), then T027.
-Branch: task/T026-dispatch-capable-evidence
-Sizing: evidence contract; three phases per `.ai/ROLE_CONFIG.md`.
-Planner: Claude under `D-2026-09-30-planner-claude-until-reset` (Planner bound
-to Claude until the Codex reset); owner-accepted outcome, scope and ACs kept.
+Map: B extension beyond initial fuel staging. Next: T025h (floats), then T027.
+Depends on: T023 (stage), T025a/b (status signal, profile 4), T025c-e (history,
+cockpit, live follow), T025f/g (template v2; run binds scenario+site).
+Branch: task/T026-dispatch-capable-evidence. Sizing: three phases (ROLE_CONFIG).
+Planner and Architect: Claude under the Codex-reset exception (ROLE_CONFIG);
+owner-accepted outcome, scope and ACs kept.
 
 ## Outcome
 
@@ -18,27 +16,16 @@ Inspect staged PV, BMS, generator, meter and time-valid policy evidence for the
 healthy and prolonged-runtime worlds, including one reporting gap and one
 delayed publication.
 
-This closes the evidence C actually needs to assess capability and operating
-constraints. It deliberately stops short of gateway-failure realism.
-
-## Thinned on purpose
-
-This slice was `Dispatch-capable evidence and gateway recovery` and carried the
-full outage, buffering, recovery, retry, duplicate, out-of-order,
-buffer-exhaustion and noise/bias set. `Docs/queue-review-feedback-verbatim.md`
-asked for exactly the evidence the first Finding needs and no more; T026A owns
-the rest (`D-2026-09-24-queue-resequenced-for-demo`). Do not re-expand this
-slice. If T023's publication path already makes an outage/recovery case nearly
-free, include it and report that T026A shrank by that much. Building buffering
-in order to demonstrate it is the thing this thinning refuses.
+This closes the evidence C needs to assess capability and operating
+constraints, and stops short of gateway-failure realism.
 
 ## Read for detail
 
 - v4 sections 3, 6, 11-12, 17 and 25; roadmap 3.2-3.3 and 7/B-C; FEATURE_MAP B;
   `tasks/README.md` shared checks; T025e ACs 1-2 and 7-12.
-- CODE_STATE T023, T025b, T025c, T025e-g only; `D-2026-09-22-contract-version-scope`, `D-2026-09-30-lab-cockpit-history`
-  (with its chart clarification), `D-2026-09-30-lab-cockpit-presentation`,
-  `D-2026-09-30-t025e-live-follow`, `D-2026-10-01-run-binds-scenario-to-site`.
+- CODE_STATE T023, T025b, T025c, T025e-g only; the contract-version-scope,
+  lab-cockpit-history (with chart clarification), lab-cockpit-presentation,
+  t025e-live-follow, run-binds-scenario-to-site and 2026-10-02 decisions.
 
 ## Preconditions from built state
 
@@ -46,14 +33,13 @@ in order to demonstrate it is the thing this thinning refuses.
   `kobo-mini-grid-prolonged` (shipped v2). Scenarios name no site; each Draft
   picks its site at run setup. Tests build the site in process from the current
   Kobo template; nothing names KOBO-001, MG-001 or any `var/` site.
-- **The owner's KOBO-001 cannot show this slice**: it lacks T025a's generator
-  properties and status signal (prolonged is BLOCKED against it). The hands-on
-  review uses a site the owner creates from the current template. No agent
-  edits `var/`.
+- **KOBO-001 cannot show this slice** (no T025a generator properties or status
+  signal; prolonged is BLOCKED). The owner reviews on a site created from
+  template v3 (Named stops). No agent edits `var/`.
 - **Versioning.** A shipped scenario or template change bumps version and pin
-  (`backend/tests/content_fingerprint.py`); a scenario bump also edits
-  `test_every_shipped_scenario_is_v2_superseding_v1` and rewords that
-  document's `site_contract.description` (backlog T025g F3). A new
+  (`backend/tests/content_fingerprint.py`); Kobo goes to v3 here. A scenario
+  bump also edits `test_every_shipped_scenario_is_v2_superseding_v1` and
+  rewords its `site_contract.description` (backlog T025g F3). The new
   degraded-evidence scenario is a new id at v1, pinned, naming no site.
 - **Status source stays non-blocking** (T025g AC6b): without a frozen
   `generator-status` mapping, status is recorded absent. Blocking is a
@@ -138,18 +124,18 @@ Repeat with a discharge-capability gap and a missing override record.
 | Missing override record | None observed, not absence of override |
 | Policy effective at boundary | Correct version/effective time preserved |
 
-Prove that the gap and the delay change reporting/publication only, with an
-identical world trajectory and identical controller decisions under the same
-physical inputs. Prove cockpit reload exposes the added reports and
-policy/record markers while the stage inspector retains distinct source and
-publication times. A shipped run stages a real `INTERVAL_MEAN` and a real
-`UNAVAILABLE` envelope. The contract-9 gate stays unedited and green.
+Prove the gap and the delay change reporting/publication only: identical world
+trajectory and controller decisions under the same physical inputs. Prove
+cockpit reload exposes the added reports and policy/record markers while the
+stage inspector keeps distinct source and publication times. A shipped run
+stages a real `INTERVAL_MEAN` and `UNAVAILABLE` envelope. The contract-9 gate
+stays unedited and green.
 
 ## Phases
 
-A fresh Implementer per phase; never resume one. Each phase ends with committed
-work and `.agent/T026-phase-N-handoff.md` (what landed, file anchors, next, open
-risks). The next phase starts from that file, not from re-reading the code.
+A fresh Implementer per phase, never resumed. Each phase ends with committed
+work and `.agent/T026-phase-N-handoff.md` (landed, anchors, next, risks); the
+next phase starts from it, not from re-reading code.
 
 1. **Contract and gateway (AC1-AC9, AC11-AC12).** Envelope/stage schema,
    profile and mappings, operational-record family, the two imperfections, the
@@ -161,60 +147,74 @@ risks). The next phase starts from that file, not from re-reading the code.
 3. **Lab and frontend (AC10, AC13 screen side, AC14, AC15)**, the absorbed
    timeline carry, layout evidence, then full suites and the packet.
 
-Rely on facts earlier packets verified (T023 identity rules, T025e prefix and
-delta proofs, the contract-9 gate); re-run only what a phase changed. Run suites
-**serially**, never host and frontend together (T025e C9); full suites and the
-packet are phase 3's. Layout evidence runs on a copy of `var/`.
+Rely on facts earlier packets verified (T023 identity, T025e prefix/delta, the
+contract-9 gate); re-run only what a phase changed. Suites run **serially**,
+never host and frontend together (T025e C9); full suites and packet are phase
+3's; layout evidence runs on a copy of `var/`.
 
-## Named stops
+## Named stops (Architect rulings 2026-10-02, Claude under the Codex exception)
 
-- **Contract version.** Expected no move: a new profile version, schema moves
-  and an artifact addition widen off every valid frozen Draft (precedents
-  T023, T025b, T025c). A change to what an existing frozen Draft or profile
-  3/4 does stops for the Architect and owner before it is written.
-- **Template content.** New template devices or signals mean template v3:
-  stop before the bump (the T025f `supersedes`/valid-from carry needs an
-  Architect ruling; every existing site becomes BEHIND).
-- **Stage format.** A whole-stage rewrite per step that misses the Step or tick
-  budgets stops with the measurement: append-only is a persisted-format change.
+- **Contract version: no move, confirmed.** T025g's test of
+  `D-2026-09-22-contract-version-scope`: replay an existing frozen Draft on the
+  new build. A new profile version, schema moves with prior readers, template
+  v3 and a new scenario id reach new Drafts only (T023, T025b, T025c). Stop for
+  Architect and owner before: changing what profile 3/4 publishes; adding state
+  to an existing model profile's trajectory (existing digests change; derive
+  capability in the observation transform or a new profile version); changing
+  an existing reporting-path cause; template lineage in `FrozenWorldInputs`;
+  any new refusal or block reaching an existing document (AC6b included).
+- **Template v3: bump, no stop.** The two capability signals and mappings are
+  new template content: `kobo-mini-grid-60kw` v3, pinned. Not UNAVAILABLE on
+  v2: an unconfigured signal is not a reporting path (`reporting_inputs`), so an
+  envelope would invent one. Override records are not template signals; the
+  frozen gateway mapping declares their source against existing components. A
+  template bump is version, pin and header note, no `supersedes`/valid-from
+  (`D-2026-10-02-template-bump-record`). Existing sites read BEHIND, truly.
+- **Delayed publication: scenario cause, profile answers**
+  (`D-2026-10-02-delay-is-a-reporting-path-cause`). As with the fuel gap, the
+  degraded scenario declares a reporting-path window and delay; the profile
+  declares whether it can model it (else BLOCKED naming it). Value and source
+  time never change; a delay that would reorder publications is refused (T026A).
+- **Stage format: stop kept, not pre-decided.** Over budget, first write the
+  same document less often (at the history write, stage first, never after a
+  control or stop). Only if that misses does append-only (a stage schema move
+  with a prior reader T027 must parse) stop for the owner.
 
 ## Absorbed carries (`.ai/MILESTONE_REVIEW_BACKLOG.md`)
 
-- T024 electrical observations not published (AC1); T023 interval/unavailable
-  envelopes proved on fixtures only (Proof): both closed.
-- T025b enum mapping check skipped when all attempts miss: validate enum
-  compatibility first; all-dropped and all-suppressed cases.
-- T023 R2 (corrupt stage gives HTTP 500) and R3 (trailing newline accepted):
-  fixed where AC5 extends the same parser.
-- T023 stage rewritten whole per step: measured in phase 1 (stage-format stop).
-- T025d C2 (timeline shows unreached declared gaps as applied): fixed, since
-  AC13 adds gap and delay markers to that timeline.
-- T025e C2 conditionally (AC15), and C3 if AC15 adds a chart panel or region.
-- T023 stage buttons scale with the stage: above about 500 envelopes in a
-  shipped run, the inspector selects by signal and time.
+- Closed: T024 electrical observations unpublished (AC1); T023
+  interval/unavailable envelopes proved on fixtures only (Proof).
+- T025b enum check skipped when all attempts miss: validate enum compatibility
+  first; all-dropped and all-suppressed cases.
+- T023 R2 (corrupt stage gives HTTP 500), R3 (trailing newline accepted): fixed
+  where AC5 extends the parser. T023 whole-stage rewrite: measured in phase 1.
+- T025d C2 (unreached declared gaps shown as applied): fixed with AC13's
+  markers. T025e C2 conditionally (AC15); C3 if AC15 adds a chart panel/region.
+- T023 stage buttons: above about 500 envelopes in a shipped run, the
+  inspector selects by signal and time.
 
 Still carried: T023 shared message ids (T027), T025d C1 (refresh path is
 unchanged), T025e C1/C4-C9, T025g F4/F6 and residual risks.
 
 ## Scope limits
 
-Commit and ingestion receipt time remain T027.
-Gateway outage, buffering, recovery, retry, duplicate and out-of-order release,
-buffer exhaustion and numeric bias/noise are T026A.
-The operational family stays at override/command records here; fuel delivery
-and hand-dip records and their completeness rules are T030.
-Picker compatibility is T025h, purpose assumptions T025i; Full Replay and broad
-source-health UI remain deferred as recorded in README.
-This is still stage inspection, not an operator dispatch conclusion.
+Commit and ingestion receipt time remain T027. Thinned on purpose: gateway
+outage, buffering, recovery, retry, duplicate and out-of-order release, buffer
+exhaustion and numeric bias/noise are T026A
+(`D-2026-09-24-queue-resequenced-for-demo`); do not re-expand. An
+outage/recovery case T023 makes nearly free may be included, reporting T026A's
+shrinkage; building buffering to demonstrate it is refused. Fuel delivery and
+hand-dip records and their completeness rules are T030. Picker compatibility is
+T025h, purpose assumptions T025i; Full Replay and broad source-health UI stay
+deferred (README). This is still stage inspection, not an operator dispatch
+conclusion.
 
 ## Review
 
-First review is **discovery** (new source family, schema moves), by whoever
-`.ai/ROLE_CONFIG.md` binds then; before the Codex reset a fresh Claude
-`assetops-reviewer`, and nothing waits for Codex (a Claude-only review joins
-Codex's retrospective list). The report names its reviewer.
-
-The owner follows one sample through the delayed case and identifies the two
-timestamps. The Reviewer checks that C's required evidence has real owners and
-that nothing from T026A was smuggled back in.
-Review outcome: pending.
+First review is **discovery** (new source family, schema moves) by whoever
+`.ai/ROLE_CONFIG.md` binds then: before the Codex reset a fresh Claude
+`assetops-reviewer`, nothing waiting for Codex (Claude-only reviews join Codex's
+retrospective list, as do these Architect rulings). The report names its
+reviewer. The owner follows one sample through the delayed case and identifies
+the two timestamps. The Reviewer checks that C's required evidence has real
+owners and that nothing from T026A was smuggled back in. Outcome: pending.

@@ -24,6 +24,8 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-02-delay-is-a-reporting-path-cause` | 2026-10-02 | A delayed publication is a scenario-declared reporting-path cause the publication profile answers for, like a reporting gap; it never changes value or source time, and one that would reorder publications is refused (release order is T026A). Architect ruling (Claude under the Codex exception). |
+| `D-2026-10-02-template-bump-record` | 2026-10-02 | A shipped template records a bump by `template_version`, pinned fingerprint and header note; `supersedes`/valid-from in `D-2026-10-01-run-binds-scenario-to-site` apply to scenarios only. A new device signal is template content: Kobo goes to v3 in T026. Owner sign-off requested. |
 | `D-2026-10-01-run-binds-scenario-to-site` | 2026-10-01 | A run is the only join of a scenario version and a site version; `target_site` retired with legacy acceptance; no template hint; assumptions label; content change bumps version under a fingerprint guard. Contract clause amended 2026-10-01: no move, version stays 9 (owner signed off 2026-10-01). |
 | `D-2026-09-24-v4-roadmap-replan` | 2026-09-24 | Corrected two-source basis; roadmap A-I, dispatch first, immediate component addressing; Planner recreates unfinished tasks. |
 | `D-2026-09-24-task-spec-size-ceilings` | 2026-09-24 | Task-spec size bands become ceilings with no minimum, plus a cold-start test. `.ai/WORKFLOW.md` is their only owner. |
@@ -3368,3 +3370,60 @@ purpose text). Recorded in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
 Affected scope: scenario parser and models, run setup, `EXECUTION_CONTRACT_VERSION`,
 shipped templates and scenarios, scenario detail and run setup screens, tasks
 T025f-T025i, `tasks/README.md`.
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-delay-is-a-reporting-path-cause`. **A delayed
+publication is declared by the scenario as a reporting-path cause, and the
+publication profile answers whether and how the installation can model it.**
+
+Architect ruling for T026 (Claude under the Codex-reset exception in
+`.ai/ROLE_CONFIG.md`; Codex reviews it retrospectively).
+
+- **Why the scenario.** Ownership follows `D-2026-09-21-physical-property-ownership`:
+  the scenario says what happens, the publication profile how the reporting
+  installation behaves. One delay at one time is something that happens; the
+  shipped precedent is the fuel-level reporting gap, a `FORCING_INPUT` window on
+  a `*-reporting-availability` state that the publication profile must declare
+  it can model (`D-2026-09-22-forcing-state-requirements`), else run setup
+  blocks naming the profile. A delay takes the same path and the same answerer.
+  Putting it in the profile alone would make a profile version mean one run.
+- **What it may not do.** It changes publication time only. The value and
+  source time are the observation transform's, so amendment 1 (f), "a scenario
+  does not author what a device reads", holds. The world trajectory and
+  controller decisions are identical with and without it.
+- **Bound.** A declared delay that would release a publication after a later
+  one is refused at run setup: release order, buffering and recovery are T026A.
+- **Records.** Operational records (override/command) take the same seam for
+  their missing and delayed cases.
+
+Affected scope: scenario reporting-path causes, publication profiles,
+`host/execution_adapter.py` `reporting_inputs`, T026, T026A.
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-template-bump-record`. **A shipped template records a
+version bump by `template_version`, its pinned fingerprint and a header note.
+The `supersedes`/valid-from wording in `D-2026-10-01-run-binds-scenario-to-site`
+applies to scenarios only.**
+
+Architect ruling for T026 (Claude under the Codex-reset exception), closing the
+T025f backlog item "Decision wording, routed to the Architect". **Owner
+sign-off requested**: it narrows the wording of an owner-accepted clause.
+
+- **Narrow, do not add fields.** Template versions are a linear integer per
+  `template_id`; the previous version is implied, and no run reads a template
+  (lineage stays out of `FrozenWorldInputs`). A `supersedes` field would repeat
+  `template_version - 1` and a valid-from would claim a time the catalog never
+  consults. If templates ever branch or are time-selected, that slice adds the
+  fields.
+- **New device signals are template content.** T026's PV available-capability
+  and BMS discharge-capability signals and mappings bump
+  `kobo-mini-grid-60kw` to v3. A typed `UNAVAILABLE` on v2 is not an
+  alternative: a signal the site does not configure is not a reporting path,
+  and publishing unavailability for it would invent one. Existing sites read
+  `BEHIND`, which is true. Operational records are not template signals; the
+  frozen gateway mapping declares their source against existing components.
+
+Affected scope: `config/site-templates/kobo-mini-grid-60kw.yaml`,
+`backend/tests/test_site_template_fingerprints.py`, T026.
