@@ -199,3 +199,39 @@ New carry (not blocking):
 - **C1, C2, C3, C4** from the first review remain open as carry (C4: layout
   evidence not re-run after B1 changed Arrival text; the owner's hands-on check
   should look at the Publication column width).
+
+## Re-review (fix round 2)
+
+Range `4c88cce..HEAD`, judged against `.agent/T026-C1-architect-note.md` and
+`D-2026-10-02-scenario-states-override-issuer`. Suite numbers taken from the
+dispatch (not re-run); I read the diff.
+
+**Verdict: accept.** No block findings. The change implements option (b') as
+ruled.
+
+- Declaration is optional, enum `OPERATOR` only, and refused on any entry that
+  is not a FORCING_INPUT of the two CONTROL keys
+  (`scenarios/parsing.py` `_parse_issued_by`); a wrong value and a wrong state
+  are both tested.
+- Host (`host/execution_adapter.py:932`) and backend delay-reorder guard
+  (`runs/service.py:3387`) both read the declaration, not the state key; the
+  state-set agreement test remains, and the backend set now aliases the model
+  constant. stop-60 is untouched and tested to publish no record; degraded-
+  evidence declares it and is re-pinned in-branch with no version bump.
+- Frozen identity carries `issued_by` only when declared (render and parse are
+  symmetric, `runs/parsing.py:738,1555`), so previously frozen identities are
+  unchanged in form; the freeze audit classifies it as not rendered with a
+  reason.
+- Contract 9 gate untouched; consistent with the note.
+
+Carry (not blocking):
+
+- **C9.** `scenarios/models.py` ~254: the new `ENTRY_ISSUERS` /
+  `OPERATOR_COMMANDABLE_STATES` block is inserted between the "distinction is
+  validated rather than conventional ..." comment and `TIMING_SHAPES`, which it
+  was describing. The comment now reads as documenting the wrong constant.
+  Move the new block above that comment. Preference, no behaviour impact.
+- **C10.** A profile-5 Draft frozen from degraded-evidence before this round
+  has no `issued_by` and will silently publish no override record. Acceptable
+  because the scenario is unmerged and the note placed the fix before the
+  owner's hands-on check; the owner should discard any earlier Draft of it.
