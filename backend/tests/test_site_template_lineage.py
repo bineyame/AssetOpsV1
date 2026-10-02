@@ -232,7 +232,7 @@ def test_a_site_created_now_from_the_shipped_kobo_template_is_current() -> None:
     (entry,) = client.get(LINEAGE_PATH).json()["sites"]
     assert entry == {
         "site_id": "MG-NEW",
-        "template": {"template_id": "kobo-mini-grid-60kw", "template_version": 2},
+        "template": {"template_id": "kobo-mini-grid-60kw", "template_version": 3},
         "state": "CURRENT",
-        "current_template_version": 2,
+        "current_template_version": 3,
     }
