@@ -26,6 +26,7 @@ These names replace the previous M1C / Demo Ready v1 / v2 / v2.5 ladder.
 | Domain-expert feedback | One Candidate Avoidable generator-runtime Finding with electrical context, inspectable evidence, claim boundary and indicative bounded fuel consequence | C |
 | Economically legible Finding | Thin versioned BusinessContext translates the bounded quantity into fuel/maintenance consequence | D |
 | Verified intervention demo | Accept a policy change from the Finding, ingest a later window, and report Verified, Ineffective or Inconclusive from target and guardrails together | H |
+| Strong product demo | The verified intervention opened from a thin Portfolio of three seeded sites (Portfolio-lite, T034A) | H plus the first part of I |
 | Full portfolio client demo | Portfolio, dispatch and fuel Findings, bounded money, productive-use opportunity, battery trajectory, verified intervention and Lab proof | E-G and I complete the story |
 
 The historical M0 / M1A / M1B labels describe completed configuration, topology
@@ -42,12 +43,16 @@ This supersedes the readiness naming in
 
 **Four demo points, not one.** The internal architecture demo is B. The
 domain-expert and early-prospect demo is C plus D: one site, one strong
-Finding, its evidence and its money. The strong product demo is H, where the
-Finding leads to an action and the action is verified from later evidence. The
-full portfolio demo is I. Only the last of these requires six sites, and none
+Finding, its evidence and its money. The strong product demo is H plus Portfolio-lite (T034A): it
+opens on a thin Portfolio of three seeded sites, then runs Kobo from Finding to
+action to verification from later evidence without interruption. The full
+portfolio demo is I. Only the last of these requires six sites, and none
 of the first three is a rehearsal. Customer conversations legitimately begin at
-C-D; `tasks/README.md` holds the same table against task ids, and
-`D-2026-09-24-queue-resequenced-for-demo` records the change.
+C-D; `tasks/README.md` holds the same table against task ids.
+`D-2026-09-24-queue-resequenced-for-demo` recorded the four points;
+`D-2026-10-02-demo-led-recommendation` adds Portfolio-lite to the strong demo,
+sets the journey (Kobo uninterrupted, breadth after, Lab last) and assigns
+each point a seed (`D-2026-10-02-demo-point-seed-rule`).
 
 Roadmap section 7/C permits feedback immediately after the dispatch Finding.
 Its section 13.2 checklist also asks for an indicative fuel consequence:

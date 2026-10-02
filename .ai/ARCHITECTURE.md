@@ -349,6 +349,12 @@ code, or the feature flag. Each shell imports the substrate; neither shell
 imports the other. This is what keeps the operator shell free of simulator
 imports while both render the same Site.
 
+The domain presentation profile (card, subtab and label choices per site type)
+is substrate data selected by the read model's `site_type`. `site_type` is
+domain data, not the shell, mode or variant discriminant forbidden above; the
+profile owns presentation only, and what analytics and Findings exist is the
+backend's (`D-2026-10-02-presentation-profile-and-capability-declaration`).
+
 Crossings from the operator shell into the Lab, such as an Open in Simulator Lab
 action, go through the existing single gated entry-point module, not through the
 substrate and not through a new chokepoint.
@@ -365,9 +371,17 @@ Three treatments, never blurred:
 - Not rendered at all: a gated capability, or one the product has decided not to
   have. Absence is the honest signal, because a disabled control reads as soon.
 - Labelled in place: a canonical tab that names a real aspect of an entity but
-  has no content contract yet.
+  has no content contract yet. **Not used in operator views**
+  (`D-2026-10-02-rendered-tabs-per-capability`); there such a tab is not
+  rendered.
 - Disabled with an explicit reason: a built capability that is not currently
   eligible.
+
+Rendered tabs are decided per capability, not per site: once the build has a
+truthful surface for an aspect, its tab renders on every applicable site and a
+site without the evidence shows the gap inside the tab. Applicability comes
+from the presentation profile and the backend capability declaration, never
+from data presence (`D-2026-10-02-rendered-tabs-per-capability`).
 
 The test for an action control is whether the feature map can name the causal
 step that makes it true. If it can, disable it and name that prerequisite. If

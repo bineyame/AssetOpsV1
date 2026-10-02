@@ -24,6 +24,11 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-02-demo-led-recommendation` | 2026-10-02 | Owner approved `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` at `57ea23e` ("review looks fine."); D1-D8 verbatim; section 9 outcomes are the coordinator's reading; its sequence supersedes the 2026-09-24 queue order from T027. Recorded by the Planner (Claude under the Codex exception). |
+| `D-2026-10-02-rendered-tabs-per-capability` | 2026-10-02 | Rendered tabs are meaningful destinations decided per capability, not per site; "labelled in place" is not used in operator views; rendered Site tabs by milestone. Amends the 2026-09-13 canonical-fidelity and 2026-09-17 Foundation entries. |
+| `D-2026-10-02-grammar-ownership-test` | 2026-10-02 | A place keeps its slot only if it owns something no other place shows; exceptions recorded; tasks citing overridden v6.9 text cite the decision; grouped rail is target, filtered to live items. |
+| `D-2026-10-02-presentation-profile-and-capability-declaration` | 2026-10-02 | Presentation profile is static substrate data keyed by `site_type` (presentation only); the backend analytic capability declaration (T028) owns Finding types, evidence requirements and verification rules; three rendering rules. |
+| `D-2026-10-02-demo-point-seed-rule` | 2026-10-02 | Each demo point ships an idempotent, rehearsed seed owned by the slice that creates it, checked with the Lab gate off. |
 | `D-2026-10-02-delay-is-a-reporting-path-cause` | 2026-10-02 | A delayed publication is a scenario-declared reporting-path cause the publication profile answers for, like a reporting gap; it never changes value or source time, and one that would reorder publications is refused (release order is T026A). Architect ruling (Claude under the Codex exception). |
 | `D-2026-10-02-scenario-states-override-issuer` | 2026-10-02 | A scenario control override is published as an operator-commanded override record only when its scenario EVENT entry declares `issued_by: OPERATOR` (optional, refused on any state but the stop-threshold and battery-reserve forcings); absent means no operator command, so no record. Who issued a change is a world fact the scenario states, not something the publication layer infers from the state key. `kobo-mini-grid-degraded-evidence` v1 declares it (re-pinned in-branch); `kobo-mini-grid-stop-60` is unchanged and publishes none. Contract stays 9. Owner signed off 2026-10-02; recommendation `.agent/T026-C1-architect-note.md`. |
 | `D-2026-10-02-template-bump-record` | 2026-10-02 | A shipped template records a bump by `template_version`, pinned fingerprint and header note; `supersedes`/valid-from in `D-2026-10-01-run-binds-scenario-to-site` apply to scenarios only. A new device signal is template content: Kobo goes to v3 in T026. Owner signed off 2026-10-02. |
@@ -36,7 +41,7 @@ the forecast was removed; relative version guidance is now in
 | `D-2026-09-13-site-foundation-persistence` | 2026-09-13 | Persisted Sites, shipped templates, user-created Sites, and a swappable persistence adapter. |
 | `D-2026-09-13-site-foundation-resequence` | 2026-09-13 | Site Foundation step 3 is template catalog, create from template, then read-only Site Configuration. |
 | `D-2026-09-13-template-and-create-surfaces-gated` | 2026-09-13 | Template browsing and simulated Site creation are Simulator Lab surfaces behind the gate. |
-| `D-2026-09-13-canonical-fidelity` | 2026-09-13 | Canonical mockup fidelity is staged after each surface has truthful content. |
+| `D-2026-09-13-canonical-fidelity` | 2026-09-13 | Canonical mockup fidelity is staged after each surface has truthful content. Amended by `D-2026-10-02-rendered-tabs-per-capability`. |
 | `D-2026-09-13-shared-site-substrate` | 2026-09-13 | Operator and Lab Site pages share one substrate at `frontend/src/sites/`. |
 | `D-2026-09-13-provenance-status-vocabulary` | 2026-09-13 | Source mode, lifecycle, configuration origin, evidence readiness, and source health remain separate. |
 | `D-2026-09-13-t006-preimplementation` | 2026-09-13 | T006 pre-implementation decisions for runtime gate proof, created Site shape, and non-loosening guard updates. |
@@ -44,7 +49,7 @@ the forecast was removed; relative version guidance is now in
 | `D-2026-09-17-source-health-backing` | 2026-09-17 | Gateway/source health is backed by source observations, not Site lifecycle or simulator provenance. |
 | `D-2026-09-17-site-foundation-fetch-seam` | 2026-09-17 | The Site Foundation frontend/backend fetch seam needs a focused integration test before expansion. |
 | `D-2026-09-17-client-demo-readiness` | 2026-09-17 | Historical readiness ladder; superseded by D-2026-09-24-v4-roadmap-replan. |
-| `D-2026-09-17-foundation-screen-architecture` | 2026-09-17 | The operator Site surface formerly called Site Configuration becomes Foundation, with line-cited Site tabs, filtered Foundation subtabs, route compatibility, and inventory guards. |
+| `D-2026-09-17-foundation-screen-architecture` | 2026-09-17 | The operator Site surface formerly called Site Configuration becomes Foundation, with line-cited Site tabs, filtered Foundation subtabs, route compatibility, and inventory guards. Amended by `D-2026-10-02-rendered-tabs-per-capability`. |
 | `D-2026-09-20-layout-evidence-standing` | 2026-09-20 | Browser layout evidence is standing closeout evidence for layout-sensitive slices, kept outside the portable architecture runner. |
 | `D-2026-09-20-no-merged-task-status-guard` | 2026-09-20 | No guard ties a merged slice's task status to branch state; closeout discipline stays manual until the drift recurs. |
 | `D-2026-09-20-breaker-vocabulary` | 2026-09-20 | A breaker is topology and, when instrumented, a reported-about thing; position is evidence, not Foundation configuration. |
@@ -688,6 +693,9 @@ columns and status vocabulary, tab sets, empty and unavailable states, the new
 mockup-fidelity seam and its CI guard, the read-only configuration UI seam, task
 count and task shape for the Site Foundation feature.
 
+Amended by `D-2026-10-02-rendered-tabs-per-capability`: "labelled in place" is
+not used in operator views; the rest of this entry stands.
+
 ## 2026-09-13
 
 Decision: Navigation growth is its own concern with its own rule, not a
@@ -1048,6 +1056,10 @@ heading and tab labels, operator Site tab row, Foundation subtab row, planned
 T009-T016 task wording and sequencing, navigation truthfulness guard,
 architecture guard messages, frontend tests, shared Site substrate naming
 cleanup, and future Planner rewrites of uncompleted task files.
+
+Amended by `D-2026-10-02-rendered-tabs-per-capability`: Site tabs and
+Foundation > Readiness are no longer labelled in place; tabs render per
+capability. The rest of this entry stands.
 
 ## 2026-09-20
 
@@ -3428,3 +3440,229 @@ signed off 2026-10-02**: it narrows the wording of an owner-accepted clause.
 
 Affected scope: `config/site-templates/kobo-mini-grid-60kw.yaml`,
 `backend/tests/test_site_template_fingerprints.py`, T026.
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-demo-led-recommendation`. **The owner approved the
+Architect's demo-led recommendation, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` at
+`57ea23e`, on 2026-10-02. Its near-term sequence (section 7) supersedes the
+queue order of `D-2026-09-24-queue-resequenced-for-demo` from T027 onward.**
+
+The recommendation was produced by the Architect (Claude under the Codex-reset
+exception in `.ai/ROLE_CONFIG.md`); this entry was recorded by the Planner
+(Claude, same exception). Codex may review both retrospectively.
+
+**Owner records.** `.agent/owner-instruction-final-recommendation-2026-10-02.md`
+(the instruction to produce the final version and then guide the Planner) and
+`.agent/owner-approval-final-recommendation-2026-10-02.md`. The owner's
+approval, verbatim:
+
+> review looks fine.
+
+**The owner's dispositions (recommendation 8.1, verbatim):**
+
+| Decision | Owner feedback |
+| --- | --- |
+| D1 filtered grouped root menu | Accept, but don't promise the full v6.9 end-state can never change |
+| D2 Portfolio-lite after T034 | Strong accept |
+| D3 Kobo detect→verify uninterrupted | Strong accept |
+| D4 opportunity before fuel; service before battery | Accept as priority intent, dependency-check before exact reorder |
+| D5 static mini-grid archetype descriptor | Accept with narrower authority |
+| D6 Site Evidence at T027 | Accept, but T027 = source/coverage; analytic claim readiness matures from T028 |
+| D7 Action + Foundation Changes representation | Accept; very coherent |
+| D8 park T025h | Accept |
+
+Owner's summary: "Adopt the sequencing and product-surface recommendations,
+but loosen unnecessary loyalty to rendered canonical navigation, narrow the
+domain descriptor's authority, and distinguish source-evidence readiness at
+T027 from claim-capability readiness that emerges with analytics at T028+."
+
+**Section 9 outcomes: the coordinator's reading, not the owner's words.** The
+owner said "review looks fine." and gave no different answer on any section 9
+item; the coordinator read each item as taken at the recommended option (as
+recorded in the approval file). The owner may correct any of these readings:
+
+1. Global Financials stays open; decide after T036.
+2. BusinessContext is site-scoped in T029, with "shared or portfolio assumption
+   sets" as the trigger to revisit global Financials.
+3. "Labelled in place" is not used in operator views (narrowed, not retired
+   everywhere); rendered tabs are filtered per capability, not per site
+   (`D-2026-10-02-rendered-tabs-per-capability`).
+4. Work off the point-2 journey may move to a thin follow-on after T029.
+5. Opportunity-first is accepted with its two-slice cost (T031 and T032 ahead
+   of T030), subject to the Planner's dependency check (recommendation 6.3).
+6. No cold-chain screens in the polished demo.
+
+**Journey and demo story.** The recommendation's journey (5.1, "Kobo runs
+uninterrupted": detect, explain, monetise, intervene and verify in one run,
+breadth after, Lab last) supersedes the walk order in
+`Docs/mini-grid-demo-architecture-and-roadmap.md` sections 5 and 13.3 for demo
+purposes. The roadmap is an owner source document and is not edited; the
+queue's demo story and demo-point table live in `tasks/README.md` and
+`.ai/PRODUCT.md`. Roadmap and v6.9 text that this decision overrides are not an
+acceptance oracle against it (`D-2026-10-02-grammar-ownership-test`).
+
+**Carried rules** each have their own entry so tasks cite exactly what they
+rely on: `D-2026-10-02-rendered-tabs-per-capability`,
+`D-2026-10-02-grammar-ownership-test`,
+`D-2026-10-02-presentation-profile-and-capability-declaration`,
+`D-2026-10-02-demo-point-seed-rule`.
+
+Affected scope: `tasks/README.md` order and demo points, T025h (parked), T027,
+T028, T029, T029B (new), T029A, T034, T034A (new), T030-T033, T035, T036,
+`.ai/PRODUCT.md` demo milestones, routing in `.ai/START_HERE.md` and
+`.ai/ACTIVE_CONTEXT.md`.
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-rendered-tabs-per-capability`. **The rendered tab set
+holds only meaningful destinations, decided per capability, not per site; and
+"labelled in place" is not used in operator views.**
+
+Recorded by the Planner (Claude under the Codex-reset exception) from the
+approved recommendation 2.4 and section 9 item 3 (coordinator's reading; see
+`D-2026-10-02-demo-led-recommendation`).
+
+The owner's rule, verbatim: "The canonical tab set defines ownership and
+future placement; the rendered tab set contains only meaningful destinations
+unless absence itself communicates something useful."
+
+- **Per capability, not per site.** "Meaningful destination" means this build
+  has a truthful surface for the aspect, not that this site has data for it.
+  Once a capability exists, its tab renders on every applicable site, and a
+  site without the evidence shows the gap inside the tab. In-page gaps are
+  ordinary claim discipline, not an exception to the rule.
+- **Applicability is a separate filter**, from the presentation profile and the
+  backend capability declaration
+  (`D-2026-10-02-presentation-profile-and-capability-declaration`), never from
+  data presence.
+- **"Labelled in place" is not used in operator views.** The other two
+  Presentation Honesty treatments (not rendered; disabled with a stated reason)
+  stand unchanged. This narrows the treatment; it is not retired everywhere.
+  Checked on 2026-10-02: no non-operator surface renders it today. The only
+  non-operator mentions are code comments (`frontend/src/shell/simulatorLabRoutes.tsx`,
+  `frontend/src/ui/DataTable.tsx`); T027 phase 1 updates them with the
+  operator code.
+- **Rendered Site tabs by milestone**, one canonical inventory filtered by
+  capability, in canonical order: T027 three (Overview, Foundation, Evidence);
+  T028 five (+ Performance, Findings); T029 six (+ Financials); T034 seven
+  (+ Work); T033 eight (+ Health, between Foundation and Performance).
+- **Foundation** renders `Definition | Topology | Controls`, plus `Changes` from
+  T034. `Readiness` is not rendered: claim readiness lives on Site > Evidence
+  only.
+- **Site > Work** renders the Actions index with no subtab row while the WORK
+  group holds only Actions.
+- **Other contextual sets:** Finding detail `Overview | Evidence | Alternatives`
+  at T028, with Recommendation and History at T034; Action `Overview |
+  Verification` at T034, the rest when they have content.
+
+**What it amends.** `D-2026-09-13-canonical-fidelity` (the "three treatments"
+rule's middle treatment, and its application of labelled-in-place to Site
+tabs) and `D-2026-09-17-foundation-screen-architecture` (six Site tabs and
+Foundation > Readiness labelled in place). Those entries are not rewritten.
+What still stands in them: content before chrome; absent versus disabled;
+parameterless routes are not destinations; replace-never-loosen guards; the
+v6.9 tab vocabulary and canonical order as the ownership set.
+
+Implementation lands in T027 phase 1 (filter changed, labels removed,
+`tools/checks/navigation-truthfulness.ps1` and its tests updated without
+loosening: a tab the build cannot open is not rendered, never disabled, and
+never labelled in place in operator views) and T034 (Foundation > Changes).
+
+Affected scope: `.ai/ARCHITECTURE.md` Presentation Honesty,
+`frontend/src/shell/operatorSiteTabs.tsx`,
+`frontend/src/sites/FoundationSubtabs.tsx`, their tests,
+`tools/checks/navigation-truthfulness.ps1`, T027, T028, T029, T033, T034.
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-grammar-ownership-test`. **A place in the navigation
+grammar keeps its slot only if it owns something no other place shows; every
+exception is recorded.**
+
+Recorded by the Planner (Claude under the Codex-reset exception) from the
+approved recommendation 2.2 and owner disposition D1 (8.1, 8.2).
+
+- A place keeps its slot only if it **owns** something no other place shows:
+  objects, a workflow, or site-owned content.
+- A proposed exception names what would be lost by removing or moving the
+  item, and what currently duplicates it.
+- Every exception gets a `DECISIONS.md` entry. A task that cites v6.9 or
+  roadmap text that a decision overrides cites that decision too, so v6.9 is
+  not used as an acceptance oracle against an owner ruling.
+- **D1's carry.** The grouped root menu (OPERATE, INTELLIGENCE, WORK,
+  ASSURANCE, BUSINESS) is the target and the reference, not frozen; the
+  owner's wording: "Accept, but don't promise the full v6.9 end-state can
+  never change". The demo rail is filtered to live items: T027 Sites only, no
+  header; headers from T028 (OPERATE: Sites; INTELLIGENCE: Findings); WORK:
+  Actions at T034; Portfolio before Sites from Portfolio-lite (T034A); Assets
+  after Sites at T033; ASSURANCE: Evidence at T036 only if it passes this test
+  with its own entry. Layout evidence from T028 covers a one-item group.
+
+Affected scope: rail and tab growth in T027-T036, global Evidence at T036,
+global Financials (open; `D-2026-10-02-demo-led-recommendation` item 1).
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-presentation-profile-and-capability-declaration`.
+**Domain presentation is static substrate data keyed by `site_type`; which
+analytics, Finding types, evidence requirements and verification rules exist
+is owned by the backend through an analytic capability declaration born in
+T028.**
+
+Recorded by the Planner (Claude under the Codex-reset exception) from the
+approved recommendation 4.3 and owner disposition D5.
+
+- **`DomainPresentationProfile`** owns only: overview domains (which cards
+  exist, and their order); performance views (subtab list and order); health
+  emphasis; labels and vocabulary; consequence presentation. It is substrate
+  data selected from the read model's `site_type`. `site_type` is domain data,
+  not a shell, mode or variant discriminant.
+- **The backend owns the rest.** The owner's boundary, verbatim: backend and
+  domain modules remain authoritative about "what findings actually exist",
+  "what evidence an analytic requires" and "what verification rules exist";
+  "The descriptor can reference those capabilities, but shouldn't become the
+  canonical source for them." The failure it prevents: "frontend pack says
+  this Finding exists / backend analytic says something different".
+- **Analytic capability declaration** (born in T028; verification rules join
+  at T034): each analytic declares its id and applicable site types, the
+  Finding type it may emit, required and optional evidence, and claim levels.
+  The backend serves the evaluated, site-scoped version as a read model. A
+  `tools/checks` guard copies the rigour of the simulator model-profile
+  pattern, not its data: product analytics may not read
+  `EXECUTION_REQUIREMENTS` or any private or simulator flow.
+- **Three rendering rules**, applying to backend-served capability ids
+  (Performance subtabs, a card's assessment slot, Evidence capability rows,
+  Finding types), not to the profile's Overview domain cards: (1) a backend id
+  the profile does not know still renders, with the backend's display name in
+  a default position; (2) a profile id the backend does not serve renders
+  nothing, and a test flags the orphan; (3) a gap is shown only from backend
+  state, never from the profile.
+- **Timing:** write the profile the first time a second Overview card or
+  Performance subtab appears; no hard-coded card or subtab lists in shared
+  frames.
+
+Affected scope: `.ai/ARCHITECTURE.md` Shared Presentation Substrate, T027
+phase 2 (profile born), T028 (declaration born), T030-T033 and T035 (each
+analytic joins), T034 (verification rules join).
+
+## 2026-10-02
+
+Decision: `D-2026-10-02-demo-point-seed-rule`. **Each demo point ships with an
+idempotent, rehearsed seed, owned by the slice that creates the point, checked
+with the Lab gate off.**
+
+Recorded by the Planner (Claude under the Codex-reset exception) from the
+approved recommendation 5.2.
+
+- Idempotent: loading the seed twice neither double-ingests nor duplicates a
+  site. Data enters through normal ingestion, never hand-staged.
+- Rehearsed: the owning slice walks its demo point's journey on the seed and
+  documents the seed command in its packet.
+- Owners: point 1 (T027) is a live run and needs no seed; point 2: T029 (Kobo
+  healthy and prolonged-runtime windows); point 3: T034 (Kobo's post-action
+  window) and T034A Portfolio-lite (three sites); point 4: T036 (whatever
+  sites remain). Breadth slices T030, T031/T032, T033 and T035 each own the
+  recipe and seed of their own site.
+
+Affected scope: T029, T034, T034A, T030-T033, T035, T036.

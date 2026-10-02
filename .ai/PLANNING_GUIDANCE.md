@@ -141,6 +141,10 @@ is live, and is deleted when its last slice closes out.
 
 Live now:
 
+- `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` (owner-approved 2026-10-02,
+  `D-2026-10-02-demo-led-recommendation`) is live direction for T027-T036:
+  navigation and tab growth, page hierarchies, the demo journey and the
+  sequence `tasks/README.md` now holds.
 - `.ai/PLANNING_HANDOFF_T020A_T023.md` has been rewritten from v4 and the
   corrected roadmap. It carries the immediate property/addressed-binding
   sizing, kernel composition boundary and the retained starter queue.
