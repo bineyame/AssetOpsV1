@@ -26,6 +26,7 @@ from assetops_contracts.source_envelope import (
     SourceMappingSet,
     canonical_envelope_json,
     check_against_mapping,
+    envelope_message_id,
     mapping_set_document,
     parse_canonical_envelope_json,
     parse_mapping_set,
@@ -292,8 +293,18 @@ class TestParserCarries:
         for level, name in [("source", "device_id"), ("payload", "unit")]:
             document = json.loads(canonical_envelope_json(envelope))
             document[level][name] = document[level][name] + "\n"
-            with pytest.raises(EnvelopeRejected):
+            # The message id is recomputed, so only the newline can refuse it.
+            document["message"]["message_id"] = envelope_message_id(
+                site_id=document["source"]["site_id"],
+                gateway_id=document["source"]["gateway_id"],
+                source_id=document["source"]["source_id"],
+                device_id=document["source"]["device_id"],
+                signal_id=document["source"]["signal_id"],
+                source_time=document["timing"]["source_time"],
+            )
+            with pytest.raises(EnvelopeRejected) as refused:
                 parse_source_envelope(document)
+            assert refused.value.field == f"{level}.{name}"
 
     def test_a_zero_denominator_is_a_refusal_not_an_exception(self) -> None:
         """Review R2: `1/0` matched the pattern and raised ZeroDivisionError."""
