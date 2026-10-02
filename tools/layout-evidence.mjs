@@ -2415,7 +2415,12 @@ const SUBMIT_KOBO_SETUP = `(() => {
     setNative(window.HTMLSelectElement.prototype, element, option.value);
     return true;
   };
+  const radio = Array.from(document.querySelectorAll('input[name="run-setup-site"]')).find(
+    (item) => item.value === ${JSON.stringify(KOBO_SITE)},
+  );
+  if (radio) radio.click();
   const filled =
+    !!radio &&
     setValue("run-setup-start", "2026-09-22T03:00:00Z") &&
     setValue("run-setup-end", "2026-09-22T15:00:00Z") &&
     setValue("run-setup-timestep", "15") &&
@@ -2801,6 +2806,17 @@ const submitV2Setup = (start, end) =>
     .replace('"simulator-lab-publication")', '"simulator-lab-publication@4")')
     .replace("item.value.includes(fragment)", "item.value.startsWith(fragment)");
 
+// T026: the same Draft setup against `mini-grid` v3 under publication profile 5
+// (records, gaps and delays published; the generator status staged).
+const submitV3Setup = (start, end) =>
+  submitV2Setup(start, end)
+    .replace('"mini-grid@2"', '"mini-grid@3"')
+    .replace('"simulator-lab-publication@4"', '"simulator-lab-publication@5"');
+
+// Which signals a run's stage lists as "observed, not staged", by publication
+// profile: profile 4 does not stage the generator status, profile 5 does.
+const EXPECT_UNSTAGED = { 4: ["generator-controller:status"], 5: [] };
+
 const READ_V2_RUN = `(() => {
   const text = (element) => (element ? (element.textContent || '').trim() : null);
   const all = (selector) => Array.from(document.querySelectorAll(selector));
@@ -2897,8 +2913,8 @@ for (const [name, href] of Object.entries(v2Runs)) {
           `${read.controls.join("; ")}; stop ${read.stopValue}`,
         ],
         [
-          "the status is disclosed as observed and not staged, and read as a member",
-          read.unstaged.join(",") === "generator-controller:status" &&
+          "profile 4 discloses the status as observed and not staged, and it is read as a member",
+          read.unstaged.join(",") === EXPECT_UNSTAGED[4].join(",") &&
             /^[A-Z]+$/.test(read.statusObserved ?? ""),
           `unstaged ${read.unstaged.join(",") || "none"}; status true value ${read.statusObserved}`,
         ],
@@ -3258,7 +3274,9 @@ const t025d = {};
 
 // --- T025e: the organised cockpit, live follow and no intermediate frames ---
 //
-// AC12. A fresh stop-60 Draft (97 boundaries, 5 min) is auto-played at the
+// AC12. A fresh degraded-evidence Draft (`mini-grid` v3 / publication profile 5,
+// 8 h at 5 min, so records, a gap and a held publication are in every capture;
+// T026 AC15 re-measures it with those rows) is auto-played at the
 // 0.25 s delay for at least 20 steps with the history cursor live, sampled on
 // every animation frame; then with the cursor pinned, watched by a
 // MutationObserver. Delta bytes, the client commit time and the server's
@@ -3380,14 +3398,14 @@ const clock = `Number(document.querySelector('[data-execution-clock]')?.getAttri
   await cdp.send("Page.addScriptToEvaluateOnNewDocument", {
     source: "try { performance.setResourceTimingBufferSize(10000); } catch (e) {}",
   });
-  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-stop-60/run-setup", 1280, 800, "form", {
-    script: submitV2Setup("2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"),
+  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-degraded-evidence/run-setup", 1280, 800, "form", {
+    script: submitV3Setup("2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"),
     waitFor: ".data-table__scroll",
   });
   const listed = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
   const href = listed.runRows.find((row) => row.status === "READY")?.href ?? null;
   if (href === null || Object.values(v2Runs).includes(href) || href === t025d.played) {
-    throw new Error("No new READY stop-60 Draft was found for the T025e pass.");
+    throw new Error("No new READY degraded-evidence Draft was found for the T025e pass.");
   }
   await visit(cdp, href, 1280, 800, "[data-execution-status]");
   await waitForSelector(cdp, "[data-cockpit]");
@@ -3600,6 +3618,127 @@ const clock = `Number(document.querySelector('[data-execution-clock]')?.getAttri
         "the terminal answer made exactly one full read, and none happened between the first step and it",
         done.steps.historyReads === fullBefore + 1,
         `${fullBefore} full reads before play; ${done.steps.historyReads} after the terminal step`,
+      ],
+    ]) && allPass;
+}
+
+// --- T026: the dispatch-capable evidence on the Lab screen ------------------
+//
+// A degraded-evidence Draft (`mini-grid` v3 / publication profile 5: a
+// discharge-capability gap, the SOC publication held 07:00Z -> 07:10Z, the
+// override record missing) run to its end, at two widths. The status staging
+// claim follows the run's frozen mapping: profile 4 names the status
+// "observed, not staged" (measured above); profile 5 stages it, so that line
+// is absent and the staged statement stands in its place. Every claim about
+// content is paired with a count so it cannot pass on an empty set.
+const READ_T026 = `(() => {
+  const all = (selector) => Array.from(document.querySelectorAll(selector));
+  const text = (element) => (element ? (element.textContent || '').trim() : '');
+  const attempts = all('[data-history-attempt]');
+  const table = attempts[0] ? attempts[0].closest('table') : null;
+  const go = document.querySelector('[data-timeline-entry="Publication delay"] [data-timeline-go]');
+  return {
+    status: document.querySelector('[data-execution-status]')?.getAttribute('data-execution-status') ?? null,
+    families: /families recorded \\d+ of \\d+/.test(document.body.innerText),
+    unstaged: all('[data-stage-unstaged-signal]').map((i) => i.getAttribute('data-stage-unstaged-signal')),
+    stagedStatement: /stages it as a typed member in the run's source envelopes/.test(document.body.innerText),
+    entryKinds: Array.from(new Set(all('[data-timeline-entry]').map((r) => r.getAttribute('data-timeline-entry')))),
+    entries: all('[data-timeline-entry]').length,
+    stageRows: all('[data-staged-envelope]').length,
+    recordRows: all('[data-staged-quality="RECORD"]').length,
+    reportedSquare: all('[data-chart-reported-mark="square"]').length,
+    panels: all('[data-chart-panel]').length,
+    attemptRows: attempts.length,
+    attemptColumns: table ? table.querySelectorAll('thead th').length : 0,
+    attemptPublication: attempts.map((r) => text(r)).filter((t) => /Sensor gap: |Publication delay: source|No publication delay recorded/.test(t)).length,
+    delayedCells: attempts.map((r) => text(r)).filter((t) => /Publication delay: source/.test(t)).length,
+    goDelay: go ? go.getAttribute('data-timeline-go') : null,
+  };
+})()`;
+
+{
+  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-degraded-evidence/run-setup", 1280, 800, "form", {
+    script: submitV3Setup("2026-09-22T03:00:00Z", "2026-09-22T11:00:00Z"),
+    waitFor: ".data-table__scroll",
+  });
+  const listed = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const href = listed.runRows.find((row) => row.status === "READY")?.href ?? null;
+  if (href === null || Object.values(v2Runs).includes(href) || href === t025d.played) {
+    throw new Error("No new READY degraded-evidence Draft was found for the T026 pass.");
+  }
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Start this run"),
+    waitFor: "[data-execution-status='RUNNING']",
+  });
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Run to the end"),
+    waitFor: "[data-execution-status='COMPLETED']",
+  });
+  for (const [label, width, height] of [["1280x800", 1280, 800], ["640x700", 640, 700]]) {
+    const page = await visit(cdp, href, width, height, "[data-cockpit]");
+    await sleep(500);
+    const read = await evaluate(READ_T026);
+    allPass =
+      report(`T026 degraded-evidence run (profile 5), completed, at ${label}`, page, [
+        ["the run completed", read.status === "COMPLETED", `${read.status}`],
+        [
+          "profile 5 stages the status: no 'observed, not staged' line, the staged statement is shown",
+          read.unstaged.join(",") === EXPECT_UNSTAGED[5].join(",") && read.stagedStatement,
+          `unstaged ${read.unstaged.join(",") || "none"}; staged statement ${read.stagedStatement}`,
+        ],
+        [
+          "the header states family coverage, and there are staged rows, record rows and entries",
+          read.families && read.stageRows > 0 && read.recordRows > 0 && read.entries > 0,
+          `coverage text ${read.families}; ${read.stageRows} envelopes, ${read.recordRows} record rows, ${read.entries} timeline entries (${read.entryKinds.join(", ")})`,
+        ],
+        [
+          "the reported-run charts draw a second reported track as square marks, and there are some",
+          read.reportedSquare > 0 && read.panels > 0,
+          `${read.reportedSquare} square marks in ${read.panels} panels`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+        [
+          "every table that overflows scrolls inside its own region",
+          page.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+          page.scrollers
+            .map((s) => `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`)
+            .join("; "),
+        ],
+      ]) && allPass;
+  }
+  // The cursor goes through the held publication (07:00Z held, released 07:10Z:
+  // boundaries 48 to 51): the inspector's attempts table has five columns, the
+  // Applied timeline offers the delay, and the delayed reading is named.
+  await visit(cdp, href, 1280, 800, "[data-cockpit]");
+  await sleep(300);
+  const seen = [];
+  for (const boundary of [48, 49, 50, 51]) {
+    await evaluate(`(() => {
+      const range = document.getElementById('history-cursor-range');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(range, '${boundary}');
+      range.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    })()`);
+    await sleep(600);
+    seen.push({ boundary, ...(await evaluate(READ_T026)) });
+  }
+  const columns = Math.max(...seen.map((r) => r.attemptColumns));
+  allPass =
+    report("T026 inspector through the held publication, 1280", null, [
+      [
+        "the cursor reached the hold, with attempt rows and a Publication delay entry",
+        seen.some((r) => r.attemptRows > 0) && seen.some((r) => r.entryKinds.includes("Publication delay")),
+        seen.map((r) => `${r.boundary}: ${r.attemptRows} rows, kinds ${r.entryKinds.join("/") || "none"}`).join("; "),
+      ],
+      [
+        "the attempts table has five columns, and a delayed reading is named",
+        columns === 5 && seen.some((r) => r.delayedCells > 0),
+        `${columns} columns; delayed rows ${seen.map((r) => `${r.boundary}:${r.delayedCells}`).join(", ")}; publication states ${seen.map((r) => `${r.boundary}:${r.attemptPublication}`).join(", ")}`,
       ],
     ]) && allPass;
 }
