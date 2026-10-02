@@ -7,6 +7,8 @@ import {
   HistoryCockpit,
   HistoryFacts,
   HistoryRecordsAtCursor,
+  stagedSignal,
+  unavailableArrival,
 } from "./HistoryInspector";
 import { RunHeader } from "./RunHeader";
 import {
@@ -34,7 +36,6 @@ import type {
   RunDetailResult,
   RunExecutionResult,
   RunSetupClient,
-  RunStageMapping,
   RunStageMappingEntry,
   RunStageResult,
   RunStagedEnvelope,
@@ -1104,7 +1105,11 @@ export function RunFrame({
       </Disclosure>
 
       <Disclosure name="raw-records" summary="Raw records at the history cursor">
-        <HistoryRecordsAtCursor held={history} selected={selectedOffset(frameState)} />
+        <HistoryRecordsAtCursor
+          held={history}
+          selected={selectedOffset(frameState)}
+          mapping={stage !== null && stage.status === "loaded" ? stage.stage.mapping : null}
+        />
       </Disclosure>
 
       <Disclosure name="stage" summary="Stage and staged envelopes">
@@ -1437,20 +1442,6 @@ function isRecord(envelope: RunStagedEnvelope): boolean {
   return envelope.family !== undefined && envelope.family !== "MEASUREMENT";
 }
 
-/** Whether a stage's frozen mapping carries a signal. */
-function stagedSignal(
-  mapping: RunStageMapping | null,
-  signal: { device_id: string; signal_id: string },
-): boolean {
-  return (
-    mapping !== null &&
-    mapping.entries.some(
-      (entry) =>
-        entry.device_id === signal.device_id && entry.signal_id === signal.signal_id,
-    )
-  );
-}
-
 /** What a mapping entry publishes, in words: a measurement class, an enum, a record. */
 function publishedAs(entry: RunStageMappingEntry): string {
   if (entry.family !== undefined && entry.family !== "MEASUREMENT") {
@@ -1467,8 +1458,9 @@ function publishedAs(entry: RunStageMappingEntry): string {
  *
  * A publication delay is read from the history's held row for this envelope
  * (same device, signal and source time), whose `held_minutes` is the host's;
- * nothing here subtracts times. An `UNAVAILABLE` envelope is a sensor gap: no
- * fresh reading existed to publish.
+ * nothing here subtracts times. An `UNAVAILABLE` envelope says its reason
+ * (`unavailableArrival`, shared with the inspector): only a reporting-path
+ * outage is a sensor gap.
  */
 function envelopeArrival(
   envelope: RunStagedEnvelope,
@@ -1490,12 +1482,7 @@ function envelopeArrival(
     };
   }
   if (envelope.quality === "UNAVAILABLE") {
-    return {
-      kind: "SENSOR_GAP",
-      text:
-        `Sensor gap: no fresh reading existed (${envelope.unavailable_reason ?? "unavailable"}). ` +
-        "Not a publication delay.",
-    };
+    return unavailableArrival(envelope.unavailable_reason ?? null);
   }
   if (publications === null) {
     return {

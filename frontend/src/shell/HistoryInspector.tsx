@@ -9,6 +9,7 @@ import { IntervalInspection } from "./IntervalInspection";
 import { completedIntervalAt } from "./intervalDrawingModel";
 import type { BoundarySlice } from "./liveHistory";
 import type { HeldHistory, HistoryLag } from "./runFrameState";
+import type { RunStageMapping } from "./runSetupClient";
 import type {
   RunHistory,
   RunHistoryAttempt,
@@ -268,9 +269,11 @@ function atCursor(
 export function HistoryRecordsAtCursor({
   held,
   selected,
+  mapping,
 }: {
   held: HeldHistory | null;
   selected: number | null;
+  mapping: RunStageMapping | null;
 }) {
   if (held === null || held.status !== "loaded" || selected === null) {
     return <p>No boundary is recorded, so there is no record to show.</p>;
@@ -281,6 +284,7 @@ export function HistoryRecordsAtCursor({
       slice={at.slice}
       offset={selected}
       publications={held.history.publications}
+      mapping={mapping}
     />
   );
 }
@@ -453,18 +457,76 @@ function HistoryCursor({
   );
 }
 
+/** Whether a stage's frozen mapping carries a signal. */
+export function stagedSignal(
+  mapping: RunStageMapping | null,
+  signal: { device_id: string; signal_id: string },
+): boolean {
+  return (
+    mapping !== null &&
+    mapping.entries.some(
+      (entry) =>
+        entry.device_id === signal.device_id && entry.signal_id === signal.signal_id,
+    )
+  );
+}
+
 /**
- * T026 AC10: how one attempt's reading reached publication. A missing reading
- * is a sensor or reporting gap - nothing existed to publish. A reading a delay
- * held is a publication delay - it exists, keeps its source time and was
- * published later, by the host-recorded `held_minutes`. A reading with no held
- * row was not held, as far as the recorded history reaches.
+ * What a typed absence published as `UNAVAILABLE` says, by its closed reason.
+ * One rule for the inspector's attempt and the stage's envelope, so the two
+ * agree at the same cursor. Only a reporting-path outage is a sensor gap.
+ */
+export function unavailableArrival(reason: string | null): { kind: string; text: string } {
+  const named = reason ?? "unavailable";
+  if (reason === "NO_COMPLETED_INTERVAL") {
+    return {
+      kind: "NO_COMPLETED_INTERVAL",
+      text:
+        `Published as UNAVAILABLE (${named}): the interval this reading summarises had ` +
+        "not completed. Not a sensor gap and not a publication delay.",
+    };
+  }
+  if (reason === "NO_MEASUREMENT") {
+    return {
+      kind: "NO_MEASUREMENT",
+      text:
+        `Published as UNAVAILABLE (${named}): no value existed at the boundary. ` +
+        "Not a publication delay.",
+    };
+  }
+  if (reason === "REPORTING_PATH_UNAVAILABLE") {
+    return {
+      kind: "SENSOR_GAP",
+      text: `Sensor gap: no fresh reading existed (${named}). Not a publication delay.`,
+    };
+  }
+  return {
+    kind: "UNAVAILABLE",
+    text: `Published as UNAVAILABLE (${named}). Not a publication delay.`,
+  };
+}
+
+/** The `UNAVAILABLE` reason the gateway publishes for a typed-absence outcome. */
+const UNAVAILABLE_REASON_OF_OUTCOME: Record<string, string> = {
+  NO_PRECEDING_INTERVAL: "NO_COMPLETED_INTERVAL",
+  NO_VALUE_AT_BOUNDARY: "NO_MEASUREMENT",
+};
+
+/**
+ * T026 AC10: how one attempt's reading reached publication, by its outcome.
+ * A silenced reading is a sensor gap (nothing existed to publish). A signal
+ * the run's frozen mapping does not stage is not staged. A dropped reading was
+ * lost in transit, not a gap. A typed absence the mapping publishes went out as
+ * `UNAVAILABLE` with its reason. A reading a delay held is a publication delay
+ * (keeps its source time, published later by the host-recorded `held_minutes`);
+ * one with no held row was not held, as far as the recorded history reaches.
  */
 function attemptArrival(
   attempt: RunHistoryAttempt,
   publications: RunHistoryPublication[],
-): { kind: "SENSOR_GAP" | "DELAYED" | "NOT_HELD"; text: string } {
-  if (attempt.reported_value === null) {
+  mapping: RunStageMapping | null,
+): { kind: string; text: string } {
+  if (attempt.outcome === "SUPPRESSED_BY_GAP") {
     return {
       kind: "SENSOR_GAP",
       text: "Sensor gap: no reading existed, so nothing was published.",
@@ -477,26 +539,60 @@ function attemptArrival(
       p.signal_id === attempt.signal_id &&
       p.source_offset_minutes === attempt.at_offset_minutes,
   );
-  return held === undefined
-    ? { kind: "NOT_HELD", text: "No publication delay recorded." }
-    : {
-        kind: "DELAYED",
-        text:
-          `Publication delay: source ${held.source_time}, published ` +
-          `${held.published_at}, held ${held.held_minutes} min. Not a sensor gap.`,
-      };
+  if (held !== undefined) {
+    return {
+      kind: "DELAYED",
+      text:
+        `Publication delay: source ${held.source_time}, published ` +
+        `${held.published_at}, held ${held.held_minutes} min. Not a sensor gap.`,
+    };
+  }
+  if (mapping === null) {
+    return {
+      kind: "UNKNOWN",
+      text: "No stage is held for this run, so whether this was published is not shown.",
+    };
+  }
+  const entry = mapping.entries.find(
+    (e) => e.device_id === attempt.device_id && e.signal_id === attempt.signal_id,
+  );
+  if (entry === undefined) {
+    return {
+      kind: "NOT_STAGED",
+      text: "Not staged: this run's mapping publishes nothing for this signal.",
+    };
+  }
+  if (attempt.outcome === "DROPPED") {
+    return {
+      kind: "DROPPED",
+      text: "Publication lost in transit: the reading existed and was not delivered. Not a sensor gap.",
+    };
+  }
+  if (attempt.reported_value === null) {
+    const reason = UNAVAILABLE_REASON_OF_OUTCOME[attempt.outcome] ?? null;
+    return entry.publishes_unavailable
+      ? unavailableArrival(reason)
+      : {
+          kind: "NOT_PUBLISHED",
+          text: "No value existed, and this mapping publishes no unavailable envelope for it.",
+        };
+  }
+  return { kind: "NOT_HELD", text: "No publication delay recorded." };
 }
 
 const BoundaryRecords = memo(function BoundaryRecords({
   slice,
   offset,
   publications,
+  mapping,
 }: {
   /** The cursor boundary's slice: the rows it owns, by reference. */
   slice: BoundarySlice | null;
   offset: number;
   /** Every held publication recorded so far, to tell a delay from a gap. */
   publications: RunHistoryPublication[];
+  /** The run's frozen stage mapping, or null when no stage is held. */
+  mapping: RunStageMapping | null;
 }) {
   const records = slice === null ? [] : slice.records;
   const released = slice === null ? [] : slice.publications;
@@ -705,7 +801,7 @@ const BoundaryRecords = memo(function BoundaryRecords({
                       />
                     )}
                   </td>
-                  <PublicationCell arrival={attemptArrival(a, publications)} />
+                  <PublicationCell arrival={attemptArrival(a, publications, mapping)} />
                 </tr>
               ))}
             </tbody>

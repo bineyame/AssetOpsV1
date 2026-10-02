@@ -8,6 +8,7 @@ import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
 import { chartModel } from "../historyChartModel";
 import { intervalTimeline, runTimeline } from "../historyTimelineModel";
+import { unavailableArrival } from "../HistoryInspector";
 import { appendHistory, type AppendResult } from "../liveHistory";
 import {
   isRunHistory,
@@ -222,6 +223,37 @@ function renderReloaded(history: RunHistory, stage: RunStage = STAGED_IN_THE_GAP
   );
 }
 
+/** A stage whose frozen mapping stages the battery controller's signals. */
+function mappedStage(signals: string[]): RunStage {
+  return {
+    ...STAGED_IN_THE_GAP,
+    mapping: {
+      mapping_set_id: "simulator-lab-gateway-mini-grid",
+      mapping_version: 2,
+      publication_latency_seconds: 3,
+      entries: signals.map((signal_id) => ({
+        device_id: SOC.device_id,
+        signal_id,
+        measurement: "INTERVAL_MEAN",
+        unit: "kW",
+        publishes_unavailable: true,
+      })),
+    },
+  };
+}
+const MAPPED = mappedStage(["state-of-charge", "ac-power", "discharge-capability"]);
+
+function arrivalOf(device: string, signal: string, outcome: string) {
+  const row = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-history-attempt]"),
+  ).find(
+    (r) =>
+      r.dataset.outcome === outcome &&
+      r.querySelector("th")?.textContent === `${device} ${signal}`,
+  );
+  return row?.querySelector("[data-history-publication]") ?? null;
+}
+
 function select(offset: number): void {
   const index = FULL.boundaries.findIndex((b) => b.offset_minutes === offset);
   const range = document.getElementById("history-cursor-range") as HTMLInputElement;
@@ -236,7 +268,7 @@ function attemptRow(signal: string): HTMLElement | null {
 
 describe("the inspector after reload tells a sensor gap from a publication delay (AC10)", () => {
   it("shows the held reading's source time, publication time and host-recorded hold", async () => {
-    renderReloaded(FULL);
+    renderReloaded(FULL, MAPPED);
     await settledScreen();
     select(240);
     await settledScreen();
@@ -255,7 +287,7 @@ describe("the inspector after reload tells a sensor gap from a publication delay
       (a) => a.signal_id === "discharge-capability" && a.outcome === "SUPPRESSED_BY_GAP",
     );
     expect(silenced).toBeDefined();
-    renderReloaded(FULL);
+    renderReloaded(FULL, MAPPED);
     await settledScreen();
     select(silenced!.at_offset_minutes);
     await settledScreen();
@@ -273,7 +305,7 @@ describe("the inspector after reload tells a sensor gap from a publication delay
   });
 
   it("lists the release at the boundary that released it, and the records where they occurred", async () => {
-    renderReloaded(FULL);
+    renderReloaded(FULL, MAPPED);
     await settledScreen();
     select(250);
     await settledScreen();
@@ -287,6 +319,41 @@ describe("the inspector after reload tells a sensor gap from a publication delay
     const record = document.querySelector("[data-history-record]");
     expect(record?.getAttribute("data-outcome")).toBe("SUPPRESSED_BY_GAP");
     expect(record?.textContent).toContain("none observed");
+  });
+
+  it("says a boundary-0 interval attempt was published as UNAVAILABLE, in the stage's words", async () => {
+    renderReloaded(FULL, MAPPED);
+    await settledScreen();
+    select(0);
+    await settledScreen();
+    const cell = arrivalOf(SOC.device_id, "ac-power", "NO_PRECEDING_INTERVAL");
+    expect(cell?.getAttribute("data-history-publication")).toBe("NO_COMPLETED_INTERVAL");
+    expect(cell?.textContent).toContain("Published as UNAVAILABLE (NO_COMPLETED_INTERVAL)");
+    expect(cell?.textContent).not.toContain("nothing was published");
+    expect(cell?.textContent).toContain("Not a sensor gap");
+  });
+
+  it("says a dropped reading was lost in transit, not a sensor gap", async () => {
+    renderReloaded(FULL, MAPPED);
+    await settledScreen();
+    select(195);
+    await settledScreen();
+    const cell = arrivalOf(SOC.device_id, "state-of-charge", "DROPPED");
+    expect(cell?.getAttribute("data-history-publication")).toBe("DROPPED");
+    expect(cell?.textContent).toContain("lost in transit");
+    expect(cell?.textContent).not.toContain("Sensor gap:");
+  });
+
+  it("says not staged for a signal the frozen mapping does not carry", async () => {
+    // The fuel-only mapping of a profile 3 or 4 run stages none of these.
+    renderReloaded(FULL);
+    await settledScreen();
+    select(0);
+    await settledScreen();
+    const cell = arrivalOf(SOC.device_id, "ac-power", "NO_PRECEDING_INTERVAL");
+    expect(cell?.getAttribute("data-history-publication")).toBe("NOT_STAGED");
+    expect(cell?.textContent).toContain("Not staged");
+    expect(cell?.textContent).not.toContain("UNAVAILABLE");
   });
 });
 
@@ -362,6 +429,22 @@ describe("the stage detail tells a sensor gap from a publication delay (AC10, AC
     expect(gap?.textContent).toContain("Not a publication delay");
 
     expect(show(3)?.getAttribute("data-stage-selected-arrival")).toBe("ON_TIME");
+  });
+
+  it("names a boundary-0 UNAVAILABLE by its reason, the inspector's words", async () => {
+    const first = envelope(4, SOC.device_id, "ac-power", "2026-09-22T06:00:00Z", "2026-09-22T06:00:03Z", {
+      value: null,
+      quality: "UNAVAILABLE",
+      unavailable_reason: "NO_COMPLETED_INTERVAL",
+    });
+    renderReloaded(FULL, { ...STAGE, envelopes: [first] });
+    await settledScreen();
+    const shown = show(4);
+    expect(shown?.getAttribute("data-stage-selected-arrival")).toBe("NO_COMPLETED_INTERVAL");
+    expect(shown?.textContent).not.toContain("Sensor gap:");
+    expect(shown?.textContent).toBe(
+      unavailableArrival("NO_COMPLETED_INTERVAL").text,
+    );
   });
 
   it("shows a record as a record, not as a measurement of some quality", async () => {
