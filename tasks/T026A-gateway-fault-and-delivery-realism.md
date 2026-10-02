@@ -43,7 +43,7 @@ and a noisy signal whose imperfection is visible without being invented.
 
 - v4 sections 3, 6, 11-12 and 25.
 - Roadmap section 7/B.
-- tasks/T026-dispatch-capable-evidence.md for the contract being hardened.
+- tasks/completed/T026-dispatch-capable-evidence.md for the contract being hardened.
 - Shared checks and exclusions: tasks/README.md.
 
 ## Deliver and acceptance

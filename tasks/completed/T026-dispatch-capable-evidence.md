@@ -1,6 +1,6 @@
 # T026 - Dispatch-capable evidence
 
-Status: in_review (built 2026-10-02; Architect rulings 2026-10-02 stand)
+Status: complete (owner accepted 2026-10-02 after hands-on check; Claude review ACCEPT after fix rounds 1-2)
 USER_REVIEW_REQUIRED: true
 
 Map: B extension beyond initial fuel staging. Next: T025h (floats), then T027.

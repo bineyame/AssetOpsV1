@@ -4467,6 +4467,8 @@ Rule `D-2026-10-01-run-binds-scenario-to-site`; contract stays 9 (gate unedited)
 
 ## T026 - Dispatch-capable evidence (B extension)
 
+Complete; owner accepted 2026-10-02 after hands-on check (Claude review ACCEPT after fix rounds 1-2; Codex retrospective pending).
+
 Branch `task/T026-dispatch-capable-evidence`; packet `.agent/T026-review-packet.md`,
 handoffs `.agent/T026-phase-{1,2,3a}-handoff.md`. Contract stays 9
 (`host/tests/contract9_gate` green, execution_contract.py untouched); every change

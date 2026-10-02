@@ -50,7 +50,7 @@ when they run, as with T022B.
 | 15 | [T025e](completed/T025e-cockpit-organisation-and-live-playback.md) | Lab cockpit L1c | Organised cockpit layout and smooth playback |
 | 16 | [T025f](completed/T025f-template-versioning.md) | A/B hardening | Template v2 and site lineage staleness note |
 | 17 | [T025g](completed/T025g-run-binds-scenario-to-site.md) | A/B hardening | User picks the site; shipped scenario READY or BLOCKED by contract |
-| 18 | T026 | B | Dispatch evidence with one gap and one delayed publication |
+| 18 | [T026](completed/T026-dispatch-capable-evidence.md) | B | Dispatch evidence with one gap and one delayed publication |
 | 19 | T025h | A/B hardening | Compatibility status per site in the run-setup picker (awaiting planning) |
 | 20 | T027 | B completion | Commit -> ingestion -> persistent Site Overview |
 | 21 | T028 | C | Dispatch Finding, Evidence and bounded fuel quantity |
