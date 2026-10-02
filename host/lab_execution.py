@@ -2311,6 +2311,12 @@ class HostLabExecution:
                 + (() if session.records is None else session.records.delays),
                 records=records,
                 memo=session.envelope_memo,
+                # An envelope appears once the run has reached its release.
+                reached_offset_minutes=(
+                    session.execution.boundaries[-1].offset_minutes
+                    if session.execution.boundaries
+                    else 0
+                ),
             )
             self._stages.admit(
                 run_id=session.run_id,

@@ -109,6 +109,53 @@ def test_a_publication_still_held_is_not_yet_a_fact(tmp_path) -> None:
     assert seen[SOC_RELEASE] == 1
 
 
+#: Captured before the stage withheld held envelopes: the finished stage of the
+#: degraded-evidence run must not change (329 envelopes, repr digest).
+FINAL_STAGE_DIGEST = "0774c78ebff205a8323f378fb8776acd7413d4c4c702097c75f1174490abe87d"
+
+
+def test_the_stage_withholds_a_held_envelope_until_the_run_reaches_its_release(
+    tmp_path,
+) -> None:
+    import hashlib
+
+    run = draft(DEGRADED)
+    lab = a_lab(tmp_path)
+    lab.start(run)
+    session = lab._sessions[run.run_id]
+
+    def soc_at_source() -> list:
+        return [
+            e
+            for e in lab.staged_envelopes(run).stage.envelopes
+            if (e.device_id, e.signal_id) == SOC
+            and e.source_time == "2026-09-22T07:00:00Z"
+        ]
+
+    reached = 0
+    while reached < SOC_RELEASE:
+        session.execution.advance(1)
+        lab._stage(session)
+        reached = session.execution.boundaries[-1].offset_minutes
+        if reached < SOC_SOURCE:
+            continue
+        if reached < SOC_RELEASE:
+            # Mid-hold: its source boundary is published, its release is not.
+            assert soc_at_source() == [], reached
+            assert all(
+                e.published_at <= "2026-09-22T07:10:03Z"
+                for e in lab.staged_envelopes(run).stage.envelopes
+            )
+    (released,) = soc_at_source()
+    assert released.published_at == "2026-09-22T07:10:03Z"
+    # The release keeps the sequence the finished stage gives it.
+    lab.run_to_end(run)
+    final = lab.staged_envelopes(run).stage.envelopes
+    assert [e for e in final if e.message_id == released.message_id] == [released]
+    assert len(final) == 329
+    assert hashlib.sha256(repr(list(final)).encode()).hexdigest() == FINAL_STAGE_DIGEST
+
+
 def test_the_history_agrees_with_the_stage_about_every_held_envelope(
     degraded_root,
 ) -> None:

@@ -129,6 +129,7 @@ def publish(
     delays: tuple[PublicationDelayWindow, ...] = (),
     records: tuple[RecordObservation, ...] = (),
     memo: dict | None = None,
+    reached_offset_minutes: int | None = None,
 ) -> tuple[SourceEnvelope, ...]:
     """Every envelope the gateway publishes for a reading series, in order.
 
@@ -225,6 +226,14 @@ def publish(
             gateway_id,
             published_at,
         )
+        if _withheld(
+            delays,
+            item.device_id,
+            item.signal_id,
+            item.at_offset_minutes,
+            reached_offset_minutes,
+        ):
+            continue
         if memo is not None and memo_key in memo:
             published.append(memo[memo_key])
             continue
@@ -290,6 +299,14 @@ def publish(
             continue
         key = (record.device_id, record.signal_id)
         sequences[key] = sequences.get(key, 0) + 1
+        if _withheld(
+            delays,
+            record.device_id,
+            record.signal_id,
+            record.at_offset_minutes,
+            reached_offset_minutes,
+        ):
+            continue
         published.append(
             SourceEnvelope(
                 message_id=envelope_message_id(
@@ -340,6 +357,28 @@ def publish(
     return tuple(published)
 
 
+def _still_held(window: PublicationDelayWindow, reached_offset_minutes: int) -> bool:
+    """The one release rule: a held publication is released at its window's end."""
+    return window.end_offset_minutes > reached_offset_minutes
+
+
+def _withheld(
+    delays: tuple[PublicationDelayWindow, ...],
+    device_id: str,
+    signal_id: str,
+    offset_minutes: int,
+    reached_offset_minutes: int | None,
+) -> bool:
+    """T026: `publish` given the boundary the run has reached leaves out an
+    envelope whose hold has not ended - it is not yet a fact (nor a stage row).
+    Its sequence number is still spent, so the release keeps its final sequence.
+    """
+    if reached_offset_minutes is None:
+        return False
+    window = _held(delays, device_id, signal_id, offset_minutes)
+    return window is not None and _still_held(window, reached_offset_minutes)
+
+
 def _held(
     delays: tuple[PublicationDelayWindow, ...],
     device_id: str,
@@ -377,7 +416,7 @@ def held_publications(
 
     def note(kind, device_id, signal_id, offset, source_time) -> None:
         window = _held(delays, device_id, signal_id, offset)
-        if window is None or window.end_offset_minutes > reached_offset_minutes:
+        if window is None or _still_held(window, reached_offset_minutes):
             return
         held.append(
             HeldPublication(
