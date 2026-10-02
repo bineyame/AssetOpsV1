@@ -160,8 +160,9 @@ timeline (demand, PV, generator, SOC) is context, not a status source.
 Lab run -> stage -> Commit -> Sites -> Kobo Overview -> Evidence -> Lab off,
 history stays.
 
-Rendered after each phase: rail Sites, no group header (T002 `Operator home`
-in `frontend/src/shell/OperatorShellLayout.tsx` stays until T029B; rec. 2.1);
+Rendered after each phase: rail Sites, no group header (phase 1 removes the T002 `Operator home`
+item from `frontend/src/shell/OperatorShellLayout.tsx`, redirects `/` to `/sites`,
+and updates the rail-label tests; its "No sites are configured" copy is false once Commit exists; rec. 2.1);
 Site tabs Overview, Foundation, Evidence. Run `node tools/layout-evidence.mjs`
 per phase (Evidence, then Overview; populated and empty).
 

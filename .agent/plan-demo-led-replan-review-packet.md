@@ -413,7 +413,7 @@ The Planner recommends keeping both.
 
 ## 7. Open Questions
 
-1. **Architect: `Operator home` between T027 and T029B.** The live rail is
+1. **ANSWERED (Architect, 2026-10-02, Claude under the ROLE_CONFIG exception): drop `Operator home` in T027 phase 1; `/` redirects to `/sites`; T028, T029 and T029B edited to agree.** Reason: its frame says "No sites are configured", false once Commit exists, so keeping the item fails the truthful-destinations rule. Original question: `Operator home` between T027 and T029B. The live rail is
    `Operator home` + `Sites` (`frontend/src/shell/OperatorShellLayout.tsx:34`).
    Rec 2.1 says Operator home goes when Sites becomes the landing page, and
    the guide moves Sites-as-landing to T029B. The guide also says "Rail at

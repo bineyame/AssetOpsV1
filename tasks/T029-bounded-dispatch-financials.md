@@ -51,8 +51,8 @@ actually said, rather than treating T029B-T036 as immutable.
   site's current BusinessContext version, its history, and an edit form.
   Financial pages carry no assessment status (v6.9 8.36).
 - **Rendered at the end of T029.** Rail unchanged from T028 (OPERATE: Sites;
-  INTELLIGENCE: Findings; the T002 `Operator home` placeholder stays until
-  T029B). Site tabs, six, canonical order: `Overview | Foundation |
+  INTELLIGENCE: Findings; the T002 `Operator home` item was removed in T027
+  phase 1). Site tabs, six, canonical order: `Overview | Foundation |
   Performance | Findings | Financials | Evidence`. The tab is enabled by
   filtering the one inventory in `frontend/src/shell/operatorSiteTabs.tsx`,
   not by a per-milestone list.

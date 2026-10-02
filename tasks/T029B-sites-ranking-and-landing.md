@@ -51,11 +51,10 @@ index.
   (today `--` for every site) and add `Evidence coverage`, `Assessment` and
   `Top issue`. Each reads a backend-served model already built by T027/T028;
   no new analytic, coverage calculation or assessment.
-- `/` lands on the Sites index; remove `Operator home` from `operatorRoutes`
-  in `frontend/src/shell/OperatorShellLayout.tsx` and update the tests that
-  pin the rail labels (`shell/__tests__/*Route*.test.tsx`,
-  `simulatorLabWorkspaceEntryPoint.test.tsx`) and the `Operator home`
-  scenario in `tools/layout-evidence.mjs`.
+- `/` lands on the Sites index as the declared landing (T027 phase 1 already
+  removed the `Operator home` rail item and redirects `/` to `/sites`); here
+  confirm no `Operator home` remnant remains in `OperatorShellLayout.tsx`, the
+  rail-label tests or the `tools/layout-evidence.mjs` scenario.
 - **Rendered at the end of T029B.** Rail: OPERATE: Sites; INTELLIGENCE:
   Findings (recommendation 2.1 row "T028-T029A"). Site tabs unchanged from
   T029, six: `Overview | Foundation | Performance | Findings | Financials |
@@ -81,7 +80,7 @@ index.
    cell value or a gap (rule 3). The four cells for a site agree with its
    Overview, Evidence and Findings at the same moment.
 7. Opening the app lands on Sites; `Operator home` no longer renders or
-   routes, and no other route breaks (breadcrumbs and Back still work).
+   routes (removed in T027 phase 1; confirmed here), and no other route breaks (breadcrumbs and Back still work).
 8. Lab gate off: the landing, rail and columns are unchanged.
 
 ## Proof

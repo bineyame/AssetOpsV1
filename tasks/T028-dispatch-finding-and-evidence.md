@@ -166,8 +166,8 @@ AC20 in full; 18 for Evidence capability rows (rule 3 tested there).
 a `kobo-mini-grid-degraded-evidence` run shows Limited with the missing
 battery capability named.
 
-Rendered from phase 2: rail OPERATE: Sites; INTELLIGENCE: Findings (T002
-`Operator home` stays until T029B); Site tabs Overview, Foundation,
+Rendered from phase 2: rail OPERATE: Sites; INTELLIGENCE: Findings (the T002
+`Operator home` item was removed in T027 phase 1); Site tabs Overview, Foundation,
 Performance, Findings, Evidence. Run `node tools/layout-evidence.mjs` per
 phase, covering a one-item rail group from phase 2.
 
