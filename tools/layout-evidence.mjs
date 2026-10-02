@@ -3631,6 +3631,9 @@ const clock = `Number(document.querySelector('[data-execution-clock]')?.getAttri
     ]) && allPass;
 }
 
+// The completed profile-5 run T026 measures is the one T027 commits.
+const t027 = { run: null };
+
 // --- T026: the dispatch-capable evidence on the Lab screen ------------------
 //
 // A degraded-evidence Draft (`mini-grid` v3 / publication profile 5: a
@@ -3719,6 +3722,7 @@ const READ_T026 = `(() => {
         ],
       ]) && allPass;
   }
+  t027.run = href;
   // The cursor goes through the held publication (07:00Z held, released 07:10Z:
   // boundaries 48 to 51): the inspector's attempts table has five columns, the
   // Applied timeline offers the delay, and the delayed reading is named.
@@ -3750,6 +3754,232 @@ const READ_T026 = `(() => {
         `${columns} columns; delayed rows ${seen.map((r) => `${r.boundary}:${r.delayedCells}`).join(", ")}; publication states ${seen.map((r) => `${r.boundary}:${r.attemptPublication}`).join(", ")}`,
       ],
     ]) && allPass;
+}
+
+// --- T027 phase 1: Commit, ingestion and Site > Evidence --------------------
+//
+// The completed profile-5 run measured above is committed through the Lab
+// Commit panel; its Open in AssetOps link must land on Site > Evidence for the
+// run's Site (KOBO_SITE), which is then measured populated at the dense-table
+// widths, with the record inspector open. A Site with no accepted evidence
+// (SITE) is measured empty. Every content claim carries a count so it cannot
+// pass on an empty set.
+const READ_T027_COMMIT = `(() => {
+  const panel = document.querySelector('[data-run-commit]');
+  const link = document.querySelector('[data-commit-open-in-assetops]');
+  const release = document.querySelector('[data-release-status]');
+  return {
+    panel: panel !== null,
+    labelled: document.querySelector('section[aria-labelledby="run-commit-heading"] [data-run-commit]') !== null,
+    commitState: document.querySelector('[data-commit-state]')?.getAttribute('data-commit-state') ?? null,
+    release: release ? release.getAttribute('data-release-status') : null,
+    processed: release ? release.getAttribute('data-release-processed') : null,
+    total: release ? release.getAttribute('data-release-total') : null,
+    href: link ? link.getAttribute('href') : null,
+  };
+})()`;
+
+const READ_T027_EVIDENCE = `(() => {
+  const all = (selector) => Array.from(document.querySelectorAll(selector));
+  const root = document.querySelector('.site-evidence');
+  const section = (id) => document.querySelector('[aria-labelledby="' + id + '"]');
+  const contained = (id) => {
+    const s = section(id);
+    const table = s ? s.querySelector('table') : null;
+    const region = table ? table.closest('.data-table__scroll') : null;
+    if (!table || !region) return { table: table !== null, region: false };
+    const r = region.getBoundingClientRect();
+    return {
+      table: true,
+      region: true,
+      columns: table.querySelectorAll('thead th').length,
+      regionInsideViewport: r.left >= -1 && r.right <= document.documentElement.clientWidth + 1,
+      overflows: region.scrollWidth > region.clientWidth + 1,
+    };
+  };
+  return {
+    state: root ? root.getAttribute('data-evidence-state') : null,
+    sources: all('[data-evidence-source]').length,
+    batches: all('[data-evidence-batch]').length,
+    coverage: all('[data-evidence-coverage]').map((r) => ({
+      key: r.getAttribute('data-evidence-coverage'),
+      status: r.getAttribute('data-coverage-status'),
+    })),
+    gaps: all('[data-coverage-gap]').length,
+    headings: ['site-evidence-sources-heading', 'site-evidence-coverage-heading', 'site-evidence-basis-heading', 'site-evidence-rejections-heading']
+      .filter((id) => document.getElementById(id) !== null),
+    sourcesTable: contained('site-evidence-sources-heading'),
+    coverageTable: contained('site-evidence-coverage-heading'),
+    inspector: document.getElementById('site-evidence-inspector') !== null,
+    records: all('[data-evidence-record]').map((r) => r.getAttribute('data-evidence-record')),
+    detail: document.querySelector('[data-evidence-record-detail]') !== null,
+    times: all('[data-record-time]').map((t) => ({ kind: t.getAttribute('data-record-time'), text: (t.textContent || '').trim() })),
+    currentTab: (document.querySelector('.site-tabs__list [aria-current="page"]')?.textContent || '').trim(),
+  };
+})()`;
+
+if (t027.run === null) {
+  throw new Error("The T026 pass left no completed run for T027 to commit.");
+}
+{
+  await visit(cdp, t027.run, 1280, 800, "[data-run-commit]", {
+    script: clickControl("Commit and release"),
+    waitFor: "[data-commit-open-in-assetops]",
+  });
+  const lab = await visit(cdp, t027.run, 1280, 800, "[data-commit-open-in-assetops]");
+  const commit = await evaluate(READ_T027_COMMIT);
+  allPass =
+    report("T027 Lab Commit panel after Commit and release, 1280x800", lab, [
+      [
+        "the Commit panel renders under its heading, sealed, with a release",
+        commit.panel &&
+          commit.labelled &&
+          commit.commitState === "COMMITTED" &&
+          commit.release !== null &&
+          commit.release !== "NONE",
+        `panel ${commit.panel}, labelled ${commit.labelled}, commit ${commit.commitState}, release ${commit.release} (${commit.processed} of ${commit.total})`,
+      ],
+      [
+        "Open in AssetOps targets this Site's Evidence tab",
+        commit.href === `/sites/${KOBO_SITE}/evidence` ||
+          (commit.href ?? "").startsWith(`/sites/${KOBO_SITE}/evidence?`),
+        `href ${commit.href}`,
+      ],
+    ]) && allPass;
+  // Follow the link the way an operator would: a click, not a typed URL.
+  await visit(cdp, t027.run, 1280, 800, "[data-commit-open-in-assetops]", {
+    script: `(() => { document.querySelector('[data-commit-open-in-assetops]').click(); return true; })()`,
+    waitFor: ".site-evidence[data-evidence-state]",
+  });
+  const landed = await evaluate(
+    `({ path: window.location.pathname, state: document.querySelector('.site-evidence')?.getAttribute('data-evidence-state') ?? null })`,
+  );
+  allPass =
+    report("T027 Open in AssetOps lands on Site > Evidence", null, [
+      [
+        "the link lands on Site > Evidence for the run's Site, populated",
+        landed.path === `/sites/${KOBO_SITE}/evidence` && landed.state === "populated",
+        `${landed.path}, ${landed.state}`,
+      ],
+    ]) && allPass;
+
+  const base = `/sites/${KOBO_SITE}/evidence`;
+  let pick = null;
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, base, width, height, ".site-evidence[data-evidence-state]");
+    await sleep(300);
+    const read = await evaluate(READ_T027_EVIDENCE);
+    pick = pick ?? read.coverage.find((r) => r.status === "REPORTED")?.key ?? null;
+    allPass =
+      report(`T027 Site > Evidence populated, ${KOBO_SITE}, at ${label}`, page, [
+        ["the Evidence body is populated", read.state === "populated", `${read.state}`],
+        [
+          "exactly Overview|Foundation|Evidence, Evidence current",
+          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Evidence",
+          `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
+        ],
+        [
+          "source health and coverage have rows, and all four sections render",
+          read.sources > 0 && read.batches > 0 && read.coverage.length > 0 && read.headings.length === 4,
+          `${read.sources} sources, ${read.batches} batches, ${read.coverage.length} coverage rows (${read.coverage.filter((r) => r.status === "REPORTED").length} reported, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported), ${read.gaps} gaps, ${read.headings.length} sections`,
+        ],
+        [
+          "both dense tables sit in scroll regions that stay inside the viewport",
+          [read.sourcesTable, read.coverageTable].every((t) => t.table && t.region && t.regionInsideViewport),
+          `sources ${read.sourcesTable.columns} cols, overflows ${read.sourcesTable.overflows}; coverage ${read.coverageTable.columns} cols, overflows ${read.coverageTable.overflows}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+        [
+          "every table that overflows scrolls inside its own region",
+          page.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+          page.scrollers
+            .map((s) => `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`)
+            .join("; "),
+        ],
+        ...(width <= 640
+          ? [
+              [
+                "at 640 at least one evidence table overflows, so containment is measured on a non-empty set",
+                read.sourcesTable.overflows || read.coverageTable.overflows,
+                `sources overflows ${read.sourcesTable.overflows}, coverage overflows ${read.coverageTable.overflows}`,
+              ],
+            ]
+          : []),
+      ]) && allPass;
+  }
+
+  if (pick === null) {
+    allPass = report("T027 record inspector", null, [["a reported signal exists to inspect", false, "none"]]) && false;
+  } else {
+    const q = `signal=${encodeURIComponent(pick)}`;
+    await visit(cdp, `${base}?${q}`, 1280, 800, "#site-evidence-inspector [data-evidence-record]");
+    const list = await evaluate(READ_T027_EVIDENCE);
+    const record = list.records[0];
+    for (const [label, width, height] of [
+      ["1280x800", 1280, 800],
+      ["640x700", 640, 700],
+    ]) {
+      const page = await visit(
+        cdp,
+        `${base}?${q}&record=${encodeURIComponent(record)}`,
+        width,
+        height,
+        "[data-evidence-record-detail]",
+      );
+      await sleep(300);
+      const read = await evaluate(READ_T027_EVIDENCE);
+      const kinds = read.times.map((t) => t.kind).sort().join(",");
+      allPass =
+        report(`T027 record inspector, ${pick} record ${record}, at ${label}`, page, [
+          ["the inspector lists records", read.inspector && read.records.length > 0, `${read.records.length} records`],
+          [
+            "the record detail shows source, published and received times, each non-empty",
+            read.detail && kinds === "published,received,source" && read.times.every((t) => t.text.length > 0),
+            read.times.map((t) => `${t.kind}: ${t.text}`).join("; "),
+          ],
+          ["Evidence stays the current tab", read.currentTab === "Evidence", read.currentTab],
+          [
+            "the page does not scroll horizontally",
+            !page.pageScrollsHorizontally,
+            `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+          ],
+        ]) && allPass;
+    }
+  }
+
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${SITE}/evidence`, width, height, ".site-evidence[data-evidence-state]");
+    const read = await evaluate(READ_T027_EVIDENCE);
+    allPass =
+      report(`T027 Site > Evidence empty, ${SITE}, at ${label}`, page, [
+        [
+          "the empty state renders, with no source or coverage rows",
+          read.state === "empty" && read.sources === 0 && read.coverage.length === 0,
+          `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows`,
+        ],
+        [
+          "exactly Overview|Foundation|Evidence, Evidence current",
+          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Evidence",
+          `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
 }
 
 {
