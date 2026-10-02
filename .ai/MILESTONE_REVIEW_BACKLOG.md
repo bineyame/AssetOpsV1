@@ -1686,6 +1686,36 @@ Recorded 2026-10-02 by the T026 Implementer after owner ruling on C1.
   override publishes no record there; whether it surfaces as a policy record
   (version, effective interval, source) is T028's question.
 
+## Parked task: T025h, picker compatibility status (Lab ergonomics)
+
+Recorded 2026-10-02 by the coordinator at the owner's request ("add it to the
+backlog to be picked later"), under `D-2026-10-02-demo-led-recommendation`
+(D8, owner ruling "Accept"; recommendation 6.3, 6.5).
+
+*What it is:* `tasks/T025h-picker-compatibility.md`, fully planned, no code.
+In Simulator Lab run setup, every site-picker row says what Create would give
+for that site with the form as it stands: Ready, Blocked (reasons on expand),
+or cannot be set up (refusal statement). The task file stays `Status: planned`
+because the workflow check has no parked state. The original branch
+`task/T025h-picker-compatibility` (`f4274f2`, `8901c4a`) is superseded: do not
+merge it; plan from the file on `main`.
+
+*Open owner ruling it carries:* whether the row status depends on the whole
+current form (interval, seed, run inputs) or only on the (scenario, profile)
+pair its decision names. The Architect leans whole-form: a preview of Create
+must depend on everything Create reads.
+
+*Safe to carry* because it gates nothing and is not client-facing. Create
+already refuses or blocks with recorded reasons, so a wrong pick is refused
+truthfully, not silently accepted. Template drift is avoided by seeding demo
+sites from template v3.
+
+*Pick up* not before T029, preferably bundled with the carried T026 AC15
+delta-p95 performance task as one Lab-ergonomics slice. *What would change the
+answer:* an operator or expert struggling to choose a compatible site during
+a demo rehearsal, more templates or profiles making blocked picks common, or
+the Lab becoming client-facing beyond the closing proof.
+
 ## Superseded scenario versions survive only in git
 
 Recorded 2026-10-01 by the Planner (Claude under

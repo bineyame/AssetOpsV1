@@ -74,7 +74,7 @@ when they run, as with T022B.
 | 31 | T025i | Scenario contract | Unchanged: after T026, before T036 (awaiting planning) |
 | 32 | [T036](T036-portfolio-and-client-demo.md) (rescoped) | I completion | Six sites, conditional global Evidence, Lab reveal, rehearsal |
 | - | T026A | B hardening | Unchanged: unscheduled, gates nothing |
-| - | [T025h](T025h-picker-compatibility.md) | A/B hardening | **Parked**: not before T029; gates nothing |
+| - | [T025h](T025h-picker-compatibility.md) | A/B hardening | **Parked, in the backlog** (`.ai/MILESTONE_REVIEW_BACKLOG.md`): not before T029; gates nothing |
 
 Task dependency declarations identify the required artifacts.
 The order above is the intended delivery order; a user checkpoint may redirect
