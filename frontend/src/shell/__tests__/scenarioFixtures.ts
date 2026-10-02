@@ -1,10 +1,11 @@
 import type {
+  ScenarioAddressNeed,
   ScenarioDetail,
-  ScenarioObservationSourceResolution,
   ScenarioParameter,
   ScenarioPrivateExpectation,
+  ScenarioSiteNeeds,
   ScenarioSummary,
-  ScenarioTargetResolution,
+  ScenarioTargetSiteDeclaration,
 } from "../scenarioCatalogClient";
 
 /**
@@ -37,15 +38,88 @@ export const SCENARIO_SUMMARY: ScenarioSummary = {
     version_valid_from: "2026-09-20T00:00:00Z",
     supersedes: 2,
   },
-  target_site: {
-    policy: "DECLARED_SITE",
-    site_id: "MG-001",
-    template_id: null,
-    requirement:
+  // T025g: a scenario names no site. The legacy declaration an older
+  // document carries is `LEGACY_TARGET_SITE`, used by `LEGACY_SCENARIO_DETAIL`.
+  target_site: null,
+  site_contract: {
+    description:
       "A mini-grid whose foundation declares a fuel-storage component " +
       "feeding a generator.",
   },
 };
+
+/** A legacy declaration, as a document written before T025g carries it. */
+export const LEGACY_TARGET_SITE: ScenarioTargetSiteDeclaration = {
+  policy: "DECLARED_SITE",
+  site_id: "MG-001",
+  template_id: null,
+  requirement:
+    "A mini-grid whose foundation declares a fuel-storage component " +
+    "feeding a generator.",
+};
+
+/**
+ * What the backend derives as `site_needs`, restated from the record so the
+ * fixture cannot drift from its own timeline: every address an entry or a
+ * parameter names, once, sorted, with the roles it is named in; and every
+ * device source.
+ */
+export function siteNeedsOf(
+  detail: Pick<
+    ScenarioDetail,
+    "timeline" | "public_parameters" | "observation_sources"
+  >,
+): ScenarioSiteNeeds {
+  const roles = new Map<string, Set<string>>();
+  const note = (address: string | null, role: string) => {
+    if (address === null) {
+      return;
+    }
+    const bucket = roles.get(address) ?? new Set<string>();
+    bucket.add(role);
+    roles.set(address, bucket);
+  };
+  for (const entry of detail.timeline) {
+    note(entry.state_key, entry.execution_role);
+    for (const parameter of entry.parameters) {
+      note(parameter.state_key, parameter.execution_role);
+    }
+  }
+  for (const parameter of detail.public_parameters) {
+    note(parameter.state_key, parameter.execution_role);
+  }
+  const addresses: ScenarioAddressNeed[] = [...roles.keys()]
+    .sort()
+    .map((address) => {
+      const site = address.startsWith("site:");
+      const at = address.indexOf("@");
+      return {
+        address,
+        scope: site ? "SITE" : "COMPONENT",
+        component_id: site || at === -1 ? null : address.slice(at + 1),
+        state_key: site
+          ? address.slice("site:".length)
+          : at === -1
+            ? address
+            : address.slice(0, at),
+        execution_roles: [...(roles.get(address) ?? [])].sort(),
+      };
+    });
+  return {
+    addresses,
+    device_sources: detail.observation_sources.flatMap((source) =>
+      source.device_id === null
+        ? []
+        : [
+            {
+              source_id: source.source_id,
+              device_id: source.device_id,
+              signal_id: source.signal_id,
+            },
+          ],
+    ),
+  };
+}
 
 function causal(
   parameter_id: string,
@@ -97,7 +171,7 @@ function reported(
   };
 }
 
-export const SCENARIO_DETAIL: ScenarioDetail = {
+const SCENARIO_DETAIL_RECORD: Omit<ScenarioDetail, "site_needs"> = {
   ...SCENARIO_SUMMARY,
   public_parameters: [
     // The shipped shape since T020A: a parameter the site's foundation owns
@@ -524,6 +598,11 @@ export const SCENARIO_DETAIL: ScenarioDetail = {
   },
 };
 
+export const SCENARIO_DETAIL: ScenarioDetail = {
+  ...SCENARIO_DETAIL_RECORD,
+  site_needs: siteNeedsOf(SCENARIO_DETAIL_RECORD),
+};
+
 export const PRIVATE_EXPECTATIONS: ScenarioPrivateExpectation[] = [
   {
     expectation_id: "removal-is-separable-from-consumption",
@@ -535,67 +614,18 @@ export const PRIVATE_EXPECTATIONS: ScenarioPrivateExpectation[] = [
   },
 ];
 
-export const OBSERVATION_SOURCE_RESOLUTIONS: ScenarioObservationSourceResolution[] =
-  [
-    {
-      source_id: "fuel-level-sensor-reading",
-      state: "RESOLVED",
-      device_display_name: "Fuel level sensor",
-      signal_display_name: "Fuel level",
-      reason:
-        "The device fuel-level-sensor the site configures declares the " +
-        "signal fuel-level this source reports through.",
-      cadence_statement:
-        "The site's foundation declares that this signal can report and " +
-        "declares no cadence.",
-    },
-    {
-      source_id: "operator-hand-record",
-      state: "NOT_APPLICABLE",
-      device_display_name: null,
-      signal_display_name: null,
-      reason:
-        "This source is a person recording a value, so there is no " +
-        "configured device or signal for it to resolve to.",
-      cadence_statement:
-        "A person writing a value down reports at no rate, so there is no " +
-        "cadence for anything to own.",
-    },
-  ];
-
-export const RESOLVED_TARGET: ScenarioTargetResolution = {
-  state: "RESOLVED",
-  site_id: "MG-001",
-  display_name: "Kalangala Mini-Grid",
-  reason: "The site MG-001 this scenario targets is configured.",
+/** The same record, as a document that still carries a legacy declaration. */
+export const LEGACY_SCENARIO_DETAIL: ScenarioDetail = {
+  ...SCENARIO_DETAIL,
+  target_site: LEGACY_TARGET_SITE,
 };
 
-export const UNCONFIGURED_TARGET: ScenarioTargetResolution = {
-  state: "NOT_CONFIGURED",
-  site_id: null,
-  display_name: null,
-  reason:
-    "No site with site ID MG-001 is configured, so the site this scenario " +
-    "targets cannot be opened.",
-};
-
-export const UNAVAILABLE_TARGET: ScenarioTargetResolution = {
-  state: "UNAVAILABLE",
-  site_id: null,
-  display_name: null,
-  reason:
-    "The site store could not be read, so whether the site MG-001 is " +
-    "configured is unknown.",
-};
-
-export const NOT_APPLICABLE_TARGET: ScenarioTargetResolution = {
-  state: "NOT_APPLICABLE",
-  site_id: null,
-  display_name: null,
-  reason:
-    "This scenario names the kind of site it needs rather than a configured " +
-    "site, so there is no site to open.",
-};
+/** The screen's own statement about who owns a source's cadence. */
+export function cadenceStatementFor(deviceId: string | null): string {
+  return deviceId === null
+    ? "A person writing a value down reports at no rate, so there is no cadence for anything to own."
+    : "A site's foundation declares that a signal can report and declares no cadence. Nothing in this build infers one; a cadence arrives when a versioned observation profile declares one.";
+}
 
 /**
  * How a parameter reads on screen. The screen's own rule, restated here so the
@@ -646,9 +676,7 @@ function ownershipText(parameter: ScenarioParameter): string {
  */
 export function recordRenderedStrings(
   detail: ScenarioDetail = SCENARIO_DETAIL,
-  resolution: ScenarioTargetResolution = RESOLVED_TARGET,
   expectations: ScenarioPrivateExpectation[] = PRIVATE_EXPECTATIONS,
-  sources: ScenarioObservationSourceResolution[] = OBSERVATION_SOURCE_RESOLUTIONS,
 ): string[] {
   const rendered: string[] = [
     detail.display_name,
@@ -657,9 +685,8 @@ export function recordRenderedStrings(
     detail.scenario_id,
     String(detail.version.scenario_version),
     detail.version.version_valid_from,
-    detail.target_site.policy,
-    detail.target_site.requirement,
-    resolution.reason,
+    detail.site_contract?.description ??
+      "This scenario carries no site contract description.",
   ];
 
   rendered.push(
@@ -667,8 +694,35 @@ export function recordRenderedStrings(
       ? "No earlier version"
       : String(detail.version.supersedes),
   );
-  rendered.push(detail.target_site.site_id ?? "None declared");
-  rendered.push(detail.target_site.template_id ?? "None declared");
+  if (detail.target_site !== null) {
+    rendered.push(
+      [
+        detail.target_site.policy,
+        detail.target_site.site_id,
+        detail.target_site.template_id,
+      ]
+        .filter((part) => part !== null)
+        .join(", "),
+      detail.target_site.requirement,
+    );
+  }
+  for (const need of detail.site_needs.addresses) {
+    rendered.push(
+      need.address,
+      need.component_id ?? "The site as a whole",
+      need.state_key,
+      need.execution_roles.length > 0
+        ? need.execution_roles.join(", ")
+        : "A bound on another value",
+    );
+  }
+  for (const source of detail.site_needs.device_sources) {
+    rendered.push(
+      source.source_id,
+      source.device_id,
+      source.signal_id ?? "No signal",
+    );
+  }
 
   for (const parameter of detail.public_parameters) {
     rendered.push(
@@ -683,35 +737,15 @@ export function recordRenderedStrings(
   }
 
   for (const source of detail.observation_sources) {
-    const match = sources.find((item) => item.source_id === source.source_id);
     rendered.push(
       source.source_id,
       source.description,
       source.source_kind,
       source.cadence_ownership,
+      source.device_id ?? "No device",
+      source.signal_id ?? "No signal",
+      cadenceStatementFor(source.device_id),
     );
-    rendered.push(
-      source.device_id === null
-        ? "No device"
-        : match?.device_display_name == null
-          ? source.device_id
-          : `${source.device_id}, ${match.device_display_name}`,
-    );
-    rendered.push(
-      source.signal_id === null
-        ? "No signal"
-        : match?.signal_display_name == null
-          ? source.signal_id
-          : `${source.signal_id}, ${match.signal_display_name}`,
-    );
-    if (match !== undefined) {
-      rendered.push(match.reason, match.cadence_statement);
-    } else {
-      rendered.push(
-        "Nothing is known about this source on this installation.",
-        "No statement about this source's cadence is available.",
-      );
-    }
   }
 
   for (const entry of detail.timeline) {
@@ -834,12 +868,9 @@ export const SCENARIO_DETAIL_FALLBACKS: ScenarioDetail = {
     version_valid_from: SCENARIO_DETAIL.version.version_valid_from,
     supersedes: null,
   },
-  target_site: {
-    policy: "TEMPLATE_DERIVED",
-    site_id: null,
-    template_id: "hybrid-mini-grid",
-    requirement: "A site built from the hybrid mini-grid archetype.",
-  },
+  target_site: null,
+  site_contract: null,
+  site_needs: { addresses: [], device_sources: [] },
   public_parameters: [],
   observation_sources: [],
   timeline: SCENARIO_DETAIL.timeline.map((entry) => ({

@@ -168,6 +168,8 @@ export function App({
         runSetup,
         siteDetail,
         now,
+        siteDirectory,
+        templateLineage,
       ).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}

@@ -1626,6 +1626,51 @@ review commit.
   T025g's scenario pins share the weakness. Carried: no automatic guard is
   proportionate yet. Trigger: T025g, or any edit to a pin table.
 
+## Carried from T025g: four findings, two residual risks
+
+Claude discovery review, verdict ACCEPT WITH CARRIES
+(`.agent/T025g-claude-review.md`, commit `3c37d60`). F1 and F5 were fixed in
+fix round R1 and are not carried. The rest are carried under
+`D-2026-09-22-milestone-speed-over-purity`. Line anchors are as of the review.
+
+- **F2 (Medium, wording), RESOLVED 2026-10-02 by amending AC6b, owner-approved,
+  AC6b names a status-source reason the build does not give.** `host/tests/test_t025g_join.py:125,135`. A missing status source is
+  recorded (no `generator-status` mapping frozen) but does not block, by
+  design: blocking it would narrow currently-READY requests and argue for a
+  contract version move. Carried: the engineering call is right; only the
+  acceptance text disagrees. Routed to the owner or Planner to amend AC6b to
+  "BLOCKED naming the four missing generator properties; the absent status
+  source is recorded, not blocking". Resolved: the owner approved the amendment
+  on 2026-10-02 and AC6b now reads that way; blocking would need a later slice
+  with its own contract reading.
+- **F3 (Low), shipped Kobo `site_contract.description` still states template
+  lineage as the requirement.** Six documents, for example
+  `config/scenarios/kobo-mini-grid-prolonged.yaml:40`, `kobo-daytime.yaml:35`,
+  `kobo-mini-grid-stop-60.yaml:44`: "created from the kobo-mini-grid-60kw
+  template". Carried: prose, never evaluated; rewording needs a version bump.
+  Trigger: T025i, which bumps these documents anyway. Reword as "a mini-grid
+  whose Foundation declares ...".
+- **F4 (Low), layout evidence for the run header's lineage fact not run.**
+  `frontend/src/shell/RunHeader.tsx:60-65`. `tools/layout-evidence.mjs` aborts
+  at its MG-006 user-scenario section. Header wrap at 640 px is unproven.
+  Carried: additive fact in an existing header. Trigger: next edit to the run
+  header, or running the tool against a stack holding an MG-006-shaped user
+  scenario (or making that section skip with a recorded reason).
+- **F6 (Nit), leftover "target Site" wording, blank lines, picker copy.**
+  `scenarios/parsing.py:93,1730-1748` (one is a user-facing refusal message),
+  `scenarios/models.py:230,270,534`, `runs/profiles.py:454`,
+  `simulator_lab_api.py:494-498` (five blank lines),
+  `RunSetupFrame.tsx:1037` ("Created from template: Not created from a
+  template"). Carried: wording only. Trigger: next edit to any of these files.
+- **Residual risk, the picker reads each site's Foundation version once.**
+  `RunSetupFrame.tsx`. If a site's Foundation moves while the screen is open,
+  the request carries the stale version and run setup refuses it. Truthful,
+  unchanged behaviour. Trigger: any live-refresh work on run setup.
+- **Residual risk, the v2-hard-coded scenario test.**
+  `backend/tests/test_scenario_fingerprints.py:143`
+  (`test_every_shipped_scenario_is_v2_superseding_v1`). The next bump must edit
+  it as well as the pin. Intended friction. Trigger: T025i.
+
 ## Superseded scenario versions survive only in git
 
 Recorded 2026-10-01 by the Planner (Claude under

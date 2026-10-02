@@ -12,7 +12,7 @@ import type {
  *
  * Served only when `simulator_lab.enabled` is true. It is not an operator
  * screen and nothing it lists is a Site: a scenario has a `scenario_id`, a
- * scenario version and a declared target, and none of those is Site identity.
+ * scenario version and no site at all (T025g): a scenario names no site.
  *
  * Every value here comes from a scenario document. There is no create,
  * duplicate, import, upload, edit, delete, approve, publish, or run control,
@@ -21,11 +21,10 @@ import type {
  * cannot keep. The client this screen is built on has no method for any of
  * them either.
  *
- * The target column states what each scenario declares it needs, and does not
- * say whether that Site is configured. Resolving a declared target is a read
- * against the Site store, and the catalog does not make one: a listing that
- * claimed a Site resolved would be reporting on a different installation's
- * state than the one it looked at.
+ * There is no site column. A run is the only join of a scenario version and a
+ * site version (`D-2026-10-01-run-binds-scenario-to-site`), and the site is
+ * chosen at run setup; a legacy `target_site` an older document still carries
+ * is labelled on the detail screen and never listed as if it bound anything.
  *
  * The unavailable state is stated rather than rendered as an empty catalog,
  * because "no scenario is saved" and "the store could not be read" are
@@ -79,8 +78,8 @@ export function ScenariosFrame({
         <p>
           A scenario definition says what happens during a simulated interval.
           A site&apos;s Foundation says what the site is. The two do not
-          duplicate one another: a scenario declares which site it needs, and
-          that is the whole of the relationship.
+          duplicate one another: a scenario names no site, and you choose the
+          site when you set a run up.
         </p>
         <p>
           Nothing here has been run. No simulation run exists in this build, so
@@ -116,7 +115,6 @@ export function ScenariosFrame({
                 <th scope="col">Scenario ID</th>
                 <th scope="col">Version</th>
                 <th scope="col">Origin</th>
-                <th scope="col">Declared target site</th>
                 <th scope="col">Purpose</th>
               </tr>
             </thead>
@@ -131,11 +129,6 @@ export function ScenariosFrame({
                   <td>{scenario.scenario_id}</td>
                   <td>{scenario.version.scenario_version}</td>
                   <td>{scenario.origin}</td>
-                  <td>
-                    {scenario.target_site.site_id ??
-                      scenario.target_site.template_id ??
-                      "Not declared"}
-                  </td>
                   <td>{scenario.purpose}</td>
                 </tr>
               ))}

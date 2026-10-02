@@ -12,10 +12,9 @@ import {
 } from "../ui";
 import type {
   ScenarioCatalogClient,
+  ScenarioDetail,
   ScenarioDetailResult,
-  ScenarioObservationSourceResolution,
   ScenarioParameter,
-  ScenarioTargetResolution,
   ScenarioTimelineEntry,
 } from "./scenarioCatalogClient";
 
@@ -32,19 +31,21 @@ import type {
  * action and no product judgement anywhere on it, and no control that would
  * produce one.
  *
- * Two controls are rendered, and the rule for which
- * (`D-2026-09-20-scenario-detail-affordances`) is that a disabled control
- * appears only when the action is native to the object being viewed and the
- * missing prerequisite is the next named causal capability. `Create Draft Run`
- * is native to a scenario, and since T019 it is a real destination whenever
- * the declared target site resolves: run setup exists, and a control that
- * stayed disabled would be claiming otherwise. When the target does not
- * resolve it is still disabled, carrying the backend's own reason, because a
- * run is bound to a concrete site and there is nothing to freeze without one.
- * `Open target Site` is the one product bridge, enabled only when the declared
- * target resolves. Everything downstream belongs to another object or another
- * lifecycle, so it is absent rather than disabled: a disabled control from a
- * later step teaches the wrong object model.
+ * One control is rendered, and the rule for which
+ * (`D-2026-09-20-scenario-detail-affordances`) is that a control appears only
+ * when the action is native to the object being viewed. `Create Draft Run` is
+ * native to a scenario and always leads to run setup, where the user chooses
+ * the site: a scenario names no site (T025g,
+ * `D-2026-10-01-run-binds-scenario-to-site`), so there is no target to open and
+ * no site this screen could check. `Open target Site` is gone for that reason.
+ * Everything downstream belongs to another object or another lifecycle, so it
+ * is absent rather than disabled.
+ *
+ * What the screen shows instead is what the scenario needs of a site: the
+ * addresses it names, the device sources it reads through and the document's
+ * own description, all derived from the document. It does not list sites that
+ * can honour the scenario, because that answer depends on a model profile and
+ * this screen has none.
  *
  * ## What T017 settled, and what this screen now asks
  *
@@ -133,9 +134,6 @@ export interface ScenarioFrameProps {
   catalog: ScenarioCatalogClient;
   scenariosPath: string;
   simulatorLabPath: string;
-  /** The operator address of one site. Passed in, because this module may not
-   *  decide where an operator surface lives. */
-  siteHref: (siteId: string) => string;
   /** Where a run is set up for this scenario. Passed in for the same reason:
    *  this module may not spell a simulator URL. */
   runSetupHref: (scenarioId: string) => string;
@@ -145,7 +143,6 @@ export function ScenarioFrame({
   catalog,
   scenariosPath,
   simulatorLabPath,
-  siteHref,
   runSetupHref,
 }: ScenarioFrameProps) {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -224,12 +221,7 @@ export function ScenarioFrame({
     );
   }
 
-  const {
-    scenario,
-    targetResolution,
-    observationSourceResolutions,
-    privateExpectations,
-  } = result;
+  const { scenario, privateExpectations } = result;
   const contract = scenario.execution_contract;
 
   return (
@@ -249,9 +241,9 @@ export function ScenarioFrame({
         <p>
           A scenario definition answers what happens during the simulated
           interval. A site&apos;s Foundation answers what the site is. The two
-          do not duplicate one another: this scenario declares which site it
-          needs, and the site&apos;s own configuration stays the authority on
-          what that site is made of.
+          do not duplicate one another: this scenario names no site, it states
+          what it needs of one, and the site you choose at run setup stays the
+          authority on what that site is made of.
         </p>
         <p>
           Nothing here has been run. No simulation run exists in this build, so
@@ -279,36 +271,7 @@ export function ScenarioFrame({
         </FactList>
       </Panel>
 
-      <Panel heading="Target site" headingId="scenario-target-heading">
-        <FactList>
-          <Fact term="Target policy">{scenario.target_site.policy}</Fact>
-          <Fact term="Declared site">
-            {scenario.target_site.site_id ?? "None declared"}
-          </Fact>
-          <Fact term="Declared template">
-            {scenario.target_site.template_id ?? "None declared"}
-          </Fact>
-          <Fact term="What the scenario needs of it">
-            {scenario.target_site.requirement}
-          </Fact>
-          <Fact term="On this installation">
-            {targetResolution.reason}
-          </Fact>
-        </FactList>
-
-        <ul className="action-list">
-          <TargetSiteAction
-            resolution={targetResolution}
-            siteHref={siteHref}
-          />
-        </ul>
-
-        <p>
-          Opening the target site opens the configured site itself. It does not
-          create, rename, clone, or promote one: a scenario declares which site
-          it needs and can allocate none.
-        </p>
-      </Panel>
+      <SiteNeedsPanel scenario={scenario} />
 
       <Panel
         heading="How each authored value executes"
@@ -491,7 +454,7 @@ export function ScenarioFrame({
       >
         <p>
           Every reading in the timeline arrives through one of these. A device
-          source names a device and a signal the target site configures; a
+          source names a device and a signal the chosen site must configure; a
           hand-recorded value names neither, because it did not arrive through
           any configured signal and borrowing one would put an operator&apos;s
           note into the evidence path wearing a sensor&apos;s name.
@@ -505,15 +468,11 @@ export function ScenarioFrame({
                 <th scope="col">Kind</th>
                 <th scope="col">Device</th>
                 <th scope="col">Signal</th>
-                <th scope="col">On this installation</th>
                 <th scope="col">Who owns the reporting cadence</th>
               </tr>
             </thead>
             <tbody>
               {scenario.observation_sources.map((source) => {
-                const resolution = observationSourceResolutions.find(
-                  (item) => item.source_id === source.source_id,
-                );
                 return (
                   <tr key={source.source_id}>
                     <td>
@@ -523,17 +482,12 @@ export function ScenarioFrame({
                       </span>
                     </td>
                     <td>{source.source_kind}</td>
-                    <td>{deviceText(source.device_id, resolution)}</td>
-                    <td>{signalText(source.signal_id, resolution)}</td>
-                    <td>
-                      {resolution?.reason ??
-                        "Nothing is known about this source on this installation."}
-                    </td>
+                    <td>{source.device_id ?? "No device"}</td>
+                    <td>{source.signal_id ?? "No signal"}</td>
                     <td>
                       {source.cadence_ownership}
                       <span className="cell-secondary">
-                        {resolution?.cadence_statement ??
-                          "No statement about this source's cadence is available."}
+                        {cadenceStatement(source.device_id)}
                       </span>
                     </td>
                   </tr>
@@ -911,37 +865,14 @@ export function ScenarioFrame({
       >
         <ul className="action-list">
           <li className="action-list__item">
-            {targetResolution.state === "RESOLVED" &&
-            targetResolution.site_id !== null ? (
-              <>
-                <Link
-                  className="action"
-                  to={runSetupHref(scenario.scenario_id)}
-                >
-                  Create Draft Run
-                </Link>
-                <p className="action-list__reason">
-                  Setting a run up freezes the inputs a simulation would
-                  consume and creates a draft. It does not execute anything.
-                </p>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="action"
-                  disabled
-                  aria-describedby="scenario-run-reason"
-                >
-                  Create Draft Run
-                </button>
-                <p className="action-list__reason" id="scenario-run-reason">
-                  {targetResolution.reason} A run is bound to a concrete site
-                  and to the exact version of its foundation, so there is
-                  nothing to freeze until that site is configured here.
-                </p>
-              </>
-            )}
+            <Link className="action" to={runSetupHref(scenario.scenario_id)}>
+              Create Draft Run
+            </Link>
+            <p className="action-list__reason">
+              Setting a run up is where you choose the site it binds to. It
+              freezes the inputs a simulation would consume and creates a
+              draft; it does not execute anything.
+            </p>
           </li>
         </ul>
       </Panel>
@@ -952,51 +883,103 @@ export function ScenarioFrame({
 }
 
 /**
- * The one product bridge on this screen.
+ * What the scenario needs of whichever site a run binds it to.
  *
- * Enabled only when the declared target site resolves, and then it is a link
- * to the configured site rather than a button, because following it is
- * navigation. In every other state it is a disabled control carrying the
- * reason the backend produced, so the screen and the API cannot describe the
- * same state differently.
- *
- * `disabled` is the real attribute rather than `aria-disabled`, because the
- * claim is the true one: the control does nothing. The reason is rendered
- * beside it and tied to it with `aria-describedby`, since a disabled button
- * takes no focus and a tooltip on one is a reason a keyboard cannot reach.
+ * Every row comes from the document through the backend's `site_needs`; no
+ * site was read to produce it, and nothing here says whether any site honours
+ * it. A legacy `target_site` is labelled as such and never presented as a
+ * binding.
  */
-function TargetSiteAction({
-  resolution,
-  siteHref,
-}: {
-  resolution: ScenarioTargetResolution;
-  siteHref: (siteId: string) => string;
-}) {
-  if (resolution.state === "RESOLVED" && resolution.site_id !== null) {
-    return (
-      <li className="action-list__item">
-        <Link className="action" to={siteHref(resolution.site_id)}>
-          Open target site
-        </Link>
-        <p className="action-list__reason">{resolution.reason}</p>
-      </li>
-    );
-  }
-
+function SiteNeedsPanel({ scenario }: { scenario: ScenarioDetail }) {
+  const needs = scenario.site_needs;
+  const legacy = scenario.target_site;
   return (
-    <li className="action-list__item">
-      <button
-        type="button"
-        className="action"
-        disabled
-        aria-describedby="scenario-target-reason"
-      >
-        Open target site
-      </button>
-      <p className="action-list__reason" id="scenario-target-reason">
-        {resolution.reason}
+    <Panel
+      heading="What this scenario needs of a site"
+      headingId="scenario-site-needs-heading"
+    >
+      <p>
+        This scenario names no site. You choose the site when you set a run
+        up, and run setup checks these needs against that site and the model
+        profile you choose. Which sites can honour the scenario depends on that
+        profile, so this screen does not list them.
       </p>
-    </li>
+      <FactList>
+        <Fact term="Site contract">
+          {scenario.site_contract?.description ??
+            "This scenario carries no site contract description."}
+        </Fact>
+        <Fact term="Site Controls">
+          This scenario declares no Site Control. The Site Controls a run
+          relies on are the chosen model profile&apos;s needs, checked at run
+          setup.
+        </Fact>
+        {legacy === null ? null : (
+          <Fact term="Legacy site declaration; not used to bind runs">
+            <span data-legacy-target-site="">
+              {[legacy.policy, legacy.site_id, legacy.template_id]
+                .filter((part) => part !== null)
+                .join(", ")}
+            </span>
+            <span className="cell-secondary">{legacy.requirement}</span>
+          </Fact>
+        )}
+      </FactList>
+
+      <h3 className="subsection__heading" id="scenario-site-addresses-heading">Addresses it names</h3>
+      {needs.addresses.length > 0 ? (
+        <DataTable labelledBy="scenario-site-addresses-heading">
+          <thead>
+            <tr>
+              <th scope="col">Address</th>
+              <th scope="col">Component</th>
+              <th scope="col">State</th>
+              <th scope="col">Named as</th>
+            </tr>
+          </thead>
+          <tbody>
+            {needs.addresses.map((need) => (
+              <tr key={need.address}>
+                <td>{need.address}</td>
+                <td>{need.component_id ?? "The site as a whole"}</td>
+                <td>{need.state_key}</td>
+                <td>
+                  {need.execution_roles.length > 0
+                    ? need.execution_roles.join(", ")
+                    : "A bound on another value"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      ) : (
+        <p>This scenario names no address.</p>
+      )}
+
+      <h3 className="subsection__heading" id="scenario-site-devices-heading">Devices it reads through</h3>
+      {needs.device_sources.length > 0 ? (
+        <DataTable labelledBy="scenario-site-devices-heading">
+          <thead>
+            <tr>
+              <th scope="col">Source</th>
+              <th scope="col">Device</th>
+              <th scope="col">Signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {needs.device_sources.map((source) => (
+              <tr key={source.source_id}>
+                <td>{source.source_id}</td>
+                <td>{source.device_id}</td>
+                <td>{source.signal_id ?? "No signal"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      ) : (
+        <p>This scenario reads through no device.</p>
+      )}
+    </Panel>
   );
 }
 
@@ -1124,28 +1107,11 @@ function ownershipText(parameter: ScenarioParameter): string {
     : `${parameter.ownership.owner}, used by a change`;
 }
 
-function deviceText(
-  deviceId: string | null,
-  resolution: ScenarioObservationSourceResolution | undefined,
-): string {
-  if (deviceId === null) {
-    return "No device";
-  }
-  return resolution?.device_display_name === undefined ||
-    resolution.device_display_name === null
-    ? deviceId
-    : `${deviceId}, ${resolution.device_display_name}`;
-}
-
-function signalText(
-  signalId: string | null,
-  resolution: ScenarioObservationSourceResolution | undefined,
-): string {
-  if (signalId === null) {
-    return "No signal";
-  }
-  return resolution?.signal_display_name === undefined ||
-    resolution.signal_display_name === null
-    ? signalId
-    : `${signalId}, ${resolution.signal_display_name}`;
+/**
+ * Who owns a source's reporting cadence. Always about ownership, never a rate.
+ */
+function cadenceStatement(deviceId: string | null): string {
+  return deviceId === null
+    ? "A person writing a value down reports at no rate, so there is no cadence for anything to own."
+    : "A site's foundation declares that a signal can report and declares no cadence. Nothing in this build infers one; a cadence arrives when a versioned observation profile declares one.";
 }

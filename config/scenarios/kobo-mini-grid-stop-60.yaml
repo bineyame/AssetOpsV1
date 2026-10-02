@@ -4,8 +4,8 @@
 # separately. It is a scenario event over the Site's baseline, not an edit of
 # the Foundation and not operator evidence. Same story, a full-site mini-grid
 # through a dark, loaded morning into a sunny midday,
-# run against a Site created from the kobo-mini-grid-60kw template with site
-# ID KOBO-001.
+# run against a Site built from the current kobo-mini-grid-60kw template,
+# chosen at run setup.
 #
 # Set a run up with the mini-grid model profile VERSION 2, an interval of 480
 # minutes (06:00 to 14:00 local time is the intended reading) and a 5-minute
@@ -29,15 +29,18 @@ purpose: >-
   The same causes as the prolonged-runtime recipe, with the generator stop threshold overridden to 60 % for the whole interval. The generator is requested at the same start threshold, but the Site policy now permits a stop once it has run its minimum runtime and the state of charge reaches 60 %, so it runs for less time, delivers less energy and burns less fuel while PV charges the rest. Lower runtime here is a consequence of a different policy, not a claim that the policy is better.
 
 version:
-  scenario_version: 1
-  version_valid_from: '2026-09-29T00:00:00Z'
-  supersedes: null
+  # T025g: v2 drops the retired `target_site` (a scenario names no site;
+  # `D-2026-10-01-run-binds-scenario-to-site`). Its requirement prose
+  # moved, unchanged, into `site_contract.description`.
+  scenario_version: 2
+  version_valid_from: '2026-10-01T00:00:00Z'
+  supersedes: 1
 
-target_site:
-  policy: DECLARED_SITE
-  site_id: KOBO-001
-  template_id: null
-  requirement: >-
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
     A mini-grid created from the kobo-mini-grid-60kw template: one PV array
     behind one inverter, one battery behind one PCS, one generator on the bus
     fed by one fuel tank, and three addressed loads - load-res, load-clinic

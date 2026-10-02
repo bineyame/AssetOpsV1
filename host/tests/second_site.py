@@ -56,11 +56,10 @@ def second_site_document() -> dict[str, Any]:
             "version_valid_from": "2026-09-27T00:00:00Z",
             "supersedes": None,
         },
-        "target_site": {
-            "policy": "DECLARED_SITE",
-            "site_id": SECOND_SITE_ID,
-            "template_id": None,
-            "requirement": (
+        # T025g: the site is chosen at run setup (`SECOND_SITE_ID`); the
+        # document only describes what a site must honour.
+        "site_contract": {
+            "description": (
                 "A mini-grid whose foundation declares two fuel runs, so a "
                 "reference has to say which tank and which generator it means."
             ),

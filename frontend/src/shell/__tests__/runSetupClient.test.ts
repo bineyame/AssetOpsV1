@@ -57,6 +57,7 @@ const RUN: RunSummary = {
     },
   ],
   unsupported_optional_inputs: [],
+  template_lineage: { state: "RECORDED", template_id: "hybrid-mini-grid-100kw", template_version: 2 },
 };
 
 const INPUT: RunSetupInput = {
@@ -252,6 +253,20 @@ describe("what a response becomes", () => {
     // The finding this file exists for. A run EXISTS; saying otherwise is
     // the worst sentence this surface can produce.
     respondWith({ run: { run_id: "run-1" } }, 201);
+
+    expect(await client().createRun(INPUT)).toEqual({
+      status: "created_but_unreadable",
+    });
+  });
+
+  it.each([
+    ["no lineage at all", undefined],
+    ["a recorded state with no template", { state: "RECORDED", template_id: null, template_version: null }],
+    ["not recorded but carrying a template", { state: "NOT_RECORDED", template_id: "kobo-mini-grid-60kw", template_version: 2 }],
+    ["an unknown state", { state: "INFERRED", template_id: null, template_version: null }],
+  ])("a run whose template lineage is %s does not match the shape", async (_label, lineage) => {
+    // T025g AC9: the lineage is read as frozen, never guessed at.
+    respondWith({ run: { ...RUN, template_lineage: lineage } }, 201);
 
     expect(await client().createRun(INPUT)).toEqual({
       status: "created_but_unreadable",

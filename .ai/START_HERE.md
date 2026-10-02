@@ -31,8 +31,9 @@ the Lab cockpit cadence: **T025c (L1a) is complete** (owner accepted 2026-09-30)
 **T025d (L1b) is complete** (owner accepted 2026-09-30); **T025e (cockpit
 organisation and live playback) is complete** (owner accepted 2026-10-01); **T025f
 (template versioning) is complete** (fast lane, Claude review ACCEPT WITH CARRIES);
-next is **T025g** (`tasks/T025g-run-binds-scenario-to-site.md`, scenario-site contract under
-`D-2026-10-01-run-binds-scenario-to-site`), then T026 and the order in `tasks/README.md`.
+**T025g** (`tasks/completed/T025g-run-binds-scenario-to-site.md`, scenario-site contract under
+`D-2026-10-01-run-binds-scenario-to-site`) is complete (owner accepted 2026-10-02); next is
+**T026** (`tasks/T026-dispatch-capable-evidence.md`, task file to be confirmed) and the order in `tasks/README.md`.
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
 `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and

@@ -203,23 +203,19 @@ export interface ScenarioExecutionContract {
   initialization_inputs: ScenarioInitializationInput[];
 }
 
-/** What a declared observation source resolved to on this installation. */
-export interface ScenarioObservationSourceResolution {
-  source_id: string;
-  state: string;
-  device_display_name: string | null;
-  signal_display_name: string | null;
-  reason: string;
-  cadence_statement: string;
-}
-
 export interface ScenarioVersionIdentity {
   scenario_version: number;
   version_valid_from: string;
   supersedes: number | null;
 }
 
-/** What the document declares it needs, not what this installation has. */
+/**
+ * A legacy site declaration, as an older document carries it.
+ *
+ * Retired by `D-2026-10-01-run-binds-scenario-to-site`: a scenario names no
+ * site, the declaration is never resolved, and run setup ignores it. It is
+ * carried only so the detail screen can label it as legacy.
+ */
 export interface ScenarioTargetSiteDeclaration {
   policy: string;
   site_id: string | null;
@@ -233,7 +229,40 @@ export interface ScenarioSummary {
   purpose: string;
   origin: string;
   version: ScenarioVersionIdentity;
-  target_site: ScenarioTargetSiteDeclaration;
+  target_site: ScenarioTargetSiteDeclaration | null;
+  site_contract: ScenarioSiteContract | null;
+}
+
+/** The document's prose about what a site must honour. Never evaluated. */
+export interface ScenarioSiteContract {
+  description: string;
+}
+
+/** One address the scenario names, and the roles it names it in. */
+export interface ScenarioAddressNeed {
+  address: string;
+  scope: string;
+  component_id: string | null;
+  state_key: string;
+  execution_roles: string[];
+}
+
+/** A device observation source the scenario reads through. */
+export interface ScenarioDeviceSourceNeed {
+  source_id: string;
+  device_id: string;
+  signal_id: string | null;
+}
+
+/**
+ * What the scenario needs of whichever site a run binds it to.
+ *
+ * Derived from the document alone; no site was read to produce it, and it
+ * says nothing about whether any site honours it.
+ */
+export interface ScenarioSiteNeeds {
+  addresses: ScenarioAddressNeed[];
+  device_sources: ScenarioDeviceSourceNeed[];
 }
 
 export interface ScenarioDetail extends ScenarioSummary {
@@ -241,6 +270,7 @@ export interface ScenarioDetail extends ScenarioSummary {
   public_parameters: ScenarioParameter[];
   observation_sources: ScenarioObservationSource[];
   execution_contract: ScenarioExecutionContract;
+  site_needs: ScenarioSiteNeeds;
 }
 
 /** Test-oracle metadata. Never operator content, never product evidence. */
@@ -251,21 +281,6 @@ export interface ScenarioPrivateExpectation {
   statement: string;
 }
 
-/**
- * What the declared target Site resolved to on this installation.
- *
- * Four states and they are four different facts. `reason` is always present,
- * because a control that is unavailable without a visible reason is a dead
- * end, and the text comes from the backend so the screen and the API cannot
- * describe the same state differently.
- */
-export interface ScenarioTargetResolution {
-  state: string;
-  site_id: string | null;
-  display_name: string | null;
-  reason: string;
-}
-
 export type ScenarioListResult =
   | { status: "loaded"; scenarios: ScenarioSummary[] }
   | { status: "unavailable" };
@@ -274,8 +289,6 @@ export type ScenarioDetailResult =
   | {
       status: "loaded";
       scenario: ScenarioDetail;
-      targetResolution: ScenarioTargetResolution;
-      observationSourceResolutions: ScenarioObservationSourceResolution[];
       privateExpectations: ScenarioPrivateExpectation[];
     }
   | { status: "not_found" }
@@ -542,29 +555,14 @@ function isExecutionContract(
   );
 }
 
-function isObservationSourceResolution(
-  value: unknown,
-): value is ScenarioObservationSourceResolution {
-  if (!isRecord(value)) {
-    return false;
-  }
-  return (
-    typeof value.source_id === "string" &&
-    typeof value.state === "string" &&
-    isNullableString(value.device_display_name) &&
-    isNullableString(value.signal_display_name) &&
-    typeof value.reason === "string" &&
-    typeof value.cadence_statement === "string"
-  );
-}
-
 export function isScenarioSummary(value: unknown): value is ScenarioSummary {
   if (value === null || typeof value !== "object") {
     return false;
   }
   const scenario = value as Record<string, unknown>;
   const version = scenario.version as Record<string, unknown> | undefined;
-  const target = scenario.target_site as Record<string, unknown> | undefined;
+  const target = scenario.target_site;
+  const contract = scenario.site_contract;
 
   return (
     typeof scenario.scenario_id === "string" &&
@@ -576,11 +574,45 @@ export function isScenarioSummary(value: unknown): value is ScenarioSummary {
     typeof version.version_valid_from === "string" &&
     (version.supersedes === null ||
       typeof version.supersedes === "number") &&
-    target !== undefined &&
-    typeof target.policy === "string" &&
-    (target.site_id === null || typeof target.site_id === "string") &&
-    (target.template_id === null || typeof target.template_id === "string") &&
-    typeof target.requirement === "string"
+    (target === null ||
+      (isRecord(target) &&
+        typeof target.policy === "string" &&
+        isNullableString(target.site_id) &&
+        isNullableString(target.template_id) &&
+        typeof target.requirement === "string")) &&
+    (contract === null ||
+      (isRecord(contract) && typeof contract.description === "string"))
+  );
+}
+
+function isAddressNeed(value: unknown): value is ScenarioAddressNeed {
+  return (
+    isRecord(value) &&
+    typeof value.address === "string" &&
+    typeof value.scope === "string" &&
+    isNullableString(value.component_id) &&
+    typeof value.state_key === "string" &&
+    Array.isArray(value.execution_roles) &&
+    value.execution_roles.every((role) => typeof role === "string")
+  );
+}
+
+function isDeviceSourceNeed(value: unknown): value is ScenarioDeviceSourceNeed {
+  return (
+    isRecord(value) &&
+    typeof value.source_id === "string" &&
+    typeof value.device_id === "string" &&
+    isNullableString(value.signal_id)
+  );
+}
+
+function isSiteNeeds(value: unknown): value is ScenarioSiteNeeds {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.addresses) &&
+    value.addresses.every(isAddressNeed) &&
+    Array.isArray(value.device_sources) &&
+    value.device_sources.every(isDeviceSourceNeed)
   );
 }
 
@@ -596,24 +628,8 @@ function isScenarioDetail(value: unknown): value is ScenarioDetail {
     scenario.public_parameters.every(isParameter) &&
     Array.isArray(scenario.observation_sources) &&
     scenario.observation_sources.every(isObservationSource) &&
-    isExecutionContract(scenario.execution_contract)
-  );
-}
-
-function isTargetResolution(
-  value: unknown,
-): value is ScenarioTargetResolution {
-  if (value === null || typeof value !== "object") {
-    return false;
-  }
-  const resolution = value as Record<string, unknown>;
-  return (
-    typeof resolution.state === "string" &&
-    (resolution.site_id === null ||
-      typeof resolution.site_id === "string") &&
-    (resolution.display_name === null ||
-      typeof resolution.display_name === "string") &&
-    typeof resolution.reason === "string"
+    isExecutionContract(scenario.execution_contract) &&
+    isSiteNeeds(scenario.site_needs)
   );
 }
 
@@ -673,12 +689,8 @@ export function createScenarioCatalogClient(
         }
         const body = (await response.json()) as Record<string, unknown>;
         const expectations = body?.private_expectations;
-        const sources = body?.observation_source_resolutions;
         if (
           !isScenarioDetail(body?.scenario) ||
-          !isTargetResolution(body?.target_resolution) ||
-          !Array.isArray(sources) ||
-          !sources.every(isObservationSourceResolution) ||
           !Array.isArray(expectations) ||
           !expectations.every(isExpectation)
         ) {
@@ -687,8 +699,6 @@ export function createScenarioCatalogClient(
         return {
           status: "loaded",
           scenario: body.scenario as ScenarioDetail,
-          targetResolution: body.target_resolution as ScenarioTargetResolution,
-          observationSourceResolutions: sources,
           privateExpectations: expectations,
         };
       } catch {

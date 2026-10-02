@@ -20,13 +20,12 @@ true of it; version 2 is the first version that means one content.
 
 from __future__ import annotations
 
-import hashlib
-import json
 from pathlib import Path
 from typing import Any
 
 import pytest
 import yaml
+from content_fingerprint import content_fingerprint
 
 from assetops_backend.sites.adapters.yaml_site_template_catalog import (
     SHIPPED_SITE_TEMPLATE_ROOT,
@@ -47,15 +46,11 @@ PINNED_TEMPLATE_FINGERPRINTS: dict[tuple[str, int], str] = {
 
 
 def template_fingerprint(document: Any) -> str:
-    """SHA-256 over the canonical JSON form of a parsed template document."""
-    canonical = json.dumps(
-        document,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-        default=str,
-    )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    """SHA-256 over the canonical JSON form of a parsed template document.
+
+    The shared `content_fingerprint`, which T025g's scenario guard uses too.
+    """
+    return content_fingerprint(document)
 
 
 def fingerprint_failure(

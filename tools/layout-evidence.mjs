@@ -606,7 +606,21 @@ const SUBMIT_RUN_SETUP = `(() => {
     return true;
   };
 
+  // T025g: the site is chosen at run setup and the picker selects nothing on
+  // its own. The measured site is picked when it is listed, else the first.
+  const chooseSite = () => {
+    const radios = Array.from(
+      document.querySelectorAll('input[name="run-setup-site"]'),
+    );
+    const radio =
+      radios.find((item) => item.value === ${JSON.stringify(SITE)}) ?? radios[0];
+    if (!radio) return false;
+    radio.click();
+    return true;
+  };
+
   const filled =
+    chooseSite() &&
     setValue("run-setup-start", "2026-09-21T00:00:00Z") &&
     setValue("run-setup-end", "2026-09-22T17:00:00Z") &&
     setValue("run-setup-timestep", "15") &&
@@ -1503,10 +1517,9 @@ for (const [label, width, height] of [
         `${scenario.privateRegions} region(s), visible ${scenario.privateRegionVisible}`,
       ],
       [
-        // Measured over buttons. The one enabled control this screen may carry
-        // is the target-site LINK, which is an anchor rather than a button
-        // precisely because following it is navigation, so it is deliberately
-        // outside this set. Which states enable it is covered by the UI suite.
+        // Measured over buttons. The enabled controls this screen carries are
+        // links (Create Draft Run and the back links), deliberately outside
+        // this set; T025g removed the target-site link.
         "no enabled button renders",
         scenario.buttons.every((b) => b.disabled),
         scenario.buttons.length === 0

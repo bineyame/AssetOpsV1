@@ -109,7 +109,7 @@ def kobo_run(*, site_edit=None, model=DAYTIME_MINI_GRID_MODEL) -> SimulationRun:
             "site_id": "KOBO-001",
             "foundation_version": site.foundation.version,
             "scenario_id": "kobo-daytime",
-            "scenario_version": 1,
+            "scenario_version": 2,
             "interval": {
                 "start_time": "2026-09-22T03:00:00Z",
                 "end_time": "2026-09-22T15:00:00Z",

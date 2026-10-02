@@ -2,19 +2,33 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
-import type { SiteDetailClient } from "../sites/siteDirectoryClient";
-import type { SiteDetailResult } from "../sites/siteReadModel";
+import type {
+  SiteDetailClient,
+  SiteDirectoryClient,
+} from "../sites/siteDirectoryClient";
+import type {
+  SiteDetailResult,
+  SiteListResult,
+  SiteSummary,
+} from "../sites/siteReadModel";
+import {
+  useSiteTemplateLineage,
+  type SiteTemplateLineageClient,
+} from "../sites/siteTemplateLineage";
+import { TemplateProvenanceText } from "../sites/TemplateProvenanceText";
+import { deriveSiteView } from "../sites/siteViewModel";
 import type {
   ScenarioCatalogClient,
   ScenarioDetail,
   ScenarioDetailResult,
   ScenarioParameter,
 } from "./scenarioCatalogClient";
-import type {
-  CreateRunResult,
-  RunProfilesResult,
-  RunSetupClient,
-  RunSummary,
+import {
+  templateLineageText,
+  type CreateRunResult,
+  type RunProfilesResult,
+  type RunSetupClient,
+  type RunSummary,
 } from "./runSetupClient";
 
 /**
@@ -73,6 +87,17 @@ import type {
  * screen renders what it says, so a refusal is the product copy that names
  * what is wrong rather than a message written twice.
  *
+ * ## The site is chosen here, and only here
+ *
+ * A scenario names no site (T025g, `D-2026-10-01-run-binds-scenario-to-site`),
+ * so this screen does not derive one from it. It opens with no site selected,
+ * never selects one for the person - not even when exactly one is configured -
+ * and keeps Create disabled until a site is picked. Each row shows the site's
+ * Foundation version and its template lineage with T025f's staleness note. No
+ * row is filtered or disabled for being unable to honour the scenario: a
+ * BLOCKED draft is a truthful record of what the chosen site lacks, and
+ * computing compatibility here would be a second matcher beside run setup.
+ *
  * ## Paths arrive as props
  *
  * This module must not spell a simulator URL: the single chokepoint in
@@ -81,7 +106,15 @@ import type {
  */
 export interface RunSetupFrameProps {
   catalog: ScenarioCatalogClient;
+  /** Every configured site, for the picker. */
+  siteDirectory: SiteDirectoryClient;
+  /** One site's Foundation version, read for each listed site. */
   siteDetail: SiteDetailClient;
+  /**
+   * T025f's template-lineage answers, for the staleness note on each picker
+   * row. Optional: without it the rows show the recorded lineage alone.
+   */
+  templateLineage?: SiteTemplateLineageClient;
   runSetup: RunSetupClient;
   scenariosPath: string;
   simulatorLabPath: string;
@@ -221,7 +254,9 @@ function runOwnedParameters(
 
 export function RunSetupFrame({
   catalog,
+  siteDirectory,
   siteDetail,
+  templateLineage,
   runSetup,
   scenariosPath,
   simulatorLabPath,
@@ -231,7 +266,13 @@ export function RunSetupFrame({
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const [scenario, setScenario] = useState<ScenarioDetailResult | null>(null);
   const [profiles, setProfiles] = useState<RunProfilesResult | null>(null);
-  const [site, setSite] = useState<SiteDetailResult | null>(null);
+  const [sites, setSites] = useState<SiteListResult | null>(null);
+  const [siteDetails, setSiteDetails] = useState<
+    Record<string, SiteDetailResult>
+  >({});
+  /** The site the person picked. Never set by the screen itself. */
+  const [chosenSiteId, setChosenSiteId] = useState<string | null>(null);
+  const lineage = useSiteTemplateLineage(templateLineage);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [result, setResult] = useState<CreateRunResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -342,32 +383,38 @@ export function RunSetupFrame({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario]);
 
-  const targetSiteId =
-    scenario?.status === "loaded" &&
-    scenario.targetResolution.state === "RESOLVED"
-      ? scenario.targetResolution.site_id
-      : null;
-
+  // Every configured site, then each one's Foundation version. Read for the
+  // picker, never chosen from: the effect sets no selection.
   useEffect(() => {
     let active = true;
 
-    if (targetSiteId === null) {
-      return undefined;
-    }
-
-    void siteDetail.getSite(targetSiteId).then((loaded) => {
-      if (active) {
-        // Every outcome, not only the one that works. An earlier version
-        // kept the loading text forever when the read failed, left submit
-        // enabled, and sent a foundation version of NaN.
-        setSite(loaded);
+    void siteDirectory.listSites().then((listed) => {
+      if (!active) {
+        return;
+      }
+      setSites(listed);
+      if (listed.status !== "loaded") {
+        return;
+      }
+      for (const summary of listed.sites) {
+        void siteDetail.getSite(summary.site_id).then((loaded) => {
+          if (active) {
+            // Every outcome, not only the one that works. An earlier version
+            // kept the loading text forever when the read failed, left submit
+            // enabled, and sent a foundation version of NaN.
+            setSiteDetails((current) => ({
+              ...current,
+              [summary.site_id]: loaded,
+            }));
+          }
+        });
       }
     });
 
     return () => {
       active = false;
     };
-  }, [siteDetail, targetSiteId]);
+  }, [siteDirectory, siteDetail]);
 
   const backLinks = (
     <p>
@@ -395,7 +442,14 @@ export function RunSetupFrame({
     );
   }
 
-  if (scenario === null || profiles === null) {
+  // The form waits for its derived defaults too, so it never renders once
+  // without them. Before T025g the site read covered that gap; the picker reads
+  // no site until one is listed, so the wait is stated here.
+  if (
+    scenario === null ||
+    profiles === null ||
+    (scenario.status === "loaded" && defaults.startTime === undefined)
+  ) {
     return frame(<p>Loading the run setup inputs.</p>);
   }
 
@@ -429,7 +483,6 @@ export function RunSetupFrame({
   }
 
   const detail = scenario.scenario;
-  const resolution = scenario.targetResolution;
 
   const explanation = (
     <Panel
@@ -459,25 +512,6 @@ export function RunSetupFrame({
     </Panel>
   );
 
-  if (resolution.state !== "RESOLVED" || resolution.site_id === null) {
-    return frame(
-      <>
-        {explanation}
-        <Panel
-          heading="No configured site to bind this run to"
-          headingId="run-setup-no-site-heading"
-        >
-          <p>{resolution.reason}</p>
-          <p>
-            A run is bound to a concrete site and to the exact version of its
-            foundation. Until this scenario&apos;s target site is configured
-            here, there is nothing to freeze and no run can be set up.
-          </p>
-        </Panel>
-      </>,
-    );
-  }
-
   const allParameters = [
     ...detail.public_parameters,
     ...detail.timeline.flatMap((entry) => entry.parameters),
@@ -498,11 +532,14 @@ export function RunSetupFrame({
    * screen validating a value, it is the screen declining to send a request
    * it cannot fill in.
    */
+  const site = chosenSiteId === null ? null : siteDetails[chosenSiteId] ?? null;
   const foundationVersion =
     site?.status === "loaded" ? site.site.foundation.version : null;
 
   const siteReadFailure =
-    site?.status === "not_found"
+    chosenSiteId === null
+      ? "Choose the site this run binds to first. No site is chosen for you."
+      : site?.status === "not_found"
       ? "This site is no longer configured, so there is no foundation " +
         "version to freeze and no run can be set up."
       : site?.status === "unavailable"
@@ -519,7 +556,7 @@ export function RunSetupFrame({
     setResult(null);
 
     const outcome = await runSetup.createRun({
-      site_id: resolution.site_id as string,
+      site_id: chosenSiteId as string,
       foundation_version: foundationVersion as number,
       scenario_id: detail.scenario_id,
       scenario_version: detail.version.scenario_version,
@@ -577,6 +614,17 @@ export function RunSetupFrame({
     <>
       {explanation}
 
+      <SitePicker
+        sites={sites}
+        siteDetails={siteDetails}
+        lineage={lineage}
+        chosenSiteId={chosenSiteId}
+        onChoose={(siteId) => {
+          setChosenSiteId(siteId);
+          setResult(null);
+        }}
+      />
+
       <Panel
         heading="What the scenario and the site already fix"
         headingId="run-setup-fixed-heading"
@@ -591,10 +639,10 @@ export function RunSetupFrame({
           <Fact term="Scenario version">
             {String(detail.version.scenario_version)}
           </Fact>
-          <Fact term="Site">{resolution.site_id}</Fact>
+          <Fact term="Site">{chosenSiteId ?? "Not chosen yet"}</Fact>
           <Fact term="Foundation version">
             {foundationVersion === null
-              ? siteReadFailure ?? "Loading the configured site."
+              ? siteReadFailure ?? "Loading the chosen site."
               : String(foundationVersion)}
           </Fact>
         </FactList>
@@ -866,7 +914,7 @@ export function RunSetupFrame({
                 id="run-setup-blocked-reason"
               >
                 {siteReadFailure ??
-                  "The configured site has not been read yet, so the " +
+                  "The chosen site has not been read yet, so the " +
                     "foundation version this run would freeze is not known."}
               </span>
             ) : null}
@@ -876,6 +924,124 @@ export function RunSetupFrame({
 
       {created === null ? null : <CreatedDraft run={created} />}
     </>,
+  );
+}
+
+/**
+ * The site this run binds to, chosen by the person and by nobody else.
+ *
+ * Opens with nothing selected and selects nothing on its own, even with one
+ * site. Every configured site is a row with its Foundation version and its
+ * template lineage, plus T025f's staleness note when the lineage answer says
+ * the record is behind. No row is disabled: a site that cannot honour the
+ * scenario gives a BLOCKED draft naming what it lacks, which is a truthful
+ * record. A site whose Foundation version could not be read can be picked, and
+ * Create then stays disabled with that reason.
+ */
+function SitePicker({
+  sites,
+  siteDetails,
+  lineage,
+  chosenSiteId,
+  onChoose,
+}: {
+  sites: SiteListResult | null;
+  siteDetails: Record<string, SiteDetailResult>;
+  lineage: ReturnType<typeof useSiteTemplateLineage>;
+  chosenSiteId: string | null;
+  onChoose: (siteId: string) => void;
+}) {
+  return (
+    <Panel
+      heading="Choose the site this run binds to"
+      headingId="run-setup-site-heading"
+    >
+      <p>
+        A scenario names no site. The run is the only place a scenario version
+        and a site version meet, so you choose the site here and nothing is
+        chosen for you. Run setup then checks what the scenario needs against
+        the site you pick: a site that cannot honour it still gives a draft,
+        marked blocked, that names what the site lacks.
+      </p>
+      {sites === null ? (
+        <p>Loading the configured sites.</p>
+      ) : sites.status === "unavailable" ? (
+        <p>
+          The site store could not be read, so there is no site to choose and
+          no run can be set up.
+        </p>
+      ) : sites.sites.length === 0 ? (
+        <p>
+          No site is configured, so there is no site to bind a run to. Create a
+          site first.
+        </p>
+      ) : (
+        <fieldset className="site-picker" data-site-picker="">
+          <legend>Site</legend>
+          {sites.sites.map((summary) => (
+            <SitePickerRow
+              key={summary.site_id}
+              summary={summary}
+              detail={siteDetails[summary.site_id]}
+              lineage={lineage?.get(summary.site_id)}
+              chosen={chosenSiteId === summary.site_id}
+              onChoose={onChoose}
+            />
+          ))}
+        </fieldset>
+      )}
+    </Panel>
+  );
+}
+
+function SitePickerRow({
+  summary,
+  detail,
+  lineage,
+  chosen,
+  onChoose,
+}: {
+  summary: SiteSummary;
+  detail: SiteDetailResult | undefined;
+  lineage: Parameters<typeof TemplateProvenanceText>[0]["lineage"];
+  chosen: boolean;
+  onChoose: (siteId: string) => void;
+}) {
+  const view = deriveSiteView(summary);
+  const foundation =
+    detail === undefined
+      ? "Loading the site's Foundation version."
+      : detail.status === "loaded"
+        ? `Foundation version ${detail.site.foundation.version}`
+        : detail.status === "not_found"
+          ? "Foundation version: this site is no longer configured"
+          : "Foundation version: the site store could not be read";
+  const inputId = `run-setup-site-${summary.site_id}`;
+  return (
+    <p className="site-picker__row" data-site-picker-row={summary.site_id}>
+      <input
+        type="radio"
+        id={inputId}
+        name="run-setup-site"
+        value={summary.site_id}
+        checked={chosen}
+        onChange={() => onChoose(summary.site_id)}
+      />{" "}
+      <label htmlFor={inputId}>
+        {summary.display_name} ({summary.site_id})
+      </label>
+      <span className="cell-secondary" data-site-picker-foundation="">
+        {foundation}
+      </span>
+      <span className="cell-secondary" data-site-picker-lineage="">
+        Created from template:{" "}
+        <TemplateProvenanceText
+          site={summary}
+          provenance={view.templateProvenance}
+          lineage={lineage}
+        />
+      </span>
+    </p>
   );
 }
 
@@ -908,6 +1074,9 @@ function CreatedDraft({ run }: { run: RunSummary }) {
           <Fact term="Lifecycle status">{run.lifecycle_status}</Fact>
           <Fact term="Execution status">{run.execution_status}</Fact>
           <Fact term="Created">{run.created_at}</Fact>
+          <Fact term="Site template lineage">
+            {templateLineageText(run.template_lineage)}
+          </Fact>
         </FactList>
         <p>
           The run identity is its own. It is not the site identity, not the

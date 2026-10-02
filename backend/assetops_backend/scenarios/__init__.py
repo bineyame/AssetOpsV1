@@ -2,8 +2,9 @@
 
 A `ScenarioDefinition` answers what happens during a simulated interval. Site
 Foundation answers what the Site is. The two do not duplicate one another and
-neither is derived from the other: a scenario declares which Site it needs, and
-that is the whole of the relationship.
+neither is derived from the other. A scenario names no Site: it states what it
+needs of one, and a run is the only join of a scenario version and a Site
+version (`D-2026-10-01-run-binds-scenario-to-site`).
 
 Everything in this package above `adapters/` is storage-agnostic and speaks
 domain records and port errors only, exactly as `sites/` does, and

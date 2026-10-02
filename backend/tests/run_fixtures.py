@@ -80,8 +80,9 @@ def site(
     components: Any = DEFAULT,
     signal_mappings: Any = DEFAULT,
     foundation_version: int = 1,
+    template: Any = None,
 ) -> SiteRecord:
-    """The configured Site the example scenario targets."""
+    """A configured Site; the example scenario's legacy declaration names it."""
     return SiteRecord(
         site_id=site_id,
         display_name="Configured mini-grid",
@@ -91,7 +92,7 @@ def site(
         lifecycle_status="PLANNED",
         origin="USER",
         source=SiteSource(mode="SIMULATED"),
-        template=None,
+        template=template,
         foundation=SiteFoundation(
             version=foundation_version,
             valid_from="2026-01-01T00:00:00Z",

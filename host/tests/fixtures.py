@@ -185,17 +185,16 @@ def draft(
     """One Draft, frozen by the real run setup service.
 
     The Site defaults to a fresh MG-001 instantiated from the shipped hybrid
-    template, which is the Site the shipped definition declares it targets. The
-    MG-001 in `var/sites` is untouched: this one lives in memory for the length
-    of one test.
+    template, the Site the shipped definition was authored against. A scenario
+    names no site since T025g, so the test chooses it here, exactly as a person
+    chooses one at run setup. The MG-001 in `var/sites` is untouched: this one
+    lives in memory for the length of one test.
     """
     document = definition if definition is not None else scenario()
     target = (
         site
         if site is not None
-        else site_from_template(
-            HYBRID_TEMPLATE, site_id=document.target_site.site_id or "MG-001"
-        )
+        else site_from_template(HYBRID_TEMPLATE, site_id="MG-001")
     )
     setup = RunSetupService(
         FakeRuns(),

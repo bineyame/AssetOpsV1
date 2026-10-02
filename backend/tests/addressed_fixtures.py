@@ -308,11 +308,9 @@ def twin_document(
             "version_valid_from": "2026-01-01T00:00:00Z",
             "supersedes": None,
         },
-        "target_site": {
-            "policy": "DECLARED_SITE",
-            "site_id": "MG-900",
-            "template_id": None,
-            "requirement": "A mini-grid with two fuel tanks and two feeders.",
+        # T025g: names no site; the test binds MG-900 at run setup.
+        "site_contract": {
+            "description": "A mini-grid with two fuel tanks and two feeders.",
         },
         "observation_sources": [
             {

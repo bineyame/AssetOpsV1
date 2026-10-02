@@ -76,6 +76,7 @@ from assetops_backend.runs.models import (
     FrozenScenarioBinding,
     FrozenSignalMapping,
     FrozenSiteBinding,
+    FrozenTemplateLineage,
     SimulationRun,
     UnsupportedOptionalInput,
 )
@@ -118,6 +119,7 @@ REQUEST_KEYS = frozenset(
 
 INTERVAL_KEYS = frozenset({"start_time", "end_time"})
 PROFILE_KEYS = frozenset({"profile_id", "profile_version"})
+TEMPLATE_LINEAGE_KEYS = frozenset({"template_id", "template_version"})
 RUN_INPUT_KEYS = frozenset({"parameter_id", "value", "unit"})
 
 #: An ISO-8601 instant in UTC, spelled the one way the rest of the product
@@ -580,6 +582,52 @@ def reject_unusable_quantity(value: float, unit: str, *, where: str) -> None:
 # what the service produced rather than whatever the writer emitted.
 
 
+def _render_template_lineage(
+    lineage: FrozenTemplateLineage | None,
+) -> dict[str, Any]:
+    if lineage is None:
+        return {}
+    return {
+        "template_lineage": {
+            "template_id": lineage.template_id,
+            "template_version": lineage.template_version,
+        }
+    }
+
+
+def _parse_template_lineage(
+    site: Mapping[str, Any],
+) -> FrozenTemplateLineage | None:
+    """Lineage as frozen, or `None` when this run never recorded it.
+
+    Absent means a run persisted before T025g: "not recorded", never inferred.
+    Present means both keys, each a value or null together; a half-recorded
+    lineage is a defect in the document, not an answer.
+    """
+    if "template_lineage" not in site:
+        return None
+    raw = _mapping(site.get("template_lineage"), where="site.template_lineage")
+    unknown = sorted(str(key) for key in set(raw) - TEMPLATE_LINEAGE_KEYS)
+    missing = sorted(TEMPLATE_LINEAGE_KEYS - set(raw))
+    if unknown or missing:
+        raise _bad(
+            "'site.template_lineage' must declare exactly "
+            f"{sorted(TEMPLATE_LINEAGE_KEYS)} in a run document."
+        )
+    template_id = _optional_text(raw, "template_id", where="site.template_lineage")
+    template_version = _optional_whole(
+        raw, "template_version", where="site.template_lineage"
+    )
+    if (template_id is None) != (template_version is None):
+        raise _bad(
+            "'site.template_lineage' must name a template and its version "
+            "together, or neither, in a run document."
+        )
+    return FrozenTemplateLineage(
+        template_id=template_id, template_version=template_version
+    )
+
+
 def render_run_document(record: SimulationRun) -> dict[str, Any]:
     """Render a run record as the document shape the store holds."""
     identity = record.deterministic_identity
@@ -595,6 +643,9 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 "foundation_valid_from": identity.site.foundation_valid_from,
                 "site_type": identity.site.site_type,
                 "timezone": identity.site.timezone,
+                # Absent for a run frozen before T025g, so its stored document
+                # round-trips unchanged and reads back as "not recorded".
+                **_render_template_lineage(identity.site.template_lineage),
             },
             "scenario": {
                 "scenario_id": identity.scenario.scenario_id,
@@ -1020,6 +1071,7 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
             ),
             site_type=_text(site, "site_type", where="site"),
             timezone=_text(site, "timezone", where="site"),
+            template_lineage=_parse_template_lineage(site),
         ),
         scenario=FrozenScenarioBinding(
             scenario_id=_text(scenario, "scenario_id", where="scenario"),

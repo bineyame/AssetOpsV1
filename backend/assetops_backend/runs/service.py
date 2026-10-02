@@ -91,6 +91,7 @@ from assetops_backend.runs.models import (
     FrozenScenarioBinding,
     FrozenSignalMapping,
     FrozenSiteBinding,
+    FrozenTemplateLineage,
     SimulationRun,
     UnsupportedOptionalInput,
     site_control_subject,
@@ -300,6 +301,22 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _freeze_template_lineage(site: SiteRecord) -> FrozenTemplateLineage:
+    """The Site's template provenance as recorded on the Site, copied as is.
+
+    Never chosen, compared or used to select anything: it is what the Site
+    record says it was created from, frozen as run provenance (T025g AC3). A
+    Site created from no template freezes an explicit null pair.
+    """
+    template = site.template
+    if template is None:
+        return FrozenTemplateLineage(template_id=None, template_version=None)
+    return FrozenTemplateLineage(
+        template_id=template.template_id,
+        template_version=template.template_version,
+    )
+
+
 class RunInventoryService:
     """Read-only access to the Drafts run setup has written.
 
@@ -385,7 +402,7 @@ class RunSetupService:
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
 
-        self._refuse_unsupported_target(request, scenario, site)
+        self._refuse_site_without_topology(site)
         self._refuse_entries_outside_the_interval(request, scenario)
         self._refuse_unresolved_sources(scenario, site)
         self._refuse_requirement_conflicts(scenario, site, model, publication)
@@ -516,43 +533,21 @@ class RunSetupService:
 
     # --- Refusals: what cannot be frozen ------------------------------------
 
-    def _refuse_unsupported_target(
-        self,
-        request: RunSetupRequest,
-        scenario: ScenarioDefinition,
-        site: SiteRecord,
-    ) -> None:
-        """The selected Site must be one this scenario can run against.
+    def _refuse_site_without_topology(self, site: SiteRecord) -> None:
+        """The selected Site's Foundation must declare a topology.
 
-        A declared target must be the Site the run selects. A template-derived
-        scenario names no Site at all, and run setup does not choose one for
-        it: picking a site because it happens to have been built from the same
-        archetype would be run setup deciding what a scenario targets.
+        A run is the only join of a scenario version and a site version
+        (`D-2026-10-01-run-binds-scenario-to-site`). The user chooses the site
+        and run setup evaluates the scenario's contract against it; run setup
+        never chooses, defaults or substitutes a site, and never refuses one
+        because the scenario document names another. A legacy `target_site`
+        declaration is ignored here entirely, and neither document is
+        rewritten.
 
-        The Foundation must also declare a topology. A scenario's causes act
-        on components in a topology, and a Foundation that declares none is a
-        Foundation with nowhere for them to act.
+        What remains refused is a Foundation that declares no topology. A
+        scenario's causes act on components in a topology, and a Foundation
+        that declares none is a Foundation with nowhere for them to act.
         """
-        target = scenario.target_site
-
-        if target.policy != "DECLARED_SITE" or target.site_id is None:
-            raise refuse(
-                "TARGET_TOPOLOGY_UNSUPPORTED",
-                f"Scenario {scenario.scenario_id} names the kind of site it "
-                "needs rather than a configured site, so this build cannot "
-                "set a run up for it. A run is bound to a concrete site, and "
-                "choosing which one is not run setup's to decide.",
-            )
-
-        if target.site_id.casefold() != request.site_id.casefold():
-            raise refuse(
-                "TARGET_TOPOLOGY_UNSUPPORTED",
-                f"Scenario {scenario.scenario_id} declares that it targets "
-                f"site {target.site_id}, and this request selects "
-                f"{request.site_id}. A run is not the place to retarget a "
-                "scenario.",
-            )
-
         topology = site.foundation.topology
         if topology is None or not topology.nodes:
             raise refuse(
@@ -914,6 +909,7 @@ class RunSetupService:
                 foundation_valid_from=site.foundation.valid_from,
                 site_type=site.site_type,
                 timezone=site.timezone,
+                template_lineage=_freeze_template_lineage(site),
             ),
             scenario=FrozenScenarioBinding(
                 scenario_id=scenario.scenario_id,

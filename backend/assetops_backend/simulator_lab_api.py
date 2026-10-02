@@ -79,7 +79,11 @@ from typing import Any
 from fastapi import APIRouter, Body, HTTPException, Query
 
 from assetops_backend.runs.execution_ports import LabExecutionPort
-from assetops_backend.runs.models import SimulationRun, readiness_disclosure
+from assetops_backend.runs.models import (
+    FrozenTemplateLineage,
+    SimulationRun,
+    readiness_disclosure,
+)
 from assetops_backend.runs.ports import (
     RunConfigurationInvalid,
     RunIdentityConflict,
@@ -115,11 +119,10 @@ from assetops_backend.scenarios.identity import (
 )
 from assetops_backend.scenarios.models import (
     ObservationSource,
-    ObservationSourceResolution,
     PrivateExpectation,
     ScenarioDefinition,
     ScenarioParameter,
-    ScenarioTargetResolution,
+    ScenarioSiteNeeds,
     TimelineEntry,
 )
 from assetops_backend.scenarios.ports import (
@@ -132,6 +135,7 @@ from assetops_backend.scenarios.ports import (
 from assetops_backend.scenarios.service import (
     ScenarioCatalogService,
     ScenarioDetailService,
+    scenario_site_needs,
 )
 from assetops_backend.sites.lineage import assess_template_lineage
 from assetops_backend.sites.models import SiteTemplate
@@ -489,18 +493,7 @@ def scenario_observation_source(source: ObservationSource) -> dict[str, object]:
     }
 
 
-def scenario_observation_source_resolution(
-    resolution: ObservationSourceResolution,
-) -> dict[str, object]:
-    """What one declared source resolved to on this installation."""
-    return {
-        "source_id": resolution.source_id,
-        "state": resolution.state,
-        "device_display_name": resolution.device_display_name,
-        "signal_display_name": resolution.signal_display_name,
-        "reason": resolution.reason,
-        "cadence_statement": resolution.cadence_statement,
-    }
+
 
 
 def scenario_execution_contract(
@@ -623,14 +616,16 @@ def scenario_execution_contract(
 
 
 def scenario_public_summary(scenario: ScenarioDefinition) -> dict[str, object]:
-    """Catalog shape: scenario identity, version identity, and target.
+    """Catalog shape: scenario identity, version identity, and site contract.
 
     No timeline, no parameters, and no expectation. A catalog row says which
     scenarios are saved; reading one is the detail route's job.
 
-    `target_site` is the declaration the document makes, not a resolution. The
-    catalog does not read the Site store, so it states which site a scenario
-    asks for without claiming that site is configured.
+    A scenario names no site (`D-2026-10-01-run-binds-scenario-to-site`).
+    `target_site` is a legacy declaration, or null for a document without one;
+    it is rendered so a screen can label it "not used to bind runs", and it is
+    never resolved. `site_contract` is the document's prose description of what
+    a site must honour, or null; it is never evaluated.
     """
     return {
         "scenario_id": scenario.scenario_id,
@@ -642,12 +637,25 @@ def scenario_public_summary(scenario: ScenarioDefinition) -> dict[str, object]:
             "version_valid_from": scenario.version.version_valid_from,
             "supersedes": scenario.version.supersedes,
         },
-        "target_site": {
-            "policy": scenario.target_site.policy,
-            "site_id": scenario.target_site.site_id,
-            "template_id": scenario.target_site.template_id,
-            "requirement": scenario.target_site.requirement,
-        },
+        "target_site": (
+            None
+            if scenario.target_site is None
+            else {
+                "policy": scenario.target_site.policy,
+                "site_id": scenario.target_site.site_id,
+                "template_id": scenario.target_site.template_id,
+                "requirement": scenario.target_site.requirement,
+            }
+        ),
+        # An empty block carries nothing to show, so it reads as no contract.
+        # The client requires a string description wherever a contract is
+        # present; a null here would fail that check for the whole catalog.
+        "site_contract": (
+            None
+            if scenario.site_contract is None
+            or scenario.site_contract.description is None
+            else {"description": scenario.site_contract.description}
+        ),
     }
 
 
@@ -667,6 +675,38 @@ def scenario_public_detail(scenario: ScenarioDefinition) -> dict[str, object]:
             for source in scenario.observation_sources
         ],
         "execution_contract": scenario_execution_contract(scenario),
+        "site_needs": scenario_site_needs_payload(scenario_site_needs(scenario)),
+    }
+
+
+def scenario_site_needs_payload(needs: ScenarioSiteNeeds) -> dict[str, object]:
+    """What the scenario needs of a site, derived from the document alone.
+
+    No site is read to produce this, and no state here says whether any site
+    honours it: that answer depends on a chosen site and model profile, so it
+    belongs to run setup. Site Controls are not listed because a scenario
+    declares none; the controls a run relies on are the chosen model
+    profile's needs, frozen at run setup.
+    """
+    return {
+        "addresses": [
+            {
+                "address": need.address,
+                "scope": need.scope,
+                "component_id": need.component_id,
+                "state_key": need.state_key,
+                "execution_roles": list(need.execution_roles),
+            }
+            for need in needs.addresses
+        ],
+        "device_sources": [
+            {
+                "source_id": source.source_id,
+                "device_id": source.device_id,
+                "signal_id": source.signal_id,
+            }
+            for source in needs.device_sources
+        ],
     }
 
 
@@ -689,24 +729,6 @@ def scenario_private_expectations(
         }
         for expectation in scenario.private_expectations
     ]
-
-
-def scenario_target_resolution(
-    resolution: ScenarioTargetResolution,
-) -> dict[str, object]:
-    """What the declared target Site resolved to, as a screen state.
-
-    Beside the scenario rather than inside it, because it is not scenario
-    content: it is what this installation's Site store answered when asked
-    about the Site the scenario declares. The same scenario resolves
-    differently on two machines and the document does not change.
-    """
-    return {
-        "state": resolution.state,
-        "site_id": resolution.site_id,
-        "display_name": resolution.display_name,
-        "reason": resolution.reason,
-    }
 
 
 # --- Run payloads -----------------------------------------------------------
@@ -1714,6 +1736,31 @@ def stage_payload(view: SourceStageView) -> dict[str, object]:
     }
 
 
+#: The three things a run's frozen template lineage can say. `NOT_RECORDED` is
+#: a run stored before T025g froze lineage; `NO_TEMPLATE` is a site created
+#: from no template; `RECORDED` carries the template and version.
+TEMPLATE_LINEAGE_STATES = ("RECORDED", "NO_TEMPLATE", "NOT_RECORDED")
+
+
+def template_lineage_payload(
+    lineage: FrozenTemplateLineage | None,
+) -> dict[str, object]:
+    """The frozen template lineage, with its state named rather than implied.
+
+    `None` is "not recorded" and stays that: nothing reads the site to fill it
+    in, because readback never re-resolves a persisted run.
+    """
+    if lineage is None:
+        return {"state": "NOT_RECORDED", "template_id": None, "template_version": None}
+    if lineage.template_id is None:
+        return {"state": "NO_TEMPLATE", "template_id": None, "template_version": None}
+    return {
+        "state": "RECORDED",
+        "template_id": lineage.template_id,
+        "template_version": lineage.template_version,
+    }
+
+
 def run_summary(record: SimulationRun) -> dict[str, object]:
     """One Draft run: its identity, what it froze, and why it may not run.
 
@@ -1733,6 +1780,12 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
         "readiness_disclosure": readiness_disclosure(record.execution_status),
         "created_at": record.created_at,
         "site_id": identity.site.site_id,
+        # T025g AC9: the site's template lineage as run setup froze it. Run
+        # provenance, never a frozen input; a run stored before T025g reads
+        # back NOT_RECORDED and is never inferred.
+        "template_lineage": template_lineage_payload(
+            identity.site.template_lineage
+        ),
         "scenario_id": identity.scenario.scenario_id,
         "scenario_version": identity.scenario.scenario_version,
         "deterministic_identity": {
@@ -1742,6 +1795,9 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
                 "foundation_valid_from": identity.site.foundation_valid_from,
                 "site_type": identity.site.site_type,
                 "timezone": identity.site.timezone,
+                "template_lineage": template_lineage_payload(
+                    identity.site.template_lineage
+                ),
             },
             "scenario": {
                 "scenario_id": identity.scenario.scenario_id,
@@ -1862,10 +1918,10 @@ def build_simulator_lab_router(
     `SimulationRun` in and `LabProjection` out, and both are types the backend is
     allowed to know.
 
-    The Site repository reaches the scenario detail service as well as the
-    create service, and that is the only place the two domains meet: a scenario
-    declares which Site it needs, and resolving that declaration is a read
-    against the Site port. Nothing flows the other way.
+    The Site repository reaches the create service and run setup. Run setup is
+    the only place a scenario and a site meet: a scenario names no site, the
+    user chooses one at run setup, and the scenario detail service never reads
+    the Site port (`D-2026-10-01-run-binds-scenario-to-site`).
 
     `execution` is optional and its absence is a served state rather than a
     different serving shape. Only the composition leaf can build one - nothing may
@@ -1878,7 +1934,7 @@ def build_simulator_lab_router(
     creation = SiteCreationService(repository, catalog)
     directory = SiteDirectoryService(repository)
     scenario_catalog = ScenarioCatalogService(scenarios)
-    scenario_detail = ScenarioDetailService(scenarios, repository)
+    scenario_detail = ScenarioDetailService(scenarios)
     run_inventory = RunInventoryService(runs)
     run_setup = RunSetupService(
         runs,
@@ -2062,7 +2118,7 @@ def build_simulator_lab_router(
 
     @router.get(SCENARIO_DETAIL_ROUTE)
     def read_scenario(scenario_id: str) -> dict[str, object]:
-        """Return one saved scenario, and what its declared target resolves to.
+        """Return one saved scenario and what it needs of a site.
 
         The requested identity is validated here rather than only inside the
         port, so a malformed identity and an unreadable store cannot arrive as
@@ -2070,10 +2126,9 @@ def build_simulator_lab_router(
         identity is answered as not found, because no scenario could ever carry
         it.
 
-        The target resolution is computed after the scenario is read and never
-        decides whether it can be read. A scenario whose declared Site is not
-        configured is a readable scenario with an unresolved target, which is a
-        screen state rather than a broken document.
+        No site is read. What the scenario needs of a site is derived from the
+        document and served inside it as `site_needs`; whether a site honours
+        it is asked at run setup, against a chosen site and model profile.
         """
         try:
             validate_scenario_id(scenario_id)
@@ -2110,16 +2165,8 @@ def build_simulator_lab_router(
                 detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
             ) from error
 
-        resolution = scenario_detail.resolve_target_site(scenario)
-        sources = scenario_detail.resolve_observation_sources(scenario)
-
         return {
             "scenario": scenario_public_detail(scenario),
-            "target_resolution": scenario_target_resolution(resolution),
-            "observation_source_resolutions": [
-                scenario_observation_source_resolution(item)
-                for item in sources
-            ],
             # The private half, in a section of its own. Built by a function
             # that reads no public field, so a client cannot confuse the two
             # for one another either.

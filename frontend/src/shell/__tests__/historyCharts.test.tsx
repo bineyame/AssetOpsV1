@@ -54,6 +54,7 @@ const RUN: RunSummary = {
   frozen_inputs: [],
   blocking_reasons: [],
   unsupported_optional_inputs: [],
+  template_lineage: { state: "RECORDED", template_id: "hybrid-mini-grid-100kw", template_version: 2 },
 };
 
 function client(
