@@ -31,6 +31,8 @@ RUN_EXECUTION_END_PATH = (
     "/api/simulator-lab/runs/{run_id}/execution/run-to-end"
 )
 RUN_STAGE_PATH = "/api/simulator-lab/runs/{run_id}/stage"
+# T027 (D4): Commit and its read are Lab-only; accepted evidence is not.
+RUN_COMMIT_PATH = "/api/simulator-lab/runs/{run_id}/commit"
 RUN_EXECUTION_HISTORY_PATH = (
     "/api/simulator-lab/runs/{run_id}/execution/history"
 )
@@ -75,6 +77,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_EXECUTION_STEP_PATH,
     RUN_EXECUTION_END_PATH,
     RUN_STAGE_PATH,
+    RUN_COMMIT_PATH,
     RUN_EXECUTION_HISTORY_PATH,
     SITE_TEMPLATE_LINEAGE_PATH,
 }
