@@ -117,8 +117,6 @@ FINAL_STAGE_DIGEST = "0774c78ebff205a8323f378fb8776acd7413d4c4c702097c75f1174490
 def test_the_stage_withholds_a_held_envelope_until_the_run_reaches_its_release(
     tmp_path,
 ) -> None:
-    import hashlib
-
     run = draft(DEGRADED)
     lab = a_lab(tmp_path)
     lab.start(run)
@@ -148,10 +146,28 @@ def test_the_stage_withholds_a_held_envelope_until_the_run_reaches_its_release(
             )
     (released,) = soc_at_source()
     assert released.published_at == "2026-09-22T07:10:03Z"
-    # The release keeps the sequence the finished stage gives it.
+    # Stepped to the end, the stage holds exactly the one-shot run's envelopes
+    # (same sequences, same bytes); only the arrival order is the stepping's,
+    # as it always was for a stepped run.
     lab.run_to_end(run)
     final = lab.staged_envelopes(run).stage.envelopes
-    assert [e for e in final if e.message_id == released.message_id] == [released]
+    (tmp_path / "one").mkdir()
+    whole = (
+        finished(run, tmp_path / "one").staged_envelopes(run).stage.envelopes
+    )
+    assert sorted(final, key=lambda e: e.message_id) == sorted(
+        whole, key=lambda e: e.message_id
+    )
+    assert released in final
+
+
+def test_the_one_shot_final_stage_is_byte_identical_to_before_the_withholding(
+    degraded_root,
+) -> None:
+    import hashlib
+
+    run, _, lab = degraded_root
+    final = lab.staged_envelopes(run).stage.envelopes
     assert len(final) == 329
     assert hashlib.sha256(repr(list(final)).encode()).hexdigest() == FINAL_STAGE_DIGEST
 
