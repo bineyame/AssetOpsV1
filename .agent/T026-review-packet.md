@@ -147,3 +147,28 @@ check needs a Site the owner creates from template v3 (a v2 Site reads BEHIND),
 then a Draft of `kobo-mini-grid-degraded-evidence` on `mini-grid` v3 / profile 5.
 Reviewer checks C's required evidence has real owners and that nothing of T026A
 (bias, noise, retries, duplicates) crept in.
+
+## Fix round 1 (review `.agent/T026-review.md`)
+
+- **B1.** `HistoryInspector.tsx` `attemptArrival` now branches on `outcome` and the
+  run's frozen mapping (passed to `HistoryRecordsAtCursor`/`BoundaryRecords`):
+  SUPPRESSED_BY_GAP stays a sensor gap; a held row is DELAYED; no stage held is
+  UNKNOWN; a signal absent from the mapping (profile 3/4 included) is NOT_STAGED;
+  DROPPED is "lost in transit, not a sensor gap"; a typed absence the mapping
+  publishes reads "Published as UNAVAILABLE (reason)". `unavailableArrival` is
+  shared with `RunFrame.envelopeArrival`, so inspector and stage agree at one
+  cursor; only REPORTING_PATH_UNAVAILABLE is called a sensor gap. `stagedSignal`
+  moved to the inspector module. Tests (`t026Evidence.test.tsx`, `settledScreen`):
+  boundary-0 interval attempt, DROPPED attempt, signal absent from the mapping,
+  stage-side boundary-0 envelope. Non-vacuity: DROPPED branch disabled, the
+  DROPPED test failed (1 failed, 16 passed), restored with `git checkout --`.
+  Existing inspector tests now use a mapped stage.
+- **B2.** `profiles.py` comment and the two profile-5 statements say the delay is
+  a declared window, released at its end, with no duration parameter. No
+  fingerprint or version guard fired; no version move.
+- **C7.** `service.py` `_held_span` now builds a `ReportingPathWindow` and reads
+  its start/end, the rule the host resolves delay windows with. (`_still_held` is
+  a release comparison, not span arithmetic, so the shared rule is the window.)
+- Suites: frontend 1041, typecheck and build clean, host 591, backend 1375,
+  simulator 244, check-architecture and check-agent-workflow pass. Layout
+  evidence not re-run (B1 changed the Arrival text; C4 remains open).
