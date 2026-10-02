@@ -140,6 +140,8 @@ export interface EvidenceRecordDetail {
   received_at: string;
   batch_id: string;
   content_digest: string;
+  /** The canonical envelope exactly as accepted. */
+  envelope_text: string;
   overlapping_with: string[];
   conflicts: {
     batch_id: string;
