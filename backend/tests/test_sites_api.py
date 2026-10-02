@@ -494,10 +494,18 @@ class TestNoUpdateOrDeleteRouteExists:
         )
         schema = client.get("/openapi.json").json()
 
-        assert [path for path in schema["paths"] if "{site_id}" in path] == [
-            f"{SITES_PATH}/{{site_id}}"
+        # T027 adds the ungated Site > Evidence read routes. Still an exact
+        # list, and every per-Site path is still read-only.
+        per_site = sorted(path for path in schema["paths"] if "{site_id}" in path)
+        assert per_site == [
+            f"{SITES_PATH}/{{site_id}}",
+            f"{SITES_PATH}/{{site_id}}/evidence",
+            f"{SITES_PATH}/{{site_id}}/evidence/records",
+            f"{SITES_PATH}/{{site_id}}/evidence/records/{{message_id}}",
+            f"{SITES_PATH}/{{site_id}}/evidence/rejections",
         ]
-        assert set(schema["paths"][f"{SITES_PATH}/{{site_id}}"]) == {"get"}
+        for path in per_site:
+            assert set(schema["paths"][path]) == {"get"}, path
 
 
 class TestSiteDetail:
