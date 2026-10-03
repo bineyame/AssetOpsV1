@@ -4003,6 +4003,140 @@ if (t027.run === null) {
   }
 }
 
+// --- T027 phase 2: the mini-grid Site Overview -----------------------------
+//
+// The committed run's Site (KOBO_SITE) populated at 1280, 1000 and 640, and
+// SITE (no accepted evidence) empty at 1280 and 640. jsdom cannot see any of
+// this: card grid wrap, the timeline's scaled svg and its region, and whether
+// the page ever scrolls sideways. An Overview evidence link is clicked once and
+// must land on the Site > Evidence inspector with that record open.
+
+const READ_T027_OVERVIEW = `(() => {
+  const root = document.querySelector(".site-overview");
+  const cards = Array.from(document.querySelectorAll("[data-overview-card]")).map((el) => ({
+    id: el.getAttribute("data-overview-card"),
+    gaps: Number(el.getAttribute("data-overview-gaps")),
+    values: Number(el.getAttribute("data-overview-values")),
+    text: el.closest("section")?.innerText ?? "",
+  }));
+  const charts = Array.from(document.querySelectorAll(".overview-timeline__chart")).map((svg) => {
+    const box = svg.getBoundingClientRect();
+    const region = svg.closest(".overview-timeline__scroll").getBoundingClientRect();
+    return { width: Math.round(box.width), right: Math.round(box.right), regionRight: Math.round(region.right),
+             marks: svg.querySelectorAll("g line, g circle").length };
+  });
+  const links = Array.from(document.querySelectorAll("[data-overview-evidence]")).map((a) => a.getAttribute("href"));
+  const row = document.querySelector("nav[aria-label] a[aria-current='page']");
+  return {
+    state: root?.getAttribute("data-overview-state") ?? null,
+    cards, charts, links,
+    currentTab: row?.textContent ?? null,
+    text: root?.innerText ?? "",
+    viewport: document.documentElement.clientWidth,
+  };
+})()`;
+
+{
+  let firstLink = null;
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${KOBO_SITE}`, width, height, ".site-overview[data-overview-state]");
+    await sleep(300);
+    const read = await evaluate(READ_T027_OVERVIEW);
+    firstLink = firstLink ?? read.links[0] ?? null;
+    const order = read.cards.map((c) => c.id).join("|");
+    allPass =
+      report(`T027 Site Overview populated, ${KOBO_SITE}, at ${label}`, page, [
+        ["the Overview body is populated", read.state === "populated", `${read.state}`],
+        [
+          "cards Service|Dispatch|Battery|Fuel|Renewable, in the profile's order",
+          order === "Service|Dispatch|Battery|Fuel|Renewable",
+          order,
+        ],
+        [
+          "every card reads No assessment yet and nothing reads Unknown",
+          read.cards.every((c) => c.text.includes("No assessment yet")) && !/unknown/i.test(read.text),
+          `${read.cards.filter((c) => c.text.includes("No assessment yet")).length} of ${read.cards.length}`,
+        ],
+        [
+          "measured values exist (non-empty set), and each uncovered card names its gap",
+          read.cards.some((c) => c.values > 0) &&
+            read.cards.filter((c) => c.gaps > 0).every((c) => c.text.includes("Coverage gap:")),
+          read.cards.map((c) => `${c.id}: ${c.values} values, ${c.gaps} gaps`).join("; "),
+        ],
+        [
+          "evidence links address the record inspector",
+          read.links.length > 0 && read.links.every((h) => /\/evidence\?signal=[^&]+\/[^&]+&record=/.test(h)),
+          `${read.links.length} links; first ${read.links[0] ?? "none"}`,
+        ],
+        [
+          "the timeline draws marks and each chart stays inside its region and the viewport",
+          read.charts.length > 0 &&
+            read.charts.every((c) => c.marks > 0 && c.right <= c.regionRight + 1 && c.regionRight <= read.viewport),
+          read.charts.map((c) => `${c.width}px, ${c.marks} marks, right ${c.right}/${c.regionRight}/${read.viewport}`).join("; "),
+        ],
+        [
+          "exactly Overview|Foundation|Evidence, Overview current",
+          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Overview",
+          `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
+
+  if (firstLink !== null) {
+    const record = decodeURIComponent(firstLink.split("record=")[1] ?? "");
+    const page = await visit(cdp, firstLink, 1280, 800, `[data-evidence-record-detail]`);
+    const opened = await evaluate(`(() => ({
+      detail: document.querySelector("[data-evidence-record-detail]")?.getAttribute("data-evidence-record-detail") ?? null,
+      path: location.pathname,
+      current: document.querySelector("nav[aria-label] a[aria-current='page']")?.textContent ?? null,
+    }))()`);
+    allPass =
+      report("T027 Overview evidence link opens the record inspector", page, [
+        [
+          "the linked record is open in Site > Evidence, Evidence current, same Site root",
+          opened.detail === record && opened.path === `/sites/${KOBO_SITE}/evidence` && opened.current === "Evidence",
+          `${opened.path}; record ${opened.detail}; current ${opened.current}`,
+        ],
+      ]) && allPass;
+  } else {
+    allPass = report("T027 Overview evidence link", null, [["an evidence link exists", false, "none"]]) && false;
+  }
+
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${SITE}`, width, height, ".site-overview[data-overview-state]");
+    const read = await evaluate(READ_T027_OVERVIEW);
+    allPass =
+      report(`T027 Site Overview empty, ${SITE}, at ${label}`, page, [
+        [
+          "empty: five cards, every one No assessment yet with a named gap and no value, no chart",
+          read.state === "empty" &&
+            read.cards.length === 5 &&
+            read.cards.every((c) => c.gaps > 0 && c.values === 0 && c.text.includes("No assessment yet")) &&
+            read.charts.length === 0 &&
+            !/unknown/i.test(read.text),
+          `${read.state}; ${read.cards.map((c) => `${c.id} ${c.gaps} gaps ${c.values} values`).join("; ")}; ${read.charts.length} charts`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
+}
+
 {
   // A third Draft, left RUNNING, for the --readback pass: after the host is
   // restarted it must read INTERRUPTED with Play unavailable.

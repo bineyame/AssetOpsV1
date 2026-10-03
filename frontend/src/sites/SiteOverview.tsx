@@ -100,7 +100,12 @@ export function SiteOverview({
     evidenceHref(signal, messageId);
 
   return (
-    <div className="site-overview">
+    <div
+      className="site-overview"
+      data-overview-state={
+        overview.window.start === null ? "empty" : "populated"
+      }
+    >
       <ObjectiveStrip
         overview={overview}
         evidencePageHref={evidencePageHref}
@@ -220,6 +225,7 @@ function MetricValue({
             <span key={item.message_id}>
               {index === 0 ? null : ", "}
               <Link
+                data-overview-evidence
                 to={link(signalOf(item), item.message_id)}
                 aria-label={`Inspect the ${signalOf(item)} record behind ${metric.label}`}
               >
@@ -245,7 +251,14 @@ function DomainCard({
   const headingId = `site-overview-card-${card.domain_id.toLowerCase()}`;
   return (
     <Panel heading={label} headingId={headingId} headingLevel={3}>
-      <p className="overview-card__assessment">
+      <p
+        className="overview-card__assessment"
+        data-overview-card={card.domain_id}
+        data-overview-gaps={card.gaps.length}
+        data-overview-values={
+          card.metrics.filter((m) => m.value !== null).length
+        }
+      >
         <Badge tone="neutral">{card.assessment.label}</Badge>
       </p>
       {card.gaps.length === 0 ? null : (
