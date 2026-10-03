@@ -77,19 +77,20 @@ GET /api/sites/{site_id}/evidence/rejections?batch=
 
 GET /api/sites/{site_id}/overview?from=&to=   (T027 phase 2)
   -> {site_id, site_type, window: {start, end, basis, hours}, accepted_in_window,
-      sources_in_window,
+      source_gateway_pairs_in_window,
       objective: {assessment: ASSESSMENT, service_delivered: METRIC|null},
       cards: [{domain_id, label, assessment: ASSESSMENT, metrics: [METRIC],
                coverage: [{device_id, signal_id, status: "REPORTED"|
-                 "NOT_REPORTED"|"NO_GOOD_RECORD", records, good, unavailable,
+                 "NOT_REPORTED"|"NO_GOOD_RECORD"|"NO_INTERVAL_SPAN"|
+                 "OVERLAPPING_ONLY", records, good, usable, unavailable,
                  last_source_time|null}],
-               gaps: [{device_id, signal_id, status}]}],
+               gaps: [{device_id, signal_id, status, reason}]}],
       interval_statement, timeline: [{series_id, label, unit,
         kind: "INTERVAL_MEAN"|"STATE_AT_INSTANT", basis,
         points: [{start, end, value, message_id|null} | {at, value, message_id}]}],
       timeline_statement, findings: [], findings_statement}
   ASSESSMENT = {status: "NO_ASSESSMENT", label: "No assessment yet", reason}
-  METRIC = {metric_id, label, unit, value|null, at|null, basis,
+  METRIC = {metric_id, label, unit, value|null, at|null, basis, window_note|null,
             evidence: [{device_id, signal_id, message_id}],
             unavailable_because|null}
   Accepted evidence only; the same default window as Site > Evidence.

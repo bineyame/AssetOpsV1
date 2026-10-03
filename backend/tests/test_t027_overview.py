@@ -136,11 +136,14 @@ class TestCards:
         assert (latest["value"], latest["unit"], latest["at"]) == ("79.08", "%", "2026-09-22T00:25:00Z")
         assert metric(payload, "Battery", "soc-min")["value"] == "40"
         assert payload["window"]["hours"] == "0.25"
+        # Review F3: the measured share of the window is stated with the value.
+        assert served["window_note"] == "0.17 h of the 0.25 h window measured"
 
     def test_an_uncovered_card_names_its_gap_and_has_no_value(self) -> None:
         fuel = next(c for c in overview(a_day_without_fuel())["cards"] if c["domain_id"] == "Fuel")
         assert fuel["gaps"] == [
-            {"device_id": "fuel-level-sensor", "signal_id": "fuel-level", "status": "NOT_REPORTED"}]
+            {"device_id": "fuel-level-sensor", "signal_id": "fuel-level", "status": "NOT_REPORTED",
+             "reason": "reported no accepted record in this window"}]
         [level] = fuel["metrics"]
         assert level["value"] is None and level["evidence"] == []
         assert "fuel-level-sensor/fuel-level" in level["unavailable_because"]
@@ -167,12 +170,54 @@ class TestCards:
         demand = payload["timeline"][0]
         assert [p["start"] for p in demand["points"]] == ["2026-09-22T00:05:00Z"]
 
+    def test_all_overlapping_instants_are_a_named_gap_not_a_bare_absence(self) -> None:
+        """Review F1: GOOD records that all overlap are used by no metric."""
+        rows = [r for r in a_day_without_fuel() if r.signal_id != "state-of-charge"]
+        rows += [
+            record("battery-pcs-controller", "state-of-charge", 10, "40",
+                   interval=False, unit="%", gateway=gateway)
+            for gateway in ("g", "other")
+        ]
+        battery = next(c for c in overview(rows)["cards"] if c["domain_id"] == "Battery")
+        assert battery["gaps"][0]["status"] == "OVERLAPPING_ONLY"
+        assert battery["coverage"][0]["good"] == 2 and battery["coverage"][0]["usable"] == 0
+        for item in battery["metrics"]:
+            assert item["value"] is None
+            assert "battery-pcs-controller/state-of-charge" in item["unavailable_because"]
+            assert "overlap" in item["unavailable_because"]
+
+    def test_an_interval_signal_with_no_span_has_no_value_never_zero(self) -> None:
+        """Review F1: no measured interval is a gap, never "0.0 kWh over 0.00 h"."""
+        rows = [r for r in a_day_without_fuel() if r.device_id != "pv-inverter-controller"]
+        rows += [record("pv-inverter-controller", "ac-power", minute, "18", interval=False)
+                 for minute in (10, 25)]
+        renewable = next(c for c in overview(rows)["cards"] if c["domain_id"] == "Renewable")
+        assert renewable["gaps"][0]["status"] == "NO_INTERVAL_SPAN"
+        energy = next(m for m in renewable["metrics"] if m["metric_id"] == "pv-energy")
+        assert energy["value"] is None and energy["window_note"] is None
+        assert energy["evidence"] == []
+        assert "interval span" in energy["unavailable_because"]
+
+    def test_an_overlap_only_feeder_is_not_counted_as_zero(self) -> None:
+        """Review F1: Served energy is unavailable, naming the feeder, not a smaller sum."""
+        rows = [r for r in a_day_without_fuel() if r.device_id != "mill-meter"]
+        rows += [record("mill-meter", "active-power", 10, "24", gateway=gateway)
+                 for gateway in ("g", "other")]
+        payload = overview(rows)
+        served = metric(payload, "Service", "served-energy")
+        assert served["value"] is None
+        assert "mill-meter/active-power" in served["unavailable_because"]
+        assert metric(payload, "Service", "residential-meter-energy")["value"] == "2.0"
+        service = next(c for c in payload["cards"] if c["domain_id"] == "Service")
+        assert [g["status"] for g in service["gaps"]] == ["OVERLAPPING_ONLY"]
+
     def test_empty_site_names_every_gap_and_has_no_window(self) -> None:
         payload = OverviewReadModel(FakeStore([])).site_overview(
             replace(minigrid_site(), site_id="MG-EMPTY"))
         assert payload["window"] == {"start": None, "end": None,
                                      "basis": "LATEST_RELEASE", "hours": None}
         assert payload["accepted_in_window"] == 0
+        assert payload["source_gateway_pairs_in_window"] == 0
         for card in payload["cards"]:
             assert card["gaps"] and all(m["value"] is None for m in card["metrics"])
             assert card["assessment"]["status"] == "NO_ASSESSMENT"

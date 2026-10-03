@@ -119,9 +119,18 @@ def _unique(records: list[AcceptedRecord], key) -> list[AcceptedRecord]:
     return [r for r in records if counts[key(r)] == 1]
 
 
+def _spanned(records: list[AcceptedRecord]) -> list[AcceptedRecord]:
+    """GOOD records with a positive interval span (start before end)."""
+    return [
+        r for r in _good(records)
+        if r.interval_start is not None
+        and r.interval_end is not None
+        and _seconds(r.interval_start, r.interval_end) > 0
+    ]
+
+
 def _intervals(records: list[AcceptedRecord]) -> list[AcceptedRecord]:
-    spans = [r for r in _good(records) if r.interval_start is not None and r.interval_end is not None]
-    return _unique(spans, lambda r: (r.interval_start, r.interval_end))
+    return _unique(_spanned(records), lambda r: (r.interval_start, r.interval_end))
 
 
 def _instants(records: list[AcceptedRecord]) -> list[AcceptedRecord]:
@@ -148,6 +157,25 @@ def _gap_text(key: SignalKey) -> str:
     return f"{key[0]}/{key[1]}"
 
 
+#: Signals whose metrics read interval means (energy, running time, peak). Every
+#: other Overview signal is read as a state at an instant.
+INTERVAL_SIGNALS: frozenset[SignalKey] = frozenset(
+    {(device, METER) for device, _ in SERVICE_FEEDERS} | {GENERATOR_POWER, PV}
+)
+
+#: Why a needed signal is a gap, by coverage status. Review F1: coverage is
+#: decided from the records a metric can actually use, not from "any GOOD".
+GAP_REASONS = {
+    "NOT_REPORTED": "reported no accepted record in this window",
+    "NO_GOOD_RECORD": "has no GOOD accepted record in this window",
+    "NO_INTERVAL_SPAN": "has GOOD records in this window, none with an interval span",
+    "OVERLAPPING_ONLY": (
+        "has GOOD records in this window that all overlap; overlapping records "
+        "are used by no metric"
+    ),
+}
+
+
 def _metric(
     metric_id: str,
     label: str,
@@ -157,9 +185,10 @@ def _metric(
     at: str | None = None,
     basis: str,
     evidence: list[dict[str, str]] | None = None,
-    missing: list[SignalKey] | None = None,
+    missing: list[str] | None = None,
+    window_note: str | None = None,
 ) -> dict[str, Any]:
-    gaps = [_gap_text(key) for key in missing or []]
+    gaps = missing or []
     return {
         "metric_id": metric_id,
         "label": label,
@@ -167,20 +196,19 @@ def _metric(
         "value": None if gaps else value,
         "at": None if gaps else at,
         "basis": basis,
+        "window_note": None if gaps else window_note,
         "evidence": [] if gaps else (evidence or []),
-        "unavailable_because": (
-            None
-            if not gaps
-            else "No GOOD accepted record in this window for " + ", ".join(gaps) + "."
-        ),
+        "unavailable_because": None if not gaps else "; ".join(gaps) + ".",
     }
 
 
 class _Window:
     """Accepted records in the window, grouped by signal."""
 
-    def __init__(self, records: list[AcceptedRecord]) -> None:
+    def __init__(self, records: list[AcceptedRecord], seconds: int | None = None) -> None:
         self.records = records
+        #: The window's length, or None when there is no window.
+        self.seconds = seconds
         self.by_signal: dict[SignalKey, list[AcceptedRecord]] = {}
         for record in records:
             self.by_signal.setdefault((record.device_id, record.signal_id), []).append(record)
@@ -188,8 +216,40 @@ class _Window:
     def of(self, key: SignalKey) -> list[AcceptedRecord]:
         return sorted(self.by_signal.get(key, []), key=lambda r: (r.source_time, r.message_id))
 
-    def uncovered(self, *keys: SignalKey) -> list[SignalKey]:
-        return [key for key in keys if not _good(self.of(key))]
+    def usable(self, key: SignalKey) -> list[AcceptedRecord]:
+        """The records a metric of this signal actually reads."""
+        records = self.of(key)
+        return _intervals(records) if key in INTERVAL_SIGNALS else _instants(records)
+
+    def status(self, key: SignalKey) -> str:
+        records = self.of(key)
+        if not records:
+            return "NOT_REPORTED"
+        if not _good(records):
+            return "NO_GOOD_RECORD"
+        if self.usable(key):
+            return "REPORTED"
+        if key in INTERVAL_SIGNALS and not _spanned(records):
+            return "NO_INTERVAL_SPAN"
+        return "OVERLAPPING_ONLY"
+
+    def reason(self, key: SignalKey) -> str:
+        return f"{_gap_text(key)} {GAP_REASONS[self.status(key)]}"
+
+    def uncovered(self, *keys: SignalKey) -> list[str]:
+        """A named reason for each key no metric can read; empty when covered."""
+        return [self.reason(key) for key in keys if not self.usable(key)]
+
+    def window_note(self, measured_seconds: list[int]) -> str | None:
+        if self.seconds is None or not measured_seconds:
+            return None
+        low, high = min(measured_seconds), max(measured_seconds)
+        span = (
+            f"{_fmt(_hours(low), 2)} h"
+            if low == high
+            else f"{_fmt(_hours(low), 2)} to {_fmt(_hours(high), 2)} h"
+        )
+        return f"{span} of the {_fmt(_hours(self.seconds), 2)} h window measured"
 
 
 def _interval_energy(records: list[AcceptedRecord]) -> tuple[Fraction, int]:
@@ -214,8 +274,10 @@ def _service(window: _Window) -> list[dict[str, Any]]:
     links: list[dict[str, str]] = []
     feeder_metrics = []
     hours_text = []
+    measured: list[int] = []
     for (device, label), key in zip(SERVICE_FEEDERS, keys):
         energy, seconds = _interval_energy(window.of(key))
+        measured.append(seconds)
         total += energy
         links += _interval_link(window.of(key))
         hours_text.append(f"{label.lower()} {_fmt(_hours(seconds), 2)} h")
@@ -228,6 +290,7 @@ def _service(window: _Window) -> list[dict[str, Any]]:
                 basis=f"Measured intervals cover {_fmt(_hours(seconds), 2)} h.",
                 evidence=_interval_link(window.of(key)),
                 missing=window.uncovered(key),
+                window_note=window.window_note([seconds]),
             )
         )
     served = _metric(
@@ -241,6 +304,7 @@ def _service(window: _Window) -> list[dict[str, Any]]:
         ),
         evidence=links,
         missing=missing,
+        window_note=window.window_note(measured),
     )
     return [served, *feeder_metrics]
 
@@ -271,6 +335,7 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
             ),
             evidence=[_link(_latest(running))] if running else _interval_link(power),
             missing=window.uncovered(GENERATOR_POWER),
+            window_note=window.window_note([measured_seconds]),
         ),
         _metric(
             "generator-energy",
@@ -280,6 +345,7 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
             basis=f"Over {_fmt(_hours(measured_seconds), 2)} h of measured intervals.",
             evidence=_interval_link(power),
             missing=window.uncovered(GENERATOR_POWER),
+            window_note=window.window_note([measured_seconds]),
         ),
         _metric(
             "generator-status-running",
@@ -368,6 +434,7 @@ def _renewable(window: _Window) -> list[dict[str, Any]]:
             basis=f"PV inverter output over {_fmt(_hours(seconds), 2)} h of measured intervals.",
             evidence=_interval_link(records),
             missing=window.uncovered(PV),
+            window_note=window.window_note([seconds]),
         ),
         _metric(
             "pv-peak",
@@ -397,18 +464,13 @@ DOMAIN_METRICS: dict[str, Callable[[_Window], list[dict[str, Any]]]] = {
 def _coverage_row(window: _Window, key: SignalKey) -> dict[str, Any]:
     records = window.of(key)
     good = _good(records)
-    if not records:
-        status = "NOT_REPORTED"
-    elif not good:
-        status = "NO_GOOD_RECORD"
-    else:
-        status = "REPORTED"
     return {
         "device_id": key[0],
         "signal_id": key[1],
-        "status": status,
+        "status": window.status(key),
         "records": len(records),
         "good": len(good),
+        "usable": len(window.usable(key)),
         "unavailable": sum(1 for r in records if r.quality == "UNAVAILABLE"),
         "last_source_time": records[-1].source_time if records else None,
     }
@@ -496,7 +558,12 @@ class OverviewReadModel:
             basis = "LATEST_RELEASE"
         else:
             basis = "REQUESTED"
-        window = _Window([r for r in evidence.records if in_window(r, window_start, window_end)])
+        window = _Window(
+            [r for r in evidence.records if in_window(r, window_start, window_end)],
+            None
+            if window_start is None or window_end is None
+            else _seconds(window_start, window_end),
+        )
         domains = OVERVIEW_DOMAIN_SIGNALS.get(site.site_type, ())
         cards = []
         for domain, signals in domains:
@@ -506,6 +573,7 @@ class OverviewReadModel:
                     "device_id": row["device_id"],
                     "signal_id": row["signal_id"],
                     "status": row["status"],
+                    "reason": GAP_REASONS[row["status"]],
                 }
                 for row in coverage
                 if row["status"] != "REPORTED"
@@ -535,7 +603,10 @@ class OverviewReadModel:
                 ),
             },
             "accepted_in_window": len(window.records),
-            "sources_in_window": len({(r.source_id, r.gateway_id) for r in window.records}),
+            # Review F5: these are (source, gateway) pairs, and are named so.
+            "source_gateway_pairs_in_window": len(
+                {(r.source_id, r.gateway_id) for r in window.records}
+            ),
             "objective": {
                 "assessment": dict(NO_ASSESSMENT),
                 "service_delivered": None if service is None else service["metrics"][0],
