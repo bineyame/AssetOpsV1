@@ -240,13 +240,21 @@ describe("Quick actions obey the gate rule and the sequencing rule separately", 
       await settledScreen();
 
       // Not a simulator capability, so the gate says nothing about it. It is
-      // unavailable for an evidence reason, identically in both states.
+      // unavailable for the same reason in both states: live data is not a
+      // capability of this build (T027 review R1).
       const action = within(within(container).getByRole("main")).getByRole(
         "button",
         { name: UNGATED_ACTION },
       );
 
       expect((action as HTMLButtonElement).disabled).toBe(true);
+      const reason = document.getElementById(
+        action.getAttribute("aria-describedby") ?? "",
+      );
+      expect(reason?.textContent).toMatch(
+        /^Live data is not a capability of this build\./,
+      );
+      expect(reason?.textContent).not.toMatch(/no evidence has been accepted/i);
     },
   );
 

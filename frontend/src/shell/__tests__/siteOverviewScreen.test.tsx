@@ -205,9 +205,14 @@ describe("Site Overview, populated", () => {
     renderAt(OVERVIEW_URL, populated());
     await settledScreen();
 
-    expect(spacedText(screen.getByRole("main"))).not.toMatch(
-      /no accepted evidence/i,
-    );
+    // Review R1: on a populated Site no sentence anywhere on the page may say
+    // that nothing was accepted, whatever panel it sits in. (The empty
+    // window's "No window: no evidence has been accepted for this site." is
+    // true on an empty Site, and the empty case below still allows it.)
+    const page = spacedText(screen.getByRole("main"));
+    expect(page).not.toMatch(/no accepted evidence/i);
+    expect(page).not.toMatch(/no evidence has been accepted/i);
+    expect(page).not.toMatch(/nothing (has been|was) accepted/i);
     expect(
       screen.queryByRole("heading", { name: "Not available for this site" }),
     ).toBeNull();

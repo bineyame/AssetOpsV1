@@ -408,10 +408,11 @@ export function SiteQuickActions({ children }: SiteQuickActionsProps) {
         {children}
         <SiteQuickAction
           label="View Live Data"
+          // T027 (review R1): the former reason said no evidence had been
+          // accepted, which a Commit makes false. This is true for every Site.
           unavailableBecause={
-            "No evidence has been accepted for this site. Live data arrives " +
-            "with the ingestion and evidence steps, which are later than " +
-            "configuring a site."
+            "Live data is not a capability of this build. Accepted evidence " +
+            "for this site is on the Evidence tab."
           }
         />
       </ul>

@@ -666,6 +666,14 @@ describe("what renders is absent or disabled, and never enabled", () => {
     const action = screen.getByRole("button", { name: "View Live Data" });
 
     expect((action as HTMLButtonElement).disabled).toBe(true);
+    // T027 review R1: the reason is true for every Site, with or without
+    // accepted evidence.
+    const reason = document.getElementById(
+      action.getAttribute("aria-describedby") ?? "",
+    );
+    expect(reason?.textContent).toBe(
+      "Live data is not a capability of this build. Accepted evidence for this site is on the Evidence tab.",
+    );
     expect(spacedText(container)).toMatch(/Quick actions/);
     expect(container.querySelectorAll("button")).toHaveLength(1);
   });
