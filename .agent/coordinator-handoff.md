@@ -57,3 +57,19 @@ A fresh coordinator starts from this file; do not re-derive what it states.
   reviews of T025e, T025f, T025g, T026 and the demo-led plan, and ask the owner
   who takes in-flight roles.
 - `.agent/` is gitignored: commit with `git add -f`.
+
+## Update 2026-10-03 ~10:25: T027 phase 2 built and reviewed; owner UI check next
+
+- Phase 2 on the T027 branch (HEAD bb8976d): packet `.agent/T027-phase-2-review-packet.md`
+  (fix rounds 1-3), layout `.agent/T027-phase-2-layout-evidence-fix-round-1.txt`
+  (513 PASS / 5 FAIL: 4 known + intermittent T026 delayed-reading claim, backlogged).
+- Reviews (all Claude, temporary binding): `.agent/T027-phase-2-claude-review.md`
+  (F1-F5), `-claude-rereview.md` (R1-R3), `-claude-rereview-2.md` (S1, S2).
+  Fix round 3 (S1/S2, strings + comments only) verified by the coordinator:
+  tsc clean, frontend 1071. Backend 1435, host 602, simulator 244.
+- Owner asked (2026-10-03): send to reviewer, owner does UI check after all is
+  complete. Next: owner UI check (packet "User-review focus" 1-7), owner rulings on
+  energy wording (point 6) and on "Start Simulation" (keep disabled with true
+  reason vs remove/link to Run setup). Then merge main (4ae4d4b) into the branch,
+  mark T027 done, merge.
+- Codex retrospective list gains T027 phase 1 and phase 2.
