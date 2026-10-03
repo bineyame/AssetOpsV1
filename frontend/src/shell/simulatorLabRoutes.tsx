@@ -418,8 +418,10 @@ export function simulatorLabAddSiteEntryPoints(
  *
  * Not a `WorkspaceEntryPoint`: an entry point has a `to`, and these have
  * nowhere to go. That is the point of them. They are the third affordance
- * state - rendered, disabled, and carrying the reason - as opposed to a tab
- * labelled in place, which names an aspect and is not a control at all.
+ * state - rendered, disabled, and carrying the reason. A tab labelled in place
+ * (a label with no control) is not used in operator views, per
+ * `D-2026-10-02-rendered-tabs-per-capability`; an aspect without a capability
+ * is simply not rendered.
  */
 export interface GatedSiteAction {
   label: string;
@@ -453,16 +455,20 @@ export function simulatorLabSiteActions(
   return [
     {
       label: "Open in Simulator Lab",
+      // T027 review S1: the run surfaces exist; what is missing is a Lab Site
+      // view, and that is all this says.
       unavailableBecause:
-        "The Simulator Lab has no Site view yet. It arrives with the Lab's " +
-        "own Site and run surfaces, which are a later step than configuring " +
-        "a site.",
+        "The Simulator Lab has no Site view. Its scenarios, runs and run " +
+        "setup are reached from the Simulator Lab workspace, not from a Site.",
     },
     {
       label: "Start Simulation",
+      // T027 review S1: scenarios and a runtime exist and runs execute (T022);
+      // what is true is that a run starts from Run setup, not from a Site.
       unavailableBecause:
-        "Nothing can be simulated yet. A run needs a scenario and a runtime, " +
-        "and neither exists in this build.",
+        "A run is not started from a Site. It is set up and started from a " +
+        "scenario's Run setup in the Simulator Lab, which binds the scenario " +
+        "to this site.",
     },
   ];
 }

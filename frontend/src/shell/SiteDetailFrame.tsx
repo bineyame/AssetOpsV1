@@ -7,8 +7,11 @@ import {
   SiteQuickAction,
 } from "../sites/SiteDetails";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import { SiteOverview } from "../sites/SiteOverview";
+import type { SiteOverviewClient } from "../sites/siteOverviewClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { siteEvidenceHref, siteEvidenceRecordHref } from "./operatorSiteRoutes";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
 
 /**
@@ -46,6 +49,10 @@ import { simulatorLabSiteActions } from "./simulatorLabRoutes";
  * has. `Back to Sites` stays, because the Sites index is not an aspect of a
  * site and has no tab.
  *
+ * The Overview body (T027 phase 2) is the substrate's `SiteOverview`, read
+ * from accepted evidence beside Site > Evidence; this frame only hands it the
+ * client and the inspector addresses its evidence links open.
+ *
  * This route is an operator capability and is never gated. It is registered
  * and served identically with `simulator_lab.enabled` true and false, and it
  * offers no crossing into the Simulator Lab in either state.
@@ -57,6 +64,8 @@ import { simulatorLabSiteActions } from "./simulatorLabRoutes";
  */
 export interface SiteDetailFrameProps {
   detail: SiteDetailClient;
+  /** The Overview read (T027 phase 2). Operator, never gated. */
+  overview: SiteOverviewClient;
   sitesPath: string;
   flags: FeatureFlags;
   /**
@@ -69,6 +78,7 @@ export interface SiteDetailFrameProps {
 
 export function SiteDetailFrame({
   detail,
+  overview,
   sitesPath,
   flags,
   templateLineage,
@@ -83,6 +93,16 @@ export function SiteDetailFrame({
         templateLineage={templateLineage}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
         parentTrail={() => [{ label: "Sites", to: sitesPath }]}
+        overview={(canonicalId) => (
+          <SiteOverview
+            siteId={canonicalId}
+            client={overview}
+            evidencePageHref={siteEvidenceHref(canonicalId)}
+            evidenceHref={(signal, messageId) =>
+              siteEvidenceRecordHref(canonicalId, signal, messageId)
+            }
+          />
+        )}
         quickActions={simulatorLabSiteActions(flags).map((action) => (
           <SiteQuickAction
             key={action.label}

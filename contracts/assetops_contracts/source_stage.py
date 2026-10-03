@@ -81,8 +81,8 @@ SOURCE_STAGE_SCHEMA_VERSION = 2
 #: Where a Draft's staging is.
 SOURCE_STAGE_STATUSES = frozenset({"NOT_STAGED", "STAGED", "STAGE_UNREADABLE"})
 
-#: Why a stage is not eligible for release. Release itself does not exist in
-#: this build; eligibility is the condition a later Commit will require.
+#: Why a stage is not eligible for release. Eligibility is the condition a
+#: Commit (T027) requires before it seals and releases the stage.
 RELEASE_BLOCKERS = frozenset(
     {
         "NOTHING_STAGED",
@@ -106,9 +106,10 @@ SOURCE_STAGE_STATUS_STATEMENTS: dict[str, str] = {
     "STAGED": (
         "These are the canonical source envelopes the simulated gateway "
         "published for this draft, exactly as persisted and re-read from the "
-        "stage. They are staged, not released: nothing has been committed, "
-        "nothing has reached ingestion, and no site history, evidence or finding "
-        "has been written from them."
+        "stage. Staging is not release: the stage itself writes no site history, "
+        "evidence or finding. Only a Commit releases them, through ingestion, and "
+        "whether this draft was committed and what ingestion accepted is reported "
+        "by its Commit status, not by the stage."
     ),
     "STAGE_UNREADABLE": (
         "A stage exists for this draft and it failed its integrity check, so none "
@@ -528,7 +529,7 @@ def release_blockers(
     into it, the execution publishing into it completed, AND the stage itself
     records that every boundary of that run was published into it. The last
     condition is the one a completed execution cannot vouch for. It does NOT mean
-    released - nothing in this build releases anything.
+    released: only a Commit releases, and only through ingestion.
     """
     if status == "STAGE_UNREADABLE":
         return ("INTEGRITY_FAILURE",)

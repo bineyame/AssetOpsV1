@@ -48,7 +48,7 @@ const SITE: SiteSummary = {
  * neither replacement is a navigation item: a navigation item cannot name
  * which site it would open.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Operator home", "Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites"];
 
 const SITE_DETAIL: SiteDetailReadModel = {
   ...SITE,

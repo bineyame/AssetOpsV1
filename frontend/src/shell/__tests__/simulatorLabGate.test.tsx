@@ -284,6 +284,14 @@ const EXECUTION_CONTROLS = [
   "Pause",
 ];
 
+/**
+ * T027: Commit is built on the run surface. Named, like the execution
+ * controls, so a further control still fails whatever it is called. On a
+ * stage that is not release-eligible "Commit and release" is disabled with
+ * its reason; "Resume release" appears only after an interrupted release.
+ */
+const COMMIT_CONTROLS = ["Commit and release", "Resume release"];
+
 const RUN_ACTION_PATTERN =
   /\b(run|runs|rerun|re-run|start|stop|execute|execution|simulate|simulation|playback|replay|compare|comparison|truth|inspect|commit|publish|stage|staging|ingest)\b/i;
 
@@ -533,12 +541,16 @@ describe("simulator lab gate: enabled", () => {
       within(navigation).queryByRole("link", { name: /simulator/i }),
     ).toBeNull();
 
-    const entryPoint = screen.getByRole("link", { name: /simulator lab/i });
+    // `/` redirects to the Sites index (T027), whose own gated create entry
+    // also names the Lab, so the workspace entry point is picked by address.
+    const entryPoint = screen
+      .getAllByRole("link", { name: /simulator lab/i })
+      .find((link) => link.getAttribute("href") === "/simulator-lab");
 
-    expect(navigation.contains(entryPoint)).toBe(false);
-    expect(entryPoint).toHaveAttribute("href", "/simulator-lab");
+    expect(entryPoint).toBeDefined();
+    expect(navigation.contains(entryPoint as HTMLElement)).toBe(false);
 
-    fireEvent.click(entryPoint);
+    fireEvent.click(entryPoint as HTMLElement);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Simulator Lab" }),
@@ -616,7 +628,8 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
           control.getAttribute("aria-describedby") !== null;
         const isNamedExecutionControl =
           RUN_SURFACE_URLS.includes(url) &&
-          EXECUTION_CONTROLS.includes(description.trim());
+          (EXECUTION_CONTROLS.includes(description.trim()) ||
+            COMMIT_CONTROLS.includes(description.trim()));
 
         expect(
           isNavigation ||
@@ -646,9 +659,11 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
     await settledScreen();
 
     const buttons = Array.from(container.querySelectorAll("button"));
-    expect(buttons.map((button) => (button.textContent ?? "").trim())).toEqual(
-      EXECUTION_CONTROLS,
-    );
+    // T027 adds Commit, disabled here (this stage is not release-eligible).
+    expect(buttons.map((button) => (button.textContent ?? "").trim())).toEqual([
+      ...EXECUTION_CONTROLS,
+      "Commit and release",
+    ]);
     // Enabled, not merely present. A disabled set would make the ban below a ban
     // over controls nobody could use.
     expect(buttons.some((button) => !button.disabled)).toBe(true);

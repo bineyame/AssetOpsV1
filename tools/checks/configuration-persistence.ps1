@@ -70,9 +70,31 @@ function Invoke-ConfigurationPersistenceCheck {
             Name        = "run"
             Package     = "$backendRoot/runs"
             Composition = "$backendRoot/runs/composition.py"
-            Writer      = "$backendRoot/runs/adapters/yaml_run_store.py"
+            # T027 (D4): the gated Commit store files sealed artifacts beside
+            # runs, in the same domain and adapter layer, with its own single
+            # writer and its own owned, gitignored root.
+            Writer      = @(
+                "$backendRoot/runs/adapters/yaml_run_store.py",
+                "$backendRoot/runs/adapters/json_commit_store.py"
+            )
             UserRootVar = "RUN_STORE_ROOT"
             UserRootOwner = "$backendRoot/runs/adapters/yaml_run_store.py"
+            ExtraUserRoots = @(
+                @{
+                    Var   = "COMMIT_STORE_ROOT"
+                    Owner = "$backendRoot/runs/adapters/json_commit_store.py"
+                }
+            )
+        },
+        @{
+            # T027: accepted evidence and its immutable configuration/mapping
+            # registries. Written only by ingestion through the JSON adapter.
+            Name        = "evidence"
+            Package     = "$backendRoot/evidence"
+            Composition = "$backendRoot/evidence/composition.py"
+            Writer      = "$backendRoot/evidence/adapters/json_evidence_store.py"
+            UserRootVar = "EVIDENCE_STORE_ROOT"
+            UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"
         }
     )
 
@@ -367,8 +389,17 @@ function Invoke-ConfigurationPersistenceCheck {
     #    is declared in one place. Two declarations mean two answers to where
     #    user data lives, and the .gitignore check below would then be covering
     #    whichever one it happened to find.
-    foreach ($domain in $domains) {
-        $userStoreDeclaration = "$($domain.UserRootVar)\s*="
+    #    A domain may own more than one writable root (`ExtraUserRoots`); each
+    #    is held to the same single-owner and gitignore rules.
+    $userRoots = @(foreach ($domain in $domains) {
+        @{ Name = $domain.Name; Var = $domain.UserRootVar; Owner = $domain.UserRootOwner }
+        foreach ($extra in @($domain.ExtraUserRoots)) {
+            if ($null -eq $extra) { continue }
+            @{ Name = "$($domain.Name) ($($extra.Var))"; Var = $extra.Var; Owner = $extra.Owner }
+        }
+    })
+    foreach ($root in $userRoots) {
+        $userStoreDeclaration = "$($root.Var)\s*="
         $userStoreOwners = @()
         $userStoreRootSegment = $null
 
@@ -376,7 +407,7 @@ function Invoke-ConfigurationPersistenceCheck {
             foreach ($line in $module.Lines) {
                 if ($line -notmatch $userStoreDeclaration) { continue }
                 $userStoreOwners += $module.Path
-                if ($line -match "$($domain.UserRootVar)\s*=\s*REPO_ROOT\s*/\s*""([^""]+)""") {
+                if ($line -match "$($root.Var)\s*=\s*REPO_ROOT\s*/\s*""([^""]+)""") {
                     $userStoreRootSegment = $Matches[1]
                 }
                 break
@@ -384,19 +415,19 @@ function Invoke-ConfigurationPersistenceCheck {
         }
 
         if ($userStoreOwners.Count -eq 0) {
-            $failures.Add(("No backend module declares $($domain.UserRootVar), so the " +
-                "writable $($domain.Name) store has no owned configuration point " +
+            $failures.Add(("No backend module declares $($root.Var), so the " +
+                "writable $($root.Name) store has no owned configuration point " +
                 "and the gitignore check below is vacuous for it.")) | Out-Null
             continue
         }
         elseif ($userStoreOwners.Count -gt 1) {
-            $failures.Add(("$($domain.UserRootVar) is declared in " +
+            $failures.Add(("$($root.Var) is declared in " +
                 "$($userStoreOwners -join ', '). A writable store root must have " +
                 "exactly one owner.")) | Out-Null
         }
-        elseif ($userStoreOwners[0] -ne $domain.UserRootOwner) {
-            $failures.Add(("$($domain.UserRootVar) is declared in $($userStoreOwners[0]). " +
-                "It belongs to $($domain.UserRootOwner), the adapter that owns it.")) | Out-Null
+        elseif ($userStoreOwners[0] -ne $root.Owner) {
+            $failures.Add(("$($root.Var) is declared in $($userStoreOwners[0]). " +
+                "It belongs to $($root.Owner), the adapter that owns it.")) | Out-Null
         }
 
         # 6. The writable user store is outside the shipped roots and
@@ -405,13 +436,13 @@ function Invoke-ConfigurationPersistenceCheck {
         #    scenario would ship to everyone and the shipped/user split would
         #    exist only in the code.
         if ($null -eq $userStoreRootSegment) {
-            $failures.Add(("$($domain.UserRootVar) is not declared as a path under the " +
+            $failures.Add(("$($root.Var) is not declared as a path under the " +
                 "repository root, so the gitignore check cannot resolve it.")) | Out-Null
             continue
         }
 
         if ($userStoreRootSegment -eq "config") {
-            $failures.Add(("The writable user $($domain.Name) store resolves inside " +
+            $failures.Add(("The writable user $($root.Name) store resolves inside " +
                 "config/, which holds shipped read-only configuration. It must " +
                 "live outside every shipped configuration root.")) | Out-Null
         }
@@ -434,14 +465,14 @@ function Invoke-ConfigurationPersistenceCheck {
             $ignored -contains "$userStoreRootSegment/"
         if (-not $covered) {
             $failures.Add(("$gitignorePath does not cover the writable user " +
-                "$($domain.Name) store root '$userStoreRootSegment/'. " +
+                "$($root.Name) store root '$userStoreRootSegment/'. " +
                 "User-authored configuration must not be tracked.")) | Out-Null
         }
 
         $trackedUserStore = git ls-files -- $userStoreRootSegment
         if ($trackedUserStore) {
             $failures.Add(("$userStoreRootSegment/ holds tracked files. The " +
-                "writable user $($domain.Name) store must not be in version control.")) | Out-Null
+                "writable user $($root.Name) store must not be in version control.")) | Out-Null
         }
     }
 

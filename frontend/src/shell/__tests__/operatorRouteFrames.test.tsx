@@ -186,7 +186,7 @@ describe("operator route navigation", () => {
       within(operatorNavigation)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Operator home", "Sites"]);
+    ).toEqual(["Sites"]);
   });
 
   it.each(operatorRoutes)(

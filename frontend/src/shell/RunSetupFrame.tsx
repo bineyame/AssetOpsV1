@@ -1185,9 +1185,9 @@ function CreatedDraft({ run }: { run: RunSummary }) {
             exists.
           </li>
           <li>
-            It is a draft and it cannot be committed. Committing is what makes
-            simulated history permanent and releases evidence from it, and no
-            slice in this build can do either.
+            It is a draft and it has not been committed. Commit seals what an
+            execution staged and releases it, and a draft nothing
+            has executed has nothing staged to commit.
           </li>
           <li>
             No evidence has been accepted from it, and no operator surface

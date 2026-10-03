@@ -4535,3 +4535,81 @@ reaches new Drafts only.
   that, 3 pre-existing "blocked table" claims fail (run-setup against MG-006 is
   READY, no blocked table) - environment, not T026.
 - No shipped world curtails PV (available == output); T026A owns bias/noise.
+
+## T027 phase 1 - Commit, ingestion and Site > Evidence
+
+Packet `.agent/T027-phase-1-review-packet.md`; handoff `.agent/T027-phase-1-handoff.md`.
+In review (phase 1); phase 2 (Overview, AC11, AC22) not started.
+
+- Commit: a release-eligible stage seals once into `var/commits` (contracts
+  `committed_artifact.py`; `runs/adapters/json_commit_store.py`); a filed artifact
+  is never rewritten, a changed stage is refused, a tampered one reads unreadable.
+  `RUN_COMMIT_ROUTE` exists only when the Lab gate is open.
+- Release goes through the one product ingest (`evidence/service.py`,
+  `ingestion_batch.py`); `received_at` is ingestion's; duplicates idempotent,
+  same id/other content a conflict keeping the original, reused batch id with
+  other content `BATCH_ID_CONFLICT`; an unknown-Site batch is refused, not stored.
+  Store: `var/evidence`, one JSON per Site rewritten per 64-record chunk,
+  single-process lock.
+- Read model `evidence/read_model.py`: accepted content only; coverage over
+  `NEEDED_SIGNALS` keyed by `site_type` (MINIGRID); routes `evidence_api.py`,
+  served gate open or closed. Rebuild from artifact text matches (in-process).
+- UI: Site > Evidence (`sites/SiteEvidence.tsx`; inspector state in
+  `?signal=`/`?source=` + `&record=`; `?batch=` only highlights). Lab
+  `RunCommitPanel.tsx` keeps Commit and release apart; Open in AssetOps ->
+  `/sites/{id}/evidence`.
+- Tabs per `D-2026-10-02-rendered-tabs-per-capability`: Overview|Foundation|Evidence,
+  Definition|Topology|Controls; `/` -> `/sites`; rail Sites only.
+- Checks: evidence dependency rule (`dependency-direction.ps1`), evidence and
+  commit domains (`configuration-persistence.ps1`), navigation-truthfulness
+  messages "not rendered, never disabled, never labelled in place"; all proven
+  by mutation (no Pester tests for navigation-truthfulness).
+- Layout evidence needs T026's isolated method (packet); 3 "blocked table" and
+  the T025e delta-budget claims fail for environment reasons.
+- Open: AC15 rebuild not proven without host/simulator on `sys.path`; the
+  profile-5 run stages no fuel-level envelopes (Fuel NOT_REPORTED).
+
+## T027 phase 2 - mini-grid Site Overview
+
+T027 complete; owner accepted 2026-10-03 after hands-on checks of both phases (Claude reviews ACCEPT after fix rounds; Codex retrospective pending).
+
+Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phases).
+
+- Read model `evidence/overview.py` (`OverviewReadModel`), route
+  `GET /api/sites/{id}/overview` in `evidence_api.py` beside Site evidence, so
+  served gate open or closed under the evidence dependency rule. Same default
+  window as Evidence (`read_model.default_window`).
+- One domain list: `OVERVIEW_DOMAIN_SIGNALS` (read_model.py) names each
+  MINIGRID domain's signals; `NEEDED_SIGNALS` is derived from it; `DOMAIN_METRICS`
+  computes each card. `backend/tests/test_t027_overview.py` pins the domains equal
+  to the profile's cards (review N9; proven by mutation).
+- Presentation profile: `frontend/src/sites/presentationProfiles.json` (substrate
+  data keyed by `site_type`, `{id, label}` per card only), read through
+  `sites/presentationProfile.ts`. A profile card the backend does not serve
+  renders nothing; a backend card the profile lacks is not rendered (AC22: the
+  profile owns existence); the pin test keeps them equal.
+- Metric rules: energy and running time are summed over measured intervals only
+  (interval mean x interval length), with measured hours stated; instants are
+  shown at their own source time; a needed signal with no GOOD record is a named
+  gap and its metrics have no value; overlapping records (same span or instant,
+  distinct ids) are used by no metric; Fuel is tank level only. Every card and
+  the objective strip are `NO_ASSESSMENT` ("No assessment yet").
+- Fix round 1: coverage is decided from the records a metric can read
+  (`_Window.usable`): gap statuses `NO_INTERVAL_SPAN` and `OVERLAPPING_ONLY` carry
+  a named `reason`; interval metrics carry `window_note` ("X h of the Y h window
+  measured"), shown in the strip with the metric's label; the client's shape
+  check covers every rendered field; the strip counts source and gateway pairs.
+  The Foundation tab's "Evidence availability"/"Source health" facts are retired.
+- UI: `sites/SiteOverview.tsx` placed by `SiteDetails` through a new `overview`
+  slot that `shell/SiteDetailFrame.tsx` fills; evidence links via
+  `operatorSiteRoutes.siteEvidenceRecordHref` (`?signal=DEV/SIG&record=MSG`).
+  The Overview page's old "Not available for this site" panel (its "no accepted
+  evidence" sentence is false after a Commit) is gone.
+- Guard: `shell-overflow.ps1` admits `SiteOverview.tsx` as a fourth svg module
+  under the same region rules (`.overview-timeline__scroll`; proven by mutation).
+- AC14/AC15: the rebuild snapshot and `t027_isolated_probe.build()` include the
+  Overview (isolation proven by mutation: `import assetops_simulator` fails it).
+- Open: generator running time is whole-interval (backlog, T028); the Kobo v3 interval means
+  cover the 5-minute timestep of each 15-minute report, so measured-interval
+  energy covers about a third of the window and is labelled so; the profile-5
+  run stages no fuel envelopes, so the demo Fuel card shows its gap.

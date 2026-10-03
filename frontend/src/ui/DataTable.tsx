@@ -23,8 +23,10 @@ import type { ReactNode } from "react";
  * So every table in the product sits in a region that owns its own horizontal
  * overflow. The table keeps every column it renders - the M1 viewport policy
  * is explicit that a column is never dropped because the viewport is narrow,
- * because that would be a fourth state beside not rendered, labelled in place
- * and disabled - and the region scrolls instead.
+ * because that would be a further state beside not rendered and disabled
+ * (labelled in place is not used in operator views, per
+ * `D-2026-10-02-rendered-tabs-per-capability`) - and the region scrolls
+ * instead.
  *
  * The region is wrapped here rather than left to each caller so that no screen
  * can render a bare table by forgetting to. A guard holds the other half of

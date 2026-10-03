@@ -59,7 +59,7 @@ when they run, as with T022B.
 | 16 | [T025f](completed/T025f-template-versioning.md) | A/B hardening | Template v2 and site lineage staleness note |
 | 17 | [T025g](completed/T025g-run-binds-scenario-to-site.md) | A/B hardening | User picks the site; shipped scenario READY or BLOCKED by contract |
 | 18 | [T026](completed/T026-dispatch-capable-evidence.md) | B | Dispatch evidence with one gap and one delayed publication |
-| 19 | [T027](T027-commit-ingestion-and-site-overview.md) (phase 1, phase 2) | B completion | Phase 1: Commit -> ingestion -> Site > Evidence with record drill-down; three real Site tabs. Phase 2: mini-grid Site Overview |
+| 19 | [T027](completed/T027-commit-ingestion-and-site-overview.md) (phase 1, phase 2) | B completion | Phase 1: Commit -> ingestion -> Site > Evidence with record drill-down; three real Site tabs. Phase 2: mini-grid Site Overview |
 | 20 | [T028](T028-dispatch-finding-and-evidence.md) (phased) | C | Dispatch -> Finding -> drawer; Findings root; capability declaration; Evidence capability table (one row) |
 | 21 | [T029](T029-bounded-dispatch-financials.md) | D | Site Financials with live editable assumptions; point-2 seed |
 | 22 | [T029B](T029B-sites-ranking-and-landing.md) | B/C presentation | Sites ranks by assessment and evidence (landing inherited from T027) |

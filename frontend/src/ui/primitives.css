@@ -336,8 +336,7 @@ button:focus-visible {
   display: flex;
 }
 
-.site-tabs__link,
-.site-tabs__label {
+.site-tabs__link {
   display: block;
   padding: var(--space-2) var(--space-3);
   margin-bottom: -1px;
@@ -369,37 +368,6 @@ button:focus-visible {
 .site-tabs__link[aria-current="page"] {
   font-weight: var(--weight-semibold);
   border-bottom-color: var(--accent);
-}
-
-/*
- * A label is not a quieter link. It is a different kind of thing, so it is set
- * in the body colour scale rather than the link one, and it never moves under
- * the pointer.
- */
-.site-tabs__label {
-  color: var(--text-muted);
-  font-weight: var(--weight-regular);
-}
-
-/* Where the destinations end and the labels begin. */
-.site-tabs__item--group-start {
-  margin-left: var(--space-3);
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--border-strong);
-}
-
-/*
- * The second signal, and the one that survives greyscale, a colour-vision
- * difference, and a reader who does not know that grey means unbuilt here.
- *
- * It is derived from the tab inventory, so it cannot contradict the row above
- * it, and it describes this build rather than a later one.
- */
-.site-tabs__aspects {
-  margin: var(--space-2) 0 0;
-  padding: 0 var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
 }
 
 /* Panel ------------------------------------------------------------------- */
@@ -1313,21 +1281,6 @@ button:focus-visible {
 }
 
 /*
- * A section this build does not have. Same two-state rule as the tab row: not
- * a link, not a control, and never disabled - it is not switched off, it is
- * not built.
- */
-.section-nav__absent {
-  color: var(--text-muted);
-}
-
-.section-nav__note {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-}
-
-/*
  * Where a section link lands.
  *
  * Without this a heading scrolls flush to the viewport edge, which puts it
@@ -1828,4 +1781,164 @@ button:focus-visible {
 .run-not-line {
   margin: 0 0 var(--space-3);
   color: var(--text-secondary);
+}
+
+/*
+ * A heading that carries a machine identity (a 64-character record digest)
+ * has no break opportunity, so at a narrow width it would set the page's
+ * minimum width. It breaks inside its column instead (T027 layout evidence,
+ * Site > Evidence record inspector at 640px).
+ */
+.identity-heading {
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Site Overview (T027 phase 2). Domain cards share one responsive grid that
+ * collapses to one column at narrow widths; the timeline is a scaled SVG
+ * (viewBox, width 100%), so it never sets the page's minimum width. Units never
+ * share an axis: kW and % are separate panels, and each series has its own
+ * dash pattern and legend entry, so colour is never the only carrier.
+ */
+.site-overview {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.overview-cards__heading {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.overview-cards__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.overview-cards__grid > .panel {
+  margin: 0;
+  min-width: 0;
+}
+
+.overview-note,
+.overview-metric__basis,
+.overview-card__coverage {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.overview-metric {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.overview-metric__label {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.overview-metric__window {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.overview-metric__value {
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-metric__evidence,
+.overview-metric__gap,
+.overview-card__coverage,
+.overview-card__gap {
+  overflow-wrap: anywhere;
+}
+
+.overview-metric__gap {
+  color: var(--text-secondary);
+}
+
+.overview-card__assessment {
+  margin: 0 0 var(--space-2);
+}
+
+.overview-card__gap {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--border-strong);
+  background: var(--surface-sunken);
+}
+
+.overview-timeline {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.overview-timeline__figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.overview-timeline__scroll {
+  overflow-x: auto;
+}
+
+.overview-timeline__chart {
+  display: block;
+  width: 100%;
+  min-width: 20rem;
+  height: auto;
+}
+
+.overview-timeline__axis {
+  stroke: var(--border-strong);
+}
+
+.overview-timeline__tick {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.overview-timeline__series {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.overview-timeline__series--demand { stroke: var(--series-1); }
+.overview-timeline__series--pv { stroke: var(--series-3); }
+.overview-timeline__series--generator { stroke: var(--series-2); }
+.overview-timeline__series--soc { stroke: var(--series-4); fill: var(--series-4); }
+
+.overview-timeline__legend {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.overview-timeline__key::before {
+  content: "";
+  display: inline-block;
+  width: 1.25rem;
+  margin-right: var(--space-2);
+  vertical-align: middle;
+  border-top: 2.5px solid currentColor;
+}
+
+.overview-timeline__key--demand::before { border-top-color: var(--series-1); }
+.overview-timeline__key--pv::before { border-top: 2.5px dashed var(--series-3); }
+.overview-timeline__key--generator::before { border-top: 2.5px dotted var(--series-2); }
+.overview-timeline__key--soc::before { border-top-color: var(--series-4); }
+
+.site-overview > .panel,
+.site-overview > .overview-cards {
+  margin: 0;
 }

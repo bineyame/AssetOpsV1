@@ -59,6 +59,29 @@ export function siteFoundationHref(siteId: string): string {
   return `${siteDetailHref(siteId)}/foundation`;
 }
 
+/** The route pattern for one site's Evidence. */
+export const SITE_EVIDENCE_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/evidence`;
+
+/** The address of one site's Evidence, built from the site's own address. */
+export function siteEvidenceHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/evidence`;
+}
+
+/**
+ * The Site > Evidence record inspector for one accepted record (T027 phase 2:
+ * Overview evidence links). `signal` is `DEVICE/SIGNAL`, the same value the
+ * inspector reads from its own signal rows, so the root does not change.
+ */
+export function siteEvidenceRecordHref(
+  siteId: string,
+  signal: string,
+  messageId: string,
+): string {
+  const [device, ...rest] = signal.split("/");
+  const signalParam = `${encodeURIComponent(device)}/${encodeURIComponent(rest.join("/"))}`;
+  return `${siteEvidenceHref(siteId)}?signal=${signalParam}&record=${encodeURIComponent(messageId)}`;
+}
+
 /**
  * The address T008 served this surface at, kept working and nothing else.
  *

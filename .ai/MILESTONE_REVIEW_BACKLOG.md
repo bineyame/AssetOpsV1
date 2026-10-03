@@ -1686,6 +1686,70 @@ Recorded 2026-10-02 by the T026 Implementer after owner ruling on C1.
   override publishes no record there; whether it surfaces as a policy record
   (version, effective interval, source) is T028's question.
 
+## Carried from T027 phase 1: three items
+
+Recorded by the T027 phase 1 fix round (review `.agent/T027-phase-1-claude-review.md`).
+
+- **N2: resuming a release needs the live stage, and the refusal misdescribes
+  it.** `simulator_lab_api.py` (the commit POST) reads the stage even when the
+  sealed artifact is already filed; a missing stage gives `COMMIT_STAGE_CHANGED`
+  ("differs from the stage as it is now"). Safe to carry: the stage store is not
+  cleaned in the demo, and the refusal is honest about refusing, only wrong about
+  why. Would change the answer: any stage cleanup or retention policy (T026A
+  recovery volumes), or an owner report of a stuck release. Fix then: refuse
+  only when a stage is present and its digest differs, else release the
+  artifact; at minimum give an absent stage its own message.
+- **N6: the evidence store design.** One JSON document per Site, rewritten whole
+  per 64-record chunk with `.partial` and `os.replace`, in-process locks only.
+  Measured: the owner's 329-record Site is 571 KB and loads in about 10 ms;
+  writes grow quadratically within a batch. Safe to carry: single product
+  process, a few Sites, and the task's "simple and correct" limit. Would change
+  the answer: two processes over the same `var/evidence` (product app and
+  `host/lab_app`) risk lost read-modify-write updates; or multi-Site live
+  ingestion, a much larger history, or T026A outage and recovery volumes. Two
+  parts to fix then: a single-writer guarantee, and per-record or append storage.
+- **N1 store location (owner question).** `var/evidence/registry/` is
+  configuration, not derived data: it is the only record of how an earlier
+  Foundation version read, because the Site repository keeps no version
+  history. The fix round documents this and tests rebuild after an edit, but did
+  not move it. Pending the owner: move it to a durable configuration-history
+  store, or accept the location. Trigger: T034, before Foundation becomes
+  editable. Until then nothing edits a Foundation, so the registry cannot be the
+  sole copy of a changed basis.
+
+## Carried from T027 phase 2: three items
+
+Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-review.md`).
+
+- **Generator running time is whole-interval.** `evidence/overview.py`
+  (`_dispatch`) counts a measured interval as running whenever its mean output is
+  above zero, so a start part-way through an interval is counted as the whole
+  interval. The basis says so ("measured intervals with generator output above
+  zero"). Safe to carry: no Finding reads it before T028. Would change the
+  answer: T028's dispatch analytic using runtime. Fix then: derive runtime from
+  the status record's transitions, or from the interval mean as a fraction of
+  rated output, under the dispatch capability's evidence requirements.
+- **Two Lab explanations still say drafts have "no accepted evidence".**
+  `shell/RunsFrame.tsx` (76-82) and `shell/RunSetupFrame.tsx` (around 502 and
+  1178-1199) explain a draft as never executed, with no output or accepted
+  evidence. Two falsifications stack here. "Nothing here has been executed" and
+  "no causal runtime exists" have been false since T022. T027 extends it: the
+  Runs list shows every run with its execution columns, and a committed run's
+  envelopes are accepted evidence, so the "no accepted evidence" clause is
+  T027's own (corrected per `.agent/T027-phase-2-claude-rereview.md`). Safe to
+  carry under `D-2026-09-22-milestone-speed-over-purity`: Lab-only, gated off by
+  default, outside the operator Overview. Fix in a fast-lane wording pass: say
+  what a draft is without stating that nothing has run or been accepted.
+- **Intermittent T026 layout claim: "the attempts table has five columns, and
+  a delayed reading is named".** `tools/layout-evidence.mjs` (around 3742-3751,
+  T026 "inspector through the held publication") drives the history cursor and
+  reads after a fixed `sleep(600)`. It failed in two of three T027 phase 2 runs,
+  with the attempt rows present and only the delayed cell reading 0. That is a
+  read racing an asynchronous render, not changed data. Fix: replace the sleep
+  with a wait on the delayed cell (or the selected boundary's attempt row) before
+  reading. Until then, a single failure of this claim alone is not evidence of a
+  regression.
+
 ## Parked task: T025h, picker compatibility status (Lab ergonomics)
 
 Recorded 2026-10-02 by the coordinator at the owner's request ("add it to the

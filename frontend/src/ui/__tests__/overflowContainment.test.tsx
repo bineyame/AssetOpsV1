@@ -58,17 +58,11 @@ const SITES_INDEX_COLUMNS = [
   "Actions",
 ];
 
-/** T011A's eight tabs, written out rather than imported. */
-const OPERATOR_SITE_TABS = [
-  "Overview",
-  "Foundation",
-  "Health",
-  "Performance",
-  "Findings",
-  "Work",
-  "Financials",
-  "Evidence",
-];
+/**
+ * The rendered Site tabs, written out rather than imported
+ * (`D-2026-10-02-rendered-tabs-per-capability`).
+ */
+const OPERATOR_SITE_TABS = ["Overview", "Foundation", "Evidence"];
 
 const SITE: SiteSummary = {
   site_id: "MG-002",
@@ -235,8 +229,8 @@ describe("the correction buys no space from the inventories", () => {
     await screen.findByRole("table");
 
     // The M1 viewport policy is explicit that a column is never dropped
-    // because the viewport is narrow: that would be a fourth state beside not
-    // rendered, labelled in place and disabled, and these nine were settled at
+    // because the viewport is narrow: that would be a further state beside not
+    // rendered and disabled, and these nine were settled at
     // the T006 user-review checkpoint. Containing the overflow is the layout
     // change; losing a column would have been a product change.
     expect(
@@ -246,7 +240,7 @@ describe("the correction buys no space from the inventories", () => {
     ).toEqual(SITES_INDEX_COLUMNS);
   });
 
-  it("leaves the operator Site tab row with all eight labels", async () => {
+  it("leaves the operator Site tab row with all three rendered labels", async () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 

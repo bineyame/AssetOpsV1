@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 
-import { siteDetailHref, siteFoundationHref } from "./operatorSiteRoutes";
+import {
+  siteDetailHref,
+  siteEvidenceHref,
+  siteFoundationHref,
+} from "./operatorSiteRoutes";
 
 /**
  * The operator Site tab row: one definition, consumed by the rendering and by
@@ -14,34 +18,25 @@ import { siteDetailHref, siteFoundationHref } from "./operatorSiteRoutes";
  * those six is an operator Site tab here.
  *
  * This inventory lives in the operator shell and not in the shared Site
- * substrate. The substrate owns what a Site *is* - its read model, its derived
- * facts, and the components that present them - and both shells compose that.
- * A tab row is a shell's opinion about how its own workspace is divided, and
- * the Lab's Site view will carry a different one, so a substrate that owned
- * this would have to branch on which shell was rendering it.
+ * substrate. The substrate owns what a Site *is*; a tab row is a shell's
+ * opinion about how its own workspace is divided, and the Lab's Site view will
+ * carry a different one.
  *
- * ## Two states, and the third one this row refuses
+ * ## One inventory, filtered by capability
  *
- * A tab is a **destination** only when there is a route behind it that renders
- * a truthful surface for the identified site. Overview and Foundation are the
- * two the product has.
+ * `D-2026-10-02-rendered-tabs-per-capability`: the canonical inventory below
+ * defines ownership and future placement and lists all eight aspects in
+ * canonical order; the RENDERED row holds only the entries whose capability
+ * exists in this build. "Meaningful" is decided per capability, not per site:
+ * once a capability exists its tab renders on every applicable site, and a
+ * site without the evidence shows the gap inside the tab.
  *
- * The other six are **labelled in place**: the label renders, and nothing
- * else. They are set apart from the destinations by a divider and named in a
- * sentence under the row, because T011A proved colour alone does not carry
- * this. Its destinations were grey and its labels were a slightly lighter
- * grey, and a reader saw one live tab and seven dead ones. Health, Performance, Findings, Work, Financials and Evidence are real
- * aspects of a Site in this product's own model, so naming them is true. What
- * is not true yet is that the product can show any of them, because M1 has no
- * accepted evidence, no performance read model, no findings, no work records
- * and no financial content.
- *
- * The state deliberately not used is disabled. A greyed-out tab says the
- * capability exists and is unavailable to you right now, which is a different
- * and false claim: these are not switched off, they are not built. So a
- * labelled-in-place tab is a plain `<span>` with no link, no button, no
- * `aria-disabled`, no title attribute, and no route registered behind it. A
- * click does nothing because there is nothing to click.
+ * Each tab is therefore a **destination** with a route behind it, or it is
+ * not rendered. A later slice that gives an aspect a surface flips its
+ * `capability` flag and registers the route; nothing else changes. The two
+ * treatments this row does not use are disabled (a false claim that the
+ * capability exists and is unavailable to you) and labelled in place, which is
+ * not used in operator views at all.
  *
  * ## Why this is not an ARIA tablist
  *
@@ -52,132 +47,45 @@ import { siteDetailHref, siteFoundationHref } from "./operatorSiteRoutes";
  * the row clear of the `[role='tab']` affordance ban the Site page asserts.
  */
 
-/** A tab with a route behind it. */
-export interface OperatorSiteDestinationTab {
+/** An aspect of a Site, with the route that opens it once its capability exists. */
+export interface OperatorSiteTab {
   label: string;
-  kind: "destination";
+  /** Whether this build has a truthful surface for the aspect. */
+  capability: boolean;
   /** The address this tab opens for the identified site. */
   href: (siteId: string) => string;
 }
 
-/** A tab that names a real aspect of a Site the product cannot yet show. */
-export interface OperatorSiteLabelledTab {
-  label: string;
-  kind: "labelled_in_place";
+/**
+ * Where a not-yet-built aspect would live. Never rendered while its
+ * capability is false, so it is never followed; it exists so the inventory
+ * stays total and a later slice flips a flag rather than inventing a tab.
+ */
+function notYetRouted(label: string): (siteId: string) => string {
+  return (siteId) => `${siteDetailHref(siteId)}/${label.toLowerCase()}`;
 }
 
-export type OperatorSiteTab =
-  | OperatorSiteDestinationTab
-  | OperatorSiteLabelledTab;
-
 /**
- * The operator Site tab row, in v6.9's order.
- *
- * A tab moves from `labelled_in_place` to `destination` in the slice that
- * gives it content, and never before: the move is what makes the label a
- * promise the product can keep.
+ * The canonical Site tab inventory, in v6.9's order with Health placed where
+ * the decision puts it.
  */
-export const OPERATOR_SITE_TABS: OperatorSiteTab[] = [
-  { label: "Overview", kind: "destination", href: siteDetailHref },
-  { label: "Foundation", kind: "destination", href: siteFoundationHref },
-  { label: "Health", kind: "labelled_in_place" },
-  { label: "Performance", kind: "labelled_in_place" },
-  { label: "Findings", kind: "labelled_in_place" },
-  { label: "Work", kind: "labelled_in_place" },
-  { label: "Financials", kind: "labelled_in_place" },
-  { label: "Evidence", kind: "labelled_in_place" },
+export const CANONICAL_OPERATOR_SITE_TABS: OperatorSiteTab[] = [
+  { label: "Overview", capability: true, href: siteDetailHref },
+  { label: "Foundation", capability: true, href: siteFoundationHref },
+  { label: "Health", capability: false, href: notYetRouted("Health") },
+  { label: "Performance", capability: false, href: notYetRouted("Performance") },
+  { label: "Findings", capability: false, href: notYetRouted("Findings") },
+  { label: "Work", capability: false, href: notYetRouted("Work") },
+  { label: "Financials", capability: false, href: notYetRouted("Financials") },
+  { label: "Evidence", capability: true, href: siteEvidenceHref },
 ];
+
+/** The tabs this build renders: the inventory filtered by capability. */
+export const OPERATOR_SITE_TABS: OperatorSiteTab[] =
+  CANONICAL_OPERATOR_SITE_TABS.filter((tab) => tab.capability);
 
 /** The accessible name of the tab row landmark. */
 export const OPERATOR_SITE_TABS_LABEL = "Site sections";
-
-/**
- * The aspects this build cannot open, as a sentence.
- *
- * Derived from the inventory rather than written out, which is the whole point
- * of it. T011A's row said what it could open and what it could not using
- * colour, and the colours were five percent apart, so a reader saw seven grey
- * words and concluded the product was broken. This says it in words as well.
- *
- * It counts rather than names. The first version listed all six directly under
- * a row that had just shown all six, and the repetition was heavier than the
- * row it was explaining. The names are one line above; what a reader does not
- * already have is what that group of words means.
- *
- * `of a Site`, not `of this Site`. No aspect is missing content because of
- * anything about the site on screen - the product has no content model for any
- * of them - and a sentence that read as a fact about this particular site
- * would be the wrong claim, in the way this project is careful about
- * everywhere else.
- *
- * Because it is derived, a tab that becomes a destination leaves this sentence
- * in the same change that moves it. A written-out list would have gone stale
- * the first time an aspect got content, and would then have been a screen
- * claiming something has no content while the tab beside it opened that
- * content.
- *
- * It returns null rather than an empty sentence when every aspect has content,
- * because on that day there is nothing to explain.
- *
- * `tabs` is a parameter so a test can hand it an inventory this product does
- * not have yet - one aspect left, or none - and prove the sentence follows the
- * inventory rather than reciting a list someone typed.
- */
-export function labelledAspectsSentence(
-  tabs: OperatorSiteTab[] = OPERATOR_SITE_TABS,
-): string | null {
-  const labels = tabs
-    .filter((tab) => tab.kind === "labelled_in_place")
-    .map((tab) => tab.label);
-
-  if (labels.length === 0) {
-    return null;
-  }
-
-  const counted = COUNT_WORDS[labels.length] ?? String(labels.length);
-  const noun = labels.length === 1 ? "aspect" : "aspects";
-  const verb = labels.length === 1 ? "has" : "have";
-
-  // What this build contains, not what a later one will. The promise
-  // vocabulary the guard bans belongs to the same family, and the ban is the
-  // point rather than the wording: a sentence about the future is a promise
-  // nobody has made. The guard scans this module, so the phrases it refuses
-  // cannot be written here either - which is why this comment describes them
-  // instead of quoting one.
-  return `${counted} ${noun} of a Site ${verb} no content in this build yet.`;
-}
-
-/**
- * Counts, spelled, for the one sentence that needs them.
- *
- * Indexed by the count, so `COUNT_WORDS[0]` is the word for none. It stops at
- * the size of the inventory; a longer row falls back to a digit rather than
- * running off the end and rendering `undefined`.
- */
-const COUNT_WORDS = [
-  "No",
-  "One",
-  "Two",
-  "Three",
-  "Four",
-  "Five",
-  "Six",
-  "Seven",
-  "Eight",
-];
-
-/**
- * The index the labelled group starts at, or -1 when there is none.
- *
- * The divider hangs off this rather than off a count, so a row that is all
- * destinations draws no divider and a row that is all labels draws one at the
- * start, which is where it would belong.
- */
-function firstLabelledIndex(): number {
-  return OPERATOR_SITE_TABS.findIndex(
-    (tab) => tab.kind === "labelled_in_place",
-  );
-}
 
 export interface OperatorSiteTabsProps {
   /**
@@ -195,39 +103,21 @@ export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
     return null;
   }
 
-  const groupStart = firstLabelledIndex();
-  const aspects = labelledAspectsSentence();
-
   return (
     <nav className="site-tabs" aria-label={OPERATOR_SITE_TABS_LABEL}>
       <ol className="site-tabs__list">
-        {OPERATOR_SITE_TABS.map((tab, index) => (
-          <li
-            className={
-              index === groupStart
-                ? "site-tabs__item site-tabs__item--group-start"
-                : "site-tabs__item"
-            }
-            key={tab.label}
-          >
-            {tab.kind === "destination" ? (
-              <Link
-                className="site-tabs__link"
-                to={tab.href(siteId)}
-                aria-current={tab.label === current ? "page" : undefined}
-              >
-                {tab.label}
-              </Link>
-            ) : (
-              <span className="site-tabs__label">{tab.label}</span>
-            )}
+        {OPERATOR_SITE_TABS.map((tab) => (
+          <li className="site-tabs__item" key={tab.label}>
+            <Link
+              className="site-tabs__link"
+              to={tab.href(siteId)}
+              aria-current={tab.label === current ? "page" : undefined}
+            >
+              {tab.label}
+            </Link>
           </li>
         ))}
       </ol>
-
-      {aspects === null ? null : (
-        <p className="site-tabs__aspects">{aspects}</p>
-      )}
     </nav>
   );
 }

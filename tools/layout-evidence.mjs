@@ -436,6 +436,7 @@ const MEASURE = `(() => {
     pageScrollsVertically: doc.scrollHeight > doc.clientHeight,
     pageScrollHeight: doc.scrollHeight,
     pageClientHeight: doc.clientHeight,
+    finalPathname: window.location.pathname,
     railLeftBefore,
     railLeftAfter,
     scrollerOverflows,
@@ -1246,8 +1247,11 @@ for (const [label, width, height] of [
         `scrollWidth ${site.pageScrollWidth} vs clientWidth ${site.pageClientWidth}`,
       ],
       [
-        "all eight tabs are rendered",
-        site.tabLabels.length === 8,
+        // D-2026-10-02-rendered-tabs-per-capability: Overview, Foundation and
+        // Evidence render, and nothing else.
+        "exactly three tabs are rendered: Overview, Foundation, Evidence",
+        site.tabLabels.length === 3 &&
+          site.tabLabels.join("|") === "Overview|Foundation|Evidence",
         site.tabLabels.join(" | "),
       ],
       [
@@ -1269,7 +1273,12 @@ for (const [label, width, height] of [
 
 const short = await visit(cdp, "/", 1280, 800, ".app-frame");
 allPass =
-  report("Operator home at 1280x800, gate open, short page", short, [
+  report("Landing at / (redirects to /sites) at 1280x800, gate open, short page", short, [
+    [
+      "/ lands on the Sites index",
+      short.finalPathname === "/sites",
+      `final pathname ${short.finalPathname}`,
+    ],
     [
       "the page does not scroll vertically",
       !short.pageScrollsVertically,
@@ -1308,13 +1317,15 @@ for (const [label, width, height] of [
         `scrollWidth ${foundation.pageScrollWidth} vs clientWidth ${foundation.pageClientWidth}`,
       ],
       [
-        "the Site tab row still carries all eight",
-        siteTabs.length === 8,
+        // D-2026-10-02-rendered-tabs-per-capability (T027 AC23): only the
+        // tabs whose capability exists render.
+        "the Site tab row is exactly Overview, Foundation, Evidence",
+        siteTabs.join("|") === "Overview|Foundation|Evidence",
         siteTabs.join(" | "),
       ],
       [
-        "the Foundation subtab row is the four, without Changes",
-        subtabs.length === 4 && !subtabs.includes("Changes"),
+        "the Foundation subtab row is exactly Definition, Topology, Controls",
+        subtabs.join("|") === "Definition|Topology|Controls",
         subtabs.join(" | "),
       ],
       [
@@ -1968,9 +1979,13 @@ for (const [state, href, expectBlockedTable] of [
               // A blocked draft cannot be run for a second, prior reason, so
               // the same disabled button on both would say the two are the
               // same distance from working.
-              "a blocked draft offers no run action at all",
-              run.buttons.length === 0,
-              run.buttons.map((b) => b.label).join(", ") || "no button rendered",
+              // T027: the Commit control renders on every Draft and is
+              // disabled with its reason until the run completes; it is not a
+              // run action, so it is held to "disabled" rather than "absent".
+              "a blocked draft offers no run action at all, and Commit is disabled",
+              run.buttons.every((b) => b.label === "Commit and release" && b.disabled),
+              run.buttons.map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`).join(", ") ||
+                "no button rendered",
             ]
           : [
               // T022 replaced the one disabled "Run this draft" control with
@@ -1979,11 +1994,13 @@ for (const [state, href, expectBlockedTable] of [
               // controls were all disabled would satisfy a count and assert
               // nothing about a Lab that can execute. T025d adds exactly two:
               // auto-play of the guarded Step, and its pause.
-              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled",
-              run.buttons.length === 5 &&
-                run.buttons.map((b) => b.label).join("|") ===
-                  "Start this run|Step|Run to the end|Play|Pause" &&
-                run.buttons.some((b) => !b.disabled),
+              // T027 adds the Commit control, disabled until the run completes.
+              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit",
+              run.buttons.filter((b) => b.label !== "Commit and release").map((b) => b.label).join("|") ===
+                "Start this run|Step|Run to the end|Play|Pause" &&
+                run.buttons.some((b) => b.label !== "Commit and release" && !b.disabled) &&
+                run.buttons.filter((b) => b.label === "Commit and release").length === 1 &&
+                run.buttons.every((b) => b.label !== "Commit and release" || b.disabled),
               run.buttons
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
                 .join(", ") || "no button rendered",
@@ -2304,13 +2321,15 @@ allPass =
       // excluded by their exact label shape, so any other enabled button still
       // fails this claim. T025e: the Applied timeline's "at T min" buttons
       // move the history cursor (a read); they are excluded the same way.
+      // T027: Commit and release is the commit act a completed run offers,
+      // not an execution control; the T027 section measures it.
       "a terminal run offers no enabled execution control",
-      finished.buttons.some((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label)) &&
+      finished.buttons.some((b) => !/^(Show envelope \d+|at \d+ min|Commit and release)$/.test(b.label)) &&
         finished.buttons
-          .filter((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label))
+          .filter((b) => !/^(Show envelope \d+|at \d+ min|Commit and release)$/.test(b.label))
           .every((b) => b.disabled),
       finished.buttons
-        .filter((b) => !/^(Show envelope \d+|at \d+ min)$/.test(b.label))
+        .filter((b) => !/^(Show envelope \d+|at \d+ min|Commit and release)$/.test(b.label))
         .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
         .join(", ") || "no execution control rendered",
     ],
@@ -3622,6 +3641,9 @@ const clock = `Number(document.querySelector('[data-execution-clock]')?.getAttri
     ]) && allPass;
 }
 
+// The completed profile-5 run T026 measures is the one T027 commits.
+const t027 = { run: null };
+
 // --- T026: the dispatch-capable evidence on the Lab screen ------------------
 //
 // A degraded-evidence Draft (`mini-grid` v3 / publication profile 5: a
@@ -3710,6 +3732,7 @@ const READ_T026 = `(() => {
         ],
       ]) && allPass;
   }
+  t027.run = href;
   // The cursor goes through the held publication (07:00Z held, released 07:10Z:
   // boundaries 48 to 51): the inspector's attempts table has five columns, the
   // Applied timeline offers the delay, and the delayed reading is named.
@@ -3741,6 +3764,388 @@ const READ_T026 = `(() => {
         `${columns} columns; delayed rows ${seen.map((r) => `${r.boundary}:${r.delayedCells}`).join(", ")}; publication states ${seen.map((r) => `${r.boundary}:${r.attemptPublication}`).join(", ")}`,
       ],
     ]) && allPass;
+}
+
+// --- T027 phase 1: Commit, ingestion and Site > Evidence --------------------
+//
+// The completed profile-5 run measured above is committed through the Lab
+// Commit panel; its Open in AssetOps link must land on Site > Evidence for the
+// run's Site (KOBO_SITE), which is then measured populated at the dense-table
+// widths, with the record inspector open. A Site with no accepted evidence
+// (SITE) is measured empty. Every content claim carries a count so it cannot
+// pass on an empty set.
+const READ_T027_COMMIT = `(() => {
+  const panel = document.querySelector('[data-run-commit]');
+  const link = document.querySelector('[data-commit-open-in-assetops]');
+  const release = document.querySelector('[data-release-status]');
+  return {
+    panel: panel !== null,
+    labelled: document.querySelector('section[aria-labelledby="run-commit-heading"] [data-run-commit]') !== null,
+    commitState: document.querySelector('[data-commit-state]')?.getAttribute('data-commit-state') ?? null,
+    release: release ? release.getAttribute('data-release-status') : null,
+    processed: release ? release.getAttribute('data-release-processed') : null,
+    total: release ? release.getAttribute('data-release-total') : null,
+    href: link ? link.getAttribute('href') : null,
+  };
+})()`;
+
+const READ_T027_EVIDENCE = `(() => {
+  const all = (selector) => Array.from(document.querySelectorAll(selector));
+  const root = document.querySelector('.site-evidence');
+  const section = (id) => document.querySelector('[aria-labelledby="' + id + '"]');
+  const contained = (id) => {
+    const s = section(id);
+    const table = s ? s.querySelector('table') : null;
+    const region = table ? table.closest('.data-table__scroll') : null;
+    if (!table || !region) return { table: table !== null, region: false };
+    const r = region.getBoundingClientRect();
+    return {
+      table: true,
+      region: true,
+      columns: table.querySelectorAll('thead th').length,
+      regionInsideViewport: r.left >= -1 && r.right <= document.documentElement.clientWidth + 1,
+      overflows: region.scrollWidth > region.clientWidth + 1,
+    };
+  };
+  return {
+    state: root ? root.getAttribute('data-evidence-state') : null,
+    sources: all('[data-evidence-source]').length,
+    batches: all('[data-evidence-batch]').length,
+    coverage: all('[data-evidence-coverage]').map((r) => ({
+      key: r.getAttribute('data-evidence-coverage'),
+      status: r.getAttribute('data-coverage-status'),
+    })),
+    gaps: all('[data-coverage-gap]').length,
+    headings: ['site-evidence-sources-heading', 'site-evidence-coverage-heading', 'site-evidence-basis-heading', 'site-evidence-rejections-heading']
+      .filter((id) => document.getElementById(id) !== null),
+    sourcesTable: contained('site-evidence-sources-heading'),
+    coverageTable: contained('site-evidence-coverage-heading'),
+    inspector: document.getElementById('site-evidence-inspector') !== null,
+    records: all('[data-evidence-record]').map((r) => r.getAttribute('data-evidence-record')),
+    detail: document.querySelector('[data-evidence-record-detail]') !== null,
+    times: all('[data-record-time]').map((t) => ({ kind: t.getAttribute('data-record-time'), text: (t.textContent || '').trim() })),
+    currentTab: (document.querySelector('.site-tabs__list [aria-current="page"]')?.textContent || '').trim(),
+    // What sets the page wider than the viewport, if anything: the innermost
+    // elements past the right edge that are not inside a table scroll region.
+    wide: all('main *')
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1 && !e.closest('.data-table__scroll'))
+      .filter((e) => !Array.from(e.children).some((c) => c.getBoundingClientRect().right > document.documentElement.clientWidth + 1))
+      .slice(0, 3)
+      .map((e) => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (e.className && typeof e.className === 'string' ? '.' + e.className.split(' ')[0] : '')),
+  };
+})()`;
+
+if (t027.run === null) {
+  throw new Error("The T026 pass left no completed run for T027 to commit.");
+}
+{
+  await visit(cdp, t027.run, 1280, 800, "[data-commit-state='NOT_COMMITTED']", {
+    script: clickControl("Commit and release"),
+    waitFor: "[data-commit-open-in-assetops]",
+  });
+  const lab = await visit(cdp, t027.run, 1280, 800, "[data-commit-open-in-assetops]");
+  const commit = await evaluate(READ_T027_COMMIT);
+  allPass =
+    report("T027 Lab Commit panel after Commit and release, 1280x800", lab, [
+      [
+        "the Commit panel renders under its heading, sealed, with a release",
+        commit.panel &&
+          commit.labelled &&
+          commit.commitState === "COMMITTED" &&
+          commit.release !== null &&
+          commit.release !== "NONE",
+        `panel ${commit.panel}, labelled ${commit.labelled}, commit ${commit.commitState}, release ${commit.release} (${commit.processed} of ${commit.total})`,
+      ],
+      [
+        "Open in AssetOps targets this Site's Evidence tab",
+        commit.href === `/sites/${KOBO_SITE}/evidence` ||
+          (commit.href ?? "").startsWith(`/sites/${KOBO_SITE}/evidence?`),
+        `href ${commit.href}`,
+      ],
+    ]) && allPass;
+  // Follow the link the way an operator would: a click, not a typed URL.
+  await visit(cdp, t027.run, 1280, 800, "[data-commit-open-in-assetops]", {
+    script: `(() => { document.querySelector('[data-commit-open-in-assetops]').click(); return true; })()`,
+    waitFor: ".site-evidence[data-evidence-state]",
+  });
+  const landed = await evaluate(
+    `({ path: window.location.pathname, state: document.querySelector('.site-evidence')?.getAttribute('data-evidence-state') ?? null })`,
+  );
+  allPass =
+    report("T027 Open in AssetOps lands on Site > Evidence", null, [
+      [
+        "the link lands on Site > Evidence for the run's Site, populated",
+        landed.path === `/sites/${KOBO_SITE}/evidence` && landed.state === "populated",
+        `${landed.path}, ${landed.state}`,
+      ],
+    ]) && allPass;
+
+  const base = `/sites/${KOBO_SITE}/evidence`;
+  let pick = null;
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, base, width, height, ".site-evidence[data-evidence-state]");
+    await sleep(300);
+    const read = await evaluate(READ_T027_EVIDENCE);
+    pick = pick ?? read.coverage.find((r) => r.status === "REPORTED")?.key ?? null;
+    allPass =
+      report(`T027 Site > Evidence populated, ${KOBO_SITE}, at ${label}`, page, [
+        ["the Evidence body is populated", read.state === "populated", `${read.state}`],
+        [
+          "exactly Overview|Foundation|Evidence, Evidence current",
+          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Evidence",
+          `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
+        ],
+        [
+          "source health and coverage have rows, and all four sections render",
+          read.sources > 0 && read.batches > 0 && read.coverage.length > 0 && read.headings.length === 4,
+          `${read.sources} sources, ${read.batches} batches, ${read.coverage.length} coverage rows (${read.coverage.filter((r) => r.status === "REPORTED").length} reported, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported), ${read.gaps} gaps, ${read.headings.length} sections`,
+        ],
+        [
+          "both dense tables sit in scroll regions that stay inside the viewport",
+          [read.sourcesTable, read.coverageTable].every((t) => t.table && t.region && t.regionInsideViewport),
+          `sources ${read.sourcesTable.columns} cols, overflows ${read.sourcesTable.overflows}; coverage ${read.coverageTable.columns} cols, overflows ${read.coverageTable.overflows}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+        [
+          "every table that overflows scrolls inside its own region",
+          page.scrollers.filter((s) => s.overflows).every((s) => s.scrolledBy > 0),
+          page.scrollers
+            .map((s) => `${s.name}: ${s.overflows ? `overflows, scrolled ${s.scrolledBy}px` : "fits"}`)
+            .join("; "),
+        ],
+        ...(width <= 640
+          ? [
+              [
+                "at 640 at least one evidence table overflows, so containment is measured on a non-empty set",
+                read.sourcesTable.overflows || read.coverageTable.overflows,
+                `sources overflows ${read.sourcesTable.overflows}, coverage overflows ${read.coverageTable.overflows}`,
+              ],
+            ]
+          : []),
+      ]) && allPass;
+  }
+
+  if (pick === null) {
+    allPass = report("T027 record inspector", null, [["a reported signal exists to inspect", false, "none"]]) && false;
+  } else {
+    const q = `signal=${encodeURIComponent(pick)}`;
+    await visit(cdp, `${base}?${q}`, 1280, 800, "#site-evidence-inspector [data-evidence-record]");
+    const list = await evaluate(READ_T027_EVIDENCE);
+    const record = list.records[0];
+    for (const [label, width, height] of [
+      ["1280x800", 1280, 800],
+      ["640x700", 640, 700],
+    ]) {
+      const page = await visit(
+        cdp,
+        `${base}?${q}&record=${encodeURIComponent(record)}`,
+        width,
+        height,
+        "[data-evidence-record-detail]",
+      );
+      await sleep(300);
+      const read = await evaluate(READ_T027_EVIDENCE);
+      const kinds = read.times.map((t) => t.kind).sort().join(",");
+      allPass =
+        report(`T027 record inspector, ${pick} record ${record}, at ${label}`, page, [
+          ["the inspector lists records", read.inspector && read.records.length > 0, `${read.records.length} records`],
+          [
+            "the record detail shows source, published and received times, each non-empty",
+            read.detail && kinds === "published,received,source" && read.times.every((t) => t.text.length > 0),
+            read.times.map((t) => `${t.kind}: ${t.text}`).join("; "),
+          ],
+          ["Evidence stays the current tab", read.currentTab === "Evidence", read.currentTab],
+          [
+            "the page does not scroll horizontally",
+            !page.pageScrollsHorizontally,
+            `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}; past the edge: ${read.wide.join(", ") || "nothing"}`,
+          ],
+        ]) && allPass;
+    }
+  }
+
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${SITE}/evidence`, width, height, ".site-evidence[data-evidence-state]");
+    const read = await evaluate(READ_T027_EVIDENCE);
+    allPass =
+      report(`T027 Site > Evidence empty, ${SITE}, at ${label}`, page, [
+        [
+          // The needed-signal coverage still lists what the Site needs, every
+          // row NOT_REPORTED: nothing was accepted, and the gap is the point.
+          "the empty state renders: no source rows, and every needed signal reads not reported",
+          read.state === "empty" &&
+            read.sources === 0 &&
+            read.coverage.every((r) => r.status === "NOT_REPORTED"),
+          `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported`,
+        ],
+        [
+          "exactly Overview|Foundation|Evidence, Evidence current",
+          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Evidence",
+          `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
+}
+
+// --- T027 phase 2: the mini-grid Site Overview -----------------------------
+//
+// The committed run's Site (KOBO_SITE) populated at 1280, 1000 and 640, and
+// SITE (no accepted evidence) empty at 1280 and 640. jsdom cannot see any of
+// this: card grid wrap, the timeline's scaled svg and its region, and whether
+// the page ever scrolls sideways. An Overview evidence link is clicked once and
+// must land on the Site > Evidence inspector with that record open.
+
+const READ_T027_OVERVIEW = `(() => {
+  const root = document.querySelector(".site-overview");
+  const cards = Array.from(document.querySelectorAll("[data-overview-card]")).map((el) => ({
+    id: el.getAttribute("data-overview-card"),
+    gaps: Number(el.getAttribute("data-overview-gaps")),
+    values: Number(el.getAttribute("data-overview-values")),
+    text: el.closest("section")?.innerText ?? "",
+  }));
+  const charts = Array.from(document.querySelectorAll(".overview-timeline__chart")).map((svg) => {
+    const box = svg.getBoundingClientRect();
+    const scroller = svg.closest(".overview-timeline__scroll");
+    const region = scroller.getBoundingClientRect();
+    return { width: Math.round(box.width), right: Math.round(box.right), regionRight: Math.round(region.right),
+             overflows: scroller.scrollWidth > scroller.clientWidth,
+             overflowX: getComputedStyle(scroller).overflowX,
+             marks: svg.querySelectorAll("g line, g circle").length };
+  });
+  const links = Array.from(document.querySelectorAll("[data-overview-evidence]")).map((a) => a.getAttribute("href"));
+  const row = document.querySelector('.site-tabs__list [aria-current="page"]');
+  return {
+    state: root?.getAttribute("data-overview-state") ?? null,
+    cards, charts, links,
+    currentTab: (row?.textContent || "").trim(),
+    text: root?.innerText ?? "",
+    viewport: document.documentElement.clientWidth,
+  };
+})()`;
+
+{
+  let firstLink = null;
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${KOBO_SITE}`, width, height, ".site-overview[data-overview-state]");
+    await sleep(300);
+    const read = await evaluate(READ_T027_OVERVIEW);
+    firstLink = firstLink ?? read.links[0] ?? null;
+    const order = read.cards.map((c) => c.id).join("|");
+    allPass =
+      report(`T027 Site Overview populated, ${KOBO_SITE}, at ${label}`, page, [
+        ["the Overview body is populated", read.state === "populated", `${read.state}`],
+        [
+          "cards Service|Dispatch|Battery|Fuel|Renewable, in the profile's order",
+          order === "Service|Dispatch|Battery|Fuel|Renewable",
+          order,
+        ],
+        [
+          "every card reads No assessment yet and nothing reads Unknown",
+          read.cards.every((c) => c.text.includes("No assessment yet")) && !/unknown/i.test(read.text),
+          `${read.cards.filter((c) => c.text.includes("No assessment yet")).length} of ${read.cards.length}`,
+        ],
+        [
+          "measured values exist (non-empty set), and each uncovered card names its gap",
+          read.cards.some((c) => c.values > 0) &&
+            read.cards.filter((c) => c.gaps > 0).every((c) => c.text.includes("Coverage gap:")),
+          read.cards.map((c) => `${c.id}: ${c.values} values, ${c.gaps} gaps`).join("; "),
+        ],
+        [
+          "evidence links address the record inspector",
+          read.links.length > 0 && read.links.every((h) => /\/evidence\?signal=[^&]+\/[^&]+&record=/.test(h)),
+          `${read.links.length} links; first ${read.links[0] ?? "none"}`,
+        ],
+        [
+          // The chart scales to its column down to a 20rem floor; below that
+          // its own region scrolls it (overflow-x auto), and the region never
+          // leaves the viewport.
+          "the timeline draws marks; each chart fits its region or its region scrolls it, inside the viewport",
+          read.charts.length > 0 &&
+            read.charts.every(
+              (c) =>
+                c.marks > 0 &&
+                c.regionRight <= read.viewport &&
+                (c.right <= c.regionRight + 1 || (c.overflows && c.overflowX === "auto")),
+            ),
+          read.charts.map((c) => `${c.width}px, ${c.marks} marks, right ${c.right}/${c.regionRight}/${read.viewport}, region ${c.overflows ? `overflows (${c.overflowX})` : "fits"}`).join("; "),
+        ],
+        [
+          "exactly Overview|Foundation|Evidence, Overview current",
+          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Overview",
+          `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
+
+  if (firstLink !== null) {
+    const record = decodeURIComponent(firstLink.split("record=")[1] ?? "");
+    const page = await visit(cdp, firstLink, 1280, 800, `[data-evidence-record-detail]`);
+    const opened = await evaluate(`(() => ({
+      detail: document.querySelector("[data-evidence-record-detail]")?.getAttribute("data-evidence-record-detail") ?? null,
+      path: location.pathname,
+      current: (document.querySelector('.site-tabs__list [aria-current="page"]')?.textContent || "").trim(),
+    }))()`);
+    allPass =
+      report("T027 Overview evidence link opens the record inspector", page, [
+        [
+          "the linked record is open in Site > Evidence, Evidence current, same Site root",
+          opened.detail === record && opened.path === `/sites/${KOBO_SITE}/evidence` && opened.current === "Evidence",
+          `${opened.path}; record ${opened.detail}; current ${opened.current}`,
+        ],
+      ]) && allPass;
+  } else {
+    allPass = report("T027 Overview evidence link", null, [["an evidence link exists", false, "none"]]) && false;
+  }
+
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${SITE}`, width, height, ".site-overview[data-overview-state]");
+    const read = await evaluate(READ_T027_OVERVIEW);
+    allPass =
+      report(`T027 Site Overview empty, ${SITE}, at ${label}`, page, [
+        [
+          "empty: five cards, every one No assessment yet with a named gap and no value, no chart",
+          read.state === "empty" &&
+            read.cards.length === 5 &&
+            read.cards.every((c) => c.gaps > 0 && c.values === 0 && c.text.includes("No assessment yet")) &&
+            read.charts.length === 0 &&
+            !/unknown/i.test(read.text),
+          `${read.state}; ${read.cards.map((c) => `${c.id} ${c.gaps} gaps ${c.values} values`).join("; ")}; ${read.charts.length} charts`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
 }
 
 {

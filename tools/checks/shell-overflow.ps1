@@ -53,6 +53,15 @@ function Invoke-ShellOverflowCheck {
     $chartScrollClass = ".history-chart__scroll"
     $chartModule = "frontend/src/shell/HistoryCharts.tsx"
 
+    # T027 phase 2: the operator Site Overview's selected-window timeline is
+    # the fourth. It lives in the Site substrate (the operator shell may not
+    # import the Lab's charts), scales to its column through a viewBox, and is
+    # held to the same three rules: its region declares the inline overflow,
+    # its module renders that region, and its module is the only other place
+    # an svg may be drawn.
+    $timelineScrollClass = ".overview-timeline__scroll"
+    $timelineModule = "frontend/src/sites/SiteOverview.tsx"
+
     if (-not (Test-Path -LiteralPath $primitivesCss -PathType Leaf)) {
         $failures.Add("Missing $primitivesCss, so every overflow rule below is unenforceable") | Out-Null
         return $failures
@@ -141,6 +150,22 @@ function Invoke-ShellOverflowCheck {
             "pushes the rail and the workspace bar sideways.")) | Out-Null
     }
 
+    # 1d. The Overview timeline region contains the inline axis as well.
+    $timelineContainsInlineAxis = $false
+    foreach ($block in $blocks) {
+        if ($block.Selector -ne $timelineScrollClass) { continue }
+        if ($block.Declarations -match '(?m)^\s*overflow(-x)?\s*:\s*(auto|scroll)\s*;') {
+            $timelineContainsInlineAxis = $true
+        }
+    }
+
+    if (-not $timelineContainsInlineAxis) {
+        $failures.Add(("$timelineScrollClass in $primitivesCss does not declare " +
+            "'overflow-x: auto' or 'overflow-x: scroll'. Without the region " +
+            "that owns it, the Overview timeline has nothing between it and " +
+            "the document.")) | Out-Null
+    }
+
     # 2. The frame is full height standalone, and not full height nested.
     #    Both halves are asserted, because deleting either one is a plausible
     #    "cleanup" that breaks the other shell.
@@ -215,6 +240,8 @@ function Invoke-ShellOverflowCheck {
     $diagramSvgSeen = $false
     $chartRegionSeen = $false
     $chartSvgSeen = $false
+    $timelineRegionSeen = $false
+    $timelineSvgSeen = $false
 
     foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
         $lineNumber = 0
@@ -226,6 +253,9 @@ function Invoke-ShellOverflowCheck {
             }
             if ($line -match [regex]::Escape($chartScrollClass.TrimStart("."))) {
                 if ($module.Path -eq $chartModule) { $chartRegionSeen = $true }
+            }
+            if ($line -match [regex]::Escape($timelineScrollClass.TrimStart("."))) {
+                if ($module.Path -eq $timelineModule) { $timelineRegionSeen = $true }
             }
 
             # A comment naming the element is not an element. AppHeader's own
@@ -248,11 +278,16 @@ function Invoke-ShellOverflowCheck {
                 $chartSvgSeen = $true
                 continue
             }
+            if ($module.Path -eq $timelineModule) {
+                $timelineSvgSeen = $true
+                continue
+            }
 
             $failures.Add(("An svg element outside the diagram and chart modules at " +
                 "$($module.Path):${lineNumber}: $($line.Trim()). The " +
-                "configured diagram renders through $diagramModule and the Lab's " +
-                "history charts through $chartModule, each of which " +
+                "configured diagram renders through $diagramModule, the Lab's " +
+                "history charts through $chartModule and the Overview timeline " +
+                "through $timelineModule, each of which " +
                 "supplies the region that owns its overflow. A drawing " +
                 "anywhere else has nothing between it and the document.")) | Out-Null
         }
@@ -280,6 +315,17 @@ function Invoke-ShellOverflowCheck {
     if (-not $chartRegionSeen) {
         $failures.Add(("$chartModule does not render $chartScrollClass, so " +
             "the charts it draws have no region that owns their overflow.")) | Out-Null
+    }
+
+    if (-not $timelineSvgSeen) {
+        $failures.Add(("$timelineModule renders no svg element, so its " +
+            "exemption from the one-diagram-pattern check is vacuous. Update " +
+            "the check, do not delete it.")) | Out-Null
+    }
+
+    if (-not $timelineRegionSeen) {
+        $failures.Add(("$timelineModule does not render $timelineScrollClass, " +
+            "so the timeline it draws has no region that owns its overflow.")) | Out-Null
     }
 
     return $failures

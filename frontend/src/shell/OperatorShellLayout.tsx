@@ -26,12 +26,11 @@ import { AppHeader, NavRail } from "../ui";
  * place: neither identified route is a navigation destination, because a
  * navigation item cannot name which site it would open.
  *
- * What is left is what a navigation item can truthfully say: the operator home
- * and the Sites index. This list has not gained an item since T004 and does
- * not gain one here.
+ * What is left is what a navigation item can truthfully say: the Sites index.
+ * T027 removed the T002 `Operator home` item and its placeholder frame; `/`
+ * now redirects to Sites, so the rail holds one item and no group header.
  */
 const operatorRoutes = [
-  { to: "/", label: "Operator home", end: true },
   { to: "/sites", label: "Sites", end: false },
 ];
 

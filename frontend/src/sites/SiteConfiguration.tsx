@@ -437,20 +437,11 @@ export function SiteConfigurationFacts({
             name="Integration readiness"
             fact={view.integrationReadiness}
           />
-          <SiteConfigurationStatedAbsence
-            name="Evidence availability"
-            fact={view.evidenceAvailability}
-          />
-          <SiteConfigurationStatedAbsence
-            name="Source health"
-            fact={view.sourceHealth}
-          />
         </FactList>
         <p>
-          Nothing below the configuration exists for this site yet. There is no
-          accepted evidence, so there is nothing to chart, nothing to analyse,
-          nothing to replay, and no finding to draw. Each of those arrives with
-          the evidence that fills it rather than as an empty version of itself.
+          This tab states the site&apos;s configuration, and nothing on it is
+          evidence. What has been accepted for this site, the health of each
+          source that delivered it and its coverage are on the Evidence tab.
         </p>
       </Panel>
     </>

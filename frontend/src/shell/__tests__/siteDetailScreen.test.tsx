@@ -57,6 +57,14 @@ const DECIDED_AGAINST = [
 /** Rendered disabled when the gate is open, absent when it is closed. */
 const GATED_ACTIONS = ["Open in Simulator Lab", "Start Simulation"];
 
+/** The exact reasons, pinned (T027 review S1). */
+const GATED_REASONS: Record<string, string> = {
+  "Open in Simulator Lab":
+    "The Simulator Lab has no Site view. Its scenarios, runs and run setup are reached from the Simulator Lab workspace, not from a Site.",
+  "Start Simulation":
+    "A run is not started from a Site. It is set up and started from a scenario's Run setup in the Simulator Lab, which binds the scenario to this site.",
+};
+
 /** Rendered disabled in both gate states: not a simulator capability. */
 const UNGATED_ACTION = "View Live Data";
 
@@ -161,9 +169,9 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
     ).toEqual([["Sites", "/sites"]]);
-    expect(
-      trail.querySelector('[aria-current="page"]')?.textContent,
-    ).toBe("MG-002");
+    expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe(
+      "MG-002",
+    );
   });
 
   it("spells the Site the way the record spells it", async () => {
@@ -184,9 +192,7 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
     await screen.findByRole("heading", { level: 2, name: "No such site" });
 
     // A crumb for a site that does not exist would name it as though it did.
-    expect(
-      screen.queryByRole("navigation", { name: "Breadcrumb" }),
-    ).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
   });
 });
 
@@ -224,7 +230,12 @@ describe("Quick actions obey the gate rule and the sequencing rule separately", 
       );
 
       expect(reason).not.toBeNull();
-      expect(reason?.textContent ?? "").toMatch(/\w+/);
+      // T027 review S1: the reasons say what this build lacks, and neither
+      // denies that scenarios, a runtime or runs exist.
+      expect(reason?.textContent).toBe(GATED_REASONS[label]);
+      expect(reason?.textContent ?? "").not.toMatch(
+        /nothing can be simulated|neither exists|later step/i,
+      );
       expect(action.closest("a")).toBeNull();
       expect(action.getAttribute("href")).toBeNull();
     },
@@ -240,13 +251,21 @@ describe("Quick actions obey the gate rule and the sequencing rule separately", 
       await settledScreen();
 
       // Not a simulator capability, so the gate says nothing about it. It is
-      // unavailable for an evidence reason, identically in both states.
+      // unavailable for the same reason in both states: live data is not a
+      // capability of this build (T027 review R1).
       const action = within(within(container).getByRole("main")).getByRole(
         "button",
         { name: UNGATED_ACTION },
       );
 
       expect((action as HTMLButtonElement).disabled).toBe(true);
+      const reason = document.getElementById(
+        action.getAttribute("aria-describedby") ?? "",
+      );
+      expect(reason?.textContent).toMatch(
+        /^Live data is not a capability of this build\./,
+      );
+      expect(reason?.textContent).not.toMatch(/no evidence has been accepted/i);
     },
   );
 
@@ -295,18 +314,21 @@ describe("Quick actions obey the gate rule and the sequencing rule separately", 
 });
 
 describe("what canonical screen two draws and this product does not", () => {
-  it.each(DECIDED_AGAINST)("renders no %s control in any state", async (label) => {
-    const { container } = renderAt(SITE_PATH, ENABLED);
-    await settledScreen();
+  it.each(DECIDED_AGAINST)(
+    "renders no %s control in any state",
+    async (label) => {
+      const { container } = renderAt(SITE_PATH, ENABLED);
+      await settledScreen();
 
-    const main = within(container).getByRole("main");
+      const main = within(container).getByRole("main");
 
-    // Absent, not disabled. Disabled would say the capability exists and is
-    // unavailable to you; what is true is that M1 decided configuration is
-    // fixed at creation and that nothing removes a site.
-    expect(within(main).queryByRole("button", { name: label })).toBeNull();
-    expect(within(main).queryByRole("link", { name: label })).toBeNull();
-  });
+      // Absent, not disabled. Disabled would say the capability exists and is
+      // unavailable to you; what is true is that M1 decided configuration is
+      // fixed at creation and that nothing removes a site.
+      expect(within(main).queryByRole("button", { name: label })).toBeNull();
+      expect(within(main).queryByRole("link", { name: label })).toBeNull();
+    },
+  );
 
   it("renders no site image, no map, and nothing to change one with", async () => {
     const { container } = renderAt(SITE_PATH, ENABLED);
@@ -316,7 +338,9 @@ describe("what canonical screen two draws and this product does not", () => {
 
     // The foundation carries no image, so a frame for one would be chrome
     // pretending to content.
-    expect(main.querySelectorAll("img, figure, picture, svg, canvas, map")).toHaveLength(0);
+    expect(
+      main.querySelectorAll("img, figure, picture, svg, canvas, map"),
+    ).toHaveLength(0);
     expect(spacedText(main)).not.toMatch(/\b(map|photo|image|upload)\b/i);
   });
 

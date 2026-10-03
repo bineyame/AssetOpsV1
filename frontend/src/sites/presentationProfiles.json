@@ -1,0 +1,11 @@
+{
+  "MINIGRID": {
+    "overview_cards": [
+      { "id": "Service", "label": "Service" },
+      { "id": "Dispatch", "label": "Dispatch" },
+      { "id": "Battery", "label": "Battery" },
+      { "id": "Fuel", "label": "Fuel" },
+      { "id": "Renewable", "label": "Renewable" }
+    ]
+  }
+}

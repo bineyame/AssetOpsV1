@@ -154,8 +154,6 @@ export interface SiteDetailView extends SiteView {
   /** The summary the foundation document carries, verbatim. */
   foundationSummary: string;
   integrationReadiness: SiteUnavailableFact;
-  evidenceAvailability: SiteUnavailableFact;
-  sourceHealth: SiteUnavailableFact;
 }
 
 /**
@@ -175,30 +173,13 @@ export const INTEGRATION_READINESS_UNAVAILABLE: SiteUnavailableFact = {
     "it is not lifecycle status, not source mode, and not derived from either.",
 };
 
-/** Evidence availability: a statement about evidence, not a measurement. */
-export const EVIDENCE_AVAILABILITY_UNAVAILABLE: SiteUnavailableFact = {
-  value: "No evidence",
-  reason:
-    "No evidence has been accepted for this site, so there is nothing to " +
-    "show and nothing to analyse. This is a statement about evidence, not a " +
-    "reading of zero and not a statement about the site's lifecycle status.",
-};
-
-/**
- * Source health: not recorded, because the record carries no health field.
- *
- * Not "not applicable", which would state that this site's source could have
- * no health, and not "no source is expected to report", which would state
- * something about the site's source that the record does not carry. What is
- * true is about the build: it records no source health for any site.
+/*
+ * T027 retired two facts that stood here, "Evidence availability: No evidence"
+ * and "Source health: Not recorded". Both became false the moment a Commit
+ * could be ingested: accepted evidence and per-source health now exist, on
+ * Site > Evidence (`D-2026-09-22-expiry-follows-the-condition`). Neither is
+ * restated here, because the configuration view cannot know either one.
  */
-export const SOURCE_HEALTH_UNAVAILABLE: SiteUnavailableFact = {
-  value: "Not recorded",
-  reason:
-    "This build records no source health for a site, and the record carries " +
-    "no field that could carry one. Nothing here states whether this site's " +
-    "source is reporting, so nothing here is a health value.",
-};
 
 export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView {
   return {
@@ -208,8 +189,6 @@ export function deriveSiteDetailView(site: SiteDetailReadModel): SiteDetailView 
     foundationValidFrom: site.foundation.valid_from,
     foundationSummary: site.foundation.summary,
     integrationReadiness: INTEGRATION_READINESS_UNAVAILABLE,
-    evidenceAvailability: EVIDENCE_AVAILABILITY_UNAVAILABLE,
-    sourceHealth: SOURCE_HEALTH_UNAVAILABLE,
   };
 }
 

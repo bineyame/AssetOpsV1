@@ -1,6 +1,6 @@
 # T027 - Commit through normal ingestion to Site Overview
 
-Status: planned
+Status: complete (owner accepted 2026-10-03 after hands-on checks of both phases; Claude reviews ACCEPT after fix rounds)
 USER_REVIEW_REQUIRED: true
 
 Map: B completion; internal architecture demo (demo point 1).
@@ -217,4 +217,12 @@ prerequisites for this checkpoint.
 The owner runs the internal architecture demonstration with Lab disabled for
 the final operator inspection. The Reviewer independently exercises recovery,
 idempotence and reconstruction without simulator objects.
-Review outcome: pending.
+Review outcome: complete. Phase 1: Claude review and re-review ACCEPT
+(`.agent/T027-phase-1-claude-review.md`, `-claude-rereview.md`); owner hands-on
+check successful 2026-10-03. Phase 2: Claude review, re-review and re-review 2
+ACCEPT after fix rounds 1-3 (`.agent/T027-phase-2-claude-review.md`,
+`-claude-rereview.md`, `-claude-rereview-2.md`; round 3 verified by the
+coordinator); owner hands-on check successful 2026-10-03
+(`.agent/owner-T027-phase-2-hands-on-2026-10-03.md`). Owner ruling: "Start
+Simulation" stays a disabled Quick action with its Run-setup reason. Codex
+retrospective pending for both phases.

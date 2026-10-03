@@ -12,32 +12,26 @@ import type {
   SiteDetailReadModel,
   SiteSummary,
 } from "../../sites/siteReadModel";
+import { EMPTY_EVIDENCE_CLIENT } from "../../sites/__tests__/evidenceFixtures";
 import { settledScreen } from "../../test/settled";
 import {
   OPERATOR_SITE_TABS,
   OPERATOR_SITE_TABS_LABEL,
-  labelledAspectsSentence,
-  type OperatorSiteTab,
+  CANONICAL_OPERATOR_SITE_TABS,
 } from "../operatorSiteTabs";
 import { spacedText } from "../../test/text";
 
 /**
- * The operator Site tab row.
+ * The operator Site tab row, under `D-2026-10-02-rendered-tabs-per-capability`.
  *
- * Three things are under test, and the third is the one that matters most.
+ * 1. One canonical inventory lists all eight aspects in v6.9's order; the
+ *    RENDERED row is that inventory filtered by capability: Overview,
+ *    Foundation, Evidence.
+ * 2. Every rendered tab is a destination: a link to an identified route.
+ * 3. No tab is labelled in place or disabled. An aspect whose capability does
+ *    not exist is not rendered at all and has no route behind it.
  *
- * 1. The row renders v6.9's operator Site tabs, all eight of them, in order.
- * 2. Overview and Foundation are destinations: links to identified routes that
- *    render truthful surfaces for the site in the address.
- * 3. The other six are labelled in place. Not links, not buttons, not
- *    disabled controls, and with no route behind them. This is the assertion
- *    that stops the row turning into eight tabs where six lead nowhere, which
- *    is the mockup's promise rather than this product's.
- *
- * The inventory is imported rather than restated here, so a label added to the
- * product without being reviewed shows up as a failure in the pinned list
- * below rather than being silently agreed to by a test that derives its
- * expectation from the code under test.
+ * The expectations are written out, not derived from the code under test.
  */
 
 const DISABLED = featureFlagsWith(false);
@@ -55,18 +49,11 @@ const V69_OPERATOR_SITE_TABS = [
   "Evidence",
 ];
 
-/** The two the product can open today. */
-const DESTINATION_TABS = ["Overview", "Foundation"];
+/** What this build renders, in order. */
+const RENDERED_TABS = ["Overview", "Foundation", "Evidence"];
 
-/** The six that name a real aspect the product cannot show yet. */
-const LABELLED_IN_PLACE_TABS = [
-  "Health",
-  "Performance",
-  "Findings",
-  "Work",
-  "Financials",
-  "Evidence",
-];
+/** Canonical aspects with no capability in this build: not rendered. */
+const UNRENDERED_TABS = ["Health", "Performance", "Findings", "Work", "Financials"];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the
@@ -146,6 +133,7 @@ function renderAt(path: string, flags: FeatureFlags = ENABLED) {
         flags={flags}
         siteDirectory={directoryWith([SITE])}
         siteDetail={detailClientFor([SITE_DETAIL])}
+        siteEvidence={EMPTY_EVIDENCE_CLIENT}
       />
     </MemoryRouter>,
   );
@@ -159,31 +147,30 @@ function tabRow(): HTMLElement {
 const SITE_SURFACES = [
   ["the site page", "/sites/MG-002", "Overview"],
   ["the Foundation", "/sites/MG-002/foundation", "Foundation"],
+  ["the Evidence", "/sites/MG-002/evidence", "Evidence"],
 ] as const;
 
 describe("the operator Site tab inventory is defined once", () => {
-  it("is v6.9's operator Site tab set, in order", () => {
-    expect(OPERATOR_SITE_TABS.map((tab) => tab.label)).toEqual(
+  it("keeps all eight canonical aspects in v6.9's order", () => {
+    expect(CANONICAL_OPERATOR_SITE_TABS.map((tab) => tab.label)).toEqual(
       V69_OPERATOR_SITE_TABS,
     );
   });
 
-  it("assigns exactly two destinations and six labels", () => {
+  it("renders exactly the entries whose capability exists", () => {
+    expect(OPERATOR_SITE_TABS.map((tab) => tab.label)).toEqual(RENDERED_TABS);
     expect(
-      OPERATOR_SITE_TABS.filter((tab) => tab.kind === "destination").map(
+      CANONICAL_OPERATOR_SITE_TABS.filter((tab) => !tab.capability).map(
         (tab) => tab.label,
       ),
-    ).toEqual(DESTINATION_TABS);
-    expect(
-      OPERATOR_SITE_TABS.filter((tab) => tab.kind === "labelled_in_place").map(
-        (tab) => tab.label,
-      ),
-    ).toEqual(LABELLED_IN_PLACE_TABS);
+    ).toEqual(UNRENDERED_TABS);
   });
 
   it("carries none of the mockup's Lab run tab vocabulary", () => {
     for (const label of LAB_RUN_TAB_VOCABULARY) {
-      expect(OPERATOR_SITE_TABS.map((tab) => tab.label)).not.toContain(label);
+      expect(
+        CANONICAL_OPERATOR_SITE_TABS.map((tab) => tab.label),
+      ).not.toContain(label);
     }
   });
 });
@@ -191,7 +178,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly the inventory, in order", async () => {
+    it("renders exactly Overview, Foundation, Evidence, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -199,8 +186,7 @@ describe.each(SITE_SURFACES)(
         (item) => item.textContent,
       );
 
-      expect(rendered).toEqual(V69_OPERATOR_SITE_TABS);
-      expect(rendered).toEqual(OPERATOR_SITE_TABS.map((tab) => tab.label));
+      expect(rendered).toEqual(RENDERED_TABS);
     });
 
     it("renders none of the mockup's Lab run tab vocabulary", async () => {
@@ -209,13 +195,11 @@ describe.each(SITE_SURFACES)(
 
       const row = tabRow();
       for (const label of LAB_RUN_TAB_VOCABULARY) {
-        expect(
-          within(row).queryByText(label, { exact: true }),
-        ).toBeNull();
+        expect(within(row).queryByText(label, { exact: true })).toBeNull();
       }
     });
 
-    it("links Overview and Foundation to this site's own addresses", async () => {
+    it("links every rendered tab to this site's own addresses", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -226,6 +210,7 @@ describe.each(SITE_SURFACES)(
       ).toEqual([
         ["Overview", "/sites/MG-002"],
         ["Foundation", "/sites/MG-002/foundation"],
+        ["Evidence", "/sites/MG-002/evidence"],
       ]);
     });
 
@@ -238,43 +223,46 @@ describe.each(SITE_SURFACES)(
       expect(current.map((link) => link.textContent)).toEqual([currentTab]);
     });
 
-    it("gives the six labelled tabs no link, button, or control", async () => {
+    it("renders no label-only tab: every list item holds a link", async () => {
+      renderAt(path);
+      await settledScreen();
+
+      const items = Array.from(tabRow().querySelectorAll("li"));
+
+      expect(items).toHaveLength(RENDERED_TABS.length);
+      for (const item of items) {
+        expect(item.querySelector("a")).not.toBeNull();
+      }
+
+      const linked = within(tabRow())
+        .getAllByRole("link")
+        .map((link) => link.textContent);
+      for (const label of UNRENDERED_TABS) {
+        expect(within(tabRow()).queryByText(label)).toBeNull();
+        expect(linked).not.toContain(label);
+      }
+      expect(tabRow().querySelector(".site-tabs__label")).toBeNull();
+      expect(tabRow().querySelector(".site-tabs__aspects")).toBeNull();
+    });
+
+    it("renders nothing disabled and no control", async () => {
       renderAt(path);
       await settledScreen();
 
       const row = tabRow();
-      const linked = within(row)
-        .getAllByRole("link")
-        .map((link) => link.textContent);
-
-      for (const label of LABELLED_IN_PLACE_TABS) {
-        expect(linked).not.toContain(label);
-      }
 
       expect(
         row.querySelectorAll(
           "button, a[role='button'], [role='button'], [role='tab'], [role='tablist'], input, select",
         ),
       ).toHaveLength(0);
-      expect(within(row).queryAllByRole("button")).toHaveLength(0);
-    });
-
-    it("gives them no disabled affordance either", async () => {
-      renderAt(path);
-      await settledScreen();
-
-      // The third state this row refuses. Disabled says the capability exists
-      // and is unavailable right now; these are not switched off, they are not
-      // built, and the label alone is the honest way to say so.
-      const row = tabRow();
-
       expect(
         row.querySelectorAll(
           "[disabled], [aria-disabled], [title], [tabindex], [onclick]",
         ),
       ).toHaveLength(0);
       expect(spacedText(row)).not.toMatch(
-        /\b(coming soon|not yet available|unavailable|disabled|locked)\b/i,
+        /\b(coming soon|not yet available|unavailable|disabled|locked|no content in this build)\b/i,
       );
     });
 
@@ -291,8 +279,8 @@ describe.each(SITE_SURFACES)(
   },
 );
 
-describe("a labelled tab has no route behind it", () => {
-  it.each(LABELLED_IN_PLACE_TABS)("serves nothing under a site at %s", (label) => {
+describe("an unrendered aspect has no route behind it", () => {
+  it.each(UNRENDERED_TABS)("serves nothing under a site at %s", (label) => {
     renderAt(`/sites/MG-002/${label.toLowerCase()}`);
 
     expect(
@@ -306,9 +294,15 @@ describe("the tab row belongs to a site", () => {
     renderAt("/sites/MG-404");
     await screen.findByRole("heading", { level: 2, name: "No such site" });
 
-    // The row would otherwise offer tabs to the aspects of a site that does
-    // not exist, and its Overview tab would point back at the address that
-    // just refused.
+    expect(
+      screen.queryByRole("navigation", { name: OPERATOR_SITE_TABS_LABEL }),
+    ).toBeNull();
+  });
+
+  it("does not render on the Evidence route of a site that is not configured", async () => {
+    renderAt("/sites/MG-404/evidence");
+    await screen.findByRole("heading", { level: 2, name: "No such site" });
+
     expect(
       screen.queryByRole("navigation", { name: OPERATOR_SITE_TABS_LABEL }),
     ).toBeNull();
@@ -334,142 +328,39 @@ describe("the tab row is an operator capability and is never gated", () => {
 
     expect(
       Array.from(tabRow().querySelectorAll("li")).map((item) => item.textContent),
-    ).toEqual(V69_OPERATOR_SITE_TABS);
+    ).toEqual(RENDERED_TABS);
   });
 });
 
-describe("the row says which aspects it cannot open, and says it in words", () => {
-  /**
-   * T011A relied on colour alone, and the two colours were about five percent
-   * apart: `--text-secondary` for a destination against `--text-muted` for a
-   * label. The user read the six as disabled controls, which is the one thing
-   * the row exists not to say. T011C adds a second signal that does not depend
-   * on seeing a difference between two greys.
-   */
-  it("counts exactly the tabs it cannot open", async () => {
-    renderAt("/sites/MG-002");
+describe("the Site Evidence route", () => {
+  it("renders Evidence as the current tab with a truthful empty body", async () => {
+    renderAt("/sites/MG-002/evidence", DISABLED);
     await settledScreen();
 
-    const sentence = within(tabRow()).getByText(/no content in this build yet/);
-
-    // It counts rather than names, because the names are one line above it.
-    // What has to stay true is that the count is the number of labelled tabs
-    // and not a number somebody typed.
-    expect(sentence.textContent).toBe(
-      "Six aspects of a Site have no content in this build yet.",
-    );
-    expect(LABELLED_IN_PLACE_TABS).toHaveLength(6);
-
-    // And the row above still names them, so nothing was lost by shortening
-    // the sentence.
-    for (const label of LABELLED_IN_PLACE_TABS) {
-      expect(within(tabRow()).getByText(label, { exact: true })).toBeInTheDocument();
-    }
-  });
-
-  it("says nothing about the site it is rendered for", async () => {
-    renderAt("/sites/MG-002");
-    await settledScreen();
-
-    // `of a Site`, not `of this Site`. No aspect is missing content because of
-    // anything about MG-002; the product has no content model for any of them.
-    // A sentence that read as a fact about this site would be the wrong claim.
-    const sentence = within(tabRow()).getByText(/no content in this build yet/);
-
-    expect(spacedText(sentence)).not.toMatch(/this site/i);
-    expect(spacedText(sentence)).not.toMatch(/MG-002|Kalangala/);
-  });
-
-  it("separates the two groups with something other than colour", async () => {
-    renderAt("/sites/MG-002");
-    await settledScreen();
-
-    // The divider hangs off the first labelled tab, so it moves when an aspect
-    // becomes a destination rather than being pinned to a count.
-    const items = Array.from(tabRow().querySelectorAll("li"));
-    const marked = items.filter((item) =>
-      item.className.includes("site-tabs__item--group-start"),
-    );
-
-    expect(marked).toHaveLength(1);
-    expect(marked[0].textContent).toBe(LABELLED_IN_PLACE_TABS[0]);
-  });
-
-  it("promises nothing about when the content arrives", async () => {
-    renderAt("/sites/MG-002");
-    await settledScreen();
-
-    // The sentence describes this build. A sentence about a later one would be
-    // a promise nobody has made, and `coming soon` is banned in the guard for
-    // the same reason.
-    expect(spacedText(tabRow())).not.toMatch(
-      /\b(coming soon|soon|shortly|in a future|will be|planned for|roadmap)\b/i,
-    );
-  });
-
-  it("keeps the labelled tabs out of the tab stops", async () => {
-    renderAt("/sites/MG-002");
-    await settledScreen();
-
-    // Making them legible must not make them reachable: a focus stop that goes
-    // nowhere is the disabled control this row refuses, wearing a keyboard.
-    const row = tabRow();
-
-    expect(row.querySelectorAll("[tabindex]")).toHaveLength(0);
-    expect(within(row).getAllByRole("link")).toHaveLength(
-      DESTINATION_TABS.length,
-    );
-  });
-});
-
-describe("the sentence is derived from the inventory, not written out", () => {
-  /**
-   * The reason this matters: a written-out list goes stale the first time an
-   * aspect gets content, and then the screen says something has no content
-   * while the tab beside it opens that content. These pass inventories this
-   * product does not have yet.
-   */
-  const destination: OperatorSiteTab = {
-    label: "Overview",
-    kind: "destination",
-    href: (siteId: string) => `/sites/${siteId}`,
-  };
-
-  it("drops an aspect from the sentence when it becomes a destination", () => {
-    const before = labelledAspectsSentence([
-      destination,
-      { label: "Health", kind: "labelled_in_place" },
-      { label: "Work", kind: "labelled_in_place" },
-    ]);
-    const after = labelledAspectsSentence([
-      destination,
-      { label: "Health", kind: "destination", href: () => "/health" },
-      { label: "Work", kind: "labelled_in_place" },
-    ]);
-
-    expect(before).toBe(
-      "Two aspects of a Site have no content in this build yet.",
-    );
-    expect(after).toBe("One aspect of a Site has no content in this build yet.");
-  });
-
-  it("reads grammatically with one aspect left", () => {
     expect(
-      labelledAspectsSentence([
-        destination,
-        { label: "Evidence", kind: "labelled_in_place" },
-      ]),
-    ).toBe("One aspect of a Site has no content in this build yet.");
+      screen.getByRole("heading", { level: 1, name: "Evidence" }),
+    ).toBeInTheDocument();
+    expect(
+      within(tabRow()).getByRole("link", { current: "page" }),
+    ).toHaveTextContent("Evidence");
+    expect(
+      screen.getByText(/No source batch has been accepted for this site/),
+    ).toBeInTheDocument();
   });
+});
 
-  it("says nothing at all when every aspect has content", () => {
-    expect(labelledAspectsSentence([destination])).toBeNull();
-    expect(labelledAspectsSentence([])).toBeNull();
-  });
+describe("the landing route", () => {
+  it("redirects / to the Sites index", async () => {
+    renderAt("/");
+    await screen.findByRole("table");
 
-  it("matches what the real inventory renders", () => {
-    expect(labelledAspectsSentence()).toBe(
-      "Six aspects of a Site have no content in this build yet.",
-    );
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Sites" }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("navigation", { name: "Operator routes" }))
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Sites"]);
   });
 });

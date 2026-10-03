@@ -335,6 +335,9 @@ describe("one draft run", () => {
       "Run to the end",
       "Play",
       "Pause",
+      // T027: Commit is built; on a stage that is not release-eligible it is
+      // disabled with the blockers named, never hidden as if it did not exist.
+      "Commit and release",
     ]);
   });
 
@@ -360,10 +363,13 @@ describe("one draft run", () => {
     // A count, not a name. The assertion above names the button it expects
     // to be missing, so an enabled button labelled anything else - "Proceed" -
     // satisfied it. What "there is no run action to offer" means is that the
-    // screen carries no button at all.
-    expect(within(screen.getByRole("main")).queryAllByRole("button")).toEqual(
-      [],
-    );
+    // screen carries no button at all. T027's Commit is the one exception:
+    // it is a built capability, so it is present and disabled, never enabled.
+    const buttons = within(screen.getByRole("main")).queryAllByRole("button");
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "Commit and release",
+    ]);
+    expect(buttons[0]).toBeDisabled();
 
     // And no link stands in for the button that is not here. The F1 fix
     // closed the link set on the READY screen; an anchor reading "Proceed"
@@ -391,13 +397,18 @@ describe("one draft run", () => {
     const main = screen.getByRole("main");
     // T025d: "Pause" and "Resume" are now truthful of the browser's auto-play
     // (the closed set above admits exactly Play and Pause); they pause no run.
+    // T027: Commit and release is truthful now and is disabled on this
+    // not-eligible stage; Open in AssetOps appears only after a release.
+    expect(
+      within(main).getByRole("button", { name: "Commit and release" }),
+    ).toBeDisabled();
     for (const banned of [
       /reset/i,
       /rerun/i,
       /replay/i,
-      /commit/i,
+      /^(?!Commit and release$).*commit/i,
       /stage/i,
-      /release/i,
+      /^(?!Commit and release$).*release/i,
       /ingest/i,
       /open in assetops/i,
       /truth/i,
@@ -458,13 +469,13 @@ describe("one draft run", () => {
     const words = spacedText(screen.getByRole("main"));
 
     expect(words).toMatch(/Neither is evidence/i);
-    expect(words).toMatch(/nothing here has entered ingestion/i);
+    expect(words).toMatch(/none of the private truth ever enters ingestion/i);
     // Since T023 a run DOES stage envelopes; what it still does not do is
     // release one, and the panel says that instead.
     expect(words).toMatch(/staged and nothing more/i);
-    expect(words).toMatch(/None has been released, received or accepted/i);
-    expect(words).toMatch(/cannot be committed/i);
-    expect(words).toMatch(/No evidence has been accepted/i);
+    expect(words).toMatch(/Staging releases nothing/i);
+    expect(words).toMatch(/Only a Commit releases them/i);
+    expect(words).toMatch(/only what ingestion accepted from a Commit/i);
     expect(words).toMatch(/No conclusion has been drawn/i);
   });
 

@@ -16,7 +16,7 @@ def test_health_route_reports_service_liveness() -> None:
 
 
 def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
-    """The operator Sites API exists; ingestion and Findings still do not.
+    """The operator Sites API and (T027) Site evidence exist; Findings do not.
 
     T006 makes `/api/sites` a real operator capability and T007 adds the one
     Site addressed by `site_id`, so this no longer asserts either absence. The
@@ -33,8 +33,16 @@ def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
     assert "/api/health" in paths, "route inventory must not be vacuous"
     assert "/api/sites" in paths
     assert paths & {"/api/findings", "/api/ingestion", "/api/evidence"} == set()
-    assert [path for path in paths if "{site_id}" in path] == [
-        "/api/sites/{site_id}"
+    # T027 adds the ingestion entry point and the ungated Site > Evidence read
+    # routes; the per-Site inventory stays pinned to an exact list.
+    assert sorted(path for path in paths if "{site_id}" in path) == [
+        "/api/sites/{site_id}",
+        "/api/sites/{site_id}/evidence",
+        "/api/sites/{site_id}/evidence/records",
+        "/api/sites/{site_id}/evidence/records/{message_id}",
+        "/api/sites/{site_id}/evidence/rejections",
+        # T027 phase 2: the Overview read, beside Site evidence.
+        "/api/sites/{site_id}/overview",
     ]
 
 

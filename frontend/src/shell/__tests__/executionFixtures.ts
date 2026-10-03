@@ -4,6 +4,7 @@ import type {
   RunSetupClient,
   RunStage,
   RunStageResult,
+  RunCommitResult,
   RunStagedEnvelope,
   RunStepRequest,
 } from "../runSetupClient";
@@ -372,7 +373,7 @@ export const STAGED_IN_THE_GAP: RunStage = {
   ...NOT_STAGED,
   status: "STAGED",
   statement:
-    "These are the canonical source envelopes the simulated gateway published for this draft, exactly as persisted and re-read from the stage. They are staged, not released: nothing has been committed, nothing has reached ingestion, and no site history, evidence or finding has been written from them.",
+    "These are the canonical source envelopes the simulated gateway published for this draft, exactly as persisted and re-read from the stage. Staging is not release: the stage itself writes no site history, evidence or finding. Only a Commit releases them, through ingestion, and whether this draft was committed and what ingestion accepted is reported by its Commit status, not by the stage.",
   execution_status: "RUNNING",
   release_blockers: [
     NOT_STAGED.release_blockers[1],
@@ -483,6 +484,17 @@ export const NOT_RECORDED: RunHistory = {
   publications: [],
 };
 
+/** The Commit read of a Draft nothing has committed. */
+export const NOT_COMMITTED_READ: RunCommitResult = {
+  status: "loaded",
+  commit: {
+    commit: "NOT_COMMITTED",
+    release: null,
+    open_in_assetops: null,
+    release_error: null,
+  },
+};
+
 /**
  * The execution methods, and the stage read, a fake client needs.
  *
@@ -500,6 +512,8 @@ export function executionMethods(
   | "stepExecution"
   | "runExecutionToEnd"
   | "getStage"
+  | "getCommit"
+  | "commit"
   | "getExecutionHistory"
   | "getExecutionHistorySince"
 > {
@@ -510,6 +524,10 @@ export function executionMethods(
       Promise.resolve(answer),
     runExecutionToEnd: () => Promise.resolve(answer),
     getStage: () => Promise.resolve(stage),
+    // T027: a fixture nobody committed reads as not committed, and a Commit
+    // it was not given an answer for is unavailable rather than invented.
+    getCommit: () => Promise.resolve(NOT_COMMITTED_READ),
+    commit: () => Promise.resolve({ status: "unavailable", message: null }),
     getExecutionHistory: () => Promise.resolve(history),
     // T025e phase 1 adds the live-follow read; no screen calls it yet, so a
     // fixture that has not been given deltas says the read is unavailable.

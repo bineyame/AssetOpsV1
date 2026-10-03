@@ -47,15 +47,16 @@ The scenario routes T017 adds are reads, through the
 `ScenarioDefinitionRepository` port. They serve saved `ScenarioDefinition`
 records: what a simulated interval is intended to do, before any run exists.
 
-No route here commits, releases an envelope, ingests, resets, injects an event
-or replays anything, and none of them returns an assessment, a source-health
+No route here resets, injects an event or replays anything, and none of them returns an assessment, a source-health
 result, a confidence, a severity, or a Finding, because none of those has a
 truthful source. Starting a run left that list in T022 and staging in T023: a
 started run produces private truth, the readings a configured device would have
 published, and - through the simulated gateway - staged canonical source
 envelopes, which one read route here serves for inspection. None of the three is
-evidence about anywhere, and a staged envelope becomes one only after a Commit and
-ingestion that no slice has built yet.
+evidence about anywhere, and a staged envelope becomes one only after a Commit
+(T027): the commit route seals an eligible stage into one immutable artifact and
+releases it through `IngestionService.ingest`, the same entry point every source
+uses. This module never writes evidence itself.
 
 The scenario detail route carries the private test-oracle expectations in a
 section of its own, built by a payload function that never reads any public
@@ -75,9 +76,17 @@ import re
 from dataclasses import replace
 from fractions import Fraction
 from typing import Any
+from urllib.parse import quote, urlencode
 
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, HTTPException, Query, Request
 
+from assetops_backend.evidence.read_model import EvidenceReadModel, batch_payload
+from assetops_backend.evidence.service import system_clock
+from assetops_backend.runs.commit_ports import (
+    CommitStoreUnavailable,
+    CommittedArtifactStore,
+    CommittedArtifactUnreadable,
+)
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.models import (
     FrozenTemplateLineage,
@@ -142,6 +151,7 @@ from assetops_backend.sites.models import SiteTemplate
 from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
     SiteIdentityConflict,
+    SiteNotFound,
     SiteRepository,
     SiteStoreUnavailable,
     SiteTemplateCatalog,
@@ -156,7 +166,14 @@ from assetops_backend.sites.service import (
 )
 from assetops_backend.sites.site_parsing import parse_create_site_request
 from assetops_backend.sites_api import site_summary
+from assetops_contracts.committed_artifact import (
+    ArtifactUnreadable,
+    CommittedArtifact,
+    ingestion_batch,
+    seal_artifact,
+)
 from assetops_contracts.execution_contract import DISCRETE_STATE_RULES
+from assetops_contracts.ingestion_batch import ConfigurationReference
 from assetops_contracts.lab_history import (
     FAMILY_AVAILABILITY_STATEMENTS,
     SAMPLE_PHASES,
@@ -215,6 +232,12 @@ RUN_EXECUTION_END_ROUTE = "/runs/{run_id}/execution/run-to-end"
 # edits, deletes, releases or commits a staged envelope: staging happens as a run
 # is stepped, and a staged record is immutable.
 RUN_STAGE_ROUTE = "/runs/{run_id}/stage"
+
+# T027 (D4). Commit seals an eligible stage into one immutable artifact and
+# releases it through ingestion - the same `IngestionService.ingest` every
+# source uses. The read beside it reports the artifact and the release
+# separately. Neither edits the stage.
+RUN_COMMIT_ROUTE = "/runs/{run_id}/commit"
 
 # T025c. What a run recorded, as a read of its own: a history is tens of
 # thousands of rows, and a step response carrying it would ship the whole run
@@ -286,6 +309,10 @@ REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 REFUSAL_RUN_STORE_UNAVAILABLE = "RUN_STORE_UNAVAILABLE"
 REFUSAL_RUN_NOT_FOUND = "RUN_NOT_FOUND"
 REFUSAL_EXECUTION_REQUEST_INVALID = "EXECUTION_REQUEST_INVALID"
+REFUSAL_COMMIT_REFUSED = "COMMIT_REFUSED"
+REFUSAL_COMMIT_STAGE_CHANGED = "COMMIT_STAGE_CHANGED"
+REFUSAL_COMMIT_ARTIFACT_UNREADABLE = "COMMIT_ARTIFACT_UNREADABLE"
+REFUSAL_COMMIT_STORE_UNAVAILABLE = "COMMIT_STORE_UNAVAILABLE"
 
 
 def execution_refusal_code(kind: str) -> str:
@@ -1965,6 +1992,44 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
     }
 
 
+def commit_summary(artifact: CommittedArtifact) -> dict[str, object]:
+    """The sealed artifact as a run reports it: identity, never content."""
+    return {
+        "artifact_id": artifact.artifact_id,
+        "integrity_digest": artifact.integrity_digest,
+        "envelope_count": len(artifact.envelopes),
+        "sealed_at": artifact.sealed_at,
+        "run_id": artifact.run_id,
+        "site_id": artifact.site_id,
+    }
+
+
+def open_in_assetops(release: dict[str, Any] | None) -> dict[str, object] | None:
+    """Where a release's accepted content can be seen, or None.
+
+    Built from ingestion's accepted window only (AC18): a release that has
+    accepted nothing has no window, and the stage is never consulted.
+    """
+    if release is None:
+        return None
+    start, end = release.get("window_start"), release.get("window_end")
+    if start is None or end is None:
+        return None
+    site_id = release["site_id"]
+    query = urlencode(
+        {"from": start, "to": end, "batch": release["batch_id"]},
+        quote_via=quote,
+        safe=":",
+    )
+    return {
+        "site_id": site_id,
+        "window_start": start,
+        "window_end": end,
+        "batch_id": release["batch_id"],
+        "href": f"/sites/{quote(site_id, safe='')}/evidence?{query}",
+    }
+
+
 def build_simulator_lab_router(
     catalog: SiteTemplateCatalog,
     repository: SiteRepository,
@@ -1973,6 +2038,7 @@ def build_simulator_lab_router(
     model_profiles: tuple[ModelProfile, ...],
     publication_profiles: tuple[PublicationProfile, ...],
     execution: LabExecutionPort | None = None,
+    commits: CommittedArtifactStore | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
@@ -2513,6 +2579,169 @@ def build_simulator_lab_router(
         port = _port()
         record = _run_or_404(run_id)
         return {"stage": stage_payload(port.staged_envelopes(record))}
+
+    def _commit_store() -> CommittedArtifactStore:
+        if commits is None:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(
+                    REFUSAL_COMMIT_STORE_UNAVAILABLE,
+                    "No commit store is composed in this build.",
+                ),
+            )
+        return commits
+
+    def _commit_store_failure(error: Exception) -> HTTPException:
+        if isinstance(error, CommittedArtifactUnreadable):
+            return HTTPException(
+                status_code=409,
+                detail=_refusal(REFUSAL_COMMIT_ARTIFACT_UNREADABLE, str(error)),
+            )
+        return HTTPException(
+            status_code=503,
+            detail=_refusal(REFUSAL_COMMIT_STORE_UNAVAILABLE, str(error)),
+        )
+
+    def _stored_artifact(run_id: str) -> CommittedArtifact | None:
+        try:
+            return _commit_store().get(run_id)
+        except (CommittedArtifactUnreadable, CommitStoreUnavailable) as error:
+            raise _commit_store_failure(error) from error
+
+    def _commit_refused(
+        message: str, blockers: tuple[str, ...] = ()
+    ) -> HTTPException:
+        return HTTPException(
+            status_code=409,
+            detail={
+                **_refusal(REFUSAL_COMMIT_REFUSED, message),
+                "release_blockers": [
+                    {"kind": kind, "statement": RELEASE_BLOCKER_STATEMENTS[kind]}
+                    for kind in blockers
+                ],
+            },
+        )
+
+    def _seal(view: SourceStageView, record: SimulationRun) -> CommittedArtifact:
+        """The artifact for an eligible stage, or a typed refusal (AC1)."""
+        if (
+            not view.release_eligible
+            or view.stage is None
+            or view.integrity_digest is None
+        ):
+            raise _commit_refused(
+                "This draft's stage is not eligible for Commit, so nothing was "
+                "sealed or released.",
+                view.release_blockers,
+            )
+        stage = view.stage
+        binding = record.deterministic_identity.site
+        if binding.site_id != stage.site_id:
+            raise _commit_refused(
+                f"The stage names Site {stage.site_id} and the run is bound to "
+                f"Site {binding.site_id}, so nothing was sealed."
+            )
+        try:
+            site_record = repository.get_site(binding.site_id)
+        except SiteNotFound as error:
+            raise _commit_refused(
+                f"Site {binding.site_id} is not configured, so its source mode "
+                "cannot be recorded and nothing was sealed."
+            ) from error
+        try:
+            return seal_artifact(
+                run_id=record.run_id,
+                site_id=stage.site_id,
+                source_id=stage.source_id,
+                gateway_id=stage.gateway_id,
+                source_mode=site_record.source.mode,
+                configuration=ConfigurationReference(
+                    site_id=binding.site_id,
+                    foundation_version=binding.foundation_version,
+                    foundation_valid_from=binding.foundation_valid_from,
+                ),
+                mapping=stage.mapping,
+                envelopes=stage.envelopes,
+                stage_integrity_digest=view.integrity_digest,
+                sealed_at=system_clock(),
+            )
+        except ArtifactUnreadable as error:
+            raise _commit_refused(f"The stage could not be sealed: {error}") from error
+
+    def _commit_payload(
+        artifact: CommittedArtifact | None, release: dict[str, Any] | None
+    ) -> dict[str, object]:
+        return {
+            "commit": (
+                "NOT_COMMITTED" if artifact is None else commit_summary(artifact)
+            ),
+            "release": release,
+            "open_in_assetops": open_in_assetops(release),
+        }
+
+    @router.post(RUN_COMMIT_ROUTE)
+    def commit_run(run_id: str, request: Request) -> dict[str, object]:
+        """Seal this Draft's eligible stage once and release it through ingestion.
+
+        Seal-or-reuse (AC2): an artifact already filed for this run is reused,
+        never rewritten, and is refused if the stage it was sealed from has
+        changed since. Release is `IngestionService.ingest`, the one ingestion
+        entry point; an interruption mid-release is answered with the persisted
+        progress (IN_PROGRESS, processed of total) rather than a 500, and
+        posting again resumes the same batch. The Commit itself writes no
+        evidence.
+        """
+        port = _port()
+        record = _run_or_404(run_id)
+        existing = _stored_artifact(record.run_id)
+        view = port.staged_envelopes(record)
+        if existing is None:
+            try:
+                artifact = _commit_store().create(_seal(view, record))
+            except (CommittedArtifactUnreadable, CommitStoreUnavailable) as error:
+                raise _commit_store_failure(error) from error
+        else:
+            artifact = existing
+        if view.integrity_digest != artifact.stage_integrity_digest:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    **_refusal(
+                        REFUSAL_COMMIT_STAGE_CHANGED,
+                        "This draft was committed from a stage whose integrity "
+                        "digest differs from the stage as it is now. The sealed "
+                        "artifact is kept unchanged and nothing was released.",
+                    ),
+                    "commit": commit_summary(artifact),
+                },
+            )
+        ingestion = request.app.state.ingestion
+        release_error: str | None = None
+        try:
+            release = batch_payload(ingestion.ingest(ingestion_batch(artifact)))
+        except Exception as error:  # noqa: BLE001 - reported, and resumable
+            release_error = f"{type(error).__name__}: {error}"
+            release = EvidenceReadModel(ingestion.store).batch(artifact.artifact_id)
+        return {**_commit_payload(artifact, release), "release_error": release_error}
+
+    @router.get(RUN_COMMIT_ROUTE)
+    def read_run_commit(run_id: str, request: Request) -> dict[str, object]:
+        """Whether this Draft is committed and, separately, what ingestion did.
+
+        A read. It needs no execution port: the artifact and the release
+        progress are both persisted, and the release is read from ingestion,
+        never inferred from the stage (AC18).
+        """
+        record = _run_or_404(run_id)
+        artifact = _stored_artifact(record.run_id)
+        release = (
+            None
+            if artifact is None
+            else EvidenceReadModel(request.app.state.ingestion.store).batch(
+                artifact.artifact_id
+            )
+        )
+        return _commit_payload(artifact, release)
 
     @router.get(RUN_EXECUTION_HISTORY_ROUTE)
     def read_run_execution_history(
