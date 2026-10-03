@@ -450,14 +450,15 @@ describe("the six provenance and status concepts are six facts", () => {
   });
 
   it("states the same unavailable facts whatever the mode and origin are", () => {
-    // Evidence availability and source health are not a function of source
-    // mode: a LIVE site with no accepted evidence has no evidence either.
+    // Integration readiness is not a function of source mode. (T027 retired
+    // the evidence-availability and source-health facts: both became false
+    // once evidence could be accepted, and the view no longer carries them.)
     const live = deriveSiteDetailView(USER_LIVE_SITE);
     const simulated = deriveSiteDetailView(USER_SIMULATED_SITE);
 
-    expect(live.evidenceAvailability).toEqual(simulated.evidenceAvailability);
-    expect(live.sourceHealth).toEqual(simulated.sourceHealth);
     expect(live.integrationReadiness).toEqual(simulated.integrationReadiness);
+    expect(Object.keys(live)).not.toContain("evidenceAvailability");
+    expect(Object.keys(live)).not.toContain("sourceHealth");
   });
 });
 
