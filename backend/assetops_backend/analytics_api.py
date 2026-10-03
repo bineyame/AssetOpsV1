@@ -22,6 +22,10 @@ SITE_DISPATCH_ROUTE = "/api/sites/{site_id}/dispatch"
 SITE_FINDINGS_ROUTE = "/api/sites/{site_id}/findings"
 SITE_ASSESSMENT_ROUTE = "/api/sites/{site_id}/assessments/{assessment_id}"
 SITE_ASSESSMENT_REVISIONS_ROUTE = "/api/sites/{site_id}/assessments/{assessment_id}/revisions"
+#: The Findings rail root's global index (T028 AC21): every configured Site's
+#: active Findings, each row naming its Site. It is the per-Site read repeated,
+#: never a second assessment: rows are the same lineage summaries.
+FINDINGS_ROUTE = "/api/findings"
 
 
 def build_analytics_router(
@@ -55,6 +59,29 @@ def build_analytics_router(
                         "message": f"No assessment {assessment_id} for this Site."},
             )
         return payload
+
+    @router.get(FINDINGS_ROUTE)
+    def get_all_findings() -> dict[str, Any]:
+        def read() -> dict[str, Any]:
+            rows: list[dict[str, Any]] = []
+            for site in sites.list_sites():
+                for finding in service.findings(site.site_id)["findings"]:
+                    rows.append({
+                        **finding,
+                        "site_id": site.site_id,
+                        "site_display_name": site.display_name,
+                    })
+            rows.sort(key=lambda row: (row["interval"]["first_running_observed"], row["site_id"]))
+            return {
+                "findings": rows,
+                "statement": (
+                    "Active Findings across every configured Site: Candidate avoidable "
+                    "and Indeterminate intervals. Necessary intervals are assessments "
+                    "without a Finding and are listed on each Site's Performance > Dispatch."
+                ),
+            }
+
+        return guarded(read)
 
     @router.get(SITE_ANALYTICS_ROUTE)
     def get_declaration(site_id: str) -> dict[str, Any]:

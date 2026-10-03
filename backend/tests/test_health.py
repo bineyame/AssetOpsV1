@@ -32,7 +32,11 @@ def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
 
     assert "/api/health" in paths, "route inventory must not be vacuous"
     assert "/api/sites" in paths
-    assert paths & {"/api/findings", "/api/ingestion", "/api/evidence"} == set()
+    assert paths & {"/api/ingestion", "/api/evidence"} == set()
+    # T028 phase 2: the Findings rail root's global index (AC21), and nothing
+    # else under /api/findings.
+    assert "/api/findings" in paths
+    assert sorted(path for path in paths if path.startswith("/api/findings")) == ["/api/findings"]
     # T027 adds the ingestion entry point and the ungated Site > Evidence read
     # routes; the per-Site inventory stays pinned to an exact list.
     assert sorted(path for path in paths if "{site_id}" in path) == [

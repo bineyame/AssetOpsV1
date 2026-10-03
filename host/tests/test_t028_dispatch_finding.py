@@ -166,6 +166,21 @@ def test_overview_dispatch_card_links_the_finding_not_a_recomputation(prolonged)
     assert read(prolonged, "/overview")["findings"] == findings
 
 
+def test_the_global_findings_index_lists_the_same_finding_with_its_site(prolonged, healthy) -> None:
+    """T028 phase 2 AC21: the Findings rail root's index is the per-Site read
+    repeated with the Site named, never a second assessment."""
+    a = only(prolonged)
+    response = prolonged.client(DISABLED).get("/api/findings")
+    assert response.status_code == 200, response.text
+    rows = response.json()["findings"]
+    assert [r["finding_id"] for r in rows] == [a["assessment_id"]]
+    site_rows = read(prolonged, "/findings")["findings"]
+    assert {k: v for k, v in rows[0].items() if k not in {"site_id", "site_display_name"}} == site_rows[0]
+    assert rows[0]["site_id"] == SITE.rsplit("/", 1)[-1]
+    # A Necessary-only Site contributes no row (owner ruling 2026-10-03).
+    assert healthy.client(DISABLED).get("/api/findings").json()["findings"] == []
+
+
 def test_rerun_on_the_same_evidence_adds_no_revision(prolonged) -> None:
     a = only(prolonged)
     app_client = prolonged.client()
