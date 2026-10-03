@@ -1875,9 +1875,14 @@ button:focus-visible {
   min-width: 0;
 }
 
+.overview-timeline__scroll {
+  overflow-x: auto;
+}
+
 .overview-timeline__chart {
   display: block;
   width: 100%;
+  min-width: 20rem;
   height: auto;
 }
 

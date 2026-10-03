@@ -75,7 +75,10 @@ export function SiteOverview({
   }
   if (result.status !== "loaded") {
     return (
-      <Panel heading="Overview unavailable" headingId="site-overview-unavailable-heading">
+      <Panel
+        heading="Overview unavailable"
+        headingId="site-overview-unavailable-heading"
+      >
         <p>
           The Overview could not be read
           {result.status === "unavailable" && result.message !== null
@@ -108,7 +111,10 @@ export function SiteOverview({
           className="overview-cards"
           aria-labelledby="site-overview-domains-heading"
         >
-          <h2 className="overview-cards__heading" id="site-overview-domains-heading">
+          <h2
+            className="overview-cards__heading"
+            id="site-overview-domains-heading"
+          >
             Domains
           </h2>
           <div className="overview-cards__grid">
@@ -146,7 +152,10 @@ function ObjectiveStrip({
   const { window, objective } = overview;
   const empty = window.start === null;
   return (
-    <Panel heading="Operating objective" headingId="site-overview-objective-heading">
+    <Panel
+      heading="Operating objective"
+      headingId="site-overview-objective-heading"
+    >
       <FactList>
         <Fact term="Site assessment">
           <Badge tone="neutral">{objective.assessment.label}</Badge>{" "}
@@ -302,67 +311,90 @@ function TimelinePanel({
   const plotWidth = CHART_WIDTH - MARGIN.left - MARGIN.right;
   const plotHeight = CHART_HEIGHT - MARGIN.top - MARGIN.bottom;
   const x = (time: string) =>
-    MARGIN.left + ((Date.parse(time) - start) / Math.max(end - start, 1)) * plotWidth;
-  const y = (value: string) => MARGIN.top + plotHeight * (1 - Number(value) / top);
+    MARGIN.left +
+    ((Date.parse(time) - start) / Math.max(end - start, 1)) * plotWidth;
+  const y = (value: string) =>
+    MARGIN.top + plotHeight * (1 - Number(value) / top);
   const label = `${series.map((item) => item.label).join(", ")} (${unit}) over the window`;
   return (
     <figure className="overview-timeline__figure">
-      <svg
-        className="overview-timeline__chart"
-        viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-        role="img"
-        aria-label={label}
-      >
-        <line
-          className="overview-timeline__axis"
-          x1={MARGIN.left}
-          x2={CHART_WIDTH - MARGIN.right}
-          y1={MARGIN.top + plotHeight}
-          y2={MARGIN.top + plotHeight}
-        />
-        <text className="overview-timeline__tick" x={MARGIN.left - 6} y={MARGIN.top + 8} textAnchor="end">
-          {Number(top.toFixed(1))}
-        </text>
-        <text className="overview-timeline__tick" x={MARGIN.left - 6} y={MARGIN.top + plotHeight} textAnchor="end">
-          0
-        </text>
-        <text className="overview-timeline__tick" x={MARGIN.left} y={CHART_HEIGHT - 6}>
-          {new Date(start).toISOString().slice(11, 16)}Z
-        </text>
-        <text
-          className="overview-timeline__tick"
-          x={CHART_WIDTH - MARGIN.right}
-          y={CHART_HEIGHT - 6}
-          textAnchor="end"
+      <div className="overview-timeline__scroll">
+        <svg
+          className="overview-timeline__chart"
+          viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+          role="img"
+          aria-label={label}
         >
-          {new Date(end).toISOString().slice(11, 16)}Z
-        </text>
-        {series.map((item, index) => (
-          <g
-            key={item.series_id}
-            className={`overview-timeline__series overview-timeline__series--${item.series_id}`}
-            strokeDasharray={DASH[index]}
+          <line
+            className="overview-timeline__axis"
+            x1={MARGIN.left}
+            x2={CHART_WIDTH - MARGIN.right}
+            y1={MARGIN.top + plotHeight}
+            y2={MARGIN.top + plotHeight}
+          />
+          <text
+            className="overview-timeline__tick"
+            x={MARGIN.left - 6}
+            y={MARGIN.top + 8}
+            textAnchor="end"
           >
-            {item.points.map((point) =>
-              isInterval(point) ? (
-                <line
-                  key={`${point.start}-${point.end}`}
-                  x1={x(point.start)}
-                  x2={Math.max(x(point.end), x(point.start) + 2)}
-                  y1={y(point.value)}
-                  y2={y(point.value)}
-                >
-                  <title>{`${item.label}: ${point.value} ${item.unit}, ${point.start} to ${point.end}`}</title>
-                </line>
-              ) : (
-                <circle key={point.at} cx={x(point.at)} cy={y(point.value)} r={2.5}>
-                  <title>{`${item.label}: ${point.value} ${item.unit} at ${point.at}`}</title>
-                </circle>
-              ),
-            )}
-          </g>
-        ))}
-      </svg>
+            {Number(top.toFixed(1))}
+          </text>
+          <text
+            className="overview-timeline__tick"
+            x={MARGIN.left - 6}
+            y={MARGIN.top + plotHeight}
+            textAnchor="end"
+          >
+            0
+          </text>
+          <text
+            className="overview-timeline__tick"
+            x={MARGIN.left}
+            y={CHART_HEIGHT - 6}
+          >
+            {new Date(start).toISOString().slice(11, 16)}Z
+          </text>
+          <text
+            className="overview-timeline__tick"
+            x={CHART_WIDTH - MARGIN.right}
+            y={CHART_HEIGHT - 6}
+            textAnchor="end"
+          >
+            {new Date(end).toISOString().slice(11, 16)}Z
+          </text>
+          {series.map((item, index) => (
+            <g
+              key={item.series_id}
+              className={`overview-timeline__series overview-timeline__series--${item.series_id}`}
+              strokeDasharray={DASH[index]}
+            >
+              {item.points.map((point) =>
+                isInterval(point) ? (
+                  <line
+                    key={`${point.start}-${point.end}`}
+                    x1={x(point.start)}
+                    x2={Math.max(x(point.end), x(point.start) + 2)}
+                    y1={y(point.value)}
+                    y2={y(point.value)}
+                  >
+                    <title>{`${item.label}: ${point.value} ${item.unit}, ${point.start} to ${point.end}`}</title>
+                  </line>
+                ) : (
+                  <circle
+                    key={point.at}
+                    cx={x(point.at)}
+                    cy={y(point.value)}
+                    r={2.5}
+                  >
+                    <title>{`${item.label}: ${point.value} ${item.unit} at ${point.at}`}</title>
+                  </circle>
+                ),
+              )}
+            </g>
+          ))}
+        </svg>
+      </div>
       <figcaption className="overview-timeline__legend">
         {series.map((item) => (
           <span
@@ -383,10 +415,16 @@ function Timeline({ overview }: { overview: SiteOverviewReadModel }) {
   const { window, timeline } = overview;
   const plotted = timeline.filter((series) => series.points.length > 0);
   return (
-    <Panel heading="Selected-window timeline" headingId="site-overview-timeline-heading">
+    <Panel
+      heading="Selected-window timeline"
+      headingId="site-overview-timeline-heading"
+    >
       <p className="overview-note">{overview.timeline_statement}</p>
       {window.start === null || window.end === null || plotted.length === 0 ? (
-        <p>No accepted measurement in this window, so there is nothing to place on the timeline.</p>
+        <p>
+          No accepted measurement in this window, so there is nothing to place
+          on the timeline.
+        </p>
       ) : (
         <div className="overview-timeline">
           {[...new Set(timeline.map((series) => series.unit))].map((unit) => {
