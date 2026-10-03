@@ -58,6 +58,7 @@ export interface OverviewCoverage {
     | "NO_GOOD_RECORD"
     | "NO_INTERVAL_SPAN"
     | "OVERLAPPING_ONLY"
+    | "OVERLAPPING_OR_NO_SPAN"
     | string;
   records: number;
   good: number;

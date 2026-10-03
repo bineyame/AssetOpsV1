@@ -198,6 +198,18 @@ class TestCards:
         assert energy["evidence"] == []
         assert "interval span" in energy["unavailable_because"]
 
+    def test_overlapping_spans_plus_a_spanless_record_say_both(self) -> None:
+        """Review R2: the mixed case is named as mixed, and the value stays withheld."""
+        rows = [r for r in a_day_without_fuel() if r.device_id != "pv-inverter-controller"]
+        rows += [record("pv-inverter-controller", "ac-power", 10, "18", gateway=gateway)
+                 for gateway in ("g", "other")]
+        rows.append(record("pv-inverter-controller", "ac-power", 25, "18", interval=False))
+        renewable = next(c for c in overview(rows)["cards"] if c["domain_id"] == "Renewable")
+        assert renewable["gaps"][0]["status"] == "OVERLAPPING_OR_NO_SPAN"
+        assert "the rest have no interval span" in renewable["gaps"][0]["reason"]
+        assert all(m["value"] is None for m in renewable["metrics"])
+        assert "all overlap" not in renewable["metrics"][0]["unavailable_because"]
+
     def test_an_overlap_only_feeder_is_not_counted_as_zero(self) -> None:
         """Review F1: Served energy is unavailable, naming the feeder, not a smaller sum."""
         rows = [r for r in a_day_without_fuel() if r.device_id != "mill-meter"]

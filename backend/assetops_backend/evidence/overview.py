@@ -18,8 +18,10 @@ What it serves, and what it never does:
   measured intervals is not counted, and the measured hours are stated beside
   the value. A state-at-instant value is shown at its own source time. No sample
   is carried forward.
-- A needed signal with no GOOD accepted record in the window is a coverage gap.
-  A metric that reads it has no value, and the card names the gap.
+- A needed signal with no record a metric can use in the window is a coverage
+  gap: no record, no GOOD record, no interval span (interval signals), or only
+  overlapping records. A metric that reads it has no value, and the card names
+  the gap with its reason.
 - Fuel is tank level only: no consumption or loss is inferred.
 - The timeline (demand, PV, generator, SOC) is context, not a status source.
 """
@@ -173,6 +175,12 @@ GAP_REASONS = {
         "has GOOD records in this window that all overlap; overlapping records "
         "are used by no metric"
     ),
+    # Review R2: an interval signal whose spanned records all overlap and whose
+    # other GOOD records have no span. Neither half alone is literally true.
+    "OVERLAPPING_OR_NO_SPAN": (
+        "has GOOD records in this window, none usable: those with an interval "
+        "span overlap, and the rest have no interval span"
+    ),
 }
 
 
@@ -229,8 +237,12 @@ class _Window:
             return "NO_GOOD_RECORD"
         if self.usable(key):
             return "REPORTED"
-        if key in INTERVAL_SIGNALS and not _spanned(records):
-            return "NO_INTERVAL_SPAN"
+        if key in INTERVAL_SIGNALS:
+            spanned = _spanned(records)
+            if not spanned:
+                return "NO_INTERVAL_SPAN"
+            if len(spanned) < len(_good(records)):
+                return "OVERLAPPING_OR_NO_SPAN"
         return "OVERLAPPING_ONLY"
 
     def reason(self, key: SignalKey) -> str:

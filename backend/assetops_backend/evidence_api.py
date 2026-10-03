@@ -82,7 +82,8 @@ GET /api/sites/{site_id}/overview?from=&to=   (T027 phase 2)
       cards: [{domain_id, label, assessment: ASSESSMENT, metrics: [METRIC],
                coverage: [{device_id, signal_id, status: "REPORTED"|
                  "NOT_REPORTED"|"NO_GOOD_RECORD"|"NO_INTERVAL_SPAN"|
-                 "OVERLAPPING_ONLY", records, good, usable, unavailable,
+                 "OVERLAPPING_ONLY"|"OVERLAPPING_OR_NO_SPAN", records, good,
+                 usable, unavailable,
                  last_source_time|null}],
                gaps: [{device_id, signal_id, status, reason}]}],
       interval_statement, timeline: [{series_id, label, unit,
