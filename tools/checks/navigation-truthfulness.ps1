@@ -255,8 +255,16 @@ function Get-OperatorSiteTabFailures {
         }
     }
 
-    # 2. The operator rail holds only Sites: no `Operator home` item.
+    # 2. The operator rail holds exactly the live items of the grouped rail, in
+    #    order and each under its group (D-2026-10-02-grammar-ownership-test):
+    #    OPERATE: Sites; INTELLIGENCE: Findings (T028). No `Operator home`
+    #    item. An item outside this list needs a route that renders a truthful
+    #    surface, a review, and this list changed with it.
     $railPath = "frontend/src/shell/OperatorShellLayout.tsx"
+    $expectedRail = @(
+        @{ To = "/sites"; Label = "Sites"; Group = "OPERATE" },
+        @{ To = "/findings"; Label = "Findings"; Group = "INTELLIGENCE" }
+    )
     $rail = @(Get-ScannedModules -Root "frontend/src/shell" -Extensions @(".tsx") |
         Where-Object { $_.Path -eq $railPath })
     if ($rail.Count -eq 0) {
@@ -264,28 +272,34 @@ function Get-OperatorSiteTabFailures {
             "vacuous. Update the check, do not delete it.")) | Out-Null
     }
     else {
-        $items = 0
-        $sitesItem = 0
+        $found = @()
         $lineNumber = 0
         foreach ($line in $rail[0].Lines) {
             $lineNumber++
             if ($line -match '^\s*(//|/?\*)') { continue }
-            if ($line -match '\bto\s*:\s*["'']') { $items++ }
-            if ($line -match '\bto\s*:\s*["'']/sites["'']') { $sitesItem++ }
             if ($line -match 'Operator home') {
                 $failures.Add(("Operator home returned to the operator rail at " +
                     "${railPath}:${lineNumber}: $($line.Trim()). T027 removed it; " +
-                    "/ redirects to Sites and the rail holds Sites only.")) | Out-Null
+                    "/ redirects to Sites.")) | Out-Null
+            }
+            if ($line -match '\bto\s*:\s*["'']([^"'']+)["'']') {
+                $to = $Matches[1]
+                $label = if ($line -match '\blabel\s*:\s*["'']([^"'']+)["'']') { $Matches[1] } else { "" }
+                $group = if ($line -match '\bgroup\s*:\s*["'']([^"'']+)["'']') { $Matches[1] } else { "" }
+                $found += "$to|$label|$group"
             }
         }
-        if ($sitesItem -eq 0) {
-            $failures.Add(("$railPath declares no Sites rail item, so the " +
+        $expected = @($expectedRail | ForEach-Object { "$($_.To)|$($_.Label)|$($_.Group)" })
+        if ($found.Count -eq 0) {
+            $failures.Add(("$railPath declares no operator rail items, so the " +
                 "rail-items rule is vacuous. Update the check, do not delete it.")) | Out-Null
         }
-        elseif ($items -gt 1) {
-            $failures.Add(("$railPath declares $items operator rail items. The " +
-                "rail holds Sites only (T027); another item needs a route that " +
-                "renders a truthful surface and a review.")) | Out-Null
+        elseif (($found -join ";") -ne ($expected -join ";")) {
+            $failures.Add(("$railPath declares the rail items " +
+                "[$($found -join '; ')] but the grouped rail at T028 is exactly " +
+                "[$($expected -join '; ')] (to|label|group, in order; " +
+                "D-2026-10-02-grammar-ownership-test). Another item needs a " +
+                "route that renders a truthful surface and a review.")) | Out-Null
         }
     }
 
