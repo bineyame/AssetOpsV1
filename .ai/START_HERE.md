@@ -34,8 +34,9 @@ organisation and live playback) is complete** (owner accepted 2026-10-01); **T02
 **T025g** (`tasks/completed/T025g-run-binds-scenario-to-site.md`, scenario-site contract under
 `D-2026-10-01-run-binds-scenario-to-site`) is complete (owner accepted 2026-10-02); **T026**
 (`tasks/completed/T026-dispatch-capable-evidence.md`) is complete (owner accepted 2026-10-02);
-next is **T027 phase 1** (Commit, ingestion, Site > Evidence, the tab rule) and the
-order in `tasks/README.md`, replanned under `D-2026-10-02-demo-led-recommendation`.
+**T027** (`tasks/completed/T027-commit-ingestion-and-site-overview.md`, Commit,
+ingestion, Site > Evidence and the mini-grid Overview) is complete (owner accepted
+2026-10-03); next is **T028** (dispatch Finding) and the order in `tasks/README.md`, replanned under `D-2026-10-02-demo-led-recommendation`.
 **T025h is parked** (not before T029; gates nothing).
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and

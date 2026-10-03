@@ -4571,6 +4571,8 @@ In review (phase 1); phase 2 (Overview, AC11, AC22) not started.
 
 ## T027 phase 2 - mini-grid Site Overview
 
+T027 complete; owner accepted 2026-10-03 after hands-on checks of both phases (Claude reviews ACCEPT after fix rounds; Codex retrospective pending).
+
 Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phases).
 
 - Read model `evidence/overview.py` (`OverviewReadModel`), route
