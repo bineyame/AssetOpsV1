@@ -4,7 +4,7 @@ Decision table: `backend/tests/dispatch_decision_table.md` (written before this
 module, and the authority for every rule here). Inputs are accepted records
 and one Foundation property (the generator's specific fuel consumption, the
 stated basis of the indicative fuel quantity). Nothing here reads a run, a
-scenario, a stage, a LabProjection, a world or a private trace (AC14), and
+scenario, a stage, a Lab projection, a world or a private trace (AC14), and
 observed PV output never stands in for available PV capability (AC3).
 
 `assess(records, fuel)` is pure: the same records and model version give the

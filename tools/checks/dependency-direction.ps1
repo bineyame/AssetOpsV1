@@ -282,6 +282,10 @@ function Invoke-DependencyDirectionCheck {
         '^\s*from\s+assetops_contracts\s+import\s+[^#]*\b(?:source_stage|lab_history|lab_projection|observation)\b',
         '^\s*(?:from|import)\s+assetops_backend\.(?:runs|simulator_lab_api)(?:[.\s]|$)',
         '^\s*from\s+assetops_backend\s+import\s+[^#]*\b(?:runs|simulator_lab_api)\b',
+        # T028: analytics depend on evidence, never the reverse. The Overview
+        # receives assessments by injection from the composition root.
+        '^\s*(?:from|import)\s+assetops_backend\.(?:analytics|analytics_api)(?:[.\s]|$)',
+        '^\s*from\s+assetops_backend\s+import\s+[^#]*\b(?:analytics|analytics_api)\b',
         'import_module\(\s*["''](?:assetops_simulator|host|assetops_contracts\.(?:source_stage|lab_history|lab_projection|observation)|assetops_backend\.(?:runs|simulator_lab_api))'
     )
     $evidenceModules = @($backendModules | Where-Object {
