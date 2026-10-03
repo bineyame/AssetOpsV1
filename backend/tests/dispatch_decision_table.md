@@ -91,8 +91,10 @@ state not observed") and counts in the upper bound only.
 A Finding (type `generator-dispatch-interval`) is emitted for an interval whose
 claim level is Candidate avoidable or Indeterminate. A Necessary interval is an
 assessment without a Finding (it is shown by Dispatch, not raised as
-something to act on). Open for owner review: whether Necessary intervals should
-be Findings too.
+something to act on). Owner ruling 2026-10-03 (`.agent/owner-T028-phase-1-questions-2026-10-03.md`):
+Necessary intervals stay assessments without a Finding; they are listed on
+Performance > Dispatch, and the Findings indexes list Candidate avoidable and
+Indeterminate only.
 
 ## Coverage, confidence (AC6)
 
@@ -143,5 +145,7 @@ change this slice may not make.
   interval, source)? Per `D-2026-10-02-scenario-states-override-issuer` a
   change with no issuer is not an operator command, so it is a configuration
   fact; publishing it as a POLICY record needs a scenario or publication
-  change (the record source is the Foundation today). That is outside T028:
-  recorded as an owner question in the phase handoff, not made here.
+  change (the record source is the Foundation today). That is outside T028.
+  Owner ruling 2026-10-03: stop-60 stays as is, with no policy record; the
+  "published policy does not explain the stop" alternative stands. Versioned
+  policy-change records, if wanted, belong with T034 configuration history.
