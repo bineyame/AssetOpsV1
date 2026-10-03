@@ -1249,8 +1249,8 @@ for (const [label, width, height] of [
       [
         // D-2026-10-02-rendered-tabs-per-capability: Overview, Foundation and
         // Evidence render, and nothing else.
-        "exactly three tabs are rendered: Overview, Foundation, Evidence",
-        site.tabLabels.length === 3 &&
+        "exactly five tabs are rendered: Overview, Foundation, Performance, Findings, Evidence (T028)",
+        site.tabLabels.length === 5 &&
           site.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence",
         site.tabLabels.join(" | "),
       ],
