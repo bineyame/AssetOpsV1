@@ -63,7 +63,7 @@ an Open in AssetOps link to Site > Evidence. Site tabs render per capability
 | 12 inspector fields, opens from rows, root unchanged | met for Evidence | siteEvidenceScreen "opens from a signal row and shows the record with three distinct timestamps", "opens from a source row...", "reopens a deep-linked record from the address alone"; layout inspector at 1280 and 640. Overview links: phase 2 |
 | 13 gate off: Evidence stays, Lab goes | met for Evidence | commit_api::test_gate_closed_has_no_commit_routes_and_still_serves_accepted_evidence, ::test_a_closed_build_never_builds_the_commit_store; host::test_gate_closed_serves_the_same_accepted_evidence_and_no_lab; siteEvidenceScreen "stays available with the Simulator Lab gate open or closed"; HTTP check below |
 | 14 rebuild in empty store matches | met for Evidence | ingestion::test_rebuild_from_artifact_texts_matches_the_original; host::test_rebuild_from_committed_artifact_text_alone_matches |
-| 15 rebuild without simulator/runtime | partial | same host test rebuilds from artifact text only in a gate-closed `create_app`; does not prove host/simulator absent from `sys.path` (deviation 1) |
+| 15 rebuild without simulator/runtime | met for Evidence | ingestion::TestRebuildIsolated: a `python -I` subprocess, cwd outside the repo, import blocker for `assetops_simulator`, `host`, `lab_execution`, `source_stages`, `kobo`, `lab_app`, `fixtures`; rebuilds from artifact files into an empty store, equals the in-process build ignoring audit times, leaked modules `[]`, Lab route 404 (fix round B1). Overview: phase 2 extends the same probe |
 | 16 private payloads refused; dependency guards | met | ingestion::test_a_private_object_key_refuses_the_batch_whole, ::test_an_envelope_given_as_an_object_refuses_the_batch, ::test_a_private_payload_is_refused_whole_over_http; new evidence dependency rule proven failing (`evidence/service.py` importing `runs.models`) and non-vacuous |
 | 17 historic basis unchanged by Foundation edit | met | ingestion::test_a_foundation_edit_leaves_accepted_basis_unchanged; host::test_changing_the_current_foundation_leaves_the_accepted_basis; siteEvidenceScreen basis test |
 | 18 Commit vs acceptance separate; Open in AssetOps | met | commit_api::test_partial_rejection_is_reported_and_open_in_assetops_uses_the_accepted_window; host::test_partial_rejection_then_open_in_assetops_shows_actual_coverage; runCommitPanel "commits an eligible stage and shows Commit and release as two facts...", "never says every record was accepted..."; layout: link clicked, landed on `/sites/SITET26/evidence`, populated |
@@ -71,7 +71,7 @@ an Open in AssetOps link to Site > Evidence. Site tabs render per capability
 | 20 Evidence sections; nothing about capability/claims | met | siteEvidenceScreen populated block (5 tests) incl. "says nothing about capability readiness or claim ceilings"; layout 4 sections at 3 widths |
 | 21 rendered tabs per capability | met | operatorSiteTabs.test.tsx, foundationScreen.test.tsx, overflowContainment.test.tsx; navigation-truthfulness rules proven with four mutations (1a); layout: Overview\|Foundation\|Evidence and Definition\|Topology\|Controls |
 | 22 presentation profile | phase 2 | needed-signal substrate keyed by `site_type` MINIGRID exists for coverage only |
-| 23 rail Sites only; `/` -> `/sites` | met | OperatorShellFrame.test.tsx, operatorRouteFrames, sitesIndexRoute, siteDetailRoute, siteFoundationRoute, simulatorLabWorkspaceEntryPoint; layout "/ lands on the Sites index" |
+| 23 rail Sites only; `/` -> `/sites` | met | operatorSiteTabs.test.tsx:353 (`/` redirect), operatorRouteFrames, sitesIndexRoute, siteDetailRoute, siteFoundationRoute, simulatorLabWorkspaceEntryPoint; layout "/ lands on the Sites index" |
 
 **AC18 lands on Site > Evidence in both phases.** The link's job is to show the
 actual release and acceptance outcome for the committed window. Evidence is the
@@ -127,8 +127,7 @@ Gate closed (product `assetops_backend.main:app`, copy with the gate off, HTTP):
 
 ## Known deviations
 
-1. AC15: the rebuild runs in-process; host/simulator are not proven absent from
-   `sys.path`.
+1. (Closed by fix round B1.) AC15 is proven in an isolated subprocess for Evidence.
 2. The profile-5 run stages no fuel-level-sensor envelopes, so Fuel coverage
    reads NOT_REPORTED (the layout run's one gap). Phase 2's Fuel card will show
    a coverage gap unless the profile publishes it.
@@ -152,3 +151,22 @@ Phase-1 UI check: Lab run (Kobo v3 Site, `kobo-mini-grid-degraded-evidence`) ->
 Run to the end -> Commit and release -> Open in AssetOps -> Site > Evidence:
 source health, coverage (one gap), basis, rejections, then a coverage row's
 record with source, published and received times. Then Lab off: Evidence stays.
+
+## Fix round 1 (review `.agent/T027-phase-1-claude-review.md`)
+
+| Finding | Disposition |
+| --- | --- |
+| B1 AC15 proof | Fixed. `backend/tests/t027_isolated_probe.py` (build + blocker) and `test_t027_ingestion.py:648` `TestRebuildIsolated`. Non-vacuity: appending `import assetops_simulator` to `evidence/read_model.py` failed the test; reverted. Phase 2 extends `build()` to Overview. |
+| N1 registry | Fixed (tests, docs), store not moved. `test_t027_ingestion.py:583` `TestRebuildAfterFoundationEdit`: registry kept rebuilds after an edit; a fully empty store is refused `CONFIGURATION_UNRESOLVED`. `json_evidence_store.py:17` docstring and the packet state `var/evidence/registry` is configuration, not derived data (delete `sites/`, never `registry/`). Location question: carried (owner, trigger T034). |
+| N2 | Carried to `.ai/MILESTONE_REVIEW_BACKLOG.md` ("Carried from T027 phase 1"). |
+| N3 | Fixed. `RunCommitPanel.tsx:157-165` offers "Retry release" for a REFUSED release (same POST, refusal kept above it); test `runCommitPanel.test.tsx` "offers a retry beside a refused release". |
+| N4 | Fixed, smaller change: ingest refuses a batch id already used at another Site (`service.py:390`, `find_batch`) rather than adding a Site scope to the GET, which has none. A batch id now names one release in the whole store. Test `TestBatchIdScope::test_a_batch_id_used_at_another_site_is_refused`. |
+| N5 | Fixed by recording once per distinct refusal, keyed on (batch id, content digest) (`service.py:348` `_conflict`). A retried identical post adds nothing; different content adds one. Test `test_a_retried_refusal_is_recorded_once`. |
+| N6 | Carried to the backlog. |
+| N7 | Fixed. `navigation-truthfulness.ps1:241-302`: capability filter, rail items (Sites only, no `Operator home`), `/` redirect, each with a presence check. Each proven failing in a scratch copy (unfiltered inventory; added `Operator home` item, 2 failures; non-redirecting `/` route) and the scratch removed. |
+| N8 | Fixed. Duplicate comment removed (`navigation-truthfulness.ps1:320-321`); AC23 row cites `operatorSiteTabs.test.tsx:353`. |
+| N9 | Noted in `.agent/T027-phase-1-handoff.md` for phase 2. |
+
+Checks after the fix round: backend 1417 passed; host 602 passed; simulator 244
+passed (from `simulator/`); frontend tsc clean, 1056 tests passed, build ok;
+`check-architecture.ps1` passed; `check-agent-workflow.ps1` passed.

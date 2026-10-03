@@ -1686,6 +1686,37 @@ Recorded 2026-10-02 by the T026 Implementer after owner ruling on C1.
   override publishes no record there; whether it surfaces as a policy record
   (version, effective interval, source) is T028's question.
 
+## Carried from T027 phase 1: three items
+
+Recorded by the T027 phase 1 fix round (review `.agent/T027-phase-1-claude-review.md`).
+
+- **N2: resuming a release needs the live stage, and the refusal misdescribes
+  it.** `simulator_lab_api.py` (the commit POST) reads the stage even when the
+  sealed artifact is already filed; a missing stage gives `COMMIT_STAGE_CHANGED`
+  ("differs from the stage as it is now"). Safe to carry: the stage store is not
+  cleaned in the demo, and the refusal is honest about refusing, only wrong about
+  why. Would change the answer: any stage cleanup or retention policy (T026A
+  recovery volumes), or an owner report of a stuck release. Fix then: refuse
+  only when a stage is present and its digest differs, else release the
+  artifact; at minimum give an absent stage its own message.
+- **N6: the evidence store design.** One JSON document per Site, rewritten whole
+  per 64-record chunk with `.partial` and `os.replace`, in-process locks only.
+  Measured: the owner's 329-record Site is 571 KB and loads in about 10 ms;
+  writes grow quadratically within a batch. Safe to carry: single product
+  process, a few Sites, and the task's "simple and correct" limit. Would change
+  the answer: two processes over the same `var/evidence` (product app and
+  `host/lab_app`) risk lost read-modify-write updates; or multi-Site live
+  ingestion, a much larger history, or T026A outage and recovery volumes. Two
+  parts to fix then: a single-writer guarantee, and per-record or append storage.
+- **N1 store location (owner question).** `var/evidence/registry/` is
+  configuration, not derived data: it is the only record of how an earlier
+  Foundation version read, because the Site repository keeps no version
+  history. The fix round documents this and tests rebuild after an edit, but did
+  not move it. Pending the owner: move it to a durable configuration-history
+  store, or accept the location. Trigger: T034, before Foundation becomes
+  editable. Until then nothing edits a Foundation, so the registry cannot be the
+  sole copy of a changed basis.
+
 ## Superseded scenario versions survive only in git
 
 Recorded 2026-10-01 by the Planner (Claude under

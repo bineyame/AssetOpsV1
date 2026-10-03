@@ -48,3 +48,15 @@ cards Service, Dispatch, Battery, Fuel, Renewable from Kobo v3 signals; neutral
 - Evidence store is one JSON per Site, single-process lock.
 - Layout script carries 3 environment "blocked table" failures and the T025e
   delta budget miss (from T026).
+
+## Fix round 1 notes for phase 2
+
+- N9: keep one list of Overview signals. `NEEDED_SIGNALS` in
+  `backend/assetops_backend/evidence/read_model.py` and the AC22 presentation
+  profile (substrate data keyed by `site_type`) must not drift: derive the
+  needed signals from the profile's cards, or pin the two equal in a test.
+- AC15 is now proven for Evidence by `backend/tests/t027_isolated_probe.py`
+  (`build()`); extend `build()` to the Overview read model and the existing
+  isolated test covers it.
+- AC15 isolated test no longer needs the "AC15 rebuild is in-process" risk above.
+
