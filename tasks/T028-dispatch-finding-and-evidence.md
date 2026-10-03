@@ -1,6 +1,6 @@
 # T028 - First dispatch Finding with challengeable evidence
 
-Status: planned
+Status: in_progress
 USER_REVIEW_REQUIRED: true
 
 Map: C; earliest domain-expert feedback checkpoint, and with T029 the first
