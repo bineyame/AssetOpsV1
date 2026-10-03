@@ -1,3 +1,31 @@
+# Coordinator handoff (2026-10-03, T027 merged; T028 next)
+
+A fresh coordinator starts from this file; do not re-derive what it states.
+
+## Current state (supersedes older sections below)
+
+- **T027 is complete and merged**: `main` at `1f4e64c` (nothing pushed). Owner
+  hands-on checks of both phases successful (`.agent/owner-T027-phase-2-hands-on-2026-10-03.md`).
+  Owner ruling 2026-10-03: "Start Simulation" stays a disabled Quick action with
+  its Run-setup reason. Final suites: backend 1435, host 602, simulator 244,
+  frontend 1071; both checks pass.
+- Codex retrospective list: T025e, T025f, T025g, T026, the demo-led plan,
+  T027 phase 1 and phase 2.
+- Carries in `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T027 phase 1/2"
+  (N2, N6, registry location for T034; generator runtime for T028; Lab
+  "no accepted evidence" wording fast lane; intermittent T026 layout claim).
+
+## Next actions
+
+1. **T028** (dispatch Finding, `tasks/T028-dispatch-finding-and-evidence.md`) by a
+   fresh Implementer; read the T028 generator-runtime carry first.
+2. After the Codex reset (2026-10-03 21:23): revert Architect/Planner/Reviewer in
+   `.ai/ROLE_CONFIG.md` to Codex, queue the retrospective reviews above, and ask
+   the owner who takes in-flight roles.
+
+---
+Older history follows.
+
 # Coordinator handoff (2026-10-03, T027 phase 1 accepted; phase 2 next)
 
 A fresh coordinator starts from this file; do not re-derive what it states.
