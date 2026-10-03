@@ -4372,6 +4372,69 @@ const READ_T028_INDEX = `(() => {
   }
 }
 
+// --- T028 phase 3: Site > Evidence capability table (AC20) -------------------
+//
+// On the committed Site: exactly one capability row (dispatch) above the T027
+// Source health section, with a readiness the backend scored (Full, Limited or
+// None), a claim ceiling and its missing-evidence cell; the table contained
+// and the page not scrolling at any width. The row count is the non-empty
+// proof: an absent table fails the claim rather than passing on an empty set.
+
+const READ_T028_CAPABILITY = `(() => {
+  const heading = document.getElementById("site-evidence-capability-heading");
+  const sources = document.getElementById("site-evidence-sources-heading");
+  const table = heading ? heading.closest("section")?.querySelector("table") ?? null : null;
+  const region = table ? table.closest(".data-table__scroll") : null;
+  const rows = Array.from(document.querySelectorAll("[data-capability]")).map((tr) => {
+    const b = tr.getBoundingClientRect();
+    return {
+      id: tr.getAttribute("data-capability"),
+      readiness: tr.getAttribute("data-capability-readiness"),
+      ceiling: tr.querySelector("[data-capability-ceiling]")?.getAttribute("data-capability-ceiling") ?? null,
+      missing: tr.querySelectorAll("[data-capability-missing]").length,
+      height: Math.round(b.height),
+    };
+  });
+  return {
+    rows,
+    above: heading && sources ? Math.round(heading.getBoundingClientRect().top) < Math.round(sources.getBoundingClientRect().top) : false,
+    overflowX: region ? getComputedStyle(region).overflowX : null,
+    regionRight: region ? Math.round(region.getBoundingClientRect().right) : null,
+    viewport: document.documentElement.clientWidth,
+  };
+})()`;
+
+for (const [label, width, height] of [
+  ["1280x800", 1280, 800],
+  ["1000x700", 1000, 700],
+  ["640x700", 640, 700],
+]) {
+  const page = await visit(cdp, `/sites/${KOBO_SITE}/evidence`, width, height, "[data-capability], [data-evidence-state]");
+  await sleep(300);
+  const read = await evaluate(READ_T028_CAPABILITY);
+  allPass =
+    report(`T028 Site > Evidence capability table, ${KOBO_SITE}, at ${label}`, page, [
+      [
+        "exactly one row (dispatch), scored Full, Limited or None, with a ceiling and a missing-evidence cell",
+        read.rows.length === 1 && read.rows[0].id === "dispatch" &&
+          ["FULL", "LIMITED", "NONE"].includes(read.rows[0].readiness) &&
+          read.rows[0].ceiling !== null && read.rows[0].missing > 0 && read.rows[0].height > 0,
+        read.rows.map((r) => `${r.id} ${r.readiness} ceiling ${r.ceiling}, ${r.missing} missing-evidence item(s), ${r.height}px`).join("; ") || "no row",
+      ],
+      ["the capability table sits above Source health", read.above, `above ${read.above}`],
+      [
+        "the table is contained",
+        (read.overflowX === "auto" || read.overflowX === "scroll") && read.regionRight !== null && read.regionRight <= read.viewport,
+        `overflow-x ${read.overflowX}; region right ${read.regionRight} vs ${read.viewport}`,
+      ],
+      [
+        "the page does not scroll horizontally",
+        !page.pageScrollsHorizontally,
+        `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+      ],
+    ]) && allPass;
+}
+
 {
   // A third Draft, left RUNNING, for the --readback pass: after the host is
   // restarted it must read INTERRUPTED with Play unavailable.
