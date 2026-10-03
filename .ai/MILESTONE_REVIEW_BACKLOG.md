@@ -1717,7 +1717,7 @@ Recorded by the T027 phase 1 fix round (review `.agent/T027-phase-1-claude-revie
   editable. Until then nothing edits a Foundation, so the registry cannot be the
   sole copy of a changed basis.
 
-## Carried from T027 phase 2: two items
+## Carried from T027 phase 2: three items
 
 Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-review.md`).
 
@@ -1730,12 +1730,25 @@ Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-revie
   the status record's transitions, or from the interval mean as a fraction of
   rated output, under the dispatch capability's evidence requirements.
 - **Two Lab explanations still say drafts have "no accepted evidence".**
-  `shell/RunSetupFrame.tsx` and `shell/RunsFrame.tsx` explain a draft as never
-  executed, with no output or accepted evidence. Runs have executed since T022,
-  and since T027 a committed run's envelopes are accepted evidence. These
-  predate T027's falsification and sit outside the operator Overview. Fix in a
-  fast-lane wording pass: say what a draft is without stating that nothing has
-  run.
+  `shell/RunsFrame.tsx` (76-82) and `shell/RunSetupFrame.tsx` (around 502 and
+  1178-1199) explain a draft as never executed, with no output or accepted
+  evidence. Two falsifications stack here. "Nothing here has been executed" and
+  "no causal runtime exists" have been false since T022. T027 extends it: the
+  Runs list shows every run with its execution columns, and a committed run's
+  envelopes are accepted evidence, so the "no accepted evidence" clause is
+  T027's own (corrected per `.agent/T027-phase-2-claude-rereview.md`). Safe to
+  carry under `D-2026-09-22-milestone-speed-over-purity`: Lab-only, gated off by
+  default, outside the operator Overview. Fix in a fast-lane wording pass: say
+  what a draft is without stating that nothing has run or been accepted.
+- **Intermittent T026 layout claim: "the attempts table has five columns, and
+  a delayed reading is named".** `tools/layout-evidence.mjs` (around 3742-3751,
+  T026 "inspector through the held publication") drives the history cursor and
+  reads after a fixed `sleep(600)`. It failed in two of three T027 phase 2 runs,
+  with the attempt rows present and only the delayed cell reading 0. That is a
+  read racing an asynchronous render, not changed data. Fix: replace the sleep
+  with a wait on the delayed cell (or the selected boundary's attempt row) before
+  reading. Until then, a single failure of this claim alone is not evidence of a
+  regression.
 
 ## Superseded scenario versions survive only in git
 

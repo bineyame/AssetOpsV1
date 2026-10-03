@@ -192,3 +192,29 @@ Also carried, as an observation that is not a finding: `shell/RunSetupFrame.tsx`
 - **The four known pre-existing failures:** the three "blocked table" claims and the T025e delta budget (p95 73.3 ms).
 - **The T026 "held publication: a delayed reading is named" claim:** this is the same intermittent Lab claim that failed in run 1 and passed in run 3. It sits outside this slice.
 - **Every T027 claim passes,** with the same populated, link-click and empty results as before at 1280/1000/640. At 640 the region again overflows and scrolls.
+
+## Fix round 2
+
+Review: `.agent/T027-phase-2-claude-rereview.md` (accept with fixes, 3f1b00f).
+
+| Finding | Disposition |
+| --- | --- |
+| R1 "View Live Data" reason denies accepted evidence (must) | Fixed in d2a1783. `SiteQuickActions` now gives the reason "Live data is not a capability of this build. Accepted evidence for this site is on the Evidence tab." The action stays disabled. `siteDetail.test.tsx` pins the exact reason. `siteDetailScreen.test.tsx` pins it with the gate closed and open, and rejects "no evidence has been accepted". The populated-Overview test now also rejects `/no evidence has been accepted/i` and `/nothing (has been\|was) accepted/i` anywhere in `<main>`. The empty-Site test still allows the strip's true "No window: no evidence has been accepted for this site." Non-vacuity: restoring the old sentence failed the populated-Overview test; reverted. |
+| R2 mixed overlap plus span-less reason | Fixed in 1e4a8ce. A new status, `OVERLAPPING_OR_NO_SPAN`, reads "has GOOD records in this window, none usable: those with an interval span overlap, and the rest have no interval span". The value stays withheld. Test: overview::test_overlapping_spans_plus_a_spanless_record_say_both. |
+| R3 stale docstring | Fixed in 1e4a8ce. The module docstring now states the "no record a metric can use" rule. |
+| Backlog | `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T027 phase 2" now has three items. The Lab wording carry is corrected: T027 extends the falsification to the Runs list's "no accepted evidence" clause. A new entry covers the intermittent T026 layout claim: replace `sleep(600)` with a wait on the delayed cell. |
+
+**Checks after fix round 2 (at 1e4a8ce):**
+
+| Check | Result | Change |
+| --- | --- | --- |
+| Backend | 1435 passed | +1 |
+| Frontend (43 files) | 1071 passed | count unchanged; assertions added to existing tests |
+| `tsc --noEmit` | clean | |
+| `npm run build` | clean | |
+| `check-architecture` | passed | |
+| `check-agent-workflow` | passed | |
+
+Host and simulator were not rerun: `git diff 6035bcb..HEAD -- host simulator` is empty. They stand at 602 and 244 from fix round 1.
+
+**Layout evidence not rerun, deliberately.** R1 changes one sentence inside the Quick actions panel's reason paragraph. R2 changes a gap reason string and a status name that the layout claims do not read. The Overview claims read card order, value and gap counts, "No assessment yet", "Unknown", link hrefs, chart geometry, tabs and page scroll. None of those changed. The text is no longer than before (113 against 154 characters for R1), in a paragraph that already wraps. The fix-round-1 layout file stands.
