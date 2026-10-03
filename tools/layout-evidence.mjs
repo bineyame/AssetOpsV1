@@ -1251,7 +1251,7 @@ for (const [label, width, height] of [
         // Evidence render, and nothing else.
         "exactly three tabs are rendered: Overview, Foundation, Evidence",
         site.tabLabels.length === 3 &&
-          site.tabLabels.join("|") === "Overview|Foundation|Evidence",
+          site.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence",
         site.tabLabels.join(" | "),
       ],
       [
@@ -1320,7 +1320,7 @@ for (const [label, width, height] of [
         // D-2026-10-02-rendered-tabs-per-capability (T027 AC23): only the
         // tabs whose capability exists render.
         "the Site tab row is exactly Overview, Foundation, Evidence",
-        siteTabs.join("|") === "Overview|Foundation|Evidence",
+        siteTabs.join("|") === "Overview|Foundation|Performance|Findings|Evidence",
         siteTabs.join(" | "),
       ],
       [
@@ -3895,8 +3895,8 @@ if (t027.run === null) {
       report(`T027 Site > Evidence populated, ${KOBO_SITE}, at ${label}`, page, [
         ["the Evidence body is populated", read.state === "populated", `${read.state}`],
         [
-          "exactly Overview|Foundation|Evidence, Evidence current",
-          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Evidence",
+          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current",
+          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence" && read.currentTab === "Evidence",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -3990,8 +3990,8 @@ if (t027.run === null) {
           `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported`,
         ],
         [
-          "exactly Overview|Foundation|Evidence, Evidence current",
-          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Evidence",
+          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current",
+          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence" && read.currentTab === "Evidence",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -4090,8 +4090,8 @@ const READ_T027_OVERVIEW = `(() => {
           read.charts.map((c) => `${c.width}px, ${c.marks} marks, right ${c.right}/${c.regionRight}/${read.viewport}, region ${c.overflows ? `overflows (${c.overflowX})` : "fits"}`).join("; "),
         ],
         [
-          "exactly Overview|Foundation|Evidence, Overview current",
-          page.tabLabels.join("|") === "Overview|Foundation|Evidence" && read.currentTab === "Overview",
+          "exactly Overview|Foundation|Performance|Findings|Evidence, Overview current",
+          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence" && read.currentTab === "Overview",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -4138,6 +4138,224 @@ const READ_T027_OVERVIEW = `(() => {
             read.charts.length === 0 &&
             !/unknown/i.test(read.text),
           `${read.state}; ${read.cards.map((c) => `${c.id} ${c.gaps} gaps ${c.values} values`).join("; ")}; ${read.charts.length} charts`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
+}
+
+// --- T028 phase 2: Performance > Dispatch, Finding detail, Findings ----------
+//
+// On the committed Site (KOBO_SITE): the grouped rail (OPERATE: Sites;
+// INTELLIGENCE: Findings), each a one-item group that still renders its
+// header; Performance with Dispatch its only subtab and the dense interval
+// table contained; a Finding's detail with Overview | Evidence | Alternatives,
+// the claim drawer opened from the Evidence tab without changing the path;
+// and the global Findings index. Every content claim carries a count.
+
+const READ_T028_RAIL = `(() => {
+  const nav = document.querySelector('nav[aria-label="Operator routes"]');
+  const side = document.querySelector(".app-frame__side");
+  const groups = nav ? Array.from(nav.querySelectorAll(".nav-rail__group")).map((g) => {
+    const header = g.querySelector(".nav-rail__group-label");
+    const hb = header ? header.getBoundingClientRect() : null;
+    const items = Array.from(g.querySelectorAll("li")).map((li) => {
+      const b = li.getBoundingClientRect();
+      return { label: (li.textContent || "").trim(), top: Math.round(b.top), right: Math.round(b.right), height: Math.round(b.height) };
+    });
+    return {
+      header: header ? (header.textContent || "").trim() : null,
+      headerHeight: hb ? Math.round(hb.height) : 0,
+      headerBottom: hb ? Math.round(hb.bottom) : null,
+      headerRight: hb ? Math.round(hb.right) : null,
+      items,
+    };
+  }) : [];
+  return { groups, sideRight: side ? Math.round(side.getBoundingClientRect().right) : null };
+})()`;
+
+const READ_T028_DISPATCH = `(() => {
+  const sub = document.querySelector('nav[aria-label="Performance sections"]');
+  const table = document.querySelector('[aria-labelledby="site-dispatch-heading"] table');
+  const region = table ? table.closest(".data-table__scroll") : null;
+  const rows = Array.from(document.querySelectorAll("[data-dispatch-interval]")).map((tr) => ({
+    id: tr.getAttribute("data-dispatch-interval"),
+    level: tr.getAttribute("data-claim-level"),
+    finding: tr.querySelector("[data-dispatch-finding-link]")?.getAttribute("href") ?? null,
+  }));
+  const strips = Array.from(document.querySelectorAll(".segment-strip")).map((s) => Math.round(s.getBoundingClientRect().width));
+  return {
+    subtabs: sub ? Array.from(sub.querySelectorAll("li")).map((li) => (li.textContent || "").trim()) : [],
+    rows, strips,
+    contained: region ? getComputedStyle(region).overflowX : null,
+    regionRight: region ? Math.round(region.getBoundingClientRect().right) : null,
+    viewport: document.documentElement.clientWidth,
+  };
+})()`;
+
+const READ_T028_FINDING = `(() => {
+  const tabs = document.querySelector('nav[aria-label="Finding sections"]');
+  const drawer = document.querySelector("[data-claim-drawer]");
+  const db = drawer ? drawer.getBoundingClientRect() : null;
+  return {
+    finding: document.querySelector("[data-finding]")?.getAttribute("data-finding") ?? null,
+    tabs: tabs ? Array.from(tabs.querySelectorAll("li")).map((li) => (li.textContent || "").trim()) : [],
+    current: tabs ? (tabs.querySelector('[aria-current="page"]')?.textContent || "").trim() : null,
+    sections: Array.from(document.querySelectorAll(".finding-section__heading")).map((h) => (h.textContent || "").trim()),
+    claims: document.querySelectorAll("[data-claim-segment]").length,
+    links: document.querySelectorAll("[data-evidence-link]").length,
+    drawer: drawer ? drawer.getAttribute("data-claim-drawer") : null,
+    drawerRecord: drawer ? (drawer.querySelector("[data-evidence-record-detail]")?.getAttribute("data-evidence-record-detail") ?? null) : null,
+    drawerBox: db ? { left: Math.round(db.left), right: Math.round(db.right), width: Math.round(db.width) } : null,
+    path: location.pathname,
+    railCurrent: (document.querySelector('nav[aria-label="Operator routes"] [aria-current="page"]')?.textContent || "").trim(),
+    viewport: document.documentElement.clientWidth,
+  };
+})()`;
+
+const CLICK_FIRST_EVIDENCE_LINK = `(() => {
+  const b = document.querySelector("[data-evidence-link]");
+  if (!b) return null;
+  b.click();
+  return b.getAttribute("data-evidence-link");
+})()`;
+
+const READ_T028_INDEX = `(() => {
+  const table = document.querySelector('[data-findings-index] table');
+  const region = table ? table.closest('.data-table__scroll') : null;
+  return {
+    rows: Array.from(document.querySelectorAll('[data-finding-row]')).map((r) => r.getAttribute('data-finding-row')),
+    empty: document.querySelector('[data-findings-empty]') !== null,
+    overflowX: region ? getComputedStyle(region).overflowX : null,
+    current: (document.querySelector('nav[aria-label="Operator routes"] [aria-current="page"]')?.textContent || '').trim(),
+  };
+})()`;
+
+{
+  let findingHref = null;
+  let anyAssessment = null;
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, `/sites/${KOBO_SITE}/performance`, width, height, "[data-dispatch-interval], [data-dispatch-empty]");
+    await sleep(300);
+    const rail = await evaluate(READ_T028_RAIL);
+    const read = await evaluate(READ_T028_DISPATCH);
+    findingHref = findingHref ?? read.rows.find((r) => r.finding !== null)?.finding ?? null;
+    anyAssessment = anyAssessment ?? read.rows[0]?.id ?? null;
+    const groups = rail.groups.map((g) => `${g.header}: ${g.items.map((i) => i.label).join(",")}`).join("; ");
+    allPass =
+      report(`T028 grouped rail and Performance > Dispatch, ${KOBO_SITE}, at ${label}`, page, [
+        [
+          "rail is exactly OPERATE: Sites; INTELLIGENCE: Findings, each one-item group headed",
+          groups === "OPERATE: Sites; INTELLIGENCE: Findings" &&
+            rail.groups.every((g) => g.headerHeight > 0 && g.items.length === 1 && g.items[0].height > 0 && g.headerBottom <= g.items[0].top),
+          `${groups}; header heights ${rail.groups.map((g) => g.headerHeight).join(",")}`,
+        ],
+        [
+          "rail headers and items stay inside the rail column",
+          rail.groups.every((g) => g.headerRight <= rail.sideRight && g.items.every((i) => i.right <= rail.sideRight)),
+          `side right ${rail.sideRight}`,
+        ],
+        [
+          "Site tabs Overview|Foundation|Performance|Findings|Evidence; Dispatch the only Performance subtab",
+          page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
+            read.subtabs.join("|") === "Dispatch assessment",
+          `${page.tabLabels.join(" | ")}; subtabs ${read.subtabs.join(",")}`,
+        ],
+        [
+          "the interval table is populated, contained and each row has a segment strip",
+          read.rows.length > 0 && read.strips.length === read.rows.length && read.strips.every((w) => w > 0) &&
+            (read.contained === "auto" || read.contained === "scroll") && read.regionRight <= read.viewport,
+          `${read.rows.length} rows (${read.rows.map((r) => r.level).join(",")}); strips ${read.strips.join(",")}; overflow-x ${read.contained}; region right ${read.regionRight} vs ${read.viewport}`,
+        ],
+        [
+          "the page does not scroll horizontally",
+          !page.pageScrollsHorizontally,
+          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+        ],
+      ]) && allPass;
+  }
+
+  const target = findingHref ?? (anyAssessment === null ? null : `/findings/${KOBO_SITE}/${anyAssessment}`);
+  if (target === null) {
+    allPass = report("T028 Finding detail", null, [["an assessed interval exists on " + KOBO_SITE, false, "none"]]) && false;
+  } else {
+    for (const [label, width, height] of [
+      ["1280x800", 1280, 800],
+      ["640x700", 640, 700],
+    ]) {
+      const page = await visit(cdp, target, width, height, "[data-finding]");
+      const over = await evaluate(READ_T028_FINDING);
+      allPass =
+        report(`T028 Finding detail Overview, ${target}${findingHref === null ? " (no Finding raised: Necessary assessment)" : ""}, at ${label}`, page, [
+          [
+            "tabs exactly Overview|Evidence|Alternatives, Overview current; root is Findings",
+            over.tabs.join("|") === "Overview|Evidence|Alternatives" && over.current === "Overview" && over.railCurrent === "Findings",
+            `${over.tabs.join("|")}; current ${over.current}; rail ${over.railCurrent}`,
+          ],
+          ["the six-part hierarchy renders", over.sections.length === 6, over.sections.join(" / ")],
+          [
+            "the page does not scroll horizontally",
+            !page.pageScrollsHorizontally,
+            `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+          ],
+        ]) && allPass;
+
+      const evidencePath = `${target}/evidence`;
+      await visit(cdp, evidencePath, width, height, "[data-claim-segment]");
+      const clicked = await evaluate(CLICK_FIRST_EVIDENCE_LINK);
+      await sleep(800);
+      const opened = await evaluate(READ_T028_FINDING);
+      const after = await evaluate(MEASURE);
+      allPass =
+        report(`T028 Finding Evidence tab and claim drawer, at ${label}`, null, [
+          ["claims listed with evidence links", opened.claims > 0 && opened.links > 0, `${opened.claims} claims, ${opened.links} links`],
+          [
+            "the drawer opens the clicked record through the inspector, path and root unchanged",
+            clicked !== null && opened.drawer === clicked && opened.drawerRecord === clicked &&
+              opened.path === evidencePath && opened.railCurrent === "Findings",
+            `clicked ${clicked}; drawer ${opened.drawer}; record ${opened.drawerRecord}; path ${opened.path}; rail ${opened.railCurrent}`,
+          ],
+          [
+            "the drawer sits inside the viewport",
+            opened.drawerBox !== null && opened.drawerBox.left >= 0 && opened.drawerBox.right <= opened.viewport && opened.drawerBox.width > 200,
+            `${JSON.stringify(opened.drawerBox)} vs ${opened.viewport}`,
+          ],
+          [
+            "the page does not scroll horizontally with the drawer open",
+            !after.pageScrollsHorizontally,
+            `scrollWidth ${after.pageScrollWidth} vs clientWidth ${after.pageClientWidth}`,
+          ],
+        ]) && allPass;
+    }
+  }
+
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+  ]) {
+    const page = await visit(cdp, "/findings", width, height, "[data-findings-index]");
+    const read = await evaluate(READ_T028_INDEX);
+    const findingId = findingHref === null ? null : findingHref.split("/").pop();
+    allPass =
+      report(`T028 Findings rail root, at ${label}`, page, [
+        [
+          "Findings is the current root and the index lists the Dispatch Finding",
+          read.current === "Findings" &&
+            (findingId === null ? read.rows.length > 0 || read.empty : read.rows.includes(findingId)),
+          `${read.rows.length} rows; Dispatch Finding ${findingId ?? "none on " + KOBO_SITE}; current ${read.current}`,
+        ],
+        [
+          "the index table is contained (or the empty state is stated)",
+          read.empty || read.overflowX === "auto" || read.overflowX === "scroll",
+          `overflow-x ${read.overflowX}; empty ${read.empty}`,
         ],
         [
           "the page does not scroll horizontally",
