@@ -1,4 +1,4 @@
-# Coordinator handoff (2026-10-03, T027 phase 1 built, awaiting review)
+# Coordinator handoff (2026-10-03, T027 phase 1 accepted; phase 2 next)
 
 A fresh coordinator starts from this file; do not re-derive what it states.
 
@@ -15,33 +15,30 @@ A fresh coordinator starts from this file; do not re-derive what it states.
 - Owner text, verbatim, in `.agent/owner-*-2026-10-02.md` (review,
   instruction, approval, acceptance); each approval file separates the owner's
   words from the coordinator's reading.
-- **T027 phase 1 is built** on `task/T027-commit-ingestion-and-site-overview`
-  (cut from `f7325c3`; HEAD `a76a57d`; task `Status: in_review`). Not reviewed.
-  - Packet: `.agent/T027-phase-1-review-packet.md`
-  - Phase 2 handoff: `.agent/T027-phase-1-handoff.md`
-  - Layout evidence: `.agent/T027-phase-1-layout-evidence.txt` (485 PASS;
-    4 pre-existing FAILs: run-setup blocked table x3, delta p95 97.2 ms)
-  - Suites: backend 1412, host 602, simulator 244, frontend 1055 pass; both
-    workflow and architecture checks pass.
-  - Implementer flags for the Reviewer: AC15 partial (rebuild runs in-process);
-    `f0b30ee` does not typecheck alone (fixed by `24b38ee`; squash?); evidence
-    store is one JSON per Site rewritten per chunk (quadratic, single-process
-    lock); unstated choices listed in the packet; early layout runs wrote
-    Drafts/executions into the working `var/runs` and `var/executions`.
+- **T027 phase 1 is accepted** on `task/T027-commit-ingestion-and-site-overview`
+  (cut from `f7325c3`; HEAD `dfb9651`; task `Status: in_review`, phase 2 open).
+  - Owner hands-on check: successful (`.agent/owner-T027-phase-1-hands-on-2026-10-03.md`).
+  - Review `.agent/T027-phase-1-claude-review.md` (accept with one fix);
+    fix round `c9fb412..24bc13e`; re-review `.agent/T027-phase-1-claude-rereview.md`
+    (accept); N10 `.pyc` untracked in `dfb9651`.
+  - Suites: backend 1417, host 602, simulator 244 (run from `simulator/`),
+    frontend 1056; both checks pass. Layout evidence from phase 1 build:
+    4 pre-existing FAILs only.
+  - Carried to `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T027 phase 1":
+    release resume needs the live stage (N2), evidence store design (N6),
+    configuration-registry location (owner question, trigger T034).
+  - Phase 2 handoff: `.agent/T027-phase-1-handoff.md` (includes N9: one
+    source for `NEEDED_SIGNALS` and the AC22 profile).
 
 ## Next actions
 
-1. Fresh Claude Reviewer on T027 phase 1 against the task file and packet
-   (Reviewer is Claude until the Codex reset **2026-10-03 21:23**; after it,
-   ask the owner who reviews). Fix rounds on Sonnet; re-reviews to a fresh
-   Claude Reviewer.
-2. Owner hands-on check: steps in the packet / the Implementer report
-   (`/` -> `/sites`; Lab run of `kobo-mini-grid-degraded-evidence` on a Kobo
-   v3 Site; Commit and release; Open in AssetOps -> Site > Evidence; tabs
-   Overview | Foundation | Evidence; record inspector three times; gate off).
-3. Then T027 phase 2 by a fresh Implementer from the phase 1 handoff (demo
-   point 1 at its end).
-4. Before T027's final merge: merge `main` (`4ae4d4b`) into the T027 branch.
+1. T027 phase 2 (mini-grid Site Overview: AC11, AC22, and the Overview
+   extensions of ACs 10, 12-15, 19) by a fresh Implementer from
+   `.agent/T027-phase-1-handoff.md`. Ends with full suites, layout evidence,
+   final packet.
+2. Fresh Claude Reviewer on phase 2 (or Codex after the reset; ask the owner),
+   then the owner's demo point 1 check.
+3. Before T027's final merge: merge `main` (`4ae4d4b`) into the T027 branch.
 
 ## Open owner items (defaults stand until the owner rules)
 
