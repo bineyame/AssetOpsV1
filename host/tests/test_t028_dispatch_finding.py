@@ -245,3 +245,40 @@ def test_a_stop_the_published_policy_cannot_explain_is_said_so(degraded) -> None
     body = only(degraded)["assessment"]
     policy = next(x for x in body["alternatives"] if x["id"] == "POLICY_CONSTRAINT")
     assert "90 %" in policy["statement"] and "does not explain this stop" in policy["statement"]
+
+
+
+# --- changed accepted evidence through a second Commit (AC13, owner UI path) -----
+
+
+def test_a_second_commit_that_fills_a_gap_revises_and_keeps_the_prior(tmp_path) -> None:
+    """The phase 1 UI check's revision path. Commit the degraded-evidence recipe,
+    then the prolonged recipe over the same window onto the same Site. Records at
+    an already-accepted (device, signal, time) are held as conflicts by
+    ingestion; the ones the degraded run never published are accepted, so the
+    interval's evidence changes and its assessment gains revision 2. Revision 1
+    stays listed, unchanged, read through a fresh application (reload)."""
+    world = World(tmp_path, "kobo-mini-grid-degraded-evidence", PROLONGED)
+    (first,) = read(world, "/dispatch")["assessments"]
+    before = read(world, f"/assessments/{first['assessment_id']}/revisions")["revisions"]
+    assert [r["revision"] for r in before] == [1]
+
+    later = kobo_draft(
+        "kobo-mini-grid-prolonged", model_profile="mini-grid", model_profile_version=3,
+        timestep_minutes=5, publication_profile_version=5, **PROLONGED,
+    )
+    world.runs.create_run(later)
+    execution = world.execution()
+    execution.start(later)
+    execution.run_to_end(later)
+    response = world.client().post(f"/api/simulator-lab/runs/{later.run_id}/commit")
+    assert response.status_code == 200, response.text
+
+    revisions = read(world, f"/assessments/{first['assessment_id']}/revisions")["revisions"]
+    assert sorted(r["revision"] for r in revisions) == [1, 2], revisions
+    prior = next(r for r in revisions if r["revision"] == 1)
+    current = next(r for r in revisions if r["revision"] == 2)
+    assert prior == before[0], "the prior revision is retained, not overwritten"
+    assert prior["evidence_basis_digest"] != current["evidence_basis_digest"]
+    assert current["evidence_records"] > prior["evidence_records"]
+    assert len(read(world, "/findings")["findings"]) == 1, "a revision, not a second Finding"
