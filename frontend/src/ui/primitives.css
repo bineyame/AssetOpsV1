@@ -1868,6 +1868,16 @@ button:focus-visible {
   margin: 0 0 var(--space-2);
 }
 
+.overview-card__capability {
+  color: var(--text-secondary);
+}
+
+.overview-card__assessment-reason {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
 .overview-card__gap {
   margin: 0 0 var(--space-2);
   padding: var(--space-2) var(--space-3);

@@ -6,6 +6,15 @@
       { "id": "Battery", "label": "Battery" },
       { "id": "Fuel", "label": "Fuel" },
       { "id": "Renewable", "label": "Renewable" }
+    ],
+    "capabilities": [
+      {
+        "id": "dispatch",
+        "label": "Dispatch assessment",
+        "order": 1,
+        "group": "Performance",
+        "emphasis": "primary"
+      }
     ]
   }
 }

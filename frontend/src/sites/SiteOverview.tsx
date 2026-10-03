@@ -24,8 +24,10 @@ import { Link } from "react-router-dom";
 
 import { Badge, Fact, FactList, Panel } from "../ui";
 import {
+  capabilityPresentation,
   orderedOverviewCards,
   presentationProfileFor,
+  type DomainPresentationProfile,
 } from "./presentationProfile";
 import type { EvidenceRead } from "./siteEvidenceClient";
 import type {
@@ -93,10 +95,8 @@ export function SiteOverview({
   }
 
   const overview = result.value;
-  const cards = orderedOverviewCards(
-    presentationProfileFor(overview.site_type),
-    overview.cards,
-  );
+  const profile = presentationProfileFor(overview.site_type);
+  const cards = orderedOverviewCards(profile, overview.cards);
   const link = (signal: string, messageId: string) =>
     evidenceHref(signal, messageId);
 
@@ -129,6 +129,7 @@ export function SiteOverview({
                 key={card.domain_id}
                 label={label}
                 card={card}
+                profile={profile}
                 link={link}
               />
             ))}
@@ -256,12 +257,23 @@ function MetricValue({
 function DomainCard({
   label,
   card,
+  profile,
   link,
 }: {
   label: string;
   card: OverviewCard;
+  profile: DomainPresentationProfile | null;
   link: LinkBuilder;
 }) {
+  const assessment = card.assessment;
+  const capability =
+    assessment.capability_id === undefined
+      ? null
+      : capabilityPresentation(
+          profile,
+          assessment.capability_id,
+          assessment.capability_display_name ?? assessment.capability_id,
+        );
   const headingId = `site-overview-card-${card.domain_id.toLowerCase()}`;
   return (
     <Panel heading={label} headingId={headingId} headingLevel={3}>
@@ -273,8 +285,25 @@ function DomainCard({
           card.metrics.filter((m) => m.value !== null).length
         }
       >
-        <Badge tone="neutral">{card.assessment.label}</Badge>
+        {capability === null ? null : (
+          <span
+            className="overview-card__capability"
+            data-overview-capability={capability.id}
+            data-emphasis={capability.emphasis}
+          >
+            {`${capability.label}: `}
+          </span>
+        )}
+        <Badge tone="neutral">{assessment.label}</Badge>
       </p>
+      {capability === null ? null : (
+        <p
+          className="overview-card__assessment-reason"
+          data-overview-assessment-status={assessment.status}
+        >
+          {assessment.reason}
+        </p>
+      )}
       {card.gaps.length === 0 ? null : (
         <p className="overview-card__gap" role="note">
           {`Coverage gap: ${card.gaps

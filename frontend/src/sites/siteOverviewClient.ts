@@ -28,6 +28,12 @@ export interface OverviewAssessment {
   status: string;
   label: string;
   reason: string;
+  /** T028: present when an analytic assessed this domain. */
+  capability_id?: string;
+  capability_display_name?: string;
+  model_version?: string;
+  assessment_ids?: string[];
+  lead_assessment_id?: string;
 }
 
 export interface OverviewEvidenceLink {

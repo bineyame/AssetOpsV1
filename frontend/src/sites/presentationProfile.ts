@@ -19,11 +19,29 @@ export interface OverviewCardPresentation {
   label: string;
 }
 
-export interface DomainPresentationProfile {
-  overview_cards: OverviewCardPresentation[];
+/**
+ * How a backend capability id is presented (T028 AC18). Label, order, group
+ * and emphasis only: which capabilities exist, their Finding types, evidence
+ * and claim levels are the backend declaration's
+ * (`/api/sites/{id}/analytics`), never the profile's.
+ */
+export interface CapabilityPresentation {
+  id: string;
+  label: string;
+  order: number;
+  group: string | null;
+  emphasis: "primary" | "default";
 }
 
-const PROFILES: Record<string, DomainPresentationProfile> = profiles;
+export interface DomainPresentationProfile {
+  overview_cards: OverviewCardPresentation[];
+  capabilities?: CapabilityPresentation[];
+}
+
+/** Where a capability the profile does not know is placed (rule 1). */
+export const DEFAULT_CAPABILITY_ORDER = 1000;
+
+const PROFILES = profiles as Record<string, DomainPresentationProfile>;
 
 /** The profile for a Site type, or `null` when the product has none. */
 export function presentationProfileFor(
@@ -51,4 +69,58 @@ export function orderedOverviewCards(
     const card = byId.get(entry.id);
     return card === undefined ? [] : [{ label: entry.label, card }];
   });
+}
+
+/**
+ * Three rendering rules for backend-served capability ids
+ * (`D-2026-10-02-presentation-profile-and-capability-declaration`), applied to
+ * a card's assessment slot here and to Performance subtabs, Evidence
+ * capability rows and Finding types as those land:
+ *
+ * 1. a backend id the profile does not know still renders, under the
+ *    backend's display name, in a default position - drift is never silent;
+ * 2. a profile id the backend does not serve renders nothing
+ *    (`servedCapabilities` drops it; `orphanCapabilityIds` names it for the
+ *    orphan test);
+ * 3. a gap is shown only from backend state: nothing here carries a status,
+ *    reason or gap.
+ */
+export function capabilityPresentation(
+  profile: DomainPresentationProfile | null,
+  backendId: string,
+  backendDisplayName: string,
+): CapabilityPresentation & { known: boolean } {
+  const entry = profile?.capabilities?.find((item) => item.id === backendId);
+  if (entry !== undefined) {
+    return { ...entry, known: true };
+  }
+  return {
+    id: backendId,
+    label: backendDisplayName,
+    order: DEFAULT_CAPABILITY_ORDER,
+    group: null,
+    emphasis: "default",
+    known: false,
+  };
+}
+
+/** Backend-served capabilities in presentation order (rules 1 and 2). */
+export function servedCapabilities(
+  profile: DomainPresentationProfile | null,
+  served: { id: string; display_name: string }[],
+): (CapabilityPresentation & { known: boolean })[] {
+  return served
+    .map((item) => capabilityPresentation(profile, item.id, item.display_name))
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+}
+
+/** Profile capability ids the backend does not serve (rule 2's orphans). */
+export function orphanCapabilityIds(
+  profile: DomainPresentationProfile | null,
+  servedIds: string[],
+): string[] {
+  const served = new Set(servedIds);
+  return (profile?.capabilities ?? [])
+    .map((item) => item.id)
+    .filter((id) => !served.has(id));
 }
