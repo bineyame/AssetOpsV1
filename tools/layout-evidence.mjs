@@ -4021,16 +4021,19 @@ const READ_T027_OVERVIEW = `(() => {
   }));
   const charts = Array.from(document.querySelectorAll(".overview-timeline__chart")).map((svg) => {
     const box = svg.getBoundingClientRect();
-    const region = svg.closest(".overview-timeline__scroll").getBoundingClientRect();
+    const scroller = svg.closest(".overview-timeline__scroll");
+    const region = scroller.getBoundingClientRect();
     return { width: Math.round(box.width), right: Math.round(box.right), regionRight: Math.round(region.right),
+             overflows: scroller.scrollWidth > scroller.clientWidth,
+             overflowX: getComputedStyle(scroller).overflowX,
              marks: svg.querySelectorAll("g line, g circle").length };
   });
   const links = Array.from(document.querySelectorAll("[data-overview-evidence]")).map((a) => a.getAttribute("href"));
-  const row = document.querySelector("nav[aria-label] a[aria-current='page']");
+  const row = document.querySelector('.site-tabs__list [aria-current="page"]');
   return {
     state: root?.getAttribute("data-overview-state") ?? null,
     cards, charts, links,
-    currentTab: row?.textContent ?? null,
+    currentTab: (row?.textContent || "").trim(),
     text: root?.innerText ?? "",
     viewport: document.documentElement.clientWidth,
   };
@@ -4073,10 +4076,18 @@ const READ_T027_OVERVIEW = `(() => {
           `${read.links.length} links; first ${read.links[0] ?? "none"}`,
         ],
         [
-          "the timeline draws marks and each chart stays inside its region and the viewport",
+          // The chart scales to its column down to a 20rem floor; below that
+          // its own region scrolls it (overflow-x auto), and the region never
+          // leaves the viewport.
+          "the timeline draws marks; each chart fits its region or its region scrolls it, inside the viewport",
           read.charts.length > 0 &&
-            read.charts.every((c) => c.marks > 0 && c.right <= c.regionRight + 1 && c.regionRight <= read.viewport),
-          read.charts.map((c) => `${c.width}px, ${c.marks} marks, right ${c.right}/${c.regionRight}/${read.viewport}`).join("; "),
+            read.charts.every(
+              (c) =>
+                c.marks > 0 &&
+                c.regionRight <= read.viewport &&
+                (c.right <= c.regionRight + 1 || (c.overflows && c.overflowX === "auto")),
+            ),
+          read.charts.map((c) => `${c.width}px, ${c.marks} marks, right ${c.right}/${c.regionRight}/${read.viewport}, region ${c.overflows ? `overflows (${c.overflowX})` : "fits"}`).join("; "),
         ],
         [
           "exactly Overview|Foundation|Evidence, Overview current",
@@ -4097,7 +4108,7 @@ const READ_T027_OVERVIEW = `(() => {
     const opened = await evaluate(`(() => ({
       detail: document.querySelector("[data-evidence-record-detail]")?.getAttribute("data-evidence-record-detail") ?? null,
       path: location.pathname,
-      current: document.querySelector("nav[aria-label] a[aria-current='page']")?.textContent ?? null,
+      current: (document.querySelector('.site-tabs__list [aria-current="page"]')?.textContent || "").trim(),
     }))()`);
     allPass =
       report("T027 Overview evidence link opens the record inspector", page, [
