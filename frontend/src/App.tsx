@@ -30,6 +30,10 @@ import {
   type SiteEvidenceClient,
 } from "./sites/siteEvidenceClient";
 import {
+  createSiteOverviewClient,
+  type SiteOverviewClient,
+} from "./sites/siteOverviewClient";
+import {
   createSiteDirectoryClient,
   type SiteDetailClient,
   type SiteDirectoryClient,
@@ -46,6 +50,7 @@ export { SITES_PATH };
  */
 const defaultSiteDirectory = createSiteDirectoryClient();
 const defaultSiteEvidence = createSiteEvidenceClient();
+const defaultSiteOverview = createSiteOverviewClient();
 
 /**
  * Route table.
@@ -101,6 +106,8 @@ export interface AppProps {
   runSetup?: RunSetupClient;
   /** Site > Evidence reads (T027). Operator, never gated. */
   siteEvidence?: SiteEvidenceClient;
+  /** Site Overview reads (T027 phase 2). Operator, never gated. */
+  siteOverview?: SiteOverviewClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -116,6 +123,7 @@ export function App({
   scenarioCatalog,
   runSetup,
   siteEvidence = defaultSiteEvidence,
+  siteOverview = defaultSiteOverview,
   siteTemplateLineage,
   now,
 }: AppProps) {
@@ -146,6 +154,7 @@ export function App({
             element={
               <SiteDetailFrame
                 detail={siteDetail}
+                overview={siteOverview}
                 sitesPath={SITES_PATH}
                 flags={flags}
                 templateLineage={templateLineage}

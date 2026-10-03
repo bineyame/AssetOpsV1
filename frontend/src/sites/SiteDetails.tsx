@@ -38,15 +38,16 @@ import { deriveSiteDetailView, type SiteUnavailableFact } from "./siteViewModel"
  * What this surface shows is what the product actually knows about a site
  * somebody configured, and what it deliberately does not show is the rest:
  *
- * - No telemetry value, chart, series, gauge, or count. A configuration-only
- *   site has no evidence, and a zero, an empty chart, or a flat line is a
- *   measurement claim rather than an absence.
+ * - No telemetry value, chart, series, gauge, or count of its own. Since T027
+ *   phase 2 the shell places the Overview body (`overview`) here, and every
+ *   measured value on this page is that body's, read from accepted evidence; a
+ *   site with none gets named gaps there, never a zero or a flat line.
  * - No source health. Health becomes applicable once a source is expected to
  *   report; a configured source that has never been expected to report has no
  *   health state, so no source-health vocabulary appears at all.
- * - No evidence-derived timestamp. The one timestamp on this page is the start
- *   of the foundation's validity interval, which is configuration metadata
- *   from the record.
+ * - No evidence-derived timestamp outside the Overview body. The facts below
+ *   it carry one timestamp, the start of the foundation's validity interval,
+ *   which is configuration metadata from the record.
  * - No action control of any kind, in any state, absent from the DOM rather
  *   than rendered disabled. M1 has decided configuration is fixed at creation
  *   and that nothing removes a site, so a greyed-out control would make a
@@ -92,6 +93,12 @@ export interface SiteDetailsProps {
    */
   quickActions?: ReactNode;
   /**
+   * The Overview body for the canonical `site_id` (T027 phase 2), placed under
+   * the tab row. A function for the same reason as `parentTrail`: only this
+   * side has the record's spelling of the identity. Nothing here reads it.
+   */
+  overview?: (siteId: string) => ReactNode;
+  /**
    * The gated template-lineage read, passed only when the composing shell's
    * gate is open. Absent, "Created from template" shows the recorded lineage
    * alone; present, it adds the advisory note when the record is behind.
@@ -105,6 +112,7 @@ export function SiteDetails({
   tabs,
   parentTrail,
   quickActions,
+  overview,
   templateLineage,
 }: SiteDetailsProps) {
   const result = useSiteRecord(siteId, detail);
@@ -162,6 +170,7 @@ export function SiteDetails({
       tabs={tabs}
       parentTrail={parentTrail}
       quickActions={quickActions}
+      overview={overview}
       lineage={lineage?.get(result.site.site_id)}
     />
   );
@@ -196,6 +205,8 @@ export interface SiteDetailFactsProps {
   parentTrail?: (siteId: string) => Crumb[];
   /** See `SiteDetailsProps.quickActions`. */
   quickActions?: ReactNode;
+  /** See `SiteDetailsProps.overview`. */
+  overview?: (siteId: string) => ReactNode;
   /** This site's lineage answer, if the shell supplied a lineage read. */
   lineage?: SiteTemplateLineageReadModel;
 }
@@ -205,6 +216,7 @@ export function SiteDetailFacts({
   tabs,
   parentTrail,
   quickActions,
+  overview,
   lineage,
 }: SiteDetailFactsProps) {
   const view = deriveSiteDetailView(site);
@@ -235,6 +247,16 @@ export function SiteDetailFacts({
       />
 
       {tabs}
+
+      {/*
+        * The Overview body (T027 phase 2): what accepted evidence says about
+        * the site, first, because that is the question this page answers. It
+        * replaces the former "Not available for this site" panel, whose "no
+        * accepted evidence" statement stopped being true once a Commit can be
+        * ingested; evidence availability is now stated by the Overview from
+        * the evidence itself.
+        */}
+      {overview === undefined ? null : overview(view.siteId)}
 
       {/*
         * Every fact the record carries about the site itself, in one panel.
@@ -317,31 +339,6 @@ export function SiteDetailFacts({
 
       <SiteQuickActions>{quickActions}</SiteQuickActions>
 
-      <Panel
-        heading="Not available for this site"
-        headingId="site-detail-no-evidence-heading"
-      >
-        <FactList>
-          <SiteDetailUnavailableFact
-            name="Integration readiness"
-            fact={view.integrationReadiness}
-          />
-          <SiteDetailUnavailableFact
-            name="Evidence availability"
-            fact={view.evidenceAvailability}
-          />
-          <SiteDetailUnavailableFact
-            name="Source health"
-            fact={view.sourceHealth}
-          />
-        </FactList>
-        <p>
-          Nothing below the configuration exists for this site yet. There is no
-          accepted evidence, so there is nothing to chart, nothing to analyse,
-          nothing to replay, and no finding to draw. Each of those arrives with
-          the evidence that fills it rather than as an empty version of itself.
-        </p>
-      </Panel>
     </>
   );
 }

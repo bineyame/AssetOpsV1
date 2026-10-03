@@ -374,13 +374,9 @@ describe("the six provenance and status concepts are six facts", () => {
     expect(factValue(container, "Configuration origin")).toBe("User");
     expect(factValue(container, "Mode")).toBe("Simulated");
     expect(factValue(container, "Lifecycle status")).toBe("Planned");
-    expect(factValue(container, "Integration readiness")).toMatch(
-      /^Not recorded\./,
-    );
-    expect(factValue(container, "Evidence availability")).toMatch(
-      /^No evidence\./,
-    );
-    expect(factValue(container, "Source health")).toMatch(/^Not recorded\./);
+    // T027 phase 2: evidence availability, source health and integration
+    // readiness are no longer stated by the Overview page's own facts; the
+    // Overview body states evidence from the evidence itself.
   });
 
   it("renders the identity header badge as mode, and never as status", async () => {
@@ -466,36 +462,27 @@ describe("the six provenance and status concepts are six facts", () => {
 });
 
 describe("a configuration-only site fabricates nothing", () => {
-  it("states why each unavailable fact is unavailable", async () => {
+  it("states no evidence availability of its own (T027 phase 2)", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
-    expect(factValue(container, "Evidence availability")).toMatch(
-      /No evidence has been accepted for this site/i,
-    );
-    expect(factValue(container, "Source health")).toMatch(
-      /This build records no source health for a site/i,
-    );
-    expect(factValue(container, "Integration readiness")).toMatch(
-      /This build records no integration readiness for a site/i,
-    );
-  });
-
-  it("states what this build records, never what the site has", async () => {
-    const { container } = renderSite(USER_SIMULATED_SITE);
-    await settledScreen();
-
-    // The record carries no integration field and no source-health field, so
-    // neither fact may describe this site's integration or its source. A site
-    // registered against a real integration arrives with exactly these fields,
-    // and copy saying no integration is configured would describe it wrongly.
-    const readiness = factValue(container, "Integration readiness");
-    const health = factValue(container, "Source health");
-
-    expect(readiness).toMatch(/this build records no integration readiness/i);
-    expect(health).toMatch(/this build records no source health/i);
-    expect(readiness).not.toMatch(/no integration is configured/i);
-    expect(health).not.toMatch(/expected to report|has no health state/i);
+    // The former "Not available for this site" panel said there was no
+    // accepted evidence, which stops being true once a Commit is ingested.
+    // The Overview body (`overview` slot) now states evidence from the
+    // evidence; the site's own facts claim nothing about it.
+    for (const name of [
+      "Evidence availability",
+      "Source health",
+      "Integration readiness",
+    ]) {
+      expect(
+        Array.from(container.querySelectorAll("dt")).map((t) => t.textContent),
+      ).not.toContain(name);
+    }
+    expect(spacedText(container)).not.toMatch(/no accepted evidence/i);
+    expect(
+      screen.queryByRole("heading", { name: "Not available for this site" }),
+    ).toBeNull();
   });
 
   it("renders no chart, image, figure, or diagram surface", async () => {

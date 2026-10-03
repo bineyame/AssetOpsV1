@@ -68,6 +68,21 @@ export function siteEvidenceHref(siteId: string): string {
 }
 
 /**
+ * The Site > Evidence record inspector for one accepted record (T027 phase 2:
+ * Overview evidence links). `signal` is `DEVICE/SIGNAL`, the same value the
+ * inspector reads from its own signal rows, so the root does not change.
+ */
+export function siteEvidenceRecordHref(
+  siteId: string,
+  signal: string,
+  messageId: string,
+): string {
+  const [device, ...rest] = signal.split("/");
+  const signalParam = `${encodeURIComponent(device)}/${encodeURIComponent(rest.join("/"))}`;
+  return `${siteEvidenceHref(siteId)}?signal=${signalParam}&record=${encodeURIComponent(messageId)}`;
+}
+
+/**
  * The address T008 served this surface at, kept working and nothing else.
  *
  * A rename that breaks a bookmark is a rename that costs the person who used

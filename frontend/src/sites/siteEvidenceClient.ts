@@ -204,15 +204,15 @@ export interface SiteEvidenceClient {
   ): Promise<EvidenceRead<EvidenceRejections>>;
 }
 
-function isObject(value: unknown): value is Record<string, unknown> {
+export function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function hasKeys(value: unknown, keys: readonly string[]): boolean {
+export function hasKeys(value: unknown, keys: readonly string[]): boolean {
   return isObject(value) && keys.every((key) => key in value);
 }
 
-function arrayOf(value: unknown, keys: readonly string[]): boolean {
+export function arrayOf(value: unknown, keys: readonly string[]): boolean {
   return Array.isArray(value) && value.every((item) => hasKeys(item, keys));
 }
 
@@ -275,7 +275,7 @@ function isRejections(value: unknown): value is EvidenceRejections {
   );
 }
 
-async function read<T>(
+export async function read<T>(
   path: string,
   valid: (value: unknown) => value is T,
 ): Promise<EvidenceRead<T>> {
@@ -307,7 +307,7 @@ async function read<T>(
   };
 }
 
-function query(params: Record<string, string | number | null | undefined>): string {
+export function query(params: Record<string, string | number | null | undefined>): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value !== null && value !== undefined && value !== "") {

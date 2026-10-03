@@ -1,0 +1,244 @@
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { describe, expect, it } from "vitest";
+
+import { App } from "../../App";
+import { featureFlagsWith } from "../../config/featureFlags";
+import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
+import type { SiteOverviewClient } from "../../sites/siteOverviewClient";
+import {
+  POPULATED_EVIDENCE,
+  evidenceClient,
+} from "../../sites/__tests__/evidenceFixtures";
+import {
+  emptyOverview,
+  overviewClient,
+  populatedOverview,
+} from "../../sites/__tests__/overviewFixtures";
+import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
+import {
+  orderedOverviewCards,
+  presentationProfileFor,
+} from "../../sites/presentationProfile";
+import { settledScreen } from "../../test/settled";
+import { spacedText } from "../../test/text";
+import { OPERATOR_SITE_TABS_LABEL } from "../operatorSiteTabs";
+
+/**
+ * The mini-grid Site Overview (T027 phase 2; AC11, AC12, AC13, AC22): the
+ * objective strip, one card per profile domain with backend state, named
+ * coverage gaps, the timeline as context, and evidence links into the
+ * Site > Evidence record inspector.
+ */
+
+const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
+const OVERVIEW_URL = `/sites/${SITE_ID}`;
+
+const DIRECTORY: SiteDirectoryClient = {
+  listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
+};
+const DETAIL: SiteDetailClient = {
+  getSite: () => Promise.resolve({ status: "loaded", site: HYBRID_MINI_GRID_SITE }),
+};
+
+function LocationProbe() {
+  const location = useLocation();
+  return <output data-location>{`${location.pathname}${location.search}`}</output>;
+}
+
+function renderAt(path: string, overview: SiteOverviewClient, enabled = false) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <App
+        flags={featureFlagsWith(enabled)}
+        siteDirectory={DIRECTORY}
+        siteDetail={DETAIL}
+        siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
+        siteOverview={overview}
+      />
+      <LocationProbe />
+    </MemoryRouter>,
+  );
+}
+
+const populated = () =>
+  overviewClient({ status: "loaded", value: populatedOverview(SITE_ID) });
+
+function cardHeadings(): string[] {
+  return screen
+    .getAllByRole("heading", { level: 3 })
+    .map((heading) => heading.textContent ?? "");
+}
+
+function cardFor(name: string): HTMLElement {
+  return screen.getByRole("heading", { level: 3, name }).closest("section") as HTMLElement;
+}
+
+function currentTab(): string {
+  const row = screen.getByRole("navigation", { name: OPERATOR_SITE_TABS_LABEL });
+  return within(row).getByRole("link", { current: "page" }).textContent ?? "";
+}
+
+describe("Site Overview, populated", () => {
+  it("renders one card per profile domain, in the profile's order", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    expect(cardHeadings()).toEqual(["Service", "Dispatch", "Battery", "Fuel", "Renewable"]);
+    expect(currentTab()).toBe("Overview");
+  });
+
+  it("shows No assessment yet on every card and never Unknown", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    for (const name of ["Service", "Dispatch", "Battery", "Fuel", "Renewable"]) {
+      expect(spacedText(cardFor(name))).toContain("No assessment yet");
+    }
+    const main = spacedText(screen.getByRole("main"));
+    expect(main).not.toMatch(/unknown/i);
+    expect(main).toContain("no Finding exists");
+  });
+
+  it("shows the objective strip with window, measured service and evidence count", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    const strip = screen
+      .getByRole("heading", { name: "Operating objective" })
+      .closest("section") as HTMLElement;
+    const text = spacedText(strip);
+    expect(text).toContain("No assessment yet");
+    expect(text).toContain("67.3 kWh");
+    expect(text).toContain("2026-10-04T03:00:00Z to 2026-10-04T11:00:00Z (8.00 h, latest release)");
+    expect(text).toContain("329 accepted records from 1 source");
+    expect(within(strip).getByRole("link", { name: "Open Site evidence" })).toHaveAttribute(
+      "href",
+      `/sites/${SITE_ID}/evidence`,
+    );
+  });
+
+  it("names an uncovered card's coverage gap and shows no value for it", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    const fuel = spacedText(cardFor("Fuel"));
+    expect(fuel).toContain(
+      "Coverage gap: fuel-level-sensor/fuel-level reported no accepted record in this window.",
+    );
+    expect(fuel).toContain("Not available.");
+    expect(fuel).not.toMatch(/\d+ L\b/);
+    expect(spacedText(cardFor("Battery"))).toContain("79.08 % at 2026-10-04T11:00:00Z");
+  });
+
+  it("links a metric's evidence to the record inspector without changing the Site root", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    const link = within(cardFor("Dispatch")).getByRole("link", { name: /GEN-1\/active_power/ });
+    expect(link).toHaveAttribute(
+      "href",
+      `/sites/${SITE_ID}/evidence?signal=GEN-1/active_power&record=msg-gen-72`,
+    );
+    fireEvent.click(link);
+    await settledScreen();
+
+    expect(document.querySelector("[data-location]")?.textContent).toBe(
+      `/sites/${SITE_ID}/evidence?signal=GEN-1/active_power&record=msg-gen-72`,
+    );
+    expect(document.querySelector('[data-evidence-record-detail="msg-gen-72"]')).not.toBeNull();
+    expect(currentTab()).toBe("Evidence");
+  });
+
+  it("draws the timeline as unit-separated context with a legend", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    const charts = screen.getAllByRole("img");
+    expect(charts.map((chart) => chart.getAttribute("aria-label"))).toEqual([
+      "Demand (three feeders) (kW) over the window",
+      "Battery state of charge (%) over the window",
+    ]);
+    expect(charts[0].querySelectorAll("g line")).toHaveLength(2);
+    expect(charts[1].querySelectorAll("circle")).toHaveLength(1);
+  });
+
+  it("states no evidence availability of its own beside the Overview body", async () => {
+    renderAt(OVERVIEW_URL, populated());
+    await settledScreen();
+
+    expect(spacedText(screen.getByRole("main"))).not.toMatch(/no accepted evidence/i);
+    expect(screen.queryByRole("heading", { name: "Not available for this site" })).toBeNull();
+  });
+});
+
+describe("Site Overview, empty, unavailable and gate", () => {
+  it("names every gap, draws nothing and still assesses nothing", async () => {
+    renderAt(OVERVIEW_URL, overviewClient({ status: "loaded", value: emptyOverview(SITE_ID) }));
+    await settledScreen();
+
+    expect(cardHeadings()).toHaveLength(5);
+    for (const name of cardHeadings()) {
+      const text = spacedText(cardFor(name));
+      expect(text).toContain("No assessment yet");
+      expect(text).toContain("Coverage gap:");
+    }
+    expect(screen.queryAllByRole("img")).toHaveLength(0);
+    const main = spacedText(screen.getByRole("main"));
+    expect(main).toContain("No window: no evidence has been accepted for this site.");
+    expect(main).toContain("nothing to place on the timeline");
+    expect(main).not.toMatch(/unknown/i);
+  });
+
+  it("states an unreadable Overview rather than an empty one", async () => {
+    renderAt(OVERVIEW_URL, overviewClient({ status: "unavailable", message: "store down" }));
+    await settledScreen();
+
+    expect(screen.getByRole("heading", { name: "Overview unavailable" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+  });
+
+  it("renders the same Overview with the Lab gate closed and open", async () => {
+    const closed = renderAt(OVERVIEW_URL, populated(), false);
+    await settledScreen();
+    const closedCards = cardHeadings();
+    const closedStrip = spacedText(
+      screen.getByRole("heading", { name: "Operating objective" }).closest("section") as HTMLElement,
+    );
+    closed.unmount();
+
+    renderAt(OVERVIEW_URL, populated(), true);
+    await settledScreen();
+    expect(cardHeadings()).toEqual(closedCards);
+    expect(
+      spacedText(
+        screen.getByRole("heading", { name: "Operating objective" }).closest("section") as HTMLElement,
+      ),
+    ).toBe(closedStrip);
+  });
+});
+
+describe("the presentation profile (AC22)", () => {
+  it("owns which cards exist and their order, never their state", () => {
+    const profile = presentationProfileFor("MINIGRID");
+    const served = populatedOverview(SITE_ID).cards;
+    const ordered = orderedOverviewCards(profile, served);
+    expect(ordered.map((item) => item.label)).toEqual([
+      "Service", "Dispatch", "Battery", "Fuel", "Renewable"]);
+    // Each card's state is the backend card's object, untouched.
+    for (const item of ordered) {
+      expect(served).toContain(item.card);
+    }
+  });
+
+  it("renders nothing for a profile card the backend does not serve", () => {
+    const served = populatedOverview(SITE_ID).cards.filter((c) => c.domain_id !== "Fuel");
+    const ordered = orderedOverviewCards(presentationProfileFor("MINIGRID"), served);
+    expect(ordered.map((item) => item.label)).not.toContain("Fuel");
+  });
+
+  it("has no profile for a Site type the product does not present", () => {
+    expect(presentationProfileFor("COLD_CHAIN")).toBeNull();
+    expect(orderedOverviewCards(null, populatedOverview(SITE_ID).cards)).toEqual([]);
+  });
+});

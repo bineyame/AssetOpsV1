@@ -1792,3 +1792,137 @@ button:focus-visible {
 .identity-heading {
   overflow-wrap: anywhere;
 }
+
+/*
+ * Site Overview (T027 phase 2). Domain cards share one responsive grid that
+ * collapses to one column at narrow widths; the timeline is a scaled SVG
+ * (viewBox, width 100%), so it never sets the page's minimum width. Units never
+ * share an axis: kW and % are separate panels, and each series has its own
+ * dash pattern and legend entry, so colour is never the only carrier.
+ */
+.site-overview {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.overview-cards__heading {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.overview-cards__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.overview-cards__grid > .panel {
+  margin: 0;
+  min-width: 0;
+}
+
+.overview-note,
+.overview-metric__basis,
+.overview-card__coverage {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.overview-metric {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.overview-metric__value {
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-metric__evidence,
+.overview-metric__gap,
+.overview-card__coverage,
+.overview-card__gap {
+  overflow-wrap: anywhere;
+}
+
+.overview-metric__gap {
+  color: var(--text-secondary);
+}
+
+.overview-card__assessment {
+  margin: 0 0 var(--space-2);
+}
+
+.overview-card__gap {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--border-strong);
+  background: var(--surface-sunken);
+}
+
+.overview-timeline {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.overview-timeline__figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.overview-timeline__chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overview-timeline__axis {
+  stroke: var(--border-strong);
+}
+
+.overview-timeline__tick {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.overview-timeline__series {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.overview-timeline__series--demand { stroke: var(--series-1); }
+.overview-timeline__series--pv { stroke: var(--series-3); }
+.overview-timeline__series--generator { stroke: var(--series-2); }
+.overview-timeline__series--soc { stroke: var(--series-4); fill: var(--series-4); }
+
+.overview-timeline__legend {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.overview-timeline__key::before {
+  content: "";
+  display: inline-block;
+  width: 1.25rem;
+  margin-right: var(--space-2);
+  vertical-align: middle;
+  border-top: 2.5px solid currentColor;
+}
+
+.overview-timeline__key--demand::before { border-top-color: var(--series-1); }
+.overview-timeline__key--pv::before { border-top: 2.5px dashed var(--series-3); }
+.overview-timeline__key--generator::before { border-top: 2.5px dotted var(--series-2); }
+.overview-timeline__key--soc::before { border-top-color: var(--series-4); }
+
+.site-overview > .panel,
+.site-overview > .overview-cards {
+  margin: 0;
+}

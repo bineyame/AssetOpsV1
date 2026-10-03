@@ -18,7 +18,7 @@ import { waitFor } from "@testing-library/react";
  * record inspector's list and detail reads.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the inspected records|the inspected record)\./;
+  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record)\./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.
