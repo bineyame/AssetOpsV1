@@ -218,3 +218,29 @@ Review: `.agent/T027-phase-2-claude-rereview.md` (accept with fixes, 3f1b00f).
 Host and simulator were not rerun: `git diff 6035bcb..HEAD -- host simulator` is empty. They stand at 602 and 244 from fix round 1.
 
 **Layout evidence not rerun, deliberately.** R1 changes one sentence inside the Quick actions panel's reason paragraph. R2 changes a gap reason string and a status name that the layout claims do not read. The Overview claims read card order, value and gap counts, "No assessment yet", "Unknown", link hrefs, chart geometry, tabs and page scroll. None of those changed. The text is no longer than before (113 against 154 characters for R1), in a paragraph that already wraps. The fix-round-1 layout file stands.
+
+## Fix round 3
+
+Review: `.agent/T027-phase-2-claude-rereview-2.md` (accept with fixes, a539287).
+
+| Finding | Disposition |
+| --- | --- |
+| S1 gated Site action reasons are false (fixed, not carried) | Fixed in 6d4afbd. In `shell/simulatorLabRoutes.tsx` `simulatorLabSiteActions` (gate open only), both actions stay disabled and no behaviour changed. **Open in Simulator Lab** now reads: "The Simulator Lab has no Site view. Its scenarios, runs and run setup are reached from the Simulator Lab workspace, not from a Site." **Start Simulation** now reads: "A run is not started from a Site. It is set up and started from a scenario's Run setup in the Simulator Lab, which binds the scenario to this site." The gate-open test in `siteDetailScreen.test.tsx` pins both texts exactly and rejects "nothing can be simulated", "neither exists" and "later step". |
+| S2 stale comments | Fixed in 6d4afbd. `SiteOverview.tsx` now states the "no record a metric can use" rule. `SiteDetails.tsx` says the View Live Data reason is about capability, and that the Quick actions panel does render. |
+
+**Note for the owner and Reviewer:** "Start Simulation" is now unavailable from a Site by product design: runs start from Run setup (`D-2026-10-01-run-binds-scenario-to-site`), not because a step is missing. Presentation Honesty reserves "disabled with a reason" for a capability not yet eligible, and "not rendered" for one the product has decided not to have. Whether this control should keep rendering disabled, link to Run setup, or not render is a product choice, and this round wires nothing.
+
+**Checks after fix round 3 (at 6d4afbd):**
+
+| Check | Result |
+| --- | --- |
+| Frontend (43 files) | 1071 passed; assertions added to existing tests |
+| `tsc --noEmit` | clean |
+| `npm run build` | clean |
+| `check-architecture` | passed |
+| `check-agent-workflow` | passed |
+
+Not rerun:
+
+- Backend, host and simulator: not touched since fix round 2 (backend 1435, host 602, simulator 244).
+- Layout: string-only change, in a Quick actions reason paragraph that no layout claim reads.
