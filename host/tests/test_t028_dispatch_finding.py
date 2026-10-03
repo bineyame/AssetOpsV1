@@ -175,7 +175,7 @@ def test_the_global_findings_index_lists_the_same_finding_with_its_site(prolonge
     rows = response.json()["findings"]
     assert [r["finding_id"] for r in rows] == [a["assessment_id"]]
     site_rows = read(prolonged, "/findings")["findings"]
-    assert {k: v for k, v in rows[0].items() if k not in {"site_id", "site_display_name"}} == site_rows[0]
+    assert {k: v for k, v in rows[0].items() if k not in {"site_id", "site_display_name", "site_type"}} == site_rows[0]
     assert rows[0]["site_id"] == SITE.rsplit("/", 1)[-1]
     # A Necessary-only Site contributes no row (owner ruling 2026-10-03).
     assert healthy.client(DISABLED).get("/api/findings").json()["findings"] == []

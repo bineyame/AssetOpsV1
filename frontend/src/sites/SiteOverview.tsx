@@ -49,6 +49,10 @@ export interface SiteOverviewProps {
   evidenceHref: (signal: string, messageId: string) => string;
   /** The Site > Evidence destination. */
   evidencePageHref: string;
+  /** T028: the Finding detail address for one assessment id. */
+  findingHref?: (assessmentId: string) => string;
+  /** T028: Performance > Dispatch, optionally selecting one interval. */
+  dispatchHref?: (assessmentId?: string) => string;
 }
 
 export function SiteOverview({
@@ -56,6 +60,8 @@ export function SiteOverview({
   client,
   evidenceHref,
   evidencePageHref,
+  findingHref,
+  dispatchHref,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel> | null>(null);
@@ -99,6 +105,11 @@ export function SiteOverview({
   const cards = orderedOverviewCards(profile, overview.cards);
   const link = (signal: string, messageId: string) =>
     evidenceHref(signal, messageId);
+  // The Overview links to the backend's Findings; it never recomputes one.
+  const findings = overview.findings as OverviewFinding[];
+  const findingIds = new Set(
+    findings.flatMap((f) => (f.finding_id === null ? [] : [f.finding_id])),
+  );
 
   return (
     <div
@@ -131,6 +142,9 @@ export function SiteOverview({
                 card={card}
                 profile={profile}
                 link={link}
+                findingIds={findingIds}
+                findingHref={findingHref}
+                dispatchHref={dispatchHref}
               />
             ))}
           </div>
@@ -140,12 +154,34 @@ export function SiteOverview({
       <Timeline overview={overview} />
       <Panel heading="Findings" headingId="site-overview-findings-heading">
         <p>{overview.findings_statement}</p>
+        {findings.length === 0 || findingHref === undefined ? null : (
+          <ul className="cell-list" data-overview-findings>
+            {findings.map((finding) => (
+              <li key={finding.assessment_id}>
+                <Link
+                  to={findingHref(finding.assessment_id)}
+                  data-overview-finding-link={finding.assessment_id}
+                >
+                  {`${finding.label}: ${finding.summary}`}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </Panel>
     </div>
   );
 }
 
 type LinkBuilder = (signal: string, messageId: string) => string;
+
+/** The Overview's `findings`: the backend's lineage summaries, as `/findings` lists them. */
+interface OverviewFinding {
+  assessment_id: string;
+  finding_id: string | null;
+  label: string;
+  summary: string;
+}
 
 function ObjectiveStrip({
   overview,
@@ -259,11 +295,17 @@ function DomainCard({
   card,
   profile,
   link,
+  findingIds,
+  findingHref,
+  dispatchHref,
 }: {
   label: string;
   card: OverviewCard;
   profile: DomainPresentationProfile | null;
   link: LinkBuilder;
+  findingIds: Set<string>;
+  findingHref?: (assessmentId: string) => string;
+  dispatchHref?: (assessmentId?: string) => string;
 }) {
   const assessment = card.assessment;
   const capability =
@@ -302,6 +344,25 @@ function DomainCard({
           data-overview-assessment-status={assessment.status}
         >
           {assessment.reason}
+        </p>
+      )}
+      {capability === null || assessment.lead_assessment_id === undefined ? null : (
+        <p className="overview-card__assessment-link">
+          {findingIds.has(assessment.lead_assessment_id) && findingHref !== undefined ? (
+            <Link
+              to={findingHref(assessment.lead_assessment_id)}
+              data-overview-card-finding={assessment.lead_assessment_id}
+            >
+              Open the Finding
+            </Link>
+          ) : dispatchHref !== undefined ? (
+            <Link
+              to={dispatchHref(assessment.lead_assessment_id)}
+              data-overview-card-dispatch={assessment.lead_assessment_id}
+            >
+              See it on Performance &gt; Dispatch
+            </Link>
+          ) : null}
         </p>
       )}
       {card.gaps.length === 0 ? null : (

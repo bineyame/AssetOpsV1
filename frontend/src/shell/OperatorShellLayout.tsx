@@ -28,10 +28,15 @@ import { AppHeader, NavRail } from "../ui";
  *
  * What is left is what a navigation item can truthfully say: the Sites index.
  * T027 removed the T002 `Operator home` item and its placeholder frame; `/`
- * now redirects to Sites, so the rail holds one item and no group header.
+ * now redirects to Sites.
+ *
+ * T028 adds the Findings rail root, which owns the global Findings index, and
+ * the group headers (`D-2026-10-02-grammar-ownership-test`): the grouped rail
+ * is the target, filtered to live items, so each group here holds one item.
  */
 const operatorRoutes = [
-  { to: "/sites", label: "Sites", end: false },
+  { to: "/sites", label: "Sites", end: false, group: "OPERATE" },
+  { to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE" },
 ];
 
 /**

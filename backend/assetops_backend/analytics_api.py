@@ -70,6 +70,7 @@ def build_analytics_router(
                         **finding,
                         "site_id": site.site_id,
                         "site_display_name": site.display_name,
+                        "site_type": site.site_type,
                     })
             rows.sort(key=lambda row: (row["interval"]["first_running_observed"], row["site_id"]))
             return {

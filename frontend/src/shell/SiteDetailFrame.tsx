@@ -11,7 +11,12 @@ import { SiteOverview } from "../sites/SiteOverview";
 import type { SiteOverviewClient } from "../sites/siteOverviewClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { siteEvidenceHref, siteEvidenceRecordHref } from "./operatorSiteRoutes";
+import {
+  findingHref,
+  siteEvidenceHref,
+  siteEvidenceRecordHref,
+  sitePerformanceHref,
+} from "./operatorSiteRoutes";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
 
 /**
@@ -100,6 +105,12 @@ export function SiteDetailFrame({
             evidencePageHref={siteEvidenceHref(canonicalId)}
             evidenceHref={(signal, messageId) =>
               siteEvidenceRecordHref(canonicalId, signal, messageId)
+            }
+            findingHref={(assessmentId) => findingHref(canonicalId, assessmentId)}
+            dispatchHref={(assessmentId) =>
+              assessmentId === undefined
+                ? sitePerformanceHref(canonicalId, "dispatch")
+                : `${sitePerformanceHref(canonicalId, "dispatch")}?interval=${encodeURIComponent(assessmentId)}`
             }
           />
         )}

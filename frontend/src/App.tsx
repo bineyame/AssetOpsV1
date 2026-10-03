@@ -5,12 +5,24 @@ import { LegacySiteConfigurationRedirect } from "./shell/LegacySiteConfiguration
 import { OperatorShellLayout } from "./shell/OperatorShellLayout";
 import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
 import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
+import {
+  FindingDetailFrame,
+  FindingsFrame,
+  SiteFindingsFrame,
+  SitePerformanceFrame,
+} from "./shell/SiteAnalyticsFrames";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
 import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
 import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import {
+  FINDINGS_PATH,
+  FINDING_ROUTE_PATH,
+  FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
+  SITE_FINDINGS_ROUTE_PATH,
+  SITE_PERFORMANCE_ROUTE_PATH,
+  SITE_PERFORMANCE_SUBTAB_ROUTE_PATH,
   SITES_PATH,
   SITE_DETAIL_ROUTE_PATH,
   SITE_EVIDENCE_ROUTE_PATH,
@@ -25,6 +37,10 @@ import {
 import type { SiteCreationClient } from "./shell/siteCreationClient";
 import type { SiteTemplateCatalogClient } from "./shell/siteTemplateCatalogClient";
 import type { SiteTemplateLineageClient } from "./sites/siteTemplateLineage";
+import {
+  createSiteAnalyticsClient,
+  type SiteAnalyticsClient,
+} from "./sites/siteAnalyticsClient";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -51,6 +67,7 @@ export { SITES_PATH };
 const defaultSiteDirectory = createSiteDirectoryClient();
 const defaultSiteEvidence = createSiteEvidenceClient();
 const defaultSiteOverview = createSiteOverviewClient();
+const defaultSiteAnalytics = createSiteAnalyticsClient();
 
 /**
  * Route table.
@@ -108,6 +125,8 @@ export interface AppProps {
   siteEvidence?: SiteEvidenceClient;
   /** Site Overview reads (T027 phase 2). Operator, never gated. */
   siteOverview?: SiteOverviewClient;
+  /** Analytics read models: Performance, Findings, Finding detail (T028). Operator, never gated. */
+  siteAnalytics?: SiteAnalyticsClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -124,6 +143,7 @@ export function App({
   runSetup,
   siteEvidence = defaultSiteEvidence,
   siteOverview = defaultSiteOverview,
+  siteAnalytics = defaultSiteAnalytics,
   siteTemplateLineage,
   now,
 }: AppProps) {
@@ -181,6 +201,46 @@ export function App({
               />
             }
           />
+          {[SITE_PERFORMANCE_ROUTE_PATH, SITE_PERFORMANCE_SUBTAB_ROUTE_PATH].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <SitePerformanceFrame
+                  detail={siteDetail}
+                  analytics={siteAnalytics}
+                  sitesPath={SITES_PATH}
+                />
+              }
+            />
+          ))}
+          <Route
+            path={SITE_FINDINGS_ROUTE_PATH}
+            element={
+              <SiteFindingsFrame
+                detail={siteDetail}
+                analytics={siteAnalytics}
+                sitesPath={SITES_PATH}
+              />
+            }
+          />
+          <Route
+            path={FINDINGS_PATH}
+            element={<FindingsFrame analytics={siteAnalytics} />}
+          />
+          {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <FindingDetailFrame
+                  detail={siteDetail}
+                  analytics={siteAnalytics}
+                  evidence={siteEvidence}
+                />
+              }
+            />
+          ))}
           <Route
             path={LEGACY_SITE_CONFIGURATION_ROUTE_PATH}
             element={<LegacySiteConfigurationRedirect />}

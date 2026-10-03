@@ -33,9 +33,16 @@ export interface CapabilityPresentation {
   emphasis: "primary" | "default";
 }
 
+/** A Finding type's label: presentation only, keyed by the backend's id (T028). */
+export interface FindingTypePresentation {
+  id: string;
+  label: string;
+}
+
 export interface DomainPresentationProfile {
   overview_cards: OverviewCardPresentation[];
   capabilities?: CapabilityPresentation[];
+  finding_types?: FindingTypePresentation[];
 }
 
 /** Where a capability the profile does not know is placed (rule 1). */
@@ -121,6 +128,52 @@ export function orphanCapabilityIds(
 ): string[] {
   const served = new Set(servedIds);
   return (profile?.capabilities ?? [])
+    .map((item) => item.id)
+    .filter((id) => !served.has(id));
+}
+
+/**
+ * Performance subtabs (T028 AC18): the backend's served analytics, labelled,
+ * ordered and grouped by the profile. Rule 1: a served id the profile does not
+ * know still renders, under the backend's display name, in the default
+ * position. Rule 2: a profile id the backend does not serve is never in
+ * `served`, so it renders nothing. A capability the profile places in another
+ * group is not a Performance subtab.
+ */
+export function performanceSubtabs(
+  profile: DomainPresentationProfile | null,
+  served: { id: string; display_name: string }[],
+): (CapabilityPresentation & { known: boolean })[] {
+  return servedCapabilities(profile, served).filter(
+    (item) => !item.known || item.group === "Performance",
+  );
+}
+
+/**
+ * A Finding type's label (T028 AC18). Rule 1: an id the profile does not know
+ * renders with the backend's display name, or the id itself when the backend
+ * names none. Rule 2: only a backend id is ever looked up, so a profile entry
+ * the backend does not serve renders nothing.
+ */
+export function findingTypeLabel(
+  profile: DomainPresentationProfile | null,
+  backendId: string,
+  backendDisplayName?: string,
+): { id: string; label: string; known: boolean } {
+  const entry = profile?.finding_types?.find((item) => item.id === backendId);
+  if (entry !== undefined) {
+    return { id: backendId, label: entry.label, known: true };
+  }
+  return { id: backendId, label: backendDisplayName ?? backendId, known: false };
+}
+
+/** Profile Finding type ids no served analytic emits (rule 2's orphans). */
+export function orphanFindingTypeIds(
+  profile: DomainPresentationProfile | null,
+  servedFindingTypes: string[],
+): string[] {
+  const served = new Set(servedFindingTypes);
+  return (profile?.finding_types ?? [])
     .map((item) => item.id)
     .filter((id) => !served.has(id));
 }

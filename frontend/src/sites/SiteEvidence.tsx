@@ -609,7 +609,7 @@ function RecordInspector({
   );
 }
 
-function RecordDetail({
+export function RecordDetail({
   detail,
 }: {
   detail: EvidenceRead<EvidenceRecordDetail> | null;
