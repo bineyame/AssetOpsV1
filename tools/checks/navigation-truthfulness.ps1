@@ -270,8 +270,8 @@ function Get-OperatorSiteTabFailures {
         foreach ($line in $rail[0].Lines) {
             $lineNumber++
             if ($line -match '^\s*(//|/?\*)') { continue }
-            if ($line -match 'bto\s*:\s*["'']') { $items++ }
-            if ($line -match 'bto\s*:\s*["'']/sites["'']') { $sitesItem++ }
+            if ($line -match '\bto\s*:\s*["'']') { $items++ }
+            if ($line -match '\bto\s*:\s*["'']/sites["'']') { $sitesItem++ }
             if ($line -match 'Operator home') {
                 $failures.Add(("Operator home returned to the operator rail at " +
                     "${railPath}:${lineNumber}: $($line.Trim()). T027 removed it; " +
