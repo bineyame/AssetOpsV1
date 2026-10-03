@@ -75,3 +75,45 @@ def test_the_card_slot_names_a_declared_capability() -> None:
     # declaration's id, never a profile id.
     source = Path(AssessmentService.card_assessments.__code__.co_filename).read_text(encoding="utf-8")
     assert '"capability_id": DISPATCH.analytic_id' in source
+
+
+# --- T028 phase 2: Finding types (AC18 rule 2, AC19) ---------------------------
+
+#: Planned profile Finding type ids no analytic emits yet, per Site type, with
+#: the owning slice. Empty: the profile names only the dispatch Finding type.
+EXPECTED_ORPHAN_FINDING_TYPES: dict[str, dict[str, str]] = {"MINIGRID": {}}
+
+FINDING_TYPE_KEYS = {"id", "label"}
+
+
+def _orphan_finding_types(site_type: str, profile: dict) -> set[str]:
+    served = {d.finding_type for d in applicable(site_type)}
+    return {entry["id"] for entry in profile.get("finding_types", [])} - served
+
+
+def test_finding_type_entries_are_presentation_only() -> None:
+    for profile in _profiles().values():
+        for entry in profile.get("finding_types", []):
+            assert set(entry) == FINDING_TYPE_KEYS, entry
+
+
+def test_no_unexpected_orphan_finding_types() -> None:
+    for site_type, profile in _profiles().items():
+        orphans = _orphan_finding_types(site_type, profile)
+        expected = set(EXPECTED_ORPHAN_FINDING_TYPES.get(site_type, {}))
+        assert orphans - expected == set(), (
+            f"{site_type}: profile Finding types no analytic emits: "
+            f"{sorted(orphans - expected)}. Declare the analytic, or list the id "
+            "with its owning slice in EXPECTED_ORPHAN_FINDING_TYPES."
+        )
+        assert expected - orphans == set(), sorted(expected - orphans)
+
+
+def test_a_listed_planned_id_passes_and_an_unlisted_one_fails() -> None:
+    """AC19: the expected-orphan list is what separates planned from drift."""
+    profile = {"capabilities": [{"id": "dispatch"}, {"id": "renewable"}]}
+    orphans = _orphans("MINIGRID", profile)
+    assert orphans - {"renewable"} == set()  # listed (e.g. Renewable, T031): passes
+    assert orphans - set() == {"renewable"}  # unlisted: flagged
+    types = {"finding_types": [{"id": "generator-dispatch-interval"}, {"id": "fuel-residual"}]}
+    assert _orphan_finding_types("MINIGRID", types) == {"fuel-residual"}

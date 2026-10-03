@@ -105,8 +105,9 @@ class TestOneListOfOverviewSignals:
         profiles = json.loads(PROFILES.read_text(encoding="utf-8"))
         for profile in profiles.values():
             # T028 adds `capabilities` (presentation only; its own pin test is
-            # test_t028_presentation_profile.py). Cards still carry no state.
-            assert set(profile) <= {"overview_cards", "capabilities"}
+            # test_t028_presentation_profile.py), and phase 2 `finding_types`
+            # (labels only, pinned there too). Cards still carry no state.
+            assert set(profile) <= {"overview_cards", "capabilities", "finding_types"}
             for card in profile["overview_cards"]:
                 assert set(card) == {"id", "label"}
 
