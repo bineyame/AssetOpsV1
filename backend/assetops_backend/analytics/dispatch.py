@@ -42,6 +42,7 @@ FINDING_CLAIM_LEVELS = (CANDIDATE, INDETERMINATE)
 CONTINUITY_TOLERANCE_S = 20 * 60
 INSTANT_TOLERANCE_S = 10 * 60
 CAPABILITY_HEADROOM = Fraction(1, 10)
+SOC_HEADROOM_POINTS = 10
 STRONG_MARGIN = Fraction(1, 4)
 TRANSITION_LIMIT_S = 15 * 60
 SFC_UNCERTAINTY = Fraction(1, 10)
@@ -53,6 +54,8 @@ THRESHOLDS: tuple[dict[str, str], ...] = (
      "meaning": "How far before a segment's end an instant (SOC) may be and still describe it."},
     {"id": "capability-headroom", "value": "10", "unit": "% of load",
      "meaning": "PV available plus battery support must exceed load by this for a candidate."},
+    {"id": "soc-headroom", "value": "10", "unit": "SOC points above reserve",
+     "meaning": "Battery support counts only when SOC exceeds the effective reserve by this."},
     {"id": "strong-margin", "value": "25", "unit": "% of load",
      "meaning": "Smallest candidate margin below this lowers confidence one level."},
     {"id": "transition-limit", "value": "15", "unit": "min",
@@ -397,13 +400,15 @@ def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segm
                 f"Within the {_dec(minutes)} min minimum runtime policy after the start "
                 f"observed at {_iso(first_on)}."
             ])
-    # 3. battery at reserve and PV short of load.
+    # 3. battery at or near reserve and PV short of load.
     if load is not None and pv.usable and soc.usable and reserve is not None:
-        if (soc.value or 0) <= reserve and load > (pv.value or 0):
-            return segment(NECESSARY, "BATTERY_AT_RESERVE", [
-                f"Battery at {_dec(soc.value or Fraction(0))} % is at or below its "
-                f"{_dec(reserve)} % reserve ({reserve_source}), and load {_dec(load)} kW "
-                f"exceeds PV available {_dec(pv.value or Fraction(0))} kW."
+        if (soc.value or 0) <= reserve + SOC_HEADROOM_POINTS and load > (pv.value or 0):
+            at = (soc.value or 0) <= reserve
+            return segment(NECESSARY, "BATTERY_AT_RESERVE" if at else "BATTERY_NEAR_RESERVE", [
+                f"Battery at {_dec(soc.value or Fraction(0))} % is "
+                + ("at or below" if at else f"within {SOC_HEADROOM_POINTS} points of")
+                + f" its {_dec(reserve)} % reserve ({reserve_source}), so it cannot be counted on "
+                f"to carry load {_dec(load)} kW above PV available {_dec(pv.value or Fraction(0))} kW."
             ])
     # 4. capability shortfall.
     if load is not None and pv.usable and discharge.usable:
@@ -413,25 +418,42 @@ def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segm
                 f"Load {_dec(load)} kW exceeds PV available {_dec(pv.value or Fraction(0))} kW "
                 f"plus battery discharge capability {_dec(discharge.value or Fraction(0))} kW."
             ])
-    # 5. candidate.
+    # 5. candidate. PV alone covering load needs no battery state; otherwise
+    # battery support counts only above reserve plus the declared headroom.
     missing = []
     if load is None and load_problem is not None:
         missing.append(_problem_text("load", load_problem))
-    for name, lookup in (("pv_available", pv), ("soc", soc), ("discharge_capability", discharge)):
+    for name, lookup in (("pv_available", pv), ("discharge_capability", discharge)):
         if not lookup.usable:
             missing.append(_problem_text(name, lookup))
-    if reserve is None:
-        missing.append(f"{INPUT_LABELS['reserve']}: no effective record")
+    pv_alone = (
+        not missing and load is not None
+        and (pv.value or 0) >= load * (1 + CAPABILITY_HEADROOM)
+    )
+    if not pv_alone:
+        if not soc.usable:
+            missing.append(_problem_text("soc", soc))
+        if reserve is None:
+            missing.append(f"{INPUT_LABELS['reserve']}: no effective record")
     if not missing and load is not None:
-        support = discharge.value if (soc.value or 0) > (reserve or 0) else Fraction(0)
-        supply = (pv.value or 0) + (support or 0)
+        if pv_alone:
+            margin = (pv.value or 0) - load
+            return segment(CANDIDATE, None, [
+                f"PV available {_dec(pv.value or Fraction(0))} kW alone exceeds load "
+                f"{_dec(load)} kW by {_dec(margin)} kW, with battery discharge capability "
+                f"{_dec(discharge.value or Fraction(0))} kW evidenced; no binding constraint "
+                "was evidenced."
+            ], margin=margin)
+        support = discharge.value or Fraction(0)
+        supply = (pv.value or 0) + support
         margin = supply - load
         if supply >= load * (1 + CAPABILITY_HEADROOM):
             return segment(CANDIDATE, None, [
                 f"PV available {_dec(pv.value or Fraction(0))} kW plus battery support "
-                f"{_dec(support or Fraction(0))} kW (SOC {_dec(soc.value or Fraction(0))} % above "
-                f"its {_dec(reserve or Fraction(0))} % reserve) exceeds load {_dec(load)} kW by "
-                f"{_dec(margin)} kW; no binding constraint was evidenced."
+                f"{_dec(support)} kW (SOC {_dec(soc.value or Fraction(0))} %, more than "
+                f"{SOC_HEADROOM_POINTS} points above its {_dec(reserve or Fraction(0))} % reserve) "
+                f"exceeds load {_dec(load)} kW by {_dec(margin)} kW; no binding constraint "
+                "was evidenced."
             ], margin=margin)
         return segment(INDETERMINATE, None, [
             f"Capability margin {_dec(margin)} kW is inside the declared "

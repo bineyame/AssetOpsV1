@@ -57,16 +57,20 @@ effective_end absent or > t; latest effective_start wins). Source time, not
 arrival time, places a record (delayed evidence lands where it belongs).
 Distinct records at one (signal, time) are conflicting and used by nothing.
 
-`load` = sum of the three feeders; `battery_support` = discharge capability if
-SOC > effective reserve, else 0; `supply` = PV available + battery_support.
+`load` = sum of the three feeders; battery support = discharge capability,
+counted only when SOC exceeds the effective reserve by more than
+`SOC_HEADROOM_POINTS` (10 points): a battery a fraction of a point above
+reserve has a capability rating but no energy to carry a deficit (found on the
+healthy reference, whose SOC sits at 30.95 % against a 30 % reserve).
 
 | Order | Classification | Condition (all evidence named must be usable at t) | Binding constraint |
 | --- | --- | --- | --- |
 | 1 | Necessary | a generator override record is effective and SOC is below its value or unknown | `OPERATOR_OVERRIDE` |
 | 2 | Necessary | t is within the effective minimum runtime of the interval's first ON time | `MINIMUM_RUNTIME` |
-| 3 | Necessary | load, PV available, SOC, reserve: SOC <= reserve and load > PV available | `BATTERY_AT_RESERVE` |
+| 3 | Necessary | load, PV available, SOC, reserve: SOC <= reserve + 10 points and load > PV available | `BATTERY_AT_RESERVE` (SOC <= reserve) or `BATTERY_NEAR_RESERVE` |
 | 4 | Necessary | load, PV available, discharge capability: load > PV available + discharge capability | `CAPABILITY_SHORTFALL` |
-| 5 | Candidate avoidable | load, PV available, SOC, reserve, discharge capability all usable; SOC > reserve; supply >= load x (1 + `CAPABILITY_HEADROOM` 10 %) | none (the candidate is the absence of one) |
+| 5a | Candidate avoidable | load, PV available, discharge capability usable; PV available alone >= load x (1 + `CAPABILITY_HEADROOM` 10 %). SOC and reserve are not needed: the battery carries nothing, but its PCS must be evidenced available | none |
+| 5b | Candidate avoidable | load, PV available, discharge capability, SOC, reserve usable; SOC > reserve + 10 points; PV available + discharge capability >= load x 1.1 | none (the candidate is the absence of one) |
 | 6 | Indeterminate | anything else; names each missing or conflicting input, or "capability margin inside the declared headroom" | - |
 
 A segment is Candidate only when both of its ends are Candidate, Necessary
