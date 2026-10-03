@@ -238,6 +238,69 @@ function Get-OperatorSiteTabFailures {
         }
     }
 
+    # T027 fix round N7: three more rules, each paired with a presence check so
+    # that an absence is never read from a tree that stopped declaring the thing.
+    #
+    # 1. The rendered row is the inventory filtered by capability. Without the
+    #    filter every tab is rendered, including those the product cannot open.
+    foreach ($module in $inventoryModules) {
+        $text = ($module.Lines -join "`n")
+        if ($text -notmatch ($inventoryName + '\s*(?::[^=]+)?=\s*CANONICAL_' + $inventoryName +
+                '\s*\.filter\(\s*\(?\s*\w+\s*\)?\s*=>\s*\w+\.capability\s*\)')) {
+            $failures.Add(("$inventoryName in $($module.Path) is not " +
+                "CANONICAL_$inventoryName filtered by capability. The tab row " +
+                "renders only tabs the product can open " +
+                "(D-2026-10-02-rendered-tabs-per-capability); an unfiltered " +
+                "inventory renders every tab.")) | Out-Null
+        }
+    }
+
+    # 2. The operator rail holds only Sites: no `Operator home` item.
+    $railPath = "frontend/src/shell/OperatorShellLayout.tsx"
+    $rail = @(Get-ScannedModules -Root "frontend/src/shell" -Extensions @(".tsx") |
+        Where-Object { $_.Path -eq $railPath })
+    if ($rail.Count -eq 0) {
+        $failures.Add(("$railPath was not found, so the operator rail check is " +
+            "vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    else {
+        $items = 0
+        $sitesItem = 0
+        $lineNumber = 0
+        foreach ($line in $rail[0].Lines) {
+            $lineNumber++
+            if ($line -match '^\s*(//|/?\*)') { continue }
+            if ($line -match 'bto\s*:\s*["'']') { $items++ }
+            if ($line -match 'bto\s*:\s*["'']/sites["'']') { $sitesItem++ }
+            if ($line -match 'Operator home') {
+                $failures.Add(("Operator home returned to the operator rail at " +
+                    "${railPath}:${lineNumber}: $($line.Trim()). T027 removed it; " +
+                    "/ redirects to Sites and the rail holds Sites only.")) | Out-Null
+            }
+        }
+        if ($sitesItem -eq 0) {
+            $failures.Add(("$railPath declares no Sites rail item, so the " +
+                "rail-items rule is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+        elseif ($items -gt 1) {
+            $failures.Add(("$railPath declares $items operator rail items. The " +
+                "rail holds Sites only (T027); another item needs a route that " +
+                "renders a truthful surface and a review.")) | Out-Null
+        }
+    }
+
+    # 3. `/` redirects to Sites rather than rendering a placeholder frame.
+    $appModule = @(Get-ScannedModules -Root "frontend/src" -Extensions @(".tsx") |
+        Where-Object { $_.Path -eq "frontend/src/App.tsx" })
+    if ($appModule.Count -eq 0 -or
+        (($appModule[0].Lines -join "`n") -notmatch
+            'path\s*=\s*"/"\s+element\s*=\s*\{\s*<Navigate\s+to=\{SITES_PATH\}\s+replace\s*/>\s*\}')) {
+        $failures.Add(("frontend/src/App.tsx does not redirect / to Sites " +
+            "(Route path=""/"" with Navigate to SITES_PATH, replace). " +
+            "T027 removed the Operator home placeholder; / has no surface of " +
+            "its own.")) | Out-Null
+    }
+
     return $failures
 }
 
@@ -255,8 +318,7 @@ function Get-FoundationSubtabFailures {
     $substrateRoot = "frontend/src/sites"
 
     # v6.9 line 2117 lists five; `Readiness` is also not rendered (claim
-    # readiness lives on Site > Evidence only), enforced below.
-    # v6.9 line 2117 lists five. `Changes` is filtered out by the accepted T008
+    # readiness lives on Site > Evidence only), enforced below. `Changes` is filtered out by the accepted T008
     # checkpoint: lines 2149 and 2225-2228 make it a real intervention and
     # change-effect capability rather than the mockup's `Version History`, no
     # configuration-change model exists, and naming it would promise a meaning
