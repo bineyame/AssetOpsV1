@@ -14,6 +14,14 @@ Layout:
   `registry/configuration/{site_id}--v{n}.json`: immutable registrations,
   written once and never rewritten.
 
+`registry/` is CONFIGURATION, not derived data. The Site repository keeps no
+Foundation version history, so after a Foundation edit the configuration
+registry is the only record of how an earlier version read; re-ingesting
+historic evidence into a store without it is refused as
+`CONFIGURATION_UNRESOLVED`. Delete `sites/` to rebuild, never `registry/`.
+Where the registry lives is an open owner question (T027 review N1; trigger
+T034, which makes Foundation editable).
+
 `clear_derived()` removes the per-Site documents and keeps the registries; a
 rebuild re-ingests committed artifacts into the empty derived store.
 

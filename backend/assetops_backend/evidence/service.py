@@ -49,7 +49,7 @@ from assetops_backend.evidence.models import (
     Rejection,
     SiteEvidence,
 )
-from assetops_backend.evidence.ports import EvidenceStore
+from assetops_backend.evidence.ports import EvidenceStore, find_batch
 from assetops_backend.sites.models import SiteRecord
 from assetops_backend.sites.ports import SiteNotFound, SiteRepository
 from assetops_contracts.committed_artifact import envelope_content_digest
@@ -345,6 +345,38 @@ class IngestionService:
             self._store.save_site(replace(evidence, batches=others + (progress,)))
         return progress
 
+    def _conflict(
+        self, evidence: SiteEvidence, batch: IngestionBatch, digest: str, other_site: str | None = None
+    ) -> BatchProgress:
+        detail = (
+            f"this batch id was released at {other_site}; a batch id names one release "
+            "in the whole store, so this one is refused"
+            if other_site is not None
+            else "this batch id was released with other content; the original "
+            "release is kept and this one is refused"
+        )
+        # One rejection per distinct refusal (batch id, content digest), so a
+        # retried post does not inflate the Site's rejection count (T027 N5).
+        seen = any(
+            r.kind == "BATCH_ID_CONFLICT"
+            and r.batch_id == batch.batch_id
+            and r.content_digest == digest
+            for r in evidence.rejections
+        )
+        if not seen:
+            rejection = Rejection(
+                batch_id=batch.batch_id,
+                index=None,
+                message_id=None,
+                kind="BATCH_ID_CONFLICT",
+                field="batch_id",
+                detail=detail,
+                received_at=self._clock(),
+                content_digest=digest,
+            )
+            self._store.save_site(replace(evidence, rejections=evidence.rejections + (rejection,)))
+        return self._refused(batch, digest, _Refused("BATCH_ID_CONFLICT", detail), persist=False)
+
     def _ingest(self, batch: IngestionBatch) -> BatchProgress:
         digest = batch_digest(batch)
         try:
@@ -355,26 +387,14 @@ class IngestionService:
 
         evidence = self._store.load_site(site.site_id)
         existing = next((p for p in evidence.batches if p.batch_id == batch.batch_id), None)
+        elsewhere = find_batch(self._store, batch.batch_id) if existing is None else None
+        if elsewhere is not None and elsewhere.site_id != site.site_id:
+            # A batch id names one release in the whole store, because
+            # GET /api/ingestion/batches/{id} looks it up without a Site (T027 N4).
+            return self._conflict(evidence, batch, digest, other_site=elsewhere.site_id)
         if existing is not None and existing.status != "REFUSED":
             if existing.batch_digest != digest:
-                now = self._clock()
-                rejection = Rejection(
-                    batch_id=batch.batch_id,
-                    index=None,
-                    message_id=None,
-                    kind="BATCH_ID_CONFLICT",
-                    field="batch_id",
-                    detail="this batch id was released with other content; the "
-                    "original release is kept and this one is refused",
-                    received_at=now,
-                    content_digest=digest,
-                )
-                self._store.save_site(
-                    replace(evidence, rejections=evidence.rejections + (rejection,))
-                )
-                return self._refused(
-                    batch, digest, _Refused("BATCH_ID_CONFLICT", rejection.detail), persist=False
-                )
+                return self._conflict(evidence, batch, digest)
             if existing.status == "COMPLETED":
                 return existing
 

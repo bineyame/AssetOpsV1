@@ -7,6 +7,10 @@ does); nothing here imports a simulator, the host, a stage or a LabProjection.
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 from dataclasses import replace
 from fractions import Fraction
 from typing import Any
@@ -19,6 +23,7 @@ from run_fixtures import FakeSites, site
 from assetops_backend.config import FeatureFlags
 from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceStore
 from assetops_backend.evidence.read_model import EvidenceReadModel
+from assetops_backend.evidence.ports import find_batch
 from assetops_backend.evidence.service import IngestionInterrupted, IngestionService
 from assetops_backend.main import create_app
 from assetops_backend.sites.models import (
@@ -563,3 +568,113 @@ class TestRebuild:
         after = snapshot()
         assert after["records"]["total"] == 5
         assert _without_audit_times(after) == _without_audit_times(before)
+
+
+# --- N1: the registry is configuration ---------------------------------------
+
+
+def _edited_site():
+    return a_site(version=2, site_devices=(
+        FoundationDevice("fuel-level-sensor", "SENSOR", "Fuel level", "fuel-tank",
+                         (DeviceSignal("fuel-level", "Fuel level", "m3"),)),
+    ))
+
+
+class TestRebuildAfterFoundationEdit:
+    def _first(self, root):
+        text = artifact_text(sealed([envelope(1), envelope(2)]))
+        service(root).ingest(ingestion_batch(parse_artifact_text(text)))
+        return text
+
+    def test_rebuild_with_the_registry_kept_works_after_an_edit(self, tmp_path) -> None:
+        text = self._first(tmp_path)
+        store = JsonEvidenceStore(tmp_path / "evidence")
+        store.clear_derived()
+        rebuilt = service(tmp_path, sites=FakeSites((_edited_site(),)))
+        progress = rebuilt.ingest(ingestion_batch(parse_artifact_text(text)))
+        assert progress.status == "COMPLETED" and progress.accepted == 2
+        assert {r.foundation_version for r in rebuilt.store.load_site(SITE_ID).records} == {1}
+
+    def test_rebuild_into_a_fully_empty_store_is_refused_after_an_edit(self, tmp_path) -> None:
+        text = self._first(tmp_path)
+        shutil.rmtree(tmp_path / "evidence")
+        progress = service(tmp_path, sites=FakeSites((_edited_site(),))).ingest(
+            ingestion_batch(parse_artifact_text(text))
+        )
+        assert progress.status == "REFUSED"
+        assert progress.refusal_kind == "CONFIGURATION_UNRESOLVED"
+
+
+# --- N4 / N5: batch id scope and refusal counting ------------------------------
+
+
+class TestBatchIdScope:
+    def test_a_batch_id_used_at_another_site_is_refused(self, tmp_path) -> None:
+        other = replace(a_site(), site_id="MG-901")
+        sites = FakeSites((a_site(), other))
+        ingestion = service(tmp_path, sites=sites)
+        assert ingestion.ingest(a_batch(texts(envelope(1)))).status == "COMPLETED"
+        moved = envelope(2)
+        moved = replace(moved, site_id="MG-901", message_id=envelope_message_id(
+            site_id="MG-901", gateway_id=GATEWAY, source_id=SOURCE,
+            device_id=moved.device_id, signal_id=moved.signal_id,
+            source_time=moved.source_time))
+        clash = replace(
+            a_batch(texts(moved)), site_id="MG-901",
+            configuration=ConfigurationReference("MG-901", 1, VALID_FROM),
+        )
+        progress = ingestion.ingest(clash)
+        assert progress.status == "REFUSED" and progress.refusal_kind == "BATCH_ID_CONFLICT"
+        assert find_batch(ingestion.store, "batch-1").site_id == SITE_ID
+
+    def test_a_retried_refusal_is_recorded_once(self, tmp_path) -> None:
+        ingestion = service(tmp_path)
+        ingestion.ingest(a_batch(texts(envelope(1))))
+        other = a_batch(texts(envelope(2)))
+        for _ in range(3):
+            assert ingestion.ingest(other).refusal_kind == "BATCH_ID_CONFLICT"
+        conflicts = [r for r in ingestion.store.load_site(SITE_ID).rejections
+                     if r.kind == "BATCH_ID_CONFLICT"]
+        assert len(conflicts) == 1
+        ingestion.ingest(a_batch(texts(envelope(3))))
+        conflicts = [r for r in ingestion.store.load_site(SITE_ID).rejections
+                     if r.kind == "BATCH_ID_CONFLICT"]
+        assert len(conflicts) == 2
+
+
+# --- AC15: rebuild with no simulator, host or execution composition ------------
+
+
+class TestRebuildIsolated:
+    def test_a_fresh_process_rebuilds_evidence_with_the_simulator_and_host_blocked(
+        self, tmp_path
+    ) -> None:
+        import t027_isolated_probe as probe
+
+        artifacts = tmp_path / "artifacts"
+        artifacts.mkdir()
+        for run_id, items in (
+            ("run-1", [envelope(1), envelope(2), envelope(3, value=None)]),
+            ("run-2", [envelope(4), envelope(5)]),
+        ):
+            (artifacts / f"{run_id}.json").write_text(
+                artifact_text(sealed(items, run_id=run_id)), encoding="utf-8"
+            )
+        expected = probe.build(tmp_path / "in-process", artifacts, a_site())
+
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        done = subprocess.run(
+            [sys.executable, "-I", str(Path(probe.__file__).resolve()),
+             str(Path(probe.__file__).resolve().parent), str(tmp_path / "isolated"),
+             str(artifacts)],
+            cwd=outside, capture_output=True, text=True, timeout=120,
+        )
+        assert done.returncode == 0, done.stderr[-2000:]
+        result = json.loads(done.stdout.strip().splitlines()[-1])
+        assert result["leaked"] == []
+        assert result["payload"]["records"]["total"] == 5
+        assert result["payload"]["lab_status"] == 404
+        assert _without_audit_times(result["payload"]) == _without_audit_times(
+            json.loads(json.dumps(expected))
+        )
