@@ -225,6 +225,37 @@ export interface EvidenceRequirement {
   last_source_time: string | null;
 }
 
+/** One piece of missing evidence on a capability row, as the backend names it. */
+export interface MissingEvidence {
+  kind: "NOT_ACCEPTED" | "COVERAGE_GAP";
+  role: string;
+  device_id: string | null;
+  signal_id: string | null;
+  statement: string;
+  limits_claim: boolean;
+  assessment_ids: string[];
+}
+
+/**
+ * A capability row's readiness (T028 AC20): scored by the backend from the
+ * declaration against accepted coverage. Every gap here is backend state
+ * (AC18 rule 3); the frontend never derives one.
+ */
+export interface CapabilityReadiness {
+  basis_version: string;
+  level: "FULL" | "LIMITED" | "NONE";
+  label: string;
+  claim_ceiling: {
+    claim_level: ClaimLevel | null;
+    label: string;
+    statement: string;
+  };
+  missing_evidence: MissingEvidence[];
+  optional_not_observed: { role: string; device_id: string; signal_id: string }[];
+  assessed_intervals: number;
+  statement: string;
+}
+
 export interface AnalyticDeclaration {
   analytic_id: string;
   display_name: string;
@@ -234,6 +265,8 @@ export interface AnalyticDeclaration {
   claim_levels: ClaimLevelDeclaration[];
   required_evidence: EvidenceRequirement[];
   optional_evidence: EvidenceRequirement[];
+  /** Absent only from a backend that does not score readiness. */
+  readiness?: CapabilityReadiness;
 }
 
 export interface SiteAnalytics {

@@ -12,6 +12,7 @@ import {
   RECORD_DETAIL,
   evidenceClient,
 } from "../../sites/__tests__/evidenceFixtures";
+import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
@@ -47,6 +48,7 @@ function renderAt(path: string, evidence: SiteEvidenceClient, enabled = false) {
         siteDirectory={DIRECTORY}
         siteDetail={DETAIL}
         siteEvidence={evidence}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
       />
       <LocationProbe />
     </MemoryRouter>,
@@ -137,6 +139,9 @@ describe("Site > Evidence, populated", () => {
     );
   });
 
+  // T028 AC20 keeps this: with no analytic declared for the site (the
+  // declaration read is not_found here) nothing about capability appears. The
+  // populated capability table is pinned in `t028Screens.test.tsx`.
   it("says nothing about capability readiness or claim ceilings", async () => {
     renderAt(EVIDENCE_URL, populated());
     await settledScreen();

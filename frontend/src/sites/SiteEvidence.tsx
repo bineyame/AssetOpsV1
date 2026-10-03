@@ -4,10 +4,11 @@
  * the mapping and configuration they were accepted under (part A of the
  * Evidence recommendation; AC20).
  *
- * It says nothing about capability readiness or claim ceilings: no analytic
- * exists yet, so there is no claim for evidence to qualify. Everything shown
- * is accepted evidence read from ingestion's store, never a stage, a run or a
- * simulator artifact.
+ * From T028 (part B, AC20) the capability table sits above source health:
+ * readiness, claim ceiling and missing evidence per declared analytic, all
+ * scored by the backend (`CapabilityReadiness.tsx`). Everything shown is
+ * accepted evidence or a backend read model over it, never a stage, a run or
+ * a simulator artifact.
  *
  * The record inspector is a drill-down, not the tab body: a source or signal
  * row opens it in place, its state lives in the search params (`signal=` or
@@ -18,6 +19,9 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
+import { CapabilityReadinessTable } from "./CapabilityReadiness";
+import type { DomainPresentationProfile } from "./presentationProfile";
+import type { SiteAnalytics, SiteAnalyticsClient } from "./siteAnalyticsClient";
 import type {
   EvidenceCoverage,
   EvidenceOverview,
@@ -38,11 +42,15 @@ export const EVIDENCE_INSPECTOR_ID = "site-evidence-inspector";
 type Loaded = {
   overview: EvidenceRead<EvidenceOverview>;
   rejections: EvidenceRead<EvidenceRejections>;
+  declaration: EvidenceRead<SiteAnalytics> | null;
 };
 
 export interface SiteEvidenceProps {
   siteId: string;
   client: SiteEvidenceClient;
+  /** The analytics read model; absent, no capability table is rendered. */
+  analytics?: SiteAnalyticsClient;
+  profile?: DomainPresentationProfile | null;
 }
 
 function provenance(mode: string): string {
@@ -65,7 +73,12 @@ function windowBasis(basis: string): string {
     : "the accepted window of the latest completed release";
 }
 
-export function SiteEvidence({ siteId, client }: SiteEvidenceProps) {
+export function SiteEvidence({
+  siteId,
+  client,
+  analytics,
+  profile = null,
+}: SiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
   const from = params.get("from");
   const to = params.get("to");
@@ -78,15 +91,16 @@ export function SiteEvidence({ siteId, client }: SiteEvidenceProps) {
     void Promise.all([
       client.getEvidence(siteId, { from, to }),
       client.listRejections(siteId),
-    ]).then(([overview, rejections]) => {
+      analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId),
+    ]).then(([overview, rejections, declaration]) => {
       if (active) {
-        setLoaded({ overview, rejections });
+        setLoaded({ overview, rejections, declaration });
       }
     });
     return () => {
       active = false;
     };
-  }, [client, siteId, from, to]);
+  }, [client, analytics, siteId, from, to]);
 
   const inspect = (key: "signal" | "source", value: string) => {
     const next = new URLSearchParams(params);
@@ -136,6 +150,7 @@ export function SiteEvidence({ siteId, client }: SiteEvidenceProps) {
 
   return (
     <div className="site-evidence" data-evidence-state={empty ? "empty" : "populated"}>
+      <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
       <p data-evidence-window={evidence.window.basis}>
         {evidence.window.start === null || evidence.window.end === null ? (
           <>

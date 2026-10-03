@@ -6,6 +6,7 @@ import type {
   Assessment,
   AssessmentDetail,
   AssessmentSummary,
+  CapabilityReadiness,
   SiteAnalytics,
   SiteAnalyticsClient,
 } from "../siteAnalyticsClient";
@@ -175,9 +176,44 @@ export const CANDIDATE_SUMMARY = summary(CANDIDATE_ID, CANDIDATE_ASSESSMENT);
 export const NECESSARY_SUMMARY = summary(NECESSARY_ID, NECESSARY_ASSESSMENT);
 export const EVIDENCE_LINK = LINK;
 
+/** A Limited dispatch row as the backend scores the degraded-evidence run (AC20). */
+export const LIMITED_READINESS: CapabilityReadiness = {
+  basis_version: "readiness-1",
+  level: "LIMITED",
+  label: "Limited",
+  claim_ceiling: {
+    claim_level: "CANDIDATE_AVOIDABLE",
+    label: "Candidate avoidable",
+    statement:
+      "Candidate avoidable only for portions whose required inputs are evidenced; portions without them are Indeterminate.",
+  },
+  missing_evidence: [
+    {
+      kind: "COVERAGE_GAP",
+      role: "Battery discharge capability",
+      device_id: null,
+      signal_id: null,
+      statement:
+        "Battery discharge capability: no usable record for 5 of 13 evaluated segments in 1 assessed interval; 5 segment(s) that needed it are Indeterminate.",
+      limits_claim: true,
+      assessment_ids: [CANDIDATE_ID],
+    },
+  ],
+  optional_not_observed: [
+    { role: "Operator override", device_id: "generator-controller", signal_id: "stop-soc-override" },
+    { role: "Operator override", device_id: "battery-bms", signal_id: "reserve-override" },
+  ],
+  assessed_intervals: 1,
+  statement: "Scored from the declaration against all accepted evidence for this Site.",
+};
+
 export function declaration(
   siteId: string,
-  analytics: { analytic_id: string; display_name: string }[] = [
+  analytics: {
+    analytic_id: string;
+    display_name: string;
+    readiness?: CapabilityReadiness;
+  }[] = [
     { analytic_id: "dispatch", display_name: "Dispatch" },
   ],
 ): SiteAnalytics {

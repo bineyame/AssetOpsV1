@@ -197,6 +197,7 @@ export function App({
               <SiteEvidenceFrame
                 detail={siteDetail}
                 evidence={siteEvidence}
+                analytics={siteAnalytics}
                 sitesPath={SITES_PATH}
               />
             }
