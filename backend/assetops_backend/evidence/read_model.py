@@ -46,19 +46,45 @@ class NeededSignal:
     needed_by: tuple[str, ...]
 
 
-#: The signals each Site type's Overview metrics read (task T027 phase 2 card
-#: list). Substrate data: it names signals and holds no card state.
-NEEDED_SIGNALS: dict[str, tuple[NeededSignal, ...]] = {
+#: The signals each Site type's Overview domains read (task T027 phase 2 card
+#: list), in the domain order the backend serves. Substrate data: it names
+#: domains and signals and holds no card state. Which cards render, and in
+#: which order, is the frontend presentation profile's
+#: (`frontend/src/sites/presentationProfiles.json`); a test pins the two
+#: domain lists equal (review N9), so the Overview and coverage cannot drift.
+OVERVIEW_DOMAIN_SIGNALS: dict[str, tuple[tuple[str, tuple[tuple[str, str], ...]], ...]] = {
     "MINIGRID": (
-        NeededSignal("residential-meter", "active-power", ("Service",)),
-        NeededSignal("clinic-meter", "active-power", ("Service",)),
-        NeededSignal("mill-meter", "active-power", ("Service",)),
-        NeededSignal("generator-controller", "status", ("Dispatch",)),
-        NeededSignal("generator-controller", "ac-power", ("Dispatch",)),
-        NeededSignal("battery-pcs-controller", "state-of-charge", ("Battery",)),
-        NeededSignal("fuel-level-sensor", "fuel-level", ("Fuel",)),
-        NeededSignal("pv-inverter-controller", "ac-power", ("Renewable",)),
+        ("Service", (
+            ("residential-meter", "active-power"),
+            ("clinic-meter", "active-power"),
+            ("mill-meter", "active-power"),
+        )),
+        ("Dispatch", (
+            ("generator-controller", "status"),
+            ("generator-controller", "ac-power"),
+        )),
+        ("Battery", (("battery-pcs-controller", "state-of-charge"),)),
+        ("Fuel", (("fuel-level-sensor", "fuel-level"),)),
+        ("Renewable", (("pv-inverter-controller", "ac-power"),)),
     ),
+}
+
+
+def _needed_signals(
+    domains: tuple[tuple[str, tuple[tuple[str, str], ...]], ...],
+) -> tuple[NeededSignal, ...]:
+    by_key: dict[tuple[str, str], list[str]] = {}
+    for domain, signals in domains:
+        for key in signals:
+            by_key.setdefault(key, []).append(domain)
+    return tuple(NeededSignal(key[0], key[1], tuple(names)) for key, names in by_key.items())
+
+
+#: The signals each Site type's Overview metrics read, derived from
+#: `OVERVIEW_DOMAIN_SIGNALS` so coverage and the Overview share one list.
+NEEDED_SIGNALS: dict[str, tuple[NeededSignal, ...]] = {
+    site_type: _needed_signals(domains)
+    for site_type, domains in OVERVIEW_DOMAIN_SIGNALS.items()
 }
 
 SOURCE_HEALTH_STATEMENT = (
@@ -138,22 +164,31 @@ def _record_summary(record: AcceptedRecord, overlapping: bool) -> dict[str, Any]
     }
 
 
+def default_window(evidence: SiteEvidence) -> tuple[str | None, str | None]:
+    """The latest completed batch's accepted window, else all accepted records."""
+    completed = [
+        p for p in evidence.batches
+        if p.status == "COMPLETED" and p.window_start is not None
+    ]
+    if completed:
+        latest = max(completed, key=lambda p: (p.completed_at or "", p.batch_id))
+        return latest.window_start, latest.window_end
+    if evidence.records:
+        times = [record.source_time for record in evidence.records]
+        return min(times), max(times)
+    return None, None
+
+
+def in_window(record: AcceptedRecord, start: str | None, end: str | None) -> bool:
+    return _in_window(record, start, end)
+
+
 class EvidenceReadModel:
     def __init__(self, store: EvidenceStore) -> None:
         self._store = store
 
     def _default_window(self, evidence: SiteEvidence) -> tuple[str | None, str | None]:
-        completed = [
-            p for p in evidence.batches
-            if p.status == "COMPLETED" and p.window_start is not None
-        ]
-        if completed:
-            latest = max(completed, key=lambda p: (p.completed_at or "", p.batch_id))
-            return latest.window_start, latest.window_end
-        if evidence.records:
-            times = [record.source_time for record in evidence.records]
-            return min(times), max(times)
-        return None, None
+        return default_window(evidence)
 
     def site_evidence(
         self,

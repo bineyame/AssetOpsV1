@@ -1,4 +1,4 @@
-"""Ingestion and Site > Evidence routes (T027). Ungated: mounted in both gate states.
+"""Ingestion, Site > Evidence and Site Overview routes (T027). Ungated: mounted in both gate states.
 
 The Simulator Lab gate covers simulator surfaces and execution, never accepted
 evidence, so these routes are served with the gate closed (AC13, AC19).
@@ -75,6 +75,25 @@ GET /api/sites/{site_id}/evidence/rejections?batch=
       conflicts: [{message_id, batch_id, original_digest, conflicting_digest,
       received_at}]}
 
+GET /api/sites/{site_id}/overview?from=&to=   (T027 phase 2)
+  -> {site_id, site_type, window: {start, end, basis, hours}, accepted_in_window,
+      sources_in_window,
+      objective: {assessment: ASSESSMENT, service_delivered: METRIC|null},
+      cards: [{domain_id, label, assessment: ASSESSMENT, metrics: [METRIC],
+               coverage: [{device_id, signal_id, status: "REPORTED"|
+                 "NOT_REPORTED"|"NO_GOOD_RECORD", records, good, unavailable,
+                 last_source_time|null}],
+               gaps: [{device_id, signal_id, status}]}],
+      interval_statement, timeline: [{series_id, label, unit,
+        kind: "INTERVAL_MEAN"|"STATE_AT_INSTANT", basis,
+        points: [{start, end, value, message_id|null} | {at, value, message_id}]}],
+      timeline_statement, findings: [], findings_statement}
+  ASSESSMENT = {status: "NO_ASSESSMENT", label: "No assessment yet", reason}
+  METRIC = {metric_id, label, unit, value|null, at|null, basis,
+            evidence: [{device_id, signal_id, message_id}],
+            unavailable_because|null}
+  Accepted evidence only; the same default window as Site > Evidence.
+
 Errors use {detail: {code, message}}; 503 EVIDENCE_STORE_UNAVAILABLE when the
 store cannot be read.
 """
@@ -88,6 +107,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 
+from assetops_backend.evidence.overview import OverviewReadModel
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.evidence.read_model import EvidenceReadModel, batch_payload
 from assetops_backend.evidence.service import IngestionService
@@ -104,6 +124,7 @@ SITE_EVIDENCE_ROUTE = "/api/sites/{site_id}/evidence"
 SITE_EVIDENCE_RECORDS_ROUTE = "/api/sites/{site_id}/evidence/records"
 SITE_EVIDENCE_RECORD_ROUTE = "/api/sites/{site_id}/evidence/records/{message_id}"
 SITE_EVIDENCE_REJECTIONS_ROUTE = "/api/sites/{site_id}/evidence/rejections"
+SITE_OVERVIEW_ROUTE = "/api/sites/{site_id}/overview"
 
 _INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 
@@ -122,6 +143,7 @@ def _instant_param(value: str | None, name: str) -> str | None:
 def build_evidence_router(ingestion: IngestionService, sites: SiteRepository) -> APIRouter:
     router = APIRouter()
     read_model = EvidenceReadModel(ingestion.store)
+    overview_model = OverviewReadModel(ingestion.store)
 
     def site_or_404(site_id: str) -> SiteRecord:
         try:
@@ -184,6 +206,16 @@ def build_evidence_router(ingestion: IngestionService, sites: SiteRepository) ->
         end = _instant_param(request.query_params.get("to"), "to")
         try:
             return read_model.site_evidence(site, start, end)
+        except EvidenceStoreUnavailable as error:
+            raise unavailable(error) from error
+
+    @router.get(SITE_OVERVIEW_ROUTE)
+    def get_site_overview(site_id: str, request: Request) -> dict:
+        site = site_or_404(site_id)
+        start = _instant_param(request.query_params.get("from"), "from")
+        end = _instant_param(request.query_params.get("to"), "to")
+        try:
+            return overview_model.site_overview(site, start, end)
         except EvidenceStoreUnavailable as error:
             raise unavailable(error) from error
 

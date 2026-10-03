@@ -22,6 +22,7 @@ from route_inventory import served_paths
 from run_fixtures import FakeSites, site
 from assetops_backend.config import FeatureFlags
 from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceStore
+from assetops_backend.evidence.overview import OverviewReadModel
 from assetops_backend.evidence.read_model import EvidenceReadModel
 from assetops_backend.evidence.ports import find_batch
 from assetops_backend.evidence.service import IngestionInterrupted, IngestionService
@@ -555,6 +556,7 @@ class TestRebuild:
             records = model.records(SITE_ID)
             return {
                 "evidence": model.site_evidence(a_site()),
+                "overview": OverviewReadModel(ingestion.store).site_overview(a_site()),
                 "records": records,
                 "details": [model.record(SITE_ID, r["message_id"]) for r in records["records"]],
             }
@@ -675,6 +677,8 @@ class TestRebuildIsolated:
         assert result["leaked"] == []
         assert result["payload"]["records"]["total"] == 5
         assert result["payload"]["lab_status"] == 404
+        fuel = next(c for c in result["payload"]["overview"]["cards"] if c["domain_id"] == "Fuel")
+        assert fuel["metrics"][0]["value"] == "100" and fuel["gaps"] == []
         assert _without_audit_times(result["payload"]) == _without_audit_times(
             json.loads(json.dumps(expected))
         )
