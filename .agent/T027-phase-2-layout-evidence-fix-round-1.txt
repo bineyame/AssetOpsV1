@@ -1,0 +1,679 @@
+
+=== Sites index at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0, table scrolled by 16px]
+  PASS  all nine columns are still rendered  [9 headers]
+
+=== Site page at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  exactly three tabs are rendered: Overview, Foundation, Evidence  [Overview | Foundation | Evidence]
+  PASS  no enabled action renders  [Open in Simulator Lab:disabled, Start Simulation:disabled, View Live Data:disabled]
+
+=== Sites index at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0, table scrolled by 296px]
+  PASS  all nine columns are still rendered  [9 headers]
+
+=== Site page at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  exactly three tabs are rendered: Overview, Foundation, Evidence  [Overview | Foundation | Evidence]
+  PASS  no enabled action renders  [Open in Simulator Lab:disabled, Start Simulation:disabled, View Live Data:disabled]
+
+=== Landing at / (redirects to /sites) at 1280x800, gate open, short page ===
+  PASS  / lands on the Sites index  [final pathname /sites]
+  PASS  the page does not scroll vertically  [scrollHeight 800 vs clientHeight 800]
+
+=== Foundation at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Evidence]
+  PASS  the Foundation subtab row is exactly Definition, Topology, Controls  [Definition | Topology | Controls]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-properties-heading, foundation-control-assumptions-heading, site-configuration-components-heading, foundation-physical-properties-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: fits; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: fits; foundation-signal-mappings-heading: fits; foundation-control-properties-heading: fits; foundation-control-assumptions-heading: fits; site-configuration-components-heading: fits; foundation-physical-properties-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows; foundation-physical-properties-heading: 4 cols, 2 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 371px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Foundation at 1000x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Evidence]
+  PASS  the Foundation subtab row is exactly Definition, Topology, Controls  [Definition | Topology | Controls]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-properties-heading, foundation-control-assumptions-heading, site-configuration-components-heading, foundation-physical-properties-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: overflows, scrolled 266px; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: fits; foundation-signal-mappings-heading: fits; foundation-control-properties-heading: fits; foundation-control-assumptions-heading: fits; site-configuration-components-heading: fits; foundation-physical-properties-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows; foundation-physical-properties-heading: 4 cols, 2 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 651px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Foundation at 640x700, narrow enough that a dense table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Evidence]
+  PASS  the Foundation subtab row is exactly Definition, Topology, Controls  [Definition | Topology | Controls]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-properties-heading, foundation-control-assumptions-heading, site-configuration-components-heading, foundation-physical-properties-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: overflows, scrolled 626px; foundation-topology-nodes-heading: overflows, scrolled 163px; foundation-topology-connections-heading: overflows, scrolled 95px; foundation-devices-heading: overflows, scrolled 251px; foundation-signal-mappings-heading: overflows, scrolled 297px; foundation-control-properties-heading: overflows, scrolled 143px; foundation-control-assumptions-heading: overflows, scrolled 132px; site-configuration-components-heading: overflows, scrolled 115px; foundation-physical-properties-heading: overflows, scrolled 133px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [9 of 9 overflow]
+  PASS  the diagram overflows here too, so its scroll claim is not vacuous  [overflows]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows; foundation-physical-properties-heading: 4 cols, 2 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 1011px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Scenario detail at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: fits; scenario-site-devices-heading: fits; scenario-public-parameters-heading: fits; scenario-initialization-heading: fits; scenario-sources-heading: fits; scenario-timeline-heading: overflows, scrolled 216px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+
+=== Scenario detail at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: fits; scenario-site-devices-heading: fits; scenario-public-parameters-heading: overflows, scrolled 277px; scenario-initialization-heading: overflows, scrolled 58px; scenario-sources-heading: fits; scenario-timeline-heading: overflows, scrolled 496px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+
+=== Scenario detail at 640x700, narrow enough that the timeline cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: overflows, scrolled 287px; scenario-site-devices-heading: fits; scenario-public-parameters-heading: overflows, scrolled 637px; scenario-initialization-heading: overflows, scrolled 418px; scenario-sources-heading: overflows, scrolled 337px; scenario-timeline-heading: overflows, scrolled 856px; scenario-cycle-heading: fits; scenario-readings-heading: overflows, scrolled 82px; scenario-reporting-heading: fits; scenario-bounds-heading: overflows, scrolled 139px; scenario-private-heading: overflows, scrolled 274px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [8 of 11 overflow]
+
+=== Scenario catalog at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the catalog renders a row from the real scenario store  [scenarios-catalog-heading: 13 rows]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0]
+
+=== Run setup summary at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the frozen summary was drawn at all  [1 table region(s)]
+  PASS  every table on the page has a named, focusable overflow region  [run-setup-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-setup-frozen-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [run-setup-frozen-heading: 4 cols, 55 rows]
+  PASS  the frozen input table keeps all four of its columns  [run-setup-frozen-heading: 4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [run-setup-frozen-heading: 55 rows]
+  FAIL  the blocked table is at least two rows in three columns  [no region named run-setup-blocked-heading]
+
+=== Run setup summary at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the frozen summary was drawn at all  [1 table region(s)]
+  PASS  every table on the page has a named, focusable overflow region  [run-setup-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-setup-frozen-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [run-setup-frozen-heading: 4 cols, 55 rows]
+  PASS  the frozen input table keeps all four of its columns  [run-setup-frozen-heading: 4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [run-setup-frozen-heading: 55 rows]
+  FAIL  the blocked table is at least two rows in three columns  [no region named run-setup-blocked-heading]
+
+=== Run setup summary at 640x700, narrow enough that the summary cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the frozen summary was drawn at all  [1 table region(s)]
+  PASS  every table on the page has a named, focusable overflow region  [run-setup-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-setup-frozen-heading: overflows, scrolled 357px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [run-setup-frozen-heading: 4 cols, 55 rows]
+  PASS  the frozen input table keeps all four of its columns  [run-setup-frozen-heading: 4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [run-setup-frozen-heading: 55 rows]
+  FAIL  the blocked table is at least two rows in three columns  [no region named run-setup-blocked-heading]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [1 of 1 overflow]
+
+=== Created a Draft for the execution measurements ===
+  run setup summary drawn with 1 table(s)
+
+=== Runs inventory at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [runs-table-heading]
+  PASS  every table that overflows scrolls inside its own region  [runs-table-heading: overflows, scrolled 239px]
+  PASS  the rail does not move when the inventory is scrolled to its end  [left 0 -> 0]
+  PASS  the inventory keeps all ten of its columns  [10 columns]
+  PASS  the inventory renders a row from the real run store  [8 rows]
+  PASS  no table renders a header row with no rows under it  [runs-table-heading: 10 cols, 8 rows]
+  PASS  the inventory offers no button of any kind  [no button rendered]
+
+=== Runs inventory at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [runs-table-heading]
+  PASS  every table that overflows scrolls inside its own region  [runs-table-heading: overflows, scrolled 519px]
+  PASS  the rail does not move when the inventory is scrolled to its end  [left 0 -> 0]
+  PASS  the inventory keeps all ten of its columns  [10 columns]
+  PASS  the inventory renders a row from the real run store  [8 rows]
+  PASS  no table renders a header row with no rows under it  [runs-table-heading: 10 cols, 8 rows]
+  PASS  the inventory offers no button of any kind  [no button rendered]
+
+=== Runs inventory at 640x700, narrow enough that the inventory cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [runs-table-heading]
+  PASS  every table that overflows scrolls inside its own region  [runs-table-heading: overflows, scrolled 879px]
+  PASS  the rail does not move when the inventory is scrolled to its end  [left 0 -> 0]
+  PASS  the inventory keeps all ten of its columns  [10 columns]
+  PASS  the inventory renders a row from the real run store  [8 rows]
+  PASS  no table renders a header row with no rows under it  [runs-table-heading: 10 cols, 8 rows]
+  PASS  the inventory offers no button of any kind  [no button rendered]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [1 of 1 overflow]
+
+=== READY draft run at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [run-frozen-heading, run-signals-heading, run-gaps-heading, run-history-coverage-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: fits; run-signals-heading: fits; run-gaps-heading: fits; run-history-coverage-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [55 rows]
+  PASS  no table renders a header row with no rows under it  [run-frozen-heading: 4 cols, 55 rows; run-signals-heading: 5 cols, 2 rows; run-gaps-heading: 6 cols, 1 rows; run-history-coverage-heading: 3 cols, 7 rows]
+  PASS  a ready draft carries no blocked table  [absent]
+  PASS  the readiness disclosure is drawn, with a real box and real text  [793 characters, visible true]
+  PASS  a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit  [Start this run:ENABLED, Step:disabled, Run to the end:disabled, Play:disabled, Pause:disabled, Commit and release:disabled]
+  PASS  a ready draft still lists what the profile does not model  [2 items, 596 characters, visible true]
+
+=== READY draft run at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [run-frozen-heading, run-signals-heading, run-gaps-heading, run-history-coverage-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: overflows, scrolled 31px; run-signals-heading: overflows, scrolled 17px; run-gaps-heading: overflows, scrolled 40px; run-history-coverage-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [55 rows]
+  PASS  no table renders a header row with no rows under it  [run-frozen-heading: 4 cols, 55 rows; run-signals-heading: 5 cols, 2 rows; run-gaps-heading: 6 cols, 1 rows; run-history-coverage-heading: 3 cols, 7 rows]
+  PASS  a ready draft carries no blocked table  [absent]
+  PASS  the readiness disclosure is drawn, with a real box and real text  [793 characters, visible true]
+  PASS  a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit  [Start this run:ENABLED, Step:disabled, Run to the end:disabled, Play:disabled, Pause:disabled, Commit and release:disabled]
+  PASS  a ready draft still lists what the profile does not model  [2 items, 596 characters, visible true]
+
+=== READY draft run at 640x700, narrow enough that the frozen table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [run-frozen-heading, run-signals-heading, run-gaps-heading, run-history-coverage-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: overflows, scrolled 391px; run-signals-heading: overflows, scrolled 377px; run-gaps-heading: overflows, scrolled 400px; run-history-coverage-heading: overflows, scrolled 185px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [55 rows]
+  PASS  no table renders a header row with no rows under it  [run-frozen-heading: 4 cols, 55 rows; run-signals-heading: 5 cols, 2 rows; run-gaps-heading: 6 cols, 1 rows; run-history-coverage-heading: 3 cols, 7 rows]
+  PASS  a ready draft carries no blocked table  [absent]
+  PASS  the readiness disclosure is drawn, with a real box and real text  [793 characters, visible true]
+  PASS  a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit  [Start this run:ENABLED, Step:disabled, Run to the end:disabled, Play:disabled, Pause:disabled, Commit and release:disabled]
+  PASS  a ready draft still lists what the profile does not model  [2 items, 596 characters, visible true]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [4 of 4 overflow]
+
+=== BLOCKED draft run at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [run-blocked-heading, run-frozen-heading, run-signals-heading, run-history-coverage-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-blocked-heading: fits; run-frozen-heading: fits; run-signals-heading: fits; run-history-coverage-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [80 rows]
+  PASS  no table renders a header row with no rows under it  [run-blocked-heading: 3 cols, 1 rows; run-frozen-heading: 4 cols, 80 rows; run-signals-heading: 5 cols, 8 rows; run-history-coverage-heading: 3 cols, 7 rows]
+  PASS  the blocked table names every reason the draft carries  [3 columns, 1 rows]
+  PASS  a blocked draft carries no readiness disclosure  [absent]
+  PASS  a blocked draft offers no run action at all, and Commit is disabled  [Commit and release:disabled]
+
+=== BLOCKED draft run at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [run-blocked-heading, run-frozen-heading, run-signals-heading, run-history-coverage-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-blocked-heading: fits; run-frozen-heading: overflows, scrolled 50px; run-signals-heading: overflows, scrolled 22px; run-history-coverage-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [80 rows]
+  PASS  no table renders a header row with no rows under it  [run-blocked-heading: 3 cols, 1 rows; run-frozen-heading: 4 cols, 80 rows; run-signals-heading: 5 cols, 8 rows; run-history-coverage-heading: 3 cols, 7 rows]
+  PASS  the blocked table names every reason the draft carries  [3 columns, 1 rows]
+  PASS  a blocked draft carries no readiness disclosure  [absent]
+  PASS  a blocked draft offers no run action at all, and Commit is disabled  [Commit and release:disabled]
+
+=== BLOCKED draft run at 640x700, narrow enough that the frozen table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [run-blocked-heading, run-frozen-heading, run-signals-heading, run-history-coverage-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-blocked-heading: overflows, scrolled 184px; run-frozen-heading: overflows, scrolled 410px; run-signals-heading: overflows, scrolled 382px; run-history-coverage-heading: overflows, scrolled 185px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [80 rows]
+  PASS  no table renders a header row with no rows under it  [run-blocked-heading: 3 cols, 1 rows; run-frozen-heading: 4 cols, 80 rows; run-signals-heading: 5 cols, 8 rows; run-history-coverage-heading: 3 cols, 7 rows]
+  PASS  the blocked table names every reason the draft carries  [3 columns, 1 rows]
+  PASS  a blocked draft carries no readiness disclosure  [absent]
+  PASS  a blocked draft offers no run action at all, and Commit is disabled  [Commit and release:disabled]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [4 of 4 overflow]
+
+=== Draft run started at 1280x800 ===
+  PASS  starting a draft leaves it RUNNING at its first boundary  [status RUNNING]
+  PASS  a started run has no world and no reading yet  [0 state rows, 0 observation rows]
+  PASS  both configured reporting paths are drawn  [2 configured signal rows]
+  PASS  the declared reporting gap is drawn  [1 gap rows]
+  PASS  the gap row carries the declared instant beside the span it covers  [6 cells, declared at 1490: fuel-level-reporting-gap | fuel-level-sensor / fuel-level | WINDOW | 1490 | 1490 | 1580]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+
+=== Draft run stepped into the reporting gap at 1280x800, the committed minimum ===
+  PASS  the fuel sensor row is drawn at all  [fuel-level-sensor:fuel-level, generator-controller:ac-power]
+  PASS  the true value and the reported value are two different cells  [true 254.02 L vs reported 373.52 L]
+  PASS  the world holds 254.02 L after the removal  [fuel-tank-volume@fuel-tank254.02L]
+  PASS  the reading is the one taken before the gap opened, marked stale  [STALE/SUPPRESSED_BY_GAP, reported 373.52 L]
+  PASS  the retained reading carries its own source time, earlier than this instant and before the gap  [source 2026-09-22T00:30:00Z, now 2026-09-22T01:45:00Z]
+  PASS  the newest sample attempts are drawn  [12 attempts]
+  PASS  the stage inspector draws every staged envelope, and there are some  [STAGED, 97 rows drawn of 97 staged]
+  PASS  the newest staged envelope is the last reading before the gap, published after its source time  [source 2026-09-22T00:30:00Z, published 2026-09-22T00:30:03Z, value 373.52 L]
+  PASS  no envelope is staged at an instant inside the reporting gap  [0 rows at or after the gap opened]
+  PASS  the exact canonical text is drawn, parses, wraps, and stays inside its box  [643 characters in 917x143px, parses, wraps, contained]
+  PASS  a stage whose execution is still running is not eligible for release  [release NOT_ELIGIBLE]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [run-history-values-heading: overflows, scrolled 29px; run-timeline-reporting-heading: overflows, scrolled 8px; run-frozen-heading: fits; run-private-heading: fits; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-gaps-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits; run-stage-envelopes-heading: fits]
+
+=== Draft run stepped into the reporting gap at 640x700, narrow enough that the observation table cannot fit ===
+  PASS  the fuel sensor row is drawn at all  [fuel-level-sensor:fuel-level, generator-controller:ac-power]
+  PASS  the true value and the reported value are two different cells  [true 254.02 L vs reported 373.52 L]
+  PASS  the world holds 254.02 L after the removal  [fuel-tank-volume@fuel-tank254.02L]
+  PASS  the reading is the one taken before the gap opened, marked stale  [STALE/SUPPRESSED_BY_GAP, reported 373.52 L]
+  PASS  the retained reading carries its own source time, earlier than this instant and before the gap  [source 2026-09-22T00:30:00Z, now 2026-09-22T01:45:00Z]
+  PASS  the newest sample attempts are drawn  [12 attempts]
+  PASS  the stage inspector draws every staged envelope, and there are some  [STAGED, 97 rows drawn of 97 staged]
+  PASS  the newest staged envelope is the last reading before the gap, published after its source time  [source 2026-09-22T00:30:00Z, published 2026-09-22T00:30:03Z, value 373.52 L]
+  PASS  no envelope is staged at an instant inside the reporting gap  [0 rows at or after the gap opened]
+  PASS  the exact canonical text is drawn, parses, wraps, and stays inside its box  [643 characters in 277x514px, parses, wraps, contained]
+  PASS  a stage whose execution is still running is not eligible for release  [release NOT_ELIGIBLE]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table that overflows scrolls inside its own region  [run-history-values-heading: overflows, scrolled 92px; run-timeline-reporting-heading: overflows, scrolled 648px; run-frozen-heading: overflows, scrolled 391px; run-private-heading: fits; run-observations-heading: overflows, scrolled 594px; run-reports-heading: overflows, scrolled 418px; run-signals-heading: overflows, scrolled 377px; run-gaps-heading: overflows, scrolled 400px; run-history-coverage-heading: overflows, scrolled 206px; run-history-samples-heading: overflows, scrolled 33px; run-history-attempts-heading: overflows, scrolled 364px; run-stage-mapping-heading: overflows, scrolled 229px; run-stage-envelopes-heading: overflows, scrolled 453px]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [12 of 13 overflow]
+
+=== Draft run run to the end at 1280x800 ===
+  PASS  the run reached a terminal outcome  [status COMPLETED]
+  PASS  both digests are drawn as real sixty-four character values  [5 digest-shaped values]
+  PASS  the tank is at its capacity after the bounded delivery  [fuel-tank-volume@fuel-tank500L]
+  PASS  a terminal run offers no enabled execution control  [Start this run:disabled, Step:disabled, Run to the end:disabled, Play:disabled, Pause:disabled]
+  PASS  a completed run's verified stage is eligible for release  [release ELIGIBLE, 154 envelopes]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+
+=== Draft run stage reloaded at 640x700 ===
+  PASS  the reloaded stage holds the same envelopes  [154 rows after reload vs 154 before]
+  PASS  the reloaded exact text is byte for byte the text shown before  [643 characters, identical]
+  PASS  the long canonical text stays inside its box at 640px  [277x514px]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+
+=== Simulator Lab at 1280x800 ===
+  PASS  the standalone Lab frame still fills the viewport  [frame 800px vs viewport 800px]
+
+=== Created a Kobo Draft against SITET26 ===
+  run setup summary drawn with 1 table(s)
+
+=== Kobo daytime draft stepped to the evening at 1280x800, the committed minimum ===
+  PASS  the series against simulation time has a row per resolved step, and there are some  [41 step rows, series table 41 rows]
+  PASS  each of the three loads has its own row with demand, service and unserved load  [load-demand@load-clinic: 5 kW / 5 kW / 0 kW; load-demand@load-res: 14 kW / 14 kW / 0 kW; load-demand@load-mill: 0 kW / 0 kW / 0 kW]
+  PASS  the requested and the accepted battery power are two cells  [requested 16 kW, accepted 16 kW]
+  PASS  the named flows are drawn  [21 flow rows]
+  PASS  the reserve in effect is the scenario override, named as one  [15 % (override) (OVERRIDE)]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [run-sld-contents-heading, run-sld-contents-heading-connections, run-interval-control-heading, run-interval-loads-heading, run-interval-balance-heading, run-interval-effective-heading, run-history-values-heading, run-timeline-applied-heading, run-timeline-reporting-heading, run-frozen-heading, run-private-heading, run-control-heading, run-loads-heading, run-flows-heading, run-view-heading, run-electrical-series-heading, run-observations-heading, run-reports-heading, run-signals-heading, run-history-coverage-heading, run-history-samples-heading, run-history-interval-heading, run-history-attempts-heading, run-stage-mapping-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-sld-contents-heading: overflows, scrolled 449px; run-sld-contents-heading-connections: overflows, scrolled 130px; run-interval-control-heading: overflows, scrolled 135px; run-interval-loads-heading: overflows, scrolled 42px; run-interval-balance-heading: overflows, scrolled 147px; run-interval-effective-heading: overflows, scrolled 136px; run-history-values-heading: overflows, scrolled 25px; run-timeline-applied-heading: fits; run-timeline-reporting-heading: fits; run-frozen-heading: fits; run-private-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 129px; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-interval-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+
+=== Kobo daytime draft stepped to the evening at 1000x700, below the commitment ===
+  PASS  the series against simulation time has a row per resolved step, and there are some  [41 step rows, series table 41 rows]
+  PASS  each of the three loads has its own row with demand, service and unserved load  [load-demand@load-clinic: 5 kW / 5 kW / 0 kW; load-demand@load-res: 14 kW / 14 kW / 0 kW; load-demand@load-mill: 0 kW / 0 kW / 0 kW]
+  PASS  the requested and the accepted battery power are two cells  [requested 16 kW, accepted 16 kW]
+  PASS  the named flows are drawn  [21 flow rows]
+  PASS  the reserve in effect is the scenario override, named as one  [15 % (override) (OVERRIDE)]
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [run-interval-control-heading, run-interval-loads-heading, run-interval-balance-heading, run-interval-effective-heading, run-history-values-heading, run-timeline-applied-heading, run-timeline-reporting-heading, run-frozen-heading, run-private-heading, run-control-heading, run-loads-heading, run-flows-heading, run-view-heading, run-electrical-series-heading, run-observations-heading, run-reports-heading, run-signals-heading, run-history-coverage-heading, run-history-samples-heading, run-history-interval-heading, run-history-attempts-heading, run-stage-mapping-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: fits; run-interval-loads-heading: fits; run-interval-balance-heading: fits; run-interval-effective-heading: fits; run-history-values-heading: fits; run-timeline-applied-heading: overflows, scrolled 158px; run-timeline-reporting-heading: overflows, scrolled 231px; run-frozen-heading: fits; run-private-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 409px; run-observations-heading: overflows, scrolled 175px; run-reports-heading: fits; run-signals-heading: overflows, scrolled 17px; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-interval-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+
+=== Kobo daytime draft stepped to the evening at 640x700, narrow enough that the series table cannot fit ===
+  PASS  the series against simulation time has a row per resolved step, and there are some  [41 step rows, series table 41 rows]
+  PASS  each of the three loads has its own row with demand, service and unserved load  [load-demand@load-clinic: 5 kW / 5 kW / 0 kW; load-demand@load-res: 14 kW / 14 kW / 0 kW; load-demand@load-mill: 0 kW / 0 kW / 0 kW]
+  PASS  the requested and the accepted battery power are two cells  [requested 16 kW, accepted 16 kW]
+  PASS  the named flows are drawn  [21 flow rows]
+  PASS  the reserve in effect is the scenario override, named as one  [15 % (override) (OVERRIDE)]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [run-interval-control-heading, run-interval-loads-heading, run-interval-balance-heading, run-interval-effective-heading, run-history-values-heading, run-timeline-applied-heading, run-timeline-reporting-heading, run-frozen-heading, run-private-heading, run-control-heading, run-loads-heading, run-flows-heading, run-view-heading, run-electrical-series-heading, run-observations-heading, run-reports-heading, run-signals-heading, run-history-coverage-heading, run-history-samples-heading, run-history-interval-heading, run-history-attempts-heading, run-stage-mapping-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 228px; run-interval-loads-heading: overflows, scrolled 135px; run-interval-balance-heading: overflows, scrolled 240px; run-interval-effective-heading: overflows, scrolled 229px; run-history-values-heading: overflows, scrolled 88px; run-timeline-applied-heading: overflows, scrolled 518px; run-timeline-reporting-heading: overflows, scrolled 591px; run-frozen-heading: overflows, scrolled 343px; run-private-heading: fits; run-control-heading: overflows, scrolled 305px; run-loads-heading: overflows, scrolled 350px; run-flows-heading: overflows, scrolled 238px; run-view-heading: overflows, scrolled 17px; run-electrical-series-heading: overflows, scrolled 769px; run-observations-heading: overflows, scrolled 535px; run-reports-heading: overflows, scrolled 266px; run-signals-heading: overflows, scrolled 377px; run-history-coverage-heading: overflows, scrolled 206px; run-history-samples-heading: overflows, scrolled 108px; run-history-interval-heading: overflows, scrolled 129px; run-history-attempts-heading: overflows, scrolled 261px; run-stage-mapping-heading: overflows, scrolled 229px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [21 of 22 overflow]
+
+=== Kobo Foundation at 1280x800 ===
+  PASS  the typed Site Controls render as a table with both controls  [2 rows]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+
+=== Kobo mini-grid draft stepped to a running generator at 1280x800, the committed minimum ===
+  PASS  the generator series has a row per resolved step, and there are some  [79 step rows, series table 79 rows]
+  PASS  both lifecycle transitions are drawn, start request then running  [STARTING -> RUNNING]
+  PASS  request, physical state and accepted output are three drawn values  [requested RUN, state RUNNING, output 40 kW]
+  PASS  service counts the generator's share  [served 19 kW of demand 19 kW]
+  PASS  the reported status is stated as pending  [Reported generator status is pending T025b, and staging it is T026's. The state shown here is the simulator's private physical state, not a reading any device reported.]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [run-sld-contents-heading: overflows, scrolled 449px; run-sld-contents-heading-connections: overflows, scrolled 130px; run-interval-control-heading: overflows, scrolled 146px; run-interval-loads-heading: overflows, scrolled 42px; run-interval-balance-heading: overflows, scrolled 150px; run-interval-effective-heading: overflows, scrolled 136px; run-history-values-heading: overflows, scrolled 25px; run-timeline-applied-heading: fits; run-timeline-reporting-heading: fits; run-frozen-heading: fits; run-private-heading: fits; run-generator-transitions-heading: fits; run-generator-series-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 129px; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-interval-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+
+=== Kobo mini-grid draft stepped to a running generator at 1000x700, below the commitment ===
+  PASS  the generator series has a row per resolved step, and there are some  [79 step rows, series table 79 rows]
+  PASS  both lifecycle transitions are drawn, start request then running  [STARTING -> RUNNING]
+  PASS  request, physical state and accepted output are three drawn values  [requested RUN, state RUNNING, output 40 kW]
+  PASS  service counts the generator's share  [served 19 kW of demand 19 kW]
+  PASS  the reported status is stated as pending  [Reported generator status is pending T025b, and staging it is T026's. The state shown here is the simulator's private physical state, not a reading any device reported.]
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: fits; run-interval-loads-heading: fits; run-interval-balance-heading: fits; run-interval-effective-heading: fits; run-history-values-heading: fits; run-timeline-applied-heading: overflows, scrolled 254px; run-timeline-reporting-heading: overflows, scrolled 231px; run-frozen-heading: overflows, scrolled 15px; run-private-heading: fits; run-generator-transitions-heading: fits; run-generator-series-heading: overflows, scrolled 134px; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 409px; run-observations-heading: overflows, scrolled 175px; run-reports-heading: fits; run-signals-heading: overflows, scrolled 17px; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-interval-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+
+=== Kobo mini-grid draft stepped to a running generator at 640x700, narrow enough that the generator series cannot fit ===
+  PASS  the generator series has a row per resolved step, and there are some  [79 step rows, series table 79 rows]
+  PASS  both lifecycle transitions are drawn, start request then running  [STARTING -> RUNNING]
+  PASS  request, physical state and accepted output are three drawn values  [requested RUN, state RUNNING, output 40 kW]
+  PASS  service counts the generator's share  [served 19 kW of demand 19 kW]
+  PASS  the reported status is stated as pending  [Reported generator status is pending T025b, and staging it is T026's. The state shown here is the simulator's private physical state, not a reading any device reported.]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 239px; run-interval-loads-heading: overflows, scrolled 135px; run-interval-balance-heading: overflows, scrolled 243px; run-interval-effective-heading: overflows, scrolled 229px; run-history-values-heading: overflows, scrolled 88px; run-timeline-applied-heading: overflows, scrolled 614px; run-timeline-reporting-heading: overflows, scrolled 591px; run-frozen-heading: overflows, scrolled 375px; run-private-heading: fits; run-generator-transitions-heading: overflows, scrolled 275px; run-generator-series-heading: overflows, scrolled 494px; run-control-heading: overflows, scrolled 316px; run-loads-heading: overflows, scrolled 350px; run-flows-heading: overflows, scrolled 258px; run-view-heading: overflows, scrolled 63px; run-electrical-series-heading: overflows, scrolled 769px; run-observations-heading: overflows, scrolled 535px; run-reports-heading: overflows, scrolled 266px; run-signals-heading: overflows, scrolled 377px; run-history-coverage-heading: overflows, scrolled 206px; run-history-samples-heading: overflows, scrolled 109px; run-history-interval-heading: overflows, scrolled 129px; run-history-attempts-heading: overflows, scrolled 261px; run-stage-mapping-heading: overflows, scrolled 229px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the generator series overflows here, so the claim above is not vacuous  [overflows]
+
+=== T025b kobo-mini-grid-evening, mini-grid v2 / profile 4, run to its end, at 1280x800 ===
+  PASS  the run completed and the series has a row per step, and there are some  [COMPLETED, 96 step rows]
+  PASS  every step row has a reported-status cell, with GOOD and STALE both present  [96 cells, qualities GOOD,STALE]
+  PASS  the reported status is drawn beside the physical state at T  [physical RUNNING, reported RUNNING (STALE)]
+  PASS  both controls in effect are named by address  [battery-reserve-state-of-charge@battery=BASELINE; generator-stop-soc-threshold@generator=BASELINE; stop 90 % (baseline: frozen Foundation answer (stop-soc-threshold))]
+  PASS  profile 4 discloses the status as observed and not staged, and it is read as a member  [unstaged generator-controller:status; status true value RUNNING]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 146px; run-interval-loads-heading: overflows, scrolled 42px; run-interval-balance-heading: overflows, scrolled 150px; run-interval-effective-heading: overflows, scrolled 171px; run-history-values-heading: overflows, scrolled 25px; run-timeline-applied-heading: fits; run-timeline-reporting-heading: fits; run-frozen-heading: fits; run-private-heading: fits; run-generator-transitions-heading: fits; run-generator-series-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 129px; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+
+=== T025b kobo-mini-grid-prolonged, mini-grid v2 / profile 4, run to its end, at 1280x800 ===
+  PASS  the run completed and the series has a row per step, and there are some  [COMPLETED, 96 step rows]
+  PASS  every step row has a reported-status cell, with GOOD and STALE both present  [96 cells, qualities GOOD,STALE]
+  PASS  the reported status is drawn beside the physical state at T  [physical STOPPED, reported STOPPED (STALE)]
+  PASS  both controls in effect are named by address  [battery-reserve-state-of-charge@battery=BASELINE; generator-stop-soc-threshold@generator=BASELINE; stop 90 % (baseline: frozen Foundation answer (stop-soc-threshold))]
+  PASS  profile 4 discloses the status as observed and not staged, and it is read as a member  [unstaged generator-controller:status; status true value STOPPED]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 141px; run-interval-loads-heading: overflows, scrolled 42px; run-interval-balance-heading: overflows, scrolled 150px; run-interval-effective-heading: overflows, scrolled 171px; run-history-values-heading: overflows, scrolled 25px; run-timeline-applied-heading: fits; run-timeline-reporting-heading: fits; run-frozen-heading: fits; run-private-heading: fits; run-generator-transitions-heading: fits; run-generator-series-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 129px; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+
+=== T025b kobo-mini-grid-stop-60, mini-grid v2 / profile 4, run to its end, at 1280x800 ===
+  PASS  the run completed and the series has a row per step, and there are some  [COMPLETED, 96 step rows]
+  PASS  every step row has a reported-status cell, with GOOD and STALE both present  [96 cells, qualities GOOD,STALE]
+  PASS  the reported status is drawn beside the physical state at T  [physical STOPPED, reported STOPPED (STALE)]
+  PASS  both controls in effect are named by address  [battery-reserve-state-of-charge@battery=BASELINE; generator-stop-soc-threshold@generator=OVERRIDE; stop 60 % (override: scenario override stop-threshold-override)]
+  PASS  profile 4 discloses the status as observed and not staged, and it is read as a member  [unstaged generator-controller:status; status true value STOPPED]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 141px; run-interval-loads-heading: overflows, scrolled 42px; run-interval-balance-heading: overflows, scrolled 150px; run-interval-effective-heading: overflows, scrolled 175px; run-history-values-heading: overflows, scrolled 25px; run-timeline-applied-heading: overflows, scrolled 4px; run-timeline-reporting-heading: fits; run-frozen-heading: fits; run-private-heading: fits; run-generator-transitions-heading: fits; run-generator-series-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 129px; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits]
+
+=== T025b kobo-mini-grid-stop-60, mini-grid v2 / profile 4, run to its end, at 640x700 ===
+  PASS  the run completed and the series has a row per step, and there are some  [COMPLETED, 96 step rows]
+  PASS  every step row has a reported-status cell, with GOOD and STALE both present  [96 cells, qualities GOOD,STALE]
+  PASS  the reported status is drawn beside the physical state at T  [physical STOPPED, reported STOPPED (STALE)]
+  PASS  both controls in effect are named by address  [battery-reserve-state-of-charge@battery=BASELINE; generator-stop-soc-threshold@generator=OVERRIDE; stop 60 % (override: scenario override stop-threshold-override)]
+  PASS  profile 4 discloses the status as observed and not staged, and it is read as a member  [unstaged generator-controller:status; status true value STOPPED]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 234px; run-interval-loads-heading: overflows, scrolled 135px; run-interval-balance-heading: overflows, scrolled 243px; run-interval-effective-heading: overflows, scrolled 268px; run-history-values-heading: overflows, scrolled 88px; run-timeline-applied-heading: overflows, scrolled 644px; run-timeline-reporting-heading: overflows, scrolled 606px; run-frozen-heading: overflows, scrolled 410px; run-private-heading: fits; run-generator-transitions-heading: overflows, scrolled 276px; run-generator-series-heading: overflows, scrolled 619px; run-control-heading: overflows, scrolled 310px; run-loads-heading: overflows, scrolled 350px; run-flows-heading: overflows, scrolled 258px; run-view-heading: overflows, scrolled 63px; run-electrical-series-heading: overflows, scrolled 769px; run-observations-heading: overflows, scrolled 546px; run-reports-heading: overflows, scrolled 266px; run-signals-heading: overflows, scrolled 382px; run-history-coverage-heading: overflows, scrolled 206px; run-history-samples-heading: overflows, scrolled 119px; run-history-attempts-heading: overflows, scrolled 272px; run-stage-mapping-heading: overflows, scrolled 229px]
+  PASS  the generator series overflows here, so the claim above is not vacuous  [overflows]
+
+=== T025b prolonged (stop 90 %) against changed policy (stop 60 %) ===
+  PASS  the stop threshold is the baseline in one run and the override in the other  [prolonged generator-stop-soc-threshold@generator=BASELINE (90 % (baseline: frozen Foundation answer (stop-soc-threshold))); changed generator-stop-soc-threshold@generator=OVERRIDE (60 % (override: scenario override stop-threshold-override))]
+  PASS  the 60 % run stops earlier (07:10Z against 09:15Z)  [changed STOPPED@2026-09-22T07:10:00Z; prolonged STOPPED@2026-09-22T09:15:00Z]
+  PASS  the 60 % run ends with more fuel (272.3 L against 259.8 L)  [changed 272.3 L; prolonged 259.8 L]
+
+=== T025c recorded day curves, kobo-mini-grid-stop-60 completed, at 1280x800, the committed minimum ===
+  PASS  nine populated chart panels: PV, three addressed loads, SOC, battery power, generator output, fuel, generator state  [pv: 6 series, 0 state runs, 32 reports; load-load-clinic: 3 series, 0 state runs, 32 reports; load-load-res: 3 series, 0 state runs, 32 reports; load-load-mill: 3 series, 0 state runs, 32 reports; soc-battery: 3 series, 0 state runs, 32 reports; battery-power: 4 series, 0 state runs, 32 reports; generator-output: 1 series, 0 state runs, 32 reports; fuel-fuel-tank: 1 series, 0 state runs, 0 reports; state-generator: 0 series, 7 state runs, 31 reports]
+  PASS  the report markers are the whole series, far longer than the 12-report tail  [255 report markers]
+  PASS  each due attempt without a reading is a glyph with its outcome in words, and there are some  [pv –@0:NO_PRECEDING_INTERVAL; load-load-clinic –@0:NO_PRECEDING_INTERVAL; load-load-res –@0:NO_PRECEDING_INTERVAL; load-load-mill –@0:NO_PRECEDING_INTERVAL; soc-battery ×@195:DROPPED; battery-power –@0:NO_PRECEDING_INTERVAL; generator-output –@0:NO_PRECEDING_INTERVAL; state-generator ×@135:DROPPED; state-generator ×@195:DROPPED]
+  PASS  every report marker and gap glyph carries its own tooltip  [pv 33/33; load-load-clinic 33/33; load-load-res 33/33; load-load-mill 33/33; soc-battery 33/33; battery-power 33/33; generator-output 33/33; fuel-fuel-tank 0/0; state-generator 33/33]
+  PASS  every legend entry sits inside its chart at 11 px or more, and so do the axis labels  [pv 8 entries; load-load-clinic 5 entries; load-load-res 5 entries; load-load-mill 5 entries; soc-battery 5 entries; battery-power 6 entries; generator-output 3 entries; fuel-fuel-tank 1 entries; state-generator 2 entries]
+  PASS  no chart pushes the page sideways  [page scrollWidth 1265 vs 1265; svg width 561 at 1280; 0 chart regions overflow]
+  PASS  every chart region that overflows scrolls inside itself  [0 of 9 overflow; scrolled none px]
+  PASS  every table that overflows scrolls inside its own region  [run-history-values-heading: overflows, scrolled 25px; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits]
+  PASS  the header keeps execution outcome, recorded coverage and stage apart  [execution COMPLETED; history LIVE_SESSION: 97 of 97 boundaries recorded through offset 480 min; families recorded 6 of 6 (1 not applicable); read from the live session, so no persisted digest is claimed; stage STAGED; window 2026-09-22T03:00:00Z to 2026-09-22T11:00:00Z; timestep 5; 97 of 97 completed]
+  PASS  the selection opens at the last recorded boundary on every chart and in the inspector  [cursor 480; inspector 480]
+  PASS  the same record fingerprints the same at every width  [8322 characters]
+
+=== T025c recorded day curves, kobo-mini-grid-stop-60 completed, at 1000x700 ===
+  PASS  nine populated chart panels: PV, three addressed loads, SOC, battery power, generator output, fuel, generator state  [pv: 6 series, 0 state runs, 32 reports; load-load-clinic: 3 series, 0 state runs, 32 reports; load-load-res: 3 series, 0 state runs, 32 reports; load-load-mill: 3 series, 0 state runs, 32 reports; soc-battery: 3 series, 0 state runs, 32 reports; battery-power: 4 series, 0 state runs, 32 reports; generator-output: 1 series, 0 state runs, 32 reports; fuel-fuel-tank: 1 series, 0 state runs, 0 reports; state-generator: 0 series, 7 state runs, 31 reports]
+  PASS  the report markers are the whole series, far longer than the 12-report tail  [255 report markers]
+  PASS  each due attempt without a reading is a glyph with its outcome in words, and there are some  [pv –@0:NO_PRECEDING_INTERVAL; load-load-clinic –@0:NO_PRECEDING_INTERVAL; load-load-res –@0:NO_PRECEDING_INTERVAL; load-load-mill –@0:NO_PRECEDING_INTERVAL; soc-battery ×@195:DROPPED; battery-power –@0:NO_PRECEDING_INTERVAL; generator-output –@0:NO_PRECEDING_INTERVAL; state-generator ×@135:DROPPED; state-generator ×@195:DROPPED]
+  PASS  every report marker and gap glyph carries its own tooltip  [pv 33/33; load-load-clinic 33/33; load-load-res 33/33; load-load-mill 33/33; soc-battery 33/33; battery-power 33/33; generator-output 33/33; fuel-fuel-tank 0/0; state-generator 33/33]
+  PASS  every legend entry sits inside its chart at 11 px or more, and so do the axis labels  [pv 8 entries; load-load-clinic 5 entries; load-load-res 5 entries; load-load-mill 5 entries; soc-battery 5 entries; battery-power 6 entries; generator-output 3 entries; fuel-fuel-tank 1 entries; state-generator 2 entries]
+  PASS  no chart pushes the page sideways  [page scrollWidth 985 vs 985; svg width 671 at 1000; 0 chart regions overflow]
+  PASS  every chart region that overflows scrolls inside itself  [0 of 9 overflow; scrolled none px]
+  PASS  every table that overflows scrolls inside its own region  [run-history-values-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits]
+  PASS  the header keeps execution outcome, recorded coverage and stage apart  [execution COMPLETED; history LIVE_SESSION: 97 of 97 boundaries recorded through offset 480 min; families recorded 6 of 6 (1 not applicable); read from the live session, so no persisted digest is claimed; stage STAGED; window 2026-09-22T03:00:00Z to 2026-09-22T11:00:00Z; timestep 5; 97 of 97 completed]
+  PASS  the selection opens at the last recorded boundary on every chart and in the inspector  [cursor 480; inspector 480]
+  PASS  the same record fingerprints the same at every width  [8322 characters]
+
+=== T025c recorded day curves, kobo-mini-grid-stop-60 completed, at 640x700 ===
+  PASS  nine populated chart panels: PV, three addressed loads, SOC, battery power, generator output, fuel, generator state  [pv: 6 series, 0 state runs, 32 reports; load-load-clinic: 3 series, 0 state runs, 32 reports; load-load-res: 3 series, 0 state runs, 32 reports; load-load-mill: 3 series, 0 state runs, 32 reports; soc-battery: 3 series, 0 state runs, 32 reports; battery-power: 4 series, 0 state runs, 32 reports; generator-output: 1 series, 0 state runs, 32 reports; fuel-fuel-tank: 1 series, 0 state runs, 0 reports; state-generator: 0 series, 7 state runs, 31 reports]
+  PASS  the report markers are the whole series, far longer than the 12-report tail  [255 report markers]
+  PASS  each due attempt without a reading is a glyph with its outcome in words, and there are some  [pv –@0:NO_PRECEDING_INTERVAL; load-load-clinic –@0:NO_PRECEDING_INTERVAL; load-load-res –@0:NO_PRECEDING_INTERVAL; load-load-mill –@0:NO_PRECEDING_INTERVAL; soc-battery ×@195:DROPPED; battery-power –@0:NO_PRECEDING_INTERVAL; generator-output –@0:NO_PRECEDING_INTERVAL; state-generator ×@135:DROPPED; state-generator ×@195:DROPPED]
+  PASS  every report marker and gap glyph carries its own tooltip  [pv 33/33; load-load-clinic 33/33; load-load-res 33/33; load-load-mill 33/33; soc-battery 33/33; battery-power 33/33; generator-output 33/33; fuel-fuel-tank 0/0; state-generator 33/33]
+  PASS  every legend entry sits inside its chart at 11 px or more, and so do the axis labels  [pv 8 entries; load-load-clinic 5 entries; load-load-res 5 entries; load-load-mill 5 entries; soc-battery 5 entries; battery-power 6 entries; generator-output 3 entries; fuel-fuel-tank 1 entries; state-generator 2 entries]
+  PASS  no chart pushes the page sideways  [page scrollWidth 625 vs 625; svg width 320 at 640; 9 chart regions overflow]
+  PASS  every chart region that overflows scrolls inside itself  [9 of 9 overflow; scrolled 9/9/9/9/9/9/9/9/9 px]
+  PASS  every table that overflows scrolls inside its own region  [run-history-values-heading: overflows, scrolled 88px; run-history-coverage-heading: overflows, scrolled 206px; run-history-samples-heading: overflows, scrolled 119px; run-history-attempts-heading: overflows, scrolled 272px]
+  PASS  the header keeps execution outcome, recorded coverage and stage apart  [execution COMPLETED; history LIVE_SESSION: 97 of 97 boundaries recorded through offset 480 min; families recorded 6 of 6 (1 not applicable); read from the live session, so no persisted digest is claimed; stage STAGED; window 2026-09-22T03:00:00Z to 2026-09-22T11:00:00Z; timestep 5; 97 of 97 completed]
+  PASS  the selection opens at the last recorded boundary on every chart and in the inspector  [cursor 480; inspector 480]
+  PASS  the same record fingerprints the same at every width  [8322 characters]
+  PASS  the charts overflow their regions here, so the scrolling claim above is not vacuous  [9 overflow]
+
+=== T025c the shared cursor, by keyboard, reads and never executes ===
+  PASS  ArrowLeft moves every chart and the inspector to the previous boundary  [cursor 475; inspector 475]
+  PASS  Home moves them to the first boundary, where no step has ended yet  [cursor 0; 34 exact-value rows]
+  PASS  browsing did not move the run: still completed at the same boundary count  [COMPLETED; 97 of 97 completed]
+  PASS  render cost: one selection change re-renders every chart within 250 ms  [cursor move to 240 in 38 ms; 1186276 B history; first chart 52 ms after its response (page render, informational); 1186276 B history; first chart 68 ms after its response (page render, informational); 1186276 B history; first chart 47 ms after its response (page render, informational)]
+
+  T025c: recorded /simulator-lab/runs/run-613869e5d95e45219683015f21c2b9f1 for the --readback pass in C:\Users\assef\AppData\Local\Temp\assetops-t025c-readback.json
+
+=== T025d the interval [60, 65) of the completed stop-60 run at 1280x800, the committed minimum ===
+  PASS  the drawing is bound to the frozen Site and follows the history cursor  [bound SITET26; boundary 65; ]
+  PASS  the drawing carries value labels, so the geometry claims below are not vacuous  [7 labels]
+  PASS  no value label overlaps a component box or another label  [none]
+  PASS  no value label is clipped by the drawing's own bounds  [none]
+  PASS  every balance identity at the selected interval holds, and there are some  [10 identities: yes,yes,yes,yes,yes,yes,yes,yes,yes,yes]
+  PASS  the applied timeline has rows and each lane is a focusable table region  [17 rows in run-timeline-applied-heading]
+  PASS  the page itself never scrolls sideways  [width 1280]
+  PASS  the selected boundary is 65 on the cursor, the inspector and the drawing  [inspector 65; drawing 65]
+  PASS  the battery request differs from what was accepted (the PCS limit), and says so  [battery-power at battery-state-of-charge@battery:yes; generator-run at generator-state@generator:yes]
+  PASS  the PCS branch is drawn with a direction at this interval  [pcs-to-bus ALONG]
+
+=== T025d the interval [60, 65) of the completed stop-60 run at 1000x700 ===
+  PASS  the drawing is bound to the frozen Site and follows the history cursor  [bound SITET26; boundary 65; ]
+  PASS  the drawing carries value labels, so the geometry claims below are not vacuous  [7 labels]
+  PASS  no value label overlaps a component box or another label  [none]
+  PASS  no value label is clipped by the drawing's own bounds  [none]
+  PASS  every balance identity at the selected interval holds, and there are some  [10 identities: yes,yes,yes,yes,yes,yes,yes,yes,yes,yes]
+  PASS  the applied timeline has rows and each lane is a focusable table region  [17 rows in run-timeline-applied-heading]
+  PASS  the page itself never scrolls sideways  [width 1000]
+  PASS  the selected boundary is 65 on the cursor, the inspector and the drawing  [inspector 65; drawing 65]
+  PASS  the battery request differs from what was accepted (the PCS limit), and says so  [battery-power at battery-state-of-charge@battery:yes; generator-run at generator-state@generator:yes]
+  PASS  the PCS branch is drawn with a direction at this interval  [pcs-to-bus ALONG]
+
+=== T025d the interval [60, 65) of the completed stop-60 run at 640x700 ===
+  PASS  the drawing is bound to the frozen Site and follows the history cursor  [bound SITET26; boundary 65; ]
+  PASS  the drawing carries value labels, so the geometry claims below are not vacuous  [7 labels]
+  PASS  no value label overlaps a component box or another label  [none]
+  PASS  no value label is clipped by the drawing's own bounds  [none]
+  PASS  every balance identity at the selected interval holds, and there are some  [10 identities: yes,yes,yes,yes,yes,yes,yes,yes,yes,yes]
+  PASS  the applied timeline has rows and each lane is a focusable table region  [17 rows in run-timeline-applied-heading]
+  PASS  the page itself never scrolls sideways  [width 640]
+  PASS  the selected boundary is 65 on the cursor, the inspector and the drawing  [inspector 65; drawing 65]
+  PASS  the battery request differs from what was accepted (the PCS limit), and says so  [battery-power at battery-state-of-charge@battery:yes; generator-run at generator-state@generator:yes]
+  PASS  the PCS branch is drawn with a direction at this interval  [pcs-to-bus ALONG]
+  PASS  at 640 the timeline or balance tables overflow their own regions, so the containment claim is not vacuous  [timeline overflows; balance overflows]
+
+=== T025d reversal, keyboard and cost on the completed run ===
+  PASS  the battery branch reverses between [60, 65) and [130, 135)  [pcs-to-bus ALONG then AGAINST]
+  PASS  ArrowRight on the cursor moves the drawing and the control panel to [65, 70), the reserve-limited interval  [drawing 70; battery-power at battery-state-of-charge@battery:yes; generator-run at generator-state@generator:yes]
+  PASS  browsing did not move the run  [COMPLETED; 97 of 97]
+  PASS  render cost: one selection re-renders the drawing, panels and charts within 250 ms  [37 ms to boundary 240]
+
+=== T025d auto-play of a fresh stop-60 Draft (0.25 s wall delay) ===
+  PASS  a page that has not been told to play is paused, over a RUNNING execution  [playback stopped/none; execution RUNNING]
+  PASS  while it plays, Step and Run to the end are unavailable  [playback playing; manual disabled true]
+  PASS  it sent several steps, never more than one in flight  [8 steps; at most 1 in flight]
+  PASS  T025e: the recorded history follows each step by a delta, never a full read per step  [2 full reads before play, 2 while playing; 8 delta reads for 8 steps]
+  PASS  pause stops scheduling: nothing is sent and the position holds  [paused at 8 of 97 after 8 steps; 1.5 s later 8 of 97, 8 steps]
+  PASS  T025e: stopping makes no history read (read-on-stop retired by live follow)  [2 full history reads]
+
+=== T025d a reload starts paused and the host still holds the run ===
+  PASS  after reload: paused, at the paused position, and Play is offered because the execution is live  [stopped/none; RUNNING at 8 of 97; Play true; 0 steps sent]
+
+=== T025d pacing changes nothing physical or observed ===
+  PASS  the two Drafts froze the same inputs, so the comparison below is meaningful  [3c7da3e32a33349ca908b9c33711384bf964d55ed729973953ec9c23af8d63f3 vs 3c7da3e32a33349ca908b9c33711384bf964d55ed729973953ec9c23af8d63f3]
+  PASS  the auto-played run's reading series digest equals the run completed in one request  [bc7c85d4d44028b89470523479da63d77290704e0baf5a9ad30541427e31734e vs bc7c85d4d44028b89470523479da63d77290704e0baf5a9ad30541427e31734e]
+  PASS  both reached an outcome with a trajectory digest (run-bound, compared per run on the host)  [a833fc6c9875e1e55bcafc047be3114b43e1d9a56a487227d591d6eacc003914; 152772c8e4d56d95ac0dd7507462fbf84a5e641e0e91ac0f580f0964c95b78cd]
+
+=== T025e the first viewport at 1280 is the organised cockpit ===
+  PASS  the page opens with every disclosure closed, and there are some  [9 disclosures, 0 open]
+  PASS  the control strip and the drawing-and-inspection row start inside the first 800 px viewport, the history cursor right under them  [strip at 108 (299 px); stage at 448 (544 px); cursor at 992; charts at 1057]
+  PASS  Start, the first step and the second step do not move the cockpit, its drawing row or the cursor  [cockpit 108, stage 448+544, cursor 992, charts 640, timeline 1697 | cockpit 108, stage 448+544, cursor 992, charts 640, timeline 1697 | cockpit 108, stage 448+544, cursor 992, charts 2828, timeline 3900 | cockpit 108, stage 448+544, cursor 992, charts 2828, timeline 3900]
+
+=== T025e live follow at 0.25 s, sampled on every animation frame ===
+  PASS  at least 20 steps were auto-played and the cursor followed through them, so the claims below are not vacuous  [22 steps; 23 distinct drawing boundaries; 529 frames; recorded 2 of 97 -> 24 of 97]
+  PASS  the cockpit's top edge and height never moved  [108,4530,248,985]
+  PASS  the drawing and inspection boxes and the history cursor never moved  [577,544,248,535|577,544,795,438 / 1121,65,248,985]
+  PASS  no chart box moved  [1 distinct chart layouts; pv:1528,327,265,561|load-load-clinic:1870,284,265,561|load-load-res:2170,284,265,561|load-load-mill:2469,284,265,561|soc-battery:2769,260,265,561|battery-power:3045,350,265,561|generator-output:3411,260,265,561|fuel-fuel-tank:3687,237,265,561|state-generator:3939,234,265,561]
+  PASS  the x-axis ticks were identical in every frame  [1 distinct x tick sets]
+  PASS  the y-axis ticks changed only at logged ratchets, at most 3 per panel  [pv: 0,0.25,0.5,0.75,1 -> 0,5,10,15 | load-load-mill: 0,0.25,0.5,0.75,1 -> 0,20,40,60 | battery-power: 0,5,10,15,20 -> 0,10,20,30,40]
+  PASS  the drawing, chart cursor, timeline and inspection named the same boundary in every frame  [529 frames agree]
+  PASS  no frame had an empty drawing or empty charts  [0 empty frames]
+  PASS  no full history read between the first step and the terminal answer  [2 full reads before play; 2 after 22 steps]
+
+=== T025e a pinned cursor holds while play continues ===
+  PASS  play went on while pinned, and the charts did change (so the observer was live)  [6 steps pinned at 25; 571 chart mutations; cursor pinned at 25]
+  PASS  zero mutations on the pinned drawing and inspection nodes  [0 drawing, 0 inspection mutations]
+
+=== T025e budgets, measured over HTTP on the running production build ===
+  PASS  every delta response is at most 32 KB (32,768 B), and there are some  [30 one-boundary deltas; max 20249 B; median 15024 B (decoded); transfer max 20549 B]
+  FAIL  the server answers a delta at the window's last live boundary in at most 50 ms at p95  [boundary 96; 40 reads of 14691 B; wall p50 63.9 ms, p95 73.3 ms, max 118.7 ms; server wait (responseStart - requestStart) p95 69.8 ms]
+  PASS  a tick commits in at most 50 ms at p95 and 100 ms at worst  [22 commits; p50 9.9 ms, p95 14.9 ms, max 15.7 ms]
+  PASS  the terminal answer made exactly one full read, and none happened between the first step and it  [2 full reads before play; 3 after the terminal step]
+
+=== T026 degraded-evidence run (profile 5), completed, at 1280x800 ===
+  PASS  the run completed  [COMPLETED]
+  PASS  profile 5 stages the status: no 'observed, not staged' line, the staged statement is shown  [unstaged none; staged statement true]
+  PASS  the header states family coverage, and there are staged rows, record rows and entries  [coverage text true; 329 envelopes, 6 record rows, 15 timeline entries (Model-law contribution, Forcing level in effect, Observation attempt)]
+  PASS  the reported-run charts draw a second reported track as square marks, and there are some  [2 square marks in 9 panels]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [run-interval-control-heading: overflows, scrolled 141px; run-interval-loads-heading: overflows, scrolled 42px; run-interval-balance-heading: overflows, scrolled 150px; run-interval-effective-heading: overflows, scrolled 171px; run-history-values-heading: overflows, scrolled 25px; run-timeline-applied-heading: fits; run-timeline-reporting-heading: fits; run-frozen-heading: fits; run-private-heading: fits; run-generator-transitions-heading: fits; run-generator-series-heading: fits; run-control-heading: fits; run-loads-heading: fits; run-flows-heading: fits; run-view-heading: fits; run-electrical-series-heading: overflows, scrolled 129px; run-observations-heading: fits; run-reports-heading: fits; run-signals-heading: fits; run-gaps-heading: fits; run-history-coverage-heading: fits; run-history-samples-heading: fits; run-history-attempts-heading: fits; run-stage-mapping-heading: fits; run-stage-envelopes-heading: fits]
+
+=== T026 degraded-evidence run (profile 5), completed, at 640x700 ===
+  PASS  the run completed  [COMPLETED]
+  PASS  profile 5 stages the status: no 'observed, not staged' line, the staged statement is shown  [unstaged none; staged statement true]
+  PASS  the header states family coverage, and there are staged rows, record rows and entries  [coverage text true; 329 envelopes, 6 record rows, 15 timeline entries (Model-law contribution, Forcing level in effect, Observation attempt)]
+  PASS  the reported-run charts draw a second reported track as square marks, and there are some  [2 square marks in 9 panels]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: overflows, scrolled 417px; run-private-heading: fits; run-generator-transitions-heading: overflows, scrolled 276px; run-generator-series-heading: overflows, scrolled 619px; run-control-heading: overflows, scrolled 310px; run-loads-heading: overflows, scrolled 350px; run-flows-heading: overflows, scrolled 258px; run-view-heading: overflows, scrolled 63px; run-electrical-series-heading: overflows, scrolled 769px; run-observations-heading: overflows, scrolled 555px; run-reports-heading: overflows, scrolled 266px; run-signals-heading: overflows, scrolled 382px; run-gaps-heading: overflows, scrolled 414px; run-stage-mapping-heading: overflows, scrolled 265px; run-stage-envelopes-heading: overflows, scrolled 608px]
+
+=== T026 inspector through the held publication, 1280 ===
+  PASS  the cursor reached the hold, with attempt rows and a Publication delay entry  [48: 10 rows, kinds Model-law contribution/Forcing level in effect/Observation attempt; 49: 0 rows, kinds Model-law contribution/Forcing level in effect; 50: 0 rows, kinds Model-law contribution/Forcing level in effect/Discrete transition/Publication delay; 51: 10 rows, kinds Model-law contribution/Forcing level in effect/Discrete transition/Observation attempt]
+  FAIL  the attempts table has five columns, and a delayed reading is named  [5 columns; delayed rows 48:0, 49:0, 50:0, 51:0; publication states 48:10, 49:0, 50:0, 51:10]
+
+=== T027 Lab Commit panel after Commit and release, 1280x800 ===
+  PASS  the Commit panel renders under its heading, sealed, with a release  [panel true, labelled true, commit COMMITTED, release COMPLETED (329 of 329)]
+  PASS  Open in AssetOps targets this Site's Evidence tab  [href /sites/SITET26/evidence?from=2026-09-22T03:00:00Z&to=2026-09-22T11:00:00Z&batch=commit-527a8e8feb160d08bae9f6482ce47210]
+
+=== T027 Open in AssetOps lands on Site > Evidence ===
+  PASS  the link lands on Site > Evidence for the run's Site, populated  [/sites/SITET26/evidence, populated]
+
+=== T027 Site > Evidence populated, SITET26, at 1280x800 ===
+  PASS  the Evidence body is populated  [populated]
+  PASS  exactly Overview|Foundation|Evidence, Evidence current  [Overview | Foundation | Evidence; current Evidence]
+  PASS  source health and coverage have rows, and all four sections render  [1 sources, 1 batches, 17 coverage rows (16 reported, 1 not reported), 1 gaps, 4 sections]
+  PASS  both dense tables sit in scroll regions that stay inside the viewport  [sources 12 cols, overflows true; coverage 11 cols, overflows true]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table that overflows scrolls inside its own region  [site-evidence-sources-heading: overflows, scrolled 583px; site-evidence-coverage-heading: overflows, scrolled 191px]
+
+=== T027 Site > Evidence populated, SITET26, at 1000x700 ===
+  PASS  the Evidence body is populated  [populated]
+  PASS  exactly Overview|Foundation|Evidence, Evidence current  [Overview | Foundation | Evidence; current Evidence]
+  PASS  source health and coverage have rows, and all four sections render  [1 sources, 1 batches, 17 coverage rows (16 reported, 1 not reported), 1 gaps, 4 sections]
+  PASS  both dense tables sit in scroll regions that stay inside the viewport  [sources 12 cols, overflows true; coverage 11 cols, overflows true]
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table that overflows scrolls inside its own region  [site-evidence-sources-heading: overflows, scrolled 863px; site-evidence-coverage-heading: overflows, scrolled 471px]
+
+=== T027 Site > Evidence populated, SITET26, at 640x700 ===
+  PASS  the Evidence body is populated  [populated]
+  PASS  exactly Overview|Foundation|Evidence, Evidence current  [Overview | Foundation | Evidence; current Evidence]
+  PASS  source health and coverage have rows, and all four sections render  [1 sources, 1 batches, 17 coverage rows (16 reported, 1 not reported), 1 gaps, 4 sections]
+  PASS  both dense tables sit in scroll regions that stay inside the viewport  [sources 12 cols, overflows true; coverage 11 cols, overflows true]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table that overflows scrolls inside its own region  [site-evidence-sources-heading: overflows, scrolled 1223px; site-evidence-coverage-heading: overflows, scrolled 831px]
+  PASS  at 640 at least one evidence table overflows, so containment is measured on a non-empty set  [sources overflows true, coverage overflows true]
+
+=== T027 record inspector, battery-pcs-controller/ac-power record 35e1c45085632e97ef03126ff9c6c8e3e8d5cc3a037793189dd30437fe9a9e18, at 1280x800 ===
+  PASS  the inspector lists records  [33 records]
+  PASS  the record detail shows source, published and received times, each non-empty  [source: 2026-09-22T11:00:00Z; published: 2026-09-22T11:00:03Z; received: 2026-10-03T06:57:16Z]
+  PASS  Evidence stays the current tab  [Evidence]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265; past the edge: nothing]
+
+=== T027 record inspector, battery-pcs-controller/ac-power record 35e1c45085632e97ef03126ff9c6c8e3e8d5cc3a037793189dd30437fe9a9e18, at 640x700 ===
+  PASS  the inspector lists records  [33 records]
+  PASS  the record detail shows source, published and received times, each non-empty  [source: 2026-09-22T11:00:00Z; published: 2026-09-22T11:00:03Z; received: 2026-10-03T06:57:16Z]
+  PASS  Evidence stays the current tab  [Evidence]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625; past the edge: nothing]
+
+=== T027 Site > Evidence empty, MG-006, at 1280x800 ===
+  PASS  the empty state renders: no source rows, and every needed signal reads not reported  [empty; 0 sources, 8 coverage rows, 8 not reported]
+  PASS  exactly Overview|Foundation|Evidence, Evidence current  [Overview | Foundation | Evidence; current Evidence]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+
+=== T027 Site > Evidence empty, MG-006, at 640x700 ===
+  PASS  the empty state renders: no source rows, and every needed signal reads not reported  [empty; 0 sources, 8 coverage rows, 8 not reported]
+  PASS  exactly Overview|Foundation|Evidence, Evidence current  [Overview | Foundation | Evidence; current Evidence]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+
+=== T027 Site Overview populated, SITET26, at 1280x800 ===
+  PASS  the Overview body is populated  [populated]
+  PASS  cards Service|Dispatch|Battery|Fuel|Renewable, in the profile's order  [Service|Dispatch|Battery|Fuel|Renewable]
+  PASS  every card reads No assessment yet and nothing reads Unknown  [5 of 5]
+  PASS  measured values exist (non-empty set), and each uncovered card names its gap  [Service: 4 values, 0 gaps; Dispatch: 3 values, 0 gaps; Battery: 3 values, 0 gaps; Fuel: 0 values, 1 gaps; Renewable: 2 values, 0 gaps]
+  PASS  evidence links address the record inspector  [17 links; first /sites/SITET26/evidence?signal=residential-meter/active-power&record=88dded94e7b8f78190f2de5b566aabfabee2ad4a11a4ab689394698c09dce254]
+  PASS  the timeline draws marks; each chart fits its region or its region scrolls it, inside the viewport  [951px, 96 marks, right 1216/1216/1265, region fits; 951px, 32 marks, right 1216/1216/1265, region fits]
+  PASS  exactly Overview|Foundation|Evidence, Overview current  [Overview | Foundation | Evidence; current Overview]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+
+=== T027 Site Overview populated, SITET26, at 1000x700 ===
+  PASS  the Overview body is populated  [populated]
+  PASS  cards Service|Dispatch|Battery|Fuel|Renewable, in the profile's order  [Service|Dispatch|Battery|Fuel|Renewable]
+  PASS  every card reads No assessment yet and nothing reads Unknown  [5 of 5]
+  PASS  measured values exist (non-empty set), and each uncovered card names its gap  [Service: 4 values, 0 gaps; Dispatch: 3 values, 0 gaps; Battery: 3 values, 0 gaps; Fuel: 0 values, 1 gaps; Renewable: 2 values, 0 gaps]
+  PASS  evidence links address the record inspector  [17 links; first /sites/SITET26/evidence?signal=residential-meter/active-power&record=88dded94e7b8f78190f2de5b566aabfabee2ad4a11a4ab689394698c09dce254]
+  PASS  the timeline draws marks; each chart fits its region or its region scrolls it, inside the viewport  [671px, 96 marks, right 936/936/985, region fits; 671px, 32 marks, right 936/936/985, region fits]
+  PASS  exactly Overview|Foundation|Evidence, Overview current  [Overview | Foundation | Evidence; current Overview]
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+
+=== T027 Site Overview populated, SITET26, at 640x700 ===
+  PASS  the Overview body is populated  [populated]
+  PASS  cards Service|Dispatch|Battery|Fuel|Renewable, in the profile's order  [Service|Dispatch|Battery|Fuel|Renewable]
+  PASS  every card reads No assessment yet and nothing reads Unknown  [5 of 5]
+  PASS  measured values exist (non-empty set), and each uncovered card names its gap  [Service: 4 values, 0 gaps; Dispatch: 3 values, 0 gaps; Battery: 3 values, 0 gaps; Fuel: 0 values, 1 gaps; Renewable: 2 values, 0 gaps]
+  PASS  evidence links address the record inspector  [17 links; first /sites/SITET26/evidence?signal=residential-meter/active-power&record=88dded94e7b8f78190f2de5b566aabfabee2ad4a11a4ab689394698c09dce254]
+  PASS  the timeline draws marks; each chart fits its region or its region scrolls it, inside the viewport  [320px, 96 marks, right 585/576/625, region overflows (auto); 320px, 32 marks, right 585/576/625, region overflows (auto)]
+  PASS  exactly Overview|Foundation|Evidence, Overview current  [Overview | Foundation | Evidence; current Overview]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+
+=== T027 Overview evidence link opens the record inspector ===
+  PASS  the linked record is open in Site > Evidence, Evidence current, same Site root  [/sites/SITET26/evidence; record 88dded94e7b8f78190f2de5b566aabfabee2ad4a11a4ab689394698c09dce254; current Evidence]
+
+=== T027 Site Overview empty, MG-006, at 1280x800 ===
+  PASS  empty: five cards, every one No assessment yet with a named gap and no value, no chart  [empty; Service 3 gaps 0 values; Dispatch 2 gaps 0 values; Battery 1 gaps 0 values; Fuel 1 gaps 0 values; Renewable 1 gaps 0 values; 0 charts]
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+
+=== T027 Site Overview empty, MG-006, at 640x700 ===
+  PASS  empty: five cards, every one No assessment yet with a named gap and no value, no chart  [empty; Service 3 gaps 0 values; Dispatch 2 gaps 0 values; Battery 1 gaps 0 values; Fuel 1 gaps 0 values; Renewable 1 gaps 0 values; 0 charts]
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+
+AT LEAST ONE CLAIM FAILED
+

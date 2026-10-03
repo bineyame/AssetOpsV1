@@ -149,4 +149,46 @@ Sites -> Kobo Overview -> Evidence -> Lab off, history stays.
 3. Click any metric's evidence link. The Evidence tab opens with that record in the inspector, showing three timestamps, and the Site root is unchanged.
 4. Look at the timeline. kW and % are on separate panels, with a legend, and the timeline is context only.
 5. Restart with `simulator_lab.enabled` false. The Overview and Evidence still show the same accepted history, and the Lab is gone.
-6. Judge the energy wording. Is "measured intervals, 2.67 h of 8.00 h" clear enough for a demo, or should a later slice change cadence or how it is presented?
+6. Judge the energy wording. In the strip, Service delivered reads
+   "Served energy, measured intervals", then "67.3 kWh", then "2.67 h of the
+   8.00 h window measured", then the feeder basis "(residential feeder 2.67 h,
+   clinic feeder 2.67 h, mill feeder 2.67 h)". These are the demo run's figures
+   (fix round 1, F3). Is that clear enough for a demo, or should a later slice
+   change cadence or how it is presented?
+7. Open Foundation. It no longer states "No evidence" or "Source health: Not
+   recorded"; it says nothing on the tab is evidence and points to the Evidence
+   tab (fix round 1, F2).
+
+## Fix round 1
+
+Review: `.agent/T027-phase-2-claude-review.md` (accept with fixes, 6035bcb).
+
+| Finding | Disposition |
+| --- | --- |
+| F1 coverage from the records a metric uses (must) | Fixed in 01b1326 and a71dc8c. `_Window.usable(key)` is the record set a metric reads: non-overlapping records, with a positive interval span for interval-mean signals (`INTERVAL_SIGNALS`). New coverage statuses `NO_INTERVAL_SPAN` and `OVERLAPPING_ONLY` sit beside `NOT_REPORTED` and `NO_GOOD_RECORD`, each with a named `reason` in `gaps`. `unavailable_because` names the signal and the reason. A span-less interval signal has no value, so "0.0 kWh over 0.00 h" is no longer shown. An overlap-only feeder makes Served energy unavailable and names the feeder. Coverage rows also gain `usable`. Tests: overview::test_all_overlapping_instants_are_a_named_gap_not_a_bare_absence, ::test_an_interval_signal_with_no_span_has_no_value_never_zero, ::test_an_overlap_only_feeder_is_not_counted_as_zero, and screen "names an overlap-only signal's gap with the backend's reason". Non-vacuity: with `usable()` reverted to the old any-GOOD rule, all three backend tests failed; reverted. |
+| F2 Foundation false facts (must) | Fixed in 2fafa71. `SiteDetailView` no longer carries `evidenceAvailability` or `sourceHealth`, and their constants are gone. The Foundation panel keeps Integration readiness and says: "This tab states the site's configuration, and nothing on it is evidence. What has been accepted for this site, the health of each source that delivered it and its coverage are on the Evidence tab." Tests: siteConfiguration "states no evidence availability or source health on the Foundation (T027)"; the siteDetail view test asserts both keys are absent. |
+| F3 strip truthful about coverage | Fixed in a71dc8c. Interval metrics carry `window_note`, e.g. "2.67 h of the 8.00 h window measured", rendered under the value. The strip shows the metric's label ("Served energy, measured intervals") before the value. User-review focus point 6 now quotes the screen. Tests: overview::test_metrics_sum_measured_intervals_only checks `window_note`; the screen strip test checks both strings. |
+| F4 response shape check | Fixed in a71dc8c. `isSiteOverview` checks every rendered field: metric `at`, `window_note` and `unavailable_because`; evidence items; gap `reason`; coverage counts; card and objective assessment; the three statements; timeline `basis` and each point. Test: the real client over a stubbed `fetch` reads a response missing `unavailable_because` as `unavailable`. Non-vacuity: removing that key from the check failed it; reverted. |
+| F5 strip count name | Fixed. `source_gateway_pairs_in_window`; the strip says "source and gateway pair(s)". |
+| Generator running time | Carried to `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T027 phase 2" (T028), as the dispatch asked. |
+
+Also carried, as an observation that is not a finding: `shell/RunSetupFrame.tsx` and `shell/RunsFrame.tsx` still explain a draft as never executed, with "no accepted evidence". That was already false since T022. Both are Lab-only screens, and a fast-lane wording pass is suggested.
+
+**Checks after the fix round (at 1159420):**
+
+| Check | Result | Change |
+| --- | --- | --- |
+| Backend | 1434 passed | +3 |
+| Host | 602 passed | - |
+| Simulator (from `simulator/`) | 244 passed | - |
+| Frontend (43 files) | 1071 passed | +3 |
+| `tsc --noEmit` | clean | |
+| `npm run build` | clean | |
+| `check-architecture` | passed | |
+| `check-agent-workflow` | passed | |
+
+**Layout evidence rerun** (Overview rendering changed): same method, on a fresh copy and a rebuilt preview. Output: `.agent/T027-phase-2-layout-evidence-fix-round-1.txt`. Result: **513 PASS, 5 FAIL**.
+
+- **The four known pre-existing failures:** the three "blocked table" claims and the T025e delta budget (p95 73.3 ms).
+- **The T026 "held publication: a delayed reading is named" claim:** this is the same intermittent Lab claim that failed in run 1 and passed in run 3. It sits outside this slice.
+- **Every T027 claim passes,** with the same populated, link-click and empty results as before at 1280/1000/640. At 640 the region again overflows and scrolls.
