@@ -41,6 +41,8 @@ def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
         "/api/sites/{site_id}/evidence/records",
         "/api/sites/{site_id}/evidence/records/{message_id}",
         "/api/sites/{site_id}/evidence/rejections",
+        # T027 phase 2: the Overview read, beside Site evidence.
+        "/api/sites/{site_id}/overview",
     ]
 
 

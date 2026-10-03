@@ -503,6 +503,8 @@ class TestNoUpdateOrDeleteRouteExists:
             f"{SITES_PATH}/{{site_id}}/evidence/records",
             f"{SITES_PATH}/{{site_id}}/evidence/records/{{message_id}}",
             f"{SITES_PATH}/{{site_id}}/evidence/rejections",
+            # T027 phase 2: the Overview read, beside Site evidence.
+            f"{SITES_PATH}/{{site_id}}/overview",
         ]
         for path in per_site:
             assert set(schema["paths"][path]) == {"get"}, path
