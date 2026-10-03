@@ -12,6 +12,8 @@ import type {
   SiteDetailReadModel,
   SiteSummary,
 } from "../../sites/siteReadModel";
+import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
+import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 
 /**
@@ -94,8 +96,12 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
  * before site identity existed, and each was removed by the slice that gave it
  * an identified replacement. Nothing took either place, because a navigation
  * item cannot name which site it would open.
+ *
+ * T028 adds Findings, under `D-2026-10-02-grammar-ownership-test`: it names no
+ * site because it is the INTELLIGENCE rail root and owns the global Findings
+ * index, a surface of its own rather than a placeholder for a site page.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -128,6 +134,7 @@ function renderAt(
         flags={flags}
         siteDirectory={directoryWith(sites)}
         siteDetail={detailClientFor(sites)}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
       />
     </MemoryRouter>,
   );
@@ -212,6 +219,7 @@ describe("a site is opened from a Sites row", () => {
     // page grows destinations one reviewed slice at a time. T011A replaces
     // T008's plain `Site configuration` link with the canonical Site tab row,
     // so the destinations are Overview and Foundation, and T027 adds
+    // Evidence, and T028 adds Performance and Findings between Foundation and
     // Evidence. All of it is navigation, none of it is an action on the site,
     // and aspects without a capability are not rendered at all.
     expect(
@@ -222,6 +230,8 @@ describe("a site is opened from a Sites row", () => {
       ["/sites", "Sites"],
       ["/sites/MG-002", "Overview"],
       ["/sites/MG-002/foundation", "Foundation"],
+      ["/sites/MG-002/performance", "Performance"],
+      ["/sites/MG-002/findings", "Findings"],
       ["/sites/MG-002/evidence", "Evidence"],
     ]);
   });
@@ -417,8 +427,9 @@ describe("operator navigation lost an item and gained none", () => {
     ).toBeInTheDocument();
   });
 
-  it("resolves every operator navigation item to a real surface", () => {
+  it("resolves every operator navigation item to a real surface", async () => {
     const { container, unmount } = renderAt("/", ENABLED);
+    await settledScreen();
     const destinations = within(container)
       .getByRole("navigation", { name: "Operator routes" })
       .querySelectorAll("a");
@@ -427,9 +438,10 @@ describe("operator navigation lost an item and gained none", () => {
     );
     unmount();
 
-    expect(hrefs).toHaveLength(OPERATOR_NAVIGATION_LABELS.length);
+    expect(hrefs).toEqual(["/sites", "/findings"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
+      await settledScreen();
 
       expect(
         within(view.container).queryByRole("heading", {

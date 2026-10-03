@@ -141,12 +141,13 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
     });
 
     // The two rails share a component and nothing else. Neither shell can
-    // reach the other's contents, so no Lab destination appears here.
+    // reach the other's contents, so no Lab destination appears here. T028
+    // adds the Findings rail root (`D-2026-10-02-grammar-ownership-test`).
     expect(
       within(operatorRail)
         .getAllByRole("link")
         .map((link) => link.getAttribute("href")),
-    ).toEqual([SITES_PATH]);
+    ).toEqual([SITES_PATH, "/findings"]);
     expect(
       screen.queryByRole("navigation", { name: "Simulator Lab routes" }),
     ).toBeNull();

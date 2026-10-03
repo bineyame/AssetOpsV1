@@ -245,3 +245,22 @@ export function analyticsClient(
       }),
   };
 }
+
+/**
+ * A fake analytics client with no Findings anywhere: the global index loads
+ * empty and every per-site read is `not_found`. For tests that only need the
+ * Findings rail root to resolve to its real surface without a network read.
+ */
+export const EMPTY_ANALYTICS_STATEMENT = "Active Findings across every configured Site.";
+
+export const EMPTY_ANALYTICS_CLIENT: SiteAnalyticsClient = {
+  getDeclaration: () => Promise.resolve({ status: "not_found" }),
+  getDispatch: () => Promise.resolve({ status: "not_found" }),
+  getSiteFindings: () => Promise.resolve({ status: "not_found" }),
+  getAssessment: () => Promise.resolve({ status: "not_found" }),
+  getFindings: () =>
+    Promise.resolve({
+      status: "loaded",
+      value: { findings: [], statement: EMPTY_ANALYTICS_STATEMENT },
+    }),
+};
