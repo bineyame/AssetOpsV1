@@ -4568,3 +4568,41 @@ In review (phase 1); phase 2 (Overview, AC11, AC22) not started.
   the T025e delta-budget claims fail for environment reasons.
 - Open: AC15 rebuild not proven without host/simulator on `sys.path`; the
   profile-5 run stages no fuel-level envelopes (Fuel NOT_REPORTED).
+
+## T027 phase 2 - mini-grid Site Overview
+
+Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phases).
+
+- Read model `evidence/overview.py` (`OverviewReadModel`), route
+  `GET /api/sites/{id}/overview` in `evidence_api.py` beside Site evidence, so
+  served gate open or closed under the evidence dependency rule. Same default
+  window as Evidence (`read_model.default_window`).
+- One domain list: `OVERVIEW_DOMAIN_SIGNALS` (read_model.py) names each
+  MINIGRID domain's signals; `NEEDED_SIGNALS` is derived from it; `DOMAIN_METRICS`
+  computes each card. `backend/tests/test_t027_overview.py` pins the domains equal
+  to the profile's cards (review N9; proven by mutation).
+- Presentation profile: `frontend/src/sites/presentationProfiles.json` (substrate
+  data keyed by `site_type`, `{id, label}` per card only), read through
+  `sites/presentationProfile.ts`. A profile card the backend does not serve
+  renders nothing; a backend card the profile lacks is not rendered (AC22: the
+  profile owns existence); the pin test keeps them equal.
+- Metric rules: energy and running time are summed over measured intervals only
+  (interval mean x interval length), with measured hours stated; instants are
+  shown at their own source time; a needed signal with no GOOD record is a named
+  gap and its metrics have no value; overlapping records (same span or instant,
+  distinct ids) are used by no metric; Fuel is tank level only. Every card and
+  the objective strip are `NO_ASSESSMENT` ("No assessment yet").
+- UI: `sites/SiteOverview.tsx` placed by `SiteDetails` through a new `overview`
+  slot that `shell/SiteDetailFrame.tsx` fills; evidence links via
+  `operatorSiteRoutes.siteEvidenceRecordHref` (`?signal=DEV/SIG&record=MSG`).
+  The Overview page's old "Not available for this site" panel (its "no accepted
+  evidence" sentence is false after a Commit) is gone.
+- Guard: `shell-overflow.ps1` admits `SiteOverview.tsx` as a fourth svg module
+  under the same region rules (`.overview-timeline__scroll`; proven by mutation).
+- AC14/AC15: the rebuild snapshot and `t027_isolated_probe.build()` include the
+  Overview (isolation proven by mutation: `import assetops_simulator` fails it).
+- Open: the Foundation tab still states "No evidence" for a Site with accepted
+  evidence (pre-existing `SiteConfiguration` panel); the Kobo v3 interval means
+  cover the 5-minute timestep of each 15-minute report, so measured-interval
+  energy covers about a third of the window and is labelled so; the profile-5
+  run stages no fuel envelopes, so the demo Fuel card shows its gap.

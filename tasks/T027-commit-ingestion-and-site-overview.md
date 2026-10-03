@@ -218,6 +218,7 @@ The owner runs the internal architecture demonstration with Lab disabled for
 the final operator inspection. The Reviewer independently exercises recovery,
 idempotence and reconstruction without simulator objects.
 Review outcome: pending. Phase 1 built and in review
-(`.agent/T027-phase-1-review-packet.md`); phase 2 not started.
+(`.agent/T027-phase-1-review-packet.md`); phase 2 built and in review
+(`.agent/T027-phase-2-review-packet.md`).
 Phase 1 owner hands-on UI check: successful (owner, 2026-10-03). Independent
 Reviewer pass on phase 1 still pending.
