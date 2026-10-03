@@ -1,6 +1,7 @@
 import type { EvidenceRead } from "../siteEvidenceClient";
 import type {
   OverviewCard,
+  OverviewCoverage,
   OverviewMetric,
   SiteOverviewClient,
   SiteOverviewReadModel,
@@ -41,7 +42,7 @@ function card(domain_id: string, metrics: OverviewMetric[], gaps: OverviewCard["
     assessment: NO_ASSESSMENT,
     metrics,
     coverage: metrics.flatMap((m) =>
-      m.evidence.map((e) => ({
+      m.evidence.map((e): OverviewCoverage => ({
         device_id: e.device_id,
         signal_id: e.signal_id,
         status: "REPORTED",
