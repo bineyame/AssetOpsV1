@@ -48,8 +48,9 @@ allowed and named as gaps; an OFF ends it.
 
 ## Segment evaluation (AC2, AC7)
 
-Each span between consecutive report times in an interval is a segment,
-evaluated from evidence at its end time t: interval means whose interval_end
+Each span between consecutive report times in an interval is a segment. Each
+end (a report time) is evaluated as a point, from evidence at that time t:
+interval means whose interval_end
 is t; instants with source time in (t - `INSTANT_TOLERANCE` (10 min), t];
 policy and override records effective at t (effective_start <= t, and
 effective_end absent or > t; latest effective_start wins). Source time, not
@@ -68,6 +69,10 @@ SOC > effective reserve, else 0; `supply` = PV available + battery_support.
 | 5 | Candidate avoidable | load, PV available, SOC, reserve, discharge capability all usable; SOC > reserve; supply >= load x (1 + `CAPABILITY_HEADROOM` 10 %) | none (the candidate is the absence of one) |
 | 6 | Indeterminate | anything else; names each missing or conflicting input, or "capability margin inside the declared headroom" | - |
 
+A segment is Candidate only when both of its ends are Candidate, Necessary
+when either end is Necessary (that end's binding constraint is shown), and
+otherwise Indeterminate, so a transition inside a segment never becomes
+candidate time. A one-observation interval is evaluated at that point.
 A segment whose generator state is UNOBSERVED is Indeterminate ("generator
 state not observed") and counts in the upper bound only.
 
