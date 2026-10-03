@@ -1717,6 +1717,26 @@ Recorded by the T027 phase 1 fix round (review `.agent/T027-phase-1-claude-revie
   editable. Until then nothing edits a Foundation, so the registry cannot be the
   sole copy of a changed basis.
 
+## Carried from T027 phase 2: two items
+
+Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-review.md`).
+
+- **Generator running time is whole-interval.** `evidence/overview.py`
+  (`_dispatch`) counts a measured interval as running whenever its mean output is
+  above zero, so a start part-way through an interval is counted as the whole
+  interval. The basis says so ("measured intervals with generator output above
+  zero"). Safe to carry: no Finding reads it before T028. Would change the
+  answer: T028's dispatch analytic using runtime. Fix then: derive runtime from
+  the status record's transitions, or from the interval mean as a fraction of
+  rated output, under the dispatch capability's evidence requirements.
+- **Two Lab explanations still say drafts have "no accepted evidence".**
+  `shell/RunSetupFrame.tsx` and `shell/RunsFrame.tsx` explain a draft as never
+  executed, with no output or accepted evidence. Runs have executed since T022,
+  and since T027 a committed run's envelopes are accepted evidence. These
+  predate T027's falsification and sit outside the operator Overview. Fix in a
+  fast-lane wording pass: say what a draft is without stating that nothing has
+  run.
+
 ## Superseded scenario versions survive only in git
 
 Recorded 2026-10-01 by the Planner (Claude under

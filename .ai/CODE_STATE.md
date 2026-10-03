@@ -4592,6 +4592,12 @@ Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phase
   gap and its metrics have no value; overlapping records (same span or instant,
   distinct ids) are used by no metric; Fuel is tank level only. Every card and
   the objective strip are `NO_ASSESSMENT` ("No assessment yet").
+- Fix round 1: coverage is decided from the records a metric can read
+  (`_Window.usable`): gap statuses `NO_INTERVAL_SPAN` and `OVERLAPPING_ONLY` carry
+  a named `reason`; interval metrics carry `window_note` ("X h of the Y h window
+  measured"), shown in the strip with the metric's label; the client's shape
+  check covers every rendered field; the strip counts source and gateway pairs.
+  The Foundation tab's "Evidence availability"/"Source health" facts are retired.
 - UI: `sites/SiteOverview.tsx` placed by `SiteDetails` through a new `overview`
   slot that `shell/SiteDetailFrame.tsx` fills; evidence links via
   `operatorSiteRoutes.siteEvidenceRecordHref` (`?signal=DEV/SIG&record=MSG`).
@@ -4601,8 +4607,7 @@ Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phase
   under the same region rules (`.overview-timeline__scroll`; proven by mutation).
 - AC14/AC15: the rebuild snapshot and `t027_isolated_probe.build()` include the
   Overview (isolation proven by mutation: `import assetops_simulator` fails it).
-- Open: the Foundation tab still states "No evidence" for a Site with accepted
-  evidence (pre-existing `SiteConfiguration` panel); the Kobo v3 interval means
+- Open: generator running time is whole-interval (backlog, T028); the Kobo v3 interval means
   cover the 5-minute timestep of each 15-minute report, so measured-interval
   energy covers about a third of the window and is labelled so; the profile-5
   run stages no fuel envelopes, so the demo Fuel card shows its gap.
