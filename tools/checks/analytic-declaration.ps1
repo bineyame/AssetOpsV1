@@ -9,7 +9,10 @@
 #   1. Every analytic module (one that sets `ANALYTIC_ID` at module level) is
 #      declared: `analytics/declaration.py` imports it, an `AnalyticDeclaration(`
 #      block takes its `analytic_id` from it, and that block names every field
-#      the decision requires. Verification rules are refused until T034.
+#      the decision requires, including its readiness basis (T028 AC20: the
+#      Site > Evidence capability row is scored from it, so an analytic without
+#      one would have a row the backend cannot score). Verification rules are
+#      refused until T034.
 #   2. Every declaration is listed in `DECLARATIONS`, so the served read model
 #      cannot omit one.
 #   3. Product analytics (the analytics package and analytics_api.py) may not
@@ -78,7 +81,8 @@ function Invoke-AnalyticDeclarationCheck {
 
     # --- 1. and 2. every analytic declared, every declaration complete and listed --
     $required = @("analytic_id", "display_name", "site_types", "finding_type",
-        "required_evidence", "optional_evidence", "claim_levels", "model_version")
+        "required_evidence", "optional_evidence", "claim_levels", "model_version",
+        "readiness")
     $blocks = @{}
     $current = $null
     $lines = @($declarationModule.Lines)

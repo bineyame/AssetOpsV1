@@ -368,3 +368,76 @@ def test_the_analytics_routes_are_served_with_the_lab_gated_off(tmp_path) -> Non
     missing = client.get(f"{base}/assessments/nope/revisions")
     assert missing.status_code == 404 and missing.json()["detail"]["code"] == "ASSESSMENT_NOT_FOUND"
     assert client.get("/api/sites/NOPE/analytics").status_code == 404
+
+
+# --- AC20: the capability row's readiness, scored by the backend ------------------------
+
+
+def readiness(records: list[AcceptedRecord]) -> dict:
+    """The dispatch row's readiness, scored against these records' own assessments."""
+    assessed = [(f"a{i}", a) for i, a in enumerate(dispatch.assess(records, SFC))]
+    served = site_declaration(minigrid(), SiteEvidence(SITE_ID, tuple(records)),
+                              {dispatch.ANALYTIC_ID: assessed})
+    (analytic,) = served["analytics"]
+    return analytic["readiness"]
+
+
+def test_complete_evidence_scores_full_with_the_candidate_ceiling() -> None:
+    r = readiness(world(range(0, 151, 15), running=between(15, 120)))
+    assert r["level"] == "FULL" and r["label"] == "Full"
+    assert r["claim_ceiling"]["claim_level"] == dispatch.CANDIDATE
+    assert r["claim_ceiling"]["statement"] == dispatch.CLAIM_CEILINGS[dispatch.CANDIDATE]
+    assert r["missing_evidence"] == [] and r["assessed_intervals"] == 1
+    # Override absence is named as not observed, never as a gap that lowers Full.
+    assert {o["role"] for o in r["optional_not_observed"]} >= {"Operator override"}
+
+
+def test_a_coverage_gap_in_an_assessed_interval_scores_limited_and_names_it() -> None:
+    r = readiness(world(range(0, 241, 15), running=between(15, 210),
+                        dcap=lambda m: None if 90 <= m <= 120 else "30"))
+    assert r["level"] == "LIMITED"
+    (gap,) = r["missing_evidence"]
+    assert gap["kind"] == "COVERAGE_GAP" and gap["role"] == "Battery discharge capability"
+    assert gap["limits_claim"] is True and gap["limiting_segments"] > 0
+    assert gap["assessment_ids"] == ["a0"] and 0 < gap["missing_segments"] < gap["evaluated_segments"]
+    assert r["claim_ceiling"]["claim_level"] == dispatch.CANDIDATE
+    assert "Indeterminate" in r["claim_ceiling"]["statement"]
+
+
+def test_a_gap_no_classification_needed_is_listed_but_stays_full() -> None:
+    # PV alone (30 kW) covers load (20 kW) with headroom, so SOC is not needed.
+    r = readiness(world(range(0, 151, 15), running=between(15, 120),
+                        soc=lambda m: None if 60 <= m <= 75 else "60"))
+    assert r["level"] == "FULL"
+    (gap,) = r["missing_evidence"]
+    assert gap["role"] == "Battery state of charge" and gap["limits_claim"] is False
+    assert "no classification depended on it" in gap["statement"]
+
+
+def test_capability_never_accepted_caps_the_ceiling_below_candidate() -> None:
+    r = readiness(world(range(0, 151, 15), running=between(15, 120), dcap=const(None)))
+    assert r["level"] == "LIMITED"
+    assert r["claim_ceiling"]["claim_level"] == dispatch.NECESSARY
+    assert "Battery capability" in r["claim_ceiling"]["statement"]
+    kinds = {(m["kind"], m["role"]) for m in r["missing_evidence"]}
+    assert ("NOT_ACCEPTED", "Battery capability") in kinds
+
+
+def test_no_generator_evidence_scores_none_with_no_claim() -> None:
+    records = [r for r in world(range(0, 151, 15), running=between(15, 120))
+               if (r.device_id, r.signal_id) not in (dispatch.GEN_STATUS, dispatch.GEN_POWER)]
+    r = readiness(records)
+    assert r["level"] == "NONE" and r["claim_ceiling"]["claim_level"] is None
+    assert {m["role"] for m in r["missing_evidence"]} == {
+        "Generator state", "Generator state and output"
+    }
+    assert r["assessed_intervals"] == 0
+
+
+def test_the_readiness_basis_names_only_declared_required_roles() -> None:
+    for d in DECLARATIONS:
+        roles = {r.role for r in d.required_evidence}
+        basis = d.readiness
+        assert set(basis.no_claim_without) <= roles and set(basis.top_claim_needs) <= roles
+        levels = {c.claim_level for c in d.claim_levels}
+        assert {basis.top_claim_level, basis.fallback_claim_level} <= levels

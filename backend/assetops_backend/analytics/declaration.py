@@ -9,6 +9,12 @@ declared yet (T034).
 Every analytic module registers here; `tools/checks/analytic-declaration.ps1`
 fails when an analytic module (one that sets `ANALYTIC_ID`) has no declaration
 or a declaration lacks a field.
+
+Each declaration also states its readiness basis (T028 AC20): how its row in
+Site > Evidence's capability table is scored Full, Limited or None from the
+declaration against accepted coverage. The score, the claim ceiling and the
+missing evidence are computed here, so every gap the screen shows is backend
+state (AC18 rule 3); the presentation profile only labels and orders the row.
 """
 
 from __future__ import annotations
@@ -37,6 +43,30 @@ class ClaimLevel:
 
 
 @dataclass(frozen=True)
+class ReadinessBasis:
+    """How a declaration is scored against accepted coverage (T028 AC20).
+
+    None: a role in `no_claim_without` has no usable accepted record, so no
+    interval can be reconstructed and no claim level is reachable.
+    Limited: every `no_claim_without` role is evidenced, but a required role
+    has no usable record, or an active assessment has a coverage gap that
+    limited a claim (a segment's `missing` list names that input). The
+    ceiling is `fallback_claim_level` when a role in `top_claim_needs` has no
+    usable record at all, else `top_claim_level` only for the portions whose
+    required inputs are evidenced.
+    Full: every required role evidenced and no claim limited by a coverage
+    gap; the ceiling is `top_claim_level`. A gap no classification depended on
+    is still listed, as not limiting, so coverage is never hidden.
+    """
+
+    version: str
+    no_claim_without: tuple[str, ...]
+    top_claim_level: str
+    top_claim_needs: tuple[str, ...]
+    fallback_claim_level: str
+
+
+@dataclass(frozen=True)
 class AnalyticDeclaration:
     analytic_id: str
     display_name: str
@@ -48,6 +78,7 @@ class AnalyticDeclaration:
     claim_levels: tuple[ClaimLevel, ...]
     model_version: str
     thresholds: tuple[dict[str, str], ...]
+    readiness: ReadinessBasis
 
 
 def _m(key: tuple[str, str], role: str) -> EvidenceRequirement:
@@ -81,6 +112,13 @@ DISPATCH = AnalyticDeclaration(
     ),
     model_version=dispatch.MODEL_VERSION,
     thresholds=dispatch.THRESHOLDS,
+    readiness=ReadinessBasis(
+        version="readiness-1",
+        no_claim_without=("Generator state", "Generator state and output"),
+        top_claim_level=dispatch.CANDIDATE,
+        top_claim_needs=("Load", "PV capability", "Battery capability"),
+        fallback_claim_level=dispatch.NECESSARY,
+    ),
 )
 
 #: Every analytic AssetOps runs. One entry per analytic module.
@@ -89,8 +127,9 @@ DECLARATIONS: tuple[AnalyticDeclaration, ...] = (DISPATCH,)
 DECLARATION_STATEMENT = (
     "What each analytic declares: the Finding type it may emit, the evidence it "
     "requires and the claim levels it may reach. Availability is whether accepted "
-    "evidence holds a usable record of that signal for this Site; it is not a "
-    "readiness score. Verification rules are not declared yet."
+    "evidence holds a usable record of that signal for this Site; readiness "
+    "scores the declaration against that and against the coverage of the active "
+    "assessments. Verification rules are not declared yet."
 )
 
 
@@ -116,27 +155,183 @@ def _requirement(req: EvidenceRequirement, evidence: SiteEvidence) -> dict[str, 
     }
 
 
-def site_declaration(site: SiteRecord, evidence: SiteEvidence) -> dict[str, Any]:
-    """The declarations that apply to this Site's type, evaluated against its evidence."""
+#: The labels of the three readiness levels (T028 AC20).
+READINESS_LABELS = {"FULL": "Full", "LIMITED": "Limited", "NONE": "None"}
+
+READINESS_STATEMENT = (
+    "Scored from the declaration against all accepted evidence for this Site and "
+    "the coverage of its active assessments, not the selected window. Full: every "
+    "required signal has usable records and no assessed portion was left "
+    "Indeterminate by a coverage gap. Limited: claims are possible but capped or "
+    "segmented by the missing evidence named. None: no claim can be made."
+)
+
+
+def _roles(rows: list[dict[str, Any]], roles: tuple[str, ...]) -> list[dict[str, Any]]:
+    return [r for r in rows if r["role"] in roles]
+
+
+def _not_accepted(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "kind": "NOT_ACCEPTED",
+        "limits_claim": True,
+        "role": row["role"],
+        "device_id": row["device_id"],
+        "signal_id": row["signal_id"],
+        "statement": (
+            f"{row['role']} ({row['device_id']} / {row['signal_id']}): no usable "
+            "accepted record."
+        ),
+        "assessment_ids": [],
+    }
+
+
+def _coverage_gaps(assessments: list[tuple[str, dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Required inputs some active assessment could not evaluate everywhere."""
+    gaps: dict[str, dict[str, Any]] = {}
+    for assessment_id, assessment in assessments:
+        for row in assessment.get("coverage", {}).get("inputs", []):
+            if row["usable_segments"] >= row["evaluated_segments"]:
+                continue
+            gap = gaps.setdefault(row["input"], {
+                "kind": "COVERAGE_GAP",
+                "role": row["label"],
+                "device_id": None,
+                "signal_id": None,
+                "missing_segments": 0,
+                "evaluated_segments": 0,
+                "limiting_segments": 0,
+                "assessment_ids": [],
+            })
+            gap["missing_segments"] += row["evaluated_segments"] - row["usable_segments"]
+            gap["evaluated_segments"] += row["evaluated_segments"]
+            gap["assessment_ids"].append(assessment_id)
+            gap["limiting_segments"] += sum(
+                1 for segment in assessment.get("segments", [])
+                if any(m.startswith(row["label"]) for m in segment.get("missing", []))
+            )
+    out = []
+    for gap in gaps.values():
+        n = len(gap["assessment_ids"])
+        plural = "" if n == 1 else "s"
+        gap["limits_claim"] = gap["limiting_segments"] > 0
+        consequence = (
+            f"{gap['limiting_segments']} segment(s) that needed it are Indeterminate."
+            if gap["limits_claim"]
+            else "no classification depended on it there."
+        )
+        gap["statement"] = (
+            f"{gap['role']}: no usable record for {gap['missing_segments']} of "
+            f"{gap['evaluated_segments']} evaluated segments in {n} assessed "
+            f"interval{plural}; {consequence}"
+        )
+        out.append(gap)
+    return out
+
+
+def score_readiness(
+    declaration: AnalyticDeclaration,
+    required: list[dict[str, Any]],
+    optional: list[dict[str, Any]],
+    assessments: list[tuple[str, dict[str, Any]]],
+) -> dict[str, Any]:
+    """The capability row's readiness, ceiling and missing evidence (T028 AC20)."""
+    basis = declaration.readiness
+    ceilings = {c.claim_level: c for c in declaration.claim_levels}
+    missing = [_not_accepted(r) for r in required if not r["available"]]
+    blocked = [r for r in _roles(required, basis.no_claim_without) if not r["available"]]
+    if blocked:
+        level = "NONE"
+        ceiling = {
+            "claim_level": None,
+            "label": "No claim",
+            "statement": (
+                "No claim can be made: without "
+                + " and ".join(sorted({r["role"] for r in blocked}))
+                + " no interval can be reconstructed from accepted evidence."
+            ),
+        }
+    else:
+        missing += _coverage_gaps(assessments)
+        capped = [r for r in _roles(required, basis.top_claim_needs) if not r["available"]]
+        top = ceilings[basis.top_claim_level]
+        if capped:
+            fallback = ceilings[basis.fallback_claim_level]
+            level = "LIMITED"
+            ceiling = {
+                "claim_level": fallback.claim_level,
+                "label": fallback.label,
+                "statement": (
+                    f"{top.label} cannot be reached without "
+                    + " and ".join(sorted({r["role"] for r in capped}))
+                    + f". {fallback.label} only where an evidenced constraint binds; "
+                    "other portions are Indeterminate."
+                ),
+            }
+        elif any(m["kind"] == "NOT_ACCEPTED" or m["limits_claim"] for m in missing):
+            level = "LIMITED"
+            ceiling = {
+                "claim_level": top.claim_level,
+                "label": top.label,
+                "statement": (
+                    f"{top.label} only for portions whose required inputs are "
+                    "evidenced; portions without them are Indeterminate. " + top.ceiling
+                ),
+            }
+        else:
+            level = "FULL"
+            ceiling = {"claim_level": top.claim_level, "label": top.label,
+                       "statement": top.ceiling}
+    return {
+        "basis_version": basis.version,
+        "level": level,
+        "label": READINESS_LABELS[level],
+        "claim_ceiling": ceiling,
+        "missing_evidence": missing,
+        "optional_not_observed": [
+            {"role": r["role"], "device_id": r["device_id"], "signal_id": r["signal_id"]}
+            for r in optional if not r["available"]
+        ],
+        "assessed_intervals": len(assessments),
+        "statement": READINESS_STATEMENT,
+    }
+
+
+def site_declaration(
+    site: SiteRecord,
+    evidence: SiteEvidence,
+    assessments: dict[str, list[tuple[str, dict[str, Any]]]] | None = None,
+) -> dict[str, Any]:
+    """The declarations that apply to this Site's type, evaluated against its evidence.
+
+    `assessments` maps an analytic id to its active assessments as
+    `(assessment_id, assessment)` pairs; each row's readiness is scored against
+    their coverage. Absent, readiness is scored from accepted records alone.
+    """
+    analytics = []
+    for d in applicable(site.site_type):
+        required = [_requirement(r, evidence) for r in d.required_evidence]
+        optional = [_requirement(r, evidence) for r in d.optional_evidence]
+        analytics.append({
+            "analytic_id": d.analytic_id,
+            "display_name": d.display_name,
+            "site_types": list(d.site_types),
+            "finding_type": {"id": d.finding_type, "display_name": d.finding_type_display_name},
+            "model_version": d.model_version,
+            "claim_levels": [
+                {"claim_level": c.claim_level, "label": c.label, "ceiling": c.ceiling}
+                for c in d.claim_levels
+            ],
+            "required_evidence": required,
+            "optional_evidence": optional,
+            "thresholds": [dict(t) for t in d.thresholds],
+            "readiness": score_readiness(
+                d, required, optional, (assessments or {}).get(d.analytic_id, [])
+            ),
+        })
     return {
         "site_id": site.site_id,
         "site_type": site.site_type,
         "statement": DECLARATION_STATEMENT,
-        "analytics": [
-            {
-                "analytic_id": d.analytic_id,
-                "display_name": d.display_name,
-                "site_types": list(d.site_types),
-                "finding_type": {"id": d.finding_type, "display_name": d.finding_type_display_name},
-                "model_version": d.model_version,
-                "claim_levels": [
-                    {"claim_level": c.claim_level, "label": c.label, "ceiling": c.ceiling}
-                    for c in d.claim_levels
-                ],
-                "required_evidence": [_requirement(r, evidence) for r in d.required_evidence],
-                "optional_evidence": [_requirement(r, evidence) for r in d.optional_evidence],
-                "thresholds": [dict(t) for t in d.thresholds],
-            }
-            for d in applicable(site.site_type)
-        ],
+        "analytics": analytics,
     }

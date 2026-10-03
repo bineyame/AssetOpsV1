@@ -149,3 +149,21 @@ change this slice may not make.
   Owner ruling 2026-10-03: stop-60 stays as is, with no policy record; the
   "published policy does not explain the stop" alternative stands. Versioned
   policy-change records, if wanted, belong with T034 configuration history.
+
+## Capability readiness (AC20, basis `readiness-1`)
+
+Scored in `analytics/declaration.py` (`score_readiness`) from the declaration's
+`ReadinessBasis` against accepted records and the active assessments'
+coverage; served on `GET /api/sites/{id}/analytics` as `readiness` and shown
+as the Site > Evidence capability row. Site-wide, not the selected window.
+
+| Readiness | When | Claim ceiling |
+| --- | --- | --- |
+| None | Generator state or output has no usable accepted record | No claim |
+| Limited | Load, PV capability or Battery capability has no usable record | Necessary only where an evidenced constraint binds |
+| Limited | Another required role has none, or a coverage gap left a segment Indeterminate (its `missing` names the input) | Candidate avoidable for evidenced portions only |
+| Full | Every required role usable; no claim limited by a gap | Candidate avoidable (its declared ceiling) |
+
+A coverage gap no classification depended on is listed as not limiting, never
+hidden. Absent optional evidence (overrides) is listed as not observed and
+does not lower readiness (AC7: absence is not proof either way).

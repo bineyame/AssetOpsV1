@@ -10,7 +10,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from assetops_backend.analytics.declaration import site_declaration
+from assetops_backend.analytics.declaration import applicable, site_declaration
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.evidence.ports import EvidenceStore, EvidenceStoreUnavailable
@@ -87,7 +87,19 @@ def build_analytics_router(
     @router.get(SITE_ANALYTICS_ROUTE)
     def get_declaration(site_id: str) -> dict[str, Any]:
         site = site_or_404(site_id)
-        return guarded(lambda: site_declaration(site, evidence.load_site(site_id)))
+
+        def read() -> dict[str, Any]:
+            # Readiness (T028 AC20) is scored against the active assessments'
+            # coverage: the same lineages Performance > Dispatch lists.
+            active = service.dispatch(site_id) if applicable(site.site_type) else None
+            assessments = {} if active is None else {
+                active["analytic_id"]: [
+                    (a["assessment_id"], a["assessment"]) for a in active["assessments"]
+                ]
+            }
+            return site_declaration(site, evidence.load_site(site_id), assessments)
+
+        return guarded(read)
 
     @router.get(SITE_DISPATCH_ROUTE)
     def get_dispatch(site_id: str) -> dict[str, Any]:

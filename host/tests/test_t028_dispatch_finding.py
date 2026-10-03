@@ -297,3 +297,35 @@ def test_a_second_commit_that_fills_a_gap_revises_and_keeps_the_prior(tmp_path) 
     assert prior["evidence_basis_digest"] != current["evidence_basis_digest"]
     assert current["evidence_records"] > prior["evidence_records"]
     assert len(read(world, "/findings")["findings"]) == 1, "a revision, not a second Finding"
+
+
+# --- AC20: Site > Evidence capability row, scored through normal ingestion ----------
+
+
+def capability_row(world: World) -> dict:
+    (analytic,) = read(world, "/analytics")["analytics"]
+    assert analytic["analytic_id"] == "dispatch"
+    return analytic["readiness"]
+
+
+def test_degraded_evidence_scores_limited_and_names_battery_capability(degraded) -> None:
+    r = capability_row(degraded)
+    assert r["level"] == "LIMITED", r
+    gaps = [m for m in r["missing_evidence"] if m["kind"] == "COVERAGE_GAP"]
+    battery = next(m for m in gaps if m["role"] == "Battery discharge capability")
+    assert battery["limits_claim"] is True
+    assert battery["assessment_ids"] == [only(degraded)["assessment_id"]]
+    assert r["claim_ceiling"]["claim_level"] == "CANDIDATE_AVOIDABLE"
+
+
+def test_prolonged_and_healthy_readiness_is_scored_from_their_own_coverage(prolonged, healthy) -> None:
+    for world in (prolonged, healthy):
+        r = capability_row(world)
+        assert r["level"] == "FULL" and r["assessed_intervals"] >= 1
+        assert not any(m["limits_claim"] for m in r["missing_evidence"])
+        # A gap is listed only where an assessment's coverage names one (rule 3).
+        assessments = {a["assessment_id"]: a["assessment"] for a in read(world, "/dispatch")["assessments"]}
+        for gap in (m for m in r["missing_evidence"] if m["kind"] == "COVERAGE_GAP"):
+            for assessment_id in gap["assessment_ids"]:
+                rows = assessments[assessment_id]["coverage"]["inputs"]
+                assert any(row["label"] == gap["role"] and row["gaps"] for row in rows)
