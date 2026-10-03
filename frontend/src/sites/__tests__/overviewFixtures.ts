@@ -31,6 +31,7 @@ function measured(
     at,
     basis: "Measured intervals cover 2.67 h.",
     evidence: [{ device_id: signal[0], signal_id: signal[1], message_id }],
+    window_note: "2.67 h of the 8.00 h window measured",
     unavailable_because: null,
   };
 }
@@ -48,6 +49,7 @@ function card(domain_id: string, metrics: OverviewMetric[], gaps: OverviewCard["
         status: "REPORTED",
         records: 33,
         good: 32,
+        usable: 32,
         unavailable: 1,
         last_source_time: "2026-10-04T11:00:00Z",
       })),
@@ -58,6 +60,7 @@ function card(domain_id: string, metrics: OverviewMetric[], gaps: OverviewCard["
         status: g.status,
         records: 0,
         good: 0,
+        usable: 0,
         unavailable: 0,
         last_source_time: null,
       })),
@@ -85,7 +88,7 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
       hours: "8.00",
     },
     accepted_in_window: 329,
-    sources_in_window: 1,
+    source_gateway_pairs_in_window: 1,
     objective: { assessment: NO_ASSESSMENT, service_delivered: served },
     // Served in an order the profile does not use, to prove the profile orders.
     cards: [
@@ -112,12 +115,14 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
             value: null,
             at: null,
             basis: "The last GOOD sample in the window, at its own source time.",
+            window_note: null,
             evidence: [],
             unavailable_because:
-              "No GOOD accepted record in this window for fuel-level-sensor/fuel-level.",
+              "fuel-level-sensor/fuel-level reported no accepted record in this window.",
           },
         ],
-        [{ device_id: "fuel-level-sensor", signal_id: "fuel-level", status: "NOT_REPORTED" }],
+        [{ device_id: "fuel-level-sensor", signal_id: "fuel-level", status: "NOT_REPORTED",
+          reason: "reported no accepted record in this window" }],
       ),
     ],
     interval_statement: "Energy and running time are summed over measured intervals only.",
@@ -151,17 +156,17 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
 
 export function emptyOverview(siteId: string): SiteOverviewReadModel {
   const gap = (device_id: string, signal_id: string) => ({
-    device_id, signal_id, status: "NOT_REPORTED",
+    device_id, signal_id, status: "NOT_REPORTED", reason: "reported no accepted record in this window",
   });
   const missing = (metric_id: string, label: string, unit: string, signal: string): OverviewMetric => ({
-    metric_id, label, unit, value: null, at: null, basis: "Measured intervals cover 0.00 h.",
-    evidence: [], unavailable_because: `No GOOD accepted record in this window for ${signal}.`,
+    metric_id, label, unit, value: null, at: null, basis: "Measured intervals cover 0.00 h.", window_note: null,
+    evidence: [], unavailable_because: `${signal} reported no accepted record in this window.`,
   });
   return {
     ...populatedOverview(siteId),
     window: { start: null, end: null, basis: "LATEST_RELEASE", hours: null },
     accepted_in_window: 0,
-    sources_in_window: 0,
+    source_gateway_pairs_in_window: 0,
     objective: {
       assessment: NO_ASSESSMENT,
       service_delivered: missing("served-energy", "Served energy, measured intervals", "kWh",

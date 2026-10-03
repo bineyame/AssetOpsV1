@@ -43,6 +43,8 @@ export interface OverviewMetric {
   value: string | null;
   at: string | null;
   basis: string;
+  /** Interval metrics: the measured share of the window, e.g. "2.67 h of the 8.00 h window measured". */
+  window_note: string | null;
   evidence: OverviewEvidenceLink[];
   unavailable_because: string | null;
 }
@@ -50,9 +52,17 @@ export interface OverviewMetric {
 export interface OverviewCoverage {
   device_id: string;
   signal_id: string;
-  status: "REPORTED" | "NOT_REPORTED" | "NO_GOOD_RECORD" | string;
+  status:
+    | "REPORTED"
+    | "NOT_REPORTED"
+    | "NO_GOOD_RECORD"
+    | "NO_INTERVAL_SPAN"
+    | "OVERLAPPING_ONLY"
+    | string;
   records: number;
   good: number;
+  /** Records a metric can read: non-overlapping, with an interval span where needed. */
+  usable: number;
   unavailable: number;
   last_source_time: string | null;
 }
@@ -63,7 +73,12 @@ export interface OverviewCard {
   assessment: OverviewAssessment;
   metrics: OverviewMetric[];
   coverage: OverviewCoverage[];
-  gaps: { device_id: string; signal_id: string; status: string }[];
+  gaps: {
+    device_id: string;
+    signal_id: string;
+    status: string;
+    reason: string;
+  }[];
 }
 
 export interface OverviewIntervalPoint {
@@ -98,7 +113,7 @@ export interface SiteOverviewReadModel {
     hours: string | null;
   };
   accepted_in_window: number;
-  sources_in_window: number;
+  source_gateway_pairs_in_window: number;
   objective: {
     assessment: OverviewAssessment;
     service_delivered: OverviewMetric | null;
@@ -123,10 +138,35 @@ const METRIC_KEYS = [
   "label",
   "unit",
   "value",
+  "at",
   "basis",
+  "window_note",
   "evidence",
+  "unavailable_because",
 ] as const;
 
+const EVIDENCE_KEYS = ["device_id", "signal_id", "message_id"] as const;
+
+function isMetric(value: unknown): boolean {
+  return (
+    hasKeys(value, METRIC_KEYS) &&
+    isObject(value) &&
+    arrayOf(value.evidence, EVIDENCE_KEYS)
+  );
+}
+
+function isPoint(value: unknown): boolean {
+  return (
+    hasKeys(value, ["value", "message_id"]) &&
+    (hasKeys(value, ["start", "end"]) || hasKeys(value, ["at"]))
+  );
+}
+
+/**
+ * Every field the Overview renders is checked (review F4): a response that
+ * lacks one is `unavailable`, so backend drift reads as "Overview unavailable"
+ * rather than as empty text on a card.
+ */
 function isSiteOverview(value: unknown): value is SiteOverviewReadModel {
   return (
     hasKeys(value, [
@@ -137,10 +177,19 @@ function isSiteOverview(value: unknown): value is SiteOverviewReadModel {
       "cards",
       "timeline",
       "findings",
+      "accepted_in_window",
+      "source_gateway_pairs_in_window",
+      "interval_statement",
+      "timeline_statement",
+      "findings_statement",
     ]) &&
     isObject(value) &&
     hasKeys(value.window, ["start", "end", "basis", "hours"]) &&
     hasKeys(value.objective, ["assessment", "service_delivered"]) &&
+    isObject(value.objective) &&
+    hasKeys(value.objective.assessment, ["status", "label", "reason"]) &&
+    (value.objective.service_delivered === null ||
+      isMetric(value.objective.service_delivered)) &&
     arrayOf(value.cards, [
       "domain_id",
       "label",
@@ -152,10 +201,33 @@ function isSiteOverview(value: unknown): value is SiteOverviewReadModel {
     (value.cards as unknown[]).every(
       (card) =>
         isObject(card) &&
-        arrayOf(card.metrics, METRIC_KEYS) &&
-        arrayOf(card.coverage, ["device_id", "signal_id", "status"]),
+        hasKeys(card.assessment, ["status", "label", "reason"]) &&
+        Array.isArray(card.metrics) &&
+        card.metrics.every(isMetric) &&
+        arrayOf(card.coverage, [
+          "device_id",
+          "signal_id",
+          "status",
+          "records",
+          "good",
+          "unavailable",
+        ]) &&
+        arrayOf(card.gaps, ["device_id", "signal_id", "status", "reason"]),
     ) &&
-    arrayOf(value.timeline, ["series_id", "label", "unit", "kind", "points"]) &&
+    arrayOf(value.timeline, [
+      "series_id",
+      "label",
+      "unit",
+      "kind",
+      "basis",
+      "points",
+    ]) &&
+    (value.timeline as unknown[]).every(
+      (series) =>
+        isObject(series) &&
+        Array.isArray(series.points) &&
+        series.points.every(isPoint),
+    ) &&
     Array.isArray(value.findings)
   );
 }

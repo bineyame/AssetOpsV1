@@ -170,7 +170,15 @@ function ObjectiveStrip({
           {objective.service_delivered === null ? (
             "Not measured for this site type"
           ) : (
-            <MetricValue metric={objective.service_delivered} link={link} />
+            // Review F3: the strip names the metric it shows, so "measured
+            // intervals" and the measured share of the window stay with the
+            // number rather than two facts away from it.
+            <>
+              <span className="overview-metric__label">
+                {objective.service_delivered.label}
+              </span>
+              <MetricValue metric={objective.service_delivered} link={link} />
+            </>
           )}
         </Fact>
         <Fact term="Window">
@@ -181,8 +189,10 @@ function ObjectiveStrip({
               })`}
         </Fact>
         <Fact term="Evidence">
-          {`${overview.accepted_in_window} accepted records from ${overview.sources_in_window} ${
-            overview.sources_in_window === 1 ? "source" : "sources"
+          {`${overview.accepted_in_window} accepted records from ${overview.source_gateway_pairs_in_window} ${
+            overview.source_gateway_pairs_in_window === 1
+              ? "source and gateway pair"
+              : "source and gateway pairs"
           } in this window. `}
           <Link to={evidencePageHref}>Open Site evidence</Link>
         </Fact>
@@ -216,6 +226,9 @@ function MetricValue({
       </span>
       {metric.at === null ? null : (
         <span className="overview-note"> at {metric.at}</span>
+      )}
+      {metric.window_note === null ? null : (
+        <span className="overview-metric__window">{metric.window_note}</span>
       )}
       <span className="overview-metric__basis">{metric.basis}</span>
       {metric.evidence.length === 0 ? null : (
@@ -264,15 +277,8 @@ function DomainCard({
       {card.gaps.length === 0 ? null : (
         <p className="overview-card__gap" role="note">
           {`Coverage gap: ${card.gaps
-            .map(
-              (gap) =>
-                `${signalOf(gap)} ${
-                  gap.status === "NOT_REPORTED"
-                    ? "reported no accepted record"
-                    : "has no GOOD accepted record"
-                }`,
-            )
-            .join("; ")} in this window.`}
+            .map((gap) => `${signalOf(gap)} ${gap.reason}`)
+            .join("; ")}.`}
         </p>
       )}
       <FactList>

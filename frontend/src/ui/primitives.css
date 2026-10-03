@@ -1837,6 +1837,17 @@ button:focus-visible {
   min-width: 0;
 }
 
+.overview-metric__label {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.overview-metric__window {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
 .overview-metric__value {
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
