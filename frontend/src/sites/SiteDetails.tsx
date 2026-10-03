@@ -52,9 +52,10 @@ import { deriveSiteDetailView, type SiteUnavailableFact } from "./siteViewModel"
  *   than rendered disabled. M1 has decided configuration is fixed at creation
  *   and that nothing removes a site, so a greyed-out control would make a
  *   promise the product has declined to make.
- * - No diagram, no empty frame reserved for a diagram, no signal selector, no
- *   site image or map panel, and no quick-actions container. Chrome with
- *   nothing behind it claims a step that has not landed.
+ * - No diagram, no empty frame reserved for a diagram, no signal selector, and
+ *   no site image or map panel. Chrome with nothing behind it claims a step
+ *   that has not landed. (The Quick actions panel does render: it always holds
+ *   at least View Live Data, with its reason.)
  *
  * It renders no tab row of its own either. T011A adds one, and it is the
  * operator shell's: which aspects a workspace divides a site into is a shell's
@@ -378,7 +379,8 @@ export function SiteDetailUnavailableFact({
  *
  * `View Live Data` is owned here because it is not a simulator surface: live
  * data is an operator capability, it is unavailable for the same reason
- * everywhere, and the reason is about evidence rather than about the Lab. The
+ * everywhere, and the reason is about capability (this build has no live data;
+ * accepted evidence is on the Evidence tab) rather than about the Lab. The
  * gated actions cannot be owned here, because deciding them means reading the
  * feature flag and naming the Lab's address, and this module may do neither.
  * They arrive through the slot.

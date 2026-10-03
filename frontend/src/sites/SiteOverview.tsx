@@ -9,9 +9,10 @@
  *
  * No analytic exists yet, so every card and the objective strip show the
  * neutral "No assessment yet". "Unknown" is never used for that. A metric whose
- * signal has no GOOD accepted record in the window shows no value and names the
- * gap; the card lists the gap from the backend's coverage, not from the
- * profile. The timeline is context, not a status source.
+ * signal has no record a metric can use in the window (none, none GOOD, no
+ * interval span, or only overlapping records) shows no value and names the gap
+ * with the backend's reason; the card lists the gap from the backend's
+ * coverage, not from the profile. The timeline is context, not a status source.
  *
  * Evidence links open the Site > Evidence record inspector at the address
  * `evidenceHref` builds (`/sites/{id}/evidence?signal=DEV/SIG&record=MSG`);
