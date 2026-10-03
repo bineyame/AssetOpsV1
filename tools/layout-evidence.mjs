@@ -4060,9 +4060,15 @@ const READ_T027_OVERVIEW = `(() => {
           order,
         ],
         [
-          "every card reads No assessment yet and nothing reads Unknown",
-          read.cards.every((c) => c.text.includes("No assessment yet")) && !/unknown/i.test(read.text),
-          `${read.cards.filter((c) => c.text.includes("No assessment yet")).length} of ${read.cards.length}`,
+          // T028: the Dispatch card carries the backend's dispatch assessment
+          // once the committed run is assessed; the other four still read
+          // No assessment yet.
+          "Service, Battery, Fuel, Renewable read No assessment yet; Dispatch carries the backend assessment; nothing reads Unknown",
+          read.cards.filter((c) => c.id !== "Dispatch").length === 4 &&
+            read.cards.filter((c) => c.id !== "Dispatch").every((c) => c.text.includes("No assessment yet")) &&
+            read.cards.some((c) => c.id === "Dispatch" && c.text.includes("Dispatch assessment:")) &&
+            !/unknown/i.test(read.text),
+          `${read.cards.filter((c) => c.text.includes("No assessment yet")).map((c) => c.id).join(",")} read No assessment yet; Dispatch slot ${read.cards.some((c) => c.id === "Dispatch" && c.text.includes("Dispatch assessment:")) ? "assessed" : "not assessed"}`,
         ],
         [
           "measured values exist (non-empty set), and each uncovered card names its gap",
