@@ -154,10 +154,13 @@ function CommitBody({
           <strong>Release error.</strong> {release_error}
         </p>
       )}
-      {release === null || release.status === "IN_PROGRESS" ? (
+      {release === null || release.status === "IN_PROGRESS" || release.status === "REFUSED" ? (
         <p>
+          {/* The backend accepts a retry after a refusal (a refused batch wrote
+              no records), so the same POST is offered; the refusal stays shown
+              above it. T027 fix round N3. */}
           <button type="button" disabled={pending} onClick={onCommit}>
-            Resume release
+            {release !== null && release.status === "REFUSED" ? "Retry release" : "Resume release"}
           </button>
         </p>
       ) : null}

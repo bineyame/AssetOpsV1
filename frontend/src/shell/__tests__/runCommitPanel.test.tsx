@@ -261,6 +261,28 @@ describe("the Commit panel", () => {
     expect(panel().querySelector("[data-commit-release-error]")).toBeNull();
   });
 
+  it("offers a retry beside a refused release, keeping the refusal shown", async () => {
+    const refused = committed(
+      release({
+        status: "REFUSED",
+        processed: 0,
+        accepted: 0,
+        completed_at: null,
+        refusal: { kind: "CONFIGURATION_UNRESOLVED", detail: "Foundation v1 is not registered" },
+      }),
+    );
+    const runSetup = client(ELIGIBLE, refused, [committed(release({}))]);
+    renderAt(runSetup);
+    await settledScreen();
+
+    expect(spacedText(panel())).toMatch(/refused this release \(CONFIGURATION_UNRESOLVED\)/);
+    expect(within(panel()).queryByRole("button", { name: "Resume release" })).toBeNull();
+    fireEvent.click(within(panel()).getByRole("button", { name: "Retry release" }));
+    await screen.findByText(/Ingestion accepted all 125 records/);
+    expect(runSetup.posts).toBe(1);
+    expect(within(panel()).queryByRole("button", { name: "Retry release" })).toBeNull();
+  });
+
   it("names a refused Commit and its blockers without claiming a seal", async () => {
     const refused: RunCommitResult = {
       status: "refused",
