@@ -499,10 +499,16 @@ class TestNoUpdateOrDeleteRouteExists:
         per_site = sorted(path for path in schema["paths"] if "{site_id}" in path)
         assert per_site == [
             f"{SITES_PATH}/{{site_id}}",
+            # T028: the analytics read models.
+            f"{SITES_PATH}/{{site_id}}/analytics",
+            f"{SITES_PATH}/{{site_id}}/assessments/{{assessment_id}}",
+            f"{SITES_PATH}/{{site_id}}/assessments/{{assessment_id}}/revisions",
+            f"{SITES_PATH}/{{site_id}}/dispatch",
             f"{SITES_PATH}/{{site_id}}/evidence",
             f"{SITES_PATH}/{{site_id}}/evidence/records",
             f"{SITES_PATH}/{{site_id}}/evidence/records/{{message_id}}",
             f"{SITES_PATH}/{{site_id}}/evidence/rejections",
+            f"{SITES_PATH}/{{site_id}}/findings",
             # T027 phase 2: the Overview read, beside Site evidence.
             f"{SITES_PATH}/{{site_id}}/overview",
         ]

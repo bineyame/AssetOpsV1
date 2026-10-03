@@ -37,10 +37,16 @@ def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
     # routes; the per-Site inventory stays pinned to an exact list.
     assert sorted(path for path in paths if "{site_id}" in path) == [
         "/api/sites/{site_id}",
+        # T028: the analytics read models, beside Site evidence.
+        "/api/sites/{site_id}/analytics",
+        "/api/sites/{site_id}/assessments/{assessment_id}",
+        "/api/sites/{site_id}/assessments/{assessment_id}/revisions",
+        "/api/sites/{site_id}/dispatch",
         "/api/sites/{site_id}/evidence",
         "/api/sites/{site_id}/evidence/records",
         "/api/sites/{site_id}/evidence/records/{message_id}",
         "/api/sites/{site_id}/evidence/rejections",
+        "/api/sites/{site_id}/findings",
         # T027 phase 2: the Overview read, beside Site evidence.
         "/api/sites/{site_id}/overview",
     ]

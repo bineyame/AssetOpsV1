@@ -554,9 +554,28 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
     ]
 
 
+#: Supplies analytic assessments for the Overview (T028): `(site, window_start,
+#: window_end) -> {"cards": {domain_id: assessment}, "findings": [...]}`. The
+#: composition root passes the analytics service's reader in; this package
+#: never imports an analytic. A domain it does not name keeps `NO_ASSESSMENT`.
+CardAssessments = Callable[[SiteRecord, "str | None", "str | None"], dict[str, Any]]
+
+FINDINGS_PRESENT_STATEMENT = (
+    "Findings an analytic raised for this window. Each links to its assessed "
+    "object; the Overview does not recompute it."
+)
+
+
+NO_FINDINGS_STATEMENT = (
+    "The site was assessed for this window and no Finding was raised. This is not "
+    "a statement that the site is operating well."
+)
+
+
 class OverviewReadModel:
-    def __init__(self, store: EvidenceStore) -> None:
+    def __init__(self, store: EvidenceStore, card_assessments: CardAssessments | None = None) -> None:
         self._store = store
+        self._card_assessments = card_assessments
 
     def site_overview(
         self,
@@ -577,6 +596,11 @@ class OverviewReadModel:
             else _seconds(window_start, window_end),
         )
         domains = OVERVIEW_DOMAIN_SIGNALS.get(site.site_type, ())
+        analytic = (
+            {"cards": {}, "findings": []}
+            if self._card_assessments is None
+            else self._card_assessments(site, window_start, window_end)
+        )
         cards = []
         for domain, signals in domains:
             coverage = [_coverage_row(window, key) for key in signals]
@@ -594,7 +618,7 @@ class OverviewReadModel:
                 {
                     "domain_id": domain,
                     "label": domain,
-                    "assessment": dict(NO_ASSESSMENT),
+                    "assessment": dict(analytic["cards"].get(domain, NO_ASSESSMENT)),
                     "metrics": DOMAIN_METRICS[domain](window),
                     "coverage": coverage,
                     "gaps": gaps,
@@ -627,6 +651,10 @@ class OverviewReadModel:
             "interval_statement": INTERVAL_STATEMENT,
             "timeline": _timeline(window),
             "timeline_statement": TIMELINE_STATEMENT,
-            "findings": [],
-            "findings_statement": FINDINGS_STATEMENT,
+            "findings": analytic["findings"],
+            "findings_statement": (
+                FINDINGS_PRESENT_STATEMENT if analytic["findings"]
+                else NO_FINDINGS_STATEMENT if analytic["cards"]
+                else FINDINGS_STATEMENT
+            ),
         }

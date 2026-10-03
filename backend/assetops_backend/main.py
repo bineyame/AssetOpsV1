@@ -18,14 +18,19 @@ entry point is the leaf's own application module.
 
 Ingestion and the Site > Evidence read model (T027) are mounted in both gate
 states: accepted evidence is a product capability, and the gate covers
-simulator surfaces only. No analytics, configuration editing, or Findings are
-served.
+simulator surfaces only. The analytics read models (T028: the capability
+declaration, dispatch assessments, Findings and their revisions) are mounted
+in both gate states beside them. No configuration editing is served.
 """
 
 from __future__ import annotations
 
 from fastapi import APIRouter, FastAPI
 
+from assetops_backend.analytics.composition import build_assessment_store
+from assetops_backend.analytics.ports import AssessmentStore
+from assetops_backend.analytics.service import AssessmentService
+from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.config import FeatureFlags, load_feature_flags
 from assetops_backend.evidence.composition import build_evidence_store
 from assetops_backend.evidence.ports import EvidenceStore
@@ -73,6 +78,7 @@ def create_app(
     evidence_store: EvidenceStore | None = None,
     clock: Clock | None = None,
     commit_store: CommittedArtifactStore | None = None,
+    assessment_store: AssessmentStore | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -138,7 +144,22 @@ def create_app(
         system_clock if clock is None else clock,
     )
     app.state.ingestion = ingestion
-    app.include_router(build_evidence_router(ingestion, repository))
+    assessments = AssessmentService(
+        ingestion.store,
+        (
+            build_assessment_store(persistent=evidence_store is None)
+            if assessment_store is None
+            else assessment_store
+        ),
+        repository.get_site,
+        system_clock if clock is None else clock,
+    )
+    app.state.assessments = assessments
+    ingestion.add_completed_listener(assessments.assess_site)
+    app.include_router(
+        build_evidence_router(ingestion, repository, assessments.card_assessments)
+    )
+    app.include_router(build_analytics_router(assessments, ingestion.store, repository))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

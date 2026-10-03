@@ -109,7 +109,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 
-from assetops_backend.evidence.overview import OverviewReadModel
+from assetops_backend.evidence.overview import CardAssessments, OverviewReadModel
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.evidence.read_model import EvidenceReadModel, batch_payload
 from assetops_backend.evidence.service import IngestionService
@@ -142,10 +142,14 @@ def _instant_param(value: str | None, name: str) -> str | None:
     return value
 
 
-def build_evidence_router(ingestion: IngestionService, sites: SiteRepository) -> APIRouter:
+def build_evidence_router(
+    ingestion: IngestionService,
+    sites: SiteRepository,
+    card_assessments: CardAssessments | None = None,
+) -> APIRouter:
     router = APIRouter()
     read_model = EvidenceReadModel(ingestion.store)
-    overview_model = OverviewReadModel(ingestion.store)
+    overview_model = OverviewReadModel(ingestion.store, card_assessments)
 
     def site_or_404(site_id: str) -> SiteRecord:
         try:
