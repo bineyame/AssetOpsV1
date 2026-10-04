@@ -596,3 +596,32 @@ def test_readiness_carries_its_question_meaning_scope_and_plain_gaps() -> None:
     assert r["conclusion"].startswith("Possibly avoidable operation can be identified")
     assert len(r["gaps"]) == len(r["missing_evidence"])
     _assert_plain({k: r[k] for k in ("question", "meaning", "scope", "method", "conclusion", "gaps")})
+
+
+def test_the_overview_card_carries_the_lead_period_timeline_unchanged(tmp_path) -> None:
+    """Presentation checkpoint 2a: the card's compact timeline is a copy of the
+    lead assessment's stored segments, interval and fuel, never recomputed."""
+    evidence = Store(world(range(0, 151, 15), running=between(15, 120)))
+    service = AssessmentService(evidence, JsonAssessmentStore(tmp_path), lambda _: minigrid(),
+                                lambda: "2026-09-25T00:00:00Z")
+    (row,) = service.dispatch(SITE_ID)["assessments"]
+    a = row["assessment"]
+    card = service.card_assessments(minigrid(), at(0), at(150))["cards"]["Dispatch"]
+    assert card["lead_assessment_id"] == row["assessment_id"]
+    assert card["lead_revision"] == row["revision"]
+    timeline = card["lead_timeline"]
+    assert timeline["assessed_window"] == a["assessed_window"]
+    assert [(s["start"], s["end"], s["minutes"], s["observed"], s["classification"])
+            for s in timeline["segments"]] == [
+        (s["start"], s["end"], s["minutes"], s["observed"], s["classification"])
+        for s in a["segments"]]
+    assert [s["outcome"] for s in timeline["segments"]] == [
+        plain.OUTCOMES[s["classification"]] for s in a["segments"]]
+    for key in ("open_start", "open_end", "last_stopped_before", "first_stopped_after"):
+        assert timeline["interval"][key] == a["interval"][key]
+    assert timeline["fuel"]["status"] == a["fuel"]["status"]
+    assert timeline["fuel"]["low_litres"] == a["fuel"].get("low_litres")
+    assert timeline["fuel"]["high_litres"] == a["fuel"].get("high_litres")
+    assert timeline["fuel"]["note"] == row["reading"]["fuel"]["note"]
+    # Read-time only: the stored assessment gains no card fields.
+    assert "lead_timeline" not in a

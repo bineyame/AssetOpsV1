@@ -290,5 +290,7 @@ class AssessmentService:
             card = {**base, "status": level,
                     **plain.card(level, lead.latest.assessment, others),
                     "assessment_ids": [l.assessment_id for l in active],
-                    "lead_assessment_id": lead.assessment_id}
+                    "lead_assessment_id": lead.assessment_id,
+                    "lead_revision": lead.latest.revision,
+                    "lead_timeline": plain.card_timeline(lead.latest.assessment)}
         return {"cards": {"Dispatch": card}, "findings": findings}

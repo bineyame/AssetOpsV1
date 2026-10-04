@@ -468,6 +468,31 @@ def card(level: str | None, lead: dict[str, Any] | None, others: int) -> dict[st
     return {"label": OUTCOMES[lead["claim_level"]], "reason": text}
 
 
+def card_timeline(a: dict[str, Any]) -> dict[str, Any]:
+    """The compact timeline and fuel projection of the lead assessment for the
+    Overview card (D-2026-10-04-plain-language-analysis-views, section 5).
+
+    A copy of stored facts, no new quantity: the card draws the same segments
+    as the Finding without fetching the full assessment.
+    """
+    interval = a["interval"]
+    fuel = a["fuel"]
+    return {
+        "assessed_window": dict(a["assessed_window"]),
+        "interval": {key: interval[key] for key in (
+            "first_running_observed", "last_running_observed", "last_stopped_before",
+            "first_stopped_after", "open_start", "open_end")},
+        "segments": [
+            {"start": s["start"], "end": s["end"], "minutes": s["minutes"],
+             "observed": s["observed"], "classification": s["classification"],
+             "outcome": OUTCOMES[s["classification"]]}
+            for s in a["segments"]
+        ],
+        "fuel": {"status": fuel["status"], "low_litres": fuel.get("low_litres"),
+                 "high_litres": fuel.get("high_litres"), **_fuel(a)},
+    }
+
+
 # --- readiness (read time; readiness-3 scoring unchanged) -----------------------
 
 READINESS_QUESTION = "What can we assess from this site's records?"
