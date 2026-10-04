@@ -171,7 +171,7 @@ describe("a badge renders only where a record supplies its value", () => {
     // Lifecycle, each in its own column. Three vocabularies, three tones, and
     // never one status pill, which is what this assertion is really about.
     expect(tones).toEqual([
-      ["badge badge--provenance", "Simulated"],
+      ["badge badge--provenance", "Demonstration data"],
       ["badge badge--lifecycle", "Planned"],
       ["badge badge--origin", "User"],
     ]);
