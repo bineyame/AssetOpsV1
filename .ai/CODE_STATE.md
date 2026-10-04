@@ -4665,6 +4665,16 @@ code T028 touches).
   (`readablePeriod`), and puts IDs/revisions/digest, full coverage, fuel inputs,
   Performance method and readiness scoring behind closed `Disclosure`s.
 - Totals at closeout: backend 1465, host 616, simulator 244, frontend 1097.
+- Presentation revision cp1 (`D-2026-10-04-plain-language-analysis-views`,
+  supersedes the disclosure layout above; packet "Presentation checkpoint 1"):
+  `analytics/plain.py` generates every product sentence at read time from the
+  stored structured assessment (`reading`, `card`, `readiness`, `role`); old
+  `dispatch.reading`/`CLAIM_MEANINGS` removed. Finding tabs
+  `Overview | Analysis | Evidence | Alternatives` (`/analysis`); Dispatch and
+  Site Evidence local `Overview | Analysis` (`?view=analysis`, other params
+  kept); shared `sites/assessmentAnalysis.tsx`; card and index "View analysis".
+  Open: four graphics, card projection and the vocabulary guard (cp2;
+  `.agent/T028-presentation-cp1-handoff.md`).
 
 ### What this leaves open
 

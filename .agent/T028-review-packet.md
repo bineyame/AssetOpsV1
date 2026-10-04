@@ -402,6 +402,69 @@ disclosure claims (`READ_T028_DISCLOSURES`/`OPEN_T028_DISCLOSURES` in
 digest in an opened "Assessment details" wraps at 640 px.
 
 
+## Presentation checkpoint 1 (D-2026-10-04-plain-language-analysis-views)
+
+Spec `.agent/T028-architect-presentation.md` section 5 item 1: default reading
+and Analysis destinations, tabs and routes (section 3), vocabulary in all
+copy touched (section 4). Graphics, card projection and the guard are
+checkpoint 2 (`.agent/T028-presentation-cp1-handoff.md`). Supersedes the
+disclosure layout of "Presentation correction" above. Commits `4d8f69b`,
+`7736148`, `5704010`, `7f6cc37` and the closeout commit.
+
+**Per surface.**
+
+| Surface | Default view | Analysis |
+| --- | --- | --- |
+| Finding | Tabs `Overview, Analysis, Evidence, Alternatives` (`/analysis`). Outcome (Possibly avoidable / Needed / Cannot determine), site name, equipment, period UTC; "What happened" (headline + reason + meaning); recorded vs assessed portions (separate values); confidence word + principal limitation; missing records, limits, still-open explanations linked; fuel range or reason; next steps. No disclosures, IDs or method versions. Title `Finding: <outcome>`. Withdrawn/unknown assessment stated with a link to current results. | Shared `AssessmentAnalysis`: per assessed part the outcome, plain reason and values used at start and end ("Not reported", never zero), reasons needed, confidence explanation, coverage per input ("assessed parts", "not assessed" at zero), operating-time and fuel calculation, method version, references and revision history; links to Evidence and Alternatives instead of copying them. Evidence and Alternatives tabs reworded (plain outcome per part, "Other possible explanations", Supported by records / Still possible / Not supported by the available records). Drawer "Supporting record". |
+| Performance > Dispatch | Dispatch still the only subtab; local `Overview, Analysis` (`?view=analysis`, `interval` kept). Periods in time order: outcome, operating time, main reason or missing info, strip, Finding link (Needed: none). Selected period: headline, meaning, confidence, fuel, limits, next steps, "View the analysis of this period". | Period chooser + the same `AssessmentAnalysis` for the selected period, including Needed periods; record links open the Site Evidence inspector. A selected id not in current results is stated, never substituted. |
+| Site Overview card | Backend `plain.card`: outcome label + headline/reason (+ count of other periods). Findings panel shows `outcome: headline`. | "View analysis": Finding `/analysis`, or Dispatch `?interval=..&view=analysis` for a Needed lead. |
+| Findings indexes | Columns Finding (headline + reason), Site, Period, Outcome, Confidence and main limitation, Analysis, Type; filter labels plain. Row opens Overview. | "View analysis" link per row opens the Finding's Analysis. No index-wide Analysis. |
+| Site > Evidence | Local `Overview, Analysis`. "What can we assess from this site's records?", "Scope: whole site" apart from "Selected window"; per row Full/Limited/None + meaning, conclusion available, plain gaps (limiting or not), assessed-period count with the zero-period qualification; compact source summary ("Demonstration data"), coverage count, rejection count. | "How readiness is scored" (method, versions, required/optional records with references, gaps with references and assessed-period ids), full source status, input coverage, record interpretation and equipment details, rejected records. Record inspector reachable from both. |
+
+**Backend.** `analytics/plain.py` generates every product sentence at read
+time from the stored structured assessment (classification, constraint ids,
+portions, input names, alternative ids/status/gaps, fuel status); fixed
+stored templates (confidence basis, missing lines, policy statement) are read
+by template, and unknown text becomes an explicit unavailable sentence.
+Served as `reading` on every lineage summary, card label/reason, readiness
+`question/meaning/scope/method/conclusion/gaps`, `plain_role` on requirement
+rows. Nothing persisted, no new revision (tested), `dispatch-2`/`readiness-3`
+unchanged; stored `summary`/`label`/`claim_limits` still served but rendered
+nowhere on T028 product views. Site Overview metric/series labels and
+statements reworded (`evidence/overview.py`); global Findings statement plain.
+
+**Cases** (`.agent/T028-presentation-cases.txt`, as served from the host Kobo
+worlds): candidate (prolonged) Possibly avoidable 4 h to 4 h 10 min, Medium,
+21.6 to 35.8 litres; Necessary (evening) Needed, end open, no fuel estimate,
+no Finding, shown via Dispatch Analysis; uncertain (degraded) Possibly
+avoidable 30 min, Low, 1 h 15 min Cannot determine, missing battery records
+named, Site Evidence Limited with two limiting gaps.
+
+**Checks (closeout HEAD).** backend pytest 1491 passed; host pytest 619 passed
+(incl. `test_t028_dispatch_finding.py` 17 passed); frontend vitest 46 files /
+1104 passed; `tsc --noEmit` exit 0; `npm run build` built (chunk-size warning
+only); `check-architecture.ps1` passed; `check-agent-workflow.ps1`
+passed. Simulator suite not rerun (no simulator code touched). Layout
+evidence: not run (checkpoint 2 by brief); `tools/layout-evidence.mjs`
+T028 disclosure claims are now stale and must be rewritten in checkpoint 2.
+
+**Tests changed.** Finding tab inventory now four; old six-heading and
+closed-disclosure assertions replaced by default/Analysis split, absence of
+method/ID/jargon on default views, Analysis content, Back/reload/direct
+link and unknown-tab fallback, unknown assessment with current-results link;
+Dispatch views, Needed-period Analysis, missing selection; card and index
+Analysis links; Evidence Overview/Analysis split, window param kept; T027
+Site Evidence tests moved to `?view=analysis` with new wording. Backend: plain
+reading/readiness tests with a forbidden-word check over all reading text;
+host reading/card/readiness assertions.
+
+**Known deviations / choices.** Dispatch and index rows show the recorded
+operating period, the Finding header the assessed window. Frontend
+`INPUT_WORDS` maps stable input ids for coverage rows (presentation mapping).
+Remaining jargon outside the touched copy (record drawer normalization text,
+rejection details, Site Overview `interval_statement`, Foundation) is left
+for the cp2 guard and the post-T029 follow-up. No owner walk yet.
+
 ## Residual risk
 
 - Layout: one non-known failure named above; gate-closed browser pass not run
