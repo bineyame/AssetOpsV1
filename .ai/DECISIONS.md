@@ -24,6 +24,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-04-analytic-readiness-scope-and-gap-impact` | 2026-10-04 | Analytic readiness describes evidence sufficiency, site-wide in T028; claim-dependent gap treatment is interim, with versioned configurable impact types assigned to T028A. |
 | `D-2026-10-02-demo-led-recommendation` | 2026-10-02 | Owner approved `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` at `57ea23e` ("review looks fine."); D1-D8 verbatim; section 9 outcomes are the coordinator's reading; its sequence supersedes the 2026-09-24 queue order from T027. Recorded by the Planner (Claude under the Codex exception). |
 | `D-2026-10-02-rendered-tabs-per-capability` | 2026-10-02 | Rendered tabs are meaningful destinations decided per capability, not per site; "labelled in place" is not used in operator views; rendered Site tabs by milestone. Amends the 2026-09-13 canonical-fidelity and 2026-09-17 Foundation entries. |
 | `D-2026-10-02-grammar-ownership-test` | 2026-10-02 | A place keeps its slot only if it owns something no other place shows; exceptions recorded; tasks citing overridden v6.9 text cite the decision; grouped rail is target, filtered to live items. |
@@ -3667,3 +3668,39 @@ approved recommendation 5.2.
   section 5; the "never hand-staged" wording above is Planner wording).
 
 Affected scope: T029, T034, T034A, T030-T033, T035, T036.
+
+## 2026-10-04
+
+Decision: `D-2026-10-04-analytic-readiness-scope-and-gap-impact`.
+Decided by Codex Architect under the owner's delegated decision authority in
+`.ai/ROLE_CONFIG.md`; reasoning and implementation consequences are in
+`.agent/T028-architect-readiness-decisions.md`.
+
+Analytic readiness is a backend-owned assessment of evidence sufficiency,
+distinct from Site operational condition, setup progress and source health.
+T028 scores all accepted Site evidence and latest active assessments, not the
+Evidence page's selected window. Full describes signal availability and the
+absence of claim-limiting gaps in assessed portions; it does not assert fresh,
+continuous or selected-window coverage. Zero assessed intervals is disclosed.
+None must respect the analytic's supported alternative reconstruction inputs.
+
+T028 retains an explicitly interim claim-dependent coverage-gap rule: gaps
+that limit a classification lower readiness; other gaps remain visible.
+Required-input absence and optional-context absence remain distinct. The
+permanent gap policy is deferred at the owner's request. T028A, Configurable
+analytic evidence-gap impact, owns a versioned backend configuration and its
+small inspection/editing surface, to be planned after T029 point-2 feedback;
+it is unscheduled and gates none of the existing demo spine.
+
+Gap impact type controls the readiness consequence of missing evidence per
+analytic requirement. It cannot invent evidence or weaken prerequisites for
+an actual claim. Stricter coverage requirements may lower readiness without
+changing a valid assessment. Policy version and scope travel with readiness;
+readiness-policy changes preserve evidence and assessment history. Actual
+classification changes require analytic versioning. Presentation profiles
+remain presentation only.
+
+Reason: keep the one-analytic demo honest, distinguish coverage from its
+effect on a claim, and preserve the owner's configurable-policy direction
+without broadening T028. Affected scope: T028 AC20, T028A planning/backlog,
+T029B coverage composition and later analytic/portfolio consumers.

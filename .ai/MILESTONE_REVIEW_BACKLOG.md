@@ -1750,6 +1750,18 @@ Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-revie
   reading. Until then, a single failure of this claim alone is not evidence of a
   regression.
 
+## Planned follow-up: T028A, configurable analytic evidence-gap impact
+
+Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
+(record `.agent/T028-architect-readiness-decisions.md` section 2) at the owner's
+request (2026-10-04: defer the gap rule, make it configurable through a "gap
+impact type"). Plan after T029's point-2 feedback; unscheduled; gates nothing
+on the demo spine. Scope: a versioned backend setting per analytic evidence
+requirement (`CLAIM_DEPENDENT`, `COVERAGE_REQUIRED`, `CONTEXT_ONLY`), a small
+inspection/editing surface on Site > Evidence, effective type and version shown
+with readiness; no generic rules engine. T028 ships `CLAIM_DEPENDENT` as the
+disclosed interim rule.
+
 ## Parked task: T025h, picker compatibility status (Lab ergonomics)
 
 Recorded 2026-10-02 by the coordinator at the owner's request ("add it to the
