@@ -625,3 +625,62 @@ def test_the_overview_card_carries_the_lead_period_timeline_unchanged(tmp_path) 
     assert timeline["fuel"]["note"] == row["reading"]["fuel"]["note"]
     # Read-time only: the stored assessment gains no card fields.
     assert "lead_timeline" not in a
+
+
+# ---- T028 presentation checkpoint 2b: shared evidence text, scanned against
+# the frontend guard's versioned list (frontend/src/test/productVocabulary.json).
+
+def _vocabulary_patterns() -> list[tuple[str, re.Pattern[str]]]:
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "frontend/src/test/productVocabulary.json"
+    terms = json.loads(path.read_text(encoding="utf-8"))["terms"]
+    return [
+        (
+            t["phrase"],
+            re.compile(
+                r"(?<![^\W_])" + re.escape(t["phrase"]).replace(r"\ ", r"\s+") + r"(?![^\W_])",
+                0 if t.get("caseSensitive") else re.IGNORECASE,
+            ),
+        )
+        for t in terms
+    ]
+
+
+def test_served_evidence_explanations_use_the_product_vocabulary():
+    from assetops_contracts.ingestion_batch import BATCH_REJECTION_KINDS
+    from assetops_contracts.source_envelope import ENVELOPE_REJECTION_KINDS
+
+    from assetops_backend.evidence import overview
+    from assetops_backend.evidence.models import (
+        BATCH_REFUSAL_KINDS,
+        INGESTION_REJECTION_KINDS,
+        NORMALIZATION_STATEMENT,
+    )
+    from assetops_backend.evidence.read_model import (
+        REJECTION_READINGS,
+        REJECTION_UNAVAILABLE,
+        rejection_reading,
+    )
+
+    kinds = ENVELOPE_REJECTION_KINDS | BATCH_REJECTION_KINDS | INGESTION_REJECTION_KINDS | BATCH_REFUSAL_KINDS
+    assert kinds <= set(REJECTION_READINGS), sorted(kinds - set(REJECTION_READINGS))
+    assert rejection_reading("SOMETHING_NEW") == REJECTION_UNAVAILABLE
+    texts = [
+        NORMALIZATION_STATEMENT,
+        REJECTION_UNAVAILABLE,
+        overview.INTERVAL_STATEMENT,
+        overview.TIMELINE_STATEMENT,
+        overview.FINDINGS_STATEMENT,
+        overview.FINDINGS_PRESENT_STATEMENT,
+        overview.NO_FINDINGS_STATEMENT,
+        overview.NO_ASSESSMENT["reason"],
+        *REJECTION_READINGS.values(),
+    ]
+    patterns = _vocabulary_patterns()
+    found = [(phrase, text) for text in texts for phrase, p in patterns if p.search(text)]
+    assert found == []
+    # The scan is not vacuous: the stored ingestion wording it replaces is caught.
+    old = "The signal is not in the mapping."
+    assert [phrase for phrase, p in patterns if p.search(old)] == ["mapping"]

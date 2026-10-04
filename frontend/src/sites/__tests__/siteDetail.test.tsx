@@ -214,7 +214,7 @@ describe("a site is rendered from its record", () => {
     expect(factValue(container, "Location")).toBe("Kalangala, Uganda");
     expect(factValue(container, "Timezone")).toBe("Africa/Kampala");
     expect(factValue(container, "Lifecycle status")).toBe("Planned");
-    expect(factValue(container, "Mode")).toBe("Simulated");
+    expect(factValue(container, "Mode")).toBe("Demonstration data");
     expect(factValue(container, "Configuration origin")).toBe("User");
     expect(factValue(container, "Created from template")).toBe(
       "hybrid-mini-grid-100kw v1",
@@ -372,7 +372,7 @@ describe("the six provenance and status concepts are six facts", () => {
     await settledScreen();
 
     expect(factValue(container, "Configuration origin")).toBe("User");
-    expect(factValue(container, "Mode")).toBe("Simulated");
+    expect(factValue(container, "Mode")).toBe("Demonstration data");
     expect(factValue(container, "Lifecycle status")).toBe("Planned");
     // T027 phase 2: evidence availability, source health and integration
     // readiness are no longer stated by the Overview page's own facts; the
@@ -390,20 +390,20 @@ describe("the six provenance and status concepts are six facts", () => {
     const header = container.querySelector(".page-header__title");
 
     expect(header?.textContent).toContain("MG-002");
-    expect(header?.textContent).toContain("Simulated");
+    expect(header?.textContent).toContain("Demonstration data");
     expect(header?.textContent).not.toMatch(/Planned|User|healthy|online/i);
   });
 
-  it("puts the Simulated badge next to lifecycle status, never inside it", async () => {
+  it("puts the source-mode badge next to lifecycle status, never inside it", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
     // The canonical mockup puts `Simulated` and `Planned` in one `Status`
     // field, which collapses provenance into status. That is a mockup error to
     // correct rather than copy.
-    expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated/i);
+    expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated|demonstration/i);
     expect(factValue(container, "Mode")).not.toMatch(/planned/i);
-    expect(spacedText(container)).not.toMatch(/Simulated \/ Planned/);
+    expect(spacedText(container)).not.toMatch(/(Simulated|Demonstration data) \/ Planned/);
 
     const terms = Array.from(container.querySelectorAll("dt")).map(
       (term) => term.textContent,
@@ -429,7 +429,7 @@ describe("the six provenance and status concepts are six facts", () => {
     expect(factValue(shippedSimulated.container, "Configuration origin")).toBe(
       "Shipped",
     );
-    expect(factValue(shippedSimulated.container, "Mode")).toBe("Simulated");
+    expect(factValue(shippedSimulated.container, "Mode")).toBe("Demonstration data");
     expect(factValue(shippedSimulated.container, "Lifecycle status")).toBe(
       "Commissioned",
     );
@@ -445,7 +445,7 @@ describe("the six provenance and status concepts are six facts", () => {
     ]);
     expect([shipped.configurationOrigin, shipped.sourceMode]).toEqual([
       "Shipped",
-      "Simulated",
+      "Demonstration data",
     ]);
   });
 
@@ -784,8 +784,8 @@ describe("the Site information panel carries the facts assigned to it", () => {
     // terms, separate values, neither bleeding into the other, and no single
     // collapsed `Status`.
     expect(factValue(container, "Lifecycle status")).toBe("Planned");
-    expect(factValue(container, "Mode")).toBe("Simulated");
-    expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated/i);
+    expect(factValue(container, "Mode")).toBe("Demonstration data");
+    expect(factValue(container, "Lifecycle status")).not.toMatch(/simulated|demonstration/i);
     expect(factValue(container, "Mode")).not.toMatch(/planned/i);
   });
 });

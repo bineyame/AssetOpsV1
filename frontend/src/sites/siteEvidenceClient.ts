@@ -158,6 +158,8 @@ export interface EvidenceRejection {
   kind: string;
   field: string | null;
   detail: string;
+  /** The plain read-time reason (T028 presentation 2b); absent from an older backend. */
+  reason?: string;
   received_at: string;
   content_digest: string | null;
 }

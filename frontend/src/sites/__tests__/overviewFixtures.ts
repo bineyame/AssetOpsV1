@@ -11,7 +11,7 @@ const NO_ASSESSMENT = {
   status: "NO_ASSESSMENT",
   label: "No assessment yet",
   reason:
-    "No analytic assesses this domain yet. The metrics are measured values, not a judgement of how the site is operating.",
+    "Nothing assesses this area of the site yet. The metrics are measured values, not a judgement of how the site is operating.",
 };
 
 function measured(
@@ -93,12 +93,12 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
     // Served in an order the profile does not use, to prove the profile orders.
     cards: [
       card("Renewable", [
-        measured("pv-energy", "PV energy, measured intervals", "65.0", "kWh",
+        measured("pv-energy", "Solar energy, measured intervals", "65.0", "kWh",
           ["pv-inverter-controller", "ac-power"], "msg-pv-1"),
       ]),
       card("Service", [served]),
       card("Dispatch", [
-        measured("generator-runtime", "Generator running time, measured intervals", "1.00", "h",
+        measured("generator-runtime", "Generator operating time, measured intervals", "1.00", "h",
           ["GEN-1", "active_power"], "msg-gen-72"),
       ]),
       card("Battery", [
@@ -125,7 +125,8 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
           reason: "reported no accepted record in this window" }],
       ),
     ],
-    interval_statement: "Energy and running time are summed over measured intervals only.",
+    interval_statement:
+      "Energy and generator operating time are added up only over the time that measurements cover.",
     timeline: [
       {
         series_id: "demand",
@@ -140,7 +141,7 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
       },
       {
         series_id: "soc",
-        label: "Battery state of charge",
+        label: "Battery charge",
         unit: "%",
         kind: "STATE_AT_INSTANT",
         basis: "Instantaneous samples at their own source times.",
@@ -150,7 +151,7 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
     timeline_statement: "The timeline is context, not a status.",
     findings: [],
     findings_statement:
-      "No analytic has assessed this site yet, so no Finding exists. This is not a statement that the site is or is not operating well.",
+      "Nothing has assessed this site yet, so no Finding exists. This is not a statement that the site is or is not operating well.",
   };
 }
 

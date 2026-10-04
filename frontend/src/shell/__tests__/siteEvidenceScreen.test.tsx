@@ -147,7 +147,7 @@ describe("Site > Evidence, populated", () => {
     const items = document.querySelectorAll("[data-evidence-rejection]");
     expect(items).toHaveLength(2);
     expect(spacedText(items[0] as HTMLElement)).toMatch(
-      /UNKNOWN_SIGNAL \(signal_id\)\s*: The signal is not in the mapping\. Delivery artifact-1\./,
+      /The record's signal is not part of this site's equipment details\. Delivery reference artifact-1\s*\./,
     );
   });
 
@@ -210,7 +210,7 @@ describe("the record inspector is a drill-down", () => {
     expect(words).toContain("Demonstration data");
     expect(words).toContain("GOOD");
     expect(words).toMatch(/Original value 41\.5 kW/);
-    expect(words).toMatch(/Value as interpreted 41\.5 kW\s*\.\s*Normalization is the identity/);
+    expect(words).toMatch(/Value as interpreted 41\.5 kW\s*\.\s*AssetOps uses this value and unit exactly as the source sent them/);
 
     // The root and the tab never change.
     expect(location().startsWith(`${EVIDENCE_URL}?`)).toBe(true);

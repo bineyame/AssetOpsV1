@@ -57,11 +57,11 @@ FINDINGS_STATEMENT = (
     "a statement that the site is or is not operating well."
 )
 INTERVAL_STATEMENT = (
-    "Energy and operating time are summed over measured intervals only (interval "
-    "mean multiplied by interval length). Time between measured intervals is not "
-    "counted and no sample is carried forward. Overlapping records (distinct "
-    "records at one interval or instant) are listed in Evidence and used by no "
-    "metric."
+    "Energy and generator operating time are added up only over the time that "
+    "measurements cover: each measured average multiplied by the length of time "
+    "it covers. Time with no measurement is not counted, and no earlier reading "
+    "is carried forward to fill it. Where two different records cover the same "
+    "time, both are listed in Evidence and neither is used in these totals."
 )
 TIMELINE_STATEMENT = (
     "The timeline places accepted measurements on the window's time axis. It is "

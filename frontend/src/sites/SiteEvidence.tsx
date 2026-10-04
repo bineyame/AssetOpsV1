@@ -56,6 +56,10 @@ export interface SiteEvidenceProps {
   profile?: DomainPresentationProfile | null;
 }
 
+/** Shown for a rejection when the backend serves no plain reason; never its code. */
+const REJECTION_UNAVAILABLE =
+  "This record was not accepted. A plain description of the reason is not available.";
+
 function provenance(mode: string): string {
   if (mode === "SIMULATED") {
     return "Demonstration data";
@@ -542,9 +546,9 @@ function Rejections({
               key={`${item.batch_id}-${item.index ?? index}-${item.kind}`}
               data-evidence-rejection={item.kind}
             >
-              <strong>{item.kind}</strong>
-              {item.field === null ? "" : ` (${item.field})`}: {item.detail}{" "}
-              {`Delivery ${item.batch_id}.`}
+              {item.reason ?? REJECTION_UNAVAILABLE}{" "}
+              Delivery reference{" "}
+              <span data-vocabulary-exempt="source-reference">{item.batch_id}</span>.
             </li>
           ))}
         </ul>
@@ -737,14 +741,18 @@ export function RecordDetail({
       data-evidence-record-detail={item.message_id}
     >
       <h3 id="site-evidence-record-heading" className="identity-heading">
-        {`Record ${item.message_id}`}
+        Record <span data-vocabulary-exempt="source-reference">{item.message_id}</span>
       </h3>
       <FactList>
         <Fact term="Source, device and signal">
-          {`${item.source_id} / ${item.device_id} / ${item.signal_id}`}
+          <span data-vocabulary-exempt="source-reference">
+            {`${item.source_id} / ${item.device_id} / ${item.signal_id}`}
+          </span>
         </Fact>
         <Fact term="Record interpretation">
-          {`${item.mapping.mapping_set_id} v${item.mapping.mapping_version}`}
+          <span data-vocabulary-exempt="source-reference">
+            {`${item.mapping.mapping_set_id} v${item.mapping.mapping_version}`}
+          </span>
         </Fact>
         <Fact term="Equipment details used">
           {`Site ${item.site_id}, Foundation v${item.configuration.foundation_version}, valid from ${item.configuration.foundation_valid_from}`}
@@ -768,7 +776,9 @@ export function RecordDetail({
         <Fact term="Received">
           <span data-record-time="received">{item.received_at}</span>
         </Fact>
-        <Fact term="Delivery">{item.batch_id}</Fact>
+        <Fact term="Delivery">
+          <span data-vocabulary-exempt="source-reference">{item.batch_id}</span>
+        </Fact>
         {item.overlapping_with.length === 0 ? null : (
           <Fact term="Overlapping records">
             {item.overlapping_with.join(", ")}

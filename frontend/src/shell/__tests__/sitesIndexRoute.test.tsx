@@ -124,7 +124,7 @@ describe("the Sites index is an operator capability", () => {
 
     expect(within(row).getByText("MG-002")).toBeInTheDocument();
     expect(within(row).getByText("Kalangala Mini-Grid")).toBeInTheDocument();
-    expect(within(row).getByText("Simulated")).toBeInTheDocument();
+    expect(within(row).getByText("Demonstration data")).toBeInTheDocument();
     expect(within(row).getByText("User")).toBeInTheDocument();
     expect(within(row).getByText("Planned")).toBeInTheDocument();
     expect(

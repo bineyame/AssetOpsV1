@@ -195,7 +195,7 @@ describe("Site Overview, populated", () => {
     const charts = screen.getAllByRole("img");
     expect(charts.map((chart) => chart.getAttribute("aria-label"))).toEqual([
       "Demand (three feeders) (kW) over the window",
-      "Battery state of charge (%) over the window",
+      "Battery charge (%) over the window",
     ]);
     expect(charts[0].querySelectorAll("g line")).toHaveLength(2);
     expect(charts[1].querySelectorAll("circle")).toHaveLength(1);

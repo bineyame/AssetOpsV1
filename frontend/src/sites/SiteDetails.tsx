@@ -290,7 +290,10 @@ export function SiteDetailFacts({
           </Fact>
           <Fact term="Foundation version">{view.foundationVersion}</Fact>
           <Fact term="Valid from">{view.foundationValidFrom}</Fact>
-          <Fact term="Summary">{view.foundationSummary}</Fact>
+          <Fact term="Summary">
+            {/* The site's own configured document text, verbatim (user-owned). */}
+            <span data-vocabulary-exempt="user-owned">{view.foundationSummary}</span>
+          </Fact>
         </FactList>
         <p>
           The foundation is the site's configured content, copied from the

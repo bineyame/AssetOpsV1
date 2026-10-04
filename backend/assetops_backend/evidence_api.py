@@ -71,7 +71,8 @@ GET /api/sites/{site_id}/evidence/records/{message_id} -> 200 | 404
 
 GET /api/sites/{site_id}/evidence/rejections?batch=
   -> {site_id, total, rejections: [{batch_id, index|null, message_id|null,
-      kind, field, detail, received_at, content_digest}],
+      kind, field, detail, reason (plain, read-time), received_at,
+      content_digest}],
       conflicts: [{message_id, batch_id, original_digest, conflicting_digest,
       received_at}]}
 
