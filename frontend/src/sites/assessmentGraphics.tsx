@@ -14,6 +14,7 @@
 import { useId, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
+import { DataTable } from "../ui";
 import { readablePeriod, readableTime } from "./findingPresentation";
 import type { CoverageInput, SegmentInputs, Span, TimeWindow } from "./siteAnalyticsClient";
 
@@ -475,8 +476,8 @@ function PartsTable({
     );
   }
   return (
-    <div className="data-table__scroll">
-      <table className="data-table period-timeline__table" data-timeline-table>
+    <div className="period-timeline__table" data-timeline-table>
+      <DataTable>
         <caption className="visually-hidden">Assessed parts of the period, times UTC</caption>
         <thead>
           <tr>
@@ -489,7 +490,7 @@ function PartsTable({
           </tr>
         </thead>
         <tbody>{rows}</tbody>
-      </table>
+      </DataTable>
     </div>
   );
 }
@@ -587,7 +588,8 @@ function ValueBars({
   rows: { id: string; label: string; value: string | null; note?: string }[];
 }) {
   return (
-    <table className="data-table value-bars" data-value-bars={unit}>
+    <div className="value-bars" data-value-bars={unit}>
+      <DataTable>
       <caption className="assessment-graphic__caption">{caption}</caption>
       <thead>
         <tr>
@@ -631,7 +633,8 @@ function ValueBars({
           );
         })}
       </tbody>
-    </table>
+      </DataTable>
+    </div>
   );
 }
 
@@ -739,7 +742,8 @@ export interface CoverageByInputProps {
 export function CoverageByInput({ inputs, unobserved, words }: CoverageByInputProps) {
   return (
     <div className="assessment-graphic coverage-by-input" data-graphic="coverage-by-input" data-graphic-anchor="coverage-by-input">
-      <table className="data-table value-bars" data-coverage-table>
+      <div className="value-bars" data-coverage-table>
+        <DataTable>
         <caption className="assessment-graphic__caption">
           Reported records for this assessed period: for each input, the number
           of assessed parts of this period that had a usable record. Counts of
@@ -790,7 +794,8 @@ export function CoverageByInput({ inputs, unobserved, words }: CoverageByInputPr
             );
           })}
         </tbody>
-      </table>
+        </DataTable>
+      </div>
       {unobserved.length === 0 ? null : (
         <ul className="cell-list" data-coverage-unobserved-list>
           {unobserved.map((span) => (
