@@ -67,13 +67,15 @@ interface Clients {
   analytics?: SiteAnalyticsClient;
   evidence?: SiteEvidenceClient;
   overview?: SiteOverviewClient;
+  /** The Simulator Lab gate; the product journey is checked with it off. */
+  lab?: boolean;
 }
 
 function renderAt(path: string, clients: Clients = {}) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <App
-        flags={featureFlagsWith(false)}
+        flags={featureFlagsWith(clients.lab ?? false)}
         siteDirectory={DIRECTORY}
         siteDetail={DETAIL}
         siteEvidence={clients.evidence ?? evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
@@ -118,6 +120,10 @@ const STATES: Array<[string, string, Clients?, (() => Promise<void>)?]> = [
   ["Site Overview, Dispatch card", `/sites/${SITE_ID}`],
   ["Site Overview, no evidence", `/sites/${SITE_ID}`, { overview: overviewClient({ status: "loaded", value: emptyOverview(SITE_ID) }) }],
   ["Site Overview, unavailable", `/sites/${SITE_ID}`, { overview: overviewClient(UNAVAILABLE) }],
+  // With the Lab on, its entries (workspace link, Site quick actions) keep the
+  // Lab's vocabulary and are the only text exempted as `lab`.
+  ["Site Overview, Lab on", `/sites/${SITE_ID}`, { lab: true }],
+  ["Finding Overview, Lab on", `/findings/${SITE_ID}/${CANDIDATE_ID}`, { lab: true }],
   ["Dispatch Overview", `/sites/${SITE_ID}/performance/dispatch`],
   ["Dispatch Overview, a period selected", `/sites/${SITE_ID}/performance/dispatch?interval=${CANDIDATE_ID}`],
   ["Dispatch Analysis, Needed period", `/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`],
@@ -195,12 +201,38 @@ describe("the guard's failing-example proofs", () => {
     expect(caught).toContain(`${page} (${path})|run`);
   });
 
+  it("with the Lab on, its entries render and are the only text exempted as lab", async () => {
+    renderAt(`/sites/${SITE_ID}`, { lab: true });
+    await settledScreen();
+    const lab = Array.from(document.querySelectorAll('[data-vocabulary-exempt="lab"]')).map((el) => el.textContent);
+    expect(lab).toContain("Open Simulator Lab");
+    expect(lab).toContain("Open in Simulator Lab");
+    expect(lab.length).toBeGreaterThanOrEqual(5);
+    cleanup();
+  });
+
   it("an accessible label is scanned, not only visible text", () => {
     document.body.innerHTML = `<main><p>${"Plain words. ".repeat(3)}</p><svg aria-label="Simulator run timeline"></svg></main>`;
     const { violations } = scanProductVocabulary(document.body, "proof");
     expect(violations.map((v) => `${v.where}|${v.phrase}`)).toEqual([
       "aria-label|run",
       "aria-label|simulator",
+    ]);
+    document.body.innerHTML = "";
+  });
+
+  it("a reference value inside authored text is skipped, the authored words still scanned, prose refused", () => {
+    document.body.innerHTML = `<main>
+      <li data-vocabulary-reference="generator-controller / policy-minimum-runtime">Minimum operating time setting (reference generator-controller / policy-minimum-runtime)</li>
+      <button data-vocabulary-reference="simulator-lab-source" aria-label="Inspect records from simulator-lab-source">Inspect</button>
+      <li data-vocabulary-reference="simulator-lab-source">The run came from simulator-lab-source</li>
+      <li data-vocabulary-reference="the run was binding">x</li>
+    </main>`;
+    const { violations } = scanProductVocabulary(document.body, "proof");
+    expect(document.body.textContent).toContain("policy-minimum-runtime");
+    expect(violations.map((v) => `${v.where}|${v.phrase}`)).toEqual([
+      "data-vocabulary-reference|a reference value is not an identifier",
+      "text|run",
     ]);
     document.body.innerHTML = "";
   });

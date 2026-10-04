@@ -124,6 +124,7 @@ export function SiteDetailFrame({
             key={action.label}
             label={action.label}
             unavailableBecause={action.unavailableBecause}
+            vocabularyExempt="lab"
           />
         ))}
       />

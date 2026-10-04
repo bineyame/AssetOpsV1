@@ -22,6 +22,7 @@ import type {
   EvidenceRecordDetail,
   SiteEvidenceClient,
 } from "./siteEvidenceClient";
+import { sourceReferences } from "./vocabularyReference";
 
 /**
  * Display words for the three backend classifications, the same as the
@@ -154,6 +155,7 @@ export function EvidenceLinks({
             type="button"
             className="link-button"
             data-evidence-link={link.message_id}
+            {...sourceReferences(`${link.device_id} / ${link.signal_id}`)}
             onClick={() => open(link, claim)}
           >
             {`${link.device_id} / ${link.signal_id}, ${readableTime(link.source_time)}`}

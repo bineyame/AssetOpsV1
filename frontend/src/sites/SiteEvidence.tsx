@@ -35,6 +35,7 @@ import type {
   EvidenceSourceHealth,
   SiteEvidenceClient,
 } from "./siteEvidenceClient";
+import { sourceReferences } from "./vocabularyReference";
 
 /** How many records the inspector lists for one row, newest first. */
 export const INSPECTOR_RECORD_LIMIT = 50;
@@ -258,7 +259,7 @@ function SourceSummary({
     <Panel heading="Where the records come from" headingId="site-evidence-sources-heading">
       <ul className="cell-list" data-evidence-source-summary>
         {evidence.sources.map((source) => (
-          <li key={source.source_id} data-evidence-source={source.source_id}>
+          <li key={source.source_id} data-evidence-source={source.source_id} {...sourceReferences(source.source_id)}>
             <span data-evidence-provenance={source.source_mode}>
               {`${provenance(source.source_mode)}: `}
             </span>
@@ -348,7 +349,7 @@ function SourceRow({
   onInspect: (source: string) => void;
 }) {
   return (
-    <tr data-evidence-source={source.source_id}>
+    <tr data-evidence-source={source.source_id} {...sourceReferences(`${source.source_id} / ${source.gateway_id}`, source.source_id)}>
       <th scope="row">{`${source.source_id} / ${source.gateway_id}`}</th>
       <td data-evidence-provenance={source.source_mode}>
         {provenance(source.source_mode)}
@@ -367,6 +368,7 @@ function SourceRow({
             <li
               key={item.batch_id}
               data-evidence-batch={item.batch_id}
+              {...sourceReferences(item.batch_id)}
               data-evidence-batch-highlighted={
                 item.batch_id === highlighted ? "yes" : undefined
               }
@@ -432,6 +434,7 @@ function SignalCoverage({
                 key={`${row.device_id}/${row.signal_id}`}
                 data-evidence-coverage={`${row.device_id}/${row.signal_id}`}
                 data-coverage-status={row.status}
+                {...sourceReferences(name)}
               >
                 <th scope="row">{name}</th>
                 <td>{row.unit ?? "none declared"}</td>
@@ -494,7 +497,7 @@ function Basis({ evidence }: { evidence: EvidenceOverview }) {
         <Fact term="Record interpretation used">
           <ul className="cell-list" data-evidence-mappings>
             {evidence.basis.mappings.map((mapping) => (
-              <li key={`${mapping.mapping_set_id}-${mapping.mapping_version}`}>
+              <li key={`${mapping.mapping_set_id}-${mapping.mapping_version}`} {...sourceReferences(`${mapping.mapping_set_id} v${mapping.mapping_version}`)}>
                 {`${mapping.mapping_set_id} v${mapping.mapping_version}`}
               </li>
             ))}
@@ -691,12 +694,13 @@ function RecordInspector({
                       {item.quality}
                       {item.overlapping ? " (overlapping)" : ""}
                     </td>
-                    <td>{item.source_id}</td>
+                    <td {...sourceReferences(item.source_id)}>{item.source_id}</td>
                     <td>
                       <button
                         type="button"
                         onClick={() => select(item.message_id)}
                         aria-label={`Show record ${item.message_id}`}
+                        {...sourceReferences(item.message_id)}
                       >
                         Show record
                       </button>

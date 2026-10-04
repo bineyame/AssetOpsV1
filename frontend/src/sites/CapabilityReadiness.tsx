@@ -28,6 +28,7 @@ import type {
   EvidenceRequirement,
   SiteAnalytics,
 } from "./siteAnalyticsClient";
+import { sourceReferences } from "./vocabularyReference";
 
 export const CAPABILITY_HEADING_ID = "site-evidence-capability-heading";
 export const CAPABILITY_METHOD_HEADING_ID = "site-evidence-capability-method-heading";
@@ -236,7 +237,7 @@ export function CapabilityReadinessAnalysis({
               <Fact term="Required records">
                 <ul className="cell-list" data-capability-required>
                   {analytic.required_evidence.map((row) => (
-                    <li key={`${row.device_id}/${row.signal_id}`} data-requirement-available={row.available}>
+                    <li key={`${row.device_id}/${row.signal_id}`} data-requirement-available={row.available} {...sourceReferences(`${row.device_id} / ${row.signal_id}`)}>
                       {`${row.plain_role ?? row.role}: ${requirementText(row)} (reference ${row.device_id} / ${row.signal_id})`}
                     </li>
                   ))}
@@ -245,7 +246,7 @@ export function CapabilityReadinessAnalysis({
               <Fact term="Optional records">
                 <ul className="cell-list" data-capability-optional>
                   {analytic.optional_evidence.map((row) => (
-                    <li key={`${row.device_id}/${row.signal_id}`} data-requirement-available={row.available}>
+                    <li key={`${row.device_id}/${row.signal_id}`} data-requirement-available={row.available} {...sourceReferences(`${row.device_id} / ${row.signal_id}`)}>
                       {`${row.plain_role ?? row.role}: ${row.available ? requirementText(row) : "none received; absence is not proof that none existed"} (reference ${row.device_id} / ${row.signal_id})`}
                     </li>
                   ))}
@@ -255,7 +256,7 @@ export function CapabilityReadinessAnalysis({
                 <Fact term="Gaps, with references">
                   <ul className="cell-list" data-capability-gap-detail>
                     {readiness.missing_evidence.map((item, index) => (
-                      <li key={`${item.kind}-${item.role}`}>
+                      <li key={`${item.kind}-${item.role}`} {...sourceReferences(item.device_id === null ? null : `${item.device_id} / ${item.signal_id ?? ""}`, ...item.assessment_ids)}>
                         {readiness.gaps?.[index] ?? "Detail not available."}
                         {item.device_id === null ? "" : ` (reference ${item.device_id} / ${item.signal_id ?? ""})`}
                         {item.assessment_ids.length === 0

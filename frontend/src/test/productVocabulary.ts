@@ -38,6 +38,16 @@ const LABEL_ATTRIBUTES = [
 ] as const;
 
 export const EXEMPT_ATTRIBUTE = "data-vocabulary-exempt";
+/**
+ * Exact source-owned reference values inside authored text, on the element
+ * that renders them, separated by " | ". The scan removes exactly those values
+ * from that element's text and labels and still scans the authored words
+ * around them. A value must have the shape of an identifier (letters, digits,
+ * `.`, `_`, `-`, joined by " / ", optionally " vN"), so prose cannot be
+ * passed off as a reference.
+ */
+export const REFERENCE_ATTRIBUTE = "data-vocabulary-reference";
+const REFERENCE_SHAPE = /^[A-Za-z0-9._-]+(?: \/ [A-Za-z0-9._-]+)*(?: v\d+)?$/;
 export const VOCABULARY_VERSION: number = vocabulary.version;
 export const EXEMPTION_REASONS = Object.keys(vocabulary.exemptions);
 
@@ -71,6 +81,18 @@ export function forbiddenPhrases(text: string): string[] {
   return TERMS.filter((term) => term.pattern.test(scanned)).map((term) => term.phrase);
 }
 
+function references(element: Element | null): string[] {
+  const holder = element?.closest(`[${REFERENCE_ATTRIBUTE}]`) ?? null;
+  const raw = holder?.getAttribute(REFERENCE_ATTRIBUTE) ?? "";
+  return raw.split(" | ").filter((value) => value.length > 0 && REFERENCE_SHAPE.test(value));
+}
+
+function withoutReferences(text: string, values: string[]): string {
+  let out = text;
+  for (const value of values) out = out.split(value).join(" ");
+  return out;
+}
+
 function exemptReason(element: Element | null): string | null {
   const exempt = element?.closest(`[${EXEMPT_ATTRIBUTE}]`) ?? null;
   return exempt === null ? null : exempt.getAttribute(EXEMPT_ATTRIBUTE);
@@ -98,6 +120,15 @@ export function scanProductVocabulary(
     }
   }
 
+  for (const element of Array.from(root.querySelectorAll(`[${REFERENCE_ATTRIBUTE}]`))) {
+    const raw = element.getAttribute(REFERENCE_ATTRIBUTE) ?? "";
+    for (const value of raw.split(" | ")) {
+      if (!REFERENCE_SHAPE.test(value)) {
+        violations.push({ page, phrase: "a reference value is not an identifier", where: REFERENCE_ATTRIBUTE, text: value });
+      }
+    }
+  }
+
   const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
     const text = (node.textContent ?? "").trim();
@@ -106,7 +137,7 @@ export function scanProductVocabulary(
     if (parent !== null && ["SCRIPT", "STYLE"].includes(parent.tagName)) continue;
     if (exemptReason(parent) !== null) continue;
     scanned += 1;
-    for (const phrase of forbiddenPhrases(text)) {
+    for (const phrase of forbiddenPhrases(withoutReferences(text, references(parent)))) {
       violations.push({ page, phrase, where: "text", text });
     }
   }
@@ -118,7 +149,7 @@ export function scanProductVocabulary(
       const value = element.getAttribute(attribute);
       if (value === null || value.trim().length === 0) continue;
       scanned += 1;
-      for (const phrase of forbiddenPhrases(value)) {
+      for (const phrase of forbiddenPhrases(withoutReferences(value, references(element)))) {
         violations.push({ page, phrase, where: attribute, text: value });
       }
     }

@@ -2090,6 +2090,14 @@ button:focus-visible {
   min-width: 0;
   max-width: 100%;
   overflow-x: auto;
+  /* A positioned region, so an absolutely positioned descendant (a visually
+     hidden table heading) is clipped by it instead of widening the page
+     (T028 cp2b layout evidence: Finding Analysis at 640 px scrolled to 713). */
+  position: relative;
+}
+
+.assessment-graphic .data-table__scroll {
+  position: relative;
 }
 
 .assessment-graphic__caption {

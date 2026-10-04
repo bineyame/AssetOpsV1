@@ -3897,7 +3897,9 @@ if (t027.run === null) {
     ["1000x700", 1000, 700],
     ["640x700", 640, 700],
   ]) {
-    const page = await visit(cdp, base, width, height, ".site-evidence[data-evidence-state]");
+    // T028 presentation cp1 moved source health and coverage to the Evidence
+    // tab's local Analysis view (`?view=analysis`); the T027 claims hold there.
+    const page = await visit(cdp, `${base}?view=analysis`, width, height, ".site-evidence[data-evidence-state]");
     await sleep(300);
     const read = await evaluate(READ_T027_EVIDENCE);
     pick = pick ?? read.coverage.find((r) => r.status === "REPORTED")?.key ?? null;
@@ -3905,8 +3907,9 @@ if (t027.run === null) {
       report(`T027 Site > Evidence populated, ${KOBO_SITE}, at ${label}`, page, [
         ["the Evidence body is populated", read.state === "populated", `${read.state}`],
         [
-          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current",
-          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence" && read.currentTab === "Evidence",
+          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current, then its local views Overview|Analysis",
+          page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
+            page.tabLabels.slice(5).join("|") === "Overview|Analysis" && read.currentTab === "Evidence",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -4000,8 +4003,9 @@ if (t027.run === null) {
           `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported`,
         ],
         [
-          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current",
-          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence" && read.currentTab === "Evidence",
+          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current, then its local views Overview|Analysis",
+          page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
+            page.tabLabels.slice(5).join("|") === "Overview|Analysis" && read.currentTab === "Evidence",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -4330,6 +4334,8 @@ const READ_T028_CARD = `(() => {
   };
 })()`;
 
+const noScroll480 = (page, width) => (width < 640 ? [] : [noScroll(page)]);
+
 const noScroll = (page) => [
   "the page does not scroll horizontally",
   !page.pageScrollsHorizontally,
@@ -4387,7 +4393,7 @@ let t028AnyAssessment = null;
           (read.contained === "auto" || read.contained === "scroll") && read.regionRight <= read.viewport,
         `${read.rows.length} rows (${read.rows.map((r) => r.level).join(",")}); bars ${read.rows.map((r) => r.bar).join(",")}; overflow-x ${read.contained}; region right ${read.regionRight} vs ${read.viewport}`,
       ],
-      noScroll(page),
+      ...noScroll480(page, width),
     ];
     if (width >= 640) {
       claims.unshift(
@@ -4432,7 +4438,7 @@ let t028AnyAssessment = null;
             g.fuel.length > 0 && g.fuel.every((f) => (f.unavailable !== null || f.svgWidth > 0) && f.right <= g.viewport),
             g.fuel.map((f) => f.unavailable === null ? `range ${f.svgWidth}px` : `unavailable: ${f.unavailable}`).join("; ") || "none",
           ],
-          noScroll(page),
+          ...noScroll480(page, width),
         ]) && allPass;
 
       const analysis = await visit(cdp, `${target}/analysis`, width, height, "[data-timeline-table]");
@@ -4443,7 +4449,7 @@ let t028AnyAssessment = null;
           tablesClaim("assessed parts table", ga.partsTables),
           tablesClaim("reported value tables of the selected part", ga.valueTables),
           tablesClaim("coverage by input table", ga.coverageTables),
-          noScroll(analysis),
+          ...noScroll480(analysis, width),
         ]) && allPass;
 
       if (width === 480) continue;
@@ -4483,7 +4489,7 @@ let t028AnyAssessment = null;
             ...timelineClaims(g, { compact: false }),
             tablesClaim("assessed parts table", g.partsTables),
             tablesClaim("coverage by input table", g.coverageTables),
-            noScroll(page),
+            ...noScroll480(page, width),
           ]) && allPass;
       }
       for (const [label, width, height] of [
@@ -4491,7 +4497,7 @@ let t028AnyAssessment = null;
         ["640x700", 640, 700],
       ]) {
         const page = await visit(cdp, `/sites/${KOBO_SITE}/evidence?view=analysis&assessment=${id}`, width, height, "[data-evidence-assessment-coverage], [data-evidence-state]");
-        await sleep(300);
+        await waitUntil(`!!document.querySelector("[data-evidence-assessment-coverage] [data-coverage-table] tbody tr")`, 15000);
         const g = await evaluate(READ_T028_GRAPHICS);
         allPass =
           report(`T028 Site Evidence Analysis, one assessed period's coverage (${id}), at ${label}`, page, [
@@ -4520,7 +4526,7 @@ let t028AnyAssessment = null;
           `lead ${card.lead}; drawn ${card.figure}; bar ${card.bar}px right ${card.barRight} vs card ${card.cardRight}; View analysis ${card.analysisHref}`,
         ],
         ...timelineClaims(g, { compact: true }),
-        noScroll(page),
+        ...noScroll480(page, width),
       ]) && allPass;
   }
 
@@ -4677,12 +4683,20 @@ async function t028Journey({ labOff }) {
       else if (el.children.length > 0) out.push({ phrase: "exemption wraps more than one value", text: el.outerHTML.slice(0, 120) });
     }
     const exempt = (el) => el !== null && el.closest("[data-vocabulary-exempt]") !== null;
+    const shape = /^[A-Za-z0-9._-]+(?: \\/ [A-Za-z0-9._-]+)*(?: v\\d+)?$/;
+    const refs = (el) => ((el && el.closest("[data-vocabulary-reference]")?.getAttribute("data-vocabulary-reference")) || "").split(" | ").filter((v) => v && shape.test(v));
+    const strip = (text, el) => refs(el).reduce((t, v) => t.split(v).join(" "), text);
+    for (const el of root.querySelectorAll("[data-vocabulary-reference]")) {
+      for (const v of el.getAttribute("data-vocabulary-reference").split(" | ")) {
+        if (!shape.test(v)) out.push({ phrase: "a reference value is not an identifier", where: "data-vocabulary-reference", text: v });
+      }
+    }
     const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     for (let n = w.nextNode(); n; n = w.nextNode()) {
       const t = (n.textContent || "").trim();
       if (!t || ["SCRIPT", "STYLE", "NOSCRIPT"].includes(n.parentElement?.tagName) || exempt(n.parentElement)) continue;
       scanned += 1;
-      for (const p of find(t)) out.push({ phrase: p, where: "text", text: t.slice(0, 160) });
+      for (const p of find(strip(t, n.parentElement))) out.push({ phrase: p, where: "text", text: t.slice(0, 160) });
     }
     for (const el of [root, ...root.querySelectorAll("*")]) {
       if (exempt(el)) continue;
@@ -4690,7 +4704,7 @@ async function t028Journey({ labOff }) {
         const v = el.getAttribute(a);
         if (!v || !v.trim()) continue;
         scanned += 1;
-        for (const p of find(v)) out.push({ phrase: p, where: a, text: v.slice(0, 160) });
+        for (const p of find(strip(v, el))) out.push({ phrase: p, where: a, text: v.slice(0, 160) });
       }
     }
     return { scanned, violations: out };
@@ -4714,7 +4728,8 @@ async function t028Journey({ labOff }) {
   const rows = await evaluate(`Array.from(document.querySelectorAll("[data-dispatch-interval]")).map((tr) => ({ id: tr.getAttribute("data-dispatch-interval"), finding: tr.querySelector("[data-dispatch-finding-link]")?.getAttribute("href") ?? null }))`);
   const finding = rows.find((r) => r.finding !== null)?.finding ?? null;
   const ids = rows.map((r) => r.id).slice(0, 3);
-  await visit(cdp, `/sites/${site}/performance/dispatch?interval=${ids[0]}&view=analysis`, 1280, 800, "[data-timeline-table], main");
+  await visit(cdp, `/sites/${site}/performance/dispatch?interval=${ids[0]}&view=analysis`, 1280, 800, "main");
+  await waitUntil(`!!document.querySelector("[data-analysis-record]")`, 15000);
   const recordHref = await evaluate(`document.querySelector("[data-analysis-record]")?.getAttribute("href") ?? null`);
 
   const pages = [

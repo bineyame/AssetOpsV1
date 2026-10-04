@@ -49,7 +49,7 @@ export function WorkspaceShellLayout({ flags }: WorkspaceShellLayoutProps) {
           <ul className="workspace-bar__list">
             {workspaceEntryPoints.map((entryPoint) => (
               <li key={entryPoint.to}>
-                <Link className="workspace-bar__link" to={entryPoint.to}>
+                <Link className="workspace-bar__link" to={entryPoint.to} data-vocabulary-exempt="lab">
                   {entryPoint.label}
                 </Link>
               </li>

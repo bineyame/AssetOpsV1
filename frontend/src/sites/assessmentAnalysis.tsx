@@ -41,6 +41,7 @@ import type {
   Reading,
   RevisionSummary,
 } from "./siteAnalyticsClient";
+import { sourceReferences } from "./vocabularyReference";
 
 /** Plain input names, keyed by the assessment's stable input ids. */
 export const INPUT_WORDS: Record<string, string> = {
@@ -157,7 +158,7 @@ export function AssessmentAnalysis({
                 segment.evidence.map((link, index) => (
                   <span key={link.message_id}>
                     {index === 0 ? "" : ", "}
-                    <Link to={records.href(link)} data-analysis-record={link.message_id}>
+                    <Link to={records.href(link)} data-analysis-record={link.message_id} {...sourceReferences(`${link.device_id} / ${link.signal_id}`)}>
                       {`${link.device_id} / ${link.signal_id}, ${readableTime(link.source_time)}`}
                     </Link>
                   </span>
