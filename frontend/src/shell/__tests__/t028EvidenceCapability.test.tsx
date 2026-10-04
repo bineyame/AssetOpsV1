@@ -133,6 +133,39 @@ describe("Site > Evidence capability table (AC20)", () => {
     expect(row.querySelector("[data-capability-not-observed]")).toBeNull();
   });
 
+  it("a generator-state gap is a claim-limiting row, never a Full 'no gaps' claim (R5)", async () => {
+    // The row as the backend scores the AC1 gap fixture under readiness-3.
+    await renderEvidence(
+      served([
+        {
+          ...DISPATCH_LIMITED,
+          readiness: {
+            ...LIMITED_READINESS,
+            missing_evidence: [
+              {
+                kind: "COVERAGE_GAP",
+                role: "Generator state",
+                device_id: null,
+                signal_id: null,
+                statement:
+                  "Generator state: not observed for 60 min in 1 assessed interval (1 span(s)); that time is Indeterminate.",
+                limits_claim: true,
+                assessment_ids: ["dispatch-a"],
+              },
+            ],
+          },
+        },
+      ]),
+    );
+    const [row] = rows();
+    expect(row).toHaveAttribute("data-capability-readiness", "LIMITED");
+    const gap = row.querySelector('[data-capability-missing="COVERAGE_GAP"]') as HTMLElement;
+    expect(gap).toHaveAttribute("data-capability-limits", "yes");
+    expect(gap).toHaveTextContent("Generator state: not observed for 60 min");
+    expect(row.querySelector('[data-capability-missing="none"]')).toBeNull();
+    expect(spacedText(row)).not.toContain("no claim-limiting gaps identified");
+  });
+
   it("zero assessed intervals say signal availability only, never bare completeness", async () => {
     await renderEvidence(
       served([

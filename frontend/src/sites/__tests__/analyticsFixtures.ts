@@ -34,7 +34,7 @@ function assessment(level: "CANDIDATE_AVOIDABLE" | "NECESSARY", start: string, e
   const candidate = level === "CANDIDATE_AVOIDABLE";
   return {
     analytic_id: "dispatch",
-    model_version: "dispatch-1",
+    model_version: "dispatch-2",
     finding_type: "generator-dispatch-interval",
     claim_level: level,
     label: candidate ? "Candidate avoidable" : "Necessary",
@@ -178,7 +178,7 @@ export const EVIDENCE_LINK = LINK;
 
 /** A Limited dispatch row as the backend scores the degraded-evidence run (AC20). */
 export const LIMITED_READINESS: CapabilityReadiness = {
-  basis_version: "readiness-2",
+  basis_version: "readiness-3",
   level: "LIMITED",
   label: "Limited",
   claim_ceiling: {
@@ -225,7 +225,7 @@ export function declaration(
       ...item,
       site_types: ["MINIGRID"],
       finding_type: { id: "generator-dispatch-interval", display_name: "Generator dispatch interval" },
-      model_version: "dispatch-1",
+      model_version: "dispatch-2",
       claim_levels: [],
       required_evidence: [],
       optional_evidence: [],
@@ -254,7 +254,7 @@ export function analyticsClient(
       loaded({
         site_id: siteId,
         analytic_id: "dispatch",
-        model_version: "dispatch-1",
+        model_version: "dispatch-2",
         assessments: [
           { ...CANDIDATE_SUMMARY, assessment: CANDIDATE_ASSESSMENT },
           { ...NECESSARY_SUMMARY, assessment: NECESSARY_ASSESSMENT },

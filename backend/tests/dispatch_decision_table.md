@@ -1,10 +1,19 @@
-# Dispatch analytic decision table (T028, model `dispatch-1`)
+# Dispatch analytic decision table (T028, model `dispatch-2`)
 
 Stated before the classifier was written (task "Deliver"). The analytic is
 `backend/assetops_backend/analytics/dispatch.py`; every threshold below is a
-named constant there and part of model version `dispatch-1`. Changing any of
+named constant there and part of model version `dispatch-2`. Changing any of
 them is a new model version, and a new model version is a new assessment
-revision (AC13). Tests: `backend/tests/test_t028_dispatch_analytic.py`.
+revision (AC13). Tests: `backend/tests/test_t028_dispatch_analytic.py` and
+`backend/tests/test_t028_fix_round_1.py`.
+
+`dispatch-2` (T028 fix round 1, Codex review R1-R4) changed, from `dispatch-1`:
+segments split where a constraint record takes or leaves effect between
+reports (R2); row 5b enforces its SOC headroom (R3); equal-rank differing
+policy or override records conflict instead of one being picked (R4); the
+evidence basis covers bounds, alternatives and the fuel basis (R1). Thresholds
+are unchanged. A `dispatch-1` revision is retained; reassessment appends a
+`dispatch-2` revision to its lineage.
 
 ## Evidence (accepted records only)
 
@@ -53,9 +62,21 @@ end (a report time) is evaluated as a point, from evidence at that time t:
 interval means whose interval_end
 is t; instants with source time in (t - `INSTANT_TOLERANCE` (10 min), t];
 policy and override records effective at t (effective_start <= t, and
-effective_end absent or > t; latest effective_start wins). Source time, not
-arrival time, places a record (delayed evidence lands where it belongs).
-Distinct records at one (signal, time) are conflicting and used by nothing.
+effective_end absent or > t; latest (effective_start, policy_version) wins).
+Source time, not arrival time, places a record (delayed evidence lands where
+it belongs). Distinct records at one (signal, time) are conflicting and used
+by nothing.
+
+Equal-rank policy or override records that differ in value or control
+(for example the same policy from two gateways) are conflicting; identical
+ones agree. No order (message, gateway) picks one. The point is classified
+under each alternative: if every alternative gives the same classification
+and binding constraint it stands, with the conflict named in its reasons;
+otherwise the point is Indeterminate and its `missing` names the conflict
+(`Battery reserve policy: conflicting records`, `Minimum runtime policy: ...`,
+`Operator override (generator): ...`). A conflicting reserve is shown as no
+usable reserve value. Conflicting stop-threshold records are not quoted as the
+effective policy in the policy alternative.
 
 `load` = sum of the three feeders; battery support = discharge capability,
 counted only when SOC exceeds the effective reserve by more than
@@ -71,12 +92,21 @@ healthy reference, whose SOC sits at 30.95 % against a 30 % reserve).
 | 4 | Necessary | load, PV available, discharge capability: load > PV available + discharge capability | `CAPABILITY_SHORTFALL` |
 | 5a | Candidate avoidable | load, PV available, discharge capability usable; PV available alone >= load x (1 + `CAPABILITY_HEADROOM` 10 %). SOC and reserve are not needed: the battery carries nothing, but its PCS must be evidenced available | none |
 | 5b | Candidate avoidable | load, PV available, discharge capability, SOC, reserve usable; SOC > reserve + 10 points; PV available + discharge capability >= load x 1.1 | none (the candidate is the absence of one) |
-| 6 | Indeterminate | anything else; names each missing or conflicting input, or "capability margin inside the declared headroom" | - |
+| 6 | Indeterminate | anything else; names each missing or conflicting input, or "capability margin inside the declared headroom". This includes PV at or above load but below load x 1.1 with SOC not more than 10 points above reserve: battery support is not counted, so the margin is inside headroom (not Necessary: rows 3-4 do not hold) | - |
 
 A segment is Candidate only when both of its ends are Candidate, Necessary
 when either end is Necessary (that end's binding constraint is shown), and
 otherwise Indeterminate, so a transition inside a segment never becomes
 candidate time. A one-observation interval is evaluated at that point.
+
+A policy or override record (generator override, battery reserve override,
+reserve policy, minimum runtime policy) whose effective start or end falls
+strictly between two reports splits that segment at that time. Each part is
+evaluated by the same both-ends rule with the two reports' measurements
+(no measurement is invented at a split), the policy and override records
+effective in that part, and minimum runtime judged at the part's own start
+and end. A command wholly between two reports is therefore assessed for the
+time it is effective, and only that time.
 A segment whose generator state is UNOBSERVED is Indeterminate ("generator
 state not observed") and counts in the upper bound only.
 
@@ -125,6 +155,22 @@ is `modelled`. Unavailable (with the reason) when no output mean is usable in
 a candidate segment, the upper duration bound is open, or no specific fuel
 consumption is configured. It is not a reconciled tank loss and not a saving.
 
+The candidate upper bound adds a start or stop edge (between the bracketing
+stopped evidence and the first or last running report) only beside a candidate
+segment, and less any time a generator override is effective in that edge:
+row 1 makes that time Necessary (SOC is not observed there). An override
+effective only in an edge is reported by the override alternative as outside
+the assessed segments, not as "included at its time".
+
+## Evidence basis and revisions (AC13)
+
+The evidence basis digest covers model version, every record the assessment
+read (running and segment evidence, the stopped evidence that places each
+bound, the records the alternatives read) and the configured fuel basis
+(specific fuel consumption and its source). Reassessment keeps the latest
+revision only when digest, model version and payload all match; otherwise it
+appends a revision and retains the prior one unchanged.
+
 ## Carried question: stop-60's policy record (backlog "For T028")
 
 Answer: the analytic does not need it, and the honest publication would need a
@@ -150,7 +196,7 @@ change this slice may not make.
   "published policy does not explain the stop" alternative stands. Versioned
   policy-change records, if wanted, belong with T034 configuration history.
 
-## Capability readiness (AC20, basis `readiness-2`)
+## Capability readiness (AC20, basis `readiness-3`)
 
 Scored in `analytics/declaration.py` (`score_readiness`) from the declaration's
 `ReadinessBasis` against accepted records and the active assessments'
@@ -167,7 +213,7 @@ availability only.
 | None | Neither generator status nor generator output has a usable accepted record (reconstruction uses either, see Evidence) | No claim |
 | Limited | Only one of generator status / output has a usable record (the other is listed missing) | Candidate avoidable for evidenced portions only |
 | Limited | Load, PV capability or Battery capability has no usable record | Necessary only where an evidenced constraint binds |
-| Limited | Another required role has none, or a coverage gap left a segment Indeterminate (its `missing` names the input) | Candidate avoidable for evidenced portions only |
+| Limited | Another required role has none, or a coverage gap left a segment Indeterminate (its `missing` names the input), or generator state is unobserved inside an assessed interval (always Indeterminate; `readiness-3`) | Candidate avoidable for evidenced portions only |
 | Full | Every required role usable; no claim limited by a gap | Candidate avoidable (its declared ceiling) |
 
 A coverage gap no classification depended on is listed as not limiting, never

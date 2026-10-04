@@ -178,9 +178,12 @@ class AssessmentService:
                 continue
             matched.add(index)
             lineage = lineages[index]
+            # Unchanged only when the digest, model and payload all match: the
+            # digest covers every record and basis read (R1), and the payload
+            # check keeps any changed conclusion from being silently dropped.
             if (lineage.latest.basis_digest, lineage.latest.model_version) == (
                 digest, dispatch.MODEL_VERSION
-            ):
+            ) and lineage.latest.assessment == interval:
                 continue
             revision = AssessmentRevision(
                 lineage.latest.revision + 1, now, dispatch.MODEL_VERSION, digest, interval

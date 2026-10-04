@@ -254,7 +254,7 @@ describe("Finding detail (AC8, AC12, AC15, AC21)", () => {
     const drawer = screen.getByRole("complementary", { name: "Claim evidence" });
     expect(drawer).toHaveAttribute("data-claim-drawer", RECORD_DETAIL.message_id);
     expect(drawer.querySelector(`[data-evidence-record-detail="${RECORD_DETAIL.message_id}"]`)).not.toBeNull();
-    expect(drawer).toHaveTextContent("dispatch-1");
+    expect(drawer).toHaveTextContent("dispatch-2");
     expect(location().startsWith(`/findings/${SITE_ID}/${CANDIDATE_ID}/evidence?`)).toBe(true);
     expect(railCurrent()).toBe("Findings");
     fireEvent.click(within(drawer).getByRole("button", { name: "Close evidence" }));

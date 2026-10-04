@@ -388,7 +388,7 @@ def test_complete_evidence_scores_full_with_the_candidate_ceiling() -> None:
     assert r["claim_ceiling"]["claim_level"] == dispatch.CANDIDATE
     assert r["claim_ceiling"]["statement"] == dispatch.CLAIM_CEILINGS[dispatch.CANDIDATE]
     assert r["missing_evidence"] == [] and r["assessed_intervals"] == 1
-    assert r["basis_version"] == "readiness-2"
+    assert r["basis_version"] == "readiness-3"
     # Override absence is named as not observed, never as a gap that lowers Full.
     assert {o["role"] for o in r["optional_not_observed"]} >= {"Operator override"}
 

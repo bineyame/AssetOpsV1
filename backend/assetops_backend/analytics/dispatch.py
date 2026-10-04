@@ -15,16 +15,17 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
 from fractions import Fraction
+from itertools import product
 from typing import Any, Iterable, Sequence
 
 from assetops_backend.evidence.models import AcceptedRecord
 
 ANALYTIC_ID = "dispatch"
-MODEL_VERSION = "dispatch-1"
+MODEL_VERSION = "dispatch-2"
 FINDING_TYPE = "generator-dispatch-interval"
 
 NECESSARY = "NECESSARY"
@@ -38,7 +39,7 @@ CLAIM_LABELS = {
 #: Claim levels a Finding is raised for (decision table "Interval classification").
 FINDING_CLAIM_LEVELS = (CANDIDATE, INDETERMINATE)
 
-# --- model dispatch-1 thresholds (decision table) ---------------------------
+# --- model dispatch-2 thresholds (decision table) ---------------------------
 CONTINUITY_TOLERANCE_S = 20 * 60
 INSTANT_TOLERANCE_S = 10 * 60
 CAPABILITY_HEADROOM = Fraction(1, 10)
@@ -190,21 +191,42 @@ class _Evidence:
         except ValueError:
             return Lookup(None, chosen, "NOT_GOOD")
 
-    def effective(self, key: Key, at: int, family: str) -> AcceptedRecord | None:
-        """The record of `family` effective at `at` (latest effective start wins)."""
-        best: AcceptedRecord | None = None
+    def effective(self, key: Key, at: int, family: str) -> list[AcceptedRecord]:
+        """Every record of `family` at the top rank effective at `at`.
+
+        Rank is (effective start, policy version); the latest wins. More than
+        one record at the top rank is returned whole, never reduced to one by
+        message or gateway order: if they differ in value or control they
+        conflict (`_distinct`), and the caller must not pick one (dispatch-2).
+        """
+        best: list[AcceptedRecord] = []
         best_rank: tuple[int, int] | None = None
         for record in self.of(key):
             if record.family != family or record.normalized_value is None:
                 continue
-            start = _detail(record, "effective_start") or record.source_time
-            end = _detail(record, "effective_end")
-            if _t(start) > at or (end is not None and _t(end) <= at):
+            start, end = _effective_times(record)
+            if start > at or (end is not None and end <= at):
                 continue
-            rank = (_t(start), int(_detail(record, "policy_version") or "0"))
+            rank = (start, int(_detail(record, "policy_version") or "0"))
             if best_rank is None or rank > best_rank:
-                best, best_rank = record, rank
+                best, best_rank = [record], rank
+            elif rank == best_rank:
+                best.append(record)
         return best
+
+
+def _distinct(records: list[AcceptedRecord]) -> list[AcceptedRecord]:
+    """One record per distinct (value, control); more than one is a conflict."""
+    out: dict[tuple[str | None, str | None], AcceptedRecord] = {}
+    for record in records:
+        out.setdefault((record.normalized_value, _detail(record, "control")), record)
+    return list(out.values())
+
+
+def _effective_times(record: AcceptedRecord) -> tuple[int, int | None]:
+    end = _detail(record, "effective_end")
+    return (_t(_detail(record, "effective_start") or record.source_time),
+            None if end is None else _t(end))
 
 
 # --- interval reconstruction (decision table, AC1) ---------------------------
@@ -244,29 +266,38 @@ def _states(evidence: _Evidence) -> list[_State]:
     return states
 
 
-def _off_before(evidence: _Evidence, first_on: int) -> int | None:
+Bound = tuple["int | None", list[AcceptedRecord]]
+
+
+def _bound(candidates: list[tuple[int, AcceptedRecord]], pick) -> Bound:
+    """The bound time and every record that places it (part of the evidence basis)."""
+    if not candidates:
+        return None, []
+    time = pick(t for t, _ in candidates)
+    return time, [r for t, r in candidates if t == time]
+
+
+def _off_before(evidence: _Evidence, first_on: int) -> Bound:
     """Latest time the generator is shown not running, at or before `first_on`."""
-    candidates = [
-        _t(r.source_time) for r in evidence.of(GEN_STATUS)
+    return _bound([
+        (_t(r.source_time), r) for r in evidence.of(GEN_STATUS)
         if _good(r) and r.normalized_value in NOT_RUNNING_STATES and _t(r.source_time) < first_on
     ] + [
-        _t(r.interval_end or "") for r in evidence.of(GEN_POWER)
+        (_t(r.interval_end or ""), r) for r in evidence.of(GEN_POWER)
         if _good(r) and r.interval_end and Fraction(r.normalized_value or "0") == 0
         and _t(r.interval_end) <= first_on
-    ]
-    return max(candidates) if candidates else None
+    ], max)
 
 
-def _off_after(evidence: _Evidence, last_on: int) -> int | None:
-    candidates = [
-        _t(r.source_time) for r in evidence.of(GEN_STATUS)
+def _off_after(evidence: _Evidence, last_on: int) -> Bound:
+    return _bound([
+        (_t(r.source_time), r) for r in evidence.of(GEN_STATUS)
         if _good(r) and r.normalized_value in NOT_RUNNING_STATES and _t(r.source_time) > last_on
     ] + [
-        _t(r.interval_start or "") for r in evidence.of(GEN_POWER)
+        (_t(r.interval_start or ""), r) for r in evidence.of(GEN_POWER)
         if _good(r) and r.interval_start and Fraction(r.normalized_value or "0") == 0
         and _t(r.interval_start) >= last_on
-    ]
-    return min(candidates) if candidates else None
+    ], min)
 
 
 @dataclass
@@ -342,7 +373,71 @@ def _problem_text(name: str, lookup: Lookup) -> str:
     return f"{INPUT_LABELS[name]}: {what.get(lookup.problem or 'MISSING', 'no record')}"
 
 
-def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segment:
+#: Records that change a classification from their effective time (decision
+#: table rows 1-3, 5b). Their effective start/end split a segment (dispatch-2).
+CONSTRAINT_RECORDS: tuple[tuple[Key, str, str], ...] = (
+    (GEN_OVERRIDE, "OPERATIONAL_RECORD", "Operator override (generator)"),
+    (BATTERY_OVERRIDE, "OPERATIONAL_RECORD", INPUT_LABELS["reserve"]),
+    (POLICY_RESERVE, "POLICY", INPUT_LABELS["reserve"]),
+    (POLICY_MIN_RUNTIME, "POLICY", "Minimum runtime policy"),
+)
+RESERVE_CONTROL = "battery-reserve-state-of-charge"
+
+
+def _evaluate(evidence: _Evidence, at: int, first_on: int, *,
+              policy_at: int | None = None, runtime_at: int | None = None) -> _Segment:
+    """One point: measurements at `at`, policy and override records effective at
+    `policy_at`, minimum runtime judged at `runtime_at` (both default to `at`).
+
+    Equal-rank records that differ (dispatch-2, R4) are never resolved by
+    order: the point is classified under each, and it keeps a classification
+    only when every alternative gives the same one; otherwise it is
+    Indeterminate and names the conflicting records.
+    """
+    policy_at = at if policy_at is None else policy_at
+    runtime_at = at if runtime_at is None else runtime_at
+    tops = {key: evidence.effective(key, policy_at, family) for key, family, _ in CONSTRAINT_RECORDS}
+    keys = list(tops)
+    options = [_distinct(tops[key]) or [None] for key in keys]
+    outcomes = [
+        _classify(evidence, at, first_on, runtime_at, dict(zip(keys, chosen)))
+        for chosen in product(*options)
+    ]
+    first = outcomes[0]
+    cited = {id(r) for o in outcomes for r in o.records}
+    records = list(dict.fromkeys(
+        [r for o in outcomes for r in o.records]
+        + [r for key in keys for r in tops[key]
+           if any(id(x) in cited for x in tops[key])]
+    ))
+    inputs = dict(first.inputs)
+    if len({o.inputs["reserve_pct"] for o in outcomes}) > 1:
+        inputs["reserve_pct"], inputs["reserve_source"] = None, "conflicting records"
+    conflicted = sorted({
+        label for (key, _, label), opts in zip(CONSTRAINT_RECORDS, options) if len(opts) > 1
+        and (key != BATTERY_OVERRIDE or any(_detail(r, "control") == RESERVE_CONTROL for r in opts))
+    })
+    named = [f"{label}: conflicting records" for label in conflicted]
+    if len({(o.classification, o.binding) for o in outcomes}) == 1:
+        reasons = list(first.reasons)
+        if named:
+            reasons.append(
+                "; ".join(named) + " at the same effective start and version; the "
+                "classification is the same under each, so the conflict does not decide it."
+            )
+        return replace(first, reasons=reasons, records=records, inputs=inputs)
+    return replace(
+        first, classification=INDETERMINATE, binding=None, margin=None, inputs=inputs,
+        records=records, missing=sorted(set(named) | {m for o in outcomes for m in o.missing}),
+        reasons=["The evidence needed to decide is missing or conflicting: "
+                 + "; ".join(named) + " at the same effective start and version, and "
+                 "the classification differs between them."],
+    )
+
+
+def _classify(evidence: _Evidence, at: int, first_on: int, runtime_at: int,
+              chosen: dict[Key, AcceptedRecord | None]) -> _Segment:
+    start = end = at
     records: list[AcceptedRecord] = []
     feeder_lookups = [evidence.interval_mean(key, end) for key in FEEDERS]
     for lookup in feeder_lookups:
@@ -356,14 +451,14 @@ def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segm
     for lookup in (pv, soc, discharge, generator):
         records.extend(lookup.records)
 
-    reserve_record = evidence.effective(BATTERY_OVERRIDE, end, "OPERATIONAL_RECORD")
+    reserve_record = chosen[BATTERY_OVERRIDE]
     reserve_source = "operator override"
-    if reserve_record is None or _detail(reserve_record, "control") != "battery-reserve-state-of-charge":
-        reserve_record = evidence.effective(POLICY_RESERVE, end, "POLICY")
+    if reserve_record is None or _detail(reserve_record, "control") != RESERVE_CONTROL:
+        reserve_record = chosen[POLICY_RESERVE]
         reserve_source = "policy"
     reserve = Fraction(reserve_record.normalized_value or "0") if reserve_record else None
-    min_runtime = evidence.effective(POLICY_MIN_RUNTIME, end, "POLICY")
-    override = evidence.effective(GEN_OVERRIDE, end, "OPERATIONAL_RECORD")
+    min_runtime = chosen[POLICY_MIN_RUNTIME]
+    override = chosen[GEN_OVERRIDE]
     for record in (reserve_record, min_runtime, override):
         if record is not None:
             records.append(record)
@@ -395,7 +490,7 @@ def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segm
     # 2. minimum runtime.
     if min_runtime is not None:
         minutes = Fraction(min_runtime.normalized_value or "0")
-        if end - first_on <= minutes * 60:
+        if runtime_at - first_on <= minutes * 60:
             return segment(NECESSARY, "MINIMUM_RUNTIME", [
                 f"Within the {_dec(minutes)} min minimum runtime policy after the start "
                 f"observed at {_iso(first_on)}."
@@ -444,6 +539,16 @@ def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segm
                 f"{_dec(discharge.value or Fraction(0))} kW evidenced; no binding constraint "
                 "was evidenced."
             ], margin=margin)
+        # 5b: battery support counts only above reserve plus the declared
+        # headroom (dispatch-2, R3); without it, PV alone is inside headroom.
+        assert soc.value is not None and reserve is not None
+        if soc.value <= reserve + SOC_HEADROOM_POINTS:
+            return segment(INDETERMINATE, None, [
+                f"PV available {_dec(pv.value or Fraction(0))} kW is inside the declared "
+                f"{_dec(CAPABILITY_HEADROOM * 100)} % headroom on load {_dec(load)} kW, and "
+                f"battery support is not counted: SOC {_dec(soc.value)} % is not more than "
+                f"{SOC_HEADROOM_POINTS} points above its {_dec(reserve)} % reserve ({reserve_source})."
+            ])
         support = discharge.value or Fraction(0)
         supply = (pv.value or 0) + support
         margin = supply - load
@@ -464,7 +569,7 @@ def _evaluate(evidence: _Evidence, start: int, end: int, first_on: int) -> _Segm
     ], missing)
 
 
-def _combine(start: _Segment, end: _Segment) -> _Segment:
+def _combine(start: _Segment, end: _Segment, span: tuple[int, int] | None = None) -> _Segment:
     """A segment from its two end points (decision table "Segment evaluation").
 
     Candidate only when both ends are; Necessary when either end is (that end's
@@ -490,8 +595,9 @@ def _combine(start: _Segment, end: _Segment) -> _Segment:
             "the conservative classification is kept."
         )
     missing = sorted(set(start.missing) | set(end.missing)) if level == INDETERMINATE else []
+    lo, hi = span or (start.end, end.end)
     return _Segment(
-        start.end, end.end, True, level, decided.binding, reasons, missing,
+        lo, hi, True, level, decided.binding, reasons, missing,
         {"at_start": start.inputs, "at_end": end.inputs}, records, margin, load,
         end.generator_kw,
     )
@@ -643,22 +749,51 @@ def _fuel(level: str, segments: list[_Segment], lower: int, upper: int | None,
     }
 
 
+def _overlaps(record: AcceptedRecord, lo: int, hi: int) -> bool:
+    """Whether a record is effective at some time in the open span (lo, hi)."""
+    start, end = _effective_times(record)
+    return start < hi and (end is None or end > lo)
+
+
+def _edge_overrides(evidence: _Evidence, lo: int | None, hi: int | None) -> list[AcceptedRecord]:
+    """Override records effective inside an unassessed start/stop edge."""
+    if lo is None or hi is None or hi <= lo:
+        return []
+    return [r for key in (GEN_OVERRIDE, BATTERY_OVERRIDE) for r in evidence.of(key)
+            if r.family == "OPERATIONAL_RECORD" and _overlaps(r, lo, hi)]
+
+
 def _alternatives(evidence: _Evidence, run: _Run, segments: list[_Segment],
-                  after_off: int | None) -> list[dict[str, Any]]:
+                  before: int | None, after_off: int | None
+                  ) -> tuple[list[dict[str, Any]], list[AcceptedRecord]]:
+    """The alternatives, and every record they read (part of the evidence basis)."""
     first, last = run.on_times[0], run.on_times[-1]
-    overrides = [
+    assessed = [
         r for key in (GEN_OVERRIDE, BATTERY_OVERRIDE) for r in evidence.of(key)
-        if r.family == "OPERATIONAL_RECORD"
-        and _t(_detail(r, "effective_start") or r.source_time) <= (after_off or last)
-        and (_detail(r, "effective_end") is None or _t(_detail(r, "effective_end") or "") > first)
+        if r.family == "OPERATIONAL_RECORD" and _effective_times(r)[0] <= last
+        and (_effective_times(r)[1] is None or (_effective_times(r)[1] or 0) > first)
     ]
+    edge = [r for r in list(dict.fromkeys(
+        _edge_overrides(evidence, before, first) + _edge_overrides(evidence, last, after_off)
+    )) if r not in assessed]
+    overrides = assessed + edge
+    used: list[AcceptedRecord] = list(overrides)
     out = []
     if overrides:
+        parts = []
+        if assessed:
+            parts.append("An operator-commanded override record is effective during this "
+                         "interval and is included in the constraint assessment at its "
+                         "effective time.")
+        if edge:
+            parts.append("An operator-commanded override record is effective only in the "
+                         "start/stop uncertainty outside the observed running reports, where "
+                         "no segment is assessed; the candidate's upper bound does not extend "
+                         "over that edge.")
         out.append({
             "id": "OPERATOR_OVERRIDE", "label": "Operator-commanded override",
             "status": "OBSERVED",
-            "statement": "An operator-commanded override record is effective during this "
-                         "interval and is included in the constraint assessment at its time.",
+            "statement": " ".join(parts),
             "evidence": [_link(r) for r in overrides],
         })
     else:
@@ -669,8 +804,19 @@ def _alternatives(evidence: _Evidence, run: _Run, segments: list[_Segment],
                          "Absence of a record is not proof that no override existed.",
             "evidence": [],
         })
-    stop = evidence.effective(POLICY_STOP, last, "POLICY")
-    if stop is not None:
+    stops = _distinct(evidence.effective(POLICY_STOP, last, "POLICY"))
+    used.extend(evidence.effective(POLICY_STOP, last, "POLICY"))
+    if len(stops) > 1:
+        out.append({"id": "POLICY_CONSTRAINT", "label": "Policy constraint",
+                    "status": "NOT_EXCLUDED",
+                    "statement": "Conflicting generator stop policy records are accepted at the "
+                                 "same effective start and version ("
+                                 + ", ".join(f"{_dec(Fraction(r.normalized_value or '0'))} %"
+                                             for r in stops)
+                                 + "); the policy the controller ran under is not known.",
+                    "evidence": [_link(r) for r in stops]})
+    elif stops:
+        stop = stops[0]
         threshold = Fraction(stop.normalized_value or "0")
         statement = (
             f"The published generator stop threshold is {_dec(threshold)} % "
@@ -689,6 +835,7 @@ def _alternatives(evidence: _Evidence, run: _Run, segments: list[_Segment],
                     "no record of a change was observed."
                 )
                 links.extend(_link(r) for r in soc.records)
+                used.extend(soc.records)
         out.append({"id": "POLICY_CONSTRAINT", "label": "Policy constraint",
                     "status": "NOT_EXCLUDED", "statement": statement, "evidence": links})
     else:
@@ -725,7 +872,7 @@ def _alternatives(evidence: _Evidence, run: _Run, segments: list[_Segment],
         "evidence": [_link(r) for s in observed for r in s.records
                      if (r.device_id, r.signal_id) == PV_AVAILABLE],
     })
-    return out
+    return out, used
 
 
 CLAIM_CEILINGS = {
@@ -752,16 +899,85 @@ def _one_line(level: str, portions: dict[str, int], lower: int, upper: int | Non
             f"{'; '.join(missing) if missing else 'generator state not observed'}.")
 
 
-def _digest(records: Iterable[AcceptedRecord]) -> tuple[list[str], str]:
+def _digest(records: Iterable[AcceptedRecord], fuel: FuelBasis) -> tuple[list[str], str]:
+    """The evidence basis: every record the assessment read, and the fuel basis.
+
+    dispatch-2 (R1): the stopped evidence that bounds the interval, the records
+    the alternatives read and the configured fuel basis are part of it, so any
+    change to them is a new revision rather than a silently kept one.
+    """
     pairs = sorted({(r.message_id, r.content_digest) for r in records})
-    text = json.dumps({"model": MODEL_VERSION, "records": pairs}, separators=(",", ":"))
+    sfc = fuel.specific_fuel_consumption
+    text = json.dumps({
+        "model": MODEL_VERSION, "records": pairs,
+        "fuel": [None if sfc is None else str(sfc), fuel.source],
+    }, separators=(",", ":"))
     return [m for m, _ in pairs], hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _changes(evidence: _Evidence, a: int, b: int) -> list[int]:
+    """Effective starts and ends of constraint records strictly inside (a, b)."""
+    times: set[int] = set()
+    for key, family, _ in CONSTRAINT_RECORDS:
+        for record in evidence.of(key):
+            if record.family != family or record.normalized_value is None:
+                continue
+            times.update(t for t in _effective_times(record) if t is not None and a < t < b)
+    return sorted(times)
+
+
+def _observed_segments(evidence: _Evidence, a: int, b: int, first: int,
+                       points: dict[int, _Segment]) -> list[_Segment]:
+    """A report-to-report segment, split where a constraint record takes or
+    leaves effect between the reports (dispatch-2, R2).
+
+    No measurement is invented at a split: every part keeps the measurements
+    of the two reports; only the policy and override records effective in that
+    part (and its minimum-runtime position) differ.
+    """
+    cuts = _changes(evidence, a, b)
+    if not cuts:
+        return [_combine(points[a], points[b])]
+    bounds = [a, *cuts, b]
+    out = []
+    for lo, hi in zip(bounds, bounds[1:]):
+        start = points[a] if lo == a else _evaluate(evidence, a, first, policy_at=lo, runtime_at=lo)
+        end = points[b] if hi == b else _evaluate(evidence, b, first, policy_at=lo, runtime_at=hi)
+        part = _combine(start, end, (lo, hi))
+        part.reasons = part.reasons + [
+            f"Part {_iso(lo)}-{_iso(hi)} of the {_iso(a)}-{_iso(b)} report segment, split where "
+            "a policy or override record takes or leaves effect; its measurements are the "
+            "two reports'."
+        ]
+        out.append(part)
+    return out
+
+
+def _edge_allowance(evidence: _Evidence, lo: int, hi: int) -> int:
+    """Edge time that may be candidate: the edge less what a generator override
+    covers there (decision table row 1 makes that time Necessary)."""
+    covered: list[tuple[int, int]] = []
+    for record in evidence.of(GEN_OVERRIDE):
+        if record.family != "OPERATIONAL_RECORD" or not _overlaps(record, lo, hi):
+            continue
+        if _detail(record, "control") != "generator-stop-soc-threshold":
+            continue
+        start, end = _effective_times(record)
+        covered.append((max(start, lo), hi if end is None else min(end, hi)))
+    total, reach = 0, lo
+    for start, end in sorted(covered):
+        start = max(start, reach)
+        if end > start:
+            total += end - start
+            reach = end
+    return (hi - lo) - total
 
 
 def _interval(evidence: _Evidence, run: _Run, fuel: FuelBasis) -> dict[str, Any]:
     first, last = run.on_times[0], run.on_times[-1]
-    before, after = _off_before(evidence, first), _off_after(evidence, last)
-    points = {t: _evaluate(evidence, t, t, first) for t in run.on_times}
+    (before, before_records), (after, after_records) = (
+        _off_before(evidence, first), _off_after(evidence, last))
+    points = {t: _evaluate(evidence, t, first) for t in run.on_times}
     segments: list[_Segment] = []
     if len(run.on_times) == 1:
         segments.append(_combine(points[first], points[first]))
@@ -774,7 +990,7 @@ def _interval(evidence: _Evidence, run: _Run, fuel: FuelBasis) -> dict[str, Any]
                 ["Generator state (status or output)"], {}, [],
             ))
         else:
-            segments.append(_combine(points[a], points[b]))
+            segments.extend(_observed_segments(evidence, a, b, first, points))
     observed = [s for s in segments if s.observed]
     lower = sum(s.end - s.start for s in observed)
     upper = None if before is None or after is None else after - before
@@ -799,13 +1015,15 @@ def _interval(evidence: _Evidence, run: _Run, fuel: FuelBasis) -> dict[str, Any]
             if bound is None:
                 candidate_upper = None
                 break
-            candidate_upper = (candidate_upper or 0) + (first - bound if edge == "start" else bound - last)
+            lo, hi = (bound, first) if edge == "start" else (last, bound)
+            candidate_upper = (candidate_upper or 0) + _edge_allowance(evidence, lo, hi)
     binding = sorted({s.binding for s in segments if s.binding})
     missing = sorted({m for s in segments for m in s.missing})
     confidence = _confidence(level, segments, uncertainty)
-    used = list(run.records) + [r for s in segments for r in s.records]
-    message_ids, basis_digest = _digest(used)
-    alternatives = _alternatives(evidence, run, segments, after)
+    alternatives, alternative_records = _alternatives(evidence, run, segments, before, after)
+    used = (list(run.records) + [r for s in segments for r in s.records]
+            + before_records + after_records + alternative_records)
+    message_ids, basis_digest = _digest(used, fuel)
     override_alt = alternatives[0]
     limits = [CLAIM_CEILINGS[level], override_alt["statement"]]
     if level == CANDIDATE and portions[INDETERMINATE]:
@@ -863,6 +1081,6 @@ def _interval(evidence: _Evidence, run: _Run, fuel: FuelBasis) -> dict[str, Any]
 
 
 def assess(records: Sequence[AcceptedRecord], fuel: FuelBasis) -> list[dict[str, Any]]:
-    """Every generator interval in the accepted records, assessed (model dispatch-1)."""
+    """Every generator interval in the accepted records, assessed (model dispatch-2)."""
     evidence = _Evidence(records)
     return [_interval(evidence, run, fuel) for run in _runs(_states(evidence))]

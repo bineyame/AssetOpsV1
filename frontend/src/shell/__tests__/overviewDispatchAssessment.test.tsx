@@ -53,7 +53,7 @@ const CANDIDATE: OverviewAssessment = {
     "4 h of generator runtime with PV and battery capability above load and no binding constraint evidenced (confidence medium).",
   capability_id: "dispatch",
   capability_display_name: "Dispatch",
-  model_version: "dispatch-1",
+  model_version: "dispatch-2",
   assessment_ids: ["dispatch-abc"],
   lead_assessment_id: "dispatch-abc",
 };

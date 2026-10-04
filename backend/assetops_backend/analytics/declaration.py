@@ -52,7 +52,8 @@ class ReadinessBasis:
     channel alone is Limited, never None.
     Limited: some `reconstruct_from_any` role is evidenced, but a required role
     has no usable record, or an active assessment has a coverage gap that
-    limited a claim (a segment's `missing` list names that input). The
+    limited a claim (a segment's `missing` list names that input, or the
+    generator state is unobserved inside it: readiness-3). The
     ceiling is `fallback_claim_level` when a role in `top_claim_needs` has no
     usable record at all, else `top_claim_level` only for the portions whose
     required inputs are evidenced.
@@ -115,7 +116,7 @@ DISPATCH = AnalyticDeclaration(
     model_version=dispatch.MODEL_VERSION,
     thresholds=dispatch.THRESHOLDS,
     readiness=ReadinessBasis(
-        version="readiness-2",
+        version="readiness-3",
         reconstruct_from_any=("Generator state", "Generator state and output"),
         top_claim_level=dispatch.CANDIDATE,
         top_claim_needs=("Load", "PV capability", "Battery capability"),
@@ -218,7 +219,7 @@ def _coverage_gaps(assessments: list[tuple[str, dict[str, Any]]]) -> list[dict[s
                 1 for segment in assessment.get("segments", [])
                 if any(m.startswith(row["label"]) for m in segment.get("missing", []))
             )
-    out = []
+    out = _generator_gaps(assessments)
     for gap in gaps.values():
         n = len(gap["assessment_ids"])
         plural = "" if n == 1 else "s"
@@ -235,6 +236,36 @@ def _coverage_gaps(assessments: list[tuple[str, dict[str, Any]]]) -> list[dict[s
         )
         out.append(gap)
     return out
+
+
+def _generator_gaps(assessments: list[tuple[str, dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Generator-state gaps inside active assessments (readiness-3, R5).
+
+    An unobserved generator-state span is always Indeterminate, so such a gap
+    always limits a claim.
+    """
+    spans = [(aid, span) for aid, a in assessments
+             for span in a.get("coverage", {}).get("unobserved_generator_state", [])]
+    if not spans:
+        return []
+    ids = list(dict.fromkeys(aid for aid, _ in spans))
+    minutes = sum(int(span["minutes"]) for _, span in spans)
+    plural = "" if len(ids) == 1 else "s"
+    return [{
+        "kind": "COVERAGE_GAP",
+        "role": "Generator state",
+        "device_id": None,
+        "signal_id": None,
+        "missing_segments": len(spans),
+        "evaluated_segments": sum(len(a.get("segments", [])) for aid, a in assessments if aid in ids),
+        "limiting_segments": len(spans),
+        "assessment_ids": ids,
+        "limits_claim": True,
+        "statement": (
+            f"Generator state: not observed for {minutes} min in {len(ids)} assessed "
+            f"interval{plural} ({len(spans)} span(s)); that time is Indeterminate."
+        ),
+    }]
 
 
 def score_readiness(
