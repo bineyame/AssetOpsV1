@@ -24,6 +24,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-04-practitioner-first-finding-presentation` | 2026-10-04 | Findings lead with a bounded operational explanation; provenance and method detail remain accessible through progressive disclosure. Narrow T028 correction before merge; money and prepared demo remain T029. |
 | `D-2026-10-04-analytic-readiness-scope-and-gap-impact` | 2026-10-04 | Analytic readiness describes evidence sufficiency, site-wide in T028; claim-dependent gap treatment is interim, with versioned configurable impact types assigned to T028A. |
 | `D-2026-10-02-demo-led-recommendation` | 2026-10-02 | Owner approved `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` at `57ea23e` ("review looks fine."); D1-D8 verbatim; section 9 outcomes are the coordinator's reading; its sequence supersedes the 2026-09-24 queue order from T027. Recorded by the Planner (Claude under the Codex exception). |
 | `D-2026-10-02-rendered-tabs-per-capability` | 2026-10-02 | Rendered tabs are meaningful destinations decided per capability, not per site; "labelled in place" is not used in operator views; rendered Site tabs by milestone. Amends the 2026-09-13 canonical-fidelity and 2026-09-17 Foundation entries. |
@@ -3704,3 +3705,38 @@ Reason: keep the one-analytic demo honest, distinguish coverage from its
 effect on a claim, and preserve the owner's configurable-policy direction
 without broadening T028. Affected scope: T028 AC20, T028A planning/backlog,
 T029B coverage composition and later analytic/portfolio consumers.
+
+## 2026-10-04
+
+Decision: `D-2026-10-04-practitioner-first-finding-presentation`.
+Decided by Codex Architect under `.ai/ROLE_CONFIG.md` delegated authority;
+reasoning and bounded implementation direction are in
+`.agent/T028-architect-audience.md`. This is not owner slice acceptance.
+
+The primary audience of T028 product surfaces is mini-grid practitioners,
+including operations and asset managers and technical reviewers. The first
+reading of a Finding explains the operational conclusion, affected period,
+supporting facts, uncertainty, bounded consequence and investigative next
+step. Assessment identifiers, digests, model versions, exhaustive signal
+coverage and calculation inputs remain inspectable through existing evidence
+surfaces or expandable details. Material claim limitations, unavailable
+bounds and missing evidence remain visible with the conclusion.
+
+T028 receives a narrow copy and information-emphasis correction before merge,
+preserving the accepted six-part Finding hierarchy and existing navigation.
+Backend ownership of assessment semantics, evidence, confidence and readiness
+is unchanged. Readiness remains site-wide evidence sufficiency, with the
+scope and limitations established in
+`D-2026-10-04-analytic-readiness-scope-and-gap-impact`; it is not operational
+health or permission to act. Investigative guidance does not constitute an
+operational recommendation or authorized control change.
+
+T029 retains bounded financial translation, client-facing assumption review
+and the seeded, Lab-off point-2 demo. T034 retains recommendations, action and
+verification. Broader presentation changes follow practitioner feedback; no
+new persona mode or navigation framework is introduced.
+
+Reason: the first useful Finding must be understandable to its intended
+reader while remaining challengeable. Technical correctness and exhaustive
+provenance alone do not establish practitioner usefulness. Affected scope:
+T028 presentation closeout, T029 planning and later Finding presentations.

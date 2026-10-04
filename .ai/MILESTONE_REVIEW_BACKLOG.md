@@ -1773,6 +1773,16 @@ Recorded by the coordinator from `.agent/T028-codex-review.md` (C1).
   gateways disagreeing on policy, which no shipped recipe produces. Fix with
   T028A's gap impact types (`.agent/T028-fix-round-1-claude-rereview.md`).
 
+## For T029: practitioner-first presentation direction
+
+From `D-2026-10-04-practitioner-first-finding-presentation`
+(`.agent/T028-architect-audience.md`): the Planner carries the audience
+direction into T029 before it starts. The prospect's journey begins on a
+seeded, populated site with the Lab off, not Draft creation, Commit setup or
+API inspection; the bounded fuel and maintenance consequence is added to the
+readable Finding, compact Overview value and Site Financials, keeping
+associated candidate cost distinct from realised savings.
+
 ## Planned follow-up: T028A, configurable analytic evidence-gap impact
 
 Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
