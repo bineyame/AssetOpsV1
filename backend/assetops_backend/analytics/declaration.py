@@ -22,7 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from assetops_backend.analytics import dispatch
+from assetops_backend.analytics import dispatch, plain
 from assetops_backend.evidence.models import SiteEvidence
 from assetops_backend.sites.models import SiteRecord
 
@@ -175,25 +175,6 @@ READINESS_STATEMENT = (
     "claim can be made because no generator reconstruction evidence is accepted."
 )
 
-#: The practitioner reading of readiness (D-2026-10-04-practitioner-first-
-#: finding-presentation): the question it answers, each level's short meaning
-#: and its scope. They restate READINESS_STATEMENT, which stays served in full.
-READINESS_QUESTION = "What can we assess from this site's evidence?"
-READINESS_MEANINGS = {
-    "FULL": "The required evidence is there: every required signal has usable records, and "
-            "no assessed period was left unclassified by a gap. This is about the evidence, "
-            "not whether the site is operating well, and not uninterrupted coverage.",
-    "LIMITED": "Assessments are possible but limited: the missing evidence named below caps "
-               "the conclusion or leaves parts of periods unclassified.",
-    "NONE": "Nothing can be assessed yet: no evidence from which generator running periods "
-            "can be reconstructed has been accepted.",
-}
-READINESS_SCOPE = (
-    "Scored across all of this site's accepted evidence, not the selected window. It is "
-    "not site health and not permission to act."
-)
-
-
 def _roles(rows: list[dict[str, Any]], roles: tuple[str, ...]) -> list[dict[str, Any]]:
     return [r for r in rows if r["role"] in roles]
 
@@ -298,6 +279,7 @@ def score_readiness(
     missing = [_not_accepted(r) for r in required if not r["available"]]
     alternatives = _roles(required, basis.reconstruct_from_any)
     blocked = alternatives if not any(r["available"] for r in alternatives) else []
+    capped: list[dict[str, Any]] = []
     if blocked:
         level = "NONE"
         ceiling = {
@@ -351,10 +333,9 @@ def score_readiness(
             for r in optional if not r["available"]
         ],
         "assessed_intervals": len(assessments),
-        "question": READINESS_QUESTION,
-        "meaning": READINESS_MEANINGS[level],
-        "scope": READINESS_SCOPE,
         "statement": READINESS_STATEMENT,
+        # Plain reading, read time only (D-2026-10-04-plain-language-analysis-views).
+        **plain.readiness(level, ceiling, missing, sorted({r["role"] for r in capped})),
     }
 
 

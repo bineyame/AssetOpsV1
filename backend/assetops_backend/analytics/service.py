@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Any, Callable
 
-from assetops_backend.analytics import dispatch
+from assetops_backend.analytics import dispatch, plain
 from assetops_backend.analytics.declaration import DISPATCH
 from assetops_backend.analytics.models import (
     AssessmentHistory,
@@ -107,9 +107,9 @@ def lineage_summary(lineage: AssessmentLineage) -> dict[str, Any]:
         "assessed_window": latest["assessed_window"],
         "confidence": latest["confidence"]["level"],
         "model_version": lineage.latest.model_version,
-        # Read-time practitioner reading of the latest revision; not persisted,
-        # so it adds no revision (D-2026-10-04-practitioner-first-finding-presentation).
-        "reading": dispatch.reading(latest),
+        # Read-time plain reading of the latest revision; not persisted, so it
+        # adds no revision (D-2026-10-04-plain-language-analysis-views).
+        "reading": plain.reading(latest),
     }
 
 
@@ -279,20 +279,16 @@ class AssessmentService:
             "model_version": dispatch.MODEL_VERSION,
         }
         if not active:
-            card = {**base, "status": "NO_GENERATOR_RUNTIME", "label": "No generator runtime",
-                    "reason": "The dispatch analytic found no generator running interval in "
-                              "this window.", "assessment_ids": []}
+            card = {**base, "status": "NO_GENERATOR_RUNTIME", **plain.card(None, None, 0),
+                    "assessment_ids": []}
         else:
             for level in (dispatch.CANDIDATE, dispatch.INDETERMINATE, dispatch.NECESSARY):
                 if level in levels:
                     lead = next(l for l in active if l.latest.assessment["claim_level"] == level)
                     break
             others = len(active) - 1
-            reason = lead.latest.assessment["summary"]
-            if others:
-                reason += f" ({others} other assessed interval{'s' if others > 1 else ''} in this window.)"
-            card = {**base, "status": level, "label": dispatch.CLAIM_LABELS[level],
-                    "reason": reason,
+            card = {**base, "status": level,
+                    **plain.card(level, lead.latest.assessment, others),
                     "assessment_ids": [l.assessment_id for l in active],
                     "lead_assessment_id": lead.assessment_id}
         return {"cards": {"Dispatch": card}, "findings": findings}

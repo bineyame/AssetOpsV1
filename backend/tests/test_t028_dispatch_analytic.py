@@ -7,6 +7,7 @@ are in `host/tests/test_t028_dispatch_finding.py`.
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from fractions import Fraction
@@ -14,7 +15,7 @@ from typing import Callable
 
 from fastapi.testclient import TestClient
 
-from assetops_backend.analytics import dispatch
+from assetops_backend.analytics import dispatch, plain
 from assetops_backend.analytics.adapters.json_assessment_store import JsonAssessmentStore
 from assetops_backend.analytics.declaration import DECLARATIONS, site_declaration
 from assetops_backend.analytics.service import AssessmentService
@@ -486,23 +487,53 @@ def test_the_readiness_basis_names_only_declared_required_roles() -> None:
         assert {basis.top_claim_level, basis.fallback_claim_level} <= levels
 
 
-# --- Practitioner reading (D-2026-10-04-practitioner-first-finding-presentation) ---
+# --- Plain reading (D-2026-10-04-plain-language-analysis-views) ---
 
 
 def _steps(a: dict) -> dict[str, dict]:
-    return {s["id"]: s for s in dispatch.reading(a)["next_steps"]}
+    return {s["id"]: s for s in plain.reading(a)["next_steps"]}
 
 
-def test_a_candidate_reading_asks_to_confirm_the_operator_instruction() -> None:
+#: Implementation and simulation words the plain reading never uses (the
+#: checkpoint 2 guard covers rendered pages; this pins the backend's text).
+_FORBIDDEN = re.compile(
+    r"(run|runs|running|runtime|binding|bound input|scenario|recipe|claim|candidate|"
+    r"indeterminate|PV|SOC|PCS|load|segments?|analytic|backend|payload|digest)",
+    re.IGNORECASE,
+)
+
+
+def _texts(value) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [t for k, v in value.items() if k not in ("id", "target") for t in _texts(v)]
+    if isinstance(value, list):
+        return [t for v in value for t in _texts(v)]
+    return []
+
+
+def _assert_plain(r: dict) -> None:
+    for text in _texts(r):
+        assert not _FORBIDDEN.search(text), text
+        assert text != plain.UNAVAILABLE, r
+
+
+def test_a_candidate_reading_states_the_bounded_conclusion_plainly() -> None:
     a = one(world(range(0, 151, 15), running=between(15, 120)))
-    r = dispatch.reading(a)
-    assert r["meaning"] == dispatch.CLAIM_MEANINGS[dispatch.CANDIDATE]
-    assert "not proven waste" in r["meaning"]
+    r = plain.reading(a)
+    assert r["outcome"] == "Possibly avoidable"
+    assert r["headline"] == "The generator may have operated longer than needed."
+    assert "not proof of wasted fuel" in r["meaning"]
+    assert r["fuel"]["note"].startswith("This is an estimate, not confirmed fuel savings")
     step = _steps(a)["CONFIRM_OPERATOR_INSTRUCTION"]
     assert step["target"] == {"kind": "alternative", "id": "UNOBSERVED_OVERRIDE"}
     assert "not proof" in step["text"]
     assert "not an instruction to stop the generator" in r["framing"]
     assert "CHECK_BATTERY_CAPABILITY" not in _steps(a)
+    assert len(r["segments"]) == len(a["segments"])
+    assert [x["id"] for x in r["alternatives"]] == [x["id"] for x in a["alternatives"]]
+    _assert_plain(r)
 
 
 def test_a_capability_gap_names_what_to_check_and_links_the_alternative() -> None:
@@ -513,19 +544,36 @@ def test_a_capability_gap_names_what_to_check_and_links_the_alternative() -> Non
     assert "60 min" in steps["CHECK_BATTERY_CAPABILITY"]["text"]
     # The capability gap is not named twice as a separate missing-input check.
     assert "CHECK_MISSING_EVIDENCE" not in steps
+    r = plain.reading(a)
+    assert r["confidence"]["principal_limitation"] is not None
+    _assert_plain(r)
 
 
 def test_indeterminate_and_necessary_readings_say_their_own_truth() -> None:
     conflicting = world(range(0, 151, 15), running=between(15, 120))
     conflicting += [rec(*dispatch.PV_AVAILABLE, m, "5", gateway="other") for m in range(0, 151, 15)]
     ind = one(conflicting)
-    r = dispatch.reading(ind)
-    assert "neither that the runtime was needed nor" in r["meaning"]
+    r = plain.reading(ind)
+    assert r["outcome"] == "Cannot determine"
+    assert "neither that the generator was needed nor" in r["meaning"]
     assert "CONFIRM_OPERATOR_INSTRUCTION" not in _steps(ind)
-    assert "PV available power: conflicting records" in _steps(ind)["CHECK_MISSING_EVIDENCE"]["text"]
+    assert "Available solar power: conflicting records" in _steps(ind)["CHECK_MISSING_EVIDENCE"]["text"]
+    assert r["fuel"]["text"] is None
+    _assert_plain(r)
     nec = one(world(range(0, 151, 15), running=between(15, 120), pv=const("5"), soc=const("30")))
     assert set(_steps(nec)) == {"CHECK_CONSTRAINT_IF_UNEXPECTED"}
-    assert "does not judge" in dispatch.reading(nec)["meaning"]
+    rn = plain.reading(nec)
+    assert rn["outcome"] == "Needed" and "does not judge" in rn["meaning"]
+    assert rn["fuel"]["note"].startswith("No fuel estimate")
+    _assert_plain(rn)
+
+
+def test_unknown_stored_text_is_an_explicit_unavailable_state() -> None:
+    assert plain.missing_text("Something new: no record") == plain.UNAVAILABLE
+    assert plain.missing_text("PV available power: no GOOD record") == (
+        "Available solar power: no record of usable quality")
+    assert plain.duration("4.17") == "4 h 10 min" and plain.duration("0.5") == "30 min"
+    assert plain.bound({"low": "4.5", "high": None}).startswith("at least 4 h 30 min")
 
 
 def test_the_reading_is_served_and_not_persisted(tmp_path) -> None:
@@ -533,15 +581,18 @@ def test_the_reading_is_served_and_not_persisted(tmp_path) -> None:
     service = AssessmentService(evidence, JsonAssessmentStore(tmp_path), lambda _: minigrid(),
                                 lambda: "2026-09-25T00:00:00Z")
     (row,) = service.dispatch(SITE_ID)["assessments"]
-    assert row["reading"] == dispatch.reading(row["assessment"])
+    assert row["reading"] == plain.reading(row["assessment"])
     assert "reading" not in row["assessment"]
     service.dispatch(SITE_ID)
     (lineage,) = [l for l in service.assess_site(SITE_ID).lineages]
     assert len(lineage.revisions) == 1
 
 
-def test_readiness_carries_its_question_meaning_and_scope() -> None:
+def test_readiness_carries_its_question_meaning_scope_and_plain_gaps() -> None:
     r = readiness(world(range(0, 151, 15), running=between(15, 120)))
-    assert r["question"] == "What can we assess from this site's evidence?"
+    assert r["question"] == "What can we assess from this site's records?"
     assert "not whether the site is operating well" in r["meaning"]
-    assert "not the selected window" in r["scope"] and "not site health" in r["scope"]
+    assert "not only the selected window" in r["scope"] and "not a rating" in r["scope"]
+    assert r["conclusion"].startswith("Possibly avoidable operation can be identified")
+    assert len(r["gaps"]) == len(r["missing_evidence"])
+    _assert_plain({k: r[k] for k in ("question", "meaning", "scope", "method", "conclusion", "gaps")})

@@ -160,7 +160,9 @@ def test_overview_dispatch_card_links_the_finding_not_a_recomputation(prolonged)
     card = dispatch_card(prolonged)
     assert card["status"] == "CANDIDATE_AVOIDABLE" and card["capability_id"] == "dispatch"
     assert card["lead_assessment_id"] == a["assessment_id"]
-    assert card["reason"].startswith(a["summary"])
+    # The card's words are the plain reading of the same assessment, read time.
+    assert card["label"] == a["reading"]["outcome"] == "Possibly avoidable"
+    assert card["reason"].startswith(f'{a["reading"]["headline"]} {a["reading"]["reason"]}')
     findings = read(prolonged, "/findings")["findings"]
     assert [f["finding_id"] for f in findings] == [a["assessment_id"]]
     assert read(prolonged, "/overview")["findings"] == findings
@@ -331,7 +333,7 @@ def test_prolonged_and_healthy_readiness_is_scored_from_their_own_coverage(prolo
                 assert any(row["label"] == gap["role"] and row["gaps"] for row in rows)
 
 
-# --- Practitioner reading (D-2026-10-04-practitioner-first-finding-presentation) ---
+# --- Plain reading (D-2026-10-04-plain-language-analysis-views) ---
 
 
 def _step_ids(row: dict) -> list[str]:
@@ -341,8 +343,10 @@ def _step_ids(row: dict) -> list[str]:
 def test_prolonged_reading_asks_to_confirm_the_operator_instruction(prolonged) -> None:
     a = only(prolonged)
     reading = a["reading"]
-    assert reading["meaning"].startswith("Potentially avoidable runtime")
-    assert "not proven waste" in reading["meaning"]
+    assert reading["outcome"] == "Possibly avoidable"
+    assert reading["headline"] == "The generator may have operated longer than needed."
+    assert "not proof of wasted fuel" in reading["meaning"]
+    assert reading["fuel"]["text"] == f'{a["assessment"]["fuel"]["low_litres"]} to {a["assessment"]["fuel"]["high_litres"]} litres'
     assert _step_ids(a)[0] == "CONFIRM_OPERATOR_INSTRUCTION"
     assert reading["next_steps"][0]["target"] == {"kind": "alternative", "id": "UNOBSERVED_OVERRIDE"}
     assert "not an instruction to stop the generator" in reading["framing"]
@@ -354,9 +358,11 @@ def test_prolonged_reading_asks_to_confirm_the_operator_instruction(prolonged) -
     assert "reading" not in a["assessment"]
 
 
-def test_healthy_reading_is_needed_runtime_with_no_confirmation_step(healthy) -> None:
+def test_healthy_reading_is_needed_with_no_confirmation_step(healthy) -> None:
     for a in read(healthy, "/dispatch")["assessments"]:
-        assert a["reading"]["meaning"].startswith("Needed runtime")
+        assert a["reading"]["outcome"] == "Needed"
+        assert a["reading"]["meaning"].startswith("Needed means a recorded reason")
+        assert a["reading"]["fuel"]["text"] is None
         assert _step_ids(a) == ["CHECK_CONSTRAINT_IF_UNEXPECTED"]
 
 
@@ -366,6 +372,9 @@ def test_degraded_reading_names_the_battery_capability_to_check(degraded) -> Non
     step = next(s for s in a["reading"]["next_steps"] if s["id"] == "CHECK_BATTERY_CAPABILITY")
     assert step["target"] == {"kind": "alternative", "id": "PCS_CAPABILITY_UNAVAILABLE"}
     readiness = read(degraded, "/analytics")["analytics"][0]["readiness"]
-    assert readiness["question"] == "What can we assess from this site's evidence?"
+    assert readiness["question"] == "What can we assess from this site's records?"
     assert readiness["meaning"].startswith("Assessments are possible but limited")
-    assert "not site health" in readiness["scope"]
+    assert "not a rating of the site's health" in readiness["scope"]
+    assert a["reading"]["outcome"] == "Possibly avoidable"
+    assert a["reading"]["confidence"]["word"] == "Low"
+    assert "cannot be determined" in a["reading"]["confidence"]["principal_limitation"]
