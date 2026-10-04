@@ -37,6 +37,59 @@ from assetops_backend.evidence.models import (
 from assetops_backend.evidence.ports import EvidenceStore, find_batch
 from assetops_backend.sites.models import SiteRecord
 
+#: Read-time plain reasons for a rejected record, by its stored kind
+#: (D-2026-10-04-plain-language-analysis-views). The stored rejection, its kind
+#: and its ingestion-time `detail` are unchanged and still served; this is the
+#: sentence the product shows. An unfamiliar kind gets `REJECTION_UNAVAILABLE`,
+#: never its code.
+REJECTION_READINGS: dict[str, str] = {
+    "NOT_AN_ENVELOPE": "The delivery was not in the agreed record format.",
+    "NOT_A_BATCH": "The delivery was not in the agreed record format.",
+    "MALFORMED_TEXT": "The record's text could not be read.",
+    "NOT_CANONICAL": "The record was not written in the agreed exact form.",
+    "UNKNOWN_FIELD": "The record contained an item the agreed format does not include.",
+    "MISSING_FIELD": "The record left out a required item.",
+    "WRONG_TYPE": "An item in the record had the wrong kind of value.",
+    "SCHEMA_UNSUPPORTED": "The record used a format version AssetOps does not accept.",
+    "INVALID_IDENTITY": "The record's source, device or signal name was not valid.",
+    "INVALID_TIMING": "The record's times were not valid.",
+    "INVALID_PAYLOAD": "The record's value was not valid.",
+    "MAPPING_INCOMPATIBLE": (
+        "The record did not match how records from this source are interpreted."
+    ),
+    "UNIT_INCOMPATIBLE": (
+        "The record's unit did not match the unit configured for that signal."
+    ),
+    "SITE_MISMATCH": "The record named a different site.",
+    "SITE_UNKNOWN": "The record named a site AssetOps does not know.",
+    "SOURCE_MODE_MISMATCH": (
+        "The record's origin (demonstration or live) did not match the site's."
+    ),
+    "SIGNAL_NOT_IN_CONFIGURATION": (
+        "The record's signal is not part of this site's equipment details."
+    ),
+    "BEFORE_CONFIGURATION_EFFECTIVE": (
+        "The record is older than the equipment details it would be read against."
+    ),
+    "CONFIGURATION_UNRESOLVED": (
+        "The site's equipment details for the record's time could not be found."
+    ),
+    "MAPPING_CONFLICT": (
+        "The delivery described its records' interpretation differently from before."
+    ),
+    "BATCH_ID_CONFLICT": (
+        "A delivery reused an earlier delivery's reference with different content."
+    ),
+}
+REJECTION_UNAVAILABLE = (
+    "This record was not accepted. A plain description of the reason is not available."
+)
+
+
+def rejection_reading(kind: str) -> str:
+    """The plain sentence for one stored rejection kind."""
+    return REJECTION_READINGS.get(kind, REJECTION_UNAVAILABLE)
+
 
 @dataclass(frozen=True)
 class NeededSignal:
@@ -456,6 +509,7 @@ class EvidenceReadModel:
                     "kind": r.kind,
                     "field": r.field,
                     "detail": r.detail,
+                    "reason": rejection_reading(r.kind),
                     "received_at": r.received_at,
                     "content_digest": r.content_digest,
                 }

@@ -11,7 +11,12 @@ import { SiteOverview } from "../sites/SiteOverview";
 import type { SiteOverviewClient } from "../sites/siteOverviewClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { siteEvidenceHref, siteEvidenceRecordHref } from "./operatorSiteRoutes";
+import {
+  findingHref,
+  siteEvidenceHref,
+  siteEvidenceRecordHref,
+  sitePerformanceHref,
+} from "./operatorSiteRoutes";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
 
 /**
@@ -101,6 +106,17 @@ export function SiteDetailFrame({
             evidenceHref={(signal, messageId) =>
               siteEvidenceRecordHref(canonicalId, signal, messageId)
             }
+            findingHref={(assessmentId) => findingHref(canonicalId, assessmentId)}
+            dispatchHref={(assessmentId) =>
+              assessmentId === undefined
+                ? sitePerformanceHref(canonicalId, "dispatch")
+                : `${sitePerformanceHref(canonicalId, "dispatch")}?interval=${encodeURIComponent(assessmentId)}`
+            }
+            analysisHref={(assessmentId, isFinding) =>
+              isFinding
+                ? findingHref(canonicalId, assessmentId, "analysis")
+                : `${sitePerformanceHref(canonicalId, "dispatch")}?interval=${encodeURIComponent(assessmentId)}&view=analysis`
+            }
           />
         )}
         quickActions={simulatorLabSiteActions(flags).map((action) => (
@@ -108,6 +124,7 @@ export function SiteDetailFrame({
             key={action.label}
             label={action.label}
             unavailableBecause={action.unavailableBecause}
+            vocabularyExempt="lab"
           />
         ))}
       />

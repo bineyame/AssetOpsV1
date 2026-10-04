@@ -137,7 +137,7 @@ describe("sites index rows", () => {
     expect(within(row).getByText("Mini-grid")).toBeInTheDocument();
     expect(within(row).getByText("Kalangala, Uganda")).toBeInTheDocument();
     expect(within(row).getByText("Planned")).toBeInTheDocument();
-    expect(within(row).getByText("Simulated")).toBeInTheDocument();
+    expect(within(row).getByText("Demonstration data")).toBeInTheDocument();
     expect(within(row).getByText("User")).toBeInTheDocument();
     expect(
       within(row).getByText("hybrid-mini-grid-100kw v1"),
@@ -246,7 +246,7 @@ describe("the index filters over the sites it actually has", () => {
       "Cold chain",
       "Mini-grid",
     ]);
-    expect(optionsOf("sites-mode")).toEqual(["All modes", "Live", "Simulated"]);
+    expect(optionsOf("sites-mode")).toEqual(["All modes", "Demonstration data", "Live"]);
     expect(optionsOf("sites-lifecycle")).toEqual([
       "All lifecycle states",
       "Active",
@@ -375,11 +375,11 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
     // Origin USER with mode LIVE: neither is derived from the other.
     expect(within(userLive).getByText("User")).toBeInTheDocument();
     expect(within(userLive).getByText("Live")).toBeInTheDocument();
-    expect(within(userLive).queryByText("Simulated")).toBeNull();
+    expect(within(userLive).queryByText("Demonstration data")).toBeNull();
 
     // Origin SHIPPED with mode SIMULATED: the mirror case.
     expect(within(shippedSimulated).getByText("Shipped")).toBeInTheDocument();
-    expect(within(shippedSimulated).getByText("Simulated")).toBeInTheDocument();
+    expect(within(shippedSimulated).getByText("Demonstration data")).toBeInTheDocument();
     expect(within(shippedSimulated).queryByText("User")).toBeNull();
   });
 
@@ -427,7 +427,7 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
     expect(deriveSiteView(SHIPPED_SIMULATED_SITE).configurationOrigin).toBe(
       "Shipped",
     );
-    expect(deriveSiteView(SHIPPED_SIMULATED_SITE).sourceMode).toBe("Simulated");
+    expect(deriveSiteView(SHIPPED_SIMULATED_SITE).sourceMode).toBe("Demonstration data");
   });
 
   it("shows an unrecognised value as it arrived rather than inventing a label", () => {

@@ -1,0 +1,112 @@
+=== candidate (kobo-mini-grid-prolonged) ===
+Overview card: Possibly avoidable | The generator may have operated longer than needed. For 4 h to 4 h 10 min of this period, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded.
+-- assessed period dispatch-2e86ed002304 (Finding: True)
+DEFAULT VIEW
+  Outcome: Possibly avoidable
+  What happened: The generator may have operated longer than needed. For 4 h to 4 h 10 min of this period, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded.
+  Meaning: Possibly avoidable means that, for that time, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded. It is not proof of wasted fuel and not a judgement of how the generator should have been operated.
+  Operating time: 5 h 30 min to 5 h 40 min; portions {'possibly_avoidable': '4 h to 4 h 10 min', 'needed': '1 h 30 min', 'cannot_determine': '0 min'}
+  Reasons for the needed time: ['Battery at minimum reserve', 'Minimum operating time']
+  Confidence: Medium. At its closest, the available solar power and battery output exceeded site demand by only 17 % (less than 25 %), which lowers confidence.
+  Missing: []
+  Limit: This is an assessment of the reported values, not proof of wasted fuel and not a judgement of how the generator should have been operated.
+  Limit: No operator instruction was recorded for this period, but that does not prove none was given.
+  Limit: 1 h 30 min of this period was needed and is not part of the possibly avoidable time.
+  Fuel: 21.6 to 35.8 litres | This is an estimate, not confirmed fuel savings, for 4 h to 4 h 10 min of possibly avoidable operation.
+  Next: Confirm whether an operator instruction kept the generator on during this period. No instruction was recorded, and that absence is not proof that none was given.
+ANALYSIS VIEW
+  Confidence detail: Every part of the period could be assessed.
+  Confidence detail: At its closest, the available solar power and battery output exceeded site demand by only 17 % (less than 25 %), which lowers confidence.
+  Confidence detail: The start and stop times are known to within 10 min.
+  From 2026-09-22T03:45:00Z: Needed: The generator was within its minimum operating time after starting.
+  From 2026-09-22T04:15:00Z: Needed: Battery charge was at or below its minimum reserve.
+  From 2026-09-22T05:15:00Z: Possibly avoidable: The available solar power and battery output were more than the site demand, with battery charge above its minimum reserve; no reason the generator was needed was recorded.
+  Duration note: The shorter figure counts only the times the generator was recorded as operating. The longer figure spans from the last record showing it off before the period to the first record showing it off after. Gaps in the records count only toward the longer figure.
+ALTERNATIVES
+  Unrecorded operator instruction [Still possible]: No operator instruction was recorded for this period. That does not prove none was given.
+  Generator stop setting [Still possible]: The recorded generator stop setting is 90 % battery charge. Keeping the generator on below that level is consistent with the setting, so the question is the setting, not an equipment fault.
+  Battery output not reported [Not supported by the available records]: Available battery output was reported for every assessed part of this period.
+  Solar changes between reports [Still possible]: Solar power is reported every 15 minutes as a 5-minute average, so changes between reports are not seen.
+SITE EVIDENCE: What can we assess from this site's records? -> Full: The records needed are there: every required input has usable records, and no assessed period was left undetermined by a gap. This is about the records, not whether the site is operating well, and not uninterrupted coverage.
+  Scope: Based on all of this site's accepted records, not only the selected window. It is not a rating of the site's health and not permission to act.
+  Conclusion: Possibly avoidable operation can be identified, with the limits stated on each assessment.
+  Gap: Battery charge: no usable record for 2 of 22 assessed parts in 1 assessed period; no conclusion depended on it there.
+
+=== Necessary (kobo-mini-grid-evening) ===
+Overview card: Needed | The generator was needed during this period. Battery charge was at or below its minimum reserve, battery charge was close to its minimum reserve and the generator was within its minimum operating time after starting.
+-- assessed period dispatch-f6d4b51f4e6a (Finding: False)
+DEFAULT VIEW
+  Outcome: Needed
+  What happened: The generator was needed during this period. Battery charge was at or below its minimum reserve, battery charge was close to its minimum reserve and the generator was within its minimum operating time after starting.
+  Meaning: Needed means a recorded reason required the generator to operate. It does not judge whether that setting or limit is right.
+  Operating time: at least 4 h 30 min (the start or end was not recorded); portions {'possibly_avoidable': '0 min', 'needed': '4 h 30 min', 'cannot_determine': '0 min'}
+  Reasons for the needed time: ['Battery at minimum reserve', 'Battery close to minimum reserve', 'Minimum operating time']
+  Confidence: Medium. The records do not show both when the generator started and when it stopped, which lowers confidence.
+  Missing: []
+  Limit: This shows the generator was needed for the reason given. It does not judge whether that setting or limit is right.
+  Limit: No operator instruction was recorded for this period, but that does not prove none was given.
+  Fuel:  | No fuel estimate: no possibly avoidable operation was found in this period.
+  Next: No possibly avoidable operation was found. If the reason shown is unexpected, check how that setting or limit is configured; this assessment does not judge the setting.
+ANALYSIS VIEW
+  Confidence detail: Every part of the period could be assessed.
+  Confidence detail: The records do not show both when the generator started and when it stopped, which lowers confidence.
+  From 2026-09-22T12:30:00Z: Needed: The generator was within its minimum operating time after starting.
+  From 2026-09-22T13:00:00Z: Needed: Battery charge was close to its minimum reserve.
+  From 2026-09-22T15:15:00Z: Needed: Battery charge was at or below its minimum reserve.
+  From 2026-09-22T15:30:00Z: Needed: Battery charge was close to its minimum reserve.
+  From 2026-09-22T15:45:00Z: Needed: Battery charge was at or below its minimum reserve.
+  From 2026-09-22T16:00:00Z: Needed: Battery charge was close to its minimum reserve.
+  From 2026-09-22T16:15:00Z: Needed: Battery charge was at or below its minimum reserve.
+  From 2026-09-22T16:30:00Z: Needed: Battery charge was close to its minimum reserve.
+  From 2026-09-22T16:45:00Z: Needed: Battery charge was at or below its minimum reserve.
+  Duration note: The shorter figure counts only the times the generator was recorded as operating. The longer figure spans from the last record showing it off before the period to the first record showing it off after. Gaps in the records count only toward the longer figure. No record shows the generator off after this period, so its end is open.
+ALTERNATIVES
+  Unrecorded operator instruction [Still possible]: No operator instruction was recorded for this period. That does not prove none was given.
+  Generator stop setting [Still possible]: The recorded generator stop setting is 90 % battery charge. Keeping the generator on below that level is consistent with the setting, so the question is the setting, not an equipment fault.
+  Battery output not reported [Not supported by the available records]: Available battery output was reported for every assessed part of this period.
+  Solar changes between reports [Still possible]: Solar power is reported every 15 minutes as a 5-minute average, so changes between reports are not seen.
+SITE EVIDENCE: What can we assess from this site's records? -> Full: The records needed are there: every required input has usable records, and no assessed period was left undetermined by a gap. This is about the records, not whether the site is operating well, and not uninterrupted coverage.
+  Scope: Based on all of this site's accepted records, not only the selected window. It is not a rating of the site's health and not permission to act.
+  Conclusion: Possibly avoidable operation can be identified, with the limits stated on each assessment.
+
+=== uncertain (kobo-mini-grid-degraded-evidence) ===
+Overview card: Possibly avoidable | The generator may have operated longer than needed. For 30 min of this period, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded.
+-- assessed period dispatch-2e86ed002304 (Finding: True)
+DEFAULT VIEW
+  Outcome: Possibly avoidable
+  What happened: The generator may have operated longer than needed. For 30 min of this period, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded.
+  Meaning: Possibly avoidable means that, for that time, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded. It is not proof of wasted fuel and not a judgement of how the generator should have been operated.
+  Operating time: 3 h 15 min to 3 h 25 min; portions {'possibly_avoidable': '30 min', 'needed': '1 h 30 min', 'cannot_determine': '1 h 15 min'}
+  Reasons for the needed time: ['Battery at minimum reserve', 'Minimum operating time']
+  Confidence: Low. 75 min of the period cannot be determined, which lowers confidence.
+  Missing: ['Available battery output: no record received', 'Battery charge: no record received']
+  Limit: This is an assessment of the reported values, not proof of wasted fuel and not a judgement of how the generator should have been operated.
+  Limit: No operator instruction was recorded for this period, but that does not prove none was given.
+  Limit: 1 h 15 min of this period cannot be determined and is not part of the possibly avoidable time.
+  Limit: 1 h 30 min of this period was needed and is not part of the possibly avoidable time.
+  Fuel: 3.5 to 4.3 litres | This is an estimate, not confirmed fuel savings, for 30 min of possibly avoidable operation.
+  Next: Confirm whether an operator instruction kept the generator on during this period. No instruction was recorded, and that absence is not proof that none was given.
+  Next: Check why available battery output was not reported for 75 min of this period; battery support there is unknown, so that time cannot be assessed.
+  Next: Check the site's records for the missing or conflicting information: Battery charge: no record received.
+ANALYSIS VIEW
+  Confidence detail: 75 min of the period cannot be determined, which lowers confidence.
+  Confidence detail: At its closest, the available solar power and battery output exceeded site demand by only 17 % (less than 25 %), which lowers confidence.
+  Confidence detail: The start and stop times are known to within 10 min.
+  From 2026-09-22T03:45:00Z: Needed: The generator was within its minimum operating time after starting.
+  From 2026-09-22T04:15:00Z: Needed: Battery charge was at or below its minimum reserve.
+  From 2026-09-22T05:15:00Z: Possibly avoidable: The available solar power and battery output were more than the site demand, with battery charge above its minimum reserve; no reason the generator was needed was recorded.
+  From 2026-09-22T05:45:00Z: Cannot determine: Records needed to decide are missing or conflicting: Available battery output: no record received.
+  From 2026-09-22T06:00:00Z: Cannot determine: Records needed to decide are missing or conflicting: Available battery output: no record received; Battery charge: no record received.
+  From 2026-09-22T06:30:00Z: Cannot determine: Records needed to decide are missing or conflicting: Available battery output: no record received.
+  Duration note: The shorter figure counts only the times the generator was recorded as operating. The longer figure spans from the last record showing it off before the period to the first record showing it off after. Gaps in the records count only toward the longer figure.
+ALTERNATIVES
+  Unrecorded operator instruction [Still possible]: No operator instruction was recorded for this period. That does not prove none was given.
+  Generator stop setting [Still possible]: The recorded generator stop setting is 90 % battery charge. Keeping the generator on below that level is consistent with the setting, so the question is the setting, not an equipment fault. The generator stopped at a battery charge below that level, so the setting in use may differ; no record of a change was received.
+  Battery output not reported [Still possible]: Available battery output was not reported for 75 min of this period, so battery support there is unknown and that time is not counted as possibly avoidable.
+  Solar changes between reports [Still possible]: Solar power is reported every 15 minutes as a 5-minute average, so changes between reports are not seen.
+SITE EVIDENCE: What can we assess from this site's records? -> Limited: Assessments are possible but limited: the missing records named below limit the conclusion or leave parts of periods undetermined.
+  Scope: Based on all of this site's accepted records, not only the selected window. It is not a rating of the site's health and not permission to act.
+  Conclusion: Possibly avoidable operation can be identified only where the required records exist; other time cannot be determined.
+  Gap: Battery charge: no usable record for 2 of 13 assessed parts in 1 assessed period; 2 part(s) that needed it cannot be determined.
+  Gap: Available battery output: no usable record for 5 of 13 assessed parts in 1 assessed period; 5 part(s) that needed it cannot be determined.
+

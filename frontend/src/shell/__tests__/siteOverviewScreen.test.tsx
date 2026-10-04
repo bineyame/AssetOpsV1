@@ -137,7 +137,7 @@ describe("Site Overview, populated", () => {
     expect(text).toContain("No assessment yet");
     expect(text).toContain("67.3 kWh");
     // Review F3: the strip names the metric and the measured share of the window.
-    expect(text).toContain("Served energy, measured intervals");
+    expect(text).toContain("Served energy, over measured time");
     expect(text).toContain("2.67 h of the 8.00 h window measured");
     expect(text).toContain(
       "2026-10-04T03:00:00Z to 2026-10-04T11:00:00Z (8.00 h, latest release)",
@@ -195,7 +195,7 @@ describe("Site Overview, populated", () => {
     const charts = screen.getAllByRole("img");
     expect(charts.map((chart) => chart.getAttribute("aria-label"))).toEqual([
       "Demand (three feeders) (kW) over the window",
-      "Battery state of charge (%) over the window",
+      "Battery charge (%) over the window",
     ]);
     expect(charts[0].querySelectorAll("g line")).toHaveLength(2);
     expect(charts[1].querySelectorAll("circle")).toHaveLength(1);

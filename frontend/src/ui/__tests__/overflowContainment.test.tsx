@@ -62,7 +62,13 @@ const SITES_INDEX_COLUMNS = [
  * The rendered Site tabs, written out rather than imported
  * (`D-2026-10-02-rendered-tabs-per-capability`).
  */
-const OPERATOR_SITE_TABS = ["Overview", "Foundation", "Evidence"];
+const OPERATOR_SITE_TABS = [
+  "Overview",
+  "Foundation",
+  "Performance",
+  "Findings",
+  "Evidence",
+];
 
 const SITE: SiteSummary = {
   site_id: "MG-002",
@@ -240,7 +246,7 @@ describe("the correction buys no space from the inventories", () => {
     ).toEqual(SITES_INDEX_COLUMNS);
   });
 
-  it("leaves the operator Site tab row with all three rendered labels", async () => {
+  it("leaves the operator Site tab row with all five rendered labels", async () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 

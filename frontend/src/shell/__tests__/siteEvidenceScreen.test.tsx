@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -12,6 +12,7 @@ import {
   RECORD_DETAIL,
   evidenceClient,
 } from "../../sites/__tests__/evidenceFixtures";
+import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
@@ -26,6 +27,12 @@ import { OPERATOR_SITE_TABS_LABEL } from "../operatorSiteTabs";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const EVIDENCE_URL = `/sites/${SITE_ID}/evidence`;
+/**
+ * The detailed source, coverage, basis and rejection tables live on the
+ * Evidence Analysis view (D-2026-10-04-plain-language-analysis-views); the
+ * Overview keeps a compact summary and the record inspector.
+ */
+const ANALYSIS_URL = `${EVIDENCE_URL}?view=analysis`;
 
 const DIRECTORY: SiteDirectoryClient = {
   listSites: () => Promise.resolve({ status: "loaded", sites: [] }),
@@ -47,6 +54,7 @@ function renderAt(path: string, evidence: SiteEvidenceClient, enabled = false) {
         siteDirectory={DIRECTORY}
         siteDetail={DETAIL}
         siteEvidence={evidence}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
       />
       <LocationProbe />
     </MemoryRouter>,
@@ -72,16 +80,16 @@ const populated = () =>
 
 describe("Site > Evidence, populated", () => {
   it("renders source health per source as data quality with provenance and batches", async () => {
-    renderAt(`${EVIDENCE_URL}?batch=artifact-1`, populated());
+    renderAt(`${ANALYSIS_URL}&batch=artifact-1`, populated());
     await settledScreen();
 
-    const sources = region("Source health");
+    const sources = region("Source status");
     const row = sources.querySelector('[data-evidence-source="kobo-gw-1"]') as HTMLElement;
     expect(row).not.toBeNull();
     const text = spacedText(row);
     expect(text).toContain("kobo-gw-1 / gw-1");
     expect(row.querySelector("[data-evidence-provenance]")?.textContent).toBe(
-      "Simulated source",
+      "Demonstration data",
     );
     expect(text).toContain("2026-07-02T09:00:12Z");
     expect(text).toMatch(/artifact-0\s*: IN_PROGRESS, 4 of 10 processed/);
@@ -96,10 +104,10 @@ describe("Site > Evidence, populated", () => {
   });
 
   it("names a signal no record reported as a coverage gap with no value", async () => {
-    renderAt(EVIDENCE_URL, populated());
+    renderAt(ANALYSIS_URL, populated());
     await settledScreen();
 
-    const coverage = region("Signal coverage");
+    const coverage = region("Input coverage in this window");
     const rows = coverage.querySelectorAll("[data-evidence-coverage]");
     expect(rows).toHaveLength(2);
     const gap = coverage.querySelector('[data-coverage-status="NOT_REPORTED"]') as HTMLElement;
@@ -112,11 +120,11 @@ describe("Site > Evidence, populated", () => {
   });
 
   it("shows the accepted mapping and configuration basis against the current Foundation", async () => {
-    renderAt(EVIDENCE_URL, populated());
+    renderAt(ANALYSIS_URL, populated());
     await settledScreen();
 
     const basis = screen
-      .getByRole("heading", { name: "Configuration and mapping basis" })
+      .getByRole("heading", { name: "Record interpretation and equipment details" })
       .closest("section") as HTMLElement;
     expect(spacedText(basis)).toContain("kobo-v3 v3");
     expect(spacedText(basis)).toContain("Foundation v2, valid from 2026-06-01T00:00:00Z");
@@ -128,21 +136,30 @@ describe("Site > Evidence, populated", () => {
   it("counts and lists rejections", async () => {
     renderAt(EVIDENCE_URL, populated());
     await settledScreen();
-
+    // Overview: the count, with the reasons one view away.
+    expect(document.querySelector("[data-evidence-rejection-count]")).toHaveTextContent(
+      "2 records were rejected; the reasons are on the Analysis view.",
+    );
+    cleanup();
+    renderAt(ANALYSIS_URL, populated());
+    await settledScreen();
     expect(screen.getByText("2 records were rejected and never accepted.")).toBeInTheDocument();
     const items = document.querySelectorAll("[data-evidence-rejection]");
     expect(items).toHaveLength(2);
     expect(spacedText(items[0] as HTMLElement)).toMatch(
-      /UNKNOWN_SIGNAL \(signal_id\)\s*: The signal is not in the mapping\. Batch artifact-1\./,
+      /The record's signal is not part of this site's equipment details\. Delivery reference artifact-1\s*\./,
     );
   });
 
+  // T028 AC20 keeps this: with no analytic declared for the site (the
+  // declaration read is not_found here) nothing about capability appears. The
+  // populated capability table is pinned in `t028Screens.test.tsx`.
   it("says nothing about capability readiness or claim ceilings", async () => {
     renderAt(EVIDENCE_URL, populated());
     await settledScreen();
 
     const words = spacedText(screen.getByRole("main"));
-    expect(words).toContain("Source health");
+    expect(words).toContain("Where the records come from");
     expect(words).not.toMatch(/readiness|claim ceiling|ceiling|capabilit/i);
   });
 });
@@ -150,14 +167,14 @@ describe("Site > Evidence, populated", () => {
 describe("the record inspector is a drill-down", () => {
   it("opens from a signal row and shows the record with three distinct timestamps", async () => {
     const client = populated();
-    renderAt(EVIDENCE_URL, client);
+    renderAt(ANALYSIS_URL, client);
     await settledScreen();
 
     fireEvent.click(
       screen.getByRole("button", { name: "Inspect records for GEN-1 / active_power" }),
     );
     await settledScreen();
-    expect(location()).toBe(`${EVIDENCE_URL}?signal=GEN-1%2Factive_power`);
+    expect(location()).toBe(`${EVIDENCE_URL}?view=analysis&signal=GEN-1%2Factive_power`);
     expect(client.recordQueries.at(-1)).toMatchObject({
       device: "GEN-1",
       signal: "active_power",
@@ -184,16 +201,16 @@ describe("the record inspector is a drill-down", () => {
     expect(new Set(times).size).toBe(3);
     const terms = Array.from(detail.querySelectorAll("dt")).map((term) => term.textContent);
     expect(terms).toEqual(
-      expect.arrayContaining(["Source time", "Published", "Received"]),
+      expect.arrayContaining(["Source time", "Sent", "Received"]),
     );
     const words = spacedText(detail);
     expect(words).toContain("kobo-gw-1 / GEN-1 / active_power");
     expect(words).toContain("kobo-v3 v3");
     expect(words).toContain(`Site ${SITE_ID}, Foundation v2, valid from 2026-06-01T00:00:00Z`);
-    expect(words).toContain("Simulated source");
+    expect(words).toContain("Demonstration data");
     expect(words).toContain("GOOD");
     expect(words).toMatch(/Original value 41\.5 kW/);
-    expect(words).toMatch(/Normalized value 41\.5 kW\s*\.\s*Normalization is the identity/);
+    expect(words).toMatch(/Value as interpreted 41\.5 kW\s*\.\s*AssetOps uses this value and unit exactly as the source sent them/);
 
     // The root and the tab never change.
     expect(location().startsWith(`${EVIDENCE_URL}?`)).toBe(true);
@@ -223,7 +240,7 @@ describe("the record inspector is a drill-down", () => {
     await settledScreen();
     expect(location()).toBe(EVIDENCE_URL);
     expect(document.getElementById("site-evidence-inspector")).toBeNull();
-    expect(region("Source health")).toBeInTheDocument();
+    expect(region("Where the records come from")).toBeInTheDocument();
   });
 
   it("reopens a deep-linked record from the address alone", async () => {
@@ -241,15 +258,20 @@ describe("the record inspector is a drill-down", () => {
 });
 
 describe("Site > Evidence, empty and unavailable", () => {
-  it("says no batch has been accepted and shows no invented section", async () => {
-    renderAt(EVIDENCE_URL, EMPTY_EVIDENCE_CLIENT);
-    await settledScreen();
-
-    expect(document.querySelector('[data-evidence-state="empty"]')).not.toBeNull();
-    expect(screen.getByText(/No source batch has been accepted for this site/)).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Source health" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Signal coverage" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Rejections" })).toBeNull();
+  it("says no records have been accepted and shows no invented section, in either view", async () => {
+    for (const url of [EVIDENCE_URL, ANALYSIS_URL]) {
+      renderAt(url, EMPTY_EVIDENCE_CLIENT);
+      await settledScreen();
+      expect(document.querySelector('[data-evidence-state="empty"]')).not.toBeNull();
+      expect(screen.getByText(/No records have been received and accepted for this site/)).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Source status" })).toBeNull();
+      expect(screen.queryByRole("heading", { name: "Where the records come from" })).toBeNull();
+      expect(screen.queryByRole("heading", { name: "Input coverage in this window" })).toBeNull();
+      expect(screen.queryByRole("heading", { name: "Rejected records" })).toBeNull();
+      if (url === EVIDENCE_URL) {
+        cleanup();
+      }
+    }
     expect(currentTab()).toBe("Evidence");
   });
 
@@ -272,6 +294,6 @@ describe("Site > Evidence, empty and unavailable", () => {
   it("stays available with the Simulator Lab gate open or closed", async () => {
     renderAt(EVIDENCE_URL, populated(), true);
     await settledScreen();
-    expect(region("Source health")).toBeInTheDocument();
+    expect(region("Where the records come from")).toBeInTheDocument();
   });
 });

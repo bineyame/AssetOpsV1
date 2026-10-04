@@ -23,9 +23,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Badge, Fact, FactList, Panel } from "../ui";
+import { AssessedPeriodTimeline, FuelRange } from "./assessmentGraphics";
 import {
+  capabilityPresentation,
   orderedOverviewCards,
   presentationProfileFor,
+  type DomainPresentationProfile,
 } from "./presentationProfile";
 import type { EvidenceRead } from "./siteEvidenceClient";
 import type {
@@ -47,6 +50,15 @@ export interface SiteOverviewProps {
   evidenceHref: (signal: string, messageId: string) => string;
   /** The Site > Evidence destination. */
   evidencePageHref: string;
+  /** T028: the Finding detail address for one assessment id. */
+  findingHref?: (assessmentId: string) => string;
+  /** T028: Performance > Dispatch, optionally selecting one interval. */
+  dispatchHref?: (assessmentId?: string) => string;
+  /**
+   * The Analysis of an assessed period: the Finding's Analysis tab, or
+   * Dispatch's Analysis view for a Needed period without a Finding.
+   */
+  analysisHref?: (assessmentId: string, isFinding: boolean) => string;
 }
 
 export function SiteOverview({
@@ -54,6 +66,9 @@ export function SiteOverview({
   client,
   evidenceHref,
   evidencePageHref,
+  findingHref,
+  dispatchHref,
+  analysisHref,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel> | null>(null);
@@ -93,12 +108,15 @@ export function SiteOverview({
   }
 
   const overview = result.value;
-  const cards = orderedOverviewCards(
-    presentationProfileFor(overview.site_type),
-    overview.cards,
-  );
+  const profile = presentationProfileFor(overview.site_type);
+  const cards = orderedOverviewCards(profile, overview.cards);
   const link = (signal: string, messageId: string) =>
     evidenceHref(signal, messageId);
+  // The Overview links to the backend's Findings; it never recomputes one.
+  const findings = overview.findings as OverviewFinding[];
+  const findingIds = new Set(
+    findings.flatMap((f) => (f.finding_id === null ? [] : [f.finding_id])),
+  );
 
   return (
     <div
@@ -129,7 +147,12 @@ export function SiteOverview({
                 key={card.domain_id}
                 label={label}
                 card={card}
+                profile={profile}
                 link={link}
+                findingIds={findingIds}
+                findingHref={findingHref}
+                dispatchHref={dispatchHref}
+                analysisHref={analysisHref}
               />
             ))}
           </div>
@@ -139,12 +162,38 @@ export function SiteOverview({
       <Timeline overview={overview} />
       <Panel heading="Findings" headingId="site-overview-findings-heading">
         <p>{overview.findings_statement}</p>
+        {findings.length === 0 || findingHref === undefined ? null : (
+          <ul className="cell-list" data-overview-findings>
+            {findings.map((finding) => (
+              <li key={finding.assessment_id}>
+                <Link
+                  to={findingHref(finding.assessment_id)}
+                  data-overview-finding-link={finding.assessment_id}
+                >
+                  {finding.reading === undefined
+                    ? "Assessed generator period"
+                    : `${finding.reading.outcome}: ${finding.reading.headline}`}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </Panel>
     </div>
   );
 }
 
 type LinkBuilder = (signal: string, messageId: string) => string;
+
+/** The Overview's `findings`: the backend's lineage summaries, as `/findings` lists them. */
+interface OverviewFinding {
+  assessment_id: string;
+  finding_id: string | null;
+  label: string;
+  summary: string;
+  /** The backend's plain reading (`plain.reading`), read time. */
+  reading?: { outcome: string; headline: string };
+}
 
 function ObjectiveStrip({
   overview,
@@ -256,12 +305,35 @@ function MetricValue({
 function DomainCard({
   label,
   card,
+  profile,
   link,
+  findingIds,
+  findingHref,
+  dispatchHref,
+  analysisHref,
 }: {
   label: string;
   card: OverviewCard;
+  profile: DomainPresentationProfile | null;
   link: LinkBuilder;
+  findingIds: Set<string>;
+  findingHref?: (assessmentId: string) => string;
+  dispatchHref?: (assessmentId?: string) => string;
+  /**
+   * The Analysis of an assessed period: the Finding's Analysis tab, or
+   * Dispatch's Analysis view for a Needed period without a Finding.
+   */
+  analysisHref?: (assessmentId: string, isFinding: boolean) => string;
 }) {
+  const assessment = card.assessment;
+  const capability =
+    assessment.capability_id === undefined
+      ? null
+      : capabilityPresentation(
+          profile,
+          assessment.capability_id,
+          assessment.capability_display_name ?? assessment.capability_id,
+        );
   const headingId = `site-overview-card-${card.domain_id.toLowerCase()}`;
   return (
     <Panel heading={label} headingId={headingId} headingLevel={3}>
@@ -273,8 +345,71 @@ function DomainCard({
           card.metrics.filter((m) => m.value !== null).length
         }
       >
-        <Badge tone="neutral">{card.assessment.label}</Badge>
+        {capability === null ? null : (
+          <span
+            className="overview-card__capability"
+            data-overview-capability={capability.id}
+            data-emphasis={capability.emphasis}
+          >
+            {`${capability.label}: `}
+          </span>
+        )}
+        <Badge tone="neutral">{assessment.label}</Badge>
       </p>
+      {capability === null ? null : (
+        <p
+          className="overview-card__assessment-reason"
+          data-overview-assessment-status={assessment.status}
+        >
+          {assessment.reason}
+        </p>
+      )}
+      {capability === null || assessment.lead_timeline === undefined ? null : (
+        <div className="overview-card__timeline" data-overview-card-timeline={assessment.lead_assessment_id}>
+          <AssessedPeriodTimeline
+            compact
+            source={assessment.lead_timeline}
+            outcomes={assessment.lead_timeline.segments.map((s) => s.outcome)}
+            assessmentId={assessment.lead_assessment_id}
+          />
+          {assessment.lead_timeline.fuel.status === "BOUNDED" ? (
+            <FuelRange compact fuel={assessment.lead_timeline.fuel} reading={assessment.lead_timeline.fuel} />
+          ) : null}
+        </div>
+      )}
+      {capability === null || assessment.lead_assessment_id === undefined ? null : (
+        <p className="overview-card__assessment-link">
+          {findingIds.has(assessment.lead_assessment_id) && findingHref !== undefined ? (
+            <Link
+              to={findingHref(assessment.lead_assessment_id)}
+              data-overview-card-finding={assessment.lead_assessment_id}
+            >
+              Open the Finding
+            </Link>
+          ) : dispatchHref !== undefined ? (
+            <Link
+              to={dispatchHref(assessment.lead_assessment_id)}
+              data-overview-card-dispatch={assessment.lead_assessment_id}
+            >
+              See it on Performance &gt; Dispatch
+            </Link>
+          ) : null}
+          {analysisHref === undefined ? null : (
+            <>
+              {" "}
+              <Link
+                to={analysisHref(
+                  assessment.lead_assessment_id,
+                  findingIds.has(assessment.lead_assessment_id),
+                )}
+                data-overview-card-analysis={assessment.lead_assessment_id}
+              >
+                View analysis
+              </Link>
+            </>
+          )}
+        </p>
+      )}
       {card.gaps.length === 0 ? null : (
         <p className="overview-card__gap" role="note">
           {`Coverage gap: ${card.gaps
@@ -422,7 +557,7 @@ function TimelinePanel({
             className={`overview-timeline__key overview-timeline__key--${item.series_id}`}
           >
             {`${item.label} (${item.unit}): ${item.points.length} ${
-              item.kind === "INTERVAL_MEAN" ? "measured intervals" : "samples"
+              item.kind === "INTERVAL_MEAN" ? "averaged readings" : "samples"
             }. ${item.basis}`}
           </span>
         ))}

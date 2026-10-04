@@ -48,20 +48,20 @@ NO_ASSESSMENT = {
     "status": "NO_ASSESSMENT",
     "label": "No assessment yet",
     "reason": (
-        "No analytic assesses this domain yet. The metrics are measured "
+        "Nothing assesses this area of the site yet. The metrics are measured "
         "values, not a judgement of how the site is operating."
     ),
 }
 FINDINGS_STATEMENT = (
-    "No analytic has assessed this site yet, so no Finding exists. This is not "
+    "Nothing has assessed this site yet, so no Finding exists. This is not "
     "a statement that the site is or is not operating well."
 )
 INTERVAL_STATEMENT = (
-    "Energy and running time are summed over measured intervals only (interval "
-    "mean multiplied by interval length). Time between measured intervals is not "
-    "counted and no sample is carried forward. Overlapping records (distinct "
-    "records at one interval or instant) are listed in Evidence and used by no "
-    "metric."
+    "Energy and generator operating time are added up only over the time that "
+    "measurements cover: each measured average multiplied by the length of time "
+    "it covers. Time with no measurement is not counted, and no earlier reading "
+    "is carried forward to fill it. Where two different records cover the same "
+    "time, both are listed in Evidence and neither is used in these totals."
 )
 TIMELINE_STATEMENT = (
     "The timeline places accepted measurements on the window's time axis. It is "
@@ -299,7 +299,7 @@ def _service(window: _Window) -> list[dict[str, Any]]:
                 f"{label} energy",
                 "kWh",
                 value=_fmt(energy, 1),
-                basis=f"Measured intervals cover {_fmt(_hours(seconds), 2)} h.",
+                basis=f"The measured time covers {_fmt(_hours(seconds), 2)} h.",
                 evidence=_interval_link(window.of(key)),
                 missing=window.uncovered(key),
                 window_note=window.window_note([seconds]),
@@ -307,11 +307,11 @@ def _service(window: _Window) -> list[dict[str, Any]]:
         )
     served = _metric(
         "served-energy",
-        "Served energy, measured intervals",
+        "Served energy, over measured time",
         "kWh",
         value=_fmt(total, 1),
         basis=(
-            "Sum of the three feeder meters over their measured intervals ("
+            "Sum of the three feeder meters over the time measured ("
             + ", ".join(hours_text) + ")."
         ),
         evidence=links,
@@ -338,12 +338,12 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
     return [
         _metric(
             "generator-runtime",
-            "Generator running time, measured intervals",
+            "Generator operating time, over measured time",
             "h",
             value=_fmt(_hours(running_seconds), 2),
             basis=(
-                "Measured intervals with generator output above zero, out of "
-                f"{_fmt(_hours(measured_seconds), 2)} h of measured intervals."
+                "Time with generator output above zero, out of "
+                f"{_fmt(_hours(measured_seconds), 2)} h measured."
             ),
             evidence=[_link(_latest(running))] if running else _interval_link(power),
             missing=window.uncovered(GENERATOR_POWER),
@@ -351,17 +351,17 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
         ),
         _metric(
             "generator-energy",
-            "Generator energy, measured intervals",
+            "Generator energy, over measured time",
             "kWh",
             value=_fmt(energy, 1),
-            basis=f"Over {_fmt(_hours(measured_seconds), 2)} h of measured intervals.",
+            basis=f"Over {_fmt(_hours(measured_seconds), 2)} h of measured time.",
             evidence=_interval_link(power),
             missing=window.uncovered(GENERATOR_POWER),
             window_note=window.window_note([measured_seconds]),
         ),
         _metric(
             "generator-status-running",
-            "Status samples reading RUNNING",
+            "Status records showing the generator operating",
             "samples",
             value=f"{len(running_status)} of {len(statuses)}",
             basis="Instantaneous status samples; nothing between samples is inferred.",
@@ -420,7 +420,7 @@ def _instant_metrics(
 
 
 def _battery(window: _Window) -> list[dict[str, Any]]:
-    return _instant_metrics(window, SOC, "soc", "state of charge", "%", True)
+    return _instant_metrics(window, SOC, "soc", "battery charge", "%", True)
 
 
 def _fuel(window: _Window) -> list[dict[str, Any]]:
@@ -440,21 +440,21 @@ def _renewable(window: _Window) -> list[dict[str, Any]]:
     return [
         _metric(
             "pv-energy",
-            "PV energy, measured intervals",
+            "Solar energy, over measured time",
             "kWh",
             value=_fmt(energy, 1),
-            basis=f"PV inverter output over {_fmt(_hours(seconds), 2)} h of measured intervals.",
+            basis=f"Solar inverter output over {_fmt(_hours(seconds), 2)} h of measured time.",
             evidence=_interval_link(records),
             missing=window.uncovered(PV),
             window_note=window.window_note([seconds]),
         ),
         _metric(
             "pv-peak",
-            "Highest interval mean PV output",
+            "Highest average solar output",
             "kW",
             value=None if peak is None else _plain(peak.normalized_value),
             at=None if peak is None else peak.source_time,
-            basis="The largest interval mean among measured intervals.",
+            basis="The largest average over a reporting period within the measured time.",
             evidence=[] if peak is None else [_link(peak)],
             missing=window.uncovered(PV),
         ),
@@ -529,10 +529,10 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
         },
         {
             "series_id": "pv",
-            "label": "PV output",
+            "label": "Solar output",
             "unit": "kW",
             "kind": "INTERVAL_MEAN",
-            "basis": "PV inverter interval means.",
+            "basis": "Solar inverter averaged readings.",
             "points": interval_points(window.of(PV)),
         },
         {
@@ -540,12 +540,12 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
             "label": "Generator output",
             "unit": "kW",
             "kind": "INTERVAL_MEAN",
-            "basis": "Generator controller interval means.",
+            "basis": "Generator controller averaged readings.",
             "points": interval_points(window.of(GENERATOR_POWER)),
         },
         {
             "series_id": "soc",
-            "label": "Battery state of charge",
+            "label": "Battery charge",
             "unit": "%",
             "kind": "STATE_AT_INSTANT",
             "basis": "Instantaneous samples at their own source times.",
@@ -554,9 +554,28 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
     ]
 
 
+#: Supplies analytic assessments for the Overview (T028): `(site, window_start,
+#: window_end) -> {"cards": {domain_id: assessment}, "findings": [...]}`. The
+#: composition root passes the analytics service's reader in; this package
+#: never imports an analytic. A domain it does not name keeps `NO_ASSESSMENT`.
+CardAssessments = Callable[[SiteRecord, "str | None", "str | None"], dict[str, Any]]
+
+FINDINGS_PRESENT_STATEMENT = (
+    "Findings raised for this window. Each links to its assessed period; the "
+    "Overview does not recompute it."
+)
+
+
+NO_FINDINGS_STATEMENT = (
+    "The site was assessed for this window and no Finding was raised. This is not "
+    "a statement that the site is operating well."
+)
+
+
 class OverviewReadModel:
-    def __init__(self, store: EvidenceStore) -> None:
+    def __init__(self, store: EvidenceStore, card_assessments: CardAssessments | None = None) -> None:
         self._store = store
+        self._card_assessments = card_assessments
 
     def site_overview(
         self,
@@ -577,6 +596,11 @@ class OverviewReadModel:
             else _seconds(window_start, window_end),
         )
         domains = OVERVIEW_DOMAIN_SIGNALS.get(site.site_type, ())
+        analytic = (
+            {"cards": {}, "findings": []}
+            if self._card_assessments is None
+            else self._card_assessments(site, window_start, window_end)
+        )
         cards = []
         for domain, signals in domains:
             coverage = [_coverage_row(window, key) for key in signals]
@@ -594,7 +618,7 @@ class OverviewReadModel:
                 {
                     "domain_id": domain,
                     "label": domain,
-                    "assessment": dict(NO_ASSESSMENT),
+                    "assessment": dict(analytic["cards"].get(domain, NO_ASSESSMENT)),
                     "metrics": DOMAIN_METRICS[domain](window),
                     "coverage": coverage,
                     "gaps": gaps,
@@ -627,6 +651,10 @@ class OverviewReadModel:
             "interval_statement": INTERVAL_STATEMENT,
             "timeline": _timeline(window),
             "timeline_statement": TIMELINE_STATEMENT,
-            "findings": [],
-            "findings_statement": FINDINGS_STATEMENT,
+            "findings": analytic["findings"],
+            "findings_statement": (
+                FINDINGS_PRESENT_STATEMENT if analytic["findings"]
+                else NO_FINDINGS_STATEMENT if analytic["cards"]
+                else FINDINGS_STATEMENT
+            ),
         }

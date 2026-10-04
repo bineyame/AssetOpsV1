@@ -62,7 +62,8 @@ const LIFECYCLE_STATUS_LABELS: Record<string, string> = {
 };
 
 const SOURCE_MODE_LABELS: Record<string, string> = {
-  SIMULATED: "Simulated",
+  // Section 4 of the T028 presentation decision: a quiet, accurate origin.
+  SIMULATED: "Demonstration data",
   LIVE: "Live",
 };
 

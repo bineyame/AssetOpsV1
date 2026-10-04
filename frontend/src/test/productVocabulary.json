@@ -1,0 +1,91 @@
+{
+  "version": 2,
+  "decision": "D-2026-10-04-plain-language-analysis-views (.agent/T028-architect-presentation.md section 4)",
+  "changes": [
+    "1 (2026-10-04, T028 presentation checkpoint 2b): first list, from the section 4 table.",
+    "2 (2026-10-04, T028 presentation fix round): added the implementation terms the review found on the journey: interval mean(s), measured intervals, dispatch interval."
+  ],
+  "terms": [
+    { "phrase": "run", "row": "simulation and implementation: run" },
+    { "phrase": "runs", "row": "simulation and implementation: run" },
+    { "phrase": "rerun", "row": "simulation and implementation: run" },
+    { "phrase": "runtime", "row": "simulation and implementation: run" },
+    { "phrase": "ran", "row": "simulation and implementation: run" },
+    { "phrase": "running", "row": "simulation and implementation: run" },
+    { "phrase": "binding", "row": "binding" },
+    { "phrase": "bound input", "row": "binding" },
+    { "phrase": "scenario", "row": "development workflow" },
+    { "phrase": "scenarios", "row": "development workflow" },
+    { "phrase": "recipe", "row": "development workflow" },
+    { "phrase": "draft", "row": "development workflow" },
+    { "phrase": "commit", "row": "development workflow" },
+    { "phrase": "committed", "row": "development workflow" },
+    { "phrase": "staged envelope", "row": "development workflow" },
+    { "phrase": "execution", "row": "development workflow" },
+    { "phrase": "world state", "row": "development workflow" },
+    { "phrase": "oracle", "row": "development workflow" },
+    { "phrase": "kernel", "row": "development workflow" },
+    { "phrase": "tick", "row": "development workflow" },
+    { "phrase": "ticks", "row": "development workflow" },
+    { "phrase": "projection", "row": "development workflow" },
+    { "phrase": "replay", "row": "development workflow" },
+    { "phrase": "model profile", "row": "development workflow" },
+    { "phrase": "publication profile", "row": "development workflow" },
+    { "phrase": "simulation", "row": "development workflow" },
+    { "phrase": "simulated", "row": "development workflow" },
+    { "phrase": "simulator", "row": "development workflow" },
+    { "phrase": "backend", "row": "implementation narration" },
+    { "phrase": "frontend", "row": "implementation narration" },
+    { "phrase": "read model", "row": "implementation narration" },
+    { "phrase": "payload", "row": "implementation narration" },
+    { "phrase": "analytic", "row": "implementation narration" },
+    { "phrase": "analytic declaration", "row": "implementation narration" },
+    { "phrase": "basis digest", "row": "implementation narration" },
+    { "phrase": "claim", "row": "assessment states" },
+    { "phrase": "claims", "row": "assessment states" },
+    { "phrase": "claim ceiling", "row": "assessment states" },
+    { "phrase": "candidate", "row": "assessment states" },
+    { "phrase": "candidate avoidable", "row": "assessment states" },
+    { "phrase": "indeterminate", "row": "assessment states" },
+    { "phrase": "necessary", "row": "assessment states" },
+    { "phrase": "PV", "caseSensitive": true, "row": "unexplained abbreviations" },
+    { "phrase": "SOC", "caseSensitive": true, "row": "unexplained abbreviations" },
+    { "phrase": "PCS", "caseSensitive": true, "row": "unexplained abbreviations" },
+    { "phrase": "discharge capability", "row": "unexplained abbreviations" },
+    { "phrase": "load", "row": "unexplained abbreviations" },
+    { "phrase": "reserve policy", "row": "unexplained abbreviations" },
+    { "phrase": "envelope", "row": "record handling" },
+    { "phrase": "source envelope", "row": "record handling" },
+    { "phrase": "ingest", "row": "record handling" },
+    { "phrase": "ingested", "row": "record handling" },
+    { "phrase": "ingestion", "row": "record handling" },
+    { "phrase": "mapping", "row": "record handling" },
+    { "phrase": "mapping basis", "row": "record handling" },
+    { "phrase": "receipt timestamp", "row": "record handling" },
+    { "phrase": "normalization", "row": "record handling" },
+    { "phrase": "normalized", "row": "record handling" },
+    { "phrase": "interval mean", "row": "record handling" },
+    { "phrase": "interval means", "row": "record handling" },
+    { "phrase": "measured intervals", "row": "record handling" },
+    { "phrase": "dispatch interval", "row": "record handling" }
+  ],
+  "glosses": [
+    {
+      "text": "solar power (PV)",
+      "why": "Section 4: Analysis may add the abbreviation after its plain meaning."
+    },
+    {
+      "text": "battery charge (SOC)",
+      "why": "Section 4: Analysis may add the abbreviation after its plain meaning."
+    },
+    {
+      "text": "battery power converter (PCS)",
+      "why": "Section 4: Analysis may add the abbreviation after its plain meaning."
+    }
+  ],
+  "exemptions": {
+    "source-reference": "An exact source-owned identifier (record, source, device, signal, delivery or digest) in a labelled reference field. Section 4: such identifiers may remain; they are not product prose and are never rewritten.",
+    "user-owned": "A name or note a person entered (site name, equipment name). Section 4 excludes user-owned names and notes.",
+    "lab": "A Simulator Lab surface or the entry that leads to it. Section 4: Lab screens retain their own vocabulary."
+  }
+}

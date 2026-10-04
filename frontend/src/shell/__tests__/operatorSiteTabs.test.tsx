@@ -26,7 +26,8 @@ import { spacedText } from "../../test/text";
  *
  * 1. One canonical inventory lists all eight aspects in v6.9's order; the
  *    RENDERED row is that inventory filtered by capability: Overview,
- *    Foundation, Evidence.
+ *    Foundation, Performance, Findings, Evidence (Performance and Findings
+ *    gained their capability at T028).
  * 2. Every rendered tab is a destination: a link to an identified route.
  * 3. No tab is labelled in place or disabled. An aspect whose capability does
  *    not exist is not rendered at all and has no route behind it.
@@ -50,10 +51,16 @@ const V69_OPERATOR_SITE_TABS = [
 ];
 
 /** What this build renders, in order. */
-const RENDERED_TABS = ["Overview", "Foundation", "Evidence"];
+const RENDERED_TABS = [
+  "Overview",
+  "Foundation",
+  "Performance",
+  "Findings",
+  "Evidence",
+];
 
 /** Canonical aspects with no capability in this build: not rendered. */
-const UNRENDERED_TABS = ["Health", "Performance", "Findings", "Work", "Financials"];
+const UNRENDERED_TABS = ["Health", "Work", "Financials"];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the
@@ -178,7 +185,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly Overview, Foundation, Evidence, in order", async () => {
+    it("renders exactly Overview, Foundation, Performance, Findings, Evidence, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -210,6 +217,8 @@ describe.each(SITE_SURFACES)(
       ).toEqual([
         ["Overview", "/sites/MG-002"],
         ["Foundation", "/sites/MG-002/foundation"],
+        ["Performance", "/sites/MG-002/performance"],
+        ["Findings", "/sites/MG-002/findings"],
         ["Evidence", "/sites/MG-002/evidence"],
       ]);
     });
@@ -344,7 +353,7 @@ describe("the Site Evidence route", () => {
       within(tabRow()).getByRole("link", { current: "page" }),
     ).toHaveTextContent("Evidence");
     expect(
-      screen.getByText(/No source batch has been accepted for this site/),
+      screen.getByText(/No records have been received and accepted for this site/),
     ).toBeInTheDocument();
   });
 });
@@ -361,6 +370,6 @@ describe("the landing route", () => {
       within(screen.getByRole("navigation", { name: "Operator routes" }))
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Sites"]);
+    ).toEqual(["Sites", "Findings"]);
   });
 });

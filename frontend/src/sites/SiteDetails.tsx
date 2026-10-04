@@ -290,7 +290,10 @@ export function SiteDetailFacts({
           </Fact>
           <Fact term="Foundation version">{view.foundationVersion}</Fact>
           <Fact term="Valid from">{view.foundationValidFrom}</Fact>
-          <Fact term="Summary">{view.foundationSummary}</Fact>
+          <Fact term="Summary">
+            {/* The site's own configured document text, verbatim (user-owned). */}
+            <span data-vocabulary-exempt="user-owned">{view.foundationSummary}</span>
+          </Fact>
         </FactList>
         <p>
           The foundation is the site's configured content, copied from the
@@ -438,11 +441,14 @@ export function SiteQuickActions({ children }: SiteQuickActionsProps) {
 export interface SiteQuickActionProps {
   label: string;
   unavailableBecause: string;
+  /** `lab` for a Simulator Lab entry: it keeps the Lab's own vocabulary (T028 section 4). */
+  vocabularyExempt?: "lab";
 }
 
 export function SiteQuickAction({
   label,
   unavailableBecause,
+  vocabularyExempt,
 }: SiteQuickActionProps) {
   const reasonId = `site-action-${label.replace(/\s+/g, "-").toLowerCase()}-reason`;
 
@@ -453,10 +459,11 @@ export function SiteQuickAction({
         className="action"
         disabled
         aria-describedby={reasonId}
+        data-vocabulary-exempt={vocabularyExempt}
       >
         {label}
       </button>
-      <p className="action-list__reason" id={reasonId}>
+      <p className="action-list__reason" id={reasonId} data-vocabulary-exempt={vocabularyExempt}>
         {unavailableBecause}
       </p>
     </li>

@@ -1,6 +1,6 @@
 # T028 - First dispatch Finding with challengeable evidence
 
-Status: planned
+Status: done
 USER_REVIEW_REQUIRED: true
 
 Map: C; earliest domain-expert feedback checkpoint, and with T029 the first
@@ -129,12 +129,26 @@ scenario, template or contract change, stop and ask; do not make it here.
     before a real claim exists.
 21. Navigation per `D-2026-10-02-rendered-tabs-per-capability` and
     `D-2026-10-02-grammar-ownership-test`: Performance renders Dispatch as its
-    only subtab; Finding detail renders `Overview | Evidence | Alternatives`
-    (Recommendation and History are not rendered until T034); the claim drawer
+    only subtab (with local `Overview | Analysis` views); Finding detail
+    renders `Overview | Analysis | Evidence | Alternatives` (Recommendation and
+    History are not rendered until T034); Site > Evidence has local
+    `Overview | Analysis` views (amended 2026-10-04 by
+    `D-2026-10-04-plain-language-analysis-views`; spec
+    `.agent/T028-architect-presentation.md`); the claim drawer
     reuses T027's record inspector and opening it never changes the root;
     Findings is a rail root with its global index; Site > Findings is a scoped
     index (filter, no KPI strip, no status model of its own; a row click
     changes root to the Finding).
+
+## Presentation revision (2026-10-04)
+
+`D-2026-10-04-plain-language-analysis-views` (owner direction
+`.agent/owner-T028-presentation-direction-2026-10-04.md`, Architect spec
+`.agent/T028-architect-presentation.md`) adds two checkpoints before merge:
+(1) plain default reading and Analysis destinations; (2) four assessment
+graphics and the product-vocabulary guard. The spec's section 5 verification
+list and its owner walk (default views first, then Analysis) are part of
+acceptance.
 
 ## Phases
 
@@ -217,4 +231,4 @@ from what the screen shows, whether the evidence they would want before acting
 is either present or named as missing, and whether the claim ceiling is one
 they would repeat to an operator. Three yeses is the pass; anything else is
 feedback that redirects later work rather than a defect list for this slice.
-Review outcome: pending.
+Review outcome: owner accepted 2026-10-04 on a quick UI check ("Quick check of the UI looks ok for T028", `.agent/owner-T028-acceptance-2026-10-04.md`); the full packet walk was not recorded. Domain-expert feedback checkpoint still outstanding.

@@ -6,7 +6,8 @@ Run as a script (`python -I`, a working directory outside the repository, with
 an import blocker for the simulator and host modules) it prints those payloads
 and the blocked modules found loaded, so the test can show the rebuild needs no
 simulator, host or execution composition. Phase 2 extends `build` to the
-Overview read model (`overview`), so the same isolated test proves AC15 for it.
+Overview read model (`overview`), so the same isolated test proves AC15 for it;
+T028 adds the analytics read models (declaration, dispatch, Findings).
 """
 
 from __future__ import annotations
@@ -54,6 +55,10 @@ def build(root: Path, artifact_dir: Path, site) -> dict:
     return {
         "evidence": client.get(base).json(),
         "overview": client.get(f"/api/sites/{site.site_id}/overview").json(),
+        # T028 AC14: the analytics read models rebuild with the same blockers.
+        "analytics": client.get(f"/api/sites/{site.site_id}/analytics").json(),
+        "dispatch": client.get(f"/api/sites/{site.site_id}/dispatch").json(),
+        "findings": client.get(f"/api/sites/{site.site_id}/findings").json(),
         "records": records,
         "details": [client.get(f"{base}/records/{r['message_id']}").json()
                     for r in records["records"]],

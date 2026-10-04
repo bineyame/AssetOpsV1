@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 
 import { SiteEvidence } from "../sites/SiteEvidence";
+import { presentationProfileFor } from "../sites/presentationProfile";
+import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import { useSiteRecord } from "../sites/useSiteRecord";
@@ -19,19 +21,22 @@ export const SITE_EVIDENCE_HEADING_ID = "site-evidence-heading";
  * statement of absence rather than an Evidence page for a site that does not
  * exist. Like every operator route it is never gated.
  *
- * The body is `SiteEvidence` (T027 part A): source health, per-signal
- * coverage, the mapping and configuration basis, rejections and the record
- * inspector drill-down, all read from accepted evidence only.
+ * The body is `SiteEvidence`: the T028 capability table (part B, scored by
+ * the backend) above T027 part A - source health, per-signal coverage, the
+ * mapping and configuration basis, rejections and the record inspector
+ * drill-down, all read from accepted evidence only.
  */
 export interface SiteEvidenceFrameProps {
   detail: SiteDetailClient;
   evidence: SiteEvidenceClient;
+  analytics?: SiteAnalyticsClient;
   sitesPath: string;
 }
 
 export function SiteEvidenceFrame({
   detail,
   evidence,
+  analytics,
   sitesPath,
 }: SiteEvidenceFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
@@ -102,7 +107,12 @@ export function SiteEvidenceFrame({
         subtitle={`${site.display_name} · ${site.site_id}`}
       />
       <OperatorSiteTabs siteId={siteId} current="Evidence" />
-      <SiteEvidence siteId={site.site_id} client={evidence} />
+      <SiteEvidence
+        siteId={site.site_id}
+        client={evidence}
+        analytics={analytics}
+        profile={presentationProfileFor(site.site_type)}
+      />
     </main>
   );
 }

@@ -171,6 +171,15 @@ class IngestionService:
         self._chunk_size = chunk_size
         self._fail_after = fail_after
         self._lock = threading.Lock()
+        self._completed_listeners: list[Callable[[str], None]] = []
+
+    def add_completed_listener(self, listener: Callable[[str], None]) -> None:
+        """Call `listener(site_id)` after a batch for that Site completes (T028).
+
+        Ingestion knows nothing of what listens: the composition root registers
+        the analytics here, so evidence never imports an analytic.
+        """
+        self._completed_listeners.append(listener)
 
     @property
     def store(self) -> EvidenceStore:
@@ -312,7 +321,11 @@ class IngestionService:
     def ingest(self, batch: IngestionBatch) -> BatchProgress:
         """Ingest one batch, resuming it if it was interrupted. Returns its progress."""
         with self._lock:
-            return self._ingest(batch)
+            progress = self._ingest(batch)
+        if progress.status == "COMPLETED":
+            for listener in self._completed_listeners:
+                listener(progress.site_id)
+        return progress
 
     def _refused(
         self, batch: IngestionBatch, digest: str, refusal: _Refused, persist: bool

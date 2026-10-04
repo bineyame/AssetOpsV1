@@ -72,6 +72,11 @@ export function siteEvidenceHref(siteId: string): string {
  * Overview evidence links). `signal` is `DEVICE/SIGNAL`, the same value the
  * inspector reads from its own signal rows, so the root does not change.
  */
+/** Site Evidence > Analysis with one assessed period's record coverage selected. */
+export function siteEvidenceAssessmentHref(siteId: string, assessmentId: string): string {
+  return `${siteEvidenceHref(siteId)}?view=analysis&assessment=${encodeURIComponent(assessmentId)}`;
+}
+
 export function siteEvidenceRecordHref(
   siteId: string,
   signal: string,
@@ -80,6 +85,46 @@ export function siteEvidenceRecordHref(
   const [device, ...rest] = signal.split("/");
   const signalParam = `${encodeURIComponent(device)}/${encodeURIComponent(rest.join("/"))}`;
   return `${siteEvidenceHref(siteId)}?signal=${signalParam}&record=${encodeURIComponent(messageId)}`;
+}
+
+/** The route patterns for one site's Performance (T028), and one subtab of it. */
+export const SITE_PERFORMANCE_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/performance`;
+export const SITE_PERFORMANCE_SUBTAB_ROUTE_PATH = `${SITE_PERFORMANCE_ROUTE_PATH}/:capabilityId`;
+
+/**
+ * The address of one site's Performance, optionally at one subtab. A subtab is
+ * a backend capability id (`dispatch`), never a profile label.
+ */
+export function sitePerformanceHref(siteId: string, capabilityId?: string): string {
+  const base = `${siteDetailHref(siteId)}/performance`;
+  return capabilityId === undefined ? base : `${base}/${encodeURIComponent(capabilityId)}`;
+}
+
+/** The route pattern for one site's scoped Findings index (T028). */
+export const SITE_FINDINGS_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/findings`;
+
+export function siteFindingsHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/findings`;
+}
+
+/**
+ * The Findings rail root (T028): the global index. A Finding is a first-class
+ * object under this root, so opening one from a Site changes the root to the
+ * Finding; its claim drawer is a query parameter and never changes it.
+ */
+export const FINDINGS_PATH = "/findings";
+export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
+export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
+
+/**
+ * Finding detail tabs rendered at T028 (D-2026-10-04-plain-language-analysis-
+ * views adds Analysis); Recommendation and History land at T034.
+ */
+export type FindingTab = "overview" | "analysis" | "evidence" | "alternatives";
+
+export function findingHref(siteId: string, assessmentId: string, tab: FindingTab = "overview"): string {
+  const base = `${FINDINGS_PATH}/${encodeURIComponent(siteId)}/${encodeURIComponent(assessmentId)}`;
+  return tab === "overview" ? base : `${base}/${tab}`;
 }
 
 /**

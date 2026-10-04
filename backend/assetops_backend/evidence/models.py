@@ -49,9 +49,12 @@ BATCH_REFUSAL_KINDS = frozenset(
 BATCH_STATUSES = frozenset({"IN_PROGRESS", "COMPLETED", "REFUSED"})
 
 NORMALIZATION = "IDENTITY"
+#: Served beside every record's interpreted value. Plain product wording
+#: (D-2026-10-04-plain-language-analysis-views): the fact is unchanged - no unit
+#: is converted, so the interpreted value and unit are the ones the source sent.
 NORMALIZATION_STATEMENT = (
-    "Normalization is the identity in this build: the mapping refuses unit "
-    "conversion, so the normalized value and unit are the published ones."
+    "AssetOps uses this value and unit exactly as the source sent them; "
+    "it does not convert units."
 )
 
 

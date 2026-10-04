@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import {
   siteDetailHref,
   siteEvidenceHref,
+  siteFindingsHref,
   siteFoundationHref,
+  sitePerformanceHref,
 } from "./operatorSiteRoutes";
 
 /**
@@ -73,8 +75,9 @@ export const CANONICAL_OPERATOR_SITE_TABS: OperatorSiteTab[] = [
   { label: "Overview", capability: true, href: siteDetailHref },
   { label: "Foundation", capability: true, href: siteFoundationHref },
   { label: "Health", capability: false, href: notYetRouted("Health") },
-  { label: "Performance", capability: false, href: notYetRouted("Performance") },
-  { label: "Findings", capability: false, href: notYetRouted("Findings") },
+  // T028: Performance (Dispatch its only subtab) and the scoped Findings index.
+  { label: "Performance", capability: true, href: (siteId) => sitePerformanceHref(siteId) },
+  { label: "Findings", capability: true, href: siteFindingsHref },
   { label: "Work", capability: false, href: notYetRouted("Work") },
   { label: "Financials", capability: false, href: notYetRouted("Financials") },
   { label: "Evidence", capability: true, href: siteEvidenceHref },

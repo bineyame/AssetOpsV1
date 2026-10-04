@@ -42,8 +42,12 @@ const OPERATOR_ROUTES = ["/", "/sites"];
  * page and its configuration are now reached from a Sites row and from the
  * site. The gate assertion is unchanged in strength - the list is still pinned
  * exactly, and it is still the same list in both flag states.
+ *
+ * T028 adds Findings (`D-2026-10-02-grammar-ownership-test`), the
+ * INTELLIGENCE rail root owning the global Findings index. It is an operator
+ * capability, so it is listed in both gate states like Sites.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings"];
 
 /** Injected and empty: placement assertions must not depend on a store. */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {

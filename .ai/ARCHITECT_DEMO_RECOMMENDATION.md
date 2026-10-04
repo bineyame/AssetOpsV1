@@ -166,7 +166,7 @@ OPERATOR SHELL (left rail; grouped; highlights the root object's class)
 |-- [INTELLIGENCE] Findings  root; global index      [T028]
 |     lenses: All | Opportunities | Risks | Awaiting verification
 |     `-- Finding (root object)
-|           Overview | Evidence | Alternatives          [T028]
+|   Overview | Analysis | Evidence | Alternatives      [T028]
 |           + Recommendation | History                 [T034]
 |           (claim evidence drawer opens from any claim; never changes root)
 |
@@ -333,7 +333,7 @@ inventory, so this is a change to its filter, not its structure.
 
 **Other contextual tab sets:**
 
-- Finding detail at T028: Overview | Evidence | Alternatives. Recommendation
+- Finding detail at T028: Overview | Analysis | Evidence | Alternatives (amended by `D-2026-10-04-plain-language-analysis-views`). Recommendation
   and History appear at T034.
 - Action at T034: Overview | Verification. Plan, Execution, Evidence and
   History appear when they have content.

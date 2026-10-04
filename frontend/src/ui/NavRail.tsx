@@ -20,6 +20,13 @@ export interface NavRailItem {
   label: string;
   /** Whether the active match is exact, for a root path. */
   end?: boolean;
+  /**
+   * The rail group this item belongs to (T028: OPERATE, INTELLIGENCE). Items
+   * render in the order given; a group header renders once, before the first
+   * item of its group, so a one-item group is still headed. Ungrouped items
+   * render with no header.
+   */
+  group?: string;
 }
 
 export interface NavRailProps {
@@ -29,17 +36,35 @@ export interface NavRailProps {
 }
 
 export function NavRail({ label, items }: NavRailProps) {
+  const sections: { group: string | undefined; items: NavRailItem[] }[] = [];
+  for (const item of items) {
+    const last = sections[sections.length - 1];
+    if (last !== undefined && last.group === item.group) {
+      last.items.push(item);
+    } else {
+      sections.push({ group: item.group, items: [item] });
+    }
+  }
   return (
     <nav className="nav-rail" aria-label={label}>
-      <ul className="nav-rail__list">
-        {items.map((item) => (
-          <li key={item.to}>
-            <NavLink className="nav-rail__link" to={item.to} end={item.end}>
-              {item.label}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+      {sections.map((section, index) => (
+        <div className="nav-rail__group" key={`${section.group ?? ""}-${index}`}>
+          {section.group === undefined ? null : (
+            <p className="nav-rail__group-label" data-rail-group={section.group}>
+              {section.group}
+            </p>
+          )}
+          <ul className="nav-rail__list">
+            {section.items.map((item) => (
+              <li key={item.to}>
+                <NavLink className="nav-rail__link" to={item.to} end={item.end}>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </nav>
   );
 }

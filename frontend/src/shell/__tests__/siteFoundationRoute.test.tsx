@@ -12,6 +12,7 @@ import type {
   SiteDetailReadModel,
   SiteSummary,
 } from "../../sites/siteReadModel";
+import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
@@ -114,8 +115,20 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
   "Site configuration",
 ];
 
-/** Operator navigation after T008, in order. T011A does not change it. */
-const OPERATOR_NAVIGATION_LABELS = ["Sites"];
+/**
+ * The one item admitted to operator navigation since T004: Findings, at T028,
+ * under `D-2026-10-02-grammar-ownership-test`. It is the INTELLIGENCE rail root
+ * and owns the global Findings index, so it names no site and is not a
+ * placeholder for one. The baseline the "has not grown" assertion is made
+ * against is T004's list plus exactly this item; any other addition fails.
+ */
+const ADMITTED_SINCE_T004 = ["Findings"];
+
+/**
+ * Operator navigation after T028, in order. T008 removed both parameterless
+ * site items, T011A did not change the list, and T028 added Findings.
+ */
+const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -145,6 +158,7 @@ function renderAt(path: string, flags: FeatureFlags = DISABLED) {
         flags={flags}
         siteDirectory={directoryWith([SITE])}
         siteDetail={detailClientFor([SITE_DETAIL, DRAWABLE_SITE_DETAIL])}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
       />
     </MemoryRouter>,
   );
@@ -415,16 +429,19 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
       .querySelectorAll("a");
     const rendered = Array.from(labels).map((link) => link.textContent ?? "");
 
-    expect(rendered.length).toBeLessThanOrEqual(
-      T004_OPERATOR_NAVIGATION_LABELS.length,
-    );
+    // T028 admitted Findings (`D-2026-10-02-grammar-ownership-test`); the
+    // allowed set is T004's list plus that one item and nothing else.
+    const allowed = [...T004_OPERATOR_NAVIGATION_LABELS, ...ADMITTED_SINCE_T004];
+
+    expect(rendered.length).toBeLessThanOrEqual(allowed.length);
     for (const label of rendered) {
-      expect(T004_OPERATOR_NAVIGATION_LABELS).toContain(label);
+      expect(allowed).toContain(label);
     }
   });
 
   it("resolves every operator navigation item to a real surface", async () => {
     const { container, unmount } = renderAt("/", ENABLED);
+    await settledScreen(container);
     const hrefs = Array.from(
       within(container)
         .getByRole("navigation", { name: "Operator routes" })
@@ -432,7 +449,7 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
     ).map((link) => link.getAttribute("href") ?? "");
     unmount();
 
-    expect(hrefs).toHaveLength(OPERATOR_NAVIGATION_LABELS.length);
+    expect(hrefs).toEqual(["/sites", "/findings"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen(view.container);

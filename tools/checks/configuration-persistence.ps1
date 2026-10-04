@@ -95,6 +95,17 @@ function Invoke-ConfigurationPersistenceCheck {
             Writer      = "$backendRoot/evidence/adapters/json_evidence_store.py"
             UserRootVar = "EVIDENCE_STORE_ROOT"
             UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"
+        },
+        @{
+            # T028: assessment revision history, derived from accepted evidence
+            # but retained (AC13). Written only by the analytics service through
+            # the JSON adapter; the memory adapter writes no file.
+            Name        = "analytics"
+            Package     = "$backendRoot/analytics"
+            Composition = "$backendRoot/analytics/composition.py"
+            Writer      = "$backendRoot/analytics/adapters/json_assessment_store.py"
+            UserRootVar = "ASSESSMENT_STORE_ROOT"
+            UserRootOwner = "$backendRoot/analytics/adapters/json_assessment_store.py"
         }
     )
 

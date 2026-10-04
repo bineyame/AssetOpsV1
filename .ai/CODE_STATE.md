@@ -4613,3 +4613,98 @@ Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phase
   cover the 5-minute timestep of each 15-minute report, so measured-interval
   energy covers about a third of the window and is labelled so; the profile-5
   run stages no fuel envelopes, so the demo Fuel card shows its gap.
+
+## T028 - Dispatch Finding and Evidence capability table
+
+In review (independent review and owner UI walk pending). Packet
+`.agent/T028-review-packet.md`; handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`,
+`.agent/T028-presentation-cp{1,2a}-handoff.md`; final layout evidence
+`.agent/T028-layout-evidence-final.txt` (presentation cp2b).
+
+- Analytic `analytics/dispatch.py` (model `dispatch-2`, `assess()`); rules and
+  thresholds in `backend/tests/dispatch_decision_table.md`. Classification uses
+  accepted evidence only; never observed PV as capability, never simulator truth.
+  Fix round 1 (Codex R1-R5, `.agent/T028-review-packet.md` "Fix round 1"):
+  segments split at constraint-record effective times between reports; 5b
+  enforces SOC headroom; equal-rank differing policy/override records are
+  classified under each (agree or Indeterminate); evidence digest covers
+  bounds, alternatives and fuel basis; reconcile also compares the payload.
+- `AssessmentService` (`analytics/service.py`) reconciles assessments: same
+  evidence gives no new revision; changed evidence appends a revision and keeps
+  the prior; stored under `var/assessments` (`json_assessment_store.py`). Runs on
+  ingestion completion (listener in `evidence/service.py`) and on read. Evidence
+  never imports analytics (card assessments are injected into `overview.py`).
+- Routes (`analytics_api.py`, ungated): `/api/sites/{id}/analytics` (declaration
+  with per-analytic `readiness`), `/dispatch`, `/findings`,
+  `/assessments/{aid}`, `/assessments/{aid}/revisions`, and global `GET /api/findings`.
+- Declaration (`analytics/declaration.py`): id, site types, Finding type, required
+  and optional evidence, claim levels, `readiness` basis (`readiness-3`; `-2` made None need neither generator status nor output, `-3` counts unobserved generator-state spans as a limiting gap).
+  `score_readiness`: Full/Limited/None, ceiling, missing evidence. A coverage gap
+  lowers Full only when it left a segment Indeterminate; absent optional evidence
+  is listed and never lowers it. Site-wide, not the selected window.
+- Guard `tools/checks/analytic-declaration.ps1` (declaration fields incl.
+  `readiness`; no `EXECUTION_REQUIREMENTS` or simulator reads); dependency rule
+  (evidence may not import analytics); persistence domain for analytics;
+  `navigation-truthfulness.ps1` rail rule is two grouped items. Probes proven.
+- Frontend: Performance > Dispatch (only subtab), Finding detail
+  `Overview | Evidence | Alternatives` with `ClaimDrawer` reusing T027
+  `RecordDetail` (`?record=&claim=`, root unchanged), Findings rail root,
+  Site > Findings, `CapabilityReadiness.tsx` above source health. Rail groups via
+  `ui/NavRail.tsx` `group`. Presentation profile (`presentationProfile.ts`,
+  `presentationProfiles.json` `capabilities`, `performanceSubtabs`,
+  `finding_types`) obeys the three rules; orphan lists `EXPECTED_ORPHANS`,
+  `EXPECTED_ORPHAN_FINDING_TYPES` in `test_t028_presentation_profile.py`.
+- Owner rulings 2026-10-03: Necessary intervals stay assessments without a
+  Finding; stop-60 gets no policy record (T034).
+- Presentation correction (`D-2026-10-04-practitioner-first-finding-presentation`,
+  packet "Presentation correction"): `dispatch.reading()` (meaning, next steps
+  with targets, framing) is served at read time on every lineage summary, never
+  persisted (adds no revision); readiness carries `question`/`meaning`/`scope`.
+  Frontend leads with plain six-part headings, readable UTC periods
+  (`readablePeriod`), and puts IDs/revisions/digest, full coverage, fuel inputs,
+  Performance method and readiness scoring behind closed `Disclosure`s.
+- Totals at closeout: backend 1465, host 616, simulator 244, frontend 1097.
+- Presentation revision cp1 (`D-2026-10-04-plain-language-analysis-views`,
+  supersedes the disclosure layout above; packet "Presentation checkpoint 1"):
+  `analytics/plain.py` generates every product sentence at read time from the
+  stored structured assessment (`reading`, `card`, `readiness`, `role`); old
+  `dispatch.reading`/`CLAIM_MEANINGS` removed. Finding tabs
+  `Overview | Analysis | Evidence | Alternatives` (`/analysis`); Dispatch and
+  Site Evidence local `Overview | Analysis` (`?view=analysis`, other params
+  kept); shared `sites/assessmentAnalysis.tsx`; card and index "View analysis".
+- Presentation cp2a (packet "Presentation checkpoint 2a"): four graphics in
+  `sites/assessmentGraphics.tsx` (assessed-period timeline full/compact, fuel
+  range, reported values for a selected part `?part=N`, coverage by input),
+  region `.assessment-graphic` named in `shell-overflow.ps1`; card
+  `lead_timeline`/`lead_revision` from `plain.card_timeline`; Site Evidence
+  `?view=analysis&assessment=<id>` one-period coverage, apart from readiness.
+- Presentation cp2b (packet "Presentation checkpoint 2b"): vocabulary guard -
+  list `frontend/src/test/productVocabulary.json` (v1), scanner
+  `productVocabulary.ts`, suite `shell/__tests__/t028Vocabulary.test.tsx`
+  (29 Lab-off + 2 Lab-on states), exemptions only `data-vocabulary-exempt=
+  source-reference|user-owned|lab` on single values; live scan `t028Journey`
+  in `tools/layout-evidence.mjs` (`ASSETOPS_LAYOUT_T028_JOURNEY_ONLY=1` runs
+  it alone, Lab-off); backend test scans served evidence statements and
+  rejection reasons against the same list. Read-time rejection `reason`
+  (`evidence/read_model.py` `REJECTION_READINGS`; stored detail unchanged);
+  plain `NORMALIZATION_STATEMENT`, `INTERVAL_STATEMENT`; source mode label
+  "Demonstration data". Layout evidence `.agent/T028-layout-evidence-final.txt`
+  (615 PASS, 4 known FAIL) and `-lab-off.txt` (4 PASS).
+  Exclusions also by value: `data-vocabulary-reference` (`sites/vocabularyReference.ts`).
+
+### What this leaves open
+
+- Owner decisions: any-gap vs limiting-gap readiness rule; site-wide vs selected
+  window readiness.
+- Overview shows whole-interval generator runtime beside a different-basis
+  assessment (backlog item stays open for the metric).
+- `GET /api/findings` and `/analytics` run `assess_site` per Site on read.
+- Ingestion keeps the first record at a key, so same-key recipe re-runs do not
+  revise intervals.
+- Recommendation and History tabs, verification rules: T034.
+- Legacy product copy outside the T028 journey (Foundation, Sites index
+  filters, other pages) is not scanned by the vocabulary guard: post-T029
+  inventory follow-up. `INPUT_WORDS` coverage labels are still a frontend map.
+- Persisted `summary`/claim-limit wording unchanged by the presentation
+  correction (Necessary "4.5-open", `(dispatch-2)` in the Candidate limit);
+  rewording them appends a revision per lineage.

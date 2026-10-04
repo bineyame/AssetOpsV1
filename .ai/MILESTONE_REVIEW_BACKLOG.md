@@ -1750,6 +1750,82 @@ Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-revie
   reading. Until then, a single failure of this claim alone is not evidence of a
   regression.
 
+## Carried from T028 Codex review: one item
+
+Recorded by the coordinator from `.agent/T028-codex-review.md` (C1).
+
+- **Unknown Finding types lose the backend display name.**
+  `frontend/src/sites/FindingDetail.tsx` and `FindingsIndexes.tsx` call
+  `findingTypeLabel` without the declaration's display name, so the AC18 rule-1
+  fallback shows the raw id. Safe to carry: the id still renders and the only
+  shipped type is mapped. Fix in a fast-lane pass, or with the next analytic
+  slice that adds a Finding type: pass the backend display name through.
+  The T025b "profile 4 discloses the status as observed and not staged" layout
+  claim (failed in T027 phase 2 and T028 runs) also needs a focused Lab check;
+  not diagnosed as a flake.
+
+- **Conflicting optional evidence does not lower readiness (re-review F2).**
+  Two conflicting minimum-runtime policies or generator overrides make part of
+  an assessment Indeterminate, yet readiness stays Full with "no claim-limiting
+  gaps identified" (`analytics/declaration.py`, `CapabilityReadiness.tsx`):
+  the interim rule has no coverage row for optional inputs. The conflict is
+  still named in the assessment's missing evidence. Safe to carry: needs two
+  gateways disagreeing on policy, which no shipped recipe produces. Fix with
+  T028A's gap impact types (`.agent/T028-fix-round-1-claude-rereview.md`).
+
+## For T029: practitioner-first presentation direction
+
+From `D-2026-10-04-practitioner-first-finding-presentation`
+(`.agent/T028-architect-audience.md`): the Planner carries the audience
+direction into T029 before it starts. The prospect's journey begins on a
+seeded, populated site with the Lab off, not Draft creation, Commit setup or
+API inspection; the bounded fuel and maintenance consequence is added to the
+readable Finding, compact Overview value and Site Financials, keeping
+associated candidate cost distinct from realised savings.
+
+## Carried from T028 presentation review
+
+From `.agent/T028-presentation-claude-review.md` (Claude). Safe to carry under
+`D-2026-09-22-milestone-speed-over-purity`: none changes a classification,
+number or claim strength.
+
+- **F2:** the Overview Dispatch card is silent on fuel when the lead's fuel is
+  unavailable (`SiteOverview.tsx`); the spec asks for an honest unavailable state.
+  Fix with T029's card value.
+- **F3:** equipment is always "Generator" (`analytics/plain.py`) though the site
+  has a display name; use it where available.
+- **F4:** a guard exemption can cover a whole prose node and source-reference
+  exemptions get no shape check (`frontend/src/test/productVocabulary.ts`); the
+  template-shipped foundation summary is exempted as "user-owned"
+  (`SiteDetails.tsx`). Tighten with the post-T029 copy inventory.
+- **F7 (rest):** decimal hours beside "h min" (`assessmentAnalysis.tsx`); the
+  part-missing message misdescribes the default part; "may have been withdrawn"
+  shown when the Dispatch read failed (`SiteEvidence.tsx`); a misplaced doc
+  comment (`operatorSiteRoutes.ts`); tab-tree indentation in
+  `ARCHITECT_DEMO_RECOMMENDATION.md`.
+- **Live scan breadth:** the browser vocabulary scan covered one Possibly
+  avoidable period; Needed and Cannot determine wording is covered by fixtures
+  and the backend check only.
+
+## Planned follow-up after T029: legacy product copy inventory
+
+From `D-2026-10-04-plain-language-analysis-views`: product surfaces outside
+the T028 journey (Foundation, Sites, shell) still carry simulation or
+implementation wording. Inventory and correct them after T029; no new jargon
+meanwhile. Lab surfaces are excluded.
+
+## Planned follow-up: T028A, configurable analytic evidence-gap impact
+
+Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
+(record `.agent/T028-architect-readiness-decisions.md` section 2) at the owner's
+request (2026-10-04: defer the gap rule, make it configurable through a "gap
+impact type"). Plan after T029's point-2 feedback; unscheduled; gates nothing
+on the demo spine. Scope: a versioned backend setting per analytic evidence
+requirement (`CLAIM_DEPENDENT`, `COVERAGE_REQUIRED`, `CONTEXT_ONLY`), a small
+inspection/editing surface on Site > Evidence, effective type and version shown
+with readiness; no generic rules engine. T028 ships `CLAIM_DEPENDENT` as the
+disclosed interim rule.
+
 ## Parked task: T025h, picker compatibility status (Lab ergonomics)
 
 Recorded 2026-10-02 by the coordinator at the owner's request ("add it to the

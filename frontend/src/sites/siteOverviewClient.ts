@@ -12,6 +12,7 @@
  * than a partial page.
  */
 
+import type { TimelineSource } from "./assessmentGraphics";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import {
   arrayOf,
@@ -28,6 +29,31 @@ export interface OverviewAssessment {
   status: string;
   label: string;
   reason: string;
+  /** T028: present when an analytic assessed this domain. */
+  capability_id?: string;
+  capability_display_name?: string;
+  model_version?: string;
+  assessment_ids?: string[];
+  lead_assessment_id?: string;
+  lead_revision?: number;
+  /**
+   * T028 presentation checkpoint 2a: the lead assessment's stored segments,
+   * interval and fuel bounds, copied for the card's compact timeline so the
+   * card draws the same period as its Finding without fetching it.
+   */
+  lead_timeline?: CardTimeline;
+}
+
+export interface CardTimeline extends TimelineSource {
+  segments: (TimelineSource["segments"][number] & { outcome: string })[];
+  fuel: {
+    status: string;
+    low_litres: string | null;
+    high_litres: string | null;
+    label: string;
+    text: string | null;
+    note: string;
+  };
 }
 
 export interface OverviewEvidenceLink {

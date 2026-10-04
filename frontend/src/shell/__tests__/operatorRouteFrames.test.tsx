@@ -5,6 +5,10 @@ import { describe, expect, it } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
+import {
+  EMPTY_ANALYTICS_CLIENT,
+  EMPTY_ANALYTICS_STATEMENT,
+} from "../../sites/__tests__/analyticsFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 
@@ -38,7 +42,11 @@ const simulatorLabEnabled = featureFlagsWith(true);
 function renderAt(path: string, flags: FeatureFlags = simulatorLabDisabled) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} />
+      <App
+        flags={flags}
+        siteDirectory={EMPTY_SITE_DIRECTORY}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+      />
     </MemoryRouter>,
   );
 }
@@ -166,27 +174,73 @@ describe("operator route frame empty states", () => {
 });
 
 describe("operator route navigation", () => {
-  it("navigates between operator route frames", () => {
+  it("navigates between operator route frames", async () => {
     renderAt("/");
+    await settledScreen();
 
     const operatorNavigation = screen.getByRole("navigation", {
       name: "Operator routes",
     });
 
+    fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Findings" }));
+    await settledScreen();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Findings" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(EMPTY_ANALYTICS_STATEMENT)).toBeInTheDocument();
+
     fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Sites" }));
+    await settledScreen();
     expect(
       screen.getByRole("heading", { level: 1, name: "Sites" }),
     ).toBeInTheDocument();
 
-    // There is no third item to navigate to. Both parameterless site
-    // destinations have been removed by the slices that gave them identified
-    // replacements, and neither replacement is a navigation item, because a
-    // navigation item cannot name which site it would open.
+    // Exactly two items. Both parameterless site destinations have been
+    // removed by the slices that gave them identified replacements, and
+    // neither replacement is a navigation item, because a navigation item
+    // cannot name which site it would open. Findings (T028,
+    // `D-2026-10-02-grammar-ownership-test`) names no site either: it is the
+    // INTELLIGENCE rail root and owns the global Findings index.
     expect(
       within(operatorNavigation)
         .getAllByRole("link")
-        .map((link) => link.textContent),
-    ).toEqual(["Sites"]);
+        .map((link) => [link.textContent, link.getAttribute("href")]),
+    ).toEqual([
+      ["Sites", "/sites"],
+      ["Findings", "/findings"],
+    ]);
+  });
+
+  it("heads each rail group, OPERATE then INTELLIGENCE, over exactly one item each", async () => {
+    renderAt("/sites");
+    await settledScreen();
+
+    const operatorNavigation = screen.getByRole("navigation", {
+      name: "Operator routes",
+    });
+
+    // A one-item group is still headed (T028,
+    // `D-2026-10-02-grammar-ownership-test`).
+    const groups = Array.from(
+      operatorNavigation.querySelectorAll(".nav-rail__group"),
+    ).map((group) => [
+      Array.from(group.querySelectorAll(".nav-rail__group-label")).map(
+        (header) => [header.textContent, header.getAttribute("data-rail-group")],
+      ),
+      Array.from(group.querySelectorAll("li")).map((item) => item.textContent),
+    ]);
+
+    expect(groups).toEqual([
+      [[["OPERATE", "OPERATE"]], ["Sites"]],
+      [[["INTELLIGENCE", "INTELLIGENCE"]], ["Findings"]],
+    ]);
+    // Each header precedes its group's list.
+    for (const group of Array.from(
+      operatorNavigation.querySelectorAll(".nav-rail__group"),
+    )) {
+      expect(group.firstElementChild).toHaveClass("nav-rail__group-label");
+      expect(group.lastElementChild?.tagName).toBe("UL");
+    }
   });
 
   it.each(operatorRoutes)(

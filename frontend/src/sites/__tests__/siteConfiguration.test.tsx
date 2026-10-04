@@ -627,7 +627,7 @@ describe("the six provenance and status concepts stay six here too", () => {
     await settledScreen();
 
     expect(factValue(container, "Configuration origin")).toBe("User");
-    expect(factValue(container, "Mode")).toBe("Simulated");
+    expect(factValue(container, "Mode")).toBe("Demonstration data");
     expect(factValue(container, "Lifecycle status")).toBe("Planned");
     expect(factValue(container, "Integration readiness")).toMatch(
       /^Not recorded\./,

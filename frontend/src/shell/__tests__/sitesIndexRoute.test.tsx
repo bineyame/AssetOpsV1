@@ -47,8 +47,12 @@ const SITE: SiteSummary = {
  * gone, each removed by the slice that gave it an identified replacement, and
  * neither replacement is a navigation item: a navigation item cannot name
  * which site it would open.
+ *
+ * T028 adds Findings (`D-2026-10-02-grammar-ownership-test`): the INTELLIGENCE
+ * rail root, which owns the global Findings index and names no site. Neither
+ * the site row nor the gated create action is a navigation item.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Sites"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings"];
 
 const SITE_DETAIL: SiteDetailReadModel = {
   ...SITE,
@@ -120,7 +124,7 @@ describe("the Sites index is an operator capability", () => {
 
     expect(within(row).getByText("MG-002")).toBeInTheDocument();
     expect(within(row).getByText("Kalangala Mini-Grid")).toBeInTheDocument();
-    expect(within(row).getByText("Simulated")).toBeInTheDocument();
+    expect(within(row).getByText("Demonstration data")).toBeInTheDocument();
     expect(within(row).getByText("User")).toBeInTheDocument();
     expect(within(row).getByText("Planned")).toBeInTheDocument();
     expect(
@@ -332,8 +336,9 @@ describe("a Sites row is the way into a site", () => {
      * T006 asserted that no per-site destination existed. It exists now, so
      * the assertion is replaced rather than dropped, and the replacement is
      * the stronger half: the index offers the site row link and the gated
-     * create action and nothing else, and operator navigation still gained
-     * nothing.
+     * create action and nothing else, and operator navigation gained
+     * nothing from it: the only item added since is T028's Findings rail
+     * root, which is not a per-site destination.
      */
     const view = render(
       <MemoryRouter initialEntries={["/sites"]}>

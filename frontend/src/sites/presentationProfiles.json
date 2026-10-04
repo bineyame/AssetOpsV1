@@ -1,11 +1,41 @@
 {
   "MINIGRID": {
     "overview_cards": [
-      { "id": "Service", "label": "Service" },
-      { "id": "Dispatch", "label": "Dispatch" },
-      { "id": "Battery", "label": "Battery" },
-      { "id": "Fuel", "label": "Fuel" },
-      { "id": "Renewable", "label": "Renewable" }
+      {
+        "id": "Service",
+        "label": "Service"
+      },
+      {
+        "id": "Dispatch",
+        "label": "Dispatch"
+      },
+      {
+        "id": "Battery",
+        "label": "Battery"
+      },
+      {
+        "id": "Fuel",
+        "label": "Fuel"
+      },
+      {
+        "id": "Renewable",
+        "label": "Renewable"
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "dispatch",
+        "label": "Dispatch assessment",
+        "order": 1,
+        "group": "Performance",
+        "emphasis": "primary"
+      }
+    ],
+    "finding_types": [
+      {
+        "id": "generator-dispatch-interval",
+        "label": "Generator operation period"
+      }
     ]
   }
 }
