@@ -97,7 +97,7 @@ input: `Docs/lab-cockpit-proposal.md`; handoff: `.ai/PLANNING_HANDOFF_LAB_COCKPI
 
 ## Read For The Active Task
 
-1. **T028** (next; `tasks/T028-dispatch-finding-and-evidence.md`); `tasks/completed/T027-commit-ingestion-and-site-overview.md` (CODE_STATE `T027 phase 1`, `T027 phase 2`); T025h parked; `tasks/completed/T026-dispatch-capable-evidence.md` (CODE_STATE `T026`), `tasks/completed/T025g-run-binds-scenario-to-site.md` (CODE_STATE `T025g`), `tasks/completed/T025f-template-versioning.md` (CODE_STATE `T025f`), `tasks/completed/T025e-cockpit-organisation-and-live-playback.md`, T025d/T025c/T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
+1. **T028** (in review, branch `task/T028-dispatch-finding-and-evidence`; `tasks/T028-dispatch-finding-and-evidence.md`, packet `.agent/T028-review-packet.md`, CODE_STATE `T028`; two owner decisions open: readiness gap rule, readiness window); `tasks/completed/T027-commit-ingestion-and-site-overview.md` (CODE_STATE `T027 phase 1`, `T027 phase 2`); T025h parked; `tasks/completed/T026-dispatch-capable-evidence.md` (CODE_STATE `T026`), `tasks/completed/T025g-run-binds-scenario-to-site.md` (CODE_STATE `T025g`), `tasks/completed/T025f-template-versioning.md` (CODE_STATE `T025f`), `tasks/completed/T025e-cockpit-organisation-and-live-playback.md`, T025d/T025c/T025b/T025a/T024/T022B/T023/T022/T022A are completed regression evidence.
 2. `.ai/CODE_STATE.md`: the T025d, T025c, T025b, T025a and T024 entries, then T022B, T023, T022, T021A, T021, T020B.
    Completed tasks are regression evidence, not direction.
 3. `.ai/PLANNING_HANDOFF_LAB_COCKPIT.md` and its three 2026-09-30 decisions;
@@ -128,7 +128,7 @@ a private artifact per run, and a gated screen that starts, steps and finishes a
 run and shows truth beside what was reported. **T023 adds the
 gateway, the canonical envelope and an immutable stage** with a gated inspector.
 T027 adds **Commit, ingestion, Site > Evidence and the mini-grid Overview**;
-there are still **no analytics and no Findings**.
+T028 adds the **dispatch analytic, its Finding, and the capability table** (no other analytics).
 
 The shipped scenario lives in `config/scenarios/fuel-loss-event.yaml`.
 Shipped and writable stores have disjoint identities; the scenario store ships

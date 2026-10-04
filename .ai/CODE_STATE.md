@@ -4613,3 +4613,54 @@ Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phase
   cover the 5-minute timestep of each 15-minute report, so measured-interval
   energy covers about a third of the window and is labelled so; the profile-5
   run stages no fuel envelopes, so the demo Fuel card shows its gap.
+
+## T028 - Dispatch Finding and Evidence capability table
+
+In review (owner review pending). Packet `.agent/T028-review-packet.md`;
+phase handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`; layout evidence
+`.agent/T028-layout-evidence.txt` (560 PASS, 5 FAIL: 3 blocked-table, T025e p95,
+and T025b "profile 4 ... not staged", the last not on the known list and not in
+code T028 touches).
+
+- Analytic `analytics/dispatch.py` (model `dispatch-1`, `assess()`); rules and
+  thresholds in `backend/tests/dispatch_decision_table.md`. Classification uses
+  accepted evidence only; never observed PV as capability, never simulator truth.
+- `AssessmentService` (`analytics/service.py`) reconciles assessments: same
+  evidence gives no new revision; changed evidence appends a revision and keeps
+  the prior; stored under `var/assessments` (`json_assessment_store.py`). Runs on
+  ingestion completion (listener in `evidence/service.py`) and on read. Evidence
+  never imports analytics (card assessments are injected into `overview.py`).
+- Routes (`analytics_api.py`, ungated): `/api/sites/{id}/analytics` (declaration
+  with per-analytic `readiness`), `/dispatch`, `/findings`,
+  `/assessments/{aid}`, `/assessments/{aid}/revisions`, and global `GET /api/findings`.
+- Declaration (`analytics/declaration.py`): id, site types, Finding type, required
+  and optional evidence, claim levels, `readiness` basis (`readiness-1`).
+  `score_readiness`: Full/Limited/None, ceiling, missing evidence. A coverage gap
+  lowers Full only when it left a segment Indeterminate; absent optional evidence
+  is listed and never lowers it. Site-wide, not the selected window.
+- Guard `tools/checks/analytic-declaration.ps1` (declaration fields incl.
+  `readiness`; no `EXECUTION_REQUIREMENTS` or simulator reads); dependency rule
+  (evidence may not import analytics); persistence domain for analytics;
+  `navigation-truthfulness.ps1` rail rule is two grouped items. Probes proven.
+- Frontend: Performance > Dispatch (only subtab), Finding detail
+  `Overview | Evidence | Alternatives` with `ClaimDrawer` reusing T027
+  `RecordDetail` (`?record=&claim=`, root unchanged), Findings rail root,
+  Site > Findings, `CapabilityReadiness.tsx` above source health. Rail groups via
+  `ui/NavRail.tsx` `group`. Presentation profile (`presentationProfile.ts`,
+  `presentationProfiles.json` `capabilities`, `performanceSubtabs`,
+  `finding_types`) obeys the three rules; orphan lists `EXPECTED_ORPHANS`,
+  `EXPECTED_ORPHAN_FINDING_TYPES` in `test_t028_presentation_profile.py`.
+- Owner rulings 2026-10-03: Necessary intervals stay assessments without a
+  Finding; stop-60 gets no policy record (T034).
+- Totals at closeout: backend 1465, host 616, simulator 244, frontend 1097.
+
+### What this leaves open
+
+- Owner decisions: any-gap vs limiting-gap readiness rule; site-wide vs selected
+  window readiness.
+- Overview shows whole-interval generator runtime beside a different-basis
+  assessment (backlog item stays open for the metric).
+- `GET /api/findings` and `/analytics` run `assess_site` per Site on read.
+- Ingestion keeps the first record at a key, so same-key recipe re-runs do not
+  revise intervals.
+- Recommendation and History tabs, verification rules: T034.
