@@ -24,7 +24,9 @@ import {
   CANDIDATE_SUMMARY,
   EMPTY_ANALYTICS_CLIENT,
   NECESSARY_ID,
+  NONE_READINESS,
   analyticsClient,
+  declaration,
 } from "../../sites/__tests__/analyticsFixtures";
 import {
   EMPTY_EVIDENCE_CLIENT,
@@ -130,6 +132,12 @@ const STATES: Array<[string, string, Clients?, (() => Promise<void>)?]> = [
   ["Dispatch Analysis, possibly avoidable period", `/sites/${SITE_ID}/performance/dispatch?interval=${CANDIDATE_ID}&view=analysis`],
   ["Dispatch Analysis, unknown period", `/sites/${SITE_ID}/performance/dispatch?interval=dispatch-gone&view=analysis`],
   ["Dispatch, nothing assessed", `/sites/${SITE_ID}/performance/dispatch`, { analytics: EMPTY_ANALYTICS_CLIENT }],
+  ["Dispatch, loaded and empty", `/sites/${SITE_ID}/performance/dispatch`, { analytics: analyticsClient(SITE_ID, { emptyDispatch: true }) }],
+  ["Site Evidence, None readiness", `/sites/${SITE_ID}/evidence`, {
+    analytics: analyticsClient(SITE_ID, {
+      declaration: declaration(SITE_ID, [{ analytic_id: "dispatch", display_name: "Dispatch", readiness: NONE_READINESS }]),
+    }),
+  }],
   ["Dispatch, unavailable", `/sites/${SITE_ID}/performance/dispatch`, { analytics: unavailableAnalytics }],
   ["Finding Overview", `/findings/${SITE_ID}/${CANDIDATE_ID}`],
   ["Finding Analysis", `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`],

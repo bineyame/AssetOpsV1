@@ -299,7 +299,7 @@ def _service(window: _Window) -> list[dict[str, Any]]:
                 f"{label} energy",
                 "kWh",
                 value=_fmt(energy, 1),
-                basis=f"Measured intervals cover {_fmt(_hours(seconds), 2)} h.",
+                basis=f"The measured time covers {_fmt(_hours(seconds), 2)} h.",
                 evidence=_interval_link(window.of(key)),
                 missing=window.uncovered(key),
                 window_note=window.window_note([seconds]),
@@ -307,11 +307,11 @@ def _service(window: _Window) -> list[dict[str, Any]]:
         )
     served = _metric(
         "served-energy",
-        "Served energy, measured intervals",
+        "Served energy, over measured time",
         "kWh",
         value=_fmt(total, 1),
         basis=(
-            "Sum of the three feeder meters over their measured intervals ("
+            "Sum of the three feeder meters over the time measured ("
             + ", ".join(hours_text) + ")."
         ),
         evidence=links,
@@ -338,12 +338,12 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
     return [
         _metric(
             "generator-runtime",
-            "Generator operating time, measured intervals",
+            "Generator operating time, over measured time",
             "h",
             value=_fmt(_hours(running_seconds), 2),
             basis=(
-                "Measured intervals with generator output above zero, out of "
-                f"{_fmt(_hours(measured_seconds), 2)} h of measured intervals."
+                "Time with generator output above zero, out of "
+                f"{_fmt(_hours(measured_seconds), 2)} h measured."
             ),
             evidence=[_link(_latest(running))] if running else _interval_link(power),
             missing=window.uncovered(GENERATOR_POWER),
@@ -351,10 +351,10 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
         ),
         _metric(
             "generator-energy",
-            "Generator energy, measured intervals",
+            "Generator energy, over measured time",
             "kWh",
             value=_fmt(energy, 1),
-            basis=f"Over {_fmt(_hours(measured_seconds), 2)} h of measured intervals.",
+            basis=f"Over {_fmt(_hours(measured_seconds), 2)} h of measured time.",
             evidence=_interval_link(power),
             missing=window.uncovered(GENERATOR_POWER),
             window_note=window.window_note([measured_seconds]),
@@ -440,21 +440,21 @@ def _renewable(window: _Window) -> list[dict[str, Any]]:
     return [
         _metric(
             "pv-energy",
-            "Solar energy, measured intervals",
+            "Solar energy, over measured time",
             "kWh",
             value=_fmt(energy, 1),
-            basis=f"Solar inverter output over {_fmt(_hours(seconds), 2)} h of measured intervals.",
+            basis=f"Solar inverter output over {_fmt(_hours(seconds), 2)} h of measured time.",
             evidence=_interval_link(records),
             missing=window.uncovered(PV),
             window_note=window.window_note([seconds]),
         ),
         _metric(
             "pv-peak",
-            "Highest interval mean solar output",
+            "Highest average solar output",
             "kW",
             value=None if peak is None else _plain(peak.normalized_value),
             at=None if peak is None else peak.source_time,
-            basis="The largest interval mean among measured intervals.",
+            basis="The largest average over a reporting period within the measured time.",
             evidence=[] if peak is None else [_link(peak)],
             missing=window.uncovered(PV),
         ),
@@ -532,7 +532,7 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
             "label": "Solar output",
             "unit": "kW",
             "kind": "INTERVAL_MEAN",
-            "basis": "Solar inverter interval means.",
+            "basis": "Solar inverter averaged readings.",
             "points": interval_points(window.of(PV)),
         },
         {
@@ -540,7 +540,7 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
             "label": "Generator output",
             "unit": "kW",
             "kind": "INTERVAL_MEAN",
-            "basis": "Generator controller interval means.",
+            "basis": "Generator controller averaged readings.",
             "points": interval_points(window.of(GENERATOR_POWER)),
         },
         {

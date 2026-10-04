@@ -635,7 +635,7 @@ analysis links; the live vocabulary journey.
 | Unobserved time; open start/end | graphics "draws unrecorded operation hatched and bracketed time dotted", "marks and explains an open start and end without inventing a time" |
 | Unavailable fuel; range endpoints | backend `test_fuel_is_unavailable_with_its_reason`, `test_hand_calculated_candidate_interval_and_fuel_bound`; graphics "draws the low-to-high interval at its endpoints"; layout "fuel graphic draws a range or states why" |
 | Full readiness with a non-limiting gap | backend `test_a_gap_no_classification_needed_is_listed_but_stays_full`; `t028EvidenceCapability` "a Full row says no gap limited an assessed period" |
-| Zero assessed periods; no evidence | `t028EvidenceCapability` "zero assessed periods say coverage is not yet checked"; graphics "zero assessed parts reads Not assessed"; vocabulary suite "no evidence"/"nothing assessed" states |
+| Zero assessed periods; no evidence | Full/Limited with zero periods: `t028EvidenceCapability` "zero assessed periods say coverage is not yet checked". None readiness: `t028EvidenceCapability` "None readiness with zero periods never says records exist" (fixture `NONE_READINESS`). Empty Dispatch: `t028Screens` "a loaded Dispatch view with no assessed period states the absence". Earlier claim that the vocabulary "no evidence"/"nothing assessed" states proved these was wrong (they used `not_found` clients); the suite now also scans "Dispatch, loaded and empty" and "Site Evidence, None readiness". Graphics "zero assessed parts reads Not assessed" |
 | Timeline geometry against supplied times | graphics geometry tests (incl. "a short part keeps its true width"); layout: each rendered part within 1.5 px of its supplied width and offset |
 | Missing versus zero inputs | graphics "a missing input has no bar; a zero has a zero-width bar" |
 | Selected assessment consistency | graphics "the selected part stays this assessment's part"; `t028Screens` card timeline is the lead it links, Dispatch rows draw their own assessment; layout card claim (drawn = linked lead) |
@@ -711,8 +711,8 @@ warning only); `tools/check-architecture.ps1` passed;
 - Vocabulary: the guard is a word list; plain meaning, uncertainty and claim
   strength still need the owner's reading. Foundation and non-T028 product
   pages are not scanned (post-T029 inventory).
-- Layout: one non-known failure named above; gate-closed browser pass not run
-  (covered by tests).
+- Layout: no non-known failure (section 2b: the 4 failures are all on the known
+  list); gate-closed browser pass not run (covered by tests).
 - `/api/findings` and `/analytics` do analytic work on read; fine at demo scale.
 - `finding_id` derives from the latest revision.
 - Decision-table thresholds are demo-calibrated (documented in
@@ -792,3 +792,28 @@ demonstration records are made; the walk below is the product.)
     then `kobo-mini-grid-prolonged` over 03:00-11:00;
     `http://127.0.0.1:8000/api/sites/KOBO-R/assessments/<id>/revisions` lists
     revisions 2 and 1, revision 1 unchanged, and both survive a restart.
+
+## Presentation fix round (review F1, F5, F6, journey wording)
+
+- F1: `CapabilityReadiness.tsx` `assessedText` now depends on the level; None
+  with zero periods reads "No period can be assessed until records of generator
+  operation are accepted."; Full/Limited keep the earlier sentence. New
+  `NONE_READINESS` and `emptyDispatch` fixtures; new tests for the None table
+  row and the loaded-empty Dispatch view; both states added to the vocabulary
+  scan. The packet's section-5 row is corrected above. The None row test also
+  exposed that a None row served with empty missing evidence would say "Every
+  required input has usable records"; the fixture now matches the backend
+  (a NOT_ACCEPTED item), so that case is not reachable from served data.
+- F5: `SiteEvidence.tsx` `CoverageSummary` no longer prints device/signal ids;
+  it says how many inputs have no records and points to the coverage table.
+- Wording: "measured intervals" / "interval mean" labels and bases in
+  `backend/.../evidence/overview.py` and the Overview legend ("averaged
+  readings"); "Generator dispatch interval" is now "Generator operation period"
+  (`declaration.py`, `presentationProfiles.json`); `FindingDetail.tsx` says
+  "Review the other explanations considered" when none are open. Vocabulary
+  list version 2 adds interval mean(s), measured intervals, dispatch interval.
+- F6: residual-risk Layout line corrected to match 2b.
+- No classification, number, stored assessment, `dispatch-2` or `readiness-3`
+  change. Layout evidence: not re-run; no layout claim reads the changed text.
+- Checks: frontend vitest 1134 passed (48 files); `tsc --noEmit` clean; backend
+  1493 passed; check scripts below.

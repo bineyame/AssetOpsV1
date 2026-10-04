@@ -71,9 +71,12 @@ function Unavailable({ message }: { message: string | null }) {
 
 /** The assessed-period count, with the zero-period qualification. */
 function assessedText(readiness: CapabilityReadiness): string {
-  return readiness.assessed_intervals === 0
-    ? "No period has been assessed yet: records exist, but whether they cover each period has not been checked."
-    : `${readiness.assessed_intervals} assessed period${readiness.assessed_intervals === 1 ? "" : "s"}.`;
+  if (readiness.assessed_intervals === 0) {
+    return readiness.level === "NONE"
+      ? "No period can be assessed until records of generator operation are accepted."
+      : "No period has been assessed yet: records exist, but whether they cover each period has not been checked.";
+  }
+  return `${readiness.assessed_intervals} assessed period${readiness.assessed_intervals === 1 ? "" : "s"}.`;
 }
 
 export function CapabilityReadinessTable({

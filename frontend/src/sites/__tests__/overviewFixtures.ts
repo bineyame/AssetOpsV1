@@ -29,7 +29,7 @@ function measured(
     unit,
     value,
     at,
-    basis: "Measured intervals cover 2.67 h.",
+    basis: "The measured time covers 2.67 h.",
     evidence: [{ device_id: signal[0], signal_id: signal[1], message_id }],
     window_note: "2.67 h of the 8.00 h window measured",
     unavailable_because: null,
@@ -72,7 +72,7 @@ function card(domain_id: string, metrics: OverviewMetric[], gaps: OverviewCard["
 export function populatedOverview(siteId: string): SiteOverviewReadModel {
   const served = measured(
     "served-energy",
-    "Served energy, measured intervals",
+    "Served energy, over measured time",
     "67.3",
     "kWh",
     ["residential-meter", "active-power"],
@@ -93,12 +93,12 @@ export function populatedOverview(siteId: string): SiteOverviewReadModel {
     // Served in an order the profile does not use, to prove the profile orders.
     cards: [
       card("Renewable", [
-        measured("pv-energy", "Solar energy, measured intervals", "65.0", "kWh",
+        measured("pv-energy", "Solar energy, over measured time", "65.0", "kWh",
           ["pv-inverter-controller", "ac-power"], "msg-pv-1"),
       ]),
       card("Service", [served]),
       card("Dispatch", [
-        measured("generator-runtime", "Generator operating time, measured intervals", "1.00", "h",
+        measured("generator-runtime", "Generator operating time, over measured time", "1.00", "h",
           ["GEN-1", "active_power"], "msg-gen-72"),
       ]),
       card("Battery", [
@@ -160,7 +160,7 @@ export function emptyOverview(siteId: string): SiteOverviewReadModel {
     device_id, signal_id, status: "NOT_REPORTED", reason: "reported no accepted record in this window",
   });
   const missing = (metric_id: string, label: string, unit: string, signal: string): OverviewMetric => ({
-    metric_id, label, unit, value: null, at: null, basis: "Measured intervals cover 0.00 h.", window_note: null,
+    metric_id, label, unit, value: null, at: null, basis: "The measured time covers 0.00 h.", window_note: null,
     evidence: [], unavailable_because: `${signal} reported no accepted record in this window.`,
   });
   return {
@@ -170,7 +170,7 @@ export function emptyOverview(siteId: string): SiteOverviewReadModel {
     source_gateway_pairs_in_window: 0,
     objective: {
       assessment: NO_ASSESSMENT,
-      service_delivered: missing("served-energy", "Served energy, measured intervals", "kWh",
+      service_delivered: missing("served-energy", "Served energy, over measured time", "kWh",
         "residential-meter/active-power"),
     },
     cards: ["Service", "Dispatch", "Battery", "Fuel", "Renewable"].map((domain) =>

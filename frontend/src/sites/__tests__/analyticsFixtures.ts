@@ -321,6 +321,31 @@ export const LIMITED_READINESS: CapabilityReadiness = {
   statement: "Scored from the declaration against all accepted evidence for this Site.",
 };
 
+/** A None dispatch row as the backend scores a site with no generator records. */
+export const NONE_READINESS: CapabilityReadiness = {
+  ...LIMITED_READINESS,
+  level: "NONE",
+  label: "None",
+  claim_ceiling: { claim_level: null, label: "None", statement: "No claim can be made yet." },
+  missing_evidence: [
+    {
+      kind: "NOT_ACCEPTED",
+      role: "Generator operation",
+      device_id: null,
+      signal_id: null,
+      statement: "Generator operation: no accepted record has been received.",
+      limits_claim: true,
+      assessment_ids: [],
+    },
+  ],
+  optional_not_observed: [],
+  assessed_intervals: 0,
+  conclusion: "No conclusion: with no record of generator operation, no period can be assessed.",
+  meaning:
+    "Nothing can be assessed yet: no records of generator operation have been received and accepted.",
+  gaps: [],
+};
+
 export function declaration(
   siteId: string,
   analytics: {
@@ -338,7 +363,7 @@ export function declaration(
     analytics: analytics.map((item) => ({
       ...item,
       site_types: ["MINIGRID"],
-      finding_type: { id: "generator-dispatch-interval", display_name: "Generator dispatch interval" },
+      finding_type: { id: "generator-dispatch-interval", display_name: "Generator operation period" },
       model_version: "dispatch-2",
       claim_levels: [],
       required_evidence: [],
@@ -349,6 +374,8 @@ export function declaration(
 
 export interface AnalyticsFixture {
   declaration?: SiteAnalytics;
+  /** Serve a loaded Dispatch read with no assessed period. */
+  emptyDispatch?: boolean;
 }
 
 /** A fake analytics client over the candidate and Necessary fixtures for `siteId`. */
@@ -369,10 +396,13 @@ export function analyticsClient(
         site_id: siteId,
         analytic_id: "dispatch",
         model_version: "dispatch-2",
-        assessments: [
-          { ...CANDIDATE_SUMMARY, assessment: CANDIDATE_ASSESSMENT },
-          { ...NECESSARY_SUMMARY, assessment: NECESSARY_ASSESSMENT },
-        ],
+        assessments:
+          options.emptyDispatch === true
+            ? []
+            : [
+                { ...CANDIDATE_SUMMARY, assessment: CANDIDATE_ASSESSMENT },
+                { ...NECESSARY_SUMMARY, assessment: NECESSARY_ASSESSMENT },
+              ],
       }),
     getSiteFindings: () => loaded({ site_id: siteId, findings: [CANDIDATE_SUMMARY] }),
     getAssessment: (_site, id) =>

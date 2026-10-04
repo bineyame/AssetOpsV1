@@ -369,7 +369,9 @@ function FindingOverview({
           </li>
           <li>
             <Link to={alternativesTabHref}>
-              {`Compare ${open.length} other possible explanation${open.length === 1 ? "" : "s"} still open`}
+              {open.length === 0
+                ? "Review the other explanations considered"
+                : `Compare ${open.length} other possible explanation${open.length === 1 ? "" : "s"} still open`}
             </Link>
             {" (Alternatives tab)."}
           </li>

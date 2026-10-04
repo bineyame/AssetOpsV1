@@ -14,6 +14,7 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import {
   LIMITED_READINESS,
+  NONE_READINESS,
   analyticsClient,
   declaration,
 } from "../../sites/__tests__/analyticsFixtures";
@@ -241,6 +242,18 @@ describe("Site > Evidence capability table (AC20)", () => {
       "Every required input has usable records.",
     );
     expect(row.textContent).not.toContain("no gap limited");
+  });
+
+  it("None readiness with zero periods never says records exist", async () => {
+    await renderEvidence(
+      served([{ analytic_id: "dispatch", display_name: "Dispatch", readiness: NONE_READINESS }]),
+    );
+    const [row] = rows();
+    expect(row).toHaveAttribute("data-capability-readiness", "NONE");
+    expect(row.querySelector("[data-capability-assessed]")).toHaveTextContent(
+      "No period can be assessed until records of generator operation are accepted.",
+    );
+    expect(spacedText(row)).not.toContain("records exist");
   });
 
   it("nothing appears when the site has no declared assessment", async () => {

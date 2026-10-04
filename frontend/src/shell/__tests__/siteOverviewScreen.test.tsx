@@ -137,7 +137,7 @@ describe("Site Overview, populated", () => {
     expect(text).toContain("No assessment yet");
     expect(text).toContain("67.3 kWh");
     // Review F3: the strip names the metric and the measured share of the window.
-    expect(text).toContain("Served energy, measured intervals");
+    expect(text).toContain("Served energy, over measured time");
     expect(text).toContain("2.67 h of the 8.00 h window measured");
     expect(text).toContain(
       "2026-10-04T03:00:00Z to 2026-10-04T11:00:00Z (8.00 h, latest release)",

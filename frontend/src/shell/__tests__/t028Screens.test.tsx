@@ -290,7 +290,7 @@ describe("AC18 rules for Finding types", () => {
   it("rule 1: a known type takes the profile label; an unknown one renders by its backend name", () => {
     expect(findingTypeLabel(profile, "generator-dispatch-interval")).toEqual({
       id: "generator-dispatch-interval",
-      label: "Generator dispatch interval",
+      label: "Generator operation period",
       known: true,
     });
     expect(findingTypeLabel(profile, "fuel-residual", "Fuel residual")).toEqual({
@@ -331,7 +331,7 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
       "22 Sep 2026, 03:00 to 11:00 UTC",
     );
     expect(page).toHaveTextContent(HYBRID_MINI_GRID_SITE.display_name);
-    expect(page.querySelector("[data-finding-type]")).toHaveTextContent("Generator dispatch interval");
+    expect(page.querySelector("[data-finding-type]")).toHaveTextContent("Generator operation period");
     // One bounded conclusion and its main reason, then its meaning.
     expect(page.querySelector("[data-finding-claim]")).toHaveTextContent(
       "The generator may have operated longer than needed.",
@@ -498,7 +498,7 @@ describe("the Findings rail root and Site > Findings (AC21)", () => {
     expect(railCurrent()).toBe("Findings");
     const row = document.querySelector(`[data-finding-row="${CANDIDATE_ID}"]`) as HTMLElement;
     expect(row).toHaveTextContent(SITE_ID);
-    expect(row).toHaveTextContent("Generator dispatch interval");
+    expect(row).toHaveTextContent("Generator operation period");
     expect(row).toHaveTextContent("The generator may have operated longer than needed.");
     expect(row).toHaveTextContent("Possibly avoidable");
     expect(row).toHaveTextContent("Medium 15 min of the period cannot be determined");
@@ -641,5 +641,15 @@ describe("the Overview links to the Finding instead of recomputing it (AC12)", (
     fireEvent.click(analysis);
     await settledScreen();
     expect(document.querySelector(`[data-analysis="${NECESSARY_ID}"]`)).not.toBeNull();
+  });
+
+  it("a loaded Dispatch view with no assessed period states the absence", async () => {
+    renderAt(`/sites/${SITE_ID}/performance/dispatch`, {
+      analytics: analyticsClient(SITE_ID, { emptyDispatch: true }),
+    });
+    await settledScreen();
+    expect(document.querySelector("[data-dispatch-empty]")).toHaveTextContent(
+      "No period of generator operation has been assessed",
+    );
   });
 });

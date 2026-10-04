@@ -1,8 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
   "decision": "D-2026-10-04-plain-language-analysis-views (.agent/T028-architect-presentation.md section 4)",
   "changes": [
-    "1 (2026-10-04, T028 presentation checkpoint 2b): first list, from the section 4 table."
+    "1 (2026-10-04, T028 presentation checkpoint 2b): first list, from the section 4 table.",
+    "2 (2026-10-04, T028 presentation fix round): added the implementation terms the review found on the journey: interval mean(s), measured intervals, dispatch interval."
   ],
   "terms": [
     { "phrase": "run", "row": "simulation and implementation: run" },
@@ -62,7 +63,11 @@
     { "phrase": "mapping basis", "row": "record handling" },
     { "phrase": "receipt timestamp", "row": "record handling" },
     { "phrase": "normalization", "row": "record handling" },
-    { "phrase": "normalized", "row": "record handling" }
+    { "phrase": "normalized", "row": "record handling" },
+    { "phrase": "interval mean", "row": "record handling" },
+    { "phrase": "interval means", "row": "record handling" },
+    { "phrase": "measured intervals", "row": "record handling" },
+    { "phrase": "dispatch interval", "row": "record handling" }
   ],
   "glosses": [
     {

@@ -557,7 +557,7 @@ function TimelinePanel({
             className={`overview-timeline__key overview-timeline__key--${item.series_id}`}
           >
             {`${item.label} (${item.unit}): ${item.points.length} ${
-              item.kind === "INTERVAL_MEAN" ? "measured intervals" : "samples"
+              item.kind === "INTERVAL_MEAN" ? "averaged readings" : "samples"
             }. ${item.basis}`}
           </span>
         ))}

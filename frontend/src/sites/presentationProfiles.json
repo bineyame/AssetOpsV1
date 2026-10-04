@@ -34,7 +34,7 @@
     "finding_types": [
       {
         "id": "generator-dispatch-interval",
-        "label": "Generator dispatch interval"
+        "label": "Generator operation period"
       }
     ]
   }

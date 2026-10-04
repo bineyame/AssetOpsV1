@@ -93,7 +93,7 @@ DISPATCH = AnalyticDeclaration(
     display_name="Dispatch",
     site_types=("MINIGRID",),
     finding_type=dispatch.FINDING_TYPE,
-    finding_type_display_name="Generator dispatch interval",
+    finding_type_display_name="Generator operation period",
     required_evidence=(
         _m(dispatch.GEN_STATUS, "Generator state"),
         _m(dispatch.GEN_POWER, "Generator state and output"),

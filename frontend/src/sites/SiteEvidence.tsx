@@ -287,7 +287,7 @@ function CoverageSummary({ evidence }: { evidence: EvidenceOverview }) {
       {`${evidence.coverage.length - missing.length} of ${evidence.coverage.length} recorded inputs have records in this window.`}
       {missing.length === 0
         ? ""
-        : ` No records in this window for: ${missing.map((row) => `${row.device_id} / ${row.signal_id}`).join(", ")}.`}
+        : ` ${missing.length === 1 ? "One input has" : `${missing.length} inputs have`} no records in this window; the coverage table on the Analysis view marks ${missing.length === 1 ? "it" : "them"}.`}
       {" Each input's coverage is on the Analysis view."}
     </p>
   );
