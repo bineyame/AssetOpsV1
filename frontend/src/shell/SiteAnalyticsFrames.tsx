@@ -17,6 +17,7 @@ import {
   findingHref,
   siteDetailHref,
   siteEvidenceHref,
+  siteEvidenceAssessmentHref,
   siteEvidenceRecordHref,
   siteFindingsHref,
   sitePerformanceHref,
@@ -126,6 +127,7 @@ export function SitePerformanceFrame({
                 link.message_id,
               )
             }
+            coverageHref={(id) => siteEvidenceAssessmentHref(site.site_id, id)}
           />
         </main>
       )}

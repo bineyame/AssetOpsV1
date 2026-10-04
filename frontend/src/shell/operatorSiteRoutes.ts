@@ -72,6 +72,11 @@ export function siteEvidenceHref(siteId: string): string {
  * Overview evidence links). `signal` is `DEVICE/SIGNAL`, the same value the
  * inspector reads from its own signal rows, so the root does not change.
  */
+/** Site Evidence > Analysis with one assessed period's record coverage selected. */
+export function siteEvidenceAssessmentHref(siteId: string, assessmentId: string): string {
+  return `${siteEvidenceHref(siteId)}?view=analysis&assessment=${encodeURIComponent(assessmentId)}`;
+}
+
 export function siteEvidenceRecordHref(
   siteId: string,
   signal: string,

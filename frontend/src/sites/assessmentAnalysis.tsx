@@ -75,6 +75,8 @@ export interface AssessmentAnalysisProps {
     | { kind: "record"; href: (link: EvidenceLink) => string };
   /** The other-possible-explanations destination, when there is one. */
   alternativesHref: string | null;
+  /** This period's record coverage beside the site's records (Site Evidence > Analysis). */
+  coverageHref?: string;
   /** Extra links shown at the end (Finding, Dispatch, Site Evidence). */
   links?: ReactNode;
 }
@@ -85,6 +87,7 @@ export function AssessmentAnalysis({
   revisionHistory,
   records,
   alternativesHref,
+  coverageHref,
   links,
 }: AssessmentAnalysisProps) {
   const reading: Reading | undefined = summary.reading;
@@ -183,6 +186,13 @@ export function AssessmentAnalysis({
           unobserved={a.coverage.unobserved_generator_state}
           words={INPUT_WORDS}
         />
+        {coverageHref === undefined ? null : (
+          <p>
+            <Link to={coverageHref} data-analysis-coverage-link>
+              This period&apos;s record coverage on the Site Evidence page
+            </Link>
+          </p>
+        )}
       </Section>
 
       <Section heading="Operating time and fuel calculation" id="analysis-fuel-heading">

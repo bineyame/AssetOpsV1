@@ -59,6 +59,8 @@ export interface SitePerformanceProps {
   findingAnalysisHref: (assessmentId: string) => string;
   /** One accepted record in the Site Evidence record inspector. */
   recordHref: (link: EvidenceLink) => string;
+  /** One assessed period's record coverage on Site Evidence > Analysis. */
+  coverageHref?: (assessmentId: string) => string;
 }
 
 export function SitePerformance({
@@ -70,6 +72,7 @@ export function SitePerformance({
   findingHref,
   findingAnalysisHref,
   recordHref,
+  coverageHref,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
@@ -144,6 +147,7 @@ export function SitePerformance({
           findingHref={findingHref}
           findingAnalysisHref={findingAnalysisHref}
           recordHref={recordHref}
+          coverageHref={coverageHref}
         />
       ) : (
         <Panel heading={current.label} headingId="site-performance-unbuilt-heading">
@@ -167,12 +171,14 @@ function DispatchView({
   findingHref,
   findingAnalysisHref,
   recordHref,
+  coverageHref,
 }: {
   siteId: string;
   client: SiteAnalyticsClient;
   findingHref: (assessmentId: string) => string;
   findingAnalysisHref: (assessmentId: string) => string;
   recordHref: (link: EvidenceLink) => string;
+  coverageHref?: (assessmentId: string) => string;
 }) {
   const [result, setResult] = useState<EvidenceRead<DispatchAssessments> | null>(null);
   const [params, setParams] = useSearchParams();
@@ -246,6 +252,7 @@ function DispatchView({
           findingHref={findingHref}
           findingAnalysisHref={findingAnalysisHref}
           recordHref={recordHref}
+          coverageHref={coverageHref}
         />
       ) : (
         <>
@@ -414,6 +421,7 @@ function DispatchAnalysis({
   findingHref,
   findingAnalysisHref,
   recordHref,
+  coverageHref,
 }: {
   rows: DispatchRow[];
   selected: DispatchRow | null;
@@ -421,6 +429,7 @@ function DispatchAnalysis({
   findingHref: (assessmentId: string) => string;
   findingAnalysisHref: (assessmentId: string) => string;
   recordHref: (link: EvidenceLink) => string;
+  coverageHref?: (assessmentId: string) => string;
 }) {
   if (rows.length === 0) {
     return (
@@ -453,6 +462,7 @@ function DispatchAnalysis({
           summary={selected}
           assessment={selected.assessment}
           records={{ kind: "record", href: recordHref }}
+          coverageHref={coverageHref?.(selected.assessment_id)}
           alternativesHref={
             selected.finding_id === null ? null : `${findingHref(selected.finding_id)}/alternatives`
           }

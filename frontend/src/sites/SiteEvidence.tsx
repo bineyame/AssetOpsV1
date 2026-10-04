@@ -20,9 +20,11 @@ import { useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
 import { CapabilityReadinessAnalysis, CapabilityReadinessTable } from "./CapabilityReadiness";
-import { LocalViews, localView, readablePeriod, readableTime } from "./findingPresentation";
+import { INPUT_WORDS } from "./assessmentAnalysis";
+import { CoverageByInput } from "./assessmentGraphics";
+import { LocalViews, OUTCOME_WORDS, localView, readablePeriod, readableTime } from "./findingPresentation";
 import type { DomainPresentationProfile } from "./presentationProfile";
-import type { SiteAnalytics, SiteAnalyticsClient } from "./siteAnalyticsClient";
+import type { DispatchAssessments, SiteAnalytics, SiteAnalyticsClient } from "./siteAnalyticsClient";
 import type {
   EvidenceCoverage,
   EvidenceOverview,
@@ -160,7 +162,16 @@ export function SiteEvidence({
       {view === "overview" ? (
         <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
       ) : (
-        <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
+        <>
+          <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
+          {analytics === undefined || params.get("assessment") === null ? null : (
+            <SelectedAssessmentCoverage
+              siteId={siteId}
+              analytics={analytics}
+              assessmentId={params.get("assessment") as string}
+            />
+          )}
+        </>
       )}
       <p data-evidence-window={evidence.window.basis}>
         {evidence.window.start === null || evidence.window.end === null ? (
@@ -776,5 +787,64 @@ export function RecordDetail({
         )}
       </FactList>
     </section>
+  );
+}
+
+/**
+ * One clearly selected assessed period's record coverage (T028 presentation
+ * checkpoint 2a), read from the existing dispatch assessment and labelled with
+ * its scope. It is kept apart from the site-wide record check above: readiness
+ * never becomes a time-coverage gauge.
+ */
+function SelectedAssessmentCoverage({
+  siteId,
+  analytics,
+  assessmentId,
+}: {
+  siteId: string;
+  analytics: SiteAnalyticsClient;
+  assessmentId: string;
+}) {
+  const [result, setResult] = useState<EvidenceRead<DispatchAssessments> | null>(null);
+  useEffect(() => {
+    let active = true;
+    setResult(null);
+    void analytics.getDispatch(siteId).then((value) => {
+      if (active) {
+        setResult(value);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [analytics, siteId]);
+  const row =
+    result?.status === "loaded"
+      ? (result.value.assessments.find((r) => r.assessment_id === assessmentId) ?? null)
+      : null;
+  return (
+    <Panel heading="Record coverage for one assessed period" headingId="site-evidence-assessment-coverage-heading">
+      <div data-evidence-assessment-coverage={assessmentId}>
+        {result === null ? (
+          <p>Loading the selected assessed period.</p>
+        ) : row === null ? (
+          <p data-evidence-assessment-missing>
+            The selected assessed period is not among the current results: it may
+            have been withdrawn or replaced. No other period is shown in its place.
+          </p>
+        ) : (
+          <>
+            <p data-evidence-assessment-scope>
+              {`Only the assessed period ${readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)} (${row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}), not the whole site. The site-wide record check above is separate.`}
+            </p>
+            <CoverageByInput
+              inputs={row.assessment.coverage.inputs}
+              unobserved={row.assessment.coverage.unobserved_generator_state}
+              words={INPUT_WORDS}
+            />
+          </>
+        )}
+      </div>
+    </Panel>
   );
 }

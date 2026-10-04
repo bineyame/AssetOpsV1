@@ -223,6 +223,7 @@ export function FindingDetail({
               revisionHistory={detail.revision_history}
               records={{ kind: "tab", href: tabHref("evidence") }}
               alternativesHref={tabHref("alternatives")}
+              coverageHref={`${evidencePageHref}?view=analysis&assessment=${encodeURIComponent(detail.assessment_id)}`}
               links={
                 <li>
                   <Link to={dispatchHref}>See this period on Performance &gt; Dispatch</Link>

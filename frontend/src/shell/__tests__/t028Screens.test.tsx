@@ -150,6 +150,30 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     }
   });
 
+  it("Dispatch Analysis links one period's coverage to Site Evidence, scoped and apart from readiness", async () => {
+    renderAt(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`);
+    await settledScreen();
+    const link = document.querySelector("[data-analysis-coverage-link]") as HTMLElement;
+    expect(link).toHaveAttribute("href", `/sites/${SITE_ID}/evidence?view=analysis&assessment=${NECESSARY_ID}`);
+    fireEvent.click(link);
+    await settledScreen();
+    const block = document.querySelector(`[data-evidence-assessment-coverage="${NECESSARY_ID}"]`) as HTMLElement;
+    expect(block.querySelector("[data-evidence-assessment-scope]")).toHaveTextContent(
+      "Only the assessed period 22 Sep 2026, 08:00 to 10:00 UTC (Needed), not the whole site.",
+    );
+    expect(block.querySelector('[data-coverage-input="soc"]')).toHaveTextContent("Battery charge15 of 16");
+    // The site-wide readiness is not inside the selected period's coverage.
+    expect(block.querySelector("[data-readiness-level], [data-capability-readiness]")).toBeNull();
+  });
+
+  it("a coverage selection not among the current results is said so, not substituted", async () => {
+    renderAt(`/sites/${SITE_ID}/evidence?view=analysis&assessment=dispatch-gone`);
+    await settledScreen();
+    const block = document.querySelector('[data-evidence-assessment-coverage="dispatch-gone"]') as HTMLElement;
+    expect(block.querySelector("[data-evidence-assessment-missing]")).not.toBeNull();
+    expect(block.querySelector("[data-coverage-input]")).toBeNull();
+  });
+
   it("selecting a period shows its concise explanation and leads to its Analysis", async () => {
     renderAt(`/sites/${SITE_ID}/performance/dispatch`);
     await settledScreen();
