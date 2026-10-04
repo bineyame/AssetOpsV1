@@ -1750,6 +1750,20 @@ Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-revie
   reading. Until then, a single failure of this claim alone is not evidence of a
   regression.
 
+## Carried from T028 Codex review: one item
+
+Recorded by the coordinator from `.agent/T028-codex-review.md` (C1).
+
+- **Unknown Finding types lose the backend display name.**
+  `frontend/src/sites/FindingDetail.tsx` and `FindingsIndexes.tsx` call
+  `findingTypeLabel` without the declaration's display name, so the AC18 rule-1
+  fallback shows the raw id. Safe to carry: the id still renders and the only
+  shipped type is mapped. Fix in a fast-lane pass, or with the next analytic
+  slice that adds a Finding type: pass the backend display name through.
+  The T025b "profile 4 discloses the status as observed and not staged" layout
+  claim (failed in T027 phase 2 and T028 runs) also needs a focused Lab check;
+  not diagnosed as a flake.
+
 ## Planned follow-up: T028A, configurable analytic evidence-gap impact
 
 Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
