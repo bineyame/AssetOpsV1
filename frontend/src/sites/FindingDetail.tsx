@@ -22,8 +22,8 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 import { Fact, FactList, Panel } from "../ui";
 import { AssessmentAnalysis } from "./assessmentAnalysis";
+import { AssessedPeriodTimeline, FuelRange } from "./assessmentGraphics";
 import {
-  AssessedPeriodStrip,
   ClaimBadge,
   ClaimDrawer,
   EvidenceLinks,
@@ -293,7 +293,13 @@ function FindingOverview({
       </Section>
 
       <Section heading="When, and for how long" id="finding-facts-heading">
-        <AssessedPeriodStrip assessment={a} reading={reading} />
+        <AssessedPeriodTimeline
+          source={a}
+          outcomes={reading.segments.map((s) => s.outcome)}
+          reasons={reading.segments.map((s) => s.reason)}
+          partHref={(index) => `${tabHref("analysis")}?part=${index + 1}`}
+          assessmentId={detail.assessment_id}
+        />
         <FactList>
           <Fact term="Recorded: generator operating">
             {readablePeriod(a.interval.first_running_observed, a.interval.last_running_observed)}
@@ -344,17 +350,9 @@ function FindingOverview({
       </Section>
 
       <Section heading="Estimated fuel" id="finding-consequence-heading">
-        {/* Checkpoint 2: fuel-range graphic lands at data-graphic-anchor="fuel-range". */}
-        <p data-graphic-anchor="fuel-range">
-          <span data-finding-fuel={a.fuel.status}>
-            {reading.fuel.text === null
-              ? reading.fuel.note
-              : `${reading.fuel.label}: ${reading.fuel.text}`}
-          </span>
-        </p>
-        {reading.fuel.text === null ? null : (
-          <p className="overview-note">{reading.fuel.note}</p>
-        )}
+        <div data-finding-fuel={a.fuel.status}>
+          <FuelRange fuel={a.fuel} reading={reading.fuel} />
+        </div>
       </Section>
 
       <Section heading="What to check next" id="finding-next-heading">

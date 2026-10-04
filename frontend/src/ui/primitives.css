@@ -2078,38 +2078,135 @@ button:focus-visible {
   font-size: var(--text-lg);
 }
 
-.segment-strip {
+/* T028 presentation checkpoint 2a: assessment graphics (assessmentGraphics.tsx).
+ * Each kind has a colour and its own pattern; text labels carry identity. */
+.assessment-graphic {
+  --graphic-needed: #3d6fb0;
+  --graphic-avoidable: #c2680a;
+  --graphic-unknown: #7e8796;
+  --graphic-ink: #334155;
+  --graphic-paper: #ffffff;
+  margin: var(--space-2) 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.assessment-graphic__caption {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: left;
+  margin-bottom: var(--space-1);
+}
+
+.graphic-fill--needed { fill: var(--graphic-needed); }
+.graphic-fill--avoidable { fill: var(--graphic-avoidable); }
+.graphic-fill--unknown { fill: var(--graphic-unknown); }
+.graphic-fill--ink { fill: var(--graphic-ink); }
+.graphic-fill--paper { fill: var(--graphic-paper); }
+.graphic-fill--value { fill: var(--graphic-needed); }
+.graphic-ink--light { fill: rgba(255, 255, 255, 0.55); }
+.graphic-stroke--light { stroke: rgba(255, 255, 255, 0.7); stroke-width: 1; }
+.graphic-track { fill: var(--surface-sunken); }
+.graphic-outline { stroke: var(--border-strong); stroke-width: 1; }
+
+.period-timeline__plot {
   display: flex;
-  min-width: 120px;
-  height: 12px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.period-timeline__bar {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 24px;
   border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
 }
 
-.segment-strip__part {
-  min-width: 2px;
-  background: var(--surface-sunken);
+.period-timeline--compact .period-timeline__bar {
+  height: 14px;
+  min-width: 120px;
 }
 
-.segment-strip__part[data-claim-level="NECESSARY"] {
-  background: #64748b;
+.period-timeline__band { cursor: default; }
+.period-timeline__band[data-part] { cursor: pointer; }
+.period-timeline__band.is-selected { stroke: var(--graphic-ink); stroke-width: 3; }
+
+.period-timeline__open {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--graphic-ink);
+  white-space: nowrap;
 }
 
-.segment-strip__part[data-claim-level="CANDIDATE_AVOIDABLE"] {
-  background: #d97706;
+.period-timeline__axis,
+.fuel-range__axis {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
-.segment-strip__part[data-claim-level="INDETERMINATE"] {
-  background: repeating-linear-gradient(
-    45deg,
-    #cbd5e1,
-    #cbd5e1 3px,
-    #e2e8f0 3px,
-    #e2e8f0 6px
-  );
+.graphic-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  list-style: none;
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  font-size: var(--text-sm);
 }
 
-.segment-strip__part[data-observed="false"] {
-  opacity: 0.5;
+.graphic-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
 }
+
+.graphic-swatch { flex: 0 0 auto; }
+
+.period-timeline--compact .assessment-graphic__caption,
+.period-timeline--compact .period-timeline__axis,
+.period-timeline--compact .graphic-legend {
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.fuel-range__plot svg {
+  display: block;
+  width: 100%;
+  height: 20px;
+}
+
+.fuel-range__interval {
+  fill: var(--graphic-avoidable);
+  opacity: 0.6;
+}
+
+.reported-values__switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.reported-values__switch [aria-pressed="true"] {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.value-bars { margin-bottom: var(--space-2); }
+.value-bars__bar { width: 40%; min-width: 80px; }
+.value-bars__bar svg { display: block; width: 100%; height: 12px; }
+.value-bars__bar-heading { font-weight: 400; color: var(--text-muted); }
+
+.value-bars__missing {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+  font-style: italic;
+}
+
+.overview-card__timeline { margin: var(--space-2) 0; }

@@ -13,16 +13,22 @@
  * Every sentence is the backend's plain reading (`reading`); the frontend only
  * formats values, times and layout. Nothing is recomputed.
  *
- * Checkpoint 2 graphics anchor here: `data-graphic-anchor` marks where the
- * reported-values comparison and the coverage-count graphic land.
+ * Graphics (checkpoint 2a): the assessed-period timeline with its parts
+ * table selects one part (`?part=N`, 1-based); the reported values of that
+ * part, record coverage by input and the fuel range follow. All draw the same
+ * assessment this view was given.
  */
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useState, type ReactNode } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Fact, FactList } from "../ui";
+import { Fact, FactList } from "../ui";
 import {
-  AssessedPeriodStrip,
-  ClaimBadge,
+  AssessedPeriodTimeline,
+  CoverageByInput,
+  FuelRange,
+  ReportedValues,
+} from "./assessmentGraphics";
+import {
   OUTCOME_WORDS,
   readablePeriod,
   readableTime,
@@ -34,7 +40,6 @@ import type {
   EvidenceLink,
   Reading,
   RevisionSummary,
-  SegmentInputs,
 } from "./siteAnalyticsClient";
 
 /** Plain input names, keyed by the assessment's stable input ids. */
@@ -46,36 +51,17 @@ export const INPUT_WORDS: Record<string, string> = {
   discharge_capability: "Available battery output",
 };
 
-const RESERVE_SOURCE: Record<string, string> = {
-  policy: "site setting",
-  "operator override": "operator instruction",
-  "conflicting records": "conflicting records",
-};
-
-function value(v: string | null, unit: string): string {
-  return v === null ? "Not reported" : `${v} ${unit}`;
-}
-
-/** The values one end of an assessed part was judged on. Missing is "Not reported", never zero. */
-function InputValues({ inputs }: { inputs: SegmentInputs | undefined }) {
-  if (inputs === undefined) {
-    return <span className="overview-note">No values: generator operation not recorded.</span>;
+/**
+ * The part shown by default: the first recorded part with the period's own
+ * outcome, else the first recorded part, else the first part.
+ */
+export function defaultPart(a: Assessment): number {
+  const own = a.segments.findIndex((s) => s.observed && s.classification === a.claim_level);
+  if (own >= 0) {
+    return own;
   }
-  return (
-    <ul className="cell-list" data-segment-values>
-      <li>{`Site demand: ${value(inputs.load_kw, "kW")}`}</li>
-      <li>{`Available solar power: ${value(inputs.pv_available_kw, "kW")}`}</li>
-      <li>{`Available battery output: ${value(inputs.discharge_capability_kw, "kW")}`}</li>
-      <li>{`Generator output: ${value(inputs.generator_kw, "kW")}`}</li>
-      <li>{`Battery charge: ${value(inputs.soc_pct, "%")}`}</li>
-      <li>
-        {`Minimum battery reserve: ${value(inputs.reserve_pct, "%")}`}
-        {inputs.reserve_source === null
-          ? ""
-          : ` (${RESERVE_SOURCE[inputs.reserve_source] ?? "recorded setting"})`}
-      </li>
-    </ul>
-  );
+  const recorded = a.segments.findIndex((s) => s.observed);
+  return recorded >= 0 ? recorded : 0;
 }
 
 export interface AssessmentAnalysisProps {
@@ -102,6 +88,8 @@ export function AssessmentAnalysis({
   links,
 }: AssessmentAnalysisProps) {
   const reading: Reading | undefined = summary.reading;
+  const [params, setParams] = useSearchParams();
+  const [side, setSide] = useState<"start" | "end">("start");
   if (reading === undefined) {
     return (
       <p data-analysis-unavailable>
@@ -110,6 +98,18 @@ export function AssessmentAnalysis({
     );
   }
   const fuel = a.fuel;
+  const requested = params.get("part");
+  const n = requested === null ? NaN : Number(requested);
+  const requestedIndex =
+    Number.isInteger(n) && n >= 1 && n <= a.segments.length ? n - 1 : null;
+  const selected = requestedIndex ?? defaultPart(a);
+  const segment = a.segments[selected];
+  const partLabel = segment === undefined ? "" : `Part ${selected + 1} of ${a.segments.length}, ${readablePeriod(segment.start, segment.end)}`;
+  const select = (index: number) => {
+    const next = new URLSearchParams(params);
+    next.set("part", String(index + 1));
+    setParams(next, { replace: true });
+  };
   return (
     <div className="assessment-analysis" data-analysis={summary.assessment_id}>
       <Section heading="How the conclusion was reached" id="analysis-parts-heading">
@@ -119,68 +119,50 @@ export function AssessmentAnalysis({
             {`Reasons the generator was needed: ${reading.reasons_needed.join(", ")}.`}
           </p>
         )}
-        <AssessedPeriodStrip assessment={a} reading={reading} />
-        <p className="overview-note">
-          Each row is one assessed part of the period. The values are those used
-          at the start and end of that part, as reported; they are not a
-          continuous measurement. Times are UTC.
-        </p>
-        {/* Checkpoint 2: reported-values comparison graphic (data-graphic-anchor="reported-values"). */}
-        <div data-graphic-anchor="reported-values">
-          <DataTable labelledBy="analysis-parts-heading">
-            <thead>
-              <tr>
-                <th scope="col">Assessed part</th>
-                <th scope="col">Outcome and reason</th>
-                <th scope="col">Values used at the start</th>
-                <th scope="col">Values used at the end</th>
-                <th scope="col">Records</th>
-              </tr>
-            </thead>
-            <tbody>
-              {a.segments.map((segment, index) => {
-                const plain = reading.segments[index];
-                return (
-                  <tr key={`${segment.start}-${index}`} data-analysis-segment={segment.classification}>
-                    <th scope="row">
-                      {`${readablePeriod(segment.start, segment.end)} (${segment.minutes} min)`}
-                    </th>
-                    <td>
-                      <ClaimBadge
-                        level={segment.classification}
-                        label={plain?.outcome ?? OUTCOME_WORDS[segment.classification] ?? "Assessed"}
-                      />{" "}
-                      {plain?.reason ?? "Detail not available for this part of the assessment."}
-                    </td>
-                    <td>
-                      <InputValues inputs={segment.inputs.at_start} />
-                    </td>
-                    <td>
-                      <InputValues inputs={segment.inputs.at_end} />
-                    </td>
-                    <td>
-                      {records.kind === "tab" ? (
-                        <Link to={records.href}>{`${segment.evidence.length} records (Evidence)`}</Link>
-                      ) : segment.evidence.length === 0 ? (
-                        "None referenced"
-                      ) : (
-                        <ul className="cell-list">
-                          {segment.evidence.map((link) => (
-                            <li key={link.message_id}>
-                              <Link to={records.href(link)} data-analysis-record={link.message_id}>
-                                {`${link.device_id} / ${link.signal_id}, ${readableTime(link.source_time)}`}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </DataTable>
-        </div>
+        <AssessedPeriodTimeline
+          source={a}
+          outcomes={reading.segments.map((s) => s.outcome)}
+          reasons={reading.segments.map((s) => s.reason)}
+          selected={selected}
+          onSelect={select}
+          assessmentId={summary.assessment_id}
+        />
+      </Section>
+
+      <Section heading="Values used for the selected part" id="analysis-values-heading">
+        {requested !== null && requestedIndex === null ? (
+          <p data-analysis-part-missing>
+            {`Part ${requested} is not in this assessed period; the first part with the period's outcome is shown.`}
+          </p>
+        ) : null}
+        {segment === undefined ? (
+          <p>This assessed period has no parts.</p>
+        ) : (
+          <div data-analysis-selected-part={selected + 1}>
+            <p>
+              <strong>{`${partLabel}: ${reading.segments[selected]?.outcome ?? OUTCOME_WORDS[segment.classification] ?? "Assessed"}.`}</strong>{" "}
+              {reading.segments[selected]?.reason ?? "Detail not available for this part of the assessment."}
+            </p>
+            <ReportedValues segment={segment} which={side} onWhich={setSide} partLabel={partLabel} />
+            <p data-analysis-part-records>
+              {"Records for this part: "}
+              {records.kind === "tab" ? (
+                <Link to={records.href}>{`${segment.evidence.length} records (Evidence)`}</Link>
+              ) : segment.evidence.length === 0 ? (
+                "none referenced"
+              ) : (
+                segment.evidence.map((link, index) => (
+                  <span key={link.message_id}>
+                    {index === 0 ? "" : ", "}
+                    <Link to={records.href(link)} data-analysis-record={link.message_id}>
+                      {`${link.device_id} / ${link.signal_id}, ${readableTime(link.source_time)}`}
+                    </Link>
+                  </span>
+                ))
+              )}
+            </p>
+          </div>
+        )}
       </Section>
 
       <Section heading="Confidence in detail" id="analysis-confidence-heading">
@@ -196,24 +178,11 @@ export function AssessmentAnalysis({
 
       <Section heading="Record coverage" id="analysis-coverage-heading">
         <p>{reading.coverage_note}</p>
-        {/* Checkpoint 2: coverage-count graphic (data-graphic-anchor="coverage-by-input"). */}
-        <ul className="cell-list" data-graphic-anchor="coverage-by-input">
-          {a.coverage.inputs.map((input) => (
-            <li key={input.input} data-coverage-input={input.input}>
-              {input.evaluated_segments === 0
-                ? `${INPUT_WORDS[input.input] ?? input.label}: not assessed`
-                : `${INPUT_WORDS[input.input] ?? input.label}: usable in ${input.usable_segments} of ${input.evaluated_segments} assessed parts of this period`}
-              {input.gaps.length === 0
-                ? ""
-                : `; missing ${input.gaps.map((g) => `${readablePeriod(g.start, g.end)} (${g.minutes} min)`).join(", ")}`}
-            </li>
-          ))}
-          {a.coverage.unobserved_generator_state.map((span) => (
-            <li key={`gen-${span.start}`} data-coverage-unobserved>
-              {`Generator operation not recorded: ${readablePeriod(span.start, span.end)} (${span.minutes} min)`}
-            </li>
-          ))}
-        </ul>
+        <CoverageByInput
+          inputs={a.coverage.inputs}
+          unobserved={a.coverage.unobserved_generator_state}
+          words={INPUT_WORDS}
+        />
       </Section>
 
       <Section heading="Operating time and fuel calculation" id="analysis-fuel-heading">
@@ -234,10 +203,9 @@ export function AssessmentAnalysis({
           </Fact>
         </FactList>
         <p className="overview-note">{reading.duration_note}</p>
-        <p data-analysis-fuel={fuel.status}>
-          <strong>{`${reading.fuel.label}: `}</strong>
-          {reading.fuel.text ?? reading.fuel.note}
-        </p>
+        <div data-analysis-fuel={fuel.status}>
+          <FuelRange fuel={fuel} reading={reading.fuel} />
+        </div>
         {fuel.inputs === undefined ? null : (
           <>
             <FactList>

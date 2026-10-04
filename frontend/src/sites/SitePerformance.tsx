@@ -17,8 +17,8 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
 import { AssessmentAnalysis } from "./assessmentAnalysis";
+import { AssessedPeriodTimeline } from "./assessmentGraphics";
 import {
-  AssessedPeriodStrip,
   ClaimBadge,
   LocalViews,
   localView,
@@ -212,11 +212,13 @@ function DispatchView({
   const intervalSearch = (id: string, nextView: LocalView) => {
     const next = new URLSearchParams(params);
     next.set("interval", id);
+    next.delete("part");
     return localViewSearch(next, nextView);
   };
   const select = (id: string) => {
     const next = new URLSearchParams(params);
     next.set("interval", id);
+    next.delete("part");
     setParams(next);
   };
   const withoutSelection = new URLSearchParams(params);
@@ -298,7 +300,12 @@ function DispatchView({
                       />
                     </td>
                     <td>
-                      <AssessedPeriodStrip assessment={row.assessment} reading={row.reading} />
+                      <AssessedPeriodTimeline
+                        compact
+                        source={row.assessment}
+                        outcomes={row.assessment.segments.map((_, i) => row.reading?.segments[i]?.outcome)}
+                        assessmentId={row.assessment_id}
+                      />
                     </td>
                     <td>{row.reading?.operating_time ?? "Not available"}</td>
                     <td data-dispatch-reason>{row.reading?.reason ?? "Not available"}</td>

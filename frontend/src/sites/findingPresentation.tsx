@@ -11,7 +11,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Badge, DataTable, Fact, FactList } from "../ui";
 import { RecordDetail } from "./SiteEvidence";
 import type {
-  Assessment,
   AssessmentSummary,
   ClaimLevel,
   EvidenceLink,
@@ -322,44 +321,6 @@ export function FindingsTable({
         ))}
       </tbody>
     </DataTable>
-  );
-}
-
-/**
- * The assessed period as proportional parts, each marked by its outcome and
- * whether generator operation was recorded. Checkpoint 2 replaces this with
- * the labelled assessed-period timeline (data-graphic-anchor="assessed-period-timeline").
- */
-export function AssessedPeriodStrip({
-  assessment,
-  reading,
-}: {
-  assessment: Assessment;
-  reading: Reading | undefined;
-}) {
-  const word = (index: number) =>
-    reading?.segments[index]?.outcome ??
-    OUTCOME_WORDS[assessment.segments[index].classification] ??
-    "Assessed";
-  return (
-    <span
-      className="segment-strip"
-      role="img"
-      data-graphic-anchor="assessed-period-timeline"
-      aria-label={`Assessed parts of the period: ${assessment.segments
-        .map((s, index) => `${word(index)} ${s.minutes} min${s.observed ? "" : " (operation not recorded)"}`)
-        .join(", ")}`}
-    >
-      {assessment.segments.map((segment, index) => (
-        <span
-          key={`${segment.start}-${index}`}
-          className="segment-strip__part"
-          data-claim-level={segment.classification}
-          data-observed={segment.observed}
-          style={{ flexGrow: Math.max(segment.minutes, 1) }}
-        />
-      ))}
-    </span>
   );
 }
 

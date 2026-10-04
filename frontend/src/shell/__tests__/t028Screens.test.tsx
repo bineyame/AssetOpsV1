@@ -160,9 +160,13 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     const analysis = document.querySelector(`[data-analysis="${NECESSARY_ID}"]`) as HTMLElement;
     expect(analysis).toHaveTextContent("Reasons the generator was needed: Battery at minimum reserve.");
     const values = analysis.querySelector("[data-segment-values]") as HTMLElement;
-    expect(values).toHaveTextContent("Site demand: 18 kW");
-    expect(values).toHaveTextContent("Available battery output: 40 kW");
-    expect(values).toHaveTextContent("Minimum battery reserve: 30 % (site setting)");
+    expect(values.querySelector('[data-value-row="load_kw"]')).toHaveTextContent("Site demand18 kW");
+    expect(values.querySelector('[data-value-row="discharge_capability_kw"]')).toHaveTextContent(
+      "Available battery output40 kW",
+    );
+    expect(values.querySelector('[data-value-row="reserve_pct"]')).toHaveTextContent(
+      "Minimum battery reserve30 % (site setting)",
+    );
     expect(analysis).toHaveTextContent("Assessment methoddispatch-2");
     expect(analysis).toHaveTextContent("dispatch-2");
     expect(analysis).toHaveTextContent("(an assessed period without a Finding)");
@@ -312,9 +316,9 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
       "Unrecorded operator instruction, Battery output not reported",
     );
     // Estimated fuel: a range with its unit, called an estimate, not savings; no money.
-    expect(page.querySelector('[data-finding-fuel="BOUNDED"]')).toHaveTextContent(
-      "Estimated fuel associated with possibly avoidable operation: 21.6 to 29.3 litres",
-    );
+    const fuel = page.querySelector('[data-finding-fuel="BOUNDED"]') as HTMLElement;
+    expect(fuel).toHaveTextContent("Estimated fuel associated with possibly avoidable operation");
+    expect(fuel).toHaveTextContent("Low 21.6 litres to high 29.3 litres");
     expect(page).toHaveTextContent("This is an estimate, not confirmed fuel savings");
     // Method detail moved to Analysis: no disclosures, no method version, no record identifiers.
     expect(page.querySelector("details")).toBeNull();
@@ -352,14 +356,19 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     const analysis = document.querySelector(`[data-analysis="${CANDIDATE_ID}"]`) as HTMLElement;
     expect(analysis.querySelectorAll("[data-analysis-segment]")).toHaveLength(1);
     // Values used at each end; plain names; a missing value is never zero.
-    expect(analysis.querySelector("[data-segment-values]")).toHaveTextContent("Available solar power: 0 kW");
+    // A zero is a value with a zero-width bar, not "Not reported".
+    const solar = analysis.querySelector('[data-segment-values] [data-value-row="pv_available_kw"]') as HTMLElement;
+    expect(solar).toHaveTextContent("Available solar power0 kW");
+    expect(solar.querySelector("[data-bar-width]")).toHaveAttribute("data-bar-width", "0.000000");
     expect(analysis.querySelector("[data-analysis-confidence-explanation]")).toHaveTextContent(
       "15 min of the period cannot be determined",
     );
     expect(analysis.querySelector('[data-coverage-input="soc"]')).toHaveTextContent(
-      "Battery charge: usable in 15 of 16 assessed parts of this period",
+      "Battery charge15 of 16",
     );
-    expect(analysis.querySelector('[data-analysis-fuel="BOUNDED"]')).toHaveTextContent("21.6 to 29.3 litres");
+    expect(analysis.querySelector('[data-analysis-fuel="BOUNDED"]')).toHaveTextContent(
+      "Low 21.6 litres to high 29.3 litres",
+    );
     expect(analysis).toHaveTextContent("0.3 L/kWh, ±10 %");
     // References: method version, assessment reference, verification reference, revisions.
     expect(analysis).toHaveTextContent("dispatch-2");

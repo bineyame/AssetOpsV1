@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Badge, Fact, FactList, Panel } from "../ui";
+import { AssessedPeriodTimeline, FuelRange } from "./assessmentGraphics";
 import {
   capabilityPresentation,
   orderedOverviewCards,
@@ -362,6 +363,19 @@ function DomainCard({
         >
           {assessment.reason}
         </p>
+      )}
+      {capability === null || assessment.lead_timeline === undefined ? null : (
+        <div className="overview-card__timeline" data-overview-card-timeline={assessment.lead_assessment_id}>
+          <AssessedPeriodTimeline
+            compact
+            source={assessment.lead_timeline}
+            outcomes={assessment.lead_timeline.segments.map((s) => s.outcome)}
+            assessmentId={assessment.lead_assessment_id}
+          />
+          {assessment.lead_timeline.fuel.status === "BOUNDED" ? (
+            <FuelRange compact fuel={assessment.lead_timeline.fuel} reading={assessment.lead_timeline.fuel} />
+          ) : null}
+        </div>
       )}
       {capability === null || assessment.lead_assessment_id === undefined ? null : (
         <p className="overview-card__assessment-link">
