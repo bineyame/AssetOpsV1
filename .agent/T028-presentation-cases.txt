@@ -1,0 +1,50 @@
+=== candidate (kobo-mini-grid-prolonged) ===
+Assessment: Candidate avoidable | Finding raised: True
+Running observed: 2026-09-22T03:45:00Z to 2026-09-22T09:15:00Z | running time {'high': '5.67', 'low': '5.5'}
+What the evidence suggests: 4 h of generator runtime with PV and battery capability above load and no binding constraint evidenced (confidence medium).
+Meaning: Potentially avoidable runtime: for the candidate portion, reported solar and battery capability exceeded load and no constraint requiring the generator was evidenced. It is not proven waste and not a judgement of optimal dispatch.
+Portions (h): {'CANDIDATE_AVOIDABLE': {'high': '4.17', 'low': '4'}, 'INDETERMINATE': {'low': '0'}, 'NECESSARY': {'low': '1.5'}}
+Confidence: MEDIUM - Every evaluated segment reached a classification.; Smallest candidate margin is 17 % of load, below the 25 % strong margin (lowers one level).; Start/stop uncertainty is 10 min.
+Missing evidence: none
+Limits: A bounded candidate under declared evidence and model assumptions (dispatch-2): not proven waste and not optimal dispatch. | No operator-commanded override record observed for this interval. Absence of a record is not proof that no override existed. | 1.5 h of this interval is Necessary and is not part of the candidate.
+Fuel: 21.6 to 35.8 L, modelled, for 4 to 4.17 h, +/-10 %
+Next: [{'kind': 'alternative', 'id': 'UNOBSERVED_OVERRIDE'}] Confirm whether an operator instruction kept the generator running during this period. No override record was received, and that absence is not proof that none was given.
+Framing: These are checks to make before considering any change. They are not an instruction to stop the generator or to change a setting.
+Site > Evidence: What can we assess from this site's evidence? -> Full: The required evidence is there: every required signal has usable records, and no assessed period was left unclassified by a gap. This is about the evidence, not whether the site is operating well, and not uninterrupted coverage.
+  Scope: Scored across all of this site's accepted evidence, not the selected window. It is not site health and not permission to act. | assessed intervals 1
+  Missing (not limiting): Battery state of charge: no usable record for 2 of 22 evaluated segments in 1 assessed interval; no classification depended on it there.
+
+=== healthy (kobo-mini-grid-evening) ===
+Assessment: Necessary | Finding raised: False
+Running observed: 2026-09-22T12:30:00Z to 2026-09-22T17:00:00Z | running time {'high': None, 'low': '4.5'}
+What the evidence suggests: Generator runtime of 4.5-open was required: battery at reserve, battery near reserve, minimum runtime.
+Meaning: Needed runtime: an evidenced constraint required the generator to run. It does not judge whether that constraint was well set.
+Portions (h): {'CANDIDATE_AVOIDABLE': {'high': '0', 'low': '0'}, 'INDETERMINATE': {'low': '0'}, 'NECESSARY': {'low': '4.5'}}
+Confidence: MEDIUM - Every evaluated segment reached a classification.; Start or stop time is not bracketed by evidence (lowers one level).
+Missing evidence: none
+Limits: Generator operation was required by the binding constraint shown, on the accepted evidence. It does not say the constraint itself was well set. | No operator-commanded override record observed for this interval. Absence of a record is not proof that no override existed.
+Fuel: NOT_APPLICABLE: Only a candidate avoidable interval carries a fuel estimate.
+Next: [{'kind': 'none'}] No avoidable runtime was identified. If the constraint shown is unexpected, check how it is set; this assessment does not judge the setting.
+Framing: These are checks to make before considering any change. They are not an instruction to stop the generator or to change a setting.
+Site > Evidence: What can we assess from this site's evidence? -> Full: The required evidence is there: every required signal has usable records, and no assessed period was left unclassified by a gap. This is about the evidence, not whether the site is operating well, and not uninterrupted coverage.
+  Scope: Scored across all of this site's accepted evidence, not the selected window. It is not site health and not permission to act. | assessed intervals 1
+
+=== evidence-limited (kobo-mini-grid-degraded-evidence) ===
+Assessment: Candidate avoidable | Finding raised: True
+Running observed: 2026-09-22T03:45:00Z to 2026-09-22T07:00:00Z | running time {'high': '3.42', 'low': '3.25'}
+What the evidence suggests: 0.5 h of generator runtime with PV and battery capability above load and no binding constraint evidenced (confidence low).
+Meaning: Potentially avoidable runtime: for the candidate portion, reported solar and battery capability exceeded load and no constraint requiring the generator was evidenced. It is not proven waste and not a judgement of optimal dispatch.
+Portions (h): {'CANDIDATE_AVOIDABLE': {'high': '0.5', 'low': '0.5'}, 'INDETERMINATE': {'low': '1.25'}, 'NECESSARY': {'low': '1.5'}}
+Confidence: LOW - 75 min of the interval is Indeterminate (lowers one level).; Smallest candidate margin is 17 % of load, below the 25 % strong margin (lowers one level).; Start/stop uncertainty is 10 min.
+Missing evidence: ['Battery discharge capability: no record', 'Battery state of charge: no record']
+Limits: A bounded candidate under declared evidence and model assumptions (dispatch-2): not proven waste and not optimal dispatch. | No operator-commanded override record observed for this interval. Absence of a record is not proof that no override existed. | 1.25 h of this interval is Indeterminate and is not part of the candidate. | 1.5 h of this interval is Necessary and is not part of the candidate.
+Fuel: 3.5 to 4.3 L, modelled, for 0.5 to 0.5 h, +/-10 %
+Next: [{'kind': 'alternative', 'id': 'UNOBSERVED_OVERRIDE'}] Confirm whether an operator instruction kept the generator running during this period. No override record was received, and that absence is not proof that none was given.
+Next: [{'kind': 'alternative', 'id': 'PCS_CAPABILITY_UNAVAILABLE'}] Check why battery discharge capability was not reported for 75 min of this period; battery support there is unknown, so that time cannot be assessed.
+Next: [{'kind': 'site_evidence'}] Check the site's evidence for the missing or conflicting inputs: Battery state of charge: no record.
+Framing: These are checks to make before considering any change. They are not an instruction to stop the generator or to change a setting.
+Site > Evidence: What can we assess from this site's evidence? -> Limited: Assessments are possible but limited: the missing evidence named below caps the conclusion or leaves parts of periods unclassified.
+  Scope: Scored across all of this site's accepted evidence, not the selected window. It is not site health and not permission to act. | assessed intervals 1
+  Missing (limits): Battery state of charge: no usable record for 2 of 13 evaluated segments in 1 assessed interval; 2 segment(s) that needed it are Indeterminate.
+  Missing (limits): Battery discharge capability: no usable record for 5 of 13 evaluated segments in 1 assessed interval; 5 segment(s) that needed it are Indeterminate.
+

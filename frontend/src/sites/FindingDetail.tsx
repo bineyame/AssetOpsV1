@@ -381,7 +381,7 @@ function FindingOverview({
           </span>
           {fuel.inputs === undefined
             ? null
-            : ` for ${fuel.inputs.duration_hours.low} to ${fuel.inputs.duration_hours.high} h of candidate runtime, with ±${fuel.inputs.specific_fuel_consumption.uncertainty_pct} % on the configured fuel consumption.`}
+            : ` for ${boundText(fuel.inputs.duration_hours, "h")} of candidate runtime, with ±${fuel.inputs.specific_fuel_consumption.uncertainty_pct} % on the configured fuel consumption.`}
         </p>
         <p className="overview-note">{fuel.statement}</p>
         {fuel.inputs === undefined ? null : (

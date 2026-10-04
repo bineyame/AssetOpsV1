@@ -329,3 +329,43 @@ def test_prolonged_and_healthy_readiness_is_scored_from_their_own_coverage(prolo
             for assessment_id in gap["assessment_ids"]:
                 rows = assessments[assessment_id]["coverage"]["inputs"]
                 assert any(row["label"] == gap["role"] and row["gaps"] for row in rows)
+
+
+# --- Practitioner reading (D-2026-10-04-practitioner-first-finding-presentation) ---
+
+
+def _step_ids(row: dict) -> list[str]:
+    return [s["id"] for s in row["reading"]["next_steps"]]
+
+
+def test_prolonged_reading_asks_to_confirm_the_operator_instruction(prolonged) -> None:
+    a = only(prolonged)
+    reading = a["reading"]
+    assert reading["meaning"].startswith("Potentially avoidable runtime")
+    assert "not proven waste" in reading["meaning"]
+    assert _step_ids(a)[0] == "CONFIRM_OPERATOR_INSTRUCTION"
+    assert reading["next_steps"][0]["target"] == {"kind": "alternative", "id": "UNOBSERVED_OVERRIDE"}
+    assert "not an instruction to stop the generator" in reading["framing"]
+    # The same reading is served on the Finding, the Site index and the global index.
+    detail = read(prolonged, f"/assessments/{a['assessment_id']}")
+    (row,) = read(prolonged, "/findings")["findings"]
+    assert detail["reading"] == reading == row["reading"]
+    # Read-time only: it is not in the persisted assessment.
+    assert "reading" not in a["assessment"]
+
+
+def test_healthy_reading_is_needed_runtime_with_no_confirmation_step(healthy) -> None:
+    for a in read(healthy, "/dispatch")["assessments"]:
+        assert a["reading"]["meaning"].startswith("Needed runtime")
+        assert _step_ids(a) == ["CHECK_CONSTRAINT_IF_UNEXPECTED"]
+
+
+def test_degraded_reading_names_the_battery_capability_to_check(degraded) -> None:
+    a = only(degraded)
+    assert "CHECK_BATTERY_CAPABILITY" in _step_ids(a)
+    step = next(s for s in a["reading"]["next_steps"] if s["id"] == "CHECK_BATTERY_CAPABILITY")
+    assert step["target"] == {"kind": "alternative", "id": "PCS_CAPABILITY_UNAVAILABLE"}
+    readiness = read(degraded, "/analytics")["analytics"][0]["readiness"]
+    assert readiness["question"] == "What can we assess from this site's evidence?"
+    assert readiness["meaning"].startswith("Assessments are possible but limited")
+    assert "not site health" in readiness["scope"]
