@@ -113,16 +113,29 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(within(necessary as HTMLElement).queryByRole("link", { name: "Open Finding" })).toBeNull();
     expect(necessary).toHaveTextContent("Battery at reserve");
     expect(necessary).toHaveTextContent("No Finding (Necessary)");
+    // The operational question leads; method and version sit behind a disclosure.
+    const question = document.querySelector("[data-dispatch-question]") as HTMLElement;
+    expect(question).toHaveTextContent("For each period the generator ran");
+    expect(question.textContent).not.toMatch(/dispatch-2/);
+    const method = document.querySelector('[data-disclosure="dispatch-method-details"]') as HTMLDetailsElement;
+    expect(method.open).toBe(false);
+    expect(method).toHaveTextContent("model dispatch-2");
+    expect(
+      question.compareDocumentPosition(method) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(candidate).toHaveTextContent("22 Sep 2026, 03:10 to 07:10 UTC");
   });
 
   it("selecting an interval shows its constraint and the inputs at its own time", async () => {
     renderAt(`/sites/${SITE_ID}/performance/dispatch`);
     await settledScreen();
-    fireEvent.click(screen.getByRole("button", { name: /2026-09-22T08:00:00Z to/ }));
+    fireEvent.click(screen.getByRole("button", { name: "22 Sep 2026, 08:00 to 10:00 UTC" }));
     const selected = document.querySelector(`[data-dispatch-selected="${NECESSARY_ID}"]`) as HTMLElement;
     expect(selected).toHaveTextContent("Battery at reserve");
     expect(selected).toHaveTextContent("reserve 30 % (policy)");
     expect(selected).toHaveTextContent("discharge capability 40 kW");
+    expect(selected.querySelector("[data-dispatch-meaning]")).toHaveTextContent("Needed runtime");
+    expect(selected.querySelector('[data-next-step="CHECK_CONSTRAINT_IF_UNEXPECTED"]')).not.toBeNull();
     expect(location()).toBe(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}`);
   });
 });
@@ -208,39 +221,77 @@ describe("Finding detail (AC8, AC12, AC15, AC21)", () => {
     expect(screen.queryByText("Recommendation")).toBeNull();
     expect(screen.queryByText("History")).toBeNull();
     expect(railCurrent()).toBe("Findings");
+    // Practitioner-first hierarchy: the accepted six-part order, in plain headings
+    // (D-2026-10-04-practitioner-first-finding-presentation).
     expect(
       screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent),
     ).toEqual([
-      "1. The claim",
-      "2. Observed facts",
-      "3. Confidence and coverage",
-      "4. Claim ceiling",
-      "5. Consequence (technical quantity)",
-      "6. Next step",
+      "1. What the evidence suggests",
+      "2. What was observed, and what is inferred",
+      "3. How confident, and how much was measured",
+      "4. What limits this conclusion",
+      "5. Estimated fuel associated with this runtime",
+      "6. What to check next",
     ]);
     const page = document.querySelector(`[data-finding="${CANDIDATE_ID}"]`) as HTMLElement;
-    // Context and selected window (AC15).
+    // Context: site, generator and the period, readable with its timezone (AC15).
     expect(page.querySelector("[data-finding-window]")).toHaveTextContent(
-      "2026-09-22T03:00:00Z to 2026-09-22T11:00:00Z",
+      "22 Sep 2026, 03:00 to 11:00 UTC",
     );
     expect(page.querySelector("[data-finding-type]")).toHaveTextContent("Generator dispatch interval");
-    // Confidence and its basis, apart from coverage.
+    // The classification is explained, and its limit stays with it.
+    expect(page.querySelector("[data-finding-meaning]")).toHaveTextContent(
+      "Potentially avoidable runtime",
+    );
+    expect(page.querySelector("[data-finding-meaning]")).toHaveTextContent("not proven waste");
+    // Provenance is behind a closed disclosure, not in the lead.
+    const details = page.querySelector('[data-disclosure="finding-assessment-details"]') as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("[data-finding-assessment-id]")).toHaveTextContent(CANDIDATE_ID);
+    expect(details).toHaveTextContent("basis digest abc123");
+    expect(details).toHaveTextContent("dispatch-2");
+    expect(details.querySelector("[data-finding-revisions]")).not.toBeNull();
+    // The disclosure is usable: its summary opens it.
+    fireEvent.click(within(details).getByText("Assessment details"));
+    expect(details.open).toBe(true);
+    // Confidence and its basis stay visible, apart from coverage.
     expect(page.querySelector("[data-finding-confidence]")).toHaveTextContent("Medium");
     expect(page.querySelector("[data-confidence-basis]")).toHaveTextContent(
       "An Indeterminate portion lies inside the interval.",
     );
-    expect(page.querySelector("[data-finding-coverage]")).toHaveTextContent(
+    expect(page.querySelector("[data-finding-coverage-summary]")).toHaveTextContent(
+      "Not usable in every segment: Battery SOC (15 of 16 segments).",
+    );
+    // The full per-input coverage is one click away.
+    const coverage = page.querySelector('[data-disclosure="finding-coverage-details"]') as HTMLDetailsElement;
+    expect(coverage.open).toBe(false);
+    expect(coverage.querySelector("[data-finding-coverage]")).toHaveTextContent(
       "15 of 16 segments had every required input.",
     );
-    // Rule 3: the gap shown is the backend's, not the profile's.
-    expect(page.querySelector("[data-finding-gaps]")).toHaveTextContent(
-      "Battery discharge capability: no record 05:00 to 05:15",
+    // Rule 3: the gap shown is the backend's, not the profile's; it stays visible.
+    const gaps = page.querySelector("[data-finding-gaps]") as HTMLElement;
+    expect(gaps).toHaveTextContent("Battery discharge capability: no record 05:00 to 05:15");
+    expect(gaps.closest("details")).toBeNull();
+    // Bounded fuel, modelled, with its duration and uncertainty visible; inputs behind a disclosure; no money.
+    const fuel = page.querySelector('[data-finding-fuel="BOUNDED"]') as HTMLElement;
+    expect(fuel).toHaveTextContent("21.6 to 29.3 L, modelled");
+    expect(fuel.closest("details")).toBeNull();
+    expect(fuel.parentElement).toHaveTextContent("for 3.5 to 4 h of candidate runtime, with ±10 %");
+    const fuelDetails = page.querySelector('[data-disclosure="finding-fuel-details"]') as HTMLDetailsElement;
+    expect(fuelDetails.open).toBe(false);
+    expect(fuelDetails).toHaveTextContent("0.3 L/kWh ±10 %");
+    // Next steps are the backend's, linked to what they concern, framed as checks.
+    const confirm = page.querySelector('[data-next-step="CONFIRM_OPERATOR_INSTRUCTION"]') as HTMLElement;
+    expect(within(confirm).getByRole("link")).toHaveAttribute(
+      "href",
+      `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives#alternative-UNOBSERVED_OVERRIDE`,
     );
-    // Bounded fuel as a technical quantity with its inputs; no money.
-    expect(page.querySelector('[data-finding-fuel="BOUNDED"]')).toHaveTextContent(
-      "21.6 to 29.3 L (modelled)",
+    expect(
+      within(page.querySelector('[data-next-step="CHECK_BATTERY_CAPABILITY"]') as HTMLElement).getByRole("link"),
+    ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives#alternative-PCS_CAPABILITY_UNAVAILABLE`);
+    expect(page.querySelector("[data-next-step-framing]")).toHaveTextContent(
+      "not an instruction to stop the generator",
     );
-    expect(page).toHaveTextContent("0.3 L/kWh ±10 %");
     expect(page.textContent ?? "").not.toMatch(/\$|USD|saving of/i);
   });
 
@@ -289,6 +340,10 @@ describe("the Findings rail root and Site > Findings (AC21)", () => {
     const row = document.querySelector(`[data-finding-row="${CANDIDATE_ID}"]`) as HTMLElement;
     expect(row).toHaveTextContent(SITE_ID);
     expect(row).toHaveTextContent("Generator dispatch interval");
+    // The index leads with the reason and period; revision lives on the Finding.
+    expect(row).toHaveTextContent(CANDIDATE_SUMMARY.summary);
+    expect(row).toHaveTextContent("22 Sep 2026, 03:10 to 07:10 UTC");
+    expect(screen.queryByRole("columnheader", { name: "Revision" })).toBeNull();
     fireEvent.click(row);
     await settledScreen();
     expect(location()).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}`);

@@ -149,6 +149,28 @@ export interface Assessment {
   evidence_basis: { message_ids: string[]; digest: string };
 }
 
+/**
+ * The backend's practitioner reading of an assessment
+ * (`D-2026-10-04-practitioner-first-finding-presentation`): what its
+ * classification means and what to check next. Served once by the backend
+ * (`dispatch.reading`), never inferred per screen.
+ */
+export interface NextStep {
+  id: string;
+  text: string;
+  target:
+    | { kind: "alternative"; id: string }
+    | { kind: "site_evidence" }
+    | { kind: "none" };
+}
+
+export interface Reading {
+  meaning: string;
+  generator: string;
+  next_steps: NextStep[];
+  framing: string;
+}
+
 /** One assessment lineage, as every index lists it. */
 export interface AssessmentSummary {
   assessment_id: string;
@@ -167,6 +189,8 @@ export interface AssessmentSummary {
   assessed_window: TimeWindow;
   confidence: string;
   model_version: string;
+  /** Absent only from a backend that predates the practitioner reading. */
+  reading?: Reading;
 }
 
 export interface RevisionSummary {
@@ -253,6 +277,10 @@ export interface CapabilityReadiness {
   missing_evidence: MissingEvidence[];
   optional_not_observed: { role: string; device_id: string; signal_id: string }[];
   assessed_intervals: number;
+  /** The practitioner reading: the question, this level's meaning and its scope. */
+  question?: string;
+  meaning?: string;
+  scope?: string;
   statement: string;
 }
 

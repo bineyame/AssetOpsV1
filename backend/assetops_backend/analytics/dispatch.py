@@ -923,6 +923,100 @@ def _one_line(level: str, portions: dict[str, int], lower: int, upper: int | Non
             f"{'; '.join(missing) if missing else 'generator state not observed'}.")
 
 
+#: What each classification means, in an operator's words (practitioner-first
+#: presentation, D-2026-10-04-practitioner-first-finding-presentation). They
+#: restate the claim ceilings above without strengthening them.
+CLAIM_MEANINGS = {
+    CANDIDATE: "Potentially avoidable runtime: for the candidate portion, reported solar and "
+               "battery capability exceeded load and no constraint requiring the generator "
+               "was evidenced. It is not proven waste and not a judgement of optimal dispatch.",
+    NECESSARY: "Needed runtime: an evidenced constraint required the generator to run. It "
+               "does not judge whether that constraint was well set.",
+    INDETERMINATE: "Not assessable: evidence needed to judge whether the generator was needed "
+                   "is missing or conflicting. It says neither that the runtime was needed nor "
+                   "that it was avoidable.",
+}
+
+NEXT_STEP_FRAMING = (
+    "These are checks to make before considering any change. They are not an instruction "
+    "to stop the generator or to change a setting."
+)
+
+
+def reading(assessment: dict[str, Any]) -> dict[str, Any]:
+    """The practitioner reading of one stored assessment: what its classification
+    means and what to check next, each check linked to the alternative or
+    evidence it concerns.
+
+    Derived at read time from the persisted assessment only, so every screen
+    that serves it reads the same words, and it is not part of the persisted
+    payload (no revision is added by it). It interprets nothing the assessment
+    does not already state.
+    """
+    level = assessment["claim_level"]
+    alternatives = {alt["id"]: alt for alt in assessment.get("alternatives", [])}
+    steps: list[dict[str, Any]] = []
+    if level in (CANDIDATE, INDETERMINATE):
+        if level == CANDIDATE and "UNOBSERVED_OVERRIDE" in alternatives:
+            steps.append({
+                "id": "CONFIRM_OPERATOR_INSTRUCTION",
+                "text": "Confirm whether an operator instruction kept the generator running "
+                        "during this period. No override record was received, and that "
+                        "absence is not proof that none was given.",
+                "target": {"kind": "alternative", "id": "UNOBSERVED_OVERRIDE"},
+            })
+        if "OPERATOR_OVERRIDE" in alternatives:
+            steps.append({
+                "id": "REVIEW_RECORDED_OVERRIDE",
+                "text": "Review the recorded operator override and how much of this period "
+                        "it covers.",
+                "target": {"kind": "alternative", "id": "OPERATOR_OVERRIDE"},
+            })
+    capability = alternatives.get("PCS_CAPABILITY_UNAVAILABLE")
+    capability_open = capability is not None and capability.get("status") == "NOT_EXCLUDED"
+    if capability_open:
+        minutes = sum(int(g["minutes"]) for g in capability.get("gaps", []))
+        steps.append({
+            "id": "CHECK_BATTERY_CAPABILITY",
+            "text": f"Check why battery discharge capability was not reported for {minutes} min "
+                    "of this period; battery support there is unknown, so that time cannot "
+                    "be assessed.",
+            "target": {"kind": "alternative", "id": "PCS_CAPABILITY_UNAVAILABLE"},
+        })
+    other = [m for m in assessment.get("missing_evidence", [])
+             if not (capability_open and m.startswith(INPUT_LABELS["discharge_capability"]))]
+    if other:
+        steps.append({
+            "id": "CHECK_MISSING_EVIDENCE",
+            "text": "Check the site's evidence for the missing or conflicting inputs: "
+                    + "; ".join(other) + ".",
+            "target": {"kind": "site_evidence"},
+        })
+    policy = alternatives.get("POLICY_CONSTRAINT")
+    if level != NECESSARY and policy is not None and policy["statement"].startswith(
+        ("Conflicting", "No generator stop policy")
+    ):
+        steps.append({
+            "id": "CONFIRM_STOP_POLICY",
+            "text": "Confirm which generator stop policy the controller was running under.",
+            "target": {"kind": "alternative", "id": "POLICY_CONSTRAINT"},
+        })
+    if level == NECESSARY:
+        steps.append({
+            "id": "CHECK_CONSTRAINT_IF_UNEXPECTED",
+            "text": "No avoidable runtime was identified. If the constraint shown is "
+                    "unexpected, check how it is set; this assessment does not judge the "
+                    "setting.",
+            "target": {"kind": "none"},
+        })
+    return {
+        "meaning": CLAIM_MEANINGS[level],
+        "generator": GEN_STATUS[0],
+        "next_steps": steps,
+        "framing": NEXT_STEP_FRAMING,
+    }
+
+
 def _digest(records: Iterable[AcceptedRecord], fuel: FuelBasis) -> tuple[list[str], str]:
     """The evidence basis: every record the assessment read, and the fuel basis.
 

@@ -11,7 +11,7 @@
  * the table renders nothing: no row appears before a real claim exists.
  */
 
-import { Badge, DataTable, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, Panel } from "../ui";
 import type { DomainPresentationProfile } from "./presentationProfile";
 import { servedCapabilities } from "./presentationProfile";
 import type { EvidenceRead } from "./siteEvidenceClient";
@@ -48,20 +48,34 @@ export function CapabilityReadinessTable({
     profile,
     analytics.map((item) => ({ id: item.analytic_id, display_name: item.display_name })),
   );
-  const statement = analytics.find((item) => item.readiness)?.readiness?.statement;
+  const scored = analytics.find((item) => item.readiness)?.readiness;
+  const statement = scored?.statement;
 
   return (
     <Panel heading="Capability readiness" headingId={CAPABILITY_HEADING_ID} flush>
-      <p className="note" data-capability-statement>
-        What AssetOps can claim from this site&apos;s accepted records, per
-        analytic. {statement ?? ""}
+      <p className="note" data-capability-question>
+        <strong>{scored?.question ?? "What can we assess from this site's evidence?"}</strong>
+        {scored?.scope === undefined ? "" : ` ${scored.scope}`}
       </p>
+      <Disclosure name="capability-readiness-method" summary="How readiness is scored">
+        <p className="note" data-capability-statement>
+          What AssetOps can claim from this site&apos;s accepted records, per
+          analytic. {statement ?? ""}
+        </p>
+        <ul className="cell-list" data-capability-versions>
+          {analytics.map((item) => (
+            <li key={item.analytic_id}>
+              {`${item.display_name}: model ${item.model_version}${item.readiness === undefined ? "" : `, readiness basis ${item.readiness.basis_version}`}`}
+            </li>
+          ))}
+        </ul>
+      </Disclosure>
       <DataTable labelledBy={CAPABILITY_HEADING_ID}>
         <thead>
           <tr>
             <th scope="col">Capability</th>
             <th scope="col">Readiness</th>
-            <th scope="col">Claim ceiling</th>
+            <th scope="col">Strongest conclusion available</th>
             <th scope="col">Missing evidence</th>
           </tr>
         </thead>
@@ -99,10 +113,7 @@ function CapabilityRow({
       data-capability-known={known ? "yes" : "no"}
       data-capability-readiness={readiness?.level ?? "NOT_SCORED"}
     >
-      <th scope="row">
-        {label}
-        <span className="note">{` ${analytic.model_version}`}</span>
-      </th>
+      <th scope="row">{label}</th>
       {readiness === undefined ? (
         <td colSpan={3} data-capability-not-scored>
           The backend served no readiness for this analytic, so none is shown.
@@ -111,6 +122,11 @@ function CapabilityRow({
         <>
           <td>
             <Badge tone="neutral">{readiness.label}</Badge>
+            {readiness.meaning === undefined ? null : (
+              <p className="note" data-capability-meaning>
+                {readiness.meaning}
+              </p>
+            )}
           </td>
           <td data-capability-ceiling={readiness.claim_ceiling.claim_level ?? "NONE"}>
             <strong>{readiness.claim_ceiling.label}</strong>

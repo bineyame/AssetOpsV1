@@ -175,6 +175,24 @@ READINESS_STATEMENT = (
     "claim can be made because no generator reconstruction evidence is accepted."
 )
 
+#: The practitioner reading of readiness (D-2026-10-04-practitioner-first-
+#: finding-presentation): the question it answers, each level's short meaning
+#: and its scope. They restate READINESS_STATEMENT, which stays served in full.
+READINESS_QUESTION = "What can we assess from this site's evidence?"
+READINESS_MEANINGS = {
+    "FULL": "The required evidence is there: every required signal has usable records, and "
+            "no assessed period was left unclassified by a gap. This is about the evidence, "
+            "not whether the site is operating well, and not uninterrupted coverage.",
+    "LIMITED": "Assessments are possible but limited: the missing evidence named below caps "
+               "the conclusion or leaves parts of periods unclassified.",
+    "NONE": "Nothing can be assessed yet: no evidence from which generator running periods "
+            "can be reconstructed has been accepted.",
+}
+READINESS_SCOPE = (
+    "Scored across all of this site's accepted evidence, not the selected window. It is "
+    "not site health and not permission to act."
+)
+
 
 def _roles(rows: list[dict[str, Any]], roles: tuple[str, ...]) -> list[dict[str, Any]]:
     return [r for r in rows if r["role"] in roles]
@@ -333,6 +351,9 @@ def score_readiness(
             for r in optional if not r["available"]
         ],
         "assessed_intervals": len(assessments),
+        "question": READINESS_QUESTION,
+        "meaning": READINESS_MEANINGS[level],
+        "scope": READINESS_SCOPE,
         "statement": READINESS_STATEMENT,
     }
 

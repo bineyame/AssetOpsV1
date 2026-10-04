@@ -8,8 +8,11 @@
  * are not rendered until T034). The Overview follows the recommendation's
  * hierarchy (section 3 "Finding Detail"): the bounded claim, observed facts
  * apart from inference, confidence and its basis apart from coverage, the
- * claim ceiling, the consequence as a technical quantity only (no money:
- * T029), and the next step. Evidence lists the claims, each opening the claim
+ * claim's limits, the consequence as a technical quantity only (no money:
+ * T029), and the next step. Practitioner-first presentation
+ * (D-2026-10-04-practitioner-first-finding-presentation): plain headings,
+ * the backend's `reading` (meaning and next steps), and provenance, full
+ * coverage and fuel inputs behind closed disclosures. Evidence lists the claims, each opening the claim
  * drawer; Alternatives lists the competing explanations and why each is
  * observed, left open or contradicted.
  *
@@ -18,17 +21,20 @@
  * routes only.
  */
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
-import { Fact, FactList, Panel } from "../ui";
+import { Disclosure, Fact, FactList, Panel } from "../ui";
 import {
   boundText,
   ClaimBadge,
   ClaimDrawer,
   confidenceWord,
   EvidenceLinks,
+  NextSteps,
+  readablePeriod,
   Section,
   windowText,
+  type NextStepHref,
   type OpenRecord,
 } from "./findingPresentation";
 import type { DomainPresentationProfile } from "./presentationProfile";
@@ -138,24 +144,21 @@ export function FindingDetail({
   return (
     <div className="finding-detail" data-finding={detail.assessment_id}>
       <FactList>
-        <Fact term="Claim">
+        <Fact term="Assessment">
           <ClaimBadge level={detail.claim_level} label={detail.label} />{" "}
           <span data-finding-type={findingType.id} data-profile-known={findingType.known}>
             {findingType.label}
           </span>
         </Fact>
-        <Fact term="Context">
-          {`Site ${siteId}; generator interval ${a.interval.first_running_observed} to ${a.interval.last_running_observed}`}
-        </Fact>
-        <Fact term="Selected window">
+        <Fact term="Site">{siteId}</Fact>
+        {detail.reading === undefined ? null : (
+          <Fact term="Generator">{detail.reading.generator}</Fact>
+        )}
+        <Fact term="Period assessed">
           <span data-finding-window>{windowText(a.assessed_window)}</span>
         </Fact>
-        <Fact term="Assessment">
-          {`${detail.assessment_id}, revision ${detail.revision} of ${detail.revisions}, analytic ${a.analytic_id} ${a.model_version}`}
-          {detail.finding_id === null ? " (an assessment without a Finding)" : ""}
-          {detail.active ? "" : ` (retired ${detail.retired_at ?? ""})`}
-        </Fact>
       </FactList>
+      <AssessmentDetails detail={detail} />
 
       <nav className="site-tabs finding-tabs" aria-label={FINDING_TABS_LABEL}>
         <ol className="site-tabs__list">
@@ -205,6 +208,43 @@ export function FindingDetail({
   );
 }
 
+/**
+ * Assessment provenance, one click away: identifiers, revisions, model version
+ * and evidence basis. Practitioner-first presentation keeps these inspectable
+ * without leading with them; History stays reserved for T034.
+ */
+function AssessmentDetails({ detail }: { detail: AssessmentDetail }) {
+  const a = detail.assessment;
+  return (
+    <Disclosure name="finding-assessment-details" summary="Assessment details">
+      <FactList>
+        <Fact term="Assessment ID">
+          <span data-finding-assessment-id>{detail.assessment_id}</span>
+          {detail.finding_id === null ? " (an assessment without a Finding)" : ""}
+          {detail.active ? "" : ` (retired ${detail.retired_at ?? ""})`}
+        </Fact>
+        <Fact term="Analytic">{`${a.analytic_id}, model ${a.model_version}`}</Fact>
+        <Fact term="Assessed window (UTC)">
+          {`${a.assessed_window.start} to ${a.assessed_window.end}`}
+        </Fact>
+        <Fact term="Evidence basis">
+          {`${a.evidence_basis.message_ids.length} accepted records; basis digest ${a.evidence_basis.digest}`}
+        </Fact>
+        <Fact term="Revision">
+          {`${detail.revision} of ${detail.revisions}. Every revision is retained.`}
+          <ul className="cell-list" data-finding-revisions>
+            {detail.revision_history.map((r) => (
+              <li key={r.revision}>
+                {`Revision ${r.revision}, assessed ${r.assessed_at}, model ${r.model_version}: ${r.label}; ${r.evidence_records} records, digest ${r.evidence_basis_digest}`}
+              </li>
+            ))}
+          </ul>
+        </Fact>
+      </FactList>
+    </Disclosure>
+  );
+}
+
 function FindingOverview({
   detail,
   dispatchHref,
@@ -222,41 +262,57 @@ function FindingOverview({
   const portions = a.portions_hours;
   const fuel = a.fuel;
   const openAlternatives = a.alternatives.filter((alt) => alt.status === "NOT_EXCLUDED");
+  const partial = a.coverage.inputs.filter(
+    (input) => input.usable_segments < input.evaluated_segments,
+  );
+  const stepHref: NextStepHref = (step) =>
+    step.target.kind === "alternative"
+      ? `${alternativesTabHref}#${alternativeAnchor(step.target.id)}`
+      : step.target.kind === "site_evidence"
+        ? evidencePageHref
+        : null;
   return (
     <div className="finding-overview">
-      <Section heading="1. The claim" id="finding-claim-heading">
+      <Section heading="1. What the evidence suggests" id="finding-claim-heading">
         <p className="finding-claim" data-finding-claim={a.claim_level}>
           {a.summary}
         </p>
+        {detail.reading === undefined ? null : (
+          <p data-finding-meaning>
+            <ClaimBadge level={a.claim_level} label={a.label} /> {detail.reading.meaning}
+          </p>
+        )}
       </Section>
 
-      <Section heading="2. Observed facts" id="finding-facts-heading">
+      <Section heading="2. What was observed, and what is inferred" id="finding-facts-heading">
         <FactList>
-          <Fact term="Generator interval">{a.interval.statement}</Fact>
-          <Fact term="Duration">{boundText(a.interval.duration_hours, "h")}</Fact>
-          <Fact term="Assessed segments">
-            {`${a.segments.length} segments; ${a.segments.filter((s) => s.observed).length} with observed generator state`}
+          <Fact term="Generator running observed">
+            {readablePeriod(a.interval.first_running_observed, a.interval.last_running_observed)}
           </Fact>
-          <Fact term="Accepted records used">
-            {`${a.evidence_basis.message_ids.length} (basis digest ${a.evidence_basis.digest})`}
-          </Fact>
+          <Fact term="Running time">{boundText(a.interval.duration_hours, "h")}</Fact>
         </FactList>
-        <p className="overview-note">Inference from these facts:</p>
+        <p className="overview-note">Inferred from the evidence:</p>
         <FactList>
           <Fact term="Candidate avoidable portion">
             {boundText(portions.CANDIDATE_AVOIDABLE, "h")}
           </Fact>
           <Fact term="Necessary portion">{boundText(portions.NECESSARY, "h")}</Fact>
           <Fact term="Indeterminate portion">{boundText(portions.INDETERMINATE, "h")}</Fact>
-          <Fact term="Binding constraints">
+          <Fact term="Constraint requiring the generator">
             {a.binding_constraints.length === 0
-              ? "None found in the assessed segments"
+              ? "None evidenced in the assessed period"
               : a.binding_constraints.map(constraintWord).join(", ")}
           </Fact>
         </FactList>
+        <Disclosure name="finding-duration-details" summary="How the running time is bounded">
+          <p>{a.interval.statement}</p>
+          <p className="overview-note">
+            {`${a.segments.length} segments; ${a.segments.filter((s) => s.observed).length} with observed generator state. Each segment and its records are on the Evidence tab.`}
+          </p>
+        </Disclosure>
       </Section>
 
-      <Section heading="3. Confidence and coverage" id="finding-confidence-heading">
+      <Section heading="3. How confident, and how much was measured" id="finding-confidence-heading">
         <FactList>
           <Fact term="Confidence">
             <span data-finding-confidence={a.confidence.level}>
@@ -271,22 +327,34 @@ function FindingOverview({
             )}
           </Fact>
           <Fact term="Coverage">
-            <span data-finding-coverage>{a.coverage.statement}</span>
-            <ul className="cell-list">
-              {a.coverage.inputs.map((input) => (
-                <li key={input.input} data-coverage-input={input.input}>
-                  {`${input.label}: usable in ${input.usable_segments} of ${input.evaluated_segments} segments`}
-                  {input.gaps.length === 0
-                    ? ""
-                    : `; gaps ${input.gaps.map((g) => `${g.start} to ${g.end} (${g.minutes} min)`).join(", ")}`}
-                </li>
-              ))}
-            </ul>
+            <span data-finding-coverage-summary={partial.length}>
+              {partial.length === 0
+                ? "Every required input had a usable record in every evaluated segment."
+                : `Not usable in every segment: ${partial
+                    .map(
+                      (input) =>
+                        `${input.label} (${input.usable_segments} of ${input.evaluated_segments} segments)`,
+                    )
+                    .join("; ")}.`}
+            </span>
           </Fact>
         </FactList>
+        <Disclosure name="finding-coverage-details" summary="Coverage of every input">
+          <p data-finding-coverage>{a.coverage.statement}</p>
+          <ul className="cell-list">
+            {a.coverage.inputs.map((input) => (
+              <li key={input.input} data-coverage-input={input.input}>
+                {`${input.label}: usable in ${input.usable_segments} of ${input.evaluated_segments} segments`}
+                {input.gaps.length === 0
+                  ? ""
+                  : `; gaps ${input.gaps.map((g) => `${g.start} to ${g.end} (${g.minutes} min)`).join(", ")}`}
+              </li>
+            ))}
+          </ul>
+        </Disclosure>
       </Section>
 
-      <Section heading="4. Claim ceiling" id="finding-ceiling-heading">
+      <Section heading="4. What limits this conclusion" id="finding-ceiling-heading">
         {a.missing_evidence.length === 0 ? null : (
           <p data-finding-gaps>
             {`Missing or conflicting evidence: ${a.missing_evidence.join("; ")}.`}
@@ -299,17 +367,26 @@ function FindingOverview({
         </ul>
       </Section>
 
-      <Section heading="5. Consequence (technical quantity)" id="finding-consequence-heading">
-        <FactList>
-          <Fact term="Indicative associated fuel">
-            <span data-finding-fuel={fuel.status}>
-              {fuel.status === "BOUNDED"
-                ? `${fuel.low_litres} to ${fuel.high_litres} ${fuel.unit ?? "L"} (${fuel.basis})`
+      <Section
+        heading="5. Estimated fuel associated with this runtime"
+        id="finding-consequence-heading"
+      >
+        <p>
+          <span data-finding-fuel={fuel.status}>
+            {fuel.status === "BOUNDED"
+              ? `${fuel.low_litres} to ${fuel.high_litres} ${fuel.unit ?? "L"}, modelled`
+              : fuel.status === "NOT_APPLICABLE"
+                ? `Not applicable: ${fuel.reason ?? fuel.statement}`
                 : `Unavailable: ${fuel.reason ?? fuel.statement}`}
-            </span>
-          </Fact>
-          {fuel.inputs === undefined ? null : (
-            <>
+          </span>
+          {fuel.inputs === undefined
+            ? null
+            : ` for ${fuel.inputs.duration_hours.low} to ${fuel.inputs.duration_hours.high} h of candidate runtime, with ±${fuel.inputs.specific_fuel_consumption.uncertainty_pct} % on the configured fuel consumption.`}
+        </p>
+        <p className="overview-note">{fuel.statement}</p>
+        {fuel.inputs === undefined ? null : (
+          <Disclosure name="finding-fuel-details" summary="How the fuel estimate is calculated">
+            <FactList>
               <Fact term="Duration input">
                 {`${fuel.inputs.duration_hours.low} to ${fuel.inputs.duration_hours.high} h (${fuel.inputs.duration_hours.basis}). ${fuel.inputs.duration_hours.note}`}
               </Fact>
@@ -322,37 +399,38 @@ function FindingOverview({
               {fuel.formula === undefined ? null : (
                 <Fact term="Model basis">{fuel.formula}</Fact>
               )}
-            </>
-          )}
-        </FactList>
-        <p className="overview-note">{fuel.statement}</p>
+            </FactList>
+          </Disclosure>
+        )}
       </Section>
 
-      <Section heading="6. Next step" id="finding-next-heading">
-        <ul className="cell-list">
+      <Section heading="6. What to check next" id="finding-next-heading">
+        {detail.reading === undefined ? null : (
+          <NextSteps reading={detail.reading} href={stepHref} />
+        )}
+        <ul className="cell-list" data-finding-supporting>
           <li>
-            <Link to={evidenceTabHref}>Challenge the claim record by record</Link>
-            {" in the Evidence tab."}
+            <Link to={evidenceTabHref}>Open the supporting records</Link>
+            {" for each part of this period (Evidence tab)."}
           </li>
           <li>
             <Link to={alternativesTabHref}>
-              {`Review ${openAlternatives.length} alternative explanation${openAlternatives.length === 1 ? "" : "s"} not excluded`}
+              {`Compare ${openAlternatives.length} other explanation${openAlternatives.length === 1 ? "" : "s"} not ruled out`}
             </Link>
-            {" before acting."}
+            {" (Alternatives tab)."}
           </li>
-          {a.missing_evidence.length === 0 ? null : (
-            <li>
-              <Link to={evidencePageHref}>Check the site&apos;s evidence coverage</Link>
-              {" for the missing inputs named above."}
-            </li>
-          )}
           <li>
-            <Link to={dispatchHref}>See this interval on Performance &gt; Dispatch</Link>.
+            <Link to={dispatchHref}>See this period on Performance &gt; Dispatch</Link>.
           </li>
         </ul>
       </Section>
     </div>
   );
+}
+
+/** The Alternatives tab anchor a next step links to. */
+export function alternativeAnchor(id: string): string {
+  return `alternative-${id}`;
 }
 
 const CONSTRAINT_WORDS: Record<string, string> = {
@@ -436,11 +514,23 @@ function FindingAlternatives({
   assessment: Assessment;
   open: OpenRecord;
 }) {
+  // A next step links an alternative by its anchor; bring it into view.
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash.length > 1) {
+      document.getElementById(hash.slice(1))?.scrollIntoView?.({ block: "start" });
+    }
+  }, [hash]);
   return (
     <Section heading="Competing explanations" id="finding-alternatives-heading">
       <ol className="claim-list">
         {assessment.alternatives.map((alt) => (
-          <li key={alt.id} className="claim-list__item" data-alternative={alt.id}>
+          <li
+            key={alt.id}
+            id={alternativeAnchor(alt.id)}
+            className="claim-list__item"
+            data-alternative={alt.id}
+          >
             <p className="claim-list__head">
               <strong>{alt.label}</strong>{" "}
               <span data-alternative-status={alt.status}>

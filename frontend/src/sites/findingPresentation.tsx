@@ -14,6 +14,8 @@ import type {
   AssessmentSummary,
   ClaimLevel,
   EvidenceLink,
+  NextStep,
+  Reading,
 } from "./siteAnalyticsClient";
 import type {
   EvidenceRead,
@@ -50,7 +52,71 @@ export function boundText(
 }
 
 export function windowText(window: { start: string; end: string }): string {
-  return `${window.start} to ${window.end}`;
+  return readablePeriod(window.start, window.end);
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function parts(iso: string): { day: string; time: string } | null {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return {
+    day: `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`,
+    time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`,
+  };
+}
+
+/**
+ * A backend timestamp for reading, with its timezone named: "22 Sep 2026 03:05
+ * UTC". Practitioner-first presentation: the ISO form stays in the record
+ * detail; an unparseable value is shown as it arrived.
+ */
+export function readableTime(iso: string): string {
+  const p = parts(iso);
+  return p === null ? iso : `${p.day} ${p.time} UTC`;
+}
+
+/** "22 Sep 2026, 03:05 to 05:20 UTC", or both days when the period spans midnight. */
+export function readablePeriod(start: string, end: string): string {
+  const a = parts(start);
+  const b = parts(end);
+  if (a === null || b === null) {
+    return `${start} to ${end}`;
+  }
+  return a.day === b.day
+    ? `${a.day}, ${a.time} to ${b.time} UTC`
+    : `${a.day} ${a.time} to ${b.day} ${b.time} UTC`;
+}
+
+/** Where a next step's link goes: an alternative, or the Site's evidence page. */
+export type NextStepHref = (step: NextStep) => string | null;
+
+/**
+ * The backend's next steps for an assessment, each linked to what it concerns,
+ * with the framing that they are checks and not instructions. Nothing here is
+ * inferred: the steps are `reading.next_steps` as served.
+ */
+export function NextSteps({ reading, href }: { reading: Reading; href: NextStepHref }) {
+  return (
+    <>
+      <ul className="cell-list" data-next-steps>
+        {reading.next_steps.map((step) => {
+          const to = href(step);
+          return (
+            <li key={step.id} data-next-step={step.id}>
+              {to === null ? step.text : <Link to={to}>{step.text}</Link>}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="overview-note" data-next-step-framing>
+        {reading.framing}
+      </p>
+    </>
+  );
 }
 
 /** Opens one accepted record in the claim drawer, naming the claim it supports. */
@@ -143,7 +209,7 @@ export function ClaimDrawer({
       </div>
       <FactList>
         <Fact term="Claim">{claim ?? "Not named"}</Fact>
-        <Fact term="Assessed window">{windowText(assessedWindow)}</Fact>
+        <Fact term="Assessed window">{`${assessedWindow.start} to ${assessedWindow.end}`}</Fact>
         <Fact term="Algorithm version">{modelVersion}</Fact>
       </FactList>
       <RecordDetail detail={detail} />
@@ -185,11 +251,10 @@ export function FindingsTable({
         <tr>
           <th scope="col">Finding</th>
           {siteColumn ? <th scope="col">Site</th> : null}
-          <th scope="col">Type</th>
-          <th scope="col">Claim</th>
-          <th scope="col">Interval</th>
+          <th scope="col">Period</th>
+          <th scope="col">Assessment</th>
           <th scope="col">Confidence</th>
-          <th scope="col">Revision</th>
+          <th scope="col">Type</th>
         </tr>
       </thead>
       <tbody>
@@ -208,13 +273,17 @@ export function FindingsTable({
             {siteColumn ? (
               <td>{`${row.site_display_name ?? row.site_id ?? ""} · ${row.site_id ?? ""}`}</td>
             ) : null}
-            <td>{findingType(row.finding_type, row)}</td>
+            <td>
+              {readablePeriod(
+                row.interval.first_running_observed,
+                row.interval.last_running_observed,
+              )}
+            </td>
             <td>
               <ClaimBadge level={row.claim_level} label={row.label} />
             </td>
-            <td>{`${row.interval.first_running_observed} to ${row.interval.last_running_observed}`}</td>
             <td>{confidenceWord(row.confidence)}</td>
-            <td>{`${row.revision} of ${row.revisions}`}</td>
+            <td>{findingType(row.finding_type, row)}</td>
           </tr>
         ))}
       </tbody>

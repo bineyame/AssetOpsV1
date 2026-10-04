@@ -7,6 +7,7 @@ import type {
   AssessmentDetail,
   AssessmentSummary,
   CapabilityReadiness,
+  Reading,
   SiteAnalytics,
   SiteAnalyticsClient,
 } from "../siteAnalyticsClient";
@@ -157,6 +158,40 @@ function summary(id: string, a: Assessment): AssessmentSummary {
     assessed_window: a.assessed_window,
     confidence: a.confidence.level,
     model_version: a.model_version,
+    reading: reading(a),
+  };
+}
+
+/** The backend's practitioner reading (`dispatch.reading`) for these fixtures. */
+function reading(a: Assessment): Reading {
+  const candidate = a.claim_level === "CANDIDATE_AVOIDABLE";
+  return {
+    meaning: candidate
+      ? "Potentially avoidable runtime: for the candidate portion, reported solar and battery capability exceeded load and no constraint requiring the generator was evidenced. It is not proven waste and not a judgement of optimal dispatch."
+      : "Needed runtime: an evidenced constraint required the generator to run. It does not judge whether that constraint was well set.",
+    generator: "generator-controller",
+    next_steps: candidate
+      ? [
+          {
+            id: "CONFIRM_OPERATOR_INSTRUCTION",
+            text: "Confirm whether an operator instruction kept the generator running during this period. No override record was received, and that absence is not proof that none was given.",
+            target: { kind: "alternative", id: "UNOBSERVED_OVERRIDE" },
+          },
+          {
+            id: "CHECK_BATTERY_CAPABILITY",
+            text: "Check why battery discharge capability was not reported for 15 min of this period; battery support there is unknown, so that time cannot be assessed.",
+            target: { kind: "alternative", id: "PCS_CAPABILITY_UNAVAILABLE" },
+          },
+        ]
+      : [
+          {
+            id: "CHECK_CONSTRAINT_IF_UNEXPECTED",
+            text: "No avoidable runtime was identified. If the constraint shown is unexpected, check how it is set; this assessment does not judge the setting.",
+            target: { kind: "none" },
+          },
+        ],
+    framing:
+      "These are checks to make before considering any change. They are not an instruction to stop the generator or to change a setting.",
   };
 }
 
@@ -204,6 +239,11 @@ export const LIMITED_READINESS: CapabilityReadiness = {
     { role: "Operator override", device_id: "battery-bms", signal_id: "reserve-override" },
   ],
   assessed_intervals: 1,
+  question: "What can we assess from this site's evidence?",
+  meaning:
+    "Assessments are possible but limited: the missing evidence named below caps the conclusion or leaves parts of periods unclassified.",
+  scope:
+    "Scored across all of this site's accepted evidence, not the selected window. It is not site health and not permission to act.",
   statement: "Scored from the declaration against all accepted evidence for this Site.",
 };
 

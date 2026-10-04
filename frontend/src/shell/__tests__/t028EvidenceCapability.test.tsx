@@ -106,6 +106,20 @@ describe("Site > Evidence capability table (AC20)", () => {
     expect(row.querySelector("[data-capability-not-observed]")).toHaveTextContent(
       "Not observed: Operator override. Absence is not proof that none existed.",
     );
+    // Practitioner reading: the question and scope lead, the level is explained,
+    // and the scoring mechanics and versions are one click away.
+    expect(document.querySelector("[data-capability-question]")).toHaveTextContent(
+      "What can we assess from this site's evidence? Scored across all of this site's accepted evidence, not the selected window. It is not site health",
+    );
+    expect(row.querySelector("[data-capability-meaning]")).toHaveTextContent(
+      "Assessments are possible but limited",
+    );
+    expect(screen.getByRole("columnheader", { name: "Strongest conclusion available" })).toBeInTheDocument();
+    const method = document.querySelector('[data-disclosure="capability-readiness-method"]') as HTMLDetailsElement;
+    expect(method.open).toBe(false);
+    expect(method.querySelector("[data-capability-statement]")).not.toBeNull();
+    expect(method.querySelector("[data-capability-versions]")).toHaveTextContent("readiness basis readiness-3");
+    expect(text).not.toContain("dispatch-2");
   });
 
   it("a Full row says no claim-limiting gap was identified in the assessed intervals", async () => {

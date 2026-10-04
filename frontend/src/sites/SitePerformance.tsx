@@ -15,9 +15,16 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Fact, FactList, Panel } from "../ui";
+import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import { constraintWord } from "./FindingDetail";
-import { boundText, ClaimBadge, confidenceWord, windowText } from "./findingPresentation";
+import {
+  boundText,
+  ClaimBadge,
+  confidenceWord,
+  NextSteps,
+  readablePeriod,
+  windowText,
+} from "./findingPresentation";
 import {
   performanceSubtabs,
   type DomainPresentationProfile,
@@ -189,9 +196,19 @@ function DispatchView({
       <h2 id="site-dispatch-heading" className="identity-heading">
         Was the generator needed?
       </h2>
-      <p className="overview-note">
-        {`Analytic ${result.value.analytic_id} ${result.value.model_version}. Each interval is classified Necessary, Candidate avoidable or Indeterminate from accepted evidence; a Necessary interval is explained here and raises no Finding.`}
+      <p className="overview-note" data-dispatch-question>
+        For each period the generator ran, this asks whether reported solar and
+        battery capability could have carried the load. Each period is
+        Necessary (an evidenced constraint required the generator), Candidate
+        avoidable (capability exceeded load with no constraint evidenced; not
+        proven waste) or Indeterminate (the evidence needed is missing or
+        conflicting). A Necessary period is explained here and raises no Finding.
       </p>
+      <Disclosure name="dispatch-method-details" summary="Method details">
+        <p className="overview-note" data-dispatch-method>
+          {`Analytic ${result.value.analytic_id}, model ${result.value.model_version}. Classified from accepted evidence only.`}
+        </p>
+      </Disclosure>
       {rows.length === 0 ? (
         <p data-dispatch-empty>
           No generator interval has been assessed from this site&apos;s accepted evidence.
@@ -200,11 +217,11 @@ function DispatchView({
         <DataTable labelledBy="site-dispatch-heading">
           <thead>
             <tr>
-              <th scope="col">Interval</th>
-              <th scope="col">Claim</th>
+              <th scope="col">Period</th>
+              <th scope="col">Assessment</th>
               <th scope="col">Timeline</th>
-              <th scope="col">Duration</th>
-              <th scope="col">Constraint or gap</th>
+              <th scope="col">Running time</th>
+              <th scope="col">Reason</th>
               <th scope="col">Confidence</th>
               <th scope="col">Finding</th>
             </tr>
@@ -223,7 +240,10 @@ function DispatchView({
                     className="link-button"
                     onClick={() => select(row.assessment_id)}
                   >
-                    {`${row.interval.first_running_observed} to ${row.interval.last_running_observed}`}
+                    {readablePeriod(
+                      row.interval.first_running_observed,
+                      row.interval.last_running_observed,
+                    )}
                   </button>
                 </th>
                 <td>
@@ -259,7 +279,7 @@ function DispatchView({
 function constraintOrGap(a: Assessment): string {
   if (a.claim_level === "INDETERMINATE" || a.binding_constraints.length === 0) {
     return a.missing_evidence.length === 0
-      ? "None named"
+      ? "No constraint evidenced"
       : `Missing: ${a.missing_evidence.join("; ")}`;
   }
   return a.binding_constraints.map(constraintWord).join(", ");
@@ -299,16 +319,18 @@ function SelectedInterval({
   const first = a.segments.find((s) => s.inputs.at_start !== undefined)?.inputs.at_start;
   return (
     <Panel
-      heading={`Interval ${a.interval.first_running_observed} to ${a.interval.last_running_observed}`}
+      heading={`Period ${readablePeriod(a.interval.first_running_observed, a.interval.last_running_observed)}`}
       headingId="site-dispatch-selected-heading"
     >
       <div data-dispatch-selected={row.assessment_id}>
         <p>{a.summary}</p>
+        {row.reading === undefined ? null : (
+          <p data-dispatch-meaning>
+            <ClaimBadge level={a.claim_level} label={a.label} /> {row.reading.meaning}
+          </p>
+        )}
         <FactList>
-          <Fact term="Claim">
-            <ClaimBadge level={a.claim_level} label={a.label} />
-          </Fact>
-          <Fact term="Binding constraint">
+          <Fact term="Constraint requiring the generator">
             {a.binding_constraints.length === 0
               ? "None found"
               : a.binding_constraints.map(constraintWord).join(", ")}
@@ -321,9 +343,15 @@ function SelectedInterval({
               {`Load ${first.load_kw ?? "n/a"} kW; PV available ${first.pv_available_kw ?? "n/a"} kW; SOC ${first.soc_pct ?? "n/a"} %; reserve ${first.reserve_pct ?? "n/a"} %${first.reserve_source === null ? "" : ` (${first.reserve_source})`}; discharge capability ${first.discharge_capability_kw ?? "n/a"} kW; generator ${first.generator_kw ?? "n/a"} kW.`}
             </Fact>
           )}
-          <Fact term="Assessed window">{windowText(a.assessed_window)}</Fact>
-          <Fact term="Override">{a.alternatives[0]?.statement ?? "Not stated"}</Fact>
+          <Fact term="Period assessed">{windowText(a.assessed_window)}</Fact>
+          <Fact term="Operator override">{a.alternatives[0]?.statement ?? "Not stated"}</Fact>
         </FactList>
+        {row.reading === undefined ? null : (
+          <>
+            <h3 className="finding-section__heading">What to check next</h3>
+            <NextSteps reading={row.reading} href={() => null} />
+          </>
+        )}
         {row.finding_id === null ? (
           <p className="overview-note">
             A Necessary interval is an assessment without a Finding: the

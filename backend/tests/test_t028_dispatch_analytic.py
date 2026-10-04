@@ -484,3 +484,64 @@ def test_the_readiness_basis_names_only_declared_required_roles() -> None:
         assert set(basis.reconstruct_from_any) <= roles and set(basis.top_claim_needs) <= roles
         levels = {c.claim_level for c in d.claim_levels}
         assert {basis.top_claim_level, basis.fallback_claim_level} <= levels
+
+
+# --- Practitioner reading (D-2026-10-04-practitioner-first-finding-presentation) ---
+
+
+def _steps(a: dict) -> dict[str, dict]:
+    return {s["id"]: s for s in dispatch.reading(a)["next_steps"]}
+
+
+def test_a_candidate_reading_asks_to_confirm_the_operator_instruction() -> None:
+    a = one(world(range(0, 151, 15), running=between(15, 120)))
+    r = dispatch.reading(a)
+    assert r["meaning"] == dispatch.CLAIM_MEANINGS[dispatch.CANDIDATE]
+    assert "not proven waste" in r["meaning"]
+    step = _steps(a)["CONFIRM_OPERATOR_INSTRUCTION"]
+    assert step["target"] == {"kind": "alternative", "id": "UNOBSERVED_OVERRIDE"}
+    assert "not proof" in step["text"]
+    assert "not an instruction to stop the generator" in r["framing"]
+    assert "CHECK_BATTERY_CAPABILITY" not in _steps(a)
+
+
+def test_a_capability_gap_names_what_to_check_and_links_the_alternative() -> None:
+    a = one(world(range(0, 241, 15), running=between(15, 210),
+                  dcap=lambda m: None if 90 <= m <= 120 else "30"))
+    steps = _steps(a)
+    assert steps["CHECK_BATTERY_CAPABILITY"]["target"]["id"] == "PCS_CAPABILITY_UNAVAILABLE"
+    assert "60 min" in steps["CHECK_BATTERY_CAPABILITY"]["text"]
+    # The capability gap is not named twice as a separate missing-input check.
+    assert "CHECK_MISSING_EVIDENCE" not in steps
+
+
+def test_indeterminate_and_necessary_readings_say_their_own_truth() -> None:
+    conflicting = world(range(0, 151, 15), running=between(15, 120))
+    conflicting += [rec(*dispatch.PV_AVAILABLE, m, "5", gateway="other") for m in range(0, 151, 15)]
+    ind = one(conflicting)
+    r = dispatch.reading(ind)
+    assert "neither that the runtime was needed nor" in r["meaning"]
+    assert "CONFIRM_OPERATOR_INSTRUCTION" not in _steps(ind)
+    assert "PV available power: conflicting records" in _steps(ind)["CHECK_MISSING_EVIDENCE"]["text"]
+    nec = one(world(range(0, 151, 15), running=between(15, 120), pv=const("5"), soc=const("30")))
+    assert set(_steps(nec)) == {"CHECK_CONSTRAINT_IF_UNEXPECTED"}
+    assert "does not judge" in dispatch.reading(nec)["meaning"]
+
+
+def test_the_reading_is_served_and_not_persisted(tmp_path) -> None:
+    evidence = Store(world(range(0, 151, 15), running=between(15, 120)))
+    service = AssessmentService(evidence, JsonAssessmentStore(tmp_path), lambda _: minigrid(),
+                                lambda: "2026-09-25T00:00:00Z")
+    (row,) = service.dispatch(SITE_ID)["assessments"]
+    assert row["reading"] == dispatch.reading(row["assessment"])
+    assert "reading" not in row["assessment"]
+    service.dispatch(SITE_ID)
+    (lineage,) = [l for l in service.assess_site(SITE_ID).lineages]
+    assert len(lineage.revisions) == 1
+
+
+def test_readiness_carries_its_question_meaning_and_scope() -> None:
+    r = readiness(world(range(0, 151, 15), running=between(15, 120)))
+    assert r["question"] == "What can we assess from this site's evidence?"
+    assert "not whether the site is operating well" in r["meaning"]
+    assert "not the selected window" in r["scope"] and "not site health" in r["scope"]

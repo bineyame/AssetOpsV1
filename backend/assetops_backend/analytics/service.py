@@ -107,6 +107,9 @@ def lineage_summary(lineage: AssessmentLineage) -> dict[str, Any]:
         "assessed_window": latest["assessed_window"],
         "confidence": latest["confidence"]["level"],
         "model_version": lineage.latest.model_version,
+        # Read-time practitioner reading of the latest revision; not persisted,
+        # so it adds no revision (D-2026-10-04-practitioner-first-finding-presentation).
+        "reading": dispatch.reading(latest),
     }
 
 
