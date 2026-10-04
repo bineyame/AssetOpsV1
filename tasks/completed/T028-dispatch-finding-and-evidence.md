@@ -1,6 +1,6 @@
 # T028 - First dispatch Finding with challengeable evidence
 
-Status: in_review
+Status: done
 USER_REVIEW_REQUIRED: true
 
 Map: C; earliest domain-expert feedback checkpoint, and with T029 the first
@@ -231,4 +231,4 @@ from what the screen shows, whether the evidence they would want before acting
 is either present or named as missing, and whether the claim ceiling is one
 they would repeat to an operator. Three yeses is the pass; anything else is
 feedback that redirects later work rather than a defect list for this slice.
-Review outcome: pending.
+Review outcome: owner accepted 2026-10-04 on a quick UI check ("Quick check of the UI looks ok for T028", `.agent/owner-T028-acceptance-2026-10-04.md`); the full packet walk was not recorded. Domain-expert feedback checkpoint still outstanding.

@@ -36,7 +36,7 @@ organisation and live playback) is complete** (owner accepted 2026-10-01); **T02
 (`tasks/completed/T026-dispatch-capable-evidence.md`) is complete (owner accepted 2026-10-02);
 **T027** (`tasks/completed/T027-commit-ingestion-and-site-overview.md`, Commit,
 ingestion, Site > Evidence and the mini-grid Overview) is complete (owner accepted
-2026-10-03); next is **T028** (dispatch Finding) and the order in `tasks/README.md`, replanned under `D-2026-10-02-demo-led-recommendation`.
+2026-10-03); **T028** (`tasks/completed/T028-dispatch-finding-and-evidence.md`, dispatch Finding, Analysis views, plain-language presentation) is complete (owner accepted 2026-10-04); next is an owner-led roadmap review with the Architect, then the order in `tasks/README.md`, replanned under `D-2026-10-02-demo-led-recommendation`.
 **T025h is parked** (not before T029; gates nothing).
 
 Read `.ai/ACTIVE_CONTEXT.md`, then the task file, `.ai/FEATURE_MAP.md` and
