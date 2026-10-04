@@ -135,6 +135,49 @@ def test_r2_an_override_in_the_stop_edge_is_not_counted_as_candidate_time() -> N
     assert "included in the constraint assessment" not in alt["statement"]
 
 
+def _override_alt(a: dict) -> dict:
+    return next(x for x in a["alternatives"] if x["id"] == "OPERATOR_OVERRIDE")
+
+
+def test_f1_a_reserve_override_in_the_stop_edge_does_not_claim_to_shorten_the_edge() -> None:
+    base = one(world(range(0, 151, 15), running=between(15, 120)))
+    records = world(range(0, 151, 15), running=between(15, 120))
+    records.append(override(dispatch.BATTERY_OVERRIDE, "70", "battery-reserve-state-of-charge", 122, 128))
+    a = one(records)
+    # The computed bound is unchanged by a battery override in the edge ...
+    assert a["portions_hours"]["CANDIDATE_AVOIDABLE"] == base["portions_hours"]["CANDIDATE_AVOIDABLE"]
+    # ... so the text must not say the edge was cut back.
+    statement = _override_alt(a)["statement"]
+    assert "does not change the candidate's upper bound" in statement
+    assert "is not counted as candidate time" not in statement
+    assert statement in a["claim_limits"]
+
+
+def test_f1_an_override_covering_part_of_the_edge_says_part_not_all() -> None:
+    records = world(range(0, 151, 15), running=between(15, 120))
+    records.append(override(dispatch.GEN_OVERRIDE, "95", "generator-stop-soc-threshold", 128, 140))
+    a = one(records)
+    # Edge 02:00-02:10: the override covers 02:08-02:10 only, so 8 of 10 minutes remain.
+    assert a["portions_hours"]["CANDIDATE_AVOIDABLE"]["high"] == "1.13"
+    statement = _override_alt(a)["statement"]
+    assert "the edge time it covers is not counted as candidate time" in statement
+    assert "the rest of that edge is not assessed against it" in statement
+    assert "does not extend over that edge" not in statement
+
+
+def test_f1_an_override_inside_a_generator_state_gap_is_not_said_to_be_assessed() -> None:
+    records = [r for r in world(range(0, 241, 15), running=between(15, 210))
+               if not (r.device_id == "generator-controller"
+                       and at(90) < r.source_time < at(150))]
+    records.append(override(dispatch.GEN_OVERRIDE, "95", "generator-stop-soc-threshold", 100, 140))
+    a = one(records)
+    gap = next(c for c in classes(a) if c[0] == "01:30")
+    assert gap[1] == "INDETERMINATE"
+    statement = _override_alt(a)["statement"]
+    assert "generator state is not observed" in statement
+    assert "included in the constraint assessment" not in statement
+
+
 # --- R3: SOC headroom before battery support counts -------------------------------------
 
 

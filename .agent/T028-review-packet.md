@@ -56,7 +56,7 @@ SiteOverview, SiteEvidence), `shell/` (routes, tabs, frames), `ui/NavRail.tsx`
 | 17 guard | met | `tools/checks/analytic-declaration.ps1`; 8/8 mutation probes CAUGHT (`.agent/T028-guard-probes.py`); readiness probe CAUGHT |
 | 18 profile rules 1-3 (subtabs, card slot, Evidence rows, Finding types) | met | `overviewDispatchAssessment.test.tsx`, `t028Screens.test.tsx`, `t028EvidenceCapability.test.tsx` (rule 3 probe CAUGHT) |
 | 19 expected-orphan list | met | `EXPECTED_ORPHANS`, `EXPECTED_ORPHAN_FINDING_TYPES` in `backend/tests/test_t028_presentation_profile.py`; adding `renewable`/`fuel-residual` fails, proved |
-| 20 Evidence capability table above source health | met after fix round 1 (R5: generator-state gaps; `test_r5_*`, frontend R5 row test); owner questions closed | backend `score_readiness` (declaration.py), `CapabilityReadiness.tsx`; backend 23 + host 14 + frontend 8 tests; layout claims (below). Open decisions 1 and 2 |
+| 20 Evidence capability table above source health | met after fix round 1 (R5: generator-state gaps; `test_r5_*`, frontend R5 row test); owner questions closed (`D-2026-10-04-analytic-readiness-scope-and-gap-impact`) | backend `score_readiness` (declaration.py), `CapabilityReadiness.tsx`; backend 23 + host 14 + frontend 8 tests; layout claims (below). No open decisions: both are closed by that decision |
 | 21 navigation | met | `t028Screens.test.tsx`; Performance one subtab, Finding 3 tabs, drawer path/root unchanged, rail group headers; `navigation-truthfulness.ps1` rail rule (3 probes CAUGHT) |
 
 ## Proof table
@@ -253,6 +253,24 @@ over-broad conflict rule and is meant to pass both ways.
   those inputs have no coverage row under the interim rule; it is named in the
   assessment's `missing_evidence`. Candidate for T028A's impact types.
 
+## Fix round 2 (Claude re-review F1, F3)
+
+- F1: the operator-override alternative text now follows what the analytic did
+  (`_alternatives`, `dispatch.py`). An override counts as assessed only if it
+  reaches a segment with observed generator state; one only in a generator-state
+  gap says so and that time stays Indeterminate; in a stop/start edge, a
+  generator stop-threshold override says the edge time it covers is not counted
+  as candidate (and the rest is not assessed), while any other override (e.g.
+  battery reserve) says it is not evaluated and does not change the upper bound.
+  Classifications and fuel numbers are unchanged. No model-version bump: the text
+  is in the persisted payload, and the payload-equality check in `service.py`
+  already appends a revision when it changes, so previously stored assessments
+  get a corrected revision on re-assessment.
+- Tests: `test_f1_*` (3) in `backend/tests/test_t028_fix_round_1.py`, one per
+  reproduced case; all three fail on the previous `dispatch.py` and pass now.
+- F3: AC20 row and owner-walk step 16 corrected; walk notes the extra
+  `dispatch-2` revision. F2 stays carried to the backlog, not fixed.
+
 ## Residual risk
 
 - Layout: one non-known failure named above; gate-closed browser pass not run
@@ -316,4 +334,7 @@ avoid overlap with earlier evidence; ingestion keeps the first record at a key).
     reload: both remain.
 15. Optional: restart with the Lab off (`..\.venv\Scripts\python.exe -m uvicorn
     assetops_backend.main:app` from `backend/`); steps 5-13 read the same.
-16. Answer the two open decisions above.
+16. No decisions remain open: the two readiness decisions are closed by
+    `D-2026-10-04-analytic-readiness-scope-and-gap-impact`. Note: a Site
+    assessed before fix round 1 shows an extra `dispatch-2` revision when first
+    re-assessed (the `dispatch-1` revision is kept); that is expected.

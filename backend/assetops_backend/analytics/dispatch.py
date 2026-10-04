@@ -768,15 +768,26 @@ def _alternatives(evidence: _Evidence, run: _Run, segments: list[_Segment],
                   ) -> tuple[list[dict[str, Any]], list[AcceptedRecord]]:
     """The alternatives, and every record they read (part of the evidence basis)."""
     first, last = run.on_times[0], run.on_times[-1]
-    assessed = [
+    everywhere = [
         r for key in (GEN_OVERRIDE, BATTERY_OVERRIDE) for r in evidence.of(key)
         if r.family == "OPERATIONAL_RECORD" and _effective_times(r)[0] <= last
         and (_effective_times(r)[1] is None or (_effective_times(r)[1] or 0) > first)
     ]
+
+    def reaches(record: AcceptedRecord, observed: bool) -> bool:
+        start, end = _effective_times(record)
+        return any(s.observed == observed and start <= s.end and (end is None or end > s.start)
+                   for s in segments)
+
+    # Only an override that reaches a segment with observed generator state is
+    # assessed; the rest are described by where they actually fall (F1).
+    assessed = [r for r in everywhere if reaches(r, True)]
     edge = [r for r in list(dict.fromkeys(
         _edge_overrides(evidence, before, first) + _edge_overrides(evidence, last, after_off)
     )) if r not in assessed]
-    overrides = assessed + edge
+    gap = [r for r in everywhere if r not in assessed and r not in edge]
+    overrides = assessed + [r for r in edge + gap if r not in assessed]
+    overrides = list(dict.fromkeys(overrides))
     used: list[AcceptedRecord] = list(overrides)
     out = []
     if overrides:
@@ -785,11 +796,24 @@ def _alternatives(evidence: _Evidence, run: _Run, segments: list[_Segment],
             parts.append("An operator-commanded override record is effective during this "
                          "interval and is included in the constraint assessment at its "
                          "effective time.")
-        if edge:
-            parts.append("An operator-commanded override record is effective only in the "
+        if gap:
+            parts.append("An operator-commanded override record is effective only where "
+                         "generator state is not observed; no segment is assessed against it "
+                         "there, and that time stays Indeterminate.")
+        stop_edge = [r for r in edge if r in evidence.of(GEN_OVERRIDE)
+                     and _detail(r, "control") == "generator-stop-soc-threshold"]
+        other_edge = [r for r in edge if r not in stop_edge]
+        if stop_edge:
+            parts.append("A generator stop-threshold override record is effective in the "
                          "start/stop uncertainty outside the observed running reports, where "
-                         "no segment is assessed; the candidate's upper bound does not extend "
-                         "over that edge.")
+                         "no segment is assessed; the edge time it covers is not counted as "
+                         "candidate time, and the rest of that edge is not assessed against it.")
+        if other_edge:
+            parts.append("An operator-commanded override record that is not a generator "
+                         "stop-threshold override is effective in the start/stop uncertainty "
+                         "outside the observed running reports, where no segment is assessed; "
+                         "it is not evaluated there and does not change the candidate's "
+                         "upper bound.")
         out.append({
             "id": "OPERATOR_OVERRIDE", "label": "Operator-commanded override",
             "status": "OBSERVED",
