@@ -140,16 +140,44 @@ None against the ACs. Choices, stated for review:
   assessment on a different duration basis; the two can differ (backlog
   "Generator running time is whole-interval" stays open for that metric).
 
-## Open owner decisions (phase 3a)
+## Open owner decisions (phase 3a) - closed
 
-1. **Gap rule.** A coverage gap lowers readiness Full to Limited only when it
-   left a segment Indeterminate (the segment's `missing` names the input).
-   Non-limiting gaps are still listed with `limits_claim: false`. Observed:
-   prolonged is Full with a non-limiting SOC gap listed. Alternative: any gap
-   lowers to Limited. Which?
-2. **Site-wide readiness window.** Readiness reads all accepted evidence for the
-   Site, not the Evidence page's selected window. Alternative: score the
-   selected window. Which? (Site-wide is what the table states today.)
+Both are settled by the Architect record `.agent/T028-architect-readiness-decisions.md`
+and `D-2026-10-04-analytic-readiness-scope-and-gap-impact` (`.ai/DECISIONS.md`):
+the gap rule stays claim-dependent as T028's disclosed interim default, and
+readiness stays site-wide (evidence sufficiency, not the selected window). The
+configurable gap-impact type is carried as unscheduled follow-up **T028A -
+Configurable analytic evidence-gap impact** (plan after T029 point-2 feedback;
+gates nothing). The owner may still overrule; slice acceptance is separate.
+
+## Correction round (Architect, 2026-10-04)
+
+Items 1-3 of the record's section 3, no wider.
+
+- Meaning and limits: `READINESS_STATEMENT` now says evidence sufficiency (not
+  Site health), site-wide scope, the interim claim-dependent rule, and that Full
+  is not health or uninterrupted/current/selected-window coverage. The table
+  shows `assessed_intervals`: "No intervals assessed; signal availability only."
+  at zero, else "N interval(s) assessed." The empty-gap text is now "All required
+  signals have usable records; no claim-limiting gaps identified in assessed
+  intervals." (at zero intervals: "...no intervals assessed, so coverage is not
+  yet checked.").
+- None aligned with reconstruction: `ReadinessBasis.no_claim_without` became
+  `reconstruct_from_any` (alternatives). None only when neither generator status
+  nor output has a usable record; one channel alone is Limited with the missing
+  channel listed and the Candidate ceiling kept. `dispatch.py` unchanged.
+- `basis_version` is `readiness-2` (`dispatch-1` and history untouched); decision
+  table "Capability readiness" updated to match.
+- New checks (backend `test_t028_dispatch_analytic.py`): status-only and
+  power-only each reconstruct an interval (segments non-empty, 1 assessed) and
+  score Limited, naming only the absent channel; neither-channel stays None with
+  the "no accepted record of ... or ..." statement; statement names scope,
+  meaning and limits; basis_version. Frontend `t028EvidenceCapability.test.tsx`:
+  new Full wording and the zero-interval case.
+- Counts after: backend 1468, host `test_t028_dispatch_finding` 14, frontend
+  1098; tsc and both checks clean. Layout evidence not re-run: its capability
+  claim reads attributes and counts, not the changed text (the table cell gained
+  one short note line; row height is reported, not asserted).
 
 ## Residual risk
 
@@ -199,8 +227,10 @@ avoid overlap with earlier evidence; ingestion keeps the first record at a key).
     the filter narrows it.
 12. KOBO-P > Evidence: "Capability readiness" table above Source health, one row
     "Dispatch assessment", readiness Full, ceiling Candidate avoidable, missing
-    evidence lists the SOC gap as not limiting, "Not observed: Operator
-    override. Absence is not proof that none existed." KOBO-H > Evidence: Full.
+    evidence lists the SOC gap as not limiting, "1 interval assessed.", and
+    "Not observed: Operator override. Absence is not proof that none existed."
+    KOBO-H > Evidence: Full; its cell reads "No intervals assessed; signal
+    availability only." if no interval was assessed there.
 13. KOBO-D > Evidence: readiness Limited, missing evidence names Battery
     discharge capability (5 of 13 segments Indeterminate). (Not KOBO-R: its
     later prolonged commit fills the gap, so it may read Full.)

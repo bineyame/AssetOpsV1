@@ -178,7 +178,7 @@ export const EVIDENCE_LINK = LINK;
 
 /** A Limited dispatch row as the backend scores the degraded-evidence run (AC20). */
 export const LIMITED_READINESS: CapabilityReadiness = {
-  basis_version: "readiness-1",
+  basis_version: "readiness-2",
   level: "LIMITED",
   label: "Limited",
   claim_ceiling: {

@@ -388,6 +388,7 @@ def test_complete_evidence_scores_full_with_the_candidate_ceiling() -> None:
     assert r["claim_ceiling"]["claim_level"] == dispatch.CANDIDATE
     assert r["claim_ceiling"]["statement"] == dispatch.CLAIM_CEILINGS[dispatch.CANDIDATE]
     assert r["missing_evidence"] == [] and r["assessed_intervals"] == 1
+    assert r["basis_version"] == "readiness-2"
     # Override absence is named as not observed, never as a gap that lowers Full.
     assert {o["role"] for o in r["optional_not_observed"]} >= {"Operator override"}
 
@@ -432,12 +433,54 @@ def test_no_generator_evidence_scores_none_with_no_claim() -> None:
         "Generator state", "Generator state and output"
     }
     assert r["assessed_intervals"] == 0
+    assert "no accepted record of Generator state or Generator state and output" in (
+        r["claim_ceiling"]["statement"])
+
+
+def _without(signal: tuple[str, str], *, minutes: range = range(0, 151, 15)) -> list[AcceptedRecord]:
+    return [r for r in world(minutes, running=between(15, 120))
+            if (r.device_id, r.signal_id) != signal]
+
+
+def _assessed(records: list[AcceptedRecord]) -> list:
+    return dispatch.assess(records, SFC)
+
+
+def test_status_only_generator_evidence_reconstructs_and_scores_limited_not_none() -> None:
+    records = _without(dispatch.GEN_POWER)
+    (assessment,) = _assessed(records)
+    assert assessment["segments"], "status-only must reconstruct an interval"
+    r = readiness(records)
+    assert r["level"] == "LIMITED" and r["assessed_intervals"] == 1
+    assert r["claim_ceiling"]["claim_level"] == dispatch.CANDIDATE
+    assert [m["role"] for m in r["missing_evidence"] if m["kind"] == "NOT_ACCEPTED"] == [
+        "Generator state and output"
+    ]
+
+
+def test_power_only_generator_evidence_reconstructs_and_scores_limited_not_none() -> None:
+    records = _without(dispatch.GEN_STATUS)
+    (assessment,) = _assessed(records)
+    assert assessment["segments"], "power-only must reconstruct an interval"
+    r = readiness(records)
+    assert r["level"] == "LIMITED" and r["assessed_intervals"] == 1
+    assert r["claim_ceiling"]["claim_level"] == dispatch.CANDIDATE
+    assert [m["role"] for m in r["missing_evidence"] if m["kind"] == "NOT_ACCEPTED"] == [
+        "Generator state"
+    ]
+
+
+def test_readiness_statement_names_scope_meaning_and_limits() -> None:
+    text = readiness(world(range(0, 151, 15), running=between(15, 120)))["statement"]
+    for needle in ("evidence sufficiency", "site-wide", "not the selected window",
+                   "not mean the Site is healthy", "uninterrupted", "interim"):
+        assert needle in text, needle
 
 
 def test_the_readiness_basis_names_only_declared_required_roles() -> None:
     for d in DECLARATIONS:
         roles = {r.role for r in d.required_evidence}
         basis = d.readiness
-        assert set(basis.no_claim_without) <= roles and set(basis.top_claim_needs) <= roles
+        assert set(basis.reconstruct_from_any) <= roles and set(basis.top_claim_needs) <= roles
         levels = {c.claim_level for c in d.claim_levels}
         assert {basis.top_claim_level, basis.fallback_claim_level} <= levels

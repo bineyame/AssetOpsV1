@@ -150,16 +150,22 @@ change this slice may not make.
   "published policy does not explain the stop" alternative stands. Versioned
   policy-change records, if wanted, belong with T034 configuration history.
 
-## Capability readiness (AC20, basis `readiness-1`)
+## Capability readiness (AC20, basis `readiness-2`)
 
 Scored in `analytics/declaration.py` (`score_readiness`) from the declaration's
 `ReadinessBasis` against accepted records and the active assessments'
 coverage; served on `GET /api/sites/{id}/analytics` as `readiness` and shown
 as the Site > Evidence capability row. Site-wide, not the selected window.
+Readiness is evidence sufficiency (not Site health); Full is not uninterrupted
+or current coverage. Coverage-gap treatment is the interim claim-dependent rule
+(`D-2026-10-04-analytic-readiness-scope-and-gap-impact`; configurable impact
+types are T028A). The row shows `assessed_intervals`; zero means signal
+availability only.
 
 | Readiness | When | Claim ceiling |
 | --- | --- | --- |
-| None | Generator state or output has no usable accepted record | No claim |
+| None | Neither generator status nor generator output has a usable accepted record (reconstruction uses either, see Evidence) | No claim |
+| Limited | Only one of generator status / output has a usable record (the other is listed missing) | Candidate avoidable for evidenced portions only |
 | Limited | Load, PV capability or Battery capability has no usable record | Necessary only where an evidenced constraint binds |
 | Limited | Another required role has none, or a coverage gap left a segment Indeterminate (its `missing` names the input) | Candidate avoidable for evidenced portions only |
 | Full | Every required role usable; no claim limited by a gap | Candidate avoidable (its declared ceiling) |

@@ -4634,7 +4634,7 @@ code T028 touches).
   with per-analytic `readiness`), `/dispatch`, `/findings`,
   `/assessments/{aid}`, `/assessments/{aid}/revisions`, and global `GET /api/findings`.
 - Declaration (`analytics/declaration.py`): id, site types, Finding type, required
-  and optional evidence, claim levels, `readiness` basis (`readiness-1`).
+  and optional evidence, claim levels, `readiness` basis (`readiness-2` (was `readiness-1`; T028 correction: None needs neither generator status nor output, `reconstruct_from_any`)).
   `score_readiness`: Full/Limited/None, ceiling, missing evidence. A coverage gap
   lowers Full only when it left a segment Indeterminate; absent optional evidence
   is listed and never lowers it. Site-wide, not the selected window.

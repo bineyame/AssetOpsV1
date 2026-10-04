@@ -46,9 +46,11 @@ class ClaimLevel:
 class ReadinessBasis:
     """How a declaration is scored against accepted coverage (T028 AC20).
 
-    None: a role in `no_claim_without` has no usable accepted record, so no
-    interval can be reconstructed and no claim level is reachable.
-    Limited: every `no_claim_without` role is evidenced, but a required role
+    None: no role in `reconstruct_from_any` has a usable accepted record, so no
+    interval can be reconstructed and no claim level is reachable. The roles
+    are alternatives (the analytic reconstructs from either), so one absent
+    channel alone is Limited, never None.
+    Limited: some `reconstruct_from_any` role is evidenced, but a required role
     has no usable record, or an active assessment has a coverage gap that
     limited a claim (a segment's `missing` list names that input). The
     ceiling is `fallback_claim_level` when a role in `top_claim_needs` has no
@@ -60,7 +62,7 @@ class ReadinessBasis:
     """
 
     version: str
-    no_claim_without: tuple[str, ...]
+    reconstruct_from_any: tuple[str, ...]
     top_claim_level: str
     top_claim_needs: tuple[str, ...]
     fallback_claim_level: str
@@ -113,8 +115,8 @@ DISPATCH = AnalyticDeclaration(
     model_version=dispatch.MODEL_VERSION,
     thresholds=dispatch.THRESHOLDS,
     readiness=ReadinessBasis(
-        version="readiness-1",
-        no_claim_without=("Generator state", "Generator state and output"),
+        version="readiness-2",
+        reconstruct_from_any=("Generator state", "Generator state and output"),
         top_claim_level=dispatch.CANDIDATE,
         top_claim_needs=("Load", "PV capability", "Battery capability"),
         fallback_claim_level=dispatch.NECESSARY,
@@ -159,11 +161,17 @@ def _requirement(req: EvidenceRequirement, evidence: SiteEvidence) -> dict[str, 
 READINESS_LABELS = {"FULL": "Full", "LIMITED": "Limited", "NONE": "None"}
 
 READINESS_STATEMENT = (
-    "Scored from the declaration against all accepted evidence for this Site and "
-    "the coverage of its active assessments, not the selected window. Full: every "
-    "required signal has usable records and no assessed portion was left "
-    "Indeterminate by a coverage gap. Limited: claims are possible but capped or "
-    "segmented by the missing evidence named. None: no claim can be made."
+    "Readiness is evidence sufficiency: how well the accepted evidence can support "
+    "this analytic's conclusions. It is not Site health, setup progress or source "
+    "health. It is scored site-wide from the declaration against all accepted "
+    "evidence for this Site and the coverage of its active assessments, not the "
+    "selected window. Full: every required signal has some usable accepted record "
+    "and no assessed portion was left Indeterminate by a coverage gap (interim "
+    "rule: only gaps that limit a claim lower readiness; other gaps are listed as "
+    "not limiting). Full does not mean the Site is healthy, or that coverage is "
+    "uninterrupted, current or present in every selected window. Limited: claims "
+    "are possible but capped or segmented by the missing evidence named. None: no "
+    "claim can be made because no generator reconstruction evidence is accepted."
 )
 
 
@@ -239,15 +247,16 @@ def score_readiness(
     basis = declaration.readiness
     ceilings = {c.claim_level: c for c in declaration.claim_levels}
     missing = [_not_accepted(r) for r in required if not r["available"]]
-    blocked = [r for r in _roles(required, basis.no_claim_without) if not r["available"]]
+    alternatives = _roles(required, basis.reconstruct_from_any)
+    blocked = alternatives if not any(r["available"] for r in alternatives) else []
     if blocked:
         level = "NONE"
         ceiling = {
             "claim_level": None,
             "label": "No claim",
             "statement": (
-                "No claim can be made: without "
-                + " and ".join(sorted({r["role"] for r in blocked}))
+                "No claim can be made: with no accepted record of "
+                + " or ".join(sorted({r["role"] for r in blocked}))
                 + " no interval can be reconstructed from accepted evidence."
             ),
         }

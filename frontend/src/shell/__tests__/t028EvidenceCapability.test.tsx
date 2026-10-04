@@ -108,7 +108,7 @@ describe("Site > Evidence capability table (AC20)", () => {
     );
   });
 
-  it("a Full row says no required evidence is missing", async () => {
+  it("a Full row says no claim-limiting gap was identified in the assessed intervals", async () => {
     await renderEvidence(
       served([
         {
@@ -127,9 +127,36 @@ describe("Site > Evidence capability table (AC20)", () => {
     expect(row).toHaveAttribute("data-capability-readiness", "FULL");
     expect(within(row).getByText("Full")).toBeInTheDocument();
     expect(row.querySelector('[data-capability-missing="none"]')).toHaveTextContent(
-      "No required evidence is missing.",
+      "All required signals have usable records; no claim-limiting gaps identified in assessed intervals.",
     );
+    expect(row.querySelector("[data-capability-assessed]")).toHaveTextContent("1 interval assessed.");
     expect(row.querySelector("[data-capability-not-observed]")).toBeNull();
+  });
+
+  it("zero assessed intervals say signal availability only, never bare completeness", async () => {
+    await renderEvidence(
+      served([
+        {
+          ...DISPATCH_LIMITED,
+          readiness: {
+            ...LIMITED_READINESS,
+            level: "FULL",
+            label: "Full",
+            missing_evidence: [],
+            optional_not_observed: [],
+            assessed_intervals: 0,
+          },
+        },
+      ]),
+    );
+    const [row] = rows();
+    expect(row.querySelector("[data-capability-assessed]")).toHaveTextContent(
+      "No intervals assessed; signal availability only.",
+    );
+    expect(row.querySelector('[data-capability-missing="none"]')).toHaveTextContent(
+      "no intervals assessed, so coverage is not yet checked.",
+    );
+    expect(row.textContent).not.toContain("no claim-limiting gaps identified");
   });
 
   it("nothing appears when the site has no declared analytic", async () => {

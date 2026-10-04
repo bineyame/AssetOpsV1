@@ -119,7 +119,9 @@ function CapabilityRow({
           <td>
             {readiness.missing_evidence.length === 0 ? (
               <span data-capability-missing="none">
-                No required evidence is missing.
+                {readiness.assessed_intervals === 0
+                  ? "All required signals have usable records; no intervals assessed, so coverage is not yet checked."
+                  : "All required signals have usable records; no claim-limiting gaps identified in assessed intervals."}
               </span>
             ) : (
               <ul className="cell-list">
@@ -134,6 +136,11 @@ function CapabilityRow({
                 ))}
               </ul>
             )}
+            <p className="note" data-capability-assessed={readiness.assessed_intervals}>
+              {readiness.assessed_intervals === 0
+                ? "No intervals assessed; signal availability only."
+                : `${readiness.assessed_intervals} interval${readiness.assessed_intervals === 1 ? "" : "s"} assessed.`}
+            </p>
             {notObserved.length === 0 ? null : (
               <p className="note" data-capability-not-observed>
                 {`Not observed: ${notObserved.join(", ")}. Absence is not proof that none existed.`}
