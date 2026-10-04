@@ -38,25 +38,25 @@ SiteOverview, SiteEvidence), `shell/` (routes, tabs, frames), `ui/NavRail.tsx`
 | AC | Status | Evidence |
 | --- | --- | --- |
 | 1 intervals; gaps bound duration | met | dispatch.py `_states`/`_runs`; `test_a_gap_bounds_duration_instead_of_assuming_operation`; host `test_delayed_soc_record_is_placed_at_its_source_time` |
-| 2 load/PV/SOC/reserve/generator/policy at time | met | `test_reserve_and_capability_shortfall_make_runtime_necessary`; decision table segment rows |
+| 2 load/PV/SOC/reserve/generator/policy at time | met after fix round 1 (R2, R3, R4) | `test_reserve_and_capability_shortfall_make_runtime_necessary`; `test_t028_fix_round_1.py` `test_r2_*`, `test_r3_*`, `test_r4_*`; decision table segment rows |
 | 3 no observed-PV stand-in, no simulator truth | met | `test_observed_pv_output_never_stands_in...`; host `test_candidate_evidence_links_are_accepted_records_and_never_observed_pv` |
-| 4 Necessary has binding constraint; Candidate bounded | met | host `test_prolonged_runtime_is_a_bounded_candidate_with_its_constraints` |
-| 5 Indeterminate names evidence; no hidden weak portion | met | `test_insufficient_capability...`, `test_one_missing_portion_is_listed_beside_the_candidate`, `test_conflicting_records_are_used_by_nothing`; host missing-PCS test |
+| 4 Necessary has binding constraint; Candidate bounded | met after fix round 1 (R3) | host `test_prolonged_runtime_is_a_bounded_candidate_with_its_constraints` |
+| 5 Indeterminate names evidence; no hidden weak portion | met after fix round 1 (R4: conflicting policy/override records named) | `test_insufficient_capability...`, `test_one_missing_portion_is_listed_beside_the_candidate`, `test_conflicting_records_are_used_by_nothing`; host missing-PCS test |
 | 6 coverage vs confidence basis | met | decision table "Coverage, confidence"; host prolonged asserts `confidence.basis` |
-| 7 override none-observed; records constrain | met | `test_an_override_record_is_a_constraint...`, `test_override_absence_is_none_observed_not_proof`; host override-absence test |
+| 7 override none-observed; records constrain | met after fix round 1 (R2: commands between reports and in edges) | `test_an_override_record_is_a_constraint...`, `test_override_absence_is_none_observed_not_proof`; host override-absence test |
 | 8 alternatives with evidence links | met | host degraded stop-policy test; `t028Screens.test.tsx` Alternatives tab |
 | 9 prolonged via ingestion; healthy no Finding | met | host `World` through the real Commit route; `test_healthy_reference_raises_no_finding` |
 | 10 bounded fuel or unavailable+reason | met | `test_hand_calculated_candidate_interval_and_fuel_bound`, `test_fuel_is_unavailable_with_its_reason` |
 | 11 basis modelled; no loss/saving implied | met | decision table "Indicative fuel"; Finding Overview shows technical quantity only (no money) |
 | 12 Finding and Dispatch same object; Overview links | met | `t028Screens.test.tsx` AC12; `overviewDispatchAssessment.test.tsx`; host `test_overview_dispatch_card_links_the_finding_not_a_recomputation`, `test_the_global_findings_index_lists_the_same_finding_with_its_site` |
-| 13 idempotent rerun; persisted revisions | met | `test_the_same_records_give_the_same_payload`, `test_changed_evidence_appends_a_revision_and_keeps_the_prior` (reloads store); host rerun/second-commit tests |
+| 13 idempotent rerun; persisted revisions | met after fix round 1 (R1: `test_t028_fix_round_1.py` `test_r1_*`) | `test_the_same_records_give_the_same_payload`, `test_changed_evidence_appends_a_revision_and_keeps_the_prior` (reloads store); host rerun/second-commit tests |
 | 14 private data removed, same result | met | host `test_removing_private_artifacts_leaves_the_same_assessment` |
 | 15 screen path without Lab | met | Finding detail six-part hierarchy test; routes served with Lab gated off (`test_the_analytics_routes_are_served_with_the_lab_gated_off`) |
 | 16 declaration read model | met | `analytics/declaration.py`; `GET /api/sites/{id}/analytics`; declaration test |
 | 17 guard | met | `tools/checks/analytic-declaration.ps1`; 8/8 mutation probes CAUGHT (`.agent/T028-guard-probes.py`); readiness probe CAUGHT |
 | 18 profile rules 1-3 (subtabs, card slot, Evidence rows, Finding types) | met | `overviewDispatchAssessment.test.tsx`, `t028Screens.test.tsx`, `t028EvidenceCapability.test.tsx` (rule 3 probe CAUGHT) |
 | 19 expected-orphan list | met | `EXPECTED_ORPHANS`, `EXPECTED_ORPHAN_FINDING_TYPES` in `backend/tests/test_t028_presentation_profile.py`; adding `renewable`/`fuel-residual` fails, proved |
-| 20 Evidence capability table above source health | met, with two owner questions | backend `score_readiness` (declaration.py), `CapabilityReadiness.tsx`; backend 23 + host 14 + frontend 8 tests; layout claims (below). Open decisions 1 and 2 |
+| 20 Evidence capability table above source health | met after fix round 1 (R5: generator-state gaps; `test_r5_*`, frontend R5 row test); owner questions closed | backend `score_readiness` (declaration.py), `CapabilityReadiness.tsx`; backend 23 + host 14 + frontend 8 tests; layout claims (below). Open decisions 1 and 2 |
 | 21 navigation | met | `t028Screens.test.tsx`; Performance one subtab, Finding 3 tabs, drawer path/root unchanged, rail group headers; `navigation-truthfulness.ps1` rail rule (3 probes CAUGHT) |
 
 ## Proof table
@@ -178,6 +178,80 @@ Items 1-3 of the record's section 3, no wider.
   1098; tsc and both checks clean. Layout evidence not re-run: its capability
   claim reads attributes and counts, not the changed text (the table cell gained
   one short note line; row height is reported, not asserted).
+
+## Fix round 1 (Codex review, 2026-10-04)
+
+Fixes R1-R5 of `.agent/T028-codex-review.md`; carries (C1 and others) untouched.
+Approved choices unchanged (Necessary without a Finding, stop-60 without a
+policy record, site-wide readiness with the interim rule, T028A deferred).
+Versions: model `dispatch-2` (R1-R4), readiness basis `readiness-3` (R5).
+Thresholds unchanged. A stored `dispatch-1` revision is retained; reassessment
+appends a `dispatch-2` revision to the same lineage
+(`test_r1_a_model_version_change_is_a_retained_revision_not_a_rewrite`).
+Decision table updated (`dispatch-2` change list; segment split; conflict rule;
+row 6 wording; edge rule; "Evidence basis and revisions"; readiness-3 row).
+Regressions in `backend/tests/test_t028_fix_round_1.py` (14 tests). Proof:
+with `backend/assetops_backend/analytics` checked out at `af668a7`, 13 of 14
+fail; the 14th (`identical records do not conflict`) guards against an
+over-broad conflict rule and is meant to pass both ways.
+
+- **R1 evidence basis.** `_off_before`/`_off_after` return the records placing
+  each bound; `_alternatives` returns the records it read; `_digest(used, fuel)`
+  covers those plus the fuel basis (dispatch.py `_digest`, `_interval`).
+  `AssessmentService._reconcile` keeps the latest revision only when digest,
+  model and payload all match (service.py). Tests: late stop at 02:15 appends
+  revision 2 (open revision kept unchanged, reloaded from a fresh
+  `JsonAssessmentStore`, rerun adds nothing); a stop-policy record (alternative
+  only) and a changed fuel basis each change the digest.
+- **R2 commands between reports.** Choice: **segment at effective boundaries**,
+  not a conservative cap of the whole segment. `_observed_segments` splits a
+  report segment at every effective start/end of a constraint record
+  (`CONSTRAINT_RECORDS`: generator override, battery reserve override, reserve
+  policy, minimum runtime policy) strictly inside it; each part uses the two
+  reports' measurements (none invented) with the records effective in that part
+  (`_evaluate(policy_at=, runtime_at=)`). Why: it is the smallest change that
+  makes the "included at its effective time" statement true, it limits the
+  effect to the time the command was effective rather than the whole 15 min,
+  and a segment with no boundary inside is evaluated exactly as before. Edge
+  (start/stop uncertainty) spans have no segment, so `_edge_allowance` removes
+  generator-override time from the candidate upper bound there and the override
+  alternative says such an override is outside the assessed segments. Tests:
+  the review's 95 % override 01:05-01:10 (5 min Necessary, candidate 0.92 h), a
+  reserve override between reports, an override in the stop edge (high bound
+  1.07 h instead of 1.17 h). Stop-threshold policy records do not split: they
+  are not a classification input (unchanged owner ruling).
+- **R3 SOC headroom in 5b.** `_classify` returns Indeterminate before counting
+  battery support when SOC <= reserve + 10 (pv at or above load, so not
+  Necessary). Tests: the review's PV = load, SOC 30, reserve 30 case; PV 21 /
+  21.9 / 20 with SOC 35 / 40 / 40 Indeterminate; SOC 41 Candidate (control).
+- **R4 equal-rank conflicts.** `_Evidence.effective` returns every top-rank
+  record; `_distinct` collapses identical content. `_evaluate` classifies under
+  each alternative (`itertools.product`): agreement stands with the conflict
+  named in its reasons; disagreement is Indeterminate with
+  `<role>: conflicting records` in `missing`; a conflicting reserve shows as no
+  reserve value. Choice: classify-under-each rather than always Indeterminate,
+  so a conflict that cannot change the outcome (e.g. PV alone covers load)
+  does not erase an independent result, as the review allows. Conflicting stop
+  policies are not quoted in the policy alternative. Tests: the review's 30/70
+  reserve case (Indeterminate, both records in the basis, readiness Limited),
+  agreement case, identical duplicates, generator override and minimum-runtime
+  conflicts, stop-policy conflict.
+- **R5 generator gaps in readiness.** `declaration._generator_gaps` reads
+  `coverage.unobserved_generator_state` and adds a limiting `COVERAGE_GAP` row
+  ("Generator state: not observed for N min ..."). No frontend code change: the
+  row renders through the existing list. Tests: backend `test_r5_*` on the AC1
+  gap fixture (Limited, row named, basis readiness-3); frontend
+  `t028EvidenceCapability.test.tsx` "a generator-state gap is a claim-limiting
+  row" (Limited, limits=yes, no "no claim-limiting gaps" text).
+- Frontend fixtures' version strings moved to `dispatch-2` / `readiness-3`.
+- Checks after the fix: backend 1482 passed; frontend 1099 passed (46 files);
+  host 616 passed (21 min, run alongside the other suites); `tsc --noEmit` exit 0; `check-architecture.ps1` and
+  `check-agent-workflow.ps1` passed. Layout evidence not re-run: no layout claim
+  reads anything changed (one more list item in an existing cell at most).
+- Left open: a conflict in optional evidence (minimum runtime, generator
+  override) that makes a segment Indeterminate does not lower readiness, because
+  those inputs have no coverage row under the interim rule; it is named in the
+  assessment's `missing_evidence`. Candidate for T028A's impact types.
 
 ## Residual risk
 

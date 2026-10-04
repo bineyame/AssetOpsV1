@@ -4622,9 +4622,14 @@ phase handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`; layout evidence
 and T025b "profile 4 ... not staged", the last not on the known list and not in
 code T028 touches).
 
-- Analytic `analytics/dispatch.py` (model `dispatch-1`, `assess()`); rules and
+- Analytic `analytics/dispatch.py` (model `dispatch-2`, `assess()`); rules and
   thresholds in `backend/tests/dispatch_decision_table.md`. Classification uses
   accepted evidence only; never observed PV as capability, never simulator truth.
+  Fix round 1 (Codex R1-R5, `.agent/T028-review-packet.md` "Fix round 1"):
+  segments split at constraint-record effective times between reports; 5b
+  enforces SOC headroom; equal-rank differing policy/override records are
+  classified under each (agree or Indeterminate); evidence digest covers
+  bounds, alternatives and fuel basis; reconcile also compares the payload.
 - `AssessmentService` (`analytics/service.py`) reconciles assessments: same
   evidence gives no new revision; changed evidence appends a revision and keeps
   the prior; stored under `var/assessments` (`json_assessment_store.py`). Runs on
@@ -4634,7 +4639,7 @@ code T028 touches).
   with per-analytic `readiness`), `/dispatch`, `/findings`,
   `/assessments/{aid}`, `/assessments/{aid}/revisions`, and global `GET /api/findings`.
 - Declaration (`analytics/declaration.py`): id, site types, Finding type, required
-  and optional evidence, claim levels, `readiness` basis (`readiness-2` (was `readiness-1`; T028 correction: None needs neither generator status nor output, `reconstruct_from_any`)).
+  and optional evidence, claim levels, `readiness` basis (`readiness-3`; `-2` made None need neither generator status nor output, `-3` counts unobserved generator-state spans as a limiting gap).
   `score_readiness`: Full/Limited/None, ceiling, missing evidence. A coverage gap
   lowers Full only when it left a segment Indeterminate; absent optional evidence
   is listed and never lowers it. Site-wide, not the selected window.
