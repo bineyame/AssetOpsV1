@@ -465,6 +465,74 @@ Remaining jargon outside the touched copy (record drawer normalization text,
 rejection details, Site Overview `interval_statement`, Foundation) is left
 for the cp2 guard and the post-T029 follow-up. No owner walk yet.
 
+## Presentation checkpoint 2a (graphics; D-2026-10-04-plain-language-analysis-views)
+
+Spec `.agent/T028-architect-presentation.md` section 2 and the card projection
+of section 5. Commits `a91764c`..`92b669e` plus this closeout. The guard,
+remaining jargon and the layout-evidence rewrite/run are checkpoint 2b
+(`.agent/T028-presentation-cp2a-handoff.md`).
+
+**Graphics (all in `frontend/src/sites/assessmentGraphics.tsx`; frontend computes geometry only).**
+
+| Graphic | Where | Contract delivered |
+| --- | --- | --- |
+| Assessed-period timeline | Finding Overview (full, part links `analysis?part=N`); each Dispatch row (compact); lead Overview Dispatch card (compact, from `lead_timeline`); Finding/Dispatch Analysis (full, selectable) | `timelineGeometry`: bands at supplied times on a period from the earliest to latest supplied time, no minimum width; bracketed start/stop (`last_stopped_before..first_running_observed`, `last_running_observed..first_stopped_after`) are separate dotted bands, never parts; unrecorded parts hatched with text; open start/end: marker plus explanation, axis ends at the last supplied time. Legend: Needed, Possibly avoidable, Cannot determine, Generator operation not recorded, Start or stop time uncertain (compact: kinds present only). Full form has a parts table (times UTC, outcome, served reason, select/link button); compact has the same as its `aria-label`. |
+| Estimated fuel range | Finding Overview; Analysis; card (compact, BOUNDED only) | Low-to-high interval on a 0-based litre scale (round max), both numbers, caption "Estimated fuel associated with possibly avoidable operation (assessed result, litres)", served note ("an estimate, not confirmed fuel savings"). UNAVAILABLE/NOT_APPLICABLE: served reason, no bar. |
+| Reported values for a selected part | Finding/Dispatch Analysis, "Values used for the selected part" | Separate kW bars (demand, available solar, available battery output, generator output) on one zero-based scale; battery charge and minimum reserve on 0-100 %. Switch "Values used at the start/end of the assessed part" (aria-pressed). Missing: "Not reported", no bar; zero: zero-width bar with "0 kW". Unrecorded part: no values. Part records listed under it. |
+| Record coverage by input | Finding/Dispatch Analysis; Site Evidence > Analysis `?assessment=<id>` | Table: input, "N of M" assessed parts with a usable record, count bar, named gaps; zero evaluated reads "Not assessed" with no bar; unrecorded generator spans listed. Caption: counts of parts, not elapsed time. Site Evidence block is its own panel, scoped "Only the assessed period ..., not the whole site", below and apart from readiness; a missing id is stated, never substituted. |
+
+**Backend.** `plain.card_timeline(a)` and `service.card_assessments` add
+`lead_revision` and `lead_timeline` (window, interval bounds/open flags,
+segments with outcome word, fuel status/bounds + served fuel wording) to the
+Dispatch card. Read-time copy; nothing persisted, `dispatch-2`/`readiness-3`
+unchanged.
+
+**Choices (spec silent; minimal).**
+- Part selection is `?part=N` (1-based) in the address; default part is the
+  first recorded part with the period's outcome, else the first recorded part.
+  An out-of-range part is stated and the default shown. Dispatch clears `part`
+  when the period changes. Start/end switch is local state (defaults to start).
+- Unrecorded parts are drawn hatched regardless of their classification; their
+  outcome is in the table/label.
+- Colours: Needed `#3d6fb0`, Possibly avoidable `#c2680a`, Cannot determine
+  `#7e8796` (deliberately neutral; dataviz validator flags its chroma as "reads
+  gray"; it is also cross-hatched and labelled), plus patterns. Light theme only, as the app.
+- Card fuel: compact range only when BOUNDED; otherwise nothing on the card
+  (the card reason carries the story; the Finding shows the reason).
+- Coverage bar width is usable/evaluated (geometry); no percentage is shown.
+- Analysis links "This period's record coverage on the Site Evidence page"
+  (`siteEvidenceAssessmentHref`).
+- The old per-part start/end values table in Analysis is replaced by the
+  parts table plus the selected part's values.
+
+**Guard extended, not loosened.** `tools/checks/shell-overflow.ps1` names
+`assessmentGraphics.tsx` as the fifth svg module with region
+`.assessment-graphic` (`overflow-x: auto`); tables go through `DataTable`.
+Proven: removing the overflow declaration, removing the region class, and an
+`<svg />` in `FindingDetail.tsx` each fail the architecture check; reverted.
+
+**Tests.** `frontend/src/sites/__tests__/assessmentGraphics.test.tsx` (16):
+geometry against supplied times incl. bracketed bands; a 1-min part keeps
+1/480 width; unrecorded hatched/bracketed dotted with table rows; open ends
+marked/explained, axis not extended; compact text equivalent; unreadable time
+not drawn; fuel endpoints on the scale; UNAVAILABLE/NOT_APPLICABLE no bar, no
+"0 litres"; missing vs zero inputs; common kW scale; start/end switch; part
+without values; coverage Not assessed vs 0 of 4; selection by `?part`, button
+(keyboard-usable, address updated) and out-of-range. `t028Screens` (+4):
+Dispatch rows draw their own assessment; card timeline is the lead it links;
+Dispatch Analysis coverage link to Site Evidence, scoped, apart from
+readiness; missing selection stated. Mutation proofs: min band width, missing
+as zero, fuel bar when unavailable, coverage always assessed: each fails.
+Backend `test_the_overview_card_carries_the_lead_period_timeline_unchanged`.
+
+**Checks.** Frontend 47 files / 1124 tests pass (run before and again after
+the DataTable/guard commit `92b669e`); `tsc --noEmit` clean; production build
+ok (rerun after `92b669e`); backend 1492 passed; host `tests/test_t028_dispatch_finding.py` 17
+passed; `check-architecture.ps1` passed; `check-agent-workflow.ps1` passed.
+Layout evidence: not run (checkpoint 2b; `tools/layout-evidence.mjs` still
+measures `.segment-strip` and the old disclosures). Narrow-screen behaviour is
+therefore unverified in a browser.
+
 ## Residual risk
 
 - Layout: one non-known failure named above; gate-closed browser pass not run
