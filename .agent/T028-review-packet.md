@@ -271,6 +271,137 @@ over-broad conflict rule and is meant to pass both ways.
 - F3: AC20 row and owner-walk step 16 corrected; walk notes the extra
   `dispatch-2` revision. F2 stays carried to the backlog, not fixed.
 
+## Presentation correction (Architect, 2026-10-04)
+
+`D-2026-10-04-practitioner-first-finding-presentation`, items 1-3 of
+`.agent/T028-architect-audience.md`. Commits `dec4e52`, `17b8b97`, `04c0d28` and the handoff commit.
+**Paused 2026-10-04 by the coordinator** (owner widened the direction,
+`.agent/owner-T028-presentation-direction-2026-10-04.md`; Architect revising
+scope); see `.agent/T028-presentation-handoff.md`. Emphasis and copy only:
+classification, confidence, coverage, fuel bounds, readiness rules, thresholds,
+navigation and the evidence contract are unchanged; no History tab; no money.
+
+**Backend-owned reading (the one interpretation, served once).**
+`dispatch.reading(assessment)` (`analytics/dispatch.py`) returns `meaning`
+(per classification, `CLAIM_MEANINGS`), `generator`, `next_steps` (each with a
+`target`: an alternative id, the Site's evidence page, or none) and `framing`
+("checks to make before considering any change ... not an instruction to stop
+the generator or to change a setting"). Steps are conditional on what the
+assessment already states: Candidate + `UNOBSERVED_OVERRIDE` -> confirm the
+operator instruction; an `OPERATOR_OVERRIDE` -> review it; PCS capability
+`NOT_EXCLUDED` -> check the N min it was not reported; other missing inputs ->
+the Site's evidence; conflicting/absent stop policy -> confirm the policy;
+Necessary -> no avoidable runtime, check the constraint only if unexpected.
+`service.lineage_summary` attaches it to every summary (dispatch rows, Finding,
+Site and global indexes, Overview findings). **Revisions:** it is computed at
+read time and is not in the persisted assessment, so it adds no revision and
+the revision statement ("added only when the evidence basis or model changes")
+stays true; an old revision would read identically because the function reads
+only stored fields. Readiness (`declaration.py`, computed on read, not
+persisted) gains `question`, per-level `meaning` and `scope` beside the full
+`statement`.
+
+**Item 1 - operational explanation leads.** Finding header: Assessment
+(badge + type), Site, Generator, Period assessed as "22 Sep 2026, 03:00 to
+11:00 UTC" (`readablePeriod`/`readableTime` in `findingPresentation.tsx`; ISO
+kept in record detail and the drawer). Assessment ID, revision n of m with the
+retained revision list, analytic/model, ISO window, record count and basis
+digest moved to the closed "Assessment details" disclosure (inspectable; no
+History tab). Performance intro now states the operational question and the
+three classifications first; analytic/model sit in a closed "Method details"
+disclosure. The same backend `summary` remains the text of the Overview card,
+the indexes' link and the Finding's lead.
+
+**Item 2 - six parts readable at a glance (order kept).** Headings: "1. What
+the evidence suggests" (summary + classification meaning), "2. What was
+observed, and what is inferred" (running period, running time, portions,
+"Constraint requiring the generator"), "3. How confident, and how much was
+measured" (confidence + basis visible; a one-line coverage summary naming
+inputs not usable in every segment), "4. What limits this conclusion" (missing
+evidence + claim limits, visible), "5. Estimated fuel associated with this
+runtime" (range, "modelled", candidate duration bound and the consumption
+uncertainty visible; Unavailable / Not applicable stated with the backend's
+reason), "6. What to check next". Behind closed disclosures: "How the running
+time is bounded", "Coverage of every input" (statement + per-input gaps), "How
+the fuel estimate is calculated" (duration, kW, L/kWh inputs, formula).
+
+**Item 3 - next step and evidence sufficiency.** Section 6 renders the
+backend's steps; alternative targets link to
+`.../alternatives#alternative-<ID>` (the Alternatives list items carry that id
+and the tab scrolls to it); `site_evidence` links Site > Evidence. Supporting
+links follow (records, other explanations not ruled out, Performance).
+Performance's selected period shows the meaning and the steps (text only).
+Site > Evidence: "What can we assess from this site's evidence?" with the
+scope sentence ("not the selected window ... not site health and not
+permission to act") leads; each row shows the level's meaning under
+Full/Limited/None; column "Strongest conclusion available" (was "Claim
+ceiling"); assessed-interval count, zero-interval wording, limiting gaps and
+"not observed" stay visible; the scoring statement and model/basis versions
+are in a closed "How readiness is scored" disclosure. Findings indexes: columns
+Finding (summary link), Site, Period (readable), Assessment, Confidence, Type;
+Revision moved to the Finding's Assessment details.
+
+**Choices made (record did not settle).** (a) Reading served at read time, not
+persisted (avoids revision churn; see above). (b) The persisted `summary` and
+claim-limit texts are unchanged: changing them would append a revision to every
+stored lineage with an unchanged evidence basis. Consequence: the Necessary
+summary still reads "Generator runtime of 4.5-open was required: ..." and the
+Candidate claim limit still names `(dispatch-2)`; carried, not fixed. (c) Site
+Overview unchanged: its Dispatch card and Findings panel already use the shared
+summary; the "No assessment yet" domains are the honest scope limit the
+Architect named. (d) Times shown in UTC (explicit), not Site-local. (e)
+Generator is the analytic's generator device id (`generator-controller`).
+
+**Shorter wording never strengthens a claim.** Every new sentence restates a
+served limit: "not proven waste", "not a judgement of optimal dispatch", "does
+not judge whether that constraint was well set", "says neither that the runtime
+was needed nor that it was avoidable", override absence "not proof", Full "not
+whether the site is operating well, and not uninterrupted coverage". The
+claim-limit list, missing evidence and unavailable fuel stay visible.
+
+**The three cases after the change** (served payloads,
+`.agent/T028-presentation-cases.txt`, built through the host Lab worlds):
+- Candidate (prolonged): "4 h of generator runtime with PV and battery
+  capability above load and no binding constraint evidenced (confidence
+  medium)." Meaning "Potentially avoidable runtime ... not proven waste". Fuel
+  21.6 to 35.8 L, modelled, for 4 to 4.17 h, +/-10 %. Next: confirm whether an
+  operator instruction kept the generator running (-> Unobserved override).
+  Readiness Full, with SOC gap listed as not limiting.
+- Healthy (evening): Necessary, no Finding; meaning "Needed runtime ... does
+  not judge whether that constraint was well set"; fuel Not applicable; next:
+  "No avoidable runtime was identified. If the constraint shown is unexpected,
+  check how it is set". Readiness Full.
+- Evidence-limited (degraded): Candidate 0.5 h, confidence low, 1.25 h
+  Indeterminate; fuel 3.5 to 4.3 L for 0.5 h; next: confirm operator
+  instruction; check why battery discharge capability was not reported for 75
+  min (-> PCS capability); check the Site's evidence for "Battery state of
+  charge: no record". Readiness Limited: "Assessments are possible but limited
+  ..." with both limiting gaps named.
+
+**Tests.** Backend `test_t028_dispatch_analytic.py` +5 (candidate, capability
+gap, Indeterminate/Necessary readings, served-not-persisted with one revision,
+readiness question/meaning/scope). Host `test_t028_dispatch_finding.py` +3 (one
+per case; the reading is identical on dispatch, Finding and Site index).
+Frontend `t028Screens.test.tsx`: new heading order; readable period; meaning
+visible; "Assessment details", coverage and fuel-input disclosures closed on
+load, contents present, summary click opens; gaps and fuel range not inside a
+disclosure; next-step links to the alternative anchors; framing; Performance
+question before a closed "Method details"; index has no Revision column and
+reads the period. `t028EvidenceCapability.test.tsx`: question + scope lead,
+meaning per row, renamed column, closed scoring disclosure with versions, no
+model version in the row.
+
+**Checks (at `04c0d28`).** backend pytest 1490 passed; host 619 passed
+(incl. `test_t028_dispatch_finding.py` 17); simulator 244 passed; frontend
+vitest 46 files / 1099 passed; `tsc --noEmit` exit 0; `npm.cmd run build`
+built (existing chunk-size warning only); `check-architecture.ps1` and
+`check-agent-workflow.ps1` passed. **Layout evidence: not completed** - the
+isolated run was stopped on the coordinator's instruction; the new Finding
+disclosure claims (`READ_T028_DISCLOSURES`/`OPEN_T028_DISCLOSURES` in
+`tools/layout-evidence.mjs`) are unverified, including whether the 64-char
+digest in an opened "Assessment details" wraps at 640 px.
+
+
 ## Residual risk
 
 - Layout: one non-known failure named above; gate-closed browser pass not run
@@ -300,31 +431,50 @@ avoid overlap with earlier evidence; ingestion keeps the first record at a key).
 6. `http://127.0.0.1:8000/api/sites/KOBO-P/analytics`: id `dispatch`, site
    types, Finding type, required/optional evidence, claim levels, and
    `readiness`.
-7. KOBO-P > Performance: one subtab "Dispatch assessment"; interval table with
-   claim, segment strip, duration bounds, constraint or missing evidence,
-   confidence. Click an interval time: detail below. Click "Open Finding".
-8. Finding: tabs Overview | Evidence | Alternatives only. Overview: claim,
-   observed facts then inference, confidence with basis and separate coverage,
-   claim ceiling (override absence "not proof"), indicative fuel litres range
-   with duration, kW and L/kWh inputs (no money), next steps. Rail current is
-   Findings.
+7. KOBO-P > Performance: one subtab "Dispatch assessment"; the intro states the
+   operational question ("For each period the generator ran ...") and the
+   three classifications; "Method details" (closed) holds the analytic/model.
+   Table: Period (e.g. "22 Sep 2026, 03:45 to 09:15 UTC"), Assessment,
+   Timeline strip, Running time, Reason, Confidence, Finding. Click a period:
+   detail below with the meaning and "What to check next". Click "Open Finding".
+8. Finding: header Assessment (badge, type), Site, Generator, Period assessed
+   in UTC; "Assessment details" (closed) holds ID, revisions, model, digest.
+   Tabs Overview | Evidence | Alternatives only. Overview headings 1-6: "What
+   the evidence suggests" (summary + "Potentially avoidable runtime ... not
+   proven waste"), "What was observed, and what is inferred", "How confident,
+   and how much was measured" (confidence + basis; one-line coverage; full
+   list under "Coverage of every input"), "What limits this conclusion"
+   (override absence "not proof"), "Estimated fuel associated with this
+   runtime" (L range, modelled, candidate hours, +/-10 %; inputs under "How
+   the fuel estimate is calculated"; no money), "What to check next" (confirm
+   the operator instruction, linking the Unobserved override on the
+   Alternatives tab; framing "not an instruction to stop the generator").
+   Open each disclosure: the detail is there. Rail current is Findings.
 9. Evidence tab: click a claim's record link; "Claim evidence" drawer shows the
    claim, window, algorithm version and the record detail; address path
    unchanged; Close removes it. Alternatives tab: override, PCS capability,
    policy, PV entries with status and record links.
-10. Rail > Findings: global index lists that Finding with its Site; row click
-    opens it. KOBO-H contributes no row.
+10. Rail > Findings: global index lists that Finding (summary, Site, Period,
+    Assessment, Confidence, Type; no Revision column); row click opens it.
+    KOBO-H contributes no row.
 11. KOBO-H > Performance: interval(s) Necessary, "No Finding (Necessary)";
     KOBO-H > Findings says no active Finding; KOBO-P > Findings lists one row and
     the filter narrows it.
-12. KOBO-P > Evidence: "Capability readiness" table above Source health, one row
-    "Dispatch assessment", readiness Full, ceiling Candidate avoidable, missing
+12. KOBO-P > Evidence: "Capability readiness" leads with "What can we assess
+    from this site's evidence?" and its scope (not the selected window, not
+    site health, not permission to act); "How readiness is scored" (closed)
+    holds the scoring text and versions. Table above Source health, one row
+    "Dispatch assessment", readiness Full with its meaning ("... not whether
+    the site is operating well"), "Strongest conclusion available" Candidate
+    avoidable, missing
     evidence lists the SOC gap as not limiting, "1 interval assessed.", and
     "Not observed: Operator override. Absence is not proof that none existed."
     KOBO-H > Evidence: Full; its cell reads "No intervals assessed; signal
     availability only." if no interval was assessed there.
-13. KOBO-D > Evidence: readiness Limited, missing evidence names Battery
-    discharge capability (5 of 13 segments Indeterminate). (Not KOBO-R: its
+13. KOBO-D > Evidence: readiness Limited ("Assessments are possible but
+    limited ..."), missing evidence names Battery discharge capability (5 of 13
+    segments Indeterminate). KOBO-D's Finding > What to check next also asks
+    why battery discharge capability was not reported for 75 min. (Not KOBO-R: its
     later prolonged commit fills the gap, so it may read Full.)
 14. Revisions: on KOBO-R commit `kobo-mini-grid-degraded-evidence` 03:00-11:00,
     note the id at `http://127.0.0.1:8000/api/sites/KOBO-R/dispatch`; commit

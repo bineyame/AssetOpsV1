@@ -4657,6 +4657,13 @@ code T028 touches).
   `EXPECTED_ORPHAN_FINDING_TYPES` in `test_t028_presentation_profile.py`.
 - Owner rulings 2026-10-03: Necessary intervals stay assessments without a
   Finding; stop-60 gets no policy record (T034).
+- Presentation correction (`D-2026-10-04-practitioner-first-finding-presentation`,
+  packet "Presentation correction"): `dispatch.reading()` (meaning, next steps
+  with targets, framing) is served at read time on every lineage summary, never
+  persisted (adds no revision); readiness carries `question`/`meaning`/`scope`.
+  Frontend leads with plain six-part headings, readable UTC periods
+  (`readablePeriod`), and puts IDs/revisions/digest, full coverage, fuel inputs,
+  Performance method and readiness scoring behind closed `Disclosure`s.
 - Totals at closeout: backend 1465, host 616, simulator 244, frontend 1097.
 
 ### What this leaves open
@@ -4669,3 +4676,6 @@ code T028 touches).
 - Ingestion keeps the first record at a key, so same-key recipe re-runs do not
   revise intervals.
 - Recommendation and History tabs, verification rules: T034.
+- Persisted `summary`/claim-limit wording unchanged by the presentation
+  correction (Necessary "4.5-open", `(dispatch-2)` in the Candidate limit);
+  rewording them appends a revision per lineage.
