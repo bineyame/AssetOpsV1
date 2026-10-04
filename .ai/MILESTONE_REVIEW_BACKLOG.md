@@ -1783,6 +1783,30 @@ API inspection; the bounded fuel and maintenance consequence is added to the
 readable Finding, compact Overview value and Site Financials, keeping
 associated candidate cost distinct from realised savings.
 
+## Carried from T028 presentation review
+
+From `.agent/T028-presentation-claude-review.md` (Claude). Safe to carry under
+`D-2026-09-22-milestone-speed-over-purity`: none changes a classification,
+number or claim strength.
+
+- **F2:** the Overview Dispatch card is silent on fuel when the lead's fuel is
+  unavailable (`SiteOverview.tsx`); the spec asks for an honest unavailable state.
+  Fix with T029's card value.
+- **F3:** equipment is always "Generator" (`analytics/plain.py`) though the site
+  has a display name; use it where available.
+- **F4:** a guard exemption can cover a whole prose node and source-reference
+  exemptions get no shape check (`frontend/src/test/productVocabulary.ts`); the
+  template-shipped foundation summary is exempted as "user-owned"
+  (`SiteDetails.tsx`). Tighten with the post-T029 copy inventory.
+- **F7 (rest):** decimal hours beside "h min" (`assessmentAnalysis.tsx`); the
+  part-missing message misdescribes the default part; "may have been withdrawn"
+  shown when the Dispatch read failed (`SiteEvidence.tsx`); a misplaced doc
+  comment (`operatorSiteRoutes.ts`); tab-tree indentation in
+  `ARCHITECT_DEMO_RECOMMENDATION.md`.
+- **Live scan breadth:** the browser vocabulary scan covered one Possibly
+  avoidable period; Needed and Cannot determine wording is covered by fixtures
+  and the backend check only.
+
 ## Planned follow-up after T029: legacy product copy inventory
 
 From `D-2026-10-04-plain-language-analysis-views`: product surfaces outside
