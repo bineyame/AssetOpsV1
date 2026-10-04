@@ -109,6 +109,16 @@ describe("assessed-period timeline", () => {
     ]);
   });
 
+  it("a short part keeps its true width: no minimum inflates it", () => {
+    const g = timelineGeometry({
+      ...OPEN,
+      assessed_window: { start: T("03:00"), end: T("11:00") },
+      interval: { ...OPEN.interval, first_running_observed: T("03:00"), last_running_observed: T("11:00") },
+      segments: [seg("03:00", "03:01", 1, "CANDIDATE_AVOIDABLE"), seg("03:01", "11:00", 479, "NECESSARY")],
+    });
+    expect(g?.bands.map((b) => b.width)).toEqual([1 / 480, 479 / 480]);
+  });
+
   it("draws unrecorded operation hatched and bracketed time dotted, never as a claim", () => {
     inRouter(<AssessedPeriodTimeline source={BRACKETED} outcomes={OUTCOMES} reasons={["a", "b", "c"]} />);
     const kinds = Array.from(document.querySelectorAll("[data-band]")).map((b) => [
