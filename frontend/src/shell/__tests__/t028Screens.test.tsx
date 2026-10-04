@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import {
+  CANDIDATE_ASSESSMENT,
   CANDIDATE_ID,
   CANDIDATE_SUMMARY,
   NECESSARY_ID,
@@ -134,6 +135,19 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(view.textContent).not.toMatch(/dispatch-2|\bruntime\b|\bran\b|binding|Candidate avoidable|Indeterminate/);
     expect(document.querySelector("details")).toBeNull();
     expect(candidate).toHaveTextContent("22 Sep 2026, 03:10 to 07:10 UTC");
+  });
+
+  it("each period row draws its own assessment's compact timeline (checkpoint 2a)", async () => {
+    renderAt(`/sites/${SITE_ID}/performance/dispatch`);
+    await settledScreen();
+    const rows = Array.from(document.querySelectorAll("[data-dispatch-interval]"));
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) {
+      expect(row.querySelector('[data-graphic="assessed-period-timeline"]')).toHaveAttribute(
+        "data-graphic-assessment",
+        row.getAttribute("data-dispatch-interval"),
+      );
+    }
   });
 
   it("selecting a period shows its concise explanation and leads to its Analysis", async () => {
@@ -543,6 +557,49 @@ describe("the Overview links to the Finding instead of recomputing it (AC12)", (
     expect(panelLink).toHaveTextContent(
       "Possibly avoidable: The generator may have operated longer than needed.",
     );
+  });
+
+  it("the card's compact timeline draws the lead period it links to (checkpoint 2a)", async () => {
+    const base = overviewWith(CANDIDATE_ID, [CANDIDATE_SUMMARY]);
+    const a = CANDIDATE_ASSESSMENT;
+    const overview: SiteOverviewReadModel = {
+      ...base,
+      cards: base.cards.map((card) =>
+        card.domain_id === "Dispatch"
+          ? {
+              ...card,
+              assessment: {
+                ...card.assessment,
+                lead_revision: 1,
+                lead_timeline: {
+                  assessed_window: a.assessed_window,
+                  interval: a.interval,
+                  segments: a.segments.map((s) => ({ ...s, outcome: "Possibly avoidable" })),
+                  fuel: {
+                    status: "BOUNDED",
+                    low_litres: "21.6",
+                    high_litres: "29.3",
+                    label: "Estimated fuel associated with possibly avoidable operation",
+                    text: "21.6 to 29.3 litres",
+                    note: "This is an estimate, not confirmed fuel savings.",
+                  },
+                },
+              },
+            }
+          : card,
+      ),
+    };
+    renderAt(`/sites/${SITE_ID}`, { overview });
+    await settledScreen();
+    const slot = document.querySelector(`[data-overview-card-timeline="${CANDIDATE_ID}"]`) as HTMLElement;
+    const timeline = slot.querySelector('[data-graphic="assessed-period-timeline"]') as HTMLElement;
+    expect(timeline).toHaveAttribute("data-graphic-assessment", CANDIDATE_ID);
+    expect(timeline).toHaveAttribute("data-compact", "true");
+    expect(document.querySelector(`[data-overview-card-analysis="${CANDIDATE_ID}"]`)).not.toBeNull();
+    expect(within(slot).getByRole("img").getAttribute("aria-label")).toContain(
+      "03:10 UTC to 07:10 UTC, Possibly avoidable",
+    );
+    expect(slot.querySelector("[data-fuel-text]")).toHaveTextContent("Low 21.6 litres to high 29.3 litres");
   });
 
   it("a Needed lead with no Finding links to its period on Dispatch and to Dispatch's Analysis", async () => {
