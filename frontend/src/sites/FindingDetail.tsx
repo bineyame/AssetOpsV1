@@ -303,7 +303,7 @@ function FindingOverview({
           <Fact term="Assessed: needed">{reading.portions.needed}</Fact>
           <Fact term="Assessed: cannot determine">{reading.portions.cannot_determine}</Fact>
           {reading.reasons_needed.length === 0 ? null : (
-            <Fact term="Reason the generator was needed">{reading.reasons_needed.join(", ")}</Fact>
+            <Fact term="Reasons for the needed time">{reading.reasons_needed.join(", ")}</Fact>
           )}
         </FactList>
         <p className="overview-note">

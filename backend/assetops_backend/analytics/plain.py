@@ -290,16 +290,16 @@ def _segment(s: dict[str, Any]) -> dict[str, Any]:
     if not s["observed"]:
         reason = "Generator operation was not recorded between these times."
     elif level == NECESSARY:
-        reason = f"Needed: {_because([s['binding_constraint']] if s['binding_constraint'] else [])}."
+        reason = f"{_sentence(_because([s['binding_constraint']] if s['binding_constraint'] else []))}."
     elif level == CANDIDATE:
         reason = ("The available solar power and battery output were more than the site "
                   "demand, with battery charge above its minimum reserve; no reason the "
                   "generator was needed was recorded.")
     elif missing:
-        reason = "Cannot determine: " + "; ".join(missing) + "."
+        reason = "Records needed to decide are missing or conflicting: " + "; ".join(missing) + "."
     else:
-        reason = ("Cannot determine: the available solar power and battery output were too "
-                  "close to the site demand to decide.")
+        reason = ("The available solar power and battery output were too close to the site "
+                  "demand to decide.")
     return {"outcome": OUTCOMES[level], "reason": reason, "missing": missing}
 
 

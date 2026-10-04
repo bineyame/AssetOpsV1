@@ -353,7 +353,7 @@ describe("the Site Evidence route", () => {
       within(tabRow()).getByRole("link", { current: "page" }),
     ).toHaveTextContent("Evidence");
     expect(
-      screen.getByText(/No source batch has been accepted for this site/),
+      screen.getByText(/No records have been received and accepted for this site/),
     ).toBeInTheDocument();
   });
 });

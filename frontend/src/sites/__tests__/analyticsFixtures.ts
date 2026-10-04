@@ -220,7 +220,7 @@ function reading(a: Assessment): Reading {
               "The available solar power and battery output were more than the site demand, with battery charge above its minimum reserve; no reason the generator was needed was recorded.",
             missing: [],
           }
-        : { outcome: "Needed", reason: "Needed: battery charge was at or below its minimum reserve.", missing: [] },
+        : { outcome: "Needed", reason: "Battery charge was at or below its minimum reserve.", missing: [] },
     ),
     alternatives: [
       {
