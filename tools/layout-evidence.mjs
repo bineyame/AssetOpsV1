@@ -4223,6 +4223,26 @@ const READ_T028_FINDING = `(() => {
   };
 })()`;
 
+// Practitioner-first presentation (D-2026-10-04-practitioner-first-finding-
+// presentation): provenance and method detail sit behind closed disclosures,
+// and opening every one of them must still fit the page.
+const READ_T028_DISCLOSURES = `(() => {
+  const ds = Array.from(document.querySelectorAll("[data-finding] details[data-disclosure]"));
+  return ds.map((d) => ({ name: d.getAttribute("data-disclosure"), open: d.open }));
+})()`;
+
+const OPEN_T028_DISCLOSURES = `(() => {
+  const ds = Array.from(document.querySelectorAll("[data-finding] details[data-disclosure]"));
+  ds.forEach((d) => { d.open = true; });
+  const id = document.querySelector("[data-finding-assessment-id]");
+  return {
+    opened: ds.length,
+    idHeight: id ? Math.round(id.getBoundingClientRect().height) : 0,
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  };
+})()`;
+
 const CLICK_FIRST_EVIDENCE_LINK = `(() => {
   const b = document.querySelector("[data-evidence-link]");
   if (!b) return null;
@@ -4311,6 +4331,22 @@ const READ_T028_INDEX = `(() => {
             "the page does not scroll horizontally",
             !page.pageScrollsHorizontally,
             `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+          ],
+        ]) && allPass;
+      const closed = await evaluate(READ_T028_DISCLOSURES);
+      const expanded = await evaluate(OPEN_T028_DISCLOSURES);
+      allPass =
+        report(`T028 Finding detail disclosures, ${target}, at ${label}`, null, [
+          [
+            "Assessment details and the coverage disclosure exist and are closed on load",
+            ["finding-assessment-details", "finding-coverage-details"].every((n) =>
+              closed.some((d) => d.name === n && d.open === false)),
+            closed.map((d) => `${d.name} ${d.open ? "open" : "closed"}`).join("; ") || "none",
+          ],
+          [
+            "opened, every disclosure shows its content (assessment ID rendered) and the page does not scroll horizontally",
+            expanded.opened >= 2 && expanded.idHeight > 0 && expanded.scrollWidth <= expanded.clientWidth,
+            `${expanded.opened} opened; ID ${expanded.idHeight}px; scrollWidth ${expanded.scrollWidth} vs clientWidth ${expanded.clientWidth}`,
           ],
         ]) && allPass;
 
