@@ -24,6 +24,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-04-plain-language-analysis-views` | 2026-10-04 | Owner-directed plain-language defaults, assessment graphics and separate Analysis tabs in T028; amends practitioner-first presentation and the Finding tab inventory; product vocabulary guard. |
 | `D-2026-10-04-practitioner-first-finding-presentation` | 2026-10-04 | Findings lead with a bounded operational explanation; provenance and method detail remain accessible through progressive disclosure. Narrow T028 correction before merge; money and prepared demo remain T029. |
 | `D-2026-10-04-analytic-readiness-scope-and-gap-impact` | 2026-10-04 | Analytic readiness describes evidence sufficiency, site-wide in T028; claim-dependent gap treatment is interim, with versioned configurable impact types assigned to T028A. |
 | `D-2026-10-02-demo-led-recommendation` | 2026-10-02 | Owner approved `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` at `57ea23e` ("review looks fine."); D1-D8 verbatim; section 9 outcomes are the coordinator's reading; its sequence supersedes the 2026-09-24 queue order from T027. Recorded by the Planner (Claude under the Codex exception). |
@@ -3740,3 +3741,49 @@ Reason: the first useful Finding must be understandable to its intended
 reader while remaining challengeable. Technical correctness and exhaustive
 provenance alone do not establish practitioner usefulness. Affected scope:
 T028 presentation closeout, T029 planning and later Finding presentations.
+
+## 2026-10-04
+
+Decision: `D-2026-10-04-plain-language-analysis-views`.
+Codex Architect, implementing the owner's direction recorded in
+`.agent/owner-T028-presentation-direction-2026-10-04.md`; specification and
+reasoning in `.agent/T028-architect-presentation.md`.
+
+Amends `D-2026-10-04-practitioner-first-finding-presentation`: operator defaults
+assume minimal technical knowledge and communicate operational meaning,
+affected time, uncertainty, bounded consequence and investigative next steps
+with plain text and labelled graphics. Deeper method, inputs, coverage and
+calculation belong in a separate Analysis destination, replacing the earlier
+disclosure-only correction and mandatory report-like layout. Important limits
+remain visible with the default conclusion.
+
+Amends the Finding-tab inventory in
+`D-2026-10-02-rendered-tabs-per-capability` and T028 AC21 to
+`Overview | Analysis | Evidence | Alternatives`. Recommendation and History
+remain T034. Performance keeps Dispatch as its sole capability subtab, with
+local `Overview | Analysis`; Site Evidence has local `Overview | Analysis`.
+Cards and indexes link to the matching analysis rather than duplicating it.
+These contextual views own interpretive detail; Evidence retains source
+lineage and Alternatives retains competing explanations, satisfying
+`D-2026-10-02-grammar-ownership-test`. Per-capability rendering and truthful
+empty states remain unchanged.
+
+T028 delivers a shared assessed-period timeline, bounded fuel-range graphic,
+selected-period input comparison and coverage-count graphic from backend-served
+assessment data only. No private simulator data, interpolated telemetry,
+invented savings or new analytic conclusion enters the presentation. Backend
+semantic ownership and persisted assessment history remain unchanged.
+
+Product copy, including Analysis and Evidence, uses operational language and
+excludes simulation/development terms such as run and binding. Lab vocabulary
+is excluded from this restriction. A focused rendered-text guard covers the
+T028 journey, with explicit exceptions only for source-owned references and
+user-owned text. Stored identifiers and provenance remain intact; demonstration
+data is not represented as field evidence. Remaining legacy product copy is
+assigned a follow-up after T029, without allowing new jargon in the meantime.
+
+Both presentation checkpoints land in T028 before merge. T029 retains money,
+assumptions and the prepared external demo; T034 retains recommendations,
+action and verification. The evidence-sufficiency scope and limits in
+`D-2026-10-04-analytic-readiness-scope-and-gap-impact` are unchanged. This
+decision records architecture direction, not owner slice acceptance.

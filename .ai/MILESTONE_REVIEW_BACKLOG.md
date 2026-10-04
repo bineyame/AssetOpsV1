@@ -1783,6 +1783,13 @@ API inspection; the bounded fuel and maintenance consequence is added to the
 readable Finding, compact Overview value and Site Financials, keeping
 associated candidate cost distinct from realised savings.
 
+## Planned follow-up after T029: legacy product copy inventory
+
+From `D-2026-10-04-plain-language-analysis-views`: product surfaces outside
+the T028 journey (Foundation, Sites, shell) still carry simulation or
+implementation wording. Inventory and correct them after T029; no new jargon
+meanwhile. Lab surfaces are excluded.
+
 ## Planned follow-up: T028A, configurable analytic evidence-gap impact
 
 Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
