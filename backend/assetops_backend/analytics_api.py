@@ -76,9 +76,10 @@ def build_analytics_router(
             return {
                 "findings": rows,
                 "statement": (
-                    "Active Findings across every configured Site: Candidate avoidable "
-                    "and Indeterminate intervals. Necessary intervals are assessments "
-                    "without a Finding and are listed on each Site's Performance > Dispatch."
+                    "Active Findings across every configured site: periods where the "
+                    "generator possibly operated longer than needed, or where that cannot "
+                    "be determined. Periods where it was needed have no Finding and are "
+                    "listed on each site's Performance > Dispatch."
                 ),
             }
 

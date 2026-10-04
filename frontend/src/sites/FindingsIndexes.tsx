@@ -56,7 +56,8 @@ function Unavailable({ message, id }: { message: string | null; id: string }) {
 
 export interface FindingsIndexProps {
   client: SiteAnalyticsClient;
-  findingHref: (siteId: string, assessmentId: string) => string;
+  /** A Finding's Overview, or another of its tabs (Analysis for the row's secondary link). */
+  findingHref: (siteId: string, assessmentId: string, tab?: "analysis") => string;
 }
 
 export function FindingsIndex({ client, findingHref }: FindingsIndexProps) {
@@ -87,6 +88,7 @@ export function FindingsIndex({ client, findingHref }: FindingsIndexProps) {
           labelledBy="findings-index-heading"
           siteColumn
           href={(row) => findingHref(row.site_id ?? "", row.assessment_id)}
+          analysisHref={(row) => findingHref(row.site_id ?? "", row.assessment_id, "analysis")}
           findingType={(id, row) =>
             findingTypeLabel(
               row?.site_type === undefined ? null : presentationProfileFor(row.site_type),
@@ -101,15 +103,15 @@ export function FindingsIndex({ client, findingHref }: FindingsIndexProps) {
 
 const FILTERS: { value: string; label: string }[] = [
   { value: "", label: "All Findings" },
-  { value: "CANDIDATE_AVOIDABLE", label: "Candidate avoidable" },
-  { value: "INDETERMINATE", label: "Indeterminate" },
+  { value: "CANDIDATE_AVOIDABLE", label: "Possibly avoidable" },
+  { value: "INDETERMINATE", label: "Cannot determine" },
 ];
 
 export interface SiteFindingsProps {
   siteId: string;
   client: SiteAnalyticsClient;
   profile: DomainPresentationProfile | null;
-  findingHref: (assessmentId: string) => string;
+  findingHref: (assessmentId: string, tab?: "analysis") => string;
   dispatchHref: string;
 }
 
@@ -141,13 +143,14 @@ export function SiteFindings({
         Findings at this site
       </h2>
       <p className="overview-note">
-        Candidate avoidable and Indeterminate intervals. Necessary intervals
-        raise no Finding and are listed on{" "}
+        Periods where the generator possibly operated longer than needed, or
+        where that cannot be determined. Periods where it was needed have no
+        Finding and are listed on{" "}
         <Link to={dispatchHref}>Performance &gt; Dispatch</Link>.
       </p>
       <p>
         <label>
-          {"Claim "}
+          {"Outcome "}
           <select
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
@@ -173,6 +176,7 @@ export function SiteFindings({
           labelledBy="site-findings-heading"
           siteColumn={false}
           href={(row) => findingHref(row.assessment_id)}
+          analysisHref={(row) => findingHref(row.assessment_id, "analysis")}
           findingType={(id) => findingTypeLabel(profile, id).label}
         />
       )}

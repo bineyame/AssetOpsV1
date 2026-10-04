@@ -48,16 +48,16 @@ NO_ASSESSMENT = {
     "status": "NO_ASSESSMENT",
     "label": "No assessment yet",
     "reason": (
-        "No analytic assesses this domain yet. The metrics are measured "
+        "Nothing assesses this area of the site yet. The metrics are measured "
         "values, not a judgement of how the site is operating."
     ),
 }
 FINDINGS_STATEMENT = (
-    "No analytic has assessed this site yet, so no Finding exists. This is not "
+    "Nothing has assessed this site yet, so no Finding exists. This is not "
     "a statement that the site is or is not operating well."
 )
 INTERVAL_STATEMENT = (
-    "Energy and running time are summed over measured intervals only (interval "
+    "Energy and operating time are summed over measured intervals only (interval "
     "mean multiplied by interval length). Time between measured intervals is not "
     "counted and no sample is carried forward. Overlapping records (distinct "
     "records at one interval or instant) are listed in Evidence and used by no "
@@ -338,7 +338,7 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
     return [
         _metric(
             "generator-runtime",
-            "Generator running time, measured intervals",
+            "Generator operating time, measured intervals",
             "h",
             value=_fmt(_hours(running_seconds), 2),
             basis=(
@@ -361,7 +361,7 @@ def _dispatch(window: _Window) -> list[dict[str, Any]]:
         ),
         _metric(
             "generator-status-running",
-            "Status samples reading RUNNING",
+            "Status records showing the generator operating",
             "samples",
             value=f"{len(running_status)} of {len(statuses)}",
             basis="Instantaneous status samples; nothing between samples is inferred.",
@@ -420,7 +420,7 @@ def _instant_metrics(
 
 
 def _battery(window: _Window) -> list[dict[str, Any]]:
-    return _instant_metrics(window, SOC, "soc", "state of charge", "%", True)
+    return _instant_metrics(window, SOC, "soc", "battery charge", "%", True)
 
 
 def _fuel(window: _Window) -> list[dict[str, Any]]:
@@ -440,17 +440,17 @@ def _renewable(window: _Window) -> list[dict[str, Any]]:
     return [
         _metric(
             "pv-energy",
-            "PV energy, measured intervals",
+            "Solar energy, measured intervals",
             "kWh",
             value=_fmt(energy, 1),
-            basis=f"PV inverter output over {_fmt(_hours(seconds), 2)} h of measured intervals.",
+            basis=f"Solar inverter output over {_fmt(_hours(seconds), 2)} h of measured intervals.",
             evidence=_interval_link(records),
             missing=window.uncovered(PV),
             window_note=window.window_note([seconds]),
         ),
         _metric(
             "pv-peak",
-            "Highest interval mean PV output",
+            "Highest interval mean solar output",
             "kW",
             value=None if peak is None else _plain(peak.normalized_value),
             at=None if peak is None else peak.source_time,
@@ -529,10 +529,10 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
         },
         {
             "series_id": "pv",
-            "label": "PV output",
+            "label": "Solar output",
             "unit": "kW",
             "kind": "INTERVAL_MEAN",
-            "basis": "PV inverter interval means.",
+            "basis": "Solar inverter interval means.",
             "points": interval_points(window.of(PV)),
         },
         {
@@ -545,7 +545,7 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
         },
         {
             "series_id": "soc",
-            "label": "Battery state of charge",
+            "label": "Battery charge",
             "unit": "%",
             "kind": "STATE_AT_INSTANT",
             "basis": "Instantaneous samples at their own source times.",
@@ -561,8 +561,8 @@ def _timeline(window: _Window) -> list[dict[str, Any]]:
 CardAssessments = Callable[[SiteRecord, "str | None", "str | None"], dict[str, Any]]
 
 FINDINGS_PRESENT_STATEMENT = (
-    "Findings an analytic raised for this window. Each links to its assessed "
-    "object; the Overview does not recompute it."
+    "Findings raised for this window. Each links to its assessed period; the "
+    "Overview does not recompute it."
 )
 
 

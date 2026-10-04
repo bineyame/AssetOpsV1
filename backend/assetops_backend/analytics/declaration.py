@@ -354,6 +354,8 @@ def site_declaration(
     for d in applicable(site.site_type):
         required = [_requirement(r, evidence) for r in d.required_evidence]
         optional = [_requirement(r, evidence) for r in d.optional_evidence]
+        for row in (*required, *optional):
+            row["plain_role"] = plain.role(row["role"])
         analytics.append({
             "analytic_id": d.analytic_id,
             "display_name": d.display_name,

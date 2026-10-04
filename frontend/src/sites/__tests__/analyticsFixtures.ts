@@ -162,31 +162,98 @@ function summary(id: string, a: Assessment): AssessmentSummary {
   };
 }
 
-/** The backend's practitioner reading (`dispatch.reading`) for these fixtures. */
+/** The backend's plain reading (`plain.reading`) for these fixtures. */
 function reading(a: Assessment): Reading {
   const candidate = a.claim_level === "CANDIDATE_AVOIDABLE";
   return {
+    outcome: candidate ? "Possibly avoidable" : "Needed",
+    headline: candidate
+      ? "The generator may have operated longer than needed."
+      : "The generator was needed during this period.",
+    reason: candidate
+      ? "For 3 h 30 min to 4 h of this period, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded."
+      : "Battery charge was at or below its minimum reserve.",
     meaning: candidate
-      ? "Potentially avoidable runtime: for the candidate portion, reported solar and battery capability exceeded load and no constraint requiring the generator was evidenced. It is not proven waste and not a judgement of optimal dispatch."
-      : "Needed runtime: an evidenced constraint required the generator to run. It does not judge whether that constraint was well set.",
-    generator: "generator-controller",
+      ? "Possibly avoidable means that, for that time, the reported solar power and available battery output were more than the site demand, and no reason the generator was needed was recorded. It is not proof of wasted fuel and not a judgement of how the generator should have been operated."
+      : "Needed means a recorded reason required the generator to operate. It does not judge whether that setting or limit is right.",
+    generator: "Generator",
+    operating_time: "3 h 45 min to 4 h 15 min",
+    portions: candidate
+      ? { possibly_avoidable: "3 h 30 min to 4 h", needed: "0 min", cannot_determine: "15 min" }
+      : { possibly_avoidable: "0 min", needed: "2 h", cannot_determine: "0 min" },
+    reasons_needed: candidate ? [] : ["Battery at minimum reserve"],
+    missing: candidate ? ["Available battery output: no record received"] : [],
+    confidence: candidate
+      ? {
+          word: "Medium",
+          explanation: ["15 min of the period cannot be determined, which lowers confidence."],
+          principal_limitation: "15 min of the period cannot be determined, which lowers confidence.",
+        }
+      : { word: "High", explanation: ["Every part of the period could be assessed."], principal_limitation: null },
+    limits: candidate
+      ? [
+          "This is an assessment of the reported values, not proof of wasted fuel and not a judgement of how the generator should have been operated.",
+          "No operator instruction was recorded for this period, but that does not prove none was given.",
+          "15 min of this period cannot be determined and is not part of the possibly avoidable time.",
+        ]
+      : ["This shows the generator was needed for the reason given. It does not judge whether that setting or limit is right."],
+    fuel: candidate
+      ? {
+          label: "Estimated fuel associated with possibly avoidable operation",
+          text: "21.6 to 29.3 litres",
+          note: "This is an estimate, not confirmed fuel savings, for 3 h 30 min to 4 h of possibly avoidable operation.",
+        }
+      : {
+          label: "Estimated fuel associated with possibly avoidable operation",
+          text: null,
+          note: "No fuel estimate: no possibly avoidable operation was found in this period.",
+        },
+    duration_note:
+      "The shorter figure counts only the times the generator was recorded as operating. The longer figure spans from the last record showing it off before the period to the first record showing it off after.",
+    coverage_note:
+      "Each assessed part of the period is checked for a usable record of each input; a part without one cannot be determined.",
+    segments: a.segments.map(() =>
+      candidate
+        ? {
+            outcome: "Possibly avoidable",
+            reason:
+              "The available solar power and battery output were more than the site demand, with battery charge above its minimum reserve; no reason the generator was needed was recorded.",
+            missing: [],
+          }
+        : { outcome: "Needed", reason: "Needed: battery charge was at or below its minimum reserve.", missing: [] },
+    ),
+    alternatives: [
+      {
+        id: "UNOBSERVED_OVERRIDE",
+        label: "Unrecorded operator instruction",
+        status: "Still possible",
+        statement: "No operator instruction was recorded for this period. That does not prove none was given.",
+      },
+      {
+        id: "PCS_CAPABILITY_UNAVAILABLE",
+        label: "Battery output not reported",
+        status: "Still possible",
+        statement:
+          "Available battery output was not reported for 15 min of this period, so battery support there is unknown and that time is not counted as possibly avoidable.",
+      },
+    ],
     next_steps: candidate
       ? [
           {
             id: "CONFIRM_OPERATOR_INSTRUCTION",
-            text: "Confirm whether an operator instruction kept the generator running during this period. No override record was received, and that absence is not proof that none was given.",
+            text: "Confirm whether an operator instruction kept the generator on during this period. No instruction was recorded, and that absence is not proof that none was given.",
             target: { kind: "alternative", id: "UNOBSERVED_OVERRIDE" },
           },
           {
             id: "CHECK_BATTERY_CAPABILITY",
-            text: "Check why battery discharge capability was not reported for 15 min of this period; battery support there is unknown, so that time cannot be assessed.",
+            text: "Check why available battery output was not reported for 15 min of this period; battery support there is unknown, so that time cannot be assessed.",
             target: { kind: "alternative", id: "PCS_CAPABILITY_UNAVAILABLE" },
           },
         ]
       : [
           {
             id: "CHECK_CONSTRAINT_IF_UNEXPECTED",
-            text: "No avoidable runtime was identified. If the constraint shown is unexpected, check how it is set; this assessment does not judge the setting.",
+            text: "No possibly avoidable operation was found. If the reason shown is unexpected, check how that setting or limit is configured; this assessment does not judge the setting.",
             target: { kind: "none" },
           },
         ],
@@ -239,11 +306,18 @@ export const LIMITED_READINESS: CapabilityReadiness = {
     { role: "Operator override", device_id: "battery-bms", signal_id: "reserve-override" },
   ],
   assessed_intervals: 1,
-  question: "What can we assess from this site's evidence?",
+  question: "What can we assess from this site's records?",
   meaning:
-    "Assessments are possible but limited: the missing evidence named below caps the conclusion or leaves parts of periods unclassified.",
+    "Assessments are possible but limited: the missing records named below limit the conclusion or leave parts of periods undetermined.",
   scope:
-    "Scored across all of this site's accepted evidence, not the selected window. It is not site health and not permission to act.",
+    "Based on all of this site's accepted records, not only the selected window. It is not a rating of the site's health and not permission to act.",
+  method:
+    "How this is scored: Full means every required input has at least one usable accepted record and no assessed part of a period was left undetermined by a missing record.",
+  conclusion:
+    "Possibly avoidable operation can be identified only where the required records exist; other time cannot be determined.",
+  gaps: [
+    "Available battery output: no usable record for 5 of 13 assessed parts in 1 assessed period; 5 part(s) that needed it cannot be determined.",
+  ],
   statement: "Scored from the declaration against all accepted evidence for this Site.",
 };
 

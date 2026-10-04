@@ -111,8 +111,11 @@ export const FINDINGS_PATH = "/findings";
 export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
 export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
 
-/** Finding detail tabs rendered at T028; Recommendation and History land at T034. */
-export type FindingTab = "overview" | "evidence" | "alternatives";
+/**
+ * Finding detail tabs rendered at T028 (D-2026-10-04-plain-language-analysis-
+ * views adds Analysis); Recommendation and History land at T034.
+ */
+export type FindingTab = "overview" | "analysis" | "evidence" | "alternatives";
 
 export function findingHref(siteId: string, assessmentId: string, tab: FindingTab = "overview"): string {
   const base = `${FINDINGS_PATH}/${encodeURIComponent(siteId)}/${encodeURIComponent(assessmentId)}`;

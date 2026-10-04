@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Badge, DataTable, Fact, FactList } from "../ui";
 import { RecordDetail } from "./SiteEvidence";
 import type {
+  Assessment,
   AssessmentSummary,
   ClaimLevel,
   EvidenceLink,
@@ -23,7 +24,19 @@ import type {
   SiteEvidenceClient,
 } from "./siteEvidenceClient";
 
-/** The backend's claim-level word, shown as it arrives with its level kept as data. */
+/**
+ * Display words for the three backend classifications, the same as the
+ * backend's `plain.OUTCOMES` (D-2026-10-04-plain-language-analysis-views).
+ * Used where only a level is at hand (revision history); everywhere else the
+ * served `reading.outcome` is shown.
+ */
+export const OUTCOME_WORDS: Record<string, string> = {
+  CANDIDATE_AVOIDABLE: "Possibly avoidable",
+  NECESSARY: "Needed",
+  INDETERMINATE: "Cannot determine",
+};
+
+/** An outcome word, shown as it arrives with its backend level kept as data. */
 export function ClaimBadge({ level, label }: { level: ClaimLevel | string; label: string }) {
   return (
     <span className="claim-badge" data-claim-level={level}>
@@ -144,7 +157,7 @@ export function EvidenceLinks({
             data-evidence-link={link.message_id}
             onClick={() => open(link, claim)}
           >
-            {`${link.device_id} / ${link.signal_id} at ${link.source_time}`}
+            {`${link.device_id} / ${link.signal_id}, ${readableTime(link.source_time)}`}
           </button>
         </li>
       ))}
@@ -201,16 +214,16 @@ export function ClaimDrawer({
     >
       <div className="claim-drawer__head">
         <h2 id="finding-claim-drawer-heading" className="claim-drawer__title">
-          Claim evidence
+          Supporting record
         </h2>
         <button type="button" onClick={onClose}>
-          Close evidence
+          Close record
         </button>
       </div>
       <FactList>
-        <Fact term="Claim">{claim ?? "Not named"}</Fact>
-        <Fact term="Assessed window">{`${assessedWindow.start} to ${assessedWindow.end}`}</Fact>
-        <Fact term="Algorithm version">{modelVersion}</Fact>
+        <Fact term="Supports">{claim ?? "Not named"}</Fact>
+        <Fact term="Period assessed">{readablePeriod(assessedWindow.start, assessedWindow.end)}</Fact>
+        <Fact term="Assessment method">{modelVersion}</Fact>
       </FactList>
       <RecordDetail detail={detail} />
     </aside>
@@ -228,19 +241,22 @@ export type FindingHref = (row: AssessmentSummary & { site_id?: string }) => str
 
 /**
  * One Findings table for both indexes. A row click changes the root to the
- * Finding. It carries no KPI strip and no status model of its own: the claim
- * level and confidence are the backend's.
+ * Finding's Overview; a secondary link opens the same Finding's Analysis. It
+ * carries no KPI strip, severity or ranking: the outcome, confidence and
+ * limitation are the backend's plain reading.
  */
 export function FindingsTable({
   rows,
   labelledBy,
   href,
+  analysisHref,
   findingType,
   siteColumn,
 }: {
   rows: FindingsRow[];
   labelledBy: string;
   href: FindingHref;
+  analysisHref: FindingHref;
   findingType: (id: string, row?: FindingsRow) => string;
   siteColumn: boolean;
 }) {
@@ -252,8 +268,9 @@ export function FindingsTable({
           <th scope="col">Finding</th>
           {siteColumn ? <th scope="col">Site</th> : null}
           <th scope="col">Period</th>
-          <th scope="col">Assessment</th>
-          <th scope="col">Confidence</th>
+          <th scope="col">Outcome</th>
+          <th scope="col">Confidence and main limitation</th>
+          <th scope="col">Analysis</th>
           <th scope="col">Type</th>
         </tr>
       </thead>
@@ -267,22 +284,39 @@ export function FindingsTable({
           >
             <th scope="row">
               <Link to={href(row)} onClick={(event) => event.stopPropagation()}>
-                {row.summary}
+                {row.reading?.headline ?? "Assessed generator period"}
               </Link>
+              {row.reading === undefined ? null : (
+                <span className="overview-note" data-finding-row-reason>
+                  {` ${row.reading.reason}`}
+                </span>
+              )}
             </th>
             {siteColumn ? (
               <td>{`${row.site_display_name ?? row.site_id ?? ""} · ${row.site_id ?? ""}`}</td>
             ) : null}
+            <td>{windowText(row.assessed_window)}</td>
             <td>
-              {readablePeriod(
-                row.interval.first_running_observed,
-                row.interval.last_running_observed,
+              <ClaimBadge
+                level={row.claim_level}
+                label={row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}
+              />
+            </td>
+            <td>
+              {row.reading?.confidence.word ?? confidenceWord(row.confidence)}
+              {row.reading?.confidence.principal_limitation == null ? null : (
+                <span className="overview-note">{` ${row.reading.confidence.principal_limitation}`}</span>
               )}
             </td>
             <td>
-              <ClaimBadge level={row.claim_level} label={row.label} />
+              <Link
+                to={analysisHref(row)}
+                data-finding-row-analysis={row.assessment_id}
+                onClick={(event) => event.stopPropagation()}
+              >
+                View analysis
+              </Link>
             </td>
-            <td>{confidenceWord(row.confidence)}</td>
             <td>{findingType(row.finding_type, row)}</td>
           </tr>
         ))}
@@ -291,11 +325,49 @@ export function FindingsTable({
   );
 }
 
+/**
+ * The assessed period as proportional parts, each marked by its outcome and
+ * whether generator operation was recorded. Checkpoint 2 replaces this with
+ * the labelled assessed-period timeline (data-graphic-anchor="assessed-period-timeline").
+ */
+export function AssessedPeriodStrip({
+  assessment,
+  reading,
+}: {
+  assessment: Assessment;
+  reading: Reading | undefined;
+}) {
+  const word = (index: number) =>
+    reading?.segments[index]?.outcome ??
+    OUTCOME_WORDS[assessment.segments[index].classification] ??
+    "Assessed";
+  return (
+    <span
+      className="segment-strip"
+      role="img"
+      data-graphic-anchor="assessed-period-timeline"
+      aria-label={`Assessed parts of the period: ${assessment.segments
+        .map((s, index) => `${word(index)} ${s.minutes} min${s.observed ? "" : " (operation not recorded)"}`)
+        .join(", ")}`}
+    >
+      {assessment.segments.map((segment, index) => (
+        <span
+          key={`${segment.start}-${index}`}
+          className="segment-strip__part"
+          data-claim-level={segment.classification}
+          data-observed={segment.observed}
+          style={{ flexGrow: Math.max(segment.minutes, 1) }}
+        />
+      ))}
+    </span>
+  );
+}
+
 const CONFIDENCE_WORDS: Record<string, string> = {
   HIGH: "High",
   MEDIUM: "Medium",
   LOW: "Low",
-  NOT_APPLICABLE: "Not applicable",
+  NOT_APPLICABLE: "Not stated",
 };
 
 export function confidenceWord(level: string): string {
@@ -318,5 +390,59 @@ export function Section({
       </h3>
       {children}
     </section>
+  );
+}
+
+/** A contextual view of one page: Overview (default) or Analysis. */
+export type LocalView = "overview" | "analysis";
+
+/** `?view=analysis` selects Analysis; anything else, or none, is Overview. */
+export function localView(params: URLSearchParams): LocalView {
+  return params.get("view") === "analysis" ? "analysis" : "overview";
+}
+
+/** The same address at another view, every other parameter kept. */
+export function localViewSearch(params: URLSearchParams, view: LocalView): string {
+  const next = new URLSearchParams(params);
+  if (view === "overview") {
+    next.delete("view");
+  } else {
+    next.set("view", view);
+  }
+  const text = next.toString();
+  return text === "" ? "?" : `?${text}`;
+}
+
+/**
+ * The `Overview | Analysis` view pair inside Dispatch and Site Evidence
+ * (D-2026-10-04-plain-language-analysis-views). Contextual views of one page,
+ * not capabilities and not an expert mode.
+ */
+export function LocalViews({
+  label,
+  current,
+  params,
+}: {
+  label: string;
+  current: LocalView;
+  params: URLSearchParams;
+}) {
+  return (
+    <nav className="site-tabs site-subtabs local-views" aria-label={label}>
+      <ol className="site-tabs__list">
+        {(["overview", "analysis"] as const).map((view) => (
+          <li className="site-tabs__item" key={view}>
+            <Link
+              className="site-tabs__link"
+              to={{ search: localViewSearch(params, view) }}
+              data-local-view={view}
+              aria-current={view === current ? "page" : undefined}
+            >
+              {view === "overview" ? "Overview" : "Analysis"}
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }

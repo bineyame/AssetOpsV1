@@ -112,6 +112,11 @@ export function SiteDetailFrame({
                 ? sitePerformanceHref(canonicalId, "dispatch")
                 : `${sitePerformanceHref(canonicalId, "dispatch")}?interval=${encodeURIComponent(assessmentId)}`
             }
+            analysisHref={(assessmentId, isFinding) =>
+              isFinding
+                ? findingHref(canonicalId, assessmentId, "analysis")
+                : `${sitePerformanceHref(canonicalId, "dispatch")}?interval=${encodeURIComponent(assessmentId)}&view=analysis`
+            }
           />
         )}
         quickActions={simulatorLabSiteActions(flags).map((action) => (

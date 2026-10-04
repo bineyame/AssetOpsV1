@@ -17,6 +17,7 @@ import {
   findingHref,
   siteDetailHref,
   siteEvidenceHref,
+  siteEvidenceRecordHref,
   siteFindingsHref,
   sitePerformanceHref,
   type FindingTab,
@@ -117,6 +118,14 @@ export function SitePerformanceFrame({
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
             findingHref={(id) => findingHref(site.site_id, id)}
+            findingAnalysisHref={(id) => findingHref(site.site_id, id, "analysis")}
+            recordHref={(link) =>
+              siteEvidenceRecordHref(
+                site.site_id,
+                `${link.device_id}/${link.signal_id}`,
+                link.message_id,
+              )
+            }
           />
         </main>
       )}
@@ -162,7 +171,7 @@ export function SiteFindingsFrame({
             siteId={site.site_id}
             client={analytics}
             profile={presentationProfileFor(site.site_type)}
-            findingHref={(id) => findingHref(site.site_id, id)}
+            findingHref={(id, tab) => findingHref(site.site_id, id, tab)}
             dispatchHref={sitePerformanceHref(site.site_id, "dispatch")}
           />
         </main>
@@ -184,7 +193,7 @@ export function FindingsFrame({ analytics }: { analytics: SiteAnalyticsClient })
       />
       <FindingsIndex
         client={analytics}
-        findingHref={(siteId, assessmentId) => findingHref(siteId, assessmentId)}
+        findingHref={(siteId, assessmentId, tab) => findingHref(siteId, assessmentId, tab)}
       />
     </main>
   );
@@ -192,7 +201,7 @@ export function FindingsFrame({ analytics }: { analytics: SiteAnalyticsClient })
 
 export const FINDING_HEADING_ID = "finding-heading";
 
-const FINDING_TABS: FindingTab[] = ["overview", "evidence", "alternatives"];
+const FINDING_TABS: FindingTab[] = ["overview", "analysis", "evidence", "alternatives"];
 
 export function FindingDetailFrame({
   detail,
@@ -230,6 +239,7 @@ export function FindingDetailFrame({
           />
           <FindingDetail
             siteId={site.site_id}
+            siteName={site.display_name}
             assessmentId={assessmentId ?? ""}
             tab={tab}
             client={analytics}
@@ -237,10 +247,13 @@ export function FindingDetailFrame({
             profile={presentationProfileFor(site.site_type)}
             tabHref={(next) => findingHref(site.site_id, assessmentId ?? "", next)}
             dispatchHref={`${sitePerformanceHref(site.site_id, "dispatch")}?interval=${encodeURIComponent(assessmentId ?? "")}`}
+            currentResultsHref={sitePerformanceHref(site.site_id, "dispatch")}
             evidencePageHref={siteEvidenceHref(site.site_id)}
             onLoaded={(loaded) =>
               setTitle(
-                loaded.finding_id === null ? "Assessment" : `Finding: ${loaded.label}`,
+                loaded.finding_id === null
+                  ? "Assessed period"
+                  : `Finding: ${loaded.reading?.outcome ?? "Assessed period"}`,
               )
             }
           />

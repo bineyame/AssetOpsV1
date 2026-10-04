@@ -53,6 +53,11 @@ export interface SiteOverviewProps {
   findingHref?: (assessmentId: string) => string;
   /** T028: Performance > Dispatch, optionally selecting one interval. */
   dispatchHref?: (assessmentId?: string) => string;
+  /**
+   * The Analysis of an assessed period: the Finding's Analysis tab, or
+   * Dispatch's Analysis view for a Needed period without a Finding.
+   */
+  analysisHref?: (assessmentId: string, isFinding: boolean) => string;
 }
 
 export function SiteOverview({
@@ -62,6 +67,7 @@ export function SiteOverview({
   evidencePageHref,
   findingHref,
   dispatchHref,
+  analysisHref,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel> | null>(null);
@@ -145,6 +151,7 @@ export function SiteOverview({
                 findingIds={findingIds}
                 findingHref={findingHref}
                 dispatchHref={dispatchHref}
+                analysisHref={analysisHref}
               />
             ))}
           </div>
@@ -162,7 +169,9 @@ export function SiteOverview({
                   to={findingHref(finding.assessment_id)}
                   data-overview-finding-link={finding.assessment_id}
                 >
-                  {`${finding.label}: ${finding.summary}`}
+                  {finding.reading === undefined
+                    ? "Assessed generator period"
+                    : `${finding.reading.outcome}: ${finding.reading.headline}`}
                 </Link>
               </li>
             ))}
@@ -181,6 +190,8 @@ interface OverviewFinding {
   finding_id: string | null;
   label: string;
   summary: string;
+  /** The backend's plain reading (`plain.reading`), read time. */
+  reading?: { outcome: string; headline: string };
 }
 
 function ObjectiveStrip({
@@ -298,6 +309,7 @@ function DomainCard({
   findingIds,
   findingHref,
   dispatchHref,
+  analysisHref,
 }: {
   label: string;
   card: OverviewCard;
@@ -306,6 +318,11 @@ function DomainCard({
   findingIds: Set<string>;
   findingHref?: (assessmentId: string) => string;
   dispatchHref?: (assessmentId?: string) => string;
+  /**
+   * The Analysis of an assessed period: the Finding's Analysis tab, or
+   * Dispatch's Analysis view for a Needed period without a Finding.
+   */
+  analysisHref?: (assessmentId: string, isFinding: boolean) => string;
 }) {
   const assessment = card.assessment;
   const capability =
@@ -363,6 +380,20 @@ function DomainCard({
               See it on Performance &gt; Dispatch
             </Link>
           ) : null}
+          {analysisHref === undefined ? null : (
+            <>
+              {" "}
+              <Link
+                to={analysisHref(
+                  assessment.lead_assessment_id,
+                  findingIds.has(assessment.lead_assessment_id),
+                )}
+                data-overview-card-analysis={assessment.lead_assessment_id}
+              >
+                View analysis
+              </Link>
+            </>
+          )}
         </p>
       )}
       {card.gaps.length === 0 ? null : (

@@ -19,7 +19,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
-import { CapabilityReadinessTable } from "./CapabilityReadiness";
+import { CapabilityReadinessAnalysis, CapabilityReadinessTable } from "./CapabilityReadiness";
+import { LocalViews, localView, readablePeriod, readableTime } from "./findingPresentation";
 import type { DomainPresentationProfile } from "./presentationProfile";
 import type { SiteAnalytics, SiteAnalyticsClient } from "./siteAnalyticsClient";
 import type {
@@ -55,10 +56,10 @@ export interface SiteEvidenceProps {
 
 function provenance(mode: string): string {
   if (mode === "SIMULATED") {
-    return "Simulated source";
+    return "Demonstration data";
   }
   if (mode === "LIVE") {
-    return "Live source";
+    return "Live data";
   }
   return mode;
 }
@@ -116,6 +117,7 @@ export function SiteEvidence({
   }
 
   const { overview } = loaded;
+  const view = localView(params);
   if (overview.status === "not_found") {
     return (
       <Panel heading="Evidence not found" headingId="site-evidence-missing-heading">
@@ -149,31 +151,46 @@ export function SiteEvidence({
     evidence.basis.configurations.length > 0;
 
   return (
-    <div className="site-evidence" data-evidence-state={empty ? "empty" : "populated"}>
-      <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
+    <div
+      className="site-evidence"
+      data-evidence-state={empty ? "empty" : "populated"}
+      data-evidence-view={view}
+    >
+      <LocalViews label={EVIDENCE_VIEWS_LABEL} current={view} params={params} />
+      {view === "overview" ? (
+        <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
+      ) : (
+        <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
+      )}
       <p data-evidence-window={evidence.window.basis}>
         {evidence.window.start === null || evidence.window.end === null ? (
           <>
-            <strong>Window:</strong> all accepted records; no window bounds
-            are recorded yet.
+            <strong>Selected window:</strong> all accepted records; no window
+            bounds are recorded yet.
           </>
         ) : (
           <>
-            <strong>Window:</strong>{" "}
-            {`${evidence.window.start} to ${evidence.window.end}`}, from{" "}
-            {windowBasis(evidence.window.basis)}.
+            <strong>Selected window:</strong>{" "}
+            {readablePeriod(evidence.window.start, evidence.window.end)}, from{" "}
+            {windowBasis(evidence.window.basis)}. The records below are for
+            this window only.
           </>
         )}
       </p>
 
       {empty ? (
-        <Panel heading="No accepted evidence" headingId="site-evidence-empty-heading">
+        <Panel heading="No accepted records" headingId="site-evidence-empty-heading">
           <p data-evidence-empty>
-            No source batch has been accepted for this site, so there is no
-            source health or recorded signal to show. Evidence appears here
-            once a source batch has been ingested.
+            No records have been received and accepted for this site, so there
+            is no source status or recorded input to show. Records appear here
+            once a delivery from a source has been accepted.
           </p>
         </Panel>
+      ) : view === "overview" ? (
+        <SourceSummary
+          evidence={evidence}
+          onInspect={(source) => inspect("source", source)}
+        />
       ) : (
         <SourceHealth
           evidence={evidence}
@@ -182,7 +199,9 @@ export function SiteEvidence({
         />
       )}
 
-      {evidence.coverage.length === 0 ? null : (
+      {evidence.coverage.length === 0 ? null : view === "overview" ? (
+        <CoverageSummary evidence={evidence} />
+      ) : (
         <SignalCoverage
           evidence={evidence}
           onInspect={(row) => inspect("signal", `${row.device_id}/${row.signal_id}`)}
@@ -195,12 +214,66 @@ export function SiteEvidence({
         window={evidence.window}
       />
 
-      {hasBasis ? <Basis evidence={evidence} /> : null}
+      {view === "analysis" && hasBasis ? <Basis evidence={evidence} /> : null}
 
-      {evidence.rejection_count === 0 && empty ? null : (
+      {evidence.rejection_count === 0 && empty ? null : view === "analysis" ? (
         <Rejections count={evidence.rejection_count} rejections={rejections} />
+      ) : (
+        <p data-evidence-rejection-count={evidence.rejection_count}>
+          {evidence.rejection_count === 0
+            ? "No record has been rejected for this site."
+            : `${evidence.rejection_count} ${evidence.rejection_count === 1 ? "record was" : "records were"} rejected; the reasons are on the Analysis view.`}
+        </p>
       )}
     </div>
+  );
+}
+
+export const EVIDENCE_VIEWS_LABEL = "Evidence views";
+
+/** Overview: each source in ordinary words, with its records one click away. */
+function SourceSummary({
+  evidence,
+  onInspect,
+}: {
+  evidence: EvidenceOverview;
+  onInspect: (source: string) => void;
+}) {
+  return (
+    <Panel heading="Where the records come from" headingId="site-evidence-sources-heading">
+      <ul className="cell-list" data-evidence-source-summary>
+        {evidence.sources.map((source) => (
+          <li key={source.source_id} data-evidence-source={source.source_id}>
+            <span data-evidence-provenance={source.source_mode}>
+              {`${provenance(source.source_mode)}: `}
+            </span>
+            {`${source.accepted_in_window} records accepted in this window (${source.accepted_total} in all), ${source.rejected} rejected; latest received ${source.last_received_at === null ? "never" : readableTime(source.last_received_at)}. Source reference ${source.source_id}. `}
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => onInspect(source.source_id)}
+              aria-label={`Inspect records from ${source.source_id}`}
+            >
+              Inspect records
+            </button>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
+/** Overview: how many inputs have records in the selected window. */
+function CoverageSummary({ evidence }: { evidence: EvidenceOverview }) {
+  const missing = evidence.coverage.filter((row) => row.status === "NOT_REPORTED");
+  return (
+    <p data-evidence-coverage-summary={missing.length}>
+      {`${evidence.coverage.length - missing.length} of ${evidence.coverage.length} recorded inputs have records in this window.`}
+      {missing.length === 0
+        ? ""
+        : ` No records in this window for: ${missing.map((row) => `${row.device_id} / ${row.signal_id}`).join(", ")}.`}
+      {" Each input's coverage is on the Analysis view."}
+    </p>
   );
 }
 
@@ -214,7 +287,7 @@ function SourceHealth({
   onInspect: (source: string) => void;
 }) {
   return (
-    <Panel heading="Source health" headingId="site-evidence-sources-heading" flush>
+    <Panel heading="Source status" headingId="site-evidence-sources-heading" flush>
       <p className="note" data-evidence-source-statement>
         {evidence.source_health_statement}
       </p>
@@ -229,9 +302,9 @@ function SourceHealth({
             <th scope="col">Conflicts</th>
             <th scope="col">Duplicates</th>
             <th scope="col">Last source time</th>
-            <th scope="col">Last published</th>
+            <th scope="col">Last sent</th>
             <th scope="col">Last received</th>
-            <th scope="col">Batches</th>
+            <th scope="col">Deliveries</th>
             <th scope="col">Inspect</th>
           </tr>
         </thead>
@@ -314,7 +387,7 @@ function SignalCoverage({
   onInspect: (row: EvidenceCoverage) => void;
 }) {
   return (
-    <Panel heading="Signal coverage" headingId="site-evidence-coverage-heading" flush>
+    <Panel heading="Input coverage in this window" headingId="site-evidence-coverage-heading" flush>
       <p className="note">
         {evidence.coverage_statement} {evidence.overlap_statement}
       </p>
@@ -338,7 +411,7 @@ function SignalCoverage({
           {evidence.coverage.map((row) => {
             const name = `${row.device_id} / ${row.signal_id}`;
             const neededBy =
-              row.needed_by.length === 0 ? "No metric yet" : row.needed_by.join(", ");
+              row.needed_by.length === 0 ? "Not used yet" : row.needed_by.join(", ");
             return (
               <tr
                 key={`${row.device_id}/${row.signal_id}`}
@@ -394,15 +467,16 @@ function Basis({ evidence }: { evidence: EvidenceOverview }) {
   const current = evidence.basis.current_foundation;
   return (
     <Panel
-      heading="Configuration and mapping basis"
+      heading="Record interpretation and equipment details"
       headingId="site-evidence-basis-heading"
     >
       <p className="note">
-        Accepted records keep the configuration and mapping they were accepted
-        under. A later Foundation edit does not reinterpret them.
+        Accepted records keep the equipment details and record interpretation
+        they were accepted under. A later Foundation edit does not reinterpret
+        them.
       </p>
       <FactList>
-        <Fact term="Mappings accepted under">
+        <Fact term="Record interpretation used">
           <ul className="cell-list" data-evidence-mappings>
             {evidence.basis.mappings.map((mapping) => (
               <li key={`${mapping.mapping_set_id}-${mapping.mapping_version}`}>
@@ -411,7 +485,7 @@ function Basis({ evidence }: { evidence: EvidenceOverview }) {
             ))}
           </ul>
         </Fact>
-        <Fact term="Configurations accepted under">
+        <Fact term="Equipment details used">
           <ul className="cell-list" data-evidence-configurations>
             {evidence.basis.configurations.map((configuration) => (
               <li
@@ -442,7 +516,7 @@ function Rejections({
   rejections: EvidenceRejections | null;
 }) {
   return (
-    <Panel heading="Rejections" headingId="site-evidence-rejections-heading">
+    <Panel heading="Rejected records" headingId="site-evidence-rejections-heading">
       <p data-evidence-rejection-count={count}>
         {count === 0
           ? "No record has been rejected for this site."
@@ -459,7 +533,7 @@ function Rejections({
             >
               <strong>{item.kind}</strong>
               {item.field === null ? "" : ` (${item.field})`}: {item.detail}{" "}
-              {`Batch ${item.batch_id}.`}
+              {`Delivery ${item.batch_id}.`}
             </li>
           ))}
         </ul>
@@ -658,10 +732,10 @@ export function RecordDetail({
         <Fact term="Source, device and signal">
           {`${item.source_id} / ${item.device_id} / ${item.signal_id}`}
         </Fact>
-        <Fact term="Mapping">
+        <Fact term="Record interpretation">
           {`${item.mapping.mapping_set_id} v${item.mapping.mapping_version}`}
         </Fact>
-        <Fact term="Configuration basis">
+        <Fact term="Equipment details used">
           {`Site ${item.site_id}, Foundation v${item.configuration.foundation_version}, valid from ${item.configuration.foundation_valid_from}`}
         </Fact>
         <Fact term="Provenance">{provenance(item.source_mode)}</Fact>
@@ -671,19 +745,19 @@ export function RecordDetail({
             : `${item.quality}: ${item.unavailable_reason}`}
         </Fact>
         <Fact term="Original value">{valueText(item.original)}</Fact>
-        <Fact term="Normalized value">
+        <Fact term="Value as interpreted">
           {valueText(item.normalized)}. {item.normalization_statement}
         </Fact>
         <Fact term="Source time">
           <span data-record-time="source">{item.source_time}</span>
         </Fact>
-        <Fact term="Published">
+        <Fact term="Sent">
           <span data-record-time="published">{item.published_at}</span>
         </Fact>
         <Fact term="Received">
           <span data-record-time="received">{item.received_at}</span>
         </Fact>
-        <Fact term="Batch">{item.batch_id}</Fact>
+        <Fact term="Delivery">{item.batch_id}</Fact>
         {item.overlapping_with.length === 0 ? null : (
           <Fact term="Overlapping records">
             {item.overlapping_with.join(", ")}
@@ -694,7 +768,7 @@ export function RecordDetail({
             <ul className="cell-list">
               {item.conflicts.map((conflict) => (
                 <li key={`${conflict.batch_id}-${conflict.conflicting_digest}`}>
-                  {`Batch ${conflict.batch_id} sent different content for this message ID (${conflict.conflicting_digest}) at ${conflict.received_at}.`}
+                  {`Delivery ${conflict.batch_id} sent different content for this record (${conflict.conflicting_digest}) at ${conflict.received_at}.`}
                 </li>
               ))}
             </ul>

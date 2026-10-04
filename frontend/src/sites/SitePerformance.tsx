@@ -3,27 +3,30 @@
  * and Dispatch as the only one at T028.
  *
  * The subtab row is the backend declaration (`/analytics`) presented through
- * the profile (`performanceSubtabs`, AC18 rules 1 and 2). The Dispatch body
- * lists every active assessed generator interval - Necessary, Candidate
- * avoidable and Indeterminate - in time order. Selecting one shows its binding
- * constraint or its missing evidence, and the policy, reserve and capability
- * at the interval's own time, then leads to its Finding. A Necessary interval
- * is an assessment without a Finding (owner ruling 2026-10-03), so it is
- * explained here and has no Finding link. Nothing is recomputed: each row is
- * the backend assessment by its `assessment_id`.
+ * the profile (`performanceSubtabs`, AC18 rules 1 and 2). Dispatch has two
+ * contextual views (D-2026-10-04-plain-language-analysis-views), selected by
+ * `?view=analysis` with the selected `interval` kept: Overview lists every
+ * active assessed period in time order with its plain outcome, operating time
+ * and main reason, and a selected period's concise explanation; Analysis
+ * shows the shared assessment analysis of the selected period, which a Needed
+ * period (no Finding, owner ruling 2026-10-03) needs most. Nothing is
+ * recomputed: each row is the backend assessment by its `assessment_id`.
  */
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
-import { constraintWord } from "./FindingDetail";
+import { DataTable, Fact, FactList, Panel } from "../ui";
+import { AssessmentAnalysis } from "./assessmentAnalysis";
 import {
-  boundText,
+  AssessedPeriodStrip,
   ClaimBadge,
-  confidenceWord,
+  LocalViews,
+  localView,
+  localViewSearch,
   NextSteps,
-  readablePeriod,
+  OUTCOME_WORDS,
   windowText,
+  type LocalView,
 } from "./findingPresentation";
 import {
   performanceSubtabs,
@@ -33,6 +36,7 @@ import type {
   Assessment,
   AssessmentSummary,
   DispatchAssessments,
+  EvidenceLink,
   SiteAnalytics,
   SiteAnalyticsClient,
 } from "./siteAnalyticsClient";
@@ -51,6 +55,10 @@ export interface SitePerformanceProps {
   capabilityId: string | undefined;
   subtabHref: (capabilityId: string) => string;
   findingHref: (assessmentId: string) => string;
+  /** The same Finding's Analysis tab. */
+  findingAnalysisHref: (assessmentId: string) => string;
+  /** One accepted record in the Site Evidence record inspector. */
+  recordHref: (link: EvidenceLink) => string;
 }
 
 export function SitePerformance({
@@ -60,6 +68,8 @@ export function SitePerformance({
   capabilityId,
   subtabHref,
   findingHref,
+  findingAnalysisHref,
+  recordHref,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
@@ -77,7 +87,7 @@ export function SitePerformance({
   }, [client, siteId]);
 
   if (declaration === null) {
-    return <p>Loading the site&apos;s analytics.</p>;
+    return <p>Loading the site&apos;s assessments.</p>;
   }
   if (declaration.status !== "loaded") {
     return (
@@ -85,7 +95,7 @@ export function SitePerformance({
         <p>
           {declaration.status === "unavailable" && declaration.message !== null
             ? declaration.message
-            : "The site's analytic declaration could not be read."}
+            : "The site's assessments could not be read."}
         </p>
       </Panel>
     );
@@ -100,7 +110,7 @@ export function SitePerformance({
   );
   if (subtabs.length === 0) {
     return (
-      <Panel heading="No performance analytic" headingId="site-performance-none-heading">
+      <Panel heading="No performance assessment" headingId="site-performance-none-heading">
         <p>{declaration.value.statement}</p>
       </Panel>
     );
@@ -128,11 +138,17 @@ export function SitePerformance({
         </ol>
       </nav>
       {RENDERABLE.has(current.id) ? (
-        <DispatchView siteId={siteId} client={client} findingHref={findingHref} />
+        <DispatchView
+          siteId={siteId}
+          client={client}
+          findingHref={findingHref}
+          findingAnalysisHref={findingAnalysisHref}
+          recordHref={recordHref}
+        />
       ) : (
         <Panel heading={current.label} headingId="site-performance-unbuilt-heading">
           <p>
-            {`The backend serves the ${current.label} analytic, but this build has no screen for it yet.`}
+            {`${current.label} results exist for this site, but this version has no screen for them yet.`}
           </p>
         </Panel>
       )}
@@ -140,16 +156,23 @@ export function SitePerformance({
   );
 }
 
+
 type DispatchRow = AssessmentSummary & { assessment: Assessment };
+
+export const DISPATCH_VIEWS_LABEL = "Dispatch views";
 
 function DispatchView({
   siteId,
   client,
   findingHref,
+  findingAnalysisHref,
+  recordHref,
 }: {
   siteId: string;
   client: SiteAnalyticsClient;
   findingHref: (assessmentId: string) => string;
+  findingAnalysisHref: (assessmentId: string) => string;
+  recordHref: (link: EvidenceLink) => string;
 }) {
   const [result, setResult] = useState<EvidenceRead<DispatchAssessments> | null>(null);
   const [params, setParams] = useSearchParams();
@@ -176,193 +199,267 @@ function DispatchView({
         <p>
           {result.status === "unavailable" && result.message !== null
             ? result.message
-            : "The dispatch assessments could not be read."}
+            : "The assessed periods could not be read."}
         </p>
       </Panel>
     );
   }
 
   const rows = result.value.assessments;
+  const view = localView(params);
   const selectedId = params.get("interval");
   const selected = rows.find((row) => row.assessment_id === selectedId) ?? null;
+  const intervalSearch = (id: string, nextView: LocalView) => {
+    const next = new URLSearchParams(params);
+    next.set("interval", id);
+    return localViewSearch(next, nextView);
+  };
   const select = (id: string) => {
     const next = new URLSearchParams(params);
     next.set("interval", id);
     setParams(next);
   };
+  const withoutSelection = new URLSearchParams(params);
+  withoutSelection.delete("interval");
+  const currentResults = localViewSearch(withoutSelection, "overview");
 
   return (
     <section aria-labelledby="site-dispatch-heading" className="dispatch-view">
       <h2 id="site-dispatch-heading" className="identity-heading">
         Was the generator needed?
       </h2>
-      <p className="overview-note" data-dispatch-question>
-        For each period the generator ran, this asks whether reported solar and
-        battery capability could have carried the load. Each period is
-        Necessary (an evidenced constraint required the generator), Candidate
-        avoidable (capability exceeded load with no constraint evidenced; not
-        proven waste) or Indeterminate (the evidence needed is missing or
-        conflicting). A Necessary period is explained here and raises no Finding.
-      </p>
-      <Disclosure name="dispatch-method-details" summary="Method details">
-        <p className="overview-note" data-dispatch-method>
-          {`Analytic ${result.value.analytic_id}, model ${result.value.model_version}. Classified from accepted evidence only.`}
+      <LocalViews label={DISPATCH_VIEWS_LABEL} current={view} params={params} />
+      {selectedId !== null && selected === null ? (
+        <p data-dispatch-selected-missing>
+          The selected assessed period is not among the current results: it may
+          have been withdrawn or replaced. No other period has been put in its
+          place. <Link to={{ search: currentResults }}>See the current results</Link>.
         </p>
-      </Disclosure>
-      {rows.length === 0 ? (
-        <p data-dispatch-empty>
-          No generator interval has been assessed from this site&apos;s accepted evidence.
-        </p>
+      ) : null}
+      {view === "analysis" ? (
+        <DispatchAnalysis
+          rows={rows}
+          selected={selected}
+          intervalSearch={intervalSearch}
+          findingHref={findingHref}
+          findingAnalysisHref={findingAnalysisHref}
+          recordHref={recordHref}
+        />
       ) : (
-        <DataTable labelledBy="site-dispatch-heading">
-          <thead>
-            <tr>
-              <th scope="col">Period</th>
-              <th scope="col">Assessment</th>
-              <th scope="col">Timeline</th>
-              <th scope="col">Running time</th>
-              <th scope="col">Reason</th>
-              <th scope="col">Confidence</th>
-              <th scope="col">Finding</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr
-                key={row.assessment_id}
-                data-dispatch-interval={row.assessment_id}
-                data-claim-level={row.claim_level}
-                aria-selected={row.assessment_id === selectedId}
-              >
-                <th scope="row">
-                  <button
-                    type="button"
-                    className="link-button"
-                    onClick={() => select(row.assessment_id)}
+        <>
+          <p className="overview-note" data-dispatch-question>
+            For each period the generator operated, this asks whether the
+            reported solar power and battery could have met the site demand
+            instead. Each period, or part of one, is Needed (a recorded reason
+            required the generator), Possibly avoidable (the reported solar power
+            and battery output were more than the demand and no reason was
+            recorded; not proof of wasted fuel) or Cannot determine (the records
+            needed are missing or conflicting). A Needed period is explained here
+            and has no Finding. Times are UTC.
+          </p>
+          {rows.length === 0 ? (
+            <p data-dispatch-empty>
+              No period of generator operation has been assessed from this
+              site&apos;s accepted records.
+            </p>
+          ) : (
+            <DataTable labelledBy="site-dispatch-heading">
+              <thead>
+                <tr>
+                  <th scope="col">Period</th>
+                  <th scope="col">Outcome</th>
+                  <th scope="col">Timeline</th>
+                  <th scope="col">Operating time</th>
+                  <th scope="col">Main reason or missing information</th>
+                  <th scope="col">Finding</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr
+                    key={row.assessment_id}
+                    data-dispatch-interval={row.assessment_id}
+                    data-claim-level={row.claim_level}
+                    aria-selected={row.assessment_id === selectedId}
                   >
-                    {readablePeriod(
-                      row.interval.first_running_observed,
-                      row.interval.last_running_observed,
-                    )}
-                  </button>
-                </th>
-                <td>
-                  <ClaimBadge level={row.claim_level} label={row.label} />
-                </td>
-                <td>
-                  <SegmentStrip assessment={row.assessment} />
-                </td>
-                <td>{boundText(row.assessment.interval.duration_hours, "h")}</td>
-                <td>{constraintOrGap(row.assessment)}</td>
-                <td>{confidenceWord(row.confidence)}</td>
-                <td>
-                  {row.finding_id === null ? (
-                    <span className="overview-note">No Finding (Necessary)</span>
-                  ) : (
-                    <Link to={findingHref(row.finding_id)} data-dispatch-finding-link={row.finding_id}>
-                      Open Finding
-                    </Link>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
-      )}
-      {selected === null ? null : (
-        <SelectedInterval row={selected} findingHref={findingHref} />
+                    <th scope="row">
+                      <button
+                        type="button"
+                        className="link-button"
+                        onClick={() => select(row.assessment_id)}
+                      >
+                        {windowText(row.assessed_window)}
+                      </button>
+                    </th>
+                    <td>
+                      <ClaimBadge
+                        level={row.claim_level}
+                        label={row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}
+                      />
+                    </td>
+                    <td>
+                      <AssessedPeriodStrip assessment={row.assessment} reading={row.reading} />
+                    </td>
+                    <td>{row.reading?.operating_time ?? "Not available"}</td>
+                    <td data-dispatch-reason>{row.reading?.reason ?? "Not available"}</td>
+                    <td>
+                      {row.finding_id === null ? (
+                        <span className="overview-note">No Finding (needed)</span>
+                      ) : (
+                        <Link
+                          to={findingHref(row.finding_id)}
+                          data-dispatch-finding-link={row.finding_id}
+                        >
+                          Open Finding
+                        </Link>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          )}
+          {selected === null ? null : (
+            <SelectedInterval
+              row={selected}
+              findingHref={findingHref}
+              analysisSearch={intervalSearch(selected.assessment_id, "analysis")}
+            />
+          )}
+        </>
       )}
     </section>
-  );
-}
-
-function constraintOrGap(a: Assessment): string {
-  if (a.claim_level === "INDETERMINATE" || a.binding_constraints.length === 0) {
-    return a.missing_evidence.length === 0
-      ? "No constraint evidenced"
-      : `Missing: ${a.missing_evidence.join("; ")}`;
-  }
-  return a.binding_constraints.map(constraintWord).join(", ");
-}
-
-/** The interval's segments, sized by minutes and marked by their claim level. */
-function SegmentStrip({ assessment }: { assessment: Assessment }) {
-  return (
-    <span
-      className="segment-strip"
-      role="img"
-      aria-label={assessment.segments
-        .map((s) => `${s.label} ${s.minutes} min`)
-        .join(", ")}
-    >
-      {assessment.segments.map((segment, index) => (
-        <span
-          key={`${segment.start}-${index}`}
-          className="segment-strip__part"
-          data-claim-level={segment.classification}
-          data-observed={segment.observed}
-          style={{ flexGrow: Math.max(segment.minutes, 1) }}
-        />
-      ))}
-    </span>
   );
 }
 
 function SelectedInterval({
   row,
   findingHref,
+  analysisSearch,
 }: {
   row: DispatchRow;
   findingHref: (assessmentId: string) => string;
+  analysisSearch: string;
 }) {
-  const a = row.assessment;
-  const first = a.segments.find((s) => s.inputs.at_start !== undefined)?.inputs.at_start;
+  const reading = row.reading;
   return (
     <Panel
-      heading={`Period ${readablePeriod(a.interval.first_running_observed, a.interval.last_running_observed)}`}
+      heading={`Period ${windowText(row.assessed_window)}`}
       headingId="site-dispatch-selected-heading"
     >
       <div data-dispatch-selected={row.assessment_id}>
-        <p>{a.summary}</p>
-        {row.reading === undefined ? null : (
-          <p data-dispatch-meaning>
-            <ClaimBadge level={a.claim_level} label={a.label} /> {row.reading.meaning}
-          </p>
-        )}
-        <FactList>
-          <Fact term="Constraint requiring the generator">
-            {a.binding_constraints.length === 0
-              ? "None found"
-              : a.binding_constraints.map(constraintWord).join(", ")}
-          </Fact>
-          <Fact term="Missing evidence">
-            {a.missing_evidence.length === 0 ? "None named" : a.missing_evidence.join("; ")}
-          </Fact>
-          {first === undefined ? null : (
-            <Fact term="At the interval's start">
-              {`Load ${first.load_kw ?? "n/a"} kW; PV available ${first.pv_available_kw ?? "n/a"} kW; SOC ${first.soc_pct ?? "n/a"} %; reserve ${first.reserve_pct ?? "n/a"} %${first.reserve_source === null ? "" : ` (${first.reserve_source})`}; discharge capability ${first.discharge_capability_kw ?? "n/a"} kW; generator ${first.generator_kw ?? "n/a"} kW.`}
-            </Fact>
-          )}
-          <Fact term="Period assessed">{windowText(a.assessed_window)}</Fact>
-          <Fact term="Operator override">{a.alternatives[0]?.statement ?? "Not stated"}</Fact>
-        </FactList>
-        {row.reading === undefined ? null : (
+        {reading === undefined ? (
+          <p>The plain reading of this period is not available.</p>
+        ) : (
           <>
+            <p>
+              <strong>{reading.headline}</strong> {reading.reason}
+            </p>
+            <p data-dispatch-meaning className="overview-note">
+              {reading.meaning}
+            </p>
+            <FactList>
+              <Fact term="Generator operating time">{reading.operating_time}</Fact>
+              <Fact term="Confidence">
+                {reading.confidence.word}
+                {reading.confidence.principal_limitation === null
+                  ? ""
+                  : `. ${reading.confidence.principal_limitation}`}
+              </Fact>
+              {reading.fuel.text === null ? null : (
+                <Fact term={reading.fuel.label}>{`${reading.fuel.text}. ${reading.fuel.note}`}</Fact>
+              )}
+            </FactList>
+            <ul className="cell-list" data-claim-limits>
+              {reading.limits.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
             <h3 className="finding-section__heading">What to check next</h3>
-            <NextSteps reading={row.reading} href={() => null} />
+            <NextSteps reading={reading} href={() => null} />
           </>
         )}
-        {row.finding_id === null ? (
-          <p className="overview-note">
-            A Necessary interval is an assessment without a Finding: the
-            binding constraint above is its explanation.
-          </p>
-        ) : (
-          <p>
-            <Link to={findingHref(row.finding_id)}>Open the Finding for this interval</Link>
-          </p>
-        )}
+        <ul className="cell-list">
+          <li>
+            <Link to={{ search: analysisSearch }} data-dispatch-analysis-link={row.assessment_id}>
+              View the analysis of this period
+            </Link>
+          </li>
+          <li>
+            {row.finding_id === null ? (
+              <span className="overview-note">
+                A Needed period has no Finding: the reason above is its explanation.
+              </span>
+            ) : (
+              <Link to={findingHref(row.finding_id)}>Open the Finding for this period</Link>
+            )}
+          </li>
+        </ul>
       </div>
     </Panel>
+  );
+}
+
+function DispatchAnalysis({
+  rows,
+  selected,
+  intervalSearch,
+  findingHref,
+  findingAnalysisHref,
+  recordHref,
+}: {
+  rows: DispatchRow[];
+  selected: DispatchRow | null;
+  intervalSearch: (id: string, view: LocalView) => string;
+  findingHref: (assessmentId: string) => string;
+  findingAnalysisHref: (assessmentId: string) => string;
+  recordHref: (link: EvidenceLink) => string;
+}) {
+  if (rows.length === 0) {
+    return (
+      <p data-dispatch-analysis-empty>
+        No period of generator operation has been assessed from this site&apos;s
+        accepted records, so there is nothing to analyse yet.
+      </p>
+    );
+  }
+  return (
+    <div data-dispatch-analysis={selected?.assessment_id ?? "none"}>
+      <p className="overview-note">
+        The analysis of one assessed period: how its outcome follows from the
+        reported values. Choose a period:
+      </p>
+      <ul className="cell-list" data-dispatch-analysis-periods>
+        {rows.map((row) => (
+          <li key={row.assessment_id}>
+            <Link
+              to={{ search: intervalSearch(row.assessment_id, "analysis") }}
+              aria-current={row.assessment_id === selected?.assessment_id ? "true" : undefined}
+            >
+              {`${windowText(row.assessed_window)}: ${row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}`}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {selected === null ? null : (
+        <AssessmentAnalysis
+          summary={selected}
+          assessment={selected.assessment}
+          records={{ kind: "record", href: recordHref }}
+          alternativesHref={
+            selected.finding_id === null ? null : `${findingHref(selected.finding_id)}/alternatives`
+          }
+          links={
+            selected.finding_id === null ? null : (
+              <li>
+                <Link to={findingAnalysisHref(selected.finding_id)}>
+                  Open this period&apos;s Finding
+                </Link>
+              </li>
+            )
+          }
+        />
+      )}
+    </div>
   );
 }
