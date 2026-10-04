@@ -1114,6 +1114,16 @@ await cdp.send("Runtime.enable");
 
 let allPass = true;
 
+if (process.env.ASSETOPS_LAYOUT_T028_JOURNEY_ONLY === "1") {
+  // T028 presentation 2b: the product journey alone, against a Lab-off build
+  // and host over an already populated store. Nothing else in this file runs.
+  allPass = (await t028Journey({ labOff: true })) && allPass;
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  process.exit(allPass ? 0 : 1);
+}
+
 if (READBACK_ARG > 0) {
   // T025c's second invocation, made after the host was stopped and started
   // again over the same store: no live session exists for the run any more.
@@ -4154,14 +4164,16 @@ const READ_T027_OVERVIEW = `(() => {
   }
 }
 
-// --- T028 phase 2: Performance > Dispatch, Finding detail, Findings ----------
+// --- T028: Dispatch, Finding detail, Overview card, Findings, Site Evidence ---
 //
-// On the committed Site (KOBO_SITE): the grouped rail (OPERATE: Sites;
-// INTELLIGENCE: Findings), each a one-item group that still renders its
-// header; Performance with Dispatch its only subtab and the dense interval
-// table contained; a Finding's detail with Overview | Evidence | Alternatives,
-// the claim drawer opened from the Evidence tab without changing the path;
-// and the global Findings index. Every content claim carries a count.
+// Presentation checkpoint 2b (D-2026-10-04-plain-language-analysis-views,
+// spec section 5): the plain default views, the Analysis views and the four
+// graphics, measured on the committed Site (KOBO_SITE). The checkpoint 1 and
+// earlier claims about `.segment-strip`, the six-part hierarchy and closed
+// disclosures are gone with those elements. Every content claim carries a
+// count, so an absent graphic or table fails rather than passing on an empty
+// set; narrow claims run at 640 and 480 px. The live vocabulary scan
+// (`t028Journey`, below) reads the backend's own text on every T028 surface.
 
 const READ_T028_RAIL = `(() => {
   const nav = document.querySelector('nav[aria-label="Operator routes"]');
@@ -4184,19 +4196,81 @@ const READ_T028_RAIL = `(() => {
   return { groups, sideRight: side ? Math.round(side.getBoundingClientRect().right) : null };
 })()`;
 
+// Every assessment graphic and graphic table on the page, with the region
+// that contains it. A region is contained when it scrolls on its own
+// (overflow-x auto or scroll) and its right edge is inside the viewport.
+const READ_T028_GRAPHICS = `(() => {
+  const vw = document.documentElement.clientWidth;
+  const box = (el) => { const b = el.getBoundingClientRect(); return { left: Math.round(b.left), right: Math.round(b.right), width: Math.round(b.width), height: Math.round(b.height) }; };
+  const region = (el) => {
+    const r = el.closest(".data-table__scroll") || el.closest(".assessment-graphic");
+    if (!r) return { overflow: null, right: null, contained: false };
+    const o = getComputedStyle(r).overflowX;
+    const right = Math.round(r.getBoundingClientRect().right);
+    return { overflow: o, right, contained: (o === "auto" || o === "scroll") && right <= vw };
+  };
+  const timelines = Array.from(document.querySelectorAll('figure[data-graphic="assessed-period-timeline"]')).map((f) => {
+    const bar = f.querySelector("svg.period-timeline__bar");
+    const bb = bar ? bar.getBoundingClientRect() : null;
+    const fb = f.getBoundingClientRect();
+    const bands = bar ? Array.from(bar.querySelectorAll("rect[data-band]")).map((r) => ({
+      kind: r.getAttribute("data-band-kind"),
+      expected: Number(r.getAttribute("data-width")) * bb.width,
+      actual: r.getBoundingClientRect().width,
+      expectedLeft: bb.left + Number(r.getAttribute("data-x")) * bb.width,
+      left: r.getBoundingClientRect().left,
+    })) : [];
+    const legend = Array.from(f.querySelectorAll("[data-legend]")).map((li) => box(li));
+    return {
+      assessment: f.getAttribute("data-graphic-assessment"),
+      compact: f.getAttribute("data-compact") === "true",
+      figure: box(f),
+      bar: bb ? { width: Math.round(bb.width), right: Math.round(bb.right) } : null,
+      bands,
+      geometryOk: bands.length > 0 && bands.every((b) => Math.abs(b.actual - b.expected) <= 1.5 && Math.abs(b.left - b.expectedLeft) <= 1.5),
+      legend,
+      legendInside: legend.every((l) => l.right <= Math.round(fb.right) + 1 && l.left >= Math.round(fb.left) - 1),
+      captionHeight: f.querySelector("figcaption") ? Math.round(f.querySelector("figcaption").getBoundingClientRect().height) : 0,
+      region: region(f),
+    };
+  });
+  const tables = (sel) => Array.from(document.querySelectorAll(sel)).map((t) => ({
+    rows: t.querySelectorAll("tbody tr").length,
+    region: region(t.querySelector("table") || t),
+  }));
+  return {
+    viewport: vw,
+    timelines,
+    partsTables: tables("[data-timeline-table]"),
+    valueTables: tables("[data-value-bars]"),
+    coverageTables: tables("[data-coverage-table]"),
+    fuel: Array.from(document.querySelectorAll('[data-graphic="fuel-range"]')).map((g) => ({
+      unavailable: g.getAttribute("data-fuel-unavailable"),
+      svgWidth: g.querySelector("svg") ? Math.round(g.querySelector("svg").getBoundingClientRect().width) : 0,
+      right: Math.round(g.getBoundingClientRect().right),
+    })),
+  };
+})()`;
+
 const READ_T028_DISPATCH = `(() => {
   const sub = document.querySelector('nav[aria-label="Performance sections"]');
+  const views = document.querySelector('nav[aria-label="Dispatch views"]');
   const table = document.querySelector('[aria-labelledby="site-dispatch-heading"] table');
   const region = table ? table.closest(".data-table__scroll") : null;
-  const rows = Array.from(document.querySelectorAll("[data-dispatch-interval]")).map((tr) => ({
-    id: tr.getAttribute("data-dispatch-interval"),
-    level: tr.getAttribute("data-claim-level"),
-    finding: tr.querySelector("[data-dispatch-finding-link]")?.getAttribute("href") ?? null,
-  }));
-  const strips = Array.from(document.querySelectorAll(".segment-strip")).map((s) => Math.round(s.getBoundingClientRect().width));
+  const rows = Array.from(document.querySelectorAll("[data-dispatch-interval]")).map((tr) => {
+    const bar = tr.querySelector("svg.period-timeline__bar");
+    return {
+      id: tr.getAttribute("data-dispatch-interval"),
+      level: tr.getAttribute("data-claim-level"),
+      finding: tr.querySelector("[data-dispatch-finding-link]")?.getAttribute("href") ?? null,
+      bar: bar ? Math.round(bar.getBoundingClientRect().width) : 0,
+      drawn: tr.querySelector('figure[data-graphic-assessment="' + tr.getAttribute("data-dispatch-interval") + '"]') !== null,
+    };
+  });
   return {
     subtabs: sub ? Array.from(sub.querySelectorAll("li")).map((li) => (li.textContent || "").trim()) : [],
-    rows, strips,
+    views: views ? Array.from(views.querySelectorAll("a")).map((a) => (a.textContent || "").trim()) : [],
+    rows,
     contained: region ? getComputedStyle(region).overflowX : null,
     regionRight: region ? Math.round(region.getBoundingClientRect().right) : null,
     viewport: document.documentElement.clientWidth,
@@ -4211,7 +4285,6 @@ const READ_T028_FINDING = `(() => {
     finding: document.querySelector("[data-finding]")?.getAttribute("data-finding") ?? null,
     tabs: tabs ? Array.from(tabs.querySelectorAll("li")).map((li) => (li.textContent || "").trim()) : [],
     current: tabs ? (tabs.querySelector('[aria-current="page"]')?.textContent || "").trim() : null,
-    sections: Array.from(document.querySelectorAll(".finding-section__heading")).map((h) => (h.textContent || "").trim()),
     claims: document.querySelectorAll("[data-claim-segment]").length,
     links: document.querySelectorAll("[data-evidence-link]").length,
     drawer: drawer ? drawer.getAttribute("data-claim-drawer") : null,
@@ -4220,26 +4293,6 @@ const READ_T028_FINDING = `(() => {
     path: location.pathname,
     railCurrent: (document.querySelector('nav[aria-label="Operator routes"] [aria-current="page"]')?.textContent || "").trim(),
     viewport: document.documentElement.clientWidth,
-  };
-})()`;
-
-// Practitioner-first presentation (D-2026-10-04-practitioner-first-finding-
-// presentation): provenance and method detail sit behind closed disclosures,
-// and opening every one of them must still fit the page.
-const READ_T028_DISCLOSURES = `(() => {
-  const ds = Array.from(document.querySelectorAll("[data-finding] details[data-disclosure]"));
-  return ds.map((d) => ({ name: d.getAttribute("data-disclosure"), open: d.open }));
-})()`;
-
-const OPEN_T028_DISCLOSURES = `(() => {
-  const ds = Array.from(document.querySelectorAll("[data-finding] details[data-disclosure]"));
-  ds.forEach((d) => { d.open = true; });
-  const id = document.querySelector("[data-finding-assessment-id]");
-  return {
-    opened: ds.length,
-    idHeight: id ? Math.round(id.getBoundingClientRect().height) : 0,
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
   };
 })()`;
 
@@ -4255,29 +4308,89 @@ const READ_T028_INDEX = `(() => {
   const region = table ? table.closest('.data-table__scroll') : null;
   return {
     rows: Array.from(document.querySelectorAll('[data-finding-row]')).map((r) => r.getAttribute('data-finding-row')),
+    analysisLinks: Array.from(document.querySelectorAll('[data-finding-row] a')).filter((a) => /\\/analysis$/.test(a.getAttribute('href') || '')).length,
     empty: document.querySelector('[data-findings-empty]') !== null,
     overflowX: region ? getComputedStyle(region).overflowX : null,
     current: (document.querySelector('nav[aria-label="Operator routes"] [aria-current="page"]')?.textContent || '').trim(),
   };
 })()`;
 
+const READ_T028_CARD = `(() => {
+  const host = document.querySelector("[data-overview-card-timeline]");
+  const card = host ? host.closest("article, section, li, div.overview-card") : null;
+  const bar = host ? host.querySelector("svg.period-timeline__bar") : null;
+  const link = Array.from(document.querySelectorAll("a")).find((a) => (a.textContent || "").trim() === "View analysis") || null;
+  return {
+    lead: host ? host.getAttribute("data-overview-card-timeline") : null,
+    figure: host ? host.querySelector("figure")?.getAttribute("data-graphic-assessment") ?? null : null,
+    bar: bar ? Math.round(bar.getBoundingClientRect().width) : 0,
+    barRight: bar ? Math.round(bar.getBoundingClientRect().right) : null,
+    cardRight: card ? Math.round(card.getBoundingClientRect().right) : null,
+    analysisHref: link ? link.getAttribute("href") : null,
+  };
+})()`;
+
+const noScroll = (page) => [
+  "the page does not scroll horizontally",
+  !page.pageScrollsHorizontally,
+  `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+];
+
+const tablesClaim = (name, list) => [
+  `${name}: at least one, each with rows, each in its own contained scroll region`,
+  list.length > 0 && list.every((t) => t.rows > 0 && t.region.contained),
+  list.map((t) => `${t.rows} rows, overflow-x ${t.region.overflow}, right ${t.region.right}`).join("; ") || "none",
+];
+
+const timelineClaims = (g, { compact }) => {
+  const set = g.timelines.filter((t) => t.compact === compact);
+  return [
+    [
+      `${compact ? "compact" : "full"} period timeline drawn, its parts at the widths and offsets their times give (within 1.5 px)`,
+      set.length > 0 && set.every((t) => t.bar !== null && t.bar.width > 0 && t.geometryOk),
+      set.map((t) => `${t.assessment}: bar ${t.bar?.width}px, ${t.bands.length} parts (${t.bands.map((b) => `${b.kind} ${b.actual.toFixed(1)}/${b.expected.toFixed(1)}`).join(", ")})`).join("; ") || "none",
+    ],
+    [
+      `${compact ? "compact" : "full"} timeline caption and key stay inside the graphic, the key wrapping rather than overflowing`,
+      set.length > 0 && set.every((t) => t.captionHeight > 0 && t.legend.length > 0 && t.legendInside && t.region.contained),
+      set.map((t) => `caption ${t.captionHeight}px; ${t.legend.length} key items inside ${t.legendInside}; region ${t.region.overflow} right ${t.region.right} vs ${g.viewport}`).join("; ") || "none",
+    ],
+  ];
+};
+
+let t028FindingHref = null;
+let t028AnyAssessment = null;
 {
-  let findingHref = null;
-  let anyAssessment = null;
   for (const [label, width, height] of [
     ["1280x800", 1280, 800],
     ["1000x700", 1000, 700],
     ["640x700", 640, 700],
+    ["480x800", 480, 800],
   ]) {
     const page = await visit(cdp, `/sites/${KOBO_SITE}/performance`, width, height, "[data-dispatch-interval], [data-dispatch-empty]");
     await sleep(300);
     const rail = await evaluate(READ_T028_RAIL);
     const read = await evaluate(READ_T028_DISPATCH);
-    findingHref = findingHref ?? read.rows.find((r) => r.finding !== null)?.finding ?? null;
-    anyAssessment = anyAssessment ?? read.rows[0]?.id ?? null;
+    t028FindingHref = t028FindingHref ?? read.rows.find((r) => r.finding !== null)?.finding ?? null;
+    t028AnyAssessment = t028AnyAssessment ?? read.rows[0]?.id ?? null;
     const groups = rail.groups.map((g) => `${g.header}: ${g.items.map((i) => i.label).join(",")}`).join("; ");
-    allPass =
-      report(`T028 grouped rail and Performance > Dispatch, ${KOBO_SITE}, at ${label}`, page, [
+    const claims = [
+      [
+        "Site tabs Overview|Foundation|Performance|Findings|Evidence; Dispatch the only Performance subtab; Dispatch views Overview|Analysis",
+        page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
+          read.subtabs.join("|") === "Dispatch assessment" && read.views.join("|") === "Overview|Analysis",
+        `${page.tabLabels.join(" | ")}; subtabs ${read.subtabs.join(",")}; views ${read.views.join("|")}`,
+      ],
+      [
+        "every assessed period row draws its own compact timeline, at least 120 px wide, in the contained table",
+        read.rows.length > 0 && read.rows.every((r) => r.drawn && r.bar >= 119) &&
+          (read.contained === "auto" || read.contained === "scroll") && read.regionRight <= read.viewport,
+        `${read.rows.length} rows (${read.rows.map((r) => r.level).join(",")}); bars ${read.rows.map((r) => r.bar).join(",")}; overflow-x ${read.contained}; region right ${read.regionRight} vs ${read.viewport}`,
+      ],
+      noScroll(page),
+    ];
+    if (width >= 640) {
+      claims.unshift(
         [
           "rail is exactly OPERATE: Sites; INTELLIGENCE: Findings, each one-item group headed",
           groups === "OPERATE: Sites; INTELLIGENCE: Findings" &&
@@ -4289,67 +4402,51 @@ const READ_T028_INDEX = `(() => {
           rail.groups.every((g) => g.headerRight <= rail.sideRight && g.items.every((i) => i.right <= rail.sideRight)),
           `side right ${rail.sideRight}`,
         ],
-        [
-          "Site tabs Overview|Foundation|Performance|Findings|Evidence; Dispatch the only Performance subtab",
-          page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
-            read.subtabs.join("|") === "Dispatch assessment",
-          `${page.tabLabels.join(" | ")}; subtabs ${read.subtabs.join(",")}`,
-        ],
-        [
-          "the interval table is populated, contained and each row has a segment strip",
-          read.rows.length > 0 && read.strips.length === read.rows.length && read.strips.every((w) => w > 0) &&
-            (read.contained === "auto" || read.contained === "scroll") && read.regionRight <= read.viewport,
-          `${read.rows.length} rows (${read.rows.map((r) => r.level).join(",")}); strips ${read.strips.join(",")}; overflow-x ${read.contained}; region right ${read.regionRight} vs ${read.viewport}`,
-        ],
-        [
-          "the page does not scroll horizontally",
-          !page.pageScrollsHorizontally,
-          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
-        ],
-      ]) && allPass;
+      );
+    }
+    allPass = report(`T028 rail and Performance > Dispatch Overview, ${KOBO_SITE}, at ${label}`, page, claims) && allPass;
   }
 
-  const target = findingHref ?? (anyAssessment === null ? null : `/findings/${KOBO_SITE}/${anyAssessment}`);
+  const target = t028FindingHref ?? (t028AnyAssessment === null ? null : `/findings/${KOBO_SITE}/${t028AnyAssessment}`);
   if (target === null) {
-    allPass = report("T028 Finding detail", null, [["an assessed interval exists on " + KOBO_SITE, false, "none"]]) && false;
+    allPass = report("T028 Finding detail", null, [["an assessed period exists on " + KOBO_SITE, false, "none"]]) && false;
   } else {
     for (const [label, width, height] of [
       ["1280x800", 1280, 800],
       ["640x700", 640, 700],
+      ["480x800", 480, 800],
     ]) {
-      const page = await visit(cdp, target, width, height, "[data-finding]");
+      const page = await visit(cdp, target, width, height, 'figure[data-graphic="assessed-period-timeline"]');
       const over = await evaluate(READ_T028_FINDING);
+      const g = await evaluate(READ_T028_GRAPHICS);
       allPass =
-        report(`T028 Finding detail Overview, ${target}${findingHref === null ? " (no Finding raised: Necessary assessment)" : ""}, at ${label}`, page, [
+        report(`T028 Finding Overview, ${target}${t028FindingHref === null ? " (no Finding raised: Needed period)" : ""}, at ${label}`, page, [
           [
-            "tabs exactly Overview|Evidence|Alternatives, Overview current; root is Findings",
-            over.tabs.join("|") === "Overview|Evidence|Alternatives" && over.current === "Overview" && over.railCurrent === "Findings",
+            "tabs exactly Overview|Analysis|Evidence|Alternatives, Overview current; root is Findings",
+            over.tabs.join("|") === "Overview|Analysis|Evidence|Alternatives" && over.current === "Overview" && over.railCurrent === "Findings",
             `${over.tabs.join("|")}; current ${over.current}; rail ${over.railCurrent}`,
           ],
-          ["the six-part hierarchy renders", over.sections.length === 6, over.sections.join(" / ")],
+          ...timelineClaims(g, { compact: false }),
           [
-            "the page does not scroll horizontally",
-            !page.pageScrollsHorizontally,
-            `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
+            "the fuel graphic draws a range or states why it cannot, inside the viewport",
+            g.fuel.length > 0 && g.fuel.every((f) => (f.unavailable !== null || f.svgWidth > 0) && f.right <= g.viewport),
+            g.fuel.map((f) => f.unavailable === null ? `range ${f.svgWidth}px` : `unavailable: ${f.unavailable}`).join("; ") || "none",
           ],
-        ]) && allPass;
-      const closed = await evaluate(READ_T028_DISCLOSURES);
-      const expanded = await evaluate(OPEN_T028_DISCLOSURES);
-      allPass =
-        report(`T028 Finding detail disclosures, ${target}, at ${label}`, null, [
-          [
-            "Assessment details and the coverage disclosure exist and are closed on load",
-            ["finding-assessment-details", "finding-coverage-details"].every((n) =>
-              closed.some((d) => d.name === n && d.open === false)),
-            closed.map((d) => `${d.name} ${d.open ? "open" : "closed"}`).join("; ") || "none",
-          ],
-          [
-            "opened, every disclosure shows its content (assessment ID rendered) and the page does not scroll horizontally",
-            expanded.opened >= 2 && expanded.idHeight > 0 && expanded.scrollWidth <= expanded.clientWidth,
-            `${expanded.opened} opened; ID ${expanded.idHeight}px; scrollWidth ${expanded.scrollWidth} vs clientWidth ${expanded.clientWidth}`,
-          ],
+          noScroll(page),
         ]) && allPass;
 
+      const analysis = await visit(cdp, `${target}/analysis`, width, height, "[data-timeline-table]");
+      const ga = await evaluate(READ_T028_GRAPHICS);
+      allPass =
+        report(`T028 Finding Analysis, at ${label}`, analysis, [
+          ...timelineClaims(ga, { compact: false }),
+          tablesClaim("assessed parts table", ga.partsTables),
+          tablesClaim("reported value tables of the selected part", ga.valueTables),
+          tablesClaim("coverage by input table", ga.coverageTables),
+          noScroll(analysis),
+        ]) && allPass;
+
+      if (width === 480) continue;
       const evidencePath = `${target}/evidence`;
       await visit(cdp, evidencePath, width, height, "[data-claim-segment]");
       const clicked = await evaluate(CLICK_FIRST_EVIDENCE_LINK);
@@ -4357,7 +4454,7 @@ const READ_T028_INDEX = `(() => {
       const opened = await evaluate(READ_T028_FINDING);
       const after = await evaluate(MEASURE);
       allPass =
-        report(`T028 Finding Evidence tab and claim drawer, at ${label}`, null, [
+        report(`T028 Finding Evidence tab and record drawer, at ${label}`, null, [
           ["claims listed with evidence links", opened.claims > 0 && opened.links > 0, `${opened.claims} claims, ${opened.links} links`],
           [
             "the drawer opens the clicked record through the inspector, path and root unchanged",
@@ -4370,13 +4467,61 @@ const READ_T028_INDEX = `(() => {
             opened.drawerBox !== null && opened.drawerBox.left >= 0 && opened.drawerBox.right <= opened.viewport && opened.drawerBox.width > 200,
             `${JSON.stringify(opened.drawerBox)} vs ${opened.viewport}`,
           ],
-          [
-            "the page does not scroll horizontally with the drawer open",
-            !after.pageScrollsHorizontally,
-            `scrollWidth ${after.pageScrollWidth} vs clientWidth ${after.pageClientWidth}`,
-          ],
+          noScroll(after),
         ]) && allPass;
     }
+
+    for (const id of [t028AnyAssessment]) {
+      for (const [label, width, height] of [
+        ["1280x800", 1280, 800],
+        ["480x800", 480, 800],
+      ]) {
+        const page = await visit(cdp, `/sites/${KOBO_SITE}/performance/dispatch?interval=${id}&view=analysis`, width, height, "[data-timeline-table]");
+        const g = await evaluate(READ_T028_GRAPHICS);
+        allPass =
+          report(`T028 Dispatch Analysis of ${id}, at ${label}`, page, [
+            ...timelineClaims(g, { compact: false }),
+            tablesClaim("assessed parts table", g.partsTables),
+            tablesClaim("coverage by input table", g.coverageTables),
+            noScroll(page),
+          ]) && allPass;
+      }
+      for (const [label, width, height] of [
+        ["1280x800", 1280, 800],
+        ["640x700", 640, 700],
+      ]) {
+        const page = await visit(cdp, `/sites/${KOBO_SITE}/evidence?view=analysis&assessment=${id}`, width, height, "[data-evidence-assessment-coverage], [data-evidence-state]");
+        await sleep(300);
+        const g = await evaluate(READ_T028_GRAPHICS);
+        allPass =
+          report(`T028 Site Evidence Analysis, one assessed period's coverage (${id}), at ${label}`, page, [
+            tablesClaim("coverage by input table", g.coverageTables),
+            noScroll(page),
+          ]) && allPass;
+      }
+    }
+  }
+
+  for (const [label, width, height] of [
+    ["1280x800", 1280, 800],
+    ["640x700", 640, 700],
+    ["480x800", 480, 800],
+  ]) {
+    const page = await visit(cdp, `/sites/${KOBO_SITE}`, width, height, "[data-overview-card-timeline], [data-overview-card]");
+    await sleep(300);
+    const card = await evaluate(READ_T028_CARD);
+    const g = await evaluate(READ_T028_GRAPHICS);
+    allPass =
+      report(`T028 Site Overview Dispatch card, ${KOBO_SITE}, at ${label}`, page, [
+        [
+          "the card draws the compact timeline of the lead period it links to, at least 120 px, inside the card",
+          card.lead !== null && card.figure === card.lead && card.bar >= 119 && card.cardRight !== null && card.barRight <= card.cardRight &&
+            card.analysisHref !== null && card.analysisHref.includes(card.lead),
+          `lead ${card.lead}; drawn ${card.figure}; bar ${card.bar}px right ${card.barRight} vs card ${card.cardRight}; View analysis ${card.analysisHref}`,
+        ],
+        ...timelineClaims(g, { compact: true }),
+        noScroll(page),
+      ]) && allPass;
   }
 
   for (const [label, width, height] of [
@@ -4385,27 +4530,25 @@ const READ_T028_INDEX = `(() => {
   ]) {
     const page = await visit(cdp, "/findings", width, height, "[data-findings-index]");
     const read = await evaluate(READ_T028_INDEX);
-    const findingId = findingHref === null ? null : findingHref.split("/").pop();
+    const findingId = t028FindingHref === null ? null : t028FindingHref.split("/").pop();
     allPass =
       report(`T028 Findings rail root, at ${label}`, page, [
         [
-          "Findings is the current root and the index lists the Dispatch Finding",
+          "Findings is the current root; the index lists the Dispatch Finding, each row with a View analysis link",
           read.current === "Findings" &&
-            (findingId === null ? read.rows.length > 0 || read.empty : read.rows.includes(findingId)),
-          `${read.rows.length} rows; Dispatch Finding ${findingId ?? "none on " + KOBO_SITE}; current ${read.current}`,
+            (findingId === null ? read.rows.length > 0 || read.empty : read.rows.includes(findingId) && read.analysisLinks === read.rows.length),
+          `${read.rows.length} rows, ${read.analysisLinks} analysis links; Dispatch Finding ${findingId ?? "none on " + KOBO_SITE}; current ${read.current}`,
         ],
         [
           "the index table is contained (or the empty state is stated)",
           read.empty || read.overflowX === "auto" || read.overflowX === "scroll",
           `overflow-x ${read.overflowX}; empty ${read.empty}`,
         ],
-        [
-          "the page does not scroll horizontally",
-          !page.pageScrollsHorizontally,
-          `scrollWidth ${page.pageScrollWidth} vs clientWidth ${page.pageClientWidth}`,
-        ],
+        noScroll(page),
       ]) && allPass;
   }
+
+  allPass = (await t028Journey({ labOff: false })) && allPass;
 }
 
 // --- T028 phase 3: Site > Evidence capability table (AC20) -------------------
@@ -4493,6 +4636,141 @@ for (const [label, width, height] of [
   const saved = JSON.parse(readFileSync(READBACK_FILE, "utf-8"));
   saved.t025d = { inspection: t025d.inspection, live: t025d.live, played: t025d.played };
   writeFileSync(READBACK_FILE, JSON.stringify(saved));
+}
+
+// --- T028 journey and product vocabulary, live backend text ------------------
+//
+// Spec section 4: rendered application-authored text and accessible labels on
+// the five T028 surfaces, in their Analysis, Evidence, Alternatives and drawer
+// states and unknown-item states, checked against the versioned list in
+// frontend/src/test/productVocabulary.json - here against the running
+// backend's own text, which the frontend suite's fixtures cannot reach. The
+// in-browser scan is the same rule as `frontend/src/test/productVocabulary.ts`
+// (word boundaries; text nodes plus aria-label, aria-description,
+// aria-roledescription, title, alt, placeholder; only single-value elements
+// marked data-vocabulary-exempt with a named reason are skipped).
+// A planted backend-style sentence proves the browser scan can fail.
+//
+// A function declaration so ASSETOPS_LAYOUT_T028_JOURNEY_ONLY=1 can run it
+// alone against a Lab-off build; it reads no module constant declared below
+// the early exit.
+async function t028Journey({ labOff }) {
+  const site = process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001";
+  const CLICK_EVIDENCE = `(() => {
+    const b = document.querySelector("[data-evidence-link]");
+    if (!b) return null;
+    b.click();
+    return "opened " + b.getAttribute("data-evidence-link");
+  })()`;
+  const list = JSON.parse(readFileSync(new URL("../frontend/src/test/productVocabulary.json", import.meta.url), "utf-8"));
+  const SCAN = (root) => `((list) => {
+    const esc = (t) => t.replace(/[.*+?^\${}()|[\\]\\\\]/g, "\\\\$&");
+    const terms = list.terms.map((t) => ({ phrase: t.phrase, re: new RegExp("(?<![\\\\p{L}\\\\p{N}])" + esc(t.phrase).replace(/ /g, "\\\\s+") + "(?![\\\\p{L}\\\\p{N}])", t.caseSensitive ? "u" : "iu") }));
+    const glosses = list.glosses.map((g) => new RegExp(esc(g.text), "giu"));
+    const reasons = Object.keys(list.exemptions);
+    const find = (text) => { let s = text; for (const g of glosses) s = s.replace(g, " "); return terms.filter((t) => t.re.test(s)).map((t) => t.phrase); };
+    const root = ${root};
+    const out = []; let scanned = 0;
+    for (const el of root.querySelectorAll("[data-vocabulary-exempt]")) {
+      const r = el.getAttribute("data-vocabulary-exempt");
+      if (!reasons.includes(r)) out.push({ phrase: "unknown exemption " + r, text: el.outerHTML.slice(0, 120) });
+      else if (el.children.length > 0) out.push({ phrase: "exemption wraps more than one value", text: el.outerHTML.slice(0, 120) });
+    }
+    const exempt = (el) => el !== null && el.closest("[data-vocabulary-exempt]") !== null;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) {
+      const t = (n.textContent || "").trim();
+      if (!t || ["SCRIPT", "STYLE", "NOSCRIPT"].includes(n.parentElement?.tagName) || exempt(n.parentElement)) continue;
+      scanned += 1;
+      for (const p of find(t)) out.push({ phrase: p, where: "text", text: t.slice(0, 160) });
+    }
+    for (const el of [root, ...root.querySelectorAll("*")]) {
+      if (exempt(el)) continue;
+      for (const a of ["aria-label", "aria-description", "aria-roledescription", "title", "alt", "placeholder"]) {
+        const v = el.getAttribute(a);
+        if (!v || !v.trim()) continue;
+        scanned += 1;
+        for (const p of find(v)) out.push({ phrase: p, where: a, text: v.slice(0, 160) });
+      }
+    }
+    return { scanned, violations: out };
+  })(${JSON.stringify({ terms: list.terms, glosses: list.glosses, exemptions: list.exemptions })})`;
+  const SETTLED = `(() => !!document.querySelector("main") && !/Loading/.test(document.body.innerText))()`;
+  const scanPath = async (name, path, waitFor = "main", act = null) => {
+    await visit(cdp, path, 1280, 800, waitFor);
+    await waitUntil(SETTLED, 10000);
+    let extra = "";
+    if (act !== null) {
+      extra = (await evaluate(act)) ?? "";
+      await sleep(800);
+      await waitUntil(SETTLED, 10000);
+    }
+    const result = await evaluate(SCAN("document.body"));
+    return { name: `${name} (${path}${extra ? ` + ${extra}` : ""})`, ...result };
+  };
+
+  // Discover the periods, the Finding and a supporting record from the page.
+  await visit(cdp, `/sites/${site}/performance/dispatch`, 1280, 800, "[data-dispatch-interval], [data-dispatch-empty]");
+  const rows = await evaluate(`Array.from(document.querySelectorAll("[data-dispatch-interval]")).map((tr) => ({ id: tr.getAttribute("data-dispatch-interval"), finding: tr.querySelector("[data-dispatch-finding-link]")?.getAttribute("href") ?? null }))`);
+  const finding = rows.find((r) => r.finding !== null)?.finding ?? null;
+  const ids = rows.map((r) => r.id).slice(0, 3);
+  await visit(cdp, `/sites/${site}/performance/dispatch?interval=${ids[0]}&view=analysis`, 1280, 800, "[data-timeline-table], main");
+  const recordHref = await evaluate(`document.querySelector("[data-analysis-record]")?.getAttribute("href") ?? null`);
+
+  const pages = [
+    ["Site Overview", `/sites/${site}`],
+    ["Dispatch Overview", `/sites/${site}/performance/dispatch`],
+    ...ids.map((id) => ["Dispatch Overview, a period selected", `/sites/${site}/performance/dispatch?interval=${id}`]),
+    ...ids.map((id) => ["Dispatch Analysis", `/sites/${site}/performance/dispatch?interval=${id}&view=analysis`]),
+    ["Dispatch Analysis, unknown period", `/sites/${site}/performance/dispatch?interval=dispatch-gone&view=analysis`],
+    ...(finding === null ? [] : [
+      ["Finding Overview", finding],
+      ["Finding Analysis", `${finding}/analysis`],
+      ["Finding Evidence", `${finding}/evidence`],
+      ["Finding Evidence, record drawer", `${finding}/evidence`, "[data-evidence-link]", CLICK_EVIDENCE],
+      ["Finding Alternatives", `${finding}/alternatives`],
+    ]),
+    ["Finding, unknown assessment", `/findings/${site}/dispatch-nope`],
+    ["Findings index", "/findings"],
+    ["Site Findings", `/sites/${site}/findings`],
+    ["Site Evidence Overview", `/sites/${site}/evidence`],
+    ["Site Evidence Analysis", `/sites/${site}/evidence?view=analysis`],
+    ...ids.slice(0, 1).map((id) => ["Site Evidence Analysis, one assessed period", `/sites/${site}/evidence?view=analysis&assessment=${id}`]),
+    ...(recordHref === null ? [] : [["Site Evidence, record drawer", recordHref, "[data-evidence-record-detail]"]]),
+  ];
+  const results = [];
+  for (const [name, path, waitFor, act] of pages) {
+    results.push(await scanPath(name, path, waitFor ?? "main", act ?? null));
+  }
+  const violations = results.flatMap((r) => r.violations.map((v) => `${r.name}: "${v.phrase}" in ${v.where}: ${v.text}`));
+
+  // Non-vacuity: a sentence delivered as backend text into the live page.
+  await evaluate(`(() => { const p = document.createElement("p"); p.textContent = "The binding constraint held for the whole run."; document.querySelector("main").appendChild(p); return true; })()`);
+  const planted = await evaluate(SCAN("document.body"));
+
+  const checks = [
+    [
+      `every surface and state was found and scanned (${pages.length} pages: a Finding, ${ids.length} periods and a supporting record among them)`,
+      finding !== null && ids.length > 0 && recordHref !== null && results.every((r) => r.scanned > 5),
+      results.map((r) => `${r.name} ${r.scanned}`).join("; "),
+    ],
+    [
+      `no rendered text or accessible label uses a phrase on the list (version ${list.version})`,
+      violations.length === 0,
+      violations.length === 0 ? `${results.reduce((n, r) => n + r.scanned, 0)} pieces scanned` : violations.join(" | "),
+    ],
+    [
+      "a planted backend-style sentence is caught, naming its phrases",
+      planted.violations.some((v) => v.phrase === "binding") && planted.violations.some((v) => v.phrase === "run"),
+      planted.violations.map((v) => v.phrase).join(","),
+    ],
+  ];
+  if (labOff) {
+    await visit(cdp, "/simulator-lab", 1280, 800, "main");
+    const lab = await evaluate(`(document.querySelector("main h1")?.textContent || "").trim()`);
+    checks.push(["with the Lab off, the Lab address is not served", lab === "Page not available", `heading ${lab}`]);
+  }
+  return report(`T028 journey and product vocabulary, live backend text, ${site}, Lab ${labOff ? "off" : "on"}`, null, checks);
 }
 
 console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
