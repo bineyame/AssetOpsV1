@@ -6,10 +6,10 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Claude until Codex reset 2026-10-03 21:23, then Codex (see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
-| Planner | Claude until Codex reset 2026-10-03 21:23, then Codex (see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
+| Architect | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
-| Reviewer | Configurable independent agent; Claude until Codex reset 2026-10-03 21:23 (see below) | Reviews work independently from the author. |
+| Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
 
 ## Rules
 
@@ -23,7 +23,24 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
   acting so they can either run the role or prepare a handoff for the configured
   agent.
 
-## Architect, Reviewer And Planner Are Claude Until 2026-10-03 21:23
+## Decision Requests Go To The Active Architect
+
+Set by the owner on 2026-10-04 (verbatim in `.agent/owner-T028-closeout-2026-10-04.md`):
+"for all decsion requests, let the active architect make them and inform me if
+the architect wants me to weigh in as well with its justification and decision".
+
+So the coordinator does not put decision requests to the owner. It sends them
+to the Architect bound above, which decides, records the decision with its
+justification, and informs the owner. Where the Architect wants the owner to
+weigh in, it says so, giving its decision and justification, and the owner may
+confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
+a decision request and still goes to the owner.
+
+## Architect, Reviewer And Planner Were Claude Until 2026-10-03 21:23
+
+Ended: the reset passed and the rows above are Codex again (reverted
+2026-10-04). Retrospective Codex reviews are queued in
+`.agent/coordinator-handoff.md`. The original record follows.
 
 On 2026-09-30 Codex hit its usage limit during an Architect review of the T025d
 cockpit layout and playback flicker, with reset at 2026-10-03 21:23. The user
