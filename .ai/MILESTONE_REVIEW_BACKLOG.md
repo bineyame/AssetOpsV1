@@ -1764,6 +1764,15 @@ Recorded by the coordinator from `.agent/T028-codex-review.md` (C1).
   claim (failed in T027 phase 2 and T028 runs) also needs a focused Lab check;
   not diagnosed as a flake.
 
+- **Conflicting optional evidence does not lower readiness (re-review F2).**
+  Two conflicting minimum-runtime policies or generator overrides make part of
+  an assessment Indeterminate, yet readiness stays Full with "no claim-limiting
+  gaps identified" (`analytics/declaration.py`, `CapabilityReadiness.tsx`):
+  the interim rule has no coverage row for optional inputs. The conflict is
+  still named in the assessment's missing evidence. Safe to carry: needs two
+  gateways disagreeing on policy, which no shipped recipe produces. Fix with
+  T028A's gap impact types (`.agent/T028-fix-round-1-claude-rereview.md`).
+
 ## Planned follow-up: T028A, configurable analytic evidence-gap impact
 
 Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
