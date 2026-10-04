@@ -533,8 +533,184 @@ Layout evidence: not run (checkpoint 2b; `tools/layout-evidence.mjs` still
 measures `.segment-strip` and the old disclosures). Narrow-screen behaviour is
 therefore unverified in a browser.
 
+## Presentation checkpoint 2b (vocabulary guard, jargon, layout; D-2026-10-04-plain-language-analysis-views)
+
+Spec `.agent/T028-architect-presentation.md` sections 4 and 5. Commits
+`fd73418`, `36966c0`, `436f1dc` and the closeout. Last build step before review.
+
+**Guard design (section 4).**
+- Versioned list `frontend/src/test/productVocabulary.json` (version 1, the
+  section 4 table: run/runtime/ran/running, binding/bound input, scenario,
+  recipe, draft, commit, staged envelope, execution, world state, oracle,
+  kernel, tick, projection, replay, model/publication profile,
+  simulation/simulated/simulator, backend, frontend, read model, payload,
+  analytic (declaration), basis digest, claim(s)/claim ceiling, candidate
+  (avoidable), indeterminate, necessary, PV/SOC/PCS (case-sensitive),
+  discharge capability, load, reserve policy, envelope, ingest(ion/ed),
+  mapping (basis), receipt timestamp, normalization/normalized). Allowed
+  glosses: "solar power (PV)", "battery charge (SOC)", "battery power
+  converter (PCS)" (Analysis may add the abbreviation after its meaning).
+- Scanner `frontend/src/test/productVocabulary.ts`: every rendered text node
+  (incl. svg `<title>`, captions, legends, backend text, empty/error states)
+  plus `aria-label`, `aria-description`, `aria-roledescription`, `title`,
+  `alt`, `placeholder`; Unicode word boundaries; failures name page, phrase,
+  where (text or attribute) and the text.
+- Exclusions, only the three named, per element via
+  `data-vocabulary-exempt="source-reference|user-owned|lab"` (justifications in
+  the JSON). An exempt element must wrap a single value: one with element
+  children, or an unknown reason, is itself a violation, so no panel or
+  backend response can be exempted. Used on: record drawer message id,
+  source/device/signal, record-interpretation id, delivery id; rejection
+  delivery id; Site details foundation summary (the site's own configured
+  document text, user-owned).
+- Frontend suite `frontend/src/shell/__tests__/t028Vocabulary.test.tsx`, Lab
+  off: 29 product states over the five surfaces, plus 2 Lab-on states (Site and Finding Overview) where the Lab entries are the only `lab` exemptions - Site Overview (populated, no
+  evidence, unavailable); Dispatch Overview, selected period, Analysis of a
+  Needed and a possibly avoidable period, unknown period, nothing assessed,
+  unavailable; Finding Overview, Analysis, Evidence, Evidence with the record
+  drawer open, Alternatives, unknown, unavailable; global and Site Findings
+  (populated, none, unavailable); Site Evidence Overview, Analysis, Analysis
+  with one assessed period, unknown period, record drawer, no evidence,
+  unavailable. Each state must scan more than 5 pieces (not a loading screen).
+- Live text: `tools/layout-evidence.mjs` `t028Journey` runs the same rule in
+  the browser over the populated backend (Site Overview; Dispatch Overview,
+  each period selected and its Analysis; unknown period; Finding Overview,
+  Analysis, Evidence, drawer, Alternatives; unknown Finding; both indexes;
+  Site Evidence Overview, Analysis, one period, record drawer) - this is the
+  scan of text the fixtures cannot reach. Backend: 
+  `test_served_evidence_explanations_use_the_product_vocabulary` scans the
+  served evidence/overview statements and every rejection reason against the
+  same JSON list.
+- Failing-example proofs (in the suite): a forbidden phrase delivered by the
+  backend (`reading.reason` "The binding constraint held for this run." through
+  the analytics client) is caught with page and phrase (`binding`, `run`); an
+  `aria-label` alone is caught; a source reference `sim-run-0042` renders
+  verbatim and is not flagged, a Lab link is not flagged, a panel-wide
+  exemption and an unknown reason are refused. Mutation proofs (reverted):
+  "Run start or stop time uncertain" in the timeline legend fails the suite on
+  4 states; "in its payload" in one rejection reason fails the backend test.
+  Live: a planted backend-style sentence is caught in the browser.
+
+**Jargon removed (what the guard found).**
+- Record drawer: `NORMALIZATION_STATEMENT` now "AssetOps uses this value and
+  unit exactly as the source sent them; it does not convert units." (same
+  fact; constant, not stored).
+- Rejected records: read-time `reason` per rejection from
+  `evidence/read_model.py` `REJECTION_READINGS` (every envelope, batch and
+  ingestion kind; unknown kind gets an unavailable sentence, never its code).
+  The stored `kind`/`field`/`detail` are unchanged and still served; the
+  product shows the reason and the delivery reference, no longer the kind code
+  or the ingestion detail ("not in the mapping").
+- Site Overview `INTERVAL_STATEMENT` rewritten in plain words (operating time,
+  no "interval mean"/"sample carried forward").
+- Source mode label "Simulated" -> "Demonstration data" (`siteViewModel.ts`,
+  shared by the site header, details and Sites index; section 4's quiet
+  origin disclosure).
+- Frontend fixtures that had drifted from the served text (overview card
+  reason, metric labels, findings statement, record statement, rejection
+  kinds) synced to the backend.
+- Not widened: Foundation and other non-T028 product pages keep their
+  legacy copy (post-T029 follow-up). The shared shell did not force it; the
+  only shared change is the source-mode label.
+
+**Layout evidence rewrite.** The `.segment-strip`, six-heading and
+closed-disclosure claims are replaced. New claims (non-empty sets proven by
+counts): Dispatch rows each draw their own compact timeline >= 120 px in the
+contained table, views `Overview|Analysis` (1280/1000/640/480); Finding
+Overview tabs, full timeline geometry (each part's rendered width and offset
+within 1.5 px of its `data-width`/`data-x`), caption and key inside the
+graphic, fuel range or its stated reason (1280/640/480); Finding Analysis
+parts, value and coverage tables each in a contained scroll region
+(1280/640/480); Evidence tab drawer (1280/640); Dispatch Analysis (1280/480);
+Site Evidence one-period coverage (1280/640); Overview card compact timeline
+is the linked lead, inside the card (1280/640/480); Findings index with View
+analysis links; the live vocabulary journey.
+
+**Section 5 verification list, mapped.**
+
+| Distinction or check | Where it is proven |
+| --- | --- |
+| Candidate and Necessary portions together | backend `test_one_missing_portion_is_listed_beside_the_candidate`, `test_reserve_and_capability_shortfall_make_runtime_necessary`; graphics "places every band at its supplied times"; `t028Screens` Dispatch rows (Possibly avoidable and Needed periods) |
+| Evidence-limited and wholly Indeterminate | backend `test_insufficient_capability_evidence_throughout_is_indeterminate`, `test_indeterminate_and_necessary_readings_say_their_own_truth`; Cannot determine legend/label in the timeline tests |
+| Unobserved time; open start/end | graphics "draws unrecorded operation hatched and bracketed time dotted", "marks and explains an open start and end without inventing a time" |
+| Unavailable fuel; range endpoints | backend `test_fuel_is_unavailable_with_its_reason`, `test_hand_calculated_candidate_interval_and_fuel_bound`; graphics "draws the low-to-high interval at its endpoints"; layout "fuel graphic draws a range or states why" |
+| Full readiness with a non-limiting gap | backend `test_a_gap_no_classification_needed_is_listed_but_stays_full`; `t028EvidenceCapability` "a Full row says no gap limited an assessed period" |
+| Zero assessed periods; no evidence | `t028EvidenceCapability` "zero assessed periods say coverage is not yet checked"; graphics "zero assessed parts reads Not assessed"; vocabulary suite "no evidence"/"nothing assessed" states |
+| Timeline geometry against supplied times | graphics geometry tests (incl. "a short part keeps its true width"); layout: each rendered part within 1.5 px of its supplied width and offset |
+| Missing versus zero inputs | graphics "a missing input has no bar; a zero has a zero-width bar" |
+| Selected assessment consistency | graphics "the selected part stays this assessment's part"; `t028Screens` card timeline is the lead it links, Dispatch rows draw their own assessment; layout card claim (drawn = linked lead) |
+| Unchanged analytic outputs/revisions | backend `test_the_reading_is_served_and_not_persisted`, `test_the_overview_card_carries_the_lead_period_timeline_unchanged`; host `test_rerun_on_the_same_evidence_adds_no_revision`; `dispatch-2`/`readiness-3` unchanged |
+| Direct links, Back/reload, keyboard | `t028Screens` "direct links, Back and reload keep each tab"; graphics "keyboard-usable buttons and keeps the choice in the address" |
+| Narrow layouts | layout evidence at 640 and 480 px (above) |
+| Product journey with Lab off | vocabulary suite renders all 29 product states with the Lab flag off; live Lab-off build and host: `.agent/T028-layout-evidence-lab-off.txt` (4 PASS, 0 FAIL: 17 pages found and scanned, 2900 pieces, no listed phrase, planted sentence caught, Lab address "Page not available") |
+| Vocabulary | this section's guard and proofs |
+
+**Layout evidence (run on HEAD `3fce4af`).** Isolated copy as earlier T028
+runs (`git archive HEAD` in the scratchpad; copy `var/` = sites with
+`valid_from` backdated to 2026-01-01 + scenarios + `.demo/T025c` runs/stages;
+`host/lab_app:app` on 8000 with PYTHONPATH on the copy; `vite preview` 4173;
+working-tree `var/` untouched):
+`ASSETOPS_LAYOUT_SITE=MG-006 ASSETOPS_KOBO_SITE=SITET26 node tools/layout-evidence.mjs http://localhost:4173`
+-> `.agent/T028-layout-evidence-final.txt` **615 PASS, 4 FAIL**, run completed.
+The 4 failures are all on the known list: 3 "blocked table" (lines 124, 135,
+146) and the T025e p95 delta budget (56.8 ms vs 50 ms, line 559). The T025b
+"profile 4 discloses the status" claim passed this run. Every T028 claim
+passes, including the live vocabulary journey (17 pages, 2917 pieces, no
+listed phrase).
+
+Lab-off journey: the copy's `config/app-config.json` set to Lab off, the
+copy's frontend rebuilt, `assetops_backend.main:app` on the same populated
+store, `vite preview` 4174,
+`ASSETOPS_LAYOUT_T028_JOURNEY_ONLY=1 ASSETOPS_KOBO_SITE=SITET26 node tools/layout-evidence.mjs http://localhost:4174`
+-> `.agent/T028-layout-evidence-lab-off.txt` **4 PASS, 0 FAIL** (Lab API 404).
+
+What the first full run found, fixed before the run above (commit `3fce4af`):
+- Live text the fixtures could not show: source identifiers inside authored
+  text (`policy-minimum-runtime`, `simulator-lab-source`,
+  `site-controller / policy-critical-load-priority`, delivery
+  `commit-...`) and the Lab entries shown with the Lab on ("Open Simulator
+  Lab", the Site quick actions). Identifiers are now marked by value with
+  `data-vocabulary-reference` (`sites/vocabularyReference.ts`; the scanner
+  removes exactly those values, still reads the authored words around them,
+  and refuses a value that is not identifier-shaped); Lab entries carry
+  `data-vocabulary-exempt="lab"`. Nothing was rewritten.
+- Finding Analysis scrolled the page at 640 px (713 vs 625): a visually
+  hidden table heading inside the value tables escaped its scroll region.
+  `.assessment-graphic` and its `.data-table__scroll` are now positioned.
+- Stale non-T028-named claims caused by T028 cp1: the T027 Site > Evidence
+  claims read source health/coverage on `?view=analysis` and accept the
+  Evidence local views after the five site tabs.
+- At 480 px the shell gives the content column about 185 px and shared
+  fact-list badges (site and Finding headers) overflow it; the shell is not
+  committed below 640 px, so 480 px claims cover the graphics and their
+  regions, not the whole page (named choice below).
+
+**Checks.** Backend pytest **1493 passed**; host pytest **619 passed**;
+simulator pytest (from `simulator/`) **244 passed**; frontend vitest **48
+files, 1132 passed**; `tsc --noEmit` exit 0; `npm run build` built (chunk-size
+warning only); `tools/check-architecture.ps1` passed;
+`tools/check-agent-workflow.ps1` passed.
+
+**Choices (spec silent; minimal).**
+- The list lives with the frontend tests (JSON) and is read by the frontend
+  suite, the browser scan and the backend test; the browser scanner restates
+  the TS rule (no shared module across node/browser/TS); both are proven.
+- "load", "necessary", "candidate", "claim" are banned as whole words on
+  every T028 surface (the table's display-label rows), not only default views.
+- 480 px claims are graphics-only (no whole-page claim): the shell column
+  is ~185 px there and the overflow is in shared header fact lists, outside
+  T028's graphics; 1280/1000/640 keep the whole-page claim.
+- Source identifiers are excluded by exact value (`data-vocabulary-reference`)
+  rather than by wrapping; the DOM text is unchanged.
+- The foundation summary is treated as user-owned site content (shipped
+  templates included) rather than rewritten: it is the site record's own
+  document, immutable by revision.
+
 ## Residual risk
 
+- Vocabulary: the guard is a word list; plain meaning, uncertainty and claim
+  strength still need the owner's reading. Foundation and non-T028 product
+  pages are not scanned (post-T029 inventory).
 - Layout: one non-known failure named above; gate-closed browser pass not run
   (covered by tests).
 - `/api/findings` and `/analytics` do analytic work on read; fine at demo scale.
@@ -542,80 +718,77 @@ therefore unverified in a browser.
 - Decision-table thresholds are demo-calibrated (documented in
   `dispatch_decision_table.md`).
 
-## Owner UI check (one ordered walk)
+## Owner UI check (one ordered walk; spec section 5)
 
-Prereq: from `host/`, `..\.venv\Scripts\python.exe -m uvicorn lab_app:app --reload`
+Rewritten for the presentation revision. First read the default views only,
+as a reader without an engineer beside you; only then open Analysis and one
+supporting record to challenge the reason. Neither the checks above nor a
+narrated walkthrough substitutes for this first reading.
+
+**Setup.** From `host/`, `..\.venv\Scripts\python.exe -m uvicorn lab_app:app --reload`
 (port 8000); from `frontend/`, `npm.cmd run dev`. Create fresh Sites from
-template `kobo-mini-grid-60kw`: KOBO-P, KOBO-H, KOBO-R, KOBO-D (fresh Sites
-avoid overlap with earlier evidence; ingestion keeps the first record at a key).
+template `kobo-mini-grid-60kw`: KOBO-P, KOBO-H, KOBO-D, KOBO-R (fresh Sites
+avoid overlap with earlier evidence). In the Lab, for each: Draft, 2026-09-22,
+5-min step, model profile mini-grid v3, publication profile 5, run to end,
+Commit: KOBO-P `kobo-mini-grid-prolonged` 03:00-11:00; KOBO-H
+`kobo-mini-grid-evening` 09:00-17:00; KOBO-D
+`kobo-mini-grid-degraded-evidence` 03:00-11:00. (The Lab is only the way the
+demonstration records are made; the walk below is the product.)
 
-1. KOBO-P: in the Lab, Draft `kobo-mini-grid-prolonged`, 2026-09-22
-   03:00-11:00 UTC, 5-min step, model profile mini-grid v3, publication profile
-   5; run to end; Commit.
-2. KOBO-H: same with `kobo-mini-grid-evening`, 09:00-17:00; Commit.
-3. KOBO-D: Draft `kobo-mini-grid-degraded-evidence` 03:00-11:00; Commit (only).
-4. Rail: header OPERATE over Sites, INTELLIGENCE over Findings.
-5. Sites > KOBO-P > Overview: tabs Overview, Foundation, Performance, Findings,
-   Evidence. Dispatch card "Candidate avoidable" with "Open the Finding"; the
-   Findings panel lists the same Finding; Service, Battery, Fuel, Renewable read
-   "No assessment yet". KOBO-H's Dispatch card must not say Candidate avoidable.
-6. `http://127.0.0.1:8000/api/sites/KOBO-P/analytics`: id `dispatch`, site
-   types, Finding type, required/optional evidence, claim levels, and
-   `readiness`.
-7. KOBO-P > Performance: one subtab "Dispatch assessment"; the intro states the
-   operational question ("For each period the generator ran ...") and the
-   three classifications; "Method details" (closed) holds the analytic/model.
-   Table: Period (e.g. "22 Sep 2026, 03:45 to 09:15 UTC"), Assessment,
-   Timeline strip, Running time, Reason, Confidence, Finding. Click a period:
-   detail below with the meaning and "What to check next". Click "Open Finding".
-8. Finding: header Assessment (badge, type), Site, Generator, Period assessed
-   in UTC; "Assessment details" (closed) holds ID, revisions, model, digest.
-   Tabs Overview | Evidence | Alternatives only. Overview headings 1-6: "What
-   the evidence suggests" (summary + "Potentially avoidable runtime ... not
-   proven waste"), "What was observed, and what is inferred", "How confident,
-   and how much was measured" (confidence + basis; one-line coverage; full
-   list under "Coverage of every input"), "What limits this conclusion"
-   (override absence "not proof"), "Estimated fuel associated with this
-   runtime" (L range, modelled, candidate hours, +/-10 %; inputs under "How
-   the fuel estimate is calculated"; no money), "What to check next" (confirm
-   the operator instruction, linking the Unobserved override on the
-   Alternatives tab; framing "not an instruction to stop the generator").
-   Open each disclosure: the detail is there. Rail current is Findings.
-9. Evidence tab: click a claim's record link; "Claim evidence" drawer shows the
-   claim, window, algorithm version and the record detail; address path
-   unchanged; Close removes it. Alternatives tab: override, PCS capability,
-   policy, PV entries with status and record links.
-10. Rail > Findings: global index lists that Finding (summary, Site, Period,
-    Assessment, Confidence, Type; no Revision column); row click opens it.
-    KOBO-H contributes no row.
-11. KOBO-H > Performance: interval(s) Necessary, "No Finding (Necessary)";
-    KOBO-H > Findings says no active Finding; KOBO-P > Findings lists one row and
-    the filter narrows it.
-12. KOBO-P > Evidence: "Capability readiness" leads with "What can we assess
-    from this site's evidence?" and its scope (not the selected window, not
-    site health, not permission to act); "How readiness is scored" (closed)
-    holds the scoring text and versions. Table above Source health, one row
-    "Dispatch assessment", readiness Full with its meaning ("... not whether
-    the site is operating well"), "Strongest conclusion available" Candidate
-    avoidable, missing
-    evidence lists the SOC gap as not limiting, "1 interval assessed.", and
-    "Not observed: Operator override. Absence is not proof that none existed."
-    KOBO-H > Evidence: Full; its cell reads "No intervals assessed; signal
-    availability only." if no interval was assessed there.
-13. KOBO-D > Evidence: readiness Limited ("Assessments are possible but
-    limited ..."), missing evidence names Battery discharge capability (5 of 13
-    segments Indeterminate). KOBO-D's Finding > What to check next also asks
-    why battery discharge capability was not reported for 75 min. (Not KOBO-R: its
-    later prolonged commit fills the gap, so it may read Full.)
-14. Revisions: on KOBO-R commit `kobo-mini-grid-degraded-evidence` 03:00-11:00,
-    note the id at `http://127.0.0.1:8000/api/sites/KOBO-R/dispatch`; commit
-    `kobo-mini-grid-prolonged` over the same window; open
-    `http://127.0.0.1:8000/api/sites/KOBO-R/assessments/<id>/revisions`:
-    revisions 2 and 1 listed, revision 1 unchanged. Restart the backend and
-    reload: both remain.
-15. Optional: restart with the Lab off (`..\.venv\Scripts\python.exe -m uvicorn
-    assetops_backend.main:app` from `backend/`); steps 5-13 read the same.
-16. No decisions remain open: the two readiness decisions are closed by
-    `D-2026-10-04-analytic-readiness-scope-and-gap-impact`. Note: a Site
-    assessed before fix round 1 shows an extra `dispatch-2` revision when first
-    re-assessed (the `dispatch-1` revision is kept); that is expected.
+**A. Default views only - do not open Analysis yet.**
+
+1. Rail > Findings. KOBO-P's row: a short headline and reason, the site, the
+   period in UTC, "Possibly avoidable", confidence and its main limitation.
+   Can you say what the Finding is about from the row alone?
+2. Open the row (Finding Overview). Without help, explain: the outcome; the
+   affected period (the timeline: coloured parts at their times, a key; any
+   uncertain start/stop dotted and named); how much operating time is
+   possibly avoidable vs recorded; the fuel estimate as a low-to-high range
+   with its note that it is an estimate, not confirmed savings; how confident
+   it is and what limits it; and the next information to confirm. Nothing
+   should talk about runs, bindings, simulations or how AssetOps is built.
+3. KOBO-P > Overview: the Dispatch card states one outcome and reason for the
+   period it names (not the whole site), its compact timeline and fuel range,
+   and "View analysis". Other cards keep their own meanings.
+4. KOBO-H > Performance > Dispatch (Overview): "Was the generator needed?";
+   its period reads Needed, has no Finding, and its open end is marked and
+   explained rather than drawn as a stop.
+5. KOBO-D's Finding Overview: a "Cannot determine" part stays visibly
+   uncertain (grey, labelled), and the missing battery records are named as
+   what to confirm next.
+6. KOBO-P > Evidence (Overview): "What can we assess from this site's
+   records?", Full with its meaning (not "the site is fine"), "Scope: whole
+   site" kept apart from the selected window, the assessed-period count.
+   KOBO-D reads Limited and names what limits it.
+
+**B. Analysis and one supporting record - challenge the reason.**
+
+7. KOBO-P Finding > Analysis: the parts table; select a part (button or the
+   timeline) and see `?part=N` in the address; its values at the start and
+   at the end (switch); a value that was not reported reads "Not reported",
+   never 0; coverage by input as "N of M assessed parts"; the operating-time
+   and fuel calculation; method version and references. Does the stated
+   reason follow from the values shown?
+8. One supporting record: Evidence tab, open a part's record. The "Supporting
+   record" drawer shows the value as sent, source/sent/received times, origin
+   "Demonstration data", and labelled references; the address path is
+   unchanged; Close removes it. Alternatives: other possible explanations as
+   Supported by records / Still possible / Not supported by the available
+   records, none claimed as globally disproved.
+9. KOBO-H > Dispatch > Analysis of the Needed period (no Finding needed): the
+   reasons and values; a record link opens the Site Evidence record view.
+   "This period's record coverage" leads to Site Evidence > Analysis scoped
+   to that period, apart from site-wide readiness; rejected records (if any)
+   give a plain reason.
+10. Direct link, Back and reload on each Finding tab and on `?view=analysis`
+    keep the view; at a narrow window (~640 px) graphics stay inside the
+    page and wide tables scroll in place.
+11. Optional, Lab off: stop the host, set `config/app-config.json`
+    `simulator_lab.enabled` to false, start `..\.venv\Scripts\python.exe -m
+    uvicorn assetops_backend.main:app` from `backend/` and restart the dev
+    server; steps 1-10 read the same and the Lab address says "Page not
+    available".
+12. Optional, revisions: on KOBO-R commit `kobo-mini-grid-degraded-evidence`
+    then `kobo-mini-grid-prolonged` over 03:00-11:00;
+    `http://127.0.0.1:8000/api/sites/KOBO-R/assessments/<id>/revisions` lists
+    revisions 2 and 1, revision 1 unchanged, and both survive a restart.

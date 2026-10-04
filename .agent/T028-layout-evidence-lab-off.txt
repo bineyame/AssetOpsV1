@@ -1,0 +1,10 @@
+
+=== T028 journey and product vocabulary, live backend text, SITET26, Lab off ===
+  PASS  every surface and state was found and scanned (17 pages: a Finding, 1 periods and a supporting record among them)  [Site Overview (/sites/SITET26) 388; Dispatch Overview (/sites/SITET26/performance/dispatch) 59; Dispatch Overview, a period selected (/sites/SITET26/performance/dispatch?interval=dispatch-cf090f112377) 81; Dispatch Analysis (/sites/SITET26/performance/dispatch?interval=dispatch-cf090f112377&view=analysis) 238; Dispatch Analysis, unknown period (/sites/SITET26/performance/dispatch?interval=dispatch-gone&view=analysis) 29; Finding Overview (/findings/SITET26/dispatch-cf090f112377) 166; Finding Analysis (/findings/SITET26/dispatch-cf090f112377/analysis) 210; Finding Evidence (/findings/SITET26/dispatch-cf090f112377/evidence) 270; Finding Evidence, record drawer (/findings/SITET26/dispatch-cf090f112377/evidence + opened 05627a28998970c86aa992ac5843b049ef9e9f4a8e28c473aa14c68b069c6546) 300; Finding Alternatives (/findings/SITET26/dispatch-cf090f112377/alternatives) 88; Finding, unknown assessment (/findings/SITET26/dispatch-nope) 15; Findings index (/findings) 26; Site Findings (/sites/SITET26/findings) 40; Site Evidence Overview (/sites/SITET26/evidence) 50; Site Evidence Analysis (/sites/SITET26/evidence?view=analysis) 303; Site Evidence Analysis, one assessed period (/sites/SITET26/evidence?view=analysis&assessment=dispatch-cf090f112377) 325; Site Evidence, record drawer (/sites/SITET26/evidence?signal=residential-meter/active-power&record=aaf2eb5a121b77aefb2d9f2b41b2acf4ac50497db1a545fd158c251c6756e8b2) 312]
+  PASS  no rendered text or accessible label uses a phrase on the list (version 1)  [2900 pieces scanned]
+  PASS  a planted backend-style sentence is caught, naming its phrases  [run,binding]
+  PASS  with the Lab off, the Lab address is not served  [heading Page not available]
+
+ALL CLAIMS HOLD
+
+EXIT 0

@@ -4616,11 +4616,10 @@ Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phase
 
 ## T028 - Dispatch Finding and Evidence capability table
 
-In review (owner review pending). Packet `.agent/T028-review-packet.md`;
-phase handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`; layout evidence
-`.agent/T028-layout-evidence.txt` (560 PASS, 5 FAIL: 3 blocked-table, T025e p95,
-and T025b "profile 4 ... not staged", the last not on the known list and not in
-code T028 touches).
+In review (independent review and owner UI walk pending). Packet
+`.agent/T028-review-packet.md`; handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`,
+`.agent/T028-presentation-cp{1,2a}-handoff.md`; final layout evidence
+`.agent/T028-layout-evidence-final.txt` (presentation cp2b).
 
 - Analytic `analytics/dispatch.py` (model `dispatch-2`, `assess()`); rules and
   thresholds in `backend/tests/dispatch_decision_table.md`. Classification uses
@@ -4673,8 +4672,25 @@ code T028 touches).
   `Overview | Analysis | Evidence | Alternatives` (`/analysis`); Dispatch and
   Site Evidence local `Overview | Analysis` (`?view=analysis`, other params
   kept); shared `sites/assessmentAnalysis.tsx`; card and index "View analysis".
-  Open: four graphics, card projection and the vocabulary guard (cp2;
-  `.agent/T028-presentation-cp1-handoff.md`).
+- Presentation cp2a (packet "Presentation checkpoint 2a"): four graphics in
+  `sites/assessmentGraphics.tsx` (assessed-period timeline full/compact, fuel
+  range, reported values for a selected part `?part=N`, coverage by input),
+  region `.assessment-graphic` named in `shell-overflow.ps1`; card
+  `lead_timeline`/`lead_revision` from `plain.card_timeline`; Site Evidence
+  `?view=analysis&assessment=<id>` one-period coverage, apart from readiness.
+- Presentation cp2b (packet "Presentation checkpoint 2b"): vocabulary guard -
+  list `frontend/src/test/productVocabulary.json` (v1), scanner
+  `productVocabulary.ts`, suite `shell/__tests__/t028Vocabulary.test.tsx`
+  (29 Lab-off + 2 Lab-on states), exemptions only `data-vocabulary-exempt=
+  source-reference|user-owned|lab` on single values; live scan `t028Journey`
+  in `tools/layout-evidence.mjs` (`ASSETOPS_LAYOUT_T028_JOURNEY_ONLY=1` runs
+  it alone, Lab-off); backend test scans served evidence statements and
+  rejection reasons against the same list. Read-time rejection `reason`
+  (`evidence/read_model.py` `REJECTION_READINGS`; stored detail unchanged);
+  plain `NORMALIZATION_STATEMENT`, `INTERVAL_STATEMENT`; source mode label
+  "Demonstration data". Layout evidence `.agent/T028-layout-evidence-final.txt`
+  (615 PASS, 4 known FAIL) and `-lab-off.txt` (4 PASS).
+  Exclusions also by value: `data-vocabulary-reference` (`sites/vocabularyReference.ts`).
 
 ### What this leaves open
 
@@ -4686,6 +4702,9 @@ code T028 touches).
 - Ingestion keeps the first record at a key, so same-key recipe re-runs do not
   revise intervals.
 - Recommendation and History tabs, verification rules: T034.
+- Legacy product copy outside the T028 journey (Foundation, Sites index
+  filters, other pages) is not scanned by the vocabulary guard: post-T029
+  inventory follow-up. `INPUT_WORDS` coverage labels are still a frontend map.
 - Persisted `summary`/claim-limit wording unchanged by the presentation
   correction (Necessary "4.5-open", `(dispatch-2)` in the Candidate limit);
   rewording them appends a revision per lineage.
