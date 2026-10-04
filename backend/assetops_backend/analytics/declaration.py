@@ -329,7 +329,8 @@ def score_readiness(
         "claim_ceiling": ceiling,
         "missing_evidence": missing,
         "optional_not_observed": [
-            {"role": r["role"], "device_id": r["device_id"], "signal_id": r["signal_id"]}
+            {"role": r["role"], "plain_role": plain.role(r["role"]),
+             "device_id": r["device_id"], "signal_id": r["signal_id"]}
             for r in optional if not r["available"]
         ],
         "assessed_intervals": len(assessments),

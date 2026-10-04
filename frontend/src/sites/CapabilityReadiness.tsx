@@ -129,6 +129,9 @@ function CapabilityRow({
   analytic: AnalyticDeclaration;
 }) {
   const readiness = analytic.readiness;
+  const notReceived = [
+    ...new Set((readiness?.optional_not_observed ?? []).map((item) => item.plain_role ?? item.role)),
+  ];
   return (
     <tr
       data-capability={analytic.analytic_id}
@@ -177,6 +180,11 @@ function CapabilityRow({
             <p className="note" data-capability-assessed={readiness.assessed_intervals}>
               {assessedText(readiness)}
             </p>
+            {notReceived.length === 0 ? null : (
+              <p className="note" data-capability-not-observed>
+                {`Not received: ${notReceived.join(", ")}. Absence is not proof that none existed.`}
+              </p>
+            )}
           </td>
         </>
       )}

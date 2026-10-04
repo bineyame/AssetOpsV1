@@ -295,7 +295,7 @@ export function FindingsTable({
             {siteColumn ? (
               <td>{`${row.site_display_name ?? row.site_id ?? ""} · ${row.site_id ?? ""}`}</td>
             ) : null}
-            <td>{windowText(row.assessed_window)}</td>
+            <td>{readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}</td>
             <td>
               <ClaimBadge
                 level={row.claim_level}

@@ -25,7 +25,7 @@ import {
   localViewSearch,
   NextSteps,
   OUTCOME_WORDS,
-  windowText,
+  readablePeriod,
   type LocalView,
 } from "./findingPresentation";
 import {
@@ -288,7 +288,7 @@ function DispatchView({
                         className="link-button"
                         onClick={() => select(row.assessment_id)}
                       >
-                        {windowText(row.assessed_window)}
+                        {readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}
                       </button>
                     </th>
                     <td>
@@ -344,7 +344,7 @@ function SelectedInterval({
   const reading = row.reading;
   return (
     <Panel
-      heading={`Period ${windowText(row.assessed_window)}`}
+      heading={`Period ${readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}`}
       headingId="site-dispatch-selected-heading"
     >
       <div data-dispatch-selected={row.assessment_id}>
@@ -436,7 +436,7 @@ function DispatchAnalysis({
               to={{ search: intervalSearch(row.assessment_id, "analysis") }}
               aria-current={row.assessment_id === selected?.assessment_id ? "true" : undefined}
             >
-              {`${windowText(row.assessed_window)}: ${row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}`}
+              {`${readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}: ${row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}`}
             </Link>
           </li>
         ))}

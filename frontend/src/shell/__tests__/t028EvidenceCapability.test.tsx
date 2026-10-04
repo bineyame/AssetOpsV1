@@ -1,7 +1,10 @@
 /**
  * T028 phase 3: Site > Evidence part B (AC20) - the capability table above
  * T027 source health - and the AC18 rules for Evidence capability rows, with
- * rule 3 (a gap only from backend state) tested here.
+ * rule 3 (a gap only from backend state) tested here. Presentation checkpoint
+ * 1 (D-2026-10-04-plain-language-analysis-views): local Overview | Analysis
+ * views, plain readiness words, site-wide scope labelled apart from the
+ * selected window.
  */
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -52,9 +55,9 @@ function served(
   return withDeclaration({ status: "loaded", value: declaration(SITE_ID, analytics) });
 }
 
-async function renderEvidence(analytics: SiteAnalyticsClient) {
+async function renderEvidence(analytics: SiteAnalyticsClient, url: string = EVIDENCE_URL) {
   render(
-    <MemoryRouter initialEntries={[EVIDENCE_URL]}>
+    <MemoryRouter initialEntries={[url]}>
       <App
         flags={featureFlagsWith(false)}
         siteDirectory={DIRECTORY}
@@ -65,6 +68,12 @@ async function renderEvidence(analytics: SiteAnalyticsClient) {
     </MemoryRouter>,
   );
   await settledScreen();
+}
+
+function linkLabels(name: string): string[] {
+  return within(screen.getByRole("navigation", { name }))
+    .getAllByRole("link")
+    .map((link) => link.textContent ?? "");
 }
 
 function rows(): HTMLElement[] {
@@ -78,11 +87,12 @@ const DISPATCH_LIMITED = {
 };
 
 describe("Site > Evidence capability table (AC20)", () => {
-  it("shows one dispatch row above source health with readiness, ceiling and missing evidence", async () => {
+  it("Overview: one dispatch row above the source summary, in plain words, scope labelled", async () => {
     await renderEvidence(served([DISPATCH_LIMITED]));
 
-    const capability = screen.getByRole("heading", { name: "Capability readiness" });
-    const sources = screen.getByRole("heading", { name: "Source health" });
+    expect(linkLabels("Evidence views")).toEqual(["Overview", "Analysis"]);
+    const capability = screen.getByRole("heading", { name: "What can we assess from this site's records?" });
+    const sources = screen.getByRole("heading", { name: "Where the records come from" });
     expect(
       capability.compareDocumentPosition(sources) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
@@ -98,31 +108,53 @@ describe("Site > Evidence capability table (AC20)", () => {
       "data-capability-ceiling",
       "CANDIDATE_AVOIDABLE",
     );
-    expect(text).toContain("Candidate avoidable only for portions whose required inputs are evidenced");
+    expect(text).toContain("Possibly avoidable operation can be identified only where the required records exist");
     const missing = row.querySelector('[data-capability-missing="COVERAGE_GAP"]') as HTMLElement;
     expect(missing).toHaveAttribute("data-capability-limits", "yes");
-    expect(missing).toHaveTextContent("Battery discharge capability");
-    // Override absence is stated as not observed, never as proof (AC7).
+    expect(missing).toHaveTextContent("Available battery output: no usable record for 5 of 13 assessed parts");
+    // Optional absence is stated as not received, never as proof (AC7).
     expect(row.querySelector("[data-capability-not-observed]")).toHaveTextContent(
-      "Not observed: Operator override. Absence is not proof that none existed.",
+      "Not received: Operator instruction. Absence is not proof that none existed.",
     );
-    // Practitioner reading: the question and scope lead, the level is explained,
-    // and the scoring mechanics and versions are one click away.
+    // Site-wide scope, labelled apart from the selected window.
     expect(document.querySelector("[data-capability-question]")).toHaveTextContent(
-      "What can we assess from this site's evidence? Scored across all of this site's accepted evidence, not the selected window. It is not site health",
+      "Scope: whole site. Based on all of this site's accepted records, not only the selected window.",
     );
+    expect(document.querySelector("[data-evidence-window]")).toHaveTextContent("Selected window:");
     expect(row.querySelector("[data-capability-meaning]")).toHaveTextContent(
       "Assessments are possible but limited",
     );
-    expect(screen.getByRole("columnheader", { name: "Strongest conclusion available" })).toBeInTheDocument();
-    const method = document.querySelector('[data-disclosure="capability-readiness-method"]') as HTMLDetailsElement;
-    expect(method.open).toBe(false);
-    expect(method.querySelector("[data-capability-statement]")).not.toBeNull();
-    expect(method.querySelector("[data-capability-versions]")).toHaveTextContent("readiness basis readiness-3");
-    expect(text).not.toContain("dispatch-2");
+    expect(document.querySelector("[data-evidence-source-summary]")).toHaveTextContent(
+      "Demonstration data",
+    );
+    // Method, versions and the detailed tables belong to Analysis.
+    expect(document.querySelector("details")).toBeNull();
+    expect(document.querySelector("[data-capability-versions]")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Source status" })).toBeNull();
+    expect(text).not.toMatch(/dispatch-2|readiness-3|segment|Indeterminate|Candidate avoidable/);
   });
 
-  it("a Full row says no claim-limiting gap was identified in the assessed intervals", async () => {
+  it("Analysis: method, versions, required records and gap references; window kept", async () => {
+    await renderEvidence(served([DISPATCH_LIMITED]), `${EVIDENCE_URL}?view=analysis&from=2026-09-22T00:00:00Z`);
+    const views = screen.getByRole("navigation", { name: "Evidence views" });
+    expect(within(views).getByRole("link", { name: "Analysis" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("heading", { name: "How readiness is scored" })).toBeInTheDocument();
+    expect(document.querySelector("[data-capability-statement]")).toHaveTextContent("How this is scored:");
+    expect(document.querySelector("[data-capability-versions]")).toHaveTextContent(
+      "Dispatch assessment: assessment method dispatch-2, readiness scoring readiness-3",
+    );
+    expect(document.querySelector("[data-capability-gap-detail]")).toHaveTextContent(
+      "Assessed periods: dispatch-cand0001.",
+    );
+    expect(screen.getByRole("heading", { name: "Source status" })).toBeInTheDocument();
+    // Switching back to Overview keeps the window parameter.
+    expect(within(views).getByRole("link", { name: "Overview" })).toHaveAttribute(
+      "href",
+      `${EVIDENCE_URL}?from=2026-09-22T00%3A00%3A00Z`,
+    );
+  });
+
+  it("a Full row says no gap limited an assessed period", async () => {
     await renderEvidence(
       served([
         {
@@ -132,6 +164,7 @@ describe("Site > Evidence capability table (AC20)", () => {
             level: "FULL",
             label: "Full",
             missing_evidence: [],
+            gaps: [],
             optional_not_observed: [],
           },
         },
@@ -141,13 +174,13 @@ describe("Site > Evidence capability table (AC20)", () => {
     expect(row).toHaveAttribute("data-capability-readiness", "FULL");
     expect(within(row).getByText("Full")).toBeInTheDocument();
     expect(row.querySelector('[data-capability-missing="none"]')).toHaveTextContent(
-      "All required signals have usable records; no claim-limiting gaps identified in assessed intervals.",
+      "Every required input has usable records; no gap limited an assessed period.",
     );
-    expect(row.querySelector("[data-capability-assessed]")).toHaveTextContent("1 interval assessed.");
+    expect(row.querySelector("[data-capability-assessed]")).toHaveTextContent("1 assessed period.");
     expect(row.querySelector("[data-capability-not-observed]")).toBeNull();
   });
 
-  it("a generator-state gap is a claim-limiting row, never a Full 'no gaps' claim (R5)", async () => {
+  it("a generator-operation gap is a limiting row, never a Full 'no gaps' claim (R5)", async () => {
     // The row as the backend scores the AC1 gap fixture under readiness-3.
     await renderEvidence(
       served([
@@ -167,6 +200,9 @@ describe("Site > Evidence capability table (AC20)", () => {
                 assessment_ids: ["dispatch-a"],
               },
             ],
+            gaps: [
+              "Generator operation: not recorded for 60 min in 1 assessed period; that time cannot be determined.",
+            ],
           },
         },
       ]),
@@ -175,12 +211,12 @@ describe("Site > Evidence capability table (AC20)", () => {
     expect(row).toHaveAttribute("data-capability-readiness", "LIMITED");
     const gap = row.querySelector('[data-capability-missing="COVERAGE_GAP"]') as HTMLElement;
     expect(gap).toHaveAttribute("data-capability-limits", "yes");
-    expect(gap).toHaveTextContent("Generator state: not observed for 60 min");
+    expect(gap).toHaveTextContent("Generator operation: not recorded for 60 min");
     expect(row.querySelector('[data-capability-missing="none"]')).toBeNull();
-    expect(spacedText(row)).not.toContain("no claim-limiting gaps identified");
+    expect(spacedText(row)).not.toContain("no gap limited");
   });
 
-  it("zero assessed intervals say signal availability only, never bare completeness", async () => {
+  it("zero assessed periods say coverage is not yet checked, never bare completeness", async () => {
     await renderEvidence(
       served([
         {
@@ -190,6 +226,7 @@ describe("Site > Evidence capability table (AC20)", () => {
             level: "FULL",
             label: "Full",
             missing_evidence: [],
+            gaps: [],
             optional_not_observed: [],
             assessed_intervals: 0,
           },
@@ -198,20 +235,20 @@ describe("Site > Evidence capability table (AC20)", () => {
     );
     const [row] = rows();
     expect(row.querySelector("[data-capability-assessed]")).toHaveTextContent(
-      "No intervals assessed; signal availability only.",
+      "No period has been assessed yet: records exist, but whether they cover each period has not been checked.",
     );
     expect(row.querySelector('[data-capability-missing="none"]')).toHaveTextContent(
-      "no intervals assessed, so coverage is not yet checked.",
+      "Every required input has usable records.",
     );
-    expect(row.textContent).not.toContain("no claim-limiting gaps identified");
+    expect(row.textContent).not.toContain("no gap limited");
   });
 
-  it("nothing appears when the site has no declared analytic", async () => {
+  it("nothing appears when the site has no declared assessment", async () => {
     await renderEvidence(served([]));
-    expect(screen.queryByRole("heading", { name: "Capability readiness" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "What can we assess from this site's records?" })).toBeNull();
     expect(rows()).toHaveLength(0);
     expect(spacedText(screen.getByRole("main"))).not.toMatch(/readiness|claim ceiling/i);
-    expect(screen.getByRole("heading", { name: "Source health" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Where the records come from" })).toBeInTheDocument();
   });
 
   it("an unreadable declaration is said so, with no row", async () => {
@@ -265,18 +302,19 @@ describe("AC18 rules for Evidence capability rows", () => {
     const [row] = rows();
     expect(row).toHaveAttribute("data-capability-readiness", "NOT_SCORED");
     expect(row.querySelector("[data-capability-not-scored]")).toHaveTextContent(
-      "The backend served no readiness for this analytic, so none is shown.",
+      "No readiness was given for this assessment, so none is shown.",
     );
     expect(row.querySelector("[data-capability-missing]")).toBeNull();
     expect(spacedText(row)).not.toMatch(/Full|Limited|Battery/);
   });
 
-  it("rule 3: the missing evidence listed is exactly the backend's, in its words", async () => {
+  it("rule 3: the missing information listed is exactly the backend's, in its plain words", async () => {
     await renderEvidence(served([DISPATCH_LIMITED]));
     const listed = Array.from(
       rows()[0].querySelectorAll("[data-capability-missing]"),
       (item) => item.textContent,
     );
-    expect(listed).toEqual(LIMITED_READINESS.missing_evidence.map((item) => item.statement));
+    expect(listed).toEqual(LIMITED_READINESS.gaps);
+    expect(LIMITED_READINESS.gaps).toHaveLength(LIMITED_READINESS.missing_evidence.length);
   });
 });

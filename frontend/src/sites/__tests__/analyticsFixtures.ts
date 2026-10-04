@@ -302,8 +302,8 @@ export const LIMITED_READINESS: CapabilityReadiness = {
     },
   ],
   optional_not_observed: [
-    { role: "Operator override", device_id: "generator-controller", signal_id: "stop-soc-override" },
-    { role: "Operator override", device_id: "battery-bms", signal_id: "reserve-override" },
+    { role: "Operator override", plain_role: "Operator instruction", device_id: "generator-controller", signal_id: "stop-soc-override" },
+    { role: "Operator override", plain_role: "Operator instruction", device_id: "battery-bms", signal_id: "reserve-override" },
   ],
   assessed_intervals: 1,
   question: "What can we assess from this site's records?",

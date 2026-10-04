@@ -299,7 +299,7 @@ export interface CapabilityReadiness {
     statement: string;
   };
   missing_evidence: MissingEvidence[];
-  optional_not_observed: { role: string; device_id: string; signal_id: string }[];
+  optional_not_observed: { role: string; plain_role?: string; device_id: string; signal_id: string }[];
   assessed_intervals: number;
   /** The plain reading (backend `plain.readiness`), read time. */
   question?: string;
