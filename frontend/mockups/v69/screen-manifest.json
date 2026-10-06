@@ -1,0 +1,2093 @@
+[
+  {
+    "id": "portfolio",
+    "title": "Portfolio Value & Operations",
+    "root": "Portfolio",
+    "section": "",
+    "anchor": "8.1 / 8.8 / 8.9; Client Demo Recommendation Screen 1 / A1",
+    "question": "Where should management act first, what is at stake, and what would prove improvement?",
+    "models": [
+      "PortfolioSummary",
+      "FindingIndex",
+      "PortfolioConsequenceRollup",
+      "SiteAssessmentSummary",
+      "CapabilityReadiness",
+      "ActionSummary",
+      "VerificationSummary"
+    ],
+    "domain": "mini",
+    "preserved": "Finding-owned ranked rows; Site / Finding / Action root changes; Action references confined to the Action column. Financials reuses site-owned consequences; unknowns and claim limits remain explicit.",
+    "adapted": "A1 business-value hierarchy above the canonical priority table. Three existing sites; objective matrix instead of ungrounded percentages; productive-use and verification visible together. Counts are secondary context.",
+    "deferred": "Six-site estate, monthly extrapolation, productive-use share, comparable energy roll-up, asset valuation, reconciliation residual and verified recovered money require their own supporting records. None is inferred from this hour.",
+    "subtitle": "Operating decisions across the estate: cost, service, productive use and asset value",
+    "review": {
+      "references": [
+        "v6.9 §8.1, p24: Portfolio command center",
+        "Client Demo Recommendation, Screen 1 and Appendix A1, p11"
+      ],
+      "decision": "Combine the business consequence hierarchy of A1 with the Finding ownership, priority and objective assessment of v6.9. Keep the existing three-site evidence story.",
+      "sections": [
+        [
+          "Assessment and estate scope",
+          "PortfolioSummary",
+          "Deterministic roll-up of selected site assessments; no numeric composite health score."
+        ],
+        [
+          "Value cards",
+          "PortfolioConsequenceRollup",
+          "Reuse site consequence revisions, periods, currencies and basis. Different categories are not additive."
+        ],
+        [
+          "Ranked Findings",
+          "FindingIndex + ActionSummary",
+          "Priority orders Finding objects. Site, Finding and accepted Action links change to their own roots."
+        ],
+        [
+          "Objectives across the estate",
+          "SiteAssessmentSummary + CapabilityReadiness",
+          "One cell per site/objective. Unknown and not applicable remain distinct."
+        ],
+        [
+          "Productive-use opportunity",
+          "RenewableOpportunityWindow + FinancialConsequence",
+          "Reuse eligible window and declared tariff; electrical headroom is not proven demand."
+        ],
+        [
+          "Change and verification",
+          "FindingRevision + WorkSummary + VerificationSummary",
+          "Event counts and outcome state are separate; activity completion cannot establish recovered value."
+        ]
+      ],
+      "deferred": "Six-site estate, monthly extrapolation, productive-use share, comparable energy roll-up, asset valuation, reconciliation residual and verified recovered money require their own supporting records. None is inferred from this hour."
+    }
+  },
+  {
+    "id": "sites",
+    "title": "Sites",
+    "root": "Sites",
+    "section": "",
+    "anchor": "8.2",
+    "question": "Which site should I open?",
+    "models": [
+      "SiteDirectorySummary",
+      "SiteAssessmentSummary",
+      "CapabilityReadiness"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Find and compare sites across the operating estate"
+  },
+  {
+    "id": "mini",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Overview",
+    "anchor": "8.18",
+    "question": "Is the mini-grid meeting its operating objective?",
+    "models": [
+      "SiteOverview",
+      "DispatchIntervalRevision",
+      "OperationalTimeline",
+      "FinancialConsequence"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Shared site-overview skeleton (all verticals): status with confidence → objective → canonical assessment cards → plain causal strip → context + needs attention (each with destination) → bounded consequence + next step. Only assessed objectives get a health conclusion; Renewable and Fuel use Unknown, never an opportunity or \"not assessed\" status.",
+    "deferred": "A site-wide Healthy label while service/asset objectives are unassessed.",
+    "subtitle": "60 kWp PV · 200 kWh battery · 40 kW genset · residential, clinic & grain mill"
+  },
+  {
+    "id": "foundation",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10",
+    "question": "What is configured, and what must the site achieve?",
+    "models": [
+      "SiteFoundationVersion",
+      "SiteControls",
+      "TopologyReadModel",
+      "SignalBindingVersion"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Definition, topology and controls · public configuration at the time of evidence"
+  },
+  {
+    "id": "readiness",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.35",
+    "question": "Is the configuration sufficient and independently confirmed?",
+    "models": [
+      "FoundationReadiness",
+      "SiteFoundationVersion",
+      "CapabilityReadiness"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Restores configuration readiness without duplicating the Evidence capability table.",
+    "deferred": "General commissioning workflow and automatic field certification.",
+    "subtitle": "Definition, commissioning and gateway readiness"
+  },
+  {
+    "id": "changes",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.11",
+    "question": "Did the configuration change improve the intended outcome?",
+    "models": [
+      "ConfigurationChange",
+      "VerificationPlan",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Configuration change CHG-019 · generator stop policy"
+  },
+  {
+    "id": "dispatch",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.21 · 8.37",
+    "question": "Why did the generator operate, and what can the evidence support?",
+    "models": [
+      "DispatchIntervalRevision",
+      "DispatchWindow",
+      "ClaimLineage"
+    ],
+    "domain": "mini",
+    "preserved": "Necessary / Candidate avoidable / Indeterminate are analytical classifications; all remain separate from workflow state.",
+    "adapted": "Analysis is an interval drill-down, preserving one Performance subtab row.",
+    "deferred": "Optimal dispatch, proven net savings and inferred controller modes.",
+    "subtitle": "Performance · source coordination and generator support"
+  },
+  {
+    "id": "renewable",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.23",
+    "question": "Is recurring unused capacity practical for productive use?",
+    "models": [
+      "RenewableOpportunityWindow",
+      "ServiceWindow",
+      "FinancialConsequence"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Productive-use is a section within Renewable, not a third navigation level.",
+    "deferred": "Market demand forecasting and generalized scenario experimentation.",
+    "subtitle": "Performance · renewable use and productive-load opportunity",
+    "window": "Illustrative recurrence sample · 5 observed days"
+  },
+  {
+    "id": "evidence",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Evidence",
+    "anchor": "8.35 · 8.37",
+    "question": "What can AssetOps substantiate, and what evidence is missing?",
+    "models": [
+      "CapabilityReadiness",
+      "SourceHealth",
+      "AcceptedEvidence",
+      "ClaimLineage"
+    ],
+    "domain": "mini",
+    "preserved": "Only accepted evidence is product-visible. Source quality and physical asset condition are separate.",
+    "adapted": "Window-scoped capabilities and explicit sampling denominators.",
+    "deferred": "Broad gateway management and an unexplained overall quality score.",
+    "subtitle": "Evidence · capability readiness and claim ceilings"
+  },
+  {
+    "id": "finding",
+    "title": "Generator support merits review",
+    "root": "Findings",
+    "section": "Overview",
+    "anchor": "8.32 · 8.37",
+    "question": "What is the defensible conclusion and its consequence?",
+    "models": [
+      "FindingRevision",
+      "DispatchWindow",
+      "FinancialConsequence",
+      "ActionLink"
+    ],
+    "domain": "mini",
+    "preserved": "Claim, confidence and workflow state are distinct. Finding owns classification; finance only translates consequence.",
+    "adapted": "Retains the owner-approved Analysis destination and plain-language default.",
+    "deferred": "A claim of proven waste or net realized savings.",
+    "subtitle": "F-104 · Kobo Mini-grid · generator dispatch · 6 Oct 2026"
+  },
+  {
+    "id": "analysis",
+    "title": "Generator support merits review",
+    "root": "Findings",
+    "section": "Analysis",
+    "anchor": "8.32 · 8.37",
+    "question": "How do the measurements lead to the classification?",
+    "models": [
+      "DispatchIntervalRevision",
+      "ClaimLineage",
+      "AnalyticDeclaration"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Analysis is a deliberate additional Finding contextual tab. No additional subtab row is introduced.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "F-104 · analytical method, input comparison and uncertainty"
+  },
+  {
+    "id": "financials",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36 · 6",
+    "question": "What is the bounded economic consequence?",
+    "models": [
+      "FinancialConsequenceRevision",
+      "FinancialAssumptionSet"
+    ],
+    "domain": "mini",
+    "preserved": "Site owns the technical bridge. Global pages aggregate its results; financial pages have no assessment enum.",
+    "adapted": "Two real consequence lines and editable assumptions instead of a broad finance suite. Subtabs Overview | Assumptions; v6.9 Drivers is the bridge on Overview; Scenarios is a placeholder with an empty state (owner, follow-up 3). Implementation note: ranges use outward rounding; totals use unrounded amounts.",
+    "deferred": "Cash flow, currency conversion and monthly extrapolation.",
+    "subtitle": "Financials · technical behaviour translated to business consequence"
+  },
+  {
+    "id": "assumptions",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "Which assumptions turn this quantity into money?",
+    "models": [
+      "FinancialAssumptionSet",
+      "FinancialConsequenceRevision"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "One interactive price edit demonstrates the technical/economic boundary.",
+    "deferred": "Real database writes and shared portfolio assumption sets.",
+    "subtitle": "Financials · assumptions and interpretation history"
+  },
+  {
+    "id": "recommendation",
+    "title": "Generator support merits review",
+    "root": "Findings",
+    "section": "Recommendation",
+    "anchor": "8.32 · 8.38",
+    "question": "What action should be accepted, and how will success be judged?",
+    "models": [
+      "Recommendation",
+      "Action",
+      "VerificationPlanVersion"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "F-104 · proposed policy intervention and declared success criterion"
+  },
+  {
+    "id": "verification",
+    "title": "Reduce extended generator support",
+    "root": "Actions",
+    "section": "Verification",
+    "anchor": "8.38 · 8.11",
+    "question": "Did the action work without harmful trade-offs?",
+    "models": [
+      "Action",
+      "VerificationPlanVersion",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Target plus guardrails and sufficient closed-window evidence determine outcome; activity completion cannot resolve a Finding.",
+    "adapted": "Shows the honest incomplete state by default, with a separate completed-evidence review example.",
+    "deferred": "Real equipment actuation and field-validated efficacy.",
+    "subtitle": "ACT-048 · source F-104 · owner: site controls lead"
+  },
+  {
+    "id": "asset",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Health",
+    "anchor": "8.27",
+    "question": "What condition and asset-life risk can we substantiate?",
+    "models": [
+      "AssetHealthSummary",
+      "BatteryStressWindow",
+      "CapacityEvidence"
+    ],
+    "domain": "mini",
+    "preserved": "Asset Health owns condition; Site Health only summarizes. Unknown historical stress stays unknown.",
+    "adapted": "Lifecycle risk is a bounded section in Health rather than a new root.",
+    "deferred": "Precise RUL, Warranty and validated degradation prediction.",
+    "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid",
+    "window": "Illustrative asset history · last 30 days"
+  },
+  {
+    "id": "health",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Health",
+    "anchor": "8.19",
+    "question": "Which physical assets need attention?",
+    "models": [
+      "AssetHealthSummary",
+      "SourceHealth"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Health · site-level asset-condition summary"
+  },
+  {
+    "id": "lab",
+    "title": "Kobo · Gateway & Ingestion",
+    "root": "Simulator Lab",
+    "section": "Gateway & Ingestion",
+    "anchor": "8.12–8.17 · especially 8.13 / 8.17",
+    "question": "How did physical state become accepted product evidence?",
+    "models": [
+      "LabProjection",
+      "DeviceObservation",
+      "SourceStage",
+      "CommitManifest",
+      "BatchProgress"
+    ],
+    "domain": "mini",
+    "preserved": "Private truth stays gated. Commit seals source envelopes; ingestion alone creates accepted evidence.",
+    "adapted": "The existing cockpit becomes an explicit four-stage proof view.",
+    "deferred": "Broad authoring, outage catalogue and real protocol adapters.",
+    "subtitle": "Simulator Lab · source-side proof workspace · illustrated run R-MG-01"
+  },
+  {
+    "id": "cold",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Overview",
+    "anchor": "8.28",
+    "question": "Were product conditions protected through the disturbance?",
+    "models": [
+      "TemperatureExcursion",
+      "BackupEventChain",
+      "Incident",
+      "WorkSummary"
+    ],
+    "domain": "cold",
+    "preserved": "Temperature, backup, cooling, maintenance and evidence remain distinct; exposure is not spoilage.",
+    "adapted": "Same overview skeleton as the mini-grid: status with confidence → objective → canonical cards → causal strip → context + needs attention (with destinations) → bounded consequence + next step. Evidence card uses evidence vocabulary (Limited) in neutral grey rather than v6.9 Healthy.",
+    "deferred": "Spoilage diagnosis and stock ERP.",
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "temperature",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.29",
+    "question": "How far and how long did temperature exceed policy?",
+    "models": [
+      "TemperatureExcursion",
+      "PolicyVersion",
+      "AcceptedEvidence"
+    ],
+    "domain": "cold",
+    "preserved": "Excursions and exposure remain bounded by actual temperature evidence and configured policy.",
+    "adapted": "Duration, in-policy share and exposure size are computed from the 5-minute readings as bounded ranges (duration bracketed by readings; °C·min bounded by the lower and upper reading in each 5-minute step (50–90), replacing the earlier ≈70 straight-line point estimate) rather than v6.9 point values.",
+    "deferred": "Spoilage determination and unverified exposure valuation.",
+    "subtitle": "Performance · temperature policy and bounded exposure"
+  },
+  {
+    "id": "cooling",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.30",
+    "question": "Is recovery slower under comparable operating conditions?",
+    "models": [
+      "CoolingRecoveryWindow",
+      "ContextMatch",
+      "ClaimLineage"
+    ],
+    "domain": "cold",
+    "preserved": "Context normalization precedes a degradation claim.",
+    "adapted": "Shows an evidence-limited comparison so similar curves cannot imply a false diagnosis.",
+    "deferred": "Automatic compressor diagnosis.",
+    "subtitle": "Performance · recovery under comparable conditions"
+  },
+  {
+    "id": "coldbackup",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.31",
+    "question": "What failed between loss of grid and restored cooling?",
+    "models": [
+      "BackupEventChain",
+      "Incident",
+      "TemperatureExcursion"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "States the 8.31 discrimination (backup versus refrigeration failure) in one plain sentence; shares the backup chain table with the mini-grid; the missing transfer record is shown as an explicit missing link.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Performance · grid outage to cooling-service recovery"
+  },
+  {
+    "id": "ev",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Overview",
+    "anchor": "2.2 / 2.4 pattern · EV extrapolation",
+    "question": "Can drivers charge, and what constrained their service?",
+    "models": [
+      "SessionServiceWindow",
+      "ConnectorAvailabilityWindow",
+      "ChargingEnergyWindow"
+    ],
+    "domain": "ev",
+    "preserved": "Stable Site / Asset / Finding shell, evidence ceilings and bounded financial translation.",
+    "adapted": "EV is extrapolated (v6.9 has no EV section). Uses the shared site-overview skeleton; sessions, connector availability and site power replace mini-grid dispatch content; cards use canonical assessments only.",
+    "deferred": "Roaming, billing settlement and vehicle-battery health.",
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "sessions",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "2.2 pattern · 8.32 / 8.35 · EV extrapolation",
+    "question": "Which sessions completed, failed or remain unknown?",
+    "models": [
+      "ChargingSession",
+      "SessionServiceWindow",
+      "AcceptedEvidence"
+    ],
+    "domain": "ev",
+    "preserved": "Outcomes are evidence-derived, with unknowns preserved.",
+    "adapted": "New EV read models use canonical Finding and Evidence detail.",
+    "deferred": "Billing settlement and unobserved session energy.",
+    "subtitle": "Performance · charging sessions and delivered service"
+  },
+  {
+    "id": "availability",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.35 pattern · EV extrapolation",
+    "question": "Was each connector available during its intended service hours?",
+    "models": [
+      "ConnectorAvailabilityWindow",
+      "ServiceSchedule"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "A scheduled-service denominator replaces mini-grid served-load semantics.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Performance · connector availability and unknown time"
+  },
+  {
+    "id": "energy",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.36 pattern · EV extrapolation",
+    "question": "How much charging energy was delivered, and what power limits mattered?",
+    "models": [
+      "ChargingEnergyWindow",
+      "SitePowerLimit",
+      "FinancialConsequence"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Performance · charging energy and site-power context"
+  },
+  {
+    "id": "incident",
+    "title": "Backup failure and temperature excursion",
+    "root": "Incidents",
+    "section": "Timeline",
+    "anchor": "8.33 · 8.31",
+    "question": "What happened, what is known, and what work remains?",
+    "models": [
+      "Incident",
+      "BackupEventChain",
+      "FindingLink",
+      "MaintenanceWorkRequest"
+    ],
+    "domain": "cold",
+    "preserved": "Incident root retains site context; work and Finding records are linked, not copied.",
+    "adapted": "One narrow event-chain case is sufficient for the demo.",
+    "deferred": "General incident correlation engine.",
+    "subtitle": "INC-203 · GreenHarvest · power-to-product-condition case"
+  },
+  {
+    "id": "workverification",
+    "title": "Starter and control-circuit inspection",
+    "root": "Maintenance",
+    "section": "Verification",
+    "anchor": "8.34",
+    "question": "Did the completed work restore the intended outcome?",
+    "models": [
+      "MaintenanceWorkRequest",
+      "VerificationPlan",
+      "VerificationOutcome"
+    ],
+    "domain": "cold",
+    "preserved": "Actions and Maintenance share verification grammar but retain separate root objects.",
+    "adapted": "Two side-by-side panels make activity versus outcome unmistakable.",
+    "deferred": "Procurement, spare parts and full CMMS scheduling.",
+    "subtitle": "WR-019 · GreenHarvest · owner: maintenance lead"
+  },
+  {
+    "id": "service",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.20",
+    "question": "Was required load service delivered?",
+    "models": [
+      "ServiceWindow",
+      "LoadRequestEvidence",
+      "AcceptedEvidence"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "An honest service gap replaces an unsupported 100% served-energy metric.",
+    "deferred": "Precise unserved kWh without requested-service evidence.",
+    "subtitle": "Performance · delivered load and service claim limits"
+  },
+  {
+    "id": "fuel",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.22",
+    "question": "Can the fuel inventory movement be reconciled?",
+    "models": [
+      "FuelBalanceWindow",
+      "OperationalRecord",
+      "AcceptedEvidence"
+    ],
+    "domain": "mini",
+    "preserved": "Residual, uncertainty and expected-consumption basis stay explicit.",
+    "adapted": "Shows the missing-evidence state instead of inventing a fuel-loss story for Kobo.",
+    "deferred": "Fuel ERP and theft detection.",
+    "subtitle": "Performance · fuel reconciliation and uncertainty"
+  },
+  {
+    "id": "backup",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Performance",
+    "anchor": "8.24",
+    "question": "What does the evidence say about backup readiness?",
+    "models": [
+      "BackupEventChain",
+      "ServiceWindow",
+      "CapabilityReadiness"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Performance · backup start and service recovery"
+  },
+  {
+    "id": "sitefindings",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Findings",
+    "anchor": "8.25",
+    "question": "Which Findings belong to this site?",
+    "models": [
+      "FindingIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Scoped index only; removing this tab loses a filter, not a distinct object.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Site-scoped Findings · operational conclusions and evidence limits"
+  },
+  {
+    "id": "sitework",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26",
+    "question": "What work is active at this site?",
+    "models": [
+      "ActionIndex",
+      "IncidentIndex",
+      "MaintenanceIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Site-scoped work · the same managed records as global queues"
+  },
+  {
+    "id": "sitework-incidents",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.6",
+    "question": "Which incident cases involve this site?",
+    "models": [
+      "IncidentIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Site-scoped work · incidents"
+  },
+  {
+    "id": "sitework-maintenance",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.7",
+    "question": "Which maintenance work involves this site?",
+    "models": [
+      "MaintenanceIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Site-scoped work · maintenance"
+  },
+  {
+    "id": "evidence-analysis",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Evidence",
+    "anchor": "8.35 · 8.37",
+    "question": "Which accepted records sit behind these limits?",
+    "models": [
+      "AcceptedEvidenceIndex",
+      "ClaimLineage"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Record-level detail moved off the plain Evidence overview (D-2026-10-04-plain-language-analysis-views: Site Evidence has local Overview | Analysis).",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Evidence · accepted records and how limits are set"
+  },
+  {
+    "id": "assets",
+    "title": "Assets",
+    "root": "Assets",
+    "section": "",
+    "anchor": "8.3",
+    "question": "Which physical assets merit a closer look?",
+    "models": [
+      "AssetDirectorySummary",
+      "AssetHealthSummary"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "gtabs": [
+      [
+        "Inventory",
+        "assets"
+      ],
+      [
+        "Warranty & vendors",
+        "assets-warranty"
+      ],
+      [
+        "Register asset",
+        "asset-register"
+      ]
+    ],
+    "subtitle": "Physical asset inventory · site context, condition and work"
+  },
+  {
+    "id": "findings",
+    "title": "Findings",
+    "root": "Findings",
+    "section": "",
+    "anchor": "8.4",
+    "question": "Which supported conclusions deserve action?",
+    "models": [
+      "FindingIndex",
+      "FinancialConsequence",
+      "ActionSummary"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "gtabs": [
+      [
+        "All findings",
+        "findings"
+      ],
+      [
+        "Cost",
+        "findings-cost"
+      ],
+      [
+        "Risks",
+        "findings-risks"
+      ],
+      [
+        "Opportunities",
+        "findings-opportunities"
+      ]
+    ],
+    "subtitle": "Evidence-backed operating conclusions · one global object model"
+  },
+  {
+    "id": "actions",
+    "title": "Actions",
+    "root": "Actions",
+    "section": "",
+    "anchor": "8.5",
+    "question": "Who owns the next intervention and what will prove it worked?",
+    "models": [
+      "ActionIndex",
+      "VerificationSummary"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Interventions, owners and declared outcome criteria"
+  },
+  {
+    "id": "incidents",
+    "title": "Incidents",
+    "root": "Incidents",
+    "section": "",
+    "anchor": "8.6",
+    "question": "Which operational cases need coordinated investigation?",
+    "models": [
+      "IncidentIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Operational event cases · linked Findings and work"
+  },
+  {
+    "id": "maintenance",
+    "title": "Maintenance",
+    "root": "Maintenance",
+    "section": "",
+    "anchor": "8.7",
+    "question": "Which physical work is complete, and which outcomes remain unverified?",
+    "models": [
+      "MaintenanceIndex",
+      "VerificationSummary"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "gtabs": [
+      [
+        "Corrective",
+        "maintenance"
+      ],
+      [
+        "Preventive · scheduled",
+        "maintenance-preventive"
+      ]
+    ],
+    "subtitle": "Physical maintenance work and outcome verification"
+  },
+  {
+    "id": "globalevidence",
+    "title": "Portfolio evidence",
+    "root": "Evidence",
+    "section": "",
+    "anchor": "8.8 · 8.35",
+    "question": "Where do evidence gaps constrain estate-wide decisions?",
+    "models": [
+      "PortfolioEvidenceMatrix",
+      "CapabilityReadiness"
+    ],
+    "domain": "mini",
+    "preserved": "Global roll-up links down to site-owned readiness.",
+    "adapted": "Compact domain-capability matrix for three sites.",
+    "deferred": "A duplicate global raw-record browser.",
+    "subtitle": "Cross-site claim readiness, recurring gaps and instrumentation priorities"
+  },
+  {
+    "id": "globalfinancials",
+    "title": "Portfolio financials",
+    "root": "Financials",
+    "section": "",
+    "anchor": "8.9 · 8.36",
+    "question": "What consequences are supported across the estate?",
+    "models": [
+      "PortfolioConsequenceRollup",
+      "FinancialConsequenceRevision"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Estate consequences with source-site ownership and bounded interpretation"
+  },
+  {
+    "id": "cold-foundation",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.11",
+    "question": "Is this site configured well enough to interpret observations?",
+    "models": [
+      "SiteFoundation",
+      "SiteControls",
+      "ConfigurationRevision"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-health",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Health",
+    "anchor": "8.28 · 8.30 · 8.31",
+    "question": "Which assets or operating systems need condition investigation?",
+    "models": [
+      "AssetHealthSummary",
+      "CapabilityReadiness"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-evidence",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Evidence",
+    "anchor": "8.35 · 8.37",
+    "question": "What can this site’s accepted evidence support?",
+    "models": [
+      "SiteEvidenceMatrix",
+      "AcceptedEvidenceIndex"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-evidence-analysis",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Evidence",
+    "anchor": "8.35 · 8.37",
+    "question": "Which accepted records sit behind these limits?",
+    "models": [
+      "AcceptedEvidenceIndex",
+      "ClaimLineage"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-financials",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "What consequence can be translated without exceeding the evidence?",
+    "models": [
+      "FinancialConsequenceRevision",
+      "FinancialAssumption"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-assumptions",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "Which assumptions turn these quantities into money?",
+    "models": [
+      "FinancialAssumptionSet"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-findings",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Findings",
+    "anchor": "8.25 · 8.4",
+    "question": "Which conclusions apply to this site?",
+    "models": [
+      "FindingIndex"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-work",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.5–8.7",
+    "question": "Who owns the next step at this site?",
+    "models": [
+      "ActionIndex",
+      "MaintenanceIndex"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-work-incidents",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.6",
+    "question": "Which incident cases involve this site?",
+    "models": [
+      "IncidentIndex"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-work-maintenance",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.7",
+    "question": "Which maintenance work involves this site?",
+    "models": [
+      "MaintenanceIndex"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-finding",
+    "title": "Backup response failed during grid interruption",
+    "root": "Findings",
+    "section": "Overview",
+    "anchor": "8.32 · 8.29 · 8.31",
+    "question": "What is the conclusion, evidence and next action?",
+    "models": [
+      "Finding",
+      "EvidenceBundle",
+      "ActionSummary"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "cold-recommendation",
+    "title": "Backup response failed during grid interruption",
+    "root": "Findings",
+    "section": "Recommendation",
+    "anchor": "8.32 · 8.38 · 8.34",
+    "question": "What should the operator do next, who owns it, and what is it worth?",
+    "models": [
+      "Recommendation",
+      "Action",
+      "VerificationPlanVersion"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "ev-foundation",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.11",
+    "question": "Is this site configured well enough to interpret observations?",
+    "models": [
+      "SiteFoundation",
+      "SiteControls",
+      "ConfigurationRevision"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-health",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Health",
+    "anchor": "8.3 · 8.27 · domain-pack extrapolation",
+    "question": "Which assets or operating systems need condition investigation?",
+    "models": [
+      "AssetHealthSummary",
+      "CapabilityReadiness"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-evidence",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Evidence",
+    "anchor": "8.35 · 8.37",
+    "question": "What can this site’s accepted evidence support?",
+    "models": [
+      "SiteEvidenceMatrix",
+      "AcceptedEvidenceIndex"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-evidence-analysis",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Evidence",
+    "anchor": "8.35 · 8.37",
+    "question": "Which accepted records sit behind these limits?",
+    "models": [
+      "AcceptedEvidenceIndex",
+      "ClaimLineage"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-financials",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "What consequence can be translated without exceeding the evidence?",
+    "models": [
+      "FinancialConsequenceRevision",
+      "FinancialAssumption"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-assumptions",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "Which assumptions turn these quantities into money?",
+    "models": [
+      "FinancialAssumptionSet"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-findings",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Findings",
+    "anchor": "8.25 · 8.4",
+    "question": "Which conclusions apply to this site?",
+    "models": [
+      "FindingIndex"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-work",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.5–8.7",
+    "question": "Who owns the next step at this site?",
+    "models": [
+      "ActionIndex",
+      "MaintenanceIndex"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-work-incidents",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.6",
+    "question": "Which incident cases involve this site?",
+    "models": [
+      "IncidentIndex"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-work-maintenance",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Work",
+    "anchor": "8.26 · 8.7",
+    "question": "Which maintenance work involves this site?",
+    "models": [
+      "MaintenanceIndex"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-finding",
+    "title": "Connector 2 charging session interrupted",
+    "root": "Findings",
+    "section": "Overview",
+    "anchor": "8.32 · domain-pack extrapolation",
+    "question": "What is the conclusion, evidence and next action?",
+    "models": [
+      "Finding",
+      "EvidenceBundle",
+      "ActionSummary"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-recommendation",
+    "title": "Connector 2 charging session interrupted",
+    "root": "Findings",
+    "section": "Recommendation",
+    "anchor": "8.32 · 8.38 · EV extrapolation",
+    "question": "What should the operator do next, who owns it, and what is it worth?",
+    "models": [
+      "Recommendation",
+      "Action",
+      "VerificationPlanVersion"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "ev-action",
+    "title": "ACT-061 · Investigate connector 2",
+    "root": "Actions",
+    "section": "Verification",
+    "anchor": "8.38 · EV extrapolation",
+    "question": "What would establish successful service restoration?",
+    "models": [
+      "Action",
+      "VerificationOutcome"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "finding-evidence",
+    "title": "Generator support review",
+    "root": "Findings",
+    "section": "Evidence",
+    "anchor": "8.32 · 8.37",
+    "question": "Which accepted records support this Finding?",
+    "models": [
+      "EvidenceBundle",
+      "AcceptedEvidence"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "alternatives",
+    "title": "Generator support review",
+    "root": "Findings",
+    "section": "Alternatives",
+    "anchor": "8.32",
+    "question": "What alternative explanations remain plausible?",
+    "models": [
+      "FindingAnalysis"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "finding-history",
+    "title": "Generator support review",
+    "root": "Findings",
+    "section": "History",
+    "anchor": "8.32",
+    "question": "How did the conclusion and workflow change?",
+    "models": [
+      "FindingRevision",
+      "ActionEvent"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "action-overview",
+    "title": "ACT-048 · Generator policy review",
+    "root": "Actions",
+    "section": "Overview",
+    "anchor": "8.38",
+    "question": "What is the current intervention and outcome state?",
+    "models": [
+      "Action",
+      "ActionEvent",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "action-plan",
+    "title": "ACT-048 · Generator policy review",
+    "root": "Actions",
+    "section": "Plan",
+    "anchor": "8.38",
+    "question": "What is the current intervention and outcome state?",
+    "models": [
+      "Action",
+      "ActionEvent",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "action-execution",
+    "title": "ACT-048 · Generator policy review",
+    "root": "Actions",
+    "section": "Execution",
+    "anchor": "8.38",
+    "question": "What is the current intervention and outcome state?",
+    "models": [
+      "Action",
+      "ActionEvent",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "action-evidence",
+    "title": "ACT-048 · Generator policy review",
+    "root": "Actions",
+    "section": "Evidence",
+    "anchor": "8.38",
+    "question": "What is the current intervention and outcome state?",
+    "models": [
+      "Action",
+      "ActionEvent",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "action-history",
+    "title": "ACT-048 · Generator policy review",
+    "root": "Actions",
+    "section": "History",
+    "anchor": "8.38",
+    "question": "What is the current intervention and outcome state?",
+    "models": [
+      "Action",
+      "ActionEvent",
+      "VerificationOutcome"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "opportunity-finding",
+    "title": "Productive-use headroom at Kobo",
+    "root": "Findings",
+    "section": "Overview",
+    "anchor": "8.32 / 8.23 / 8.36",
+    "question": "Can recurring renewable headroom support useful additional demand?",
+    "models": [
+      "Finding",
+      "RenewableOpportunityWindow",
+      "FinancialConsequence"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Opportunity detail linked from the Portfolio ranked Findings lens; reuses the existing five-day renewable example.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "cold-finding-excursion",
+    "title": "Chamber temperature went above policy",
+    "root": "Findings",
+    "section": "Overview",
+    "anchor": "8.32 · 8.29",
+    "question": "What is the conclusion, evidence and next action?",
+    "models": [
+      "Finding",
+      "TemperatureExcursion"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "F-119 was referenced by Incident INC-203 but had no page; added so the site Findings index has no dead references.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "cold-action",
+    "title": "ACT-051 · Witness automatic-start test",
+    "root": "Actions",
+    "section": "Verification",
+    "anchor": "8.38 / 8.34",
+    "question": "Has backup service been restored after the inspection?",
+    "models": [
+      "Action",
+      "MaintenanceWorkRequest",
+      "VerificationOutcome"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false
+  },
+  {
+    "id": "scenarios",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "Which what-if scenarios are defined for this site?",
+    "models": [
+      "FinancialScenario"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Financials · scenarios (placeholder)"
+  },
+  {
+    "id": "cold-scenarios",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "Which what-if scenarios are defined for this site?",
+    "models": [
+      "FinancialScenario"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Financials · scenarios (placeholder)"
+  },
+  {
+    "id": "ev-scenarios",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Financials",
+    "anchor": "8.36",
+    "question": "Which what-if scenarios are defined for this site?",
+    "models": [
+      "FinancialScenario"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Financials · scenarios (placeholder)"
+  },
+  {
+    "id": "cold-readiness",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.35 · 8.13 (fields)",
+    "question": "Is the site set up, and is its data arriving?",
+    "models": [
+      "FoundationReadiness",
+      "GatewayStatus",
+      "SourceHealth"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Definition, commissioning and gateway readiness"
+  },
+  {
+    "id": "ev-readiness",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.35 · 8.13 (fields)",
+    "question": "Is the site set up, and is its data arriving?",
+    "models": [
+      "FoundationReadiness",
+      "GatewayStatus",
+      "SourceHealth"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Definition, commissioning and gateway readiness"
+  },
+  {
+    "id": "sld",
+    "title": "Kobo Mini-grid",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.12 (structure)",
+    "question": "How is the site connected, and which parts report evidence?",
+    "models": [
+      "TopologyReadModel",
+      "SignalBindingVersion",
+      "SourceHealth"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "v6.9 8.12 is the Simulator Lab site view; its structure (sources, breakers, bus, loads) is reused as a product view with reporting status instead of live flows or controls.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Foundation · single line diagram"
+  },
+  {
+    "id": "cold-sld",
+    "title": "GreenHarvest Cold Room",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.10 · 8.12 (structure)",
+    "question": "How is the site connected, and which parts report evidence?",
+    "models": [
+      "TopologyReadModel",
+      "SourceHealth"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
+  },
+  {
+    "id": "ev-sld",
+    "title": "Depot Charging Hub",
+    "root": "Sites",
+    "section": "Foundation",
+    "anchor": "8.12 structure · EV extrapolation",
+    "question": "How is the site connected, and which parts report evidence?",
+    "models": [
+      "TopologyReadModel",
+      "SourceHealth"
+    ],
+    "domain": "ev",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
+  },
+  {
+    "id": "assets-warranty",
+    "title": "Assets",
+    "root": "Assets",
+    "section": "Warranty & vendors",
+    "anchor": "8.3 · Warranty (P1 tab, filled in)",
+    "question": "Which warranty cover is in force, at risk or claimable?",
+    "models": [
+      "WarrantyRecord",
+      "AssetHealthSummary",
+      "FinancialConsequence"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Inventory",
+        "assets"
+      ],
+      [
+        "Warranty & vendors",
+        "assets-warranty"
+      ],
+      [
+        "Register asset",
+        "asset-register"
+      ]
+    ],
+    "subtitle": "Warranty cover, claims and vendor performance across assets"
+  },
+  {
+    "id": "asset-register",
+    "title": "Assets",
+    "root": "Assets",
+    "section": "Register asset",
+    "anchor": "8.3 · 8.10 (registration)",
+    "question": "How is a new asset registered?",
+    "models": [
+      "AssetRegistration"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Inventory",
+        "assets"
+      ],
+      [
+        "Warranty & vendors",
+        "assets-warranty"
+      ],
+      [
+        "Register asset",
+        "asset-register"
+      ]
+    ],
+    "subtitle": "New asset · draft with validation"
+  },
+  {
+    "id": "asset-overview",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Overview",
+    "anchor": "8.3 · 8.27 asset tabs",
+    "question": "Is this battery in good shape, and what is it worth to act?",
+    "models": [
+      "AssetSummary",
+      "AssetHealthSummary",
+      "WarrantyRecord"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+    "id": "asset-performance",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Performance",
+    "anchor": "8.27 asset tabs",
+    "question": "How is the battery used?",
+    "models": [
+      "BatteryUsageWindow"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+    "id": "asset-config",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Configuration",
+    "anchor": "8.27 asset tabs · 8.10",
+    "question": "How is the battery registered and mapped?",
+    "models": [
+      "AssetRegistration",
+      "SignalBindingVersion"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+    "id": "asset-edit",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Configuration",
+    "anchor": "8.27 · registration edit",
+    "question": "What changes in this registration?",
+    "models": [
+      "AssetRegistration"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "tabActive": "asset-config",
+    "subtitle": "BAT-001 · edit registration"
+  },
+  {
+    "id": "asset-work",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Work",
+    "anchor": "8.27 asset tabs · 8.34",
+    "question": "What work and maintenance records exist for the battery?",
+    "models": [
+      "ActionIndex",
+      "MaintenanceRecord"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "subtitle": "BAT-001 · scoped Actions and Maintenance"
+  },
+  {
+    "id": "asset-evidence",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Evidence",
+    "anchor": "8.27 · 8.35 pattern",
+    "question": "What can the battery evidence support?",
+    "models": [
+      "CapabilityReadiness"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "subtitle": "BAT-001 · condition evidence"
+  },
+  {
+    "id": "asset-warranty",
+    "title": "Kobo battery",
+    "root": "Assets",
+    "section": "Warranty",
+    "anchor": "8.27 Warranty (P1, filled in)",
+    "question": "Is warranty cover holding, and is anything claimable?",
+    "models": [
+      "WarrantyRecord",
+      "BatteryStressWindow",
+      "BatteryUsageWindow"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "BAT-001",
+    "subtitle": "BAT-001 · warranty and usage against terms"
+  },
+  {
+    "id": "findings-cost",
+    "title": "Findings",
+    "root": "Findings",
+    "section": "Cost",
+    "anchor": "8.4",
+    "question": "Which findings fall under this lens?",
+    "models": [
+      "FindingIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "All findings",
+        "findings"
+      ],
+      [
+        "Cost",
+        "findings-cost"
+      ],
+      [
+        "Risks",
+        "findings-risks"
+      ],
+      [
+        "Opportunities",
+        "findings-opportunities"
+      ]
+    ],
+    "subtitle": "Evidence-backed operating conclusions · one object model"
+  },
+  {
+    "id": "findings-risks",
+    "title": "Findings",
+    "root": "Findings",
+    "section": "Risks",
+    "anchor": "8.4",
+    "question": "Which findings fall under this lens?",
+    "models": [
+      "FindingIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "All findings",
+        "findings"
+      ],
+      [
+        "Cost",
+        "findings-cost"
+      ],
+      [
+        "Risks",
+        "findings-risks"
+      ],
+      [
+        "Opportunities",
+        "findings-opportunities"
+      ]
+    ],
+    "subtitle": "Evidence-backed operating conclusions · one object model"
+  },
+  {
+    "id": "findings-opportunities",
+    "title": "Findings",
+    "root": "Findings",
+    "section": "Opportunities",
+    "anchor": "8.4",
+    "question": "Which findings fall under this lens?",
+    "models": [
+      "FindingIndex"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "All findings",
+        "findings"
+      ],
+      [
+        "Cost",
+        "findings-cost"
+      ],
+      [
+        "Risks",
+        "findings-risks"
+      ],
+      [
+        "Opportunities",
+        "findings-opportunities"
+      ]
+    ],
+    "subtitle": "Evidence-backed operating conclusions · one object model"
+  },
+  {
+    "id": "maintenance-preventive",
+    "title": "Maintenance",
+    "root": "Maintenance",
+    "section": "Preventive · scheduled",
+    "anchor": "8.7 · preventive",
+    "question": "What scheduled maintenance is due?",
+    "models": [
+      "MaintenancePlan"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Corrective",
+        "maintenance"
+      ],
+      [
+        "Preventive · scheduled",
+        "maintenance-preventive"
+      ]
+    ],
+    "subtitle": "Scheduled maintenance by calendar or running hours"
+  },
+  {
+    "id": "wr-overview",
+    "title": "Starter and control-circuit inspection",
+    "root": "Maintenance",
+    "section": "Overview",
+    "anchor": "8.34",
+    "question": "What was done, and is it verified?",
+    "models": [
+      "MaintenanceWorkRequest"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "WR-019",
+    "subtitle": "WR-019 · GreenHarvest · corrective"
+  },
+  {
+    "id": "wr-record",
+    "title": "Starter and control-circuit inspection",
+    "root": "Maintenance",
+    "section": "Maintenance record",
+    "anchor": "8.34 work evidence",
+    "question": "What exactly was done on site?",
+    "models": [
+      "MaintenanceRecord"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "WR-019",
+    "subtitle": "WR-019 · GreenHarvest · corrective"
+  },
+  {
+    "id": "wr-history",
+    "title": "Starter and control-circuit inspection",
+    "root": "Maintenance",
+    "section": "History",
+    "anchor": "8.34",
+    "question": "How did the work progress?",
+    "models": [
+      "WorkEvent"
+    ],
+    "domain": "cold",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "obj": "WR-019",
+    "subtitle": "WR-019 · GreenHarvest · corrective"
+  },
+  {
+    "id": "oprecords",
+    "title": "Operational records",
+    "root": "Operational records",
+    "section": "",
+    "anchor": "Owner outline · 8.33 basis (Operator record)",
+    "question": "What did people on site record, and what does it feed?",
+    "models": [
+      "OperationalRecord"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "subtitle": "Operator logs, manual readings, shift notes and site visits"
+  },
+  {
+    "id": "settings-policies",
+    "title": "Settings",
+    "root": "Settings",
+    "section": "Operational policies",
+    "anchor": "3.10 · demo scope",
+    "question": "Which operating policies apply, and in which version?",
+    "models": [
+      "PolicyVersion"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Operational policies",
+        "settings-policies"
+      ],
+      [
+        "Tenant configuration",
+        "settings-tenant"
+      ]
+    ],
+    "subtitle": "Versioned operating policies"
+  },
+  {
+    "id": "settings-tenant",
+    "title": "Settings",
+    "root": "Settings",
+    "section": "Tenant configuration",
+    "anchor": "3.10 · demo scope",
+    "question": "How is this organisation set up?",
+    "models": [
+      "TenantConfiguration"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Operational policies",
+        "settings-policies"
+      ],
+      [
+        "Tenant configuration",
+        "settings-tenant"
+      ]
+    ],
+    "subtitle": "Organisation, users, roles and feature switches"
+  }
+]
