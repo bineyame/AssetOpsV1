@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Codex; scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -35,6 +35,30 @@ justification, and informs the owner. Where the Architect wants the owner to
 weigh in, it says so, giving its decision and justification, and the owner may
 confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
 a decision request and still goes to the owner.
+
+## Scoped Claude Architect Exception: v6.9 Site Mock-ups (2026-10-06)
+
+The owner set Architect to Claude for one piece of work: comparing the site
+pages of the static mock-ups in `frontend/mockups/v69/` with v6.9 sections
+8.18-8.26 (mini-grid), 8.28-8.31 (cold chain), 8.35 (readiness) and 8.36
+(financials), and **updating the mock-up screens** with the enhanced version.
+Owner text verbatim: `.agent/owner-v69-site-mockup-comparison-2026-10-06.md`.
+
+- Extended by the owner the same day (follow-up 2 in the same file): EV
+  recommendations, interactive site selection across mini-grid, cold chain
+  and EV, a date-range selection bar, and the site single line diagram.
+- Extended again (follow-ups 3-6 in the same file): beyond the site pages to
+  the global Assets (incl. warranty/vendor economics, registration/edit),
+  Findings, Evidence, Work (Actions, Incidents, Maintenance, Operational
+  records) and a limited-demo Settings area of the mock-ups, and site
+  creation (form, template, batch upload; follow-up 8).
+- Scope: branch `arch/canonical-v69-pivot`, mock-up files only. Backend,
+  frontend app, gateway and simulator realization planning stay Codex-bound.
+- For this scope the Architect also edits the mock-up files directly (owner
+  instruction); the usual Architect/Implementer split does not apply to them.
+- Outputs state they were produced by Claude under this exception.
+- Revert this row to plain Codex when the owner accepts the enhanced mock-ups
+  or says so.
 
 ## Architect, Reviewer And Planner Were Claude Until 2026-10-03 21:23
 
