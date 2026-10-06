@@ -41,3 +41,7 @@
 @media(max-width:760px){.mheader{grid-template-columns:1fr 1fr}.mheader div{border-left:0;border-top:1px solid var(--line)}}
 
 .asset-id{background:#fff;border:1px solid var(--line);border-radius:7px;padding:12px 16px;margin-bottom:16px}.asset-id .prov-tag{margin-bottom:6px}.asset-id .key-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr) minmax(0,2fr));gap:6px 12px}@media(max-width:1100px){.asset-id .key-values{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}}
+
+/* Round 8: site creation. */
+.add-site{display:inline-flex;gap:6px;flex-wrap:wrap}.tpl-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}.tpl-card{display:flex;flex-direction:column;gap:5px;text-align:left;border:1px solid var(--line);border-radius:7px;background:#fff;padding:13px 14px;color:var(--ink)}.tpl-card span{font-size:11px;color:var(--muted);line-height:1.5}.tpl-card small{font-size:10px;color:#5c6c86}.tpl-card.active{border-color:#7da2e8;background:#f3f7ff;box-shadow:0 0 0 1px #7da2e8}.dropzone{border:1.5px dashed #b9c6db;border-radius:7px;padding:18px;display:flex;flex-direction:column;gap:4px;font-size:12px;background:#fbfcfe}.dropzone span{color:var(--muted);font-size:11px}
+@media(max-width:1100px){.tpl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -77,6 +77,28 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "gtabs": [
+      [
+        "Directory",
+        "sites"
+      ],
+      [
+        "Add site · form",
+        "site-create-form"
+      ],
+      [
+        "From template",
+        "site-create-template"
+      ],
+      [
+        "Batch upload",
+        "site-batch-upload"
+      ],
+      [
+        "Setup history",
+        "site-setup-history"
+      ]
+    ],
     "subtitle": "Find and compare sites across the operating estate"
   },
   {
@@ -1720,6 +1742,165 @@
     "book": false,
     "obj": "BAT-001",
     "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+    "id": "site-create-form",
+    "title": "Sites",
+    "root": "Sites",
+    "section": "Add site · form",
+    "anchor": "8.2 Add site · 8.10",
+    "question": "How is a site created step by step?",
+    "models": [
+      "SiteDraft",
+      "SiteFoundationVersion"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Directory",
+        "sites"
+      ],
+      [
+        "Add site · form",
+        "site-create-form"
+      ],
+      [
+        "From template",
+        "site-create-template"
+      ],
+      [
+        "Batch upload",
+        "site-batch-upload"
+      ],
+      [
+        "Setup history",
+        "site-setup-history"
+      ]
+    ],
+    "subtitle": "Lakeside Mini-grid · draft"
+  },
+  {
+    "id": "site-create-template",
+    "title": "Sites",
+    "root": "Sites",
+    "section": "From template",
+    "anchor": "8.2 Add site · 8.10",
+    "question": "Which template fits, and what does it set up?",
+    "models": [
+      "SiteTemplate",
+      "SiteDraft"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Directory",
+        "sites"
+      ],
+      [
+        "Add site · form",
+        "site-create-form"
+      ],
+      [
+        "From template",
+        "site-create-template"
+      ],
+      [
+        "Batch upload",
+        "site-batch-upload"
+      ],
+      [
+        "Setup history",
+        "site-setup-history"
+      ]
+    ],
+    "subtitle": "Create a site from a template"
+  },
+  {
+    "id": "site-batch-upload",
+    "title": "Sites",
+    "root": "Sites",
+    "section": "Batch upload",
+    "anchor": "8.2 Add site",
+    "question": "How are many sites created at once?",
+    "models": [
+      "SiteImportBatch",
+      "SiteDraft"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Directory",
+        "sites"
+      ],
+      [
+        "Add site · form",
+        "site-create-form"
+      ],
+      [
+        "From template",
+        "site-create-template"
+      ],
+      [
+        "Batch upload",
+        "site-batch-upload"
+      ],
+      [
+        "Setup history",
+        "site-setup-history"
+      ]
+    ],
+    "subtitle": "Upload, check and import sites"
+  },
+  {
+    "id": "site-setup-history",
+    "title": "Sites",
+    "root": "Sites",
+    "section": "Setup history",
+    "anchor": "8.2 · 8.10",
+    "question": "Who created or changed which site, and when?",
+    "models": [
+      "SiteSetupEvent"
+    ],
+    "domain": "mini",
+    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
+    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
+    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
+    "book": false,
+    "gtabs": [
+      [
+        "Directory",
+        "sites"
+      ],
+      [
+        "Add site · form",
+        "site-create-form"
+      ],
+      [
+        "From template",
+        "site-create-template"
+      ],
+      [
+        "Batch upload",
+        "site-batch-upload"
+      ],
+      [
+        "Setup history",
+        "site-setup-history"
+      ]
+    ],
+    "subtitle": "Audit of site creation and activation"
   },
   {
     "id": "asset-performance",

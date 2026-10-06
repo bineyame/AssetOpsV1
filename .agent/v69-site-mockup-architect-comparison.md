@@ -725,3 +725,71 @@ book.
 `assets-index.png`, `asset-warranty.png`, `assets-warranty.png`, `asset-register.png`,
 `finding-detail.png`, `maintenance-preventive.png`, `wr-record.png`,
 `operational-records.png`, `settings-policies.png`, `settings-tenant.png`.
+
+---
+
+## 11. Round 8 (owner follow-up 8, 2026-10-06: site creation by form, template and batch upload)
+
+Produced by Claude as Architect under the scoped exception (extended for follow-up 8).
+Owner text: "Creation of site in batch via upload, or from template or through form need
+to be added in site setup — let the architect decide whether it should go in the settings
+or sites". Mock-up files only; nothing committed.
+
+Result: 110 screens and 962 browser checks pass with 0 runtime errors. The PDF page is
+1658 of 1728 px; all new screens are subtabs kept out of the book.
+
+### 11.1 Decision: site creation lives under Sites, not Settings
+
+- **K1. Sites.** The decision and its reasons:
+  - v6.9 §8.2 puts "+ Add site" on the Sites index.
+  - A site is an operational object, created where it is found, in the same way that
+    Register asset sits under Assets.
+  - Settings holds what a new site *inherits* (policies, tenant units and time zone),
+    not the sites themselves.
+  - Sites gains a subtab row: Directory | Add site · form | From template | Batch upload |
+    Setup history.
+  - The creation pages are estate-level, so they carry the window picker but no site
+    selector or site provenance tag.
+
+### 11.2 What was added
+
+| Screen | Content |
+|---|---|
+| Directory (`sites`) | Unchanged directory, plus an **In setup** panel: Lakeside Mini-grid (draft, by form), Westfield Depot (pending activation, from template) and any batch-imported drafts, each with its next step. "+ Form / From template / Batch upload" buttons. v6.9's "Create simulated site / Clone site into scenario" are not shown to operators; provenance is chosen inside the form |
+| Add site · form (`site-create-form`) | Six steps: Identity (name, id, type, location, time zone, data source: field equipment or simulated source as provenance), Configuration, Assets (reusing Register asset, with vendor and warranty), Gateway and points, Policies inherited from Settings (with versions), Review. Validation separates **blocking** checks (all clear) from **gaps expected at creation**: gateway not connected yet, 0 of 14 points mapped, 2 warranty records missing, commissioning not recorded. These are the same categories that Readiness and the confidence chips use. Save draft / Activate (activation gives assessment Unknown, with the gaps listed in Readiness) |
+| From template (`site-create-template`) | Four templates: Mini-grid AC-coupled, Mini-grid DC-coupled (new diagram), Hybrid cold room, EV depot. The selected template shows its single line diagram with every source "not connected" and real asset ids removed, a parameters form and the assets it adds. "Create draft from template" or continue in the form |
+| Batch upload (`site-batch-upload`) | Download CSV or XLSX template; upload (sites-october.xlsx, 6 rows); **validation preview** per row: 2 ready, 1 warning (battery size defaulted), 3 errors (time zone missing, duplicate id MG-DEMO-01, unknown template with a suggestion). Inline fixes for two rows; "Import N rows · skip M". The result summary shows drafts created and rows skipped (with a download of the skipped rows). Imported drafts then appear under Directory › In setup |
+| Setup history (`site-setup-history`) | Audit of create, import and activation events, consistent with existing dates: Depot point list v1 on 15 Sep, GreenHarvest v2 on 28 Sep, Kobo Foundation v4 on 6 Oct. The import adds a row when it is run |
+
+### 11.3 Other decisions
+
+- **K2. Simulated is provenance, chosen in the form's identity step.** A template never
+  decides it. There is no "Create simulated site" entry on operator screens; the admin
+  feature switch in Settings governs the simulation workspace (3.10).
+- **K3. Templates are AssetOps site templates** (type, diagram, assets, point list), not
+  the simulation workspace's templates. Their previews show nothing reporting, because
+  nothing does yet.
+- **K4. Validation never blocks a draft.** Activation needs only the blocking checks. The
+  expected creation gaps stay visible and feed Readiness, so a new site is honest
+  ("Unknown") from day one.
+
+### 11.4 Owner weigh-in
+
+- **W11. Templates are fixed for now: owner-confirmed (follow-up 9).** The 4 built-in
+  templates are shown as "standard templates, available to all organisations"; nothing
+  suggests they are edited in Settings today. **Future direction (owner):** template
+  settings become tenant-specific, while the shared standard templates are checked into
+  source code and available to all tenants.
+- **W12. Batch upload creates drafts only: owner-confirmed (follow-up 9).** Every imported
+  site passes the same activation review as a form-created site.
+
+### 11.5 Checks and previews
+
+- **Checks added:** the Sites subtab row and the In setup panel; the creation pages carry
+  no site selector or site provenance tag; the six form steps and the expected-gap
+  validation; template switching redraws a not-connected diagram with no real asset ids;
+  batch per-row errors; fixing a row clears its error; import results; imported drafts
+  appear in the directory; setup history records the import; mobile containment for the
+  three creation screens.
+- **Previews:** `site-create-form.png`, `site-create-template.png` (hybrid cold room),
+  `site-batch-upload.png` (validation preview state).

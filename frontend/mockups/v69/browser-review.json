@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-10-06T12:58:56.215Z",
-  "screens": 106,
+  "checked_at": "2026-10-06T14:25:29.266Z",
+  "screens": 110,
   "book_pages": 42,
   "page_height_px": 1658,
   "checks": [
@@ -1810,6 +1810,86 @@
       "detail": ""
     },
     {
+      "label": "site-create-form: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-create-form: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-create-template: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-batch-upload: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-setup-history: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "label": "asset-performance: visible page",
       "passed": true,
       "detail": ""
@@ -2476,6 +2556,26 @@
     },
     {
       "label": "ev-sld: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no Lab route or simulator wording in site page",
       "passed": true,
       "detail": ""
     },
@@ -3281,6 +3381,26 @@
     },
     {
       "label": "asset-overview: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no Simulated badge in page chrome",
       "passed": true,
       "detail": ""
     },
@@ -4155,6 +4275,26 @@
       "detail": ""
     },
     {
+      "label": "site-create-form: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "label": "asset-performance: no plain Low confidence without a cause",
       "passed": true,
       "detail": ""
@@ -4351,6 +4491,66 @@
     },
     {
       "label": "Battery warranty: terms against evidence, cover at risk, claim chip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Sites: Directory and three creation routes as subtabs; In setup panel",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site form: six steps, blocking checks clear, gaps expected at creation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Template preview redraws its diagram with nothing reporting",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Batch preview: per-row results",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Fixing a row clears its error",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Import shows results and drafts",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Imported drafts appear In setup",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Setup history records the import",
       "passed": true,
       "detail": ""
     },
@@ -4590,6 +4790,21 @@
       "detail": ""
     },
     {
+      "label": "site-create-form: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "label": "PDF pages remain landscape",
       "passed": true,
       "detail": "1728 x 1658 · tallest: book-readiness:1627 book-coldbackup:1597 book-portfolio:1580 book-finding:1567 book-cold:1544"
@@ -4616,8 +4831,8 @@
       "title": "Sites",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1101,
-      "tabRows": 0,
+      "height": 1193,
+      "tabRows": 1,
       "subRows": 0,
       "broken": []
     },
@@ -5502,6 +5717,46 @@
       "broken": []
     },
     {
+      "id": "site-create-form",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 2025,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-create-template",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1732,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-batch-upload",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-setup-history",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
       "id": "asset-performance",
       "title": "Kobo battery",
       "width": 1440,
@@ -5670,7 +5925,7 @@
     },
     {
       "id": "book-sites",
-      "height": 1023,
+      "height": 1219.6875,
       "width": 1728
     },
     {

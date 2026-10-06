@@ -50,7 +50,8 @@ Owner text verbatim: `.agent/owner-v69-site-mockup-comparison-2026-10-06.md`.
 - Extended again (follow-ups 3-6 in the same file): beyond the site pages to
   the global Assets (incl. warranty/vendor economics, registration/edit),
   Findings, Evidence, Work (Actions, Incidents, Maintenance, Operational
-  records) and a limited-demo Settings area of the mock-ups.
+  records) and a limited-demo Settings area of the mock-ups, and site
+  creation (form, template, batch upload; follow-up 8).
 - Scope: branch `arch/canonical-v69-pivot`, mock-up files only. Backend,
   frontend app, gateway and simulator realization planning stay Codex-bound.
 - For this scope the Architect also edits the mock-up files directly (owner

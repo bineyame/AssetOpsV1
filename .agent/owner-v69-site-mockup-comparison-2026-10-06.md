@@ -40,3 +40,11 @@ Settings(Very limited demo scope)
 # Owner follow-up 7, 2026-10-06 (verbatim; answer to the asset Overview question)
 
 asset overview tab is nedeed.
+
+# Owner follow-up 8, 2026-10-06 (verbatim)
+
+Creation of site in batch via upload, or from template or through form need to be added in site setup- let the architect decide whether it should go in the settings or sites and create associated mock-up screens
+
+# Owner follow-up 9, 2026-10-06 (verbatim; answers to W11 and W12)
+
+Response  1.It is ok for the templates to be fixed now, the setting would be tenant specific in the future and the shared site templates would be checked into source code available to all. Second point make sense.
