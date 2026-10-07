@@ -17,6 +17,8 @@ Site source-health read model from cadence/heartbeat, ingestion lag and edge dia
 
 ## Demo acceptance
 
+Use centrally received gateway diagnostics from S2-02 for stale contact, queue age/depth, clock offset and disk pressure; a local Lab status alone cannot support Site Health. Planner names `D-edge-health-cases` and `I-sim-battery-cases`: produce outage/pressure and a causally supportable battery stress window (or a labelled captured-device replay if the kernel cannot model it) through normal ingestion. Verify central diagnostic reload and keep source freshness distinct from battery stress.
+
 Stale gateway versus live stressed battery, battery stress window and modelled replacement exposure when supportable; reload.
 
 ## Missing/conflicting evidence

@@ -17,6 +17,8 @@ Typed EvidenceQuery/AnalyticInputSet over Postgres accepted records and time-val
 
 ## Demo acceptance
 
+Planner names the Lab scenario producer `I-sim-dispatch-cases`: reproducible complete, missing, contradictory and late public-report intervals from the registered Kobo basis through the durable gateway and normal ingestion. Record the scenario manifest and expected claim ceilings; private world truth is for Lab comparison only. This producer is part of the S3-01 review, not an assumed fixture supplied by the central analytic.
+
 Choose a window, inspect generator/load/PV/battery evidence IDs and quality limits; compare representative dispatch claims with the file-backed S2-02 baseline before switching Performance reads to Postgres-derived revisions. Add late evidence, recompute and reopen old/new revisions.
 
 ## Missing/conflicting evidence

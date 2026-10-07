@@ -23,6 +23,10 @@ for (const [task, gate] of [['S4-01', 'A-claim-work-routes'], ['S4-02', 'A-actor
 if (!taskQueue.includes('S6-01 reuses both accepted contracts') || !taskQueue.includes('queue_baseline_nodes')) {
   fail('Task queue lacks cross-cutting gate reuse or baseline refinement rule');
 }
+for (const gate of ['A-lab-registered-basis', 'A-edge-batch-signature', 'A-edge-diagnostics', 'A-demo-scenarios', 'I-edge-fault-scenarios',
+  'I-sim-dispatch-cases', 'I-sim-verification-cases', 'I-sim-battery-cases']) {
+  if (!taskQueue.includes(gate)) fail(`Task queue lacks simulation/edge gate ${gate}`);
+}
 const areas = new Set(registry.areas.map((area) => area.id));
 const nodes = new Map();
 for (const node of registry.nodes) {
@@ -66,6 +70,21 @@ function visit(id) {
   visited.add(id);
 }
 for (const id of nodes.keys()) visit(id);
+for (const [id, prerequisites] of [
+  ['I-S2-01', ['I-lab-registered-basis', 'I-edge-batch-sign', 'I-edge-physical-adapter', 'I-edge-diagnostics-publish', 'I-edge-fault-scenarios']],
+  ['I-S2-02', ['I-batch-signature-verify', 'I-edge-diagnostics-store']],
+  ['I-S3-01', ['I-sim-dispatch-cases']],
+  ['D-verification-window', ['I-sim-verification-cases']],
+  ['I-S7-01', ['I-edge-diagnostics-store', 'D-edge-health-cases', 'I-sim-battery-cases']],
+  ['D-cold-domain', ['I-cold-world', 'D-cold-physical-peer']],
+  ['D-cold-physical-peer', ['I-cold-device-adapter']],
+  ['D-ev-domain', ['I-ev-world', 'D-ev-physical-peer']],
+  ['D-ev-physical-peer', ['I-ev-device-adapter']]
+]) {
+  if (prerequisites.some((dependency) => !nodes.get(id)?.requires.includes(dependency))) {
+    fail(`${id}: missing simulation/edge technical prerequisite`);
+  }
+}
 const queueVisiting = new Set();
 const queueVisited = new Set();
 function visitQueue(id) {
@@ -134,9 +153,14 @@ for (const node of nodes.values()) if (node.kind === 'implementation' && expecte
 }
 
 // Subject-area briefs assign every manifest model and screen exactly one primary home.
-const subjectAreas = new Set([...areas].filter((area) => area !== 'platform'));
-if (briefs.areas.length !== subjectAreas.size || new Set(briefs.areas.map((area) => area.id)).size !== subjectAreas.size ||
-    briefs.areas.some((area) => !subjectAreas.has(area.id))) fail('Subject-area brief IDs differ from registry areas');
+const briefAreas = new Set([...areas].filter((area) => area !== 'platform'));
+if (briefs.areas.length !== briefAreas.size || new Set(briefs.areas.map((area) => area.id)).size !== briefAreas.size ||
+    briefs.areas.some((area) => !briefAreas.has(area.id))) fail('Subject-area brief IDs differ from registry areas');
+const enablingAreas = briefs.areas.filter((area) => area.role === 'cross-cutting enabler');
+if (enablingAreas.length !== 1 || enablingAreas[0].id !== 'simulation-edge' ||
+    enablingAreas[0].models_owned.length || enablingAreas[0].primary_screens.length) {
+  fail('Simulation-edge must be the sole non-product enabling area and own no manifest models/screens');
+}
 const exactCoverage = (expected, actual, label) => {
   if (actual.length !== new Set(actual).size || expected.length !== actual.length ||
       expected.some((id) => !actual.includes(id))) fail(`${label}: incomplete or duplicate primary coverage`);
@@ -154,9 +178,20 @@ for (const area of briefs.areas) {
     }
   }
   if (area.projection_contracts.some((name) => !modelByName.has(name))) fail(`${area.id}: unknown projection model`);
-  const productDefault = [...nodes.values()].filter((node) => node.kind === 'product' && node.scope === 'area' &&
-    node.governs_areas.includes(area.id));
-  if (productDefault.length !== 1) fail(`${area.id}: missing or duplicate area product default`);
+  if (area.role === 'cross-cutting enabler') {
+    if (!Array.isArray(area.consuming_screens) || !area.consuming_screens.length ||
+        area.consuming_screens.some((id) => !screenLedger.some((row) => row.id === id))) {
+      fail(`${area.id}: invalid consuming screens`);
+    }
+    if ([...nodes.values()].some((node) => node.kind === 'product' &&
+        (node.area === area.id || node.governs_areas?.includes(area.id)))) {
+      fail(`${area.id}: enabling area cannot own a product tier`);
+    }
+  } else {
+    const productDefault = [...nodes.values()].filter((node) => node.kind === 'product' && node.scope === 'area' &&
+      node.governs_areas.includes(area.id));
+    if (productDefault.length !== 1) fail(`${area.id}: missing or duplicate area product default`);
+  }
 }
 
 const knownPanels = new Set(contracts.map((panel) => `${panel.screen_id}:${panel.panel_index}`));
@@ -235,13 +270,14 @@ for (const area of areas) counts[area] = {architecture: 0, implementation: 0, da
 for (const node of nodes.values()) if (node.status === 'open' || node.status === 'pending owner') counts[node.area][node.kind]++;
 console.log(`Registry valid: ${nodes.size} nodes, ${seenPanels.size} linked pilot panels`);
 console.log(`Panel gate coverage: ${seenPanels.size}/${contracts.length}; ${contracts.length - seenPanels.size} require subject-area wave refinement before readiness scoring`);
-console.log(`Area briefs valid: ${briefs.areas.length} areas, ${modelHomes.length} primary models, ${screenLedger.length} primary screens`);
+console.log(`Area briefs valid: ${briefs.areas.length - enablingAreas.length} product areas + ${enablingAreas.length} cross-cutting enabler, ${modelHomes.length} primary models, ${screenLedger.length} primary screens`);
 const overrideChoices = [...nodes.values()].filter((node) => node.kind === 'product' && node.scope === 'screens').length;
 const pendingChoices = [...nodes.values()].filter((node) => node.kind === 'product' && node.status === 'pending owner').length;
 console.log(`Owner choice coverage: ${governed.size} screens, ${defaults.size} area defaults, ${overrideChoices} exception choices covering ${overrides.size} screens; ${pendingChoices} choices pending owner`);
 console.log('Area coverage (area | models | primary screens | screens touched | deferred touched | total panels | mapped pilot panels):');
 for (const area of briefs.areas) {
-  const touched = new Set(area.models_owned.flatMap((name) => modelByName.get(name).manifest_screens));
+  const touched = new Set(area.role === 'cross-cutting enabler' ? area.consuming_screens :
+    area.models_owned.flatMap((name) => modelByName.get(name).manifest_screens));
   const deferred = [...touched].filter((id) => screenLedger.find((row) => row.id === id).proposed_fidelity_tier === 'Deferred');
   const totalPanels = contracts.filter((panel) => screenAreas.get(panel.screen_id) === area.id).length;
   console.log(`${area.id} | ${area.models_owned.length} | ${area.primary_screens.length} | ${touched.size} | ${deferred.length} | ${totalPanels} | ${registry.panels.filter((panel) => panel.area === area.id).length}`);

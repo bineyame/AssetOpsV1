@@ -1,6 +1,6 @@
 # v6.9 dependency registry pilot: Claims and Work
 
-**Architect planning overlay · 2026-10-07; revised after dependency review.** The [registry](v69-dependency-registry-pilot.json) names dependency *kind*, *subject area* and *leverage inputs* separately. The [eleven subject-area briefs](v69-subject-area-briefs.json) assign all 88 mock models and all 110 screens a primary home, while screens touched by each area's models remain overlapping consumers. It supplements the [screen ledger](v69-screen-ledger.json), [model homes](v69-model-homes.json) and [panel contracts](v69-panel-contracts.json). Only the seven Claims/Work pilot screens have complete panel-level node gates; all other panels remain governed by the ledger's unresolved gates and cannot be promoted from the area briefs alone. The accepted S1-01 Architect contract is the sole resolved node; no implementation or data node is resolved, no panel is claimed real, and no owner tier or priority is inferred. S1-01 remains the active implementation task.
+**Architect planning overlay · 2026-10-07; revised after dependency review.** The [registry](v69-dependency-registry-pilot.json) names dependency *kind*, *subject area* and *leverage inputs* separately. The [subject-area briefs](v69-subject-area-briefs.json) assign all 88 mock models and all 110 screens a primary home across 11 product areas, plus one cross-cutting simulation/edge enabler. It supplements the [screen ledger](v69-screen-ledger.json), [model homes](v69-model-homes.json) and [panel contracts](v69-panel-contracts.json). Only the seven Claims/Work pilot screens have complete panel-level node gates; all other panels remain governed by the ledger's unresolved gates and cannot be promoted from the area briefs alone. The accepted S1-01 Architect contract is the sole resolved node; no implementation or data node is resolved, no panel is claimed real, and no owner tier or priority is inferred. S1-01 remains the active implementation task.
 
 ## Contract for extending the registry
 
@@ -40,6 +40,12 @@ The [machine-readable briefs](v69-subject-area-briefs.json) list each area's que
 
 The cold-chain and EV *primary* screen counts are much larger than their model-touched counts because they reuse shared Evidence, Configuration, Claims, Money and Work models. Each has its own role, analytic and source-backed fixture gate. Work-case projections are optional branches, so a decision to defer Incidents or Maintenance does not block the domain assessment path.
 
+### Simulation and edge enabling area
+
+This twelfth brief owns no primary mock models, screens or product tier. Its nodes are technical/data prerequisites consumed by the 11 product areas. `A-lab-registered-basis` and `I-lab-registered-basis` make the S2-01 Kobo run use the S1 Postgres Foundation/binding snapshot. `I-edge-outbox`, `I-edge-physical-adapter`, `I-edge-batch-sign` and `I-edge-fault-scenarios` belong to S2-01; `I-batch-signature-verify` and `I-edge-diagnostics-store` belong to S2-02. `A-edge-diagnostics` defines the local heartbeat/central reporting boundary, with `D-edge-health-cases` required for S7. The current technical design has TLS credentials and batch digests but no batch-signature specification, so `A-edge-batch-signature` stays open until the Architect records canonical bytes, signing and key rotation before S2-01 refinement.
+
+`A-demo-scenarios` feeds S3 complete/missing/contradictory/late cases, S6 later-window guardrail cases and S7 battery stress. Cold-chain and EV add separate world/device nodes and captured physical peers before their domain fixtures can close. These are architecture, implementation and data gates, not product choices. Queue-owned nodes are in `queue_baseline_nodes`; cold-chain and EV world work remains marginal beyond S1–S7. The [Site-first execution plan](site-first-execution-plan.md) and S2–S7 outlines name the corresponding review cuts.
+
 ## Leverage and readiness
 
 Store four facts separately for each open node:
@@ -56,7 +62,7 @@ Do not calculate a numerical priority rank until the owner has recorded tiers, p
 | `A-claim-work-routes` | 11 | 0 | Shared decision can be made now; it does not by itself promote a panel. |
 | `I-S1-01` | 11 | 0 | Active task supplies Site/Asset identity needed by evidence, Action and work records. |
 | `A-actor-identity` | 6 | 0 | Shared actor/author decision reaches Action and the S4-02 path. |
-| `D-finding-revisions` | 5 | 10 | Fixture is downstream of Foundation, evidence, dispatch and Finding persistence. |
+| `D-finding-revisions` | 5 | 23 | Fixture is downstream of Foundation, registered Lab/gateway delivery, evidence, dispatch and Finding persistence. |
 
 These counts cover only the seven fully mapped pilot screens. Reach in the full 110-screen product will be larger once the remaining panel gates are linked.
 
@@ -64,15 +70,15 @@ The **screen and panel report** unions open technical nodes across each panel, t
 
 | Pilot screen | Panels | Full open nodes / points | Marginal beyond queue nodes / points |
 | --- | ---: | ---: | ---: |
-| `finding` | 4 | 20 / 64 | 0 / 0 |
-| `sitefindings` | 1 | 15 / 49 | 3 / 7 |
-| `findings` | 1 | 16 / 54 | 4 / 12 |
-| `sitework` | 1 | 18 / 58 | 0 / 0 |
-| `actions` | 1 | 19 / 61 | 2 / 6 |
+| `finding` | 4 | 33 / 105 | 0 / 0 |
+| `sitefindings` | 1 | 28 / 90 | 3 / 7 |
+| `findings` | 1 | 29 / 95 | 4 / 12 |
+| `sitework` | 1 | 31 / 99 | 0 / 0 |
+| `actions` | 1 | 32 / 102 | 2 / 6 |
 | `incidents` | 2 | 9 / 29 | 6 / 20 |
 | `maintenance` | 1 | 9 / 31 | 6 / 22 |
 
-Use the checker's `--details` option for each panel's and screen's exact full and marginal open sets. `sitefindings` needs only the FindingIndex contract, projection and Site UI beyond the queue: seven points. `sitework` now includes Site/Asset identity, the evidence-backed Finding path, Action persistence and the accepted baseline fixture. Its bounded panel is queue-owned, so its marginal figure is zero despite 58 points of total unfinished work. `D-action-records` stops at the applied change; `D-verification-window` separately covers the later accepted window for S6-02 and future verification panels. The current queue still puts S7 after S6, but Health's technical `requires` points to Foundation bindings and accepted evidence, so its architecture can be decided independently of verification.
+Use the checker's `--details` option for each panel's and screen's exact full and marginal open sets. `sitefindings` needs only the FindingIndex contract, projection and Site UI beyond the queue: seven points. `sitework` now includes Site/Asset identity, the evidence-backed Finding path, Action persistence and the accepted baseline fixture. Its bounded panel is queue-owned, so its marginal figure is zero despite 99 points of total unfinished work, including the newly explicit Lab/gateway path. `D-action-records` stops at the applied change; `D-verification-window` separately covers the later accepted window for S6-02 and future verification panels. The current queue still puts S7 after S6, but Health's technical `requires` points to Foundation bindings, accepted evidence and central diagnostics, so its architecture can be decided independently of verification.
 
 ## Ledger convergence and area-level coverage
 
@@ -80,6 +86,6 @@ Each pilot screen's ledger row has `registry_dependencies` with its **effective*
 
 ## Architect sequence
 
-The S1–S7 Site spine remains the implementation path. Before S4, settle actor identity and Finding/Action route contracts to the extent their first consumers need them, and specify `FindingIndex`, `CapabilityReadiness` and `SourceHealth` with all known consumers visible. `A-S4-financial` explicitly depends on actor identity because S4-02's `financial_assumption_revision.author_id` needs an author/actor contract. This is contract design, not implementation of estate or other-domain screens. After S7, use the Claims/Action detail brief for the multi-revision Finding and contextual roots. Take the work-case identity pass only after the owner chooses the Incidents and Maintenance product tier. Mini-grid breadth, cold-chain/EV and estate aggregation retain their own domain and fixture gates.
+The S1–S7 Site spine remains the implementation path. At the pre-S3 planning review, settle actor identity and Finding/Action route contracts to the extent their first consumers need them, and specify `FindingIndex`, `CapabilityReadiness` and `SourceHealth` with all known consumers visible. `A-S4-financial` explicitly depends on actor identity because S4-02's `financial_assumption_revision.author_id` needs an author/actor contract; dispatch does not technically depend on it. This is contract design, not implementation of estate or other-domain screens. After S7, use the Claims/Action detail brief for the multi-revision Finding and contextual roots. Take the work-case identity pass only after the owner chooses the Incidents and Maintenance product tier. Mini-grid breadth, cold-chain/EV and estate aggregation retain their own domain and fixture gates.
 
 Run `node frontend/docs/architecture/check_v69_dependency_registry.cjs` from the repository root for area coverage and the pilot readiness report, or add `--details` for exact open sets. The existing `check_v69_ledger.py` remains the full manifest/ledger validator. When an S2–S7 outline is refined, the Planner checks `queue_baseline_nodes` against the packet before relying on marginal effort; a moved or deferred contract/fixture must leave the baseline.

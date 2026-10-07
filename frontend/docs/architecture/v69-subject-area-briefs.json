@@ -1,6 +1,6 @@
 {
   "schema": "assetops.v69.subject-area-briefs.v1",
-  "authority": "Architect planning coverage; only Claims and Work pilot panels have node-level readiness gates",
+  "authority": "Architect planning coverage; 11 product areas partition the manifest and simulation-edge is a cross-cutting enabler; only Claims and Work pilot panels have node-level readiness gates",
   "areas": [
     {
       "id": "work-verification", "status": "panel-mapped pilot", "question": "What Action, distinct work case or attested record exists, and what later evidence verifies an intervention?", "owner_priority": null,
@@ -99,7 +99,7 @@
       "decision_nodes": ["A-cold-role-set", "A-cold-excursion-rules"],
       "projection_nodes": ["A-cold-site-projections", "A-cold-work-projections"], "implementation_nodes": ["I-cold-assessment-store"], "fixture_nodes": ["D-cold-domain", "D-work-records"],
       "projection_contracts": ["CapabilityReadiness", "SourceHealth", "FindingIndex", "MaintenanceIndex"],
-      "fixture_gate": "Cold-chain Foundation/roles, captured and simulated reports, excursion and backup disturbance, missing sensor, actor-attested work and accepted lineage.",
+      "fixture_gate": "Cold-chain Foundation/roles, a new simulated world and captured physical-adapter peer, excursion and backup disturbance, missing sensor, multi-Site windows, actor-attested work and accepted lineage.",
       "owner_choice": "Choose the cold-chain Site journey and incident/work depth after shared projections are specified for this consumer."
     },
     {
@@ -109,8 +109,17 @@
       "decision_nodes": ["A-ev-role-set", "A-ev-session-rules"],
       "projection_nodes": ["A-ev-site-projections", "A-ev-work-projections"], "implementation_nodes": ["I-ev-assessment-store"], "fixture_nodes": ["D-ev-domain", "D-work-records"],
       "projection_contracts": ["CapabilityReadiness", "SourceHealth", "FindingIndex", "AssetHealthSummary"],
-      "fixture_gate": "EV Foundation/roles, session and connector records, interrupted and missing-session variants, captured adapter peer and accepted lineage; no invented revenue.",
+      "fixture_gate": "EV Foundation/roles, a new simulated world and captured physical-adapter peer, session and connector records, interrupted and missing-session variants, multi-Site windows and accepted lineage; no invented revenue.",
       "owner_choice": "Choose the EV Site journey only after session/availability rules and a domain fixture are reviewed."
+    },
+    {
+      "id": "simulation-edge", "role": "cross-cutting enabler", "status": "architecture and queue gates; panel mapping stays with consuming product areas", "question": "Can the Lab and captured physical reports use one registered gateway boundary, durable delivery and centrally visible diagnostics?", "owner_priority": null,
+      "models_owned": [], "primary_screens": [], "consuming_screens": ["lab", "evidence", "readiness", "sld", "dispatch", "finding", "verification", "health", "cold", "ev"],
+      "decision_nodes": ["A-lab-registered-basis", "A-edge-batch-signature", "A-edge-diagnostics", "A-demo-scenarios", "A-cold-world", "A-ev-world"],
+      "projection_nodes": ["A-edge-diagnostics"], "implementation_nodes": ["I-lab-registered-basis", "I-edge-outbox", "I-edge-batch-sign", "I-edge-physical-adapter", "I-edge-diagnostics-publish", "I-edge-fault-scenarios", "I-batch-signature-verify", "I-edge-diagnostics-store", "I-sim-dispatch-cases", "I-sim-verification-cases", "I-sim-battery-cases", "I-cold-world", "I-cold-device-adapter", "I-ev-world", "I-ev-device-adapter"], "fixture_nodes": ["D-edge-health-cases", "D-cold-physical-peer", "D-ev-physical-peer"],
+      "projection_contracts": ["GatewayStatus", "SourceHealth"],
+      "fixture_gate": "Registered Kobo Lab basis, restart-safe simulated and captured physical report, central heartbeat/diagnostic reload, complete/missing/late and later verification windows, battery stress, then domain worlds and physical peers.",
+      "owner_choice": "No separate screen tier: this area supplies technical and data gates to product areas; scope follows the queued Site path and approved domain waves."
     }
   ]
 }
