@@ -8,6 +8,16 @@
 
 **Proposed fidelity tiers, pending owner approval:** `Real` means the screen's supported claims, navigation, interactions and panels have passed a source-to-screen review; `Real with honest gaps` means its named usable portion is real and missing/unsupported panels or claims are visibly withheld; `Deferred` means no implementation commitment yet; `Dropped` means an owner-approved removal from the intended product. The current proposal assigns 21 screens `Real with honest gaps` and 89 `Deferred`; none is yet `Real` or `Dropped`. These are planning tiers, not implementation status or owner acceptance. The owner may change any tier before the Planner uses it as a completion target.
 
+Each ledger row now has `promotion_dependencies`. For a **Deferred** screen, `to_candidate` names the model decisions, shared projection contracts, fixture/record proof and task gate that must be met before the Planner can propose it as an executable slice. For a proposed **Real with honest gaps** screen, `to_candidate: null` means an S task already names its bounded portion, not that it is built; `to_real` names its unresolved mock panels and further work before full fidelity can be claimed. Deferred screens also carry a `to_real` panel/acceptance gate for use after candidacy. The model names resolve to exact decision requests in [model homes](v69-model-homes.json), and panel names resolve to [panel contracts](v69-panel-contracts.json). A tier change must update these dependencies and pass the validator; no status advances merely because a future task title exists.
+
+| Example screen | Proposed tier | Next promotion depends on |
+| --- | --- | --- |
+| `portfolio` | Deferred | Define seven estate projection contracts, then prove comparable multi-Site windows, coverage, currency/price basis and non-overlap before a Portfolio packet is a candidate. |
+| `fuel` | Deferred | Decide `FuelBalanceWindow` and `OperationalRecord` rules; supply accepted fuel evidence plus attested deliveries and a missing-data case before a Fuel packet is a candidate. |
+| `site-create-form` | Deferred | Decide `SiteDraft` lifecycle and product authorization; prove successful and refused draft/setup records before the form is a candidate. |
+| `readiness` | Real with honest gaps | S1-02 may show configured role gaps; full fidelity waits for accepted gateway/source status and independent field confirmation for the currently unresolved status panels. |
+| `sitework` | Real with honest gaps | S6 may show Actions; full fidelity waits for distinct Incident and Maintenance identities, lifecycle records and indexes before those Work tabs are supported. |
+
 | Screen family | S1-S7 bounded portion | Deferred or incomplete part |
 | --- | --- | --- |
 | Site Foundation, Readiness, SLD | S1-01/S1-02 persist Kobo configuration, role bindings and configured topology. | Independent commissioning and observed power flow need field/accepted evidence. The mock's 35%/90% generator thresholds are absent from the Kobo fixture; its 30-minute minimum runtime is only a declared property. |

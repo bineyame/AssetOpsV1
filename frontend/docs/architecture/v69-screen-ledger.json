@@ -1,7 +1,7 @@
 {
-  "schema": "assetops.v69.screen-ledger.v1",
+  "schema": "assetops.v69.screen-ledger.v2",
   "manifest": "../../mockups/v69/screen-manifest.json",
-  "rules": "Status is planned coverage, not implemented state. Manifest models and screen copy remain authoritative for mock intent; this overlay records product commitments. Proposed fidelity tiers require owner approval; no tier is accepted by this ledger.",
+  "rules": "Status is planned coverage, not implemented state. Manifest models and screen copy remain authoritative for mock intent; this overlay records product commitments. Proposed fidelity tiers require owner approval; no tier is accepted by this ledger. Promotion dependencies state what permits a deferred screen to become a task candidate and what must close before full Real fidelity; null to_candidate means an S task already names the screen, not that it is implemented.",
   "screens": [
     {
       "id": "portfolio",
@@ -16,7 +16,33 @@
       "unknown_or_empty": "Show unavailable/Unknown until PortfolioSummary is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/portfolio",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "PortfolioSummary",
+            "FindingIndex",
+            "PortfolioConsequenceRollup",
+            "SiteAssessmentSummary",
+            "CapabilityReadiness",
+            "ActionSummary",
+            "VerificationSummary"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Where management should act first",
+            "Objectives across the estate",
+            "An opportunity beyond reducing cost",
+            "What changed in this review"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sites",
@@ -31,7 +57,17 @@
       "unknown_or_empty": "Unavailable store is error, not empty estate.",
       "visual_reference": "index.html#/sites",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [
+            "In setup"
+          ],
+          "remaining_work": "Broader directory and product Site setup require SiteDraft/Template/ImportBatch contracts, multi-Site records and honest mixed-store states.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "mini",
@@ -46,7 +82,17 @@
       "unknown_or_empty": "Unassessed objective is Unknown; lag is Pending.",
       "visual_reference": "index.html#/mini",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [
+            "Next step"
+          ],
+          "remaining_work": "Complete the unassessed service, renewable, fuel, backup and asset objectives; add comparable windows and drill-downs before the whole Overview matches the mock.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "foundation",
@@ -61,7 +107,15 @@
       "unknown_or_empty": "Missing required value is a named configuration gap.",
       "visual_reference": "index.html#/foundation",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Resolve every remaining mock control/topology panel against a persisted Foundation field; field commissioning needs an independent confirmation contract.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "readiness",
@@ -76,7 +130,18 @@
       "unknown_or_empty": "Unbound roles remain unready; absence is never confirmed.",
       "visual_reference": "index.html#/readiness",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [
+            "Gateway status · GW-MG-01",
+            "Connected sources"
+          ],
+          "remaining_work": "Add accepted gateway/source status and a separate field-confirmation basis; do not infer readiness from configured bindings alone.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "changes",
@@ -91,7 +156,15 @@
       "unknown_or_empty": "No later evidence means outcome pending.",
       "visual_reference": "index.html#/changes",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Persist and display the wider change history and policy authority, not only one reserve change and its later check.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "dispatch",
@@ -106,7 +179,15 @@
       "unknown_or_empty": "Missing/contradictory role yields Indeterminate.",
       "visual_reference": "index.html#/dispatch",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Support the mock's wider interval set and comparative states with accepted evidence, revisioned analytics and explicit coverage.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "renewable",
@@ -121,7 +202,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until RenewableOpportunityWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/renewable",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "RenewableOpportunityWindow",
+            "ServiceWindow"
+          ],
+          "projection_contracts": [
+            "FinancialConsequence"
+          ],
+          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "From physical headroom to an opportunity",
+            "Productive-use evaluation",
+            "Eligible and excluded windows"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "evidence",
@@ -136,7 +239,15 @@
       "unknown_or_empty": "No accepted record or lag is explicit; no inferred healthy state.",
       "visual_reference": "index.html#/evidence",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Expand the source/role matrix and quality explanations only after all shown source streams, receipts and gap denominators are defined.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "finding",
@@ -151,7 +262,17 @@
       "unknown_or_empty": "No defensible episode gives no Finding; reassessment preserves history.",
       "visual_reference": "index.html#/finding",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [
+            "What to do next"
+          ],
+          "remaining_work": "Resolve Finding-root navigation, alternatives, history and recurrence from stable Finding/revision IDs and additional assessed episodes.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "analysis",
@@ -166,7 +287,15 @@
       "unknown_or_empty": "Missing input names its effect on classification.",
       "visual_reference": "index.html#/analysis",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Define and populate the broader alternatives/context analysis from accepted inputs; preserve the selected assessment revision in links.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "financials",
@@ -181,7 +310,15 @@
       "unknown_or_empty": "Missing price means unpriced, never zero.",
       "visual_reference": "index.html#/financials",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Add the remaining priced categories and periods only with assumption revisions, compatible units/currency and non-overlap rules.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "assumptions",
@@ -196,7 +333,15 @@
       "unknown_or_empty": "Absent price leaves consequence unpriced.",
       "visual_reference": "index.html#/assumptions",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Support the mock's wider assumption set and revision/edit history with an explicit authority and effective-time contract.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "recommendation",
@@ -211,7 +356,15 @@
       "unknown_or_empty": "No supported Finding means no recommendation.",
       "visual_reference": "index.html#/recommendation",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Settle Finding-to-Action root navigation and support the fuller recommendation/Action lifecycle beyond one proposed change.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "verification",
@@ -226,7 +379,15 @@
       "unknown_or_empty": "Weak comparison/failed guardrail yields Inconclusive or Ineffective.",
       "visual_reference": "index.html#/verification",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Support the fuller Action-root verification history with multiple later windows, failed guardrails and inconclusive outcomes.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset",
@@ -241,7 +402,17 @@
       "unknown_or_empty": "No capacity/thermal evidence cannot yield RUL.",
       "visual_reference": "index.html#/asset",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [
+            "Interpretation and next evidence"
+          ],
+          "remaining_work": "Define capacity evidence and battery usage/life claims, then asset registration and warranty links before presenting the full asset detail.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "health",
@@ -256,7 +427,17 @@
       "unknown_or_empty": "Missing cadence/evidence is Unknown, not healthy.",
       "visual_reference": "index.html#/health",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [
+            "Data sources · data quality, not equipment condition"
+          ],
+          "remaining_work": "Broaden source and asset health across declared roles/assets, keeping source freshness distinct from equipment condition.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "lab",
@@ -271,7 +452,15 @@
       "unknown_or_empty": "Offline queue and refused receipt remain inspectable.",
       "visual_reference": "index.html#/lab",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Extend the durable gateway/Commit views and physical-adapter diagnostics with private Lab truth isolated from product claims.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold",
@@ -286,7 +475,32 @@
       "unknown_or_empty": "Show unavailable/Unknown until TemperatureExcursion is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "TemperatureExcursion",
+            "BackupEventChain",
+            "Incident"
+          ],
+          "projection_contracts": [
+            "WorkSummary"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What happened · power → cooling → product conditions",
+            "Chamber temperature",
+            "Needs attention",
+            "Bounded money consequence",
+            "Next step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "temperature",
@@ -301,7 +515,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until TemperatureExcursion is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/temperature",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "TemperatureExcursion",
+            "PolicyVersion"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Temperature with operating context",
+            "Excursion context",
+            "Claim boundary"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cooling",
@@ -316,7 +550,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until CoolingRecoveryWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cooling",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "CoolingRecoveryWindow",
+            "ContextMatch"
+          ],
+          "projection_contracts": [
+            "ClaimLineage"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Recovery curves",
+            "Context normalization",
+            "Next best evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "coldbackup",
@@ -331,7 +587,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until BackupEventChain is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/coldbackup",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "BackupEventChain",
+            "Incident",
+            "TemperatureExcursion"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What the chain shows",
+            "Reconstructed event chain",
+            "Backup event chains",
+            "Evidence by causal step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev",
@@ -346,7 +624,30 @@
       "unknown_or_empty": "Show unavailable/Unknown until SessionServiceWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "SessionServiceWindow",
+            "ConnectorAvailabilityWindow",
+            "ChargingEnergyWindow"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What happened on the service day",
+            "Charging activity and site power",
+            "Needs attention",
+            "Bounded money consequence",
+            "Next step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sessions",
@@ -361,7 +662,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until ChargingSession is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/sessions",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "ChargingSession",
+            "SessionServiceWindow"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Session service records",
+            "How to read the denominator",
+            "Cause remains bounded"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "availability",
@@ -376,7 +697,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until ConnectorAvailabilityWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/availability",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "ConnectorAvailabilityWindow",
+            "ServiceSchedule"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Connector states over the service schedule",
+            "Full-schedule availability bound",
+            "Most useful next evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "energy",
@@ -391,7 +732,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until ChargingEnergyWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/energy",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "ChargingEnergyWindow",
+            "SitePowerLimit"
+          ],
+          "projection_contracts": [
+            "FinancialConsequence"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Import power and configured limit",
+            "What can be concluded",
+            "Technical-to-financial bridge"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "incident",
@@ -406,7 +769,30 @@
       "unknown_or_empty": "Show unavailable/Unknown until Incident is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/incident",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "Incident",
+            "BackupEventChain",
+            "MaintenanceWorkRequest"
+          ],
+          "projection_contracts": [
+            "FindingLink"
+          ],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Reconstructed timeline",
+            "Linked conclusions",
+            "Work and next evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "workverification",
@@ -421,7 +807,28 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceWorkRequest is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/workverification",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceWorkRequest"
+          ],
+          "projection_contracts": [
+            "VerificationPlan"
+          ],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Work evidence · activity",
+            "Post-work evidence · outcome",
+            "Next action"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "service",
@@ -436,7 +843,28 @@
       "unknown_or_empty": "Show unavailable/Unknown until ServiceWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/service",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "ServiceWindow",
+            "LoadRequestEvidence"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Where the power went",
+            "Delivered power by addressed load",
+            "What is supported",
+            "What unlocks a service conclusion"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "fuel",
@@ -451,7 +879,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until FuelBalanceWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/fuel",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "FuelBalanceWindow",
+            "OperationalRecord"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Fuel balance at a glance",
+            "Balance bridge",
+            "Inspect existing generator fuel interpretation"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "backup",
@@ -466,7 +914,30 @@
       "unknown_or_empty": "Show unavailable/Unknown until BackupEventChain is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/backup",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "BackupEventChain",
+            "ServiceWindow"
+          ],
+          "projection_contracts": [
+            "CapabilityReadiness"
+          ],
+          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Backup event chains",
+            "Backup readiness evidence",
+            "Operating evidence",
+            "Next evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sitefindings",
@@ -481,7 +952,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/sitefindings",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex"
+          ],
+          "fixture_or_record_gate": "Persisted records and complete/missing/conflicting states for the named read models and selected window.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Findings at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sitework",
@@ -496,7 +984,15 @@
       "unknown_or_empty": "No Action gives a truthful empty Work state.",
       "visual_reference": "index.html#/sitework",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Define Incident and Maintenance identities, indexes and work events before their Site Work tabs can join the Action list.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sitework-incidents",
@@ -511,7 +1007,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until IncidentIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/sitework-incidents",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "IncidentIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Incidents at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sitework-maintenance",
@@ -526,7 +1039,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/sitework-maintenance",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Maintenance at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "evidence-analysis",
@@ -541,7 +1071,15 @@
       "unknown_or_empty": "No records gives an empty coverage set and claim ceiling.",
       "visual_reference": "index.html#/evidence-analysis",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Complete source/role coverage, rejected/duplicate/late decisions and lineage views for every shown evidence group.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "assets",
@@ -556,7 +1094,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetDirectorySummary is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/assets",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "AssetDirectorySummary",
+            "AssetHealthSummary"
+          ],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Asset inventory"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "findings",
@@ -571,7 +1127,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/findings",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex",
+            "FinancialConsequence",
+            "ActionSummary"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Findings across the estate"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "actions",
@@ -586,7 +1161,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until ActionIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/actions",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "ActionIndex",
+            "VerificationSummary"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Managed actions"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "incidents",
@@ -601,7 +1194,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until IncidentIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/incidents",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "IncidentIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Incident cases",
+            "Case boundaries"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "maintenance",
@@ -616,7 +1227,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/maintenance",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceIndex"
+          ],
+          "projection_contracts": [
+            "VerificationSummary"
+          ],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Corrective work requests"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "globalevidence",
@@ -631,7 +1261,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until PortfolioEvidenceMatrix is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/globalevidence",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "PortfolioEvidenceMatrix",
+            "CapabilityReadiness"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Capability coverage across sites",
+            "Recurring evidence gaps"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "globalfinancials",
@@ -646,7 +1295,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until PortfolioConsequenceRollup is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/globalfinancials",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "PortfolioConsequenceRollup"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Consequence register",
+            "Aggregation rule"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-foundation",
@@ -661,7 +1328,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteFoundation is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-foundation",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "SiteFoundation",
+            "SiteControls",
+            "ConfigurationRevision"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Physical site",
+            "Operating interpretation"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-health",
@@ -676,7 +1363,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetHealthSummary is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-health",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "AssetHealthSummary",
+            "CapabilityReadiness"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Condition and evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-evidence",
@@ -691,7 +1396,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteEvidenceMatrix is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-evidence",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "SiteEvidenceMatrix",
+            "AcceptedEvidenceIndex"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What we can conclude now",
+            "Data sources · data quality, not equipment condition",
+            "Most useful next evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-evidence-analysis",
@@ -706,7 +1431,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until AcceptedEvidenceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-evidence-analysis",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "AcceptedEvidenceIndex",
+            "ClaimLineage"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Accepted records behind the conclusions",
+            "How a claim limit is set"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-financials",
@@ -721,7 +1465,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialConsequenceRevision is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-financials",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FinancialAssumption"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What happened → what it means in money",
+            "Assumptions in use",
+            "Not included"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-assumptions",
@@ -736,7 +1499,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialAssumptionSet is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-assumptions",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FinancialAssumptionSet"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Financial assumptions"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-findings",
@@ -751,7 +1531,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-findings",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Findings at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-work",
@@ -766,7 +1563,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until ActionIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-work",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceIndex"
+          ],
+          "projection_contracts": [
+            "ActionIndex"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Actions at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-work-incidents",
@@ -781,7 +1597,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until IncidentIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-work-incidents",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "IncidentIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Incidents at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-work-maintenance",
@@ -796,7 +1629,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-work-maintenance",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Maintenance at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-finding",
@@ -811,7 +1661,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until Finding is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-finding",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "EvidenceBundle",
+            "ActionSummary"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Bounded conclusion",
+            "Operational context",
+            "Recommended next step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-recommendation",
@@ -826,7 +1696,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until Recommendation is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-recommendation",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "Recommendation"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Proposed intervention",
+            "Declare success before evaluating",
+            "What it is worth",
+            "Other recommendations at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-foundation",
@@ -841,7 +1731,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteFoundation is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-foundation",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "SiteFoundation",
+            "SiteControls",
+            "ConfigurationRevision"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Physical site",
+            "Operating interpretation"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-health",
@@ -856,7 +1766,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetHealthSummary is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-health",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "AssetHealthSummary",
+            "CapabilityReadiness"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Condition and evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-evidence",
@@ -871,7 +1799,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteEvidenceMatrix is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-evidence",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "SiteEvidenceMatrix",
+            "AcceptedEvidenceIndex"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What we can conclude now",
+            "Data sources · data quality, not equipment condition",
+            "Most useful next evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-evidence-analysis",
@@ -886,7 +1834,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until AcceptedEvidenceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-evidence-analysis",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "AcceptedEvidenceIndex",
+            "ClaimLineage"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Accepted records behind the conclusions",
+            "How a claim limit is set"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-financials",
@@ -901,7 +1868,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialConsequenceRevision is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-financials",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FinancialAssumption"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What happened → what it means in money",
+            "Assumptions in use",
+            "Not included"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-assumptions",
@@ -916,7 +1902,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialAssumptionSet is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-assumptions",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FinancialAssumptionSet"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Financial assumptions"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-findings",
@@ -931,7 +1934,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-findings",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Findings at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-work",
@@ -946,7 +1966,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until ActionIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-work",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceIndex"
+          ],
+          "projection_contracts": [
+            "ActionIndex"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Actions at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-work-incidents",
@@ -961,7 +2000,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until IncidentIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-work-incidents",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "IncidentIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Incidents at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-work-maintenance",
@@ -976,7 +2032,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-work-maintenance",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceIndex"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Maintenance at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-finding",
@@ -991,7 +2064,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until Finding is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-finding",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "EvidenceBundle",
+            "ActionSummary"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Bounded conclusion",
+            "Operational context",
+            "Recommended next step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-recommendation",
@@ -1006,7 +2099,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until Recommendation is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-recommendation",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "Recommendation"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Proposed intervention",
+            "Declare success before evaluating",
+            "What it is worth",
+            "Other recommendations at this site"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-action",
@@ -1021,7 +2134,22 @@
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-action",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Declared verification plan"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "finding-evidence",
@@ -1036,7 +2164,15 @@
       "unknown_or_empty": "Unresolved evidence link blocks claim presentation.",
       "visual_reference": "index.html#/finding-evidence",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Populate each evidence bundle section from exact accepted envelopes and source/assessment revision IDs across the supported Finding types.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "alternatives",
@@ -1051,7 +2187,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingAnalysis is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/alternatives",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "FindingAnalysis"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Alternatives to investigate"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "finding-history",
@@ -1066,7 +2219,22 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingRevision is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/finding-history",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Revision history"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "action-overview",
@@ -1081,7 +2249,15 @@
       "unknown_or_empty": "No verified outcome remains pending or inconclusive.",
       "visual_reference": "index.html#/action-overview",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Support the full Action event, plan, execution and outcome history under a stable Action-root route.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "action-plan",
@@ -1096,7 +2272,22 @@
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-plan",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Success criteria"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "action-execution",
@@ -1111,7 +2302,22 @@
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-execution",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Activity log"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "action-evidence",
@@ -1126,7 +2332,22 @@
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-evidence",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Evidence requirements"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "action-history",
@@ -1141,7 +2362,22 @@
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-history",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Action history"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "opportunity-finding",
@@ -1156,7 +2392,28 @@
       "unknown_or_empty": "Show unavailable/Unknown until Finding is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/opportunity-finding",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "RenewableOpportunityWindow"
+          ],
+          "projection_contracts": [
+            "FinancialConsequence"
+          ],
+          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Bounded opportunity",
+            "Next decision",
+            "Consequence basis"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-finding-excursion",
@@ -1171,7 +2428,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until Finding is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-finding-excursion",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "TemperatureExcursion"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Bounded conclusion",
+            "Temperature",
+            "Recommended next step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-action",
@@ -1186,7 +2462,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-action",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceWorkRequest"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Declared outcome criteria",
+            "Related activity"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "scenarios",
@@ -1201,7 +2495,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialScenario is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/scenarios",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "FinancialScenario"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Versioned scenario inputs, baseline and currency/period basis kept distinct from observed consequences.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Financial scenarios"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-scenarios",
@@ -1216,7 +2527,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialScenario is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-scenarios",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "FinancialScenario"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Versioned scenario inputs, baseline and currency/period basis kept distinct from observed consequences.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Financial scenarios"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-scenarios",
@@ -1231,7 +2559,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FinancialScenario is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-scenarios",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "FinancialScenario"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Versioned scenario inputs, baseline and currency/period basis kept distinct from observed consequences.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Financial scenarios"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-readiness",
@@ -1246,7 +2591,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until FoundationReadiness is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-readiness",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FoundationReadiness",
+            "GatewayStatus",
+            "SourceHealth"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Readiness and commissioning evidence",
+            "Gateway status · GW-CR-01",
+            "Connected sources",
+            "Effect on readiness and confidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-readiness",
@@ -1261,7 +2628,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until FoundationReadiness is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-readiness",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FoundationReadiness",
+            "GatewayStatus",
+            "SourceHealth"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Readiness and commissioning evidence",
+            "Gateway status · GW-EV-01",
+            "Connected sources",
+            "Effect on readiness and confidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "sld",
@@ -1276,7 +2665,15 @@
       "unknown_or_empty": "Unbound/offline elements are Unknown, not energized.",
       "visual_reference": "index.html#/sld",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": null,
+        "to_real": {
+          "unresolved_panels": [],
+          "remaining_work": "Observed status and flow require accepted measurements and binding-time lineage; configured topology alone cannot show live behavior.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "cold-sld",
@@ -1291,7 +2688,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until TopologyReadModel is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/cold-sld",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "TopologyReadModel",
+            "SourceHealth"
+          ],
+          "fixture_or_record_gate": "Cold-chain Site, source/role, excursion and missing-sensor fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "What each part does"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "ev-sld",
@@ -1306,7 +2722,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until TopologyReadModel is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/ev-sld",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "TopologyReadModel",
+            "SourceHealth"
+          ],
+          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Depot Charging Hub · Depot charging hub",
+            "What each part does"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "assets-warranty",
@@ -1321,7 +2756,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until WarrantyRecord is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/assets-warranty",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "WarrantyRecord"
+          ],
+          "projection_contracts": [
+            "AssetHealthSummary",
+            "FinancialConsequence"
+          ],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Warranty by asset",
+            "Repair or claim · CHG-002 connector fault",
+            "Vendor performance"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-register",
@@ -1336,7 +2793,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetRegistration is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-register",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "AssetRegistration"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "1 · Identity and type",
+            "2 · Site and position",
+            "3 · Points",
+            "4 · Vendor and warranty",
+            "5 · Commissioning",
+            "6 · Validation"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-overview",
@@ -1351,7 +2830,30 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetSummary is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-overview",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "WarrantyRecord"
+          ],
+          "projection_contracts": [
+            "AssetSummary",
+            "AssetHealthSummary"
+          ],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "What happened in the selected hour",
+            "Needs attention",
+            "Money consequence",
+            "Next step"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "site-create-form",
@@ -1366,7 +2868,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteDraft is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/site-create-form",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "SiteDraft"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Product Site draft/template/import fixtures with successful, refused and versioned setup cases.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "1 · Identity",
+            "2 · Configuration",
+            "3 · Assets",
+            "4 · Gateway and points",
+            "5 · Policies (inherited)",
+            "6 · Review and validation"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "site-create-template",
@@ -1381,7 +2905,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteTemplate is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/site-create-template",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "SiteTemplate",
+            "SiteDraft"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Product Site draft/template/import fixtures with successful, refused and versioned setup cases.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Preview · Hybrid cold room",
+            "Parameters to set",
+            "Assets the template adds"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "site-batch-upload",
@@ -1396,7 +2940,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteImportBatch is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/site-batch-upload",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "SiteImportBatch",
+            "SiteDraft"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Product Site draft/template/import fixtures with successful, refused and versioned setup cases.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "1 · Template",
+            "2 · Upload",
+            "3 · Check rows"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "site-setup-history",
@@ -1411,7 +2975,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until SiteSetupEvent is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/site-setup-history",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "SiteSetupEvent"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Product Site draft/template/import fixtures with successful, refused and versioned setup cases.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Site setup history"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-performance",
@@ -1426,7 +3007,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until BatteryUsageWindow is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-performance",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "BatteryUsageWindow"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Weekly use"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-config",
@@ -1441,7 +3039,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetRegistration is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-config",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "AssetRegistration"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Identity and position",
+            "Mapped points"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-edit",
@@ -1456,7 +3072,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until AssetRegistration is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-edit",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "AssetRegistration"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "1 · Identity and type",
+            "2 · Site and position",
+            "3 · Points",
+            "4 · Vendor and warranty",
+            "5 · Commissioning",
+            "6 · Validation"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-work",
@@ -1471,7 +3109,27 @@
       "unknown_or_empty": "Show unavailable/Unknown until ActionIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-work",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceRecord"
+          ],
+          "projection_contracts": [
+            "ActionIndex"
+          ],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Scheduled maintenance",
+            "Maintenance record"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-evidence",
@@ -1486,7 +3144,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until CapabilityReadiness is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-evidence",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "CapabilityReadiness"
+          ],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Condition evidence"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "asset-warranty",
@@ -1501,7 +3176,29 @@
       "unknown_or_empty": "Show unavailable/Unknown until WarrantyRecord is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/asset-warranty",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "WarrantyRecord",
+            "BatteryUsageWindow"
+          ],
+          "projection_contracts": [
+            "BatteryStressWindow"
+          ],
+          "fixture_or_record_gate": "Registered assets with effective bindings, health/usage evidence and audited warranty or edit cases where shown.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Warranty terms against what the evidence shows",
+            "What puts cover at risk",
+            "Record captured at registration"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "findings-cost",
@@ -1516,7 +3213,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/findings-cost",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Cost lens"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "findings-risks",
@@ -1531,7 +3245,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/findings-risks",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Risks lens"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "findings-opportunities",
@@ -1546,7 +3277,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/findings-opportunities",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [],
+          "projection_contracts": [
+            "FindingIndex"
+          ],
+          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Opportunities lens"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "maintenance-preventive",
@@ -1561,7 +3309,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenancePlan is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/maintenance-preventive",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenancePlan"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Preventive plan"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "wr-overview",
@@ -1576,7 +3341,25 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceWorkRequest is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/wr-overview",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceWorkRequest"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Work done",
+            "Lifecycle"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "wr-record",
@@ -1591,7 +3374,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until MaintenanceRecord is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/wr-record",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "MaintenanceRecord"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Maintenance record · activity"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "wr-history",
@@ -1606,7 +3406,24 @@
       "unknown_or_empty": "Show unavailable/Unknown until WorkEvent is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/wr-history",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "WorkEvent"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "History"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "oprecords",
@@ -1621,7 +3438,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until OperationalRecord is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/oprecords",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "OperationalRecord"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Operational records",
+            "Record a manual reading",
+            "How records are used"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "settings-policies",
@@ -1636,7 +3472,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until PolicyVersion is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/settings-policies",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "PolicyVersion"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Tenant/role authority and versioned policy/settings cases, including an unauthorized or missing state.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Operational policies",
+            "Edit · verification window default",
+            "Versions"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     },
     {
       "id": "settings-tenant",
@@ -1651,7 +3506,26 @@
       "unknown_or_empty": "Show unavailable/Unknown until TenantConfiguration is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/settings-tenant",
       "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review"
+      "tier_approval": "pending owner review",
+      "promotion_dependencies": {
+        "to_candidate": {
+          "architecture_decisions": [
+            "TenantConfiguration"
+          ],
+          "projection_contracts": [],
+          "fixture_or_record_gate": "Tenant/role authority and versioned policy/settings cases, including an unauthorized or missing state.",
+          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+        },
+        "to_real": {
+          "unresolved_panels": [
+            "Organisation",
+            "Feature switches",
+            "Users and roles"
+          ],
+          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
+        }
+      }
     }
   ]
 }
