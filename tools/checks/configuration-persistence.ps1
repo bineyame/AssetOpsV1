@@ -54,7 +54,15 @@ function Invoke-ConfigurationPersistenceCheck {
             Name        = "Site"
             Package     = "$backendRoot/sites"
             Composition = "$backendRoot/sites/composition.py"
-            Writer      = "$backendRoot/sites/adapters/yaml_user_site_store.py"
+            # S1-01: the YAML user store stays the legacy writer for
+            # unimported Sites and Lab; import_files.py writes only the
+            # import comparison report (rule 8 confines it). The PostgreSQL
+            # adapter is the sole writer for imported product Sites and writes
+            # no file, so rule 8, not this list, holds it.
+            Writer      = @(
+                "$backendRoot/sites/adapters/yaml_user_site_store.py",
+                "$backendRoot/sites/adapters/import_files.py"
+            )
             UserRootVar = "USER_SITE_STORE_ROOT"
             UserRootOwner = "$backendRoot/sites/adapters/yaml_user_site_store.py"
         },
@@ -194,6 +202,8 @@ function Invoke-ConfigurationPersistenceCheck {
         '(?:^|\s)from\s+pathlib(?:[.\s]|$)',
         '(?:^|\s)import\s+sqlite3(?:[.\s]|$)',
         '(?:^|\s)from\s+sqlite3(?:[.\s]|$)',
+        # S1-01: database drivers and DDL tooling are storage technology too.
+        '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)',
         'open\('
     )
     $storageTechnologySeen = @{}
@@ -545,6 +555,131 @@ function Invoke-ConfigurationPersistenceCheck {
         $failures.Add(("The run adapters hold $cLoadSeen load call(s) of the form " +
             "'= yaml.load(..., Loader=CSafeLoader)'; there must be exactly one, " +
             "the shared load point in $runDocuments.")) | Out-Null
+    }
+
+    # 8. S1-01 Foundation-only cutover (D-2026-10-07).
+    #
+    #    a. The PostgreSQL adapter is the sole writer for imported product
+    #       Sites: SQL write statements and database drivers appear in that
+    #       one module only (migrations live outside the package).
+    #    b. The import report writer writes inside write_import_report only.
+    #    c. Routing scan: main.py serves the Sites index through the
+    #       tenant-scoped ProductSiteDirectory, and every legacy file-backed
+    #       surface (ingestion, Evidence, analytics, Lab) receives the
+    #       LegacySiteGate - the raw legacy repository reaches nothing else.
+    #    d. Imported-code write refusal: the gate refuses create_site for an
+    #       imported code, and each Lab write control calls the import check.
+    $pgWriter = "$backendRoot/sites/adapters/postgres_foundation_store.py"
+    $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
+    $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
+    $pgWritesSeen = 0
+    $pgDriverSeen = $false
+    foreach ($module in $backendModules) {
+        if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match $sqlWrite) {
+                if ($module.Path -eq $pgWriter) { $pgWritesSeen++ }
+                else {
+                    $failures.Add(("A second product database writer in $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()). Imported product Sites are written only by $pgWriter.")) | Out-Null
+                }
+            }
+            if ($line -match $dbDriver) {
+                if ($module.Path -eq $pgWriter) { $pgDriverSeen = $true }
+                else {
+                    $failures.Add(("Database driver imported outside $pgWriter in " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+        }
+    }
+    if ($pgWritesSeen -eq 0 -or -not $pgDriverSeen) {
+        $failures.Add(("The product database writer check found no SQL write or driver import in " +
+            "$pgWriter, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+    }
+
+    $reportWriter = "$backendRoot/sites/adapters/import_files.py"
+    $reportModule = $backendModules | Where-Object { $_.Path -eq $reportWriter } | Select-Object -First 1
+    if ($null -eq $reportModule) {
+        $failures.Add("Rule 8 could not find $reportWriter; update the check, do not delete it.") | Out-Null
+    } else {
+        $currentFunction = $null
+        $lineNumber = 0
+        foreach ($line in $reportModule.Lines) {
+            $lineNumber++
+            if ($line -match '^def\s+([A-Za-z_]+)') { $currentFunction = $Matches[1] }
+            foreach ($pattern in $writeCall) {
+                if ($line -match $pattern -and $currentFunction -ne 'write_import_report') {
+                    $failures.Add(("$reportWriter writes outside write_import_report at line ${lineNumber}: " +
+                        "$($line.Trim()). It may write only the review report, never a Site document.")) | Out-Null
+                }
+            }
+        }
+    }
+
+    $mainPath = "$backendRoot/main.py"
+    $mainModule = $backendModules | Where-Object { $_.Path -eq $mainPath } | Select-Object -First 1
+    $routingRequired = [ordered]@{
+        'product read router built'     = '^\s*product_sites\s*=\s*ProductSiteDirectory\('
+        'Sites index served through it' = 'build_sites_router\(product_sites\)'
+        'legacy gate built'             = '^\s*repository\s*=\s*LegacySiteGate\(legacy_repository,'
+        'Lab write controls gated'      = 'imported_site_check\s*=\s*repository\.refuse_if_imported'
+    }
+    $legacyAllowed = @(
+        '^\s*legacy_repository\s*=',
+        '^\s*legacy_repository,\s*$',
+        'LegacySiteGate\(legacy_repository,\s*registry\)',
+        'build_foundation_router\(registry,\s*legacy_repository\)'
+    )
+    if ($null -eq $mainModule) {
+        $failures.Add("Rule 8 could not find $mainPath; the routing scan would be vacuous.") | Out-Null
+    } else {
+        foreach ($name in $routingRequired.Keys) {
+            if (-not ($mainModule.Lines | Where-Object { $_ -match $routingRequired[$name] })) {
+                $failures.Add(("Routing scan: $mainPath no longer shows '$name' " +
+                    "($($routingRequired[$name])). Imported Sites must be read through the " +
+                    "product router and refused on legacy surfaces.")) | Out-Null
+            }
+        }
+        $legacyLines = 0
+        $lineNumber = 0
+        foreach ($line in $mainModule.Lines) {
+            $lineNumber++
+            if ($line -notmatch '\blegacy_repository\b') { continue }
+            $legacyLines++
+            $allowed = $false
+            foreach ($pattern in $legacyAllowed) { if ($line -match $pattern) { $allowed = $true; break } }
+            if (-not $allowed) {
+                $failures.Add(("Routing scan: the raw legacy Site repository reaches another consumer in " +
+                    "${mainPath}:${lineNumber}: $($line.Trim()). Legacy surfaces take the LegacySiteGate.")) | Out-Null
+            }
+        }
+        if ($legacyLines -lt 3) {
+            $failures.Add("Routing scan matched only $legacyLines legacy_repository line(s) in $mainPath; update the check.") | Out-Null
+        }
+    }
+
+    $cutoverPath = "$backendRoot/sites/cutover.py"
+    $cutover = $backendModules | Where-Object { $_.Path -eq $cutoverPath } | Select-Object -First 1
+    $labPath = "$backendRoot/simulator_lab_api.py"
+    $lab = $backendModules | Where-Object { $_.Path -eq $labPath } | Select-Object -First 1
+    if ($null -eq $cutover -or $null -eq $lab) {
+        $failures.Add("Rule 8 could not find $cutoverPath or $labPath; update the check.") | Out-Null
+    } else {
+        $text = $cutover.Lines -join "`n"
+        if ($text -notmatch '(?s)def create_site\(self[^\n]*\n(?:(?!\n    def ).)*?self\.is_imported\(') {
+            $failures.Add("$cutoverPath LegacySiteGate.create_site no longer refuses an imported code.") | Out-Null
+        }
+        $labText = $lab.Lines -join "`n"
+        foreach ($route in @('RUN_EXECUTION_START_ROUTE', 'RUN_EXECUTION_STEP_ROUTE', 'RUN_EXECUTION_END_ROUTE', 'RUN_COMMIT_ROUTE')) {
+            $pattern = '(?s)@router\.post\(' + $route + '\)\n(?:(?!@router\.).)*?_refuse_if_imported\(record\)'
+            if ($labText -notmatch $pattern) {
+                $failures.Add(("$labPath POST $route no longer refuses an imported Site " +
+                    "(_refuse_if_imported). Lab writes against an imported code must refuse.")) | Out-Null
+            }
+        }
     }
 
     return $failures
