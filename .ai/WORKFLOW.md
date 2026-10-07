@@ -1,4 +1,4 @@
-﻿# Workflow
+# Workflow
 
 AssetOps is built through thin end-to-end slices that produce UI-verifiable
 product behavior.
@@ -80,8 +80,7 @@ Avoid building whole layers before there is useful product behavior.
 ## Task Spec Size
 
 Task specs are guardrails for fast implementation, not miniature design
-documents. Keep durable reasoning in `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`,
-or `.ai/ARCHITECTURE.md`; keep task files slice-specific and executable.
+documents. For S1â€“S7, keep durable reasoning in the accepted Site-first architecture, technical design, execution plan or a new decision; keep task files slice-specific and executable. The old feature map and T0xx queue remain historical.
 
 Size is a ceiling, never a target. These are the upper limits:
 

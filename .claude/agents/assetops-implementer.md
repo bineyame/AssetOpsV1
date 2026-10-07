@@ -25,7 +25,9 @@ add what is specific to the task at hand, not restate this.
    `frontend/docs/architecture/site-first-execution-plan.md` by the sections
    relevant to the active task. These are the current architecture, platform
    contract and delivery sequence. Read the task's named sections first, then
-   follow only the references needed for its protected seams and demo.
+   follow only the references needed for its protected seams and demo. Inspect the
+   named surface in `frontend/mockups/v69/index.html` and `screen-manifest.json`
+   as interaction/content reference; implement only supported persisted states.
 6. `.ai/CODE_STATE.md` for the entries relevant to the active path: what earlier
    slices settled in code and what they left open. Use `.ai/PRODUCT.md` or
    `.ai/ARCHITECTURE.md` only for additional semantics or boundaries that remain

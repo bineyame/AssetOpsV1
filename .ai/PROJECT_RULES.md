@@ -5,8 +5,11 @@
 1. User instructions.
 2. Active task acceptance criteria, when a task exists.
 3. `.ai/PROJECT_RULES.md`.
-4. `.ai/PRODUCT.md` and `.ai/ARCHITECTURE.md`.
-5. Existing code and tests.
+4. Accepted `frontend/docs/architecture/production-shaped-mvp.md`, `production-shaped-mvp-technical-design.md`, and `site-first-execution-plan.md` for current S1-S7 work.
+5. `.ai/PRODUCT.md` and `.ai/ARCHITECTURE.md` where compatible with the accepted Site-first documents.
+6. Existing code and tests.
+
+The v6.9 mock screens under `frontend/mockups/v69/` are interaction and content references, not authority to show unsupported claims. Open T0xx packets and the old feature map are superseded planning history.
 
 When instructions conflict, use the higher authority and record material product
 or architecture consequences in `.ai/DECISIONS.md`.

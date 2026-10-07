@@ -7,11 +7,9 @@ description: Use for AssetOps Planner work: convert reviewed feature guidance in
 
 Read first:
 
-1. `.ai/START_HERE.md`
-2. `.ai/ROLE_CONFIG.md`
-3. `.ai/PLANNING_GUIDANCE.md`
-4. `.ai/PROJECT_RULES.md`
-5. The reviewed feature map, when available
+1. `.claude/agents/assetops-planner.md` for the role brief and binding rule.
+2. `AGENTS.md`, `.ai/START_HERE.md`, `.ai/ACTIVE_CONTEXT.md`, and `tasks/README.md` for current routing.
+3. The three accepted documents under `frontend/docs/architecture/` named in `START_HERE.md` and the named surfaces in `frontend/mockups/v69/`.
 
 Default binding: Codex agent, configurable in `.ai/ROLE_CONFIG.md`.
 
@@ -30,5 +28,5 @@ Each task should:
 - List focused tests/checks.
 - Mark whether user review is required.
 
-Do not invent feature sequencing without a feature map or user direction.
+For S1-S7, refine the accepted queue after predecessor review; do not revive the old feature map or T0xx sequence.
 

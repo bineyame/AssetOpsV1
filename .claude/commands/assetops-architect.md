@@ -8,11 +8,10 @@ Prefer the `assetops-architect` subagent/skill when available.
 
 Read:
 
-- `.ai/START_HERE.md`
-- `.ai/ROLE_CONFIG.md`
-- `.ai/PLANNING_GUIDANCE.md`
-- `.ai/PRODUCT.md`
-- `.ai/ARCHITECTURE.md`
+- `.claude/agents/assetops-architect.md` and `.ai/ROLE_CONFIG.md`
+- `AGENTS.md`, `.ai/START_HERE.md`, and `.ai/ACTIVE_CONTEXT.md`
+- The three accepted documents under `frontend/docs/architecture/` named in `START_HERE.md`
+- The named mock surfaces in `frontend/mockups/v69/index.html` and `screen-manifest.json`
 
 If `.ai/ROLE_CONFIG.md` still binds Architect to Codex, prepare a concise Codex
 handoff prompt containing the user request, relevant files, and expected feature

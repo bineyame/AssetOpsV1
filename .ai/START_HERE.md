@@ -1,6 +1,8 @@
-﻿# Start Here
+# Start Here
 
 AssetOps turns mini-grid evidence into bounded operational and economic conclusions and verifies interventions. Current planning direction is the accepted [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md).
+
+The [v6.9 mock screens](../frontend/mockups/v69/index.html) and their `screen-manifest.json` are the interaction/content references for each named surface. They do not authorize invented data or unfinished tabs; the active task and accepted architecture determine what becomes real.
 
 Current milestone: S1 Foundation.
 

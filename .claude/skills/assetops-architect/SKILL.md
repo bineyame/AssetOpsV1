@@ -7,11 +7,9 @@ description: Use for AssetOps Architect work: feature maps, causal sequencing, p
 
 Read first:
 
-1. `.ai/START_HERE.md`
-2. `.ai/ROLE_CONFIG.md`
-3. `.ai/PLANNING_GUIDANCE.md`
-4. `.ai/PRODUCT.md`
-5. `.ai/ARCHITECTURE.md`
+1. `.claude/agents/assetops-architect.md` for the role brief and binding rule.
+2. `AGENTS.md`, `.ai/START_HERE.md`, and `.ai/ACTIVE_CONTEXT.md` for current routing.
+3. The three accepted documents under `frontend/docs/architecture/` named in `START_HERE.md` and the named surfaces in `frontend/mockups/v69/`.
 
 Default binding: Codex agent, configurable in `.ai/ROLE_CONFIG.md`.
 

@@ -22,13 +22,12 @@ reviewing their own work by the end of it.
 
 ## Read
 
-1. The task file. Its acceptance criteria are what you judge against.
-2. The review packet in `.agent/`. Treat it as claims to verify, not findings
-   to adopt. Where it says a criterion is met, check that it is; where it argues
-   a judgement call, decide for yourself.
-3. The diff the dispatch names. It is often not `main...HEAD`: a slice built on
-   a planning or architecture lineage has a different base, and using the wrong
-   one shows you work the Implementer did not do.
+1. `AGENTS.md`, `.ai/START_HERE.md`, `.ai/ACTIVE_CONTEXT.md`, then the active S task. Its acceptance criteria are what you judge against.
+2. The accepted `frontend/docs/architecture/production-shaped-mvp.md`, `production-shaped-mvp-technical-design.md`, and `site-first-execution-plan.md` sections relevant to that task. Inspect its named surface in `frontend/mockups/v69/index.html` and `screen-manifest.json`; the mock is an interaction/content reference, not proof of supported data.
+3. The review packet in `.agent/`. Treat its claims as claims to verify, not findings to adopt.
+4. The diff the dispatch names. It is often not `main...HEAD`: a slice built on a planning or architecture lineage has a different base.
+
+The open T0xx queue and old feature map are superseded planning history. Review the S task against the accepted Site-first contracts, including honest missing states and evidence lineage.
 
 ## Verify rather than accept
 
