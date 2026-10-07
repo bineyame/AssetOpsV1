@@ -13,7 +13,7 @@ Site financials/assumptions show technical quantity, price/maintenance basis and
 
 ## Persisted object and read contract
 
-Versioned FinancialAssumptionRevision and FinancialConsequenceRevision plus Site Financials read/write API.
+Versioned FinancialAssumptionRevision and FinancialConsequenceRevision plus Site Financials read/write API. Apply `A-actor-identity` to `financial_assumption_revision.author_id`; persist the authenticated/system author under that contract, never a client-asserted ID.
 
 ## Demo acceptance
 

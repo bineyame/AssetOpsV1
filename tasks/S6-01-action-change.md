@@ -9,15 +9,15 @@ Planner: Codex, 2026-10-07
 
 ## Visible outcome
 
-Site changes/recommendation/sitework show one accepted Action and applied Lab policy change.
+Site changes/recommendation/sitework show one accepted Action and its applied Foundation reserve-SOC change.
 
 ## Persisted object and read contract
 
-Action, ActionEvent and immutable policy-change artifact linked to Foundation revision; Site Work read API.
+Action, ActionEvent and immutable policy-change artifact linked to a newly published Foundation revision; Site Work read API. Use the S1 Foundation publish path for the supported reserve-SOC change, not a Lab-only override. Apply the recorded actor identity and Finding/Action route contracts.
 
 ## Demo acceptance
 
-Accept a recommendation, apply a controlled reserve/policy change in Lab, Commit later evidence; show activity separately from outcome.
+Accept a recommendation, publish a controlled reserve-SOC revision, and record its application event. Show the Action and change artifact after reload with outcome pending. S6-02 owns the later Lab run, accepted window and verification outcome.
 
 ## Missing/conflicting evidence
 

@@ -17,9 +17,7 @@ Site source-health read model from cadence/heartbeat, ingestion lag and edge dia
 
 ## Demo acceptance
 
-Use centrally received gateway diagnostics from S2-02 for stale contact, queue age/depth, clock offset and disk pressure; a local Lab status alone cannot support Site Health. Planner names `D-edge-health-cases` for outage/pressure and verifies central reload. Battery stress is shown only if a causally supportable simulator observation exists; otherwise the battery claim is Unknown with its missing input named. `I-sim-battery-cases` is an optional follow-on producer, not an S7 queue prerequisite, and captured-device replay is unavailable for this simulated-only demo choice. Keep source freshness distinct from battery stress.
-
-Stale gateway versus live source, and a battery stress window only if the simulator can produce defensible public observations; otherwise show Unknown and withhold replacement exposure. Reload both central diagnostics and the supported asset state.
+Use centrally received gateway diagnostics from S2-02 for stale contact, queue age/depth, clock offset and disk pressure; a local Lab status alone cannot support Site Health. Planner names `D-edge-health-cases` for outage/pressure and verifies central reload. Show battery stress only if a causal simulator observation exists; otherwise name the missing input, show Unknown and withhold replacement exposure. `I-sim-battery-cases` is outside the S7 queue and captured-device replay is unavailable for this simulated-only demo. Reload the central diagnostic and asset states.
 
 ## Missing/conflicting evidence
 
@@ -27,7 +25,7 @@ Absent evidence is Unknown, not healthy; no remaining-life date or failure diagn
 
 ## Evidence lineage
 
-Health and asset claims resolve accepted readings, configuration, assumptions and SourceEnvelope IDs.
+Source-health state resolves central diagnostic IDs and server receive times. Any supported battery claim additionally resolves accepted readings, configuration, assumptions and SourceEnvelope IDs; an Unknown state names the missing input.
 
 ## Review and refinement
 

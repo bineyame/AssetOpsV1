@@ -8,7 +8,7 @@ Planner: Codex, 2026-10-07
 
 ## Visible result
 
-The supported Kobo Site and Lab path uses a coherent v6.9 visual vocabulary at desktop and narrow widths. First comparison IDs from `frontend/mockups/v69/screen-manifest.json` are `sites`, `foundation`, `readiness`, `sld`, `evidence`, `evidence-analysis`, `lab` and the initial `dispatch` state. This proposal covers only the data and interactions each S packet has made real. It does not mark the ledger's proposed `Real with honest gaps` tier approved or any whole screen complete.
+The supported Kobo Site and Lab path uses a coherent v6.9 visual vocabulary at desktop and narrow widths. First comparison IDs from `frontend/mockups/v69/screen-manifest.json` are `sites`, `foundation`, `readiness`, `sld`, `evidence`, `evidence-analysis` and `lab`. Add `dispatch` only when S3-01 switches its Postgres read. This proposal covers only the data and interactions each S packet has made real. It does not mark the ledger's proposed `Real with honest gaps` tier approved or any whole screen complete.
 
 ## Contract and approach
 
@@ -20,7 +20,7 @@ The supported Kobo Site and Lab path uses a coherent v6.9 visual vocabulary at d
 
 ## Reviewer path and activation gate
 
-After S2-02 review and owner tier choice, refine V-01 against the realized S1/S2 surfaces and initial S3 fixture. Open each supported app route and corresponding mock `#/ID` at desktop and narrow widths; capture comparisons, navigate by keyboard, change Site/window, reload, follow one visible value to accepted SourceEnvelope, and verify a missing-state route. Run frontend test/typecheck/build, layout/browser checks and `python frontend/docs/architecture/check_v69_ledger.py`. A screenshot proves presentation, not claim support.
+After S2-02 review and owner tier choice, refine V-01 against the realized S1/S2 surfaces. Open each supported app route and corresponding mock `#/ID` at desktop and narrow widths; capture comparisons, navigate by keyboard, change Site/window, reload, follow one visible evidence value to accepted SourceEnvelope, and verify a missing-state route. Add the dispatch comparison with S3-01. Run frontend test/typecheck/build, layout/browser checks and `python frontend/docs/architecture/check_v69_ledger.py`. A screenshot proves presentation, not claim support.
 
 The first S3/S4 claim fixture needs one complete, one missing/contradictory and one late Kobo interval; later S6 requires a distinct post-action window. Multi-site and cross-domain visual acceptance needs the separate [demo-data dependency](../frontend/docs/architecture/v69-demo-data-plan-proposal.md), with source-to-claim lineage and compatible window/currency basis. Do not copy illustrative mock events. S3-S7 packets add their new manifest IDs to this comparison method as each screen becomes real.
 

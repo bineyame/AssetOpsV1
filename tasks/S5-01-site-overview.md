@@ -13,7 +13,7 @@ Mini-grid Overview shows selected-window assessment, timeline, bounded cost and 
 
 ## Persisted object and read contract
 
-SiteWindowSummary projection/read model and GET /sites/{id}/overview?from=&to= with source/analytic watermarks.
+SiteWindowSummary projection/read model and `GET /api/sites/{id}/overview?from=&to=` with source/analytic watermarks.
 
 ## Demo acceptance
 

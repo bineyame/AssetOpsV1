@@ -13,7 +13,7 @@ Open a candidate interval as Site finding/finding-evidence with a durable episod
 
 ## Persisted object and read contract
 
-Finding and immutable FindingRevision linked to AssessmentRevision; Site Finding read API and episode matching rule.
+Finding and immutable FindingRevision linked to AssessmentRevision; Site Finding read API and episode matching rule. Apply `A-claim-work-routes` for stable detail identity, revision selection and unavailable/forbidden behavior before fixing the UI route.
 
 ## Demo acceptance
 
