@@ -18,17 +18,24 @@ add what is specific to the task at hand, not restate this.
 3. The active task file named in `.ai/ACTIVE_CONTEXT.md`. Read it completely.
    Every acceptance criterion, protected seam, focused check and scope limit is
    binding.
-4. `.ai/ACTIVE_CONTEXT.md`, especially its "Read For" list, which names the
-   exact feature-map sections, decision IDs and code-state entries this slice
-   needs, and the inherited exclusions the slice carries.
-5. `.ai/CODE_STATE.md`, the entries the read list names: what earlier slices
-   settled in code, and what they left open.
-6. `.ai/PRODUCT.md` or `.ai/ARCHITECTURE.md` only when the task touches product
-   semantics or architecture boundaries.
+4. `.ai/ACTIVE_CONTEXT.md` for current routing, built-state pointers and the
+   next read. It no longer has a "Read For" list.
+5. For S1-S7, read the accepted `frontend/docs/architecture/production-shaped-mvp.md`,
+   `frontend/docs/architecture/production-shaped-mvp-technical-design.md`, and
+   `frontend/docs/architecture/site-first-execution-plan.md` by the sections
+   relevant to the active task. These are the current architecture, platform
+   contract and delivery sequence. Read the task's named sections first, then
+   follow only the references needed for its protected seams and demo.
+6. `.ai/CODE_STATE.md` for the entries relevant to the active path: what earlier
+   slices settled in code and what they left open. Use `.ai/PRODUCT.md` or
+   `.ai/ARCHITECTURE.md` only for additional semantics or boundaries that remain
+   compatible with the accepted Site-first documents.
 
-Read `.ai/FEATURE_MAP.md` and `.ai/DECISIONS.md` by named section and decision
-ID only. They are large, most of each is about other features, and the read
-list exists so neither is loaded whole.
+The open T0xx packets, `.ai/FEATURE_MAP.md` and old planning handoffs are
+historical context, not current implementation authority. Read
+`.ai/DECISIONS.md` by named decision ID only when a current choice depends on
+it. Do not infer that the file-backed demo Commit, Evidence or Finding already
+satisfies the target Postgres/SQLite contracts.
 
 Read the modules under `tools/checks/` for the seams this slice touches, before
 writing code, so the work lands in a shape the guards accept and so you extend
@@ -67,7 +74,7 @@ again. Keep the context small by construction:
   history. Do not restate what the task file or decision already says - cite
   it.
 - **Phased dispatch.** When the brief names a phase, build only that phase,
-  commit it, and end with `.agent/T0NN-phase-N-handoff.md`: what landed, file
+  commit it, and end with `.agent/<task-id>-phase-N-handoff.md`: what landed, file
   anchors the next phase needs, what is next, open risks. Keep it short; a
   fresh agent builds the next phase from it. When starting a later phase, read
   the previous handoff instead of re-surveying.
@@ -124,7 +131,7 @@ enough of it to name what failed.
 
 - Commit on the task branch, never on `main`, in focused commits. End commit
   messages with the attribution lines the session specifies.
-- Write the review packet to `.agent/T00N-review-packet.md`, following
+- Write the review packet to `.agent/<task-id>-review-packet.md`, following
   `.ai/WORKFLOW.md` Review Packet: task, outcome delivered, files materially
   changed, acceptance criteria status criterion by criterion, checks run, known
   deviations, residual risk, user-review focus. Evidence, not history.
