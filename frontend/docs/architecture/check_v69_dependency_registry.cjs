@@ -80,6 +80,9 @@ for (const [index, task] of expectedTasks.entries()) {
   const predecessor = index ? [`I-${expectedTasks[index - 1]}`] : [];
   if (JSON.stringify(node.sequenced_after || []) !== JSON.stringify(predecessor)) fail(`${task}: queue order differs from S1–S7 plan`);
 }
+for (const node of nodes.values()) if (node.kind === 'implementation' && node.layer !== 'task' && expectedTasks.includes(node.task)) {
+  if (node.status !== nodes.get(`I-${node.task}`).status) fail(`${node.id}: layered capability and ${node.task} must resolve together`);
+}
 
 function ancestors(id, result = new Set()) {
   for (const dependency of nodes.get(id).requires) {
@@ -101,6 +104,21 @@ for (const node of nodes.values()) {
   if (node.kind === 'data' && !node.requires.some((id) => nodes.get(id).kind === 'architecture')) {
     fail(`${node.id}: data must depend directly on its governing architecture`);
   }
+}
+if (!Array.isArray(registry.queue_baseline_nodes) ||
+    new Set(registry.queue_baseline_nodes).size !== registry.queue_baseline_nodes.length) fail('Invalid queue baseline');
+const queueBaseline = new Set(registry.queue_baseline_nodes);
+for (const id of queueBaseline) {
+  if (!nodes.has(id) || nodes.get(id).kind === 'product') fail(`${id}: invalid queue baseline node`);
+  for (const dependency of ancestors(id)) {
+    if (nodes.get(dependency).status === 'open' && !queueBaseline.has(dependency)) {
+      fail(`${id}: queue baseline omits open technical prerequisite ${dependency}`);
+    }
+  }
+}
+for (const task of expectedTasks) if (!queueBaseline.has(`I-${task}`)) fail(`${task}: missing from queue baseline`);
+for (const node of nodes.values()) if (node.kind === 'implementation' && expectedTasks.includes(node.task) && !queueBaseline.has(node.id)) {
+  fail(`${node.id}: queue-owned implementation missing from baseline`);
 }
 
 const knownPanels = new Set(contracts.map((panel) => `${panel.screen_id}:${panel.panel_index}`));
@@ -211,17 +229,21 @@ const effortPoints = {S: 1, M: 3, L: 5};
 const openForPanel = (panel) => [...new Set(panel.requires.flatMap((id) => [id, ...ancestors(id)]))]
   .filter((id) => nodes.get(id).status === 'open').sort();
 const points = (ids) => ids.reduce((sum, id) => sum + effortPoints[nodes.get(id).effort], 0);
+const marginal = (ids) => ids.filter((id) => !queueBaseline.has(id));
 const detailed = process.argv.includes('--details');
-console.log('Screen and panel readiness (unique open nodes; effort points S=1, M=3, L=5):');
+console.log('Screen and panel readiness (unique open nodes; effort points S=1, M=3, L=5; marginal excludes queue baseline):');
 for (const screen of pilotScreens) {
   const panels = registry.panels.filter((panel) => panel.screen_id === screen);
   const screenOpen = [...new Set(panels.flatMap(openForPanel))].sort();
-  console.log(`${screen} | ${panels.length} panels | ${screenOpen.length} open | ${points(screenOpen)} points | ${governed.get(screen)}`);
-  if (detailed) console.log(`  screen nodes: ${screenOpen.join(', ')}`);
+  console.log(`${screen} | ${panels.length} ${panels.length === 1 ? 'panel' : 'panels'} | ${screenOpen.length} open / ${points(screenOpen)} total | ${marginal(screenOpen).length} marginal / ${points(marginal(screenOpen))} points | ${governed.get(screen)}`);
+  if (detailed) {
+    console.log(`  screen nodes: ${screenOpen.join(', ')}`);
+    console.log(`  marginal nodes: ${marginal(screenOpen).join(', ') || '(none)'}`);
+  }
   for (const panel of panels) {
     const open = openForPanel(panel);
     const title = contracts.find((row) => row.screen_id === screen && row.panel_index === panel.panel_index).panel_title;
-    console.log(`  ${panel.panel_index} ${title} | ${open.length} open | ${points(open)} points`);
+    console.log(`  ${panel.panel_index} ${title} | ${open.length} open / ${points(open)} total | ${marginal(open).length} marginal / ${points(marginal(open))} points`);
     if (detailed) console.log(`    nodes: ${open.join(', ')}`);
   }
 }
