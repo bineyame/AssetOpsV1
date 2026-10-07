@@ -1,6 +1,8 @@
-# S2-01 - Durable edge gateway and Lab inspection
+# S2-01 — Superseded unsplit outline
 
-Status: outline; refine after S1-02 review, before activation
+This packet is planning history and is **not executable**. Architect decision `D-2026-10-07-s2-edge-split-and-demo-source` replaced it with [S2-01a](S2-01a-registered-lab-basis.md), [S2-01b](S2-01b-durable-simulated-gateway.md) and [S2-01c](S2-01c-gateway-diagnostics-faults.md). Its signing and captured-physical-fixture assumptions are superseded. Use the current queue and those packets.
+
+Status: superseded planning history; do not activate
 USER_REVIEW_REQUIRED: true
 Milestone: S2 Evidence
 Depends on: S1-02

@@ -27,7 +27,7 @@ A missing role, contradictory samples or weak quality yields an explicit Indeter
 
 ## Evidence lineage
 
-Interval detail resolves accepted evidence IDs and exact Foundation/binding basis; contract tests compare simulated and captured physical inputs after normalization.
+Interval detail resolves accepted evidence IDs and exact Foundation/binding basis. The S3 demo uses simulated input only; the first real pilot later compares captured physical inputs after normalization.
 
 ## Review and refinement
 

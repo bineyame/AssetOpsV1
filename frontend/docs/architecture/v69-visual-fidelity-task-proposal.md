@@ -1,6 +1,6 @@
 # Proposed V-01 - v6.9 visual and interaction fidelity track
 
-**Planning proposal, not executable or owner accepted.** The Planner should add a small visual-fidelity packet **before S3-01 activation**, after S1/S2 evidence-path review. This track then becomes a check within every later screen slice. It must not delay S1-01, S1-02, S2-01 or S2-02 or turn static mock values into product facts. The [tiered screen ledger](v69-screen-ledger.json) is pending owner approval.
+**Planning proposal, not executable or owner accepted.** The Planner should add a small visual-fidelity packet **before S3-01 activation**, after S1/S2 evidence-path review. This track then becomes a check within every later screen slice. It must not delay S1-01, S1-02, S2-01a/b/c or S2-02 or turn static mock values into product facts. The [tiered screen ledger](v69-screen-ledger.json) is pending owner approval.
 
 ## Outcome
 

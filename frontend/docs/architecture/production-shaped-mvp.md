@@ -24,7 +24,7 @@ flowchart LR
   L[Private Lab store] -. inspected only in Lab .-> W
 ```
 
-**Invariant:** replace the simulated gateway with a real gateway that emits equivalent `SourceEnvelope`s and the ingestion, analytics, read models and operator UI remain unchanged. Only explicit source provenance and the Lab entry point differ. A contract test must run the same envelope fixture through both gateway paths and compare downstream claims.
+**Invariant:** replace the simulated gateway with a real gateway that emits equivalent `SourceEnvelope`s and the ingestion, analytics, read models and operator UI remain unchanged. Only explicit source provenance and the Lab entry point differ. At the first real pilot, a contract test must run a real capture or labelled vendor-format fixture through the physical path and compare normalized envelopes and downstream claims with the simulated path. The S2 demo proves the simulated path only.
 
 ## Decisions and boundaries
 
@@ -112,10 +112,10 @@ Present state observed: Commit, accepted Evidence, Site Overview and one mini-gr
 
 ## Fresh vertical-slice sequence
 
-1. **One evidence path, two sources.** Version/fixture the envelope and batch receipt; build SQLite gateway outbox and authenticated HTTPS/Postgres ingestion. Send one simulated and one recorded real-adapter fixture through the same endpoint. Demo: unplug/reconnect, retries, deduplication, late arrival, rejection and identical Evidence screen/lineage.
+1. **One evidence path, two sources.** Version/fixture the envelope and batch receipt; build SQLite gateway outbox and authenticated HTTPS/Postgres ingestion. S2 proves the path with simulated input only. The first real pilot supplies one real capture or labelled vendor-format wire fixture to prove the physical adapter input and equivalent downstream behavior. Demo: unplug/reconnect, retries, deduplication, late arrival, rejection and inspectable Evidence lineage.
 2. **Mini-grid decision with money.** Migrate Site/Foundation revisions and dispatch analytic to role-bound accepted evidence; produce windowed Finding and bounded fuel/maintenance consequence with editable, versioned assumptions. Demo: Portfolio → Site → dispatch Finding → raw evidence and exact money basis.
 3. **Action and verification.** Persist recommendation/Action, plan revision, activity and later-window outcome with service/reserve guardrails. Demo: change a policy in Lab, commit later evidence, show Verified/Ineffective/Inconclusive and supported portfolio change.
 4. **Cold-chain equivalence.** Add temperature/backup device roles and a bounded excursion/backup analytic, relevant asset and consequence view. Use the same gateway/API/shell/workflow. Demo: cold room source loss versus real excursion, with honest product-exposure wording.
 5. **EV equivalence and estate view.** Add session/connector roles, interruption/availability analytic, revenue assumption and EV asset view; finish comparable Portfolio prioritization across three domains. Demo: one mini-grid, one cold-chain and one EV site, each traceable from source to action.
 
-Each slice ends with a screen-visible claim and an evidence-lineage check. Real-device drivers may start with one pilot protocol; broader protocol libraries, MQTT, stream infrastructure, predictive maintenance, extensive financial scenarios and generic domain plugins wait for observed need. The final acceptance gate is a real or captured gateway batch replacing the simulator batch while backend, analytics and UI tests remain unchanged.
+Each slice ends with a screen-visible claim and an evidence-lineage check. Real-device drivers may start with one pilot protocol; broader protocol libraries, MQTT, stream infrastructure, predictive maintenance, extensive financial scenarios and generic domain plugins wait for observed need. At the first real pilot, the acceptance gate is a real or labelled vendor-format gateway batch replacing the simulator batch while backend, analytics and UI tests remain unchanged. S2–S7 demo acceptance uses simulated input and makes no physical protocol proof claim.

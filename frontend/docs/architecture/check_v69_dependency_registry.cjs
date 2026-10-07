@@ -14,6 +14,9 @@ const taskQueue = fs.readFileSync(path.resolve(here, '../../../tasks/README.md')
 const fail = (message) => { throw new Error(message); };
 
 if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v2') fail('Wrong schema');
+if (registry.s2_device_input_in_effect !== 'SIMULATED_ONLY' || !registry.physical_peer_gate?.includes('First real pilot')) {
+  fail('S2 demo source choice or first-pilot physical gate missing');
+}
 if (registry.subject_area_briefs !== 'v69-subject-area-briefs.json') fail('Wrong subject-area brief reference');
 if (briefs.schema !== 'assetops.v69.subject-area-briefs.v1') fail('Wrong subject-area brief schema');
 for (const [task, gate] of [['S4-01', 'A-claim-work-routes'], ['S4-02', 'A-actor-identity']]) {
@@ -23,8 +26,8 @@ for (const [task, gate] of [['S4-01', 'A-claim-work-routes'], ['S4-02', 'A-actor
 if (!taskQueue.includes('S6-01 reuses both accepted contracts') || !taskQueue.includes('queue_baseline_nodes')) {
   fail('Task queue lacks cross-cutting gate reuse or baseline refinement rule');
 }
-for (const gate of ['A-lab-registered-basis', 'A-edge-batch-signature', 'A-edge-diagnostics', 'A-demo-scenarios', 'I-edge-fault-scenarios',
-  'I-sim-dispatch-cases', 'I-sim-verification-cases', 'I-sim-battery-cases']) {
+for (const gate of ['A-lab-registered-basis', 'A-edge-batch-signature', 'A-edge-diagnostics', 'A-real-peer-source', 'A-demo-scenarios',
+  'I-edge-fault-scenarios', 'I-sim-dispatch-cases', 'I-sim-verification-cases']) {
   if (!taskQueue.includes(gate)) fail(`Task queue lacks simulation/edge gate ${gate}`);
 }
 const areas = new Set(registry.areas.map((area) => area.id));
@@ -48,7 +51,7 @@ for (const node of registry.nodes) {
     if (!['open', 'resolved'].includes(node.status)) fail(`${node.id}: invalid status`);
     if (!['S', 'M', 'L'].includes(node.effort)) fail(`${node.id}: missing effort size`);
     if (node.status === 'resolved' && !node.evidence) fail(`${node.id}: resolved without evidence`);
-    if (node.kind === 'implementation' && !['task', 'persistence', 'projection', 'ui'].includes(node.layer)) fail(`${node.id}: missing implementation layer`);
+    if (node.kind === 'implementation' && !['task', 'persistence', 'projection', 'ui', 'edge', 'producer', 'ingestion'].includes(node.layer)) fail(`${node.id}: missing implementation layer`);
   }
   nodes.set(node.id, node);
 }
@@ -71,11 +74,13 @@ function visit(id) {
 }
 for (const id of nodes.keys()) visit(id);
 for (const [id, prerequisites] of [
-  ['I-S2-01', ['I-lab-registered-basis', 'I-edge-batch-sign', 'I-edge-physical-adapter', 'I-edge-diagnostics-publish', 'I-edge-fault-scenarios']],
-  ['I-S2-02', ['I-batch-signature-verify', 'I-edge-diagnostics-store']],
+  ['I-S2-01a', ['I-lab-registered-basis']],
+  ['I-S2-01b', ['I-S2-01a', 'I-edge-outbox', 'I-edge-simulated-adapter']],
+  ['I-S2-01c', ['I-S2-01b', 'I-edge-diagnostics-publish', 'I-edge-fault-scenarios']],
+  ['I-S2-02', ['I-S2-01c', 'I-accepted-evidence-store', 'I-edge-diagnostics-store']],
   ['I-S3-01', ['I-sim-dispatch-cases']],
   ['D-verification-window', ['I-sim-verification-cases']],
-  ['I-S7-01', ['I-edge-diagnostics-store', 'D-edge-health-cases', 'I-sim-battery-cases']],
+  ['I-S7-01', ['I-edge-diagnostics-store', 'D-edge-health-cases']],
   ['D-cold-domain', ['I-cold-world', 'D-cold-physical-peer']],
   ['D-cold-physical-peer', ['I-cold-device-adapter']],
   ['D-ev-domain', ['I-ev-world', 'D-ev-physical-peer']],
@@ -101,7 +106,12 @@ function visitQueue(id) {
   queueVisited.add(id);
 }
 for (const id of nodes.keys()) visitQueue(id);
-const expectedTasks = ['S1-01', 'S1-02', 'S2-01', 'S2-02', 'S3-01', 'S4-01', 'S4-02', 'S5-01', 'S6-01', 'S6-02', 'S7-01'];
+const expectedTasks = ['S1-01', 'S1-02', 'S2-01a', 'S2-01b', 'S2-01c', 'S2-02', 'S3-01', 'S4-01', 'S4-02', 'S5-01', 'S6-01', 'S6-02', 'S7-01'];
+const taskRows = [...taskQueue.matchAll(/\|\s*S[1-7][^|]*\|\s*\[(S[1-7]-\d{2}[a-z]?)\]\(([^)]+)\)/g)];
+if (JSON.stringify(taskRows.map((match) => match[1])) !== JSON.stringify(expectedTasks) ||
+    taskRows.some((match) => !fs.existsSync(path.resolve(here, '../../../tasks', match[2])))) {
+  fail('Task queue rows, packets and registry task sequence differ');
+}
 for (const [index, task] of expectedTasks.entries()) {
   const node = nodes.get(`I-${task}`);
   if (!node || node.kind !== 'implementation' || node.layer !== 'task' || node.task !== task) {
@@ -114,6 +124,11 @@ for (const [index, task] of expectedTasks.entries()) {
 for (const node of nodes.values()) if (node.kind === 'implementation' && node.layer !== 'task' && expectedTasks.includes(node.task)) {
   if (node.status !== nodes.get(`I-${node.task}`).status) fail(`${node.id}: layered capability and ${node.task} must resolve together`);
 }
+for (const [layer, ids] of Object.entries({
+  producer: ['I-lab-registered-basis', 'I-edge-fault-scenarios', 'I-sim-dispatch-cases', 'I-sim-verification-cases', 'I-sim-battery-cases', 'I-cold-world', 'I-ev-world'],
+  edge: ['I-edge-outbox', 'I-edge-simulated-adapter', 'I-edge-batch-sign', 'I-edge-physical-adapter', 'I-edge-diagnostics-publish', 'I-cold-device-adapter', 'I-ev-device-adapter'],
+  ingestion: ['I-batch-signature-verify']
+})) for (const id of ids) if (nodes.get(id)?.layer !== layer) fail(`${id}: wrong simulation/edge layer`);
 
 function ancestors(id, result = new Set()) {
   for (const dependency of nodes.get(id).requires) {
@@ -139,6 +154,9 @@ for (const node of nodes.values()) {
 if (!Array.isArray(registry.queue_baseline_nodes) ||
     new Set(registry.queue_baseline_nodes).size !== registry.queue_baseline_nodes.length) fail('Invalid queue baseline');
 const queueBaseline = new Set(registry.queue_baseline_nodes);
+for (const id of ['I-edge-batch-sign', 'I-batch-signature-verify', 'I-edge-physical-adapter', 'I-sim-battery-cases']) {
+  if (queueBaseline.has(id) || nodes.get(id)?.task !== null) fail(`${id}: deferred capability is not in S1–S7 queue`);
+}
 for (const id of queueBaseline) {
   if (!nodes.has(id) || nodes.get(id).kind === 'product') fail(`${id}: invalid queue baseline node`);
   for (const dependency of ancestors(id)) {

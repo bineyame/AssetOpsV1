@@ -3797,3 +3797,18 @@ assumptions and the prepared external demo; T034 retains recommendations,
 action and verification. The evidence-sufficiency scope and limits in
 `D-2026-10-04-analytic-readiness-scope-and-gap-impact` are unchanged. This
 decision records architecture direction, not owner slice acceptance.
+
+## 2026-10-07
+
+Decision: `D-2026-10-07-s2-edge-split-and-demo-source`.
+Codex Architect, following the owner's S2 dependency review and source-choice reply. This is an Architect planning/contract decision, not task completion or owner acceptance of a product tier.
+
+Split the former S2-01 outline into three reviewed tasks: **S2-01a** makes imported Kobo Lab Draft/run use the selected effective Postgres Foundation and SignalBinding snapshot and records its revision/hash; **S2-01b** makes simulated public reports pass through a separate SQLite-backed V3 gateway/outbox; **S2-01c** publishes GatewayDiagnosticsV1 locally and demonstrates disconnect/retry and disk pressure. S2-02 retains authenticated central Evidence and diagnostic receipt plus the owner checkpoint. Kobo's imported Lab Draft/run/Commit path remains deliberately blocked after S1-01 until S2-01a restores Draft/run from registered basis; Commit remains blocked until S2-02. Unimported legacy YAML Sites retain their existing boundary.
+
+For the S2–S7 demo, the **one source in effect is simulated device input**. S2 does not claim a physical protocol parser or equivalent physical batch. The first real pilot must choose a real controller/meter/BMS capture if available, or a clearly labelled synthetic fixture built from vendor protocol documentation. That pilot gate checks frames/register scaling, units and device clocks, then compares the shared downstream path. No captured-device battery fallback is available for the current demo.
+
+Resolve `A-edge-batch-signature` by **deferring per-batch cryptographic signatures and key rotation for this pilot**. Batch V2 keeps registered TLS gateway credentials, canonical SHA-256 payload digest and exact-byte retry. A future security requirement may activate signing only after amending the technical design, Batch V2 wire contract and test vectors. Signing implementation nodes remain open outside the S1–S7 queue; this decision does not claim they are built.
+
+Resolve `A-edge-diagnostics` with a separate authenticated GatewayDiagnosticsV1 report and append-only central `gateway_diagnostic` table. The gateway sends local sequence, observed time, source-contact and queue/disk/clock diagnostics independently of telemetry; the server records receipt time, enforces gateway/site scope and idempotent identity, and derives freshness from its receive time and declared cadence. Diagnostics are operational state, never AcceptedEvidence or an asset-health claim. Sections 1, 3 and 4 of the technical design define the table, wire and API.
+
+Resolve `A-demo-scenarios` for the queued path: each fixture manifest separates public device reports, expected missing/contradictory/late cases and private Lab oracle. S6 verification uses **two separate runs**: a baseline under the old effective Foundation/policy and a later run under the new persisted revision. No mid-run policy change is required of the kernel. S7 battery stress stays Unknown unless a causal simulated public observation is implemented; optional producer `I-sim-battery-cases` is not counted as committed S7 work. This keeps unsupported replacement exposure withheld.

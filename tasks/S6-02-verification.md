@@ -17,7 +17,7 @@ Immutable VerificationPlanRevision/Outcome and later-window analytic comparison 
 
 ## Demo acceptance
 
-Planner names `I-sim-verification-cases`: from the persisted S6-01 policy change, produce a later public window with a target outcome, a guardrail failure and an inconclusive-evidence variant. Commit those reports through the S2 gateway/ingestion path before evaluation. Keep the fixed plan revision, applied-change event and later observations separately traceable.
+Planner names `I-sim-verification-cases`: use a baseline Lab run under the old effective Foundation and a separate later run under the S6-01 persisted policy revision. Produce a later public window with a target outcome, a guardrail failure and an inconclusive-evidence variant. Commit reports through the S2 gateway/ingestion path before evaluation. No policy change partway through one run is required; keep the fixed plan revision, applied-change event and both runs' public observations separately traceable.
 
 Evaluate later committed evidence against frozen baseline and plan; fail a guardrail; reopen both windows and later recurrence.
 

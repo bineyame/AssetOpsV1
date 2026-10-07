@@ -13,13 +13,13 @@ Site health and battery asset detail separate source freshness, observed stress 
 
 ## Persisted object and read contract
 
-Site source-health read model from cadence/heartbeat, ingestion lag and edge diagnostics; bounded battery stress/asset-life assessment linked to Asset.
+Site source-health read model from cadence/heartbeat, ingestion lag and edge diagnostics; a bounded battery stress/asset-life assessment linked to Asset only when a causal observation supports it, otherwise an explicit Unknown state.
 
 ## Demo acceptance
 
-Use centrally received gateway diagnostics from S2-02 for stale contact, queue age/depth, clock offset and disk pressure; a local Lab status alone cannot support Site Health. Planner names `D-edge-health-cases` and `I-sim-battery-cases`: produce outage/pressure and a causally supportable battery stress window (or a labelled captured-device replay if the kernel cannot model it) through normal ingestion. Verify central diagnostic reload and keep source freshness distinct from battery stress.
+Use centrally received gateway diagnostics from S2-02 for stale contact, queue age/depth, clock offset and disk pressure; a local Lab status alone cannot support Site Health. Planner names `D-edge-health-cases` for outage/pressure and verifies central reload. Battery stress is shown only if a causally supportable simulator observation exists; otherwise the battery claim is Unknown with its missing input named. `I-sim-battery-cases` is an optional follow-on producer, not an S7 queue prerequisite, and captured-device replay is unavailable for this simulated-only demo choice. Keep source freshness distinct from battery stress.
 
-Stale gateway versus live stressed battery, battery stress window and modelled replacement exposure when supportable; reload.
+Stale gateway versus live source, and a battery stress window only if the simulator can produce defensible public observations; otherwise show Unknown and withhold replacement exposure. Reload both central diagnostics and the supported asset state.
 
 ## Missing/conflicting evidence
 

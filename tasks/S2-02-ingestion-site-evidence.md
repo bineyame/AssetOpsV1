@@ -1,9 +1,9 @@
 # S2-02 - Shared ingestion and Site Evidence
 
-Status: outline; refine after S2-01 review, before activation
+Status: outline; refine after S2-01c review, before activation
 USER_REVIEW_REQUIRED: true
 Milestone: S2 Evidence
-Depends on: S2-01
+Depends on: S2-01c
 Branch: task/S2-02-ingestion-site-evidence
 Planner: Codex, 2026-10-07; contract audit 2026-10-07
 
@@ -13,13 +13,13 @@ Site evidence/evidence-analysis and Lab Commit show accepted, delayed, rejected,
 
 ## Current code and required transition
 
-The current `POST /api/ingestion/batches` and `IngestionService` already share parsing/deduplication for the demo, but use batch V1, no gateway credential boundary, process-local locking, identity normalization and `JsonEvidenceStore`. Lab Commit calls `ingestion.ingest` in process. Adapt the service and route; replace product evidence storage with Postgres and Commit's privileged in-process call with a registered simulated gateway posting the same authenticated HTTPS API as the captured physical fixture. Preserve legacy parsers for migration, not as the new write contract.
+The current `POST /api/ingestion/batches` and `IngestionService` already share parsing/deduplication for the demo, but use batch V1, no gateway credential boundary, process-local locking, identity normalization and `JsonEvidenceStore`. Lab Commit calls `ingestion.ingest` in process. Adapt the service and route; replace product evidence storage with Postgres and Commit's privileged in-process call with the registered simulated gateway posting the authenticated HTTPS API. The S2 demo source is simulated only; the physical protocol peer waits for the first real pilot. Preserve legacy parsers for migration, not as the new write contract.
 
-Carry the Foundation-only cutover: imported Site Evidence remains visibly awaiting migration until this task compares and switches its Postgres read. Keep product index/detail routing one imported Postgres KOBO-001 plus unimported legacy YAML Sites; do not reintroduce a stale product read or write. Authenticate tenant/site/gateway/source separately; S1 pending registration authorizes no upload. S2-01 supplies the registered Lab run basis; this task supplies authenticated Commit delivery. Commit of a pre-import Stage remains blocked unless its frozen public basis can be registered and validated; historical Stage GET stays read-only. Resolve the originally registered Foundation/binding at each source time, preserving the accepted-as basis.
+Carry the Foundation-only cutover: imported Site Evidence remains visibly awaiting migration until this task compares and switches its Postgres read. Keep product index/detail routing one imported Postgres KOBO-001 plus unimported legacy YAML Sites; do not reintroduce a stale product read or write. Authenticate tenant/site/gateway/source separately; S1 pending registration authorizes no upload. S2-01a supplies the registered Lab run basis; this task supplies authenticated Commit delivery. Commit of a pre-import Stage remains blocked unless its frozen public basis can be registered and validated; historical Stage GET stays read-only. Resolve the originally registered Foundation/binding at each source time, preserving the accepted-as basis.
 
 ## Persisted object and read contract
 
-Verify the registered gateway signature over sealed canonical Batch V2 bytes before acceptance, under the `A-edge-batch-signature` decision; TLS authentication and payload digest remain required. Ingest authenticated gateway heartbeat/diagnostic messages into a Site-scoped central history with server receive time. Expose last contact, queue depth/oldest age, clock offset and disk pressure with an explicit stale/unknown state for later SourceHealth. Diagnostics are operational reports, not AcceptedEvidence and not a claim that devices are healthy. A gateway outage must remain visible centrally after reload.
+Use the recorded `A-edge-batch-signature` decision: the pilot verifies registered TLS gateway credentials and canonical Batch V2 SHA-256, with exact-byte retries; per-batch signatures and key rotation are deferred. Ingest authenticated `GatewayDiagnosticsV1` reports into `gateway_diagnostic` with server receive time. Expose last contact, queue depth/oldest age, clock offset and disk pressure with an explicit stale/unknown state for later SourceHealth. Diagnostics are operational reports, not AcceptedEvidence or a healthy-device claim. A gateway outage remains visible centrally after reload.
 
 Use registered gateway/site/source credentials over TLS, bounded Batch V2 upload, durable queryable Receipt V2 and Postgres IngestionBatch, AcceptedEvidence, EvidenceRejection/Conflict and per-ordinal Disposition. Check each envelope's original registered Foundation/binding validity at source time; normalize with its accepted-as conversion, retain raw bytes/digest and quality, and record `received_at` at the server. Identical ID/bytes are duplicates; same ID/different bytes conflicts without overwrite. Persist batch progress, per-record decisions and a recompute job in the same transaction. S3-01 supplies the analytic worker/consumer.
 
@@ -27,7 +27,7 @@ Use registered gateway/site/source credentials over TLS, bounded Batch V2 upload
 
 ## Demo acceptance and cutover
 
-Commit a simulated run and upload a captured physical fixture; disconnect/retry, duplicate exact bytes, conflict same ID/different bytes, crash after server commit, partial sibling rejection, same-timestamp distinct sequences and late sample. Inspect receipt and Site Evidence after process reload. Register/import existing Site/Foundation/mapping data, replay sealed committed batch bytes via legacy parsers, compare acceptance counts and representative records with the file-backed baseline, and record the old dispatch claims as S3 comparison fixtures. Switch supported Evidence reads to Postgres only after the evidence comparison passes; S3-01 compares dispatch claims before switching Performance reads. Keep `var/sites`, Lab runs/stages/committed artifacts untouched; report unresolved configuration as migration exceptions. Lab-private truth never enters Postgres.
+Commit a simulated run; disconnect/retry, duplicate exact bytes, conflict same ID/different bytes, crash after server commit, partial sibling rejection, same-timestamp distinct sequences and late sample. Inspect receipt, central gateway diagnostics and Site Evidence after process reload. Register/import existing Site/Foundation/mapping data, replay sealed committed batch bytes via legacy parsers, compare acceptance counts and representative records with the file-backed baseline, and record the old dispatch claims as S3 comparison fixtures. Switch supported Evidence reads to Postgres only after the evidence comparison passes; S3-01 compares dispatch claims before switching Performance reads. Keep `var/sites`, Lab runs/stages/committed artifacts untouched; report unresolved configuration as migration exceptions. Lab-private truth never enters Postgres.
 
 ## Missing/conflicting evidence
 
@@ -39,7 +39,7 @@ Open each accepted record to original/normalized value and unit, source/publishe
 
 ## Review and refinement
 
-Reviewer opens Site Evidence and Lab Commit, verifies Postgres reload, receipt retry, legacy comparison and the shared physical/simulated path. Before activation, refine exact credentials, migration fixture, wire fields and focused checks using S2-01 outcome and the current technical design. Apply shared queue gates.
+Reviewer opens Site Evidence and Lab Commit, verifies Postgres reload, receipt retry, central diagnostics and legacy comparison using simulated input. Before activation, refine exact credentials, migration fixture, wire fields and focused checks using S2-01c outcome and the current technical design. Apply shared queue gates. Physical-adapter input proof is a first-real-pilot gate, not S2 acceptance.
 
 ## Defer
 
