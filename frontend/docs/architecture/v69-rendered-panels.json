@@ -1,0 +1,1257 @@
+{
+  "source": "mock DOM",
+  "panels": {
+    "portfolio": [
+      {
+        "index": 1,
+        "title": "Where management should act first"
+      },
+      {
+        "index": 2,
+        "title": "Objectives across the estate"
+      },
+      {
+        "index": 3,
+        "title": "An opportunity beyond reducing cost"
+      },
+      {
+        "index": 4,
+        "title": "What changed in this review"
+      }
+    ],
+    "sites": [
+      {
+        "index": 1,
+        "title": "Site inventory"
+      },
+      {
+        "index": 2,
+        "title": "In setup"
+      }
+    ],
+    "mini": [
+      {
+        "index": 1,
+        "title": "What happened in the selected hour"
+      },
+      {
+        "index": 2,
+        "title": "Operating context"
+      },
+      {
+        "index": 3,
+        "title": "Needs attention"
+      },
+      {
+        "index": 4,
+        "title": "Bounded money consequence"
+      },
+      {
+        "index": 5,
+        "title": "Next step"
+      }
+    ],
+    "foundation": [
+      {
+        "index": 1,
+        "title": "Configured topology"
+      },
+      {
+        "index": 2,
+        "title": "Identity & operating obligations"
+      },
+      {
+        "index": 3,
+        "title": "Time-valid control configuration"
+      }
+    ],
+    "readiness": [
+      {
+        "index": 1,
+        "title": "Readiness and commissioning evidence"
+      },
+      {
+        "index": 2,
+        "title": "Gateway status · GW-MG-01"
+      },
+      {
+        "index": 3,
+        "title": "Connected sources"
+      },
+      {
+        "index": 4,
+        "title": "Effect on readiness and confidence"
+      }
+    ],
+    "changes": [
+      {
+        "index": 1,
+        "title": "Change and effect"
+      },
+      {
+        "index": 2,
+        "title": "Decision path"
+      }
+    ],
+    "dispatch": [
+      {
+        "index": 1,
+        "title": "Sources and 15-minute blocks"
+      },
+      {
+        "index": 2,
+        "title": "Selected block · 14:20–14:35"
+      },
+      {
+        "index": 3,
+        "title": "Accepted sample coverage"
+      }
+    ],
+    "renewable": [
+      {
+        "index": 1,
+        "title": "From physical headroom to an opportunity"
+      },
+      {
+        "index": 2,
+        "title": "Productive-use evaluation"
+      },
+      {
+        "index": 3,
+        "title": "Eligible and excluded windows"
+      }
+    ],
+    "evidence": [
+      {
+        "index": 1,
+        "title": "What we can conclude now"
+      },
+      {
+        "index": 2,
+        "title": "Data sources · data quality, not equipment condition"
+      },
+      {
+        "index": 3,
+        "title": "Most useful next evidence"
+      }
+    ],
+    "finding": [
+      {
+        "index": 1,
+        "title": "What happened"
+      },
+      {
+        "index": 2,
+        "title": "What limits this conclusion"
+      },
+      {
+        "index": 3,
+        "title": "What to do next"
+      },
+      {
+        "index": 4,
+        "title": "Where to look next"
+      }
+    ],
+    "analysis": [
+      {
+        "index": 1,
+        "title": "Constraint comparison"
+      },
+      {
+        "index": 2,
+        "title": "Bounded fuel calculation"
+      },
+      {
+        "index": 3,
+        "title": "Coverage, confidence and alternatives"
+      }
+    ],
+    "financials": [
+      {
+        "index": 1,
+        "title": "What happened → what it means in money"
+      },
+      {
+        "index": 2,
+        "title": "Assumptions in use"
+      },
+      {
+        "index": 3,
+        "title": "Trade-offs and exclusions"
+      }
+    ],
+    "assumptions": [
+      {
+        "index": 1,
+        "title": "Financial assumptions"
+      },
+      {
+        "index": 2,
+        "title": "Impact preview"
+      },
+      {
+        "index": 3,
+        "title": "Interpretation history"
+      }
+    ],
+    "recommendation": [
+      {
+        "index": 1,
+        "title": "Proposed intervention"
+      },
+      {
+        "index": 2,
+        "title": "Declare success before evaluating"
+      },
+      {
+        "index": 3,
+        "title": "Evidence needed to verify"
+      }
+    ],
+    "verification": [
+      {
+        "index": 1,
+        "title": "Target and guardrails evaluated together"
+      },
+      {
+        "index": 2,
+        "title": "Activity evidence"
+      },
+      {
+        "index": 3,
+        "title": "Outcome evidence"
+      }
+    ],
+    "asset": [
+      {
+        "index": 1,
+        "title": "Observed reserve and power exposure"
+      },
+      {
+        "index": 2,
+        "title": "Interpretation and next evidence"
+      },
+      {
+        "index": 3,
+        "title": "Condition evidence and claim boundary"
+      }
+    ],
+    "health": [
+      {
+        "index": 1,
+        "title": "Physical asset condition"
+      },
+      {
+        "index": 2,
+        "title": "Data sources · data quality, not equipment condition"
+      }
+    ],
+    "lab": [
+      {
+        "index": 1,
+        "title": "Selected canonical envelope"
+      },
+      {
+        "index": 2,
+        "title": "Truth versus observed"
+      },
+      {
+        "index": 3,
+        "title": "Release and ingestion"
+      },
+      {
+        "index": 4,
+        "title": "What never crosses"
+      }
+    ],
+    "cold": [
+      {
+        "index": 1,
+        "title": "What happened · power → cooling → product conditions"
+      },
+      {
+        "index": 2,
+        "title": "Chamber temperature"
+      },
+      {
+        "index": 3,
+        "title": "Needs attention"
+      },
+      {
+        "index": 4,
+        "title": "Bounded money consequence"
+      },
+      {
+        "index": 5,
+        "title": "Next step"
+      }
+    ],
+    "temperature": [
+      {
+        "index": 1,
+        "title": "Temperature with operating context"
+      },
+      {
+        "index": 2,
+        "title": "Excursion context"
+      },
+      {
+        "index": 3,
+        "title": "Claim boundary"
+      }
+    ],
+    "cooling": [
+      {
+        "index": 1,
+        "title": "Recovery curves"
+      },
+      {
+        "index": 2,
+        "title": "Context normalization"
+      },
+      {
+        "index": 3,
+        "title": "Next best evidence"
+      }
+    ],
+    "coldbackup": [
+      {
+        "index": 1,
+        "title": "What the chain shows"
+      },
+      {
+        "index": 2,
+        "title": "Reconstructed event chain"
+      },
+      {
+        "index": 3,
+        "title": "Backup event chains"
+      },
+      {
+        "index": 4,
+        "title": "Evidence by causal step"
+      }
+    ],
+    "ev": [
+      {
+        "index": 1,
+        "title": "What happened on the service day"
+      },
+      {
+        "index": 2,
+        "title": "Charging activity and site power"
+      },
+      {
+        "index": 3,
+        "title": "Needs attention"
+      },
+      {
+        "index": 4,
+        "title": "Bounded money consequence"
+      },
+      {
+        "index": 5,
+        "title": "Next step"
+      }
+    ],
+    "sessions": [
+      {
+        "index": 1,
+        "title": "Session service records"
+      },
+      {
+        "index": 2,
+        "title": "How to read the denominator"
+      },
+      {
+        "index": 3,
+        "title": "Cause remains bounded"
+      }
+    ],
+    "availability": [
+      {
+        "index": 1,
+        "title": "Connector states over the service schedule"
+      },
+      {
+        "index": 2,
+        "title": "Full-schedule availability bound"
+      },
+      {
+        "index": 3,
+        "title": "Most useful next evidence"
+      }
+    ],
+    "energy": [
+      {
+        "index": 1,
+        "title": "Import power and configured limit"
+      },
+      {
+        "index": 2,
+        "title": "What can be concluded"
+      },
+      {
+        "index": 3,
+        "title": "Technical-to-financial bridge"
+      }
+    ],
+    "incident": [
+      {
+        "index": 1,
+        "title": "Reconstructed timeline"
+      },
+      {
+        "index": 2,
+        "title": "Linked conclusions"
+      },
+      {
+        "index": 3,
+        "title": "Work and next evidence"
+      }
+    ],
+    "workverification": [
+      {
+        "index": 1,
+        "title": "Work evidence · activity"
+      },
+      {
+        "index": 2,
+        "title": "Post-work evidence · outcome"
+      },
+      {
+        "index": 3,
+        "title": "Next action"
+      }
+    ],
+    "service": [
+      {
+        "index": 1,
+        "title": "Where the power went"
+      },
+      {
+        "index": 2,
+        "title": "Delivered power by addressed load"
+      },
+      {
+        "index": 3,
+        "title": "What is supported"
+      },
+      {
+        "index": 4,
+        "title": "What unlocks a service conclusion"
+      }
+    ],
+    "fuel": [
+      {
+        "index": 1,
+        "title": "Fuel balance at a glance"
+      },
+      {
+        "index": 2,
+        "title": "Balance bridge"
+      },
+      {
+        "index": 3,
+        "title": "Inspect existing generator fuel interpretation"
+      }
+    ],
+    "backup": [
+      {
+        "index": 1,
+        "title": "Backup event chains"
+      },
+      {
+        "index": 2,
+        "title": "Backup readiness evidence"
+      },
+      {
+        "index": 3,
+        "title": "Operating evidence"
+      },
+      {
+        "index": 4,
+        "title": "Next evidence"
+      }
+    ],
+    "sitefindings": [
+      {
+        "index": 1,
+        "title": "Findings at this site"
+      }
+    ],
+    "sitework": [
+      {
+        "index": 1,
+        "title": "Actions at this site"
+      }
+    ],
+    "sitework-incidents": [
+      {
+        "index": 1,
+        "title": "Incidents at this site"
+      }
+    ],
+    "sitework-maintenance": [
+      {
+        "index": 1,
+        "title": "Maintenance at this site"
+      }
+    ],
+    "evidence-analysis": [
+      {
+        "index": 1,
+        "title": "Accepted records behind the conclusions"
+      },
+      {
+        "index": 2,
+        "title": "How a claim limit is set"
+      }
+    ],
+    "assets": [
+      {
+        "index": 1,
+        "title": "Asset inventory"
+      }
+    ],
+    "findings": [
+      {
+        "index": 1,
+        "title": "Findings across the estate"
+      }
+    ],
+    "actions": [
+      {
+        "index": 1,
+        "title": "Managed actions"
+      }
+    ],
+    "incidents": [
+      {
+        "index": 1,
+        "title": "Incident cases"
+      },
+      {
+        "index": 2,
+        "title": "Case boundaries"
+      }
+    ],
+    "maintenance": [
+      {
+        "index": 1,
+        "title": "Corrective work requests"
+      }
+    ],
+    "globalevidence": [
+      {
+        "index": 1,
+        "title": "Capability coverage across sites"
+      },
+      {
+        "index": 2,
+        "title": "Recurring evidence gaps"
+      }
+    ],
+    "globalfinancials": [
+      {
+        "index": 1,
+        "title": "Consequence register"
+      },
+      {
+        "index": 2,
+        "title": "Aggregation rule"
+      }
+    ],
+    "cold-foundation": [
+      {
+        "index": 1,
+        "title": "Physical site"
+      },
+      {
+        "index": 2,
+        "title": "Operating interpretation"
+      }
+    ],
+    "cold-health": [
+      {
+        "index": 1,
+        "title": "Condition and evidence"
+      }
+    ],
+    "cold-evidence": [
+      {
+        "index": 1,
+        "title": "What we can conclude now"
+      },
+      {
+        "index": 2,
+        "title": "Data sources · data quality, not equipment condition"
+      },
+      {
+        "index": 3,
+        "title": "Most useful next evidence"
+      }
+    ],
+    "cold-evidence-analysis": [
+      {
+        "index": 1,
+        "title": "Accepted records behind the conclusions"
+      },
+      {
+        "index": 2,
+        "title": "How a claim limit is set"
+      }
+    ],
+    "cold-financials": [
+      {
+        "index": 1,
+        "title": "What happened → what it means in money"
+      },
+      {
+        "index": 2,
+        "title": "Assumptions in use"
+      },
+      {
+        "index": 3,
+        "title": "Not included"
+      }
+    ],
+    "cold-assumptions": [
+      {
+        "index": 1,
+        "title": "Financial assumptions"
+      }
+    ],
+    "cold-findings": [
+      {
+        "index": 1,
+        "title": "Findings at this site"
+      }
+    ],
+    "cold-work": [
+      {
+        "index": 1,
+        "title": "Actions at this site"
+      }
+    ],
+    "cold-work-incidents": [
+      {
+        "index": 1,
+        "title": "Incidents at this site"
+      }
+    ],
+    "cold-work-maintenance": [
+      {
+        "index": 1,
+        "title": "Maintenance at this site"
+      }
+    ],
+    "cold-finding": [
+      {
+        "index": 1,
+        "title": "Bounded conclusion"
+      },
+      {
+        "index": 2,
+        "title": "Operational context"
+      },
+      {
+        "index": 3,
+        "title": "Recommended next step"
+      }
+    ],
+    "cold-recommendation": [
+      {
+        "index": 1,
+        "title": "Proposed intervention"
+      },
+      {
+        "index": 2,
+        "title": "Declare success before evaluating"
+      },
+      {
+        "index": 3,
+        "title": "What it is worth"
+      },
+      {
+        "index": 4,
+        "title": "Other recommendations at this site"
+      }
+    ],
+    "ev-foundation": [
+      {
+        "index": 1,
+        "title": "Physical site"
+      },
+      {
+        "index": 2,
+        "title": "Operating interpretation"
+      }
+    ],
+    "ev-health": [
+      {
+        "index": 1,
+        "title": "Condition and evidence"
+      }
+    ],
+    "ev-evidence": [
+      {
+        "index": 1,
+        "title": "What we can conclude now"
+      },
+      {
+        "index": 2,
+        "title": "Data sources · data quality, not equipment condition"
+      },
+      {
+        "index": 3,
+        "title": "Most useful next evidence"
+      }
+    ],
+    "ev-evidence-analysis": [
+      {
+        "index": 1,
+        "title": "Accepted records behind the conclusions"
+      },
+      {
+        "index": 2,
+        "title": "How a claim limit is set"
+      }
+    ],
+    "ev-financials": [
+      {
+        "index": 1,
+        "title": "What happened → what it means in money"
+      },
+      {
+        "index": 2,
+        "title": "Assumptions in use"
+      },
+      {
+        "index": 3,
+        "title": "Not included"
+      }
+    ],
+    "ev-assumptions": [
+      {
+        "index": 1,
+        "title": "Financial assumptions"
+      }
+    ],
+    "ev-findings": [
+      {
+        "index": 1,
+        "title": "Findings at this site"
+      }
+    ],
+    "ev-work": [
+      {
+        "index": 1,
+        "title": "Actions at this site"
+      }
+    ],
+    "ev-work-incidents": [
+      {
+        "index": 1,
+        "title": "Incidents at this site"
+      }
+    ],
+    "ev-work-maintenance": [
+      {
+        "index": 1,
+        "title": "Maintenance at this site"
+      }
+    ],
+    "ev-finding": [
+      {
+        "index": 1,
+        "title": "Bounded conclusion"
+      },
+      {
+        "index": 2,
+        "title": "Operational context"
+      },
+      {
+        "index": 3,
+        "title": "Recommended next step"
+      }
+    ],
+    "ev-recommendation": [
+      {
+        "index": 1,
+        "title": "Proposed intervention"
+      },
+      {
+        "index": 2,
+        "title": "Declare success before evaluating"
+      },
+      {
+        "index": 3,
+        "title": "What it is worth"
+      },
+      {
+        "index": 4,
+        "title": "Other recommendations at this site"
+      }
+    ],
+    "ev-action": [
+      {
+        "index": 1,
+        "title": "Declared verification plan"
+      }
+    ],
+    "finding-evidence": [
+      {
+        "index": 1,
+        "title": "Evidence bundle · F-104"
+      },
+      {
+        "index": 2,
+        "title": "Inspect source lineage"
+      }
+    ],
+    "alternatives": [
+      {
+        "index": 1,
+        "title": "Alternatives to investigate"
+      }
+    ],
+    "finding-history": [
+      {
+        "index": 1,
+        "title": "Revision history"
+      }
+    ],
+    "action-overview": [
+      {
+        "index": 1,
+        "title": "Action scope"
+      }
+    ],
+    "action-plan": [
+      {
+        "index": 1,
+        "title": "Success criteria"
+      }
+    ],
+    "action-execution": [
+      {
+        "index": 1,
+        "title": "Activity log"
+      }
+    ],
+    "action-evidence": [
+      {
+        "index": 1,
+        "title": "Evidence requirements"
+      }
+    ],
+    "action-history": [
+      {
+        "index": 1,
+        "title": "Action history"
+      }
+    ],
+    "opportunity-finding": [
+      {
+        "index": 1,
+        "title": "Bounded opportunity"
+      },
+      {
+        "index": 2,
+        "title": "Next decision"
+      },
+      {
+        "index": 3,
+        "title": "Consequence basis"
+      }
+    ],
+    "cold-finding-excursion": [
+      {
+        "index": 1,
+        "title": "Bounded conclusion"
+      },
+      {
+        "index": 2,
+        "title": "Temperature"
+      },
+      {
+        "index": 3,
+        "title": "Recommended next step"
+      }
+    ],
+    "cold-action": [
+      {
+        "index": 1,
+        "title": "Declared outcome criteria"
+      },
+      {
+        "index": 2,
+        "title": "Related activity"
+      }
+    ],
+    "scenarios": [
+      {
+        "index": 1,
+        "title": "Financial scenarios"
+      }
+    ],
+    "cold-scenarios": [
+      {
+        "index": 1,
+        "title": "Financial scenarios"
+      }
+    ],
+    "ev-scenarios": [
+      {
+        "index": 1,
+        "title": "Financial scenarios"
+      }
+    ],
+    "cold-readiness": [
+      {
+        "index": 1,
+        "title": "Readiness and commissioning evidence"
+      },
+      {
+        "index": 2,
+        "title": "Gateway status · GW-CR-01"
+      },
+      {
+        "index": 3,
+        "title": "Connected sources"
+      },
+      {
+        "index": 4,
+        "title": "Effect on readiness and confidence"
+      }
+    ],
+    "ev-readiness": [
+      {
+        "index": 1,
+        "title": "Readiness and commissioning evidence"
+      },
+      {
+        "index": 2,
+        "title": "Gateway status · GW-EV-01"
+      },
+      {
+        "index": 3,
+        "title": "Connected sources"
+      },
+      {
+        "index": 4,
+        "title": "Effect on readiness and confidence"
+      }
+    ],
+    "sld": [
+      {
+        "index": 1,
+        "title": "Kobo Mini-grid · AC-coupled mini-grid"
+      },
+      {
+        "index": 2,
+        "title": "What each part does"
+      }
+    ],
+    "cold-sld": [
+      {
+        "index": 1,
+        "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup"
+      },
+      {
+        "index": 2,
+        "title": "What each part does"
+      }
+    ],
+    "ev-sld": [
+      {
+        "index": 1,
+        "title": "Depot Charging Hub · Depot charging hub"
+      },
+      {
+        "index": 2,
+        "title": "What each part does"
+      }
+    ],
+    "assets-warranty": [
+      {
+        "index": 1,
+        "title": "Warranty by asset"
+      },
+      {
+        "index": 2,
+        "title": "Repair or claim · CHG-002 connector fault"
+      },
+      {
+        "index": 3,
+        "title": "Vendor performance"
+      }
+    ],
+    "asset-register": [
+      {
+        "index": 1,
+        "title": "1 · Identity and type"
+      },
+      {
+        "index": 2,
+        "title": "2 · Site and position"
+      },
+      {
+        "index": 3,
+        "title": "3 · Points"
+      },
+      {
+        "index": 4,
+        "title": "4 · Vendor and warranty"
+      },
+      {
+        "index": 5,
+        "title": "5 · Commissioning"
+      },
+      {
+        "index": 6,
+        "title": "6 · Validation"
+      }
+    ],
+    "asset-overview": [
+      {
+        "index": 1,
+        "title": "What happened in the selected hour"
+      },
+      {
+        "index": 2,
+        "title": "Needs attention"
+      },
+      {
+        "index": 3,
+        "title": "Money consequence"
+      },
+      {
+        "index": 4,
+        "title": "Next step"
+      }
+    ],
+    "site-create-form": [
+      {
+        "index": 1,
+        "title": "1 · Identity"
+      },
+      {
+        "index": 2,
+        "title": "2 · Configuration"
+      },
+      {
+        "index": 3,
+        "title": "3 · Assets"
+      },
+      {
+        "index": 4,
+        "title": "4 · Gateway and points"
+      },
+      {
+        "index": 5,
+        "title": "5 · Policies (inherited)"
+      },
+      {
+        "index": 6,
+        "title": "6 · Review and validation"
+      }
+    ],
+    "site-create-template": [
+      {
+        "index": 1,
+        "title": "Preview · Hybrid cold room"
+      },
+      {
+        "index": 2,
+        "title": "Parameters to set"
+      },
+      {
+        "index": 3,
+        "title": "Assets the template adds"
+      }
+    ],
+    "site-batch-upload": [
+      {
+        "index": 1,
+        "title": "1 · Template"
+      },
+      {
+        "index": 2,
+        "title": "2 · Upload"
+      },
+      {
+        "index": 3,
+        "title": "3 · Check rows"
+      }
+    ],
+    "site-setup-history": [
+      {
+        "index": 1,
+        "title": "Site setup history"
+      }
+    ],
+    "asset-performance": [
+      {
+        "index": 1,
+        "title": "Weekly use"
+      }
+    ],
+    "asset-config": [
+      {
+        "index": 1,
+        "title": "Identity and position"
+      },
+      {
+        "index": 2,
+        "title": "Mapped points"
+      }
+    ],
+    "asset-edit": [
+      {
+        "index": 1,
+        "title": "1 · Identity and type"
+      },
+      {
+        "index": 2,
+        "title": "2 · Site and position"
+      },
+      {
+        "index": 3,
+        "title": "3 · Points"
+      },
+      {
+        "index": 4,
+        "title": "4 · Vendor and warranty"
+      },
+      {
+        "index": 5,
+        "title": "5 · Commissioning"
+      },
+      {
+        "index": 6,
+        "title": "6 · Validation"
+      }
+    ],
+    "asset-work": [
+      {
+        "index": 1,
+        "title": "Scheduled maintenance"
+      },
+      {
+        "index": 2,
+        "title": "Maintenance record"
+      }
+    ],
+    "asset-evidence": [
+      {
+        "index": 1,
+        "title": "Condition evidence"
+      }
+    ],
+    "asset-warranty": [
+      {
+        "index": 1,
+        "title": "Warranty terms against what the evidence shows"
+      },
+      {
+        "index": 2,
+        "title": "What puts cover at risk"
+      },
+      {
+        "index": 3,
+        "title": "Record captured at registration"
+      }
+    ],
+    "findings-cost": [
+      {
+        "index": 1,
+        "title": "Cost lens"
+      }
+    ],
+    "findings-risks": [
+      {
+        "index": 1,
+        "title": "Risks lens"
+      }
+    ],
+    "findings-opportunities": [
+      {
+        "index": 1,
+        "title": "Opportunities lens"
+      }
+    ],
+    "maintenance-preventive": [
+      {
+        "index": 1,
+        "title": "Preventive plan"
+      }
+    ],
+    "wr-overview": [
+      {
+        "index": 1,
+        "title": "Work done"
+      },
+      {
+        "index": 2,
+        "title": "Lifecycle"
+      }
+    ],
+    "wr-record": [
+      {
+        "index": 1,
+        "title": "Maintenance record · activity"
+      }
+    ],
+    "wr-history": [
+      {
+        "index": 1,
+        "title": "History"
+      }
+    ],
+    "oprecords": [
+      {
+        "index": 1,
+        "title": "Operational records"
+      },
+      {
+        "index": 2,
+        "title": "Record a manual reading"
+      },
+      {
+        "index": 3,
+        "title": "How records are used"
+      }
+    ],
+    "settings-policies": [
+      {
+        "index": 1,
+        "title": "Operational policies"
+      },
+      {
+        "index": 2,
+        "title": "Edit · verification window default"
+      },
+      {
+        "index": 3,
+        "title": "Versions"
+      }
+    ],
+    "settings-tenant": [
+      {
+        "index": 1,
+        "title": "Organisation"
+      },
+      {
+        "index": 2,
+        "title": "Feature switches"
+      },
+      {
+        "index": 3,
+        "title": "Users and roles"
+      }
+    ]
+  }
+}
