@@ -251,6 +251,7 @@
     },
     {
       "id": "finding",
+      "registry_dependencies": {"product_node_id": "P-finding", "node_ids": ["I-finding-read", "I-finding-ui", "D-finding-revisions", "I-action-read", "D-action-records"]},
       "mock_route": "#/finding",
       "product_destination": "Findings > Overview",
       "coverage": "bounded",
@@ -941,6 +942,7 @@
     },
     {
       "id": "sitefindings",
+      "registry_dependencies": {"product_node_id": "P-claims-area", "node_ids": ["I-finding-index", "I-site-findings-ui", "D-finding-revisions"]},
       "mock_route": "#/sitefindings",
       "product_destination": "Sites > Findings",
       "coverage": "deferred",
@@ -973,6 +975,7 @@
     },
     {
       "id": "sitework",
+      "registry_dependencies": {"product_node_id": "P-sitework", "node_ids": ["I-action-read", "I-action-ui", "D-action-records"]},
       "mock_route": "#/sitework",
       "product_destination": "Sites > Work",
       "coverage": "bounded",
@@ -1116,6 +1119,7 @@
     },
     {
       "id": "findings",
+      "registry_dependencies": {"product_node_id": "P-claims-area", "node_ids": ["I-finding-index", "I-estate-finding-root", "D-finding-revisions"]},
       "mock_route": "#/findings",
       "product_destination": "Findings",
       "coverage": "deferred",
@@ -1150,6 +1154,7 @@
     },
     {
       "id": "actions",
+      "registry_dependencies": {"product_node_id": "P-work-area", "node_ids": ["I-action-read", "I-estate-action-root", "D-action-records"]},
       "mock_route": "#/actions",
       "product_destination": "Actions",
       "coverage": "deferred",
@@ -1183,6 +1188,7 @@
     },
     {
       "id": "incidents",
+      "registry_dependencies": {"product_node_id": "P-work-cases", "node_ids": ["I-incident-read", "I-incident-ui", "D-work-records"]},
       "mock_route": "#/incidents",
       "product_destination": "Incidents",
       "coverage": "deferred",
@@ -1216,6 +1222,7 @@
     },
     {
       "id": "maintenance",
+      "registry_dependencies": {"product_node_id": "P-work-cases", "node_ids": ["I-maintenance-read", "I-maintenance-ui", "D-work-records"]},
       "mock_route": "#/maintenance",
       "product_destination": "Maintenance",
       "coverage": "deferred",

@@ -15,6 +15,7 @@ SCREENS = HERE / "v69-screen-ledger.json"
 MODELS = HERE / "v69-model-homes.json"
 RENDERED_PANELS = HERE / "v69-rendered-panels.json"
 PANEL_CONTRACTS = HERE / "v69-panel-contracts.json"
+REGISTRY = HERE / "v69-dependency-registry-pilot.json"
 TIERS = {"Real", "Real with honest gaps", "Deferred", "Dropped"}
 APPROVALS = {"pending owner review", "owner approved"}
 
@@ -41,6 +42,38 @@ def main() -> None:
     model_homes = read(MODELS)["models"]
     rendered_panels = read(RENDERED_PANELS)["panels"]
     panel_contracts = read(PANEL_CONTRACTS)["panels"]
+    registry = read(REGISTRY)
+    if registry.get("schema") != "assetops.v69.dependency-registry.pilot.v2":
+        raise SystemExit("Dependency registry pilot schema must be v2")
+    pilot_panels: dict[str, list[dict]] = {}
+    for panel in registry["panels"]:
+        pilot_panels.setdefault(panel["screen_id"], []).append(panel)
+    area_for_screen: dict[str, str] = {}
+    for panel in registry["panels"]:
+        screen_id = panel["screen_id"]
+        if screen_id in area_for_screen and area_for_screen[screen_id] != panel["area"]:
+            raise SystemExit(f"{screen_id}: panels span product areas")
+        area_for_screen[screen_id] = panel["area"]
+    area_defaults: dict[str, str] = {}
+    screen_overrides: dict[str, str] = {}
+    for node in registry["nodes"]:
+        if node["kind"] == "product":
+            if node["scope"] == "area":
+                for area in node["governs_areas"]:
+                    if area in area_defaults:
+                        raise SystemExit(f"{area}: multiple product defaults")
+                    area_defaults[area] = node["id"]
+            elif node["scope"] == "screens":
+                for screen_id in node["governs"]:
+                    if screen_id in screen_overrides or area_for_screen.get(screen_id) != node["area"]:
+                        raise SystemExit(f"{screen_id}: invalid product override")
+                    screen_overrides[screen_id] = node["id"]
+            else:
+                raise SystemExit(f"{node['id']}: invalid product scope")
+    product_for_screen = {screen_id: screen_overrides.get(screen_id, area_defaults.get(area))
+                          for screen_id, area in area_for_screen.items()}
+    if any(product_id is None for product_id in product_for_screen.values()):
+        raise SystemExit("Pilot screen lacks an area product default")
 
     exact_ids([row["id"] for row in manifest], [row["id"] for row in screen_ledger], "screens")
     expected_models = sorted({name for row in manifest for name in row["models"]})
@@ -57,6 +90,15 @@ def main() -> None:
 
     for row in screen_ledger:
         identifier = row["id"]
+        registry_link = row.get("registry_dependencies")
+        if identifier in pilot_panels:
+            expected_nodes = list(dict.fromkeys(node_id for panel in pilot_panels[identifier]
+                                                for node_id in panel["requires"]))
+            if not registry_link or registry_link.get("product_node_id") != product_for_screen.get(identifier) or \
+                    registry_link.get("node_ids") != expected_nodes:
+                raise SystemExit(f"{identifier}: registry dependency IDs diverge from pilot panels")
+        elif registry_link is not None:
+            raise SystemExit(f"{identifier}: registry link has no pilot panels")
         if row["mock_route"] != f"#/{identifier}" or row["visual_reference"] != f"index.html#/{identifier}":
             raise SystemExit(f"{identifier}: mock route/reference mismatch")
         for key in ("product_destination", "coverage", "data_owner", "supported_claim", "interaction", "unknown_or_empty"):
