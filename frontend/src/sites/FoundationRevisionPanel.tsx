@@ -72,7 +72,7 @@ export function FoundationRevisionPanel({
   const reserve = controls.battery_reserve;
 
   return (
-    <>
+    <div className="foundation-revision">
       <Panel heading="Foundation version" headingId={FOUNDATION_REVISION_HEADING_ID}>
         <p data-foundation-period={revision.period_state}>
           <Badge tone="neutral">{`Foundation v${revision.version}`}</Badge>{" "}
@@ -225,7 +225,7 @@ export function FoundationRevisionPanel({
           </tbody>
         </DataTable>
       </Panel>
-    </>
+    </div>
   );
 }
 

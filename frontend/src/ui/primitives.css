@@ -2219,3 +2219,14 @@ button:focus-visible {
 }
 
 .overview-card__timeline { margin: var(--space-2) 0; }
+
+/*
+ * S1-01 Foundation version panel. Record IDs and SHA-256 digests are machine
+ * text read a character at a time or copied whole: they break anywhere rather
+ * than set the page's minimum width, and the period picker and the reserve
+ * form never grow wider than the panel at 640 px.
+ */
+.foundation-revision code { overflow-wrap: anywhere; }
+.foundation-revision select,
+.foundation-revision input { max-width: 100%; }
+.foundation-revision label { display: inline-block; max-width: 100%; }
