@@ -120,6 +120,12 @@ export interface SiteConfigurationProps {
    */
   tabs?: ReactNode;
   /**
+   * S1-01: the persisted Foundation version panel (period, controls, the one
+   * reserve change, registrations and gaps), placed under the tabs and above
+   * the subtab row. Absent for a Site still read from its legacy document.
+   */
+  revision?: ReactNode;
+  /**
    * The trail above this page, built by the shell from the canonical
    * `site_id`. Foundation sits two levels down, so its parent is the Site
    * itself, and the Site's crumb has to be spelled the way the record spells
@@ -138,6 +144,7 @@ export function SiteConfiguration({
   siteId,
   detail,
   tabs,
+  revision,
   parentTrail,
   templateLineage,
 }: SiteConfigurationProps) {
@@ -207,6 +214,7 @@ export function SiteConfiguration({
     <SiteConfigurationFacts
       site={result.site}
       tabs={tabs}
+      revision={revision}
       parentTrail={parentTrail}
       lineage={lineage?.get(result.site.site_id)}
     />
@@ -223,6 +231,8 @@ export interface SiteConfigurationFactsProps {
   site: SiteDetailReadModel;
   /** See `SiteConfigurationProps.tabs`. */
   tabs?: ReactNode;
+  /** See `SiteConfigurationProps.revision`. */
+  revision?: ReactNode;
   /** See `SiteConfigurationProps.parentTrail`. */
   parentTrail?: (siteId: string) => Crumb[];
   /** This site's lineage answer, if the shell supplied a lineage read. */
@@ -232,6 +242,7 @@ export interface SiteConfigurationFactsProps {
 export function SiteConfigurationFacts({
   site,
   tabs,
+  revision,
   parentTrail,
   lineage,
 }: SiteConfigurationFactsProps) {
@@ -258,6 +269,8 @@ export function SiteConfigurationFacts({
       />
 
       {tabs}
+
+      {revision}
 
       <FoundationSubtabs />
 

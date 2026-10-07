@@ -19,6 +19,8 @@
  * the shell supplies the builder, because the substrate does not know routes.
  */
 
+import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
+import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -88,6 +90,9 @@ export function SiteOverview({
 
   if (result === null) {
     return <p>{SITE_OVERVIEW_LOADING}</p>;
+  }
+  if (awaitingMigration(result)) {
+    return <AwaitingEvidenceMigration surface="overview" />;
   }
   if (result.status !== "loaded") {
     return (

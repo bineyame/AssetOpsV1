@@ -42,6 +42,10 @@ import {
   type SiteAnalyticsClient,
 } from "./sites/siteAnalyticsClient";
 import {
+  createSiteFoundationClient,
+  type SiteFoundationClient,
+} from "./sites/siteFoundationClient";
+import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
 } from "./sites/siteEvidenceClient";
@@ -68,6 +72,7 @@ const defaultSiteDirectory = createSiteDirectoryClient();
 const defaultSiteEvidence = createSiteEvidenceClient();
 const defaultSiteOverview = createSiteOverviewClient();
 const defaultSiteAnalytics = createSiteAnalyticsClient();
+const defaultSiteFoundation = createSiteFoundationClient();
 
 /**
  * Route table.
@@ -127,6 +132,8 @@ export interface AppProps {
   siteOverview?: SiteOverviewClient;
   /** Analytics read models: Performance, Findings, Finding detail (T028). Operator, never gated. */
   siteAnalytics?: SiteAnalyticsClient;
+  /** Persisted Foundation read and reserve change (S1-01). Operator, never gated. */
+  siteFoundation?: SiteFoundationClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -144,6 +151,7 @@ export function App({
   siteEvidence = defaultSiteEvidence,
   siteOverview = defaultSiteOverview,
   siteAnalytics = defaultSiteAnalytics,
+  siteFoundation = defaultSiteFoundation,
   siteTemplateLineage,
   now,
 }: AppProps) {
@@ -186,6 +194,7 @@ export function App({
             element={
               <SiteFoundationFrame
                 detail={siteDetail}
+                foundation={siteFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
               />

@@ -12,6 +12,8 @@
  * period (no Finding, owner ruling 2026-10-03) needs most. Nothing is
  * recomputed: each row is the backend assessment by its `assessment_id`.
  */
+import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
+import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -91,6 +93,9 @@ export function SitePerformance({
 
   if (declaration === null) {
     return <p>Loading the site&apos;s assessments.</p>;
+  }
+  if (awaitingMigration(declaration)) {
+    return <AwaitingEvidenceMigration surface="performance" />;
   }
   if (declaration.status !== "loaded") {
     return (
@@ -198,6 +203,9 @@ function DispatchView({
 
   if (result === null) {
     return <p>Loading the site&apos;s assessments.</p>;
+  }
+  if (awaitingMigration(result)) {
+    return <AwaitingEvidenceMigration surface="dispatch performance" />;
   }
   if (result.status !== "loaded") {
     return (

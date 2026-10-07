@@ -173,7 +173,17 @@ export interface EvidenceRejections {
 export type EvidenceRead<T> =
   | { status: "loaded"; value: T }
   | { status: "not_found" }
-  | { status: "unavailable"; message: string | null };
+  | {
+      status: "unavailable";
+      message: string | null;
+      /** S1-01: set when the Site's evidence is awaiting migration. */
+      transition?: "AWAITING_EVIDENCE_MIGRATION";
+    };
+
+/** True when a read was refused because the Site awaits evidence migration. */
+export function awaitingMigration(result: EvidenceRead<unknown> | null): boolean {
+  return result !== null && result.status === "unavailable" && result.transition === "AWAITING_EVIDENCE_MIGRATION";
+}
 
 export interface EvidenceWindowQuery {
   from?: string | null;
@@ -300,6 +310,13 @@ export async function read<T>(
     return { status: "loaded", value: body };
   }
   const detail = isObject(body) ? body.detail : null;
+  if (response.status === 409 && isObject(detail) && detail.code === "AWAITING_EVIDENCE_MIGRATION") {
+    return {
+      status: "unavailable",
+      message: typeof detail.message === "string" ? detail.message : null,
+      transition: "AWAITING_EVIDENCE_MIGRATION",
+    };
+  }
   return {
     status: "unavailable",
     message:
