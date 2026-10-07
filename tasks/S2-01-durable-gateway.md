@@ -15,6 +15,8 @@ Lab gateway-status/Commit detail shows sealed SourceEnvelopes, queue depth, mapp
 
 `simulator/assetops_simulator/gateway/publish.py` and `mappings.py` are an in-process simulated publisher, not the target separate edge process. Adapt their device-report boundary without allowing private world state into the gateway. Add one captured physical-device adapter fixture and a simulated-device adapter behind the same gateway interface. The old Stage files remain comparison artifacts, not the gateway queue.
 
+Carry the Architect S1 identity decision: one registered source owns one device report stream beneath the gateway, and all signals of that device share `(gateway,source,epoch)` sequence scope. A device replacement or gateway move provisions a new source. S1 pending registration is not an ingestion credential; acquire only after S1-02 publishes the registered binding snapshot.
+
 ## Persisted object and wire contract
 
 The separate gateway process uses SQLite WAL with registered identity/mapping snapshot, one transaction for source-scoped epoch/sequence allocation and canonical outbox write, homogeneous sealed upload batches, retry state, durable receipt slots, dead-letter state and inspectable minimal diagnostics. Reboot keeps the exact message IDs, envelope bytes and batch bytes; an outage never reports delivery. S1-02 supplies a signed versioned snapshot.

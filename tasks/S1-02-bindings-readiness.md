@@ -11,6 +11,10 @@ Planner: Codex, 2026-10-07
 
 Kobo's `foundation`, `readiness` and configured `sld` surfaces show registered devices mapped to physical assets and analytic roles. The screen identifies missing required roles before S2 can accept evidence.
 
+## Architect carry-forward
+
+Start from S1-01's Foundation-only Postgres cutover: its eight device sources and pending simulated gateway are registered metadata, not an edge process or evidence authority. One source owns one device report stream beneath one gateway; its signals share a sequence scope. Convert legacy `signal_mappings` only after explicit role, unit and conversion decisions. Publish the first atomic Foundation-plus-binding snapshot; a mapping-affecting publish thereafter follows joint publication. Keep imported Site Lab runs blocked on an obsolete YAML control basis until the selected registered snapshot can drive them.
+
 ## Contract and migration seam
 
 - Add immutable SignalBindingRevision storage and publication for one mini-grid role set. Each registered gateway/source/device channel maps to a Site asset, typed role, source/canonical unit and conversion with valid and recorded periods. Publish a binding set atomically with the Foundation basis and reject unknown assets, role/unit conflicts and overlapping current validity.
@@ -27,7 +31,7 @@ Kobo's `foundation`, `readiness` and configured `sld` surfaces show registered d
 
 ## Protected seams and checks
 
-Use accepted technical design configuration and snapshot rules. Test atomic publish, validity cutover, historical read, missing role and cross-site refusal, plus changed frontend checks and workflow/architecture guards. Inspect screen and API at both times.
+Use current technical design configuration and snapshot rules. Test atomic publish, validity cutover, historical read, missing role and cross-site refusal, plus changed frontend checks and workflow/architecture guards. Inspect screen and API at both times.
 
 ## Defer
 

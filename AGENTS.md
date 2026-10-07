@@ -4,7 +4,7 @@ Start here:
 
 1. Read `.ai/START_HERE.md`.
 2. Read `.ai/ACTIVE_CONTEXT.md` and the active task, or `.ai/PLANNING_GUIDANCE.md` if no task exists.
-3. For current S1-S7 work, use the accepted `frontend/docs/architecture/production-shaped-mvp.md`, `frontend/docs/architecture/production-shaped-mvp-technical-design.md`, and `frontend/docs/architecture/site-first-execution-plan.md`.
+3. For current S1-S7 work, use the current `frontend/docs/architecture/production-shaped-mvp.md`, `frontend/docs/architecture/production-shaped-mvp-technical-design.md`, and `frontend/docs/architecture/site-first-execution-plan.md`.
 4. Use `frontend/mockups/v69/index.html` and its screen manifest as the interaction/content reference for the named Site or Lab surface. Implement only the supported slice with honest missing states.
 5. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md`, or `.ai/DECISIONS.md` only when compatible additional semantics, boundaries, or prior decisions matter.
 

@@ -1,5 +1,15 @@
 # Decisions
 
+## 2026-10-07
+
+Decision: `D-2026-10-07-s1-foundation-import-and-cutover`. Codex Architect, responding to the S1-01 handoff review under the delegated decision authority in `.ai/ROLE_CONFIG.md`. The controlling detail is [the S1-01 Foundation contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md). This records an Architect choice, not owner acceptance of S1-01 or a new owner sign-off on the three Site-first documents. Current project routing treats those documents as implementation authority; their proposal headers remain provenance until an owner acceptance record is identified.
+
+S1 uses PostgreSQL 16 through pinned Docker Compose, psycopg 3, SQLAlchemy Core and Alembic. A separate migrated PostgreSQL test database is required. The first migration enables `btree_gist` and applies the current-valid Foundation exclusion constraint; publication also locks the Site row. No application-only overlap fallback is silently selected. Initial Foundation may exist before bindings, but no acquisition snapshot or evidence is authorized until S1-02 publishes bindings.
+
+Import the Kobo fixture under a configured development tenant, preserving `KOBO-001`, its timezone and v1 source values. Register all ten physical/topological components as assets; retain device inventory in Foundation content. Legacy signal mappings are comparison/candidate data until S1-02 turns them into explicit role bindings. Register one pending simulated gateway and one source per fixture device; one source owns one device report stream and all its signals share the source sequence scope. Gateway credentials remain unprovisioned until the S2 boundary. Internal database IDs are UUIDs; product routes keep the tenant-scoped stable Site code.
+
+Until authentication is built, the backend resolves a fixed configured development tenant; client-supplied tenant identity has no authority. S1 cuts over Foundation only for explicitly imported Sites. Legacy product Overview, Evidence and dispatch must not display stale file-backed conclusions beside a newer Postgres Foundation. Lab remains private/file-backed, and imported Site runs with a mismatched old control basis are blocked until the registered snapshot can drive them. Evidence, Performance and Overview cut over in their later named slices. The Planner owns the API/UI/guard details and records the fixture comparison in the S1-01 packet.
+
 ## Decision Index For Agent Context
 
 Use this index to find only the decisions relevant to the active task. Keep
