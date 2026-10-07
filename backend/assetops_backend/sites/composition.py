@@ -22,6 +22,18 @@ from assetops_backend.sites.adapters.yaml_site_template_catalog import (
 from assetops_backend.sites.adapters.yaml_user_site_store import (
     WritableYamlSiteStore,
 )
+from assetops_backend.sites.adapters.import_files import (
+    legacy_documents,
+    read_import_source,
+    write_import_report,
+)
+from assetops_backend.sites.adapters.postgres_foundation_store import (
+    PostgresFoundationStore,
+)
+from assetops_backend.sites.adapters.yaml_shipped_site_store import SHIPPED_SITE_ROOT
+from assetops_backend.sites.adapters.yaml_user_site_store import USER_SITE_STORE_ROOT
+from assetops_backend.sites.foundation_records import FoundationStore
+from assetops_backend.sites.foundation_service import ImportSource, LegacyDocument
 from assetops_backend.sites.ports import SiteRepository, SiteTemplateCatalog
 
 
@@ -50,3 +62,27 @@ def build_site_repository() -> SiteRepository:
         shipped=ReadOnlyYamlSiteStore(),
         user=WritableYamlSiteStore(),
     )
+
+
+def build_foundation_store(database_url: str | None) -> FoundationStore:
+    """The product Foundation store: PostgreSQL, the sole writer for imported Sites.
+
+    A missing URL is not defaulted: the store answers as unavailable, so the
+    product path fails closed instead of treating every Site as unimported.
+    """
+    return PostgresFoundationStore(database_url)
+
+
+def legacy_site_documents() -> tuple[LegacyDocument, ...]:
+    """Code, path and digest of every document the legacy YAML Site stores hold."""
+    return legacy_documents((SHIPPED_SITE_ROOT, USER_SITE_STORE_ROOT))
+
+
+def read_site_import_source(path: str) -> ImportSource:
+    """One Site document read byte for byte and strictly parsed, for import."""
+    return read_import_source(path)
+
+
+def write_site_import_report(path: str, report: str) -> str:
+    """Write the import comparison report (review evidence, not configuration)."""
+    return write_import_report(path, report)

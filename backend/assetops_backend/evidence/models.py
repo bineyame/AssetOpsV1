@@ -31,6 +31,9 @@ INGESTION_REJECTION_KINDS = frozenset(
         "UNIT_INCOMPATIBLE",
         "BEFORE_CONFIGURATION_EFFECTIVE",
         "BATCH_ID_CONFLICT",
+        # S1-01: the Site's Foundation moved to the product store; this legacy
+        # ingestion path refuses it, unpersisted, until evidence migration (S2-02).
+        "AWAITING_EVIDENCE_MIGRATION",
     }
 )
 

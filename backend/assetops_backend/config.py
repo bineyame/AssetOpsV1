@@ -97,3 +97,22 @@ def parse_feature_flags(raw: Any, *, source: str = "<in-memory>") -> FeatureFlag
         )
 
     return FeatureFlags(simulator_lab_enabled=enabled)
+
+
+#: The one tenant this build serves until product authentication lands
+#: (S1-01, D-2026-10-07). It is backend configuration, resolved at the request
+#: boundary; no client header, query or body value can name another tenant.
+DEVELOPMENT_TENANT_SLUG = "demo"
+
+
+def database_url() -> str | None:
+    """The product database URL from the required `DATABASE_URL` variable.
+
+    There is no default here. Only the development Compose file documents a
+    local value (backend/README-db.md); without it the product Foundation store
+    answers as unavailable rather than guessing a database.
+    """
+    import os
+
+    value = os.environ.get("DATABASE_URL")
+    return value or None

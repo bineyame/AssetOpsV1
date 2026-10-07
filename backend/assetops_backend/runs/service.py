@@ -148,7 +148,11 @@ from assetops_backend.scenarios.ports import (
     ScenarioNotFound,
 )
 from assetops_backend.sites.models import SiteComponent, SiteRecord
-from assetops_backend.sites.ports import SiteNotFound, SiteRepository
+from assetops_backend.sites.ports import (
+    SiteAwaitingMigration,
+    SiteNotFound,
+    SiteRepository,
+)
 from assetops_backend.state_refs import StateRef, component_state
 
 
@@ -449,6 +453,8 @@ class RunSetupService:
     def _resolve_site(self, request: RunSetupRequest) -> SiteRecord:
         try:
             site = self._sites.get_site(request.site_id)
+        except SiteAwaitingMigration as error:
+            raise refuse("SITE_AWAITING_MIGRATION", str(error)) from error
         except SiteNotFound as error:
             raise refuse(
                 "VERSION_UNAVAILABLE",

@@ -123,6 +123,17 @@ class SiteStoreUnavailable(SiteRepositoryError):
     """
 
 
+class SiteAwaitingMigration(SiteRepositoryError):
+    """The Site was imported into the product Foundation store (S1-01).
+
+    A legacy file-backed surface (Evidence, Overview, analytics, ingestion and
+    the Lab) refuses it with this transition rather than serving or mutating
+    YAML/JSON state beside a newer persisted Foundation.
+    """
+
+    code = "AWAITING_EVIDENCE_MIGRATION"
+
+
 @runtime_checkable
 class SiteRepository(Protocol):
     """Access to configured Sites, across the shipped and user stores.

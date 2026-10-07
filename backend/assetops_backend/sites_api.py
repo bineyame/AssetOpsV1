@@ -40,6 +40,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
+from assetops_backend.sites.cutover import ProductSiteDirectory, ProductSiteEntry
 from assetops_backend.sites.foundation_parsing import render_foundation_content
 from assetops_backend.sites.identity import SITE_ID_RULE, validate_site_id
 from assetops_backend.sites.models import (
@@ -52,10 +53,8 @@ from assetops_backend.sites.ports import (
     SiteConfigurationInvalid,
     SiteIdentityConflict,
     SiteNotFound,
-    SiteRepository,
     SiteStoreUnavailable,
 )
-from assetops_backend.sites.service import SiteDirectoryService
 
 SITES_ROUTE = "/api/sites"
 SITE_DETAIL_ROUTE = "/api/sites/{site_id}"
@@ -192,14 +191,57 @@ def site_detail(record: SiteRecord) -> dict[str, object]:
     }
 
 
+def _store_fields(entry: ProductSiteEntry) -> dict[str, object]:
+    """Which store answers for this Site (S1-01 cutover), stated on the wire.
+
+    `POSTGRES` is an imported Site served from the persisted Foundation;
+    `LEGACY_FILE` is an unimported Site still read from its YAML document.
+    """
+    return {
+        "configuration_store": entry.store,
+        "site_uuid": None if entry.stored is None else str(entry.stored.id),
+        "foundation_revision_id": entry.revision_id,
+    }
+
+
+def _stored_summary(entry: ProductSiteEntry) -> dict[str, object]:
+    """Summary of an imported Site with no Foundation effective now."""
+    site = entry.stored
+    return {
+        "site_id": site.site_code,
+        "display_name": site.name,
+        "site_type": site.site_type,
+        "location": {"country": site.country, "locality": site.locality},
+        "timezone": site.timezone,
+        "lifecycle_status": site.lifecycle,
+        "origin": site.origin,
+        "source": {"mode": site.proposed_source_mode},
+        "template": (
+            None
+            if site.template_id is None
+            else {"template_id": site.template_id, "template_version": site.template_version}
+        ),
+    }
+
+
+def entry_summary(entry: ProductSiteEntry) -> dict[str, object]:
+    base = _stored_summary(entry) if entry.record is None else site_summary(entry.record)
+    return {**base, **_store_fields(entry)}
+
+
 def _refusal(code: str, message: str) -> dict[str, object]:
     """A refusal a screen can render, rather than a stack trace."""
     return {"code": code, "message": message}
 
 
-def build_sites_router(repository: SiteRepository) -> APIRouter:
-    """Build the ungated operator Sites router around an injected port."""
-    service = SiteDirectoryService(repository)
+def build_sites_router(directory: ProductSiteDirectory) -> APIRouter:
+    """Build the ungated operator Sites router around the product read router.
+
+    Since S1-01 the index and detail read through `ProductSiteDirectory`: an
+    imported Site comes from the persisted Foundation (listed once), every
+    other Site from its legacy YAML document.
+    """
+    service = directory
     router = APIRouter(tags=["sites"])
 
     @router.get(SITES_ROUTE)
@@ -223,7 +265,7 @@ def build_sites_router(repository: SiteRepository) -> APIRouter:
             # true.
             raise HTTPException(status_code=503, detail=str(error)) from error
 
-        return {"sites": [site_summary(site) for site in sites]}
+        return {"sites": [entry_summary(entry) for entry in sites]}
 
     @router.get(SITE_DETAIL_ROUTE)
     def read_site(site_id: str) -> dict[str, object]:
@@ -253,7 +295,7 @@ def build_sites_router(repository: SiteRepository) -> APIRouter:
             ) from error
 
         try:
-            record = service.get_site(site_id)
+            entry = service.get_site(site_id)
         except SiteNotFound as error:
             raise HTTPException(
                 status_code=404,
@@ -279,6 +321,6 @@ def build_sites_router(repository: SiteRepository) -> APIRouter:
                 detail=_refusal(REFUSAL_STORE_UNAVAILABLE, str(error)),
             ) from error
 
-        return site_detail(record)
+        return {**site_detail(entry.record), **_store_fields(entry)}
 
     return router

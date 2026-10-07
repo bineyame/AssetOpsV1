@@ -125,6 +125,10 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         # and release them together. Release order, buffering and recovery are
         # T026A's, so such a hold is refused rather than modelled.
         "PUBLICATION_DELAY_REFUSED",
+        # S1-01: the Site was imported into the product Foundation store, and
+        # the Lab cannot set up against it until it uses the registered
+        # Foundation and gateway snapshot.
+        "SITE_AWAITING_MIGRATION",
     }
 )
 

@@ -509,11 +509,18 @@ class TestNoUpdateOrDeleteRouteExists:
             f"{SITES_PATH}/{{site_id}}/evidence/records/{{message_id}}",
             f"{SITES_PATH}/{{site_id}}/evidence/rejections",
             f"{SITES_PATH}/{{site_id}}/findings",
+            # S1-01: the persisted Foundation read, versions and narrow publish.
+            f"{SITES_PATH}/{{site_id}}/foundation",
+            f"{SITES_PATH}/{{site_id}}/foundation/revisions",
+            f"{SITES_PATH}/{{site_id}}/foundation/versions",
             # T027 phase 2: the Overview read, beside Site evidence.
             f"{SITES_PATH}/{{site_id}}/overview",
         ]
+        # S1-01's one write is the battery-reserve publish into the persisted
+        # Foundation store; it is not a route on the legacy Site document.
+        writes = {f"{SITES_PATH}/{{site_id}}/foundation/revisions": {"post"}}
         for path in per_site:
-            assert set(schema["paths"][path]) == {"get"}, path
+            assert set(schema["paths"][path]) == writes.get(path, {"get"}), path
 
 
 class TestSiteDetail:

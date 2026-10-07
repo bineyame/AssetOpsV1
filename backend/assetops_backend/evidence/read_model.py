@@ -62,6 +62,9 @@ REJECTION_READINGS: dict[str, str] = {
     ),
     "SITE_MISMATCH": "The record named a different site.",
     "SITE_UNKNOWN": "The record named a site AssetOps does not know.",
+    "AWAITING_EVIDENCE_MIGRATION": (
+        "The site's configuration has moved and its evidence is awaiting migration."
+    ),
     "SOURCE_MODE_MISMATCH": (
         "The record's origin (demonstration or live) did not match the site's."
     ),
