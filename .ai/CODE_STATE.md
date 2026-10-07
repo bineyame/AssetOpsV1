@@ -4708,3 +4708,49 @@ In review (independent review and owner UI walk pending). Packet
 - Persisted `summary`/claim-limit wording unchanged by the presentation
   correction (Necessary "4.5-open", `(dispatch-2)` in the Candidate limit);
   rewording them appends a revision per lineage.
+
+## S1-01 - Persisted Site Foundation (in review)
+
+Branch `task/S1-01-persisted-foundation`; packet `.agent/S1-01-review-packet.md`.
+
+### What it settled in code
+
+- PostgreSQL 16 (`docker-compose.yml`, `postgres:16.4-alpine`, 127.0.0.1:55432,
+  dbs `assetops` + disposable `assetops_test`); `DATABASE_URL` required, no
+  backend default; commands in `backend/README-db.md`.
+- Alembic `backend/migrations/versions/0001_foundation_identity.py`: tenant,
+  site, site_import, asset, gateway, source, foundation_revision; composite
+  `(tenant_id, site_id)` FKs; btree_gist + GiST exclusion over currently
+  recorded validity; triggers make revision content immutable (only
+  `superseded_at` settable once) and registration rows undeletable.
+- `sites/foundation_records.py` (rows, `FoundationStore` port),
+  `sites/foundation_content.py` (content = rendered YAML `foundation` minus
+  version/valid_from; record rebuilt through the strict parser; gaps),
+  `sites/foundation_service.py` (import, `revision_at`, reserve publish:
+  split earlier segment + changed later segment, supersede the old row),
+  `sites/adapters/postgres_foundation_store.py` (sole SQL writer, Site row
+  lock), `sites/import_kobo.py` CLI.
+- Cutover (`sites/cutover.py`): `ProductSiteDirectory` serves `/api/sites`
+  and detail (imported codes from Postgres, listed once; collision or changed
+  legacy bytes = 503 conflict); `LegacySiteGate` wraps the YAML repository
+  for ingestion, Evidence, Overview, analytics and Lab (409
+  `AWAITING_EVIDENCE_MIGRATION`; Lab start/step/run-to-end/Commit 409
+  `SITE_AWAITING_MIGRATION`; setup refusal kind `SITE_AWAITING_MIGRATION`;
+  stage GET adds `frozen_basis`).
+- `foundation_api.py`: GET foundation (`at`, `knowledge_at`), GET versions,
+  POST revisions (battery reserve only). Tenant = `config.DEVELOPMENT_TENANT_SLUG`.
+- Frontend: `sites/siteFoundationClient.ts`, `FoundationRevisionPanel.tsx`
+  (slot `revision` on `SiteConfiguration`), `?at=` in the Foundation URL,
+  `AwaitingEvidenceMigration` on Overview/Evidence/Performance.
+- Guard: `configuration-persistence.ps1` rule 8 (sole Postgres writer, driver
+  ban, report-writer confinement, main.py routing scan, Lab/gate refusals).
+
+### What this leaves open
+
+- `create_app` with an injected Site repository and no Foundation store is a
+  legacy-only composition (no imports); product composition fails closed.
+- Layout tool claim "no enabled action renders" now fails on an imported
+  Foundation (the required publish control); its Kobo Draft section cannot run
+  after import (Lab refuses by design). Tool not updated.
+- Lab Site creation for a new code that later gets imported is not migrated.
+- S1-02: bindings, Readiness, snapshot; S2-02/S3/S5 evidence/dispatch/Overview cutovers.

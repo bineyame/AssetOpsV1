@@ -14,7 +14,7 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 
 | Milestone | Task | Visible mock-screen result | Direct dependency | Status |
 | --- | --- | --- | --- | --- |
-| S1 Foundation | [S1-01](S1-01-persisted-foundation.md) | Foundation opens a persisted, time-selectable Kobo version | None; current architecture | Ready for implementation |
+| S1 Foundation | [S1-01](S1-01-persisted-foundation.md) | Foundation opens a persisted, time-selectable Kobo version | None; current architecture | In review (built on `task/S1-01-persisted-foundation`) |
 | S1 Foundation | [S1-02](S1-02-bindings-readiness.md) | Foundation mappings, Readiness gaps and configured SLD | S1-01 | Planned |
 | S2 Evidence | [S2-01a](S2-01a-registered-lab-basis.md) | Imported Kobo Lab run opens from registered Foundation/bindings; Commit awaits ingestion | S1-02 | Outline |
 | S2 Evidence | [S2-01b](S2-01b-durable-simulated-gateway.md) | Lab sealed V3 envelope and SQLite queue survive restart from simulated input | S2-01a | Outline |
