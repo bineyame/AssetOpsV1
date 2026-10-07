@@ -65,7 +65,9 @@ def main() -> None:
                     area_defaults[area] = node["id"]
             elif node["scope"] == "screens":
                 for screen_id in node["governs"]:
-                    if screen_id in screen_overrides or area_for_screen.get(screen_id) != node["area"]:
+                    if screen_id not in {screen["id"] for screen in manifest} or screen_id in screen_overrides or \
+                            (screen_id in area_for_screen and area_for_screen[screen_id] != node["area"]
+                             and not node.get("cross_area")):
                         raise SystemExit(f"{screen_id}: invalid product override")
                     screen_overrides[screen_id] = node["id"]
             else:

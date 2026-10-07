@@ -6,11 +6,23 @@ const path = require('node:path');
 const here = __dirname;
 const read = (name) => JSON.parse(fs.readFileSync(path.join(here, name), 'utf8'));
 const registry = read('v69-dependency-registry-pilot.json');
+const briefs = read('v69-subject-area-briefs.json');
 const contracts = read('v69-panel-contracts.json').panels;
 const screenLedger = read('v69-screen-ledger.json').screens;
+const modelHomes = read('v69-model-homes.json').models;
+const taskQueue = fs.readFileSync(path.resolve(here, '../../../tasks/README.md'), 'utf8');
 const fail = (message) => { throw new Error(message); };
 
 if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v2') fail('Wrong schema');
+if (registry.subject_area_briefs !== 'v69-subject-area-briefs.json') fail('Wrong subject-area brief reference');
+if (briefs.schema !== 'assetops.v69.subject-area-briefs.v1') fail('Wrong subject-area brief schema');
+for (const [task, gate] of [['S4-01', 'A-claim-work-routes'], ['S4-02', 'A-actor-identity']]) {
+  const row = taskQueue.split(/\r?\n/).find((line) => line.startsWith(`| S4 Finding + Financials | [${task}]`));
+  if (!row?.includes(gate)) fail(`${task}: pre-S4 Architect gate missing from task queue`);
+}
+if (!taskQueue.includes('S6-01 reuses both accepted contracts') || !taskQueue.includes('queue_baseline_nodes')) {
+  fail('Task queue lacks cross-cutting gate reuse or baseline refinement rule');
+}
 const areas = new Set(registry.areas.map((area) => area.id));
 const nodes = new Map();
 for (const node of registry.nodes) {
@@ -121,13 +133,38 @@ for (const node of nodes.values()) if (node.kind === 'implementation' && expecte
   fail(`${node.id}: queue-owned implementation missing from baseline`);
 }
 
+// Subject-area briefs assign every manifest model and screen exactly one primary home.
+const subjectAreas = new Set([...areas].filter((area) => area !== 'platform'));
+if (briefs.areas.length !== subjectAreas.size || new Set(briefs.areas.map((area) => area.id)).size !== subjectAreas.size ||
+    briefs.areas.some((area) => !subjectAreas.has(area.id))) fail('Subject-area brief IDs differ from registry areas');
+const exactCoverage = (expected, actual, label) => {
+  if (actual.length !== new Set(actual).size || expected.length !== actual.length ||
+      expected.some((id) => !actual.includes(id))) fail(`${label}: incomplete or duplicate primary coverage`);
+};
+exactCoverage(modelHomes.map((model) => model.model), briefs.areas.flatMap((area) => area.models_owned), 'Models');
+exactCoverage(screenLedger.map((screen) => screen.id), briefs.areas.flatMap((area) => area.primary_screens), 'Screens');
+const modelByName = new Map(modelHomes.map((model) => [model.model, model]));
+for (const area of briefs.areas) {
+  if (!area.question || !area.fixture_gate || !area.owner_choice ||
+      !(area.owner_priority === null || typeof area.owner_priority === 'string')) fail(`${area.id}: incomplete brief`);
+  for (const [field, kind] of [['decision_nodes', 'architecture'], ['projection_nodes', 'architecture'],
+    ['implementation_nodes', 'implementation'], ['fixture_nodes', 'data']]) {
+    if (!Array.isArray(area[field]) || !area[field].length || area[field].some((id) => nodes.get(id)?.kind !== kind)) {
+      fail(`${area.id}: invalid ${field}`);
+    }
+  }
+  if (area.projection_contracts.some((name) => !modelByName.has(name))) fail(`${area.id}: unknown projection model`);
+  const productDefault = [...nodes.values()].filter((node) => node.kind === 'product' && node.scope === 'area' &&
+    node.governs_areas.includes(area.id));
+  if (productDefault.length !== 1) fail(`${area.id}: missing or duplicate area product default`);
+}
+
 const knownPanels = new Set(contracts.map((panel) => `${panel.screen_id}:${panel.panel_index}`));
 const seenPanels = new Set();
 const pilotScreens = new Set(registry.panels.map((panel) => panel.screen_id));
-const screenAreas = new Map();
+const screenAreas = new Map(briefs.areas.flatMap((area) => area.primary_screens.map((screen) => [screen, area.id])));
 for (const panel of registry.panels) {
-  if (screenAreas.has(panel.screen_id) && screenAreas.get(panel.screen_id) !== panel.area) fail(`${panel.screen_id}: panels span product areas`);
-  screenAreas.set(panel.screen_id, panel.area);
+  if (screenAreas.get(panel.screen_id) !== panel.area) fail(`${panel.screen_id}: panel area differs from primary brief`);
 }
 const defaults = new Map();
 const overrides = new Map();
@@ -137,13 +174,13 @@ for (const node of nodes.values()) if (node.kind === 'product') {
     defaults.set(area, node.id);
   }
   if (node.scope === 'screens') for (const screen of node.governs) {
-    if (!pilotScreens.has(screen) || overrides.has(screen) || screenAreas.get(screen) !== node.area) fail(`${screen}: invalid screen override`);
+    if (!screenAreas.has(screen) || overrides.has(screen) || (screenAreas.get(screen) !== node.area && !node.cross_area)) fail(`${screen}: invalid screen override`);
     overrides.set(screen, node.id);
   }
 }
 const governed = new Map();
-for (const screen of pilotScreens) {
-  const defaultId = defaults.get(screenAreas.get(screen));
+for (const [screen, area] of screenAreas) {
+  const defaultId = defaults.get(area);
   if (!defaultId) fail(`${screen}: no area product default`);
   governed.set(screen, overrides.get(screen) || defaultId);
 }
@@ -196,7 +233,19 @@ for (const panel of registry.panels) {
 const counts = {};
 for (const area of areas) counts[area] = {architecture: 0, implementation: 0, data: 0, product: 0};
 for (const node of nodes.values()) if (node.status === 'open' || node.status === 'pending owner') counts[node.area][node.kind]++;
-console.log(`Pilot registry valid: ${nodes.size} nodes, ${seenPanels.size} linked panels`);
+console.log(`Registry valid: ${nodes.size} nodes, ${seenPanels.size} linked pilot panels`);
+console.log(`Panel gate coverage: ${seenPanels.size}/${contracts.length}; ${contracts.length - seenPanels.size} require subject-area wave refinement before readiness scoring`);
+console.log(`Area briefs valid: ${briefs.areas.length} areas, ${modelHomes.length} primary models, ${screenLedger.length} primary screens`);
+const overrideChoices = [...nodes.values()].filter((node) => node.kind === 'product' && node.scope === 'screens').length;
+const pendingChoices = [...nodes.values()].filter((node) => node.kind === 'product' && node.status === 'pending owner').length;
+console.log(`Owner choice coverage: ${governed.size} screens, ${defaults.size} area defaults, ${overrideChoices} exception choices covering ${overrides.size} screens; ${pendingChoices} choices pending owner`);
+console.log('Area coverage (area | models | primary screens | screens touched | deferred touched | total panels | mapped pilot panels):');
+for (const area of briefs.areas) {
+  const touched = new Set(area.models_owned.flatMap((name) => modelByName.get(name).manifest_screens));
+  const deferred = [...touched].filter((id) => screenLedger.find((row) => row.id === id).proposed_fidelity_tier === 'Deferred');
+  const totalPanels = contracts.filter((panel) => screenAreas.get(panel.screen_id) === area.id).length;
+  console.log(`${area.id} | ${area.models_owned.length} | ${area.primary_screens.length} | ${touched.size} | ${deferred.length} | ${totalPanels} | ${registry.panels.filter((panel) => panel.area === area.id).length}`);
+}
 console.log('Open nodes by area and kind:', JSON.stringify(counts));
 const facts = [];
 for (const node of nodes.values()) {

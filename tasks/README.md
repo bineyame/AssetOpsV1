@@ -4,6 +4,8 @@
 
 One mini-grid Site and one assessed window form the first end-to-end path. Work one slice at a time. The first task of each milestone must persist enough to make its named screen state real. S1 packets are implementation-ready; S2–S7 are outlines to refine after the preceding review. Do not activate a later outline without that refinement. No product behavior is implemented by this planning change.
 
+**Pre-S4 Architect gates:** Record `A-claim-work-routes` before S4-01 refinement: stable tenant/Site-scoped Finding and Action routes, revision selection, and unavailable/forbidden behavior. Record `A-actor-identity` before S4-02 refinement: human author versus authenticated/system actor, authorization and attestation provenance for `financial_assumption_revision.author_id` and later Action/work events. S6-01 reuses both accepted contracts. These are decisions, not new implementation tasks. At each S2–S7 outline refinement, the Planner compares the packet with the dependency registry's `queue_baseline_nodes`; a contract or fixture no longer owned by the queue leaves that baseline before marginal estimates are used.
+
 | Milestone | Task | Visible mock-screen result | Direct dependency | Status |
 | --- | --- | --- | --- | --- |
 | S1 Foundation | [S1-01](S1-01-persisted-foundation.md) | Foundation opens a persisted, time-selectable Kobo version | None; current architecture | Ready for implementation |
@@ -11,10 +13,10 @@ One mini-grid Site and one assessed window form the first end-to-end path. Work 
 | S2 Evidence | [S2-01](S2-01-durable-gateway.md) | Lab gateway queue and sealed envelopes survive restart | S1-02 | Outline |
 | S2 Evidence | [S2-02](S2-02-ingestion-site-evidence.md) | Site Evidence shows accepted, rejected and duplicate decisions | S2-01 | Outline; owner review checkpoint |
 | S3 Performance | [S3-01](S3-01-dispatch-assessment.md) | Dispatch interval classification with evidence and gaps | S2-02 | Outline |
-| S4 Finding + Financials | [S4-01](S4-01-finding-identity.md) | Finding detail opens from assessed interval with stable episode identity | S3-01 | Outline |
-| S4 Finding + Financials | [S4-02](S4-02-bounded-financials.md) | Financials shows quantity, assumption and bounded amount | S4-01 | Outline; owner review checkpoint |
+| S4 Finding + Financials | [S4-01](S4-01-finding-identity.md) | Finding detail opens from assessed interval with stable episode identity | S3-01; `A-claim-work-routes` | Outline |
+| S4 Finding + Financials | [S4-02](S4-02-bounded-financials.md) | Financials shows quantity, assumption and bounded amount | S4-01; `A-actor-identity` | Outline; owner review checkpoint |
 | S5 Overview | [S5-01](S5-01-site-overview.md) | Selected-window Site Overview composes real claims | S4-02 | Outline |
-| S6 Work | [S6-01](S6-01-action-change.md) | Site Work records a real Action and policy change | S5-01 | Outline |
+| S6 Work | [S6-01](S6-01-action-change.md) | Site Work records a real Action and policy change | S5-01; reuse both pre-S4 Architect gates | Outline |
 | S6 Work | [S6-02](S6-02-verification.md) | Verification compares a later accepted window and guardrails | S6-01 | Outline; owner review checkpoint |
 | S7 Health | [S7-01](S7-01-site-health.md) | Health separates source freshness from battery stress | S6-02 | Outline; owner review checkpoint |
 
