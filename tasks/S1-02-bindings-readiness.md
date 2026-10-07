@@ -1,4 +1,4 @@
-﻿# S1-02 — Versioned bindings, Readiness and configured SLD
+# S1-02 — Versioned bindings, Readiness and configured SLD
 
 Status: planned
 USER_REVIEW_REQUIRED: true
@@ -14,9 +14,9 @@ Kobo's `foundation`, `readiness` and configured `sld` surfaces show registered d
 ## Contract and migration seam
 
 - Add immutable SignalBindingRevision storage and publication for one mini-grid role set. Each registered gateway/source/device channel maps to a Site asset, typed role, source/canonical unit and conversion with valid and recorded periods. Publish a binding set atomically with the Foundation basis and reject unknown assets, role/unit conflicts and overlapping current validity.
-- `GET /sites/{id}/foundation?at=` includes selected binding-set ID/version, device-to-asset/role mappings, required role coverage and explicit gaps. Provide the registered gateway's immutable versioned snapshot download with a verifiable content hash, not a mutable copy of an old set. Preserve old snapshots after edits.
+- `GET /sites/{id}/foundation?at=` includes selected binding-set ID/version, device-to-asset/role mappings, required role coverage and explicit gaps. Provide the registered gateway's immutable signed/versioned snapshot download with a verifiable content hash, not a mutable copy of an old set. Preserve old snapshots after edits; `knowledge_at` can select the earlier recorded basis.
 - Readiness derives from configuration only: unbound generator state/power, feeder demand or battery reserve roles are named; configured roles say ready to report, not healthy or currently reporting. SLD renders actual registered topology and distinguishes unbound devices.
-- Migrate an explicit Kobo mapping fixture from existing JSON/YAML for comparison; retain legacy files. A changed binding creates a new effective version and does not reinterpret historical source times. S2 uses the snapshot as its acquisition contract.
+- Migrate an explicit Kobo mapping fixture from existing JSON/YAML for comparison; retain legacy files. A changed binding creates a new effective version. Accepted evidence later retains its original mapping and Foundation basis; a backdated correction may drive a new analytic revision at a later `knowledge_at`, never rewrite the accepted envelope. S2 uses the snapshot as its acquisition contract.
 
 ## Demo and acceptance fixture
 

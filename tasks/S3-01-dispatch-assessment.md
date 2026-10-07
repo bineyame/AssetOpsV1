@@ -1,4 +1,4 @@
-﻿# S3-01 — Typed dispatch assessment and interval detail
+# S3-01 — Typed dispatch assessment and interval detail
 
 Status: outline; refine after preceding task review, before activation
 USER_REVIEW_REQUIRED: true
@@ -13,11 +13,11 @@ Site dispatch and selected-interval analysis classify a generator interval as Ne
 
 ## Persisted object and read contract
 
-Typed EvidenceQuery/AnalyticInputSet, versioned dispatch analytic, persisted AnalyticRun/AssessmentRevision and window Performance read model.
+Typed EvidenceQuery/AnalyticInputSet over Postgres accepted records and time-valid role bindings, a durable consumer of S2-02 recompute jobs, versioned dispatch analytic, persisted AnalyticRun/AssessmentRevision and window Performance read model. Replace hard-coded demo device keys in `backend/assetops_backend/analytics/dispatch.py` and JSON assessment persistence with role-bound inputs and Postgres revisions; no raw envelope, SQL row or Lab world object crosses the analytic boundary.
 
 ## Demo acceptance
 
-Choose a window, inspect generator/load/PV/battery evidence IDs and quality limits; add late evidence, recompute and reopen old/new revisions.
+Choose a window, inspect generator/load/PV/battery evidence IDs and quality limits; compare representative dispatch claims with the file-backed S2-02 baseline before switching Performance reads to Postgres-derived revisions. Add late evidence, recompute and reopen old/new revisions.
 
 ## Missing/conflicting evidence
 
