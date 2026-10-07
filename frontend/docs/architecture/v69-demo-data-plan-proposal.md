@@ -1,0 +1,16 @@
+# Proposed demo-data dependency for screen fidelity
+
+**Architect planning proposal.** This is a fixture contract for later Planner packets, not a seed implementation or permission to claim the mock's illustrative events occurred. The S1-S7 spine starts with one Kobo Site and one assessed window. Multi-site, multi-window, cold-chain, EV and Portfolio screens require their own source-to-claim fixtures through normal ingestion.
+
+| Gate | Minimum fixture set | Required proof | Blocks |
+| --- | --- | --- | --- |
+| S3/S4 first claim | Kobo Foundation/binding revisions, one complete and one missing/contradictory dispatch interval, late accepted sample, one price assumption revision | Stable IDs; old/new assessment and Finding/consequence revisions; exact accepted envelope set; Unknown when role/quality absent | Dispatch/Finding/Financials screen claims |
+| Mini-grid breadth | Distinct comparable service, renewable opportunity, fuel-balance and backup windows; separately attested load request/fuel delivery/backup test where needed | Domain rules and human/device provenance; repeated opportunity is not inferred from one hour; service demand is not delivered power | Service/Renewable/Fuel/Backup/Opportunity screens |
+| Action verification | Kobo baseline, applied-change event, later closed window, guardrail-fail and insufficient-evidence variants | Fixed plan revision predates evaluation; activity and outcome remain distinct; both windows resolve evidence | Verification and completed-action mock state |
+| Cold-chain Site | One Site Foundation/role set, simulated and captured physical adapter report, excursion/backup disturbance and missing sensor variant | Same ingestion contract, domain-specific temperature/backup assessment, incident/work links only after their architecture gate | Cold-chain Overview/Performance/Findings/Work |
+| EV Site | One Site Foundation/role set, session/connector/energy records, interrupted and missing-session variants | Same ingestion contract, session service and availability rules, no invented revenue | EV Overview/Performance/Findings/Work |
+| Estate comparison | At least one supported Site in each included domain with aligned declared windows, currency/price basis, coverage, source mode and consequence overlap groups | Deterministic cross-site indexes and Portfolio roll-up; unlike money/periods remain separate; no verified recovered amount from Action completion | Portfolio/global Financials and comparable root claims |
+
+Each fixture manifest should name Site code and UUID, tenant, source mode, gateway/source identities, Foundation/binding versions, source-time interval, batch bytes/digest, expected dispositions, analytic/formula versions, assumption revisions, expected claim ceiling and screen IDs. Seed twice without duplication; reload every read; leave private Lab truth outside product storage. Create one recorded real-adapter fixture as a contract peer to simulated reports, not an invented production deployment.
+
+The Planner must make each gate an explicit dependency of its corresponding follow-on packet. Global/root visual polish may start earlier, but the named product claim cannot be accepted without the matching fixture and lineage demonstration.

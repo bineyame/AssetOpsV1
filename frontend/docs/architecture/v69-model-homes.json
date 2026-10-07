@@ -1,0 +1,960 @@
+{
+  "schema": "assetops.v69.model-homes.v1",
+  "manifest": "../../mockups/v69/screen-manifest.json",
+  "rules": "A projection name is not proof of an implemented read model. Decision-required models cannot be folded silently into Action or other existing entities.",
+  "models": [
+    {
+      "model": "AcceptedEvidence",
+      "manifest_screens": [
+        "evidence",
+        "temperature",
+        "sessions",
+        "service",
+        "fuel",
+        "finding-evidence"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "AcceptedEvidenceIndex",
+      "manifest_screens": [
+        "evidence-analysis",
+        "cold-evidence",
+        "cold-evidence-analysis",
+        "ev-evidence",
+        "ev-evidence-analysis"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "Action",
+      "manifest_screens": [
+        "recommendation",
+        "verification",
+        "cold-recommendation",
+        "ev-recommendation",
+        "ev-action",
+        "action-overview",
+        "action-plan",
+        "action-execution",
+        "action-evidence",
+        "action-history",
+        "cold-action"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "ActionEvent",
+      "manifest_screens": [
+        "finding-history",
+        "action-overview",
+        "action-plan",
+        "action-execution",
+        "action-evidence",
+        "action-history"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "ActionIndex",
+      "manifest_screens": [
+        "sitework",
+        "actions",
+        "cold-work",
+        "ev-work",
+        "asset-work"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "ActionLink",
+      "manifest_screens": [
+        "finding"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "ActionSummary",
+      "manifest_screens": [
+        "portfolio",
+        "findings",
+        "cold-finding",
+        "ev-finding"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "AnalyticDeclaration",
+      "manifest_screens": [
+        "analysis"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "AssetDirectorySummary",
+      "manifest_screens": [
+        "assets"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "AssetHealthSummary",
+      "manifest_screens": [
+        "asset",
+        "health",
+        "assets",
+        "cold-health",
+        "ev-health",
+        "assets-warranty",
+        "asset-overview"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "AssetRegistration",
+      "manifest_screens": [
+        "asset-register",
+        "asset-config",
+        "asset-edit"
+      ],
+      "status": "workflow_decision_required",
+      "architecture_home": "Reuse target asset identity and registration metadata; no product edit workflow yet",
+      "decision_gate": "Define audited asset create/edit, replacement, retirement and binding effects before the mock registration controls are implemented."
+    },
+    {
+      "model": "AssetSummary",
+      "manifest_screens": [
+        "asset-overview"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "BackupEventChain",
+      "manifest_screens": [
+        "cold",
+        "coldbackup",
+        "incident",
+        "backup"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define BackupEventChain input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "BatchProgress",
+      "manifest_screens": [
+        "lab"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "BatteryStressWindow",
+      "manifest_screens": [
+        "asset",
+        "asset-warranty"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "BatteryUsageWindow",
+      "manifest_screens": [
+        "asset-performance",
+        "asset-warranty"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define BatteryUsageWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "CapabilityReadiness",
+      "manifest_screens": [
+        "portfolio",
+        "sites",
+        "readiness",
+        "evidence",
+        "backup",
+        "globalevidence",
+        "cold-health",
+        "ev-health",
+        "asset-evidence"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "CapacityEvidence",
+      "manifest_screens": [
+        "asset"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define CapacityEvidence input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "ChargingEnergyWindow",
+      "manifest_screens": [
+        "ev",
+        "energy"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define ChargingEnergyWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "ChargingSession",
+      "manifest_screens": [
+        "sessions"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define ChargingSession input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "ClaimLineage",
+      "manifest_screens": [
+        "dispatch",
+        "evidence",
+        "analysis",
+        "cooling",
+        "evidence-analysis",
+        "cold-evidence-analysis",
+        "ev-evidence-analysis"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "CommitManifest",
+      "manifest_screens": [
+        "lab"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "ConfigurationChange",
+      "manifest_screens": [
+        "changes"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "ConfigurationRevision",
+      "manifest_screens": [
+        "cold-foundation",
+        "ev-foundation"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "ConnectorAvailabilityWindow",
+      "manifest_screens": [
+        "ev",
+        "availability"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define ConnectorAvailabilityWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "ContextMatch",
+      "manifest_screens": [
+        "cooling"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define ContextMatch input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "CoolingRecoveryWindow",
+      "manifest_screens": [
+        "cooling"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define CoolingRecoveryWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "DeviceObservation",
+      "manifest_screens": [
+        "lab"
+      ],
+      "status": "legacy_lab_boundary",
+      "architecture_home": "Private Lab/device/Stage contract; S2 gateway adaptation",
+      "decision_gate": null
+    },
+    {
+      "model": "DispatchIntervalRevision",
+      "manifest_screens": [
+        "mini",
+        "dispatch",
+        "analysis"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "DispatchWindow",
+      "manifest_screens": [
+        "dispatch",
+        "finding"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "EvidenceBundle",
+      "manifest_screens": [
+        "cold-finding",
+        "ev-finding",
+        "finding-evidence"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FinancialAssumption",
+      "manifest_screens": [
+        "cold-financials",
+        "ev-financials"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FinancialAssumptionSet",
+      "manifest_screens": [
+        "financials",
+        "assumptions",
+        "cold-assumptions",
+        "ev-assumptions"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FinancialConsequence",
+      "manifest_screens": [
+        "mini",
+        "renewable",
+        "finding",
+        "energy",
+        "findings",
+        "opportunity-finding",
+        "assets-warranty"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FinancialConsequenceRevision",
+      "manifest_screens": [
+        "financials",
+        "assumptions",
+        "globalfinancials",
+        "cold-financials",
+        "ev-financials"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "FinancialScenario",
+      "manifest_screens": [
+        "scenarios",
+        "cold-scenarios",
+        "ev-scenarios"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define FinancialScenario identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "Finding",
+      "manifest_screens": [
+        "cold-finding",
+        "ev-finding",
+        "opportunity-finding",
+        "cold-finding-excursion"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "FindingAnalysis",
+      "manifest_screens": [
+        "alternatives"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define FindingAnalysis input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "FindingIndex",
+      "manifest_screens": [
+        "portfolio",
+        "sitefindings",
+        "findings",
+        "cold-findings",
+        "ev-findings",
+        "findings-cost",
+        "findings-risks",
+        "findings-opportunities"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FindingLink",
+      "manifest_screens": [
+        "incident"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FindingRevision",
+      "manifest_screens": [
+        "finding",
+        "finding-history"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "FoundationReadiness",
+      "manifest_screens": [
+        "readiness",
+        "cold-readiness",
+        "ev-readiness"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "FuelBalanceWindow",
+      "manifest_screens": [
+        "fuel"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define FuelBalanceWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "GatewayStatus",
+      "manifest_screens": [
+        "cold-readiness",
+        "ev-readiness"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "Incident",
+      "manifest_screens": [
+        "cold",
+        "coldbackup",
+        "incident"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define Incident identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "IncidentIndex",
+      "manifest_screens": [
+        "sitework",
+        "sitework-incidents",
+        "incidents",
+        "cold-work-incidents",
+        "ev-work-incidents"
+      ],
+      "status": "projection_on_new_domain_decision_required",
+      "architecture_home": "Index projection after Incident identity and lifecycle are defined",
+      "decision_gate": "Define Incident first, then index scope, sorting, freshness and drill-down IDs."
+    },
+    {
+      "model": "LabProjection",
+      "manifest_screens": [
+        "lab"
+      ],
+      "status": "legacy_lab_boundary",
+      "architecture_home": "Private Lab/device/Stage contract; S2 gateway adaptation",
+      "decision_gate": null
+    },
+    {
+      "model": "LoadRequestEvidence",
+      "manifest_screens": [
+        "service"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define LoadRequestEvidence input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "MaintenanceIndex",
+      "manifest_screens": [
+        "sitework",
+        "sitework-maintenance",
+        "maintenance",
+        "cold-work",
+        "cold-work-maintenance",
+        "ev-work",
+        "ev-work-maintenance"
+      ],
+      "status": "projection_on_new_domain_decision_required",
+      "architecture_home": "Index projection after maintenance work identities and lifecycle are defined",
+      "decision_gate": "Define maintenance request/record/plan first, then index scope, sorting, freshness and drill-down IDs."
+    },
+    {
+      "model": "MaintenancePlan",
+      "manifest_screens": [
+        "maintenance-preventive"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define MaintenancePlan identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "MaintenanceRecord",
+      "manifest_screens": [
+        "asset-work",
+        "wr-record"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define MaintenanceRecord identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "MaintenanceWorkRequest",
+      "manifest_screens": [
+        "incident",
+        "workverification",
+        "cold-action",
+        "wr-overview"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define MaintenanceWorkRequest identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "OperationalRecord",
+      "manifest_screens": [
+        "fuel",
+        "oprecords"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define OperationalRecord identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "OperationalTimeline",
+      "manifest_screens": [
+        "mini"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "PolicyVersion",
+      "manifest_screens": [
+        "temperature",
+        "settings-policies"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define PolicyVersion identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "PortfolioConsequenceRollup",
+      "manifest_screens": [
+        "portfolio",
+        "globalfinancials"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "PortfolioEvidenceMatrix",
+      "manifest_screens": [
+        "globalevidence"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "PortfolioSummary",
+      "manifest_screens": [
+        "portfolio"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "Recommendation",
+      "manifest_screens": [
+        "recommendation",
+        "cold-recommendation",
+        "ev-recommendation"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "RenewableOpportunityWindow",
+      "manifest_screens": [
+        "renewable",
+        "opportunity-finding"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define RenewableOpportunityWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "ServiceSchedule",
+      "manifest_screens": [
+        "availability"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define ServiceSchedule input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "ServiceWindow",
+      "manifest_screens": [
+        "renewable",
+        "service",
+        "backup"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define ServiceWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "SessionServiceWindow",
+      "manifest_screens": [
+        "ev",
+        "sessions"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define SessionServiceWindow input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "SignalBindingVersion",
+      "manifest_screens": [
+        "foundation",
+        "sld",
+        "asset-config"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteAssessmentSummary",
+      "manifest_screens": [
+        "portfolio",
+        "sites"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteControls",
+      "manifest_screens": [
+        "foundation",
+        "cold-foundation",
+        "ev-foundation"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteDirectorySummary",
+      "manifest_screens": [
+        "sites"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteDraft",
+      "manifest_screens": [
+        "site-create-form",
+        "site-create-template",
+        "site-batch-upload"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define SiteDraft identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "SiteEvidenceMatrix",
+      "manifest_screens": [
+        "cold-evidence",
+        "ev-evidence"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteFoundation",
+      "manifest_screens": [
+        "cold-foundation",
+        "ev-foundation"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteFoundationVersion",
+      "manifest_screens": [
+        "foundation",
+        "readiness",
+        "site-create-form"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "SiteImportBatch",
+      "manifest_screens": [
+        "site-batch-upload"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define SiteImportBatch identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "SiteOverview",
+      "manifest_screens": [
+        "mini"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SitePowerLimit",
+      "manifest_screens": [
+        "energy"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define SitePowerLimit input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "SiteSetupEvent",
+      "manifest_screens": [
+        "site-setup-history"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define SiteSetupEvent identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "SiteTemplate",
+      "manifest_screens": [
+        "site-create-template"
+      ],
+      "status": "workflow_decision_required",
+      "architecture_home": "Existing shipped YAML template catalog can seed product Site Foundation after an explicit migration contract",
+      "decision_gate": "Define product template provenance, versioning and draft/publish boundary before the mock selection screen is implemented."
+    },
+    {
+      "model": "SourceHealth",
+      "manifest_screens": [
+        "evidence",
+        "health",
+        "cold-readiness",
+        "ev-readiness",
+        "sld",
+        "cold-sld",
+        "ev-sld"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "SourceStage",
+      "manifest_screens": [
+        "lab"
+      ],
+      "status": "legacy_lab_boundary",
+      "architecture_home": "Private Lab/device/Stage contract; S2 gateway adaptation",
+      "decision_gate": null
+    },
+    {
+      "model": "TemperatureExcursion",
+      "manifest_screens": [
+        "cold",
+        "temperature",
+        "coldbackup",
+        "cold-finding-excursion"
+      ],
+      "status": "domain_claim_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define TemperatureExcursion input roles, window/episode semantics, claim ceiling, missingness and lineage before a product claim is implemented."
+    },
+    {
+      "model": "TenantConfiguration",
+      "manifest_screens": [
+        "settings-tenant"
+      ],
+      "status": "workflow_decision_required",
+      "architecture_home": "Reuse target tenant identity; settings/user/role policy has no product contract yet",
+      "decision_gate": "Define authentication, editable fields, role authorization and audit before tenant settings controls are implemented."
+    },
+    {
+      "model": "TopologyReadModel",
+      "manifest_screens": [
+        "foundation",
+        "sld",
+        "cold-sld",
+        "ev-sld"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "VerificationOutcome",
+      "manifest_screens": [
+        "changes",
+        "verification",
+        "workverification",
+        "ev-action",
+        "action-overview",
+        "action-plan",
+        "action-execution",
+        "action-evidence",
+        "action-history",
+        "cold-action"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "VerificationPlan",
+      "manifest_screens": [
+        "changes",
+        "workverification"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "VerificationPlanVersion",
+      "manifest_screens": [
+        "recommendation",
+        "verification",
+        "cold-recommendation",
+        "ev-recommendation"
+      ],
+      "status": "target_entity_or_revision",
+      "architecture_home": "Production-shaped technical design; S1-S7 bounded slice",
+      "decision_gate": null
+    },
+    {
+      "model": "VerificationSummary",
+      "manifest_screens": [
+        "portfolio",
+        "actions",
+        "maintenance"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    },
+    {
+      "model": "WarrantyRecord",
+      "manifest_screens": [
+        "assets-warranty",
+        "asset-overview",
+        "asset-warranty"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define WarrantyRecord identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "WorkEvent",
+      "manifest_screens": [
+        "wr-history"
+      ],
+      "status": "new_domain_decision_required",
+      "architecture_home": null,
+      "decision_gate": "Define WorkEvent identity, lifecycle, tenant/site scope, events, evidence links and storage owner before its mock destination is implemented."
+    },
+    {
+      "model": "WorkSummary",
+      "manifest_screens": [
+        "cold"
+      ],
+      "status": "projection_contract_needed",
+      "architecture_home": "Derived from target records; exact fields/window/coverage need owning slice review",
+      "decision_gate": null
+    }
+  ]
+}
