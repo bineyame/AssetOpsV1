@@ -13,7 +13,7 @@ Kobo's `foundation`, `readiness` and configured `sld` surfaces show registered d
 
 ## Architect carry-forward
 
-Start from S1-01's Foundation-only Postgres cutover: its eight device sources and pending simulated gateway are registered metadata, not an edge process or evidence authority. One source owns one device report stream beneath one gateway; its signals share a sequence scope. Convert legacy `signal_mappings` only after explicit role, unit and conversion decisions. Publish the first atomic Foundation-plus-binding snapshot; a mapping-affecting publish thereafter follows joint publication. Keep imported Site Lab runs blocked on an obsolete YAML control basis until the selected registered snapshot can drive them.
+Start from S1-01's Foundation-only Postgres cutover: its eight device sources and pending simulated gateway are registration metadata, not an edge process or evidence authority. One source owns one device report stream beneath one gateway; its signals share a sequence scope. Convert legacy `signal_mappings` only after explicit role, unit and conversion decisions. Publish the first atomic Foundation-plus-binding snapshot; a mapping-affecting publish thereafter follows joint publication. Keep the shared YAML Site source read-only for imported KOBO-001. New Lab Draft setup plus start, step, run-to-end and Commit of existing Drafts stay blocked until Lab can use the registered Foundation/gateway snapshot; Commit of a pre-import Stage remains blocked. Historical run detail and read-only `GET /runs/{run_id}/stage` remain inspectable with their frozen YAML basis.
 
 ## Contract and migration seam
 

@@ -15,7 +15,7 @@ Lab gateway-status/Commit detail shows sealed SourceEnvelopes, queue depth, mapp
 
 `simulator/assetops_simulator/gateway/publish.py` and `mappings.py` are an in-process simulated publisher, not the target separate edge process. Adapt their device-report boundary without allowing private world state into the gateway. Add one captured physical-device adapter fixture and a simulated-device adapter behind the same gateway interface. The old Stage files remain comparison artifacts, not the gateway queue.
 
-Carry the Architect S1 identity decision: one registered source owns one device report stream beneath the gateway, and all signals of that device share `(gateway,source,epoch)` sequence scope. A device replacement or gateway move provisions a new source. S1 pending registration is not an ingestion credential; acquire only after S1-02 publishes the registered binding snapshot.
+Carry the Architect S1 identity decision: one registered source owns one device report stream beneath the gateway, and all signals of that device share `(gateway,source,epoch)` sequence scope. A device replacement or gateway move provisions a new source. S1 pending registration is not an ingestion credential; acquire only after S1-02 publishes the registered binding snapshot. The shared YAML Lab Site source stays read-only for imported KOBO-001; blocked Draft setup, start, step, run-to-end and Commit controls remain blocked until the registered basis can drive them, including Commit of a pre-import Stage. Historical `GET /runs/{run_id}/stage` stays read-only and labelled with its frozen YAML basis.
 
 ## Persisted object and wire contract
 

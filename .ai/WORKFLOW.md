@@ -69,7 +69,7 @@ product function that may require several tasks. A task is a reviewable
 implementation slice that delivers or materially advances one UI-verifiable part
 of a feature.
 
-The current sequence is the Site-first S1–S7 queue in `tasks/README.md`, based on the accepted architecture, technical design and Site-first execution plan. Earlier feature maps and demo roadmaps are historical planning input.
+The current sequence is the Site-first S1–S7 queue in `tasks/README.md`, based on the current architecture, technical design and Site-first execution plan. Earlier feature maps and demo roadmaps are historical planning input.
 
 This replaces the old examples that implied a fuel discrepancy was the first
 Finding. Within each outcome, create reviewable cuts that let the owner run
@@ -80,7 +80,7 @@ Avoid building whole layers before there is useful product behavior.
 ## Task Spec Size
 
 Task specs are guardrails for fast implementation, not miniature design
-documents. For S1â€“S7, keep durable reasoning in the accepted Site-first architecture, technical design, execution plan or a new decision; keep task files slice-specific and executable. The old feature map and T0xx queue remain historical.
+documents. For S1-S7, keep durable reasoning in the current Site-first architecture, technical design, execution plan or a new decision; keep task files slice-specific and executable. The old feature map and T0xx queue remain historical.
 
 Size is a ceiling, never a target. These are the upper limits:
 
