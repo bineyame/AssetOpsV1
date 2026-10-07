@@ -1,4 +1,4 @@
-# Workflow
+﻿# Workflow
 
 AssetOps is built through thin end-to-end slices that produce UI-verifiable
 product behavior.
@@ -69,10 +69,7 @@ product function that may require several tasks. A task is a reviewable
 implementation slice that delivers or materially advances one UI-verifiable part
 of a feature.
 
-The current sequence comes from the corrected demo roadmap, as mapped in
-`.ai/FEATURE_MAP.md`: credible mini-grid runtime, normal ingested Site history,
-dispatch Finding with Evidence, thin economics, fuel reconciliation,
-productive-use opportunity, lifecycle, verification and portfolio.
+The current sequence is the Site-first S1–S7 queue in `tasks/README.md`, based on the accepted architecture, technical design and Site-first execution plan. Earlier feature maps and demo roadmaps are historical planning input.
 
 This replaces the old examples that implied a fuel discrepancy was the first
 Finding. Within each outcome, create reviewable cuts that let the owner run
@@ -147,7 +144,7 @@ defensive repetition.
 ## Planning Before Tasks
 
 The Architect establishes feature outcomes and causal prerequisites before the
-Planner creates tasks. For the current pass, use only simulator v4 and the
+Planner creates tasks. For the superseded T0xx planning pass, the historical instruction was to use simulator v4 and the
 corrected mini-grid roadmap for direction, plus canonical built-state records.
 This replaces starting the task sequence from the UI mockups. Layout references
 remain presentation guidance after a screen's content and claims are real.

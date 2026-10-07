@@ -1,4 +1,7 @@
-# Architect Recommendation: Demo-Led Navigation, Content And Sequencing
+﻿# Architect Recommendation: Demo-Led Navigation, Content And Sequencing
+
+> **Superseded planning sequence (2026-10-07).** This document remains historical product/planning context. The accepted `frontend/docs/architecture/production-shaped-mvp.md`, `production-shaped-mvp-technical-design.md`, `site-first-execution-plan.md`, and `tasks/README.md` govern current work. T0xx delivery order and demo gates below are not active.
+
 
 **Status: Final version for owner review, 2026-10-02.** This is a
 recommendation input, not the roadmap. It does not change `tasks/README.md`,

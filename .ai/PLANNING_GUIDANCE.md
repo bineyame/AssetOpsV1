@@ -1,3 +1,4 @@
+﻿> **Current Site-first routing (2026-10-07):** The accepted [architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [execution plan](../frontend/docs/architecture/site-first-execution-plan.md) supersede the source order and live T0xx handoffs described below. Use `tasks/README.md` and `.ai/ACTIVE_CONTEXT.md` for executable work. The rest of this file records the earlier planning method and history; its T0xx directions are not active.
 # Planning Guidance
 
 ## Purpose
@@ -142,7 +143,7 @@ is live, and is deleted when its last slice closes out.
 Live now:
 
 - `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` (owner-approved 2026-10-02,
-  `D-2026-10-02-demo-led-recommendation`) is live direction for T027-T036:
+  `D-2026-10-02-demo-led-recommendation`) was historical direction for T027-T036:
   navigation and tab growth, page hierarchies, the demo journey and the
   sequence `tasks/README.md` now holds.
 - `.ai/PLANNING_HANDOFF_T020A_T023.md` has been rewritten from v4 and the
