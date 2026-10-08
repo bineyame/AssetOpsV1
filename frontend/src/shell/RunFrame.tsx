@@ -10,6 +10,7 @@ import {
   stagedSignal,
   unavailableArrival,
 } from "./HistoryInspector";
+import { GatewayLedgerView } from "./GatewayLedgerView";
 import { RunCommitPanel } from "./RunCommitPanel";
 import { RunHeader } from "./RunHeader";
 import {
@@ -481,6 +482,10 @@ export function RunFrame({
     execution !== null && execution.status === "loaded"
       ? execution.execution
       : null;
+  // S2-01b: some signal's simulated device rounds what it publishes.
+  const quantized =
+    projection !== null &&
+    projection.signals.some((signal) => typeof signal.resolution === "string");
   // Manual Step and Run to the end cannot race auto-play: while it schedules
   // (or awaits a step it already sent) they are unavailable, and while a
   // manual control is in flight Play is.
@@ -1031,6 +1036,7 @@ export function RunFrame({
                   <th scope="col">Reads</th>
                   <th scope="col">Publishes every</th>
                   <th scope="col">Bias</th>
+                  {quantized ? <th scope="col">Published to the nearest</th> : null}
                   <th scope="col">Samples lost per thousand</th>
                 </tr>
               </thead>
@@ -1048,11 +1054,28 @@ export function RunFrame({
                     </td>
                     <td>{`${signal.cadence_minutes} minutes`}</td>
                     <td>{`${signal.bias} ${signal.canonical_unit}`}</td>
+                    {quantized ? (
+                      <td data-signal-resolution={signal.resolution ?? "EXACT"}>
+                        {signal.resolution === null || signal.resolution === undefined
+                          ? "exact (not rounded)"
+                          : `${signal.resolution} ${signal.canonical_unit}`}
+                      </td>
+                    ) : null}
                     <td>{String(signal.dropout_per_thousand)}</td>
                   </tr>
                 ))}
               </tbody>
             </DataTable>
+            {quantized ? (
+              <p className="note" data-signal-resolution-note>
+                Each simulated device adds its bias, then rounds the reading
+                half-to-even to the step shown before publishing it. Subtracting
+                the bias from a reported value therefore gives the true value at
+                that reading&apos;s own time only to within half a step, and a
+                reading kept across a reporting gap still describes its own
+                earlier time, not the value the gap hid.
+              </p>
+            ) : null}
           </Panel>
         )}
         {projection === null ||
@@ -1158,6 +1181,8 @@ export function RunFrame({
               {stage.message ??
                 "The stage could not be read, so nothing is known about what was staged."}
             </p>
+          ) : stage.status === "gateway" ? (
+            <GatewayLedgerView stage={stage.stage} frozenBasis={stage.frozenBasis} />
           ) : (
             <>
               <p

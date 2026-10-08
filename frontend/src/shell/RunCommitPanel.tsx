@@ -272,8 +272,18 @@ function shortDigest(digest: string): string {
  * one leaves the stage's own eligibility to decide, as before.
  */
 export function commitBasisBlock(stage: RunStageResult | null): string | null {
-  if (stage === null || stage.status !== "loaded") {
+  if (stage === null || (stage.status !== "loaded" && stage.status !== "gateway")) {
     return null;
+  }
+  if (stage.status === "gateway") {
+    // S2-01b: only a registered run's Stage is the gateway ledger, and the
+    // server refuses Commit for every one of them whatever the basis says.
+    return (
+      "Not committed. This run was set up from a registered Site configuration, " +
+      "and committing such runs is not available yet: its reports wait in the " +
+      "gateway's local outbox, and accepted Site evidence for registered Sites " +
+      "is not delivered in this build."
+    );
   }
   const basis = stage.frozenBasis;
   if (basis === undefined || basis?.can_release) {
@@ -314,7 +324,16 @@ export function commitBasisBlock(stage: RunStageResult | null): string | null {
  * been registered, so no Resume or Retry button is offered for either.
  */
 export function releaseBasisBlock(stage: RunStageResult | null): string | null {
-  if (commitBasisBlock(stage) === null || stage === null || stage.status !== "loaded") {
+  if (commitBasisBlock(stage) === null || stage === null) {
+    return null;
+  }
+  if (stage.status === "gateway") {
+    return (
+      "Release is not offered. This run was set up from a registered Site " +
+      "configuration, and releasing such runs is not available in this build."
+    );
+  }
+  if (stage.status !== "loaded") {
     return null;
   }
   const basis = stage.frozenBasis;

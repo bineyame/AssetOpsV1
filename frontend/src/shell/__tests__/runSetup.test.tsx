@@ -1381,3 +1381,70 @@ const REFUSED_FOR_REGISTERED: CreateRunResult = {
   reasonCode: "BASIS_BOUNDARY",
   message: "The interval crosses a configuration boundary.",
 };
+
+describe("a publication profile whose simulated devices round (S2-01b)", () => {
+  const ROUNDING = {
+    ...(PROFILES.status === "loaded" ? PROFILES.publicationProfiles[0] : ({} as never)),
+    publication_profile_id: "registered-kobo-publication",
+    publication_profile_version: 1,
+    display_name: "Registered Kobo publication profile",
+    device_resolutions: [
+      { device_id: "pcs-meter", signal_id: "ac-power", unit: "kW", resolution: "0.000001" },
+      { device_id: "battery-bms", signal_id: "soc", unit: "%", resolution: "0.000001" },
+    ],
+    requires_registered_site: true,
+  };
+
+  function roundingClient(outcome: CreateRunResult): RunSetupClient {
+    return {
+      ...runClient(outcome).client,
+      listProfiles: () =>
+        Promise.resolve({
+          ...(PROFILES as Extract<RunProfilesResult, { status: "loaded" }>),
+          publicationProfiles: [ROUNDING],
+        }),
+    };
+  }
+
+  it("says the chosen profile rounds numeric readings, and that it needs a registered Site", async () => {
+    renderSetup(roundingClient({ status: "created", run: READY_RUN }));
+    await settledScreen();
+
+    expect(screen.getByLabelText("Publication profile")).toHaveValue(
+      "registered-kobo-publication@1",
+    );
+    const note = document.querySelector("[data-setup-profile-resolution]");
+    expect(note?.getAttribute("data-setup-profile-resolution")).toBe("0.000001");
+    expect(note?.hasAttribute("data-setup-profile-registered-only")).toBe(true);
+    expect(note?.textContent).toMatch(/round each numeric reading half-to-even to 0\.000001/);
+    expect(note?.textContent).toMatch(/Status readings are not rounded/);
+    expect(note?.textContent).toMatch(/registered Site/);
+  });
+
+  it("says nothing about rounding for a profile that publishes exactly", async () => {
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    expect(document.querySelector("[data-setup-profile-resolution]")).toBeNull();
+  });
+
+  it.each([
+    ["PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE", /needs a registered Site/],
+    ["PUBLICATION_UNIT_MISMATCH", /does not match the Site's registered binding/],
+  ])("leads a %s refusal with a plain label and the backend's own message", async (kind, label) => {
+    const refused: CreateRunResult = {
+      status: "refused",
+      code: "RUN_SETUP_REFUSED",
+      refusalKind: kind,
+      message: `Backend sentence for ${kind}. No run was created.`,
+    };
+    renderSetup(roundingClient(refused));
+    await settledScreen();
+    await fillAndSubmit();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.getAttribute("data-setup-refusal-kind")).toBe(kind);
+    expect(alert.textContent).toMatch(label);
+    expect(alert.textContent).toContain(refused.message);
+  });
+});

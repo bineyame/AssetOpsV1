@@ -250,9 +250,14 @@ class ObservationView:
     `reported_value` does not. Across the shipped reporting gap the tank loses
     120 litres and the newest reading is the one taken before the gap opened, so
     the two columns disagree by that quantity plus whatever the instrument's
-    declared bias contributes - which is why they are two fields. A reader who
-    wants the quantity the gap hid subtracts the bias from the reported value
-    first; a reader who wants to know what the sensor said reads the column.
+    declared bias contributes - which is why they are two fields. The reported
+    value is evidence about its own `reported_source_time`, not about this
+    instant: subtracting the bias says nothing exact about a quantity a
+    reporting gap hid. Even at the reading's own source instant, a signal with a
+    frozen device resolution (S2-01b) publishes `value + bias` rounded half-even
+    to that quantum, so `reported - bias` recovers the true value there only to
+    within half the quantum. A reader who wants to know what the sensor said
+    reads the column; `true_value` is the only exact world value.
 
     T025b: a row in unit `state` (the generator controller's status) carries
     both values as the typed member text - `RUNNING` - never as a number, and

@@ -81,6 +81,22 @@ export interface RunPublicationProfile {
    * and is what blocks a scenario that requires one of them.
    */
   supported_reporting_states: RunSupportedState[];
+  /**
+   * S2-01b: the resolution each numeric signal's simulated device publishes
+   * at, in the signal's source unit. Absent or empty: readings publish exactly.
+   */
+  device_resolutions?: RunDeviceResolution[];
+  /** S2-01b: true when only a registered Site's Draft may select this profile. */
+  requires_registered_site?: boolean;
+}
+
+/** S2-01b: one simulated device's declared publication resolution. */
+export interface RunDeviceResolution {
+  device_id: string;
+  signal_id: string;
+  unit: string;
+  /** Exact positive decimal text, such as `0.000001`. */
+  resolution: string;
 }
 
 /** One frozen value, and who answered for it. */
@@ -379,6 +395,11 @@ export interface RunDeviceSignal {
   bias: string;
   dropout_per_thousand: number;
   statement: string;
+  /**
+   * S2-01b: the frozen resolution this device publishes at, in the signal's
+   * unit, or null when it publishes exactly. Absent on a run served before it.
+   */
+  resolution?: string | null;
 }
 
 /**
@@ -757,11 +778,87 @@ export interface RunStageFrozenBasis {
   registered_basis?: RunConfigurationBasis;
 }
 
+/** S2-01b: one SourceEnvelope V3 row in the gateway's local outbox. */
+export interface GatewayLedgerEnvelope {
+  message_id: string;
+  source_id: string;
+  sequence_epoch: string;
+  sequence: number;
+  source_time: string;
+  snapshot_sha256: string;
+  /** The exact stored envelope text. */
+  canonical: string;
+  sha256: string;
+  state: string;
+  batch_id: string | null;
+  ordinal: number | null;
+}
+
+/** S2-01b: one sealed, immutable Batch V2 in the gateway's local outbox. */
+export interface GatewayLedgerBatch {
+  batch_id: string;
+  source_id: string;
+  sequence_epoch: string;
+  snapshot_sha256: string;
+  /** The exact stored batch text. */
+  canonical: string;
+  sha256: string;
+  state: string;
+  attempt_count: number;
+  message_ids: string[];
+}
+
+/** S2-01b: a report the gateway refused to sequence, with the field and why. */
+export interface GatewayLedgerHold {
+  hold_id: number;
+  kind: string;
+  field: string;
+  detail: string;
+  device_id: string | null;
+  signal_id: string | null;
+  source_time: string | null;
+  seen_count: number;
+}
+
+/**
+ * S2-01b: a registered run's Stage, read from the separate gateway process's
+ * durable SQLite ledger. Upload is always pending in this build and
+ * `receipts` is always empty; nothing here is accepted evidence.
+ */
+export interface GatewayLedgerStage {
+  store: "GATEWAY_LEDGER";
+  run_id: string;
+  /** `STAGED`, `NOT_STAGED` or `GATEWAY_UNAVAILABLE`. */
+  status: string;
+  statement: string;
+  execution_status: string;
+  release_eligible: false;
+  snapshot_sha256: string;
+  site_id: string | null;
+  gateway_id: string | null;
+  sequence_epoch: string | null;
+  upload_state: "PENDING";
+  upload_statement: string;
+  receipts: [];
+  unavailable_detail: string | null;
+  publication_notes: string[];
+  queue_depth_by_state: Record<string, number>;
+  envelopes: GatewayLedgerEnvelope[];
+  batches: GatewayLedgerBatch[];
+  holds: GatewayLedgerHold[];
+}
+
 export type RunStageResult =
   | {
       status: "loaded";
       stage: RunStage;
       /** Absent: not reported. Null: reported and unreadable. */
+      frozenBasis?: RunStageFrozenBasis | null;
+    }
+  | {
+      /** S2-01b: a registered run, whose Stage is the gateway ledger. */
+      status: "gateway";
+      stage: GatewayLedgerStage;
       frozenBasis?: RunStageFrozenBasis | null;
     }
   | { status: "not_found" }
@@ -943,7 +1040,26 @@ function isPublicationProfile(value: unknown): value is RunPublicationProfile {
     isNullableString(value.simulator_source_id) &&
     isNullableString(value.gateway_id) &&
     Array.isArray(value.supported_reporting_states) &&
-    value.supported_reporting_states.every(isSupportedState)
+    value.supported_reporting_states.every(isSupportedState) &&
+    (value.device_resolutions === undefined ||
+      (Array.isArray(value.device_resolutions) &&
+        value.device_resolutions.every(isDeviceResolution))) &&
+    (value.requires_registered_site === undefined ||
+      typeof value.requires_registered_site === "boolean")
+  );
+}
+
+/** Exact positive decimal text: never a float exponent or a ratio. */
+const EXACT_DECIMAL = /^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/;
+
+function isDeviceResolution(value: unknown): value is RunDeviceResolution {
+  return (
+    isRecord(value) &&
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.unit === "string" &&
+    typeof value.resolution === "string" &&
+    EXACT_DECIMAL.test(value.resolution)
   );
 }
 
@@ -1183,6 +1299,9 @@ function isDeviceSignal(value: unknown): value is RunDeviceSignal {
     typeof value.bias === "string" &&
     typeof value.dropout_per_thousand === "number" &&
     typeof value.statement === "string" &&
+    (value.resolution === undefined ||
+      value.resolution === null ||
+      (typeof value.resolution === "string" && EXACT_DECIMAL.test(value.resolution))) &&
     isDiscreteReadingSound(value)
   );
 }
@@ -1525,6 +1644,93 @@ function isStageMapping(value: unknown): value is RunStageMapping {
   );
 }
 
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+
+/**
+ * S2-01b: whether a body is a whole gateway-ledger Stage. Anything short of
+ * one - a receipt, an upload state other than pending, a release-eligible
+ * flag - is not rendered as one, so the screen never shows a delivery claim.
+ */
+export function isGatewayLedgerStage(value: unknown): value is GatewayLedgerStage {
+  if (!isRecord(value) || value.store !== "GATEWAY_LEDGER") {
+    return false;
+  }
+  const depth = value.queue_depth_by_state;
+  return (
+    typeof value.run_id === "string" &&
+    typeof value.status === "string" &&
+    typeof value.statement === "string" &&
+    typeof value.execution_status === "string" &&
+    value.release_eligible === false &&
+    typeof value.snapshot_sha256 === "string" &&
+    isNullableString(value.site_id) &&
+    isNullableString(value.gateway_id) &&
+    isNullableString(value.sequence_epoch) &&
+    value.upload_state === "PENDING" &&
+    typeof value.upload_statement === "string" &&
+    Array.isArray(value.receipts) &&
+    value.receipts.length === 0 &&
+    isNullableString(value.unavailable_detail) &&
+    isStringArray(value.publication_notes) &&
+    isRecord(depth) &&
+    Object.values(depth).every((n) => Number.isInteger(n) && (n as number) >= 0) &&
+    Array.isArray(value.envelopes) &&
+    value.envelopes.every(isGatewayEnvelope) &&
+    Array.isArray(value.batches) &&
+    value.batches.every(isGatewayBatch) &&
+    Array.isArray(value.holds) &&
+    value.holds.every(isGatewayHold)
+  );
+}
+
+function isGatewayEnvelope(value: unknown): value is GatewayLedgerEnvelope {
+  return (
+    isRecord(value) &&
+    typeof value.message_id === "string" &&
+    typeof value.source_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    Number.isInteger(value.sequence) &&
+    typeof value.source_time === "string" &&
+    typeof value.snapshot_sha256 === "string" &&
+    typeof value.canonical === "string" &&
+    typeof value.sha256 === "string" &&
+    SHA256_HEX.test(value.sha256) &&
+    typeof value.state === "string" &&
+    isNullableString(value.batch_id) &&
+    (value.ordinal === null || Number.isInteger(value.ordinal))
+  );
+}
+
+function isGatewayBatch(value: unknown): value is GatewayLedgerBatch {
+  return (
+    isRecord(value) &&
+    typeof value.batch_id === "string" &&
+    typeof value.source_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    typeof value.snapshot_sha256 === "string" &&
+    typeof value.canonical === "string" &&
+    typeof value.sha256 === "string" &&
+    SHA256_HEX.test(value.sha256) &&
+    typeof value.state === "string" &&
+    Number.isInteger(value.attempt_count) &&
+    isStringArray(value.message_ids)
+  );
+}
+
+function isGatewayHold(value: unknown): value is GatewayLedgerHold {
+  return (
+    isRecord(value) &&
+    Number.isInteger(value.hold_id) &&
+    typeof value.kind === "string" &&
+    typeof value.field === "string" &&
+    typeof value.detail === "string" &&
+    isNullableString(value.device_id) &&
+    isNullableString(value.signal_id) &&
+    isNullableString(value.source_time) &&
+    Number.isInteger(value.seen_count)
+  );
+}
+
 /** Whether a body is a whole stage view; half of one is not rendered. */
 export function isRunStage(value: unknown): value is RunStage {
   if (!isRecord(value)) {
@@ -1786,6 +1992,13 @@ export function createRunSetupClient(
       }
       if (response.status === 404) {
         return { status: "not_found" };
+      }
+      if (response.ok && isGatewayLedgerStage(parsed?.stage)) {
+        return {
+          status: "gateway",
+          stage: parsed.stage as GatewayLedgerStage,
+          frozenBasis: readFrozenBasis(parsed.frozen_basis),
+        };
       }
       if (response.ok && isRunStage(parsed?.stage)) {
         return {

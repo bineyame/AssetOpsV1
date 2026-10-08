@@ -33,6 +33,7 @@ import {
   templateLineageText,
   type CreateRunResult,
   type RunProfilesResult,
+  type RunPublicationProfile,
   type RunSetupClient,
   type RunSummary,
 } from "./runSetupClient";
@@ -886,6 +887,15 @@ export function RunSetupFrame({
               declares none blocks the draft.
             </span>
           </p>
+          <ProfileResolution
+            profile={publicationProfiles.find(
+              (profile) =>
+                profileKey(
+                  profile.publication_profile_id,
+                  profile.publication_profile_version,
+                ) === form.publicationProfile,
+            )}
+          />
 
           {profiles.status === "unavailable" ? (
             <p className="field-error" role="alert">
@@ -942,6 +952,7 @@ export function RunSetupFrame({
               data-setup-refusal-kind={refusal.refusalKind ?? undefined}
               data-setup-refusal-reason={refusal.reasonCode ?? undefined}
             >
+              {refusalLabel(refusal.refusalKind)}
               {refusal.message} No draft run was created and nothing was
               written.
               {refusal.reasonCode ? (
@@ -1358,5 +1369,46 @@ function CreatedDraft({ run }: { run: RunSummary }) {
         </ul>
       </Panel>
     </>
+  );
+}
+
+/**
+ * S2-01b: a plain lead-in for the two publication-profile refusals a
+ * registered Draft can meet; every other refusal's message stands alone.
+ */
+function refusalLabel(kind: string | null): string | null {
+  if (kind === "PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE") {
+    return "This publication profile needs a registered Site. ";
+  }
+  if (kind === "PUBLICATION_UNIT_MISMATCH") {
+    return "A unit in this publication profile does not match the Site's registered binding. ";
+  }
+  return null;
+}
+
+/**
+ * S2-01b: what the chosen profile's simulated devices round to before they
+ * publish, so the person choosing it sees that the Lab reports are rounded
+ * readings and not exact world values.
+ */
+function ProfileResolution({ profile }: { profile: RunPublicationProfile | undefined }) {
+  const resolutions = profile?.device_resolutions ?? [];
+  if (profile === undefined || (resolutions.length === 0 && !profile.requires_registered_site)) {
+    return null;
+  }
+  const steps = Array.from(new Set(resolutions.map((item) => item.resolution)));
+  return (
+    <p
+      className="note"
+      data-setup-profile-resolution={steps.join(" ")}
+      data-setup-profile-registered-only={profile.requires_registered_site ? "" : undefined}
+    >
+      {resolutions.length === 0
+        ? null
+        : `Simulated devices round each numeric reading half-to-even to ${steps.join(" or ")} in that signal's own unit before publishing it (${resolutions.length} signals). Status readings are not rounded. `}
+      {profile.requires_registered_site
+        ? "Only a draft on a registered Site can use this profile, because each unit is checked against the Site's registered binding."
+        : null}
+    </p>
   );
 }
