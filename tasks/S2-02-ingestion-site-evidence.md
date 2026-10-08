@@ -15,7 +15,7 @@ Site evidence/evidence-analysis and Lab Commit show accepted, delayed, rejected,
 
 The current `POST /api/ingestion/batches` and `IngestionService` already share parsing/deduplication for the demo, but use batch V1, no gateway credential boundary, process-local locking, identity normalization and `JsonEvidenceStore`. Lab Commit calls `ingestion.ingest` in process. Adapt the service and route; replace product evidence storage with Postgres and Commit's privileged in-process call with the registered simulated gateway posting the authenticated HTTPS API. The S2 demo source is simulated only; the physical protocol peer waits for the first real pilot. Preserve legacy parsers for migration, not as the new write contract.
 
-Carry the Foundation-only cutover: imported Site Evidence remains visibly awaiting migration until this task compares and switches its Postgres read. Keep product index/detail routing one imported Postgres KOBO-001 plus unimported legacy YAML Sites; do not reintroduce a stale product read or write. Authenticate tenant/site/gateway/source separately; S1 pending registration authorizes no upload. S2-01a supplies the registered Lab run basis; this task supplies authenticated Commit delivery for new registered runs. Pre-import Stages remain read-only and cannot be Committed through the new path; separately replay only already sealed historical batches through the explicit migration procedure. Resolve the originally registered Foundation/binding at each source time, preserving the accepted-as basis.
+Carry the Foundation-only cutover: imported Site Evidence remains visibly awaiting migration until this task compares and switches its Postgres read. Keep product index/detail routing one imported Postgres KOBO-001 plus unimported legacy YAML Sites; do not reintroduce a stale product read or write. Authenticate tenant/site/gateway/source separately; S1 pending registration authorizes no upload. S2-01a supplies the registered Lab run basis; this task supplies authenticated Commit delivery for new registered runs. Pre-import Stages remain read-only and cannot be Committed through the new path; separately replay only already sealed historical batches through the explicit migration procedure. Resolve the originally registered Foundation/binding at each source time, preserving the accepted-as basis. A pair whose original valid periods cover the source time remains eligible even if later superseded or current registration identity has changed; flag an outdated configuration without substituting the accepted basis.
 
 ## Persisted object and read contract
 
@@ -31,7 +31,7 @@ Commit a simulated run; disconnect/retry, duplicate exact bytes, conflict same I
 
 ## Missing/conflicting evidence
 
-Missing required role, bad unit, stale configuration or wrong credential has an explicit refusal/rejection/coverage state. Ingestion lag is pending, never healthy.
+Missing required role, bad unit, an unregistered pair or source time outside its original valid period, and wrong credential have explicit refusal/rejection/coverage states. A once-registered, time-valid pair later superseded is accepted under its original basis with an outdated-configuration flag, as the technical design requires. Ingestion lag is pending, never healthy.
 
 ## Evidence lineage
 
@@ -41,7 +41,7 @@ Open each accepted record to original/normalized value and unit, source/publishe
 
 Reviewer opens Site Evidence and Lab Commit, verifies Postgres reload, receipt retry, central diagnostics and legacy comparison using simulated input. Before activation, refine exact credentials, migration fixture, wire fields and focused checks using S2-01c outcome and the current technical design. Apply shared queue gates. Physical-adapter input proof is a first-real-pilot gate, not S2 acceptance.
 
-S1 carry to consume at refinement: registration identity fields remain mutable and historical snapshot download may be unavailable when current registrations have gaps (S1-02 n5). Use the Architect resolution in `.agent/planner-S2-questions-2026-10-08.md` before defining original registered-basis validation and gateway credential scope; do not treat S1's development-tenant snapshot download as an authenticated gateway endpoint. Reconcile the actual S2-01a frozen basis and S2-01b/c wire, outbox and diagnostics before activating this outline. `queue_baseline_nodes` still assigns `I-accepted-evidence-store`, `I-edge-diagnostics-store`, `I-S2-02` here; no baseline move from S1.
+S1 carry to consume at refinement: registration identity fields remain mutable. `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` makes pinned historical snapshot reads independent of current registration gaps; S2-02 must validate originally registered identity and validity from immutable version/snapshot references rather than current mutable names. Define gateway credential scope separately; S1's development-tenant snapshot download is not an authenticated gateway endpoint. Reconcile the actual S2-01a frozen basis and S2-01b/c wire, outbox and diagnostics before activating this outline. `queue_baseline_nodes` still assigns `I-accepted-evidence-store`, `I-edge-diagnostics-store`, `I-S2-02` here; no baseline move from S1.
 
 ## Defer
 
