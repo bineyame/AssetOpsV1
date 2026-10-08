@@ -58,6 +58,7 @@ const BASE = process.argv[2] ?? "http://localhost:5173";
  * site whose foundation declares one.
  */
 const SITE = process.argv[3] ?? process.env.ASSETOPS_LAYOUT_SITE ?? "MG-001";
+const PUBLISH_RESERVE_LABEL = "Publish reserve change";
 const PORT = 9333;
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
@@ -619,6 +620,13 @@ const SUBMIT_RUN_SETUP = `(() => {
     radio.click();
     return true;
   };
+
+  // S1-01: the site picker renders only after the Sites index has been read,
+  // which can land after the form itself. No radio yet is the page still
+  // loading - the same NOT-READY as a disabled submit - not a missing control.
+  if (document.querySelectorAll('input[name="run-setup-site"]').length === 0) {
+    return "not-ready";
+  }
 
   const filled =
     chooseSite() &&
@@ -1306,6 +1314,10 @@ for (const [label, width, height] of [
   // to catch. The claim below asserts the set is not empty here.
   ["640x700, narrow enough that a dense table cannot fit", 640, 700],
 ]) {
+  // S1-01 (Architect, 2026-10-08): an imported Site's Foundation carries one
+  // required enabled action, "Publish reserve change". It alone is allowed,
+  // and only on an imported Site; every other enabled action still fails.
+  const siteImported = (await configurationStore(SITE)) === "POSTGRES";
   const foundation = await visit(
     cdp,
     `/sites/${SITE}/foundation`,
@@ -1339,12 +1351,25 @@ for (const [label, width, height] of [
         subtabs.join(" | "),
       ],
       [
-        "no enabled action renders",
-        foundation.buttons.every((b) => b.disabled),
+        siteImported
+          ? "no enabled action renders except the imported Site's Publish reserve change"
+          : "no enabled action renders",
+        foundation.buttons.every(
+          (b) => b.disabled || (siteImported && b.label === PUBLISH_RESERVE_LABEL),
+        ),
         foundation.buttons.length === 0
           ? "no action rendered"
-          : foundation.buttons.map((b) => b.label).join(", "),
+          : foundation.buttons.map((b) => `${b.label}${b.disabled ? " (disabled)" : ""}`).join(", "),
       ],
+      ...(siteImported
+        ? [
+            [
+              "the imported Site's Publish reserve change renders, enabled, exactly once",
+              foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL && !b.disabled).length === 1,
+              `${foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL).length} found`,
+            ],
+          ]
+        : []),
       // T014 fills this page with relationship tables. The viewport
       // commitment is that a dense table keeps its columns and scrolls inside
       // its own region; these three claims are that commitment, measured.
@@ -2410,6 +2435,21 @@ allPass =
       `frame ${lab.frameHeight}px vs viewport ${lab.viewportHeight}px`,
     ],
   ]) && allPass;
+
+// S1-01 (Architect, 2026-10-08): once the Kobo Site is imported into the
+// stored Foundation, the Lab refuses new Drafts, execution and Commit against
+// it until S2 restores the registered Lab path. Every section from here on
+// (T024-T028) creates, drives or commits a Kobo Draft, or reads the Kobo
+// product screens those commits fill, so they are reported as inapplicable -
+// not passed, not deleted - and run again unchanged when Kobo is not imported.
+if ((await configurationStore(process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001")) === "POSTGRES") {
+  console.log(
+    "\n=== Kobo Lab run and Commit sections (T024-T028) ===\n" +
+      "  SKIP  inapplicable until S2: KOBO-001 is imported into the stored Foundation and the Lab " +
+      "refuses Draft setup, start, step, run-to-end and Commit against it (S1-01). Not counted as passed.",
+  );
+  finishRun();
+}
 
 // --- T024: the daytime mini-grid on the Draft screen ------------------------
 //
@@ -4788,13 +4828,28 @@ async function t028Journey({ labOff }) {
   return report(`T028 journey and product vocabulary, live backend text, ${site}, Lab ${labOff ? "off" : "on"}`, null, checks);
 }
 
-console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+finishRun();
 
-ws.close();
-chrome.kill();
-try {
-  rmSync(profile, { recursive: true, force: true });
-} catch {
-  /* Windows sometimes holds the profile briefly */
+function finishRun() {
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  try {
+    rmSync(profile, { recursive: true, force: true });
+  } catch {
+    /* Windows sometimes holds the profile briefly */
+  }
+  process.exit(allPass ? 0 : 1);
 }
-process.exit(allPass ? 0 : 1);
+
+/** S1-01: which store answers for a Site (`POSTGRES` once imported), or null. */
+async function configurationStore(site) {
+  try {
+    const response = await fetch(`${BASE}/api/sites/${encodeURIComponent(site)}`);
+    if (!response.ok) return null;
+    const body = await response.json();
+    return body.configuration_store ?? null;
+  } catch {
+    return null;
+  }
+}
