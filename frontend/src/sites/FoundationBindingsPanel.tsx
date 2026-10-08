@@ -354,7 +354,15 @@ function RemoveBindingForm({
       outcome.status === "published"
         ? `Published binding v${outcome.binding_set.version}, effective ${formatInstant(
             outcome.binding_set.valid_from,
-          )} to ${formatInstant(outcome.binding_set.valid_to)}.`
+          )} ${
+            outcome.applies_until == null
+              ? "with no end"
+              : `only until ${formatInstant(outcome.applies_until)}${
+                  outcome.stopped_by_binding_version == null
+                    ? ""
+                    : `, where binding v${outcome.stopped_by_binding_version} (a later, separately published change) takes over`
+                }`
+          }.`
         : `Not published: ${outcome.message}`,
     );
   }

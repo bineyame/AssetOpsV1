@@ -627,6 +627,25 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect((client.getFoundation as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(1);
   });
 
+  it("names the end of a binding change that a later independent change stops, and says when it has none", async () => {
+    for (const [extra, expected] of [
+      [{ applies_until: "2026-10-08T00:00:00Z", stopped_by_binding_version: 7 }, ["only until", "binding v7"]],
+      [{ applies_until: null, stopped_by_binding_version: null }, ["with no end"]],
+    ] as const) {
+      const client = fakeFoundation(bound);
+      client.publishBindings.mockResolvedValue({ status: "published", binding_set: BINDING_SET_V3, ...extra });
+      const view = renderAt(`/sites/${ID}/foundation/readiness`, client);
+      await settledScreen();
+      const form = screen.getByRole("form", { name: "Remove a binding" });
+      fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
+      fireEvent.change(within(form).getByLabelText("Effective from (UTC)"), { target: { value: "2026-10-04T00:00" } });
+      fireEvent.click(within(form).getByRole("button", { name: "Publish binding change" }));
+      const status = await within(form).findByRole("status");
+      for (const text of expected) expect(status).toHaveTextContent(text);
+      view.unmount();
+    }
+  });
+
   it("offers binding periods in the period selector and carries one in the URL", async () => {
     const withBindingPeriods = {
       ...VERSIONS,

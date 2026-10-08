@@ -262,7 +262,14 @@ export interface BindingPublication {
 }
 
 export type BindingPublishOutcome =
-  | { status: "published"; binding_set: BindingSetSummary }
+  | {
+      status: "published";
+      binding_set: BindingSetSummary;
+      /** Where the change stops applying; null means it is open-ended. */
+      applies_until?: string | null;
+      /** The later independent binding version that stopped it, if any. */
+      stopped_by_binding_version?: number | null;
+    }
   | { status: "refused"; code: string; message: string };
 
 export interface SiteFoundationClient {
@@ -399,7 +406,13 @@ export function createSiteFoundationClient(basePath: string = SITES_API_PATH): S
         body = null;
       }
       if (response.status === 201 && isObject(body) && isObject(body.binding_set)) {
-        return { status: "published", binding_set: body.binding_set as unknown as BindingSetSummary };
+        return {
+          status: "published",
+          binding_set: body.binding_set as unknown as BindingSetSummary,
+          applies_until: typeof body.applies_until === "string" ? body.applies_until : null,
+          stopped_by_binding_version:
+            typeof body.stopped_by_binding_version === "number" ? body.stopped_by_binding_version : null,
+        };
       }
       return { status: "refused", ...refusal(body) };
     },
