@@ -94,9 +94,9 @@ export function SiteFoundationFrame({
               versions={versions}
               selectedAt={at}
               onSelectAt={selectAt}
-              onPublish={async (value, validFrom) => {
+              onPublish={async (assetCode, value, validFrom) => {
                 const outcome = await foundation.publishReserve(siteId, {
-                  asset_code: loaded.controls.battery_reserve.asset_code ?? "battery",
+                  asset_code: assetCode,
                   value,
                   valid_from: validFrom,
                 });

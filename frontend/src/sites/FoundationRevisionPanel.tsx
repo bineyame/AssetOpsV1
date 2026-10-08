@@ -56,7 +56,16 @@ export interface FoundationRevisionPanelProps {
   /** The `at` instant carried in the URL, or null for "now". */
   selectedAt: string | null;
   onSelectAt: (at: string | null) => void;
-  onPublish: (value: number, validFrom: string) => Promise<PublishOutcome>;
+  onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
+}
+
+/**
+ * A `datetime-local` value read as UTC. Browsers emit `HH:mm` or `HH:mm:ss`
+ * (and some a fraction); whole seconds are what the API accepts.
+ */
+export function utcInstantFromLocal(value: string): string | null {
+  const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::(\d{2})(?:\.\d+)?)?$/.exec(value);
+  return match === null ? null : `${match[1]}:${match[2] ?? "00"}Z`;
 }
 
 export function FoundationRevisionPanel({
@@ -70,6 +79,10 @@ export function FoundationRevisionPanel({
   const current = versions?.revisions.filter((row) => row.recorded_state === "CURRENT") ?? [];
   const superseded = versions?.revisions.filter((row) => row.recorded_state === "SUPERSEDED") ?? [];
   const reserve = controls.battery_reserve;
+  // The battery the reserve belongs to, from the registered assets; never a
+  // guessed code (review m8).
+  const batteryCode =
+    reserve.asset_code ?? foundation.assets.find((asset) => asset.asset_type === "BATTERY")?.asset_code ?? null;
 
   return (
     <div className="foundation-revision">
@@ -167,12 +180,19 @@ export function FoundationRevisionPanel({
             ))}
           </tbody>
         </DataTable>
-        <ReservePublishForm
-          assetCode={reserve.asset_code ?? "battery"}
-          current={reserve.value ?? null}
-          periods={current}
-          onPublish={onPublish}
-        />
+        {batteryCode === null ? (
+          <p data-reserve-change="unavailable">
+            No battery is registered for this Site, so there is no reserve to change.
+          </p>
+        ) : (
+          <ReservePublishForm
+            assetCode={batteryCode}
+            shown={reserve.value ?? null}
+            periodIsCurrent={revision.is_current}
+            periods={current}
+            onPublish={onPublish}
+          />
+        )}
       </Panel>
 
       <Panel heading="Configuration gaps" headingId="foundation-gaps-heading">
@@ -255,14 +275,16 @@ export function resultingPeriod(
 
 function ReservePublishForm({
   assetCode,
-  current,
+  shown,
+  periodIsCurrent,
   periods,
   onPublish,
 }: {
   assetCode: string;
-  current: number | null;
+  shown: number | null;
+  periodIsCurrent: boolean;
   periods: FoundationRevisionSummary[];
-  onPublish: (value: number, validFrom: string) => Promise<PublishOutcome>;
+  onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
 }) {
   const [value, setValue] = useState("");
   const [effective, setEffective] = useState("");
@@ -276,8 +298,13 @@ function ReservePublishForm({
       setMessage("Enter a reserve percentage and the instant it takes effect.");
       return;
     }
+    const instant = utcInstantFromLocal(effective);
+    if (instant === null) {
+      setMessage("Enter the effective time as a date and time.");
+      return;
+    }
     setPending(true);
-    const outcome = await onPublish(number, `${effective}:00Z`);
+    const outcome = await onPublish(assetCode, number, instant);
     setPending(false);
     setMessage(
       outcome.status === "published"
@@ -286,13 +313,15 @@ function ReservePublishForm({
     );
   }
 
-  const preview = effective === "" ? null : resultingPeriod(periods, `${effective}:00Z`);
+  const instant = effective === "" ? null : utcInstantFromLocal(effective);
+  const preview = instant === null ? null : resultingPeriod(periods, instant);
 
   return (
     <form aria-label="Change battery reserve" onSubmit={submit}>
       <p>
-        Change the battery reserve ({assetCode}) from a chosen instant. The current value
-        {current === null ? " is not configured" : ` is ${current}%`}; earlier periods keep their
+        Change the battery reserve ({assetCode}) from a chosen instant.{" "}
+        {periodIsCurrent ? "In effect now, the reserve" : "In the period shown, the reserve"}
+        {shown === null ? " is not configured" : ` is ${shown}%`}. Earlier periods keep their
         stored values. A change applies until the end of the period it falls in; later scheduled
         periods keep their own values.
       </p>

@@ -244,6 +244,62 @@ describe("the persisted Foundation version", () => {
     expect(client.getFoundation).toHaveBeenCalledTimes(2);
   });
 
+  it("words the reserve by the period shown, not as current, for a scheduled period", async () => {
+    renderAt(`/sites/${ID}/foundation?at=${encodeURIComponent(FUTURE.valid_from)}`, fakeFoundation(byAt));
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Change battery reserve" });
+    expect(form.textContent).toContain("In the period shown, the reserve is 25%");
+    expect(form.textContent).not.toContain("In effect now");
+  });
+
+  it("accepts an effective time with seconds", async () => {
+    const client = fakeFoundation(byAt);
+    renderAt(`/sites/${ID}/foundation`, client);
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Change battery reserve" });
+    expect(form.textContent).toContain("In effect now, the reserve is 30%");
+    fireEvent.change(within(form).getByLabelText(/New reserve/), { target: { value: "25" } });
+    fireEvent.change(within(form).getByLabelText(/Effective from/), { target: { value: "2026-10-08T00:00:30" } });
+    expect((form.querySelector("[data-resulting-period]") as HTMLElement).dataset.resultingPeriod).toBe("bounded");
+    fireEvent.click(within(form).getByRole("button", { name: "Publish reserve change" }));
+    await settledScreen();
+    expect(client.publishReserve).toHaveBeenCalledWith(ID, {
+      asset_code: "battery",
+      value: 25,
+      valid_from: "2026-10-08T00:00:30Z",
+    });
+  });
+
+  it("takes the battery from the registered assets when no reserve is configured", async () => {
+    const unconfigured = (assets: FoundationReadModel["assets"]) => (): FoundationRead<FoundationReadModel> => {
+      const base = foundation(PAST, { assets });
+      return {
+        status: "loaded",
+        value: { ...base, controls: { ...base.controls, battery_reserve: { state: "NOT_CONFIGURED", editable: true } } },
+      };
+    };
+    const client = fakeFoundation(unconfigured([{ asset_id: "a1", asset_code: "bess-1", asset_type: "BATTERY", display_name: "Battery" }]));
+    renderAt(`/sites/${ID}/foundation`, client);
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Change battery reserve" });
+    expect(form.textContent).toContain("(bess-1)");
+    expect(form.textContent).toContain("is not configured");
+  });
+
+  it("states that there is no reserve to change when no battery is registered", async () => {
+    const none = (): FoundationRead<FoundationReadModel> => {
+      const base = foundation(PAST, { assets: [] });
+      return {
+        status: "loaded",
+        value: { ...base, controls: { ...base.controls, battery_reserve: { state: "NOT_CONFIGURED", editable: true } } },
+      };
+    };
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(none));
+    await settledScreen();
+    expect(screen.queryByRole("form", { name: "Change battery reserve" })).toBeNull();
+    expect(screen.getByText("No battery is registered for this Site, so there is no reserve to change.")).toBeInTheDocument();
+  });
+
   it("names configuration gaps", async () => {
     const gapped = (): FoundationRead<FoundationReadModel> => ({
       status: "loaded",
