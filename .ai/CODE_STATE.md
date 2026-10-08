@@ -4804,3 +4804,35 @@ Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agen
 - A Foundation split re-issues unchanged binding rows with new IDs (ruling D4). Each split copy is a new snapshot.
 - Registration identity fields stay updatable; a later publication snapshots their then-current values. Download availability still depends on current configuration gaps.
 - Codex carries m1 (mixed Foundation/binding read under concurrency), m2 (conversion rerun provenance), m3 (insert-only alignment trigger; Foundation-only `store.publish()`).
+
+## S1-03 - Foundation organized as Site model, SLD and Readiness views (in review)
+
+Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning `f639990`); packet `.agent/S1-03-review-packet.md`. Decision `D-2026-10-08-s1-foundation-organization` (`.agent/architect-S1-ui-organization-2026-10-08.md`). Frontend and guards only; no backend or API change.
+
+### What it settled in code
+
+- Routes: `SITE_FOUNDATION_VIEW_ROUTE_PATH` (`/sites/:siteId/foundation/:foundationView`) beside the Foundation route. `siteFoundationViewHref(siteId, segment, at)` carries `at`. A segment that is not a view renders `RouteNotAvailableFrame`.
+- `sites/FoundationSubtabs.tsx`: `FOUNDATION_SUBTABS` is the view row, exactly Site model (segment ""), Single line diagram (`sld`) and Readiness (`readiness`). It renders as a link row (`site-tabs site-subtabs`) with `aria-current`. The old `Definition | Topology | Controls` contents row and `.section-nav` use are gone.
+- `sites/StoredFoundationViews.tsx` composes the three views for an imported Site from one stored read:
+  - Site model: status strip, gaps panel when present, configured-topology cards beside identity, controls with the reserve form, then audit and inventory disclosures.
+  - SLD: drawing first (`SiteSldPrimary`), then the configured-parts table, then detail disclosures (`SiteSldDetails`, nodes and connections, devices with the D5 table).
+  - Readiness: verdict with counts and what is missing, role coverage, signal bindings with the removal form, registered sources, acquisition details with the snapshot.
+- `FoundationRevisionPanel.tsx` and `FoundationBindingsPanel.tsx` are split into composable pieces.
+- The status strip names a scheduled or past binding period when the Foundation version is current, so a future binding set is never called "in effect now".
+- The verdict separates "Not configured: Battery reserve" from unbound channel roles.
+- Legacy Site: one page, no view row. Its `/sld` and `/readiness` addresses state "This view needs an imported Site".
+- CSS:
+  - Status strip, panel pair, plant cards, verdict, metric row and action form.
+  - Attention tokens (`--attention-*`) for historical and incomplete states.
+  - At 640 px and below the rail stacks above the content, a shell-wide change.
+  - At 1100 px and above the SLD drawing scales to its panel.
+- Guards:
+  - `navigation-truthfulness.ps1` requires the exact three views in order.
+  - It still refuses Change & effect / Changes, the superseded vocabulary (now including Definition, Topology and Controls) and disabled or labelled-in-place affordances.
+  - `layout-evidence.mjs` measures each view of an imported Site, at a new 390 px width as well.
+
+### What this leaves open
+
+- Owner side-by-side UI acceptance; S1 merge is held on it.
+- Decisions taken under the ambiguity rule are in `.agent/S1-03-questions.md`: the narrow-shell stacking, the legacy view-route state, and the omitted legacy-only panels.
+- Lab layout claims are still unmeasured. The run aborts at Lab run-setup when served by the product backend, as in S1-02.

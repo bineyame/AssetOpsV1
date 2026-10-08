@@ -1,0 +1,284 @@
+
+=== Sites index at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0, table scrolled by 68px]
+  PASS  all nine columns are still rendered  [9 headers]
+
+=== Site page at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  exactly five tabs are rendered: Overview, Foundation, Performance, Findings, Evidence (T028)  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  no enabled action renders  [Open in Simulator Lab:disabled, Start Simulation:disabled, View Live Data:disabled]
+
+=== Sites index at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0, table scrolled by 348px]
+  PASS  all nine columns are still rendered  [9 headers]
+
+=== Site page at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  exactly five tabs are rendered: Overview, Foundation, Performance, Findings, Evidence (T028)  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  no enabled action renders  [Open in Simulator Lab:disabled, Start Simulation:disabled, View Live Data:disabled]
+
+=== Landing at / (redirects to /sites) at 1280x800, gate open, short page ===
+  PASS  / lands on the Sites index  [final pathname /sites]
+  PASS  the page does not scroll vertically  [scrollHeight 800 vs clientHeight 800]
+
+=== Foundation page at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  a legacy Site renders no Foundation view row and no contents row  [no view row]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-assumptions-heading, site-configuration-components-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: fits; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: fits; foundation-signal-mappings-heading: fits; foundation-control-assumptions-heading: fits; site-configuration-components-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 371px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Foundation page at 1000x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  a legacy Site renders no Foundation view row and no contents row  [no view row]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-assumptions-heading, site-configuration-components-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: overflows, scrolled 266px; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: fits; foundation-signal-mappings-heading: fits; foundation-control-assumptions-heading: fits; site-configuration-components-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 651px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Foundation page at 640x700, narrow enough that a dense table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  a legacy Site renders no Foundation view row and no contents row  [no view row]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-assumptions-heading, site-configuration-components-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: overflows, scrolled 378px; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: overflows, scrolled 3px; foundation-signal-mappings-heading: overflows, scrolled 49px; foundation-control-assumptions-heading: fits; site-configuration-components-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [3 of 7 overflow]
+  PASS  the diagram overflows here too, so its scroll claim is not vacuous  [overflows]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 763px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Foundation page at 390x844, phone width ===
+  PASS  the page does not scroll horizontally  [scrollWidth 375 vs clientWidth 375]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  a legacy Site renders no Foundation view row and no contents row  [no view row]
+  PASS  no enabled action renders  [no action rendered]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading, foundation-control-assumptions-heading, site-configuration-components-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-diagram-contents-heading: overflows, scrolled 628px; foundation-topology-nodes-heading: overflows, scrolled 165px; foundation-topology-connections-heading: overflows, scrolled 97px; foundation-devices-heading: overflows, scrolled 253px; foundation-signal-mappings-heading: overflows, scrolled 299px; foundation-control-assumptions-heading: overflows, scrolled 134px; site-configuration-components-heading: overflows, scrolled 117px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [7 of 7 overflow]
+  PASS  the diagram overflows here too, so its scroll claim is not vacuous  [overflows]
+  PASS  no table renders a header row with no rows under it  [foundation-diagram-contents-heading: 7 cols, 9 rows; foundation-topology-nodes-heading: 4 cols, 9 rows; foundation-topology-connections-heading: 4 cols, 8 rows; foundation-devices-heading: 5 cols, 6 rows; foundation-signal-mappings-heading: 6 cols, 13 rows; foundation-control-assumptions-heading: 4 cols, 4 rows; site-configuration-components-heading: 4 cols, 9 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [9 nodes, 8 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 1013px]
+  PASS  every drawn node carries an empty slot and nothing else  [9 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [9 nodes, 0 refusals]
+
+=== Scenario detail at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: fits; scenario-site-devices-heading: fits; scenario-public-parameters-heading: fits; scenario-initialization-heading: fits; scenario-sources-heading: fits; scenario-timeline-heading: overflows, scrolled 216px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+
+=== Scenario detail at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: fits; scenario-site-devices-heading: fits; scenario-public-parameters-heading: overflows, scrolled 277px; scenario-initialization-heading: overflows, scrolled 58px; scenario-sources-heading: fits; scenario-timeline-heading: overflows, scrolled 496px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+
+=== Scenario detail at 640x700, narrow enough that the timeline cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: overflows, scrolled 39px; scenario-site-devices-heading: fits; scenario-public-parameters-heading: overflows, scrolled 389px; scenario-initialization-heading: overflows, scrolled 170px; scenario-sources-heading: overflows, scrolled 89px; scenario-timeline-heading: overflows, scrolled 608px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: overflows, scrolled 26px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [6 of 11 overflow]
+
+=== Scenario catalog at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the catalog renders a row from the real scenario store  [scenarios-catalog-heading: 13 rows]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0]
+
+=== Run setup summary at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the frozen summary was drawn at all  [2 table region(s)]
+  PASS  every table on the page has a named, focusable overflow region  [run-setup-frozen-heading, run-setup-blocked-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-setup-frozen-heading: fits; run-setup-blocked-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [run-setup-frozen-heading: 4 cols, 55 rows; run-setup-blocked-heading: 3 cols, 2 rows]
+  PASS  the frozen input table keeps all four of its columns  [run-setup-frozen-heading: 4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [run-setup-frozen-heading: 55 rows]
+  PASS  the blocked table is at least two rows in three columns  [run-setup-blocked-heading: 3 columns, 2 rows]
+
+=== Run setup summary at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the frozen summary was drawn at all  [2 table region(s)]
+  PASS  every table on the page has a named, focusable overflow region  [run-setup-frozen-heading, run-setup-blocked-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-setup-frozen-heading: fits; run-setup-blocked-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [run-setup-frozen-heading: 4 cols, 55 rows; run-setup-blocked-heading: 3 cols, 2 rows]
+  PASS  the frozen input table keeps all four of its columns  [run-setup-frozen-heading: 4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [run-setup-frozen-heading: 55 rows]
+  PASS  the blocked table is at least two rows in three columns  [run-setup-blocked-heading: 3 columns, 2 rows]
+
+=== Run setup summary at 640x700, narrow enough that the summary cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the frozen summary was drawn at all  [2 table region(s)]
+  PASS  every table on the page has a named, focusable overflow region  [run-setup-frozen-heading, run-setup-blocked-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-setup-frozen-heading: overflows, scrolled 109px; run-setup-blocked-heading: overflows, scrolled 12px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [run-setup-frozen-heading: 4 cols, 55 rows; run-setup-blocked-heading: 3 cols, 2 rows]
+  PASS  the frozen input table keeps all four of its columns  [run-setup-frozen-heading: 4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [run-setup-frozen-heading: 55 rows]
+  PASS  the blocked table is at least two rows in three columns  [run-setup-blocked-heading: 3 columns, 2 rows]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [2 of 2 overflow]
+
+=== Created a Draft for the execution measurements ===
+  run setup summary drawn with 2 table(s)
+
+=== Runs inventory at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [runs-table-heading]
+  PASS  every table that overflows scrolls inside its own region  [runs-table-heading: overflows, scrolled 279px]
+  PASS  the rail does not move when the inventory is scrolled to its end  [left 0 -> 0]
+  PASS  the inventory keeps all ten of its columns  [10 columns]
+  PASS  the inventory renders a row from the real run store  [269 rows]
+  PASS  no table renders a header row with no rows under it  [runs-table-heading: 10 cols, 269 rows]
+  PASS  the inventory offers no button of any kind  [no button rendered]
+
+=== Runs inventory at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [runs-table-heading]
+  PASS  every table that overflows scrolls inside its own region  [runs-table-heading: overflows, scrolled 559px]
+  PASS  the rail does not move when the inventory is scrolled to its end  [left 0 -> 0]
+  PASS  the inventory keeps all ten of its columns  [10 columns]
+  PASS  the inventory renders a row from the real run store  [269 rows]
+  PASS  no table renders a header row with no rows under it  [runs-table-heading: 10 cols, 269 rows]
+  PASS  the inventory offers no button of any kind  [no button rendered]
+
+=== Runs inventory at 640x700, narrow enough that the inventory cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [runs-table-heading]
+  PASS  every table that overflows scrolls inside its own region  [runs-table-heading: overflows, scrolled 671px]
+  PASS  the rail does not move when the inventory is scrolled to its end  [left 0 -> 0]
+  PASS  the inventory keeps all ten of its columns  [10 columns]
+  PASS  the inventory renders a row from the real run store  [269 rows]
+  PASS  no table renders a header row with no rows under it  [runs-table-heading: 10 cols, 269 rows]
+  PASS  the inventory offers no button of any kind  [no button rendered]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [1 of 1 overflow]
+
+=== READY draft run at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [run-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [84 rows]
+  PASS  no table renders a header row with no rows under it  [run-frozen-heading: 4 cols, 84 rows]
+  PASS  a ready draft carries no blocked table  [absent]
+  PASS  the readiness disclosure is drawn, with a real box and real text  [793 characters, visible true]
+  FAIL  a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit  [Commit and release:disabled]
+  FAIL  a ready draft still lists what the profile does not model  [no optional-inputs panel]
+
+=== READY draft run at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [run-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: overflows, scrolled 57px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [84 rows]
+  PASS  no table renders a header row with no rows under it  [run-frozen-heading: 4 cols, 84 rows]
+  PASS  a ready draft carries no blocked table  [absent]
+  PASS  the readiness disclosure is drawn, with a real box and real text  [793 characters, visible true]
+  FAIL  a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit  [Commit and release:disabled]
+  FAIL  a ready draft still lists what the profile does not model  [no optional-inputs panel]
+
+=== READY draft run at 640x700, narrow enough that the frozen table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [run-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-frozen-heading: overflows, scrolled 169px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [84 rows]
+  PASS  no table renders a header row with no rows under it  [run-frozen-heading: 4 cols, 84 rows]
+  PASS  a ready draft carries no blocked table  [absent]
+  PASS  the readiness disclosure is drawn, with a real box and real text  [793 characters, visible true]
+  FAIL  a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit  [Commit and release:disabled]
+  FAIL  a ready draft still lists what the profile does not model  [no optional-inputs panel]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [1 of 1 overflow]
+
+=== BLOCKED draft run at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [run-blocked-heading, run-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-blocked-heading: fits; run-frozen-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [55 rows]
+  PASS  no table renders a header row with no rows under it  [run-blocked-heading: 3 cols, 2 rows; run-frozen-heading: 4 cols, 55 rows]
+  PASS  the blocked table names every reason the draft carries  [3 columns, 2 rows]
+  PASS  a blocked draft carries no readiness disclosure  [absent]
+  PASS  a blocked draft offers no run action at all, and Commit is disabled  [Commit and release:disabled]
+
+=== BLOCKED draft run at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [run-blocked-heading, run-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-blocked-heading: fits; run-frozen-heading: overflows, scrolled 31px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [55 rows]
+  PASS  no table renders a header row with no rows under it  [run-blocked-heading: 3 cols, 2 rows; run-frozen-heading: 4 cols, 55 rows]
+  PASS  the blocked table names every reason the draft carries  [3 columns, 2 rows]
+  PASS  a blocked draft carries no readiness disclosure  [absent]
+  PASS  a blocked draft offers no run action at all, and Commit is disabled  [Commit and release:disabled]
+
+=== BLOCKED draft run at 640x700, narrow enough that the frozen table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [run-blocked-heading, run-frozen-heading]
+  PASS  every table that overflows scrolls inside its own region  [run-blocked-heading: overflows, scrolled 12px; run-frozen-heading: overflows, scrolled 143px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the frozen input table keeps all four of its columns  [4 columns]
+  PASS  the frozen input table renders a row for every frozen value  [55 rows]
+  PASS  no table renders a header row with no rows under it  [run-blocked-heading: 3 cols, 2 rows; run-frozen-heading: 4 cols, 55 rows]
+  PASS  the blocked table names every reason the draft carries  [3 columns, 2 rows]
+  PASS  a blocked draft carries no readiness disclosure  [absent]
+  PASS  a blocked draft offers no run action at all, and Commit is disabled  [Commit and release:disabled]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [2 of 2 overflow]
+file:///C:/Users/assef/Bineyame/AssetOpsV1/tools/layout-evidence.mjs:557
+      throw new Error(
+            ^
+
+Error: The page action for /simulator-lab/runs/run-1f6f1d8e0c1f4803b5fbe5c5e42c0142 did not find the controls it drives, so nothing was submitted and there is nothing to measure. The form has changed and this script has not.
+    at visit (file:///C:/Users/assef/Bineyame/AssetOpsV1/tools/layout-evidence.mjs:557:13)
+    at async file:///C:/Users/assef/Bineyame/AssetOpsV1/tools/layout-evidence.mjs:2145:17
+
+Node.js v24.15.0
