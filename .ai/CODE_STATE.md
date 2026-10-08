@@ -4845,3 +4845,49 @@ Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning
 - `navigation-truthfulness.ps1`: backtick labels, non-literal labels and a hard-coded `Changes` / `Change & effect` destination fail; page-level and panel-order tests in `siteFoundationRevision.test.tsx`.
 - Phone-width shell rules are scoped to `.app-frame--operator` (set by `OperatorShellLayout`); `shell-overflow.ps1` fails an unscoped narrow `.app-frame`/`.nav-rail` rule. Lab shell unchanged; its phone layout is an open carry.
 - Parts table column is "Channels" with a bound-versus-unbound legend; the SLD drawing precedes its paragraphs; the controls table names priority members.
+
+## S2-01a - Registered Kobo Lab basis (in review)
+
+Branch `task/S2-01a-registered-lab-basis`. Phase 1: commits `ce65b8d`, `fabbfc2`, `f1b78bd`, `ad0b210`. Phase 2: commits `8d0e1d3`, `7c2b271`, `d0042fb`. Packet `.agent/S2-01a-review-packet.md`; phase-1 anchors `.agent/S2-01a-phase-1-handoff.md`. Decision `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` with its amendment; Architect answers are in `.agent/architect-S2-01a-answers-2.md`.
+
+### What it settled in code
+
+- Selection: `sites/registered_basis.py::select_registered_basis` picks the Foundation and binding set at the run's source start, as recorded at `knowledge_at`. It refuses with typed `BasisRefused` codes:
+  - not registered, inconsistent, or crossing a boundary (`end_time` included);
+  - a role-set mismatch, or an invalid Site row;
+  - any snapshot error.
+- Snapshot verification: `binding_service.acquisition_snapshot(now=)` classifies a snapshot as CURRENT or HISTORICAL. A historical one is verified from its pinned identity, and current-row gaps are reported separately.
+- Run adapter: `runs/registered_basis.py::RegisteredLabBasis` supplies the Site record, the binding-derived links and a `RegisteredBasis`.
+  - Links are frozen from binding rows only: `mapping_id` is the binding revision ID, and the asset code must be in the selected Foundation.
+  - The frozen display name is `site_display_name`.
+  - `RegisteredBasis.__post_init__` re-hashes the stored snapshot text, so a tampered stored run is refused on reload.
+- Run read: `simulator_lab_api.configuration_basis_payload` reports `LEGACY_FILE`, or `REGISTERED` with:
+  - the revisions, the hash and the two selecting instants;
+  - `site_metadata.source = CURRENT_SITE_ROW_AT_SETUP`;
+  - `accepted_evidence: false`.
+- Lab writes: `_refuse_if_imported(record, *, commit=False)` is the one shared boundary.
+  - A registered Draft may start, step and run to end.
+  - Commit refuses any registered run with `REGISTERED_COMMIT_UNAVAILABLE` (409).
+  - A pre-import YAML Draft of an imported code keeps `SITE_AWAITING_MIGRATION`.
+- Stage read: `_frozen_basis` reports `configuration_store: REGISTERED` with the basis and `can_release: false`. Legacy Drafts are unchanged.
+- Guard: `configuration-persistence.ps1` rule 8 requires the plain boundary call on start, step and run-to-end, and `commit=True` on Commit. It also requires the registered Commit refusal to come first in the boundary. Both parts were proven non-vacuous.
+- Host: no code change. `host/tests/test_registered_kobo_execution.py` shows:
+  - the ten binding links, including `generator-controller/status`, resolve as frozen;
+  - the two legacy-only capability links are absent;
+  - registered and legacy daytime runs produce identical observations;
+  - public reports carry no cause, oracle, intent or private keys.
+- Frontend:
+  - Setup labels each picker row with its configuration store.
+  - For a registered Site, setup reads the configuration the start selects and sends that version. It blocks Create with the snapshot reason and shows `reasonCode`.
+  - The run page has a `ConfigurationBasisPanel`, with name and time zone labelled as setup metadata.
+  - The Stage shows the frozen basis.
+  - `commitBasisBlock` disables Commit when `can_release` is false or the basis is unreadable.
+- Layout evidence: `ASSETOPS_LAYOUT_S2_01A_RUN=<run_id> node tools/layout-evidence.mjs <base>` measures a registered run at 1280 and 640 px.
+
+### Open
+
+- Q4: two KOBO-001 capability signals are unbound, so a profile-5 run reports them as unconfigured.
+- Q5: the imported Foundation lacks generator parameters, so mini-grid models are BLOCKED. Generator status is proven at link resolution only.
+- Backlog: Site name, type and time zone are current-row metadata (snapshot v1 does not version them). Asset-code identity is mutable before S2-02.
+- The full `layout-evidence.mjs` run stopped after the run-setup sections because the browser stopped answering (no FAIL before that point).
+

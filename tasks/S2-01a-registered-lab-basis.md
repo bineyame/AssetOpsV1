@@ -1,6 +1,6 @@
 # S2-01a — Registered Kobo Lab basis
 
-Status: implementation-ready on `task/S2-01a-registered-lab-basis`; independent review before S2-01b
+Status: in_review on `task/S2-01a-registered-lab-basis` (packet `.agent/S2-01a-review-packet.md`); independent review before S2-01b
 USER_REVIEW_REQUIRED: false
 Milestone: S2 Evidence
 Depends on: merged S1 Foundation (`main` at `26d013b`)
