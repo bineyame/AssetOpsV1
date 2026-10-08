@@ -174,6 +174,7 @@
       },
       "response": {
         "body": {
+          "configuration_store": "LEGACY_FILE",
           "display_name": "Kalangala Mini-Grid",
           "foundation": {
             "components": [
@@ -285,6 +286,7 @@
             "valid_from": "2026-01-01T00:00:00Z",
             "version": 1
           },
+          "foundation_revision_id": null,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -293,6 +295,7 @@
           "origin": "USER",
           "site_id": "MG-002",
           "site_type": "MINIGRID",
+          "site_uuid": null,
           "source": {
             "mode": "SIMULATED"
           },
@@ -315,7 +318,9 @@
         "body": {
           "sites": [
             {
+              "configuration_store": "LEGACY_FILE",
               "display_name": "Kalangala Mini-Grid",
+              "foundation_revision_id": null,
               "lifecycle_status": "PLANNED",
               "location": {
                 "country": "Uganda",
@@ -324,6 +329,7 @@
               "origin": "USER",
               "site_id": "MG-002",
               "site_type": "MINIGRID",
+              "site_uuid": null,
               "source": {
                 "mode": "SIMULATED"
               },
@@ -401,6 +407,7 @@
       },
       "response": {
         "body": {
+          "configuration_store": "LEGACY_FILE",
           "display_name": "Kalangala Mini-Grid",
           "foundation": {
             "components": [
@@ -431,6 +438,7 @@
             "valid_from": "2026-01-01T00:00:00Z",
             "version": 1
           },
+          "foundation_revision_id": null,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -439,6 +447,7 @@
           "origin": "USER",
           "site_id": "MG-002",
           "site_type": "MINIGRID",
+          "site_uuid": null,
           "source": {
             "mode": "SIMULATED"
           },
@@ -459,6 +468,7 @@
       },
       "response": {
         "body": {
+          "configuration_store": "LEGACY_FILE",
           "display_name": "Kalangala Mini-Grid",
           "foundation": {
             "components": [
@@ -570,6 +580,7 @@
             "valid_from": "2026-01-01T00:00:00Z",
             "version": 1
           },
+          "foundation_revision_id": null,
           "lifecycle_status": "PLANNED",
           "location": {
             "country": "Uganda",
@@ -578,6 +589,7 @@
           "origin": "USER",
           "site_id": "MG-002",
           "site_type": "MINIGRID",
+          "site_uuid": null,
           "source": {
             "mode": "SIMULATED"
           },
@@ -645,7 +657,9 @@
         "body": {
           "sites": [
             {
+              "configuration_store": "LEGACY_FILE",
               "display_name": "Kalangala Mini-Grid",
+              "foundation_revision_id": null,
               "lifecycle_status": "PLANNED",
               "location": {
                 "country": "Uganda",
@@ -654,6 +668,7 @@
               "origin": "USER",
               "site_id": "MG-002",
               "site_type": "MINIGRID",
+              "site_uuid": null,
               "source": {
                 "mode": "SIMULATED"
               },

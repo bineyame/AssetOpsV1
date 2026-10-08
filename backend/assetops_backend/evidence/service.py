@@ -51,7 +51,7 @@ from assetops_backend.evidence.models import (
 )
 from assetops_backend.evidence.ports import EvidenceStore, find_batch
 from assetops_backend.sites.models import SiteRecord
-from assetops_backend.sites.ports import SiteNotFound, SiteRepository
+from assetops_backend.sites.ports import SiteAwaitingMigration, SiteNotFound, SiteRepository
 from assetops_contracts.committed_artifact import envelope_content_digest
 from assetops_contracts.identity import identity_digest
 from assetops_contracts.ingestion_batch import IngestionBatch, ingestion_batch_document
@@ -189,6 +189,8 @@ class IngestionService:
     def _site(self, batch: IngestionBatch) -> SiteRecord:
         try:
             site = self._sites.get_site(batch.site_id)
+        except SiteAwaitingMigration as error:
+            raise _Refused("AWAITING_EVIDENCE_MIGRATION", str(error)) from error
         except SiteNotFound as error:
             raise _Refused("SITE_UNKNOWN", f"no Site {batch.site_id} is configured") from error
         if site.site_id != batch.site_id:

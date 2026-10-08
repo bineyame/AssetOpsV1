@@ -58,6 +58,21 @@ const BASE = process.argv[2] ?? "http://localhost:5173";
  * site whose foundation declares one.
  */
 const SITE = process.argv[3] ?? process.env.ASSETOPS_LAYOUT_SITE ?? "MG-001";
+const PUBLISH_RESERVE_LABEL = "Publish reserve change";
+// S1-02: the binding-removal publish, rendered only when a binding set is in
+// effect. Allowed on an imported Site beside the reserve change, and nothing else.
+// This is a deliberate S1-02 allowance (Architect ruling D3,
+// .agent/architect-S1-02-deviations-2026-10-08.md), not a relaxation of the
+// S1-01 rule: the battery reserve stays the only editable Foundation control.
+// A binding publication is a separate S1-02 action - it changes the signal
+// binding set, subject to atomic validation and append-only history - and it
+// may render at most once, on a stored imported Site with a binding set.
+const PUBLISH_BINDING_LABEL = "Publish binding change";
+const IMPORTED_SITE_ACTIONS = new Set([PUBLISH_RESERVE_LABEL, PUBLISH_BINDING_LABEL]);
+// S1-01: the Site the Lab run setup binds to. Defaults to SITE; set it to an
+// unimported Site when SITE is imported, because the Lab refuses an imported
+// Site's Draft setup until S2.
+const LAB_SITE = process.env.ASSETOPS_LAB_SITE ?? SITE;
 const PORT = 9333;
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
@@ -614,11 +629,18 @@ const SUBMIT_RUN_SETUP = `(() => {
       document.querySelectorAll('input[name="run-setup-site"]'),
     );
     const radio =
-      radios.find((item) => item.value === ${JSON.stringify(SITE)}) ?? radios[0];
+      radios.find((item) => item.value === ${JSON.stringify(LAB_SITE)}) ?? radios[0];
     if (!radio) return false;
     radio.click();
     return true;
   };
+
+  // S1-01: the site picker renders only after the Sites index has been read,
+  // which can land after the form itself. No radio yet is the page still
+  // loading - the same NOT-READY as a disabled submit - not a missing control.
+  if (document.querySelectorAll('input[name="run-setup-site"]').length === 0) {
+    return "not-ready";
+  }
 
   const filled =
     chooseSite() &&
@@ -1305,22 +1327,45 @@ for (const [label, width, height] of [
   // a page whose regions do not scroll at all, which is the defect it exists
   // to catch. The claim below asserts the set is not empty here.
   ["640x700, narrow enough that a dense table cannot fit", 640, 700],
+  // S1-03: the phone width the owner compares against the v6.9 mock.
+  ["390x844, phone width", 390, 844],
 ]) {
+  // S1-01 (Architect, 2026-10-08): an imported Site's Foundation carries one
+  // required enabled action, "Publish reserve change", the only editable
+  // Foundation control. S1-02 adds "Publish binding change" (ruling D3; see
+  // PUBLISH_BINDING_LABEL), which edits bindings, not a Foundation control.
+  // Both are allowed only on an imported Site; every other enabled action
+  // still fails.
+  const siteImported = (await configurationStore(SITE)) === "POSTGRES";
+  // S1-03: an imported Site's Foundation is three views (Site model, Single
+  // line diagram, Readiness); each is measured at its own address. The reserve
+  // change lives on the Site model, the binding change on Readiness, the
+  // diagram on the SLD view, and the densest table (the binding set) on
+  // Readiness. A legacy Site keeps its one page, with every claim on it.
+  const foundationViews = siteImported
+    ? [
+        { name: "Site model", suffix: "", diagram: false, reserve: 1, binding: 0, dense: false },
+        { name: "Single line diagram", suffix: "/sld", diagram: true, reserve: 0, binding: 0, dense: false },
+        { name: "Readiness", suffix: "/readiness", diagram: false, reserve: 0, binding: 1, dense: true },
+      ]
+    : [{ name: "page", suffix: "", diagram: true, reserve: 0, binding: 0, dense: true }];
+  for (const foundationView of foundationViews) {
   const foundation = await visit(
     cdp,
-    `/sites/${SITE}/foundation`,
+    `/sites/${SITE}/foundation${foundationView.suffix}`,
     width,
     height,
     ".site-tabs",
   );
   const subtabs =
-    foundation.navRows.find((row) => row.label === "Foundation sections")
+    foundation.navRows.find((row) => row.label === "Foundation views")
       ?.items ?? [];
+  const contentsRow = foundation.navRows.find((row) => row.label === "Foundation sections");
   const siteTabs =
     foundation.navRows.find((row) => row.label === "Site sections")?.items ?? [];
 
   allPass =
-    report(`Foundation at ${label}`, foundation, [
+    report(`Foundation ${foundationView.name} at ${label}`, foundation, [
       [
         "the page does not scroll horizontally",
         !foundation.pageScrollsHorizontally,
@@ -1334,17 +1379,40 @@ for (const [label, width, height] of [
         siteTabs.join(" | "),
       ],
       [
-        "the Foundation subtab row is exactly Definition, Topology, Controls",
-        subtabs.join("|") === "Definition|Topology|Controls",
-        subtabs.join(" | "),
+        siteImported
+          ? "the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders"
+          : "a legacy Site renders no Foundation view row and no contents row",
+        (siteImported
+          ? subtabs.join("|") === "Site model|Single line diagram|Readiness"
+          : subtabs.length === 0) && contentsRow === undefined,
+        subtabs.join(" | ") || "no view row",
       ],
       [
-        "no enabled action renders",
-        foundation.buttons.every((b) => b.disabled),
+        siteImported
+          ? "no enabled action renders except the imported Site's Publish reserve change and Publish binding change"
+          : "no enabled action renders",
+        foundation.buttons.every(
+          (b) => b.disabled || (siteImported && IMPORTED_SITE_ACTIONS.has(b.label)),
+        ),
         foundation.buttons.length === 0
           ? "no action rendered"
-          : foundation.buttons.map((b) => b.label).join(", "),
+          : foundation.buttons.map((b) => `${b.label}${b.disabled ? " (disabled)" : ""}`).join(", "),
       ],
+      ...(siteImported
+        ? [
+            [
+              `Publish reserve change renders, enabled, ${foundationView.reserve} time(s) on this view`,
+              foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL && !b.disabled).length ===
+                foundationView.reserve,
+              `${foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL).length} found`,
+            ],
+            [
+              `Publish binding change renders at most ${foundationView.binding} time(s) on this view`,
+              foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length <= foundationView.binding,
+              `${foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length} found`,
+            ],
+          ]
+        : []),
       // T014 fills this page with relationship tables. The viewport
       // commitment is that a dense table keeps its columns and scrolls inside
       // its own region; these three claims are that commitment, measured.
@@ -1371,13 +1439,17 @@ for (const [label, width, height] of [
         foundation.railLeftBefore === foundation.railLeftAfterAll,
         `left ${foundation.railLeftBefore} -> ${foundation.railLeftAfterAll}`,
       ],
-      ...(width <= 640
+      ...(width <= 640 && foundationView.dense
         ? [
             [
               "at least one table overflows here, so the claim above is not vacuous",
               foundation.scrollers.some((s) => s.overflows),
               `${foundation.scrollers.filter((s) => s.overflows).length} of ${foundation.scrollers.length} overflow`,
             ],
+          ]
+        : []),
+      ...(width <= 640 && foundationView.diagram
+        ? [
             [
               "the diagram overflows here too, so its scroll claim is not vacuous",
               foundation.diagrams.some((d) => d.overflows),
@@ -1398,6 +1470,8 @@ for (const [label, width, height] of [
       // content column does not have, so it is the one piece of content on
       // this page most able to push the rail sideways - and jsdom cannot see
       // any of that.
+      ...(foundationView.diagram
+        ? [
       [
         "the configured diagram is drawn, with nodes and connections",
         foundation.diagrams.length === 1 &&
@@ -1441,7 +1515,16 @@ for (const [label, width, height] of [
           : foundation.diagramRefusals === 1,
         `${foundation.diagrams[0]?.nodes ?? 0} nodes, ${foundation.diagramRefusals} refusals`,
       ],
+          ]
+        : [
+            [
+              "no diagram is drawn on a view that is not the diagram",
+              foundation.diagrams.length === 0,
+              `${foundation.diagrams.length} diagram regions`,
+            ],
+          ]),
     ]) && allPass;
+  }
 }
 
 // The scenario detail. The event timeline is eight columns of dense content
@@ -2410,6 +2493,21 @@ allPass =
       `frame ${lab.frameHeight}px vs viewport ${lab.viewportHeight}px`,
     ],
   ]) && allPass;
+
+// S1-01 (Architect, 2026-10-08): once the Kobo Site is imported into the
+// stored Foundation, the Lab refuses new Drafts, execution and Commit against
+// it until S2 restores the registered Lab path. Every section from here on
+// (T024-T028) creates, drives or commits a Kobo Draft, or reads the Kobo
+// product screens those commits fill, so they are reported as inapplicable -
+// not passed, not deleted - and run again unchanged when Kobo is not imported.
+if ((await configurationStore(process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001")) === "POSTGRES") {
+  console.log(
+    "\n=== Kobo Lab run and Commit sections (T024-T028) ===\n" +
+      "  SKIP  inapplicable until S2: KOBO-001 is imported into the stored Foundation and the Lab " +
+      "refuses Draft setup, start, step, run-to-end and Commit against it (S1-01). Not counted as passed.",
+  );
+  finishRun();
+}
 
 // --- T024: the daytime mini-grid on the Draft screen ------------------------
 //
@@ -4788,13 +4886,28 @@ async function t028Journey({ labOff }) {
   return report(`T028 journey and product vocabulary, live backend text, ${site}, Lab ${labOff ? "off" : "on"}`, null, checks);
 }
 
-console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+finishRun();
 
-ws.close();
-chrome.kill();
-try {
-  rmSync(profile, { recursive: true, force: true });
-} catch {
-  /* Windows sometimes holds the profile briefly */
+function finishRun() {
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  try {
+    rmSync(profile, { recursive: true, force: true });
+  } catch {
+    /* Windows sometimes holds the profile briefly */
+  }
+  process.exit(allPass ? 0 : 1);
 }
-process.exit(allPass ? 0 : 1);
+
+/** S1-01: which store answers for a Site (`POSTGRES` once imported), or null. */
+async function configurationStore(site) {
+  try {
+    const response = await fetch(`${BASE}/api/sites/${encodeURIComponent(site)}`);
+    if (!response.ok) return null;
+    const body = await response.json();
+    return body.configuration_store ?? null;
+  } catch {
+    return null;
+  }
+}

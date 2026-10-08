@@ -25,17 +25,25 @@ in both gate states beside them. No configuration editing is served.
 
 from __future__ import annotations
 
+from typing import Callable, Sequence
+
 from fastapi import APIRouter, FastAPI
 
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics_api import build_analytics_router
-from assetops_backend.config import FeatureFlags, load_feature_flags
+from assetops_backend.config import (
+    DEVELOPMENT_TENANT_SLUG,
+    FeatureFlags,
+    database_url,
+    load_feature_flags,
+)
 from assetops_backend.evidence.composition import build_evidence_store
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.service import Clock, IngestionService, system_clock
 from assetops_backend.evidence_api import build_evidence_router
+from assetops_backend.foundation_api import build_foundation_router
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
 from assetops_backend.runs.composition import build_commit_store, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
@@ -48,8 +56,21 @@ from assetops_backend.scenarios.composition import build_scenario_repository
 from assetops_backend.scenarios.ports import ScenarioDefinitionRepository
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
 from assetops_backend.sites.composition import (
+    build_foundation_store,
     build_site_repository,
     build_site_template_catalog,
+    legacy_site_documents,
+)
+from assetops_backend.sites.cutover import (
+    ImportedSiteRegistry,
+    LegacySiteGate,
+    ProductSiteDirectory,
+)
+from assetops_backend.sites.foundation_records import FoundationStore
+from assetops_backend.sites.foundation_service import (
+    FoundationService,
+    LegacyDocument,
+    utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteTemplateCatalog
 from assetops_backend.sites_api import build_sites_router
@@ -79,6 +100,9 @@ def create_app(
     clock: Clock | None = None,
     commit_store: CommittedArtifactStore | None = None,
     assessment_store: AssessmentStore | None = None,
+    foundation_store: FoundationStore | None = None,
+    foundation_clock: Callable[[], object] | None = None,
+    legacy_documents: Callable[[], Sequence[LegacyDocument]] | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -129,14 +153,49 @@ def create_app(
     run store: committing a run's stage is a Lab act, so a closed build never
     opens the directory sealed artifacts are filed in. Accepted evidence does
     not depend on it - the Evidence routes read the evidence store alone.
+
+    S1-01 Foundation-only cutover (D-2026-10-07). The product composition
+    (no injected Site repository) always builds the PostgreSQL Foundation
+    store from the required `DATABASE_URL`; with no URL that store answers
+    as unavailable, so the product path fails closed. Product Site reads go
+    through the tenant-scoped `ProductSiteDirectory`; every legacy
+    file-backed surface (Evidence, Overview, analytics, ingestion, Lab)
+    receives the `LegacySiteGate`, which refuses imported codes. A caller
+    that injects its own Site repository and no Foundation store is a
+    legacy-only test composition: no code is imported there and the
+    Foundation routes answer that no store is composed.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.include_router(health_router)
 
-    repository = build_site_repository() if site_repository is None else site_repository
-    app.include_router(build_sites_router(repository))
+    legacy_repository = (
+        build_site_repository() if site_repository is None else site_repository
+    )
+    if foundation_store is None and site_repository is None:
+        foundation_store = build_foundation_store(database_url())
+    registry = ImportedSiteRegistry(
+        None
+        if foundation_store is None
+        else FoundationService(
+            foundation_store,
+            DEVELOPMENT_TENANT_SLUG,
+            utc_now if foundation_clock is None else foundation_clock,
+        )
+    )
+    # The product read router: imported codes from Postgres, listed once;
+    # every other code from its legacy YAML document.
+    product_sites = ProductSiteDirectory(
+        legacy_repository,
+        registry,
+        legacy_site_documents if legacy_documents is None else legacy_documents,
+    )
+    # Every legacy file-backed surface below sees imported codes refused.
+    repository = LegacySiteGate(legacy_repository, registry)
+    app.state.legacy_site_gate = repository
+    app.include_router(build_sites_router(product_sites))
+    app.include_router(build_foundation_router(registry, legacy_repository))
 
     ingestion = IngestionService(
         build_evidence_store() if evidence_store is None else evidence_store,
@@ -184,6 +243,7 @@ def create_app(
                 PUBLICATION_PROFILES,
                 execution,
                 commits,
+                imported_site_check=repository.refuse_if_imported,
             )
         )
 

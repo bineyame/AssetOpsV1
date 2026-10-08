@@ -1,0 +1,251 @@
+
+=== Sites index at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0, table scrolled by 68px]
+  PASS  all nine columns are still rendered  [9 headers]
+
+=== Site page at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  exactly five tabs are rendered: Overview, Foundation, Performance, Findings, Evidence (T028)  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  no enabled action renders  [Open in Simulator Lab:disabled, Start Simulation:disabled, View Live Data:disabled]
+
+=== Sites index at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0, table scrolled by 348px]
+  PASS  all nine columns are still rendered  [9 headers]
+
+=== Site page at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  exactly five tabs are rendered: Overview, Foundation, Performance, Findings, Evidence (T028)  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  no enabled action renders  [Open in Simulator Lab:disabled, Start Simulation:disabled, View Live Data:disabled]
+
+=== Landing at / (redirects to /sites) at 1280x800, gate open, short page ===
+  PASS  / lands on the Sites index  [final pathname /sites]
+  PASS  the page does not scroll vertically  [scrollHeight 800 vs clientHeight 800]
+
+=== Foundation Site model at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish reserve change]
+  PASS  Publish reserve change renders, enabled, 1 time(s) on this view  [1 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-controls-config-heading, site-configuration-components-heading, foundation-physical-properties-heading, foundation-control-properties-heading, foundation-site-controls-heading, foundation-control-assumptions-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-controls-config-heading: fits; site-configuration-components-heading: fits; foundation-physical-properties-heading: fits; foundation-control-properties-heading: fits; foundation-site-controls-heading: fits; foundation-control-assumptions-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-controls-config-heading: 3 cols, 5 rows; site-configuration-components-heading: 4 cols, 10 rows; foundation-physical-properties-heading: 4 cols, 8 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-site-controls-heading: 3 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 2 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Single line diagram at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [no action rendered]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-sld-parts-heading, foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-sld-parts-heading: fits; foundation-diagram-contents-heading: overflows, scrolled 2px; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: fits; foundation-signal-mappings-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-sld-parts-heading: 4 cols, 10 rows; foundation-diagram-contents-heading: 7 cols, 10 rows; foundation-topology-nodes-heading: 4 cols, 10 rows; foundation-topology-connections-heading: 4 cols, 9 rows; foundation-devices-heading: 5 cols, 8 rows; foundation-signal-mappings-heading: 6 cols, 10 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [10 nodes, 9 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [fits]
+  PASS  every drawn node carries an empty slot and nothing else  [10 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [10 nodes, 0 refusals]
+
+=== Foundation Readiness at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish binding change]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 1 time(s) on this view  [1 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-roles-heading, foundation-bindings-heading, foundation-sources-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-roles-heading: fits; foundation-bindings-heading: fits; foundation-sources-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-roles-heading: 4 cols, 9 rows; foundation-bindings-heading: 7 cols, 10 rows; foundation-sources-heading: 4 cols, 8 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Site model at 1000x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish reserve change]
+  PASS  Publish reserve change renders, enabled, 1 time(s) on this view  [1 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-controls-config-heading, site-configuration-components-heading, foundation-physical-properties-heading, foundation-control-properties-heading, foundation-site-controls-heading, foundation-control-assumptions-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-controls-config-heading: fits; site-configuration-components-heading: fits; foundation-physical-properties-heading: fits; foundation-control-properties-heading: fits; foundation-site-controls-heading: fits; foundation-control-assumptions-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-controls-config-heading: 3 cols, 5 rows; site-configuration-components-heading: 4 cols, 10 rows; foundation-physical-properties-heading: 4 cols, 8 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-site-controls-heading: 3 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 2 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Single line diagram at 1000x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [no action rendered]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-sld-parts-heading, foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-sld-parts-heading: fits; foundation-diagram-contents-heading: overflows, scrolled 282px; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: fits; foundation-signal-mappings-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-sld-parts-heading: 4 cols, 10 rows; foundation-diagram-contents-heading: 7 cols, 10 rows; foundation-topology-nodes-heading: 4 cols, 10 rows; foundation-topology-connections-heading: 4 cols, 9 rows; foundation-devices-heading: 5 cols, 8 rows; foundation-signal-mappings-heading: 6 cols, 10 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [10 nodes, 9 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 651px]
+  PASS  every drawn node carries an empty slot and nothing else  [10 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [10 nodes, 0 refusals]
+
+=== Foundation Readiness at 1000x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish binding change]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 1 time(s) on this view  [1 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-roles-heading, foundation-bindings-heading, foundation-sources-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-roles-heading: fits; foundation-bindings-heading: fits; foundation-sources-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-roles-heading: 4 cols, 9 rows; foundation-bindings-heading: 7 cols, 10 rows; foundation-sources-heading: 4 cols, 8 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Site model at 640x700, narrow enough that a dense table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish reserve change]
+  PASS  Publish reserve change renders, enabled, 1 time(s) on this view  [1 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-controls-config-heading, site-configuration-components-heading, foundation-physical-properties-heading, foundation-control-properties-heading, foundation-site-controls-heading, foundation-control-assumptions-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-controls-config-heading: fits; site-configuration-components-heading: fits; foundation-physical-properties-heading: fits; foundation-control-properties-heading: fits; foundation-site-controls-heading: fits; foundation-control-assumptions-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-controls-config-heading: 3 cols, 5 rows; site-configuration-components-heading: 4 cols, 10 rows; foundation-physical-properties-heading: 4 cols, 8 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-site-controls-heading: 3 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 2 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Single line diagram at 640x700, narrow enough that a dense table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [no action rendered]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-sld-parts-heading, foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-sld-parts-heading: fits; foundation-diagram-contents-heading: overflows, scrolled 394px; foundation-topology-nodes-heading: fits; foundation-topology-connections-heading: fits; foundation-devices-heading: overflows, scrolled 45px; foundation-signal-mappings-heading: overflows, scrolled 64px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the diagram overflows here too, so its scroll claim is not vacuous  [overflows]
+  PASS  no table renders a header row with no rows under it  [foundation-sld-parts-heading: 4 cols, 10 rows; foundation-diagram-contents-heading: 7 cols, 10 rows; foundation-topology-nodes-heading: 4 cols, 10 rows; foundation-topology-connections-heading: 4 cols, 9 rows; foundation-devices-heading: 5 cols, 8 rows; foundation-signal-mappings-heading: 6 cols, 10 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [10 nodes, 9 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 763px]
+  PASS  every drawn node carries an empty slot and nothing else  [10 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [10 nodes, 0 refusals]
+
+=== Foundation Readiness at 640x700, narrow enough that a dense table cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish binding change]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 1 time(s) on this view  [1 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-roles-heading, foundation-bindings-heading, foundation-sources-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-roles-heading: fits; foundation-bindings-heading: overflows, scrolled 66px; foundation-sources-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [1 of 3 overflow]
+  PASS  no table renders a header row with no rows under it  [foundation-roles-heading: 4 cols, 9 rows; foundation-bindings-heading: 7 cols, 10 rows; foundation-sources-heading: 4 cols, 8 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Site model at 390x844, phone width ===
+  PASS  the page does not scroll horizontally  [scrollWidth 375 vs clientWidth 375]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish reserve change]
+  PASS  Publish reserve change renders, enabled, 1 time(s) on this view  [1 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-controls-config-heading, site-configuration-components-heading, foundation-physical-properties-heading, foundation-control-properties-heading, foundation-site-controls-heading, foundation-control-assumptions-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-controls-config-heading: overflows, scrolled 34px; site-configuration-components-heading: overflows, scrolled 185px; foundation-physical-properties-heading: overflows, scrolled 201px; foundation-control-properties-heading: overflows, scrolled 179px; foundation-site-controls-heading: overflows, scrolled 17px; foundation-control-assumptions-heading: overflows, scrolled 168px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [foundation-controls-config-heading: 3 cols, 5 rows; site-configuration-components-heading: 4 cols, 10 rows; foundation-physical-properties-heading: 4 cols, 8 rows; foundation-control-properties-heading: 4 cols, 2 rows; foundation-site-controls-heading: 3 cols, 2 rows; foundation-control-assumptions-heading: 4 cols, 2 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Foundation Single line diagram at 390x844, phone width ===
+  PASS  the page does not scroll horizontally  [scrollWidth 375 vs clientWidth 375]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [no action rendered]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 0 time(s) on this view  [0 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-sld-parts-heading, foundation-diagram-contents-heading, foundation-topology-nodes-heading, foundation-topology-connections-heading, foundation-devices-heading, foundation-signal-mappings-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-sld-parts-heading: overflows, scrolled 165px; foundation-diagram-contents-heading: overflows, scrolled 644px; foundation-topology-nodes-heading: overflows, scrolled 183px; foundation-topology-connections-heading: overflows, scrolled 125px; foundation-devices-heading: overflows, scrolled 295px; foundation-signal-mappings-heading: overflows, scrolled 314px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  the diagram overflows here too, so its scroll claim is not vacuous  [overflows]
+  PASS  no table renders a header row with no rows under it  [foundation-sld-parts-heading: 4 cols, 10 rows; foundation-diagram-contents-heading: 7 cols, 10 rows; foundation-topology-nodes-heading: 4 cols, 10 rows; foundation-topology-connections-heading: 4 cols, 9 rows; foundation-devices-heading: 5 cols, 8 rows; foundation-signal-mappings-heading: 6 cols, 10 rows]
+  PASS  the configured diagram is drawn, with nodes and connections  [10 nodes, 9 connections]
+  PASS  the drawing sits in a named, focusable region and carries a name  [foundation-single-line-diagram-heading: focusable true, labelled true]
+  PASS  the diagram scrolls inside its own region when it overflows  [overflows, scrolled 1013px]
+  PASS  every drawn node carries an empty slot and nothing else  [10 slots: Awaiting runtime/evidence]
+  PASS  a drawn diagram and a refusal are never both on the page  [10 nodes, 0 refusals]
+
+=== Foundation Readiness at 390x844, phone width ===
+  PASS  the page does not scroll horizontally  [scrollWidth 375 vs clientWidth 375]
+  PASS  the Site tab row is exactly Overview, Foundation, Evidence  [Overview | Foundation | Performance | Findings | Evidence]
+  PASS  the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders  [Site model | Single line diagram | Readiness]
+  PASS  no enabled action renders except the imported Site's Publish reserve change and Publish binding change  [Publish binding change]
+  PASS  Publish reserve change renders, enabled, 0 time(s) on this view  [0 found]
+  PASS  Publish binding change renders at most 1 time(s) on this view  [1 found]
+  PASS  every table on the page has a named, focusable overflow region  [foundation-roles-heading, foundation-bindings-heading, foundation-sources-heading]
+  PASS  every table that overflows scrolls inside its own region  [foundation-roles-heading: overflows, scrolled 104px; foundation-bindings-heading: overflows, scrolled 316px; foundation-sources-heading: overflows, scrolled 96px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [3 of 3 overflow]
+  PASS  no table renders a header row with no rows under it  [foundation-roles-heading: 4 cols, 9 rows; foundation-bindings-heading: 7 cols, 10 rows; foundation-sources-heading: 4 cols, 8 rows]
+  PASS  no diagram is drawn on a view that is not the diagram  [0 diagram regions]
+
+=== Scenario detail at 1280x800, the committed minimum ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: fits; scenario-site-devices-heading: fits; scenario-public-parameters-heading: fits; scenario-initialization-heading: fits; scenario-sources-heading: fits; scenario-timeline-heading: overflows, scrolled 216px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+
+=== Scenario detail at 1000x700, below the commitment ===
+  PASS  the page does not scroll horizontally  [scrollWidth 985 vs clientWidth 985]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: fits; scenario-site-devices-heading: fits; scenario-public-parameters-heading: overflows, scrolled 277px; scenario-initialization-heading: overflows, scrolled 58px; scenario-sources-heading: fits; scenario-timeline-heading: overflows, scrolled 496px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: fits]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+
+=== Scenario detail at 640x700, narrow enough that the timeline cannot fit ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  every table on the page has a named, focusable overflow region  [scenario-site-addresses-heading, scenario-site-devices-heading, scenario-public-parameters-heading, scenario-initialization-heading, scenario-sources-heading, scenario-timeline-heading, scenario-cycle-heading, scenario-readings-heading, scenario-reporting-heading, scenario-bounds-heading, scenario-private-heading]
+  PASS  every table that overflows scrolls inside its own region  [scenario-site-addresses-heading: overflows, scrolled 39px; scenario-site-devices-heading: fits; scenario-public-parameters-heading: overflows, scrolled 389px; scenario-initialization-heading: overflows, scrolled 170px; scenario-sources-heading: overflows, scrolled 89px; scenario-timeline-heading: overflows, scrolled 608px; scenario-cycle-heading: fits; scenario-readings-heading: fits; scenario-reporting-heading: fits; scenario-bounds-heading: fits; scenario-private-heading: overflows, scrolled 26px]
+  PASS  the rail does not move when every table is scrolled to its end  [left 0 -> 0]
+  PASS  no table renders a header row with no rows under it  [scenario-site-addresses-heading: 4 cols, 7 rows; scenario-site-devices-heading: 3 cols, 1 rows; scenario-public-parameters-heading: 7 cols, 3 rows; scenario-initialization-heading: 5 cols, 3 rows; scenario-sources-heading: 5 cols, 2 rows; scenario-timeline-heading: 8 cols, 8 rows; scenario-cycle-heading: 3 cols, 9 rows; scenario-readings-heading: 3 cols, 5 rows; scenario-reporting-heading: 2 cols, 9 rows; scenario-bounds-heading: 3 cols, 5 rows; scenario-private-heading: 3 cols, 5 rows]
+  PASS  the timeline keeps all eight of its columns  [scenario-site-addresses-heading: 4; scenario-site-devices-heading: 3; scenario-public-parameters-heading: 7; scenario-initialization-heading: 5; scenario-sources-heading: 5; scenario-timeline-heading: 8; scenario-cycle-heading: 3; scenario-readings-heading: 3; scenario-reporting-heading: 2; scenario-bounds-heading: 3; scenario-private-heading: 3]
+  PASS  the three review proposals are on the page, by name  [scenario-execution-roles | scenario-input-ownership | scenario-timing-and-bounds]
+  PASS  every review proposal is visible, not collapsed or clipped away  [3 of 3 have a non-zero box]
+  PASS  the private expectations region is on the page and visible  [1 region(s), visible true]
+  PASS  no enabled button renders  [no button rendered]
+  PASS  at least one table overflows here, so the claim above is not vacuous  [6 of 11 overflow]
+
+=== Scenario catalog at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  the catalog renders a row from the real scenario store  [scenarios-catalog-heading: 13 rows]
+  PASS  the rail does not move when the table is scrolled  [left 0 -> 0]
+file:///C:/Users/assef/Bineyame/AssetOpsV1/tools/layout-evidence.mjs:565
+      throw new Error(
+            ^
+
+Error: The page action for /simulator-lab/scenarios/fuel-loss-event/run-setup ran and .data-table__scroll never appeared. Measuring now would report on a page the action did not produce.
+    at visit (file:///C:/Users/assef/Bineyame/AssetOpsV1/tools/layout-evidence.mjs:565:13)
+    at async file:///C:/Users/assef/Bineyame/AssetOpsV1/tools/layout-evidence.mjs:1688:17
+
+Node.js v24.15.0

@@ -194,7 +194,12 @@ class TestGateDisabled:
 
     def test_the_operator_sites_api_is_served_with_the_gate_closed(self) -> None:
         """Sites are product objects. The gate covers surfaces, not stores."""
-        client = TestClient(create_app(DISABLED))
+        # S1-01: the product composition fails closed without DATABASE_URL, so
+        # the gate-closed build is composed with an empty legacy repository and
+        # no Foundation store (a legacy-only composition).
+        from run_fixtures import FakeSites
+
+        client = TestClient(create_app(DISABLED, site_repository=FakeSites(())))
 
         assert client.get("/api/sites").status_code == 200
 

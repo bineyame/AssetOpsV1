@@ -115,7 +115,12 @@ from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.evidence.read_model import EvidenceReadModel, batch_payload
 from assetops_backend.evidence.service import IngestionService
 from assetops_backend.sites.models import SiteRecord
-from assetops_backend.sites.ports import SiteNotFound, SiteRepository
+from assetops_backend.sites.ports import (
+    SiteAwaitingMigration,
+    SiteNotFound,
+    SiteRepository,
+    SiteStoreUnavailable,
+)
 from assetops_contracts.ingestion_batch import (
     IngestionBatchRejected,
     parse_ingestion_batch_document,
@@ -155,6 +160,16 @@ def build_evidence_router(
     def site_or_404(site_id: str) -> SiteRecord:
         try:
             return sites.get_site(site_id)
+        except SiteAwaitingMigration as error:
+            raise HTTPException(
+                status_code=409,
+                detail={"code": SiteAwaitingMigration.code, "message": str(error)},
+            ) from error
+        except SiteStoreUnavailable as error:
+            raise HTTPException(
+                status_code=503,
+                detail={"code": "SITE_STORE_UNAVAILABLE", "message": str(error)},
+            ) from error
         except SiteNotFound as error:
             raise HTTPException(
                 status_code=404,

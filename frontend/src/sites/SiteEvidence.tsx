@@ -15,6 +15,8 @@
  * `source=`, then `record=`), and the Site root and tab never change.
  */
 
+import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
+import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -134,6 +136,9 @@ export function SiteEvidence({
         </p>
       </Panel>
     );
+  }
+  if (awaitingMigration(overview)) {
+    return <AwaitingEvidenceMigration surface="evidence" />;
   }
   if (overview.status === "unavailable") {
     return (

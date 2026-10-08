@@ -1,78 +1,88 @@
+import { Link } from "react-router-dom";
+
 /**
- * The Foundation subtab row.
+ * The Foundation view row (S1-03).
  *
- * v6.9 line 2117 gives Foundation five subtabs:
- * `Definition | Topology | Controls | Changes | Readiness`. This renders three
- * of them, per `D-2026-10-02-rendered-tabs-per-capability`: the rendered set
- * holds only subtabs this build has a truthful section for, and "labelled in
- * place" is not used in operator views.
+ * v6.9 gives Foundation a view row: `Site model | Single line diagram |
+ * Readiness | Change & effect`. Architect decision
+ * `D-2026-10-08-s1-foundation-organization` (section 2) revises the earlier D2
+ * ruling: an imported Site renders the first three as real, direct-linkable
+ * views in the mock's order, all reading the same selected `at` period.
  *
- * ## Why Changes and Readiness are not here, in any state
+ * ## What is not here, in any state
  *
- * `Changes` is a real intervention-and-change-effect capability (v6.9 lines
- * 2149 and 2225-2228) with no configuration-change model behind it yet; it
- * joins this row at T034 and not before. `Readiness` is not rendered at all:
- * claim readiness lives on Site > Evidence only.
+ * `Change & effect` (the mock's `Changes`) is an intervention-and-change-effect
+ * capability with no supported model behind it; it is absent, never disabled
+ * and never labelled in place (D-2026-10-02-rendered-tabs-per-capability).
  *
- * ## Why these are links
+ * `Readiness` here is configuration readiness (S1-02): bindings, roles and
+ * Foundation gaps. Claim and capability readiness stays on Site > Evidence.
  *
- * Definition, Topology and Controls each have content on this page, so each is
- * a link to the section that holds it. They are fragment links rather than
- * routes: the content is all on one screen, so a route would be a second
- * address for something already here, and a client-side tab that swapped
- * panels would hide content that has no reason to be hidden.
+ * ## Who gets the row
  *
- * ## Why this does not look like the tab row above it
+ * Only a Site imported into the persisted store. A Site still read from its
+ * original document has no stored Foundation, binding set or snapshot, so a
+ * Readiness or SLD view of it would imply records it does not have; it keeps
+ * its single legacy page and renders no row.
  *
- * A tab row says "this swaps what you are looking at". This says "this is
- * further down the same page". T013 first rendered it with the tab classes,
- * and the Architect's UI/UX ruling was that two stacked rows in one treatment
- * ask a reader to infer two different behaviours from one appearance. So it is
- * `.section-nav`: smaller, lighter, a contents line rather than a switcher,
- * with no active state, because nothing is "current" when every section is on
- * the page at once.
+ * The superseded `Definition | Topology | Controls` contents row is gone: those
+ * are in-page headings now, never a second tab-like row competing with this.
  */
 
-/** The id of the section a subtab opens. */
-export interface FoundationSubtabSection {
+export type FoundationView = "model" | "sld" | "readiness";
+
+export interface FoundationSubtab {
   label: string;
-  kind: "section";
-  /** The element id this subtab scrolls to. */
-  targetId: string;
+  view: FoundationView;
+  /** The path segment under `/sites/{code}/foundation`; empty for the default view. */
+  segment: string;
 }
 
-export type FoundationSubtab = FoundationSubtabSection;
-
-/** Where each rendered section lives, so the row and the panels agree. */
-export const FOUNDATION_DEFINITION_ID = "foundation-definition-heading";
-export const FOUNDATION_TOPOLOGY_ID = "foundation-topology-heading";
-export const FOUNDATION_CONTROLS_ID = "foundation-controls-heading";
-
 /**
- * The row, in v6.9's order with `Changes` and `Readiness` filtered out.
+ * The row, in v6.9's order with `Change & effect` filtered out.
  *
- * One definition, consumed by the rendering and by the tests, so a subtab
- * cannot be added to the screen without appearing here first.
+ * One definition, consumed by the rendering, the route table and the tests, so
+ * a view cannot be added to the screen without appearing here first.
  */
 export const FOUNDATION_SUBTABS: FoundationSubtab[] = [
-  { label: "Definition", kind: "section", targetId: FOUNDATION_DEFINITION_ID },
-  { label: "Topology", kind: "section", targetId: FOUNDATION_TOPOLOGY_ID },
-  { label: "Controls", kind: "section", targetId: FOUNDATION_CONTROLS_ID },
+  { label: "Site model", view: "model", segment: "" },
+  { label: "Single line diagram", view: "sld", segment: "sld" },
+  { label: "Readiness", view: "readiness", segment: "readiness" },
 ];
 
 /** The accessible name of the row. */
-export const FOUNDATION_SUBTABS_LABEL = "Foundation sections";
+export const FOUNDATION_SUBTABS_LABEL = "Foundation views";
 
-export function FoundationSubtabs() {
+/** The view a path segment names, or null for a segment that is not a view. */
+export function foundationViewFor(segment: string | undefined): FoundationView | null {
+  const match = FOUNDATION_SUBTABS.find((subtab) => subtab.segment === (segment ?? ""));
+  return match === undefined ? null : match.view;
+}
+
+export function foundationViewLabel(view: FoundationView): string {
+  return FOUNDATION_SUBTABS.find((subtab) => subtab.view === view)?.label ?? "";
+}
+
+export interface FoundationSubtabsProps {
+  current: FoundationView;
+  /** The address of a view, carrying the selected period. Built by the shell. */
+  hrefFor: (view: FoundationView) => string;
+}
+
+export function FoundationSubtabs({ current, hrefFor }: FoundationSubtabsProps) {
   return (
-    <nav className="section-nav" aria-label={FOUNDATION_SUBTABS_LABEL}>
-      <p className="section-nav__label">On this page</p>
-      <ol className="section-nav__list">
+    <nav className="site-tabs site-subtabs foundation-views" aria-label={FOUNDATION_SUBTABS_LABEL}>
+      <ol className="site-tabs__list">
         {FOUNDATION_SUBTABS.map((subtab) => (
-          <li className="section-nav__item" key={subtab.label}>
-            <a className="section-nav__link" href={`#${subtab.targetId}`}>
+          <li className="site-tabs__item" key={subtab.view}>
+            <Link
+              className="site-tabs__link"
+              to={hrefFor(subtab.view)}
+              data-foundation-view={subtab.view}
+              aria-current={subtab.view === current ? "page" : undefined}
+            >
               {subtab.label}
-            </a>
+            </Link>
           </li>
         ))}
       </ol>

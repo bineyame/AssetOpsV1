@@ -1,78 +1,205 @@
-import { useParams } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
-import {
-  SITE_CONFIGURATION_HEADING_ID,
-  SiteConfiguration,
-} from "../sites/SiteConfiguration";
+import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
+import { FOUNDATION_SUBTABS, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
+import { StoredFoundationViews } from "../sites/StoredFoundationViews";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
+import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
+import { PageHeader, Panel } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { siteDetailHref } from "./operatorSiteRoutes";
+import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
+import { siteDetailHref, siteEvidenceHref, siteFoundationHref, siteFoundationViewHref } from "./operatorSiteRoutes";
 
-/**
- * The operator route for one site's Foundation, addressed by `site_id`.
- *
- * This frame composes the shared site substrate and adds nothing to what it
- * renders. Every value, label, stated absence and refusal comes from
- * `frontend/src/sites/`, so the Lab's site view will present a foundation the
- * same way rather than growing a second opinion about what one is.
- *
- * What the shell adds is the one thing that is genuinely a shell concern: the
- * landmark, and the operator Site tab row, which is how this shell divides a
- * site into aspects. The tab row is navigation, not an action on the site.
- *
- * It is the first thing to use a substrate slot. The row belongs under the
- * page header and above the facts, and that position is inside the shared
- * region, so the shell hands the substrate an element and the substrate places
- * it. The substrate still imports nothing from the shell and still decides
- * nothing about what a tab row contains: it renders the slot only for a site
- * it actually loaded, which is why a site that is not found offers no tab to a
- * surface of a site that does not exist.
- *
- * T008's `Back to this site` link is gone, replaced by the Overview tab. It
- * said the same thing and led to the same address; two links to one place is
- * how a reader starts wondering whether they are different.
- *
- * This route is an operator capability and is never gated. It is registered
- * and served identically with `simulator_lab.enabled` true and false, and it
- * offers no crossing into the Simulator Lab in either state.
- *
- * ## Names
- *
- * The product name of this surface is Foundation. The substrate component it
- * composes is still called `SiteConfiguration`, and its heading id is still
- * `site-configuration-heading`: T011A renames what a reader sees and what an
- * address says, and deliberately leaves internal names under
- * `frontend/src/sites/` alone. Renaming those would touch every Site-substrate
- * test and both single-definition guard patterns without changing a single
- * rendered character, which is churn standing between a reviewer and the
- * rename that matters. The heading id is not user-visible; the heading text
- * is, and it says Foundation.
- *
- * It replaces the parameterless `/site-configuration` frame from T002. That
- * frame described no site because no site identity existed when it was
- * written; a site has one now, so the placeholder and its navigation item are
- * gone rather than left standing beside their identified replacement. Nothing
- * took the navigation item's place: a navigation item cannot name which site's
- * foundation it would open.
- */
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
+  /** S1-01: the persisted Foundation read and its one change. */
+  foundation: SiteFoundationClient;
   sitesPath: string;
-  /**
-   * The gated template-lineage read. The app resolves it from the gate with
-   * `simulatorLabSiteTemplateLineage`, so it is absent when the gate is
-   * closed; this frame only passes it to the substrate.
-   */
   templateLineage?: SiteTemplateLineageClient;
 }
 
+/**
+ * Foundation for one Site (S1-01, organized into views by S1-03).
+ *
+ * A Site imported into the persisted store renders one of three views - Site
+ * model (the Foundation address), Single line diagram (`/sld`) and Readiness
+ * (`/readiness`) - of the stored version effective at the `at` instant carried
+ * in the URL (absent = in effect now). Every view link carries `at`, so moving
+ * between views, reloading and sharing keep the selection. A Site still read
+ * from its original document renders its one legacy page, labelled as such,
+ * with no view row; its view addresses state that the view needs an imported
+ * Site. A period with no stored version is stated, never filled with the
+ * current configuration.
+ */
 export function SiteFoundationFrame({
   detail,
+  foundation,
   sitesPath,
   templateLineage,
 }: SiteFoundationFrameProps) {
-  const { siteId } = useParams<{ siteId: string }>();
+  const { siteId, foundationView } = useParams<{ siteId: string; foundationView?: string }>();
+  const view: FoundationView | null = foundationViewFor(foundationView);
+  const [params, setParams] = useSearchParams();
+  const at = params.get("at");
+  const [refresh, setRefresh] = useState(0);
+  const state = useSiteFoundation(siteId, at, foundation, refresh);
+
+  const selectAt = useCallback(
+    (next: string | null) => {
+      const updated = new URLSearchParams(params);
+      if (next === null) updated.delete("at");
+      else updated.set("at", next);
+      setParams(updated);
+    },
+    [params, setParams],
+  );
+
+  // `/foundation/` with an empty segment never reaches here as a view route;
+  // any other segment that is not a view is not a destination.
+  if (view === null || (foundationView !== undefined && view === "model")) {
+    return <RouteNotAvailableFrame />;
+  }
+
+  const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
+
+  const tabs = <OperatorSiteTabs siteId={siteId} current="Foundation" />;
+  const parentTrail = (canonicalSiteId: string) => [
+    { label: "Sites", to: sitesPath },
+    { label: canonicalSiteId, to: siteDetailHref(canonicalSiteId) },
+  ];
+
+  if (state.foundation === null) {
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} />
+        <p>{SITE_FOUNDATION_LOADING}</p>
+      </main>
+    );
+  }
+
+  if (loaded !== null && siteId !== undefined) {
+    const versions = state.versions?.status === "loaded" ? state.versions.value : null;
+    const segmentOf = (target: FoundationView) =>
+      FOUNDATION_SUBTABS.find((subtab) => subtab.view === target)?.segment ?? "";
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <StoredFoundationViews
+          view={view}
+          foundation={loaded}
+          versions={versions}
+          selectedAt={at}
+          onSelectAt={selectAt}
+          viewHref={(target) => siteFoundationViewHref(siteId, segmentOf(target), at)}
+          evidenceHref={siteEvidenceHref(siteId)}
+          tabs={tabs}
+          parentTrail={parentTrail}
+          snapshotHref={foundation.snapshotUrl(siteId, loaded.resolved.at)}
+          onPublishBindings={async (validFrom, bindings, note) => {
+            const outcome = await foundation.publishBindings(siteId, {
+              valid_from: validFrom,
+              bindings: bindings.map(bindingPublicationItem),
+              note,
+            });
+            if (outcome.status === "published") setRefresh((count) => count + 1);
+            return outcome;
+          }}
+          onPublish={async (assetCode, value, validFrom) => {
+            const outcome = await foundation.publishReserve(siteId, {
+              asset_code: assetCode,
+              value,
+              valid_from: validFrom,
+            });
+            if (outcome.status === "published") setRefresh((count) => count + 1);
+            return outcome;
+          }}
+        />
+      </main>
+    );
+  }
+
+  if (at !== null && (state.foundation.status === "not_found" || state.foundation.status === "invalid")) {
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        {tabs}
+        <Panel heading="No stored version for this period" headingId="foundation-period-empty-heading">
+          <p>{state.foundation.message}</p>
+          <p>The configuration in effect now is not shown in its place.</p>
+          <button type="button" onClick={() => selectAt(null)}>
+            Show the version in effect now
+          </button>
+        </Panel>
+      </main>
+    );
+  }
+
+  if (
+    view !== "model" &&
+    siteId !== undefined &&
+    state.foundation.status !== "migration_required" &&
+    state.foundation.status !== "loaded"
+  ) {
+    // The store could not be read, or answered without a version: that is not
+    // evidence that the Site has no stored records, so say only that.
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        {tabs}
+        <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+          <p>
+            Stored Foundation versions could not be read
+            {state.foundation.message === null ? "." : `: ${state.foundation.message}`} This view is
+            not shown until they can be.
+          </p>
+          <p>
+            <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
+          </p>
+        </Panel>
+      </main>
+    );
+  }
+
+  if (view !== "model" && siteId !== undefined) {
+    // A Site that is not imported has no stored Foundation, binding set or
+    // snapshot, so these views would imply records it does not have.
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        {tabs}
+        <Panel heading="This view needs an imported Site" headingId="foundation-view-unavailable-heading">
+          <p>
+            This site has no stored Foundation version, signal binding set or snapshot, so there is no
+            {view === "sld" ? " bound single line diagram" : " configuration readiness"} to show here.
+          </p>
+          <p>
+            <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
+          </p>
+        </Panel>
+      </main>
+    );
+  }
+
+  const notice =
+    state.foundation.status === "migration_required" ? (
+      <Panel heading="Original configuration record" headingId="foundation-legacy-heading">
+        <p>
+          This site is read from its original configuration document. It has no stored
+          Foundation versions until it is imported, so no period can be chosen and nothing can
+          be changed here.
+        </p>
+      </Panel>
+    ) : state.foundation.status === "unavailable" ? (
+      <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+        <p>
+          Stored Foundation versions could not be read
+          {state.foundation.message === null ? "." : `: ${state.foundation.message}`} The
+          configuration below is the site&apos;s record as served now; no period can be chosen.
+        </p>
+      </Panel>
+    ) : null;
 
   return (
     <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
@@ -80,11 +207,9 @@ export function SiteFoundationFrame({
         siteId={siteId}
         detail={detail}
         templateLineage={templateLineage}
-        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
-        parentTrail={(canonicalSiteId) => [
-          { label: "Sites", to: sitesPath },
-          { label: canonicalSiteId, to: siteDetailHref(canonicalSiteId) },
-        ]}
+        tabs={tabs}
+        revision={notice}
+        parentTrail={parentTrail}
       />
     </main>
   );

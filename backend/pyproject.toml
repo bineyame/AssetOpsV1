@@ -12,6 +12,12 @@ dependencies = [
     # `available_timezones()` finds nothing - so a membership test would
     # refuse every real zone on one of the two platforms this is developed on.
     "tzdata>=2024.1",
+    # S1-01: the product Foundation store is PostgreSQL 16 (docker-compose.yml).
+    # psycopg 3 is the driver, SQLAlchemy Core builds statements, and Alembic
+    # owns every DDL change; application startup never creates a table.
+    "psycopg[binary]>=3.2",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
 ]
 
 [project.optional-dependencies]

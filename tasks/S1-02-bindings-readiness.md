@@ -1,6 +1,6 @@
 # S1-02 — Versioned bindings, Readiness and configured SLD
 
-Status: planned
+Status: in_review
 USER_REVIEW_REQUIRED: true
 Milestone: S1 Foundation
 Depends on: S1-01

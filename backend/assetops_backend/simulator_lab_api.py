@@ -75,7 +75,7 @@ from __future__ import annotations
 import re
 from dataclasses import replace
 from fractions import Fraction
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import quote, urlencode
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
@@ -149,6 +149,7 @@ from assetops_backend.scenarios.service import (
 from assetops_backend.sites.lineage import assess_template_lineage
 from assetops_backend.sites.models import SiteTemplate
 from assetops_backend.sites.ports import (
+    SiteAwaitingMigration,
     SiteConfigurationInvalid,
     SiteIdentityConflict,
     SiteNotFound,
@@ -2039,6 +2040,8 @@ def build_simulator_lab_router(
     publication_profiles: tuple[PublicationProfile, ...],
     execution: LabExecutionPort | None = None,
     commits: CommittedArtifactStore | None = None,
+    *,
+    imported_site_check: Callable[[str], None] | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
@@ -2492,6 +2495,31 @@ def build_simulator_lab_router(
                 detail=_refusal(REFUSAL_RUN_STORE_UNAVAILABLE, str(error)),
             ) from error
 
+    def _refuse_if_imported(record: SimulationRun) -> None:
+        """S1-01: no Lab execution or Commit against an imported Site.
+
+        From the moment a Site code is registered in the product Foundation
+        store, start, step, run-to-end and Commit refuse at this shared
+        boundary, whatever Stage already exists: Commit is the sealing and
+        release path. `GET .../stage` and the run's history stay readable as
+        frozen historical inspection and never call this.
+        """
+        if imported_site_check is None:
+            return
+        site_id = record.deterministic_identity.site.site_id
+        try:
+            imported_site_check(site_id)
+        except SiteAwaitingMigration as error:
+            raise HTTPException(
+                status_code=409,
+                detail=_refusal("SITE_AWAITING_MIGRATION", str(error)),
+            ) from error
+        except SiteStoreUnavailable as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal("SITE_STORE_UNAVAILABLE", str(error)),
+            ) from error
+
     def _port() -> LabExecutionPort:
         """The composed execution port, or a typed answer that there is none.
 
@@ -2578,7 +2606,42 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
-        return {"stage": stage_payload(port.staged_envelopes(record))}
+        return {
+            "stage": stage_payload(port.staged_envelopes(record)),
+            "frozen_basis": _frozen_basis(record),
+        }
+
+    def _frozen_basis(record: SimulationRun) -> dict[str, object]:
+        """The legacy YAML Foundation basis this Draft froze at setup (S1-01).
+
+        Historical inspection only. When the Site has since been imported
+        into the product Foundation store, Commit refuses; this read says so
+        rather than presenting the frozen basis as current.
+        """
+        site = record.deterministic_identity.site
+        imported: bool | None = False
+        if imported_site_check is not None:
+            try:
+                imported_site_check(site.site_id)
+            except SiteAwaitingMigration:
+                imported = True
+            except SiteStoreUnavailable:
+                # The store could not be asked (review m2). Historical
+                # inspection stays readable; whether the Site was imported is
+                # stated as unknown, and nothing is offered for release.
+                imported = None
+        return {
+            "configuration_store": "LEGACY_FILE",
+            "site_id": site.site_id,
+            "foundation_version": site.foundation_version,
+            "foundation_valid_from": site.foundation_valid_from,
+            "site_imported": imported,
+            "can_release": imported is False,
+            "statement": (
+                "Frozen at Draft setup from the legacy Site document. Read-only "
+                "historical inspection; this read cannot seal or release anything."
+            ),
+        }
 
     def _commit_store() -> CommittedArtifactStore:
         if commits is None:
@@ -2693,6 +2756,7 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
+        _refuse_if_imported(record)
         existing = _stored_artifact(record.run_id)
         view = port.staged_envelopes(record)
         if existing is None:
@@ -2776,6 +2840,7 @@ def build_simulator_lab_router(
         """Begin an execution of an eligible frozen Draft."""
         port = _port()
         record = _run_or_404(run_id)
+        _refuse_if_imported(record)
         try:
             projection = port.start(record)
         except LabControlRefused as error:
@@ -2795,6 +2860,7 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
+        _refuse_if_imported(record)
         boundaries, from_boundary = _parse_step_request(request)
         try:
             projection = port.step(
@@ -2809,6 +2875,7 @@ def build_simulator_lab_router(
         """Advance a started execution until its interval is covered."""
         port = _port()
         record = _run_or_404(run_id)
+        _refuse_if_imported(record)
         try:
             projection = port.run_to_end(record)
         except LabControlRefused as error:

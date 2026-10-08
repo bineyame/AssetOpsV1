@@ -1,0 +1,30 @@
+# Local development database for AssetOps (S1-01).
+#
+# PostgreSQL is pinned to an exact 16.x image. The password below is a
+# documented LOCAL DEVELOPMENT default only; it is not a credential for any
+# shared environment. Override it with ASSETOPS_PG_PASSWORD. The backend never
+# assumes this default: DATABASE_URL must be set explicitly (see backend/README-db.md).
+#
+# Two databases live on this one service:
+#   assetops       - the developer database (import, dev server)
+#   assetops_test  - the disposable test database; the test suite drops and
+#                    re-creates its schema and runs every migration from zero.
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: assetops
+      POSTGRES_PASSWORD: ${ASSETOPS_PG_PASSWORD:-assetops-local-dev}
+      POSTGRES_DB: assetops
+    ports:
+      - "127.0.0.1:${ASSETOPS_PG_PORT:-55432}:5432"
+    volumes:
+      - assetops-pg:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assetops -d assetops"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  assetops-pg:

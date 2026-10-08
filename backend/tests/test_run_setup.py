@@ -2072,9 +2072,19 @@ class TestEveryRefusalKindIsReachable:
             self._missing_initialization_input().kind,
             self._requirement_conflict().kind,
             self._publication_hold_batches().kind,
+            self._site_awaiting_migration().kind,
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
+
+    def _site_awaiting_migration(self) -> RunSetupRefused:
+        """S1-01: an imported Site's code refuses new Draft setup."""
+        from assetops_backend.sites.ports import SiteAwaitingMigration
+
+        return refuse(
+            setup_request(),
+            sites=FakeSites((), failure=SiteAwaitingMigration("imported")),
+        )[0]
 
     def _publication_hold_batches(self) -> RunSetupRefused:
         """T026: a hold longer than the delayed path's cadence batches releases."""

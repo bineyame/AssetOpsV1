@@ -10,12 +10,6 @@ import {
   Panel,
   type Crumb,
 } from "../ui";
-import {
-  FOUNDATION_CONTROLS_ID,
-  FOUNDATION_DEFINITION_ID,
-  FOUNDATION_TOPOLOGY_ID,
-  FoundationSubtabs,
-} from "./FoundationSubtabs";
 import type {
   ComponentPropertyView,
   ControlAssumptionView,
@@ -102,13 +96,25 @@ import {
  *   header row and no rows: that is a screen saying it looked and found
  *   nothing, which is a claim about the site rather than about its document.
  *
- * Where the new content sits is settled, not incidental. The subtab row names
- * Definition, Topology and Controls, and T013's rule is that no unlinked panel
- * may sit between the sections it names - so the topology, device and mapping
+ * This is the legacy (unimported) Site's one page; an imported Site renders
+ * the S1-03 views in `StoredFoundationViews` instead. Where the content sits
+ * is settled, not incidental. A contents row once named Definition, Topology
+ * and Controls (removed by S1-03; they remain headings), and T013's rule was
+ * that no unlinked panel sit between those sections - so the topology, device and mapping
  * tables live INSIDE the Topology panel as subsections, and the components
  * table stays below Controls where T013 put it.
  */
 export const SITE_CONFIGURATION_HEADING_ID = "site-configuration-heading";
+
+/**
+ * The legacy page's in-page section headings. S1-03 removed the
+ * `Definition | Topology | Controls` contents row that linked to them: they
+ * stay as headings on the one legacy page, and an imported Site uses the
+ * Foundation view row (`FoundationSubtabs`) instead.
+ */
+export const FOUNDATION_DEFINITION_ID = "foundation-definition-heading";
+export const FOUNDATION_TOPOLOGY_ID = "foundation-topology-heading";
+export const FOUNDATION_CONTROLS_ID = "foundation-controls-heading";
 
 export interface SiteConfigurationProps {
   /** The identity taken from the address. `undefined` names no site. */
@@ -119,6 +125,12 @@ export interface SiteConfigurationProps {
    * when it is absent, and nothing here reads what is in it.
    */
   tabs?: ReactNode;
+  /**
+   * S1-01: the persisted Foundation version panel (period, controls, the one
+   * reserve change, registrations and gaps), placed under the tabs and above
+   * the subtab row. Absent for a Site still read from its legacy document.
+   */
+  revision?: ReactNode;
   /**
    * The trail above this page, built by the shell from the canonical
    * `site_id`. Foundation sits two levels down, so its parent is the Site
@@ -132,14 +144,38 @@ export interface SiteConfigurationProps {
    * alone; present, it adds the advisory note when the record is behind.
    */
   templateLineage?: SiteTemplateLineageClient;
+  /**
+   * S1-02: the devices with at least one channel bound in the binding set in
+   * effect, for an imported Site. The SLD then marks every other attached
+   * device as having no bound channel. Absent for a legacy Site.
+   */
+  sldBoundDevices?: ReadonlySet<string> | null;
+  /**
+   * S1-02: for an imported Site, the binding set whose device-to-asset links
+   * fill the "Signal mappings" table, and the Foundation revision it is
+   * aligned to. Absent for a legacy Site, whose table keeps the document's
+   * declared mappings and their mapping IDs.
+   */
+  signalMappingBasis?: SignalMappingBasis | null;
+}
+
+/** Which published binding set the stored-Site mapping rows come from. */
+export interface SignalMappingBasis {
+  /** Null when no binding set is in effect for the period shown. */
+  bindingSetVersion: number | null;
+  bindingSetRevisionId: string | null;
+  foundationVersion: number;
 }
 
 export function SiteConfiguration({
   siteId,
   detail,
   tabs,
+  revision,
   parentTrail,
   templateLineage,
+  sldBoundDevices = null,
+  signalMappingBasis = null,
 }: SiteConfigurationProps) {
   const result = useSiteRecord(siteId, detail);
   const lineage = useSiteTemplateLineage(templateLineage);
@@ -207,8 +243,11 @@ export function SiteConfiguration({
     <SiteConfigurationFacts
       site={result.site}
       tabs={tabs}
+      revision={revision}
       parentTrail={parentTrail}
       lineage={lineage?.get(result.site.site_id)}
+      sldBoundDevices={sldBoundDevices}
+      signalMappingBasis={signalMappingBasis}
     />
   );
 }
@@ -223,17 +262,26 @@ export interface SiteConfigurationFactsProps {
   site: SiteDetailReadModel;
   /** See `SiteConfigurationProps.tabs`. */
   tabs?: ReactNode;
+  /** See `SiteConfigurationProps.revision`. */
+  revision?: ReactNode;
   /** See `SiteConfigurationProps.parentTrail`. */
   parentTrail?: (siteId: string) => Crumb[];
   /** This site's lineage answer, if the shell supplied a lineage read. */
   lineage?: SiteTemplateLineageReadModel;
+  /** See `SiteConfigurationProps.sldBoundDevices`. */
+  sldBoundDevices?: ReadonlySet<string> | null;
+  /** See `SiteConfigurationProps.signalMappingBasis`. */
+  signalMappingBasis?: SignalMappingBasis | null;
 }
 
 export function SiteConfigurationFacts({
   site,
   tabs,
+  revision,
   parentTrail,
   lineage,
+  sldBoundDevices = null,
+  signalMappingBasis = null,
 }: SiteConfigurationFactsProps) {
   const view = deriveSiteConfigurationView(site);
 
@@ -259,7 +307,7 @@ export function SiteConfigurationFacts({
 
       {tabs}
 
-      <FoundationSubtabs />
+      {revision}
 
       {/*
         * Definition, as v6.9 names it. T011A left a panel headed `Foundation`
@@ -354,7 +402,7 @@ export function SiteConfigurationFacts({
           * names, and a panel headed for the diagram between Topology and
           * Controls would make the row misleading about where Topology ends.
           */}
-        <SiteSingleLineDiagram site={site} />
+        <SiteSingleLineDiagram site={site} boundDevices={sldBoundDevices} />
 
         {view.topologyNodes.status === "not_declared" ? (
           <FactList>
@@ -371,7 +419,7 @@ export function SiteConfigurationFacts({
         )}
 
         <SiteFoundationDevices section={view.devices} />
-        <SiteSignalMappings section={view.signalMappings} />
+        <SiteSignalMappings section={view.signalMappings} basis={signalMappingBasis} />
 
         {/*
           * Two device facts this build does not hold, stated once rather than
@@ -782,22 +830,25 @@ export function SiteFoundationDevices({
  */
 export function SiteSignalMappings({
   section,
+  basis = null,
 }: {
   section: SiteDeclaredSection<SignalMappingView>;
+  /** S1-02: set for an imported Site, whose rows are published bindings. */
+  basis?: SignalMappingBasis | null;
 }) {
   return (
     <SiteConfigurationSubsection
       name="Signal mappings"
       headingId="foundation-signal-mappings-heading"
       section={section}
-      caption="Which component each declared device signal describes. Every row is a declaration in this site's foundation: none is inferred from a name, a type, or a position in the topology."
+      caption={basis === null ? LEGACY_SIGNAL_MAPPINGS_CAPTION : storedSignalMappingsCaption(basis)}
       columns={[
         "Signal",
         "Signal ID",
         "Unit",
         "Reported by",
         "Describes",
-        "Mapping ID",
+        basis === null ? "Mapping ID" : "Binding ID",
       ]}
       row={(mapping) => ({
         key: mapping.mappingId,
@@ -812,6 +863,21 @@ export function SiteSignalMappings({
       })}
     />
   );
+}
+
+const LEGACY_SIGNAL_MAPPINGS_CAPTION =
+  "Which component each declared device signal describes. Every row is a declaration in this site's foundation: none is inferred from a name, a type, or a position in the topology.";
+
+/**
+ * S1-02 (Architect ruling D5): a stored Site's rows are the device-to-asset
+ * links of the selected signal binding set, not declarations in the imported
+ * document, whose mappings stay legacy comparison data and are not mixed in.
+ */
+function storedSignalMappingsCaption(basis: SignalMappingBasis): string {
+  if (basis.bindingSetVersion === null) {
+    return `No signal binding set is in effect for the period shown (Foundation v${basis.foundationVersion}), so this table lists no device-to-asset link. The imported document's signal mappings are legacy comparison data and are not shown here.`;
+  }
+  return `The device-to-asset links of the selected signal binding set: binding v${basis.bindingSetVersion} (record ${basis.bindingSetRevisionId}), aligned to Foundation v${basis.foundationVersion}. Each row is a published binding, identified by its binding ID; the imported document's signal mappings are legacy comparison data and are not shown here.`;
 }
 
 /**

@@ -1,0 +1,348 @@
+site_id: KOBO-001
+display_name: Kobo mini-grid
+site_type: MINIGRID
+location:
+  country: Ethiopia
+  locality: Kobo
+timezone: Africa/Addis_Ababa
+lifecycle_status: PLANNED
+origin: USER
+source:
+  mode: SIMULATED
+template:
+  template_id: kobo-mini-grid-60kw
+  template_version: 1
+foundation:
+  version: 1
+  valid_from: '2026-09-29T11:57:49Z'
+  summary: Village solar-plus-storage mini-grid with a diesel generator for backup,
+    serving a residential feeder, a health clinic and a grain mill as three separately
+    metered loads. Declares design ratings, typed physical and control properties,
+    typed Site Controls for source and critical-load priority, the electrical topology,
+    the configured devices and signals, the device-to-signal mappings, and the operating
+    assumptions the archetype makes.
+  components:
+  - component_id: pv-array
+    component_type: PV_ARRAY
+    display_name: PV array
+    rating:
+      value: 60.0
+      unit: kW
+    properties:
+    - property_key: pv-rated-power
+      value: 60.0
+      unit: kW
+      source: TEMPLATE
+      source_version: 1
+  - component_id: pv-inverter
+    component_type: INVERTER
+    display_name: PV inverter
+    rating:
+      value: 50.0
+      unit: kW
+    properties:
+    - property_key: inverter-ac-limit
+      value: 50.0
+      unit: kW
+      source: TEMPLATE
+      source_version: 1
+  - component_id: battery
+    component_type: BATTERY
+    display_name: Battery energy storage
+    rating:
+      value: 200.0
+      unit: kWh
+    properties:
+    - property_key: battery-energy-capacity
+      value: 200.0
+      unit: kWh
+      source: TEMPLATE
+      source_version: 1
+    - property_key: reserve-state-of-charge
+      value: 30.0
+      unit: '%'
+      source: TEMPLATE
+      source_version: 1
+  - component_id: battery-pcs
+    component_type: POWER_CONVERSION_SYSTEM
+    display_name: Battery power conversion system
+    rating:
+      value: 30.0
+      unit: kW
+    properties:
+    - property_key: pcs-charge-limit
+      value: 30.0
+      unit: kW
+      source: TEMPLATE
+      source_version: 1
+    - property_key: pcs-discharge-limit
+      value: 30.0
+      unit: kW
+      source: TEMPLATE
+      source_version: 1
+    - property_key: pcs-conversion-efficiency
+      value: 95.0
+      unit: '%'
+      source: TEMPLATE
+      source_version: 1
+  - component_id: generator
+    component_type: GENERATOR
+    display_name: Diesel generator
+    rating:
+      value: 40.0
+      unit: kW
+    properties:
+    - property_key: specific-fuel-consumption
+      value: 0.3
+      unit: L/kWh
+      source: TEMPLATE
+      source_version: 1
+    - property_key: minimum-runtime
+      value: 30.0
+      unit: min
+      source: TEMPLATE
+      source_version: 1
+  - component_id: fuel-tank
+    component_type: FUEL_TANK
+    display_name: Generator fuel tank
+    rating:
+      value: 400.0
+      unit: L
+    properties:
+    - property_key: tank-capacity
+      value: 400.0
+      unit: L
+      source: TEMPLATE
+      source_version: 1
+  - component_id: ac-bus
+    component_type: AC_BUS
+    display_name: AC bus
+    rating:
+      value: 400.0
+      unit: V
+    properties: null
+  - component_id: load-res
+    component_type: LOAD
+    display_name: Residential feeder
+    rating:
+      value: 25.0
+      unit: kW
+    properties: null
+  - component_id: load-clinic
+    component_type: LOAD
+    display_name: Health clinic
+    rating:
+      value: 10.0
+      unit: kW
+    properties: null
+  - component_id: load-mill
+    component_type: LOAD
+    display_name: Grain mill
+    rating:
+      value: 40.0
+      unit: kW
+    properties: null
+  topology:
+    nodes:
+    - node_id: pv-array
+      component_id: pv-array
+      node_role: GENERATION
+    - node_id: pv-inverter
+      component_id: pv-inverter
+      node_role: CONVERSION
+    - node_id: battery
+      component_id: battery
+      node_role: STORAGE
+    - node_id: battery-pcs
+      component_id: battery-pcs
+      node_role: CONVERSION
+    - node_id: generator
+      component_id: generator
+      node_role: GENERATION
+    - node_id: fuel-tank
+      component_id: fuel-tank
+      node_role: FUEL_STORAGE
+    - node_id: ac-bus
+      component_id: ac-bus
+      node_role: BUS
+    - node_id: load-res
+      component_id: load-res
+      node_role: LOAD
+    - node_id: load-clinic
+      component_id: load-clinic
+      node_role: LOAD
+    - node_id: load-mill
+      component_id: load-mill
+      node_role: LOAD
+    connections:
+    - connection_id: pv-array-to-inverter
+      from_node: pv-array
+      to_node: pv-inverter
+      medium: DC
+    - connection_id: pv-inverter-to-bus
+      from_node: pv-inverter
+      to_node: ac-bus
+      medium: AC
+    - connection_id: battery-to-pcs
+      from_node: battery
+      to_node: battery-pcs
+      medium: DC
+    - connection_id: pcs-to-bus
+      from_node: battery-pcs
+      to_node: ac-bus
+      medium: AC
+    - connection_id: fuel-tank-to-generator
+      from_node: fuel-tank
+      to_node: generator
+      medium: FUEL
+    - connection_id: generator-to-bus
+      from_node: generator
+      to_node: ac-bus
+      medium: AC
+    - connection_id: bus-to-residential
+      from_node: ac-bus
+      to_node: load-res
+      medium: AC
+    - connection_id: bus-to-clinic
+      from_node: ac-bus
+      to_node: load-clinic
+      medium: AC
+    - connection_id: bus-to-mill
+      from_node: ac-bus
+      to_node: load-mill
+      medium: AC
+  devices:
+  - device_id: pv-inverter-controller
+    device_type: CONTROLLER
+    display_name: PV inverter controller
+    component_id: pv-inverter
+    signals:
+    - signal_id: ac-power
+      display_name: AC output power
+      unit: kW
+  - device_id: pv-irradiance-sensor
+    device_type: SENSOR
+    display_name: Plane-of-array irradiance sensor
+    component_id: pv-array
+    signals:
+    - signal_id: irradiance
+      display_name: Plane-of-array irradiance
+      unit: W/m2
+  - device_id: battery-pcs-controller
+    device_type: CONTROLLER
+    display_name: Battery PCS controller
+    component_id: battery-pcs
+    signals:
+    - signal_id: ac-power
+      display_name: AC power at the PCS
+      unit: kW
+    - signal_id: state-of-charge
+      display_name: Battery state of charge
+      unit: '%'
+  - device_id: generator-controller
+    device_type: CONTROLLER
+    display_name: Generator controller
+    component_id: generator
+    signals:
+    - signal_id: ac-power
+      display_name: Generator output power
+      unit: kW
+  - device_id: fuel-level-sensor
+    device_type: SENSOR
+    display_name: Fuel level sensor
+    component_id: fuel-tank
+    signals:
+    - signal_id: fuel-level
+      display_name: Fuel level
+      unit: L
+  - device_id: residential-meter
+    device_type: METER
+    display_name: Residential feeder meter
+    component_id: load-res
+    signals:
+    - signal_id: active-power
+      display_name: Active power to the residential feeder
+      unit: kW
+  - device_id: clinic-meter
+    device_type: METER
+    display_name: Clinic meter
+    component_id: load-clinic
+    signals:
+    - signal_id: active-power
+      display_name: Active power to the clinic
+      unit: kW
+  - device_id: mill-meter
+    device_type: METER
+    display_name: Mill meter
+    component_id: load-mill
+    signals:
+    - signal_id: active-power
+      display_name: Active power to the mill
+      unit: kW
+  signal_mappings:
+  - mapping_id: pv-inverter-ac-power
+    device_id: pv-inverter-controller
+    signal_id: ac-power
+    component_id: pv-inverter
+  - mapping_id: pv-array-irradiance
+    device_id: pv-irradiance-sensor
+    signal_id: irradiance
+    component_id: pv-array
+  - mapping_id: battery-pcs-ac-power
+    device_id: battery-pcs-controller
+    signal_id: ac-power
+    component_id: battery-pcs
+  - mapping_id: battery-state-of-charge
+    device_id: battery-pcs-controller
+    signal_id: state-of-charge
+    component_id: battery
+  - mapping_id: generator-ac-power
+    device_id: generator-controller
+    signal_id: ac-power
+    component_id: generator
+  - mapping_id: fuel-tank-level
+    device_id: fuel-level-sensor
+    signal_id: fuel-level
+    component_id: fuel-tank
+  - mapping_id: residential-active-power
+    device_id: residential-meter
+    signal_id: active-power
+    component_id: load-res
+  - mapping_id: clinic-active-power
+    device_id: clinic-meter
+    signal_id: active-power
+    component_id: load-clinic
+  - mapping_id: mill-active-power
+    device_id: mill-meter
+    signal_id: active-power
+    component_id: load-mill
+  control_assumptions:
+  - assumption_id: solar-first-dispatch
+    display_name: Solar is dispatched before the generator
+    component_id: null
+    basis: TEMPLATE
+    statement: The archetype assumes photovoltaic output is consumed or stored before
+      the diesel generator is called on. This is a declared assumption about intended
+      operation; the typed source-priority Site Control is what a controller reads.
+  - assumption_id: clinic-protected
+    display_name: The clinic is protected first
+    component_id: load-clinic
+    basis: TEMPLATE
+    statement: The archetype assumes the clinic keeps supply when nothing else can.
+      The typed critical-load-priority Site Control is what a controller reads; this
+      sentence is documentation of the intent.
+  site_controls:
+  - control_key: source-priority
+    members:
+    - pv-array
+    - battery
+    - generator
+    source: TEMPLATE
+    source_version: 1
+  - control_key: critical-load-priority
+    members:
+    - load-clinic
+    - load-res
+    - load-mill
+    source: TEMPLATE
+    source_version: 1

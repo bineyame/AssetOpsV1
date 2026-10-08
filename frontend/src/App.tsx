@@ -27,6 +27,7 @@ import {
   SITE_DETAIL_ROUTE_PATH,
   SITE_EVIDENCE_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
+  SITE_FOUNDATION_VIEW_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
 import type { RunSetupClient } from "./shell/runSetupClient";
 import type { ScenarioCatalogClient } from "./shell/scenarioCatalogClient";
@@ -41,6 +42,10 @@ import {
   createSiteAnalyticsClient,
   type SiteAnalyticsClient,
 } from "./sites/siteAnalyticsClient";
+import {
+  createSiteFoundationClient,
+  type SiteFoundationClient,
+} from "./sites/siteFoundationClient";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -68,6 +73,7 @@ const defaultSiteDirectory = createSiteDirectoryClient();
 const defaultSiteEvidence = createSiteEvidenceClient();
 const defaultSiteOverview = createSiteOverviewClient();
 const defaultSiteAnalytics = createSiteAnalyticsClient();
+const defaultSiteFoundation = createSiteFoundationClient();
 
 /**
  * Route table.
@@ -127,6 +133,8 @@ export interface AppProps {
   siteOverview?: SiteOverviewClient;
   /** Analytics read models: Performance, Findings, Finding detail (T028). Operator, never gated. */
   siteAnalytics?: SiteAnalyticsClient;
+  /** Persisted Foundation read and reserve change (S1-01). Operator, never gated. */
+  siteFoundation?: SiteFoundationClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -144,6 +152,7 @@ export function App({
   siteEvidence = defaultSiteEvidence,
   siteOverview = defaultSiteOverview,
   siteAnalytics = defaultSiteAnalytics,
+  siteFoundation = defaultSiteFoundation,
   siteTemplateLineage,
   now,
 }: AppProps) {
@@ -186,6 +195,18 @@ export function App({
             element={
               <SiteFoundationFrame
                 detail={siteDetail}
+                foundation={siteFoundation}
+                sitesPath={SITES_PATH}
+                templateLineage={templateLineage}
+              />
+            }
+          />
+          <Route
+            path={SITE_FOUNDATION_VIEW_ROUTE_PATH}
+            element={
+              <SiteFoundationFrame
+                detail={siteDetail}
+                foundation={siteFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
               />

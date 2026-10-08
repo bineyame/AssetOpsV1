@@ -255,9 +255,9 @@ const DECLARED_SITE: SiteDetailReadModel = {
   },
 };
 
-/** The Foundation subtab labels a container renders, in order. */
+/** The Foundation section headings a container renders, in order (S1-03: no contents row). */
 function subtabLabels(container: HTMLElement): string[] {
-  return Array.from(container.querySelectorAll(".section-nav__list li")).map(
+  return Array.from(container.querySelectorAll("section.panel h2")).map(
     (item) => item.textContent ?? "",
   );
 }

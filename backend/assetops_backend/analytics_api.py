@@ -15,7 +15,12 @@ from assetops_backend.analytics.ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.evidence.ports import EvidenceStore, EvidenceStoreUnavailable
 from assetops_backend.sites.models import SiteRecord
-from assetops_backend.sites.ports import SiteNotFound, SiteRepository
+from assetops_backend.sites.ports import (
+    SiteAwaitingMigration,
+    SiteNotFound,
+    SiteRepository,
+    SiteStoreUnavailable,
+)
 
 SITE_ANALYTICS_ROUTE = "/api/sites/{site_id}/analytics"
 SITE_DISPATCH_ROUTE = "/api/sites/{site_id}/dispatch"
@@ -36,6 +41,16 @@ def build_analytics_router(
     def site_or_404(site_id: str) -> SiteRecord:
         try:
             return sites.get_site(site_id)
+        except SiteAwaitingMigration as error:
+            raise HTTPException(
+                status_code=409,
+                detail={"code": SiteAwaitingMigration.code, "message": str(error)},
+            ) from error
+        except SiteStoreUnavailable as error:
+            raise HTTPException(
+                status_code=503,
+                detail={"code": "SITE_STORE_UNAVAILABLE", "message": str(error)},
+            ) from error
         except SiteNotFound as error:
             raise HTTPException(
                 status_code=404,

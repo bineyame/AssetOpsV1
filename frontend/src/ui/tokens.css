@@ -58,6 +58,12 @@
   --accent: #1d4ed8;
   --accent-hover: #1740b0;
   --accent-weak: #e8efff;
+  /* S1-03: a configuration state that needs a reader's attention (a
+     historical period, an incomplete verdict). Text stays the meaning; this
+     only frames it. #8a5a00 on #fff7e6 is 6.3:1. */
+  --attention-bg: #fff7e6;
+  --attention-border: #e0a43a;
+  --attention-text: #8a5a00;
   --accent-contrast: #ffffff;
 
   /* Navigation rail ------------------------------------------------------- */

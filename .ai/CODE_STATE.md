@@ -4708,3 +4708,140 @@ In review (independent review and owner UI walk pending). Packet
 - Persisted `summary`/claim-limit wording unchanged by the presentation
   correction (Necessary "4.5-open", `(dispatch-2)` in the Candidate limit);
   rewording them appends a revision per lineage.
+
+## S1-01 - Persisted Site Foundation (in review)
+
+Branch `task/S1-01-persisted-foundation`; packet `.agent/S1-01-review-packet.md`.
+
+### What it settled in code
+
+- PostgreSQL 16 (`docker-compose.yml`, `postgres:16.4-alpine`, 127.0.0.1:55432,
+  dbs `assetops` + disposable `assetops_test`); `DATABASE_URL` required, no
+  backend default; commands in `backend/README-db.md`.
+- Alembic `backend/migrations/versions/0001_foundation_identity.py`: tenant,
+  site, site_import, asset, gateway, source, foundation_revision; composite
+  `(tenant_id, site_id)` FKs; btree_gist + GiST exclusion over currently
+  recorded validity; triggers make revision content immutable (only
+  `superseded_at` settable once) and registration rows undeletable.
+- `sites/foundation_records.py` (rows, `FoundationStore` port),
+  `sites/foundation_content.py` (content = rendered YAML `foundation` minus
+  version/valid_from; record rebuilt through the strict parser; gaps),
+  `sites/foundation_service.py` (import, `revision_at`, reserve publish:
+  split earlier segment + changed later segment, supersede the old row),
+  `sites/adapters/postgres_foundation_store.py` (sole SQL writer, Site row
+  lock), `sites/import_kobo.py` CLI.
+- Cutover (`sites/cutover.py`): `ProductSiteDirectory` serves `/api/sites`
+  and detail (imported codes from Postgres, listed once; collision or changed
+  legacy bytes = 503 conflict); `LegacySiteGate` wraps the YAML repository
+  for ingestion, Evidence, Overview, analytics and Lab (409
+  `AWAITING_EVIDENCE_MIGRATION`; Lab start/step/run-to-end/Commit 409
+  `SITE_AWAITING_MIGRATION`; setup refusal kind `SITE_AWAITING_MIGRATION`;
+  stage GET adds `frozen_basis`).
+- `foundation_api.py`: GET foundation (`at`, `knowledge_at`), GET versions,
+  POST revisions (battery reserve only). Tenant = `config.DEVELOPMENT_TENANT_SLUG`.
+- Frontend: `sites/siteFoundationClient.ts`, `FoundationRevisionPanel.tsx`
+  (slot `revision` on `SiteConfiguration`), `?at=` in the Foundation URL,
+  `AwaitingEvidenceMigration` on Overview/Evidence/Performance.
+- Guard: `configuration-persistence.ps1` rule 8 (sole Postgres writer, driver
+  ban, report-writer confinement, main.py routing scan, Lab/gate refusals).
+
+### What this leaves open
+
+- `create_app` with an injected Site repository and no Foundation store is a
+  legacy-only composition (no imports); product composition fails closed.
+- Fix round: no tenant row means no imported Sites, while an unreachable store
+  still fails closed. Cutover tests run by default over
+  `tests/foundation_fakes.py`. Carried from review: m1 (lexical guard), m4
+  (identity UPDATE/TRUNCATE), m6 (layout skip), m7 (YAML scan cost).
+- Layout tool (correction round, Architect 2026-10-08): only the imported
+  Site's "Publish reserve change" is allowed; the Kobo Lab sections (T024-T028)
+  are reported SKIP until S2; `ASSETOPS_LAB_SITE` binds run setup elsewhere.
+  Draft-screen claims still need the isolated `var/` store.
+- The reserve form states the resulting period: start to end of the containing
+  period, or "no end".
+- Lab Site creation for a new code that later gets imported is not migrated.
+- S1-02: bindings, Readiness, snapshot; S2-02/S3/S5 evidence/dispatch/Overview cutovers.
+
+## S1-02 - Versioned bindings, Readiness and configured SLD (in review)
+
+Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agent/S1-02-review-packet.md`. Decision `D-2026-10-08-s1-bindings-roles-and-snapshot` (answers in `.agent/architect-S1-02-answers-2026-10-08.md`).
+
+### What it settled in code
+
+- Migrations 0002 and 0003 add two tables:
+  - `signal_binding_set_revision` holds one time-valid version per Foundation-aligned period. It names its Foundation revision and gateway, and pins `snapshot_schema` and `snapshot_sha256`.
+  - `signal_binding_revision` holds one bound channel per row.
+  - Database constraints:
+    - GiST exclusions: one current set per Site and role set, and one current binding per channel `(source, signal)`;
+    - same-Site composite foreign keys, plus a source-of-gateway foreign key that also checks `device_id`;
+    - append-only triggers, with closing a set closing its rows;
+    - a trigger that keeps each set inside a current Foundation revision.
+- Role vocabulary: `sites/binding_roles.py` holds `minigrid-roles-1`. Battery reserve is covered by a Foundation control. Only IDENTITY and ENUM conversions are accepted; LINEAR is refused.
+- Publication: `sites/binding_service.py` validates the whole set atomically. A refusal returns the code and every problem, and writes nothing.
+- Joint plans: `FoundationStore.publish_configuration` writes the Foundation and binding parts of one plan under the Site lock.
+- Alignment: `sites/binding_alignment.py` `finalize` aligns binding sets to Foundation periods and pins each snapshot (canonical serializer `assetops.acquisition-snapshot/1`). The reserve publish now runs through it as well, so a Foundation split also re-aligns the binding sets.
+- API:
+  - The Foundation read gains `bindings`, a configuration-only `readiness` (READY_TO_REPORT, INCOMPLETE or UNKNOWN) and `acquisition_snapshot`.
+  - New `POST .../foundation/bindings`.
+  - New `GET .../foundation/snapshot`. It serves the stored canonical bytes and refuses a hash mismatch. It is a development download only: gateway authentication is pending.
+  - `versions` now lists `binding_sets`.
+- Conversion: `sites/convert_kobo_bindings.py` takes the explicit fixture `backend/conversions/kobo-001-bindings.json`, holding nine legacy IDENTITY mappings plus the status ENUM the decision declared.
+- UI:
+  - `FoundationBindingsPanel` shows Readiness, the bindings, unbound channels, the snapshot and binding removal.
+  - The period picker lists binding periods.
+  - For a stored Site, the SLD lists only bound signals and marks each device with no bound channel.
+
+- Fix round (Codex review M1-M3, Architect rulings D2-D5):
+  - Migration 0004 stores `snapshot_canonical` (NOT NULL, CHECKed against `snapshot_sha256`, immutable under the 0003 trigger). Downloads serve those bytes; they never rebuild from registration rows. 0004 backfills existing rows only when the v1 serializer reproduces the pinned hash, else refuses.
+  - `validate_bindings` refuses `BINDING_ROLE_AMBIGUOUS` when a Foundation period declares more than one eligible component for a ONE role the publication needs, and `BINDING_BATTERY_MISMATCH` when the SOC binding names a battery other than the reserve's.
+  - `readiness()` is INCOMPLETE while the selected Foundation revision has configuration gaps, reported as `readiness.foundation_gaps`, apart from `missing_roles`.
+  - On a stored Site the shared "Signal mappings" table is captioned as the selected binding set's links (binding version and record, Foundation version) with a "Binding ID" column; legacy Sites keep "Mapping ID".
+
+### What this leaves open
+
+- Readiness is a section of Foundation, not its own subtab (ruling D2). Guard rule 5 forbids a "Readiness" subtab label.
+- Gateway-credential download and ingestion are S2.
+- A Foundation split re-issues unchanged binding rows with new IDs (ruling D4). Each split copy is a new snapshot.
+- Registration identity fields stay updatable; a later publication snapshots their then-current values. Download availability still depends on current configuration gaps.
+- Codex carries m1 (mixed Foundation/binding read under concurrency), m2 (conversion rerun provenance), m3 (insert-only alignment trigger; Foundation-only `store.publish()`).
+
+## S1-03 - Foundation organized as Site model, SLD and Readiness views (in review)
+
+Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning `f639990`); packet `.agent/S1-03-review-packet.md`. Decision `D-2026-10-08-s1-foundation-organization` (`.agent/architect-S1-ui-organization-2026-10-08.md`). Frontend and guards only; no backend or API change.
+
+### What it settled in code
+
+- Routes: `SITE_FOUNDATION_VIEW_ROUTE_PATH` (`/sites/:siteId/foundation/:foundationView`) beside the Foundation route. `siteFoundationViewHref(siteId, segment, at)` carries `at`. A segment that is not a view renders `RouteNotAvailableFrame`.
+- `sites/FoundationSubtabs.tsx`: `FOUNDATION_SUBTABS` is the view row, exactly Site model (segment ""), Single line diagram (`sld`) and Readiness (`readiness`). It renders as a link row (`site-tabs site-subtabs`) with `aria-current`. The old `Definition | Topology | Controls` contents row and `.section-nav` use are gone.
+- `sites/StoredFoundationViews.tsx` composes the three views for an imported Site from one stored read:
+  - Site model: status strip, gaps panel when present, configured-topology cards beside identity, controls with the reserve form, then audit and inventory disclosures.
+  - SLD: drawing first (`SiteSldPrimary`), then the configured-parts table, then detail disclosures (`SiteSldDetails`, nodes and connections, devices with the D5 table).
+  - Readiness: verdict with counts and what is missing, role coverage, signal bindings with the removal form, registered sources, acquisition details with the snapshot.
+- `FoundationRevisionPanel.tsx` and `FoundationBindingsPanel.tsx` are split into composable pieces.
+- The status strip names a scheduled or past binding period when the Foundation version is current, so a future binding set is never called "in effect now".
+- The verdict separates "Not configured: Battery reserve" from unbound channel roles.
+- Legacy Site: one page, no view row. Its `/sld` and `/readiness` addresses state "This view needs an imported Site".
+- CSS:
+  - Status strip, panel pair, plant cards, verdict, metric row and action form.
+  - Attention tokens (`--attention-*`) for historical and incomplete states.
+  - At 640 px and below the rail stacks above the content, a shell-wide change.
+  - At 1100 px and above the SLD drawing scales to its panel.
+- Guards:
+  - `navigation-truthfulness.ps1` requires the exact three views in order.
+  - It still refuses Change & effect / Changes, the superseded vocabulary (now including Definition, Topology and Controls) and disabled or labelled-in-place affordances.
+  - `layout-evidence.mjs` measures each view of an imported Site, at a new 390 px width as well.
+
+### What this leaves open
+
+- Owner side-by-side UI acceptance; S1 merge is held on it.
+- Decisions taken under the ambiguity rule are in `.agent/S1-03-questions.md`: the narrow-shell stacking, the legacy view-route state, and the omitted legacy-only panels.
+- Lab layout claims are still unmeasured. The run aborts at Lab run-setup when served by the product backend, as in S1-02.
+
+
+### S1-03 fix round and S1-02 n6 (settled in code)
+
+- `BindingService.publish` carries a binding edit through every contiguous later current period of the same binding set with unchanged bindings (Foundation-split copies), re-aligned atomically; it stops at a later independent binding change. The 201 body adds `applies_until` (null = open-ended) and `stopped_by_binding_version`; Readiness shows the end. Tests on the in-memory fake (`TestBindingEditThroughFoundationSplits`); no migration.
+- `SiteFoundationFrame`: "needs an imported Site" only for `migration_required`; other failures say stored versions are unavailable.
+- `navigation-truthfulness.ps1`: backtick labels, non-literal labels and a hard-coded `Changes` / `Change & effect` destination fail; page-level and panel-order tests in `siteFoundationRevision.test.tsx`.
+- Phone-width shell rules are scoped to `.app-frame--operator` (set by `OperatorShellLayout`); `shell-overflow.ps1` fails an unscoped narrow `.app-frame`/`.nav-rail` rule. Lab shell unchanged; its phone layout is an open carry.
+- Parts table column is "Channels" with a bound-versus-unbound legend; the SLD drawing precedes its paragraphs; the controls table names priority members.

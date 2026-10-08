@@ -1,0 +1,29 @@
+{
+  "schema": {"id": "assetops.binding-conversion", "version": 1},
+  "status": "DECIDED - D-2026-10-08-s1-bindings-roles-and-snapshot (.agent/architect-S1-02-answers-2026-10-08.md)",
+  "site_code": "KOBO-001",
+  "role_set": "minigrid-roles-1",
+  "effective_from": "FOUNDATION_ORIGINAL_VALID_FROM",
+  "note": "Converted from the imported Foundation's legacy signal_mappings under D-2026-10-08-s1-bindings-roles-and-snapshot.",
+  "declare_signals": [
+    {
+      "device_id": "generator-controller",
+      "signal_id": "status",
+      "display_name": "Generator status",
+      "unit": "state",
+      "reason": "Newly declared by Architect decision D-2026-10-08-s1-bindings-roles-and-snapshot (Q2). Absent from the original Kobo import; not recovered from any YAML and not an observed capability."
+    }
+  ],
+  "bindings": [
+    {"legacy_mapping_id": "pv-inverter-ac-power", "device_id": "pv-inverter-controller", "signal_id": "ac-power", "asset_code": "pv-inverter", "role": "pv_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "pv-array-irradiance", "device_id": "pv-irradiance-sensor", "signal_id": "irradiance", "asset_code": "pv-array", "role": "pv_irradiance", "source_unit": "W/m2", "canonical_unit": "W/m2", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "battery-pcs-ac-power", "device_id": "battery-pcs-controller", "signal_id": "ac-power", "asset_code": "battery-pcs", "role": "battery_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "battery-state-of-charge", "device_id": "battery-pcs-controller", "signal_id": "state-of-charge", "asset_code": "battery", "role": "battery_soc", "source_unit": "%", "canonical_unit": "%", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "generator-ac-power", "device_id": "generator-controller", "signal_id": "ac-power", "asset_code": "generator", "role": "generator_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "fuel-tank-level", "device_id": "fuel-level-sensor", "signal_id": "fuel-level", "asset_code": "fuel-tank", "role": "fuel_level", "source_unit": "L", "canonical_unit": "L", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "residential-active-power", "device_id": "residential-meter", "signal_id": "active-power", "asset_code": "load-res", "role": "feeder_demand", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "clinic-active-power", "device_id": "clinic-meter", "signal_id": "active-power", "asset_code": "load-clinic", "role": "feeder_demand", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": "mill-active-power", "device_id": "mill-meter", "signal_id": "active-power", "asset_code": "load-mill", "role": "feeder_demand", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+    {"legacy_mapping_id": null, "device_id": "generator-controller", "signal_id": "status", "asset_code": "generator", "role": "generator_state", "source_unit": "state", "canonical_unit": "state", "conversion": {"kind": "ENUM", "parameters": {"map": {"STOPPED": "STOPPED", "STARTING": "STARTING", "RUNNING": "RUNNING", "FAILED": "FAILED"}}}}
+  ]
+}

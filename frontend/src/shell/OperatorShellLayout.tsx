@@ -50,7 +50,7 @@ const operatorRoutes = [
  */
 export function OperatorShellLayout() {
   return (
-    <div className="app-frame">
+    <div className="app-frame app-frame--operator">
       <div className="app-frame__side">
         <AppHeader name="AssetOps" />
         <NavRail label="Operator routes" items={operatorRoutes} />
