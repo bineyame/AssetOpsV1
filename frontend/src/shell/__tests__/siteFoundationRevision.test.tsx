@@ -839,3 +839,75 @@ describe("S1-03: the verdict names a missing Foundation control apart from unbou
     expect(verdict).toBe("Not bound: Battery state of charge. Not configured: Battery reserve.");
   });
 });
+
+describe("S1-03: what each Foundation view offers and the order of its panels", () => {
+  const loadedFoundation = (): FoundationRead<FoundationReadModel> => ({
+    status: "loaded",
+    value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [])),
+  });
+  const VIEWS = ["", "/sld", "/readiness"] as const;
+
+  /** Headings and disclosure summaries inside `main`, in document order. */
+  function sectionOrder(): string[] {
+    const main = screen.getByRole("main");
+    return Array.from(main.querySelectorAll("h2, summary")).map((node) => (node.textContent ?? "").trim());
+  }
+
+  it.each(VIEWS)("never offers a Change & effect or Changes destination, enabled or not, on %s", async (segment) => {
+    renderAt(`/sites/${ID}/foundation${segment}`, fakeFoundation(loadedFoundation));
+    await settledScreen();
+    const main = screen.getByRole("main");
+    const named = Array.from(main.querySelectorAll("a, button, [role='tab'], [role='link'], [aria-disabled]")).filter(
+      (node) => /^\s*(changes|change\s*(&|and)\s*effect)\s*$/i.test(node.textContent ?? ""),
+    );
+    expect(named).toHaveLength(0);
+    expect(main.querySelectorAll("[aria-disabled]")).toHaveLength(0);
+  });
+
+  async function orderAt(segment: string): Promise<string[]> {
+    renderAt(`/sites/${ID}/foundation${segment}`, fakeFoundation(loadedFoundation));
+    await settledScreen();
+    return sectionOrder();
+  }
+  /** `expected` must all be present and appear in this relative order. */
+  function expectInOrder(actual: string[], expected: string[]): void {
+    const positions = expected.map((heading) => actual.indexOf(heading));
+    expect(positions.every((position) => position >= 0), `missing from ${JSON.stringify(actual)}`).toBe(true);
+    expect(positions, `order in ${JSON.stringify(actual)}`).toEqual([...positions].sort((a, b) => a - b));
+  }
+
+  it("Site model: strip, then topology beside identity, then the controls holding the reserve edit", async () => {
+    const order = await orderAt("");
+    expectInOrder(order, [
+      "Foundation version",
+      "Configured topology",
+      "Identity & operating obligations",
+      "Time-valid control configuration",
+    ]);
+    expect(order[0]).toBe("Foundation version");
+    const controls = screen.getByRole("heading", { name: "Time-valid control configuration" }).closest("section");
+    expect(controls?.querySelector("form")).not.toBeNull();
+  });
+
+  it("Readiness: verdict, then coverage, then bindings, with acquisition details last", async () => {
+    const order = await orderAt("/readiness");
+    expectInOrder(order, [
+      "Foundation version",
+      "Configuration readiness",
+      "Role coverage",
+      "Signal bindings",
+      "Acquisition details",
+    ]);
+    expect(order[order.length - 1]).toBe("Acquisition details");
+  });
+
+  it("Single line diagram: diagram, then its parts, then the detail disclosure", async () => {
+    const order = await orderAt("/sld");
+    expectInOrder(order, [
+      "Foundation version",
+      "Kalangala Mini-Grid · configured single line diagram",
+      "What each configured part is",
+      "Diagram detail",
+    ]);
+  });
+});
