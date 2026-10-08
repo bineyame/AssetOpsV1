@@ -202,6 +202,45 @@ function Invoke-DependencyDirectionCheck {
         }
     }
 
+    # S2-01b phase 2: the other side of the same process boundary. The Lab host
+    # reaches the gateway only through its authenticated channel module
+    # (`assetops_gateway.ipc`); importing the service, ledger or snapshot module
+    # would let the host write the outbox in-process and skip the channel's
+    # authentication. The product never imports the gateway at all. Host tests
+    # are exempt: they inspect the ledger to prove what the channel did.
+    $hostGatewayImport = '^\s*(?:from|import)\s+assetops_gateway(?:\.(?<module>\w+))?'
+    $hostChannelImports = 0
+    foreach ($module in @(Get-ScannedModules -Root "host" -Extensions @(".py"))) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match $hostGatewayImport) {
+                if ($Matches['module'] -eq 'ipc') {
+                    $hostChannelImports++
+                }
+                else {
+                    $failures.Add(("The Lab host imports the gateway beyond its channel at " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()). The host may import " +
+                        "assetops_gateway.ipc only.")) | Out-Null
+                }
+            }
+        }
+    }
+    if ($hostChannelImports -eq 0) {
+        $failures.Add(("No host module imports assetops_gateway.ipc, so the host-side " +
+            "gateway boundary check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    foreach ($module in @(Get-ScannedModules -Root "backend" -Extensions @(".py") -IncludeTests)) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match $hostGatewayImport) {
+                $failures.Add(("The product imports the gateway at $($module.Path):${lineNumber}: " +
+                    "$($line.Trim()). Only the Lab host composes it.")) | Out-Null
+            }
+        }
+    }
+
     # --- Staged content is not accepted evidence --------------------------------
     #
     # T023. A staged source envelope is what a later Commit would release, not
