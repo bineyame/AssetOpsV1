@@ -141,6 +141,15 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         # interval or exactly at its end_time, where the kernel can still
         # stamp a public reading. One run cites one basis.
         "REGISTERED_BASIS_BOUNDARY",
+        # S2-01b (D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary):
+        # a publication profile whose simulated device resolution is stated
+        # against registered binding source units, selected for a Site with
+        # no registered basis to check it against.
+        "PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE",
+        # S2-01b: a declared device resolution's unit differs from the
+        # registered binding's source unit for that signal. Nothing rounds in
+        # a unit the binding does not publish.
+        "PUBLICATION_UNIT_MISMATCH",
     }
 )
 

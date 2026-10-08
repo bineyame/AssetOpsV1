@@ -98,6 +98,12 @@ class RegisteredLabBasis:
             site=selection.record,
             signal_mappings=_signal_mappings(selection),
             basis=_basis(selection, start_time),
+            source_units=tuple(
+                sorted(
+                    (b.device_id, b.signal_id, b.source_unit)
+                    for b in selection.binding_set.bindings
+                )
+            ),
         )
 
 

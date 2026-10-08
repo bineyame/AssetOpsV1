@@ -155,3 +155,7 @@ class RegisteredSiteSelection:
     site: SiteRecord
     signal_mappings: tuple[FrozenSignalMapping, ...]
     basis: RegisteredBasis
+    #: S2-01b: every registered binding's (device, signal, source unit), which
+    #: run setup checks a publication profile's declared resolution unit
+    #: against before freezing it.
+    source_units: tuple[tuple[str, str, str], ...] = ()

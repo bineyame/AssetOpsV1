@@ -50,6 +50,7 @@ from typing import Any, Mapping, NoReturn
 
 from assetops_contracts.control import DISCRETE_UNIT as DISCRETE_VALUE_UNIT
 from assetops_contracts.execution_contract import MODEL_NEED_ONLY_UNITS
+from assetops_contracts.observation import device_resolution
 
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.runs.identity import validate_run_id
@@ -73,6 +74,7 @@ from assetops_backend.runs.models import (
     FrozenParameter,
     FrozenProfileBinding,
     FrozenPublicationIdentity,
+    FrozenSignalResolution,
     FrozenScenarioBinding,
     FrozenSignalMapping,
     FrozenSiteBinding,
@@ -860,6 +862,23 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 }
                 for item in identity.bus_attachments
             ],
+            # S2-01b: written only when frozen, so every earlier run's stored
+            # document keeps its exact bytes.
+            **(
+                {
+                    "signal_resolutions": [
+                        {
+                            "device_id": item.device_id,
+                            "signal_id": item.signal_id,
+                            "unit": item.unit,
+                            "resolution": item.resolution,
+                        }
+                        for item in identity.signal_resolutions
+                    ]
+                }
+                if identity.signal_resolutions
+                else {}
+            ),
         },
         "blocking_reasons": [
             {
@@ -1342,7 +1361,43 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
                 else []
             )
         ),
+        signal_resolutions=_parse_signal_resolutions(raw),
     )
+
+
+def _parse_signal_resolutions(
+    raw: Mapping[str, Any],
+) -> tuple[FrozenSignalResolution, ...]:
+    """S2-01b: the frozen device resolutions, absent on every earlier run.
+
+    A stored list is never empty, because an empty one is not written; one
+    that is would be a document this build did not write.
+    """
+    if raw.get("signal_resolutions") is None:
+        return ()
+    entries = _entries(raw, "signal_resolutions", where="deterministic_identity")
+    if not entries:
+        raise _bad(
+            "'deterministic_identity.signal_resolutions' is written only when a "
+            "resolution was frozen, so it is never an empty list."
+        )
+    frozen: list[FrozenSignalResolution] = []
+    for entry in entries:
+        item = _mapping(entry, where="signal_resolution")
+        resolution = _text(item, "resolution", where="signal_resolution")
+        try:
+            device_resolution(resolution)
+        except ValueError as error:
+            raise _bad(f"'signal_resolution.resolution': {error}") from error
+        frozen.append(
+            FrozenSignalResolution(
+                device_id=_text(item, "device_id", where="signal_resolution"),
+                signal_id=_text(item, "signal_id", where="signal_resolution"),
+                unit=_text(item, "unit", where="signal_resolution"),
+                resolution=resolution,
+            )
+        )
+    return tuple(frozen)
 
 def _parse_model_need(entry: Any) -> FrozenModelNeed:
     """One model-owned Foundation need (T024), with its absent case checked."""

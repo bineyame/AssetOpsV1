@@ -1392,6 +1392,13 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
                 "bias": str(signal.bias),
                 "dropout_per_thousand": signal.dropout_per_thousand,
                 "statement": signal.statement,
+                # S2-01b: only when the profile declares one, so every earlier
+                # projection keeps its exact bytes.
+                **(
+                    {}
+                    if signal.resolution is None
+                    else {"resolution": str(signal.resolution)}
+                ),
             }
             for signal in projection.signals
         ],
@@ -1679,6 +1686,14 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                     bias=_exact(row["bias"], f"the bias of {row['signal_id']}"),
                     dropout_per_thousand=int(row["dropout_per_thousand"]),
                     statement=str(row["statement"]),
+                    resolution=(
+                        None
+                        if row.get("resolution") is None
+                        else _exact(
+                            row["resolution"],
+                            f"the resolution of {row['signal_id']}",
+                        )
+                    ),
                 )
                 for row in document["signals"]
             ),

@@ -81,7 +81,9 @@ function Invoke-RunSetupCheck {
 
     # The two records that carry a cadence, a simulator source identity and a
     # gateway identity.
-    $resolvedRecords = @("FrozenObservationBinding", "FrozenPublicationIdentity")
+    # S2-01b adds the simulated device resolution, which is likewise resolved
+    # from the selected profile only.
+    $resolvedRecords = @("FrozenObservationBinding", "FrozenPublicationIdentity", "FrozenSignalResolution")
 
     # `profiles.py` RESOLVES them from the selected profile. `parsing.py`
     # reconstructs them when a stored run is read back, which is a round trip

@@ -124,6 +124,7 @@ def refuse_numeric_error_on_a_discrete_signal(
     reading_class: str,
     canonical_unit: str,
     bias: object,
+    resolution: object = None,
 ) -> None:
     """T025b: a discrete (enum) signal is a state at an instant, reported as is.
 
@@ -151,6 +152,50 @@ def refuse_numeric_error_on_a_discrete_signal(
             "do not apply to a member of a closed set, so they are refused on an "
             "enum rather than silently ignored."
         )
+    if resolution is not None:
+        raise ValueError(
+            f"Signal {signal_id!r} on {device_id!r} reports a discrete state and "
+            f"declares a numeric resolution of {resolution}. A member of a closed "
+            "set is published as is, so no device resolution applies to it."
+        )
+
+
+def device_resolution(text: str) -> Fraction:
+    """One authored device resolution, as the exact positive quantum it names.
+
+    S2-01b (`D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`).
+    Authored as a finite decimal such as `0.000001` and read exactly; a float
+    would make the quantum itself inexact.
+    """
+    if not isinstance(text, str) or not text or "/" in text:
+        raise ValueError(
+            f"A device resolution is authored as a finite decimal, not {text!r}."
+        )
+    quantum = Fraction(text)
+    if quantum <= 0:
+        raise ValueError(
+            f"A device resolution of {text} is not a positive quantum."
+        )
+    return quantum
+
+
+def quantize_half_even(value: Fraction, quantum: Fraction) -> Fraction:
+    """The multiple of `quantum` nearest `value`, ties to the even multiple.
+
+    The simulated device's own rounding, applied once after its modeled bias and
+    before the reading becomes public. Exact rational arithmetic throughout: the
+    multiple is chosen by comparing the remainder with half a quantum, never by
+    a float or a decimal context.
+    """
+    if quantum <= 0:
+        raise ValueError(f"A quantum of {quantum} is not positive.")
+    steps = value / quantum
+    floor = steps.numerator // steps.denominator
+    remainder = steps - floor
+    half = Fraction(1, 2)
+    if remainder > half or (remainder == half and floor % 2 == 1):
+        floor += 1
+    return floor * quantum
 
 
 class ReportingResolutionUnrepresentable(Exception):
@@ -351,8 +396,17 @@ class DeviceSignalSpec:
     bias: Fraction
     dropout_per_thousand: int
     statement: str
+    #: S2-01b. The simulated device's published resolution in `canonical_unit`,
+    #: from `registered-kobo-publication` v1. None on every earlier profile,
+    #: whose readings are published exactly as before.
+    resolution: Fraction | None = None
 
     def __post_init__(self) -> None:
+        if self.resolution is not None and self.resolution <= 0:
+            raise ValueError(
+                f"Signal {self.signal_id!r} on {self.device_id!r} declares a "
+                f"resolution of {self.resolution}, which is not a positive quantum."
+            )
         if self.reading_class not in REPORTABLE_READING_CLASSES:
             raise ValueError(
                 f"Signal {self.signal_id!r} on {self.device_id!r} reports a "
@@ -378,6 +432,7 @@ class DeviceSignalSpec:
             reading_class=self.reading_class,
             canonical_unit=self.canonical_unit,
             bias=self.bias,
+            resolution=self.resolution,
         )
 
     @property
@@ -414,7 +469,7 @@ class DeviceSignalSpec:
             self.cadence_minutes,
             self.bias,
             self.dropout_per_thousand,
-        )
+        ) + (() if self.resolution is None else (self.resolution,))
 
 
 @dataclass(frozen=True)

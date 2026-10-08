@@ -1692,6 +1692,11 @@ class TestEveryFrozenValueNamesAnAnswerer:
             ("FrozenBusAttachment", "via_component_id"),
             ("FrozenBusAttachment", "bus_component_id"),
             ("FrozenBusAttachment", "connection_ids"),
+            # S2-01b: one row per frozen device resolution.
+            ("FrozenSignalResolution", "device_id"),
+            ("FrozenSignalResolution", "signal_id"),
+            ("FrozenSignalResolution", "unit"),
+            ("FrozenSignalResolution", "resolution"),
         }
 
         # Frozen and inspectable through the structured identity, and
@@ -2074,6 +2079,7 @@ class TestEveryRefusalKindIsReachable:
             self._publication_hold_batches().kind,
             self._site_awaiting_migration().kind,
             *self._registered_basis_refusals(),
+            *self._device_resolution_refusals(),
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
@@ -2095,6 +2101,12 @@ class TestEveryRefusalKindIsReachable:
             request(interval={"start_time": "2026-10-04T18:00:00Z", "end_time": "2026-10-05T06:00:00Z"}),
         )
         return {unavailable.kind, boundary.kind}
+
+    def _device_resolution_refusals(self) -> set[str]:
+        """S2-01b: the registered-Kobo profile on a legacy Site, and a unit mismatch."""
+        from test_s2_registered_resolution import legacy_site_refusal, unit_mismatch_refusal
+
+        return {legacy_site_refusal().kind, unit_mismatch_refusal().kind}
 
     def _site_awaiting_migration(self) -> RunSetupRefused:
         """S1-01: an imported Site's code refuses new Draft setup."""

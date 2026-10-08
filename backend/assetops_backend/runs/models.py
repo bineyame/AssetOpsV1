@@ -496,6 +496,24 @@ class FrozenPublicationIdentity:
 
 
 @dataclass(frozen=True)
+class FrozenSignalResolution:
+    """One simulated device signal's published resolution, frozen with the run.
+
+    S2-01b (`D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`).
+    Resolved from the selected publication profile only, like the gateway and
+    source identities beside it; a profile that declares none freezes none, so
+    every run set up before `registered-kobo-publication` v1 reads back with an
+    empty tuple and unchanged bytes. `unit` is the unit the resolution is stated
+    in, which run setup has checked equals the registered binding's source unit.
+    """
+
+    device_id: str
+    signal_id: str
+    unit: str
+    resolution: str
+
+
+@dataclass(frozen=True)
 class FrozenSignalMapping:
     """One device-to-signal mapping the Foundation declares, frozen by identity.
 
@@ -900,6 +918,10 @@ class DeterministicIdentity:
     #: attachments. Absent (empty) on a run whose profile has no bus, and on
     #: an earlier version-9 record, which the model refuses at execution.
     bus_attachments: tuple[FrozenBusAttachment, ...] = ()
+    #: S2-01b. Per-signal simulated device resolutions from the selected
+    #: publication profile. Empty, and absent from the stored document, on
+    #: every run whose profile declares none.
+    signal_resolutions: tuple[FrozenSignalResolution, ...] = ()
 
 
 @dataclass(frozen=True)

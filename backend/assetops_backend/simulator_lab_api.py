@@ -835,6 +835,24 @@ def publication_profile_summary(
             }
             for state in profile.supported_reporting_states
         ],
+        # S2-01b: the simulated device resolutions this profile declares, in
+        # each signal's own unit. Empty for a profile that publishes exactly;
+        # a non-empty list means run setup accepts it only for a registered
+        # Site whose binding source units match.
+        "device_resolutions": [
+            {
+                "device_id": declaration.device_id,
+                "signal_id": declaration.signal_id,
+                "unit": declaration.canonical_unit,
+                "resolution": declaration.resolution,
+            }
+            for declaration in profile.device_signals
+            if declaration.resolution is not None
+        ],
+        "requires_registered_site": any(
+            declaration.resolution is not None
+            for declaration in profile.device_signals
+        ),
     }
 
 
@@ -1183,6 +1201,11 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
                 "bias": exact(signal.bias),
                 "dropout_per_thousand": signal.dropout_per_thousand,
                 "statement": signal.statement,
+                # S2-01b: the simulated device resolution, or null when the
+                # run's profile publishes exactly.
+                "resolution": (
+                    None if signal.resolution is None else exact(signal.resolution)
+                ),
             }
             for signal in projection.signals
         ],

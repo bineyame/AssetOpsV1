@@ -90,6 +90,7 @@ from assetops_backend.runs.models import (
     FrozenProfileBinding,
     FrozenScenarioBinding,
     FrozenSignalMapping,
+    FrozenSignalResolution,
     FrozenSiteBinding,
     FrozenTemplateLineage,
     SimulationRun,
@@ -117,6 +118,7 @@ from assetops_backend.runs.profiles import (
     find_publication_profile,
     resolve_observation_binding,
     resolve_publication_identity,
+    resolve_signal_resolutions,
     state_authority,
 )
 from assetops_backend.runs.refusals import refuse
@@ -438,6 +440,12 @@ class RunSetupService:
             # The registered binding set, not the Foundation content's legacy
             # mapping list, says which component a device signal describes.
             identity = replace(identity, signal_mappings=selection.signal_mappings)
+        identity = replace(
+            identity,
+            signal_resolutions=self._freeze_signal_resolutions(
+                request, publication, selection
+            ),
+        )
 
         reasons, optional = self._decide(
             scenario=scenario,
@@ -600,6 +608,58 @@ class RunSetupService:
                 f"{request.publication_profile_version} exists in this build.",
             )
         return profile
+
+    def _freeze_signal_resolutions(
+        self,
+        request: RunSetupRequest,
+        publication: PublicationProfile,
+        selection: RegisteredSiteSelection | None,
+    ) -> tuple[FrozenSignalResolution, ...]:
+        """S2-01b: freeze the profile's device resolutions, or refuse.
+
+        `D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`. A
+        profile that declares none freezes none. One that does is selectable
+        only for a registered Site, and each declared unit must equal the
+        registered binding's source unit for that device signal: a mismatch
+        refuses rather than rounding in a unit the binding does not publish. A
+        declared signal the binding set does not bind is not a reporting path
+        of this run, so there is no unit to disagree with.
+        """
+        resolutions = resolve_signal_resolutions(publication)
+        if not resolutions:
+            return ()
+        named = (
+            f"{publication.publication_profile_id!r} at version "
+            f"{publication.publication_profile_version}"
+        )
+        if selection is None:
+            raise refuse(
+                "PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE",
+                f"Publication profile {named} states a simulated device "
+                "resolution against registered binding source units, and site "
+                f"{request.site_id} has no registered basis to check them "
+                "against. No run was created.",
+            )
+        units = {
+            (device_id, signal_id): unit
+            for device_id, signal_id, unit in selection.source_units
+        }
+        mismatched = [
+            f"{item.device_id}/{item.signal_id} declares {item.unit!r} and the "
+            f"binding publishes {units[(item.device_id, item.signal_id)]!r}"
+            for item in resolutions
+            if (item.device_id, item.signal_id) in units
+            and units[(item.device_id, item.signal_id)] != item.unit
+        ]
+        if mismatched:
+            raise refuse(
+                "PUBLICATION_UNIT_MISMATCH",
+                f"Publication profile {named} declares a device resolution in a "
+                f"unit the registered binding does not publish: "
+                f"{'; '.join(mismatched)}. Nothing is rounded in an assumed "
+                "unit. No run was created.",
+            )
+        return resolutions
 
     # --- Refusals: what cannot be frozen ------------------------------------
 
