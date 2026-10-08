@@ -104,17 +104,31 @@ function CommitBody({
   const { commit, release, open_in_assetops, release_error } = read.commit;
 
   if (commit === "NOT_COMMITTED") {
-    const eligible = stage !== null && stage.status === "loaded" && stage.stage.release_eligible;
+    // S2-01a: the configuration this Draft froze can forbid release whatever
+    // the stage says - every run on a registered Site, and a legacy Draft
+    // whose Site has since been registered. The server refuses either way.
+    const basisBlock = commitBasisBlock(stage);
+    const eligible =
+      basisBlock === null &&
+      stage !== null &&
+      stage.status === "loaded" &&
+      stage.stage.release_eligible;
     const blockers =
       stage !== null && stage.status === "loaded" ? stage.stage.release_blockers : [];
     return (
       <>
-        <p id="run-commit-reason" data-commit-state="NOT_COMMITTED">
-          {eligible
+        <p
+          id="run-commit-reason"
+          data-commit-state="NOT_COMMITTED"
+          data-commit-basis-block={basisBlock === null ? undefined : ""}
+        >
+          {basisBlock !== null
+            ? basisBlock
+            : eligible
             ? "Not committed. Commit seals this draft's stage as an immutable artifact and releases it through ingestion; what ingestion accepts is reported here separately."
             : "Not committed. Commit is available only when the stage is eligible for release, and this stage is not."}
         </p>
-        {eligible || blockers.length === 0 ? null : (
+        {eligible || basisBlock !== null || blockers.length === 0 ? null : (
           <ul className="cell-list" data-commit-blockers>
             {blockers.map((blocker) => (
               <li key={blocker.kind} data-commit-blocker={blocker.kind}>
@@ -240,4 +254,44 @@ function Refusal({ answer }: { answer: RunCommitResult }) {
 function shortDigest(digest: string): string {
   const bare = digest.includes(":") ? digest.slice(digest.indexOf(":") + 1) : digest;
   return bare.length <= 12 ? digest : `${digest.slice(0, digest.length - bare.length)}${bare.slice(0, 12)}…`;
+}
+
+/**
+ * Why the frozen configuration forbids Commit, or null when it does not.
+ *
+ * Read from the Stage read's `frozen_basis`; a backend that does not report
+ * one leaves the stage's own eligibility to decide, as before.
+ */
+export function commitBasisBlock(stage: RunStageResult | null): string | null {
+  if (stage === null || stage.status !== "loaded") {
+    return null;
+  }
+  const basis = stage.frozenBasis;
+  if (basis === undefined || basis?.can_release) {
+    return null;
+  }
+  if (basis === null) {
+    return (
+      "Not committed. The configuration this draft froze could not be read, " +
+      "so nothing is offered for release."
+    );
+  }
+  if (basis.configuration_store === "REGISTERED") {
+    return (
+      "Not committed. This run was set up from a registered Site configuration, " +
+      "and committing such runs is not available yet: accepted Site evidence " +
+      "for registered Sites is not delivered in this build."
+    );
+  }
+  if (basis.site_imported === null) {
+    return (
+      "Not committed. Whether this Site has since been registered could not be " +
+      "checked, so nothing is offered for release."
+    );
+  }
+  return (
+    "Not committed. This draft was set up from the legacy Site file and the " +
+    "Site has since been registered, so the draft is read-only history and " +
+    "cannot be committed."
+  );
 }

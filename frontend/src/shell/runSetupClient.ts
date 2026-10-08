@@ -114,6 +114,50 @@ export interface RunUnsupportedOptionalInput {
   statement: string;
 }
 
+/**
+ * The Site metadata a registered Draft froze at setup (S2-01a).
+ *
+ * Name, time zone and type are the Site's current record as read when the
+ * Draft was created. They are not selected by the knowledge time: only the
+ * Foundation and binding revisions are.
+ */
+export interface RunSiteMetadata {
+  display_name: string;
+  timezone: string;
+  site_type: string;
+  source: string;
+}
+
+/**
+ * Which configuration a run was set up from (S2-01a).
+ *
+ * `LEGACY_FILE` for a run against a legacy Site document. `REGISTERED` for a
+ * run against a registered Site: the exact revisions and snapshot hash it
+ * froze. A registered basis is configuration, never accepted evidence.
+ */
+export type RunConfigurationBasis =
+  | { store: "LEGACY_FILE" }
+  | {
+      store: "REGISTERED";
+      selection: string;
+      source_start: string;
+      knowledge_at: string;
+      foundation_revision_id: string;
+      foundation_version: number;
+      foundation_valid_from: string;
+      foundation_valid_to: string | null;
+      binding_set_revision_id: string;
+      binding_set_version: number;
+      binding_valid_from: string;
+      binding_valid_to: string | null;
+      snapshot_schema: string;
+      snapshot_sha256: string;
+      snapshot_byte_length: number;
+      current_registration_gaps: string[];
+      site_metadata: RunSiteMetadata;
+      accepted_evidence: false;
+    };
+
 export interface RunSummary {
   run_id: string;
   lifecycle_status: string;
@@ -136,6 +180,11 @@ export interface RunSummary {
   frozen_inputs: RunFrozenInput[];
   blocking_reasons: RunBlockingReason[];
   unsupported_optional_inputs: RunUnsupportedOptionalInput[];
+  /**
+   * Absent from a backend that predates S2-01a; the screen then says the
+   * basis was not reported rather than guessing.
+   */
+  configuration_basis?: RunConfigurationBasis;
 }
 
 /**
@@ -256,6 +305,8 @@ export type CreateRunResult =
       status: "refused";
       code: string | null;
       refusalKind: string | null;
+      /** The specific configuration reason, e.g. `BINDINGS_NOT_REGISTERED`. */
+      reasonCode?: string | null;
       message: string;
     }
   /**
@@ -697,8 +748,22 @@ export interface RunStage {
   envelopes: RunStagedEnvelope[];
 }
 
+/** What the Stage read says about the configuration the Draft froze. */
+export interface RunStageFrozenBasis {
+  configuration_store: string;
+  site_imported: boolean | null;
+  can_release: boolean;
+  statement: string;
+  registered_basis?: RunConfigurationBasis;
+}
+
 export type RunStageResult =
-  | { status: "loaded"; stage: RunStage }
+  | {
+      status: "loaded";
+      stage: RunStage;
+      /** Absent: not reported. Null: reported and unreadable. */
+      frozenBasis?: RunStageFrozenBasis | null;
+    }
   | { status: "not_found" }
   | { status: "unavailable"; message: string | null };
 
@@ -961,8 +1026,74 @@ export function isRunSummary(value: unknown): value is RunSummary {
     Array.isArray(value.blocking_reasons) &&
     value.blocking_reasons.every(isBlockingReason) &&
     Array.isArray(value.unsupported_optional_inputs) &&
-    value.unsupported_optional_inputs.every(isUnsupportedOptional)
+    value.unsupported_optional_inputs.every(isUnsupportedOptional) &&
+    (value.configuration_basis === undefined ||
+      isRunConfigurationBasis(value.configuration_basis))
   );
+}
+
+function isSiteMetadata(value: unknown): value is RunSiteMetadata {
+  return (
+    isRecord(value) &&
+    typeof value.display_name === "string" &&
+    typeof value.timezone === "string" &&
+    typeof value.site_type === "string" &&
+    typeof value.source === "string"
+  );
+}
+
+/** A whole configuration basis; half of one is not rendered. */
+export function isRunConfigurationBasis(
+  value: unknown,
+): value is RunConfigurationBasis {
+  if (!isRecord(value)) {
+    return false;
+  }
+  if (value.store === "LEGACY_FILE") {
+    return true;
+  }
+  return (
+    value.store === "REGISTERED" &&
+    typeof value.selection === "string" &&
+    typeof value.source_start === "string" &&
+    typeof value.knowledge_at === "string" &&
+    typeof value.foundation_revision_id === "string" &&
+    typeof value.foundation_version === "number" &&
+    typeof value.foundation_valid_from === "string" &&
+    isNullableString(value.foundation_valid_to) &&
+    typeof value.binding_set_revision_id === "string" &&
+    typeof value.binding_set_version === "number" &&
+    typeof value.binding_valid_from === "string" &&
+    isNullableString(value.binding_valid_to) &&
+    typeof value.snapshot_schema === "string" &&
+    typeof value.snapshot_sha256 === "string" &&
+    typeof value.snapshot_byte_length === "number" &&
+    isStringArray(value.current_registration_gaps) &&
+    isSiteMetadata(value.site_metadata) &&
+    value.accepted_evidence === false
+  );
+}
+
+/**
+ * The Stage read's frozen basis: `undefined` when the backend reported none
+ * (it predates S1-01), `null` when it reported one this client cannot read.
+ */
+function readFrozenBasis(value: unknown): RunStageFrozenBasis | null | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (
+    !isRecord(value) ||
+    typeof value.configuration_store !== "string" ||
+    !(value.site_imported === null || typeof value.site_imported === "boolean") ||
+    typeof value.can_release !== "boolean" ||
+    typeof value.statement !== "string" ||
+    (value.registered_basis !== undefined &&
+      !isRunConfigurationBasis(value.registered_basis))
+  ) {
+    return null;
+  }
+  return value as unknown as RunStageFrozenBasis;
 }
 
 function isStringArray(value: unknown): boolean {
@@ -1566,6 +1697,10 @@ export function createRunSetupClient(
             isRecord(detail) && typeof detail.refusal_kind === "string"
               ? detail.refusal_kind
               : null,
+          reasonCode:
+            isRecord(detail) && typeof detail.reason_code === "string"
+              ? detail.reason_code
+              : null,
           message: message ?? "The run setup request was refused.",
         };
       }
@@ -1653,7 +1788,11 @@ export function createRunSetupClient(
         return { status: "not_found" };
       }
       if (response.ok && isRunStage(parsed?.stage)) {
-        return { status: "loaded", stage: parsed.stage as RunStage };
+        return {
+          status: "loaded",
+          stage: parsed.stage as RunStage,
+          frozenBasis: readFrozenBasis(parsed.frozen_basis),
+        };
       }
       const detail = parsed?.detail;
       return {
