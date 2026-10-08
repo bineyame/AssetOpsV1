@@ -1146,6 +1146,52 @@ if (process.env.ASSETOPS_LAYOUT_T028_JOURNEY_ONLY === "1") {
   process.exit(allPass ? 0 : 1);
 }
 
+if (process.env.ASSETOPS_LAYOUT_S2_01A_RUN) {
+  // S2-01a: a run set up from a registered basis, measured alone. The run ID
+  // names an already created registered Draft; nothing else in this file runs.
+  const runId = process.env.ASSETOPS_LAYOUT_S2_01A_RUN;
+  for (const [width, height] of [[1280, 800], [640, 700]]) {
+    await visit(cdp, `/simulator-lab/runs/${runId}`, width, height, "[data-run-basis]");
+    await waitForSelector(cdp, "[data-commit-state]");
+    const read = await cdp.send("Runtime.evaluate", {
+      expression: `(() => {
+        const doc = document.scrollingElement;
+        const basis = document.querySelector("[data-run-basis]");
+        const sha = document.querySelector("[data-run-basis-sha256]");
+        const meta = document.querySelector("[data-run-basis-site-metadata]");
+        const stage = document.querySelector("[data-stage-basis]");
+        const commit = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Commit and release");
+        const shaBox = sha ? sha.getBoundingClientRect() : null;
+        return {
+          scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth,
+          basis: basis ? basis.getAttribute("data-run-basis") : null,
+          sha: sha ? sha.textContent : "",
+          shaRight: shaBox ? Math.round(shaBox.right) : null,
+          meta: meta ? meta.parentElement.textContent : "",
+          stage: stage ? stage.getAttribute("data-stage-basis") : null,
+          commitDisabled: commit ? commit.disabled : null,
+          basisBlock: document.querySelector("[data-commit-basis-block]") !== null,
+        };
+      })()`,
+      returnByValue: true,
+    });
+    const m = read.result.value;
+    allPass = report(`S2-01a registered run ${runId} at ${width}x${height}`, m, [
+      ["the page does not scroll horizontally", m.scrollWidth <= m.clientWidth, `scrollWidth ${m.scrollWidth} vs clientWidth ${m.clientWidth}`],
+      ["the configuration basis is drawn as registered", m.basis === "REGISTERED", String(m.basis)],
+      ["the snapshot hash is drawn in full, so the set measured is not empty", /^[0-9a-f]{64}$/.test(m.sha), m.sha],
+      ["the hash ends inside the viewport", m.shaRight !== null && m.shaRight <= m.clientWidth, `right ${m.shaRight}`],
+      ["Site name and time zone are labelled as setup metadata", /Not chosen by the knowledge time/.test(m.meta), m.meta.slice(0, 60)],
+      ["the Stage read is labelled registered", m.stage === "REGISTERED", String(m.stage)],
+      ["Commit is disabled with the basis reason", m.commitDisabled === true && m.basisBlock, `disabled ${m.commitDisabled}, basis block ${m.basisBlock}`],
+    ]) && allPass;
+  }
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  process.exit(allPass ? 0 : 1);
+}
+
 if (READBACK_ARG > 0) {
   // T025c's second invocation, made after the host was stopped and started
   // again over the same store: no live session exists for the run any more.
