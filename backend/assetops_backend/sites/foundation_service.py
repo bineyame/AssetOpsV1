@@ -26,6 +26,7 @@ from assetops_backend.sites.foundation_content import (
 )
 from assetops_backend.sites.foundation_records import (
     AssetRow,
+    BindingSetRevisionRow,
     FoundationSiteCodeTaken,
     FoundationSiteNotFound,
     FoundationStore,
@@ -52,6 +53,19 @@ def utc_now() -> datetime:
 
 def _forever_after(value: datetime | None) -> datetime:
     return value if value is not None else datetime.max.replace(tzinfo=timezone.utc)
+
+
+def binding_set_at(
+    sets: Sequence[BindingSetRevisionRow], at: datetime, knowledge_at: datetime
+) -> BindingSetRevisionRow | None:
+    """The one binding set revision whose valid AND recorded intervals contain both instants."""
+    matches = [
+        row
+        for row in sets
+        if row.valid_from <= at < _forever_after(row.valid_to)
+        and row.recorded_at <= knowledge_at < _forever_after(row.superseded_at)
+    ]
+    return matches[0] if len(matches) == 1 else None
 
 
 def revision_at(
@@ -272,6 +286,10 @@ class FoundationView:
     revisions: tuple[RevisionRow, ...]
     registrations: Registrations
     record: SiteRecord
+    #: Every binding set revision of the Site, and the one effective at
+    #: (`at`, `knowledge_at`), or None when no binding set is in effect (S1-02).
+    binding_sets: tuple[BindingSetRevisionRow, ...] = ()
+    binding_set: BindingSetRevisionRow | None = None
 
 
 @dataclass(frozen=True)
@@ -299,6 +317,10 @@ class FoundationService:
     def now(self) -> datetime:
         return self._clock()
 
+    @property
+    def clock(self) -> Clock:
+        return self._clock
+
     def site(self, tenant: TenantRef, site_code: str) -> StoredSite | None:
         return self._store.find_site(tenant.id, site_code)
 
@@ -318,6 +340,7 @@ class FoundationService:
                 "The current configuration is not substituted.",
                 status=404,
             )
+        binding_sets = tuple(self._store.binding_sets(tenant.id, site.id))
         return FoundationView(
             tenant=tenant,
             site=site,
@@ -328,6 +351,8 @@ class FoundationService:
             revisions=revisions,
             registrations=self._store.registrations(tenant.id, site.id),
             record=record_at(site, revision),
+            binding_sets=binding_sets,
+            binding_set=binding_set_at(binding_sets, resolved_at, resolved_knowledge),
         )
 
     def publish_battery_reserve(

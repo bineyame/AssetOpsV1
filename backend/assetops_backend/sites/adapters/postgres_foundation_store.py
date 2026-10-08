@@ -23,6 +23,12 @@ from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, Program
 
 from assetops_backend.sites.foundation_records import (
     AssetRow,
+    BindingOverlap,
+    BindingRow,
+    BindingSetRevisionRow,
+    ConfigurationPlan,
+    ConfigurationPlanner,
+    ConfigurationState,
     FoundationOverlap,
     FoundationSiteCodeTaken,
     FoundationSiteNotFound,
@@ -126,10 +132,17 @@ class PostgresFoundationStore:
                     return work(connection)
             with engine.connect() as connection:
                 return work(connection)
-        except (FoundationSiteNotFound, FoundationOverlap, FoundationSiteCodeTaken, TenantNotFound):
+        except (
+            FoundationSiteNotFound, FoundationOverlap, BindingOverlap, FoundationSiteCodeTaken, TenantNotFound
+        ):
             raise
         except IntegrityError as error:
             message = str(error.orig)
+            if "binding_set_no_current_overlap" in message or "binding_no_current_channel_overlap" in message:
+                raise BindingOverlap(
+                    "The change would overlap a currently recorded binding set or channel "
+                    "binding for this Site; nothing was written."
+                ) from error
             if "foundation_revision_no_current_overlap" in message:
                 raise FoundationOverlap(
                     "The change would overlap a currently recorded Foundation period "
@@ -452,6 +465,180 @@ class PostgresFoundationStore:
                     )
             for revision in plan.inserts:
                 self._insert_revision(connection, tenant_id, site_id, revision)
+            return plan
+
+        return self._run(work, write=True)
+
+    # --- signal bindings (S1-02) --------------------------------------------
+
+    @staticmethod
+    def _select_binding_sets(
+        connection: Connection, tenant_id: UUID, site_id: UUID
+    ) -> tuple[BindingSetRevisionRow, ...]:
+        params = {"tenant_id": tenant_id, "site_id": site_id}
+        rows = connection.execute(
+            text(
+                "SELECT id, binding_set_id, version, role_set, valid_from, valid_to, recorded_at, "
+                "superseded_at, bindings_sha256, origin, derived_from_revision_id, change_note "
+                "FROM signal_binding_set_revision WHERE tenant_id = :tenant_id AND site_id = :site_id "
+                "ORDER BY version"
+            ),
+            params,
+        ).all()
+        bindings = connection.execute(
+            text(
+                "SELECT id, binding_set_revision_id, gateway_id, source_id, device_id, signal_id, "
+                "asset_id, role, source_unit, canonical_unit, conversion FROM signal_binding_revision "
+                "WHERE tenant_id = :tenant_id AND site_id = :site_id ORDER BY device_id, signal_id"
+            ),
+            params,
+        ).all()
+        by_set: dict[UUID, list[BindingRow]] = {}
+        for b in bindings:
+            by_set.setdefault(b.binding_set_revision_id, []).append(
+                BindingRow(
+                    id=b.id,
+                    gateway_id=b.gateway_id,
+                    source_id=b.source_id,
+                    device_id=b.device_id,
+                    signal_id=b.signal_id,
+                    asset_id=b.asset_id,
+                    role=b.role,
+                    source_unit=b.source_unit,
+                    canonical_unit=b.canonical_unit,
+                    conversion=b.conversion,
+                )
+            )
+        return tuple(
+            BindingSetRevisionRow(
+                id=r.id,
+                binding_set_id=r.binding_set_id,
+                version=r.version,
+                role_set=r.role_set,
+                valid_from=r.valid_from,
+                valid_to=r.valid_to,
+                recorded_at=r.recorded_at,
+                superseded_at=r.superseded_at,
+                bindings_sha256=r.bindings_sha256,
+                origin=r.origin,
+                derived_from_revision_id=r.derived_from_revision_id,
+                change_note=r.change_note,
+                bindings=tuple(by_set.get(r.id, ())),
+            )
+            for r in rows
+        )
+
+    def binding_sets(self, tenant_id: UUID, site_id: UUID) -> Sequence[BindingSetRevisionRow]:
+        return self._run(lambda connection: self._select_binding_sets(connection, tenant_id, site_id))
+
+    @staticmethod
+    def _insert_binding_set(
+        connection: Connection, tenant_id: UUID, site_id: UUID, row: BindingSetRevisionRow
+    ) -> None:
+        connection.execute(
+            text(
+                "INSERT INTO signal_binding_set_revision (id, tenant_id, site_id, binding_set_id, version, "
+                "role_set, valid_from, valid_to, recorded_at, superseded_at, bindings_sha256, origin, "
+                "derived_from_revision_id, change_note) VALUES (:id, :tenant_id, :site_id, :set_id, "
+                ":version, :role_set, :valid_from, :valid_to, :recorded_at, NULL, :sha, :origin, "
+                ":derived_from, :note)"
+            ),
+            {
+                "id": row.id,
+                "tenant_id": tenant_id,
+                "site_id": site_id,
+                "set_id": row.binding_set_id,
+                "version": row.version,
+                "role_set": row.role_set,
+                "valid_from": row.valid_from,
+                "valid_to": row.valid_to,
+                "recorded_at": row.recorded_at,
+                "sha": row.bindings_sha256,
+                "origin": row.origin,
+                "derived_from": row.derived_from_revision_id,
+                "note": row.change_note,
+            },
+        )
+        for b in row.bindings:
+            connection.execute(
+                text(
+                    "INSERT INTO signal_binding_revision (id, tenant_id, site_id, binding_set_revision_id, "
+                    "binding_set_id, version, gateway_id, source_id, device_id, signal_id, asset_id, role, "
+                    "source_unit, canonical_unit, conversion, valid_from, valid_to, recorded_at, "
+                    "superseded_at) VALUES (:id, :tenant_id, :site_id, :set_revision_id, :set_id, :version, "
+                    ":gateway_id, :source_id, :device_id, :signal_id, :asset_id, :role, :source_unit, "
+                    ":canonical_unit, CAST(:conversion AS jsonb), :valid_from, :valid_to, :recorded_at, NULL)"
+                ),
+                {
+                    "id": b.id,
+                    "tenant_id": tenant_id,
+                    "site_id": site_id,
+                    "set_revision_id": row.id,
+                    "set_id": row.binding_set_id,
+                    "version": row.version,
+                    "gateway_id": b.gateway_id,
+                    "source_id": b.source_id,
+                    "device_id": b.device_id,
+                    "signal_id": b.signal_id,
+                    "asset_id": b.asset_id,
+                    "role": b.role,
+                    "source_unit": b.source_unit,
+                    "canonical_unit": b.canonical_unit,
+                    "conversion": json.dumps(b.conversion),
+                    "valid_from": row.valid_from,
+                    "valid_to": row.valid_to,
+                    "recorded_at": row.recorded_at,
+                },
+            )
+
+    def publish_configuration(
+        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner
+    ) -> ConfigurationPlan:
+        """One joint Foundation-plus-binding publication under the Site lock."""
+
+        def work(connection: Connection) -> ConfigurationPlan:
+            locked = connection.execute(
+                text("SELECT id FROM site WHERE tenant_id = :tenant_id AND id = :site_id FOR UPDATE"),
+                {"tenant_id": tenant_id, "site_id": site_id},
+            ).first()
+            if locked is None:
+                raise FoundationSiteNotFound("No such Site in this tenant.")
+            plan = planner(
+                ConfigurationState(
+                    revisions=self._select_revisions(connection, tenant_id, site_id),
+                    binding_sets=self._select_binding_sets(connection, tenant_id, site_id),
+                )
+            )
+            scope = {"at": plan.superseded_at, "tenant_id": tenant_id, "site_id": site_id}
+            for revision_id in plan.supersede_revision_ids:
+                result = connection.execute(
+                    text(
+                        "UPDATE foundation_revision SET superseded_at = :at WHERE tenant_id = :tenant_id "
+                        "AND site_id = :site_id AND id = :id AND superseded_at IS NULL"
+                    ),
+                    {**scope, "id": revision_id},
+                )
+                if result.rowcount != 1:
+                    raise FoundationOverlap(
+                        "A revision this change supersedes is no longer current; nothing was written."
+                    )
+            for revision in plan.revision_inserts:
+                self._insert_revision(connection, tenant_id, site_id, revision)
+            for set_id in plan.supersede_binding_set_ids:
+                result = connection.execute(
+                    text(
+                        "UPDATE signal_binding_set_revision SET superseded_at = :at WHERE "
+                        "tenant_id = :tenant_id AND site_id = :site_id AND id = :id AND superseded_at IS NULL"
+                    ),
+                    {**scope, "id": set_id},
+                )
+                if result.rowcount != 1:
+                    raise BindingOverlap(
+                        "A binding set revision this change supersedes is no longer current; "
+                        "nothing was written."
+                    )
+            for row in plan.binding_set_inserts:
+                self._insert_binding_set(connection, tenant_id, site_id, row)
             return plan
 
         return self._run(work, write=True)

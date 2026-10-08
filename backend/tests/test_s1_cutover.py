@@ -188,7 +188,7 @@ class TestReadRouterAndApi:
         assert body["revision"]["revision_id"] == str(imported.revision.id)
         assert body["controls"]["battery_reserve"]["value"] == 30.0
         assert body["controls"]["generator_start_stop"]["state"] == "NOT_CONFIGURED"
-        assert body["bindings"]["state"] == "INCOMPLETE" and body["acquisition_snapshot"]["available"] is False
+        assert body["bindings"]["state"] == "NONE" and body["acquisition_snapshot"]["available"] is False
         published = client.post(
             "/api/sites/KOBO-001/foundation/revisions",
             json={**RESERVE, "value": 25, "valid_from": "2026-10-10T00:00:00Z"},

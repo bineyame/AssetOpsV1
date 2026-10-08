@@ -10,6 +10,7 @@ this module never writes a Site document.
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
 import yaml
@@ -104,3 +105,16 @@ def write_import_report(path_text: str, report: str, *, source_text: str) -> str
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(report, encoding="utf-8")
     return canonical_path(path)
+
+
+def read_binding_conversion(path_text: str) -> tuple[dict, str, str]:
+    """A binding conversion fixture (JSON), its canonical path and SHA-256 (S1-02)."""
+    path = _absolute(path_text)
+    payload = _read_bytes(path)
+    try:
+        document = json.loads(payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise SiteConfigurationInvalid(f"{path} is not a JSON binding conversion fixture: {error}") from error
+    if not isinstance(document, dict):
+        raise SiteConfigurationInvalid(f"{path} must hold one JSON object.")
+    return document, canonical_path(path), hashlib.sha256(payload).hexdigest()

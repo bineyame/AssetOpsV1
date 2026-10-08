@@ -53,7 +53,10 @@ def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
         "/api/sites/{site_id}/findings",
         # S1-01: the persisted Foundation read, versions and narrow publish.
         "/api/sites/{site_id}/foundation",
+        # S1-02: binding publication and the gateway acquisition snapshot.
+        "/api/sites/{site_id}/foundation/bindings",
         "/api/sites/{site_id}/foundation/revisions",
+        "/api/sites/{site_id}/foundation/snapshot",
         "/api/sites/{site_id}/foundation/versions",
         # T027 phase 2: the Overview read, beside Site evidence.
         "/api/sites/{site_id}/overview",

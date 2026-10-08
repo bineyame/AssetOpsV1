@@ -159,6 +159,79 @@ class PublishPlan:
 PublishPlanner = Callable[[Sequence[RevisionRow]], PublishPlan]
 
 
+class BindingOverlap(FoundationStoreError):
+    """A write would overlap a currently recorded binding set or channel (S1-02)."""
+
+
+@dataclass(frozen=True)
+class BindingRow:
+    """One `signal_binding_revision`: a device channel bound to a role (S1-02).
+
+    It carries no interval of its own in the domain: every row of a binding
+    set revision shares that revision's valid and recorded periods, and the
+    adapter writes them onto the row so the database can refuse an
+    overlapping current channel.
+    """
+
+    id: UUID
+    gateway_id: UUID
+    source_id: UUID
+    device_id: str
+    signal_id: str
+    asset_id: UUID | None
+    role: str
+    source_unit: str
+    canonical_unit: str
+    conversion: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class BindingSetRevisionRow:
+    """One time-valid version of a Site's signal binding set (S1-02)."""
+
+    id: UUID
+    binding_set_id: UUID
+    version: int
+    role_set: str
+    valid_from: datetime
+    valid_to: datetime | None
+    recorded_at: datetime
+    superseded_at: datetime | None
+    bindings_sha256: str
+    origin: str
+    derived_from_revision_id: UUID | None
+    change_note: str | None
+    bindings: tuple[BindingRow, ...]
+
+
+@dataclass(frozen=True)
+class ConfigurationState:
+    """Every Foundation and binding set revision of the locked Site."""
+
+    revisions: tuple[RevisionRow, ...]
+    binding_sets: tuple[BindingSetRevisionRow, ...]
+
+
+@dataclass(frozen=True)
+class ConfigurationPlan:
+    """One joint Foundation-plus-binding publication, written atomically.
+
+    Foundation rows are superseded and inserted first, then binding set
+    revisions, in one transaction under the Site lock. Either part may be
+    empty; a binding-only change still validates against the Foundation it
+    reads under the same lock.
+    """
+
+    superseded_at: datetime
+    supersede_revision_ids: tuple[UUID, ...]
+    revision_inserts: tuple[RevisionRow, ...]
+    supersede_binding_set_ids: tuple[UUID, ...]
+    binding_set_inserts: tuple[BindingSetRevisionRow, ...]
+
+
+ConfigurationPlanner = Callable[[ConfigurationState], ConfigurationPlan]
+
+
 class FoundationStore(Protocol):
     """Tenant-scoped persistence for imported Sites and their Foundation."""
 
@@ -181,3 +254,9 @@ class FoundationStore(Protocol):
     def publish(
         self, tenant_id: UUID, site_id: UUID, planner: PublishPlanner
     ) -> PublishPlan: ...
+
+    def binding_sets(self, tenant_id: UUID, site_id: UUID) -> Sequence[BindingSetRevisionRow]: ...
+
+    def publish_configuration(
+        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner
+    ) -> ConfigurationPlan: ...

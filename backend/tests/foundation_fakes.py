@@ -18,6 +18,11 @@ from typing import Sequence
 from uuid import UUID, uuid4
 
 from assetops_backend.sites.foundation_records import (
+    BindingOverlap,
+    BindingSetRevisionRow,
+    ConfigurationPlan,
+    ConfigurationPlanner,
+    ConfigurationState,
     FoundationOverlap,
     FoundationSiteCodeTaken,
     FoundationSiteNotFound,
@@ -42,6 +47,7 @@ class InMemoryFoundationStore:
         self.sites: list[StoredSite] = []
         self.registered: dict[UUID, Registrations] = {}
         self.rows: dict[UUID, list[RevisionRow]] = {}
+        self.sets: dict[UUID, list[BindingSetRevisionRow]] = {}
 
     def _check(self) -> None:
         if self.unavailable:
@@ -115,3 +121,69 @@ class InMemoryFoundationStore:
                     raise FoundationOverlap("The change would overlap a currently recorded period.")
         self.rows[site_id] = after
         return plan
+
+    # --- signal bindings (S1-02) ---------------------------------------------
+
+    def binding_sets(self, tenant_id: UUID, site_id: UUID) -> Sequence[BindingSetRevisionRow]:
+        self._check()
+        if self.find_site_by_id(tenant_id, site_id) is None:
+            return ()
+        return tuple(sorted(self.sets.get(site_id, []), key=lambda r: r.version))
+
+    def publish_configuration(
+        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner
+    ) -> ConfigurationPlan:
+        """All-or-nothing, with the schema's exclusion and same-Site rules."""
+        self._check()
+        if self.find_site_by_id(tenant_id, site_id) is None:
+            raise FoundationSiteNotFound("No such Site in this tenant.")
+        rows_before = list(self.rows[site_id])
+        sets_before = list(self.sets.get(site_id, []))
+        plan = planner(
+            ConfigurationState(
+                revisions=tuple(sorted(rows_before, key=lambda r: r.version)),
+                binding_sets=tuple(sorted(sets_before, key=lambda r: r.version)),
+            )
+        )
+        rows_after = _supersede(rows_before, plan.supersede_revision_ids, plan.superseded_at, FoundationOverlap)
+        rows_after.extend(plan.revision_inserts)
+        _refuse_overlap([r for r in rows_after if r.superseded_at is None], FoundationOverlap)
+        sets_after = _supersede(sets_before, plan.supersede_binding_set_ids, plan.superseded_at, BindingOverlap)
+        sets_after.extend(plan.binding_set_inserts)
+        current = [s for s in sets_after if s.superseded_at is None]
+        for role_set in {s.role_set for s in current}:
+            _refuse_overlap([s for s in current if s.role_set == role_set], BindingOverlap)
+        regs = self.registered[site_id]
+        assets = {a.id for a in regs.assets}
+        sources = {(s.gateway_id, s.id, s.source_external_id) for s in regs.sources}
+        channels: dict[tuple[UUID, str], list[BindingSetRevisionRow]] = {}
+        for s in current:
+            for b in s.bindings:
+                if (b.gateway_id, b.source_id, b.device_id) not in sources:
+                    raise ValueError("binding_source_of_gateway: source is not this gateway's device")
+                if b.asset_id is not None and b.asset_id not in assets:
+                    raise ValueError("binding_asset_same_site: asset is not this Site's")
+                channels.setdefault((b.source_id, b.signal_id), []).append(s)
+        for owners in channels.values():
+            _refuse_overlap(owners, BindingOverlap)
+        self.rows[site_id] = rows_after
+        self.sets[site_id] = sets_after
+        return plan
+
+
+def _supersede(rows, ids, at, error):
+    out = []
+    for row in rows:
+        if row.id in ids:
+            if row.superseded_at is not None:
+                raise error("A row this change supersedes is no longer current.")
+            row = replace(row, superseded_at=at)
+        out.append(row)
+    return out
+
+
+def _refuse_overlap(current, error) -> None:
+    for i, a in enumerate(current):
+        for b in current[i + 1:]:
+            if a.valid_from < (b.valid_to or _END) and b.valid_from < (a.valid_to or _END):
+                raise error("The change would overlap a currently recorded period.")

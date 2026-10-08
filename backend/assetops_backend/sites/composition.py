@@ -25,6 +25,7 @@ from assetops_backend.sites.adapters.yaml_user_site_store import (
 from assetops_backend.sites.adapters.import_files import (
     check_report_path,
     legacy_documents,
+    read_binding_conversion,
     read_import_source,
     write_import_report,
 )
@@ -92,3 +93,8 @@ def check_site_import_report_path(report: str, source: str) -> None:
 def write_site_import_report(path: str, report: str, *, source: str) -> str:
     """Write the import comparison report (review evidence, not configuration)."""
     return write_import_report(path, report, source_text=source)
+
+
+def read_binding_conversion_fixture(path: str) -> tuple[dict, str, str]:
+    """A binding conversion fixture read byte for byte (S1-02)."""
+    return read_binding_conversion(path)

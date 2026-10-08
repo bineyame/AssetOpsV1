@@ -12,6 +12,11 @@ imported into the product Foundation store:
   with its effective and recorded periods, for period selection.
 * `POST /api/sites/{site_id}/foundation/revisions` - publish one change to the
   battery `reserve-state-of-charge`, and nothing else, in this release.
+* `POST /api/sites/{site_id}/foundation/bindings` - publish a complete
+  replacement signal binding set from an effective time (S1-02).
+* `GET  /api/sites/{site_id}/foundation/snapshot?at=&knowledge_at=` - the
+  registered gateway's immutable acquisition snapshot for that basis, as its
+  canonical bytes with their SHA-256 (S1-02).
 
 The tenant is the configured development tenant, resolved here at the request
 boundary. Nothing the client sends (header, query or body) names a tenant.
@@ -25,6 +30,17 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
+from fastapi.responses import Response
+
+from assetops_backend.sites.binding_roles import roles_for
+from assetops_backend.sites.binding_service import (
+    BindingRefused,
+    BindingRequest,
+    BindingService,
+    Snapshot,
+    acquisition_snapshot,
+    readiness,
+)
 
 from assetops_backend.sites.cutover import ImportedSiteRegistry
 from assetops_backend.sites.foundation_content import (
@@ -34,6 +50,8 @@ from assetops_backend.sites.foundation_content import (
     configuration_gaps,
 )
 from assetops_backend.sites.foundation_records import (
+    BindingOverlap,
+    BindingSetRevisionRow,
     FoundationOverlap,
     FoundationStoreError,
     RevisionRow,
@@ -57,13 +75,20 @@ from assetops_backend.sites_api import site_detail
 FOUNDATION_ROUTE = "/api/sites/{site_id}/foundation"
 FOUNDATION_VERSIONS_ROUTE = "/api/sites/{site_id}/foundation/versions"
 FOUNDATION_REVISIONS_ROUTE = "/api/sites/{site_id}/foundation/revisions"
+FOUNDATION_BINDINGS_ROUTE = "/api/sites/{site_id}/foundation/bindings"
+FOUNDATION_SNAPSHOT_ROUTE = "/api/sites/{site_id}/foundation/snapshot"
+
+BINDING_PUBLISH_KEYS = frozenset({"valid_from", "bindings", "note"})
 
 PUBLISH_KEYS = frozenset({"asset_code", "property_key", "value", "unit", "valid_from", "note"})
 PUBLISH_REQUIRED = frozenset({"asset_code", "property_key", "value", "unit", "valid_from"})
 
 
-def _refused(status: int, code: str, message: str) -> HTTPException:
-    return HTTPException(status_code=status, detail={"code": code, "message": message})
+def _refused(status: int, code: str, message: str, problems: list | None = None) -> HTTPException:
+    detail: dict[str, Any] = {"code": code, "message": message}
+    if problems:
+        detail["problems"] = problems
+    return HTTPException(status_code=status, detail=detail)
 
 
 def _iso(value: datetime | None) -> str | None:
@@ -86,7 +111,7 @@ def parse_instant(value: str, *, name: str) -> datetime:
     return parsed
 
 
-def _period_state(row: RevisionRow, now: datetime) -> str:
+def _period_state(row: RevisionRow | BindingSetRevisionRow, now: datetime) -> str:
     if row.valid_from > now:
         return "FUTURE"
     if row.valid_to is not None and row.valid_to <= now:
@@ -261,23 +286,102 @@ def foundation_payload(view: FoundationView) -> dict[str, Any]:
             for source in regs.sources
         ],
         "controls": _controls(view, asset_ids),
-        "bindings": {
-            "state": "INCOMPLETE",
-            "legacy_signal_mapping_count": len(revision.content.get("signal_mappings") or ()),
-            "statement": (
-                "Signal roles, units and conversions are not bound yet. The imported "
-                "signal mappings are kept for comparison only and authorize no reading."
-            ),
-        },
-        "acquisition_snapshot": {
-            "available": False,
-            "reason": "No signal binding set is published, so no gateway snapshot can be downloaded.",
-        },
+        "bindings": _bindings(view),
+        "readiness": readiness(site, revision, regs, view.binding_set),
+        "acquisition_snapshot": _snapshot_summary(view),
         "evidence": {
             "state": "NONE",
             "statement": "No accepted evidence is linked to this Foundation and no live source is claimed.",
         },
         "configuration_gaps": [item.to_wire() for item in gaps],
+    }
+
+
+def binding_set_summary(row: BindingSetRevisionRow, now: datetime) -> dict[str, Any]:
+    return {
+        "binding_set_id": str(row.binding_set_id),
+        "binding_set_revision_id": str(row.id),
+        "version": row.version,
+        "role_set": row.role_set,
+        "valid_from": _iso(row.valid_from),
+        "valid_to": _iso(row.valid_to),
+        "recorded_at": _iso(row.recorded_at),
+        "superseded_at": _iso(row.superseded_at),
+        "recorded_state": "CURRENT" if row.superseded_at is None else "SUPERSEDED",
+        "period_state": _period_state(row, now),
+        "origin": row.origin,
+        "derived_from_revision_id": (
+            None if row.derived_from_revision_id is None else str(row.derived_from_revision_id)
+        ),
+        "bindings_sha256": row.bindings_sha256,
+        "binding_count": len(row.bindings),
+        "change_note": row.change_note,
+    }
+
+
+def _bindings(view: FoundationView) -> dict[str, Any]:
+    regs, binding_set = view.registrations, view.binding_set
+    legacy_count = len(view.revision.content.get("signal_mappings") or ())
+    if binding_set is None:
+        return {
+            "state": "NONE",
+            "binding_set": None,
+            "mappings": [],
+            "legacy_signal_mapping_count": legacy_count,
+            "statement": (
+                "No signal binding set is in effect for the period shown. Every channel is "
+                "unbound; the imported signal mappings are kept for comparison only."
+            ),
+        }
+    assets = {a.id: a for a in regs.assets}
+    sources = {s.id: s for s in regs.sources}
+    gateways = {g.id: g for g in regs.gateways}
+    labels = {r.role: r.label for r in roles_for(binding_set.role_set).values()}
+    return {
+        "state": "PUBLISHED",
+        "binding_set": binding_set_summary(binding_set, view.now),
+        "mappings": [
+            {
+                "binding_revision_id": str(b.id),
+                "binding_set_revision_id": str(binding_set.id),
+                "device_id": b.device_id,
+                "signal_id": b.signal_id,
+                "source_id": str(b.source_id),
+                "source_external_id": sources[b.source_id].source_external_id if b.source_id in sources else None,
+                "gateway_id": str(b.gateway_id),
+                "gateway_external_id": (
+                    gateways[b.gateway_id].gateway_external_id if b.gateway_id in gateways else None
+                ),
+                "asset_id": None if b.asset_id is None else str(b.asset_id),
+                "asset_code": assets[b.asset_id].asset_code if b.asset_id in assets else None,
+                "role": b.role,
+                "role_label": labels.get(b.role, b.role),
+                "source_unit": b.source_unit,
+                "canonical_unit": b.canonical_unit,
+                "conversion": b.conversion,
+            }
+            for b in sorted(binding_set.bindings, key=lambda b: (b.device_id, b.signal_id))
+        ],
+        "legacy_signal_mapping_count": legacy_count,
+        "statement": (
+            "These bindings are configuration: what a registered channel will mean once "
+            "it reports. No evidence has been accepted against them."
+        ),
+    }
+
+
+def _snapshot_summary(view: FoundationView) -> dict[str, Any]:
+    result = acquisition_snapshot(view.site, view.revision, view.registrations, view.binding_set)
+    if not isinstance(result, Snapshot):
+        return {"available": False, "reason": result}
+    return {
+        "available": True,
+        "sha256": result.sha256,
+        "foundation_revision_id": result.document["foundation"]["revision_id"],
+        "binding_set_revision_id": result.document["mapping"]["binding_set_revision_id"],
+        "valid_from": result.document["valid_from"],
+        "valid_to": result.document["valid_to"],
+        "byte_length": len(result.body),
     }
 
 
@@ -320,6 +424,10 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
             return work()
         except FoundationRefused as error:
             raise _refused(error.status, error.code, error.message) from error
+        except BindingRefused as error:
+            raise _refused(error.status, error.code, error.message, error.problems) from error
+        except BindingOverlap as error:
+            raise _refused(409, "BINDING_OVERLAP", str(error)) from error
         except FoundationOverlap as error:
             raise _refused(409, "FOUNDATION_OVERLAP", str(error)) from error
         except FoundationStoreError as error:
@@ -352,6 +460,13 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
                 "server_now": _iso(now),
                 "current_revision_id": None if current is None else str(current.id),
                 "revisions": [revision_summary(row, now) for row in rows],
+                "binding_sets": [
+                    binding_set_summary(row, now)
+                    for row in sorted(
+                        registry.service.store.binding_sets(tenant.id, site.id),
+                        key=lambda row: (row.valid_from, row.version),
+                    )
+                ],
             }
 
         return guarded(work)
@@ -414,6 +529,70 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
                 "revision": revision_summary(result.changed, now),
                 "inserted": [revision_summary(row, now) for row in result.plan.inserts],
                 "superseded_revision_ids": [str(rid) for rid in result.plan.supersede_ids],
+            }
+
+        return guarded(work)
+
+    @router.get(FOUNDATION_SNAPSHOT_ROUTE)
+    def download_snapshot(site_id: str, at: str | None = None, knowledge_at: str | None = None) -> Response:
+        resolved_at = None if at is None else parse_instant(at, name="at")
+        resolved_knowledge = None if knowledge_at is None else parse_instant(knowledge_at, name="knowledge_at")
+        tenant, site = resolve(site_id)
+
+        def work() -> Response:
+            view = registry.service.read(site, tenant, resolved_at, resolved_knowledge)
+            result = acquisition_snapshot(view.site, view.revision, view.registrations, view.binding_set)
+            if not isinstance(result, Snapshot):
+                raise FoundationRefused("ACQUISITION_SNAPSHOT_UNAVAILABLE", result, status=409)
+            filename = f"{site.site_code}-snapshot-{result.sha256[:12]}.json"
+            return Response(
+                content=result.body,
+                media_type="application/json",
+                headers={
+                    "X-AssetOps-Snapshot-SHA256": result.sha256,
+                    "ETag": '"' + result.sha256 + '"',
+                    "Content-Disposition": 'attachment; filename="' + filename + '"',
+                },
+            )
+
+        return guarded(work)
+
+    @router.post(FOUNDATION_BINDINGS_ROUTE, status_code=201)
+    def publish_bindings(site_id: str, body: Any = Body(...)) -> dict[str, Any]:
+        if not isinstance(body, dict):
+            raise _refused(422, "BINDING_REQUEST_INVALID", "The request body must be a JSON object.")
+        unknown = set(body) - BINDING_PUBLISH_KEYS
+        missing = {"valid_from", "bindings"} - set(body)
+        if unknown or missing:
+            raise _refused(
+                422,
+                "BINDING_REQUEST_INVALID",
+                f"Unknown fields {sorted(unknown)}; missing fields {sorted(missing)}.",
+            )
+        if not isinstance(body["bindings"], list):
+            raise _refused(422, "BINDING_REQUEST_INVALID", "bindings must be a list.")
+        note = body.get("note")
+        if note is not None and (not isinstance(note, str) or len(note) > 500):
+            raise _refused(422, "BINDING_REQUEST_INVALID", "note must be text of at most 500 characters.")
+        if not isinstance(body["valid_from"], str):
+            raise _refused(422, "FOUNDATION_TIME_INVALID", "valid_from must be an ISO 8601 instant.")
+        effective_from = parse_instant(body["valid_from"], name="valid_from")
+        if effective_from.microsecond:
+            raise _refused(422, "FOUNDATION_TIME_INVALID", "valid_from must be a whole second.")
+        tenant, site = resolve(site_id)
+
+        def work() -> dict[str, Any]:
+            requests = [BindingRequest.from_wire(item, i) for i, item in enumerate(body["bindings"])]
+            service = BindingService(registry.service.store, registry.service.clock)
+            result = service.publish(tenant, site, requests=requests, effective_from=effective_from, note=note)
+            now = registry.service.now()
+            return {
+                "site": _site_identity(site, tenant),
+                "binding_set": binding_set_summary(result.changed, now),
+                "inserted_binding_sets": [binding_set_summary(r, now) for r in result.plan.binding_set_inserts],
+                "superseded_binding_set_revision_ids": [str(i) for i in result.plan.supersede_binding_set_ids],
+                "inserted_revisions": [revision_summary(r, now) for r in result.plan.revision_inserts],
+                "superseded_revision_ids": [str(i) for i in result.plan.supersede_revision_ids],
             }
 
         return guarded(work)
