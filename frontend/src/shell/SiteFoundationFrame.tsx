@@ -1,18 +1,17 @@
-import { useCallback, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
-import {
-  SITE_CONFIGURATION_HEADING_ID,
-  SiteConfiguration,
-} from "../sites/SiteConfiguration";
-import { FoundationRevisionPanel } from "../sites/FoundationRevisionPanel";
+import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
+import { FOUNDATION_SUBTABS, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
+import { StoredFoundationViews } from "../sites/StoredFoundationViews";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
 import { PageHeader, Panel } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { siteDetailHref } from "./operatorSiteRoutes";
+import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
+import { siteDetailHref, siteEvidenceHref, siteFoundationHref, siteFoundationViewHref } from "./operatorSiteRoutes";
 
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
@@ -23,14 +22,17 @@ export interface SiteFoundationFrameProps {
 }
 
 /**
- * Foundation for one Site (S1-01).
+ * Foundation for one Site (S1-01, organized into views by S1-03).
  *
- * A Site imported into the persisted store renders the stored version
- * effective at the `at` instant carried in the URL (absent = in effect now),
- * so reload and share keep the selection, with the version panel above the
- * shared Foundation sections. A Site still read from its original document
- * renders as before, labelled as such. A period with no stored version is
- * stated, never filled with the current configuration.
+ * A Site imported into the persisted store renders one of three views - Site
+ * model (the Foundation address), Single line diagram (`/sld`) and Readiness
+ * (`/readiness`) - of the stored version effective at the `at` instant carried
+ * in the URL (absent = in effect now). Every view link carries `at`, so moving
+ * between views, reloading and sharing keep the selection. A Site still read
+ * from its original document renders its one legacy page, labelled as such,
+ * with no view row; its view addresses state that the view needs an imported
+ * Site. A period with no stored version is stated, never filled with the
+ * current configuration.
  */
 export function SiteFoundationFrame({
   detail,
@@ -38,7 +40,8 @@ export function SiteFoundationFrame({
   sitesPath,
   templateLineage,
 }: SiteFoundationFrameProps) {
-  const { siteId } = useParams<{ siteId: string }>();
+  const { siteId, foundationView } = useParams<{ siteId: string; foundationView?: string }>();
+  const view: FoundationView | null = foundationViewFor(foundationView);
   const [params, setParams] = useSearchParams();
   const at = params.get("at");
   const [refresh, setRefresh] = useState(0);
@@ -54,39 +57,13 @@ export function SiteFoundationFrame({
     [params, setParams],
   );
 
+  // `/foundation/` with an empty segment never reaches here as a view route;
+  // any other segment that is not a view is not a destination.
+  if (view === null || (foundationView !== undefined && view === "model")) {
+    return <RouteNotAvailableFrame />;
+  }
+
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
-  // S1-02: for a stored Site the SLD's signals are the bindings in effect,
-  // never the imported legacy mappings, so the diagram shows only configured
-  // links. The shared table labels them as the binding set's links, with a
-  // Binding ID column (ruling D5); see `signalMappingBasis` below.
-  const storedDetail = useMemo<SiteDetailClient | null>(
-    () =>
-      loaded === null
-        ? null
-        : {
-            getSite: () =>
-              Promise.resolve({
-                status: "loaded",
-                site: {
-                  ...loaded.detail,
-                  foundation: {
-                    ...loaded.detail.foundation,
-                    signal_mappings: loaded.bindings.mappings.map((binding) => ({
-                      mapping_id: binding.binding_revision_id,
-                      device_id: binding.device_id,
-                      signal_id: binding.signal_id,
-                      component_id: binding.asset_code ?? "",
-                    })),
-                  },
-                },
-              }),
-          },
-    [loaded],
-  );
-  const boundDevices = useMemo<ReadonlySet<string> | null>(
-    () => (loaded === null ? null : new Set(loaded.bindings.mappings.map((binding) => binding.device_id))),
-    [loaded],
-  );
 
   const tabs = <OperatorSiteTabs siteId={siteId} current="Foundation" />;
   const parentTrail = (canonicalSiteId: string) => [
@@ -103,49 +80,41 @@ export function SiteFoundationFrame({
     );
   }
 
-  if (loaded !== null && storedDetail !== null && siteId !== undefined) {
+  if (loaded !== null && siteId !== undefined) {
     const versions = state.versions?.status === "loaded" ? state.versions.value : null;
+    const segmentOf = (target: FoundationView) =>
+      FOUNDATION_SUBTABS.find((subtab) => subtab.view === target)?.segment ?? "";
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <SiteConfiguration
-          siteId={siteId}
-          detail={storedDetail}
-          templateLineage={templateLineage}
+        <StoredFoundationViews
+          view={view}
+          foundation={loaded}
+          versions={versions}
+          selectedAt={at}
+          onSelectAt={selectAt}
+          viewHref={(target) => siteFoundationViewHref(siteId, segmentOf(target), at)}
+          evidenceHref={siteEvidenceHref(siteId)}
           tabs={tabs}
           parentTrail={parentTrail}
-          sldBoundDevices={boundDevices}
-          signalMappingBasis={{
-            bindingSetVersion: loaded.bindings.binding_set?.version ?? null,
-            bindingSetRevisionId: loaded.bindings.binding_set?.binding_set_revision_id ?? null,
-            foundationVersion: loaded.revision.version,
+          snapshotHref={foundation.snapshotUrl(siteId, loaded.resolved.at)}
+          onPublishBindings={async (validFrom, bindings, note) => {
+            const outcome = await foundation.publishBindings(siteId, {
+              valid_from: validFrom,
+              bindings: bindings.map(bindingPublicationItem),
+              note,
+            });
+            if (outcome.status === "published") setRefresh((count) => count + 1);
+            return outcome;
           }}
-          revision={
-            <FoundationRevisionPanel
-              foundation={loaded}
-              versions={versions}
-              selectedAt={at}
-              onSelectAt={selectAt}
-              snapshotHref={foundation.snapshotUrl(siteId, loaded.resolved.at)}
-              onPublishBindings={async (validFrom, bindings, note) => {
-                const outcome = await foundation.publishBindings(siteId, {
-                  valid_from: validFrom,
-                  bindings: bindings.map(bindingPublicationItem),
-                  note,
-                });
-                if (outcome.status === "published") setRefresh((count) => count + 1);
-                return outcome;
-              }}
-              onPublish={async (assetCode, value, validFrom) => {
-                const outcome = await foundation.publishReserve(siteId, {
-                  asset_code: assetCode,
-                  value,
-                  valid_from: validFrom,
-                });
-                if (outcome.status === "published") setRefresh((count) => count + 1);
-                return outcome;
-              }}
-            />
-          }
+          onPublish={async (assetCode, value, validFrom) => {
+            const outcome = await foundation.publishReserve(siteId, {
+              asset_code: assetCode,
+              value,
+              valid_from: validFrom,
+            });
+            if (outcome.status === "published") setRefresh((count) => count + 1);
+            return outcome;
+          }}
         />
       </main>
     );
@@ -162,6 +131,26 @@ export function SiteFoundationFrame({
           <button type="button" onClick={() => selectAt(null)}>
             Show the version in effect now
           </button>
+        </Panel>
+      </main>
+    );
+  }
+
+  if (view !== "model" && siteId !== undefined) {
+    // A Site that is not imported has no stored Foundation, binding set or
+    // snapshot, so these views would imply records it does not have.
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        {tabs}
+        <Panel heading="This view needs an imported Site" headingId="foundation-view-unavailable-heading">
+          <p>
+            This site has no stored Foundation version, signal binding set or snapshot, so there is no
+            {view === "sld" ? " bound single line diagram" : " configuration readiness"} to show here.
+          </p>
+          <p>
+            <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
+          </p>
         </Panel>
       </main>
     );

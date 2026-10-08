@@ -1057,3 +1057,52 @@ export function SiteSingleLineDiagram({
     </div>
   );
 }
+
+/**
+ * S1-03: the configured drawing as the primary visual of the Foundation's
+ * Single line diagram view, without the tables and review questions that
+ * follow it as secondary detail (`SiteSldDetails`). The caller supplies the
+ * panel and its heading; this names the drawing's scroll region by it.
+ */
+export function SiteSldPrimary({
+  site,
+  boundDevices,
+  headingId,
+}: {
+  site: SiteDetailReadModel;
+  boundDevices: ReadonlySet<string> | null;
+  headingId: string;
+}) {
+  const view: SiteSldView = deriveSiteSldView(site);
+  return (
+    <div data-sld-region="">
+      <p>{SITE_SLD_INTRODUCTION}</p>
+      {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
+      {view.status === "compatible" ? (
+        <>
+          <SldDrawing diagram={view.diagram} siteName={site.display_name} labelledBy={headingId} />
+          <SldUnplaced diagram={view.diagram} />
+        </>
+      ) : (
+        <SldUnavailable reason={view.reason} />
+      )}
+    </div>
+  );
+}
+
+/** S1-03: the diagram's contents table and open review questions, as secondary detail. */
+export function SiteSldDetails({
+  site,
+  boundDevices,
+}: {
+  site: SiteDetailReadModel;
+  boundDevices: ReadonlySet<string> | null;
+}) {
+  const view: SiteSldView = deriveSiteSldView(site);
+  return (
+    <>
+      {view.status === "compatible" ? <SldContents diagram={view.diagram} boundDevices={boundDevices} /> : null}
+      <SldOpenQuestions diagram={view.status === "compatible" ? view.diagram : null} />
+    </>
+  );
+}

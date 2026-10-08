@@ -10,12 +10,6 @@ import {
   Panel,
   type Crumb,
 } from "../ui";
-import {
-  FOUNDATION_CONTROLS_ID,
-  FOUNDATION_DEFINITION_ID,
-  FOUNDATION_TOPOLOGY_ID,
-  FoundationSubtabs,
-} from "./FoundationSubtabs";
 import type {
   ComponentPropertyView,
   ControlAssumptionView,
@@ -102,13 +96,25 @@ import {
  *   header row and no rows: that is a screen saying it looked and found
  *   nothing, which is a claim about the site rather than about its document.
  *
- * Where the new content sits is settled, not incidental. The subtab row names
- * Definition, Topology and Controls, and T013's rule is that no unlinked panel
- * may sit between the sections it names - so the topology, device and mapping
+ * This is the legacy (unimported) Site's one page; an imported Site renders
+ * the S1-03 views in `StoredFoundationViews` instead. Where the content sits
+ * is settled, not incidental. A contents row once named Definition, Topology
+ * and Controls (removed by S1-03; they remain headings), and T013's rule was
+ * that no unlinked panel sit between those sections - so the topology, device and mapping
  * tables live INSIDE the Topology panel as subsections, and the components
  * table stays below Controls where T013 put it.
  */
 export const SITE_CONFIGURATION_HEADING_ID = "site-configuration-heading";
+
+/**
+ * The legacy page's in-page section headings. S1-03 removed the
+ * `Definition | Topology | Controls` contents row that linked to them: they
+ * stay as headings on the one legacy page, and an imported Site uses the
+ * Foundation view row (`FoundationSubtabs`) instead.
+ */
+export const FOUNDATION_DEFINITION_ID = "foundation-definition-heading";
+export const FOUNDATION_TOPOLOGY_ID = "foundation-topology-heading";
+export const FOUNDATION_CONTROLS_ID = "foundation-controls-heading";
 
 export interface SiteConfigurationProps {
   /** The identity taken from the address. `undefined` names no site. */
@@ -302,8 +308,6 @@ export function SiteConfigurationFacts({
       {tabs}
 
       {revision}
-
-      <FoundationSubtabs />
 
       {/*
         * Definition, as v6.9 names it. T011A left a panel headed `Foundation`

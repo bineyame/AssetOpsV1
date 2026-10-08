@@ -59,6 +59,21 @@ export function siteFoundationHref(siteId: string): string {
   return `${siteDetailHref(siteId)}/foundation`;
 }
 
+/**
+ * The route pattern for one of the Foundation's other views (S1-03): the
+ * Single line diagram (`sld`) and configuration Readiness (`readiness`). The
+ * Site model is the Foundation address itself. Which segments are views is
+ * owned by `FOUNDATION_SUBTABS`; any other segment is not a view and is
+ * refused by the frame, never rendered as a disabled view.
+ */
+export const SITE_FOUNDATION_VIEW_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/foundation/:foundationView`;
+
+/** The address of one Foundation view, carrying the selected period. */
+export function siteFoundationViewHref(siteId: string, segment: string, at: string | null): string {
+  const base = segment === "" ? siteFoundationHref(siteId) : `${siteFoundationHref(siteId)}/${segment}`;
+  return at === null ? base : `${base}?at=${encodeURIComponent(at)}`;
+}
+
 /** The route pattern for one site's Evidence. */
 export const SITE_EVIDENCE_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/evidence`;
 

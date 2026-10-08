@@ -2,9 +2,14 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SiteConfiguration } from "../SiteConfiguration";
+import { MemoryRouter } from "react-router-dom";
+
 import {
   FOUNDATION_SUBTABS,
   FOUNDATION_SUBTABS_LABEL,
+  FoundationSubtabs,
+  foundationViewFor,
+  type FoundationView,
 } from "../FoundationSubtabs";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
@@ -245,15 +250,19 @@ function drawableDiagram(site: SiteDetailReadModel) {
   return result.diagram;
 }
 
-/** v6.9 line 2117, filtered by the T008 checkpoint. Written out, not derived. */
-const V69_FOUNDATION_SUBTABS = [
+/** v6.9's Foundation view row, filtered (S1-03). Written out, not derived. */
+const V69_FOUNDATION_VIEWS = ["Site model", "Single line diagram", "Readiness"];
+
+/** The mockup-derived names T013 replaced, and the contents row S1-03 removed. */
+const SUPERSEDED_SUBTABS = [
+  "Summary",
+  "Components",
+  "Control Logic",
+  "Settings",
   "Definition",
   "Topology",
   "Controls",
 ];
-
-/** The mockup-derived names T013 replaced. */
-const SUPERSEDED_SUBTABS = ["Summary", "Components", "Control Logic", "Settings"];
 
 function clientFor(site: SiteDetailReadModel): SiteDetailClient {
   return { getSite: () => Promise.resolve({ status: "loaded", site }) };
@@ -265,37 +274,90 @@ function renderFoundation(site: SiteDetailReadModel = SITE) {
   );
 }
 
-function subtabRow(): HTMLElement {
+function renderViewRow(current: FoundationView = "model") {
+  return render(
+    <MemoryRouter>
+      <FoundationSubtabs
+        current={current}
+        hrefFor={(view) => `/sites/KOBO-001/foundation${view === "model" ? "" : `/${view}`}?at=X`}
+      />
+    </MemoryRouter>,
+  );
+}
+
+function viewRow(): HTMLElement {
   return screen.getByRole("navigation", { name: FOUNDATION_SUBTABS_LABEL });
 }
 
-describe("the Foundation subtab row is v6.9's, filtered", () => {
-  it("renders Definition, Topology, Controls and nothing else, in that order", async () => {
-    renderFoundation();
-    await settledScreen();
-
+describe("the Foundation view row is v6.9's, filtered (S1-03)", () => {
+  it("is Site model, Single line diagram, Readiness and nothing else, in that order", () => {
+    renderViewRow();
     expect(
-      Array.from(subtabRow().querySelectorAll("li")).map(
-        (item) => item.textContent,
-      ),
-    ).toEqual(V69_FOUNDATION_SUBTABS);
+      within(viewRow()).getAllByRole("link").map((link) => link.textContent),
+    ).toEqual(V69_FOUNDATION_VIEWS);
     expect(FOUNDATION_SUBTABS.map((subtab) => subtab.label)).toEqual(
-      V69_FOUNDATION_SUBTABS,
+      V69_FOUNDATION_VIEWS,
     );
   });
 
-  it("never renders Changes, in the row or anywhere on the screen", async () => {
+  it("never offers Change & effect, enabled, disabled or labelled", () => {
+    renderViewRow();
+    expect(spacedText(viewRow())).not.toMatch(/change/i);
+    expect(FOUNDATION_SUBTABS.map((subtab) => subtab.label)).not.toContain("Changes");
+    expect(within(viewRow()).queryAllByRole("button")).toHaveLength(0);
+    expect(
+      viewRow().querySelectorAll("[disabled], [aria-disabled], [title]"),
+    ).toHaveLength(0);
+  });
+
+  it.each(SUPERSEDED_SUBTABS)("does not render %s as a view", (label) => {
+    renderViewRow();
+    expect(
+      within(viewRow()).getAllByRole("link").map((link) => link.textContent),
+    ).not.toContain(label);
+  });
+
+  it("links each view to its own address, carrying the selected period", () => {
+    renderViewRow("sld");
+    const hrefs = within(viewRow()).getAllByRole("link").map((link) => link.getAttribute("href"));
+    expect(hrefs).toEqual([
+      "/sites/KOBO-001/foundation?at=X",
+      "/sites/KOBO-001/foundation/sld?at=X",
+      "/sites/KOBO-001/foundation/readiness?at=X",
+    ]);
+  });
+
+  it("marks exactly the current view, as a real view row", () => {
+    renderViewRow("readiness");
+    const row = viewRow();
+    expect(row.className).toContain("site-tabs");
+    expect(row.className).not.toContain("section-nav");
+    const current = row.querySelectorAll('[aria-current="page"]');
+    expect(current).toHaveLength(1);
+    expect(current[0].textContent).toBe("Readiness");
+  });
+
+  it("maps path segments to views and refuses any other segment", () => {
+    expect(foundationViewFor(undefined)).toBe("model");
+    expect(foundationViewFor("sld")).toBe("sld");
+    expect(foundationViewFor("readiness")).toBe("readiness");
+    expect(foundationViewFor("changes")).toBeNull();
+    expect(foundationViewFor("definition")).toBeNull();
+  });
+});
+
+describe("a legacy (unimported) Site keeps its one page, with no view row", () => {
+  it("renders neither the view row nor the old contents row", async () => {
     const { container } = renderFoundation();
     await settledScreen();
+    expect(screen.queryByRole("navigation", { name: FOUNDATION_SUBTABS_LABEL })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Foundation sections" })).toBeNull();
+    expect(container.querySelector(".section-nav")).toBeNull();
+  });
 
-    expect(
-      Array.from(subtabRow().querySelectorAll("li")).map(
-        (item) => item.textContent,
-      ),
-    ).not.toContain("Changes");
-    expect(FOUNDATION_SUBTABS.map((subtab) => subtab.label)).not.toContain(
-      "Changes",
-    );
+  it("never renders Changes or a change history anywhere on the screen", async () => {
+    const { container } = renderFoundation();
+    await settledScreen();
     // `spacedText`, not `textContent`: the latter glues adjacent elements
     // together, leaving a banned word with no boundary to match against, so
     // this absence would pass without checking anything.
@@ -304,114 +366,28 @@ describe("the Foundation subtab row is v6.9's, filtered", () => {
     );
   });
 
-  it.each(SUPERSEDED_SUBTABS)("does not render %s as a subtab", async (label) => {
-    renderFoundation();
-    await settledScreen();
-
-    expect(
-      Array.from(subtabRow().querySelectorAll("li")).map(
-        (item) => item.textContent,
-      ),
-    ).not.toContain(label);
-  });
-
-  it("links the three that have content to sections that exist", async () => {
+  it("keeps Definition, Topology and Controls as in-page sections, in order", async () => {
     const { container } = renderFoundation();
     await settledScreen();
-
-    const links = within(subtabRow()).getAllByRole("link");
-
-    expect(links.map((link) => link.textContent)).toEqual([
-      "Definition",
-      "Topology",
-      "Controls",
-    ]);
-
-    // A link to a fragment that resolves to nothing is a destination that does
-    // not exist, which is the same lie as a route that renders nothing.
-    for (const link of links) {
-      const href = link.getAttribute("href") ?? "";
-
-      expect(href.startsWith("#")).toBe(true);
-      expect(container.querySelector(href)).not.toBeNull();
-      expect(container.querySelector(href)?.textContent).toBe(
-        link.textContent,
-      );
-    }
-  });
-
-  it("keeps no unlinked panel between the sections it names", async () => {
-    const { container } = renderFoundation();
-    await settledScreen();
-
-    // The row names Topology and Controls and does not name the components
-    // table. An unnamed panel wedged between two named ones makes the row
-    // misleading about where a section ends - and it had a measurable cost:
-    // with the table above it, Controls could only be reached by the document
-    // clamping at the bottom, so its link landed somewhere different from
-    // every other link in the row.
     const headings = Array.from(
       container.querySelectorAll("section.panel h2"),
     ).map((heading) => heading.textContent ?? "");
-
-    const linked = ["Definition", "Topology", "Controls"];
-    const positions = linked.map((label) => headings.indexOf(label));
-
+    const positions = ["Definition", "Topology", "Controls"].map((label) => headings.indexOf(label));
     for (const position of positions) {
       expect(position).toBeGreaterThanOrEqual(0);
     }
-
-    // In row order, and with nothing unnamed between Topology and Controls.
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
     expect(headings.slice(positions[1] + 1, positions[2])).toEqual([]);
   });
 
-  it("does not borrow the Site tab row's treatment", async () => {
-    renderFoundation();
-    await settledScreen();
-
-    // The Architect's UI/UX ruling: two stacked rows may share vocabulary, but
-    // they must not ask a reader to infer two different behaviours from one
-    // treatment. The Site tab row swaps what you are looking at; this locates
-    // a section on the page you are already on.
-    const row = subtabRow();
-
-    expect(row.className).toContain("section-nav");
-    expect(row.className).not.toContain("site-tabs");
-    expect(row.querySelectorAll(".site-tabs__link, .site-tabs__label")).toHaveLength(
-      0,
-    );
-
-    // And it carries no active state, because nothing is current when every
-    // section is on the page at once.
-    expect(row.querySelectorAll('[aria-current]')).toHaveLength(0);
-  });
-
-  it("does not render Readiness, labelled or otherwise", async () => {
+  it("gives configuration Readiness no section on the legacy page", async () => {
     const { container } = renderFoundation();
     await settledScreen();
-
-    const row = subtabRow();
-
-    // D-2026-10-02-rendered-tabs-per-capability: claim readiness lives on
-    // Site > Evidence only, and no subtab is labelled in place.
-    expect(within(row).queryByText("Readiness")).toBeNull();
-    expect(row.querySelector(".section-nav__absent, .section-nav__note")).toBeNull();
-    expect(spacedText(row)).not.toMatch(/readiness/i);
-    expect(
-      within(row).queryByRole("link", { name: "Readiness" }),
-    ).toBeNull();
-    expect(within(row).queryAllByRole("button")).toHaveLength(0);
-    expect(
-      row.querySelectorAll("[disabled], [aria-disabled], [title], [tabindex]"),
-    ).toHaveLength(0);
-
-    // And no empty panel kept warm for it.
     const headings = Array.from(container.querySelectorAll("h2, h3")).map(
       (heading) => heading.textContent,
     );
-
     expect(headings).not.toContain("Readiness");
+    expect(headings).not.toContain("Configuration readiness");
   });
 });
 
@@ -672,22 +648,6 @@ describe("a declared topology the archetype cannot arrange", () => {
     }
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
     expect(headings.slice(positions[1] + 1, positions[2])).toEqual([]);
-  });
-
-  it("keeps every subtab link pointing at a section that is still there", async () => {
-    const { container } = renderFoundation(DECLARED_SITE);
-    await settledScreen();
-
-    const links = within(subtabRow()).getAllByRole("link");
-
-    expect(links).toHaveLength(3);
-    for (const link of links) {
-      const href = link.getAttribute("href") ?? "";
-
-      expect(href.startsWith("#")).toBe(true);
-      expect(container.querySelector(href)).not.toBeNull();
-      expect(container.querySelector(href)?.textContent).toBe(link.textContent);
-    }
   });
 
   it("puts the topology content under the section the row names", async () => {

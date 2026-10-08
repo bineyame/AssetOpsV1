@@ -298,10 +298,13 @@ describe("the persisted Foundation version", () => {
     await settledScreen();
     const panel = screen.getByRole("region", { name: "Foundation version" });
     expect(panel.textContent).toContain("Foundation v2");
-    expect(panel.textContent).toContain("rev-2");
-    expect(panel.textContent).toContain("a".repeat(64));
-    expect(panel.textContent).toContain("var/sites/kobo-001.yaml");
     expect(panel.textContent).toContain("This is the configuration in effect now.");
+    // S1-03: long audit identifiers are on the Site model, behind a named disclosure.
+    const record = document.querySelector('[data-disclosure="foundation-record"]') as HTMLElement;
+    expect(record.textContent).toContain("rev-2");
+    expect(record.textContent).toContain("a".repeat(64));
+    expect(record.textContent).toContain("var/sites/kobo-001.yaml");
+    expect(panel.textContent).not.toContain("a".repeat(64));
     const controls = screen
       .getByRole("heading", { name: "Time-valid control configuration" })
       .closest("section") as HTMLElement;
@@ -309,9 +312,15 @@ describe("the persisted Foundation version", () => {
     expect(within(controls).getByRole("row", { name: /Generator start/ }).textContent).toContain("declares no generator start");
     expect(within(controls).getByRole("row", { name: /Minimum generator runtime/ }).textContent).toContain("30 min");
     expect(controls.textContent).not.toMatch(/35\s?%|90\s?%/);
+  });
+
+  it("states Unknown readiness and a registered, not-connected gateway on the Readiness view", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(byAt));
+    await settledScreen();
     expect(screen.getByText("No signal binding set is in effect for the period shown.")).toBeInTheDocument();
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
     expect(screen.getByText(/awaiting credentials, not sending data/)).toBeInTheDocument();
+    expect(screen.queryByText(/^(Online|Connected|Reporting|Healthy)$/)).toBeNull();
   });
 
   it("carries the selected period in the URL and labels a non-current period", async () => {
@@ -510,11 +519,11 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
   });
 
   it("traces each bound channel to its source, equipment, role and binding ID, and offers the snapshot", async () => {
-    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound));
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(bound));
     await settledScreen();
     const readiness = panel("Configuration readiness");
     expect(within(readiness).getByText("Ready to report")).toBeInTheDocument();
-    expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
+    expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
       "c-storage: d-storage-controller / state-of-charge",
     );
     expect(readiness.textContent).toContain("It does not mean any device is connected, reporting or healthy");
@@ -525,14 +534,15 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(soc.textContent).toContain("% → %");
     expect(soc.textContent).toContain("b-battery-soc");
     expect(within(bindings).getByText(/not bound/).closest("li")?.textContent).toContain("output-voltage");
-    const download = within(bindings).getByRole("link", { name: "Download snapshot" });
+    const acquisition = panel("Acquisition details");
+    const download = within(acquisition).getByRole("link", { name: "Download snapshot" });
     expect(download.getAttribute("href")).toBe(`/api/sites/${ID}/foundation/snapshot?at=${PAST.valid_from}`);
-    expect(bindings.textContent).toContain("d".repeat(64));
-    expect(bindings.textContent).toContain("Gateway authentication is pending");
+    expect(acquisition.textContent).toContain("d".repeat(64));
+    expect(acquisition.textContent).toContain("Gateway authentication is pending");
   });
 
   it("draws only bound signals on the SLD and marks devices with no bound channel", async () => {
-    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound));
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(bound));
     await settledScreen();
     expect(document.querySelector("[data-sld-bindings]")).not.toBeNull();
     const genset = document.querySelector('[data-sld-row="n-genset"]') as HTMLElement | null;
@@ -548,7 +558,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
   });
 
   it("labels the shared mapping table as the binding set's links, with Binding IDs (ruling D5)", async () => {
-    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound));
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(bound));
     await settledScreen();
     const table = screen.getByRole("table", { name: "Signal mappings" });
     const caption = table.querySelector("caption")?.textContent ?? "";
@@ -568,12 +578,13 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       status: "loaded",
       value: foundation(PAST, published([GENSET_POWER], ["Battery state of charge"])),
     });
-    renderAt(`/sites/${ID}/foundation`, fakeFoundation(incomplete));
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(incomplete));
     await settledScreen();
     const readiness = panel("Configuration readiness");
     expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
     expect(readiness.textContent).toContain("Not bound: Battery state of charge.");
-    expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain("Not bound");
+    expect(readiness.querySelector('[data-readiness-missing-role]')).not.toBeNull();
+    expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain("Not bound");
   });
 
   it("keeps readiness incomplete for a Foundation gap and names it apart from roles", async () => {
@@ -586,7 +597,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       status: "loaded",
       value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [], [gap])),
     });
-    renderAt(`/sites/${ID}/foundation`, fakeFoundation(gapped));
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(gapped));
     await settledScreen();
     const readiness = panel("Configuration readiness");
     expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
@@ -594,14 +605,14 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(readiness.textContent).toContain("but this Foundation has configuration gaps");
     const listed = readiness.querySelector('[data-readiness-gap="COMPONENT_RATING_MISSING"]');
     expect(listed?.textContent).toBe("Diesel generator declares no rating.");
-    expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
+    expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
       "c-storage: d-storage-controller / state-of-charge",
     );
   });
 
   it("publishes a binding removal as the remaining set from a UTC instant, then re-reads", async () => {
     const client = fakeFoundation(bound);
-    renderAt(`/sites/${ID}/foundation`, client);
+    renderAt(`/sites/${ID}/foundation/readiness`, client);
     await settledScreen();
     const form = screen.getByRole("form", { name: "Remove a binding" });
     fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
@@ -633,5 +644,96 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(labels.filter((label) => label?.startsWith("Binding v")).length).toBe(1);
     fireEvent.change(picker, { target: { value: "2026-10-05T00:00:00Z" } });
     expect(screen.getByTestId("location").textContent).toContain("at=2026-10-05T00%3A00%3A00Z");
+  });
+});
+
+describe("S1-03: three Foundation views at one selected period", () => {
+  const futureAt = encodeURIComponent(FUTURE.valid_from);
+
+  it("renders the view row in the mock's order, marking the current view", async () => {
+    renderAt(`/sites/${ID}/foundation/sld?at=${futureAt}`, fakeFoundation(byAt));
+    await settledScreen();
+    const row = screen.getByRole("navigation", { name: "Foundation views" });
+    const links = within(row).getAllByRole("link");
+    expect(links.map((link) => link.textContent)).toEqual(["Site model", "Single line diagram", "Readiness"]);
+    expect(links.map((link) => link.getAttribute("aria-current"))).toEqual([null, "page", null]);
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      `/sites/${ID}/foundation?at=${futureAt}`,
+      `/sites/${ID}/foundation/sld?at=${futureAt}`,
+      `/sites/${ID}/foundation/readiness?at=${futureAt}`,
+    ]);
+    expect(screen.queryByRole("navigation", { name: "Foundation sections" })).toBeNull();
+  });
+
+  it("keeps the selected period and its historical label when moving across views", async () => {
+    const client = fakeFoundation(byAt);
+    renderAt(`/sites/${ID}/foundation?at=${futureAt}`, client);
+    await settledScreen();
+    for (const [label, path] of [
+      ["Single line diagram", `/sites/${ID}/foundation/sld`],
+      ["Readiness", `/sites/${ID}/foundation/readiness`],
+      ["Site model", `/sites/${ID}/foundation`],
+    ] as const) {
+      fireEvent.click(within(screen.getByRole("navigation", { name: "Foundation views" })).getByRole("link", { name: label }));
+      await settledScreen();
+      expect(screen.getByTestId("location").textContent).toBe(`${path}?at=${futureAt}`);
+      expect(screen.getByRole("note").textContent).toMatch(/Scheduled period: you are viewing Foundation v3/);
+      expect(screen.getByRole("combobox", { name: "Foundation period" })).toHaveValue(FUTURE.valid_from);
+    }
+    expect(client.getFoundation).toHaveBeenLastCalledWith(ID, FUTURE.valid_from);
+  });
+
+  it("changes the period from any view and stays on that view", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(byAt));
+    await settledScreen();
+    fireEvent.change(screen.getByRole("combobox", { name: "Foundation period" }), {
+      target: { value: FUTURE.valid_from },
+    });
+    await settledScreen();
+    expect(screen.getByTestId("location").textContent).toBe(`/sites/${ID}/foundation/readiness?at=${futureAt}`);
+  });
+
+  it("places each action on its own view and repeats no binding table", async () => {
+    const bound = (): FoundationRead<FoundationReadModel> => ({
+      status: "loaded",
+      value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [])),
+    });
+    for (const [path, reserve, binding, bindingTable] of [
+      [`/sites/${ID}/foundation`, 1, 0, 0],
+      [`/sites/${ID}/foundation/sld`, 0, 0, 0],
+      [`/sites/${ID}/foundation/readiness`, 0, 1, 1],
+    ] as const) {
+      const view = renderAt(path, fakeFoundation(bound));
+      await settledScreen();
+      expect(screen.queryAllByRole("form", { name: "Change battery reserve" })).toHaveLength(reserve);
+      expect(screen.queryAllByRole("form", { name: "Remove a binding" })).toHaveLength(binding);
+      expect(screen.queryAllByRole("heading", { name: "Signal bindings" })).toHaveLength(bindingTable);
+      view.unmount();
+    }
+  });
+
+  it("refuses a Foundation view that does not exist, such as Changes", async () => {
+    renderAt(`/sites/${ID}/foundation/changes`, fakeFoundation(byAt));
+    await settledScreen();
+    expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Configuration readiness" })).toBeNull();
+  });
+
+  it("states that a legacy Site has no Readiness or SLD view, and offers no view row", async () => {
+    const legacy = fakeFoundation(
+      () => ({ status: "migration_required", message: "legacy" }),
+      { status: "migration_required", message: "legacy" },
+    );
+    for (const path of [`/sites/${ID}/foundation/readiness`, `/sites/${ID}/foundation/sld`]) {
+      const view = renderAt(path, legacy);
+      await settledScreen();
+      expect(screen.getByRole("heading", { name: "This view needs an imported Site" })).toBeInTheDocument();
+      expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+      expect(screen.queryByText(/Ready to report/)).toBeNull();
+      view.unmount();
+    }
+    renderAt(`/sites/${ID}/foundation`, legacy);
+    await settledScreen();
+    expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
   });
 });

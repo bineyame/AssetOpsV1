@@ -27,6 +27,7 @@ import {
   SITE_DETAIL_ROUTE_PATH,
   SITE_EVIDENCE_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
+  SITE_FOUNDATION_VIEW_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
 import type { RunSetupClient } from "./shell/runSetupClient";
 import type { ScenarioCatalogClient } from "./shell/scenarioCatalogClient";
@@ -191,6 +192,17 @@ export function App({
           />
           <Route
             path={SITE_FOUNDATION_ROUTE_PATH}
+            element={
+              <SiteFoundationFrame
+                detail={siteDetail}
+                foundation={siteFoundation}
+                sitesPath={SITES_PATH}
+                templateLineage={templateLineage}
+              />
+            }
+          />
+          <Route
+            path={SITE_FOUNDATION_VIEW_ROUTE_PATH}
             element={
               <SiteFoundationFrame
                 detail={siteDetail}
