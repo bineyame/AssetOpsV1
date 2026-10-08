@@ -23,6 +23,12 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
+### S2-01a current-row metadata and asset-code identity (expires before S2-02 evidence ingestion)
+
+Snapshot v1 pins Foundation, binding and acquisition references, but not the Site row's name/type/timezone or the asset UUID-to-code relation. S2-01a freezes valid current Site metadata on each Draft and refuses a Site type inconsistent with the selected role set; its binding-derived component links still resolve asset codes from current rows. This is safe for the S2-01a simulated, uncommittable run because the product has no Site/asset identity-edit path and no accepted evidence is produced. It does not prove historical Site metadata at `knowledge_at`.
+
+Before S2-02 accepts evidence, enforce stable `asset.asset_code` identity at the database boundary and reconcile any already changed rows, then validate original registered references without substituting current gateway/source names. If historical Site name/timezone reconstruction becomes a product claim, version those facts or change the snapshot contract; do not infer them from current rows. See the S2-01a phase-1 amendment to `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` and the S2-02 packet.
+
 ### ~~`supported_states` has no falsifier until T021~~ - RESOLVED in T021, 2026-09-27
 
 `MINIMAL_FUEL_TANK_MODEL` declares that `fuel-tank-volume` supports

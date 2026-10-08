@@ -43,6 +43,8 @@ Reviewer opens Site Evidence and Lab Commit, verifies Postgres reload, receipt r
 
 S1 carry to consume at refinement: registration identity fields remain mutable. `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` makes pinned historical snapshot reads independent of current registration gaps; S2-02 must validate originally registered identity and validity from immutable version/snapshot references rather than current mutable names. Define gateway credential scope separately; S1's development-tenant snapshot download is not an authenticated gateway endpoint. Reconcile the actual S2-01a frozen basis and S2-01b/c wire, outbox and diagnostics before activating this outline. `queue_baseline_nodes` still assigns `I-accepted-evidence-store`, `I-edge-diagnostics-store`, `I-S2-02` here; no baseline move from S1.
 
+Before this slice accepts evidence, close the S2-01a phase-1 identity carry: make `asset.asset_code` stable at the database boundary so a binding's immutable asset UUID cannot silently resolve to a different Foundation component after publication. Include an explicit reconciliation path for any existing changed row and prove that a direct update is refused. Apply the same original-versus-current identity review to Site type and gateway/source external IDs when refining registered credential and evidence checks; a current name is never evidence that an older snapshot used it. This is an acquisition-lineage gate, not an S2-01a snapshot-schema-v2 requirement.
+
 ## Defer
 
 Analytics, full replay UI, broker transport and optional artifact-store offload.
