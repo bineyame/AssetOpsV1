@@ -757,6 +757,27 @@ describe("S1-03: three Foundation views at one selected period", () => {
   });
 });
 
+describe("S1-03: an unreadable store is not reported as a Site without records", () => {
+  it("says stored versions are unavailable, not that the Site needs importing, on SLD and Readiness", async () => {
+    for (const unreadable of [
+      { status: "unavailable" as const, message: "The store is down." },
+      { status: "unavailable" as const, message: null },
+      { status: "not_found" as const, message: "No version." },
+      { status: "invalid" as const, message: "Bad answer." },
+    ]) {
+      const client = fakeFoundation(() => unreadable, unreadable);
+      for (const path of [`/sites/${ID}/foundation/readiness`, `/sites/${ID}/foundation/sld`]) {
+        const view = renderAt(path, client);
+        await settledScreen();
+        expect(screen.getByRole("heading", { name: "Stored versions unavailable" })).toBeInTheDocument();
+        expect(screen.queryByRole("heading", { name: "This view needs an imported Site" })).toBeNull();
+        expect(screen.queryByText(/has no stored Foundation version/)).toBeNull();
+        view.unmount();
+      }
+    }
+  });
+});
+
 describe("S1-03: a scheduled binding period is never called the configuration in effect now", () => {
   it("labels a future binding set shown with the current Foundation version", async () => {
     const scheduled = (): FoundationRead<FoundationReadModel> => {

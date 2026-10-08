@@ -136,6 +136,32 @@ export function SiteFoundationFrame({
     );
   }
 
+  if (
+    view !== "model" &&
+    siteId !== undefined &&
+    state.foundation.status !== "migration_required" &&
+    state.foundation.status !== "loaded"
+  ) {
+    // The store could not be read, or answered without a version: that is not
+    // evidence that the Site has no stored records, so say only that.
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        {tabs}
+        <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+          <p>
+            Stored Foundation versions could not be read
+            {state.foundation.message === null ? "." : `: ${state.foundation.message}`} This view is
+            not shown until they can be.
+          </p>
+          <p>
+            <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
+          </p>
+        </Panel>
+      </main>
+    );
+  }
+
   if (view !== "model" && siteId !== undefined) {
     // A Site that is not imported has no stored Foundation, binding set or
     // snapshot, so these views would imply records it does not have.
