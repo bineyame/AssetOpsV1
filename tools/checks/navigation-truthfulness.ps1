@@ -492,7 +492,8 @@ function Get-FoundationSubtabFailures {
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
-            if ($line -match '>\s*(Changes|Change\s*(&amp;|&|and)\s*effect)\s*<') {
+            if ($line -match '>\s*(Changes|Change\s*(&amp;|&|and)\s*effect)\s*<' -or
+                $line -match '(?:aria-label|title)="\s*(Changes|Change\s*(&amp;|&|and)\s*effect)\s*"') {
                 $failures.Add(("A '$($Matches[1])' destination is written into " +
                     "$($module.Path):${lineNumber}: $($line.Trim()). v6.9 makes it " +
                     "an intervention and change-effect capability with no " +

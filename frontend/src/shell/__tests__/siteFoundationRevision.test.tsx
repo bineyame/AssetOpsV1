@@ -857,8 +857,13 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     renderAt(`/sites/${ID}/foundation${segment}`, fakeFoundation(loadedFoundation));
     await settledScreen();
     const main = screen.getByRole("main");
+    const forbidden = /^\s*(changes|change\s*(&|and)\s*effect)\s*$/i;
+    // Visible text and the accessible name (aria-label, title) both count.
     const named = Array.from(main.querySelectorAll("a, button, [role='tab'], [role='link'], [aria-disabled]")).filter(
-      (node) => /^\s*(changes|change\s*(&|and)\s*effect)\s*$/i.test(node.textContent ?? ""),
+      (node) =>
+        [node.textContent, node.getAttribute("aria-label"), node.getAttribute("title")].some((name) =>
+          forbidden.test(name ?? ""),
+        ),
     );
     expect(named).toHaveLength(0);
     expect(main.querySelectorAll("[aria-disabled]")).toHaveLength(0);
@@ -883,6 +888,7 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
       "Configured topology",
       "Identity & operating obligations",
       "Time-valid control configuration",
+      "Record and inventory details",
     ]);
     expect(order[0]).toBe("Foundation version");
     const controls = screen.getByRole("heading", { name: "Time-valid control configuration" }).closest("section");
