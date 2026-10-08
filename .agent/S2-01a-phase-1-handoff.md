@@ -2,6 +2,8 @@
 
 Branch `task/S2-01a-registered-lab-basis`. Commits: `ce65b8d` (code), `fabbfc2` (tests, plus a typed refusal for an unparseable Site row), `f1b78bd` (run read reports the basis). Phase 1 is complete. Phase 2 is next.
 
+Architect commit `684aa91` answered the questions file by amending the decision. Its one new phase-1 rule is built in a later commit: `SITE_TYPE_ROLE_SET_MISMATCH` now refuses setup when the current Site type does not match the selected binding role set, for historical selections too. The test for it and its non-vacuity proof are in place.
+
 Questions for the Architect are in `.agent/S2-01a-questions-1.md`. None is blocking; each was built on the fail-closed default:
 - Q1: Site-row name, type and time zone are not in the snapshot.
 - Q2: the definition of a current versus historical snapshot.
@@ -66,6 +68,7 @@ The imported KOBO-001 Draft, as converted in tests, comes out `READY` with 10 re
   3. Reload hash check disabled: the reload-tamper test failed.
   4. Identity check skipped: the forged-gateway test failed.
 - `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1` pass.
+- After the amendment: the focused suites passed (174 in memory, 21 Postgres), plus the architecture check.
 - Full suites at `f1b78bd`, with Postgres tests enabled:
   - backend 1609 passed;
   - host 619 passed;
@@ -81,6 +84,7 @@ The imported KOBO-001 Draft, as converted in tests, comes out `READY` with 10 re
   - `tools/checks/configuration-persistence.ps1` rule 8 (≈:675) requires `_refuse_if_imported(record)` in each of the four POST routes. Amend it, keeping one shared boundary call, rather than weakening it.
 - **Stage read.** `_frozen_basis` (:2656) always reports `configuration_store: "LEGACY_FILE"`. Phase 2 must branch on `record.registered_basis`: registered, with no accepted-evidence claim.
 - **Kernel.** The host reads `deterministic_identity.signal_mappings` (`host/execution_adapter.py:584`). For registered Drafts these are now binding-derived links (Q3); confirm the Kobo kernel and observation path behave the same.
+- **Amendment display rule.** Wherever the basis is shown, present the Site name and time zone as current-row metadata frozen at setup, not as facts selected by `knowledge_at`.
 - **Frontend.** The Lab setup does not yet list imported KOBO-001 or show the basis. `configuration_basis` is on the run read, and the setup refusal carries `refusal_kind` and `reason_code`. `knowledge_at` stays API-only.
 
 ## Open risks
