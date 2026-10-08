@@ -2073,9 +2073,28 @@ class TestEveryRefusalKindIsReachable:
             self._requirement_conflict().kind,
             self._publication_hold_batches().kind,
             self._site_awaiting_migration().kind,
+            *self._registered_basis_refusals(),
         }
 
         assert produced == RUN_SETUP_REFUSAL_KINDS
+
+    def _registered_basis_refusals(self) -> set[str]:
+        """S2-01a: an imported Site with no basis, and one crossing a boundary.
+
+        Produced through the real registered-basis adapter over the in-memory
+        Foundation store, not by a fake raising the kind.
+        """
+        from test_s2_registered_basis import converted, publish_reserve, refusal, request
+
+        store, _, _ = converted()
+        unavailable = refusal(store, request(foundation_version=1, knowledge_at="2026-10-07T11:00:00Z"))
+        store, result, _ = converted()
+        publish_reserve(store, result, 40)
+        boundary = refusal(
+            store,
+            request(interval={"start_time": "2026-10-04T18:00:00Z", "end_time": "2026-10-05T06:00:00Z"}),
+        )
+        return {unavailable.kind, boundary.kind}
 
     def _site_awaiting_migration(self) -> RunSetupRefused:
         """S1-01: an imported Site's code refuses new Draft setup."""

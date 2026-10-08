@@ -40,6 +40,7 @@ from assetops_backend.sites.foundation_service import (
     revision_at,
 )
 from assetops_backend.sites.models import SiteRecord
+from assetops_backend.sites.ports import SiteConfigurationInvalid
 
 
 class BasisRefused(Exception):
@@ -145,6 +146,18 @@ def select_registered_basis(
     )
     if not isinstance(snapshot, Snapshot):
         raise BasisRefused(snapshot.code, snapshot.reason)
+    try:
+        # The Site row's name, type and time zone are not in the pinned
+        # snapshot; the record is built from the CURRENT row plus the selected
+        # revision's content. A row the strict parser refuses is a typed
+        # refusal, never a substitute (open question S2-01a-questions-1).
+        record = record_at(site, foundation)
+    except SiteConfigurationInvalid as error:
+        raise BasisRefused(
+            "SITE_RECORD_INVALID",
+            f"The Site row of {site.site_code} cannot be combined with Foundation "
+            f"v{foundation.version}: {error}",
+        ) from error
     return RegisteredSelection(
         tenant=tenant,
         site=site,
@@ -154,5 +167,5 @@ def select_registered_basis(
         binding_set=binding_set,
         snapshot=snapshot,
         registrations=registrations,
-        record=record_at(site, foundation),
+        record=record,
     )
