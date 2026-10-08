@@ -38,12 +38,7 @@ const ROLE_STATUS_WORD: Record<ReadinessRole["status"], string> = {
 
 function conversionText(binding: SignalBinding): string {
   const { kind } = binding.conversion;
-  if (kind === "IDENTITY") return "Same unit";
-  if (kind === "LINEAR") {
-    const { scale, offset } = binding.conversion.parameters as { scale?: string; offset?: string };
-    return `× ${scale ?? "?"} + ${offset ?? "?"}`;
-  }
-  return "State labels mapped";
+  return kind === "IDENTITY" ? "Same unit" : "State labels mapped";
 }
 
 function roleCoverage(role: ReadinessRole, mappings: SignalBinding[]): string {
@@ -189,12 +184,13 @@ export function FoundationBindingsPanel({
         )}
         {snapshot.available ? (
           <p data-snapshot-available="true">
-            Gateway snapshot for this basis: SHA-256 <code>{snapshot.sha256}</code> (Foundation version
-            record <code>{snapshot.foundation_revision_id}</code>, binding version record{" "}
-            <code>{snapshot.binding_set_revision_id}</code>).{" "}
+            Gateway snapshot pinned at publication: SHA-256 <code>{snapshot.sha256}</code> ({snapshot.schema};
+            Foundation version record <code>{snapshot.foundation_revision_id}</code>, binding version
+            record <code>{snapshot.binding_set_revision_id}</code>).{" "}
             <a href={snapshotHref} download>
               Download snapshot
-            </a>
+            </a>{" "}
+            {snapshot.access}
           </p>
         ) : (
           <p data-snapshot-available="false">Gateway snapshot: not available. {snapshot.reason}</p>

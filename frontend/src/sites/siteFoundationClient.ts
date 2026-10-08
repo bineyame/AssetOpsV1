@@ -68,12 +68,17 @@ export interface BindingSetSummary {
   origin: "CONVERSION" | "PUBLISH" | "SPLIT";
   derived_from_revision_id: string | null;
   bindings_sha256: string;
+  foundation_revision_id: string;
+  gateway_id: string;
+  snapshot_schema: string;
+  snapshot_sha256: string;
   binding_count: number;
   change_note: string | null;
 }
 
 export interface SignalBindingConversion {
-  kind: "IDENTITY" | "LINEAR" | "ENUM";
+  /** S1 publishes IDENTITY and ENUM only (D-2026-10-08-s1-bindings-roles-and-snapshot, Q4). */
+  kind: "IDENTITY" | "ENUM";
   parameters: Record<string, unknown>;
 }
 
@@ -143,10 +148,12 @@ export interface FoundationBindings {
 }
 
 export type AcquisitionSnapshotSummary =
-  | { available: false; reason: string }
+  | { available: false; code: string; reason: string }
   | {
       available: true;
       sha256: string;
+      schema: string;
+      access: string;
       foundation_revision_id: string;
       binding_set_revision_id: string;
       valid_from: string;

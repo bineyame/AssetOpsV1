@@ -479,7 +479,8 @@ class PostgresFoundationStore:
         rows = connection.execute(
             text(
                 "SELECT id, binding_set_id, version, role_set, valid_from, valid_to, recorded_at, "
-                "superseded_at, bindings_sha256, origin, derived_from_revision_id, change_note "
+                "superseded_at, bindings_sha256, origin, derived_from_revision_id, change_note, "
+                "foundation_revision_id, gateway_id, snapshot_schema, snapshot_sha256 "
                 "FROM signal_binding_set_revision WHERE tenant_id = :tenant_id AND site_id = :site_id "
                 "ORDER BY version"
             ),
@@ -524,6 +525,10 @@ class PostgresFoundationStore:
                 derived_from_revision_id=r.derived_from_revision_id,
                 change_note=r.change_note,
                 bindings=tuple(by_set.get(r.id, ())),
+                foundation_revision_id=r.foundation_revision_id,
+                gateway_id=r.gateway_id,
+                snapshot_schema=r.snapshot_schema,
+                snapshot_sha256=r.snapshot_sha256,
             )
             for r in rows
         )
@@ -539,9 +544,10 @@ class PostgresFoundationStore:
             text(
                 "INSERT INTO signal_binding_set_revision (id, tenant_id, site_id, binding_set_id, version, "
                 "role_set, valid_from, valid_to, recorded_at, superseded_at, bindings_sha256, origin, "
-                "derived_from_revision_id, change_note) VALUES (:id, :tenant_id, :site_id, :set_id, "
+                "derived_from_revision_id, change_note, foundation_revision_id, gateway_id, snapshot_schema, "
+                "snapshot_sha256) VALUES (:id, :tenant_id, :site_id, :set_id, "
                 ":version, :role_set, :valid_from, :valid_to, :recorded_at, NULL, :sha, :origin, "
-                ":derived_from, :note)"
+                ":derived_from, :note, :foundation_revision_id, :gateway_id, :snapshot_schema, :snapshot_sha256)"
             ),
             {
                 "id": row.id,
@@ -557,6 +563,10 @@ class PostgresFoundationStore:
                 "origin": row.origin,
                 "derived_from": row.derived_from_revision_id,
                 "note": row.change_note,
+                "foundation_revision_id": row.foundation_revision_id,
+                "gateway_id": row.gateway_id,
+                "snapshot_schema": row.snapshot_schema,
+                "snapshot_sha256": row.snapshot_sha256,
             },
         )
         for b in row.bindings:

@@ -37,12 +37,18 @@ def report(result: ConversionResult, fixture_path: str, fixture_sha: str, site_c
         f"Fixture: `{fixture_path}` (sha256 `{fixture_sha}`). Effective from {utc_text(result.effective_from)}.",
         "Published now." if result.created else "Already converted: nothing was written.",
         "",
+        "Decision `D-2026-10-08-s1-bindings-roles-and-snapshot`. The bindings are effective from the "
+        "imported Foundation's original valid_from but recorded at this publication: a read with an "
+        "earlier knowledge_at still returns the former Foundation-only, unbound basis. Backdating "
+        "configuration does not establish any historical observation.",
+        "",
         "| Legacy mapping | Channel | Legacy component | Asset | Role | Units | Conversion |",
         "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in result.rows:
         lines.append(
-            f"| {row.legacy_mapping_id or '(declared jointly)'} | {row.device_id} / {row.signal_id} | "
+            f"| {row.legacy_mapping_id or '(none: newly declared by decision Q2, absent from the original import)'} "
+            f"| {row.device_id} / {row.signal_id} | "
             f"{row.legacy_component or '-'} | {row.asset_code} | {row.role} | {row.units} | {row.conversion_kind} |"
         )
     if result.published is not None:
@@ -50,8 +56,13 @@ def report(result: ConversionResult, fixture_path: str, fixture_sha: str, site_c
         plan = result.published.plan
         lines += [
             "",
-            f"Binding set {changed.binding_set_id} v{changed.version} "
-            f"(revision {changed.id}, bindings sha256 `{changed.bindings_sha256}`).",
+            f"Binding set {changed.binding_set_id}: one revision per Foundation period (decision Q5).",
+            *(
+                f"- binding v{p.version} `{p.id}` {utc_text(p.valid_from)} to "
+                f"{'no end' if p.valid_to is None else utc_text(p.valid_to)}, Foundation revision "
+                f"`{p.foundation_revision_id}`, snapshot {p.snapshot_schema} sha256 `{p.snapshot_sha256}`"
+                for p in result.published.published
+            ),
             f"Foundation revisions inserted: {', '.join(f'v{r.version}' for r in plan.revision_inserts) or 'none'}; "
             f"superseded: {len(plan.supersede_revision_ids)}.",
         ]

@@ -116,7 +116,7 @@ class TestMigration:
             tables = set(connection.execute(text(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
             )).scalars())
-        assert head == "0002_signal_bindings"
+        assert head == "0003_pinned_binding_snapshots"
         assert {"signal_binding_set_revision", "signal_binding_revision"} <= tables
 
 
@@ -126,7 +126,7 @@ class TestPublishAndHistory:
         assert outcome.created
         first = view(store, result, at=EARLIER)
         assert readiness(first.site, first.revision, first.registrations, first.binding_set)["state"] == "READY_TO_REPORT"
-        original = acquisition_snapshot(first.site, first.revision, first.registrations, first.binding_set)
+        original = acquisition_snapshot(result.tenant.id, first.site, first.revisions, first.registrations, first.binding_set)
         assert hashlib.sha256(original.body).hexdigest() == original.sha256
 
         current = first.binding_set
@@ -144,7 +144,8 @@ class TestPublishAndHistory:
         assert ready["missing_roles"] == ["Battery state of charge"]
         before_change = view(store, result, at=EARLIER, knowledge=NOW - timedelta(minutes=1))
         again = acquisition_snapshot(
-            before_change.site, before_change.revision, before_change.registrations, before_change.binding_set
+            result.tenant.id, before_change.site, before_change.revisions, before_change.registrations,
+            before_change.binding_set,
         )
         assert again.sha256 == original.sha256 and again.body == original.body
         with engine.connect() as connection:
@@ -177,14 +178,20 @@ class TestPublishAndHistory:
         assert len(store.binding_sets(result.tenant.id, result.site.id)) == 1
 
 
-def _set_row(connection, result, *, role_set="other-roles", version=50):
+def _set_row(connection, result, *, role_set="other-roles", version=50, valid_from=EARLIER, foundation=None):
     set_id = uuid4()
+    anchor = foundation or connection.execute(text(
+        "SELECT id FROM foundation_revision WHERE site_id = :s AND superseded_at IS NULL "
+        "AND valid_from <= :at AND (valid_to IS NULL OR valid_to > :at)"
+    ), {"s": result.site.id, "at": valid_from}).scalar_one()
+    gateway = connection.execute(text("SELECT id FROM gateway WHERE site_id = :s"), {"s": result.site.id}).scalar_one()
     connection.execute(text(
         "INSERT INTO signal_binding_set_revision (id, tenant_id, site_id, binding_set_id, version, role_set, "
-        "valid_from, valid_to, recorded_at, bindings_sha256, origin) VALUES (:id, :t, :s, :b, :v, :r, "
-        ":from_, NULL, :rec, :sha, 'PUBLISH')"
+        "valid_from, valid_to, recorded_at, bindings_sha256, origin, foundation_revision_id, gateway_id, "
+        "snapshot_schema, snapshot_sha256) VALUES (:id, :t, :s, :b, :v, :r, :from_, NULL, :rec, :sha, "
+        "'PUBLISH', :f, :g, 'assetops.acquisition-snapshot/1', :sha)"
     ), {"id": set_id, "t": result.tenant.id, "s": result.site.id, "b": uuid4(), "v": version, "r": role_set,
-        "from_": EARLIER, "rec": NOW, "sha": "0" * 64})
+        "from_": valid_from, "rec": NOW, "sha": "0" * 64, "f": anchor, "g": gateway})
     return set_id
 
 
@@ -253,3 +260,40 @@ class TestDatabaseRules:
                                         "WHERE id = :id"), {"at": NOW, "id": closed})
                 _binding_row(connection, result, closed, source=pcs, device_id=pcs.source_external_id,
                              asset_id=None)
+
+
+class TestDecisionRulesInTheDatabase:
+    def test_a_binding_period_outside_its_foundation_revision_is_refused(self, store, engine) -> None:
+        result = imported(store)
+        with engine.connect() as connection:
+            imported_rev = connection.execute(
+                text("SELECT id FROM foundation_revision WHERE site_id = :s"), {"s": result.site.id}
+            ).scalar_one()
+        with pytest.raises(DBAPIError, match="within its Foundation revision"):
+            with engine.begin() as connection:
+                _set_row(connection, result, role_set="minigrid-roles-1",
+                         valid_from=datetime(2020, 1, 1, tzinfo=timezone.utc), foundation=imported_rev)
+
+    def test_the_pinned_snapshot_is_immutable(self, store, engine) -> None:
+        result, outcome = converted(store)
+        with pytest.raises(DBAPIError, match="immutable"):
+            with engine.begin() as connection:
+                connection.execute(text("UPDATE signal_binding_set_revision SET snapshot_sha256 = :sha WHERE id = :id"),
+                                   {"sha": "1" * 64, "id": outcome.published.changed.id})
+
+    def test_a_reserve_change_realigns_bindings_and_pins_new_snapshots(self, store, engine) -> None:
+        result, outcome = converted(store)
+        before = view(store, result, at=EARLIER)
+        old = acquisition_snapshot(result.tenant.id, before.site, before.revisions, before.registrations, before.binding_set)
+        FoundationService(store, "demo", Clock(NOW)).publish_battery_reserve(
+            result.tenant, result.site, asset_code="battery", value=40.0, effective_from=CHANGE_FROM, note=None
+        )
+        sets = [s for s in store.binding_sets(result.tenant.id, result.site.id) if s.superseded_at is None]
+        assert len(sets) == 2
+        later = view(store, result)
+        pinned = acquisition_snapshot(result.tenant.id, later.site, later.revisions, later.registrations, later.binding_set)
+        assert pinned.sha256 == later.binding_set.snapshot_sha256
+        assert pinned.foundation_revision_id == later.revision.id
+        again = view(store, result, at=EARLIER, knowledge=NOW - timedelta(minutes=1))
+        recovered = acquisition_snapshot(result.tenant.id, again.site, again.revisions, again.registrations, again.binding_set)
+        assert recovered.body == old.body and recovered.sha256 == old.sha256

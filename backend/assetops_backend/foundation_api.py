@@ -15,8 +15,10 @@ imported into the product Foundation store:
 * `POST /api/sites/{site_id}/foundation/bindings` - publish a complete
   replacement signal binding set from an effective time (S1-02).
 * `GET  /api/sites/{site_id}/foundation/snapshot?at=&knowledge_at=` - the
-  registered gateway's immutable acquisition snapshot for that basis, as its
-  canonical bytes with their SHA-256 (S1-02).
+  pinned acquisition snapshot of the binding set selected at that basis: its
+  canonical bytes, verified against the SHA-256 persisted at publication
+  (S1-02, decision Q6). A tenant-scoped development configuration download;
+  gateway authentication is pending (S2) and this is not gateway access.
 
 The tenant is the configured development tenant, resolved here at the request
 boundary. Nothing the client sends (header, query or body) names a tenant.
@@ -37,6 +39,7 @@ from assetops_backend.sites.binding_service import (
     BindingRefused,
     BindingRequest,
     BindingService,
+    SNAPSHOT_ACCESS_STATEMENT,
     Snapshot,
     acquisition_snapshot,
     readiness,
@@ -314,6 +317,10 @@ def binding_set_summary(row: BindingSetRevisionRow, now: datetime) -> dict[str, 
             None if row.derived_from_revision_id is None else str(row.derived_from_revision_id)
         ),
         "bindings_sha256": row.bindings_sha256,
+        "foundation_revision_id": str(row.foundation_revision_id),
+        "gateway_id": str(row.gateway_id),
+        "snapshot_schema": row.snapshot_schema,
+        "snapshot_sha256": row.snapshot_sha256,
         "binding_count": len(row.bindings),
         "change_note": row.change_note,
     }
@@ -371,17 +378,21 @@ def _bindings(view: FoundationView) -> dict[str, Any]:
 
 
 def _snapshot_summary(view: FoundationView) -> dict[str, Any]:
-    result = acquisition_snapshot(view.site, view.revision, view.registrations, view.binding_set)
+    result = acquisition_snapshot(
+        view.tenant.id, view.site, view.revisions, view.registrations, view.binding_set
+    )
     if not isinstance(result, Snapshot):
-        return {"available": False, "reason": result}
+        return {"available": False, "code": result.code, "reason": result.reason}
     return {
         "available": True,
         "sha256": result.sha256,
-        "foundation_revision_id": result.document["foundation"]["revision_id"],
-        "binding_set_revision_id": result.document["mapping"]["binding_set_revision_id"],
-        "valid_from": result.document["valid_from"],
-        "valid_to": result.document["valid_to"],
+        "schema": result.schema,
+        "foundation_revision_id": str(result.foundation_revision_id),
+        "binding_set_revision_id": str(result.binding_set.id),
+        "valid_from": _iso(result.binding_set.valid_from),
+        "valid_to": _iso(result.binding_set.valid_to),
         "byte_length": len(result.body),
+        "access": SNAPSHOT_ACCESS_STATEMENT,
     }
 
 
@@ -541,15 +552,19 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
 
         def work() -> Response:
             view = registry.service.read(site, tenant, resolved_at, resolved_knowledge)
-            result = acquisition_snapshot(view.site, view.revision, view.registrations, view.binding_set)
+            result = acquisition_snapshot(
+                view.tenant.id, view.site, view.revisions, view.registrations, view.binding_set
+            )
             if not isinstance(result, Snapshot):
-                raise FoundationRefused("ACQUISITION_SNAPSHOT_UNAVAILABLE", result, status=409)
+                raise FoundationRefused(result.code, result.reason, status=result.status)
             filename = f"{site.site_code}-snapshot-{result.sha256[:12]}.json"
             return Response(
                 content=result.body,
                 media_type="application/json",
                 headers={
                     "X-AssetOps-Snapshot-SHA256": result.sha256,
+                    "X-AssetOps-Snapshot-Schema": result.schema,
+                    "X-AssetOps-Access": "development-tenant; gateway-authentication-pending",
                     "ETag": '"' + result.sha256 + '"',
                     "Content-Disposition": 'attachment; filename="' + filename + '"',
                 },
@@ -589,6 +604,7 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
             return {
                 "site": _site_identity(site, tenant),
                 "binding_set": binding_set_summary(result.changed, now),
+                "published_binding_sets": [binding_set_summary(r, now) for r in result.published],
                 "inserted_binding_sets": [binding_set_summary(r, now) for r in result.plan.binding_set_inserts],
                 "superseded_binding_set_revision_ids": [str(i) for i in result.plan.supersede_binding_set_ids],
                 "inserted_revisions": [revision_summary(r, now) for r in result.plan.revision_inserts],

@@ -151,6 +151,14 @@ class InMemoryFoundationStore:
         sets_after = _supersede(sets_before, plan.supersede_binding_set_ids, plan.superseded_at, BindingOverlap)
         sets_after.extend(plan.binding_set_inserts)
         current = [s for s in sets_after if s.superseded_at is None]
+        # Migration 0003: a set revision lies inside one current Foundation revision.
+        current_rows = {r.id: r for r in rows_after if r.superseded_at is None}
+        for s in plan.binding_set_inserts:
+            anchor = current_rows.get(s.foundation_revision_id)
+            if anchor is None or s.valid_from < anchor.valid_from or (
+                anchor.valid_to is not None and (s.valid_to is None or s.valid_to > anchor.valid_to)
+            ):
+                raise ValueError("binding_set_within_foundation: not inside a current Foundation revision")
         for role_set in {s.role_set for s in current}:
             _refuse_overlap([s for s in current if s.role_set == role_set], BindingOverlap)
         regs = self.registered[site_id]

@@ -111,7 +111,11 @@ function foundation(
       statement: "No signal binding set is in effect for the period shown.",
     },
     readiness: UNKNOWN_READINESS,
-    acquisition_snapshot: { available: false, reason: "No signal binding set is in effect for the period shown." },
+    acquisition_snapshot: {
+      available: false,
+      code: "ACQUISITION_SNAPSHOT_UNAVAILABLE",
+      reason: "No signal binding set is in effect for the period shown.",
+    },
     evidence: { state: "NONE", statement: "No accepted evidence is linked to this Foundation." },
     configuration_gaps: [],
     ...over,
@@ -133,6 +137,10 @@ function bindingSet(over: Partial<BindingSetSummary> = {}): BindingSetSummary {
     origin: "CONVERSION",
     derived_from_revision_id: null,
     bindings_sha256: "c".repeat(64),
+    foundation_revision_id: "rev-2",
+    gateway_id: "g1",
+    snapshot_schema: "assetops.acquisition-snapshot/1",
+    snapshot_sha256: "d".repeat(64),
     binding_count: 2,
     change_note: null,
     ...over,
@@ -209,6 +217,8 @@ function published(mappings: SignalBinding[], missing: string[]): Partial<Founda
     acquisition_snapshot: {
       available: true,
       sha256: "d".repeat(64),
+      schema: "assetops.acquisition-snapshot/1",
+      access: "Development configuration download, scoped to the fixed development tenant. Gateway authentication is pending (S2); this is not authenticated gateway access.",
       foundation_revision_id: "rev-2",
       binding_set_revision_id: "bset-1",
       valid_from: "2026-09-29T11:57:49Z",
@@ -511,6 +521,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     const download = within(bindings).getByRole("link", { name: "Download snapshot" });
     expect(download.getAttribute("href")).toBe(`/api/sites/${ID}/foundation/snapshot?at=${PAST.valid_from}`);
     expect(bindings.textContent).toContain("d".repeat(64));
+    expect(bindings.textContent).toContain("Gateway authentication is pending");
   });
 
   it("draws only bound signals on the SLD and marks devices with no bound channel", async () => {

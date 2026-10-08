@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from typing import Callable, Sequence
 from uuid import UUID, uuid4
 
+from assetops_backend.sites.binding_alignment import finalize
 from assetops_backend.sites.foundation_content import (
     CONTENT_SCHEMA_VERSION,
     RESERVE_UNIT,
@@ -27,6 +28,8 @@ from assetops_backend.sites.foundation_content import (
 from assetops_backend.sites.foundation_records import (
     AssetRow,
     BindingSetRevisionRow,
+    ConfigurationPlan,
+    ConfigurationState,
     FoundationSiteCodeTaken,
     FoundationSiteNotFound,
     FoundationStore,
@@ -451,9 +454,25 @@ class FoundationService:
             changed_holder["changed"] = changed
             return PublishPlan(supersede_ids=(replaced.id,), superseded_at=now, inserts=tuple(inserts))
 
+        registrations = self._store.registrations(tenant.id, site.id)
+        plan_holder: dict[str, PublishPlan] = {}
+
+        def joint(state: ConfigurationState) -> ConfigurationPlan:
+            # S1-02 (decision Q5/Q6): a Foundation change also replaces every
+            # binding set revision that named a replaced Foundation revision,
+            # aligned to the new periods, with their snapshots pinned - all in
+            # this one transaction.
+            plan = planner(state.revisions)
+            plan_holder["plan"] = plan
+            draft = ConfigurationPlan(plan.superseded_at, plan.supersede_ids, plan.inserts, (), ())
+            completed, _ = finalize(
+                state, draft, tenant_id=tenant.id, site=site, registrations=registrations, now=now
+            )
+            return completed
+
         try:
-            plan = self._store.publish(tenant.id, site.id, planner)
+            self._store.publish_configuration(tenant.id, site.id, joint)
         except FoundationSiteNotFound as error:
             raise FoundationRefused("SITE_NOT_FOUND", str(error), status=404) from error
-        return PublishResult(site=site, plan=plan, changed=changed_holder["changed"])
+        return PublishResult(site=site, plan=plan_holder["plan"], changed=changed_holder["changed"])
 

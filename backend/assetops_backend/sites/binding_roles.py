@@ -1,9 +1,8 @@
 """The code-owned MINIGRID signal role vocabulary (S1-02).
 
-PROPOSED, pending the Architect's answers in `.agent/S1-02-questions.md`
-(Q1 role names and requirement, Q3 battery reserve, Q4 units and conversions).
-Every vocabulary choice lives here, so an answer changes this table and the
-Kobo conversion fixture, not the binding mechanism.
+Decided by `D-2026-10-08-s1-bindings-roles-and-snapshot` (Architect answers
+Q1, Q3 and Q4 in `.agent/architect-S1-02-answers-2026-10-08.md`). Every
+vocabulary choice lives here; the binding mechanism does not name a role.
 
 A role names what a bound channel means for analysis. The canonical unit is
 fixed per role. A role is either a channel role (bound to one registered
@@ -35,7 +34,7 @@ class Role:
     cardinality: str  # ONE | PER_ASSET
     required: bool
     #: "CHANNEL" roles are bound to a device signal; "FOUNDATION_CONTROL"
-    #: roles are covered by a configured Foundation control (Q3 proposal).
+    #: roles are covered by a configured Foundation control (decision Q3).
     covered_by: str = "CHANNEL"
 
 
@@ -57,7 +56,11 @@ MINIGRID_ROLES: tuple[Role, ...] = (
 ROLES_BY_SET: dict[str, tuple[Role, ...]] = {ROLE_SET_MINIGRID: MINIGRID_ROLES}
 ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID}
 
-CONVERSION_KINDS = ("IDENTITY", "LINEAR", "ENUM")
+#: S1 publishes numeric IDENTITY and generator-state ENUM only (decision Q4).
+#: LINEAR is deferred until supported unit pairs, coefficients and
+#: normalization rules are decided; a LINEAR conversion is refused.
+CONVERSION_KINDS = ("IDENTITY", "ENUM")
+DEFERRED_CONVERSION_KINDS = ("LINEAR",)
 
 
 def roles_for(role_set: str) -> dict[str, Role]:
@@ -69,6 +72,8 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
     if not isinstance(conversion, dict) or set(conversion) != {"kind", "parameters"}:
         return "conversion must be an object with exactly 'kind' and 'parameters'"
     kind, parameters = conversion["kind"], conversion["parameters"]
+    if kind in DEFERRED_CONVERSION_KINDS:
+        return f"a {kind} conversion is not published in this release; only IDENTITY and ENUM are"
     if kind not in CONVERSION_KINDS:
         return f"conversion kind {kind!r} is not one of {', '.join(CONVERSION_KINDS)}"
     if not isinstance(parameters, dict):
@@ -76,26 +81,13 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
     if kind == "IDENTITY":
         if parameters:
             return "an IDENTITY conversion takes no parameters"
+        if role.value_kind != "NUMBER":
+            return f"{role.label} is a state; use an ENUM conversion"
         if source_unit != role.canonical_unit:
             return (
                 f"an IDENTITY conversion needs the source unit to be {role.canonical_unit!r}, "
                 f"not {source_unit!r}"
             )
-        if role.value_kind != "NUMBER":
-            return f"{role.label} is a state; use an ENUM conversion"
-        return None
-    if kind == "LINEAR":
-        if role.value_kind != "NUMBER":
-            return f"{role.label} is a state; a LINEAR conversion applies only to numbers"
-        if set(parameters) != {"scale", "offset"}:
-            return "a LINEAR conversion takes exactly 'scale' and 'offset'"
-        for key in ("scale", "offset"):
-            value = parameters[key]
-            try:
-                if not isinstance(value, str) or not _is_decimal(value):
-                    raise ValueError
-            except ValueError:
-                return f"LINEAR {key} must be a decimal string, e.g. \"0.001\""
         return None
     # ENUM
     if role.value_kind != "STATE":
@@ -109,8 +101,3 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
         return f"a state is reported in {role.canonical_unit!r}, not {source_unit!r}"
     return None
 
-
-def _is_decimal(text: str) -> bool:
-    body = text[1:] if text[:1] in "+-" else text
-    whole, _, fraction = body.partition(".")
-    return bool(whole or fraction) and (whole + fraction).isdigit()

@@ -202,6 +202,16 @@ class BindingSetRevisionRow:
     derived_from_revision_id: UUID | None
     change_note: str | None
     bindings: tuple[BindingRow, ...]
+    #: The one currently recorded Foundation revision whose valid period
+    #: contains this binding period when it was published: binding periods
+    #: are aligned to Foundation periods (decision Q5), so each binding set
+    #: revision is one acquisition snapshot.
+    foundation_revision_id: UUID
+    gateway_id: UUID
+    #: The pinned snapshot: serializer/schema version and the SHA-256 of the
+    #: canonical bytes, persisted in the publishing transaction (decision Q6).
+    snapshot_schema: str
+    snapshot_sha256: str
 
 
 @dataclass(frozen=True)

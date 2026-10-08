@@ -1,17 +1,17 @@
 {
   "schema": {"id": "assetops.binding-conversion", "version": 1},
-  "status": "PROPOSED - pending the Architect's answers Q1-Q5 in .agent/S1-02-questions.md",
+  "status": "DECIDED - D-2026-10-08-s1-bindings-roles-and-snapshot (.agent/architect-S1-02-answers-2026-10-08.md)",
   "site_code": "KOBO-001",
   "role_set": "minigrid-roles-1",
   "effective_from": "FOUNDATION_ORIGINAL_VALID_FROM",
-  "note": "Converted from the imported Foundation's legacy signal_mappings (PROPOSED vocabulary).",
+  "note": "Converted from the imported Foundation's legacy signal_mappings under D-2026-10-08-s1-bindings-roles-and-snapshot.",
   "declare_signals": [
     {
       "device_id": "generator-controller",
       "signal_id": "status",
       "display_name": "Generator status",
       "unit": "state",
-      "reason": "Q2(a): newer Site documents declare it; the dispatch analytic reads it."
+      "reason": "Newly declared by Architect decision D-2026-10-08-s1-bindings-roles-and-snapshot (Q2). Absent from the original Kobo import; not recovered from any YAML and not an observed capability."
     }
   ],
   "bindings": [

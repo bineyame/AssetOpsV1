@@ -20,11 +20,20 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
+from assetops_backend.sites.binding_alignment import (
+    SNAPSHOT_SCHEMA_V1,
+    SERIALIZERS,
+    UNPINNED,
+    binding_content,
+    canonical_bytes,
+    finalize,
+    snapshot_bytes,
+)
 from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
     Role,
@@ -60,7 +69,14 @@ BINDING_ITEM_KEYS = frozenset(
     {"device_id", "signal_id", "asset_id", "role", "source_unit", "canonical_unit", "conversion"}
 )
 
-SNAPSHOT_SCHEMA = {"id": "assetops.acquisition-snapshot", "version": 1}
+#: Placeholder references on a draft binding set revision; `finalize`
+#: replaces them with the aligned Foundation revision and the gateway.
+_DRAFT_REF = UUID(int=0)
+
+SNAPSHOT_ACCESS_STATEMENT = (
+    "Development configuration download, scoped to the fixed development tenant. "
+    "Gateway authentication is pending (S2); this is not authenticated gateway access."
+)
 
 READINESS_STATEMENT = (
     "Ready to report means this configuration names a bound channel for every "
@@ -81,32 +97,13 @@ def _iso(value: datetime | None) -> str | None:
     return None if value is None else value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def canonical_bytes(document: Any) -> bytes:
-    """Sorted keys, no whitespace, UTF-8: the one hashed spelling."""
-    return json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-
-
-def _binding_content(row: BindingRow) -> dict[str, Any]:
-    return {
-        "device_id": row.device_id,
-        "signal_id": row.signal_id,
-        "source_id": str(row.source_id),
-        "gateway_id": str(row.gateway_id),
-        "asset_id": None if row.asset_id is None else str(row.asset_id),
-        "role": row.role,
-        "source_unit": row.source_unit,
-        "canonical_unit": row.canonical_unit,
-        "conversion": row.conversion,
-    }
-
-
 def bindings_digest(role_set: str, bindings: Sequence[BindingRow]) -> str:
     """Content hash of one set's bindings, without row identities.
 
     An unchanged split copy therefore has the same digest as its original,
     as an unchanged Foundation segment keeps its `content_sha256`.
     """
-    rows = sorted((_binding_content(b) for b in bindings), key=lambda r: (r["device_id"], r["signal_id"]))
+    rows = sorted((binding_content(b) for b in bindings), key=lambda r: (r["device_id"], r["signal_id"]))
     return hashlib.sha256(canonical_bytes({"role_set": role_set, "bindings": rows})).hexdigest()
 
 
@@ -348,28 +345,13 @@ def _with_signal(content: Mapping[str, Any], signal: DeclaredSignal) -> dict[str
     )
 
 
-def _copy_rows(bindings: Sequence[BindingRow]) -> tuple[BindingRow, ...]:
-    return tuple(
-        BindingRow(
-            id=uuid4(),
-            gateway_id=b.gateway_id,
-            source_id=b.source_id,
-            device_id=b.device_id,
-            signal_id=b.signal_id,
-            asset_id=b.asset_id,
-            role=b.role,
-            source_unit=b.source_unit,
-            canonical_unit=b.canonical_unit,
-            conversion=b.conversion,
-        )
-        for b in bindings
-    )
-
-
 @dataclass(frozen=True)
 class BindingPublishResult:
     plan: ConfigurationPlan
+    #: The binding set revision in effect at the effective instant.
     changed: BindingSetRevisionRow
+    #: Every aligned revision the change became (one per Foundation period).
+    published: tuple[BindingSetRevisionRow, ...]
 
 
 class BindingService:
@@ -396,7 +378,8 @@ class BindingService:
             raise BindingRefused(
                 "BINDING_ROLE_SET_UNKNOWN", f"No role set is defined for {site.site_type} Sites.", status=422
             )
-        holder: dict[str, BindingSetRevisionRow] = {}
+        holder: dict[str, Any] = {}
+        registrations = self._store.registrations(tenant.id, site.id)
 
         def planner(state: ConfigurationState) -> ConfigurationPlan:
             recorded = [r.recorded_at for r in state.revisions] + [s.recorded_at for s in state.binding_sets]
@@ -410,7 +393,6 @@ class BindingService:
             current_sets = [s for s in state.binding_sets if s.superseded_at is None]
             set_inserts: list[BindingSetRevisionRow] = []
             supersede_sets: tuple[UUID, ...] = ()
-            next_set_version = max((s.version for s in state.binding_sets), default=0) + 1
             if not current_sets:
                 binding_set_id, period_to, replaced = uuid4(), None, None
             else:
@@ -427,23 +409,18 @@ class BindingService:
                 supersede_sets = (replaced.id,)
                 if effective_from > replaced.valid_from:
                     set_inserts.append(
-                        BindingSetRevisionRow(
+                        replace(
+                            replaced,
                             id=uuid4(),
-                            binding_set_id=binding_set_id,
-                            version=next_set_version,
-                            role_set=replaced.role_set,
-                            valid_from=replaced.valid_from,
                             valid_to=effective_from,
                             recorded_at=now,
                             superseded_at=None,
-                            bindings_sha256=replaced.bindings_sha256,
                             origin="SPLIT",
                             derived_from_revision_id=replaced.id,
                             change_note=f"Unchanged earlier segment of binding v{replaced.version}",
-                            bindings=_copy_rows(replaced.bindings),
+                            bindings=tuple(replace(b, id=uuid4()) for b in replaced.bindings),
                         )
                     )
-                    next_set_version += 1
 
             # Joint Foundation change: declare each channel signal in every
             # current Foundation period the binding period overlaps.
@@ -501,9 +478,7 @@ class BindingService:
                     status=422,
                 )
             overlapping = [r for r in after if _overlaps(r.valid_from, r.valid_to, effective_from, period_to)]
-            bindings = validate_bindings(
-                site, role_set, requests, self._store.registrations(tenant.id, site.id), overlapping
-            )
+            bindings = validate_bindings(site, role_set, requests, registrations, overlapping)
             digest = bindings_digest(role_set, bindings)
             if replaced is not None and digest == replaced.bindings_sha256 and not rev_inserts:
                 raise BindingRefused(
@@ -514,7 +489,7 @@ class BindingService:
             changed = BindingSetRevisionRow(
                 id=uuid4(),
                 binding_set_id=binding_set_id,
-                version=next_set_version,
+                version=0,  # assigned by `finalize`
                 role_set=role_set,
                 valid_from=effective_from,
                 valid_to=period_to,
@@ -525,22 +500,32 @@ class BindingService:
                 derived_from_revision_id=None if replaced is None else replaced.id,
                 change_note=note,
                 bindings=bindings,
+                foundation_revision_id=_DRAFT_REF,
+                gateway_id=_DRAFT_REF,
+                snapshot_schema=SNAPSHOT_SCHEMA_V1,
+                snapshot_sha256=UNPINNED,
             )
             set_inserts.append(changed)
-            holder["changed"] = changed
-            return ConfigurationPlan(
+            draft = ConfigurationPlan(
                 superseded_at=now,
                 supersede_revision_ids=tuple(supersede_revs),
                 revision_inserts=tuple(rev_inserts),
                 supersede_binding_set_ids=supersede_sets,
                 binding_set_inserts=tuple(set_inserts),
             )
+            completed, became = finalize(
+                state, draft, tenant_id=tenant.id, site=site, registrations=registrations, now=now
+            )
+            pieces = became.get(changed.id, ())
+            holder["published"] = pieces
+            holder["changed"] = next(p for p in pieces if p.valid_from <= effective_from < _until(p.valid_to))
+            return completed
 
         try:
             plan = self._store.publish_configuration(tenant.id, site.id, planner)
         except FoundationSiteNotFound as error:
             raise BindingRefused("SITE_NOT_FOUND", str(error), status=404) from error
-        return BindingPublishResult(plan=plan, changed=holder["changed"])
+        return BindingPublishResult(plan=plan, changed=holder["changed"], published=holder["published"])
 
 
 # --- Readiness and snapshot (configuration only) ------------------------------------
@@ -653,54 +638,6 @@ def readiness(
     }
 
 
-def snapshot_document(
-    site: StoredSite,
-    revision: RevisionRow,
-    registrations: Registrations,
-    binding_set: BindingSetRevisionRow,
-) -> dict[str, Any]:
-    gateway = registrations.gateways[0]
-    used_sources = {b.source_id for b in binding_set.bindings}
-    return {
-        "schema": SNAPSHOT_SCHEMA,
-        "site": {"site_id": str(site.id), "site_code": site.site_code},
-        "gateway": {
-            "gateway_id": str(gateway.id),
-            "gateway_external_id": gateway.gateway_external_id,
-            "mode": gateway.mode,
-        },
-        "foundation": {
-            "revision_id": str(revision.id),
-            "version": revision.version,
-            "valid_from": _iso(revision.valid_from),
-            "valid_to": _iso(revision.valid_to),
-            "content_sha256": revision.content_sha256,
-        },
-        "mapping": {
-            "binding_set_id": str(binding_set.binding_set_id),
-            "binding_set_revision_id": str(binding_set.id),
-            "version": binding_set.version,
-            "role_set": binding_set.role_set,
-            "valid_from": _iso(binding_set.valid_from),
-            "valid_to": _iso(binding_set.valid_to),
-            "bindings_sha256": binding_set.bindings_sha256,
-        },
-        "valid_from": _iso(max(revision.valid_from, binding_set.valid_from)),
-        "valid_to": _iso(min(_until(revision.valid_to), _until(binding_set.valid_to)))
-        if (revision.valid_to or binding_set.valid_to) else None,
-        "sources": sorted(
-            (
-                {"source_id": str(s.id), "source_external_id": s.source_external_id}
-                for s in registrations.sources
-                if s.id in used_sources
-            ),
-            key=lambda s: s["source_external_id"],
-        ),
-        "bindings": sorted(
-            ({"binding_revision_id": str(b.id), **_binding_content(b)} for b in binding_set.bindings),
-            key=lambda b: (b["device_id"], b["signal_id"]),
-        ),
-    }
 
 
 @dataclass(frozen=True)
@@ -708,26 +645,73 @@ class Snapshot:
     document: dict[str, Any]
     body: bytes
     sha256: str
+    schema: str
+    foundation_revision_id: UUID
+    binding_set: BindingSetRevisionRow
+
+
+@dataclass(frozen=True)
+class SnapshotUnavailable:
+    code: str
+    reason: str
+    status: int
 
 
 def acquisition_snapshot(
+    tenant_id: UUID,
     site: StoredSite,
-    revision: RevisionRow,
+    revisions: Sequence[RevisionRow],
     registrations: Registrations,
     binding_set: BindingSetRevisionRow | None,
-) -> Snapshot | str:
-    """The gateway snapshot for one selected time, or why there is none."""
+) -> Snapshot | SnapshotUnavailable:
+    """The pinned gateway snapshot of the binding set selected, or why there is none.
+
+    The bytes are rebuilt with the serializer version persisted on the binding
+    set revision, from immutable inputs, and must reproduce the SHA-256 stored
+    at publication (decision Q6); a mismatch is refused, never served.
+    """
     if binding_set is None:
-        return "No signal binding set is in effect for the period shown, so no gateway snapshot exists."
-    gaps = configuration_gaps(site, revision, registrations)
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_UNAVAILABLE",
+            "No signal binding set is in effect for the period shown, so no gateway snapshot exists.",
+            409,
+        )
+    foundation = next((r for r in revisions if r.id == binding_set.foundation_revision_id), None)
+    if foundation is None:
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_INCONSISTENT",
+            f"Binding v{binding_set.version} names a Foundation revision this Site does not hold.",
+            500,
+        )
+    gaps = configuration_gaps(site, foundation, registrations)
     if gaps:
-        return (
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_UNAVAILABLE",
             "This Foundation has configuration gaps ("
             + ", ".join(g.code for g in gaps)
-            + "), so no gateway snapshot can be downloaded."
+            + "), so no gateway snapshot can be downloaded.",
+            409,
         )
-    if not registrations.gateways:
-        return "No gateway is registered for this Site."
-    document = snapshot_document(site, revision, registrations, binding_set)
-    body = canonical_bytes(document)
-    return Snapshot(document, body, hashlib.sha256(body).hexdigest())
+    if binding_set.snapshot_schema not in SERIALIZERS:
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_SCHEMA_UNSUPPORTED",
+            f"Snapshot schema {binding_set.snapshot_schema!r} has no serializer in this build.",
+            500,
+        )
+    body = snapshot_bytes(binding_set.snapshot_schema, tenant_id, site, registrations, foundation, binding_set)
+    digest = hashlib.sha256(body).hexdigest()
+    if digest != binding_set.snapshot_sha256:
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_HASH_MISMATCH",
+            f"The rebuilt snapshot hashes to {digest}, not the {binding_set.snapshot_sha256} "
+            "stored at publication, so it is not served.",
+            500,
+        )
+    return Snapshot(
+        document=json.loads(body.decode("utf-8")),
+        body=body,
+        sha256=digest,
+        schema=binding_set.snapshot_schema,
+        foundation_revision_id=foundation.id,
+        binding_set=binding_set,
+    )

@@ -279,3 +279,106 @@ class TestRefusals:
         assert body["readiness"]["missing_roles"] == ["Battery reserve"]
         assert body["acquisition_snapshot"]["available"] is False
         assert "BATTERY_RESERVE_MISSING" in body["acquisition_snapshot"]["reason"]
+
+
+# --- decision D-2026-10-08-s1-bindings-roles-and-snapshot -----------------------
+
+
+class TestDecisionQ4Conversions:
+    def test_linear_is_refused_at_publication(self, legacy_root) -> None:
+        store, result, _ = converted()
+        client = app_for(store, legacy_root)
+        rows = wire(client.get("/api/sites/KOBO-001/foundation").json()["bindings"]["mappings"])
+        power = next(r for r in rows if r["role"] == "generator_power")
+        power["conversion"] = {"kind": "LINEAR", "parameters": {"scale": "1", "offset": "0"}}
+        sets_before = list(store.sets[result.site.id])
+        response = client.post(
+            "/api/sites/KOBO-001/foundation/bindings", json={"valid_from": REMOVED_FROM, "bindings": rows}
+        )
+        assert response.status_code == 422
+        assert response.json()["detail"]["code"] == "BINDING_CONVERSION_INVALID"
+        assert "only IDENTITY and ENUM" in response.json()["detail"]["message"]
+        assert store.sets[result.site.id] == sets_before
+
+
+class TestDecisionQ5AlignedPeriods:
+    def _reserve(self, client, value, valid_from):
+        response = client.post(
+            "/api/sites/KOBO-001/foundation/revisions",
+            json={"asset_code": "battery", "property_key": "reserve-state-of-charge", "unit": "%",
+                  "value": value, "valid_from": valid_from},
+        )
+        assert response.status_code == 201, response.text
+
+    def test_conversion_publishes_one_binding_set_per_foundation_period(self, legacy_root) -> None:
+        store = InMemoryFoundationStore()
+        result = do_import(store)
+        # A scheduled reserve change before conversion: two Foundation periods.
+        self._reserve(app_for(store, legacy_root, clock=Clock(NOW - timedelta(minutes=45))), 25, "2026-10-10T00:00:00Z")
+        outcome = convert(store, BindingService(store, Clock(CONVERTED_AT)), result.tenant, result.site, FIXTURE)
+        pieces = outcome.published.published
+        assert [(p.valid_from, p.valid_to) for p in pieces] == [
+            (ORIGINAL_FROM, datetime(2026, 10, 10, tzinfo=timezone.utc)),
+            (datetime(2026, 10, 10, tzinfo=timezone.utc), None),
+        ]
+        current = {r.id: r for r in store.rows[result.site.id] if r.superseded_at is None}
+        for piece in pieces:
+            anchor = current[piece.foundation_revision_id]
+            assert anchor.valid_from <= piece.valid_from
+            assert any(s["signal_id"] == "status" for d in anchor.content["devices"] for s in d["signals"])
+        assert len({p.snapshot_sha256 for p in pieces}) == 2
+
+    def test_a_later_reserve_change_realigns_bindings_and_keeps_the_old_snapshot(self, legacy_root) -> None:
+        store, result, outcome = converted()
+        client = app_for(store, legacy_root)
+        old_sha, _ = snapshot_hash(client, at=BEFORE_REMOVAL)
+        knowledge = (NOW - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        self._reserve(client, 40, REMOVED_FROM)
+        current_sets = [s for s in store.sets[result.site.id] if s.superseded_at is None]
+        current_rows = {r.id: r for r in store.rows[result.site.id] if r.superseded_at is None}
+        assert len(current_sets) == 2
+        assert all(s.foundation_revision_id in current_rows for s in current_sets)
+        assert all(s.origin == "SPLIT" for s in current_sets)
+        later = client.get("/api/sites/KOBO-001/foundation").json()
+        assert later["readiness"]["state"] == "READY_TO_REPORT"
+        assert later["acquisition_snapshot"]["foundation_revision_id"] == later["revision"]["revision_id"]
+        recovered, _ = snapshot_hash(client, at=BEFORE_REMOVAL, knowledge_at=knowledge)
+        assert recovered == old_sha
+
+    def test_before_conversion_knowledge_reads_the_foundation_only_basis(self, legacy_root) -> None:
+        store, _, _ = converted()
+        client = app_for(store, legacy_root)
+        knowledge = (CONVERTED_AT - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        before = client.get("/api/sites/KOBO-001/foundation", params={"knowledge_at": knowledge}).json()
+        assert before["bindings"]["state"] == "NONE"
+        assert before["readiness"]["state"] == "UNKNOWN"
+        assert before["revision"]["version"] == 1
+
+
+class TestDecisionQ6PinnedSnapshot:
+    def test_the_published_hash_is_persisted_and_the_download_verifies_it(self, legacy_root) -> None:
+        store, result, outcome = converted()
+        pinned = outcome.published.changed
+        assert pinned.snapshot_schema == "assetops.acquisition-snapshot/1"
+        client = app_for(store, legacy_root)
+        response = client.get("/api/sites/KOBO-001/foundation/snapshot")
+        assert response.headers["X-AssetOps-Snapshot-SHA256"] == pinned.snapshot_sha256
+        assert hashlib.sha256(response.content).hexdigest() == pinned.snapshot_sha256
+        assert response.headers["X-AssetOps-Snapshot-Schema"] == "assetops.acquisition-snapshot/1"
+        assert response.headers["X-AssetOps-Access"] == "development-tenant; gateway-authentication-pending"
+        document = response.json()
+        assert document["tenant_id"] == str(result.tenant.id)
+        assert document["mapping"]["binding_set_revision_id"] == str(pinned.id)
+        assert "recorded_at" not in json.dumps(document) and "superseded_at" not in json.dumps(document)
+        summary = client.get("/api/sites/KOBO-001/foundation").json()["acquisition_snapshot"]
+        assert "gateway authentication is pending" in summary["access"].lower()
+
+    def test_a_stored_hash_that_the_bytes_do_not_reproduce_is_refused(self, legacy_root) -> None:
+        store, result, outcome = converted()
+        store.sets[result.site.id] = [
+            replace(s, snapshot_sha256="0" * 64) if s.id == outcome.published.changed.id else s
+            for s in store.sets[result.site.id]
+        ]
+        response = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation/snapshot")
+        assert response.status_code == 500
+        assert response.json()["detail"]["code"] == "ACQUISITION_SNAPSHOT_HASH_MISMATCH"
