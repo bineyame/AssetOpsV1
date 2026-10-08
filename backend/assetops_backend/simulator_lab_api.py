@@ -2619,19 +2619,24 @@ def build_simulator_lab_router(
         rather than presenting the frozen basis as current.
         """
         site = record.deterministic_identity.site
-        imported = False
+        imported: bool | None = False
         if imported_site_check is not None:
             try:
                 imported_site_check(site.site_id)
             except SiteAwaitingMigration:
                 imported = True
+            except SiteStoreUnavailable:
+                # The store could not be asked (review m2). Historical
+                # inspection stays readable; whether the Site was imported is
+                # stated as unknown, and nothing is offered for release.
+                imported = None
         return {
             "configuration_store": "LEGACY_FILE",
             "site_id": site.site_id,
             "foundation_version": site.foundation_version,
             "foundation_valid_from": site.foundation_valid_from,
             "site_imported": imported,
-            "can_release": not imported,
+            "can_release": imported is False,
             "statement": (
                 "Frozen at Draft setup from the legacy Site document. Read-only "
                 "historical inspection; this read cannot seal or release anything."

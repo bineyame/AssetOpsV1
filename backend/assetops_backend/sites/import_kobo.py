@@ -22,6 +22,7 @@ from typing import Sequence
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
 from assetops_backend.sites.composition import (
     build_foundation_store,
+    check_site_import_report_path,
     legacy_site_documents,
     read_site_import_source,
     write_site_import_report,
@@ -159,6 +160,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.argv[1:] if argv is None else argv
     )
     try:
+        if args.report:
+            check_site_import_report_path(args.report, args.source)
         source = read_site_import_source(args.source)
         result = import_site(
             build_foundation_store(database_url()),
@@ -180,7 +183,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"sha256={source.sha256}"
     )
     if args.report:
-        path = write_site_import_report(args.report, comparison_report(command, source, result))
+        path = write_site_import_report(
+            args.report, comparison_report(command, source, result), source=args.source
+        )
         print(f"Report: {path}")
     return 0
 

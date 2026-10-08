@@ -344,6 +344,18 @@ class FoundationService:
         changed_holder: dict[str, RevisionRow] = {}
 
         def planner(rows: Sequence[RevisionRow]) -> PublishPlan:
+            latest = max(row.recorded_at for row in rows)
+            if now < latest:
+                # Recorded time must not run backwards (review m3): a server
+                # clock behind the last recorded change would close a period
+                # before it was recorded. Refused before anything is written.
+                raise FoundationRefused(
+                    "FOUNDATION_CLOCK_BEHIND",
+                    f"The server clock ({now.isoformat()}) is earlier than the last recorded "
+                    f"Foundation change ({latest.isoformat()}), so this change cannot be "
+                    "recorded. Nothing was written; retry once the clock is correct.",
+                    status=409,
+                )
             current = [row for row in rows if row.superseded_at is None]
             covering = [
                 row

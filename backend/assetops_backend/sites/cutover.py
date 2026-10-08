@@ -27,6 +27,7 @@ from assetops_backend.sites.foundation_content import record_at
 from assetops_backend.sites.foundation_records import (
     FoundationStoreError,
     StoredSite,
+    TenantNotFound,
     TenantRef,
 )
 from assetops_backend.sites.foundation_service import (
@@ -62,10 +63,19 @@ class ImportedSiteRegistry:
         return self._service
 
     def tenant(self) -> TenantRef | None:
+        """The configured tenant, or None when it holds nothing yet.
+
+        A reachable store with no row for the configured tenant has, by
+        definition, imported no Site (a freshly migrated database). That is
+        "no imported Sites", not "store unavailable" (review M1); only a store
+        that cannot be asked fails closed.
+        """
         if self._service is None:
             return None
         try:
             return self._service.tenant()
+        except TenantNotFound:
+            return None
         except FoundationStoreError as error:
             raise SiteStoreUnavailable(
                 f"The product Foundation store could not be asked which Sites are imported: {error}"
@@ -75,6 +85,8 @@ class ImportedSiteRegistry:
         if self._service is None:
             return ()
         tenant = self.tenant()
+        if tenant is None:
+            return ()
         try:
             return tuple(
                 site

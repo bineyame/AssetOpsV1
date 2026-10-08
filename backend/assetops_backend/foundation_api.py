@@ -296,9 +296,9 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
                 "This build has no product Foundation store composed.",
             )
         try:
-            tenant = registry.service.tenant()
-            site = registry.service.site(tenant, site_id)
-        except FoundationStoreError as error:
+            tenant = registry.tenant()
+            site = None if tenant is None else registry.service.site(tenant, site_id)
+        except (FoundationStoreError, SiteRepositoryError) as error:
             raise _refused(503, "FOUNDATION_STORE_UNAVAILABLE", str(error)) from error
         if site is not None:
             return tenant, site

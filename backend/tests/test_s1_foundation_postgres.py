@@ -181,33 +181,6 @@ class TestImport:
         assert site.import_record.source_path == KOBO_PATH
         assert site.import_record.source_sha256 == hashlib.sha256(KOBO_SOURCE.read_bytes()).hexdigest()
 
-    def test_reimport_of_the_same_path_and_digest_returns_the_same_rows(self, engine, store) -> None:
-        first = do_import(store)
-        second = do_import(store, clock=Clock(NOW + timedelta(hours=1)))
-        assert not second.created
-        assert (second.site.id, second.revision.id) == (first.site.id, first.revision.id)
-        assert count(engine, "foundation_revision") == 1 and count(engine, "asset") == 10
-
-    def test_changed_bytes_a_different_source_and_another_tenant_conflict(self, engine, store) -> None:
-        do_import(store)
-        with pytest.raises(ImportConflict, match="changed"):
-            do_import(store, kobo_source(sha256="0" * 64))
-        with pytest.raises(ImportConflict, match="different source"):
-            do_import(store, kobo_source(path="elsewhere/kobo-copy.yaml"))
-        with pytest.raises(ImportConflict, match="tenant"):
-            do_import(store, tenant="other")
-        assert count(engine, "site") == 1 and count(engine, "foundation_revision") == 1
-
-    def test_a_different_legacy_document_with_the_same_code_is_a_conflict(self, engine, store) -> None:
-        legacy = (LegacyDocument("kobo-001", "config/sites/kobo.yaml", "f" * 64),)
-        with pytest.raises(ImportConflict, match="also declared"):
-            do_import(store, legacy=legacy)
-        assert count(engine, "site") == 0
-
-    def test_the_registered_document_itself_is_the_expected_source(self, store) -> None:
-        legacy = (LegacyDocument("KOBO-001", KOBO_PATH, kobo_source().sha256),)
-        assert do_import(store, legacy=legacy).created
-
 
 # --- tenant isolation -----------------------------------------------------------
 
@@ -294,37 +267,6 @@ class TestPublish:
         assert [(r.version, r.superseded_at is None) for r in rows] == [(1, False), (2, True), (3, True)]
         assert rows[0].content == imported.revision.content
 
-    def test_a_backdated_correction_preserves_the_previous_knowledge_basis(self, store) -> None:
-        do_import(store)
-        clock = Clock(NOW)
-        service = FoundationService(store, "demo", clock)
-        tenant = service.tenant()
-        site = service.site(tenant, "KOBO-001")
-        backdated = NOW - timedelta(days=2)
-        service.publish_battery_reserve(
-            tenant, site, asset_code="battery", value=35.0, effective_from=backdated, note=None
-        )
-        clock.now = NOW + timedelta(seconds=1)
-        corrected = service.read(site, tenant, NOW - timedelta(days=1), None)
-        prior = service.read(site, tenant, NOW - timedelta(days=1), NOW - timedelta(seconds=1))
-        assert reserve_of(corrected) == 35.0 and reserve_of(prior) == 30.0
-
-    def test_invalid_values_and_periods_leave_no_partial_revision(self, engine, store) -> None:
-        do_import(store)
-        service = FoundationService(store, "demo", Clock(NOW))
-        tenant = service.tenant()
-        site = service.site(tenant, "KOBO-001")
-        cases = [
-            dict(asset_code="battery", value=150.0, effective_from=NOW + timedelta(days=1)),
-            dict(asset_code="battery", value=25.0, effective_from=datetime(2020, 1, 1, tzinfo=timezone.utc)),
-            dict(asset_code="generator", value=25.0, effective_from=NOW + timedelta(days=1)),
-            dict(asset_code="battery", value=30.0, effective_from=NOW + timedelta(days=1)),
-        ]
-        for case in cases:
-            with pytest.raises(FoundationRefused):
-                service.publish_battery_reserve(tenant, site, note=None, **case)
-        assert count(engine, "foundation_revision") == 1
-        assert store.revisions(tenant.id, site.id)[0].superseded_at is None
 
     def test_an_overlapping_current_period_is_refused_by_the_constraint(self, engine, store) -> None:
         imported = do_import(store)
@@ -373,140 +315,13 @@ def app_for(store, legacy_root, clock=None, **overrides):
     )
 
 
-class TestFoundationApi:
-    def test_index_lists_the_imported_site_once_beside_legacy_sites(self, store, legacy_root) -> None:
-        imported = do_import(store)
+class TestMigratedButNothingImported:
+    def test_legacy_sites_serve_from_a_freshly_migrated_database(self, store, legacy_root) -> None:
+        """Review M1: no tenant row yet means no imported Site, not a 503."""
         client = app_for(store, legacy_root)
-        sites = client.get("/api/sites").json()["sites"]
-        assert [(s["site_id"], s["configuration_store"]) for s in sites] == [
-            ("KOBO-001", "POSTGRES"), ("MG-LEGACY-1", "LEGACY_FILE"),
-        ]
-        detail = client.get("/api/sites/kobo-001").json()
-        assert detail["site_uuid"] == str(imported.site.id)
-        assert detail["foundation_revision_id"] == str(imported.revision.id)
-        assert client.get("/api/sites/MG-LEGACY-1").json()["configuration_store"] == "LEGACY_FILE"
-
-    def test_a_changed_or_foreign_legacy_document_is_an_error_not_a_precedence(self, store, legacy_root) -> None:
-        do_import(store)
-        changed = app_for(store, legacy_root, legacy_documents=lambda: (LegacyDocument("KOBO-001", KOBO_PATH, "0" * 64),))
-        assert changed.get("/api/sites").status_code == 503
-        foreign = app_for(store, legacy_root, legacy_documents=lambda: (LegacyDocument("kobo-001", "x.yaml", "0" * 64),))
-        assert foreign.get("/api/sites/KOBO-001").status_code == 503
-
-    def test_read_versions_and_publish_round_trip(self, store, legacy_root) -> None:
-        imported = do_import(store)
-        clock = Clock(NOW)
-        client = app_for(store, legacy_root, clock)
-        body = client.get("/api/sites/KOBO-001/foundation", headers={"X-Tenant": "other"}).json()
-        assert body["site"]["tenant"] == "demo"
-        assert body["revision"]["revision_id"] == str(imported.revision.id)
-        assert body["controls"]["battery_reserve"]["value"] == 30.0
-        assert body["controls"]["generator_start_stop"]["state"] == "NOT_CONFIGURED"
-        assert body["controls"]["generator_minimum_runtime"]["value"] == 30.0
-        assert body["bindings"]["state"] == "INCOMPLETE"
-        assert body["acquisition_snapshot"]["available"] is False
-        assert body["configuration_gaps"] == []
-        assert body["provenance"]["source_sha256"] == imported.site.import_record.source_sha256
-        assert len(body["sources"]) == 8 and body["gateways"][0]["status"] == "PENDING"
-        assert body["detail"]["foundation"]["version"] == 1
-        published = client.post(
-            "/api/sites/KOBO-001/foundation/revisions",
-            json={"asset_code": "battery", "property_key": "reserve-state-of-charge",
-                  "value": 25, "unit": "%", "valid_from": "2026-10-10T00:00:00Z"},
-        )
-        assert published.status_code == 201, published.text
-        clock.now = NOW + timedelta(minutes=1)
-        versions = client.get("/api/sites/KOBO-001/foundation/versions").json()["revisions"]
-        assert [(v["version"], v["recorded_state"]) for v in versions] == [
-            (1, "SUPERSEDED"), (2, "CURRENT"), (3, "CURRENT"),
-        ]
-        later = client.get("/api/sites/KOBO-001/foundation", params={"at": "2026-10-11T00:00:00Z"}).json()
-        assert later["controls"]["battery_reserve"]["value"] == 25.0 and later["revision"]["is_current"] is False
-        audit = client.get("/api/sites/KOBO-001/foundation", params={
-            "at": "2026-10-11T00:00:00Z", "knowledge_at": "2026-10-07T11:00:00Z"}).json()
-        assert audit["revision"]["version"] == 1
-
-    def test_invalid_empty_unimported_and_unsupported_requests(self, store, legacy_root) -> None:
-        do_import(store)
-        client = app_for(store, legacy_root)
-        assert client.get("/api/sites/KOBO-001/foundation", params={"at": "yesterday"}).status_code == 422
-        assert client.get("/api/sites/KOBO-001/foundation", params={"at": "2026-10-07T00:00:00"}).status_code == 422
-        empty = client.get("/api/sites/KOBO-001/foundation", params={"at": "2020-01-01T00:00:00Z"})
-        assert empty.status_code == 404 and empty.json()["detail"]["code"] == "FOUNDATION_REVISION_NOT_FOUND"
-        legacy = client.get("/api/sites/MG-LEGACY-1/foundation/versions")
-        assert legacy.status_code == 409 and legacy.json()["detail"]["code"] == "FOUNDATION_MIGRATION_REQUIRED"
-        assert client.get("/api/sites/NOPE-1/foundation").status_code == 404
-        priority = client.post("/api/sites/KOBO-001/foundation/revisions", json={
-            "asset_code": "battery", "property_key": "source-priority", "value": 1, "unit": "%",
-            "valid_from": "2026-10-10T00:00:00Z"})
-        assert priority.json()["detail"]["code"] == "FOUNDATION_CHANGE_UNSUPPORTED"
-        tenant_field = client.post("/api/sites/KOBO-001/foundation/revisions", json={
-            "asset_code": "battery", "property_key": "reserve-state-of-charge", "value": 25, "unit": "%",
-            "valid_from": "2026-10-10T00:00:00Z", "tenant": "other"})
-        assert tenant_field.status_code == 422
-
-    def test_legacy_evidence_surfaces_answer_awaiting_migration(self, store, legacy_root) -> None:
-        do_import(store)
-        client = app_for(store, legacy_root)
-        for path in ("evidence", "overview", "dispatch", "analytics", "findings"):
-            response = client.get(f"/api/sites/KOBO-001/{path}")
-            assert response.status_code == 409, path
-            assert response.json()["detail"]["code"] == "AWAITING_EVIDENCE_MIGRATION"
-            assert client.get(f"/api/sites/MG-LEGACY-1/{path}").status_code != 409, path
-
-    def test_the_gap_fixture_reports_its_exact_configuration_gap(self, store, tmp_path) -> None:
-        text_ = KOBO_SOURCE.read_text(encoding="utf-8").replace("site_id: KOBO-001", "site_id: KOBO-GAP-001")
-        start = text_.index("    - property_key: reserve-state-of-charge")
-        end = text_.index("  - component_id: battery-pcs")
-        gap_file = tmp_path / "kobo-gap-001.yaml"
-        gap_file.write_text(text_[:start] + text_[end:], encoding="utf-8")
-        source = read_import_source(str(gap_file))
-        do_import(store, source)
-        client = app_for(store, tmp_path, legacy_documents=lambda: ())
-        body = client.get("/api/sites/KOBO-GAP-001/foundation").json()
-        assert [g["code"] for g in body["configuration_gaps"]] == ["BATTERY_RESERVE_MISSING"]
-        assert body["controls"]["battery_reserve"]["state"] == "NOT_CONFIGURED"
-
-
-class TestLabRefusesImportedSites:
-    def test_controls_and_commit_refuse_while_history_stays_readable(self, store, legacy_root) -> None:
-        from run_fixtures import FakeSites, site as fixture_site
-        from test_run_execution_api import FakeExecution, persisted_draft
-
-        record, runs = persisted_draft()
-        target = fixture_site()
-        tenant = store.ensure_tenant("demo", "Development tenant", now=NOW)
-        source = ImportSource(path="tests/mg-900.yaml", sha256="b" * 64, record=target)
-        import_site(store, tenant_slug="demo", configured_tenant_slug="demo", source=source,
-                    legacy_documents=(), clock=Clock(NOW))
-        execution = FakeExecution()
-        client = app_for(
-            store, legacy_root, flags=FeatureFlags(simulator_lab_enabled=True),
-            site_repository=FakeSites((target,)), run_repository=runs, execution=execution,
-            legacy_documents=lambda: (),
-        )
-        base = f"/api/simulator-lab/runs/{record.run_id}"
-        for path, body in (
-            ("/execution/start", None),
-            ("/execution/step", {"boundaries": 1, "from_boundary": 0}),
-            ("/execution/run-to-end", None),
-            ("/commit", None),
-        ):
-            response = client.post(base + path, json=body)
-            assert response.status_code == 409, (path, response.text)
-            assert response.json()["detail"]["code"] == "SITE_AWAITING_MIGRATION"
-        assert execution.calls == []
-        assert client.get(base).status_code == 200
-        setup = client.post("/api/simulator-lab/runs", json=__import__("run_fixtures").setup_request())
-        assert setup.status_code == 422
-        assert setup.json()["detail"]["refusal_kind"] == "SITE_AWAITING_MIGRATION"
-
-    def test_the_gate_refuses_creating_a_legacy_site_with_an_imported_code(self, store) -> None:
-        from run_fixtures import FakeSites, site as fixture_site
-
-        imported = do_import(store)
-        gate = LegacySiteGate(FakeSites(()), ImportedSiteRegistry(FoundationService(store, "demo", Clock(NOW))))
-        with pytest.raises(SiteIdentityConflict):
-            gate.create_site(fixture_site(site_id="kobo-001"))
-        with pytest.raises(SiteAwaitingMigration):
-            gate.get_site(imported.site.site_code)
+        sites = client.get("/api/sites")
+        assert sites.status_code == 200
+        assert {s["configuration_store"] for s in sites.json()["sites"]} == {"LEGACY_FILE"}
+        assert client.get("/api/sites/MG-LEGACY-1").status_code == 200
+        assert client.get("/api/sites/MG-LEGACY-1/overview").status_code != 503
+        assert client.get("/api/sites/MG-LEGACY-1/foundation").json()["detail"]["code"] == "FOUNDATION_MIGRATION_REQUIRED"

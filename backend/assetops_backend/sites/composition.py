@@ -23,6 +23,7 @@ from assetops_backend.sites.adapters.yaml_user_site_store import (
     WritableYamlSiteStore,
 )
 from assetops_backend.sites.adapters.import_files import (
+    check_report_path,
     legacy_documents,
     read_import_source,
     write_import_report,
@@ -83,6 +84,11 @@ def read_site_import_source(path: str) -> ImportSource:
     return read_import_source(path)
 
 
-def write_site_import_report(path: str, report: str) -> str:
+def check_site_import_report_path(report: str, source: str) -> None:
+    """Refuse a report path that is the source or inside a Site store."""
+    check_report_path(report, source)
+
+
+def write_site_import_report(path: str, report: str, *, source: str) -> str:
     """Write the import comparison report (review evidence, not configuration)."""
-    return write_import_report(path, report)
+    return write_import_report(path, report, source_text=source)
