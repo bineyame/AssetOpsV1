@@ -61,6 +61,12 @@ const SITE = process.argv[3] ?? process.env.ASSETOPS_LAYOUT_SITE ?? "MG-001";
 const PUBLISH_RESERVE_LABEL = "Publish reserve change";
 // S1-02: the binding-removal publish, rendered only when a binding set is in
 // effect. Allowed on an imported Site beside the reserve change, and nothing else.
+// This is a deliberate S1-02 allowance (Architect ruling D3,
+// .agent/architect-S1-02-deviations-2026-10-08.md), not a relaxation of the
+// S1-01 rule: the battery reserve stays the only editable Foundation control.
+// A binding publication is a separate S1-02 action - it changes the signal
+// binding set, subject to atomic validation and append-only history - and it
+// may render at most once, on a stored imported Site with a binding set.
 const PUBLISH_BINDING_LABEL = "Publish binding change";
 const IMPORTED_SITE_ACTIONS = new Set([PUBLISH_RESERVE_LABEL, PUBLISH_BINDING_LABEL]);
 // S1-01: the Site the Lab run setup binds to. Defaults to SITE; set it to an
@@ -1323,8 +1329,11 @@ for (const [label, width, height] of [
   ["640x700, narrow enough that a dense table cannot fit", 640, 700],
 ]) {
   // S1-01 (Architect, 2026-10-08): an imported Site's Foundation carries one
-  // required enabled action, "Publish reserve change". It alone is allowed,
-  // and only on an imported Site; every other enabled action still fails.
+  // required enabled action, "Publish reserve change", the only editable
+  // Foundation control. S1-02 adds "Publish binding change" (ruling D3; see
+  // PUBLISH_BINDING_LABEL), which edits bindings, not a Foundation control.
+  // Both are allowed only on an imported Site; every other enabled action
+  // still fails.
   const siteImported = (await configurationStore(SITE)) === "POSTGRES";
   const foundation = await visit(
     cdp,

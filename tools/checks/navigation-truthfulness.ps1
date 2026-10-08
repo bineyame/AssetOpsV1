@@ -331,8 +331,12 @@ function Get-FoundationSubtabFailures {
     $inventoryName = "FOUNDATION_SUBTABS"
     $substrateRoot = "frontend/src/sites"
 
-    # v6.9 line 2117 lists five; `Readiness` is also not rendered (claim
-    # readiness lives on Site > Evidence only), enforced below. `Changes` is filtered out by the accepted T008
+    # v6.9 line 2117 lists five; `Readiness` is also not rendered as a
+    # subtab, enforced below. Claim/capability readiness lives on Site >
+    # Evidence; S1-02 configuration readiness (bindings and Foundation gaps)
+    # is a linked section of the Foundation page itself, not a subtab
+    # (Architect ruling D2, .agent/architect-S1-02-deviations-2026-10-08.md).
+    # `Changes` is filtered out by the accepted T008
     # checkpoint: lines 2149 and 2225-2228 make it a real intervention and
     # change-effect capability rather than the mockup's `Version History`, no
     # configuration-change model exists, and naming it would promise a meaning
@@ -440,9 +444,10 @@ function Get-FoundationSubtabFailures {
             if ($line -match "label\s*:\s*[""']Readiness[""']") {
                 $failures.Add(("'Readiness' is declared as a Foundation " +
                     "subtab at $($module.Path):${lineNumber}: " +
-                    "$($line.Trim()). Claim readiness lives on Site > " +
-                    "Evidence only, so Readiness is not rendered in the " +
-                    "Foundation subtab list " +
+                    "$($line.Trim()). Claim/capability readiness lives on " +
+                    "Site > Evidence, and S1-02 configuration readiness is a " +
+                    "section of the Foundation page, so Readiness is not " +
+                    "rendered in the Foundation subtab list " +
                     "(D-2026-10-02-rendered-tabs-per-capability).")) | Out-Null
             }
         }
