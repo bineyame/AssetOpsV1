@@ -65,7 +65,21 @@ function verdictSentence(readiness: ConfigurationReadiness): string {
   if (readiness.state === "READY_TO_REPORT") {
     return "Every required role has a configured channel or control, and this Foundation has no configuration gap.";
   }
-  if (readiness.missing_roles.length > 0) return `Not bound: ${readiness.missing_roles.join(", ")}.`;
+  if (readiness.missing_roles.length > 0) {
+    // A Foundation control (the battery reserve) is configured, not bound:
+    // name it apart from the channel roles (S1-02 re-review finding).
+    const controls = new Set(
+      readiness.roles.filter((role) => role.covered_by === "FOUNDATION_CONTROL").map((role) => role.label),
+    );
+    const unbound = readiness.missing_roles.filter((label) => !controls.has(label));
+    const unconfigured = readiness.missing_roles.filter((label) => controls.has(label));
+    return [
+      unbound.length > 0 ? `Not bound: ${unbound.join(", ")}.` : null,
+      unconfigured.length > 0 ? `Not configured: ${unconfigured.join(", ")}.` : null,
+    ]
+      .filter((part) => part !== null)
+      .join(" ");
+  }
   return "Every required role has a configured channel or control, but this Foundation has configuration gaps.";
 }
 

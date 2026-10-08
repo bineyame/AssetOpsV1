@@ -766,3 +766,36 @@ const BINDING_SET_V3_FUTURE = bindingSet({
   origin: "PUBLISH",
   period_state: "FUTURE",
 });
+
+describe("S1-03: the verdict names a missing Foundation control apart from unbound channels", () => {
+  it("says Not configured for the battery reserve, not Not bound", async () => {
+    const reserveMissing = (): FoundationRead<FoundationReadModel> => {
+      const base = foundation(PAST, published([GENSET_POWER], ["Battery state of charge", "Battery reserve"]));
+      return {
+        status: "loaded",
+        value: {
+          ...base,
+          readiness: {
+            ...base.readiness,
+            roles: [
+              ...base.readiness.roles,
+              {
+                role: "battery_reserve",
+                label: "Battery reserve",
+                required: true,
+                canonical_unit: "%",
+                covered_by: "FOUNDATION_CONTROL",
+                status: "NOT_CONFIGURED",
+                subjects: [],
+              },
+            ],
+          },
+        },
+      };
+    };
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(reserveMissing));
+    await settledScreen();
+    const verdict = document.querySelector(".verdict__sentence")?.textContent ?? "";
+    expect(verdict).toBe("Not bound: Battery state of charge. Not configured: Battery reserve.");
+  });
+});

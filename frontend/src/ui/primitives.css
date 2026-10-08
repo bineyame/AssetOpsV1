@@ -2503,6 +2503,10 @@ input:focus-visible,
     padding: var(--space-1) var(--space-2);
   }
 
+  .app-frame__side .nav-rail__group + .nav-rail__group {
+    margin-top: 0;
+  }
+
   .app-frame__side .nav-rail__group-label {
     display: none;
   }
