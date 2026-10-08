@@ -304,6 +304,18 @@ class StagedExecution(FakeExecution):
         self.calls.append(("staged_envelopes", run.run_id))
         return a_view(run.run_id)
 
+    def registered_stage(self, run):
+        """S2-01b: a registered run's Stage comes from the gateway ledger."""
+        from assetops_contracts.gateway_stage import REGISTERED_STAGE_STATEMENTS, RegisteredStageView
+
+        self.calls.append(("registered_stage", run.run_id))
+        return RegisteredStageView(
+            run_id=run.run_id, status="NOT_STAGED", statement=REGISTERED_STAGE_STATEMENTS["NOT_STAGED"],
+            execution_status="NOT_STARTED", snapshot_sha256=run.registered_basis.snapshot_sha256,
+            site_id=None, gateway_id=None, sequence_epoch=None, envelopes=(), batches=(), holds=(),
+            queue_depth_by_state={},
+        )
+
 
 def lab_client(store, execution, runs, **overrides) -> TestClient:
     return TestClient(create_app(

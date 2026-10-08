@@ -214,13 +214,14 @@ function Invoke-DependencyDirectionCheck {
     #
     # The envelope SCHEMA (`source_envelope`) is deliberately not restricted:
     # ingestion (T027) is exactly the product module that must parse it. What is
-    # restricted is the stage - staged, unreleased content - which nothing but
+    # restricted is the stage - staged, unreleased content, and since S2-01b the
+    # registered gateway Stage read `gateway_stage` - which nothing but
     # the Lab may read. Tests are exempt, because a test must reach a boundary to
     # prove where it is.
     $stageImport = @(
-        '^\s*(?:from|import)\s+assetops_contracts\.source_stage(?:\s|$)',
-        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\bsource_stage\b',
-        'import_module\(\s*["'']assetops_contracts\.source_stage'
+        '^\s*(?:from|import)\s+assetops_contracts\.(?:source_stage|gateway_stage)(?:\s|$)',
+        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\b(?:source_stage|gateway_stage)\b',
+        'import_module\(\s*["'']assetops_contracts\.(?:source_stage|gateway_stage)'
     )
     $mayImportStage = @(
         "backend/assetops_backend/simulator_lab_api.py",
@@ -316,15 +317,15 @@ function Invoke-DependencyDirectionCheck {
     $evidenceMayNotImport = @(
         '^\s*(?:from|import)\s+assetops_simulator(?:[.\s]|$)',
         '^\s*(?:from|import)\s+host(?:[.\s]|$)',
-        '^\s*(?:from|import)\s+assetops_contracts\.(?:source_stage|lab_history|lab_projection|observation)(?:[.\s]|$)',
-        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\b(?:source_stage|lab_history|lab_projection|observation)\b',
+        '^\s*(?:from|import)\s+assetops_contracts\.(?:source_stage|gateway_stage|lab_history|lab_projection|observation)(?:[.\s]|$)',
+        '^\s*from\s+assetops_contracts\s+import\s+[^#]*\b(?:source_stage|gateway_stage|lab_history|lab_projection|observation)\b',
         '^\s*(?:from|import)\s+assetops_backend\.(?:runs|simulator_lab_api)(?:[.\s]|$)',
         '^\s*from\s+assetops_backend\s+import\s+[^#]*\b(?:runs|simulator_lab_api)\b',
         # T028: analytics depend on evidence, never the reverse. The Overview
         # receives assessments by injection from the composition root.
         '^\s*(?:from|import)\s+assetops_backend\.(?:analytics|analytics_api)(?:[.\s]|$)',
         '^\s*from\s+assetops_backend\s+import\s+[^#]*\b(?:analytics|analytics_api)\b',
-        'import_module\(\s*["''](?:assetops_simulator|host|assetops_contracts\.(?:source_stage|lab_history|lab_projection|observation)|assetops_backend\.(?:runs|simulator_lab_api))'
+        'import_module\(\s*["''](?:assetops_simulator|host|assetops_contracts\.(?:source_stage|gateway_stage|lab_history|lab_projection|observation)|assetops_backend\.(?:runs|simulator_lab_api))'
     )
     $evidenceModules = @($backendModules | Where-Object {
         $_.Path.StartsWith("backend/assetops_backend/evidence/") -or

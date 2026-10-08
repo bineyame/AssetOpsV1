@@ -456,7 +456,7 @@ class TestRegisteredControls:
     def test_stage_is_labelled_registered_with_no_evidence_claim_after_reload(
         self, tmp_path, legacy_root
     ) -> None:
-        client, _, runs, run = self.client_with_draft(tmp_path, legacy_root)
+        client, execution, runs, run = self.client_with_draft(tmp_path, legacy_root)
         # A fresh store over the same directory stands for a process restart.
         reread = YamlRunStore(tmp_path / "runs").get_run(run["run_id"])
         assert reread is not None and reread.registered_basis is not None
@@ -468,6 +468,12 @@ class TestRegisteredControls:
         assert basis["registered_basis"] == run["configuration_basis"]
         assert basis["registered_basis"]["accepted_evidence"] is False
         assert basis["registered_basis"]["snapshot_sha256"] == reread.registered_basis.snapshot_sha256
+        # S2-01b: the Stage itself is the gateway ledger's, never the file Stage.
+        staged = stage.json()["stage"]
+        assert staged["store"] == "GATEWAY_LEDGER" and staged["upload_state"] == "PENDING"
+        assert staged["receipts"] == [] and staged["release_eligible"] is False
+        assert staged["snapshot_sha256"] == reread.registered_basis.snapshot_sha256
+        assert ("staged_envelopes", run["run_id"]) not in execution.calls
 
     def test_site_name_and_time_zone_are_labelled_current_row_metadata(
         self, tmp_path, legacy_root

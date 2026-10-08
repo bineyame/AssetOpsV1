@@ -99,7 +99,11 @@ class TestExecution:
             key for key in rendered["registered"]
             if rendered["registered"][key] != rendered["legacy"][key]
         }
-        assert differing <= RUN_IDENTITY, differing
+        # S2-01b: with no gateway configured, a registered run's publication is
+        # refused (never filed into the YAML Stage) and the projection says so.
+        assert differing <= RUN_IDENTITY | {"notes"}, differing
+        extra = set(rendered["registered"]["notes"]) - set(rendered["legacy"]["notes"])
+        assert extra == {"registered publication refused: no gateway is configured for this host"}, extra
         assert rendered["registered"]["observations"], "nothing was reported; the comparison is empty"
 
     def test_a_reloaded_execution_reads_back_the_same_and_public_reports_hold_no_causes(

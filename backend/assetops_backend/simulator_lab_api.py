@@ -199,6 +199,11 @@ from assetops_contracts.source_envelope import (
     SOURCE_ENVELOPE_SCHEMA_VERSION,
     canonical_envelope_json,
 )
+from assetops_contracts.gateway_stage import (
+    GATEWAY_LEDGER_STORE,
+    UPLOAD_STATEMENT,
+    RegisteredStageView,
+)
 from assetops_contracts.source_stage import (
     RELEASE_BLOCKER_STATEMENTS,
     SOURCE_STAGE_SCHEMA_VERSION,
@@ -1715,6 +1720,76 @@ def _drawing_context_payload(
     }
 
 
+def registered_stage_payload(view: RegisteredStageView) -> dict[str, object]:
+    """S2-01b: a registered run's Stage, exactly as the gateway ledger holds it.
+
+    Envelope and batch text travel verbatim with their stored SHA-256, so a
+    reviewer can compare bytes across restarts. Upload is pending and no receipt
+    exists; nothing here is accepted evidence.
+    """
+    return {
+        "store": GATEWAY_LEDGER_STORE,
+        "run_id": view.run_id,
+        "status": view.status,
+        "statement": view.statement,
+        "execution_status": view.execution_status,
+        "release_eligible": False,
+        "snapshot_sha256": view.snapshot_sha256,
+        "site_id": view.site_id,
+        "gateway_id": view.gateway_id,
+        "sequence_epoch": view.sequence_epoch,
+        "upload_state": view.upload_state,
+        "upload_statement": UPLOAD_STATEMENT,
+        "receipts": [],
+        "unavailable_detail": view.unavailable_detail,
+        "publication_notes": list(view.publication_notes),
+        "queue_depth_by_state": dict(sorted(view.queue_depth_by_state.items())),
+        "envelopes": [
+            {
+                "message_id": e.message_id,
+                "source_id": e.source_id,
+                "sequence_epoch": e.sequence_epoch,
+                "sequence": e.sequence,
+                "source_time": e.source_time,
+                "snapshot_sha256": e.snapshot_sha256,
+                "canonical": e.envelope_text,
+                "sha256": e.sha256,
+                "state": e.state,
+                "batch_id": e.batch_id,
+                "ordinal": e.ordinal,
+            }
+            for e in view.envelopes
+        ],
+        "batches": [
+            {
+                "batch_id": b.batch_id,
+                "source_id": b.source_id,
+                "sequence_epoch": b.sequence_epoch,
+                "snapshot_sha256": b.snapshot_sha256,
+                "canonical": b.payload_text,
+                "sha256": b.sha256,
+                "state": b.state,
+                "attempt_count": b.attempt_count,
+                "message_ids": list(b.message_ids),
+            }
+            for b in view.batches
+        ],
+        "holds": [
+            {
+                "hold_id": h.hold_id,
+                "kind": h.kind,
+                "field": h.field,
+                "detail": h.detail,
+                "device_id": h.device_id,
+                "signal_id": h.signal_id,
+                "source_time": h.source_time,
+                "seen_count": h.seen_count,
+            }
+            for h in view.holds
+        ],
+    }
+
+
 def stage_payload(view: SourceStageView) -> dict[str, object]:
     """One Draft's staged source envelopes on the wire, for the gated inspector.
 
@@ -2681,6 +2756,13 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
+        if record.registered_basis is not None:
+            # S2-01b: a registered run's publication authority is the gateway
+            # ledger; the file Stage is never consulted for it.
+            return {
+                "stage": registered_stage_payload(port.registered_stage(record)),
+                "frozen_basis": _frozen_basis(record),
+            }
         return {
             "stage": stage_payload(port.staged_envelopes(record)),
             "frozen_basis": _frozen_basis(record),
