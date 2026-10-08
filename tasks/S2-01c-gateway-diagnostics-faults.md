@@ -18,3 +18,5 @@ Use `GatewayDiagnosticsV1` and the local diagnostic sequence from the technical 
 Reviewer inspects local state before and after restart and verifies no private Lab cause/oracle enters the diagnostic or envelope. This closes `I-edge-diagnostics-publish`, `I-edge-fault-scenarios` and `I-S2-01c` together. S2-02 owns authenticated central receipt, Postgres diagnostics, batch dispositions and the owner evidence checkpoint.
 
 Refine after S2-01b review: use its actual persistent queue states and selected registered basis, then pin diagnostic cadence/limits, fault fixture and restart inspection. Local reports remain pending until S2-02 authenticates central upload. `queue_baseline_nodes` ownership remains `I-edge-diagnostics-publish`, `I-edge-fault-scenarios`, `I-S2-01c`; no baseline move from S1.
+
+S2-01b makes registered Stage and Batch V2 bytes durable but does not deliver them. At activation, base the outage/reconnect fixture and local diagnostic queue counters on its actual SQLite states; keep any `IN_FLIGHT` restart retry byte-identical and do not show a central receipt before S2-02.
