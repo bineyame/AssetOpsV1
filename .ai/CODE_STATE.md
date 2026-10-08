@@ -4749,6 +4749,10 @@ Branch `task/S1-01-persisted-foundation`; packet `.agent/S1-01-review-packet.md`
 
 - `create_app` with an injected Site repository and no Foundation store is a
   legacy-only composition (no imports); product composition fails closed.
+- Fix round: no tenant row means no imported Sites, while an unreachable store
+  still fails closed. Cutover tests run by default over
+  `tests/foundation_fakes.py`. Carried from review: m1 (lexical guard), m4
+  (identity UPDATE/TRUNCATE), m6 (layout skip), m7 (YAML scan cost).
 - Layout tool (correction round, Architect 2026-10-08): only the imported
   Site's "Publish reserve change" is allowed; the Kobo Lab sections (T024-T028)
   are reported SKIP until S2; `ASSETOPS_LAB_SITE` binds run setup elsewhere.
