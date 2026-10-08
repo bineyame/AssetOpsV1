@@ -219,6 +219,24 @@ def validate_bindings(
             "No currently recorded Foundation period covers this binding period.",
         )
 
+    # ONE means one per Site and never a choice among several (decision Q1,
+    # review M2): a Foundation period with more than one eligible component for
+    # a ONE role it needs is refused, not resolved by picking one.
+    requested_roles = {req.role for req in requests}
+    for row in foundation:
+        components = list(row.content.get("components") or ())
+        for role in roles.values():
+            if role.cardinality != "ONE" or not (role.required or role.role in requested_roles):
+                continue
+            eligible = sorted(c["component_id"] for c in components if c.get("component_type") == role.asset_type)
+            if len(eligible) > 1:
+                problem(
+                    "BINDING_ROLE_AMBIGUOUS", None,
+                    f"{role.label} is one per Site in {role_set}, but Foundation v{row.version} declares "
+                    f"{len(eligible)} {role.asset_type} components ({', '.join(eligible)}); this release "
+                    "does not choose among them.",
+                )
+
     rows: list[BindingRow] = []
     channels: set[tuple[str, str]] = set()
     single: dict[tuple[str, str | None], int] = {}
@@ -278,6 +296,16 @@ def validate_bindings(
                     "BINDING_ROLE_ASSET_MISMATCH", index,
                     f"{role.label} describes a {role.asset_type} asset; {asset.asset_code} is {asset.asset_type}.",
                 )
+            if role.role == "battery_soc" and asset is not None:
+                # The state of charge and the reserve control must describe one battery.
+                for row in foundation:
+                    reserve = battery_reserve(row.content)
+                    if reserve is not None and reserve["asset_code"] != asset.asset_code:
+                        problem(
+                            "BINDING_BATTERY_MISMATCH", index,
+                            f"{role.label} names {asset.asset_code}, but the battery reserve in Foundation "
+                            f"v{row.version} is configured on {reserve['asset_code']}.",
+                        )
             key = (role.role, req.asset_id if role.cardinality == "PER_ASSET" else None)
             if key in single:
                 problem(

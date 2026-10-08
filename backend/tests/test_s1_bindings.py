@@ -435,3 +435,93 @@ class TestReviewM1HistoricalBytes:
         response = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation/snapshot")
         assert response.status_code == 500
         assert response.json()["detail"]["code"] == "ACQUISITION_SNAPSHOT_HASH_MISMATCH"
+
+
+KOBO_YAML = BACKEND / "tests" / "fixtures" / "s1" / "kobo-001.yaml"
+
+
+def _block(text_, start_marker, end_marker):
+    start = text_.index(start_marker)
+    return text_[start:text_.index(end_marker, start)]
+
+
+def variant(tmp_path, code, edit):
+    """The Kobo import fixture under another Site code, edited, and strictly parsed on import."""
+    text_ = edit(KOBO_YAML.read_text(encoding="utf-8")).replace("site_id: KOBO-001", f"site_id: {code}")
+    path = tmp_path / f"{code.lower()}.yaml"
+    path.write_text(text_, encoding="utf-8")
+    store = InMemoryFoundationStore()
+    result = do_import(store, read_import_source(str(path)))
+    return store, result
+
+
+def _second(text_, component, before, node_role, link_to, medium):
+    """Clone `component` as `<component>-2`, give it a topology node and a connection to `link_to`."""
+    block = _block(text_, f"  - component_id: {component}\n", f"  - component_id: {before}\n")
+    clone = block.replace(f"component_id: {component}\n", f"component_id: {component}-2\n", 1)
+    text_ = text_.replace(block, block + clone, 1)
+    node = f"    - node_id: {component}\n      component_id: {component}\n      node_role: {node_role}\n"
+    assert node in text_
+    text_ = text_.replace(
+        node,
+        node + f"    - node_id: {component}-2\n      component_id: {component}-2\n      node_role: {node_role}\n",
+        1,
+    )
+    connection = "    - connection_id: bus-to-residential\n"
+    return text_.replace(
+        connection,
+        f"    - connection_id: {component}-2-link\n      from_node: {component}-2\n      to_node: {link_to}\n"
+        f"      medium: {medium}\n" + connection,
+        1,
+    )
+
+
+class TestReviewM2Ambiguity:
+    """ONE roles never choose among several eligible assets (decision Q1)."""
+
+    def test_a_valid_two_generator_foundation_is_refused_at_binding_publication(self, tmp_path) -> None:
+        def two_generators(text_):
+            text_ = _second(text_, "generator", "fuel-tank", "GENERATION", "ac-bus", "AC")
+            return text_.replace("    - battery\n    - generator\n", "    - battery\n    - generator\n    - generator-2\n", 1)
+
+        store, result = variant(tmp_path, "KOBO-TWO-GEN", two_generators)
+        components = [c["component_id"] for c in result.revision.content["components"]]
+        assert {"generator", "generator-2"} <= set(components)  # the strict parser accepted it
+        with pytest.raises(ConversionConflict, match="BINDING_ROLE_AMBIGUOUS") as refused:
+            convert(store, BindingService(store, Clock(CONVERTED_AT)), result.tenant, result.site,
+                    {**FIXTURE, "site_code": "KOBO-TWO-GEN"})
+        assert "Generator state" in str(refused.value) and "generator, generator-2" in str(refused.value)
+        assert store.sets.get(result.site.id, []) == []
+        assert len(store.rows[result.site.id]) == 1  # no joint Foundation change either
+
+    def test_two_batteries_are_refused_for_both_the_soc_and_the_reserve(self, tmp_path) -> None:
+        def two_batteries(text_):
+            text_ = _second(text_, "battery", "battery-pcs", "STORAGE", "battery-pcs", "DC")
+            return text_.replace("    - battery\n    - generator\n", "    - battery\n    - battery-2\n    - generator\n", 1)
+
+        store, result = variant(tmp_path, "KOBO-TWO-BAT", two_batteries)
+        with pytest.raises(ConversionConflict, match="BINDING_ROLE_AMBIGUOUS") as refused:
+            convert(store, BindingService(store, Clock(CONVERTED_AT)), result.tenant, result.site,
+                    {**FIXTURE, "site_code": "KOBO-TWO-BAT"})
+        message = str(refused.value)
+        assert "Battery state of charge is one per Site" in message
+        assert "Battery reserve is one per Site" in message
+        assert store.sets.get(result.site.id, []) == []
+
+    def test_the_soc_must_name_the_battery_that_carries_the_reserve(self, legacy_root) -> None:
+        store, result, _ = converted()
+        regs = store.registered[result.site.id]
+        battery = next(a for a in regs.assets if a.asset_code == "battery")
+        other = replace(battery, id=uuid4(), asset_code="battery-spare")
+        store.registered[result.site.id] = replace(regs, assets=regs.assets + (other,))
+        client = app_for(store, legacy_root)
+        rows = wire(client.get("/api/sites/KOBO-001/foundation").json()["bindings"]["mappings"])
+        next(r for r in rows if r["role"] == "battery_soc")["asset_id"] = str(other.id)
+        sets_before = list(store.sets[result.site.id])
+        response = client.post(
+            "/api/sites/KOBO-001/foundation/bindings", json={"valid_from": REMOVED_FROM, "bindings": rows}
+        )
+        assert response.status_code == 422, response.text
+        assert response.json()["detail"]["code"] == "BINDING_BATTERY_MISMATCH"
+        assert "configured on battery" in response.json()["detail"]["message"]
+        assert store.sets[result.site.id] == sets_before
