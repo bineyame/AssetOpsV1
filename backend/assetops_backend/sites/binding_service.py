@@ -85,6 +85,28 @@ READINESS_STATEMENT = (
 )
 
 
+def _publication_root(
+    all_sets: Sequence[BindingSetRevisionRow], row: BindingSetRevisionRow
+) -> BindingSetRevisionRow:
+    """The publication a row descends from: walk SPLIT copies (superseded rows
+    included) back to the first row that was itself published."""
+    by_id = {s.id: s for s in all_sets}
+    seen: set[UUID] = set()
+    while row.origin == "SPLIT" and row.derived_from_revision_id in by_id and row.id not in seen:
+        seen.add(row.id)
+        row = by_id[row.derived_from_revision_id]
+    return row
+
+
+def _publication_key(
+    all_sets: Sequence[BindingSetRevisionRow], row: BindingSetRevisionRow
+) -> tuple[Any, ...]:
+    """Publication identity, not row identity: one publication spanning several
+    Foundation periods leaves several pieces sharing these fields."""
+    root = _publication_root(all_sets, row)
+    return (root.origin, root.derived_from_revision_id, root.recorded_at, root.change_note)
+
+
 def _until(value: datetime | None) -> datetime:
     return _END if value is None else value
 
@@ -451,9 +473,14 @@ class BindingService:
                         s for s in current_sets
                         if s.binding_set_id == replaced.binding_set_id and s.valid_from == period_to
                     ]
-                    if len(following) != 1 or following[0].bindings_sha256 != replaced.bindings_sha256:
+                    same_publication = len(following) == 1 and (
+                        following[0].bindings_sha256 == replaced.bindings_sha256
+                        and _publication_key(state.binding_sets, following[0])
+                        == _publication_key(state.binding_sets, replaced)
+                    )
+                    if not same_publication:
                         if len(following) == 1:
-                            holder["stopped_by"] = following[0].version
+                            holder["stopped_by"] = _publication_root(state.binding_sets, following[0]).version
                         break
                     carried.append(following[0])
                     period_to = following[0].valid_to

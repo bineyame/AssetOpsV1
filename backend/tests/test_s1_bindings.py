@@ -647,3 +647,30 @@ class TestBindingEditThroughFoundationSplits:
         after = client.get("/api/sites/KOBO-001/foundation", params={"at": "2026-10-09T00:00:00Z"}).json()
         keys = {(m["device_id"], m["signal_id"]) for m in after["bindings"]["mappings"]}
         assert self.SOC in keys and ("fuel-level-sensor", "fuel-level") not in keys
+
+    def test_an_explicit_reinstatement_with_identical_content_is_a_stop_not_carried(self, legacy_root) -> None:
+        """Re-review R1: lineage, not content, decides what an edit reaches through."""
+        store, result, _ = converted()
+        client = app_for(store, legacy_root)
+        fuel = ("fuel-level-sensor", "fuel-level")
+        assert self._remove(client, valid_from="2026-10-08T00:00:00Z", drop=fuel).status_code == 201
+        full = client.get(
+            "/api/sites/KOBO-001/foundation", params={"at": "2026-10-03T00:00:00Z"}
+        ).json()["bindings"]["mappings"]
+        reinstated = client.post(
+            "/api/sites/KOBO-001/foundation/bindings",
+            json={"valid_from": "2026-10-08T00:00:00Z", "bindings": wire(full),
+                  "note": "fuel sensor reinstated 10-08 (explicit)"},
+        )
+        assert reinstated.status_code == 201, reinstated.text
+        v4 = reinstated.json()["binding_set"]["version"]
+        response = self._remove(client)
+        assert response.status_code == 201, response.text
+        body = response.json()
+        assert body["applies_until"] == "2026-10-08T00:00:00Z"
+        assert body["stopped_by_binding_version"] == v4
+        assert not self._soc_bound(client, "2026-10-07T00:00:00Z")
+        assert self._soc_bound(client, "2026-10-09T00:00:00Z")
+        current = [s for s in store.sets[result.site.id] if s.superseded_at is None]
+        kept = next(s for s in current if s.version == v4)
+        assert kept.change_note == "fuel sensor reinstated 10-08 (explicit)"

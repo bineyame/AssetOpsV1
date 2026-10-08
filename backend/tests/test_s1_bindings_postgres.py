@@ -371,3 +371,37 @@ class TestReviewM1HistoricalBytesInTheDatabase:
             command.upgrade(config, "head")
         again = _download(store, result)
         assert (again.body, again.sha256) == (original.body, original.sha256)
+
+
+class TestN6LineageStopsAtAnExplicitReinstatement:
+    def test_identical_content_published_explicitly_is_a_stop(self, store) -> None:
+        result, _ = converted(store)
+        service = BindingService(store, Clock(NOW))
+        from_08 = datetime(2026, 10, 8, tzinfo=timezone.utc)
+
+        def requests(drop=None):
+            current = view(store, result, at=EARLIER).binding_set
+            return [
+                BindingRequest(b.device_id, b.signal_id, None if b.asset_id is None else str(b.asset_id), b.role,
+                               b.source_unit, b.canonical_unit, b.conversion)
+                for b in current.bindings
+                if (b.device_id, b.signal_id) != drop
+            ]
+
+        service.publish(result.tenant, result.site, requests=requests(("fuel-level-sensor", "fuel-level")),
+                        effective_from=from_08, note="fuel off")
+        v4 = service.publish(result.tenant, result.site, requests=requests(), effective_from=from_08,
+                             note="fuel sensor reinstated 10-08 (explicit)").changed.version
+        out = service.publish(result.tenant, result.site,
+                              requests=requests(("battery-pcs-controller", "state-of-charge")),
+                              effective_from=EARLIER, note="SOC removed")
+        assert out.applies_until == from_08 and out.stopped_by_version == v4
+
+        def soc_bound(at):
+            return any(b.role == "battery_soc" for b in view(store, result, at=at).binding_set.bindings)
+
+        assert not soc_bound(from_08 - timedelta(hours=1))
+        assert soc_bound(from_08 + timedelta(days=1))
+        kept = [s for s in store.binding_sets(result.tenant.id, result.site.id)
+                if s.superseded_at is None and s.version == v4]
+        assert kept and kept[0].change_note == "fuel sensor reinstated 10-08 (explicit)"
