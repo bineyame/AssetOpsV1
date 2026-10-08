@@ -737,3 +737,32 @@ describe("S1-03: three Foundation views at one selected period", () => {
     expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
   });
 });
+
+describe("S1-03: a scheduled binding period is never called the configuration in effect now", () => {
+  it("labels a future binding set shown with the current Foundation version", async () => {
+    const scheduled = (): FoundationRead<FoundationReadModel> => {
+      const base = published([GENSET_POWER], ["Battery state of charge"]);
+      return {
+        status: "loaded",
+        value: foundation(PAST, {
+          ...base,
+          bindings: { ...base.bindings!, binding_set: BINDING_SET_V3_FUTURE },
+        }),
+      };
+    };
+    renderAt(`/sites/${ID}/foundation/readiness?at=2026-10-05T00:00:00Z`, fakeFoundation(scheduled));
+    await settledScreen();
+    const note = screen.getByRole("note");
+    expect(note.textContent).toMatch(/Scheduled binding period: you are viewing binding v3/);
+    expect(note.textContent).toContain("not the ones in effect now");
+    expect(screen.queryByText("This is the configuration in effect now.")).toBeNull();
+  });
+});
+
+const BINDING_SET_V3_FUTURE = bindingSet({
+  binding_set_revision_id: "bset-3",
+  version: 3,
+  valid_from: "2026-10-05T00:00:00Z",
+  origin: "PUBLISH",
+  period_state: "FUTURE",
+});

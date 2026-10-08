@@ -100,6 +100,7 @@ export function FoundationPeriodStrip({
   const { revision, bindings } = foundation;
   const { current, bindingPeriods, selectable } = selectablePeriods(versions);
   const gaps = foundation.configuration_gaps.length;
+  const bindingPeriod = bindings.binding_set?.period_state ?? null;
 
   return (
     <section
@@ -134,7 +135,22 @@ export function FoundationPeriodStrip({
         {action === undefined ? null : <p className="status-strip__action">{action}</p>}
       </div>
       <div className="status-strip__row">
-        {revision.is_current ? (
+        {revision.is_current && bindingPeriod !== null && bindingPeriod !== "CURRENT" ? (
+          // The Foundation version is the current one, but the binding set
+          // shown is not in effect now (a scheduled or past binding period):
+          // never call that "the configuration in effect now".
+          <p
+            role="note"
+            className="status-strip__state status-strip__state--historical"
+            data-foundation-historical="true"
+          >
+            {bindingPeriod === "FUTURE" ? "Scheduled binding period" : "Historical binding period"}:
+            you are viewing binding v{bindings.binding_set?.version}, effective{" "}
+            {formatInstant(bindings.binding_set?.valid_from ?? null)} to{" "}
+            {formatInstant(bindings.binding_set?.valid_to ?? null)}, with Foundation v{revision.version}.
+            These bindings are not the ones in effect now.
+          </p>
+        ) : revision.is_current ? (
           <p className="status-strip__state">This is the configuration in effect now.</p>
         ) : (
           <p
